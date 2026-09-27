@@ -1,0 +1,21 @@
+{
+  "source": "bbf89123d4b3fce4a6d6682765765ae9af8d3b4e",
+  "sha256": {
+    "bin/nanoc_stage1": "ba341d9c43fe1b7a05ff0d8f4c89edabd4b29fc9e03f9b0100876882d48b6d32",
+    "bin/nanoc_stage2": "05c3311ad77ea07f44695857c39dfbcd41b8d0f8d3c95fadf7e62db1aeca4d62",
+    "/tmp/nanolang-metadata-current-bootstrap.log": "5bf019298607cafa492fd13e02ea0e6c879ece5d1930848b419dcb434a75f250",
+    "/tmp/nanolang-metadata-current-focused.log": "a981bd405d2380563e14dfe7f8744d018cc1d8d8facab4a823fd3dfd6290154f",
+    "/tmp/nanolang-metadata-current-stage2-facts.log": "eba56d641673da5ef0291eb35caf5737450b8402ff5e3669518d50117e9344af"
+  },
+  "bootstrap": "pass",
+  "focused": {
+    "methods": 13,
+    "seconds": 2.135,
+    "status": "pass"
+  },
+  "stage2_module_facts": {
+    "methods": 8,
+    "seconds": 1.273,
+    "status": "pass"
+  }
+}

@@ -7,7 +7,8 @@
  * My opaque state owns its facts; failed transitions leave it unchanged.
  * Reference slots are verifier identities, not runtime pointers. Entry
  * reference parameters occupy their corresponding local-numbered slots.
- * I accept only scalar/complete-record declarations. Joins compare clones
+ * I also retain format-4 aggregate union declarations without execution admission.
+ * Joins compare clones
  * of one analysis; symbolic invocation 1 does not prove caller alias facts. */
 typedef struct NvmAffineState NvmAffineState;
 NvmAffineState *nvm_affine_state_create(const NvmModule *module,
@@ -15,11 +16,14 @@ NvmAffineState *nvm_affine_state_create(const NvmModule *module,
 NvmAffineState *nvm_affine_state_clone(const NvmAffineState *state);
 void nvm_affine_state_free(NvmAffineState *state);
 bool nvm_affine_state_equal(const NvmAffineState *a, const NvmAffineState *b);
-/* I intersect initialized facts only for declared mode-zero scalar slots.
- * All other facts remain exact; refusal leaves destination unchanged. */
+/* I intersect initialization only for ordinary mode-zero value slots.
+ * Owner liveness stays exact; differing live union selections become unknown.
+ * Refusal leaves destination unchanged. */
 bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
                                           const NvmAffineState *incoming,bool *changed);
 bool nvm_affine_scalar_define(NvmAffineState *state, uint16_t local);
+/* I initialize a noncapturing function value, never a numeric scalar or owner. */
+bool nvm_affine_function_define(NvmAffineState *state, uint16_t local);
 /* I keep retainable STRING operations separate from numeric scalar APIs. */
 bool nvm_affine_string_define(NvmAffineState *state, uint16_t local);
 bool nvm_affine_string_field(const NvmAffineState *state, uint16_t local,
@@ -55,7 +59,10 @@ bool nvm_affine_scalar_field(const NvmAffineState *state, uint16_t local,
 bool nvm_affine_can_exit_scalar(const NvmAffineState *state, uint8_t tag);
 typedef struct { uint8_t tag; uint32_t layout; } NvmAffineType;
 #define NVM_AFFINE_UNKNOWN_VARIANT UINT16_MAX
-/* These transfer APIs exchange an exact record token with the bytecode stack.
+/* I classify validated aggregate stack types: records use explicit transfers;
+ * a union requires a move exactly when its retained layout is resource-bearing. */
+bool nvm_affine_type_requires_move(const NvmAffineState *,NvmAffineType);
+/* These transfer APIs exchange an exact record or resource-union token with the bytecode stack.
  * The stack analysis must prohibit duplication, loss and incompatible joins. */
 bool nvm_affine_take_local(NvmAffineState *state, uint16_t local, NvmAffineType *type);
 bool nvm_affine_put_local(NvmAffineState *state, uint16_t local, NvmAffineType type);
@@ -68,6 +75,18 @@ bool nvm_affine_union_define(NvmAffineState *state,uint16_t local,
 bool nvm_affine_union_refine(NvmAffineState *state,uint16_t local,uint16_t variant);
 bool nvm_affine_union_variant(const NvmAffineState *state,uint16_t local,
                                uint16_t *variant);
+/* I construct or consume exactly one selected variant using local-normalized
+ * moves. Unpack requires a prior selection on this live source; wrong fields,
+ * duplicate owner inputs or live owner destinations leave all state unchanged. */
+bool nvm_affine_union_pack(NvmAffineState *,uint16_t destination,uint16_t variant,
+                             const uint16_t *fields,uint16_t count);
+bool nvm_affine_union_unpack(NvmAffineState *,uint16_t source,uint16_t variant,
+                               const uint16_t *fields,uint16_t count);
+/* I atomically consume a selected union and publish its exact stack field types.
+ * Failure preserves both state and outputs. The bytecode caller must reserve
+ * stack capacity first and track every resulting resource token. */
+bool nvm_affine_take_union_payload(NvmAffineState *,uint16_t local,uint16_t variant,
+                                     NvmAffineType *fields,uint16_t capacity,uint16_t *count);
 bool nvm_affine_union_fields(const NvmAffineState *state,uint32_t layout,
                               uint16_t variant,NvmAffineType *fields,
                               uint16_t capacity,uint16_t *count);

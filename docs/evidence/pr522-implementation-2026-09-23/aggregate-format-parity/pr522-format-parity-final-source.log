@@ -1,0 +1,29 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/typechecker.c -o obj/typechecker.o
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+python3 -m unittest tests.test_cseed_aggregate_formatting
+....FF
+======================================================================
+FAIL: test_union_enum_payload_keeps_exact_identity (tests.test_cseed_aggregate_formatting.AggregateFormatting.test_union_enum_payload_keeps_exact_identity) (value='Other.On')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 57, in test_union_enum_payload_keeps_exact_identity
+    self.assertIn("declared enum payload type", result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'declared enum payload type' not found in "Warning at line 4, column 18: Unused variable 'x'\n/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-enum-payload-refusal-dlklc10i/case.nano:4:89: error: implicit conversion from enumeration type 'nl_Other' to different enumeration type 'nl_Mode' [-Werror,-Wimplicit-enum-enum-cast]\n    4 |     nl_Choice x = (nl_Choice){ .tag = nl_Choice_TAG_Selected, .data.Selected = {.mode = nl_Other_On}};\n      |                                                                                ~        ^~~~~~~~~~~\n1 error generated.\nC compilation failed\n"
+
+======================================================================
+FAIL: test_union_enum_payload_keeps_exact_identity (tests.test_cseed_aggregate_formatting.AggregateFormatting.test_union_enum_payload_keeps_exact_identity) (value='7')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 56, in test_union_enum_payload_keeps_exact_identity
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : Warning at line 4, column 18: Unused variable 'x'
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 9.615s
+
+FAILED (failures=2)
+make: *** [test-cseed-aggregate-formatting] Error 1

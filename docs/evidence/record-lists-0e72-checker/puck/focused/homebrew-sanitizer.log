@@ -1,0 +1,8 @@
+I retain record-list artifacts at /private/tmp/nanolang-record-lists-0e72-puck-focused/homebrew-sanitizer/nano-record-lists-hmf_t8g_
+test_checked_storage_scheduler_and_allocation_prefixes (tests.test_generic_record_lists.GenericRecordLists) ... ok
+test_array_intrinsic_and_declaration_identity (tests.test_generic_record_lists.GenericRecordLists) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 7.011s
+
+OK

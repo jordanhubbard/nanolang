@@ -1,0 +1,18 @@
+{
+  "owned": {
+    "289120": {
+      "parent": 289118,
+      "group": 289118,
+      "started": "Mon Sep 21 22:37:39 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I /tmp/nanolang-native-sdk-bae59-linux-source/src -imultiarch aarch64-linux-gnu -D _POSIX_C_SOURCE=200809L /tmp/nanolang-native-sdk-bae59-linux-source/tests/shadow_completion_probe.c -D_FORTIFY_SOURCE=3 -funwind-tables -quiet -dumpdir /tmp/nanolang-native-sdk-bae59-linux-preparation/decision-f_dabema/probe- -dumpbase shadow_completion_probe.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O1 -Wall -Wextra -Werror -std=c11 -fno-omit-frame-pointer -fsanitize=address,undefined -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/nanolang-native-sdk-bae59-linux-preparation/tmp/cceUZAoA.s"
+    },
+    "289118": {
+      "parent": 289116,
+      "group": 289118,
+      "started": "Mon Sep 21 22:37:39 2026",
+      "command": "/usr/bin/gcc -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -I /tmp/nanolang-native-sdk-bae59-linux-source/src /tmp/nanolang-native-sdk-bae59-linux-source/tests/shadow_completion_probe.c -o /tmp/nanolang-native-sdk-bae59-linux-preparation/decision-f_dabema/probe"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

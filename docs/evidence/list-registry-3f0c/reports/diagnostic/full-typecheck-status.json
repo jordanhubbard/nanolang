@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/tmp/nanolang-list-registry-3f0c-linux/compiler-root/bin/nanoc-diagnostic",
+    "/home/jkh/Src/nanolang-record-lists-qualified-40870/src_nano/typecheck_driver.nano",
+    "-o",
+    "/tmp/nanolang-list-registry-3f0c-linux/typecheck"
+  ],
+  "cwd": "/tmp/nanolang-list-registry-3f0c-linux/compiler-root",
+  "bound": 120,
+  "timeout": false,
+  "cleanup": [],
+  "returncode": 1,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 28.143350456026383,
+  "log": {
+    "sha256": "55421185d423168f07e48a47a9b84bf10cd046ba1f4ce818b994286df544f8c5",
+    "bytes": 536624,
+    "archive": "/tmp/nanolang-list-registry-3f0c-linux/objects/55421185d423168f07e48a47a9b84bf10cd046ba1f4ce818b994286df544f8c5"
+  },
+  "inputs_equal": true
+}

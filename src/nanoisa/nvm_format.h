@@ -152,6 +152,8 @@ typedef struct {
     uint8_t param_tags[NANO_MAX_FFI_ARGS];
 } NvmCallbackContract;
 
+bool nvm_declared_scalar_shape_valid(const uint8_t *tags, uint16_t count, uint8_t result);
+
 bool nvm_callback_shape_valid(const uint8_t *tags, uint16_t count, uint8_t result);
 
 /* ========================================================================
@@ -162,7 +164,8 @@ typedef enum {
     NVM_IMPORT_FFI = 0,
     NVM_IMPORT_COPROCESS = 1,
     NVM_IMPORT_ARTIFACT = 2,
-    NVM_IMPORT_SERVICE = 3
+    NVM_IMPORT_SERVICE = 3,
+    NVM_IMPORT_DECLARED_SCALAR_ARTIFACT = 4
 } NvmImportKind;
 
 typedef struct {
@@ -238,6 +241,10 @@ typedef struct {
     uint32_t code_size;
     uint32_t code_capacity;
 
+    /* Owned required capture modes/sites; transport is not execution authority. */
+    uint8_t *capture_data;
+    uint32_t capture_size;
+
     /* Owned versioned function-mode/root ownership declarations. */
     uint8_t *ownership_data;
     uint32_t ownership_size;
@@ -292,6 +299,11 @@ typedef struct {
 /* ========================================================================
  * API Functions
  * ======================================================================== */
+
+/* I detect either half of a required capture claim, including malformed pairs. */
+static inline bool nvm_capture_bindings_present(const NvmModule *module) {
+    return module && (module->capture_data || module->capture_size);
+}
 
 /* Create a new empty module */
 NvmModule *nvm_module_new(void);

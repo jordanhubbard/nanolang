@@ -1,0 +1,12 @@
+{
+  "started": 1789998095.2157657,
+  "source": "7804258431ed8fba21fa33c5507b06ad9a1bbd94",
+  "fixture": "aed76cdb3",
+  "native_optimizations": [
+    "O2"
+  ],
+  "output_filesystem": "/run/user/1000/nanolang-llvm-o2-aed76-20260921",
+  "prephase_bytes": 2147483648,
+  "active_minimum_bytes": 1610612736,
+  "capacity_signals": []
+}

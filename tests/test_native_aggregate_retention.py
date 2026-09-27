@@ -1,4 +1,8 @@
 """I bound native aggregate pools while preserving reachable values and handles."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import os
 from pathlib import Path
 import subprocess
@@ -35,7 +39,7 @@ class NativeAggregateRetention(unittest.TestCase):
     def compile_run(self, source, binary):
         self.run_checked(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
-        return self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+        return self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': asan_options()})
 
     def check_program(self, text, peak=200000):
         with tempfile.TemporaryDirectory(prefix='nano-aggregate-retention-') as tmp:

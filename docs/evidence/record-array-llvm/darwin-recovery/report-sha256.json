@@ -1,0 +1,726 @@
+{
+  "nanolang-record-llvm-78042-recovery-puck-backup/c-baseline-after.json": {
+    "sha256": "3c889c8ea1eb6520eb254338680e0e1788f9f2791ae810183b7f8fc9a17838d6",
+    "bytes": 30444
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/c-baseline-before.json": {
+    "sha256": "3c889c8ea1eb6520eb254338680e0e1788f9f2791ae810183b7f8fc9a17838d6",
+    "bytes": 30444
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission-artifacts.json": {
+    "sha256": "48a9d488dd1c48b944f90ca49a28604ebaae8409ade34c63c67fedc0e479d285",
+    "bytes": 88207
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission-command.json": {
+    "sha256": "219ba3bf42fb15ca0144d9f77a02c6caf7aa5cca7fe3729cc75768059d7bb381",
+    "bytes": 6413
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission-nested-processes.json": {
+    "sha256": "5387a6c2607b82a24124cf306e639037276543255f0cc0b7bd88c80a5b7a17a6",
+    "bytes": 1584
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission-space-before.json": {
+    "sha256": "0f07df4cdcd02b659c2396bece652810f77017af5c61f68aeb4d5b98317458a4",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission.log": {
+    "sha256": "2edfcbd0efece9647624d805d2ca00010dd5b588af94382f1c64ab7036538b54",
+    "bytes": 338
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-artifacts.json": {
+    "sha256": "e1a8e56f45ce1ef9eb30cc0db42bb582fbdca2b6c63ceac3dfcd06dd89b3234f",
+    "bytes": 5164973
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-command.json": {
+    "sha256": "7dde293deb369f9524cea2eb633f5f33abe9b360c07aaf61c0cba17c0f4e3d40",
+    "bytes": 6411
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-nested-processes.json": {
+    "sha256": "fe1552c7e3570c316c328bbb677bc278f0c5cfd1174ec1ac5c2b73e097e539ae",
+    "bytes": 178042
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-space-before.json": {
+    "sha256": "7df03571479f5d94623f61b28de298579e3c5f0bed1b459afe385dc7e18463ef",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-terminal.json": {
+    "sha256": "50f82496ebc9640a2d7d1bffdb60e9b78871091b2da917af4377067281de260c",
+    "bytes": 175
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native.log": {
+    "sha256": "e11ac1af534e74dff860e4a2f85810f0874305f1d369943aec0f863fba0b4011",
+    "bytes": 336
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/clang-version.txt": {
+    "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+    "bytes": 222
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/configuration-artifacts.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/configuration-command.json": {
+    "sha256": "b709208bfb323841ef14388bc5d55039dba4e66cea3949a9fd3bc04013872df9",
+    "bytes": 1327
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/configuration-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/configuration-nested-processes.json": {
+    "sha256": "59d0ebc6a22348b17a10508a862d9e8bda39f338b58e4ce49746ac63379521a6",
+    "bytes": 482
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/configuration-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/configuration-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/configuration-space-before.json": {
+    "sha256": "a5ddaa03bdb349f5c7cfc3b608ee822a41d588b93df8f3f70e5ff2d82212e510",
+    "bytes": 64
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/configuration-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/configuration-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/configuration-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/configuration.log": {
+    "sha256": "bad854216590c86d5a4e696454573b2bf3f5447f04712aa40d95376b8e825756",
+    "bytes": 4916
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/discovery-artifacts.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/discovery-command.json": {
+    "sha256": "28c045bbeb739e04ec92022aab5bfd395990b04cdec15a044305ac9af5a0cc2e",
+    "bytes": 1265
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/discovery-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/discovery-nested-processes.json": {
+    "sha256": "678ad0c07e96c802a4ee0e77d76d136b9e68b93ec2236c0583e02234442990b9",
+    "bytes": 484
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/discovery-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/discovery-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/discovery-space-before.json": {
+    "sha256": "2a5ab57f2e26105f62e8cfcf1507901188f6d04fb059f25af2a26be22aa8b60e",
+    "bytes": 64
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/discovery-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/discovery-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/discovery-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/discovery.log": {
+    "sha256": "7de1555df0c2700329e815b93b32c571c3ea54dc967b89e81ab73b9972b72d1d",
+    "bytes": 2
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/driver.py": {
+    "sha256": "fd3382ab7753fa86380fa82ee65fe21fedb960faa03d3cb9b8087c9e2e9f66cb",
+    "bytes": 11891
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/environment.json": {
+    "sha256": "a59974e3a0d7114f97689294d9859efd5bbbdc7a7191903acbc78fd3dda9f1a1",
+    "bytes": 1042
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm-artifacts.json": {
+    "sha256": "4d8d08c60c2daaa428632c277f71aba1c0b89ebd39dca1a1131fe57fba22ecb9",
+    "bytes": 244235
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm-command.json": {
+    "sha256": "de25aad8db2e9ed0c749b416c605166424eefe966f28ceaa03a3a5bb944a639f",
+    "bytes": 5282
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm-nested-processes.json": {
+    "sha256": "4ad1c9c94b34fc8af139575184f472d4c29b59f49b7fbe059fa60022afa8a518",
+    "bytes": 55554
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm-space-before.json": {
+    "sha256": "7f026d77066a7197e56483fc85cfa1b2a64affb20ede71c69c2ef27c56b79315",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm.log": {
+    "sha256": "8b76a11984424270a2f17324c4c12f5d562d731b0c5469c18daa6d02f4a3c86f",
+    "bytes": 2925
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission-artifacts.json": {
+    "sha256": "197ae4c62ab84d2d9bf325fe13fa3ae7d43a5e6d6b8ca2089d17ab87f73ba4d4",
+    "bytes": 88207
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission-command.json": {
+    "sha256": "dafcfa565b11b75d19d2201358296b778375e076a2f4d83c979d75413e4846ae",
+    "bytes": 6431
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission-nested-processes.json": {
+    "sha256": "91d17490c44199a60923f67df6beeb363dd9663437c538629ec33a3453dc5866",
+    "bytes": 677
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission-space-before.json": {
+    "sha256": "6fedc251fc1f391ea03ac743d4c7b9a9bb3538aaf202583278c521800217793c",
+    "bytes": 64
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission.log": {
+    "sha256": "2eceaf38c0be75f7ab9581542d31035efd81593c60c89b77a98e0fcec69c7cf7",
+    "bytes": 338
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-artifacts.json": {
+    "sha256": "ed7cc30db4110c29fd2c3a6c2f771333f098f50f8d2b77984c48f7f5df7f303b",
+    "bytes": 5164973
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-command.json": {
+    "sha256": "a3e34fd5a04ff26220b943e24081f139e868f0218293292318925614f6f866f0",
+    "bytes": 6429
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-nested-processes.json": {
+    "sha256": "50ed551cdbc90a07b10ae47d8d6e4d43b257fd5157c1f7b1d309ee6beb495930",
+    "bytes": 119661
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-space-before.json": {
+    "sha256": "61afe17c46e4a92895b83934ca5d0f1c7356b7f844f8dbf17bbf258d814fd01a",
+    "bytes": 64
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-terminal.json": {
+    "sha256": "50f82496ebc9640a2d7d1bffdb60e9b78871091b2da917af4377067281de260c",
+    "bytes": 175
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native.log": {
+    "sha256": "edf89be73f4f6c0088d7106ceb1449355dc35061fa8f52e4caaa8948b3436379",
+    "bytes": 336
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-version.txt": {
+    "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+    "bytes": 200
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/parity-artifacts.json": {
+    "sha256": "a4e225025b7cb52fbee5aedc46a1cfc079a199a92489d0dabfa880eb6f82d82c",
+    "bytes": 170658
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/parity-command.json": {
+    "sha256": "2b86013eb8113e78bd87d66747ae7b7375d5080fcb9e03ffaa5e7d19a3923cb5",
+    "bytes": 6432
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/parity-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/parity-nested-processes.json": {
+    "sha256": "8ae2aa98412caa7e3044c4570ed54d8ecdb75e1e7608e1bd1f2f58bde8f0fdb4",
+    "bytes": 17255
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/parity-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/parity-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/parity-space-before.json": {
+    "sha256": "76fdb63bcdf90554e4f154efc42589fc7882cf05a92369a73861cb2266399f3f",
+    "bytes": 64
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/parity-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/parity-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/parity-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/parity.log": {
+    "sha256": "581cacbbeb2676f52f31546bd353be1d4683b7952ba6aed2e21234b751e4d44f",
+    "bytes": 340
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/providers.mk": {
+    "sha256": "2c1636a660adb5df08ef6442466c64d45c80e21258befa2c39956e0feeb86834",
+    "bytes": 327
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution-artifacts.json": {
+    "sha256": "cc498735887fd7bd3b724f070d07db1face31e1655a5ee8713e0882814e72811",
+    "bytes": 106482
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution-command.json": {
+    "sha256": "cdbc281c2dc59f74136cb08794c4be22de5e9cf0ce4c3c4bda8f521a4c997aa6",
+    "bytes": 2722
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution-nested-processes.json": {
+    "sha256": "8315ac26936bf048167c39c493051f3f00a277feca18b542b4ba4164a1bba39a",
+    "bytes": 17769
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution-space-before.json": {
+    "sha256": "b86c4086b1b71103ef87d3ea83f5ce99f08e15185b6624b0c1d9a0750a0d01e9",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution.log": {
+    "sha256": "0e29fc9fcb181df174707b0ee8c0ee05966352817ee043ce23e00e5ffe890735",
+    "bytes": 1902
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow-artifacts.json": {
+    "sha256": "3038e99fb3ca8a4d5d56e96d4f17ed49d4dd3e7d8632e0a4e3c499d4e044342a",
+    "bytes": 106662
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow-command.json": {
+    "sha256": "eed55553585d2bc24220549c8f00bc326c57417cc9d1c3d1f4f5790f3bd9f25f",
+    "bytes": 2724
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow-nested-processes.json": {
+    "sha256": "ed8896beb5af8bf703d42b308734cdb0a44d436f4986fc876d1b7a20d7950c06",
+    "bytes": 17833
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow-space-before.json": {
+    "sha256": "d5f72c31b66c3c9674d1ed6a69334e61ecbe2ecfffbba577aa78836428419847",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow.log": {
+    "sha256": "72f7737d1b5c417b72ae967e54bfab44dc6d65544b9d3491aaa428ce251b3928",
+    "bytes": 1160
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins-artifacts.json": {
+    "sha256": "4b07e1ca1a19967f62022004ab00d3e8d725d2c4f69b3d665e2c2c642fd3a97c",
+    "bytes": 106302
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins-command.json": {
+    "sha256": "d70bd470b199a3a64606703ddef5c8c7679c977be237918b1d2c74b62fe1964d",
+    "bytes": 2720
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins-nested-processes.json": {
+    "sha256": "61656f42b0c4e5ead9f42a9e29e24c7e71fb697088028d6783ddfb8ca5c46d7d",
+    "bytes": 3818
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins-space-before.json": {
+    "sha256": "a9f6763b68819be114f76af64bc92f5528504abe388bf118061705bd83e0ca46",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins.log": {
+    "sha256": "0d63f9f032b445785dc774d02b7168517ea58e9cdb6bcdc410414304c1e7b792",
+    "bytes": 939
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/results.json": {
+    "sha256": "e9124938c5e0edd98cea3be081afe6b90db232d0aa186c739a35ac34e7e80c8a",
+    "bytes": 1195
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission-artifacts.json": {
+    "sha256": "621e521540b36a9a4c28f7716a4b3415192ecc07d020c98f70fb903fe2fe9c71",
+    "bytes": 88207
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission-command.json": {
+    "sha256": "3271d433ee00a0400c48260d970a535f286b3513d68cb218f20c0408de0d9d5e",
+    "bytes": 6466
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission-nested-processes.json": {
+    "sha256": "dd5dd0721288768b48968dbeea5bc9b4eb6a24a65d8d1d3017ac3c077acf2913",
+    "bytes": 3649
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission-space-before.json": {
+    "sha256": "cc6f7c1e0c2954b2e0a70b6209ede046ee0110e2bf8db5be446f50538b958490",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission.log": {
+    "sha256": "84d2e8015850a5371c5c6de7e67db4a54f3fef8e29bf54552e4bc3eef006e1ed",
+    "bytes": 338
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-artifacts.json": {
+    "sha256": "0d5696f15a1388e8abfbeacf5d09b22736a029852c3ea3a6b34a13278f810f2e",
+    "bytes": 5903147
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-command.json": {
+    "sha256": "17fd47a976f0eaf1c36825c7b4d3c46d443e607fa6a63b72dbc22a99279d59da",
+    "bytes": 6464
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-nested-processes.json": {
+    "sha256": "463dd0cd08497b05cc31d27717502411047c571451ca9e55ba8dcef873114ee5",
+    "bytes": 301240
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-space-before.json": {
+    "sha256": "7be27686b89093f72ebb0a9ff6f61cb8062bf296bd6c7374605f8322f13749aa",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-terminal.json": {
+    "sha256": "50f82496ebc9640a2d7d1bffdb60e9b78871091b2da917af4377067281de260c",
+    "bytes": 175
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native.log": {
+    "sha256": "d232a8d1d0c4eefde2bc3128c465de47820d1476d42460e65955547c1c5db79e",
+    "bytes": 337
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-version.txt": {
+    "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+    "bytes": 222
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/sdk-version.txt": {
+    "sha256": "14a06c556ac677f94334dd2c86395d46009b9def8685e00741e60d31305a0262",
+    "bytes": 5
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/setup-artifacts.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/setup-command.json": {
+    "sha256": "a03aed719ee632c3f7b47e90d8466ed513872318b23c131ce2bf87491f7e5650",
+    "bytes": 1390
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/setup-inputs-before.json": {
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/setup-nested-processes.json": {
+    "sha256": "b8f3f59fc4b76901e38dc8704befb500038018b88b7285a594c008f693021407",
+    "bytes": 51671
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/setup-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/setup-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/setup-space-before.json": {
+    "sha256": "bea9f8f54e5a45eb8d81ffba02989855b9127fdbb768f780bab0a8d4d91338a8",
+    "bytes": 64
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/setup-terminal.json": {
+    "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f",
+    "bytes": 174
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/setup-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/setup-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/setup.log": {
+    "sha256": "ac944d9f5a3403c4b6ad03d8dad74345cac4a860871cc2038f89637ab4d0e260",
+    "bytes": 70181
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/wasm-artifacts.json": {
+    "sha256": "12f0a5db34eb284dbb26fe7fc8461128c55cfa6a21a0f652237b707d4d6db93c",
+    "bytes": 7153376
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/wasm-command.json": {
+    "sha256": "1d4c5eed03ae901ede2c10039af61b7459ebd2c42228c25912ef983f41498098",
+    "bytes": 6427
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/wasm-inputs-before.json": {
+    "sha256": "d121304bcec641ae3c570849bb02430da2eb6688a101f852055a0037a499403e",
+    "bytes": 67901
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/wasm-nested-processes.json": {
+    "sha256": "34494fed0117b55e779d60b401d50a2c82bee43bf231d346571932304bd315ad",
+    "bytes": 203224
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/wasm-source-after.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/wasm-source-before.json": {
+    "sha256": "5581fa3aad76c23ffe0a6404960e1fe0b0187cbfe1b07cafd88c72544ec01dd4",
+    "bytes": 401477
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/wasm-space-before.json": {
+    "sha256": "0819775752dee2046bff063c9dd4a115759799cdbe920292ea2c511ffd81a6c7",
+    "bytes": 63
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/wasm-terminal.json": {
+    "sha256": "e065a786a1567227f90929207497703b9cfd43bffddff4087fa59d7f121da2a7",
+    "bytes": 175
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/wasm-tools-after.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/wasm-tools-before.json": {
+    "sha256": "873aef7656c9542a7c78e4d9d019b8a310c4e3283bce14e27f6c52e38602b5b8",
+    "bytes": 4258
+  },
+  "nanolang-record-llvm-78042-recovery-puck-backup/wasm.log": {
+    "sha256": "00d6b79c29fe6d2ce4d7375d5cbf23875d879eb333fc197571a77f6efc076d1f",
+    "bytes": 332
+  },
+  "extra/nanolang-record-llvm-78042-outer.json": {
+    "sha256": "60489f30be0899dd42d9353775ce50ebce2f31a0070f406d83f2a79c7b348c2c",
+    "bytes": 160
+  },
+  "extra/nanolang-record-llvm-78042-outer.log": {
+    "sha256": "619262b9a2750177362a4dcb016c607ddb0fd848c8528c02deb2d8816d48bef3",
+    "bytes": 1688
+  },
+  "extra/LLVM78042-current-inputs.json": {
+    "sha256": "4b5b95fe19f7fa20591e6621bd22ffc69e830b2966bfbc8145d4a84f7a1d8d5b",
+    "bytes": 36334
+  },
+  "extra/nanolang-record-llvm-78042-sdk-launch.py": {
+    "sha256": "1a65623ca24faeae271803d96e0a577cbe42b2c25d5cd3f8b489cbd74e0517fd",
+    "bytes": 4039
+  },
+  "extra/nanolang-record-llvm-78042-sdk-supervise.py": {
+    "sha256": "d468df12acad35383f0d2f6a55697c0e21c10d28258ebd746ae16e2a597ba2d8",
+    "bytes": 839
+  },
+  "extra/nanolang-record-llvm-78042-sdk-prelaunch.json": {
+    "sha256": "966bc791db72d3a56f18672c2330f706e01266c11cff6a5ee32be9b23b4812f2",
+    "bytes": 964
+  }
+}

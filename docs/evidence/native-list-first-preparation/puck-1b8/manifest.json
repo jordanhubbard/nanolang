@@ -1,0 +1,144 @@
+{
+  "head": "1b8fa7c0193cc1800288c32baa12170daaf17b86",
+  "host": "puck",
+  "platform": "macOS-27.0-arm64-arm-64bit",
+  "scope": "fresh Make build/bootstrap and ordinary provider preparation only; no qualification implied; named tools and phase endpoint products retained",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/usr/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.012572958000000023,
+      "log": {
+        "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+        "bytes": 200,
+        "archive": "/private/tmp/nanolang-record-lists-1b8-puck-prepare/objects/d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.04776608400000004,
+      "log": {
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+        "bytes": 222,
+        "archive": "/private/tmp/nanolang-record-lists-1b8-puck-prepare/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.04901883300000032,
+      "log": {
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+        "bytes": 222,
+        "archive": "/private/tmp/nanolang-record-lists-1b8-puck-prepare/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/usr/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.012485166999999908,
+      "log": {
+        "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+        "bytes": 263,
+        "archive": "/private/tmp/nanolang-record-lists-1b8-puck-prepare/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "build",
+      "argv": [
+        "make",
+        "-j2",
+        "build",
+        "CC=/usr/bin/clang",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 80.3946205,
+      "log": {
+        "sha256": "91020654b0f37bd19690d225da7f8d31ccf2d0be684941114e5eabcf44a3b920",
+        "bytes": 53922,
+        "archive": "/private/tmp/nanolang-record-lists-1b8-puck-prepare/objects/91020654b0f37bd19690d225da7f8d31ccf2d0be684941114e5eabcf44a3b920"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "bootstrap",
+      "argv": [
+        "make",
+        "-j2",
+        "bootstrap",
+        "CC=/usr/bin/clang",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+      ],
+      "bound_seconds": 1800,
+      "status": 2,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 287.65142620800003,
+      "log": {
+        "sha256": "607a2e5ca29a7d9e75a11f22d01ddbe704e61a220889a75d2be95a5da1d54b88",
+        "bytes": 35895,
+        "archive": "/private/tmp/nanolang-record-lists-1b8-puck-prepare/objects/607a2e5ca29a7d9e75a11f22d01ddbe704e61a220889a75d2be95a5da1d54b88"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}

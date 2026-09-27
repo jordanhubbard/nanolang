@@ -65,7 +65,7 @@ fn test_severity_levels() -> int {
 
     let info: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_INFO,
-        phase: CompilerPhase.PHASE_TRANSPILER,
+        phase: CompilerPhase.PHASE_LOWERING,
         code: "I001",
         message: "Optimization applied",
         location: loc
@@ -117,7 +117,7 @@ fn test_compiler_phases() -> int {
 
     let trans_diag: CompilerDiagnostic = CompilerDiagnostic {
         severity: DiagnosticSeverity.DIAG_ERROR,
-        phase: CompilerPhase.PHASE_TRANSPILER,
+        phase: CompilerPhase.PHASE_LOWERING,
         code: "C001",
         message: "Codegen error",
         location: loc
@@ -126,7 +126,7 @@ fn test_compiler_phases() -> int {
     assert (== lex_diag.phase CompilerPhase.PHASE_LEXER)
     assert (== parse_diag.phase CompilerPhase.PHASE_PARSER)
     assert (== type_diag.phase CompilerPhase.PHASE_TYPECHECK)
-    assert (== trans_diag.phase CompilerPhase.PHASE_TRANSPILER)
+    assert (== trans_diag.phase CompilerPhase.PHASE_LOWERING)
 
     return 0
 }

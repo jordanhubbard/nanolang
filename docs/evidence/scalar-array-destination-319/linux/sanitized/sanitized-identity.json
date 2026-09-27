@@ -1,0 +1,12 @@
+{
+  "label": "sanitized-identity",
+  "argv": [
+    "/home/jkh/nanolang-qualification/scalar-array-319-linux/sanitized/identity"
+  ],
+  "bound": 180,
+  "timeout": false,
+  "pid": 1518815,
+  "returncode": 0,
+  "remaining_groups": [],
+  "seconds": 0.21790958708152175
+}

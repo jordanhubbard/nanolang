@@ -1,0 +1,5 @@
+make test-nvm2c
+/opt/homebrew/opt/llvm/bin/clang -std=c11 -Wall -Wextra -Werror -O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all -Isrc/nanoisa tests/nanoisa/test_nvm2c_shape.c src/nanoisa/nvm2c_shape.c -o /tmp/pr522-variant-shape-instrumented
+ASAN_OPTIONS=detect_leaks=1:detect_stack_use_after_return=1 UBSAN_OPTIONS=halt_on_error=1 /tmp/pr522-variant-shape-instrumented
+ASAN_OPTIONS=detect_leaks=1:detect_stack_use_after_return=1 UBSAN_OPTIONS=halt_on_error=1 python3 scripts/run_nvm2c_sanitizers.py --cc /opt/homebrew/opt/llvm/bin/clang
+python3 -m unittest tests.test_canonical_aggregate_formatting

@@ -1,0 +1,45 @@
+{
+  "status": "PASS",
+  "pin": "3d4afccb726e18c8b59813c1de1b710e3b56636f",
+  "reports": 637,
+  "report_bytes": 98992628,
+  "objects": 37086,
+  "object_bytes": 5820577421,
+  "verified_artifact_references": 136103,
+  "equal_source_tool_pairs": 90,
+  "terminal_reports": 46,
+  "nonzero_terminals": [
+    {
+      "path": "nanolang-record-llvm-linux-ordinary-seal/nanolang-record-llvm-63b8a-linux/ordinary-native-terminal.json",
+      "bound": 14400,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 1,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-llvm-linux-sanitizer-seal/nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-native-terminal.json",
+      "bound": 14400,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": -15,
+      "timeout": false
+    }
+  ],
+  "unlaunched_terminals": [
+    {
+      "path": "nanolang-record-llvm-linux-sanitizer-seal/nanolang-record-llvm-78042-linux-sanitizers/clang-sanitizer-emission-terminal.json",
+      "free_bytes": 1736740864,
+      "launched": false,
+      "reason": "capacity preflight"
+    }
+  ],
+  "seconds": 4.925065068062395,
+  "scope": "Independent exact committed report set and bytes, local sealed report bytes, every retained content-addressed object, referenced object identity and before/after pairs. Includes failed histories; not semantic corpus coverage, current integration or release acceptance."
+}

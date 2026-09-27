@@ -136,6 +136,30 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
             self.assertEqual(calls.read_text().splitlines().count("C"), 15 if gcc_validation else 3)
             self.assertEqual(self.answer(self.cache.probe_path("library", module, env)), 42)
 
+    def test_warm_validation_accepts_complete_long_link_command(self):
+        with tempfile.TemporaryDirectory(prefix="nano-linux-long-link-") as tmp:
+            directory = Path(tmp) / ("long-path-" * 18)
+            directory.mkdir()
+            module, _, env = self.cache.support.foreign_build_fixture(directory)
+            sources = []
+            for index in range(18):
+                name = f"private_{index}.c"
+                (module / name).write_text(f"long long private_{index}(void) {{ return {index}; }}\n")
+                sources.append(name)
+            declarations = ", ".join(f"private_{index}(void)" for index in range(18))
+            expression = " + ".join(f"private_{index}()" for index in range(18))
+            (module / "answer.c").write_text(
+                f"extern long long {declarations};\n"
+                f"long long nano_build_answer(void) {{ return {expression}; }}\n")
+            (module / "module.json").write_text(json.dumps({
+                "name": "answer_native", "c_sources": ["answer.c"],
+                "shared_c_sources": sources}))
+            self.cache.probe_path("build", module, env)
+            previous = self.cache.probe_path("directory", module, env)
+            self.cache.probe_path("build", module, env)
+            self.assertEqual(self.cache.probe_path("directory", module, env), previous)
+            self.assertEqual(self.answer(self.cache.probe_path("library", module, env)), 153)
+
     def test_library_comparison_boundaries(self):
         for kind in ("equal", "different", "short", "empty", "missing", "symlink", "fifo"):
             with self.subTest(kind=kind), tempfile.TemporaryDirectory(prefix="nano-link-compare-") as tmp:

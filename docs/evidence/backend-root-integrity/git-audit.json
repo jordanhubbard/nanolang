@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "git_pin": "061e8a5fbcd00124076d6cdae79bfeb2be2dac45",
+  "reports": 472,
+  "report_bytes": 91689593,
+  "scope": "Exact committed report set and bytes correspond to independently audited combined seal; semantic coverage and source correspondence are separate."
+}

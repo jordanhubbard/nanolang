@@ -1,0 +1,1 @@
+/usr/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -O0 -g -Wall -Wextra -Werror -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -DNMS_TESTING -Isrc/nanoisa -Itests/nanoisa /tmp/record-generated-init-cost.c tests/nanoisa/record_array_alloc.c /tmp/nanolang-record-generated-hoist-cost/gcc-ordinary.o -lm -pthread -o /tmp/nanolang-record-generated-hoist-cost/gcc-ordinary

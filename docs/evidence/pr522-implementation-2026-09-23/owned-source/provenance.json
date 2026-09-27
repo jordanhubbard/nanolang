@@ -1,0 +1,19 @@
+{
+  "parent": "74b59b07dd67e48c15cd51951360a2de71b43656",
+  "files": {
+    "src_nano/compiler/nanoisa_borrows.nano": "99dee4f74287e062e1f7a934f8f07fd9bfddcc3caae4308106c77a21494e266c",
+    "src/nanoisa/affine_bytecode.c": "77af84f566c73c123da821231808225029e17e2a0749cbc36cab39ebc29e436b",
+    "tests/test_owned_union_source.py": "f75982397874fabfa44acab7ff93684e6b50e403bb8bbc0ca950d946701cb3b7",
+    "tests/test_generic_selected_ownership.py": "dce25fa55c45cb62f74d21def98ada4b8da3d06aafd5523450d37706ee3c7352",
+    "tests/test_generic_selected_patterns.py": "b05c3a853f88ba087bb23bc7cd81b5d1325d8c414270203343d560e6ab8d128d",
+    "tests/test_affine_generic_identity.py": "dd22d99c19abfc523b520f0c080af24b27c48a3a20e1f4c641a1e4a0bf754c75",
+    "tests/test_selected_variant_ownership.py": "8c563c70b26c5b2e9d15c51fbf87b0e608d5967ff3ca4bce85c6079e46365e57",
+    "bin/nanoc_c": "b932e4776e3ea374d36024e26ed83cc35519ad1c9e834fcbd086b5ffc8885846",
+    "bin/nanoc_stage1": "089ffb83446652ac77cbe0e2f41a4595213d87a08fc1ac6ca945cb62ab791386",
+    "bin/nanoc_stage2": "8fb48d7803bf07417e01ec34ae112e82c78446fca8bc1e6c5065141ecad9bf6e",
+    "bin/nanoisa_emit": "fe73a83b59b066adbbaa0371e35938b8b3341fec51fa00ca290936bfc7edb235",
+    "bin/nano_virt": "6ecf02413ea4e1f9a4fde5060ce908303cad78194eb8d1752a79bb0184c1de31",
+    "bin/nano_vm": "f7c4f4fab0de09fc1e00593ab80f2909dd2106395e4d82e3d9af98868da6aae2",
+    "bin/nvm2c": "962cf0cd5e6f8a8e47d3a53d84e0a9ae18e9514b525f0862efe7f3086b6d75da"
+  }
+}

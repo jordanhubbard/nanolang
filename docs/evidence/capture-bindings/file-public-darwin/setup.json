@@ -1,0 +1,4 @@
+{
+  "preparation_only": "An initial remote copy began before reference.pack transfer completed and refused before product execution. After transfer completion, remaining inputs were copied and the fresh driver launched once.",
+  "reference": "Exact f1606e2c84e67491e9652a5bf71944d235216d95 commit/tree/blob objects plus a local frozen-source Git baseline; historical source bytes verified before and after."
+}

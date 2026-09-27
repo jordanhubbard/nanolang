@@ -1,0 +1,5 @@
+{
+  "src/nanoisa/nvm2c.c": "68a72aa69428051cb0e77f84b96f415dadb6a8afda248a755603e0a0df38c391",
+  "tests/test_native_variant_scalar_carriers.py": "bed655e322ebe7213e096d808a34b20b75d33b84acd4a76a49d2b8fce03a7d33",
+  "bin/nvm2c": "ddeffecf42050cc55c9ce40f3806bee513a41be0e512ad85bdcb6a157b317809"
+}

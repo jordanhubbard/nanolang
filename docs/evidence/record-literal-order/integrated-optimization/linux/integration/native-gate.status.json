@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "tests.test_record_literal_order.NativeLiteralOrder"
+  ],
+  "cwd": "/tmp/nanolang-literal-order-75051f193/source",
+  "free_before": 3309256704,
+  "timeout_seconds": 300,
+  "pid": 4162809,
+  "returncode": 0,
+  "seconds": 46.38768686493859,
+  "free_after": 3022381056
+}

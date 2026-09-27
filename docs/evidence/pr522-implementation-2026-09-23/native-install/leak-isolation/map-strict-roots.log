@@ -1,0 +1,28 @@
+
+=================================================================
+==33541==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 32 byte(s) in 1 object(s) allocated from:
+    #0 0x00010388d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000102790970 in nl_hashmap_string_int_alloc nanoc_24548_pr522-leak-map.c:1783
+    #2 0x000102790970 in nl_hashmap_string_int_new nanoc_24548_pr522-leak-map.c:1840
+    #3 0x000102790970 in nl_main map.nano:1
+    #4 0x000102790970 in main map.nano:15
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 384 byte(s) in 1 object(s) allocated from:
+    #0 0x00010388d6ec in calloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x0001027909b8 in nl_hashmap_string_int_alloc nanoc_24548_pr522-leak-map.c:1788
+    #2 0x0001027909b8 in nl_hashmap_string_int_new nanoc_24548_pr522-leak-map.c:1840
+    #3 0x0001027909b8 in nl_main map.nano:1
+    #4 0x0001027909b8 in main map.nano:15
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 4 byte(s) in 1 object(s) allocated from:
+    #0 0x000103885da8 in strdup+0xf8 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x4dda8)
+    #1 0x000102790e68 in nl_hashmap_string_int_put nanoc_24548_pr522-leak-map.c:1858
+    #2 0x000102790e68 in nl_main map.nano:1
+    #3 0x000102790e68 in main map.nano:15
+    #4 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: 420 byte(s) leaked in 3 allocation(s).

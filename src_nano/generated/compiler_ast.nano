@@ -130,7 +130,8 @@ extern struct ASTIf {
     condition: int,
     condition_type: int,
     then_body: int,
-    else_body: int
+    else_body: int,
+    is_expression: bool
 }
 
 extern struct ASTWhile {

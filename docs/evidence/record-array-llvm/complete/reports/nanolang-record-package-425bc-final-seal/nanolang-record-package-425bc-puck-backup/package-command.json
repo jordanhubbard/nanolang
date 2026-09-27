@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/python@3.14/bin/python3.14",
+    "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-package-425bc-puck/controls/retained-package.py"
+  ],
+  "selectors": {
+    "CC": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+    "LSAN_OPTIONS": "",
+    "NMS_NATIVE_CLANG_FLAGS": "",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  }
+}

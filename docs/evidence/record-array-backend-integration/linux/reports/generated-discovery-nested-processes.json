@@ -1,0 +1,12 @@
+{
+  "cleanup": [],
+  "owned": {
+    "3593500": {
+      "command": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14 -c import unittest;from tests import test_record_array_generated as m;s=unittest.defaultTestLoader.loadTestsFromModule(m);print(s.countTestCases());assert s.countTestCases()==2",
+      "group": 3593500,
+      "parent": 3591010,
+      "started": "Mon Sep 21 07:20:18 2026"
+    }
+  },
+  "remaining": []
+}

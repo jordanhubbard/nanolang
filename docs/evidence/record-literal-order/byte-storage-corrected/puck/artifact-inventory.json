@@ -1,0 +1,249 @@
+{
+  "retained_path": "/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-23q8l2mb",
+  "files": {
+    "nanoc_stage2-record_literal_written_order-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage1-union_literal_written_order-compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-union_literal_written_order-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-record_literal_written_order-compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-tuple_array_literal_written_order-run.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-tuple_array_literal_written_order-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-tuple_array_literal_written_order-compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-union_literal_written_order": {
+      "bytes": 8771320,
+      "sha256": "a49df7279fc4ee0a0467c7da4ee53475d5b588208a2590db63ce157d92d1b8c6"
+    },
+    "nanoc_c-union_literal_written_order": {
+      "bytes": 8686960,
+      "sha256": "187670dfbb84765d5fd18e1e709f6c86e733e42be2d2c0054f74606e0e8081a6"
+    },
+    "nanoc_c-tuple_array_literal_written_order-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage1-global_literal_initialization": {
+      "bytes": 8771688,
+      "sha256": "cd2cdd8ddceed65af44898bd3ffebd6df1c7ecf48edb5cfae389dd4859516132"
+    },
+    "nanoc_stage1-record_literal_written_order-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-union_literal_written_order-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-global_literal_initialization-compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-global_literal_initialization-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-union_literal_written_order-compile.stderr": {
+      "bytes": 437,
+      "sha256": "342589e49f6867154f5338f291a71032e0f4922fb9ade650fb7d85476b3310be"
+    },
+    "nanoc_stage1-record_literal_written_order-run.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-global_literal_initialization-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-global_literal_initialization-compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-tuple_array_literal_written_order-compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-tuple_array_literal_written_order-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-tuple_array_literal_written_order-run.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-record_literal_written_order-run.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage1-union_literal_written_order-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-union_literal_written_order-compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-record_literal_written_order-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-tuple_array_literal_written_order-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-tuple_array_literal_written_order": {
+      "bytes": 8687608,
+      "sha256": "daa92bd24da0ae15f687fb574597100607a85a928bf09a290c497a971065a598"
+    },
+    "commands.json": {
+      "bytes": 7535,
+      "sha256": "ab001356d683541fe5bc79a9298cdb3c14e6fdbd87f42316a74ad29c23402182"
+    },
+    "nanoc_stage1-tuple_array_literal_written_order-compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage1-record_literal_written_order": {
+      "bytes": 8771560,
+      "sha256": "3651e8ca2a65e0567677e9596664d02c440a0a8805cc0f1bcadb3f2060bc844e"
+    },
+    "nanoc_stage1-tuple_array_literal_written_order-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-record_literal_written_order-compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-tuple_array_literal_written_order": {
+      "bytes": 8773056,
+      "sha256": "8dd392471702ae9f2f84da7101c790d21b3bbbe98987dc0231938afbf1de593f"
+    },
+    "nanoc_c-union_literal_written_order-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-record_literal_written_order-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage1-global_literal_initialization-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage1-union_literal_written_order-run.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage1-record_literal_written_order-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-global_literal_initialization-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage1-global_literal_initialization-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-union_literal_written_order-run.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-record_literal_written_order": {
+      "bytes": 8771560,
+      "sha256": "80d6121f1694f5b52e8db047902f36629d21177db90ea82b255764732badede3"
+    },
+    "nanoc_stage2-global_literal_initialization-run.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-union_literal_written_order-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-global_literal_initialization-run.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage1-record_literal_written_order-compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage1-global_literal_initialization-compile.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage2-global_literal_initialization-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-union_literal_written_order-run.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-record_literal_written_order": {
+      "bytes": 8686952,
+      "sha256": "7d4581a149d3ef8d3af13d51754abc3e15f5f453d2e7eeba262c5f5cb6a5b249"
+    },
+    "nanoc_stage2-global_literal_initialization": {
+      "bytes": 8771688,
+      "sha256": "3fa83718d3399106b264afed9f48a56db67956ab6f30bfa9b19e6d9646826bed"
+    },
+    "nanoc_stage2-record_literal_written_order-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage1-tuple_array_literal_written_order": {
+      "bytes": 8773056,
+      "sha256": "37c0b7c7b50311bb26fa6b4cf3ab9727fa25328f78687ddb8d1b88a265d18c10"
+    },
+    "nanoc_stage1-union_literal_written_order-run.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage1-global_literal_initialization-run.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-record_literal_written_order-run.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_c-global_literal_initialization": {
+      "bytes": 8687464,
+      "sha256": "de1c266b49a805a74c8376847cbe6b51ea3a3db46b87f6c0c7d234679dab282e"
+    },
+    "nanoc_stage1-union_literal_written_order": {
+      "bytes": 8771320,
+      "sha256": "0d35f4dbcdb15c08f40dfe333dfd3e6491e238837782d6dce86e34e9a9c75e43"
+    },
+    "nanoc_stage1-tuple_array_literal_written_order-run.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "nanoc_stage1-tuple_array_literal_written_order-compile.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "scope": "actual included C typechecker adapter; ordinary hashed complete providers; public array-field borrowing remains refused",
+  "failure": "injected false return at metadata binding boundary, not a malloc-site sweep",
+  "cases": [
+    "STRING acceptance and repeated exact metadata",
+    "INT refusal",
+    "binding refusal leaves no row and flags preparation failure",
+    "six actual parsed literal contexts: symmetric STRING mismatch, matching STRING, empty STRING/INT, unchanged numeric helper compatibility"
+  ]
+}

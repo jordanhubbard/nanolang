@@ -194,8 +194,11 @@ typedef enum {
     OP_TYPE_CHECK  = 0x8C,   /* operand: u8 expected tag; pop value -> push bool */
     OP_CAST_U8     = 0x8F,   /* INT modulo 256 or U8 identity -> exact U8 */
 
-    /* Closures (0x90-0x97) */
+    /* Closures and binding transport (execution admission is separate). */
     OP_CLOSURE_NEW  = 0x90,  /* operands: u32 fn_idx, u16 capture_count */
+    OP_BIND_INIT_LOCAL = 0x97, /* operand: u16 local slot */
+    OP_BIND_CLEAR_LOCAL = 0x98, /* operand: u16 local slot */
+    OP_CLOSURE_BIND = 0x99, /* operand: u32 capture binding site */
 
     /* I/O & Debug (0xA0-0xAF) */
     OP_PRINT      = 0xA0,   /* pop value, print to stdout (no newline) */
@@ -227,6 +230,7 @@ typedef enum {
     OP_FILE_DROP_LOCAL    = 0x94, /* u16 local */
     OP_FILE_DROP_STACK    = 0x95,
     OP_FILE_END_BORROW    = 0x96, /* u16 reference */
+    OP_OWN_UNPACK_VARIANT = 0x9a, /* u16 local, u16 selected variant, u16 count */
 
     /* Typed scalar operations (v2 migration) */
     OP_I64_ADD      = 0xC0,

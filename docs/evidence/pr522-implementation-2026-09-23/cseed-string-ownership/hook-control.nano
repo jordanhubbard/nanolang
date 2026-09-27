@@ -1,0 +1,3 @@
+module "std/fs.nano" as fs
+fn main() -> int { let path: string = (fs.canonical ".") let alias: string = path assert (!= alias "") assert (== (fs.join "a" "b") "a/b") return 0 }
+shadow main { assert true }

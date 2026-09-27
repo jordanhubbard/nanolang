@@ -1,4 +1,5 @@
 # I execute source-fact checks independently of imported shadow policy.
+import "src_nano/compiler/module_facts.nano"
 import "src_nano/compiler/module_introspection.nano"
 
 fn main() -> int {

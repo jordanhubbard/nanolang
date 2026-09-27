@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "pin": "0e72a33a6c4dcee95c08b70f0a658433775b4da9",
+  "scope": "two focused checker and owning-TU allocation/lifetime methods across selected ordinary/sanitizer configurations; full18 source corpus held for native specialization prerequisite"
+}

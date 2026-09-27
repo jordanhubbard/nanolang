@@ -92,6 +92,38 @@ class PurityContract(unittest.TestCase):
                                 self.assertIn("closed empty effect summary", result.stdout)
                                 self.assertEqual(output.read_bytes(), b"prior-output")
 
+    def test_factory_local_evaluates_once_and_keeps_alias(self):
+        source_text = """let mut calls: int = 0
+pure fn add(a: int, b: int) -> int { return (+ a b) }
+shadow add { assert (== (add 20 22) 42) }
+fn note() -> void { set calls (+ calls 1) }
+shadow note { set calls 0 (note) assert (== calls 1) set calls 0 }
+fn factory() -> fn(int, int) -> int { (note) return add }
+shadow factory { set calls 0 let selected: fn(int, int) -> int = (factory) assert (== (selected 20 22) 42) assert (== calls 1) set calls 0 }
+fn main() -> int {
+ set calls 0
+ let selected: fn(int, int) -> int = (factory)
+ let alias: fn(int, int) -> int = selected
+ assert (== calls 1)
+ assert (== (selected 20 22) 42)
+ assert (== (alias 40 2) 42)
+ assert (== calls 1)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+"""
+        with tempfile.TemporaryDirectory(prefix="nano-factory-local-") as temporary:
+            root = Path(temporary)
+            source = root / "main.nano"
+            source.write_text(source_text)
+            for compiler in COMPILERS:
+                with self.subTest(compiler=compiler.name):
+                    output = root / compiler.name
+                    result = self.command([compiler, source, "-o", output])
+                    self.assertEqual(result.returncode, 0, result.stdout)
+                    ran = self.command([output])
+                    self.assertEqual(ran.returncode, 0, ran.stdout)
+
     def test_bound_transitive_import(self):
         with tempfile.TemporaryDirectory(prefix="nano-purity-import-") as temporary:
             root = Path(temporary)

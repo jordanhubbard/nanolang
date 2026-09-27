@@ -1,0 +1,28 @@
+[
+  {
+    "mode": "ordinary",
+    "exit": 0,
+    "compiler_sha256": "1f08b163b2bae746ec3b1a3e7f5d33b511b616ba15b2e1ca7137662204154c75",
+    "environment": {
+      "NANO_CC": null,
+      "NANO_CFLAGS": null,
+      "NANO_LDFLAGS": null,
+      "ASAN_OPTIONS": null,
+      "UBSAN_OPTIONS": null
+    },
+    "log_sha256": "edc91fd820066edcac0834b1f9634f26d8cad215fae6bcd175205289f4b90ea0"
+  },
+  {
+    "mode": "sanitized-products",
+    "exit": 0,
+    "compiler_sha256": "1f08b163b2bae746ec3b1a3e7f5d33b511b616ba15b2e1ca7137662204154c75",
+    "environment": {
+      "NANO_CC": "/opt/homebrew/opt/llvm/bin/clang",
+      "NANO_CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all",
+      "NANO_LDFLAGS": "-fsanitize=address,undefined",
+      "ASAN_OPTIONS": "detect_leaks=1:detect_stack_use_after_return=1",
+      "UBSAN_OPTIONS": "halt_on_error=1"
+    },
+    "log_sha256": "aaab9fecfb68bcc4e9e0044188665779f27768a0cc74630deed65c2c8297d511"
+  }
+]

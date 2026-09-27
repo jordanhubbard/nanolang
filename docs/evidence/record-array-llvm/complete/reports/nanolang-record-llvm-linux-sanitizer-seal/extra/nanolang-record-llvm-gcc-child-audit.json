@@ -1,0 +1,14 @@
+{
+  "root": "/tmp/nano-record-array-llvm-j60mapp6",
+  "counts": {
+    "statuses": 2769,
+    "O0": 1365,
+    "O2": 1365,
+    "O2_fault_workers": 338,
+    "O0_baselines": 73,
+    "O0_fault_workers": 338,
+    "O2_baselines": 73
+  },
+  "bad": [],
+  "scope": "Retained actual child terminals only; full planned coverage separately asserted by passing coordinator."
+}

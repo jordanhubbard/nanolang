@@ -1,0 +1,10 @@
+[
+  {
+    "mode": "direct",
+    "exit": 0
+  },
+  {
+    "mode": "fork",
+    "exit": 0
+  }
+]

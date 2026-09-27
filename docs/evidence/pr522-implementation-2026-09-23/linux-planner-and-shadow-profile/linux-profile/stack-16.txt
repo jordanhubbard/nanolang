@@ -1,0 +1,30 @@
+elapsed=46.746
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+0x0000c2499f7f229c in eval_expression_other (expr=0x50c0002ce540, env=0x5120000001c0) at src/eval.c:5329
+5329	            for (int i = 0; i < sv->field_count; i++) {
+#0  0x0000c2499f7f229c in eval_expression_other (expr=0x50c0002ce540, env=0x5120000001c0) at src/eval.c:5329
+#1  0x0000c2499f7e9b48 in eval_expression (expr=0x50c0002ce540, env=0x5120000001c0) at src/eval.c:4917
+#2  0x0000c2499f7f0c1c in eval_expression_other (expr=0x50c0002af640, env=0x5120000001c0) at src/eval.c:5253
+#3  0x0000c2499f7e9b48 in eval_expression (expr=0x50c0002af640, env=0x5120000001c0) at src/eval.c:4917
+#4  0x0000c2499f7e6540 in eval_call_impl (node=0x50c0002d1f00, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4789
+#5  0x0000c2499f7c6688 in eval_call (node=0x50c0002d1f00, env=0x5120000001c0) at src/eval.c:3034
+#6  0x0000c2499f7e9b34 in eval_expression (expr=0x50c0002d1f00, env=0x5120000001c0) at src/eval.c:4915
+#7  0x0000c2499f80200c in eval_statement (stmt=0x50c0002d1fc0, env=0x5120000001c0) at src/eval.c:5949
+#8  0x0000c2499f7932b0 in eval_scoped_block (statements=0x506000026cc0, count=1, env=0x5120000001c0) at src/eval.c:242
+#9  0x0000c2499f802538 in eval_statement (stmt=0x50c0002d2080, env=0x5120000001c0) at src/eval.c:5962
+#10 0x0000c2499f7eddac in eval_expression_other (expr=0x50c0002d2380, env=0x5120000001c0) at src/eval.c:5105
+#11 0x0000c2499f7e9b48 in eval_expression (expr=0x50c0002d2380, env=0x5120000001c0) at src/eval.c:4917
+#12 0x0000c2499f807488 in eval_statement (stmt=0x50c0002d2380, env=0x5120000001c0) at src/eval.c:6210
+#13 0x0000c2499f7e6604 in eval_call_impl (node=0x50c000418d80, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4793
+#14 0x0000c2499f7c6688 in eval_call (node=0x50c000418d80, env=0x5120000001c0) at src/eval.c:3034
+#15 0x0000c2499f7e9b34 in eval_expression (expr=0x50c000418d80, env=0x5120000001c0) at src/eval.c:4915
+#16 0x0000c2499f80200c in eval_statement (stmt=0x50c000418e40, env=0x5120000001c0) at src/eval.c:5949
+#17 0x0000c2499f7932b0 in eval_scoped_block (statements=0x506000031820, count=3, env=0x5120000001c0) at src/eval.c:242
+#18 0x0000c2499f802538 in eval_statement (stmt=0x50c000418f00, env=0x5120000001c0) at src/eval.c:5962
+#19 0x0000c2499f7eddac in eval_expression_other (expr=0x50c00042fb80, env=0x5120000001c0) at src/eval.c:5105
+#20 0x0000c2499f7e9b48 in eval_expression (expr=0x50c00042fb80, env=0x5120000001c0) at src/eval.c:4917
+#21 0x0000c2499f807488 in eval_statement (stmt=0x50c00042fb80, env=0x5120000001c0) at src/eval.c:6210
+#22 0x0000c2499f7932b0 in eval_scoped_block (statements=0x5060000317c0, count=1, env=0x5120000001c0) at src/eval.c:242
+#23 0x0000c2499f802538 in eval_statement (stmt=0x50c00042fc40, env=0x5120000001c0) at src/eval.c:5962
+[Inferior 1 (process 42926) detached]

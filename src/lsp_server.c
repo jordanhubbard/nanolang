@@ -415,6 +415,7 @@ typedef struct {
 static Document g_doc = {0};
 
 static void doc_free_compiled(void) {
+    env_require_destroyable(g_doc.env);
     if (g_doc.ast) {
         free_ast(g_doc.ast);
         g_doc.ast = NULL;

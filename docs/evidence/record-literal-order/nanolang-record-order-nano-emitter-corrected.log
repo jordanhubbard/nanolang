@@ -1,0 +1,21 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+NANO_MODULE_PATH=modules NANO_BUILD_CACHE=/tmp/nanolang-record-literal-source-order/obj/module_cache perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $!\n"' bin/nanoc_c src_nano/nanoisa_emit.nano -o bin/nanoisa_emit
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2093, column 9: Unused variable 'rejected'
+Warning at line 2214, column 9: Unused variable 'rejected'
+Warning at line 2221, column 13: Unused variable 'rejected'
+Warning at line 2259, column 9: Unused variable 'rejected'
+Warning at line 2263, column 9: Unused variable 'rejected'
+Warning at line 2270, column 13: Unused variable 'rejected'
+Warning at line 5445, column 17: Unused variable 'imported'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2093, column 9: Unused variable 'rejected'
+Warning at line 2214, column 9: Unused variable 'rejected'
+Warning at line 2221, column 13: Unused variable 'rejected'
+Warning at line 2259, column 9: Unused variable 'rejected'
+Warning at line 2263, column 9: Unused variable 'rejected'
+Warning at line 2270, column 13: Unused variable 'rejected'
+Warning at line 5445, column 17: Unused variable 'imported'

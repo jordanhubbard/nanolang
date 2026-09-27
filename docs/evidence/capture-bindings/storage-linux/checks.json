@@ -1,0 +1,277 @@
+{
+  "runs": [
+    {
+      "label": "first",
+      "source": "f2bac81a812d85a15bc0e9c4e27adb50d34e67fd",
+      "original_directory": "/tmp/nanolang-binding-state-f2bac81a8",
+      "input_count": 12,
+      "outcome": "link refusal; no test executed"
+    },
+    {
+      "label": "corrected",
+      "source": "1482e18e30d4962dccb9189c739692974a91df7c",
+      "original_directory": "/tmp/nanolang-binding-state-1482e18e3",
+      "input_count": 13,
+      "outcome": "77 checks in each of four configurations; pass"
+    }
+  ],
+  "files": {
+    "README.md": {
+      "sha256": "12132ace9f6662ee09451e2e655eba957b409324675b180304e6c4e1e1f4815f",
+      "bytes": 1319
+    },
+    "corrected/clang-build.json": {
+      "sha256": "22b2a7377eb013fdea00d4bf27c1eea250d36d8c756063e2dce73f7604338982",
+      "bytes": 525
+    },
+    "corrected/clang-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/clang-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/clang-run.json": {
+      "sha256": "3e223e73e49cf1f343414fcb4e993639019eb8d61daa161f84f49e5e31aa3c35",
+      "bytes": 191
+    },
+    "corrected/clang-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/clang-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "corrected/clang-sanitized-build.json": {
+      "sha256": "d0c1b903012d30041d245a456b4049185177cb878abcee2112173a7e464edd14",
+      "bytes": 602
+    },
+    "corrected/clang-sanitized-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/clang-sanitized-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/clang-sanitized-run.json": {
+      "sha256": "4322af353cb798fbbeb6c1d7072222ea211a8588d2d9c1e5e96122e5faad7ad2",
+      "bytes": 200
+    },
+    "corrected/clang-sanitized-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/clang-sanitized-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "corrected/clang-sanitized-version.json": {
+      "sha256": "697269643b3df55e7e76d15ac2c76590f6240f732cf00f197bfae35eb4755bd2",
+      "bytes": 169
+    },
+    "corrected/clang-sanitized-version.stderr": {
+      "sha256": "7bfe486eb894fbc51a080b74ad049ab06c7fc85db2bb8119a8d6a91b97e8ce0c",
+      "bytes": 249
+    },
+    "corrected/clang-sanitized-version.stdout": {
+      "sha256": "3f71ea936365a0e0ded6b5e03b18884ba042415fb6acf05b0f1b2dfe5a6096e5",
+      "bytes": 191
+    },
+    "corrected/clang-version.json": {
+      "sha256": "4cb90eaef54b88b6b89606b8783babd50e98f413c34cefa3dfb04039f9a5ae5b",
+      "bytes": 170
+    },
+    "corrected/clang-version.stderr": {
+      "sha256": "7bfe486eb894fbc51a080b74ad049ab06c7fc85db2bb8119a8d6a91b97e8ce0c",
+      "bytes": 249
+    },
+    "corrected/clang-version.stdout": {
+      "sha256": "3f71ea936365a0e0ded6b5e03b18884ba042415fb6acf05b0f1b2dfe5a6096e5",
+      "bytes": 191
+    },
+    "corrected/complete.json": {
+      "sha256": "156b16c5f3aacb25dabdd7e5b96e48a656f2ed3f3f2a7d5ba53ec3ce7575992b",
+      "bytes": 167
+    },
+    "corrected/gcc-build.json": {
+      "sha256": "97a5aaba15ae0b311f9ae7b4da868c9a949bc39b3e4b65a21f8f901b0b8a3b44",
+      "bytes": 456
+    },
+    "corrected/gcc-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/gcc-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/gcc-run.json": {
+      "sha256": "28ef9dd9fa4418cc58817205e36fc949a263e5e592be1059b83a21f9b92e9dec",
+      "bytes": 189
+    },
+    "corrected/gcc-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/gcc-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "corrected/gcc-sanitized-build.json": {
+      "sha256": "779b8bf0207bfe10af76b9884ccd439625d5866ba41252b057377d6fd4870254",
+      "bytes": 533
+    },
+    "corrected/gcc-sanitized-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/gcc-sanitized-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/gcc-sanitized-run.json": {
+      "sha256": "6202b91f2964313375e874b7e79ef085c496c3a196d12bd46684d771232029aa",
+      "bytes": 198
+    },
+    "corrected/gcc-sanitized-run.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/gcc-sanitized-run.stdout": {
+      "sha256": "a11b084dc2eed89b7e04c184bed6b63b03a658f58a1bf410ee13939ebea0da09",
+      "bytes": 90
+    },
+    "corrected/gcc-sanitized-version.json": {
+      "sha256": "b8530efc82a2731b0a4c916875e3ee94eeaac4c3c2a28c3990b78d09733f6262",
+      "bytes": 163
+    },
+    "corrected/gcc-sanitized-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/gcc-sanitized-version.stdout": {
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+      "bytes": 246
+    },
+    "corrected/gcc-version.json": {
+      "sha256": "ad445e2a6a5ed84b1f92c2e90fbd4217bc1fb02d90de9c7a1300e5c7f2b96871",
+      "bytes": 163
+    },
+    "corrected/gcc-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "corrected/gcc-version.stdout": {
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+      "bytes": 246
+    },
+    "corrected/inputs-after.json": {
+      "sha256": "5fc2d1ed36096f543dd5e5b931bf5055a05410152aed8809a6880a7f8b9a5c89",
+      "bytes": 1968
+    },
+    "corrected/inputs-rechecked.json": {
+      "sha256": "5fc2d1ed36096f543dd5e5b931bf5055a05410152aed8809a6880a7f8b9a5c89",
+      "bytes": 1968
+    },
+    "corrected/inputs.json": {
+      "sha256": "f454df44288cf925a6de235a11d04888245ebe4d275c31dceb0f6d0004b4c569",
+      "bytes": 2172
+    },
+    "corrected/products.json": {
+      "sha256": "44700cb126627d6fa9b2feeb4d29745455c652ebace6232728f25a5750f10bc1",
+      "bytes": 569
+    },
+    "corrected/run.py": {
+      "sha256": "f66130f37218081714aad770a51cac35cb380bbc25b417a18ab49a57d5489297",
+      "bytes": 3966
+    },
+    "corrected/tools.json": {
+      "sha256": "89151cad5b8944f2ff763591c75297e060d018fada5f8bdd79fd4f0ec054d4e9",
+      "bytes": 735
+    },
+    "first/clang-sanitized-version.json": {
+      "sha256": "c7730557984da82cf658332959e3c0a3e0d07c00df7b5730c27c473f4d952f9e",
+      "bytes": 170
+    },
+    "first/clang-sanitized-version.stderr": {
+      "sha256": "7bfe486eb894fbc51a080b74ad049ab06c7fc85db2bb8119a8d6a91b97e8ce0c",
+      "bytes": 249
+    },
+    "first/clang-sanitized-version.stdout": {
+      "sha256": "3f71ea936365a0e0ded6b5e03b18884ba042415fb6acf05b0f1b2dfe5a6096e5",
+      "bytes": 191
+    },
+    "first/clang-version.json": {
+      "sha256": "097daab1d98567e8958cfbae4bc0aac3c10549f17fb8ff5d803d50f23a3461cf",
+      "bytes": 169
+    },
+    "first/clang-version.stderr": {
+      "sha256": "7bfe486eb894fbc51a080b74ad049ab06c7fc85db2bb8119a8d6a91b97e8ce0c",
+      "bytes": 249
+    },
+    "first/clang-version.stdout": {
+      "sha256": "3f71ea936365a0e0ded6b5e03b18884ba042415fb6acf05b0f1b2dfe5a6096e5",
+      "bytes": 191
+    },
+    "first/gcc-build.json": {
+      "sha256": "b4daf206cbcb67f9335c9eecd0f89d02470ce6b24ceec6e9e5573f50f4fd2d93",
+      "bytes": 432
+    },
+    "first/gcc-build.stderr": {
+      "sha256": "6f0bcca6419068b26dbc2b5ec306ef05074f44e1fc5f02aa2c68a89bd68b939a",
+      "bytes": 213
+    },
+    "first/gcc-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "first/gcc-sanitized-version.json": {
+      "sha256": "6ce41661398f6bcd4ea0c54f9187d6f8107c8ee11a3ef661e2203607385fafa7",
+      "bytes": 163
+    },
+    "first/gcc-sanitized-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "first/gcc-sanitized-version.stdout": {
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+      "bytes": 246
+    },
+    "first/gcc-version.json": {
+      "sha256": "3b11d4ca475bc257d49f71e11980a69f9318534b52284d8cbf096e2551fca3db",
+      "bytes": 163
+    },
+    "first/gcc-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "first/gcc-version.stdout": {
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+      "bytes": 246
+    },
+    "first/inputs-rechecked.json": {
+      "sha256": "3cf6445a6768909f4177eea31e56edd0eb58804cf30d0dbc48efb894104278d1",
+      "bytes": 1821
+    },
+    "first/inputs.json": {
+      "sha256": "2991433b6dc684b3698832bcbfa26fbd6241df25124eee493bc769837d30b113",
+      "bytes": 2015
+    },
+    "first/products.json": {
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    "first/run.py": {
+      "sha256": "2cc5441d9357584213f7f42d204945abf70325a1b69176e62aaf4a2503f41b02",
+      "bytes": 3945
+    },
+    "first/tools.json": {
+      "sha256": "89151cad5b8944f2ff763591c75297e060d018fada5f8bdd79fd4f0ec054d4e9",
+      "bytes": 735
+    }
+  },
+  "darwin": "unrun"
+}

@@ -1,6 +1,27 @@
+# I retain explicit static owners while my shared library keeps private dependencies.
+module "modules/cjson_provider/cjson_provider.nano" as CompilerCJsonProvider
+
 module compiler_support
 
 extern fn nlc_module_artifact(source_path: string) -> string
+extern fn nlc_runtime_root() -> string
+extern fn nlc_native_array_abi() -> int
+
+pub fn runtime_root() -> string {
+    unsafe { return (+ "" (nlc_runtime_root)) }
+}
+shadow runtime_root {
+    # I expose the same immutable discovery result on repeated calls.
+    let first: string = (runtime_root)
+    assert (== first (runtime_root))
+}
+
+pub fn native_array_abi() -> int {
+    unsafe { return (nlc_native_array_abi) }
+}
+shadow native_array_abi {
+    assert (== (native_array_abi) 2)
+}
 
 pub fn module_artifact(source_path: string) -> string {
     unsafe { return (+ "" (nlc_module_artifact source_path)) }

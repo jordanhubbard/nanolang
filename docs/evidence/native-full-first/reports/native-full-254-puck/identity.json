@@ -1,0 +1,19 @@
+{
+  "pin": "254816b3bc64b97cef8c5f81480205285913a488",
+  "archive_sha": "fa6bcb3b3553f299f52e19ec5df9e6dea7a51393ddc38311e01dfdebb286cc46",
+  "driver_sha": "d18c1aedb38707d817cf45b8b59fe9a771077b85e790d3c968a5a472647362cc",
+  "host": {
+    "system": "Darwin",
+    "node": "puck",
+    "release": "27.0.0",
+    "version": "Darwin Kernel Version 27.0.0: Tue Aug 11 21:05:48 PDT 2026; root:xnu-13432.1.9~1/RELEASE_ARM64_T6041",
+    "machine": "arm64"
+  },
+  "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "tools": {
+    "/usr/bin/make": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+    "/usr/bin/clang": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2",
+    "/opt/homebrew/opt/llvm/bin/clang": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3": "8e598855de9a6648bc670d5fe7a3a653f1fa967b74373ed7c4ca16fbc40c0de1"
+  }
+}

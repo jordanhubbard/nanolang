@@ -1,0 +1,11 @@
+{"pin": "29e74c56812310b3fd1263fd3b057998795ae2a8", "source_files": 3741, "root": "/tmp/nanolang-record-generated-qualified-29e74", "sdk": null}
+{"phase": "setup", "status": 0, "seconds": 21.116}
+{"phase": "configuration", "status": 0, "seconds": 0.114}
+{"phase": "discovery", "status": 0, "seconds": 0.064}
+{"phase": "ordinary", "status": 1, "seconds": 15.351}
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-generated-29e74-launch.py", line 20, in <module>
+    subprocess.run([sys.executable,'/tmp/nanolang-record-generated-29e74-driver.py',str(root),'/tmp/nanolang-record-generated-29e74-'+host],check=True,env=env)
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/usr/bin/python3', '/tmp/nanolang-record-generated-29e74-driver.py', '/tmp/nanolang-record-generated-qualified-29e74', '/tmp/nanolang-record-generated-29e74-linux']' returned non-zero exit status 1.

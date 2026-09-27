@@ -1,4 +1,8 @@
 """I retain direct real-engine Wasm host acceptance, never NanoISA admission."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import hashlib
 import json
 import os
@@ -71,7 +75,7 @@ class PortableReadWasm(unittest.TestCase):
             self.assertEqual(hashlib.sha256((binding / name).read_bytes()).hexdigest(), digest, name)
         self.dump('private-binding-provenance.json', pin)
         self.env = dict(os.environ, PYTHONPATH=str(binding), PYTHONDONTWRITEBYTECODE='1',
-                        ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+                        ASAN_OPTIONS=asan_options("halt_on_error=1"),
                         UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1', LSAN_OPTIONS='')
         self.env.pop('PYTHONOPTIMIZE', None)
         extras = json.loads(os.environ.get('PORTABLE_WASM_EXTRA_TOOLS', '{}'))

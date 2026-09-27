@@ -1,0 +1,12 @@
+{
+  "cleanup": [],
+  "owned": {
+    "18013": {
+      "command": "/Applications/Xcode.app/Contents/Developer/usr/bin/make -s -f Makefile.gnu -f /Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/package-hb-reports/providers.mk CC=/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang array-config",
+      "group": 18013,
+      "parent": 18000,
+      "started": "Mon Sep 21 08:07:11 2026"
+    }
+  },
+  "remaining": []
+}

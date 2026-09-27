@@ -1,4 +1,8 @@
 """I qualify private real-file ownership; no public source/import admission."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import os
 from pathlib import Path
 import shlex
@@ -21,7 +25,7 @@ class LocalFileService(unittest.TestCase):
 
     def qualify(self, name, sources):
         exe = self.artifacts / name
-        env = dict(os.environ, ASAN_OPTIONS="detect_leaks=1:halt_on_error=1",
+        env = dict(os.environ, ASAN_OPTIONS=asan_options("halt_on_error=1"),
                    UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
         for label, command in (("build", [*self.compiler, *self.flags, *sources, "-o", str(exe)]),
                                ("run", [str(exe)])):

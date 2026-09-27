@@ -1,0 +1,22 @@
+{
+  "scope": "Four unchanged effect methods: C-seed native and C-producer NanoVM only",
+  "production": "a2ef6eaddc3613151ef72ede0ecb391703f74122",
+  "fixture": "a522b2fd8",
+  "terminal": {
+    "passed": true,
+    "tests": 4,
+    "commands": 16,
+    "errors": 0,
+    "failures": 0
+  },
+  "stable_maps": {
+    "sources": 3754,
+    "tools": 15,
+    "providers": 860
+  },
+  "commands": 16,
+  "archive": {
+    "sha256": "16ec2d56624ac884501899c2d472e07f4b49934e4e60de1191c0581b32e8e909",
+    "bytes": 890692
+  }
+}

@@ -17,7 +17,7 @@ from "modules/std/json/json.nano" import parse as json_parse, free as json_free,
 # I reuse the process runner for both streams and the same execution's status.
 from "modules/std/process.nano" import run as mac_process_run, Output
 
-struct CommandResult {
+pub struct CommandResult {
     stdout: string,
     stderr: string,
     exit_code: int
@@ -26,7 +26,7 @@ struct CommandResult {
 # I group the command so the runner redirects the entire shell sequence.
 # This function intentionally executes shell code. My ledger helpers quote
 # each string argument and terminate option parsing before positional data.
-fn exec_command(command: string) -> CommandResult {
+pub fn exec_command(command: string) -> CommandResult {
     let result: Output = (mac_process_run (+ "( " (+ command "\n)")))
     return CommandResult {
         stdout: result.stdout,
@@ -47,7 +47,7 @@ shadow exec_command {
 # state, created_at, updated_at. States are: open, waiting, blocked, claimed,
 # running, needs_review, needs_input, stopped, reviewing, completed, failed,
 # cancelled. Priority is an integer (lower = more urgent on this hub).
-struct Task {
+pub struct Task {
     id: string,
     title: string,
     description: string,
@@ -58,7 +58,7 @@ struct Task {
     updated_at: string
 }
 
-struct TaskStats {
+pub struct TaskStats {
     total: int,
     open: int,
     claimed: int,
@@ -68,7 +68,7 @@ struct TaskStats {
     cancelled: int
 }
 
-struct TaskCreateOptions {
+pub struct TaskCreateOptions {
     title: string,
     description: string,
     priority: int,
@@ -113,7 +113,7 @@ shadow mac_shell_quote {
 }
 
 # List tasks with optional state filter (e.g. "open", "running", "" for active).
-fn mac_list(state: string) -> array<Task> {
+pub fn mac_list(state: string) -> array<Task> {
     return (mac_list_with_runner state exec_command)
 }
 
@@ -153,7 +153,7 @@ shadow mac_list_with_runner {
 }
 
 # Get all open tasks
-fn mac_open() -> array<Task> {
+pub fn mac_open() -> array<Task> {
     return (mac_list "open")
 }
 
@@ -165,7 +165,7 @@ shadow mac_open {
 }
 
 # Get all task-ready work (`mac task ready`)
-fn mac_ready() -> array<Task> {
+pub fn mac_ready() -> array<Task> {
     return (mac_ready_with_runner exec_command)
 }
 
@@ -193,7 +193,7 @@ shadow mac_ready_with_runner {
 }
 
 # Get tasks at (or filtered to) a given integer priority via the selector.
-fn mac_by_priority(priority: int) -> array<Task> {
+pub fn mac_by_priority(priority: int) -> array<Task> {
     return (mac_by_priority_with_runner priority exec_command)
 }
 
@@ -228,7 +228,7 @@ shadow mac_by_priority_with_runner {
 }
 
 # Show a specific task by ID (`mac task show <id> --json`).
-fn mac_show(id: string) -> Task {
+pub fn mac_show(id: string) -> Task {
     return (mac_show_with_runner id exec_command)
 }
 
@@ -258,7 +258,7 @@ shadow mac_show_with_runner {
 }
 
 # Create a new task. Returns the new task id (or "" on failure).
-fn mac_create(title: string, description: string, priority: int, kind: string) -> string {
+pub fn mac_create(title: string, description: string, priority: int, kind: string) -> string {
     if (== (str_length title) 0) { return "" }
     let mut cmd: string = "mac task create"
     set cmd (+ cmd (+ " --description=" (mac_shell_quote description)))
@@ -284,7 +284,7 @@ shadow mac_create {
 }
 
 # Create a task with full options
-fn mac_create_with_options(opts: TaskCreateOptions) -> string {
+pub fn mac_create_with_options(opts: TaskCreateOptions) -> string {
     return (mac_create opts.title opts.description opts.priority opts.kind)
 }
 
@@ -300,7 +300,7 @@ shadow mac_create_with_options {
 }
 
 # Close a task. `mac task close` completes by default; cancellation needs a reason.
-fn mac_close(id: string, reason: string) -> bool {
+pub fn mac_close(id: string, reason: string) -> bool {
     if (== (str_length id) 0) { return false }
     let mut cmd: string = "mac task close"
 
@@ -320,7 +320,7 @@ shadow mac_close {
 }
 
 # Get statistics by counting tasks per state (portable across mac versions).
-fn mac_stats() -> TaskStats {
+pub fn mac_stats() -> TaskStats {
     return (mac_stats_with_runner exec_command)
 }
 
@@ -556,7 +556,7 @@ shadow extract_task_id {
 # === assert_with_task ===
 # Automatically file a MAC task from a failing assertion.
 
-fn assert_with_task(condition: bool, title: string, priority: int, description: string) -> bool {
+pub fn assert_with_task(condition: bool, title: string, priority: int, description: string) -> bool {
     if (not condition) {
         # File a task for this failing assertion
         let task_id: string = (mac_create title description priority "report")
@@ -570,7 +570,7 @@ fn assert_with_task(condition: bool, title: string, priority: int, description: 
 }
 
 # Enhanced version that auto-captures context
-fn assert_with_task_context(
+pub fn assert_with_task_context(
     condition: bool,
     title: string,
     priority: int,

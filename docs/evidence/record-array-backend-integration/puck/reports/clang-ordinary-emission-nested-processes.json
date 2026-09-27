@@ -1,0 +1,24 @@
+{
+  "cleanup": [],
+  "owned": {
+    "3875": {
+      "command": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python -m unittest -f -v tests.test_record_array_llvm.RecordArrayLLVM.test_01_emission_bounds",
+      "group": 3875,
+      "parent": 89766,
+      "started": "Mon Sep 21 07:47:02 2026"
+    },
+    "3884": {
+      "command": "/opt/homebrew/opt/llvm/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ffi -I/opt/homebrew/opt/openssl@3/include -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -DRA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h -c src/nanoisa/nvm_v2_layouts.c -o /Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-kgp2fxv9/emission-nvm_v2_layouts.o",
+      "group": 3884,
+      "parent": 3875,
+      "started": "Mon Sep 21 07:47:03 2026"
+    },
+    "3899": {
+      "command": "/Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-kgp2fxv9/emission",
+      "group": 3899,
+      "parent": 3875,
+      "started": "Mon Sep 21 07:47:04 2026"
+    }
+  },
+  "remaining": []
+}

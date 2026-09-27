@@ -1,0 +1,366 @@
+{
+  "linux": {
+    "archive_sha256": "c2baa0d41e72c2deff7c90b4da8e21c93d6c5163774bc8d7ba93f82e6ea08d2c",
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "ordinary-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized-product.json": {
+        "bytes": 117,
+        "sha256": "361e267b29fc2565876672a56d9afbb610c7e9fdb985ed6a9250446895c23e35"
+      },
+      "sanitized-codec": {
+        "bytes": 139944,
+        "sha256": "4cb8297cdfbb973ecb42ed6ba634ce11bf27dfb899529140eb0d5b7b9105116a"
+      },
+      "sanitized-codec.log": {
+        "bytes": 82,
+        "sha256": "d067a80a83b7cd5260f35509d8c2f87bdd43766394333f531377f4e43cb7e1bf"
+      },
+      "sanitized-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tools-after.json": {
+        "bytes": 147,
+        "sha256": "203fc46be1b9cb267baee9beef64996cfed6f8e03aa7f08a540e896326aae9f0"
+      },
+      "ordinary-codec": {
+        "bytes": 95528,
+        "sha256": "8011ebb693bd803e81cf9ad7ac5a63164321660a94c5ee4fbd83d32b1489bfb3"
+      },
+      "source-after.json": {
+        "bytes": 1443,
+        "sha256": "3705052ba4bb166cb20931c24a9dfa6e4626b80b09a84cafcf5b704d25cb76a1"
+      },
+      "identity.json": {
+        "bytes": 744,
+        "sha256": "88e6d164696de713f4038d79a1dba798a4a906a0c507a30f40a111ae4c315b32"
+      },
+      "ordinary-codec.log": {
+        "bytes": 82,
+        "sha256": "d067a80a83b7cd5260f35509d8c2f87bdd43766394333f531377f4e43cb7e1bf"
+      },
+      "ordinary-product.json": {
+        "bytes": 116,
+        "sha256": "70f7caca86404884241cdf9f992237c04b3b45393b6c973aad94e6fa950c1c72"
+      },
+      "source-before.json": {
+        "bytes": 1443,
+        "sha256": "3705052ba4bb166cb20931c24a9dfa6e4626b80b09a84cafcf5b704d25cb76a1"
+      },
+      "phases.json": {
+        "bytes": 1602,
+        "sha256": "4a22f16880fd063b75fd5b4284d0e702f1016d33c286d1aca2891e4f9e298109"
+      },
+      "source/tests/test_sdk_signature_snapshot.c": {
+        "bytes": 5195,
+        "sha256": "b0e0e419274838342f2aae1cfeab0cd4f4b9137bbf466fc06a184c17c0ffda33"
+      },
+      "source/src/nanoisa/sdk_signature_snapshot.c": {
+        "bytes": 4686,
+        "sha256": "37cc2f22cbf37e1117e213e047aa3fb09625a9dafd72b199fe770d41bf6765b1"
+      },
+      "source/src/nanoisa/isa.h": {
+        "bytes": 19096,
+        "sha256": "e540389ef8fb793498736eb717796122ceb396e5ff6894adabd0532173655fa5"
+      },
+      "source/src/nanoisa/generated_schema.h": {
+        "bytes": 27126,
+        "sha256": "604a8c09a0bd06d9db5aec7ed9b0dff9b127ad29c14adc48587cb500a8a39c8e"
+      },
+      "source/src/nanoisa/nvm_v2_sections.h": {
+        "bytes": 19062,
+        "sha256": "e4bac6faec58afad5b0f9b68446351985845a050f5c81ddfd34a67db77eb8c83"
+      },
+      "source/src/nanoisa/nvm_format_v2.h": {
+        "bytes": 5694,
+        "sha256": "46fa83691461d535e5b02b4d30bbb890c86d3008d946dc937da45bbdb05c272b"
+      },
+      "source/src/nanoisa/sdk_signature_snapshot.h": {
+        "bytes": 1643,
+        "sha256": "cce33105da0ba7aefab306e2cf6aab55b0eedbbc272871a5c282a842a9d40e79"
+      },
+      "source/src/nanoisa/sdk_provider_codec.h": {
+        "bytes": 3260,
+        "sha256": "4191fb55b8c4d110ec8c08beecbc7ddefdd02be498cba5594bae8d3417210159"
+      },
+      "source/src/nanoisa/nvm_format.h": {
+        "bytes": 16013,
+        "sha256": "188ffcb42a6b25b553e6fa57c0356c36ed3a4c4a2f90771a67f19309bafc50ec"
+      }
+    },
+    "phases": [
+      {
+        "label": "ordinary-build",
+        "argv": [
+          "/usr/bin/gcc",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O2",
+          "tests/test_sdk_signature_snapshot.c",
+          "-o",
+          "/home/jkh/nanolang-qualification/sdk-signature-1ff-linux/ordinary-codec"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 2100516,
+        "seconds": 0.11418237502221018,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "ordinary-codec",
+        "argv": [
+          "/home/jkh/nanolang-qualification/sdk-signature-1ff-linux/ordinary-codec"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 2100537,
+        "seconds": 0.0014233440160751343,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "sanitized-build",
+        "argv": [
+          "/usr/bin/gcc",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O1",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-fno-sanitize-recover=all",
+          "tests/test_sdk_signature_snapshot.c",
+          "-o",
+          "/home/jkh/nanolang-qualification/sdk-signature-1ff-linux/sanitized-codec"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 2100538,
+        "seconds": 0.21541474689729512,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "sanitized-codec",
+        "argv": [
+          "/home/jkh/nanolang-qualification/sdk-signature-1ff-linux/sanitized-codec"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 2100543,
+        "seconds": 0.007592679001390934,
+        "returncode": 0,
+        "group_remaining": false
+      }
+    ]
+  },
+  "puck": {
+    "archive_sha256": "473c8ab6fc29e2de6187d1de8e9bfb76d6114841e9602d16483a49c67c6c3ec6",
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "ordinary-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized-product.json": {
+        "bytes": 116,
+        "sha256": "a567848289ddf8b652031cf8e95415d6804d1bd60668f354ba35d2d7ad853eb0"
+      },
+      "sanitized-codec": {
+        "bytes": 74672,
+        "sha256": "9a0287166c91512be7d6c5a9d6ef5f9e347e7f69fde977280ee771bb27fdb589"
+      },
+      "sanitized-codec.log": {
+        "bytes": 82,
+        "sha256": "d067a80a83b7cd5260f35509d8c2f87bdd43766394333f531377f4e43cb7e1bf"
+      },
+      "sanitized-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tools-after.json": {
+        "bytes": 313,
+        "sha256": "17a0c6e408baf645d8c690649843f919844564ea63a0474510ec327b717fc8b5"
+      },
+      "ordinary-codec": {
+        "bytes": 37632,
+        "sha256": "9c1fbfd05d4ead37210d9e3675bff955f3622b3331889f4ea9840583e5dca649"
+      },
+      "source-after.json": {
+        "bytes": 1443,
+        "sha256": "c99a4ec2b4ea2a00aa43a3fe2d65bf486ef54f77b766d75a36818f6b58c7ceab"
+      },
+      "identity.json": {
+        "bytes": 1012,
+        "sha256": "5dd5c39001ad9f9690e80eb978e0bd34928f47134e886c18c4dcdd8930488dd9"
+      },
+      "ordinary-codec.log": {
+        "bytes": 82,
+        "sha256": "d067a80a83b7cd5260f35509d8c2f87bdd43766394333f531377f4e43cb7e1bf"
+      },
+      "ordinary-product.json": {
+        "bytes": 116,
+        "sha256": "4156cc9a8fbbf795d573124e7ad6ea745e19356aad98195370f7e44b141e99fc"
+      },
+      "source-before.json": {
+        "bytes": 1443,
+        "sha256": "c99a4ec2b4ea2a00aa43a3fe2d65bf486ef54f77b766d75a36818f6b58c7ceab"
+      },
+      "phases.json": {
+        "bytes": 1851,
+        "sha256": "fb95eb37462a6d0158850bacc710a4073066d3404f04d86ab4c71fd4dd747da9"
+      },
+      "sanitized-codec.dSYM/Contents/Info.plist": {
+        "bytes": 644,
+        "sha256": "e8df9e2435ce39f9a4befe251ef29bd78120f1a3719238ddfc83475a0cc762f7"
+      },
+      "sanitized-codec.dSYM/Contents/Resources/DWARF/sanitized-codec": {
+        "bytes": 30937,
+        "sha256": "45214c03c01ec4106b61b4d9de9b7affdd83840b4e09635bf04e82612f2125f8"
+      },
+      "sanitized-codec.dSYM/Contents/Resources/Relocations/aarch64/sanitized-codec.yml": {
+        "bytes": 158,
+        "sha256": "fc84e2e7286de83a8f344be1f5d6d97db26422636c9ce97762e325d431b040d8"
+      },
+      "ordinary-codec.dSYM/Contents/Info.plist": {
+        "bytes": 643,
+        "sha256": "d66ff6febc0f9364905957312e9b2c9b3332465af166216e601416a03ae65d1c"
+      },
+      "ordinary-codec.dSYM/Contents/Resources/DWARF/ordinary-codec": {
+        "bytes": 24152,
+        "sha256": "60f72839127d81cc3a716f5a7adcb06c8802acabc25597a4a179bd5e8fdd0050"
+      },
+      "ordinary-codec.dSYM/Contents/Resources/Relocations/aarch64/ordinary-codec.yml": {
+        "bytes": 157,
+        "sha256": "3574333f59b8dd1e4e84abffbb8f7a84c175d1bb3b143b5151eea1a9f8b7b8d7"
+      },
+      "source/tests/test_sdk_signature_snapshot.c": {
+        "bytes": 5195,
+        "sha256": "b0e0e419274838342f2aae1cfeab0cd4f4b9137bbf466fc06a184c17c0ffda33"
+      },
+      "source/src/nanoisa/sdk_signature_snapshot.c": {
+        "bytes": 4686,
+        "sha256": "37cc2f22cbf37e1117e213e047aa3fb09625a9dafd72b199fe770d41bf6765b1"
+      },
+      "source/src/nanoisa/isa.h": {
+        "bytes": 19096,
+        "sha256": "e540389ef8fb793498736eb717796122ceb396e5ff6894adabd0532173655fa5"
+      },
+      "source/src/nanoisa/generated_schema.h": {
+        "bytes": 27126,
+        "sha256": "604a8c09a0bd06d9db5aec7ed9b0dff9b127ad29c14adc48587cb500a8a39c8e"
+      },
+      "source/src/nanoisa/nvm_v2_sections.h": {
+        "bytes": 19062,
+        "sha256": "e4bac6faec58afad5b0f9b68446351985845a050f5c81ddfd34a67db77eb8c83"
+      },
+      "source/src/nanoisa/nvm_format_v2.h": {
+        "bytes": 5694,
+        "sha256": "46fa83691461d535e5b02b4d30bbb890c86d3008d946dc937da45bbdb05c272b"
+      },
+      "source/src/nanoisa/sdk_signature_snapshot.h": {
+        "bytes": 1643,
+        "sha256": "cce33105da0ba7aefab306e2cf6aab55b0eedbbc272871a5c282a842a9d40e79"
+      },
+      "source/src/nanoisa/sdk_provider_codec.h": {
+        "bytes": 3260,
+        "sha256": "4191fb55b8c4d110ec8c08beecbc7ddefdd02be498cba5594bae8d3417210159"
+      },
+      "source/src/nanoisa/nvm_format.h": {
+        "bytes": 16013,
+        "sha256": "188ffcb42a6b25b553e6fa57c0356c36ed3a4c4a2f90771a67f19309bafc50ec"
+      }
+    },
+    "phases": [
+      {
+        "label": "ordinary-build",
+        "argv": [
+          "/usr/bin/clang",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O2",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "tests/test_sdk_signature_snapshot.c",
+          "-o",
+          "/Users/jkh/nanolang-qualification/sdk-signature-1ff-puck/ordinary-codec"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 98664,
+        "seconds": 0.13335524999999998,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "ordinary-codec",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/sdk-signature-1ff-puck/ordinary-codec"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 98673,
+        "seconds": 0.255821541,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "sanitized-build",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O1",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-fno-sanitize-recover=all",
+          "tests/test_sdk_signature_snapshot.c",
+          "-o",
+          "/Users/jkh/nanolang-qualification/sdk-signature-1ff-puck/sanitized-codec"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 98681,
+        "seconds": 0.21215004200000004,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "sanitized-codec",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/sdk-signature-1ff-puck/sanitized-codec"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 98685,
+        "seconds": 0.36895412500000013,
+        "returncode": 0,
+        "group_remaining": false
+      }
+    ]
+  }
+}

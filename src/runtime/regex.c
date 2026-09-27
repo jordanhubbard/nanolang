@@ -12,6 +12,10 @@
 #include <stdio.h>
 #include "dyn_array.h"
 
+NANO_EXPORT_ARRAY_ABI(nl_regex_find_all);
+NANO_EXPORT_ARRAY_ABI(nl_regex_groups);
+NANO_EXPORT_ARRAY_ABI(nl_regex_split);
+
 typedef struct {
     regex_t compiled;
     int is_valid;
@@ -236,4 +240,3 @@ DynArray* nl_regex_split(void* regex, const char* text) {
 }
 
 /* nl_regex_free is now defined above with the cleanup logic */
-

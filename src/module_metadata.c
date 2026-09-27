@@ -64,6 +64,7 @@ static bool metadata_graph_collect(MetadataGraph *graph, const ModuleMetadata *m
                 t->tuple_element_count < 0 || (t->tuple_element_count && !t->tuple_types) ||
                 t->row_field_count < 0 || (t->row_field_count && !t->row_field_types) ||
                 t->type_var_count < 0 || (t->type_var_count && !t->type_var_names)) return false;
+            if (t->base_type == TYPE_TUPLE && !type_info_tuple_valid(t)) return false;
             if (!metadata_add(&graph->types, t->element_type) ||
                 !metadata_add(&graph->signatures, t->fn_sig)) return false;
             for (int j = 0; j < t->type_param_count; j++)

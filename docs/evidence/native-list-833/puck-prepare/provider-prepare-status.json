@@ -1,0 +1,28 @@
+{
+  "name": "provider-prepare",
+  "argv": [
+    "make",
+    "-f",
+    "/Users/jkh/nanolang-qualification/record-lists-833-puck-prepare/prepare.mk",
+    "-j2",
+    "list-prepare",
+    "CC=/usr/bin/clang",
+    "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  ],
+  "bound_seconds": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.846421208000038,
+  "log": {
+    "sha256": "b6d1ceb6ab57140b4289b7bd05afbb90f2e814573bee7df1b31b03cb32248e95",
+    "bytes": 12819,
+    "archive": "/Users/jkh/nanolang-qualification/record-lists-833-puck-prepare/objects/b6d1ceb6ab57140b4289b7bd05afbb90f2e814573bee7df1b31b03cb32248e95"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

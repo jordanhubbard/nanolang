@@ -7,7 +7,12 @@ int64_t nano_artifact_answer(void) { return ARTIFACT_ANSWER; }
 static DynArray empty = {.elem_type = ELEM_INT, .elem_size = sizeof(int64_t)};
 DynArray *array_matching(void) { return &empty; }
 NANO_EXPORT_ARRAY_ABI(array_matching);
-DynArray *array_legacy(void) { return &empty; }
+/* I must never enter either old-layout route from the ABI2 VM. */
+typedef struct { int64_t length, capacity; ElementType elem_type;
+                 uint8_t elem_size; void *data; } LegacyArray;
+LegacyArray *array_legacy(void) { abort(); }
+LegacyArray *array_stale(void) { abort(); }
+const uint32_t array_stale__nano_array_abi = 1;
 /* I abort if the VM enters an incompatible foreign function. */
 DynArray *array_mismatch(void) { abort(); }
 const uint32_t array_mismatch__nano_array_abi = 99;

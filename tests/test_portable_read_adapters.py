@@ -1,4 +1,8 @@
 """I retain private real-reader gates; no NanoISA profile is selected."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import hashlib
 import json
 import os
@@ -123,7 +127,7 @@ class PortableReadAdapters(unittest.TestCase):
         extras = json.loads(os.environ.get('PORTABLE_ADAPTER_EXTRA_TOOLS', '{}'))
         self.assertIsInstance(extras, dict)
         self.assertTrue(all(isinstance(v, str) and Path(v).is_file() for v in extras.values()))
-        self.env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+        self.env = dict(os.environ, ASAN_OPTIONS=asan_options("halt_on_error=1"),
                         UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1', LSAN_OPTIONS='')
         self.inputs = sorted(set(
             [p.resolve() for p in (ROOT / 'src').rglob('*') if p.is_file() and p.suffix in ('.c', '.h', '.inc')]

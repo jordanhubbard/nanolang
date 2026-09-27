@@ -188,6 +188,12 @@ static NvmVerifyResult verify_types_checked(const NvmModule *mod, uint32_t fn_id
     NvmVerifyResult ok;
     ok.ok = true;
     ok.error_msg[0] = '\0';
+    if (nvm_capture_bindings_present(mod)) {
+        ok.ok = false;
+        snprintf(ok.error_msg, sizeof ok.error_msg, "I require capture binding type verification");
+        if (error && error_size) snprintf(error, error_size, "%s", ok.error_msg);
+        return ok;
+    }
 
     /* A deep stack would need a large snapshot per instruction. The analysis
      * is an optimisation over the height proof, not a soundness requirement,

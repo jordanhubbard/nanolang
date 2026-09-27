@@ -1,0 +1,10 @@
+{"phase": "variables", "seconds": 0.9270656739827245, "free_bytes": 11942748160}
+{"phase": "env-build", "seconds": 0.9355884010437876, "free_bytes": 11942363136}
+{"phase": "eval-build", "seconds": 0.9113023920217529, "free_bytes": 11931238400}
+{"phase": "typechecker-build", "seconds": 0.9131904930109158, "free_bytes": 11928993792}
+{"phase": "link", "seconds": 0.9376763390609995, "free_bytes": 11921248256}
+{"phase": "full-compiler", "seconds": 0.9393248530104756, "free_bytes": 11874570240}
+{"phase": "full-compiler", "seconds": 10.939584027044475, "free_bytes": 11868413952}
+{"phase": "full-compiler", "seconds": 20.939875663025305, "free_bytes": 11858694144}
+{"phase": "full-compiler", "seconds": 30.94015803502407, "free_bytes": 11839049728}
+{"phase": "full-compiler", "seconds": 40.94057576707564, "free_bytes": 11822870528}

@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/tmp/nanolang-discarded-facts-1dca-fixtures/compiler-root/bin/nanoc-diagnostic",
+    "/home/jkh/Src/nanolang-list-discarded-fact-diagnostic/src_nano/nanoc_v06.nano",
+    "-o",
+    "/tmp/nanolang-discarded-facts-1dca-fixtures/compiler-root/bin/nanoc_stage1-diagnostic"
+  ],
+  "cwd": "/tmp/nanolang-discarded-facts-1dca-fixtures/compiler-root",
+  "bound": 1800,
+  "timeout": false,
+  "cleanup": [],
+  "returncode": 0,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 49.2512799189426,
+  "log": {
+    "sha256": "f8ccb30e9b0034d70fc935d4db3f600378cffc07f1dd75265b5907741b48e60a",
+    "bytes": 1219,
+    "archive": "/tmp/nanolang-discarded-facts-1dca-fixtures/objects/f8ccb30e9b0034d70fc935d4db3f600378cffc07f1dd75265b5907741b48e60a"
+  },
+  "inputs_equal": true
+}

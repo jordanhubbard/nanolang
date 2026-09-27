@@ -1,0 +1,8 @@
+I retain package artifacts at /Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/nanolang-record-package-425bc-puck/package-artifacts
+test_private_module_scalar_abi_lifecycle (tests.test_managed_runtime_package.ManagedRuntimePackage.test_private_module_scalar_abi_lifecycle) ... ok
+test_reproducible_target_packages_and_real_links (tests.test_managed_runtime_package.ManagedRuntimePackage.test_reproducible_target_packages_and_real_links) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.833s
+
+OK

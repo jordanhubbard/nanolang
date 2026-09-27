@@ -18,6 +18,7 @@ import "examples/opl/opl_codegen.nano"
 
 module "modules/std/fs.nano"
 module "modules/std/json/json.nano"
+module "modules/std/process.nano" as process
 
 fn resolve_bundle_path(relative: string) -> string {
     if (exists relative) { return relative } else {}
@@ -44,18 +45,9 @@ pub struct Output {
     stderr: string
 }
 
-extern fn process_run(_command: string) -> array<string>
-
 fn proc_run(command: string) -> Output {
-    let mut raw: array<string> = []
-    unsafe {
-        set raw (process_run command)
-    }
-    let code_s: string = (at raw 0)
-    let out: string = (at raw 1)
-    let err: string = (at raw 2)
-    let code: int = (string_to_int code_s)
-    return Output { code: code, stdout: out, stderr: err }
+    let result: process.Output = (process.run command)
+    return Output { code: result.code, stdout: result.stdout, stderr: result.stderr }
 }
 
 shadow proc_run {

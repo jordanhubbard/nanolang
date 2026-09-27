@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/tmp/nanolang-evaluator-lifetime-c1df-linux/nanoc-diagnostic",
+    "/home/jkh/Src/nanolang-record-lists-qualified-cc606/src_nano/parser_driver.nano",
+    "-o",
+    "/tmp/nanolang-evaluator-lifetime-c1df-linux/parser"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-cc606",
+  "bound": 120,
+  "timeout": false,
+  "cleanup": [],
+  "returncode": 1,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 1.0208705120021477,
+  "log": {
+    "sha256": "dd6b17ab253c399b8d7b3ae867c7d498a7979c7493787c747f9218e2f868eeb3",
+    "bytes": 598,
+    "archive": "/tmp/nanolang-evaluator-lifetime-c1df-linux/objects/dd6b17ab253c399b8d7b3ae867c7d498a7979c7493787c747f9218e2f868eeb3"
+  }
+}

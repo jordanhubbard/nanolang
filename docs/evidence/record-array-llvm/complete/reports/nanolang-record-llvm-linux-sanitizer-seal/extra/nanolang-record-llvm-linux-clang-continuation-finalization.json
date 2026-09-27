@@ -1,0 +1,14 @@
+{
+  "started": 1789996553.5528574,
+  "state": "stopped",
+  "observation_limit_seconds": 32400,
+  "outer": {
+    "returncode": 1,
+    "error": null,
+    "phase_limits": "driver:1800/14400/28800; child240",
+    "started": 1789996452.7992036,
+    "finished": 1789997392.1344368
+  },
+  "error": "AssertionError()",
+  "finished": 1789997393.557265
+}

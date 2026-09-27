@@ -79,7 +79,7 @@ fn phase_to_string(phase: int) -> string {
     if (== phase CompilerPhase.PHASE_LEXER) { return "lexer" }
     else { if (== phase CompilerPhase.PHASE_PARSER) { return "parser" }
     else { if (== phase CompilerPhase.PHASE_TYPECHECK) { return "typecheck" }
-    else { if (== phase CompilerPhase.PHASE_TRANSPILER) { return "transpiler" }
+    else { if (== phase CompilerPhase.PHASE_LOWERING) { return "lowering" }
     else { if (== phase CompilerPhase.PHASE_RUNTIME) { return "runtime" }
     else { return "unknown" } } } } }
 }

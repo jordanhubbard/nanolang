@@ -1,0 +1,18 @@
+I measure the complete TypeInfo copy: 24 allocation attempts.
+I measure view 0: 3 allocation attempts.
+I measure view 1: 4 allocation attempts.
+I measure view 2: 5 allocation attempts.
+I measure view 3: 16 allocation attempts.
+I measure view 4: 3 allocation attempts.
+I measure view 5: 7 allocation attempts.
+I measure view 6: 3 allocation attempts.
+I measure view 7: 5 allocation attempts.
+I measure view 8: 7 allocation attempts.
+I measure view 9: 3 allocation attempts.
+I measure the owned nominal context: 24 allocation attempts.
+I measure retained callable form 0: 239 allocation attempts.
+I measure retained callable form 1: 209 allocation attempts.
+I measure composed tuple route 0: 633 allocation attempts.
+I measure composed tuple route 1: 253 allocation attempts.
+I measure constructor proof publication: 8 allocation attempts.
+I passed 1754269 separate checker annotation allocation assertions.

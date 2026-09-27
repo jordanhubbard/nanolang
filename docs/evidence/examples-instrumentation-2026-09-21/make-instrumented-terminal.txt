@@ -1,0 +1,1 @@
+I stopped the first sweep to supply SDL3 lookup explicitly and bound each remaining compiler invocation. This run is incomplete.

@@ -1,0 +1,106 @@
+...F....
+======================================================================
+FAIL: test_owned_path_results_preserve_aliases (tests.test_cseed_process_ownership.CSeedProcessOwnership.test_owned_path_results_preserve_aliases)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_process_ownership.py", line 160, in test_owned_path_results_preserve_aliases
+    self.checked([binary],cwd=ROOT,env=env)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_process_ownership.py", line 78, in checked
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+=================================================================
+==46655==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x0001014d540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x00010062513c in gc_hash_add gc.c:68
+    #2 0x00010062513c in gc_alloc gc.c:243
+    #3 0x000100625b34 in gc_alloc_string gc.c:362
+    #4 0x0001005e94ec in nl_os_path_dirname+0x38 (program:arm64+0x1000014ec)
+    #5 0x0001005e949c in std_fs__dirname+0x1c (program:arm64+0x10000149c)
+    #6 0x0001005e8b50 in nl_main main.nano:4
+    #7 0x0001005e8b50 in main main.nano:17
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x0001014d540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x00010062513c in gc_hash_add gc.c:68
+    #2 0x00010062513c in gc_alloc gc.c:243
+    #3 0x000100625b34 in gc_alloc_string gc.c:362
+    #4 0x0001005e9410 in nl_os_path_basename+0x38 (program:arm64+0x100001410)
+    #5 0x0001005e93c0 in std_fs__basename+0x1c (program:arm64+0x1000013c0)
+    #6 0x0001005e8b34 in nl_main main.nano:4
+    #7 0x0001005e8b34 in main main.nano:17
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x0001014d540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x00010062513c in gc_hash_add gc.c:68
+    #2 0x00010062513c in gc_alloc gc.c:243
+    #3 0x000100625b34 in gc_alloc_string gc.c:362
+    #4 0x0001005e90e0 in nl_os_path_normalize+0x64 (program:arm64+0x1000010e0)
+    #5 0x0001005e9064 in std_fs__normalize+0x1c (program:arm64+0x100001064)
+    #6 0x0001005e8af4 in nl_main main.nano:4
+    #7 0x0001005e8af4 in main main.nano:17
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 16 byte(s) in 1 object(s) allocated from:
+    #0 0x0001014d540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x00010062513c in gc_hash_add gc.c:68
+    #2 0x00010062513c in gc_alloc gc.c:243
+    #3 0x000100625b34 in gc_alloc_string gc.c:362
+    #4 0x0001005e92a4 in nl_os_path_join+0x44 (program:arm64+0x1000012a4)
+    #5 0x0001005e9248 in std_fs__join+0x2c (program:arm64+0x100001248)
+    #6 0x0001005e8b18 in nl_main main.nano:4
+    #7 0x0001005e8b18 in main main.nano:17
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 45 byte(s) in 1 object(s) allocated from:
+    #0 0x0001014d540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000100625010 in gc_alloc gc.c:216
+    #2 0x000100625b34 in gc_alloc_string gc.c:362
+    #3 0x0001005e92a4 in nl_os_path_join+0x44 (program:arm64+0x1000012a4)
+    #4 0x0001005e9248 in std_fs__join+0x2c (program:arm64+0x100001248)
+    #5 0x0001005e8b18 in nl_main main.nano:4
+    #6 0x0001005e8b18 in main main.nano:17
+    #7 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 44 byte(s) in 1 object(s) allocated from:
+    #0 0x0001014d540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000100625010 in gc_alloc gc.c:216
+    #2 0x000100625b34 in gc_alloc_string gc.c:362
+    #3 0x0001005e90e0 in nl_os_path_normalize+0x64 (program:arm64+0x1000010e0)
+    #4 0x0001005e9064 in std_fs__normalize+0x1c (program:arm64+0x100001064)
+    #5 0x0001005e8af4 in nl_main main.nano:4
+    #6 0x0001005e8af4 in main main.nano:17
+    #7 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 42 byte(s) in 1 object(s) allocated from:
+    #0 0x0001014d540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000100625010 in gc_alloc gc.c:216
+    #2 0x000100625b34 in gc_alloc_string gc.c:362
+    #3 0x0001005e94ec in nl_os_path_dirname+0x38 (program:arm64+0x1000014ec)
+    #4 0x0001005e949c in std_fs__dirname+0x1c (program:arm64+0x10000149c)
+    #5 0x0001005e8b50 in nl_main main.nano:4
+    #6 0x0001005e8b50 in main main.nano:17
+    #7 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Indirect leak of 42 byte(s) in 1 object(s) allocated from:
+    #0 0x0001014d540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000100625010 in gc_alloc gc.c:216
+    #2 0x000100625b34 in gc_alloc_string gc.c:362
+    #3 0x0001005e9410 in nl_os_path_basename+0x38 (program:arm64+0x100001410)
+    #4 0x0001005e93c0 in std_fs__basename+0x1c (program:arm64+0x1000013c0)
+    #5 0x0001005e8b34 in nl_main main.nano:4
+    #6 0x0001005e8b34 in main main.nano:17
+    #7 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: 237 byte(s) leaked in 8 allocation(s).
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 57.779s
+
+FAILED (failures=1)

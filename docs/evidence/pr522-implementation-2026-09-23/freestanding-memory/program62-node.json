@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "-e",
+    "const fs=require('fs');const m=new WebAssembly.Module(fs.readFileSync(process.argv[1]));if(WebAssembly.Module.imports(m).length)throw Error('imports');if(new WebAssembly.Instance(m).exports.nano_main())throw Error('program');",
+    "/tmp/pr522-memory-62-check/product-0062.wasm"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": ""
+}

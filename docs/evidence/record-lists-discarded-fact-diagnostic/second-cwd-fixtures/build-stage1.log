@@ -1,0 +1,26 @@
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2092, column 9: Unused variable 'rejected'
+Warning at line 2213, column 9: Unused variable 'rejected'
+Warning at line 2220, column 13: Unused variable 'rejected'
+Warning at line 2258, column 9: Unused variable 'rejected'
+Warning at line 2262, column 9: Unused variable 'rejected'
+Warning at line 2269, column 13: Unused variable 'rejected'
+Warning at line 5384, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2092, column 9: Unused variable 'rejected'
+Warning at line 2213, column 9: Unused variable 'rejected'
+Warning at line 2220, column 13: Unused variable 'rejected'
+Warning at line 2258, column 9: Unused variable 'rejected'
+Warning at line 2262, column 9: Unused variable 'rejected'
+Warning at line 2269, column 13: Unused variable 'rejected'
+Warning at line 5384, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+  Shadow test 'resolve_import_path' FAILED: 1 failure(s)
+  First failure at line 756, column 5
+Runtime Error: Array index 0 out of bounds [0..0)
+I will not publish output after failed shadow execution.
+Shadow tests failed

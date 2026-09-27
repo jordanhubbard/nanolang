@@ -1,0 +1,13 @@
+{
+  "base": "2f45163678ea1af3122f0099ad32f9f6900d0723",
+  "source_sha256": {
+    "src/stdlib_runtime.c": "325f430de625fd1233c10f92a8abe1ad06aa6e173c1647aec7c5421e07080349",
+    "tests/test_cseed_aggregate_formatting.py": "a7d824254f0c2f06c1b3e79d52a8207515421b2c5262fb356d59cc070b7308c6"
+  },
+  "post_bootstrap_product_sha256": {
+    "bin/nanoc_c": "1666e8d3ca1fa2ab6b76bb7c3b40671fb84ab4e9dac14375a4c50839dfcd0470",
+    "bin/nanoc_stage1": "62bb9239501d49177d2201139fd3a6a69bebf86460cea67fae32a166bc94b52b",
+    "bin/nanoc_stage2": "67b7b0dc97c9f6e93100bf441870d34e573eaf29752cf6bb798b93d43ca323fd",
+    "bin/nvm2c": "30360f17b19dec71ab738754c9d886b6ed36260b31f1515f64e487cc41db0df9"
+  }
+}

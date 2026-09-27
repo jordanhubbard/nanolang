@@ -1,0 +1,5 @@
+{
+  "src/transpiler.c": "8ff3b4b5c61599c8b937f658b942b8b387bc38a3f8138c59030741bfca6d2084",
+  "modules/std/fs.nano": "f4665945609a92f332301cb837899680e7b06e52ec198a11ddc9fc9eb2acd1e7",
+  "tests/test_cseed_process_ownership.py": "4b11be12a65c4f7d2d1be2f0d2ac2eafbb6535ec509788dda1781bb94d09c1c4"
+}

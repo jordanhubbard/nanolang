@@ -1,0 +1,4 @@
+make test-nvm2c
+ASAN_OPTIONS=detect_leaks=1:detect_stack_use_after_return=1 UBSAN_OPTIONS=halt_on_error=1 python3 scripts/run_nvm2c_sanitizers.py --cc /opt/homebrew/opt/llvm/bin/clang
+NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang NANO_CC=/opt/homebrew/opt/llvm/bin/clang NANO_CFLAGS='-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all' NANO_LDFLAGS='-fsanitize=address,undefined' ASAN_OPTIONS=detect_leaks=1:detect_stack_use_after_return=1 UBSAN_OPTIONS=halt_on_error=1 python3 -m unittest tests.test_native_variant_scalar_carriers tests.test_native_variant_array_carriers tests.test_canonical_aggregate_formatting tests.test_canonical_aggregate_globals
+python3 -m unittest tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_selected_mixed_callers_refuse_wrong_return

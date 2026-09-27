@@ -1,0 +1,25 @@
+{
+  "root": "/private/tmp/nanolang-record-lists-81cd-path-puck-prepare",
+  "maps": {
+    "build-sources": {
+      "before_sha256": "ebb1b30121576e3d810b68ce2d455f8ee5798911aa9e167fd272a6388f833ac0",
+      "after_sha256": "ebb1b30121576e3d810b68ce2d455f8ee5798911aa9e167fd272a6388f833ac0",
+      "equal": true
+    },
+    "build-tools": {
+      "before_sha256": "615b0bdd5186c184811be9d9fb647a81ce40af34b918900db078b4ba395ca750",
+      "after_sha256": "615b0bdd5186c184811be9d9fb647a81ce40af34b918900db078b4ba395ca750",
+      "equal": true
+    },
+    "bootstrap-sources": {
+      "before_sha256": "ebb1b30121576e3d810b68ce2d455f8ee5798911aa9e167fd272a6388f833ac0",
+      "after_sha256": "ebb1b30121576e3d810b68ce2d455f8ee5798911aa9e167fd272a6388f833ac0",
+      "equal": true
+    },
+    "bootstrap-tools": {
+      "before_sha256": "615b0bdd5186c184811be9d9fb647a81ce40af34b918900db078b4ba395ca750",
+      "after_sha256": "615b0bdd5186c184811be9d9fb647a81ce40af34b918900db078b4ba395ca750",
+      "equal": true
+    }
+  }
+}

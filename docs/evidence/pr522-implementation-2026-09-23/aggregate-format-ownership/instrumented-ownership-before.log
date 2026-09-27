@@ -1,0 +1,149 @@
+FF
+======================================================================
+FAIL: test_growth_and_single_evaluation (tests.test_cseed_aggregate_formatting.AggregateFormatting.test_growth_and_single_evaluation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 48, in test_growth_and_single_evaluation
+            self.execute(r'''let mut calls: int = 0
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn values() -> array<int> { set calls (+ calls 1) return [calls] }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<19 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 18, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-kj5jz2wu/product')]
+
+=================================================================
+==7687==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 2048 byte(s) in 1 object(s) allocated from:
+    #0 0x00010539d5f0 in realloc+0x78 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x555f0)
+    #1 0x0001045a984c in nl_fmt_sb_ensure nanoc_7629_product.c:465
+    #2 0x0001045a984c in nl_fmt_sb_append_cstr nanoc_7629_product.c:483
+    #3 0x0001045a8b64 in nl_to_string_Label nanoc_7629_product.c:1793
+    #4 0x0001045a8b64 in nl_render case.nano:5
+    #5 0x0001045a8b64 in nl_main case.nano:14
+    #6 0x0001045a8b64 in main case.nano:36
+    #7 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x00010539d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001045a8bf8 in nl_fmt_sb_new nanoc_7629_product.c:474
+    #2 0x0001045a8bf8 in nl_to_string_Label nanoc_7629_product.c:1790
+    #3 0x0001045a8bf8 in nl_render case.nano:5
+    #4 0x0001045a8bf8 in nl_main case.nano:17
+    #5 0x0001045a8bf8 in main case.nano:36
+    #6 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x00010539d40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001045a8fac in nl_fmt_sb_new nanoc_7629_product.c:474
+    #2 0x0001045a8fac in nl_to_string_array nanoc_7629_product.c:510
+    #3 0x0001045a8aac in nl_main case.nano:9
+    #4 0x0001045a8aac in main case.nano:36
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: 2560 byte(s) leaked in 3 allocation(s).
+
+
+======================================================================
+FAIL: test_nested_values_and_retained_results (tests.test_cseed_aggregate_formatting.AggregateFormatting.test_nested_values_and_retained_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 21, in test_nested_values_and_retained_results
+            self.execute(r'''struct Point { number: int, label: string, values: array<float> }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Choice { Some { value: Point }, Empty {} }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<21 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 18, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-imtgio31/product')]
+
+=================================================================
+==7745==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 25600 byte(s) in 100 object(s) allocated from:
+    #0 0x000105df540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000104d5554c in nl_fmt_sb_new nanoc_7689_product.c:474
+    #2 0x000104d5554c in nl_to_string_array nanoc_7689_product.c:510
+    #3 0x000104d54ae4 in nl_main case.nano:16
+    #4 0x000104d54ae4 in main case.nano:38
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x000105df540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000104d5554c in nl_fmt_sb_new nanoc_7689_product.c:474
+    #2 0x000104d5554c in nl_to_string_array nanoc_7689_product.c:510
+    #3 0x000104d551c0 in nl_to_string_Point nanoc_7689_product.c:1827
+    #4 0x000104d551c0 in nl_to_string_Choice nanoc_7689_product.c:1839
+    #5 0x000104d54a1c in nl_main case.nano:6
+    #6 0x000104d54a1c in main case.nano:38
+    #7 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x000105df540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000104d54fe4 in nl_fmt_sb_new nanoc_7689_product.c:474
+    #2 0x000104d54fe4 in nl_to_string_Choice nanoc_7689_product.c:1833
+    #3 0x000104d54a4c in nl_main case.nano:9
+    #4 0x000104d54a4c in main case.nano:38
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x000105df540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000104d5554c in nl_fmt_sb_new nanoc_7689_product.c:474
+    #2 0x000104d5554c in nl_to_string_array nanoc_7689_product.c:510
+    #3 0x000104d54a64 in nl_main case.nano:11
+    #4 0x000104d54a64 in main case.nano:38
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x000105df540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000104d5554c in nl_fmt_sb_new nanoc_7689_product.c:474
+    #2 0x000104d5554c in nl_to_string_array nanoc_7689_product.c:510
+    #3 0x000104d54a84 in nl_main case.nano:12
+    #4 0x000104d54a84 in main case.nano:38
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x000105df540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000104d5554c in nl_fmt_sb_new nanoc_7689_product.c:474
+    #2 0x000104d5554c in nl_to_string_array nanoc_7689_product.c:510
+    #3 0x000104d54abc in nl_main case.nano:13
+    #4 0x000104d54abc in main case.nano:38
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x000105df540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000104d550c4 in nl_fmt_sb_new nanoc_7689_product.c:474
+    #2 0x000104d550c4 in nl_to_string_Point nanoc_7689_product.c:1818
+    #3 0x000104d550c4 in nl_to_string_Choice nanoc_7689_product.c:1839
+    #4 0x000104d54a1c in nl_main case.nano:6
+    #5 0x000104d54a1c in main case.nano:38
+    #6 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 256 byte(s) in 1 object(s) allocated from:
+    #0 0x000105df540c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x000104d54fe4 in nl_fmt_sb_new nanoc_7689_product.c:474
+    #2 0x000104d54fe4 in nl_to_string_Choice nanoc_7689_product.c:1833
+    #3 0x000104d54a1c in nl_main case.nano:6
+    #4 0x000104d54a1c in main case.nano:38
+    #5 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: 27392 byte(s) leaked in 107 allocation(s).
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 6.505s
+
+FAILED (failures=2)

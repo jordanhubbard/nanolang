@@ -1,0 +1,37 @@
+{
+  "source_commit": "e9a5f55f9b82b3de8c03b3df240665865fd25e5c",
+  "source_clean": true,
+  "hashes": {
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-e9a5f55f/bin/nano_as_capture.so": {
+      "expected": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+      "observed": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+      "matches": true
+    },
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-e9a5f55f/bin/nvm2c": {
+      "expected": "c748224fd89cdf877ad1cee579a9f9a89b4817c281dadba6885d9e30711bab74",
+      "observed": "c748224fd89cdf877ad1cee579a9f9a89b4817c281dadba6885d9e30711bab74",
+      "matches": true
+    },
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-e9a5f55f/modules/compiler_support/.build/.nano-gen-2OUPhL/libcompiler_support.so": {
+      "expected": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+      "observed": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+      "matches": true
+    },
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-e9a5f55f/modules/nanoisa/.build/.nano-gen-IG3JIU/libnanoisa.so": {
+      "expected": "17998a0b96a91326e723ae18465f3bf7c80117d2ac21a3a643da6ded715300fa",
+      "observed": "17998a0b96a91326e723ae18465f3bf7c80117d2ac21a3a643da6ded715300fa",
+      "matches": true
+    },
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-e9a5f55f/modules/std/.build/.nano-gen-z4yf6Z/libstd.so": {
+      "expected": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4",
+      "observed": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4",
+      "matches": true
+    },
+    "/tmp/nanolang-product-native-fixedpoint-e9a5f55f/initial-native": {
+      "expected": "1f1224ed90bf11baae41cf8d0b99bad3149b8038354cf2ff5adb76c4e970c548",
+      "observed": "1f1224ed90bf11baae41cf8d0b99bad3149b8038354cf2ff5adb76c4e970c548",
+      "matches": true
+    }
+  },
+  "unchanged": true
+}

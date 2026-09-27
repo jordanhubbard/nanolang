@@ -18,25 +18,29 @@ static void word(uint8_t *p,uint32_t x) {for(unsigned i=0;i<4;i++)p[i]=(uint8_t)
 static void half(uint8_t *p,uint16_t x) {p[0]=(uint8_t)x;p[1]=(uint8_t)(x>>8);}
 typedef struct {uint8_t tag;uint32_t layout;} Type;
 #define SCALAR(t) {t,NVM_V2_NO_INDEX}
-static NvmModule *build(const char *body,const Type *locals,unsigned count,const char *helpers,bool other_int) {
+static NvmModule *build_with_ordinary_owner(const char *body,const Type *locals,unsigned count,const char *helpers,bool other_int,bool ordinary_owner) {
     size_t size=strlen(body)+(helpers?strlen(helpers):0)+256;
     char *text=malloc(size);CHECK(text);
-    snprintf(text,size,".types 4 0 0\n.entry main\n.function main 0 %u 0 int 1\n%s.end\n%s",count,body,helpers?helpers:"");
+    unsigned layout_count=ordinary_owner?6:5;
+    snprintf(text,size,".types %u 0 0\n.entry main\n.function main 0 %u 0 int 1\n%s.end\n%s",layout_count,count,body,helpers?helpers:"");
     AsmResult err;NvmModule *m=asm_assemble_unverified(text,&err);free(text);
     if(!m)fprintf(stderr,"assembly: %s\n",err.message);
     CHECK(m);
     NvmV2LayoutField integer={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
     NvmV2LayoutField array={TAG_ARRAY,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
     NvmV2LayoutField child={TAG_STRUCT,1,NVM_V2_NO_INDEX};
+    NvmV2LayoutField owned_child={TAG_STRUCT,0,NVM_V2_NO_INDEX};
     NvmV2Layout rows[]={{NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&integer},
         {NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&array},
         {NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,other_int?&integer:&array},
+        {NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&child},
+        {NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&owned_child},
         {NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&child}};
-    NvmV2Layouts layouts={rows,4};CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
-    uint32_t bytes=16;
+    NvmV2Layouts layouts={rows,layout_count};CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    uint32_t bytes=20;
     for(uint32_t f=0;f<m->function_count;f++)bytes+=4+8*(m->functions[f].local_count+1);
     m->ownership_data=calloc(bytes,1);m->ownership_size=bytes;CHECK(m->ownership_data);
-    uint8_t *p=m->ownership_data;word(p,1);word(p+4,4);p[8]=3;p[9]=p[10]=p[11]=1;word(p+12,m->function_count);p+=16;
+    uint8_t *p=m->ownership_data;word(p,1);word(p+4,layout_count);p[8]=3;p[9]=p[10]=p[11]=1;p[12]=3;if(ordinary_owner)p[13]=3;word(p+16,m->function_count);p+=20;
     for(uint32_t f=0;f<m->function_count;f++) {
         NvmFunctionEntry *fn=&m->functions[f];half(p,fn->local_count);half(p+2,fn->arity);p+=4;
         p[0]=fn->result_count?fn->result_tag:TAG_VOID;word(p+4,NVM_V2_NO_INDEX);p+=8;
@@ -45,6 +49,9 @@ static NvmModule *build(const char *body,const Type *locals,unsigned count,const
         }
     }
     return m;
+}
+static NvmModule *build(const char *body,const Type *locals,unsigned count,const char *helpers,bool other_int) {
+    return build_with_ordinary_owner(body,locals,count,helpers,other_int,false);
 }
 static NvmMixedFloatProof *expect(NvmModule *m,NvmMixedShapeStatus wanted) {
     NvmMixedFloatProof sentinel={0},*p=&sentinel;
@@ -111,6 +118,15 @@ static void loop_unions(void) {
         CHECK(p->origin_count==4);nvm_mixed_float_proof_free(p);nvm_module_free(m);
     }
 }
+static void nested_owner_tokens(void) {
+    Type locals[]={{TAG_STRUCT,4},{TAG_STRUCT,0}};
+    NvmModule *m=build("PUSH_I64 7\nOWN_PACK 0\nOWN_PACK 4\nOWN_STORE_LOCAL 0\n"
+        "OWN_UNPACK_LOCAL 0\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nRET\n",locals,2,NULL,false);
+    NvmMixedFloatProof *p=expect(m,NVM_MIXED_SHAPE_PROVED);
+    nvm_mixed_float_proof_free(p);nvm_module_free(m);
+    m=build_with_ordinary_owner("ARR_NEW 3\nAGG_PACK 0 1 0 1\nOWN_PACK 5\nPOP\nPUSH_I64 0\nRET\n",NULL,0,NULL,false,true);
+    expect(m,NVM_MIXED_SHAPE_INVALID);nvm_module_free(m);
+}
 static void refusal_cases(void) {
     struct {const char *body;NvmMixedShapeStatus status;} cases[]={
         {"LOAD_LOCAL 0\nPOP\nPUSH_I64 0\nRET\n",NVM_MIXED_SHAPE_UNRESOLVED},
@@ -160,6 +176,6 @@ static void budgets_and_calls(void) {
     nvm_module_free(m);CHECK(p->origins[0].function==1);nvm_mixed_float_proof_free(p);
 }
 int main(void) {
-    positive_and_faults();loop_unions();refusal_cases();budgets_and_calls();
+    positive_and_faults();loop_unions();nested_owner_tokens();refusal_cases();budgets_and_calls();
     printf("%u mixed FLOAT proof checks passed; no pending module execution\n",checks);return 0;
 }

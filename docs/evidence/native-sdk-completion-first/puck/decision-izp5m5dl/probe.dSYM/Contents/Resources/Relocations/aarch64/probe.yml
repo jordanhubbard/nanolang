@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/tmp/nanolang-native-sdk-bae59-puck-preparation/decision-izp5m5dl/probe'
+relocations:     []
+...

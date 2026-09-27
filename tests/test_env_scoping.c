@@ -274,6 +274,38 @@ static void test_union_owns_string_payload(void) {
     gc_shutdown();
 }
 
+/* I retain one reference per alias regardless of its distance or shadowing. */
+static void test_string_alias_lifetime(void) {
+    gc_init();
+    Environment *env = create_environment();
+    Value early = create_string("early");
+    env_define_var(env, "early", TYPE_STRING, true, early);
+    for (int i = 0; i < 128; ++i) {
+        char name[32];
+        snprintf(name, sizeof name, "padding_%d", i);
+        env_define_var(env, name, TYPE_INT, false, create_int(i));
+    }
+    Value recent = create_string("recent");
+    env_define_var(env, "recent", TYPE_STRING, true, recent);
+    env_define_var(env, "early_alias", TYPE_STRING, true, early);
+    env_define_var(env, "recent_alias", TYPE_STRING, true, recent);
+    env_define_var(env, "recent_alias", TYPE_STRING, true, recent);
+    Value early_replacement = create_string("replacement");
+    Value recent_replacement = create_string("replacement");
+    env_set_var(env, "early", early_replacement);
+    env_set_var(env, "recent", recent_replacement);
+    gc_release(early_replacement.as.string_val);
+    gc_release(recent_replacement.as.string_val);
+    CHECK(!strcmp(env_get_var(env, "early_alias")->value.as.string_val, "early"),
+          "I preserve an alias found near the start of the environment");
+    CHECK(!strcmp(env_get_var(env, "recent_alias")->value.as.string_val, "recent"),
+          "I preserve recent and shadowed aliases after replacing the source");
+    free_environment(env);
+    CHECK(gc_get_stats().num_objects == 0,
+          "I release every string exactly once per retained binding");
+    gc_shutdown();
+}
+
 static void test_borrowed_record_identity(void) {
     Environment *owner_env = create_environment();
     char *names[] = {"fd"};
@@ -317,6 +349,7 @@ int main(void) {
     test_retained_block_bounds();
     test_union_owns_string_payload();
     test_borrowed_record_identity();
+    test_string_alias_lifetime();
     printf("\n=== %d passed, %d failed ===\n", g_pass, g_fail);
     return g_fail == 0 ? 0 : 1;
 }

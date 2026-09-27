@@ -1,0 +1,6 @@
+{
+  "pin": "39839fa90c79697ac57d3a8f3ee04ded0aff5e46",
+  "archive_sha256": "c1fd252edeb301bf967d4471ae839b09ca8599508c67619f00c8ebcfc0eadf6c",
+  "driver_sha256": "2155f730689b1825cce22e860b933eadf0cb824d8f7d49fecc7c0cf7f0e5833d",
+  "scope": "Four unchanged loop groups and 240 public string-loop calls; source independently reviewed"
+}

@@ -1,0 +1,6 @@
+test_original_primitive_content_precedence_and_argument_refusals (tests.test_str_split_primitive.SplitPrimitive) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 27.121s
+
+OK

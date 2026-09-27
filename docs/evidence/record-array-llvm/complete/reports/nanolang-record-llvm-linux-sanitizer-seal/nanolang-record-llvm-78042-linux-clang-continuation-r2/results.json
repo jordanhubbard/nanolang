@@ -1,0 +1,17 @@
+[
+  {
+    "phase": "configuration",
+    "seconds": 0.211,
+    "status": 0
+  },
+  {
+    "phase": "clang-sanitizer-emission",
+    "seconds": 6.814,
+    "status": 0
+  },
+  {
+    "phase": "clang-sanitizer-native",
+    "seconds": 925.303,
+    "status": -15
+  }
+]

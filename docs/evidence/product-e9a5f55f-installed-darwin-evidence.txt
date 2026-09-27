@@ -1,0 +1,123 @@
+Installed-canonical Darwin acceptance at frozen e9a5f55f
+
+Acceptance task: task_6042ebe9dabd45df82db205b5e6204d4
+First-failure task: task_61f0c0a745507a6cca9956ed30ba67eb
+Source: e9a5f55f9b82b3de8c03b3df240665865fd25e5c
+Tree: f6d52efa59298c58f981e1b3d06c1a5b362bf724
+Compiler-source manifest SHA-256:
+894d93bbe6281ded94c56d6e9ae432e5372849ae5204b4697b34bf338208ee97
+Makefile.gnu SHA-256:
+a72854943fb12f8a32e05bb70742c5022585f714d6767a2106975d0583b1a08a
+
+Checkout:
+/private/tmp/nanolang-product-e9a5f55f-installed-darwin.Xfxsyn
+Checkout status after the stopped gate: clean detached HEAD
+
+Phase 1
+Command: make -j8 bootstrap
+Result: PASS, exit 0
+Elapsed: 3m47.302s
+Full log:
+/private/tmp/nanolang-product-e9a5f55f-installed-darwin-bootstrap.log
+SHA-256:
+d4c1ee22fe66153c88e18ae85437baf9d3c1e9e78ea972a1ebfca57290b80db9
+
+The installed compiler resolved to bin/nanoc_stage2 after bootstrap.
+Pre-tool compiler SHA-256:
+bin/nanoc_c       f2a8f62e9d903cbed7e9afdd48fa4fc6862cef01f13cfc0c6de7a863a49d9fa8
+bin/nanoc_stage1  8d15d883cd9c7a3150c4470ee3275f62e83255fbbec9abfc74e9d5a633edf688
+bin/nanoc_stage2  ce9fcd29049ba69c0f8bbca71e696426e353756913948f714b85f772438223b5
+bin/nanoc         ce9fcd29049ba69c0f8bbca71e696426e353756913948f714b85f772438223b5
+
+Phase 2
+Command: make -j8 nanoisa_emit nano_virt nano_vm nvm2c nvm2c-runtime nanoisa_dump
+Result: PASS, exit 0
+Elapsed: 1m2.630s
+Full log:
+/private/tmp/nanolang-product-e9a5f55f-installed-darwin-tools.log
+SHA-256:
+ad9fcea6a52bea3aa4e4ef229ebb25ea1cb1a3bc4bb0d7d6db5a60c301da27c1
+
+Requested tool SHA-256 before test-quick:
+bin/nanoisa_emit       cf496b64f17c5e4d2b0aec0c17355b3c7cc5f64bb15f404ed79ff1dcb125ff1b
+bin/nano_virt          50f18512a4ecf2d531e192dd78a8652b8f96b1a8f30f3f50ba2bcd3621f4a552
+bin/nano_vm            4a7dbc12dbd53bcded95f13f2caf6538b360ea4493476b30c962548ef8faf997
+bin/nvm2c              8d31589f0ec7415361c02d30362cea9f5d77285787a6d6190a5395cdded4d121
+bin/nano_aot_runtime.o 94fd06fddc46407a28d2d54893957d2dcb15642200bc8149ad106fb4c5dd4174
+bin/nanoisa            ad6724b3811bf8c44e706f34577d02c6a1753272adad9bed5b50c6d976bd7646
+
+Phase 3
+Command: make test-quick
+Input boundary: allocated PTY (stdin_tty=yes)
+Timeout overrides: none
+Started: 2026-09-18T11:49:47Z
+Finished: 2026-09-18T12:21:02Z
+Elapsed: 31m14.353s
+Result: FAIL, exit 2
+Full log:
+/private/tmp/nanolang-product-e9a5f55f-installed-darwin-test-quick.log
+SHA-256:
+0fd5f0559c203764144825ac8ae6f53f1f40236c8b1f39d323ee7be7dbea0bc0
+
+All component sentinels were absent before test-quick. The target rebuilt the
+installed compiler, verified it without bin/nanoc_c, and then compiled the
+three component drivers through bin/nanoc -> bin/nanoc_stage2. The Stage 2
+artifact captured while the component phase was active had SHA-256:
+
+fa02ecb7fddf8c162dd504c986c3b59aad4f36c83f78593b0c2bccdf08737570
+
+Installed-canonical component results:
+parser_driver: PASS
+typecheck_driver: PASS
+transpiler_driver: PASS
+component entry assertions: PASS
+core examples: 17/17 PASS
+
+Retained component logs:
+/private/tmp/nanolang-product-e9a5f55f-installed-darwin-component-parser.log
+SHA-256 c6b4ace9a783a116fe700f104f21d6f33b77bbff57717bda6ebcc98bfe7fe9ed
+/private/tmp/nanolang-product-e9a5f55f-installed-darwin-component-typecheck.log
+SHA-256 5f975f6662ad1eff51230fff562fbb29528576376d2147823194a1841eaf8d61
+/private/tmp/nanolang-product-e9a5f55f-installed-darwin-component-transpiler.log
+SHA-256 06267eb377944bf99090bc34b6339d45aba472a2bcec04c9b95cfc4457f6a05e
+
+First failure
+Suite: NanoVM example coverage, test 2
+Example: language/nl_affine_resource_demo.nano
+Exit: 1
+Diagnostic:
+I could not compile shadows at line 28: I require one borrowed helper in my
+source borrow profile
+
+Coverage stopped with one of 244 eligible examples failing. The four explicit
+exclusions remained ineligible, the nested-statement control passed, and the
+required VM builtin controls passed. Make returned exit 2. I did not continue
+to later quick-gate suites, exclude the example, change the deadline, or rerun
+the failed artifact.
+
+Final retained identities after the failure:
+bin/nanoc_c       7eae2778f0671456266a38a08f8164c7e692e56849a11bf9566e875d55614bc5
+bin/nanoc_stage1  8d15d883cd9c7a3150c4470ee3275f62e83255fbbec9abfc74e9d5a633edf688
+bin/nanoc_stage2  38fcd600b056188abb07f1b67791b95d63c8b35a03be40c159aeb50ee04e67ba
+bin/nanoc         38fcd600b056188abb07f1b67791b95d63c8b35a03be40c159aeb50ee04e67ba
+bin/nanoisa_emit  cf496b64f17c5e4d2b0aec0c17355b3c7cc5f64bb15f404ed79ff1dcb125ff1b
+bin/nano_virt     c0c6e33b025da210a99635645b9f86a77ecfb93ceb3f579864fc9ca0f4580807
+bin/nano_vm       b0b33ca14af3aab2a5224ff28072bac5c11a9d526f2610c53f4a179213be88e3
+bin/nvm2c         8d31589f0ec7415361c02d30362cea9f5d77285787a6d6190a5395cdded4d121
+bin/nanoisa       ad6724b3811bf8c44e706f34577d02c6a1753272adad9bed5b50c6d976bd7646
+bin/nano_aot_runtime.o 94fd06fddc46407a28d2d54893957d2dcb15642200bc8149ad106fb4c5dd4174
+bin/parser        1e68c722695a06eccac281f42c20c8af234ae743431f3f9a9333a979ab52c079
+bin/typecheck     a41a9fe5a44036ab1539941b2b3300cadb663dd8f0bcd86d88c64ec98f0cedd7
+bin/transpiler    fa331e148a2f09572aed7d8d79af4d79717a0e543f0531cba07305f775076b5f
+
+Platform and toolchain:
+arm64 macOS 26.6.2 build 25G83; Darwin 25.6.0
+Apple clang 21.0.0 (clang-2100.3.34.2)
+GNU Make 3.81
+SDK 27.0 at /Applications/Xcode.app/Contents/Developer/Platforms/
+MacOSX.platform/Developer/SDKs/MacOSX.sdk
+
+This establishes installed-canonical Darwin component acceptance and the
+first subsequent quick-gate failure at exact e9a5f55f. It does not establish a
+full test-quick pass, authorize a release, or close PR522. Publication remains
+held.

@@ -1,0 +1,9 @@
+#!/usr/local/bin/python3
+import os,subprocess,sys
+env=dict(os.environ,DYLD_LIBRARY_PATH="/opt/homebrew/lib")
+try:
+ result=subprocess.run(["/Users/jordanh/Src/nanolang/bin/nanoc_c_examples_san",*sys.argv[1:]],env=env,timeout=120)
+ sys.exit(result.returncode if result.returncode>=0 else 128-result.returncode)
+except subprocess.TimeoutExpired:
+ print("I stopped the instrumented compiler after 120 seconds.",file=sys.stderr)
+ sys.exit(124)

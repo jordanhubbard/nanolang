@@ -1,0 +1,639 @@
+{
+  "ordinary": {
+    "source": "1c50a0c85d3f5bcd14756422208dd407ffaf9c53",
+    "bundle": "ordinary-reports.tar.gz",
+    "sha256": "a3a11d4fd097276edd8df5f132d7043e80b253587440a56926f06137833c751a",
+    "bytes": 1267745,
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 159,
+        "sha256": "90ab6f2e5adae1fef90738221d42da75300d323712e3168b279e95f1fd576a29"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2066,
+        "sha256": "0c6b5d7534d0075eeb55ea69367c7a9293a0af6dcbcfb3eb7753bcfda66c4e17"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8508,
+        "sha256": "9cd8483df3c2109eaa5ff4faab4c2367de303a82ecc4243d2abd608053bd08fa"
+      },
+      {
+        "path": "final.json",
+        "bytes": 127,
+        "sha256": "8ebef2be93656de6afa2a81819f657582d94d6d4ac95fcc56b00565923783ad7"
+      },
+      {
+        "path": "fixture-products/00-command.json",
+        "bytes": 375,
+        "sha256": "41336ed7bd38e8511b800dba08924aa7db47dffadf2fda1be1ff7c421d36f7be"
+      },
+      {
+        "path": "fixture-products/00-output.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "fixture-products/01-command.json",
+        "bytes": 371,
+        "sha256": "cff7d5d36180db0f075f769c3703434f9765b1c69871c59202da4ca1ab231bf1"
+      },
+      {
+        "path": "fixture-products/01-output.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "fixture-products/02-command.json",
+        "bytes": 369,
+        "sha256": "acb9b8022c4f78eebdb2a85a6b302412e01755c739e13df0908cd77f3ea89928"
+      },
+      {
+        "path": "fixture-products/02-output.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "fixture-products/03-command.json",
+        "bytes": 1721,
+        "sha256": "a0affea6d4778c102f797ec33aaadbfbfdc433dfe422a2e75d5f379d44c35b3d"
+      },
+      {
+        "path": "fixture-products/03-output.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "fixture-products/04-command.json",
+        "bytes": 96,
+        "sha256": "b829dd69f60b029448dced5f2e8ddb6b6080a2da3f35e083b55fe9a124725bbf"
+      },
+      {
+        "path": "fixture-products/04-output.log",
+        "bytes": 117,
+        "sha256": "eff5fecd8986ac8752b9ebf01eac0c7f50c19c9a92dccf8c83132c2a847f31af"
+      },
+      {
+        "path": "fixture-products/describe",
+        "bytes": 2709544,
+        "sha256": "034a6879ef91afd79a5d7f92126b5ffa6b5e19f3bf92fc48925526b04f23f87c"
+      },
+      {
+        "path": "fixture-products/nvm_v2_cursor.o",
+        "bytes": 12144,
+        "sha256": "9f676aebe8a472a206dbde2ad04489a168edd78296c6b15c12c2599244089343"
+      },
+      {
+        "path": "fixture-products/nvm_v2_layouts.o",
+        "bytes": 34152,
+        "sha256": "dee225901ecdf4b90d64c86072a9219c85f3de846782cdc52805e0bf750e642e"
+      },
+      {
+        "path": "fixture-products/retained_layouts.o",
+        "bytes": 240368,
+        "sha256": "f05eaae0241ea3f84ccfa576a238849a8b22e383a6467f5ea8ee8c5adffea42e"
+      },
+      {
+        "path": "owning-gate-artifacts.json",
+        "bytes": 12611,
+        "sha256": "bf6b71a4b15a271e4f1d774343afbe1e0dc367ee374b539444d922f49979030c"
+      },
+      {
+        "path": "owning-gate-command.json",
+        "bytes": 229,
+        "sha256": "bf136e5fff0e242e8640a429fc48ead55d343e28e556554b884713cbaf1f47df"
+      },
+      {
+        "path": "owning-gate-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "owning-gate-nested-processes.json",
+        "bytes": 1147,
+        "sha256": "d87a5debfd9e38060de456ccc38cc658029a650ce6727f1c8f9092df10420300"
+      },
+      {
+        "path": "owning-gate-source-after.json",
+        "bytes": 399781,
+        "sha256": "944fb371ee39b41ae618727a4f1c0fcf243849ebf76b288948711278b449fc94"
+      },
+      {
+        "path": "owning-gate-source-before.json",
+        "bytes": 399781,
+        "sha256": "944fb371ee39b41ae618727a4f1c0fcf243849ebf76b288948711278b449fc94"
+      },
+      {
+        "path": "owning-gate-space-before.json",
+        "bytes": 64,
+        "sha256": "b6253298e9b030ee1f069855ee351a3c8be56f83980a075804bd1d42dffc8215"
+      },
+      {
+        "path": "owning-gate-terminal.json",
+        "bytes": 174,
+        "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f"
+      },
+      {
+        "path": "owning-gate-tools-after.json",
+        "bytes": 2310,
+        "sha256": "edf00a0b3fc4c5a56c00f978f9ad0962c4e35ea534dbc845aad5af15eb3f374f"
+      },
+      {
+        "path": "owning-gate-tools-before.json",
+        "bytes": 2310,
+        "sha256": "edf00a0b3fc4c5a56c00f978f9ad0962c4e35ea534dbc845aad5af15eb3f374f"
+      },
+      {
+        "path": "owning-gate.log",
+        "bytes": 7014,
+        "sha256": "71b8c4ddc216410b4ccfea7a59b92972452b9a0b8589c5bb4fe529411bbe70f5"
+      },
+      {
+        "path": "results.json",
+        "bytes": 78,
+        "sha256": "61550e6b0e46c95643933e7e7f638840fc839f61ffed4221b220b7e9c4d6d637"
+      }
+    ],
+    "object_count": 37,
+    "object_bytes": 3669584,
+    "terminal": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "result": {
+      "results": [
+        {
+          "phase": "owning-gate",
+          "seconds": 2.073,
+          "status": 0
+        }
+      ],
+      "status": "PASS"
+    },
+    "actual_fixture_commands": [
+      [
+        "gcc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-g",
+        "-Isrc",
+        "-D_GNU_SOURCE",
+        "-std=c11",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/nanoisa",
+        "-Dcalloc=owner_origin_test_calloc",
+        "-Dmalloc=owner_origin_test_malloc",
+        "-c",
+        "src/nanoisa/retained_layouts.c",
+        "-o",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-ordinary-reports/fixture-products/retained_layouts.o"
+      ],
+      [
+        "gcc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-g",
+        "-Isrc",
+        "-D_GNU_SOURCE",
+        "-std=c11",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/nanoisa",
+        "-Dcalloc=owner_origin_test_calloc",
+        "-Dmalloc=owner_origin_test_malloc",
+        "-c",
+        "src/nanoisa/nvm_v2_layouts.c",
+        "-o",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-ordinary-reports/fixture-products/nvm_v2_layouts.o"
+      ],
+      [
+        "gcc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-g",
+        "-Isrc",
+        "-D_GNU_SOURCE",
+        "-std=c11",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/nanoisa",
+        "-Dcalloc=owner_origin_test_calloc",
+        "-Dmalloc=owner_origin_test_malloc",
+        "-c",
+        "src/nanoisa/nvm_v2_cursor.c",
+        "-o",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-ordinary-reports/fixture-products/nvm_v2_cursor.o"
+      ],
+      [
+        "gcc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-g",
+        "-Isrc",
+        "-D_GNU_SOURCE",
+        "-std=c11",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/nanoisa",
+        "tests/nanoisa/test_owned_array_origins.c",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-ordinary-reports/fixture-products/retained_layouts.o",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-ordinary-reports/fixture-products/nvm_v2_layouts.o",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-ordinary-reports/fixture-products/nvm_v2_cursor.o",
+        "obj/nanoisa/file_flow.o",
+        "obj/nanoisa/service_file_nominal.o",
+        "obj/nanoisa/service_file_nominal_plan.o",
+        "obj/nanoisa/service_bindings.o",
+        "obj/nanoisa/service_bindings_module.o",
+        "obj/nanoisa/mixed_float_proof.o",
+        "obj/nanoisa/managed_array_shapes.o",
+        "obj/nanoisa/local_bindings.o",
+        "obj/nanoisa/affine_bytecode.o",
+        "obj/nanoisa/affine_state.o",
+        "obj/nanoisa/ownership_contracts.o",
+        "obj/nanoisa/reference_places.o",
+        "obj/nanoisa/passive.o",
+        "obj/nanoisa/isa.o",
+        "obj/nanoisa/verifier_types.o",
+        "obj/nanoisa/nvm_format.o",
+        "obj/nanoisa/nvm_format_v2.o",
+        "obj/nanoisa/nvm_v2_constants.o",
+        "obj/nanoisa/nvm_v2_signatures.o",
+        "obj/nanoisa/nvm_v2_functions.o",
+        "obj/nanoisa/nvm_v2_imports.o",
+        "obj/nanoisa/nvm_v2_module.o",
+        "obj/nanoisa/nvm_v2_convert.o",
+        "obj/nanoisa/assembler.o",
+        "obj/nanoisa/disassembler.o",
+        "obj/nanoisa/verifier.o",
+        "obj/nanoisa/nvm2c.o",
+        "obj/nanoisa/nvm2c_shape.o",
+        "obj/nanoisa/frontend.o",
+        "obj/nanoisa/nanoisa_facade.o",
+        "obj/nanovm/vm_decode.o",
+        "obj/nanovm/vm_dispatch.o",
+        "obj/nsi_file_plan.o",
+        "obj/utf8.o",
+        "-lm",
+        "-lcrypto",
+        "-lm",
+        "-lcrypto",
+        "-lcrypto",
+        "-lffi",
+        "-rdynamic",
+        "-o",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-ordinary-reports/fixture-products/describe"
+      ],
+      [
+        "/home/jkh/nanolang-qualification/origin-link-1c50-ordinary-reports/fixture-products/describe"
+      ]
+    ]
+  },
+  "sanitizer": {
+    "source": "1c50a0c85d3f5bcd14756422208dd407ffaf9c53",
+    "bundle": "sanitizer-reports.tar.gz",
+    "sha256": "61e26a73386ed0d76fc0a07426bc0f47b05d3f2e85903276d01f668b725aa9e3",
+    "bytes": 3294590,
+    "reports": [
+      {
+        "path": "attribution.json",
+        "bytes": 161,
+        "sha256": "5cd24936be8fac21eef8df9866e9de709cae462b078a8231cda75c9346f0c111"
+      },
+      {
+        "path": "driver.py",
+        "bytes": 2066,
+        "sha256": "0c6b5d7534d0075eeb55ea69367c7a9293a0af6dcbcfb3eb7753bcfda66c4e17"
+      },
+      {
+        "path": "effective-supervisor.py",
+        "bytes": 8508,
+        "sha256": "9cd8483df3c2109eaa5ff4faab4c2367de303a82ecc4243d2abd608053bd08fa"
+      },
+      {
+        "path": "final.json",
+        "bytes": 127,
+        "sha256": "faca3587630cd51f8a223611fc03142d1edbb4a1e203b49a1be47b719ac19445"
+      },
+      {
+        "path": "fixture-products/00-command.json",
+        "bytes": 435,
+        "sha256": "7830bddc168cf34dde1e67f1ecf097b90531b5b1618dae700f74b65a8b811047"
+      },
+      {
+        "path": "fixture-products/00-output.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "fixture-products/01-command.json",
+        "bytes": 431,
+        "sha256": "734d953484c2b7ce46253bafc811b2e0b22ba0b41c134eb513b33f31b2e3ce10"
+      },
+      {
+        "path": "fixture-products/01-output.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "fixture-products/02-command.json",
+        "bytes": 429,
+        "sha256": "5c1ebc6fbda1d142808579ec3e6889ab089fd93d11fa2a894423c5f80a9a2de1"
+      },
+      {
+        "path": "fixture-products/02-output.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "fixture-products/03-command.json",
+        "bytes": 1816,
+        "sha256": "f8fda9052e46f7d025bc7863566c333162b1f24dcf47fb8c157687021ea5cd9d"
+      },
+      {
+        "path": "fixture-products/03-output.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "fixture-products/04-command.json",
+        "bytes": 97,
+        "sha256": "d85e6c5bab40fcc5f17527f21207b6b2dbbac456e839da5cdd843d2303a31de9"
+      },
+      {
+        "path": "fixture-products/04-output.log",
+        "bytes": 117,
+        "sha256": "eff5fecd8986ac8752b9ebf01eac0c7f50c19c9a92dccf8c83132c2a847f31af"
+      },
+      {
+        "path": "fixture-products/describe",
+        "bytes": 16756072,
+        "sha256": "c669734fb41aa4d220734689218008393b978745b6b85e95e7fc7d7158bd6c31"
+      },
+      {
+        "path": "fixture-products/nvm_v2_cursor.o",
+        "bytes": 43824,
+        "sha256": "a7255b5acfa361636b7952ad103486a8e61914ef3f2ad66e46adc6e9e42ee9a7"
+      },
+      {
+        "path": "fixture-products/nvm_v2_layouts.o",
+        "bytes": 138480,
+        "sha256": "2c6ae1d17c6f485e86f97613e06b7377f4504d3baab5d6c1fe25761a67517eb3"
+      },
+      {
+        "path": "fixture-products/retained_layouts.o",
+        "bytes": 1255768,
+        "sha256": "9ff765b87a9cbc197dcdcaa9c47eb0de72cc200f5c0c30d17c26b6e657338f68"
+      },
+      {
+        "path": "owning-gate-artifacts.json",
+        "bytes": 12685,
+        "sha256": "2ebb6d373b475a1ff9c24b0b2aa11e3ffd3c327786646328042ae8e85fdd80d1"
+      },
+      {
+        "path": "owning-gate-command.json",
+        "bytes": 311,
+        "sha256": "63d7d753779dc2ca25207c585876e6c12d51a8ad445c9a7e4c8c464df6cdf9f4"
+      },
+      {
+        "path": "owning-gate-inputs-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "owning-gate-nested-processes.json",
+        "bytes": 7180,
+        "sha256": "4ce09869a554d23dd8cbdfd331625f866e478068ec720edb745ec360ce51297a"
+      },
+      {
+        "path": "owning-gate-source-after.json",
+        "bytes": 399781,
+        "sha256": "944fb371ee39b41ae618727a4f1c0fcf243849ebf76b288948711278b449fc94"
+      },
+      {
+        "path": "owning-gate-source-before.json",
+        "bytes": 399781,
+        "sha256": "944fb371ee39b41ae618727a4f1c0fcf243849ebf76b288948711278b449fc94"
+      },
+      {
+        "path": "owning-gate-space-before.json",
+        "bytes": 64,
+        "sha256": "9e0ca12843ac1bb4c3ff969635cae5636cecd957e122d05b4f88505bfc55c52a"
+      },
+      {
+        "path": "owning-gate-terminal.json",
+        "bytes": 174,
+        "sha256": "99284108b9007ef1a5626cee3325088c8ed97bf11feb826ed6cd8d8f6f5b1a4f"
+      },
+      {
+        "path": "owning-gate-tools-after.json",
+        "bytes": 2310,
+        "sha256": "edf00a0b3fc4c5a56c00f978f9ad0962c4e35ea534dbc845aad5af15eb3f374f"
+      },
+      {
+        "path": "owning-gate-tools-before.json",
+        "bytes": 2310,
+        "sha256": "edf00a0b3fc4c5a56c00f978f9ad0962c4e35ea534dbc845aad5af15eb3f374f"
+      },
+      {
+        "path": "owning-gate.log",
+        "bytes": 9057,
+        "sha256": "5d2cae437acd715a1c58470fe82c69e9c718824c078ebbaeb7912c01bc4cc103"
+      },
+      {
+        "path": "results.json",
+        "bytes": 78,
+        "sha256": "244715c3ccea62cfb319b90d7635e749e4cacc81c65057256ace76d7edf7cd78"
+      }
+    ],
+    "object_count": 37,
+    "object_bytes": 20622664,
+    "terminal": {
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    "result": {
+      "results": [
+        {
+          "phase": "owning-gate",
+          "seconds": 6.221,
+          "status": 0
+        }
+      ],
+      "status": "PASS"
+    },
+    "actual_fixture_commands": [
+      [
+        "gcc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-g",
+        "-Isrc",
+        "-D_GNU_SOURCE",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-std=c11",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/nanoisa",
+        "-Dcalloc=owner_origin_test_calloc",
+        "-Dmalloc=owner_origin_test_malloc",
+        "-c",
+        "src/nanoisa/retained_layouts.c",
+        "-o",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-sanitizer-reports/fixture-products/retained_layouts.o"
+      ],
+      [
+        "gcc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-g",
+        "-Isrc",
+        "-D_GNU_SOURCE",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-std=c11",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/nanoisa",
+        "-Dcalloc=owner_origin_test_calloc",
+        "-Dmalloc=owner_origin_test_malloc",
+        "-c",
+        "src/nanoisa/nvm_v2_layouts.c",
+        "-o",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-sanitizer-reports/fixture-products/nvm_v2_layouts.o"
+      ],
+      [
+        "gcc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-g",
+        "-Isrc",
+        "-D_GNU_SOURCE",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-std=c11",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/nanoisa",
+        "-Dcalloc=owner_origin_test_calloc",
+        "-Dmalloc=owner_origin_test_malloc",
+        "-c",
+        "src/nanoisa/nvm_v2_cursor.c",
+        "-o",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-sanitizer-reports/fixture-products/nvm_v2_cursor.o"
+      ],
+      [
+        "gcc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-g",
+        "-Isrc",
+        "-D_GNU_SOURCE",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-std=c11",
+        "-O1",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/nanoisa",
+        "tests/nanoisa/test_owned_array_origins.c",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-sanitizer-reports/fixture-products/retained_layouts.o",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-sanitizer-reports/fixture-products/nvm_v2_layouts.o",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-sanitizer-reports/fixture-products/nvm_v2_cursor.o",
+        "obj/nanoisa/file_flow.o",
+        "obj/nanoisa/service_file_nominal.o",
+        "obj/nanoisa/service_file_nominal_plan.o",
+        "obj/nanoisa/service_bindings.o",
+        "obj/nanoisa/service_bindings_module.o",
+        "obj/nanoisa/mixed_float_proof.o",
+        "obj/nanoisa/managed_array_shapes.o",
+        "obj/nanoisa/local_bindings.o",
+        "obj/nanoisa/affine_bytecode.o",
+        "obj/nanoisa/affine_state.o",
+        "obj/nanoisa/ownership_contracts.o",
+        "obj/nanoisa/reference_places.o",
+        "obj/nanoisa/passive.o",
+        "obj/nanoisa/isa.o",
+        "obj/nanoisa/verifier_types.o",
+        "obj/nanoisa/nvm_format.o",
+        "obj/nanoisa/nvm_format_v2.o",
+        "obj/nanoisa/nvm_v2_constants.o",
+        "obj/nanoisa/nvm_v2_signatures.o",
+        "obj/nanoisa/nvm_v2_functions.o",
+        "obj/nanoisa/nvm_v2_imports.o",
+        "obj/nanoisa/nvm_v2_module.o",
+        "obj/nanoisa/nvm_v2_convert.o",
+        "obj/nanoisa/assembler.o",
+        "obj/nanoisa/disassembler.o",
+        "obj/nanoisa/verifier.o",
+        "obj/nanoisa/nvm2c.o",
+        "obj/nanoisa/nvm2c_shape.o",
+        "obj/nanoisa/frontend.o",
+        "obj/nanoisa/nanoisa_facade.o",
+        "obj/nanovm/vm_decode.o",
+        "obj/nanovm/vm_dispatch.o",
+        "obj/nsi_file_plan.o",
+        "obj/utf8.o",
+        "-lm",
+        "-lcrypto",
+        "-lm",
+        "-lcrypto",
+        "-fsanitize=address,undefined",
+        "-lcrypto",
+        "-lffi",
+        "-rdynamic",
+        "-o",
+        "/home/jkh/nanolang-qualification/origin-link-1c50-sanitizer-reports/fixture-products/describe"
+      ],
+      [
+        "/home/jkh/nanolang-qualification/origin-link-1c50-sanitizer-reports/fixture-products/describe"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "label": "ordinary-allocations",
+  "argv": [
+    "/Users/jkh/nanolang-qualification/scalar-array-319-puck/ordinary/allocations"
+  ],
+  "bound": 180,
+  "timeout": false,
+  "pid": 83453,
+  "returncode": 0,
+  "remaining_groups": [],
+  "seconds": 2.071118083
+}

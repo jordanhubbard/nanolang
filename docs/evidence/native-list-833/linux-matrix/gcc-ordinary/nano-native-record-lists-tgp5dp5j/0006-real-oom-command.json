@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/home/jkh/nanolang-qualification/record-lists-833-linux-matrix/gcc-ordinary/nano-native-record-lists-tgp5dp5j/native-storage",
+    "real-oom"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-833",
+  "timeout": 180,
+  "expected": [
+    1
+  ],
+  "extra": null,
+  "TMPDIR": "/home/jkh/nanolang-qualification/record-lists-833-linux-matrix/gcc-ordinary/nano-native-record-lists-tgp5dp5j/temporary",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

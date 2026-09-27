@@ -1,0 +1,297 @@
+Warning at line 484, column 17: Unused variable 'dropped'
+Warning at line 494, column 13: Unused variable 'dropped'
+Warning at line 505, column 13: Unused variable 'dropped'
+Warning at line 529, column 1: Unused variable 'owner'
+Warning at line 529, column 1: Unused variable 'root'
+Warning at line 109, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2093, column 9: Unused variable 'rejected'
+Warning at line 2214, column 9: Unused variable 'rejected'
+Warning at line 2221, column 13: Unused variable 'rejected'
+Warning at line 2259, column 9: Unused variable 'rejected'
+Warning at line 2263, column 9: Unused variable 'rejected'
+Warning at line 2270, column 13: Unused variable 'rejected'
+Warning at line 5387, column 17: Unused variable 'imported'
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+507|         if (or (file_exists marker1) (file_exists marker2)) {
+                    ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+507|         if (or (file_exists marker1) (file_exists marker2)) {
+                                          ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+Logical operators require bool operands.
+
+507|         if (or (file_exists marker1) (file_exists marker2)) {
+                ^
+Hint: Convert operands to bool before using and/or.
+Warning at line 505, column 9: Unused variable 'marker1'
+Warning at line 506, column 9: Unused variable 'marker2'
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+770|         if (file_exists candidate) { return candidate }
+                ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+If condition must be a bool.
+
+770|         if (file_exists candidate) { return candidate }
+             ^
+Hint: Ensure the condition expression evaluates to bool.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+788|                 if (file_exists candidate) {
+                        ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+If condition must be a bool.
+
+788|                 if (file_exists candidate) {
+                     ^
+Hint: Ensure the condition expression evaluates to bool.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+793|             if (file_exists modules_candidate) {
+                    ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+If condition must be a bool.
+
+793|             if (file_exists modules_candidate) {
+                 ^
+Hint: Ensure the condition expression evaluates to bool.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+798|                 if (file_exists repo_candidate) {
+                        ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+If condition must be a bool.
+
+798|                 if (file_exists repo_candidate) {
+                     ^
+Hint: Ensure the condition expression evaluates to bool.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+814|                     if (file_exists relative) { return relative }
+                            ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+If condition must be a bool.
+
+814|                     if (file_exists relative) { return relative }
+                         ^
+Hint: Ensure the condition expression evaluates to bool.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+817|                         if (file_exists project_candidate) { return project_candidate }
+                                ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+If condition must be a bool.
+
+817|                         if (file_exists project_candidate) { return project_candidate }
+                             ^
+Hint: Ensure the condition expression evaluates to bool.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_read' from module 'std_fs'.
+
+878|         set src (file_read norm_path)
+                     ^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+924|                     if (file_exists dep) {
+                            ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+If condition must be a bool.
+
+924|                     if (file_exists dep) {
+                         ^
+Hint: Ensure the condition expression evaluates to bool.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+I require the exact ordinary record declaration at this value boundary.
+
+976|     let copied: SourceCompanion.SourceInput = (SourceCompanion.source norm_path (- 67108864 result.input_bytes))
+                                                   ^
+Hint: Preserve declaration and module identity; implicit enum lists remain unsupported.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+I require each record array field to match its complete declared element types.
+
+1000|     set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: (array_push result.sources copied.source), parsed: result.parsed, ok: result.ok, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges })
+                      ^
+Hint: Keep every nested element and existing array in its declared type.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+I require each record array field to match its complete declared element types.
+
+1000|     set result (CollectResult { visited: result.visited, visited_set: result.visited_set, order: result.order, sources: (array_push result.sources copied.source), parsed: result.parsed, ok: result.ok, lines_scanned: result.lines_scanned, input_bytes: result.input_bytes, edges: result.edges })
+                      ^
+Hint: Keep every nested element and existing array in its declared type.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+1674|         if (file_exists json_path) {
+                 ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+If condition must be a bool.
+
+1674|         if (file_exists json_path) {
+              ^
+Hint: Ensure the condition expression evaluates to bool.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_read' from module 'std_fs'.
+
+1675|             let json_text: string = (file_read json_path)
+                                          ^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+1818|                 if (or (== dep_dir "") (not (file_exists (nl_path_join dep_dir "module.json")))) { return (native_build_empty) }
+                                                  ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+`not` requires a bool operand.
+
+1818|                 if (or (== dep_dir "") (not (file_exists (nl_path_join dep_dir "module.json")))) { return (native_build_empty) }
+                                             ^
+Hint: Convert the operand to bool before using not.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+1915|             if (not (file_exists object)) { return result }
+                          ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+`not` requires a bool operand.
+
+1915|             if (not (file_exists object)) { return result }
+                     ^
+Hint: Convert the operand to bool before using not.
+Warning at line 1673, column 9: Unused variable 'json_path'
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_read' from module 'std_fs'.
+
+2052|         let info: ModuleIntrospection = (mi_scan (file_read path) path "entry")
+                                                       ^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_read' from module 'std_fs'.
+
+2052|         let info: ModuleIntrospection = (mi_scan (file_read path) path "entry")
+                                                       ^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_read' from module 'std_fs'.
+
+2071|         let raw: ModuleIntrospection = (mi_scan (file_read path) path fallback)
+                                                      ^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_read' from module 'std_fs'.
+
+2071|         let raw: ModuleIntrospection = (mi_scan (file_read path) path fallback)
+                                                      ^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_write' from module 'std_fs'.
+
+2257|     return (file_write path s)
+                 ^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+Warning at line 2151, column 1: Unused variable 'path'
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_delete' from module 'std_fs'.
+
+2298|         (file_delete (+ directory "/shadows.nvm"))
+              ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_delete' from module 'std_fs'.
+
+2299|         (file_delete directory)
+              ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+2310|         if (file_exists path) {
+                 ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+If condition must be a bool.
+
+2310|         if (file_exists path) {
+              ^
+Hint: Ensure the condition expression evaluates to bool.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_delete' from module 'std_fs'.
+
+2312|             unsafe { set status (file_delete path) }
+                                      ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_delete' from module 'std_fs'.
+
+2323|     unsafe { (file_delete (+ directory "/shadows")) }
+                   ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_delete' from module 'std_fs'.
+
+2327|             (file_delete (+ directory "/program.c"))
+                  ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_delete' from module 'std_fs'.
+
+2328|             (file_delete directory)
+                  ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_write' from module 'std_fs'.
+
+2726|                 let status: int = (file_write output_file c_code)
+                                        ^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_write' from module 'std_fs'.
+
+2752|             let write_result: int = (file_write c_file staged_code)
+                                          ^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_write' from module 'std_fs'.
+
+2887|                 if (!= (file_write c_file c_code) 0) {
+                             ^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+Warning at line 2742, column 13: Unused variable 'staged_code'
+-- E009 PRIVATE ACCESS ------------ src_nano/nanoc_v06.nano
+I cannot call private function 'file_exists' from module 'std_fs'.
+
+3021|     if (not (file_exists opts.input_file)) {
+                  ^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+-- E001 TYPE MISMATCH ------------- src_nano/nanoc_v06.nano
+`not` requires a bool operand.
+
+3021|     if (not (file_exists opts.input_file)) {
+             ^
+Hint: Convert the operand to bool before using not.
+Type checking failed
+make: *** [Makefile.gnu:3715: .bootstrap1.built] Error 1

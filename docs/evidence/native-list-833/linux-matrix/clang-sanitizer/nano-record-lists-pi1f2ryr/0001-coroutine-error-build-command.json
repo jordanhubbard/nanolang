@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/usr/local/bin/clang",
+    "-O0",
+    "-g",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-I",
+    "/home/jkh/Src/nanolang-record-lists-qualified-833/src",
+    "/home/jkh/Src/nanolang-record-lists-qualified-833/tests/test_coroutine_error_allocation.c",
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-rdynamic",
+    "-o",
+    "/home/jkh/nanolang-qualification/record-lists-833-linux-matrix/clang-sanitizer/nano-record-lists-pi1f2ryr/coroutine-errors"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-833",
+  "timeout": 180,
+  "expected": [
+    0
+  ],
+  "extra": null,
+  "TMPDIR": "/home/jkh/nanolang-qualification/record-lists-833-linux-matrix/clang-sanitizer/nano-record-lists-pi1f2ryr/temporary",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

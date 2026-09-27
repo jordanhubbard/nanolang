@@ -1,0 +1,22 @@
+{
+  "/tmp/nanolang-exclusive-77226-linux/env.o": {
+    "sha256": "70b955a0203fb2b95af10943c75e93827908d94a34acca7c38f3f75bfc2e4398",
+    "bytes": 442136,
+    "archive": "/tmp/nanolang-exclusive-77226-linux/objects/70b955a0203fb2b95af10943c75e93827908d94a34acca7c38f3f75bfc2e4398"
+  },
+  "/tmp/nanolang-exclusive-77226-linux/eval.o": {
+    "sha256": "58f33a568cfdfc0eaf2ce7d3b3836bfb32b9e7cc921d9847afce9be2c17626bd",
+    "bytes": 946368,
+    "archive": "/tmp/nanolang-exclusive-77226-linux/objects/58f33a568cfdfc0eaf2ce7d3b3836bfb32b9e7cc921d9847afce9be2c17626bd"
+  },
+  "/tmp/nanolang-exclusive-77226-linux/typechecker.o": {
+    "sha256": "55d4b1e316cf8b0495c76932b3489b87efbb94e34349559878621ddb5ceb19a6",
+    "bytes": 1145776,
+    "archive": "/tmp/nanolang-exclusive-77226-linux/objects/55d4b1e316cf8b0495c76932b3489b87efbb94e34349559878621ddb5ceb19a6"
+  },
+  "/tmp/nanolang-exclusive-77226-linux/variables.mk": {
+    "sha256": "6f9c63dab581813da3163b30e7daa5339c55085bff95861ca2397f7d7f6924a6",
+    "bytes": 135,
+    "archive": "/tmp/nanolang-exclusive-77226-linux/objects/6f9c63dab581813da3163b30e7daa5339c55085bff95861ca2397f7d7f6924a6"
+  }
+}

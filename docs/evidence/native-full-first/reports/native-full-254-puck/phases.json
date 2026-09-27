@@ -1,0 +1,38 @@
+[
+  {
+    "label": "fresh-build",
+    "argv": [
+      "/usr/bin/make",
+      "-f",
+      "Makefile.gnu",
+      "-j2",
+      "CC=/usr/bin/clang",
+      "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "build"
+    ],
+    "bound": 1800,
+    "timeout": false,
+    "pid": 45978,
+    "returncode": 0,
+    "remaining_groups": [],
+    "seconds": 131.3933635
+  },
+  {
+    "label": "fresh-bootstrap",
+    "argv": [
+      "/usr/bin/make",
+      "-f",
+      "Makefile.gnu",
+      "-j2",
+      "CC=/usr/bin/clang",
+      "PYTHON_WITH_YAML=/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "bootstrap"
+    ],
+    "bound": 1800,
+    "timeout": false,
+    "pid": 95188,
+    "returncode": 2,
+    "remaining_groups": [],
+    "seconds": 2.561877124999995
+  }
+]

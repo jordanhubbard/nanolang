@@ -1,0 +1,480 @@
+{
+  "scope": "Measured diagnostic variants only; these are not substituted for the qualified production implementation.",
+  "files": {
+    "init-cost/clang-sanitizer": {
+      "sha256": "f65e71c74930e83e1676bd5995632b07ba3a45ae5c8c26fa5fd54f424d33a13a",
+      "bytes": 12735880,
+      "mode": 493
+    },
+    "init-cost/clang-sanitizer-build-command.txt": {
+      "sha256": "6dd2066f77fe19eab1be843bc5d35fcea6332cc30ae96c478d524c4a982e569a",
+      "bytes": 465,
+      "mode": 420
+    },
+    "init-cost/clang-sanitizer-build-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 420
+    },
+    "init-cost/clang-sanitizer-build-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/clang-sanitizer-build-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/clang-sanitizer-run-command.txt": {
+      "sha256": "4e972bcb419e25363c8fbaa01a552a05cedbb4e96dc05c83c407ecda20f2570e",
+      "bytes": 57,
+      "mode": 420
+    },
+    "init-cost/clang-sanitizer-run-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 420
+    },
+    "init-cost/clang-sanitizer-run-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/clang-sanitizer-run-stdout.log": {
+      "sha256": "b1d3d650c3f698f7e5e4a2578053e09010498edf47e9830d74d69f7747e1fdca",
+      "bytes": 140,
+      "mode": 420
+    },
+    "init-cost/clang-sanitizer-runtime-command.txt": {
+      "sha256": "657036af648cfd35ec805c59c381aa50c4c0d0bb0420a31cbae6256ac41bd701",
+      "bytes": 434,
+      "mode": 420
+    },
+    "init-cost/clang-sanitizer-runtime-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 420
+    },
+    "init-cost/clang-sanitizer-runtime-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/clang-sanitizer-runtime-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/clang-sanitizer.o": {
+      "sha256": "418f72d5e30549aea1985583b2c93c2eb7f37c8ae5b03fb5eef9a1c0b993374a",
+      "bytes": 1018152,
+      "mode": 420
+    },
+    "init-cost/gcc-ordinary": {
+      "sha256": "b927e00cb1f973b925bd461ff31fe544a930a5a2c05cf8d863bac2e9807b3ee2",
+      "bytes": 209168,
+      "mode": 493
+    },
+    "init-cost/gcc-ordinary-build-command.txt": {
+      "sha256": "01615f927986e4310781b8dd077662601db69852526f38d18ef7775c8535b436",
+      "bytes": 349,
+      "mode": 420
+    },
+    "init-cost/gcc-ordinary-build-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 420
+    },
+    "init-cost/gcc-ordinary-build-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/gcc-ordinary-build-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/gcc-ordinary-run-command.txt": {
+      "sha256": "c66e8d0d5b1370d13d88e0a921530da96206b05d38ef6536cea31e363f87ab72",
+      "bytes": 54,
+      "mode": 420
+    },
+    "init-cost/gcc-ordinary-run-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 420
+    },
+    "init-cost/gcc-ordinary-run-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/gcc-ordinary-run-stdout.log": {
+      "sha256": "c0664dd668f123fcaaa7da88c3e176be2a2ee2457fb7ce8a51d10a523a4f5de9",
+      "bytes": 140,
+      "mode": 420
+    },
+    "init-cost/gcc-ordinary-runtime-command.txt": {
+      "sha256": "a9398c107de50a4cf64f26c9d223ce5d691fa62f205db8047cc81d184641fbcc",
+      "bytes": 321,
+      "mode": 420
+    },
+    "init-cost/gcc-ordinary-runtime-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 420
+    },
+    "init-cost/gcc-ordinary-runtime-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/gcc-ordinary-runtime-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/gcc-ordinary.o": {
+      "sha256": "f1a3ea6b7f057cceaa14b9caec3c2ac7f608c050d2131b57ce136a1d8f5d0169",
+      "bytes": 187184,
+      "mode": 420
+    },
+    "init-cost/gcc-sanitizer": {
+      "sha256": "2aed6d20fcd1fd8372cbcceea0c81eed17bd77686a1cd3efc0ae4e69df724092",
+      "bytes": 1066144,
+      "mode": 493
+    },
+    "init-cost/gcc-sanitizer-build-command.txt": {
+      "sha256": "33f1479f3b617025c64dd180b26321fd313019a45270f8ee9db27e7ea312d8bc",
+      "bytes": 404,
+      "mode": 420
+    },
+    "init-cost/gcc-sanitizer-build-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 420
+    },
+    "init-cost/gcc-sanitizer-build-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/gcc-sanitizer-build-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/gcc-sanitizer-run-command.txt": {
+      "sha256": "3e7d9e3a3afd0a3e41024b750dc41009f4bdf53c815bb92a3f50028671d8f71b",
+      "bytes": 55,
+      "mode": 420
+    },
+    "init-cost/gcc-sanitizer-run-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 420
+    },
+    "init-cost/gcc-sanitizer-run-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/gcc-sanitizer-run-stdout.log": {
+      "sha256": "d2810217f88737df550efeef71816ce81970d5c892bc820ba8531b40eaffec91",
+      "bytes": 140,
+      "mode": 420
+    },
+    "init-cost/gcc-sanitizer-runtime-command.txt": {
+      "sha256": "1baa645d27fb461f7a9d285aa37b23f0638938f1a85bbc35458ea4c146882da0",
+      "bytes": 375,
+      "mode": 420
+    },
+    "init-cost/gcc-sanitizer-runtime-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 420
+    },
+    "init-cost/gcc-sanitizer-runtime-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/gcc-sanitizer-runtime-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 420
+    },
+    "init-cost/gcc-sanitizer.o": {
+      "sha256": "3e685535129c7d3bff96f317f71b8558e8bb372bca69d8aa8a043d9160e7974f",
+      "bytes": 1266872,
+      "mode": 420
+    },
+    "hoist-cost/clang-sanitizer": {
+      "sha256": "84f81d59e3ff3e4aad4cbb224ecf25e3758032dd7e7413ea493463a2b747835b",
+      "bytes": 12735920,
+      "mode": 509
+    },
+    "hoist-cost/clang-sanitizer-build-command.txt": {
+      "sha256": "9542f93497fe5226c9cdb9bea1c922e4684fc86b34047e1b78e2589ad226cc3c",
+      "bytes": 467,
+      "mode": 436
+    },
+    "hoist-cost/clang-sanitizer-build-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 436
+    },
+    "hoist-cost/clang-sanitizer-build-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/clang-sanitizer-build-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/clang-sanitizer-run-command.txt": {
+      "sha256": "1f7966d980dae4e679fdd66e6ec4517d7c225300795eae2e2dc5c045e4a51cc3",
+      "bytes": 58,
+      "mode": 436
+    },
+    "hoist-cost/clang-sanitizer-run-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 436
+    },
+    "hoist-cost/clang-sanitizer-run-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/clang-sanitizer-run-stdout.log": {
+      "sha256": "021a27dd00a4b2d1b06969f40ed687245426387ef4cc4b44de0e30f93c30a8b3",
+      "bytes": 140,
+      "mode": 436
+    },
+    "hoist-cost/clang-sanitizer-runtime-command.txt": {
+      "sha256": "a3374660ca5a31e6a96477d1181d0b0286cd89a6d02049e1af41ba8205a747fb",
+      "bytes": 430,
+      "mode": 436
+    },
+    "hoist-cost/clang-sanitizer-runtime-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 436
+    },
+    "hoist-cost/clang-sanitizer-runtime-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/clang-sanitizer-runtime-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/clang-sanitizer.o": {
+      "sha256": "5508f2d736eac07b1fc96e728d8d3e886bb7017b8852e6cac17d76c16a87f97b",
+      "bytes": 1018312,
+      "mode": 436
+    },
+    "hoist-cost/gcc-ordinary": {
+      "sha256": "9068f8ae6b1c916af2fc98472c9c57d4a1752fbd265636058328f5a265e1d74d",
+      "bytes": 209200,
+      "mode": 509
+    },
+    "hoist-cost/gcc-ordinary-build-command.txt": {
+      "sha256": "9a1b16db54c0b12f75009b59f30acde9f1fd32b86d042fb14a62bf284120b8ec",
+      "bytes": 351,
+      "mode": 436
+    },
+    "hoist-cost/gcc-ordinary-build-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 436
+    },
+    "hoist-cost/gcc-ordinary-build-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/gcc-ordinary-build-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/gcc-ordinary-run-command.txt": {
+      "sha256": "8984afa12c8d62ec4ae70a4dd67a967cdd4a43dcceca1ce955a9ddd7331ff998",
+      "bytes": 55,
+      "mode": 436
+    },
+    "hoist-cost/gcc-ordinary-run-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 436
+    },
+    "hoist-cost/gcc-ordinary-run-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/gcc-ordinary-run-stdout.log": {
+      "sha256": "ab9813b85bd9a761abc99aec4d4d051a639c9243ccedbebf1bd14f6f62a92a26",
+      "bytes": 140,
+      "mode": 436
+    },
+    "hoist-cost/gcc-ordinary-runtime-command.txt": {
+      "sha256": "25d8368bc3e4e88d64ec5afb1bac8571f5bd144dacc4e78c946274bec5b59f95",
+      "bytes": 317,
+      "mode": 436
+    },
+    "hoist-cost/gcc-ordinary-runtime-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 436
+    },
+    "hoist-cost/gcc-ordinary-runtime-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/gcc-ordinary-runtime-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/gcc-ordinary.o": {
+      "sha256": "9f61adadd29fa3da95d44461cb3bca031376c356fa9d422175185ba46755781b",
+      "bytes": 187264,
+      "mode": 436
+    },
+    "hoist-cost/gcc-sanitizer": {
+      "sha256": "3de16641826766526f5799b851b1875a25eaf1bf805b71e95cd451e832525e3f",
+      "bytes": 1066136,
+      "mode": 509
+    },
+    "hoist-cost/gcc-sanitizer-build-command.txt": {
+      "sha256": "9c5439ed1688cdcabe8b690eed9e8029fd81aa3c8f343ca7bc792bbbdfa0899e",
+      "bytes": 406,
+      "mode": 436
+    },
+    "hoist-cost/gcc-sanitizer-build-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 436
+    },
+    "hoist-cost/gcc-sanitizer-build-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/gcc-sanitizer-build-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/gcc-sanitizer-run-command.txt": {
+      "sha256": "770d6f9bb747a2c5cdc9546437e4a03f8341fa4050fe3c00b5dc1129f5638067",
+      "bytes": 56,
+      "mode": 436
+    },
+    "hoist-cost/gcc-sanitizer-run-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 436
+    },
+    "hoist-cost/gcc-sanitizer-run-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/gcc-sanitizer-run-stdout.log": {
+      "sha256": "e8ba1386536cd392c68fe2f90d00817f52986aef20faa0a4284320792e8b6684",
+      "bytes": 140,
+      "mode": 436
+    },
+    "hoist-cost/gcc-sanitizer-runtime-command.txt": {
+      "sha256": "2c5339b784cf512101c35e0a9759318f43f7848f89b1234441f1fcc0a59fd712",
+      "bytes": 371,
+      "mode": 436
+    },
+    "hoist-cost/gcc-sanitizer-runtime-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 436
+    },
+    "hoist-cost/gcc-sanitizer-runtime-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/gcc-sanitizer-runtime-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "hoist-cost/gcc-sanitizer.o": {
+      "sha256": "651e54f0c62e207c1f72a821136ec5cfac84d03d28c6713d6d822410d62127e0",
+      "bytes": 1267024,
+      "mode": 436
+    },
+    "depth-cost/driver.c": {
+      "sha256": "a828f8597eb61224fa6cd0b1e32669c8b7fec65bc6b00194a51719043119e9da",
+      "bytes": 787,
+      "mode": 436
+    },
+    "depth-cost/gcc-build-command.txt": {
+      "sha256": "487bb63273f47576d9e3752eb74591e7ab355642c8605d91606f898331e9a2da",
+      "bytes": 695,
+      "mode": 436
+    },
+    "depth-cost/gcc-build-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 436
+    },
+    "depth-cost/gcc-build-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "depth-cost/gcc-build-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "depth-cost/gcc-run-command.txt": {
+      "sha256": "eb84579f4ab3824a200bb80f78cc645773907f2e7ff6c1efd60d7fc9335580c9",
+      "bytes": 56,
+      "mode": 436
+    },
+    "depth-cost/gcc-run-status.json": {
+      "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7",
+      "bytes": 181,
+      "mode": 436
+    },
+    "depth-cost/gcc-run-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": 436
+    },
+    "depth-cost/gcc-run-stdout.log": {
+      "sha256": "b59d78ed65f0fd22f84b0b91498e0178c09dabe80a0def73dac6459f87965473",
+      "bytes": 212,
+      "mode": 436
+    },
+    "depth-cost/gcc-sanitizer": {
+      "sha256": "d39a9cb3568dee4ed8effa523b1260c10ce7dfc76b0661bb548e107aef64eaaf",
+      "bytes": 1072400,
+      "mode": 509
+    },
+    "depth-cost/inputs.json": {
+      "sha256": "f3ef75a46c7f4bac970941af093f6e55aff2b1b26b40d8beb8b28d9e8f993293",
+      "bytes": 539,
+      "mode": 436
+    }
+  }
+}

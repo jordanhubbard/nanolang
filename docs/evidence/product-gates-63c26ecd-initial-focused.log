@@ -1,0 +1,96 @@
+test_all_operations_and_single_index_evaluation (tests.test_canonical_module_facts.CanonicalModuleFacts.test_all_operations_and_single_index_evaluation) ... ok
+test_canonical_source_closure_excludes_legacy_emission (tests.test_canonical_module_facts.CanonicalModuleFacts.test_canonical_source_closure_excludes_legacy_emission) ... ok
+test_duplicate_module_identity (tests.test_canonical_module_facts.CanonicalModuleFacts.test_duplicate_module_identity) ... ok
+test_empty_export_sets (tests.test_canonical_module_facts.CanonicalModuleFacts.test_empty_export_sets) ... ok
+test_existing_flags_and_export_shadows (tests.test_canonical_module_facts.CanonicalModuleFacts.test_existing_flags_and_export_shadows) ... ok
+test_intrinsic_signature_is_required_before_publication (tests.test_canonical_module_facts.CanonicalModuleFacts.test_intrinsic_signature_is_required_before_publication) ... ok
+test_ordinary_function_with_similar_name_keeps_its_body (tests.test_canonical_module_facts.CanonicalModuleFacts.test_ordinary_function_with_similar_name_keeps_its_body) ... ok
+test_public_pure_modifier_exports (tests.test_canonical_module_facts.CanonicalModuleFacts.test_public_pure_modifier_exports) ... ok
+test_artifact_paths_preserve_library_identity_and_execution (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_artifact_paths_preserve_library_identity_and_execution) ... ok
+test_assembly_publication_status_and_error_run_in_both_backends (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_assembly_publication_status_and_error_run_in_both_backends) ... ok
+test_bound_imports_repeatable_vm_and_native (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_bound_imports_repeatable_vm_and_native) ... ok
+test_dependency_and_root_shadow_failures_preserve_output (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_dependency_and_root_shadow_failures_preserve_output) ... ok
+test_native_string_prefix_builtin (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_native_string_prefix_builtin) ... ok
+test_reachable_refusal_reports_precise_boundary (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_reachable_refusal_reports_precise_boundary) ... ok
+test_reachable_scalar_float_publishes_and_executes (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_reachable_scalar_float_publishes_and_executes) ... ok
+test_source_aliases_and_rejections_preserve_files (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_source_aliases_and_rejections_preserve_files) ... ok
+test_unreachable_helper_still_runs_dependency_shadows (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_unreachable_helper_still_runs_dependency_shadows) ... ok
+test_dependency_selection (tests.test_canonical_vm_shadows.CanonicalVMShadows.test_dependency_selection) ... ok
+test_failure_and_deadline_preserve_previous_output (tests.test_canonical_vm_shadows.CanonicalVMShadows.test_failure_and_deadline_preserve_previous_output) ... ok
+test_missing_vm_preserves_output_and_no_shadow_needs_no_runner (tests.test_canonical_vm_shadows.CanonicalVMShadows.test_missing_vm_preserves_output_and_no_shadow_needs_no_runner) ... ok
+test_runner_path_with_spaces (tests.test_canonical_vm_shadows.CanonicalVMShadows.test_runner_path_with_spaces) ... ok
+test_shared_state_order_and_ordinary_main (tests.test_canonical_vm_shadows.CanonicalVMShadows.test_shared_state_order_and_ordinary_main) ... ok
+test_boolean_arms (tests.test_conditional_field_types.ConditionalFieldTypes.test_boolean_arms) ... ok
+test_integer_arms (tests.test_conditional_field_types.ConditionalFieldTypes.test_integer_arms) ... ok
+test_mismatched_arms_preserve_output (tests.test_conditional_field_types.ConditionalFieldTypes.test_mismatched_arms_preserve_output) ... ok
+test_mismatched_middle_arm_preserves_output (tests.test_conditional_field_types.ConditionalFieldTypes.test_mismatched_middle_arm_preserves_output) ... ok
+test_string_arms_and_nested_choice (tests.test_conditional_field_types.ConditionalFieldTypes.test_string_arms_and_nested_choice) ... ok
+test_wrong_declared_field_preserves_output (tests.test_conditional_field_types.ConditionalFieldTypes.test_wrong_declared_field_preserves_output) ... ok
+test_conflicting_target_preserves_previous_output (tests.test_default_nanoisa_product.DefaultNanoisaProduct.test_conflicting_target_preserves_previous_output) ... ok
+test_default_and_explicit_bytecode_derive_sibling (tests.test_default_nanoisa_product.DefaultNanoisaProduct.test_default_and_explicit_bytecode_derive_sibling) ... ok
+test_derived_output_cannot_replace_source (tests.test_default_nanoisa_product.DefaultNanoisaProduct.test_derived_output_cannot_replace_source) ... ok
+test_explicit_native_and_c_products (tests.test_default_nanoisa_product.DefaultNanoisaProduct.test_explicit_native_and_c_products) ... ok
+test_failed_product_steps_preserve_previous_output (tests.test_nanoisa_only_product.NanoisaOnlyProduct.test_failed_product_steps_preserve_previous_output) ... ok
+test_native_and_source_products_use_translator (tests.test_nanoisa_only_product.NanoisaOnlyProduct.test_native_and_source_products_use_translator) ... ok
+test_existing_string_edges (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_existing_string_edges) ... ok
+test_nested_string_and_boolean_results (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_nested_string_and_boolean_results) ... ok
+test_wrong_trim_operands_preserve_output (tests.test_canonical_string_builtins.CanonicalStringBuiltins.test_wrong_trim_operands_preserve_output) ... ok
+test_declared_results_and_owned_arrays (tests.test_canonical_filesystem.CanonicalFilesystem.test_declared_results_and_owned_arrays) ... ok
+test_wrong_declared_abi_preserves_output (tests.test_canonical_filesystem.CanonicalFilesystem.test_wrong_declared_abi_preserves_output) ... ok
+test_declared_local_function_keeps_its_result_type (tests.test_canonical_prefix_conversion.CanonicalPrefixConversion.test_declared_local_function_keeps_its_result_type) ... ok
+test_qualified_declaration_keeps_its_result_type (tests.test_canonical_prefix_conversion.CanonicalPrefixConversion.test_qualified_declaration_keeps_its_result_type) ... ok
+test_result_context_and_single_evaluation (tests.test_canonical_prefix_conversion.CanonicalPrefixConversion.test_result_context_and_single_evaluation) ... ok
+test_retained_prefix_fixture (tests.test_canonical_prefix_conversion.CanonicalPrefixConversion.test_retained_prefix_fixture) ... ok
+test_wrong_operands_preserve_output (tests.test_canonical_prefix_conversion.CanonicalPrefixConversion.test_wrong_operands_preserve_output) ... ok
+test_all_source_compilers_keep_prefix_conversion (tests.test_legacy_binary64_parse.LegacyBinary64Parse.test_all_source_compilers_keep_prefix_conversion) ... ok
+test_checked_endpoint_and_prefix_values (tests.test_legacy_binary64_parse.LegacyBinary64Parse.test_checked_endpoint_and_prefix_values) ... ok
+test_all_scalar_results_and_expression_contexts (tests.test_generic_union_emission.GenericUnionEmission.test_all_scalar_results_and_expression_contexts) ... ok
+test_array_payload_and_phantom_arguments (tests.test_generic_union_emission.GenericUnionEmission.test_array_payload_and_phantom_arguments) ... ok
+test_c_seed_resource_payload_constructor_remains_checked (tests.test_generic_union_emission.GenericUnionEmission.test_c_seed_resource_payload_constructor_remains_checked) ... ok
+test_concrete_instances_context_and_formal_shadowing (tests.test_generic_union_emission.GenericUnionEmission.test_concrete_instances_context_and_formal_shadowing) ... ok
+test_instance_mismatch_refusals_preserve_output (tests.test_generic_union_emission.GenericUnionEmission.test_instance_mismatch_refusals_preserve_output) ... ok
+test_nested_payload_names_restore_outer_and_sibling (tests.test_generic_union_emission.GenericUnionEmission.test_nested_payload_names_restore_outer_and_sibling) ... ok
+test_nominal_payload_offsets_do_not_follow_shared_field_names (tests.test_generic_union_emission.GenericUnionEmission.test_nominal_payload_offsets_do_not_follow_shared_field_names) ... ok
+test_refusals_preserve_output (tests.test_generic_union_emission.GenericUnionEmission.test_refusals_preserve_output) ... ok
+test_reordered_constructor_evaluates_once_in_source_order (tests.test_generic_union_emission.GenericUnionEmission.test_reordered_constructor_evaluates_once_in_source_order) ... ok
+test_scalar_payloads_calls_returns_and_lexical_scope (tests.test_generic_union_emission.GenericUnionEmission.test_scalar_payloads_calls_returns_and_lexical_scope) ... ok
+test_scrutinee_once_and_only_selected_arm (tests.test_generic_union_emission.GenericUnionEmission.test_scrutinee_once_and_only_selected_arm) ... ok
+test_selected_value_shadows_remain_mandatory (tests.test_generic_union_emission.GenericUnionEmission.test_selected_value_shadows_remain_mandatory) ... ok
+test_unchanged_affine_suites_through_explicit_nanoisa (tests.test_generic_union_emission.GenericUnionEmission.test_unchanged_affine_suites_through_explicit_nanoisa) ... ok
+test_unchanged_core_examples_and_selected_shadows (tests.test_generic_union_emission.GenericUnionEmission.test_unchanged_core_examples_and_selected_shadows) ... ok
+test_unsupported_payloads_and_failed_shadows_refuse (tests.test_generic_union_emission.GenericUnionEmission.test_unsupported_payloads_and_failed_shadows_refuse) ... ok
+test_value_match_refusals_preserve_output (tests.test_generic_union_emission.GenericUnionEmission.test_value_match_refusals_preserve_output) ... ok
+setUpClass (tests.test_source_borrow_emission.SourceBorrowEmission) ... ERROR
+test_explicit_instances_in_locals_calls_returns_and_shadows (tests.test_explicit_generic_constructors.ExplicitGenericConstructors.test_explicit_instances_in_locals_calls_returns_and_shadows) ... ok
+test_nested_explicit_type_arguments (tests.test_explicit_generic_constructors.ExplicitGenericConstructors.test_nested_explicit_type_arguments) ... ok
+test_explicit_empty_instance_mismatches_preserve_output (tests.test_explicit_generic_constructors.ExplicitGenericConstructors.test_explicit_empty_instance_mismatches_preserve_output) ... ok
+
+======================================================================
+ERROR: setUpClass (tests.test_source_borrow_emission.SourceBorrowEmission)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/jkh/Src/nanolang-nanoisa-only-product/tests/test_source_borrow_emission.py", line 24, in setUpClass
+    cls.command(ROOT / 'bin' / compiler, ROOT / 'src_nano/nanoisa_emit.nano', '-o', emitter)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/jkh/Src/nanolang-nanoisa-only-product/tests/test_source_borrow_emission.py", line 36, in command
+    result = subprocess.run([str(arg) for arg in args], cwd=ROOT, capture_output=True,
+                            text=True, timeout=180)
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1221, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 2154, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/Cellar/python@3.14/3.14.5/lib/python3.14/subprocess.py", line 1268, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '['/home/jkh/Src/nanolang-nanoisa-only-product/bin/nanoc_stage2', '/home/jkh/Src/nanolang-nanoisa-only-product/src_nano/nanoisa_emit.nano', '-o', '/tmp/nano-source-borrows-m_jb6ypj/nanoc_stage2-emit']' timed out after 180 seconds
+
+----------------------------------------------------------------------
+Ran 65 tests in 1357.003s
+
+FAILED (errors=1)

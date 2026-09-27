@@ -1,0 +1,63 @@
+Corrected Darwin product acceptance evidence
+
+Replacement MAC task: task_560e50b04c0a7a5a33537b0bc5292ed1
+Superseded stopped task: task_1b914e18e8c830e9db6fcb2be90e73b1
+Source branch: gate/product-ece-forth-darwin
+Tested commit: c9c747858ee4c557563f0b3c3ca9e86a7407dec0
+Evidence-only product base: d021ad9927f1fdfd8a8c6a3b72acf68c2430dcfa
+Compiler source: ece241ba56c34ae6e47639cd7d618f43f20ba25d
+Git tree: b5458ff33139094240a5b6cadbdc65e1eb088ab6
+Compiler-source manifest SHA-256 (recursive git ls-tree for Makefile.gnu,
+src, src_nano and modules):
+0eabea5f6501fddbc7c4f44217170dd5913e3253a9b8bec6131bd552a6a544e6
+
+The corrected pin differs from the evidence-only product base in two files:
+docs/ROADMAP.md and tests/forth/test_forth_core_load.c. The compiler-source
+manifest is byte-identical to ece241ba. The test harness redirects stdin to
+/dev/null before loading its file-source evidence. Production ACCEPT, KEY,
+REFILL and the configured 600-second deadline are unchanged.
+
+Worktree: /tmp/nanolang-product-ece-forth-corrected.I8Jfe8
+Worktree status after gate: clean tracked source on the pushed branch
+Command: make -j8 test-quick
+Input boundary: an allocated PTY (stdin_tty=yes)
+Started: 2026-09-18T10:06:00Z
+Finished: 2026-09-18T10:22:25Z
+Elapsed: 985.04 seconds
+Exit status: 0
+
+The complete gate passed fresh bootstrap and all three self-hosted component
+validations, 17/17 runnable core examples, 244 eligible NanoVM examples and
+their four exclusion controls, module introspection, installed compiler
+independence, the Jackson Core and optional word-set evidence, 280 Forth
+example cases, the PTY REPL liveness control, and the Forth IDE build/smoke
+boundary. The Core ACCEPT case observed deterministic EOF and printed
+RECEIVED: "". No historical failed executable was run.
+
+Full log:
+/tmp/nanolang-product-ece-forth-corrected-c9c74785-test-quick.log
+SHA-256: 47ef1a62b9004841cffea574998f783b02177ddd01b7fe5e00670c49562c1d26
+Size: 192219 bytes, 2646 lines
+
+Final built binary SHA-256:
+bin/nanoc_c       03f7612b4d14529494634571df5613d96e517009e028e94aa28dab535d13fcd5
+bin/nanoc_stage1  4a33890165ae3d887e42718c49874a5d1de2041719f3f741eb95c757ae65cd29
+bin/nanoc_stage2  1f5ededbc12fe927e8cc53f14d78f07cc832041583bff995bfcbe6ca047e86b0
+bin/nanoc         1f5ededbc12fe927e8cc53f14d78f07cc832041583bff995bfcbe6ca047e86b0
+bin/nano_virt     5b491492d12250809157d95ddc722292486aaac04490cdf70ac26868008c5363
+bin/nano_vm       8267a58129c26f083709d87c26de80d7b359fa6c0652496c860987b5ca60425b
+bin/nvm2c         fa369c677dc56e914cddf51e8bcddeb26739cfe6cf71e289510f97879cafc4cd
+bin/forth         9e2339fa40914e17a06315c77b0541d43f07c61216c516b6bdfc1ecd4c152c0d
+bin/sdl_forth_ide 60f682a7f168e72c63982faaefb13ad9358221481512ecd16a7ebc6a8e747861
+
+Platform and toolchain:
+arm64 macOS 26.6.2 build 25G83; Darwin 25.6.0
+Apple clang 21.0.0 (clang-2100.3.34.2)
+GNU Make 3.81
+SDK 27.0 at /Applications/Xcode.app/Contents/Developer/Platforms/
+MacOSX.platform/Developer/SDKs/MacOSX.sdk
+
+This is same-compiler-source Darwin acceptance for the deterministic Forth
+harness correction. It does not qualify later product integrations, prove
+production correspondence, authorize a tag, or close the full release gate.
+Publication remains held.

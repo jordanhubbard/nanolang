@@ -1,0 +1,52 @@
+{
+  "base_commit": "529c420734dd43f842183861f54cc5e142dce35a",
+  "logs": [
+    {
+      "name": "nano_virt.log",
+      "sha256": "1787d378230a79a943cfd3459ca09809202775a2cb14da840d7ba92a6ddad748"
+    },
+    {
+      "name": "nano_vm.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "nvm2c.log",
+      "sha256": "a697a12e5140433ad5bf09ff724c1190098be9566bffef24be3fc002f98e2d37"
+    },
+    {
+      "name": "tests.log",
+      "sha256": "ba3466486294ace163c0f84b1a7d767426b9f9c7a404fe73af65974525750e7a"
+    },
+    {
+      "name": "instrumented-tests.log",
+      "sha256": "05f8df6c45697050f6f2c79fe8970eace0dee282d4c4c2e1846a41bc46a27367"
+    },
+    {
+      "name": "full-translator-first-failure.log",
+      "sha256": "8998553913f7e9cf5d13647b0417202c7596d74fe9d6331e60c0ce14f052b92a"
+    },
+    {
+      "name": "full-translator.log",
+      "sha256": "54c6d12b8ee83d5f5d3f79fa50d6343c8d6eedf5d1d962c3eb6d742d625b6cc8"
+    },
+    {
+      "name": "driver-checks.log",
+      "sha256": "6c072284b282a6073355a7fac15e34a7a3ef83dc83a54c3267b688440a3429f3"
+    },
+    {
+      "name": "shapes.log",
+      "sha256": "fa4a8cfcc869acb4aa8fc51efaec125264289bfa06913e3ea9ef3c71f001ad8f"
+    },
+    {
+      "name": "scalar-controls.log",
+      "sha256": "1163caf219f73d6bb8d818536fcdb6ca50100f3bd4faeb38dd93c4178be7ef89"
+    }
+  ],
+  "source_hashes": {
+    "src/nanoisa/nvm2c.c": "425eb2aafa2e3124c4f0b7f55cc7b781488d842efe18443d975fd143986b2fce",
+    "src/nanoisa/nvm2c_map_roots.inc": "faf85b958eaa9d45a6789d14e346722f20589c3ca3fcc5a1d7846b2aa2e8f4c3",
+    "tests/test_native_optional_records.py": "31dfacfebf6a424663629c5a649896701ba05bce7c7a1e607f4c91f77a486a8f"
+  },
+  "original_module_sha256": "48e7e48ecf99599181536cfba8a45d8b9ed7bec3867fb50b6aafaf5c024b39c9",
+  "global_broad_failed_log_sha256": "fe0d8d3a97322b175419c276be49e44cf9cc005a2f79e776c055f0a740414ec9"
+}

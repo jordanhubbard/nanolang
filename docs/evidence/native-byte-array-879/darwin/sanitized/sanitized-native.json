@@ -1,0 +1,17 @@
+{
+  "label": "sanitized-native",
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-f",
+    "-v",
+    "tests.test_native_byte_array_identity"
+  ],
+  "bound": 1200,
+  "timeout": false,
+  "pid": 12952,
+  "returncode": 0,
+  "remaining_groups": [],
+  "seconds": 9.556632167
+}

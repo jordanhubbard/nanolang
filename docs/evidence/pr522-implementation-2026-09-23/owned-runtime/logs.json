@@ -1,0 +1,34 @@
+[
+  {
+    "file": "pr522-runtime-regressions.log.gz",
+    "uncompressed_sha256": "3aeefbdca90907dc7206c5650685ef3567ae40fe28f9071dc2d86213df840239"
+  },
+  {
+    "file": "pr522-runtime-regressions-corrected.log.gz",
+    "uncompressed_sha256": "6343c35944fa38a2bf5980eb69b736b9fbee37d87ecb951953c78b58bc12b278"
+  },
+  {
+    "file": "pr522-union-gates.log.gz",
+    "uncompressed_sha256": "97e06a3d6be4dc6fb74fbae038729417f671e671ed2461f2219010f70d737668"
+  },
+  {
+    "file": "pr522-union-runtime-final.log.gz",
+    "uncompressed_sha256": "d5d1b4902aa5fc5391949156ffce49d574a02b0dcd0d20fdfa36a4cc73d4d7af"
+  },
+  {
+    "file": "pr522-runtime-schema.log.gz",
+    "uncompressed_sha256": "7873cb20a0fc10ed3097e9dac42f2f93a1c11df29b4222c4f90084daf34a898f"
+  },
+  {
+    "file": "pr522-runtime-instrumented-final.log.gz",
+    "uncompressed_sha256": "bcbb487da3af482d25cc041d6aa9a91d03c35045bf6c125b3f40ac85542fb4ea"
+  },
+  {
+    "file": "pr522-runtime-instrumented-switch.log.gz",
+    "uncompressed_sha256": "bcbb487da3af482d25cc041d6aa9a91d03c35045bf6c125b3f40ac85542fb4ea"
+  },
+  {
+    "file": "pr522-owned-regression-final.log.gz",
+    "uncompressed_sha256": "5e97ac73919567a92faab0405582af3db62518b6a4d91b8040215b65833073b0"
+  }
+]

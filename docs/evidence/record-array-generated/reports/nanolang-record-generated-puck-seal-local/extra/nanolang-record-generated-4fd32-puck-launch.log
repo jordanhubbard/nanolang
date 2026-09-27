@@ -1,0 +1,11 @@
+{"pin": "4fd32d23ba457bfb988ad870350288ba23d8930f", "source_files": 3741, "root": "/private/tmp/nanolang-record-generated-qualified-4fd32", "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"}
+{"phase": "setup", "status": 0, "seconds": 8.59}
+{"phase": "configuration", "status": 0, "seconds": 0.145}
+{"phase": "discovery", "status": 0, "seconds": 0.081}
+{"phase": "ordinary", "status": 0, "seconds": 289.143}
+{"phase": "clang-ordinary", "status": 0, "seconds": 311.385}
+{"phase": "sanitizer", "status": 0, "seconds": 1088.823}
+{"phase": "old-private-vm", "status": 0, "seconds": 14.955}
+{"phase": "record_array_global_flow", "status": 0, "seconds": 3.948}
+{"phase": "record_array_execution", "status": 0, "seconds": 4.117}
+{"phase": "record_array_origins", "status": 0, "seconds": 3.741}

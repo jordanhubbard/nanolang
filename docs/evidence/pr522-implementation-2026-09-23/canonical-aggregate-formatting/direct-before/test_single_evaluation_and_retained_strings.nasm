@@ -1,0 +1,167 @@
+.types 1 0 0
+.entry 1
+
+.string s0 "Sample { "
+.string s1 "values: "
+.string s2 "["
+.string s3 ", "
+.string s4 "]"
+.string s5 " }"
+.string s6 "Sample { values: [1] }"
+.string s7 "Sample { values: ["
+.string s8 "] }"
+
+.function next 0 0 0 struct 1
+  LOAD_GLOBAL 0
+  PUSH_I64 1
+  I64_ADD
+  STORE_GLOBAL 0
+  LOAD_GLOBAL 0
+  ARR_LITERAL 1 1
+  AGG_PACK 0 0 0 1
+  RET
+.end
+
+.function main 0 11 0 int 1
+  PUSH_I64 0
+  STORE_GLOBAL 0
+  CALL next
+  STORE_LOCAL 0
+  PUSH_STR s0
+  PUSH_STR s1
+  STR_CONCAT
+  LOAD_LOCAL 0
+  AGG_GET 0
+  STORE_LOCAL 1
+  PUSH_STR s2
+  STORE_LOCAL 2
+  PUSH_I64 0
+  STORE_LOCAL 3
+L0:
+  LOAD_LOCAL 3
+  LOAD_LOCAL 1
+  ARR_LEN
+  LT
+  JMP_FALSE L1
+  LOAD_LOCAL 2
+  LOAD_LOCAL 3
+  JMP_FALSE L2
+  PUSH_STR s3
+  STR_CONCAT
+L2:
+  LOAD_LOCAL 1
+  LOAD_LOCAL 3
+  ARR_GET
+  CAST_STRING
+  STR_CONCAT
+  STORE_LOCAL 2
+  LOAD_LOCAL 3
+  PUSH_I64 1
+  I64_ADD
+  STORE_LOCAL 3
+  JMP L0
+L1:
+  LOAD_LOCAL 2
+  PUSH_STR s4
+  STR_CONCAT
+  STR_CONCAT
+  PUSH_STR s5
+  STR_CONCAT
+  STORE_LOCAL 4
+.local_begin 4 "saved"
+  LOAD_GLOBAL 0
+  PUSH_I64 1
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 4
+  PUSH_STR s6
+  EQ
+  ASSERT
+  PUSH_I64 0
+  STORE_LOCAL 5
+.local_begin 5 "i"
+L3:
+  LOAD_LOCAL 5
+  PUSH_I64 300
+  I64_LT_S
+  JMP_FALSE L4
+  CALL next
+  STORE_LOCAL 6
+  PUSH_STR s0
+  PUSH_STR s1
+  STR_CONCAT
+  LOAD_LOCAL 6
+  AGG_GET 0
+  STORE_LOCAL 7
+  PUSH_STR s2
+  STORE_LOCAL 8
+  PUSH_I64 0
+  STORE_LOCAL 9
+L5:
+  LOAD_LOCAL 9
+  LOAD_LOCAL 7
+  ARR_LEN
+  LT
+  JMP_FALSE L6
+  LOAD_LOCAL 8
+  LOAD_LOCAL 9
+  JMP_FALSE L7
+  PUSH_STR s3
+  STR_CONCAT
+L7:
+  LOAD_LOCAL 7
+  LOAD_LOCAL 9
+  ARR_GET
+  CAST_STRING
+  STR_CONCAT
+  STORE_LOCAL 8
+  LOAD_LOCAL 9
+  PUSH_I64 1
+  I64_ADD
+  STORE_LOCAL 9
+  JMP L5
+L6:
+  LOAD_LOCAL 8
+  PUSH_STR s4
+  STR_CONCAT
+  STR_CONCAT
+  PUSH_STR s5
+  STR_CONCAT
+  STORE_LOCAL 10
+.local_begin 10 "text"
+  LOAD_LOCAL 10
+  PUSH_STR s7
+  LOAD_GLOBAL 0
+  CAST_STRING
+  PUSH_STR s8
+  STR_CONCAT
+  STR_CONCAT
+  EQ
+  ASSERT
+  LOAD_LOCAL 5
+  PUSH_I64 1
+  I64_ADD
+  STORE_LOCAL 5
+.local_end 10
+  JMP L3
+L4:
+  LOAD_GLOBAL 0
+  PUSH_I64 301
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 4
+  PUSH_STR s6
+  EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+.local_end 4
+.local_end 5
+.end
+
+.function __init__ 0 0 0 void 0
+  PUSH_I64 0
+  STORE_GLOBAL 0
+  RET
+.end
+

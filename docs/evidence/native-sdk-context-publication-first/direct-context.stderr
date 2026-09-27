@@ -1,0 +1,16 @@
+test_actual_field_assignment_and_binding_refusal (tests.test_str_split_result_context.SplitResultContext) ... FAIL
+
+======================================================================
+FAIL: test_actual_field_assignment_and_binding_refusal (tests.test_str_split_result_context.SplitResultContext)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-native-sdk-70f8a-puck-source/tests/test_str_split_result_context.py", line 27, in test_actual_field_assignment_and_binding_refusal
+    out,err,_=native_sdk_runner.run(work,'run',[exe],ROOT,timeout=60)
+  File "/private/tmp/nanolang-native-sdk-70f8a-puck-source/tests/native_sdk_runner.py", line 144, in run
+    raise AssertionError((name, state, out[-8000:], err[-8000:]))
+AssertionError: ('run', {'returncode': -6, 'timeout': False, 'cleanup_errors': [], 'group_absent': True, 'first_terminal': 'exit', 'remaining_group_killed': False, 'child_returncode': -6, 'seconds': 0.35087674999999985}, b'', b'Assertion failed: (result && result->base_type == TYPE_ARRAY && result->element_type), function check_context, file str_split_result_context.c, line 61.\n')
+
+----------------------------------------------------------------------
+Ran 1 test in 1.717s
+
+FAILED (failures=1)

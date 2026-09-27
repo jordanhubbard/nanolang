@@ -1,0 +1,137 @@
+.EEFFF.FFF.
+======================================================================
+ERROR: test_native_copy_allocation_failure_still_releases_provider (tests.test_artifact_string_release.ArtifactStringRelease.test_native_copy_allocation_failure_still_releases_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 346, in test_native_copy_allocation_failure_still_releases_provider
+    self.assertEqual(marker.read_text(), '1 1\n')
+                     ~~~~~~~~~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-quz4ge8b/released'
+
+======================================================================
+ERROR: test_null_provider_result_is_released_once_then_refused (tests.test_artifact_string_release.ArtifactStringRelease.test_null_provider_result_is_released_once_then_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 268, in test_null_provider_result_is_released_once_then_refused
+    self.assertEqual(marker.read_text(), 'released-null\n')
+                     ~~~~~~~~~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-artifact-release-am1wml9q/native-null'
+
+======================================================================
+FAIL: test_provider_cleanup_counts_zero_one_two_args_and_borrowed (tests.test_artifact_string_release.ArtifactStringRelease.test_provider_cleanup_counts_zero_one_two_args_and_borrowed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 110, in test_provider_cleanup_counts_zero_one_two_args_and_borrowed
+    self.paired(imports+strings+'.entry main\n.function main 0 2 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 91, in paired
+    native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==76322==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_real_fs_allocation_failure_preserves_empty_sentinel (tests.test_artifact_string_release.ArtifactStringRelease.test_real_fs_allocation_failure_preserves_empty_sentinel)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 331, in test_real_fs_allocation_failure_preserves_empty_sentinel
+    self.paired(text)
+    ~~~~~~~~~~~^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 91, in paired
+    native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==76334==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_real_fs_text_empty_missing_and_embedded_nul (tests.test_artifact_string_release.ArtifactStringRelease.test_real_fs_text_empty_missing_and_embedded_nul)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 177, in test_real_fs_text_empty_missing_and_embedded_nul
+    self.paired(imports+strings+'.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 91, in paired
+    native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==76346==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_real_path_providers_repeated_results_preserve_aliases (tests.test_artifact_string_release.ArtifactStringRelease.test_real_path_providers_repeated_results_preserve_aliases)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 219, in test_real_path_providers_repeated_results_preserve_aliases
+    self.paired(imports+strings+'.entry main\n.function main 0 7 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 91, in paired
+    native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==76416==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_same_symbol_distinct_libraries_keep_release_owner (tests.test_artifact_string_release.ArtifactStringRelease.test_same_symbol_distinct_libraries_keep_release_owner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 161, in test_same_symbol_distinct_libraries_keep_release_owner
+    self.paired(imports+strings+'.entry main\n.function main 0 1 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 91, in paired
+    native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==76431==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_vm_copy_allocation_failure_still_releases_provider (tests.test_artifact_string_release.ArtifactStringRelease.test_vm_copy_allocation_failure_still_releases_provider)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 314, in test_vm_copy_allocation_failure_still_releases_provider
+    self.command(['make','-s','-f','Makefile.gnu','-f',makefile,'artifact-copy-failure'], cwd=ROOT)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : Undefined symbols for architecture arm64:
+  "_nvm_file_cli_read", referenced from:
+      _run_file_standalone in main.o
+  "_nvm_file_execute_bytes", referenced from:
+      _run_file_standalone in main.o
+  "_nvm_file_execute_cyclic_bytes", referenced from:
+      _run_file_standalone in main.o
+  "_nvm_file_host_grant_create_temporary_files", referenced from:
+      _run_file_standalone in main.o
+  "_nvm_file_host_grant_destroy", referenced from:
+      _run_file_standalone in main.o
+      _run_file_standalone in main.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+make: *** [artifact-copy-failure] Error 1
+
+
+----------------------------------------------------------------------
+Ran 11 tests in 5.757s
+
+FAILED (failures=6, errors=2)

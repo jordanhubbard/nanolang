@@ -1,0 +1,11 @@
+test_bound_duplicate_names_and_internal_calls (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_bound_duplicate_names_and_internal_calls) ... ok
+test_order_shared_globals_local_scopes_and_callable_main (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_order_shared_globals_local_scopes_and_callable_main) ... ok
+test_reachable_unsupported_shadow_refused (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_reachable_unsupported_shadow_refused) ... ok
+test_suffix_and_empty_selection_keep_initialization (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_suffix_and_empty_selection_keep_initialization) ... ok
+test_synthetic_names_do_not_capture_user_functions (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_synthetic_names_do_not_capture_user_functions) ... ok
+test_unused_float_function_still_runs_selected_shadow (tests.test_nanoisa_shadow_emitter.ShadowEmitter.test_unused_float_function_still_runs_selected_shadow) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 62.504s
+
+OK

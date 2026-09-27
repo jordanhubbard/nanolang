@@ -1,0 +1,8 @@
+clang: error: no such sysroot directory: '/Library/Developer/CommandLineTools/SDKs/MacOSX27.sdk' [-Werror,-Wmissing-sysroot]
+clang: error: using sysroot for 'macOS 27' but targeting 'arm64-apple-macosx27.0.0' [-Werror,-Wincompatible-sysroot]
+clang: error: using sysroot for 'macOS 27' but targeting 'arm64-apple-macosx27.0.0' [-Werror,-Wincompatible-sysroot]
+clang: error: using sysroot for 'macOS 27' but targeting 'arm64-apple-macosx27.0.0' [-Werror,-Wincompatible-sysroot]
+clang: error: using sysroot for 'macOS 27' but targeting 'arm64-apple-macosx27.0.0' [-Werror,-Wincompatible-sysroot]
+clang: error: using sysroot for 'macOS 27' but targeting 'arm64-apple-macosx27.0.0' [-Werror,-Wincompatible-sysroot]
+clang: error: using sysroot for 'macOS 27' but targeting 'arm64-apple-macosx27.0.0' [-Werror,-Wincompatible-sysroot]
+clang: error: using sysroot for 'macOS 27' but targeting 'arm64-apple-macosx27.0.0' [-Werror,-Wincompatible-sysroot]

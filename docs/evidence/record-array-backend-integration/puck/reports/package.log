@@ -1,0 +1,21 @@
+I retain package artifacts at /Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/reports/package-artifacts
+test_private_module_scalar_abi_lifecycle (tests.test_managed_runtime_package.ManagedRuntimePackage.test_private_module_scalar_abi_lifecycle) ... FAIL
+
+======================================================================
+FAIL: test_private_module_scalar_abi_lifecycle (tests.test_managed_runtime_package.ManagedRuntimePackage.test_private_module_scalar_abi_lifecycle)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/source/tests/test_managed_runtime_package.py", line 27, in test_private_module_scalar_abi_lifecycle
+    self.run_cmd([work/'native'])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/source/tests/test_managed_runtime_package.py", line 15, in run_cmd
+    self.assertEqual(result.returncode, 0, str(args)+'\n'+result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : [PosixPath('/Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/reports/package-artifacts/nano-module-abi-qjyrqv2o/native')]
+==16601==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.693s
+
+FAILED (failures=1)

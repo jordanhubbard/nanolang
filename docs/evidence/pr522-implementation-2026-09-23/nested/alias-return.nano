@@ -1,0 +1,9 @@
+resource struct Handle { fd: int }
+union Box<T> { Some { value: T }, None {} }
+union Result<T,E> { Ok { value: T }, Err { error: E } }
+fn identity(value: Result<int,string>) -> Result<int,string> { let copy: Result<int,string> = value return copy }
+shadow identity { let value: Result<int,string> = Result.Ok { value: 7 } let result: Result<int,string> = (identity value) match result { Ok(payload) => { assert (== payload.value 7) } Err(payload) => { assert false } } }
+fn read(value: Result<int,string>) -> int { match value { Ok(payload) => { return payload.value } Err(payload) => { return (str_length payload.error) } } }
+shadow read { let value: Result<int,string> = Result.Err { error: "failure" } assert (== (read value) 7) }
+fn main() -> int { let value: Result<int,string> = Result.Err { error: "failure" } let copy: Result<int,string> = (identity value) return (- (+ (read value) (read copy)) 14) }
+shadow main { assert (== (main) 0) }

@@ -1,0 +1,11 @@
+# I prove appended function ranges disjoint without rescanning every prior pair
+
+I track `task_13a33d204a8b4f73871687982116d4c0`. My corrected53a benign sanitizer probe now completes in21.047seconds: creation14.260seconds, arithmetic, one PI digit3.1 and destruction. The original787 probe stopped at30seconds before creation completed. Three new samples all land in the prior-function overlap loop during linked verification. My original sanitizer Double600-second alarm remains a separate retained failure; this sample does not prove every Double cost.
+
+Before code I specify one allocation-free local accumulator in each existing range-validation call: the maximum end of already checked nonempty function ranges. Every existing range, name, tag, parameter, result and local-count check remains in its original order. I calculate each end only after the existing subtraction check proves it representable.
+
+For a nonempty current range whose start is greater than or equal to that maximum, every prior nonempty range ends at or before its start. The existing half-open overlap predicate is therefore false for every prior pair. I can omit only that pair loop. Otherwise I run the original ordered prior-index loop unchanged, including its first conflicting index and diagnostics. I update the accumulator with the maximum of its old value and current checked end. Empty functions neither own bytes nor change the maximum.
+
+This preserves valid unordered layouts, adjacent ranges, gaps and empty functions. It introduces no persistent cache, reusable authority, module rewrite, allocation, public ABI or admission change. I retain every repeated structural call. Existing private work reservations remain conservative and unchanged. Invalid table metadata still refuses before any overlap query for that function.
+
+I require explicit unordered-range acceptance, a lower-address predecessor that must not lower the maximum, overlap with multiple prior ranges preserving table-order diagnostics, and unchanged malformed-metadata precedence. Existing overlap/contained/adjacent/empty/range-wrap controls remain. Source and fixture review precede fresh unchanged ordinary/sanitizer verifier and original Forth gates; no failed Double replay or deadline increase is part of this design.

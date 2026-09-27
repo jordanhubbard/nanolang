@@ -1,0 +1,30 @@
+elapsed=52.161
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+__asan::AddressIsPoisoned (a=88167089546688) at ../../../../src/libsanitizer/asan/asan_mapping.h:396
+#0  __asan::AddressIsPoisoned (a=88167089546688) at ../../../../src/libsanitizer/asan/asan_mapping.h:396
+#1  __asan::QuickCheckForUnpoisonedRegion (beg=88167089546688, size=1) at ../../../../src/libsanitizer/asan/asan_interceptors_memintrinsics.h:40
+#2  ___interceptor_strcmp (s1=0x502000ae0e50 "nlc_str_trim", s2=0x5030000da5c0 "list_LexerToken_get") at ../../../../src/libsanitizer/sanitizer_common/sanitizer_common_interceptors.inc:471
+#3  0x0000c2499f74c210 [PAC] in safe_strcmp (s1=0x502000ae0e50 "nlc_str_trim", s2=0x5030000da5c0 "list_LexerToken_get") at src/nanolang.h:1110
+#4  0x0000c2499f764674 in env_get_function (env=0x5120000001c0, name=0x5030000da5c0 "list_LexerToken_get") at src/env.c:795
+#5  0x0000c2499f7de53c in eval_call_impl (node=0x50c0002c8d80, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4379
+#6  0x0000c2499f7c6688 in eval_call (node=0x50c0002c8d80, env=0x5120000001c0) at src/eval.c:3034
+#7  0x0000c2499f7e9b34 in eval_expression (expr=0x50c0002c8d80, env=0x5120000001c0) at src/eval.c:4915
+#8  0x0000c2499f7fb004 in eval_statement (stmt=0x50c0002c8e40, env=0x5120000001c0) at src/eval.c:5737
+#9  0x0000c2499f7932b0 in eval_scoped_block (statements=0x506000026a20, count=2, env=0x5120000001c0) at src/eval.c:242
+#10 0x0000c2499f802538 in eval_statement (stmt=0x50c0002c9380, env=0x5120000001c0) at src/eval.c:5962
+#11 0x0000c2499f7ede38 in eval_expression_other (expr=0x50c0002c9440, env=0x5120000001c0) at src/eval.c:5107
+#12 0x0000c2499f7e9b48 in eval_expression (expr=0x50c0002c9440, env=0x5120000001c0) at src/eval.c:4917
+#13 0x0000c2499f807488 in eval_statement (stmt=0x50c0002c9440, env=0x5120000001c0) at src/eval.c:6210
+#14 0x0000c2499f7e6604 in eval_call_impl (node=0x50c000470800, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4793
+#15 0x0000c2499f7c6688 in eval_call (node=0x50c000470800, env=0x5120000001c0) at src/eval.c:3034
+#16 0x0000c2499f7e9b34 in eval_expression (expr=0x50c000470800, env=0x5120000001c0) at src/eval.c:4915
+#17 0x0000c2499f7edb2c in eval_expression_other (expr=0x50c000482f80, env=0x5120000001c0) at src/eval.c:5102
+#18 0x0000c2499f7e9b48 in eval_expression (expr=0x50c000482f80, env=0x5120000001c0) at src/eval.c:4917
+#19 0x0000c2499f807488 in eval_statement (stmt=0x50c000482f80, env=0x5120000001c0) at src/eval.c:6210
+#20 0x0000c2499f7932b0 in eval_scoped_block (statements=0x506000034e20, count=1, env=0x5120000001c0) at src/eval.c:242
+#21 0x0000c2499f802538 in eval_statement (stmt=0x50c000483040, env=0x5120000001c0) at src/eval.c:5962
+#22 0x0000c2499f7ede38 in eval_expression_other (expr=0x50c000483100, env=0x5120000001c0) at src/eval.c:5107
+#23 0x0000c2499f7e9b48 in eval_expression (expr=0x50c000483100, env=0x5120000001c0) at src/eval.c:4917
+[Inferior 1 (process 42926) detached]
+warning: 396	../../../../src/libsanitizer/asan/asan_mapping.h: No such file or directory

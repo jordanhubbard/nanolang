@@ -1,0 +1,139 @@
+{
+  "root": "/tmp/nanolang-record-lists-cb489-linux-prepare",
+  "files": {
+    "bootstrap.log": {
+      "sha256": "7ee5648278559792f5744ca141a8c115cabc5b57d462558bbe1b9d88190b1311"
+    },
+    "compiler-status.json": {
+      "sha256": "7c059569db682388e1b6880cc7aa7202047c00bbc097a40880e111fac112fb74"
+    },
+    "environment.json": {
+      "sha256": "447024148220596240bd2ec3d02ce115477bcbb9e2d5a868676f7acbbab5e043"
+    },
+    "build-status.json": {
+      "sha256": "486c722fa4f81a0e07f843941a7a7a4308dd34a57cd14b510e6ae94667f84e86"
+    },
+    "llvm-status.json": {
+      "sha256": "540317294ae5989a5247226f327802b3fe9db0c4c86c9cccf71ef5cd4aa16feb"
+    },
+    "sparse-policy.json": {
+      "sha256": "82fddd3a6377a0c86dbdc19ef25bec676d09280435c5c894b635b4d197343f97"
+    },
+    "bootstrap-status.json": {
+      "sha256": "573236306a26a84a25adb740055ef8c23e99977adfe7e38e971169d8578cb943"
+    },
+    "capacity-preflight.json": {
+      "sha256": "8317b93b048a3847ef09f27934347719b96b240563b37a70d576e7dd78713444"
+    },
+    "manifest.json": {
+      "sha256": "7d13cff60a68317c8623fe7507b52ef3455041978d72959c4913985822214552"
+    },
+    "runner.json": {
+      "sha256": "6083342377ade526b63d1fe9391d742c5b731a33d41c35b3c1f1ffd109f6e4d0"
+    },
+    "native-compiler-status.json": {
+      "sha256": "b1a915f42f9480c1e22dc789f3aa4ea4f0b673288a5d6af59c518e7669e721fc"
+    },
+    "prepare-fragment.json": {
+      "sha256": "d0c430215b826cc9e7993e4f59b4c79a3bb1564a80614b6463d9149d76106da2"
+    },
+    "make-status.json": {
+      "sha256": "e64989119b161314f2678da33e2dbd2045f192748e771cfd0a692c28d15aa095"
+    },
+    "build.log": {
+      "sha256": "2ae35c0e14de93a71b186cec022bcbf4094810014a35601e7aab7cc861b351ad"
+    }
+  },
+  "pairs": {
+    "bootstrap-sources-before.json": {
+      "before_sha256": "80f97d97adf51ef7f33f5575b72efec7fdf94ab2ded2780f5f2da489fe026f1c",
+      "after_sha256": "80f97d97adf51ef7f33f5575b72efec7fdf94ab2ded2780f5f2da489fe026f1c",
+      "equal": true
+    },
+    "bootstrap-tools-before.json": {
+      "before_sha256": "ee001cc582dec0438f44e7119af40412ce849a4d02b4f81fc448b92060ac0657",
+      "after_sha256": "ee001cc582dec0438f44e7119af40412ce849a4d02b4f81fc448b92060ac0657",
+      "equal": true
+    },
+    "build-sources-before.json": {
+      "before_sha256": "80f97d97adf51ef7f33f5575b72efec7fdf94ab2ded2780f5f2da489fe026f1c",
+      "after_sha256": "80f97d97adf51ef7f33f5575b72efec7fdf94ab2ded2780f5f2da489fe026f1c",
+      "equal": true
+    },
+    "llvm-tools-before.json": {
+      "before_sha256": "ee001cc582dec0438f44e7119af40412ce849a4d02b4f81fc448b92060ac0657",
+      "after_sha256": "ee001cc582dec0438f44e7119af40412ce849a4d02b4f81fc448b92060ac0657",
+      "equal": true
+    },
+    "build-products-before.json": {
+      "before_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "after_sha256": "acc9fe608b2ee7102baa7da5e91ae433174b4a02e9a21588822fb6934391902d",
+      "equal": false
+    },
+    "native-compiler-tools-before.json": {
+      "before_sha256": "ee001cc582dec0438f44e7119af40412ce849a4d02b4f81fc448b92060ac0657",
+      "after_sha256": "ee001cc582dec0438f44e7119af40412ce849a4d02b4f81fc448b92060ac0657",
+      "equal": true
+    },
+    "make-sources-before.json": {
+      "before_sha256": "80f97d97adf51ef7f33f5575b72efec7fdf94ab2ded2780f5f2da489fe026f1c",
+      "after_sha256": "80f97d97adf51ef7f33f5575b72efec7fdf94ab2ded2780f5f2da489fe026f1c",
+      "equal": true
+    },
+    "compiler-products-before.json": {
+      "before_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "after_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "equal": true
+    },
+    "bootstrap-products-before.json": {
+      "before_sha256": "acc9fe608b2ee7102baa7da5e91ae433174b4a02e9a21588822fb6934391902d",
+      "after_sha256": "2124b89832ad0c8b90459b1fb89b0e15e0623ea1dcd16a7553dcd8cde704699a",
+      "equal": false
+    },
+    "compiler-tools-before.json": {
+      "before_sha256": "ee001cc582dec0438f44e7119af40412ce849a4d02b4f81fc448b92060ac0657",
+      "after_sha256": "ee001cc582dec0438f44e7119af40412ce849a4d02b4f81fc448b92060ac0657",
+      "equal": true
+    },
+    "native-compiler-products-before.json": {
+      "before_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "after_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "equal": true
+    },
+    "build-tools-before.json": {
+      "before_sha256": "ee001cc582dec0438f44e7119af40412ce849a4d02b4f81fc448b92060ac0657",
+      "after_sha256": "ee001cc582dec0438f44e7119af40412ce849a4d02b4f81fc448b92060ac0657",
+      "equal": true
+    },
+    "llvm-products-before.json": {
+      "before_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "after_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "equal": true
+    },
+    "native-compiler-sources-before.json": {
+      "before_sha256": "80f97d97adf51ef7f33f5575b72efec7fdf94ab2ded2780f5f2da489fe026f1c",
+      "after_sha256": "80f97d97adf51ef7f33f5575b72efec7fdf94ab2ded2780f5f2da489fe026f1c",
+      "equal": true
+    },
+    "make-tools-before.json": {
+      "before_sha256": "ee001cc582dec0438f44e7119af40412ce849a4d02b4f81fc448b92060ac0657",
+      "after_sha256": "ee001cc582dec0438f44e7119af40412ce849a4d02b4f81fc448b92060ac0657",
+      "equal": true
+    },
+    "make-products-before.json": {
+      "before_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "after_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "equal": true
+    },
+    "compiler-sources-before.json": {
+      "before_sha256": "80f97d97adf51ef7f33f5575b72efec7fdf94ab2ded2780f5f2da489fe026f1c",
+      "after_sha256": "80f97d97adf51ef7f33f5575b72efec7fdf94ab2ded2780f5f2da489fe026f1c",
+      "equal": true
+    },
+    "llvm-sources-before.json": {
+      "before_sha256": "80f97d97adf51ef7f33f5575b72efec7fdf94ab2ded2780f5f2da489fe026f1c",
+      "after_sha256": "80f97d97adf51ef7f33f5575b72efec7fdf94ab2ded2780f5f2da489fe026f1c",
+      "equal": true
+    }
+  }
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "compiler": "gcc",
+    "count": 100,
+    "exit": 1,
+    "detected_uar": true,
+    "log": "fake-stack-gcc-100-uar.log"
+  },
+  {
+    "compiler": "gcc",
+    "count": 100000,
+    "exit": 224,
+    "detected_uar": false,
+    "log": "fake-stack-gcc-100000-uar.log"
+  },
+  {
+    "compiler": "clang",
+    "count": 100,
+    "exit": 1,
+    "detected_uar": true,
+    "log": "fake-stack-clang-100-uar.log"
+  },
+  {
+    "compiler": "clang",
+    "count": 100000,
+    "exit": 1,
+    "detected_uar": true,
+    "log": "fake-stack-clang-100000-uar.log"
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/usr/bin/xcrun",
+    "--show-sdk-path"
+  ],
+  "path": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "resolved": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+}

@@ -1,0 +1,126 @@
+{
+  "source": "319685d9cfd9fb29fd637561bd59d33f6f0fe683",
+  "scope": "fresh actual nominal identity and allocation suites only; original17/native18+9/fullbootstrap remain open",
+  "puck_archive": {
+    "path": "/home/jkh/nanolang-qualification/scalar-array-994-drivers/scalar-array-319-reports.tar.gz",
+    "sha256": "3709a561f77b5672bcf08235c522bad908e226007616c091bb8d8b0f1bf85559"
+  },
+  "hosts": {
+    "linux": [
+      {
+        "configuration": "ordinary",
+        "sources": 3954,
+        "providers": 101,
+        "source_provider_equality": true,
+        "maps": {
+          "source-before.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-319-linux/ordinary/source-before.json",
+            "sha256": "28e09715f38fcfd5d3dec5bd4d563b69d9c043f8303870949e9af1f8aa1c5e50"
+          },
+          "source-after.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-319-linux/ordinary/source-after.json",
+            "sha256": "28e09715f38fcfd5d3dec5bd4d563b69d9c043f8303870949e9af1f8aa1c5e50"
+          },
+          "providers-before.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-319-linux/ordinary/providers-before.json",
+            "sha256": "d1b0156bdb358d0110bd4a03b9cbad597dca073362581d42f3d4e5b0e9940ebe"
+          },
+          "providers-after.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-319-linux/ordinary/providers-after.json",
+            "sha256": "d1b0156bdb358d0110bd4a03b9cbad597dca073362581d42f3d4e5b0e9940ebe"
+          },
+          "products.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-319-linux/ordinary/products.json",
+            "sha256": "21aa998571723c4466783e95230c08ad71275ab85e2c89ff3a8e9455689aa105"
+          }
+        }
+      },
+      {
+        "configuration": "sanitized",
+        "sources": 3954,
+        "providers": 101,
+        "source_provider_equality": true,
+        "maps": {
+          "source-before.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-319-linux/sanitized/source-before.json",
+            "sha256": "28e09715f38fcfd5d3dec5bd4d563b69d9c043f8303870949e9af1f8aa1c5e50"
+          },
+          "source-after.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-319-linux/sanitized/source-after.json",
+            "sha256": "28e09715f38fcfd5d3dec5bd4d563b69d9c043f8303870949e9af1f8aa1c5e50"
+          },
+          "providers-before.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-319-linux/sanitized/providers-before.json",
+            "sha256": "3330c37379a9b9845de080d4eca6a720b438328e89472e078367fca0842bf7db"
+          },
+          "providers-after.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-319-linux/sanitized/providers-after.json",
+            "sha256": "3330c37379a9b9845de080d4eca6a720b438328e89472e078367fca0842bf7db"
+          },
+          "products.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-319-linux/sanitized/products.json",
+            "sha256": "e01bfd27da8d34f676fb5c08a0d0b7c7e5609be53726e924ca3b2a5b71e16b57"
+          }
+        }
+      }
+    ],
+    "puck": [
+      {
+        "configuration": "ordinary",
+        "sources": 3954,
+        "providers": 101,
+        "source_provider_equality": true,
+        "maps": {
+          "source-before.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-994-drivers/scalar-array-319-puck-reports/ordinary/source-before.json",
+            "sha256": "aa83b36c00bdd629c215d4214a911dd6b5d1a0e0760c0aa2f1f642b27a835b70"
+          },
+          "source-after.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-994-drivers/scalar-array-319-puck-reports/ordinary/source-after.json",
+            "sha256": "aa83b36c00bdd629c215d4214a911dd6b5d1a0e0760c0aa2f1f642b27a835b70"
+          },
+          "providers-before.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-994-drivers/scalar-array-319-puck-reports/ordinary/providers-before.json",
+            "sha256": "4509ea33590624ba9554af25878c56fc024eb9beb49e833b7192f565ca6c3707"
+          },
+          "providers-after.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-994-drivers/scalar-array-319-puck-reports/ordinary/providers-after.json",
+            "sha256": "4509ea33590624ba9554af25878c56fc024eb9beb49e833b7192f565ca6c3707"
+          },
+          "products.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-994-drivers/scalar-array-319-puck-reports/ordinary/products.json",
+            "sha256": "6f58580de7ca3a3108b1bac5f3ca0b286db1481ba69bf956174a5f1f0695f9e0"
+          }
+        }
+      },
+      {
+        "configuration": "sanitized",
+        "sources": 3954,
+        "providers": 101,
+        "source_provider_equality": true,
+        "maps": {
+          "source-before.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-994-drivers/scalar-array-319-puck-reports/sanitized/source-before.json",
+            "sha256": "aa83b36c00bdd629c215d4214a911dd6b5d1a0e0760c0aa2f1f642b27a835b70"
+          },
+          "source-after.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-994-drivers/scalar-array-319-puck-reports/sanitized/source-after.json",
+            "sha256": "aa83b36c00bdd629c215d4214a911dd6b5d1a0e0760c0aa2f1f642b27a835b70"
+          },
+          "providers-before.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-994-drivers/scalar-array-319-puck-reports/sanitized/providers-before.json",
+            "sha256": "44c8f93291b3fbad82b4f036c8baaea96ae563aacc72cbd6009bf24025d18d2a"
+          },
+          "providers-after.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-994-drivers/scalar-array-319-puck-reports/sanitized/providers-after.json",
+            "sha256": "44c8f93291b3fbad82b4f036c8baaea96ae563aacc72cbd6009bf24025d18d2a"
+          },
+          "products.json": {
+            "path": "/home/jkh/nanolang-qualification/scalar-array-994-drivers/scalar-array-319-puck-reports/sanitized/products.json",
+            "sha256": "452aeed275ee7d58c3e851728a0ef7305da9cc7d308357071ce6a8589bf6a30d"
+          }
+        }
+      }
+    ]
+  }
+}

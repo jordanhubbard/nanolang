@@ -16,7 +16,13 @@ void *nano_metadata_poison_malloc(size_t size) {
 int main(void) {
     Environment *env = create_environment();
     assert(env);
-    env_register_list_instantiation(env, "MetadataItem");
+    assert(!env_register_list_instantiation(env, "MetadataItem"));
+    StructDef item = {0}; item.name = strdup("MetadataItem"); assert(item.name);
+    env_define_struct(env, item);
+    assert(env_register_list_instantiation(env, "MetadataItem"));
+    assert(env->generic_instance_count == 1);
+    assert(env->generic_instances[0].list_element.kind == TYPE_STRUCT);
+    assert(env->generic_instances[0].list_element.ordinal == 1);
     const char *names[] = {"List_MetadataItem_new", "List_MetadataItem_push",
                           "List_MetadataItem_get", "List_MetadataItem_length"};
     for (size_t i = 0; i < sizeof(names) / sizeof(names[0]); ++i) {

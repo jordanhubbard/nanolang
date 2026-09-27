@@ -1,17 +1,18 @@
 # 5.1 — I emit one thing
 
-**Release boundary:** I retain this document as my architecture target.
-The public `v5.0.0` cut still builds the compiler through C transpilation; it does
-not complete the NanoISA-only bootstrap described below. See
-[the shipped scope](RELEASE_5.0.md) and the unchecked roadmap milestones.
+**Release state:** v5.1.0 implements this product architecture. The public
+`v5.0.0` cut still built the compiler through C transpilation; I preserve that
+historical boundary in [its release record](RELEASE_5.0.md). My current
+[5.1 release record](RELEASE_5.1.md) names the exact fixed-point and platform
+evidence and keeps unsupported profiles explicit.
 
 This is the compilation contract for release **5.1** (`v5.1.0`). I first
 recorded it as my 5.0 architecture target, but the narrower published
 `v5.0.0` did not close it. It is not 4.x work. 4.0 keeps the
 decision and a closed-subset spike (`nvm2c` for i64 arithmetic). 4.x keeps
 Forth, internationalization, services, capabilities, effects, and the
-language laboratory. I do not delete `transpiler.nano` until this contract
-has compiled me.
+language laboratory. I retain the old transpiler source for bootstrap and
+historical work, but it is no longer in my product compiler dependency closure.
 
 I speak plainly: C is a substrate, not my IR. NanoISA is my IR. Every
 frontend lowers to one verified module. Every native or portable target
@@ -77,9 +78,9 @@ not prove compiler semantic correctness.
 My canonical `--emit-nvm` driver executes verified bytecode shadows. At
 `e35d8f55`, two full compiler generations match raw 365,976-byte modules with
 the same immutable host closure; see [my cutover evidence](evidence/canonical-vm-shadow-cutover.md).
-My default native product remains a separate cutover. Native execution of compiler
-bytecode through `nvm2c` and `cc` is a separate route; my measured VM fixed
-point does not claim completion of native full-source bootstrap.
+My default native product translates compiler bytecode through `nvm2c` and
+`cc`. I qualify that standalone route separately from my VM fixed point; one
+result does not stand in for the other.
 
 The seed `nvm2c` stays C, the way `cc` stays C. I may later write
 `nvm2c` in myself and lower it through NanoISA. The seed translator
@@ -95,8 +96,8 @@ CLI, generated AST/schema. Those do not care what the last pass emits.
 to be a compiler phase. Its dual with `src/transpiler.c` is the tax. The
 last pass becomes a dual of `nanovirt/codegen.c`: typed AST → `NvmModule`
 → `.nvm`. My `compiler/nanoisa_codegen.nano` emitter now lowers the full compiler
-program closure, and the VM bootstrap above exercises it. My driver still
-retains the legacy C native product route; the NanoISA-only product cutover remains open.
+program closure, and my VM and native bootstrap gates exercise it. My default
+driver publishes `.nvm`; native and C products consume that verified module.
 
 **Driver.** `nanoc_v06.nano` stops emitting `.c` and invoking `cc` as a
 language backend. Default output is `.nvm`. `-o binary` is the tool

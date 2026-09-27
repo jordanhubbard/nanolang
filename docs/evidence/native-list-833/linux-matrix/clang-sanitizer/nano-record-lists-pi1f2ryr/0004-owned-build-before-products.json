@@ -1,0 +1,14 @@
+{
+  "array-allocations": {
+    "sha256": "994c1d4c5fed49fb5c9ea94fa2a59fccb1bf2edff092af4e4e2fc30378cbb6f3",
+    "bytes": 31088736
+  },
+  "array-identity": {
+    "sha256": "39a6b3d12b86c9d4d30a2658e8eb1af189a6ba345fb2d172e8e1c4112ec7365a",
+    "bytes": 30172040
+  },
+  "coroutine-errors": {
+    "sha256": "0aca57e44b075765bb1438a95713713f040f64593b640b3e1fedec34c923a666",
+    "bytes": 12056544
+  }
+}

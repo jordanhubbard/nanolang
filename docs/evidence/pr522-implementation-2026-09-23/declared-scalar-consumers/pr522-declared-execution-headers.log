@@ -1,0 +1,37 @@
+..........F.F
+======================================================================
+FAIL: test_scalar_results_and_void_side_effect (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_scalar_results_and_void_side_effect)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 50, in test_scalar_results_and_void_side_effect
+    self.paired(self.imports(entries)+'.string text "borrowed"\n.entry main\n.function main 0 0 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 91, in paired
+    native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : I stopped at a native invariant in nvalue_require_int at generated C line 625.
+
+
+======================================================================
+FAIL: test_vm_heterogeneous_max_arity_provider_cleanup (tests.test_declared_scalar_artifacts.DeclaredScalarArtifacts.test_vm_heterogeneous_max_arity_provider_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_scalar_artifacts.py", line 26, in test_vm_heterogeneous_max_arity_provider_cleanup
+    self.command([self.native(self.work/'input.nvm')],
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1',
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      'NANO_ARTIFACT_RELEASE_MARKER':str(marker)})
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_artifact_string_release.py", line 22, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : I stopped at a native invariant in nvalue_require_int at generated C line 625.
+
+
+----------------------------------------------------------------------
+Ran 13 tests in 9.206s
+
+FAILED (failures=2)

@@ -1,0 +1,4 @@
+src/nanoisa/nvm2llvm.c:8:10: fatal error: managed_runtime_ir.h: No such file or directory
+    8 | #include "managed_runtime_ir.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.

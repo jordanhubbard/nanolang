@@ -1,0 +1,10 @@
+{
+  "native-cc.py": {
+    "sha256": "d2a0ed252e09ad8fd35b2e9ad60ab964a6bf7f92b6dfba2eda095755c7ce253a",
+    "bytes": 537
+  },
+  "native-storage": {
+    "sha256": "58fba0a109e04ac851db4dec12a9446f74869075c3c7771d909b2ac6e0fa4cf2",
+    "bytes": 207680
+  }
+}

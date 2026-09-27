@@ -1,0 +1,34 @@
+{
+  "make-instrumented.log": {
+    "started": 99,
+    "successful_compilations": 96,
+    "failures": [
+      [
+        "../bin/stdio_api",
+        "Terminated: 15"
+      ]
+    ],
+    "asan_reports": 0,
+    "ubsan_reports": 0
+  },
+  "make-instrumented-loader.log": {
+    "started": 82,
+    "successful_compilations": 78,
+    "failures": [
+      [
+        "../bin/sdl_example_launcher",
+        "Error 1"
+      ],
+      [
+        "../bin/sdl_boids",
+        "Error 1"
+      ],
+      [
+        "../bin/sdl_particles",
+        "Error 1"
+      ]
+    ],
+    "asan_reports": 2,
+    "ubsan_reports": 0
+  }
+}

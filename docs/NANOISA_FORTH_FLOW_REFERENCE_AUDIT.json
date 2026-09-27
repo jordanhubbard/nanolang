@@ -1,0 +1,912 @@
+{
+  "method": "I compare exported names in retained ordinary 10b74 file_flow.o with lexical identifiers in all 34 moved provider TUs; I separately inspect quoted include closure below before inferring a source dependency. No execution or fresh compilation occurs.",
+  "retained_object": "/tmp/nanolang-file-companion-10b74-linux-source/obj/nanoisa/file_flow.o",
+  "object_sha256": "2449d8896cf7a258cff302a94d15966d9a3b1fcbb01f5846dbb6644e62c59817",
+  "nm_output": "000000000000b884 T nvm_file_body_analyze\n000000000000b240 T nvm_file_body_free\n000000000000b8b0 T nvm_file_body_function\n000000000000b894 T nvm_file_body_function_count\n000000000000b8e0 T nvm_file_body_instruction\n000000000000b8c4 T nvm_file_body_local\n000000000000a8c4 T nvm_file_code_free\n000000000000b074 T nvm_file_code_function\n000000000000b060 T nvm_file_code_function_count\n000000000000b1f0 T nvm_file_code_function_order\n000000000000b0f0 T nvm_file_code_instruction\n000000000000b180 T nvm_file_code_instruction_order\n000000000000b0d0 T nvm_file_code_local\n000000000000b040 T nvm_file_code_prepare\n000000000000c244 T nvm_file_cyclic_analyze\n000000000000c540 T nvm_file_cyclic_component\n000000000000c1a0 T nvm_file_cyclic_free\n000000000000c4e4 T nvm_file_cyclic_function\n000000000000dd10 T nvm_file_cyclic_hosted_bytes\n000000000000dc00 T nvm_file_cyclic_hosted_component\n000000000000d090 T nvm_file_cyclic_hosted_free\n000000000000db30 T nvm_file_cyclic_hosted_function\n000000000000dba0 T nvm_file_cyclic_hosted_function_order\n000000000000dcf4 T nvm_file_cyclic_hosted_import\n000000000000dc60 T nvm_file_cyclic_hosted_input_local\n000000000000dca0 T nvm_file_cyclic_hosted_input_reference\n000000000000dcc0 T nvm_file_cyclic_hosted_input_region\n000000000000dc80 T nvm_file_cyclic_hosted_input_stack\n000000000000dbe0 T nvm_file_cyclic_hosted_instruction\n000000000000dbc0 T nvm_file_cyclic_hosted_local\n000000000000d0d0 T nvm_file_cyclic_hosted_prepare\n000000000000dae0 T nvm_file_cyclic_hosted_query_summary\n000000000000daf4 T nvm_file_cyclic_hosted_startup\n000000000000dce0 T nvm_file_cyclic_hosted_type\n000000000000dc40 T nvm_file_cyclic_hosted_variant\n000000000000dc20 T nvm_file_cyclic_hosted_variant_count\n000000000000c9d0 T nvm_file_cyclic_import\n000000000000c6d0 T nvm_file_cyclic_input_local\n000000000000c860 T nvm_file_cyclic_input_reference\n000000000000c904 T nvm_file_cyclic_input_region\n000000000000c794 T nvm_file_cyclic_input_stack\n000000000000c520 T nvm_file_cyclic_instruction\n000000000000c500 T nvm_file_cyclic_local\n000000000000c4b4 T nvm_file_cyclic_summary\n000000000000c9b4 T nvm_file_cyclic_type\n000000000000c620 T nvm_file_cyclic_variant\n000000000000c5b0 T nvm_file_cyclic_variant_count\n0000000000005fd0 T nvm_file_flow_borrow\n0000000000007f04 T nvm_file_flow_call\n0000000000006180 T nvm_file_flow_can_exit\n0000000000006d10 T nvm_file_flow_clear_copy\n00000000000063d0 T nvm_file_flow_clone\n0000000000006db0 T nvm_file_flow_construct\n0000000000004f00 T nvm_file_flow_counts\n0000000000004a84 T nvm_file_flow_declaration\n0000000000004a20 T nvm_file_flow_declarations\n0000000000004570 T nvm_file_flow_declarations_free\n0000000000005d20 T nvm_file_flow_drop_local\n0000000000005e30 T nvm_file_flow_drop_stack\n00000000000057c4 T nvm_file_flow_dup\n0000000000006120 T nvm_file_flow_end_borrow\n00000000000071e0 T nvm_file_flow_field\n0000000000004a30 T nvm_file_flow_function\n0000000000006604 T nvm_file_flow_join\n0000000000005590 T nvm_file_flow_load\n0000000000004df0 T nvm_file_flow_local\n00000000000058c0 T nvm_file_flow_move\n0000000000006364 T nvm_file_flow_obligation\n0000000000005850 T nvm_file_flow_pop\n0000000000005500 T nvm_file_flow_push_scalar\n0000000000005bb0 T nvm_file_flow_put\n0000000000004ec0 T nvm_file_flow_reference\n0000000000006460 T nvm_file_flow_refine\n0000000000005ec0 T nvm_file_flow_region_begin\n0000000000005f24 T nvm_file_flow_region_end\n00000000000077d0 T nvm_file_flow_service\n0000000000004e60 T nvm_file_flow_stack\n0000000000004af4 T nvm_file_flow_state\n0000000000004dc0 T nvm_file_flow_state_free\n0000000000005660 T nvm_file_flow_store\n0000000000005a50 T nvm_file_flow_take\n00000000000075a0 T nvm_file_flow_take_result\n000000000000b9a0 T nvm_file_hosted_free\n000000000000c0c0 T nvm_file_hosted_function\n000000000000c180 T nvm_file_hosted_import\n000000000000c140 T nvm_file_hosted_instruction\n000000000000c120 T nvm_file_hosted_local\n000000000000b9d0 T nvm_file_hosted_prepare\n000000000000c080 T nvm_file_hosted_startup\n000000000000c160 T nvm_file_hosted_type\n000000000000eac0 T nvm_file_indirect_flow_analyze\n000000000000f3d0 T nvm_file_indirect_flow_call\n000000000000f530 T nvm_file_indirect_flow_component\n000000000000ea84 T nvm_file_indirect_flow_free\n000000000000f2b4 T nvm_file_indirect_flow_function\n000000000000f564 T nvm_file_indirect_flow_import\n000000000000f350 T nvm_file_indirect_flow_input_local\n000000000000f390 T nvm_file_indirect_flow_input_reference\n000000000000f3b0 T nvm_file_indirect_flow_input_region\n000000000000f370 T nvm_file_indirect_flow_input_stack\n000000000000f2f0 T nvm_file_indirect_flow_instruction\n000000000000f2d0 T nvm_file_indirect_flow_local\n000000000000f274 T nvm_file_indirect_flow_summary\n000000000000f550 T nvm_file_indirect_flow_type\n000000000000f330 T nvm_file_indirect_flow_variant\n000000000000f310 T nvm_file_indirect_flow_variant_count\n00000000000107f0 T nvm_file_indirect_hosted_bytes\n0000000000010870 T nvm_file_indirect_hosted_call\n00000000000106e0 T nvm_file_indirect_hosted_component\n000000000000f580 T nvm_file_indirect_hosted_free\n0000000000010600 T nvm_file_indirect_hosted_function\n0000000000010680 T nvm_file_indirect_hosted_function_order\n00000000000107d4 T nvm_file_indirect_hosted_import\n0000000000010740 T nvm_file_indirect_hosted_input_local\n0000000000010780 T nvm_file_indirect_hosted_input_reference\n00000000000107a0 T nvm_file_indirect_hosted_input_region\n0000000000010760 T nvm_file_indirect_hosted_input_stack\n00000000000106c0 T nvm_file_indirect_hosted_instruction\n00000000000106a0 T nvm_file_indirect_hosted_local\n000000000000f5c0 T nvm_file_indirect_hosted_prepare\n00000000000105b0 T nvm_file_indirect_hosted_query_summary\n00000000000105c4 T nvm_file_indirect_hosted_startup\n00000000000107c0 T nvm_file_indirect_hosted_type\n0000000000010720 T nvm_file_indirect_hosted_variant\n0000000000010700 T nvm_file_indirect_hosted_variant_count\n000000000000ddd0 T nvm_file_indirect_targets\n000000000000e9a0 T nvm_file_indirect_targets_call\n000000000000dd90 T nvm_file_indirect_targets_free\n000000000000e9f4 T nvm_file_indirect_targets_parameter\n000000000000e974 T nvm_file_indirect_targets_summary\n",
+  "exported_names": [
+    "nvm_file_body_analyze",
+    "nvm_file_body_free",
+    "nvm_file_body_function",
+    "nvm_file_body_function_count",
+    "nvm_file_body_instruction",
+    "nvm_file_body_local",
+    "nvm_file_code_free",
+    "nvm_file_code_function",
+    "nvm_file_code_function_count",
+    "nvm_file_code_function_order",
+    "nvm_file_code_instruction",
+    "nvm_file_code_instruction_order",
+    "nvm_file_code_local",
+    "nvm_file_code_prepare",
+    "nvm_file_cyclic_analyze",
+    "nvm_file_cyclic_component",
+    "nvm_file_cyclic_free",
+    "nvm_file_cyclic_function",
+    "nvm_file_cyclic_hosted_bytes",
+    "nvm_file_cyclic_hosted_component",
+    "nvm_file_cyclic_hosted_free",
+    "nvm_file_cyclic_hosted_function",
+    "nvm_file_cyclic_hosted_function_order",
+    "nvm_file_cyclic_hosted_import",
+    "nvm_file_cyclic_hosted_input_local",
+    "nvm_file_cyclic_hosted_input_reference",
+    "nvm_file_cyclic_hosted_input_region",
+    "nvm_file_cyclic_hosted_input_stack",
+    "nvm_file_cyclic_hosted_instruction",
+    "nvm_file_cyclic_hosted_local",
+    "nvm_file_cyclic_hosted_prepare",
+    "nvm_file_cyclic_hosted_query_summary",
+    "nvm_file_cyclic_hosted_startup",
+    "nvm_file_cyclic_hosted_type",
+    "nvm_file_cyclic_hosted_variant",
+    "nvm_file_cyclic_hosted_variant_count",
+    "nvm_file_cyclic_import",
+    "nvm_file_cyclic_input_local",
+    "nvm_file_cyclic_input_reference",
+    "nvm_file_cyclic_input_region",
+    "nvm_file_cyclic_input_stack",
+    "nvm_file_cyclic_instruction",
+    "nvm_file_cyclic_local",
+    "nvm_file_cyclic_summary",
+    "nvm_file_cyclic_type",
+    "nvm_file_cyclic_variant",
+    "nvm_file_cyclic_variant_count",
+    "nvm_file_flow_borrow",
+    "nvm_file_flow_call",
+    "nvm_file_flow_can_exit",
+    "nvm_file_flow_clear_copy",
+    "nvm_file_flow_clone",
+    "nvm_file_flow_construct",
+    "nvm_file_flow_counts",
+    "nvm_file_flow_declaration",
+    "nvm_file_flow_declarations",
+    "nvm_file_flow_declarations_free",
+    "nvm_file_flow_drop_local",
+    "nvm_file_flow_drop_stack",
+    "nvm_file_flow_dup",
+    "nvm_file_flow_end_borrow",
+    "nvm_file_flow_field",
+    "nvm_file_flow_function",
+    "nvm_file_flow_join",
+    "nvm_file_flow_load",
+    "nvm_file_flow_local",
+    "nvm_file_flow_move",
+    "nvm_file_flow_obligation",
+    "nvm_file_flow_pop",
+    "nvm_file_flow_push_scalar",
+    "nvm_file_flow_put",
+    "nvm_file_flow_reference",
+    "nvm_file_flow_refine",
+    "nvm_file_flow_region_begin",
+    "nvm_file_flow_region_end",
+    "nvm_file_flow_service",
+    "nvm_file_flow_stack",
+    "nvm_file_flow_state",
+    "nvm_file_flow_state_free",
+    "nvm_file_flow_store",
+    "nvm_file_flow_take",
+    "nvm_file_flow_take_result",
+    "nvm_file_hosted_free",
+    "nvm_file_hosted_function",
+    "nvm_file_hosted_import",
+    "nvm_file_hosted_instruction",
+    "nvm_file_hosted_local",
+    "nvm_file_hosted_prepare",
+    "nvm_file_hosted_startup",
+    "nvm_file_hosted_type",
+    "nvm_file_indirect_flow_analyze",
+    "nvm_file_indirect_flow_call",
+    "nvm_file_indirect_flow_component",
+    "nvm_file_indirect_flow_free",
+    "nvm_file_indirect_flow_function",
+    "nvm_file_indirect_flow_import",
+    "nvm_file_indirect_flow_input_local",
+    "nvm_file_indirect_flow_input_reference",
+    "nvm_file_indirect_flow_input_region",
+    "nvm_file_indirect_flow_input_stack",
+    "nvm_file_indirect_flow_instruction",
+    "nvm_file_indirect_flow_local",
+    "nvm_file_indirect_flow_summary",
+    "nvm_file_indirect_flow_type",
+    "nvm_file_indirect_flow_variant",
+    "nvm_file_indirect_flow_variant_count",
+    "nvm_file_indirect_hosted_bytes",
+    "nvm_file_indirect_hosted_call",
+    "nvm_file_indirect_hosted_component",
+    "nvm_file_indirect_hosted_free",
+    "nvm_file_indirect_hosted_function",
+    "nvm_file_indirect_hosted_function_order",
+    "nvm_file_indirect_hosted_import",
+    "nvm_file_indirect_hosted_input_local",
+    "nvm_file_indirect_hosted_input_reference",
+    "nvm_file_indirect_hosted_input_region",
+    "nvm_file_indirect_hosted_input_stack",
+    "nvm_file_indirect_hosted_instruction",
+    "nvm_file_indirect_hosted_local",
+    "nvm_file_indirect_hosted_prepare",
+    "nvm_file_indirect_hosted_query_summary",
+    "nvm_file_indirect_hosted_startup",
+    "nvm_file_indirect_hosted_type",
+    "nvm_file_indirect_hosted_variant",
+    "nvm_file_indirect_hosted_variant_count",
+    "nvm_file_indirect_targets",
+    "nvm_file_indirect_targets_call",
+    "nvm_file_indirect_targets_free",
+    "nvm_file_indirect_targets_parameter",
+    "nvm_file_indirect_targets_summary"
+  ],
+  "provider_rows": [
+    {
+      "source": "modules/nanoisa/nanoisa.c",
+      "sha256": "ce9c9f29750edeb43893f20c21ae82dabf5271e6e324c006560c5d3ac6b342f8",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/isa.c",
+      "sha256": "4d77cf7e8f951f388218432e596f9dd7279727438f612be53b9f7fadd5b6eb59",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/passive.c",
+      "sha256": "bbc8e90572be5d271399310284facaf54f7c6afa0c07f363b05ffc970058ebff",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/affine_bytecode.c",
+      "sha256": "1a2b381e40022a3ca2b7f9920c17fbf650cc11b983927ddbb5356151add6837a",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/affine_state.c",
+      "sha256": "fa11ac27b98d17ba7c43d9a3ee8446cc890177f37bac5eaa1492928800258854",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/mixed_float_proof.c",
+      "sha256": "59d8e3fc50c1c08106ceb462735e9e3ade984325d4e4896090c5ed4cbd3d5205",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/service_bindings.c",
+      "sha256": "c7599125a5ac23ffdbf61b02ba01932c12e2dee09e0a1912ca10c86c6df34ed7",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/service_bindings_module.c",
+      "sha256": "a24ecc2948e85e03307b0b99b01496f0568dca49e8f75ebe7a21a76f5c6367f4",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/service_file_nominal.c",
+      "sha256": "d24a0c9008505977bee4fa8e7402d048e9993fd69ae7284bfc2c5aef180bf32d",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/service_file_nominal_plan.c",
+      "sha256": "54a0edad2862ebe79726b6f159bc19a11d9c8166b2f88f2d95022dfc072921e7",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/ownership_contracts.c",
+      "sha256": "f97c2ba7d05f6bf1a799907d361c3792ff96b970cdaf0ae263cda89baaddfaf5",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/retained_layouts.c",
+      "sha256": "a44a3327e9301c32683ea16a4ed8a39fdd61bde25550d79de977e5bd1ac61a5d",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/reference_places.c",
+      "sha256": "1b2cbc43c6bf73cbc5a998119b788297f311b07e9b745f12b8c68d686c14854c",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_format.c",
+      "sha256": "0da678f419f8bfbeafc2d9eb45a24b51127a987c622a9d746fba8ef69c80ffe7",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_format_v2.c",
+      "sha256": "5da5b993a802a745e27f339b93f2d630c1b639e51b3c1924fbbb0c680fcfaaae",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_cursor.c",
+      "sha256": "d84b11478f6034fd8bca29d63746abae67c9700a1e571d220de285f2c49748fb",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_constants.c",
+      "sha256": "2645c1a4e5773088158353f71461f2865a02436c9cd8b4b88bca3344947b07ae",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_signatures.c",
+      "sha256": "7f1bee030349ac740c74bdbe30851def005d95915a43ea821dd619b8f4a727f8",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_layouts.c",
+      "sha256": "08f0915e4020cd76d421d40d2539f767367738d240d04c9562a886e4a79806f9",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_functions.c",
+      "sha256": "1e361492ba68833f9d4621b1423188f7789c136ea0af2bced4eeb3180bab5df7",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_imports.c",
+      "sha256": "ebf9789e3e1a8c744e2a98bccd83f386e5424ce78cf3f299a12ed5f108a1fc13",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_module.c",
+      "sha256": "e62dcbee2d359c91b09ce227bfc0fa3e6e7e017ea0fa929a94ceb0b01392f959",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_convert.c",
+      "sha256": "b6f68ab3d79f29de4c543c631a95527c713ef6088624abfe12313056d0665660",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/local_bindings.c",
+      "sha256": "6f66037c8b02c1d2b68f76de49e76aef05e559b97a82ee820f742a815b85b1f5",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/assembler.c",
+      "sha256": "68bf1a1207342c94ce8baee817abf193b14ca7693c3e1ad1746f835ada60712a",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/disassembler.c",
+      "sha256": "6c89f9becbaf02ebfdaacc97db33ac8aeda0ebc681bf17a5568521e6d8ff6a4f",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/verifier.c",
+      "sha256": "c376db01a1f5d16299207b2053247bcd97b3571f20b791527365d3bb870a6343",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/managed_array_shapes.c",
+      "sha256": "8f2f7bdde3ec4761374b18cc3bd53ee04689fcaa9f4e4b1538d0cf128404b460",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/verifier_types.c",
+      "sha256": "4a28dbdf96dada1ce7f849d360faaef08f37a20f4f7c0a6d4361a1ba3294df17",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/vm_decode.c",
+      "sha256": "f1010e77efcfddb827fb1cdf4716a3f0c9cfa68d9a18b6b25164f114d0974671",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/vm_dispatch.c",
+      "sha256": "83738c0e87f720f34c6db4046295d996572f62f3cdaf5ba80542ea10640475fc",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/value.c",
+      "sha256": "5d18b054b3e173162d5b5dff8e40aa5b6b032a5e110fd8c4f1dccfe2e6b94210",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/heap.c",
+      "sha256": "38eaa2551ddeb42deec5bdb162b3764b5f224d2f06559fcacbce5075667cb1cd",
+      "file_flow_external_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/heap_cycles.c",
+      "sha256": "5fe9ba89e07a0907ac9d1ed6f403b13d227a0035af06337fb2db16b836ff710f",
+      "file_flow_external_name_mentions": []
+    }
+  ],
+  "direct_hits": [],
+  "quoted_include_closure": [
+    {
+      "source": "modules/nanoisa/nanoisa.c",
+      "sha256": "ce9c9f29750edeb43893f20c21ae82dabf5271e6e324c006560c5d3ac6b342f8",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/service_bindings_module.h",
+      "sha256": "5a06e11b1d795e519c1ea08327338d8c885ac274c02a97c06c036c892131160e",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/service_bindings.h",
+      "sha256": "e6514846b5a4e341b649421625d92c728589beada8273501826334e1ae107d79",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/service_file_nominal.h",
+      "sha256": "f7e8a3bbcb98442125b987f97299f9eab39fa834c6a2c5d615476970a0de29b8",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_format.h",
+      "sha256": "a49a6eb8b3a6ccc7603bccb51743c79d7e73efff27c6f2769e75bc7c01cd4a34",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_sections.h",
+      "sha256": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_format_v2.h",
+      "sha256": "8e03de1a95814af5702b22fb4077f8e17c8e00b5ee22399fa877b7fba7110d59",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nsi_file_plan.h",
+      "sha256": "dd9d995fb119ff5f8712aac2f1d907d45ed7fd0a98082260ade1fc0204b25203",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nsi.h",
+      "sha256": "2e063bc54582e7999fc431a419e429b9e3e610ff9fc92e91556dc5c3a1708118",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "modules/nanoisa/nanoisa.h",
+      "sha256": "78a0a59fa32eaa589cf0680f7158974ce90e41763abe163256e1970a7ff9f410",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/assembler.h",
+      "sha256": "213d5742beb5229264c4bb7d76b049eb65dcea8148e74ee7a1f9528d50c7af28",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/disassembler.h",
+      "sha256": "d8baff98ab34084c607eaac7518f49edf8c7b7c4f740e4d8ee20a2adbac44d49",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/isa.h",
+      "sha256": "23bd5a3a3b29f91820ed21cd93ae862c53169c2e05ffb872766ed20091ae95a8",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/generated_schema.h",
+      "sha256": "2ff78ca6ddb050e7324080e775d77783c8c698bec65ef80f8dc6ed461a2c4368",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/verifier.h",
+      "sha256": "72dac5c5480c1c7f0d1f221de0510c4c6c0d8125ee5c2772fd6129f57677872a",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/vm_decode.h",
+      "sha256": "70747de3339b07321136ab2962cb178c8651c90b9c3221415bcfae8aa9f6392a",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/isa.c",
+      "sha256": "4d77cf7e8f951f388218432e596f9dd7279727438f612be53b9f7fadd5b6eb59",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/passive.c",
+      "sha256": "bbc8e90572be5d271399310284facaf54f7c6afa0c07f363b05ffc970058ebff",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/passive.h",
+      "sha256": "0bdc1d7deb3289d96a442a1a98eef1a5876c87bf3a54c7d4d7b5cbd49a251d98",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/passive_calls.inc",
+      "sha256": "ffb05fc00586a37a1f7b237073eb9b7d81999638ef8a65e99100390615935b57",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/affine_bytecode.c",
+      "sha256": "1a2b381e40022a3ca2b7f9920c17fbf650cc11b983927ddbb5356151add6837a",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/affine_bytecode.h",
+      "sha256": "446e948b49ad19e3ee2651b481c2c028d568f3a0579a132dd793a906077b413a",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/affine_state.h",
+      "sha256": "cc5e638513eda6b6b76e1a150f50190e01363c3ba7dc57f605877285bea3a4b6",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/ownership_contracts.h",
+      "sha256": "3c0dba6242a9bbfd559f07a5b9b4e48ea5786c0286e91a85378889f0fa929135",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/reference_places.h",
+      "sha256": "394d7b616dc377c6ccd8829716f57557c508b66c218d77dd9d21102c5b0478bc",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/affine_state.c",
+      "sha256": "fa11ac27b98d17ba7c43d9a3ee8446cc890177f37bac5eaa1492928800258854",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/mixed_samples.inc",
+      "sha256": "37a2d75d07b82e6a7c517decdb04bab7f84aeb6d3f1a8e8601ebb23541b48705",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/mixed_samples.h",
+      "sha256": "90340653ab2f7d32993874520225be5a56ad88be4c5d101358724f279e6d4e6a",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/mixed_float_proof.h",
+      "sha256": "fe97d297b8343c0cc94b8b6b5299b289ae37d39484e443f33626c8ecba7b5487",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/mixed_layout_view.h",
+      "sha256": "228141f446a0ee362a3e35bdc00516dab5e8d0701b7f9940dfad1db249cb8d1c",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/managed_record_plan.h",
+      "sha256": "c30beccb47c344e6cd47621a3a13d2a130070c3b1f5d7f0ac94079da9b6c8461",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/owned_array_authority.inc",
+      "sha256": "1e623f5d0dc2aa655987d559ac0e7fa10ab11111eb6c9c758507846a3438044c",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/owned_array_authority_internal.h",
+      "sha256": "3287409b5d15561e5590e3527833eab6f1851b7bc3cb0d84353a57c5b880e1cc",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/owned_array_authority.h",
+      "sha256": "35a2b5cc5f7afdbb20065e31193795e3805d9c82409172588abc2907ab7cd1cd",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/owned_array_origins.h",
+      "sha256": "487b9e2b2ffe11779b35007479af83a988c2c5709ae13a7b63275b939f969fc0",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/owned_array_layouts.h",
+      "sha256": "f3b1e15fa1448ae4f86f7df77b4c668b645a81a82a5b1ff112bc8431bd95e490",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/mixed_float_proof.c",
+      "sha256": "59d8e3fc50c1c08106ceb462735e9e3ade984325d4e4896090c5ed4cbd3d5205",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/service_bindings.c",
+      "sha256": "c7599125a5ac23ffdbf61b02ba01932c12e2dee09e0a1912ca10c86c6df34ed7",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/service_bindings_module.c",
+      "sha256": "a24ecc2948e85e03307b0b99b01496f0568dca49e8f75ebe7a21a76f5c6367f4",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/service_classification_private.h",
+      "sha256": "60da7dfcabb801265bddbe3ef01027874cf83c6fd12baa799d821e9bb6200dcb",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/owned_array_admission.h",
+      "sha256": "81a845ba68f31ac6d2d39dda881744d83c8f1f08cf613698d18146fb26e5275e",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nsi_file_catalog.h",
+      "sha256": "95ab2277fc3dd7993f1130617591a4cc06bde8e2158de6f023dc47c1c2006a35",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/service_file_nominal.c",
+      "sha256": "d24a0c9008505977bee4fa8e7402d048e9993fd69ae7284bfc2c5aef180bf32d",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/service_file_nominal_plan.c",
+      "sha256": "54a0edad2862ebe79726b6f159bc19a11d9c8166b2f88f2d95022dfc072921e7",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/ownership_contracts.c",
+      "sha256": "f97c2ba7d05f6bf1a799907d361c3792ff96b970cdaf0ae263cda89baaddfaf5",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/retained_layouts.h",
+      "sha256": "f2150b5b1c1826b23bb4dad57ec54c4b148d45c7e02850bd8d53bfc927158a41",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/ownership_array_fields.inc",
+      "sha256": "d430c7cf44f7559bac9383afc85f295ac3b48240d343f996909b4e552734e488",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/ordinary_array_authority.h",
+      "sha256": "8e8b342a6c8cd07486ca558f82ba4bbd963481e642c4c74908690f279bff0677",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/ownership_layouts_private.h",
+      "sha256": "987c52bc7a7ac004f20d9c0b91f0ac0aaad90b1a3e039e495635fd16a6b51df8",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/ordinary_array_authority.inc",
+      "sha256": "790720a31bd60c1fab681aedd9bad917fa9dc357722da1178abc0904b4a81396",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/ownership_declaration_projection.inc",
+      "sha256": "fe3a29519fb7a971680b02cb246f9b28a88f7180f25e38243c0a60c034eed923",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/ownership_declaration_projection.h",
+      "sha256": "ede8714acacb52ae0d29dea4e205878a361fc36817af5aa85ce0cb60453966d8",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/retained_layouts.c",
+      "sha256": "a44a3327e9301c32683ea16a4ed8a39fdd61bde25550d79de977e5bd1ac61a5d",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/mixed_layout_view.inc",
+      "sha256": "55c3bf72dbe18fece62809463967d84082d8fc3df071aa4365c9d01963c70dcb",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/owned_array_layouts.inc",
+      "sha256": "018a1e735fbe0917a537542d10c439266eda7a2176f28fb5b78efd412366e6ab",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/owned_array_origins.inc",
+      "sha256": "dd930fa29386e9f655d7ab0e1731fba3c4554c26607259ecb74d3c6f293512d2",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/reference_places.c",
+      "sha256": "1b2cbc43c6bf73cbc5a998119b788297f311b07e9b745f12b8c68d686c14854c",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_format.c",
+      "sha256": "0da678f419f8bfbeafc2d9eb45a24b51127a987c622a9d746fba8ef69c80ffe7",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_format_v2.c",
+      "sha256": "5da5b993a802a745e27f339b93f2d630c1b639e51b3c1924fbbb0c680fcfaaae",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_cursor.c",
+      "sha256": "d84b11478f6034fd8bca29d63746abae67c9700a1e571d220de285f2c49748fb",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_constants.c",
+      "sha256": "2645c1a4e5773088158353f71461f2865a02436c9cd8b4b88bca3344947b07ae",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_signatures.c",
+      "sha256": "7f1bee030349ac740c74bdbe30851def005d95915a43ea821dd619b8f4a727f8",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_layouts.c",
+      "sha256": "08f0915e4020cd76d421d40d2539f767367738d240d04c9562a886e4a79806f9",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_functions.c",
+      "sha256": "1e361492ba68833f9d4621b1423188f7789c136ea0af2bced4eeb3180bab5df7",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_imports.c",
+      "sha256": "ebf9789e3e1a8c744e2a98bccd83f386e5424ce78cf3f299a12ed5f108a1fc13",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_module.c",
+      "sha256": "e62dcbee2d359c91b09ce227bfc0fa3e6e7e017ea0fa929a94ceb0b01392f959",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_convert.c",
+      "sha256": "b6f68ab3d79f29de4c543c631a95527c713ef6088624abfe12313056d0665660",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/mixed_samples_internal.h",
+      "sha256": "9e0c6107b305e16850d53132fad8c40a70a66808f7cbd56b5340a7de86e6f6a1",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/local_bindings.c",
+      "sha256": "6f66037c8b02c1d2b68f76de49e76aef05e559b97a82ee820f742a815b85b1f5",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/local_bindings.h",
+      "sha256": "39b7b9cdc4de50b00827adb4b684b3546954a846c228b43ceb82286db10961ec",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/assembler.c",
+      "sha256": "68bf1a1207342c94ce8baee817abf193b14ca7693c3e1ad1746f835ada60712a",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/disassembler.c",
+      "sha256": "6c89f9becbaf02ebfdaacc97db33ac8aeda0ebc681bf17a5568521e6d8ff6a4f",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/verifier.c",
+      "sha256": "c376db01a1f5d16299207b2053247bcd97b3571f20b791527365d3bb870a6343",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/managed_array_shapes.h",
+      "sha256": "2ca7c20170e31c133544830ceb604a83f130a30f812f4864282e3e2552991e47",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/record_array_structure_private.h",
+      "sha256": "353b30e8e988a38bdfe7963ddc77322038367f11ee14ea10b3cc404488a18a80",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/managed_record_shapes.h",
+      "sha256": "b5920e095fbc468450a0d390b6c1cfe0ab9ef8665a9662639bea323472e686c8",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/vm.h",
+      "sha256": "6521b84e0a2f3d6dfe0a3b585455eabd8b47cad98950bafaafffc97f6862ccbb",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/value.h",
+      "sha256": "b71d9c1f12887db20324286d841ceabe8ea04d42fd453d3902a7371c38c147a1",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/heap.h",
+      "sha256": "ad518751582c23650df52c9817f234630e6d9c11d093bdd8a0f278012a5aede2",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/vm_dispatch.h",
+      "sha256": "b1cc0c60d2a628187043059635b3c49fedfdba7495a5019131f124f446378255",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/runtime/callback_runtime.h",
+      "sha256": "15c8cbbfc08dfaaa8071416f9426bd355477a9895f348b0fe5020661320e5add",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/runtime/nano_callback.h",
+      "sha256": "c556aa7284a51f11bf4e75d203fe669e16491baabe3a70d50db7e5a16a120661",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/mixed_samples_prepare.inc",
+      "sha256": "74d555d9b0ccf6ca20c6d0fae9bcde85ac76db5237e5c964e5c448b9233f6ead",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/owned_array_prepare.inc",
+      "sha256": "341c03c2f7636aefcf6786177e167cc8d43086bf51e383428ed38105f77c50f6",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/owned_array_admit.inc",
+      "sha256": "b6890e34cb6668e2652fc8708d0768a5951129afb13a99fe0006548163478e2b",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/record_array_structure.inc",
+      "sha256": "75f3f37c7edb9ccf7f7831a1f49d832d1b3570e8100fd756403aea8f77445577",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/managed_array_shapes.c",
+      "sha256": "8f2f7bdde3ec4761374b18cc3bd53ee04689fcaa9f4e4b1538d0cf128404b460",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/managed_record_array_origins.h",
+      "sha256": "9e8ae568481942b1229952b03caf73bcf05433f2136351be2f68a55987d68604",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/record_array_origins.inc",
+      "sha256": "2b348e7cefaf3da002a788e97a1e4b7b99eb6816ad76771d36b79fdc52d2e629",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanoisa/verifier_types.c",
+      "sha256": "4a28dbdf96dada1ce7f849d360faaef08f37a20f4f7c0a6d4361a1ba3294df17",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/vm_decode.c",
+      "sha256": "f1010e77efcfddb827fb1cdf4716a3f0c9cfa68d9a18b6b25164f114d0974671",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/vm_dispatch.c",
+      "sha256": "83738c0e87f720f34c6db4046295d996572f62f3cdaf5ba80542ea10640475fc",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/value.c",
+      "sha256": "5d18b054b3e173162d5b5dff8e40aa5b6b032a5e110fd8c4f1dccfe2e6b94210",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/binary64_format.h",
+      "sha256": "96f65f47fa6c769dbba59013b86c9649ca5f4c6c15be6c6edd528c7d68347cdd",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/heap.c",
+      "sha256": "38eaa2551ddeb42deec5bdb162b3764b5f224d2f06559fcacbce5075667cb1cd",
+      "file_flow_name_mentions": []
+    },
+    {
+      "source": "src/nanovm/heap_cycles.c",
+      "sha256": "5fe9ba89e07a0907ac9d1ed6f403b13d227a0035af06337fb2db16b836ff710f",
+      "file_flow_name_mentions": []
+    }
+  ],
+  "scope": "I retain system includes outside this project-name reference scan. Preprocessor branches are scanned conservatively as text; this is not a dynamic-load proof.",
+  "retained_flow_source_closure_equal": [
+    {
+      "source": "src/nanoisa/file_flow.c",
+      "sha256": "4b59aef1102d612c573f95ec63b7ac4f9560a66d8d3c6304a000dcbec5e60def"
+    },
+    {
+      "source": "src/nanoisa/file_flow.h",
+      "sha256": "2e29fc4d25830afcaa253e67568e437097318d7d9da069537ff8beb1716e7f8f"
+    },
+    {
+      "source": "src/nanoisa/service_file_nominal.h",
+      "sha256": "f7e8a3bbcb98442125b987f97299f9eab39fa834c6a2c5d615476970a0de29b8"
+    },
+    {
+      "source": "src/nanoisa/service_bindings.h",
+      "sha256": "e6514846b5a4e341b649421625d92c728589beada8273501826334e1ae107d79"
+    },
+    {
+      "source": "src/nanoisa/nvm_format.h",
+      "sha256": "a49a6eb8b3a6ccc7603bccb51743c79d7e73efff27c6f2769e75bc7c01cd4a34"
+    },
+    {
+      "source": "src/nanoisa/ownership_contracts.h",
+      "sha256": "3c0dba6242a9bbfd559f07a5b9b4e48ea5786c0286e91a85378889f0fa929135"
+    },
+    {
+      "source": "src/nanoisa/nvm_format_v2.h",
+      "sha256": "8e03de1a95814af5702b22fb4077f8e17c8e00b5ee22399fa877b7fba7110d59"
+    },
+    {
+      "source": "src/nanoisa/nvm_v2_sections.h",
+      "sha256": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9"
+    },
+    {
+      "source": "src/nanoisa/isa.h",
+      "sha256": "23bd5a3a3b29f91820ed21cd93ae862c53169c2e05ffb872766ed20091ae95a8"
+    },
+    {
+      "source": "src/nanoisa/generated_schema.h",
+      "sha256": "2ff78ca6ddb050e7324080e775d77783c8c698bec65ef80f8dc6ed461a2c4368"
+    },
+    {
+      "source": "src/nsi_file_catalog.h",
+      "sha256": "95ab2277fc3dd7993f1130617591a4cc06bde8e2158de6f023dc47c1c2006a35"
+    },
+    {
+      "source": "src/nsi_file_plan.h",
+      "sha256": "dd9d995fb119ff5f8712aac2f1d907d45ed7fd0a98082260ade1fc0204b25203"
+    },
+    {
+      "source": "src/nsi.h",
+      "sha256": "2e063bc54582e7999fc431a419e429b9e3e610ff9fc92e91556dc5c3a1708118"
+    },
+    {
+      "source": "src/nanoisa/file_code.inc",
+      "sha256": "faf12de9c7e0a4348b2bb6a85e25a86b100bbe702bb6d229b0f36c2c2aa6b25f"
+    },
+    {
+      "source": "src/nanoisa/file_code.h",
+      "sha256": "f19203d91a1116f86c380a371cbaeb0dfdbe7c6a36660a38efa647f77f9f9da5"
+    },
+    {
+      "source": "src/nanoisa/file_body.inc",
+      "sha256": "4ecb4d41efa7ce946475d1472d448c14118cbf469f8011b3c790c77fa3928623"
+    },
+    {
+      "source": "src/nanoisa/file_body.h",
+      "sha256": "5d7d6d08a229b50d263639232b9c99381932f43a4a169ff20151255521c9720a"
+    },
+    {
+      "source": "src/nanoisa/file_hosted.inc",
+      "sha256": "9942e7e0fba50418202ca88b45ba43f1bd8ae1024335d3da6f7bfbfd1b32c65e"
+    },
+    {
+      "source": "src/nanoisa/file_hosted.h",
+      "sha256": "45f1c219d5395b69e613c8890b8ddbd0b490a2b4db08ecb9e489eb4c390819b0"
+    },
+    {
+      "source": "src/nanoisa/file_cyclic.inc",
+      "sha256": "bcb9be656bf3239d1102f35c6a4f1c632ae874821621f61c04f88077320ac90b"
+    },
+    {
+      "source": "src/nanoisa/file_cyclic.h",
+      "sha256": "654eec19f56172747242152bc90e3f95054f6879171a1528187e51c4721eb1ad"
+    },
+    {
+      "source": "src/nanoisa/file_cyclic_hosted.inc",
+      "sha256": "7ebdf8bdc7c37a85565469257136e7c39c6536e3b61ce0a654036af5e63b4af0"
+    },
+    {
+      "source": "src/nanoisa/file_cyclic_hosted.h",
+      "sha256": "7cf539f4d7cb575f2bec0ea150606c40bd0123121578456ec7026c6aa671c103"
+    },
+    {
+      "source": "src/nanoisa/file_indirect_targets.inc",
+      "sha256": "37477dc80ff97d0d2355213c9887ba0694f3828412443b75e42de42d5d9ac862"
+    },
+    {
+      "source": "src/nanoisa/file_indirect_targets.h",
+      "sha256": "c27137d7d7650886d0d539c8df1e30cf2e37023230961fcef056669e74a5c39c"
+    },
+    {
+      "source": "src/nanoisa/file_indirect_flow.inc",
+      "sha256": "963e9482b9b7e24e4aae0f4722358be649a0f128061c8437b3820ec878ff4892"
+    },
+    {
+      "source": "src/nanoisa/file_indirect_flow.h",
+      "sha256": "0b3cc7e14d8036344d691780d21cfa316149236665e5454f5a058db73a476d33"
+    },
+    {
+      "source": "src/nanoisa/file_indirect_hosted.inc",
+      "sha256": "a0c176b01de910950110d8a3b6cc2cc8453b3b2abf64c658aaedc51827d00325"
+    },
+    {
+      "source": "src/nanoisa/file_indirect_hosted.h",
+      "sha256": "76ee83575c653e83d56d9faba0cc4a3f17717d58c007ae0eeafbea58bbaf1c87"
+    }
+  ]
+}

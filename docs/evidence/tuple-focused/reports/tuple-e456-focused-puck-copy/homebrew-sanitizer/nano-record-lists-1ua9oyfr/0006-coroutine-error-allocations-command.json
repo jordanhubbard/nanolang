@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/jkh/nanolang-qualification/tuple-e456-focused/homebrew-sanitizer/nano-record-lists-1ua9oyfr/coroutine-errors"
+  ],
+  "cwd": "/Users/jkh/nanolang-qualification/tuple-e456-source",
+  "timeout": 180,
+  "expected": [
+    0
+  ],
+  "extra": null,
+  "TMPDIR": "/Users/jkh/nanolang-qualification/tuple-e456-focused/homebrew-sanitizer/nano-record-lists-1ua9oyfr/temporary",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

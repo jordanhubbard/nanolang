@@ -292,6 +292,7 @@ static bool build_obj_list(char **buf, const char *obj_dir, bool daemon) {
     static const char *nanovm_objs[] = {
         "nanovm/value.o", "nanovm/heap.o", "nanovm/heap_cycles.o", "nanovm/vm.o",
         "nanovm/vm_ffi.o", "nanovm/vm_ffi_arrays.o", "nanovm/vm_builtins.o", "nanovm/cop_protocol.o",
+        "nanovm/cop_opaque.o", "nanovm/binding_state.o",
         "nanovm/vm_callback.o", "runtime/callback_runtime.o",
         /* asm_assemble() verifies its output, so anything linking the
          * assembler also needs the verifier and the decode/dispatch tables it
@@ -300,6 +301,7 @@ static bool build_obj_list(char **buf, const char *obj_dir, bool daemon) {
     };
     static const char *nanoisa_objs[] = {
         "nanoisa/isa.o", "nanoisa/local_bindings.o", "nanoisa/passive.o", "nanoisa/nvm_format.o",
+        "nanoisa/capture_bindings.o",
         "nanoisa/affine_bytecode.o", "nanoisa/affine_state.o", "nanoisa/mixed_float_proof.o", "nanoisa/ownership_contracts.o", "nanoisa/retained_layouts.o", "nanoisa/reference_places.o",
         "nanoisa/file_flow.o", "nanoisa/service_file_nominal.o", "nanoisa/service_file_nominal_plan.o",
         "nanoisa/service_bindings.o", "nanoisa/service_bindings_module.o", "nsi_file_plan.o",

@@ -40,6 +40,15 @@ int main(int argc, char **argv) {
     ASTNode root = {.type = AST_PROGRAM}; root.as.program.items = items; root.as.program.count = 1;
     CBOptions options = {0};
 
+    /* I retain service refusal in this parser-independent API. */
+    ASTNode service = {.type = AST_SERVICE_DECL};
+    items[0] = &service;
+    previous(argv[1]);
+    assert(c_backend_emit(&root, argv[1], "service.nano", &options) != 0);
+    retained(argv[1]);
+    items[0] = &main_function;
+    assert(!ast_has_service_declaration(&root));
+
     /* I refuse an unresolved FLOAT producer without publishing partial source. */
     ASTNode call = {.type = AST_CALL}; call.as.call.name = "missing_result";
     main_function.as.function.name = "ordinary_float";

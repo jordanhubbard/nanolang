@@ -1,0 +1,1 @@
+union Inner { Empty {} } union Box { Some { value: Inner } } fn main() -> int { let x: Box = Box.Some { value: Inner.Empty {} } return 0 } shadow main { assert true }

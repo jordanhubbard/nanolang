@@ -171,7 +171,7 @@ bool nvm_file_nominal_storage_bound(uint32_t layouts,size_t *out) {
     *out=bytes;return true;
 }
 NvmFileNominalStatus nvm_file_nominal_plan(const NvmModule *m,NvmFileNominalPlan **out) {
-    if(!m || !out)return NVM_FILE_NOMINAL_INVALID;
+    if(!m || !out || nvm_capture_bindings_present(m))return NVM_FILE_NOMINAL_INVALID;
     NvmFileNominalBindings bindings;
     if(nvm_file_nominal_decode(m->service_data,m->service_size,&bindings)!=NVM_SERVICE_OK ||
        !imports_valid(m,&bindings))return NVM_FILE_NOMINAL_INVALID;

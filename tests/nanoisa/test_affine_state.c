@@ -60,6 +60,26 @@ static void consume_pair(NvmAffineState *s) {
     CHECK(nvm_affine_unpack(s,2,&fd,1));CHECK(nvm_affine_unpack(s,3,&fd,1));
     CHECK(nvm_affine_can_exit(s,UINT16_MAX));
 }
+static void function_initialization_meets(void) {
+    NvmModule *m=fixture();slot(m->ownership_data+28,TAG_FUNCTION,0,NVM_V2_NO_INDEX);
+    NvmAffineState *empty=nvm_affine_state_create(m,0,8);CHECK(empty);
+    NvmAffineState *defined=nvm_affine_state_clone(empty);CHECK(defined);
+    uint8_t tag,mode;bool changed=true;
+    CHECK(!nvm_affine_local_info(empty,0,&tag,&mode));
+    NO_CHANGE(empty,nvm_affine_scalar_define(empty,0));
+    NO_CHANGE(empty,nvm_affine_function_define(empty,1));
+    CHECK(nvm_affine_function_define(defined,0));
+    CHECK(nvm_affine_function_define(defined,0));
+    CHECK(nvm_affine_local_info(defined,0,&tag,&mode) && tag==TAG_FUNCTION && !mode);
+    CHECK(nvm_affine_state_meet_initialization(empty,defined,&changed) && !changed);
+    CHECK(!nvm_affine_local_info(empty,0,&tag,&mode));
+    CHECK(nvm_affine_state_meet_initialization(defined,empty,&changed) && changed);
+    CHECK(nvm_affine_state_equal(empty,defined));
+    CHECK(nvm_affine_function_define(empty,0));CHECK(nvm_affine_function_define(defined,0));
+    CHECK(nvm_affine_state_meet_initialization(defined,empty,&changed) && !changed);
+    NO_CHANGE(defined,nvm_affine_borrow(defined,0,0,NULL,0,NVM_REFERENCE_SHARED));
+    nvm_affine_state_free(empty);nvm_affine_state_free(defined);nvm_module_free(m);
+}
 static void scalar_initialization_meets(void) {
     const uint8_t scalars[]={TAG_INT,TAG_BOOL,TAG_U8,TAG_FLOAT};
     for (unsigned i=0;i<sizeof(scalars);i++) {
@@ -155,8 +175,128 @@ static void caller_binding_checks(void) {
     CHECK(nvm_affine_region_end(caller));consume_pair(caller);
     nvm_affine_state_free(before);nvm_affine_state_free(caller);nvm_module_free(m);
 }
+/* I retain a resource-bearing Choice with two-owner, ordinary and empty arms,
+ * a nested Box, and a distinct same-shaped union. */
+static NvmModule *union_fixture(void) {
+    AsmResult error;
+    NvmModule *m=asm_assemble(".types 1 0 3\n.function main 0 8 0 void 0\nRET\n.end\n",&error);
+    CHECK(m);
+    const char *names[]={"Handle","Choice","Box","Other","Pair","Number","Empty","value"};
+    uint32_t names_at[8];
+    for(unsigned i=0;i<8;i++)names_at[i]=nvm_add_string(m,names[i],strlen(names[i]));
+    NvmV2LayoutField fd={TAG_INT,NVM_V2_NO_INDEX,names_at[7]};
+    NvmV2LayoutField fields[]={{TAG_STRUCT,0,names_at[7]},{TAG_STRUCT,0,names_at[7]},
+        {TAG_INT,NVM_V2_NO_INDEX,names_at[7]}};
+    NvmV2LayoutField child={TAG_UNION,1,names_at[7]};
+    NvmV2Layout items[]={{NVM_V2_LAYOUT_STRUCT,1,names_at[0],&fd},
+        {NVM_V2_LAYOUT_UNION,3,names_at[1],fields},
+        {NVM_V2_LAYOUT_UNION,1,names_at[2],&child},
+        {NVM_V2_LAYOUT_UNION,3,names_at[3],fields}};
+    NvmV2Layouts layouts={items,4};CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    m->ownership_size=204;m->ownership_data=calloc(204,1);CHECK(m->ownership_data);
+    uint8_t *b=m->ownership_data;
+    word(b,NVM_OWNERSHIP_UNION_GRAPH_VERSION);word(b+4,4);
+    b[8]=b[9]=b[10]=b[11]=NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE;
+    word(b+12,1);b[16]=8;slot(b+20,TAG_VOID,0,NVM_V2_NO_INDEX);
+    const uint8_t tags[]={TAG_INT,TAG_STRUCT,TAG_STRUCT,TAG_UNION,TAG_UNION,TAG_UNION,TAG_UNION,TAG_INT};
+    const uint32_t ids[]={NVM_V2_NO_INDEX,0,0,1,1,2,3,NVM_V2_NO_INDEX};
+    for(unsigned i=0;i<8;i++)slot(b+28+8*i,tags[i],0,ids[i]);
+    word(b+92,4);word(b+96,0);word(b+100,1);
+    b[104]=NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS;b[106]=NVM_OWNERSHIP_EXTENSION_REVISION_1;
+    word(b+108,92);word(b+112,3);
+    unsigned pos=116;
+    for(unsigned i=1;i<4;i++) {
+        word(b+pos,i);b[pos+4]=i==2?2:3;pos+=8;
+        unsigned offset=0;
+        for(unsigned v=0;v<(i==2?2u:3u);v++) {
+            unsigned count=i==2?(v==0?1:0):(v==0?2:v==1?1:0);
+            word(b+pos,names_at[4+v]);b[pos+4]=offset;b[pos+6]=count;
+            offset+=count;pos+=8;
+        }
+    }
+    CHECK(pos==204);
+    bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
+    CHECK(!nvm_verify(m).ok);return m;
+}
+static void owned_union_transitions(void) {
+    NvmModule *m=union_fixture();NvmAffineState *s=nvm_affine_state_create(m,0,8);CHECK(s);
+    uint16_t fd=0,pair[]={1,2},duplicate[]={1,1},number=7,child=3;
+    uint16_t variant=99;uint8_t tag=99;
+    CHECK(nvm_affine_scalar_define(s,0));
+    CHECK(nvm_affine_pack(s,1,&fd,1));CHECK(nvm_affine_pack(s,2,&fd,1));
+    NO_CHANGE(s,nvm_affine_union_define(s,3,1,0));
+    NO_CHANGE(s,nvm_affine_union_pack(s,3,0,duplicate,2));
+    NO_CHANGE(s,nvm_affine_union_pack(s,3,0,pair,1));
+    NO_CHANGE(s,nvm_affine_union_pack(s,3,1,pair,2));
+    CHECK(nvm_affine_union_pack(s,3,0,pair,2));
+    CHECK(!nvm_affine_can_exit(s,UINT16_MAX));
+    NO_CHANGE(s,nvm_affine_union_pack(s,3,2,NULL,0));
+    NO_CHANGE(s,nvm_affine_pack(s,3,pair,2));
+    NO_CHANGE(s,nvm_affine_unpack(s,3,pair,2));
+    CHECK(!nvm_affine_scalar_field(s,3,2,&tag) && tag==99);
+    NO_CHANGE(s,nvm_affine_move(s,3,6));
+    CHECK(nvm_affine_move(s,3,4));
+    CHECK(!nvm_affine_union_variant(s,3,&variant) && variant==99);
+    CHECK(nvm_affine_union_variant(s,4,&variant) && variant==0);
+    NO_CHANGE(s,nvm_affine_union_refine(s,4,1));
+    CHECK(nvm_affine_pack(s,1,&fd,1));
+    NO_CHANGE(s,nvm_affine_union_unpack(s,4,0,pair,2));
+    CHECK(nvm_affine_unpack(s,1,&fd,1));
+    NvmAffineType out[2]={{99,99},{99,99}};uint16_t count=99;
+    NO_CHANGE(s,nvm_affine_take_union_payload(s,4,0,out,1,&count));
+    CHECK(count==99 && out[0].tag==99 && out[0].layout==99);
+    CHECK(nvm_affine_union_unpack(s,4,0,pair,2));
+    NO_CHANGE(s,nvm_affine_union_unpack(s,4,0,pair,2));
+    CHECK(nvm_affine_unpack(s,1,&fd,1));CHECK(nvm_affine_unpack(s,2,&fd,1));
+    CHECK(nvm_affine_can_exit(s,UINT16_MAX));
+    /* I do not inherit an inner variant from the outer selection. */
+    CHECK(nvm_affine_union_pack(s,3,1,&fd,1));
+    CHECK(nvm_affine_union_pack(s,5,0,&child,1));
+    CHECK(nvm_affine_union_unpack(s,5,0,&child,1));
+    NO_CHANGE(s,nvm_affine_union_unpack(s,3,1,&number,1));
+    CHECK(nvm_affine_union_refine(s,3,1));
+    CHECK(nvm_affine_union_unpack(s,3,1,&number,1));
+    CHECK(nvm_affine_can_exit(s,UINT16_MAX));
+    /* Empty arms still carry the whole-union obligation until extraction. */
+    CHECK(nvm_affine_union_pack(s,3,2,NULL,0));
+    CHECK(!nvm_affine_can_exit(s,UINT16_MAX));
+    NvmAffineState *live=nvm_affine_state_clone(s);CHECK(live);
+    CHECK(nvm_affine_take_union_payload(s,3,2,NULL,0,&count) && count==0);
+    bool changed=true;
+    NO_CHANGE(s,nvm_affine_state_meet_initialization(s,live,&changed));CHECK(!changed);
+    NO_CHANGE(live,nvm_affine_state_meet_initialization(live,s,&changed));CHECK(!changed);
+    nvm_affine_state_free(live);
+    NO_CHANGE(s,nvm_affine_take_union_payload(s,3,2,NULL,0,&count));
+    CHECK(nvm_affine_can_exit(s,UINT16_MAX));
+    /* Equal owner liveness can join different variants, losing only selection. */
+    CHECK(nvm_affine_union_pack(s,3,2,NULL,0));
+    NvmAffineState *other=nvm_affine_state_clone(s);CHECK(other);
+    CHECK(nvm_affine_union_unpack(other,3,2,NULL,0));
+    CHECK(nvm_affine_union_pack(other,3,1,&fd,1));
+    CHECK(nvm_affine_state_meet_initialization(s,other,&changed) && changed);
+    variant=99;CHECK(!nvm_affine_union_variant(s,3,&variant) && variant==99);
+    NO_CHANGE(s,nvm_affine_take_union_payload(s,3,2,NULL,0,&count));
+    CHECK(nvm_affine_union_refine(s,3,2));
+    CHECK(nvm_affine_take_union_payload(s,3,2,NULL,0,&count));
+    nvm_affine_state_free(other);
+    /* Stack moves keep exact nominal type and never reuse stale selection. */
+    CHECK(nvm_affine_union_pack(s,3,2,NULL,0));
+    NvmAffineType token={99,99};CHECK(nvm_affine_take_local(s,3,&token));
+    CHECK(token.tag==TAG_UNION && token.layout==1);
+    NO_CHANGE(s,nvm_affine_put_local(s,6,token));
+    CHECK(nvm_affine_put_local(s,4,token));
+    NO_CHANGE(s,nvm_affine_put_local(s,4,token));
+    NO_CHANGE(s,nvm_affine_take_union_payload(s,4,2,NULL,0,&count));
+    CHECK(nvm_affine_union_refine(s,4,2));
+    CHECK(nvm_affine_take_union_payload(s,4,2,NULL,0,&count));
+    CHECK(nvm_affine_can_exit(s,UINT16_MAX));
+    nvm_affine_state_free(s);nvm_module_free(m);
+}
+
 int main(void) {
+    owned_union_transitions();
     scalar_initialization_meets();
+    function_initialization_meets();
     caller_binding_checks();
     NvmModule *m=fixture();NvmAffineState *s=nvm_affine_state_create(m,0,8);CHECK(s);
     CHECK(nvm_affine_can_exit(s,UINT16_MAX));

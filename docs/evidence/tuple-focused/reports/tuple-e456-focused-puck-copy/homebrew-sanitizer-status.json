@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "-f",
+    "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+    "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+  ],
+  "bound": 900,
+  "status": 1,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/Users/jkh/nanolang-qualification/tuple-e456-source",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 7.418314209,
+  "log": {
+    "sha256": "e47a24e64569feb756e683d75729e5603685ed3f6b9c4e60ef57f8520469fa87",
+    "bytes": 9550,
+    "archive": "/Users/jkh/nanolang-qualification/tuple-e456-focused/objects/e47a24e64569feb756e683d75729e5603685ed3f6b9c4e60ef57f8520469fa87"
+  },
+  "inputs_equal": true
+}

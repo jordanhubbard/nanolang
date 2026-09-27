@@ -1,0 +1,1016 @@
+{
+  "scope": "Static complete-field reconstruction inventory; no runtime qualification",
+  "updates": [
+    {
+      "path": "src_nano/parser.nano",
+      "function": "parse_pub_use",
+      "variable": "imported",
+      "kind": "ASTImport",
+      "field": "is_pub_use",
+      "old_expression": "true",
+      "retained_fields": [
+        "node_type",
+        "line",
+        "column",
+        "module_path",
+        "module_name",
+        "is_unsafe",
+        "is_selective",
+        "is_wildcard",
+        "import_symbols",
+        "import_aliases",
+        "import_symbol_count"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "ok",
+      "old_expression": "false",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "sources",
+        "parsed",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "ok",
+      "old_expression": "false",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "sources",
+        "parsed",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "ok",
+      "old_expression": "false",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "sources",
+        "parsed",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "ok",
+      "old_expression": "false",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "sources",
+        "parsed",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "visited",
+      "old_expression": "(array_push result.visited norm_path)",
+      "retained_fields": [
+        "visited_set",
+        "order",
+        "sources",
+        "parsed",
+        "ok",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "visited_set",
+      "old_expression": "(nlc_hashset_add_string result.visited_set norm_path)",
+      "retained_fields": [
+        "visited",
+        "order",
+        "sources",
+        "parsed",
+        "ok",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "ok",
+      "old_expression": "false",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "sources",
+        "parsed",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "input_bytes",
+      "old_expression": "(+ result.input_bytes (+ copied.size 1))",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "sources",
+        "parsed",
+        "ok",
+        "lines_scanned",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "ok",
+      "old_expression": "false",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "sources",
+        "parsed",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "lines_scanned",
+      "old_expression": "(+ result.lines_scanned line_count)",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "sources",
+        "parsed",
+        "ok",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "ok",
+      "old_expression": "false",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "sources",
+        "parsed",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "ok",
+      "old_expression": "false",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "sources",
+        "parsed",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "edges",
+      "old_expression": "(+ result.edges 1)",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "sources",
+        "parsed",
+        "ok",
+        "lines_scanned",
+        "input_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "ok",
+      "old_expression": "false",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "sources",
+        "parsed",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "order",
+      "old_expression": "(array_push result.order norm_path)",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "sources",
+        "parsed",
+        "ok",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "sources",
+      "old_expression": "(array_push result.sources copied.source)",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "parsed",
+        "ok",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_files_ast",
+      "variable": "result",
+      "kind": "CollectResult",
+      "field": "parsed",
+      "old_expression": "(array_push result.parsed parsed)",
+      "retained_fields": [
+        "visited",
+        "visited_set",
+        "order",
+        "sources",
+        "ok",
+        "lines_scanned",
+        "input_bytes",
+        "edges"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "native_provider_add",
+      "variable": "result",
+      "kind": "NativeProviderSet",
+      "field": "ok",
+      "old_expression": "false",
+      "retained_fields": [
+        "rows"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "native_provider_add",
+      "variable": "result",
+      "kind": "NativeProviderSet",
+      "field": "ok",
+      "old_expression": "false",
+      "retained_fields": [
+        "rows"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "native_provider_add",
+      "variable": "result",
+      "kind": "NativeProviderSet",
+      "field": "ok",
+      "old_expression": "false",
+      "retained_fields": [
+        "rows"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "native_provider_add",
+      "variable": "result",
+      "kind": "NativeProviderSet",
+      "field": "rows",
+      "old_expression": "(array_push result.rows value)",
+      "retained_fields": [
+        "ok"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_module_build_flags",
+      "variable": "result",
+      "kind": "ModuleBuildFlags",
+      "field": "compiler",
+      "old_expression": "selected_compiler",
+      "retained_fields": [
+        "compile_flags",
+        "link_flags",
+        "runtime_sources",
+        "objects",
+        "ok",
+        "first_status"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_module_build_flags",
+      "variable": "result",
+      "kind": "ModuleBuildFlags",
+      "field": "compile_flags",
+      "old_expression": "profile",
+      "retained_fields": [
+        "link_flags",
+        "compiler",
+        "runtime_sources",
+        "objects",
+        "ok",
+        "first_status"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_module_build_flags",
+      "variable": "result",
+      "kind": "ModuleBuildFlags",
+      "field": "runtime_sources",
+      "old_expression": "(array_push result.runtime_sources source)",
+      "retained_fields": [
+        "compile_flags",
+        "link_flags",
+        "compiler",
+        "objects",
+        "ok",
+        "first_status"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_module_build_flags",
+      "variable": "result",
+      "kind": "ModuleBuildFlags",
+      "field": "objects",
+      "old_expression": "(array_push result.objects object)",
+      "retained_fields": [
+        "compile_flags",
+        "link_flags",
+        "compiler",
+        "runtime_sources",
+        "ok",
+        "first_status"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_module_build_flags",
+      "variable": "result",
+      "kind": "ModuleBuildFlags",
+      "field": "first_status",
+      "old_expression": "status",
+      "retained_fields": [
+        "compile_flags",
+        "link_flags",
+        "compiler",
+        "runtime_sources",
+        "objects",
+        "ok"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_module_build_flags",
+      "variable": "result",
+      "kind": "ModuleBuildFlags",
+      "field": "link_flags",
+      "old_expression": "(native_profile_append objects ldflags)",
+      "retained_fields": [
+        "compile_flags",
+        "compiler",
+        "runtime_sources",
+        "objects",
+        "ok",
+        "first_status"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_module_build_flags",
+      "variable": "result",
+      "kind": "ModuleBuildFlags",
+      "field": "ok",
+      "old_expression": "true",
+      "retained_fields": [
+        "compile_flags",
+        "link_flags",
+        "compiler",
+        "runtime_sources",
+        "objects",
+        "first_status"
+      ]
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "function": "collect_module_build_flags",
+      "variable": "result",
+      "kind": "ModuleBuildFlags",
+      "field": "first_status",
+      "old_expression": "0",
+      "retained_fields": [
+        "compile_flags",
+        "link_flags",
+        "compiler",
+        "runtime_sources",
+        "objects",
+        "ok"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "fsr_add",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "status",
+      "old_expression": "5",
+      "retained_fields": [
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "work",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "fsr_add",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "status",
+      "old_expression": "3",
+      "retained_fields": [
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "work",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "fsr_add",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "work",
+      "old_expression": "(+ result.work (* 8 (* (+ (+ qualifier_size name_size) 1) (+ (+ qualifier_size name_size) 1))))",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "fsr_add",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "status",
+      "old_expression": "3",
+      "retained_fields": [
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "work",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "fsr_add",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "work",
+      "old_expression": "(+ result.work 16384)",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "fsr_add",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "status",
+      "old_expression": "3",
+      "retained_fields": [
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "work",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "fsr_add",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "status",
+      "old_expression": "2",
+      "retained_fields": [
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "work",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "fsr_add",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "status",
+      "old_expression": "3",
+      "retained_fields": [
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "work",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "fsr_add",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "rows",
+      "old_expression": "(array_push result.rows (FileVisibility { origin: origin, qualifier: qualifier,\n        name: name, target_origin: actual_origin, target_name: actual_name, id: id, target: actual,\n        kind: kind, ordinal: ordinal, exported: exported, service: service }))",
+      "retained_fields": [
+        "status",
+        "origins",
+        "plan",
+        "snapshots",
+        "work",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "fsr_add",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "text_bytes",
+      "old_expression": "(+ result.text_bytes (+ key_size 258))",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "work"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "fsr_add",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "status",
+      "old_expression": "3",
+      "retained_fields": [
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "work",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "text_bytes",
+      "old_expression": "(+ result.text_bytes (+ source_size 1))",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "work"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "work",
+      "old_expression": "(+ result.work (* 4 (* scan_width scan_width)))",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "work",
+      "old_expression": "(+ result.work (+ (* result.text_bytes 8) (* (+ (* count count) (* edge_count count)) 8192)))",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "status",
+      "old_expression": "0",
+      "retained_fields": [
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "work",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "text_bytes",
+      "old_expression": "0",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "work"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "origins",
+      "old_expression": "(array_push result.origins (FileParsedOrigin { path: path, source: (at sources source_index), parsed: parsed }))",
+      "retained_fields": [
+        "status",
+        "rows",
+        "plan",
+        "snapshots",
+        "work",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "work",
+      "old_expression": "(+ result.work 8192)",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "work",
+      "old_expression": "(+ result.work 16384)",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "work",
+      "old_expression": "(+ result.work 16384)",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "work",
+      "old_expression": "(+ result.work (* 4 (* width width)))",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "work",
+      "old_expression": "(+ result.work 16384)",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "work",
+      "old_expression": "(+ result.work 8192)",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "row",
+      "kind": "FileVisibility",
+      "field": "target",
+      "old_expression": "candidate.id",
+      "retained_fields": [
+        "origin",
+        "qualifier",
+        "name",
+        "target_origin",
+        "target_name",
+        "id",
+        "kind",
+        "ordinal",
+        "exported",
+        "service"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "snapshots",
+      "old_expression": "(array_push result.snapshots (FileSourceSnapshot { module_path: q.module_id.data,\n            original: original_document, canonical: canonical_document, generated: generated_source, catalog: catalog }))",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "plan",
+        "work",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "plan",
+      "old_expression": "(file_source_plan requests aliases ordinary)",
+      "retained_fields": [
+        "status",
+        "origins",
+        "rows",
+        "snapshots",
+        "work",
+        "text_bytes"
+      ]
+    },
+    {
+      "path": "src_nano/compiler/file_source_resolution.nano",
+      "function": "file_resolution_prepare",
+      "variable": "result",
+      "kind": "FileResolution",
+      "field": "status",
+      "old_expression": "5",
+      "retained_fields": [
+        "origins",
+        "rows",
+        "plan",
+        "snapshots",
+        "work",
+        "text_bytes"
+      ]
+    }
+  ],
+  "canonical_field_inventory": {
+    "ASTImport": [
+      "node_type",
+      "line",
+      "column",
+      "module_path",
+      "module_name",
+      "is_unsafe",
+      "is_selective",
+      "is_wildcard",
+      "is_pub_use",
+      "import_symbols",
+      "import_aliases",
+      "import_symbol_count"
+    ],
+    "CollectResult": [
+      "visited",
+      "visited_set",
+      "order",
+      "sources",
+      "parsed",
+      "ok",
+      "lines_scanned",
+      "input_bytes",
+      "edges"
+    ],
+    "NativeProviderSet": [
+      "rows",
+      "ok"
+    ],
+    "ModuleBuildFlags": [
+      "compile_flags",
+      "link_flags",
+      "compiler",
+      "runtime_sources",
+      "objects",
+      "ok",
+      "first_status"
+    ],
+    "FileResolution": [
+      "status",
+      "origins",
+      "rows",
+      "plan",
+      "snapshots",
+      "work",
+      "text_bytes"
+    ],
+    "FileVisibility": [
+      "origin",
+      "qualifier",
+      "name",
+      "target_origin",
+      "target_name",
+      "id",
+      "target",
+      "kind",
+      "ordinal",
+      "exported",
+      "service"
+    ]
+  },
+  "update_counts": {
+    "ASTImport": 1,
+    "CollectResult": 17,
+    "NativeProviderSet": 4,
+    "ModuleBuildFlags": 8,
+    "FileResolution": 26,
+    "FileVisibility": 1
+  },
+  "static_checks": [
+    "Every reconstruction retains each other canonical field exactly once",
+    "ASTImport field names checked against primary schema",
+    "Other fields checked against actual owning Nano record declarations",
+    "No remaining direct record field updates in the three affected source files"
+  ]
+}

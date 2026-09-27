@@ -1,0 +1,30 @@
+{
+  "owned": {
+    "3742974": {
+      "parent": 3742819,
+      "group": 3742974,
+      "started": "Mon Sep 21 21:13:24 2026",
+      "command": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14 -m unittest -f -v tests.test_extern_declaration_owners"
+    },
+    "3742976": {
+      "parent": 3742974,
+      "group": 3742976,
+      "started": "Mon Sep 21 21:13:24 2026",
+      "command": "[gcc] <defunct>"
+    },
+    "3742977": {
+      "parent": 3742976,
+      "group": 3742976,
+      "started": "Mon Sep 21 21:13:24 2026",
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -D _GNU_SOURCE /tmp/nanolang-native-sdk-5daac-linux-source/tests/extern_declaration_owners.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nanolang-native-sdk-5daac-linux-extern/nano-extern-owners-jdufks8y/extern-owners- -dumpbase extern_declaration_owners.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -O3 -Wall -Wextra -Werror -std=c99 -ftree-vectorize -fPIC -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/nanolang-native-sdk-5daac-linux-extern/tmp/ccbse3J9.s"
+    },
+    "3743018": {
+      "parent": 3742976,
+      "group": 3742976,
+      "started": "Mon Sep 21 21:13:28 2026",
+      "command": "as -I src --gdwarf-5 -EL -mabi=lp64 -o /tmp/nanolang-native-sdk-5daac-linux-extern/tmp/ccsVEARK.o /tmp/nanolang-native-sdk-5daac-linux-extern/tmp/ccbse3J9.s"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

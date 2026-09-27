@@ -1,0 +1,2127 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+OK
+.I verified fresh ASan/UBSan translator and shape objects.
+I verified fresh ASan/UBSan translator and shape objects.
+.I did not find ASan and UBSan instrumentation in nvm2c.o
+I did not find ASan and UBSan instrumentation in nvm2c.o
+I did not find ASan and UBSan instrumentation in nvm2c.o
+.
+----------------------------------------------------------------------
+Ran 3 tests in 0.009s
+
+OK
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -Isrc/nanoisa -o obj/test_nvm2c_shape \
+		tests/nanoisa/test_nvm2c_shape.c src/nanoisa/nvm2c_shape.c
+Shape constraints: 1614 passed, 0 failed
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+Running nvm2c structured-C tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -Isrc/nanoisa -Imodules/nanoisa -o tests/nanoisa/test_nvm2c \
+		tests/nanoisa/test_nvm2c.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_string at generated C line 649.
+I stopped at a native invariant in nvalue_require_bool at generated C line 630.
+I stopped at a native invariant in nvalue_require_bool at generated C line 630.
+I stopped at a native invariant in nvalue_require_string at generated C line 594.
+I stopped at a native invariant in nvalue_require_string at generated C line 594.
+I stopped at a native invariant in nvalue_require_string at generated C line 594.
+I stopped at a native invariant in nvalue_require_string at generated C line 594.
+I stopped at a native invariant in nvalue_require_string at generated C line 594.
+I stopped at a native invariant in nvalue_require_string at generated C line 594.
+I stopped at a native invariant in nvalue_require_int at generated C line 627.
+I stopped at a native invariant in nvalue_require_int at generated C line 627.
+I stopped at a native invariant in nvalue_require_int at generated C line 627.
+I stopped at a native invariant in nvalue_require_int at generated C line 627.
+I stopped at a native invariant in nvalue_require_int at generated C line 627.
+I stopped at a native invariant in nvalue_require_int at generated C line 627.
+I stopped at a native invariant in nl___init__ at generated C line 105.
+I stopped at a native invariant in nl_main at generated C line 933.
+I stopped at a native invariant in nl_main at generated C line 933.
+I stopped at a native invariant in nl_main at generated C line 933.
+I stopped at a native invariant in nl_main at generated C line 957.
+I stopped at a native invariant in nl_main at generated C line 957.
+I stopped at a native invariant in nl_main at generated C line 957.
+I stopped at a native invariant in nl_main at generated C line 983.
+I stopped at a native invariant in nl_main at generated C line 983.
+I stopped at a native invariant in nl_main at generated C line 983.
+I stopped at a native invariant in nl_main at generated C line 965.
+I stopped at a native invariant in nvalue_require_int at generated C line 578.
+I stopped at a native invariant in nl_main at generated C line 862.
+I stopped at a native invariant in nl_main at generated C line 862.
+I stopped at a native invariant in nl_main at generated C line 862.
+I stopped at a native invariant in nl_main at generated C line 922.
+/tmp/nvm2cJMyFOw/out.c:946:5: error: use of undeclared identifier 'nglobal_record_0'
+  946 |     nglobal_record_0 = r[2];
+      |     ^~~~~~~~~~~~~~~~
+/tmp/nvm2cJMyFOw/out.c:947:46: error: use of undeclared identifier 'nglobal_record_0'
+  947 |     nglobal[0] = (nmap_value){8, 0, (char *)&nglobal_record_0};
+      |                                              ^~~~~~~~~~~~~~~~
+2 errors generated.
+---- generated C (cc failed) ----
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
+#ifndef _DARWIN_C_SOURCE
+#define _DARWIN_C_SOURCE 1
+#endif
+/* Generated by nvm2c from NanoISA. Not a VM wrapper. */
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+/* I preserve invariant termination while naming its generated source. */
+#define NVM2C_ABORT() do { fprintf(stderr, "I stopped at a native invariant in %s at generated C line %d.\n", __func__, __LINE__); abort(); } while (0)
+/* I reconstruct wrapped bits without an out-of-range signed cast. */
+static inline int64_t ni64_from_bits(uint64_t bits) {
+    return bits <= INT64_MAX ? (int64_t)bits : -INT64_C(1) - (int64_t)(UINT64_MAX - bits);
+}
+#include <string.h>
+/* I retain binary64 bits in my existing 64-bit aggregate cells. */
+static inline double nrec_f64(int64_t cell) {
+    double value; memcpy(&value, &cell, sizeof value); return value;
+}
+#include <stdio.h>
+static inline int64_t nf64_to_i64(double value) {
+    if (!(value >= -0x1p63 && value < 0x1p63)) {
+        fputs("I cannot convert this float to int: I require a finite value in [-2^63, 2^63).\n", stderr);
+        exit(EXIT_FAILURE);
+    }
+    return (int64_t)value;
+}
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct nmap_s *nmap_t;
+typedef struct { int64_t *data; size_t len; struct narr_owner *owner; } narr_s;
+typedef narr_s *narr_t;
+typedef struct { const char **data; size_t len; struct nsarr_owner *owner; } nsarr_s;
+typedef nsarr_s *nsarr_t;
+typedef struct naarr_s naarr_s;
+typedef naarr_s *naarr_t;
+static size_t nagg_live_bytes, nagg_peak_bytes, nagg_allocation_debt;
+static size_t nagg_collection_budget = 65536;
+static inline void nagg_add(size_t bytes) {
+    if (bytes > SIZE_MAX - nagg_live_bytes || bytes > SIZE_MAX - nagg_allocation_debt) NVM2C_ABORT();
+    nagg_live_bytes += bytes; nagg_allocation_debt += bytes;
+    if (nagg_live_bytes > nagg_peak_bytes) nagg_peak_bytes = nagg_live_bytes;
+}
+static inline void nagg_drop(size_t bytes) {
+    if (bytes > nagg_live_bytes) NVM2C_ABORT();
+    nagg_live_bytes -= bytes;
+}
+/* I canonicalize only scalar binary arithmetic results, never transported bits. */
+#ifndef NANOLANG_BINARY64_ARITHMETIC_H
+#define NANOLANG_BINARY64_ARITHMETIC_H
+#include <float.h>
+#include <stdint.h>
+#include <string.h>
+
+#if defined(__FAST_MATH__) || (defined(__FINITE_MATH_ONLY__) && __FINITE_MATH_ONLY__)
+#error "I require ordinary IEEE arithmetic without fast-math."
+#endif
+#if FLT_RADIX != 2 || DBL_MANT_DIG != 53 || DBL_MAX_EXP != 1024 || DBL_MIN_EXP != -1021
+#error "I require binary64 double arithmetic."
+#endif
+#if !defined(FLT_EVAL_METHOD) || FLT_EVAL_METHOD != 0
+#error "I require operations evaluated in their binary64 type."
+#endif
+/* I retain a compile-time storage check in both C99 and C11 output. */
+typedef char nano_rt_binary64_storage_guard[
+    sizeof(double) == 8 && sizeof(uint64_t) == 8 ? 1 : -1];
+
+/* I inspect a rounded result with integer operations, not another FP operation. */
+static inline double nano_rt_f64_arithmetic_result(double value) {
+    uint64_t bits;
+    memcpy(&bits, &value, sizeof(bits));
+    if ((bits & UINT64_C(0x7ff0000000000000)) == UINT64_C(0x7ff0000000000000) &&
+        (bits & UINT64_C(0x000fffffffffffff)) != 0) {
+        bits = UINT64_C(0x7ff8000000000000);
+        memcpy(&value, &bits, sizeof(value));
+    }
+    return value;
+}
+
+/* Each volatile store/load is a binary64 rounding and noncontraction boundary. */
+static inline double nano_rt_f64_add(double a, double b) {
+    volatile double rounded = a + b;
+    return nano_rt_f64_arithmetic_result(rounded);
+}
+static inline double nano_rt_f64_sub(double a, double b) {
+    volatile double rounded = a - b;
+    return nano_rt_f64_arithmetic_result(rounded);
+}
+static inline double nano_rt_f64_mul(double a, double b) {
+    volatile double rounded = a * b;
+    return nano_rt_f64_arithmetic_result(rounded);
+}
+static inline double nano_rt_f64_div(double a, double b) {
+    uint64_t divisor;
+    memcpy(&divisor, &b, sizeof(divisor));
+    /* Either signed zero takes precedence even over a signaling NaN numerator. */
+    if ((divisor & UINT64_C(0x7fffffffffffffff)) == 0) return 0.0;
+    volatile double rounded = a / b;
+    return nano_rt_f64_arithmetic_result(rounded);
+}
+#endif
+#ifndef NANOISA_BINARY64_PARSE_H
+#define NANOISA_BINARY64_PARSE_H
+#include <stdint.h>
+/* I parse closed C-locale binary64 values with fixed-capacity integer math.
+ * My input is a valid byte view; NUL terminates its numeric prefix. */
+typedef struct {
+    uint32_t limb[128];
+    unsigned used;
+} NbpBig;
+static inline void nbp_zero(NbpBig *a) { *a = (NbpBig){{0}, 0}; }
+static inline void nbp_normalize(NbpBig *a) {
+    while (a->used && !a->limb[a->used - 1])
+        a->used--;
+}
+static inline int nbp_multiply(NbpBig *a, unsigned base, unsigned add) {
+    uint64_t carry = add;
+    for (unsigned i = 0; i < a->used; i++) {
+        uint64_t value = (uint64_t)a->limb[i] * base + carry;
+        a->limb[i] = (uint32_t)value;
+        carry = value >> 32;
+    }
+    if (carry) {
+        if (a->used == 128)
+            return 0;
+        a->limb[a->used++] = (uint32_t)carry;
+    }
+    return 1;
+}
+static inline unsigned nbp_bits(const NbpBig *a) {
+    if (!a->used)
+        return 0;
+    uint32_t top = a->limb[a->used - 1];
+    unsigned n = 0;
+    while (top) {
+        top >>= 1;
+        n++;
+    }
+    return (a->used - 1) * 32 + n;
+}
+static inline int nbp_shift(NbpBig *a, unsigned shift) {
+    if (!a->used || !shift)
+        return 1;
+    unsigned words = shift / 32, bits = shift % 32;
+    unsigned carry = bits && (a->limb[a->used - 1] >> (32 - bits));
+    if (words >= 128 || a->used + words + carry > 128)
+        return 0;
+    NbpBig result;
+    nbp_zero(&result);
+    result.used = a->used + words + carry;
+    for (unsigned i = 0; i < a->used; i++) {
+        uint64_t value = (uint64_t)a->limb[i] << bits;
+        result.limb[i + words] |= (uint32_t)value;
+        if (value >> 32)
+            result.limb[i + words + 1] |= (uint32_t)(value >> 32);
+    }
+    *a = result;
+    return 1;
+}
+static inline int nbp_compare(const NbpBig *a, const NbpBig *b) {
+    if (a->used != b->used)
+        return a->used > b->used ? 1 : -1;
+    for (unsigned i = a->used; i > 0; i--)
+        if (a->limb[i - 1] != b->limb[i - 1])
+            return a->limb[i - 1] > b->limb[i - 1] ? 1 : -1;
+    return 0;
+}
+static inline void nbp_subtract(NbpBig *a, const NbpBig *b) {
+    uint64_t borrow = 0;
+    for (unsigned i = 0; i < a->used; i++) {
+        uint64_t sub = (i < b->used ? b->limb[i] : 0) + borrow, value = a->limb[i];
+        a->limb[i] = (uint32_t)(value - sub);
+        borrow = value < sub;
+    }
+    nbp_normalize(a);
+}
+static inline int nbp_rational(NbpBig numerator, NbpBig denominator, int sticky, uint64_t *out) {
+    int exponent = (int)nbp_bits(&numerator) - (int)nbp_bits(&denominator);
+    NbpBig probe = exponent < 0 ? numerator : denominator;
+    if (!nbp_shift(&probe, (unsigned)(exponent < 0 ? -exponent : exponent)))
+        return 0;
+    if ((exponent < 0 ? nbp_compare(&probe, &denominator) : nbp_compare(&numerator, &probe)) < 0)
+        exponent--;
+    if (exponent > 1023) {
+        *out = UINT64_C(0x7ff0000000000000);
+        return 1;
+    }
+    int normal = exponent >= -1022, shift = normal ? 52 - exponent : 1074;
+    if (!nbp_shift(shift >= 0 ? &numerator : &denominator, (unsigned)(shift >= 0 ? shift : -shift)))
+        return 0;
+    int bit = (int)nbp_bits(&numerator) - (int)nbp_bits(&denominator);
+    if (bit >= 64)
+        return 0;
+    uint64_t quotient = 0;
+    for (; bit >= 0; bit--) {
+        probe = denominator;
+        if (!nbp_shift(&probe, (unsigned)bit))
+            return 0;
+        if (nbp_compare(&numerator, &probe) >= 0) {
+            nbp_subtract(&numerator, &probe);
+            quotient |= UINT64_C(1) << bit;
+        }
+    }
+    if (!nbp_shift(&numerator, 1))
+        return 0;
+    int half = nbp_compare(&numerator, &denominator);
+    if (half > 0 || (half == 0 && (sticky || (quotient & 1))))
+        quotient++;
+    if (normal) {
+        if (quotient == (UINT64_C(1) << 53)) {
+            quotient >>= 1;
+            exponent++;
+        }
+        if (exponent > 1023) {
+            *out = UINT64_C(0x7ff0000000000000);
+            return 1;
+        }
+        if (quotient < (UINT64_C(1) << 52) || quotient >= (UINT64_C(1) << 53))
+            return 0;
+        *out = ((uint64_t)(exponent + 1023) << 52) | (quotient - (UINT64_C(1) << 52));
+    } else {
+        if (quotient > (UINT64_C(1) << 52))
+            return 0;
+        *out = quotient;
+    }
+    return 1;
+}
+static inline unsigned char nbp_lower(unsigned char c) {
+    return c >= 'A' && c <= 'Z' ? (unsigned char)(c + 32) : c;
+}
+static inline int nbp_digit(unsigned char c) {
+    if (c >= '0' && c <= '9')
+        return c - '0';
+    c = nbp_lower(c);
+    return c >= 'a' && c <= 'f' ? c - 'a' + 10 : -1;
+}
+static inline int nbp_word(const unsigned char *text, uint32_t length, uint32_t start,
+                           const char *word, unsigned count) {
+    if (start > length || length - start < count)
+        return 0;
+    for (unsigned i = 0; i < count; i++)
+        if (nbp_lower(text[start + i]) != (unsigned char)word[i])
+            return 0;
+    return 1;
+}
+static inline uint64_t nbp_nan_payload(const unsigned char *text, uint32_t length, uint32_t start,
+                                       uint32_t *consumed) {
+    if (start >= length || text[start] != '(')
+        return 0;
+    uint32_t end = start + 1;
+    while (end < length) {
+        unsigned char c = nbp_lower(text[end]);
+        if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_'))
+            break;
+        end++;
+    }
+    if (end == length || text[end] != ')')
+        return 0;
+    *consumed = end + 1;
+    uint32_t i = start + 1;
+    unsigned base = 10;
+    if (end - i >= 2 && text[i] == '0' && nbp_lower(text[i + 1]) == 'x') {
+        base = 16;
+        i += 2;
+    } else if (end - i > 1 && text[i] == '0')
+        base = 8;
+    if (i == end)
+        return 0;
+    uint64_t value = 0;
+    for (; i < end; i++) {
+        int digit = nbp_digit(text[i]);
+        if (digit < 0 || (unsigned)digit >= base)
+            return 0;
+        if (value > (UINT64_MAX - (unsigned)digit) / base)
+            value = UINT64_MAX;
+        else
+            value = value * base + (unsigned)digit;
+    }
+    return value;
+}
+static inline int nbp_parse_impl(const unsigned char *text, uint32_t length, uint64_t *out,
+                                 uint32_t *consumed) {
+    if (!out || (!text && length))
+        return 0;
+    *consumed = 0;
+    uint32_t i = 0;
+    while (i < length && (text[i] == ' ' || text[i] == '\t' || text[i] == '\n' || text[i] == '\r' ||
+                          text[i] == '\v' || text[i] == '\f'))
+        i++;
+    uint64_t sign = 0;
+    if (i < length && (text[i] == '-' || text[i] == '+')) {
+        if (text[i] == '-')
+            sign = UINT64_C(1) << 63;
+        i++;
+    }
+    if (nbp_word(text, length, i, "inf", 3)) {
+        *consumed = i + (nbp_word(text, length, i, "infinity", 8) ? 8 : 3);
+        *out = sign | UINT64_C(0x7ff0000000000000);
+        return 1;
+    }
+    if (nbp_word(text, length, i, "nan", 3)) {
+        *consumed = i + 3;
+        *out = sign | UINT64_C(0x7ff8000000000000) |
+               (nbp_nan_payload(text, length, i + 3, consumed) & UINT64_C(0xfffffffffffff));
+        return 1;
+    }
+    unsigned radix = 10, cap = 800;
+    if (length - i >= 3 && text[i] == '0' && nbp_lower(text[i + 1]) == 'x' &&
+        (nbp_digit(text[i + 2]) >= 0 ||
+         (length - i >= 4 && text[i + 2] == '.' && nbp_digit(text[i + 3]) >= 0))) {
+        radix = 16;
+        cap = 32;
+        i += 2;
+    }
+    NbpBig numerator;
+    nbp_zero(&numerator);
+    unsigned kept = 0;
+    int point = 0, saw_digit = 0, started = 0, sticky = 0;
+    int64_t fractional = 0, omitted = 0;
+    while (i < length) {
+        int digit = nbp_digit(text[i]);
+        if (digit >= 0 && (unsigned)digit < radix) {
+            saw_digit = 1;
+            if (point)
+                fractional++;
+            if (digit)
+                started = 1;
+            if (started) {
+                if (kept < cap) {
+                    if (!nbp_multiply(&numerator, radix, (unsigned)digit))
+                        return 0;
+                    kept++;
+                } else {
+                    omitted++;
+                    sticky |= digit != 0;
+                }
+            }
+            i++;
+            continue;
+        }
+        if (text[i] == '.' && !point) {
+            point = 1;
+            i++;
+            continue;
+        }
+        break;
+    }
+    if (!saw_digit) {
+        *out = 0;
+        return 1;
+    }
+    int64_t exponent = 0;
+    if (i < length && nbp_lower(text[i]) == (radix == 16 ? 'p' : 'e')) {
+        uint32_t next = i + 1;
+        int minus = 0;
+        if (next < length && (text[next] == '+' || text[next] == '-')) {
+            minus = text[next] == '-';
+            next++;
+        }
+        if (next < length && text[next] >= '0' && text[next] <= '9') {
+            const int64_t cap_exponent = INT64_C(1) << 40;
+            for (; next < length && text[next] >= '0' && text[next] <= '9'; next++) {
+                if (exponent < cap_exponent) {
+                    exponent = exponent * 10 + (text[next] - '0');
+                    if (exponent > cap_exponent)
+                        exponent = cap_exponent;
+                }
+            }
+            i = next;
+            if (minus)
+                exponent = -exponent;
+        }
+    }
+    *consumed = i;
+    if (!started) {
+        *out = sign;
+        return 1;
+    }
+    int64_t scale = exponent + (omitted - fractional) * (radix == 16 ? 4 : 1);
+    int64_t order = (radix == 16 ? (int64_t)nbp_bits(&numerator) - 1 : (int64_t)kept - 1) + scale;
+    if (order > (radix == 16 ? 1023 : 308)) {
+        *out = sign | UINT64_C(0x7ff0000000000000);
+        return 1;
+    }
+    if (order < (radix == 16 ? -1075 : -324)) {
+        *out = sign;
+        return 1;
+    }
+    NbpBig denominator;
+    nbp_zero(&denominator);
+    denominator.used = 1;
+    denominator.limb[0] = 1;
+    NbpBig *scaled = scale < 0 ? &denominator : &numerator;
+    unsigned power = (unsigned)(scale < 0 ? -scale : scale);
+    if (radix == 16) {
+        if (!nbp_shift(scaled, power))
+            return 0;
+    } else
+        for (unsigned step = 0; step < power; step++)
+            if (!nbp_multiply(scaled, 10, 0))
+                return 0;
+    uint64_t result;
+    if (!nbp_rational(numerator, denominator, sticky, &result))
+        return 0;
+    *out = sign | result;
+    return 1;
+}
+/* I publish both outputs only after checked parsing succeeds. An input with
+ * no numeric prefix has endpoint zero; optional endpoints preserve values. */
+static inline int nbp_parse_end(const unsigned char *text, uint32_t length, uint64_t *out,
+                                uint32_t *consumed) {
+    if (!out || (!text && length))
+        return 0;
+    uint64_t bits;
+    uint32_t end;
+    if (!nbp_parse_impl(text, length, &bits, &end))
+        return 0;
+    *out = bits;
+    if (consumed)
+        *consumed = end;
+    return 1;
+}
+static inline int nbp_parse(const unsigned char *text, uint32_t length, uint64_t *out) {
+    return nbp_parse_end(text, length, out, 0);
+}
+#endif
+static inline double nparse_binary64(const char *text) {
+    size_t length = text ? strlen(text) : 0; uint64_t bits = 0;
+    if (length > UINT32_MAX || !nbp_parse((const unsigned char *)text, (uint32_t)length, &bits)) NVM2C_ABORT();
+    double result; memcpy(&result, &bits, sizeof result); return result;
+}
+/* I count retained owned map storage, including API copies until release.
+ * Bucket growth charges net capacity; temporary old/new overlap and allocator
+ * overhead are not counted, so this is neither instantaneous allocation nor RSS. */
+static size_t nmap_live_bytes, nmap_peak_bytes, nmap_allocation_debt;
+static void nmap_bytes_add(size_t bytes) {
+    if (bytes > SIZE_MAX - nmap_live_bytes || bytes > SIZE_MAX - nmap_allocation_debt) NVM2C_ABORT();
+    nmap_live_bytes += bytes; nmap_allocation_debt += bytes;
+    if (nmap_live_bytes > nmap_peak_bytes) nmap_peak_bytes = nmap_live_bytes;
+}
+static void nmap_bytes_drop(size_t bytes) {
+    if (bytes > nmap_live_bytes) NVM2C_ABORT();
+    nmap_live_bytes -= bytes;
+}
+static size_t nmap_text_bytes(const char *text) {
+    if (!text) NVM2C_ABORT();
+    size_t n = strlen(text); if (n == SIZE_MAX) NVM2C_ABORT(); return n + 1;
+}
+static void nmap_release_text(char *text) {
+    nmap_bytes_drop(nmap_text_bytes(text)); free(text);
+}
+typedef struct { uint8_t kind; int64_t integer; char *text; } nmap_value;
+typedef struct nmap_entry { uint64_t hash; char *key; nmap_value value; struct nmap_entry *next; } nmap_entry;
+typedef struct nmap_s { nmap_entry **buckets; size_t capacity, count; uint8_t value_kind; } nmap_s;
+typedef nmap_s *nmap_t;
+static char *nmap_copy_text(const char *text) {
+    if (!text) NVM2C_ABORT();
+    size_t n = strlen(text); if (n == SIZE_MAX) NVM2C_ABORT();
+    char *copy = malloc(n + 1); if (!copy) NVM2C_ABORT();
+    nmap_bytes_add(n + 1); memcpy(copy, text, n + 1); return copy;
+}
+static nmap_value nmap_copy_value(nmap_value value) {
+    if (value.kind == 5) value.text = nmap_copy_text(value.text);
+    else if (value.kind == 1) value.text = NULL;
+    else NVM2C_ABORT();
+    return value;
+}
+static void nmap_release_value(nmap_value value) { if (value.kind == 5) nmap_release_text(value.text); }
+static uint64_t nmap_hash(const char *key) {
+    if (!key) NVM2C_ABORT();
+    uint64_t h = UINT64_C(14695981039346656037);
+    for (const unsigned char *p = (const unsigned char *)key; *p; ++p) {
+        h ^= *p; h *= UINT64_C(1099511628211);
+    } return h;
+}
+static nmap_t nmap_new(uint8_t value_kind) {
+    if (value_kind != 1 && value_kind != 5) NVM2C_ABORT();
+    nmap_t map = calloc(1, sizeof *map); if (!map) NVM2C_ABORT();
+    map->capacity = 16; map->value_kind = value_kind;
+    map->buckets = calloc(map->capacity, sizeof *map->buckets);
+    if (!map->buckets) { free(map); NVM2C_ABORT(); }
+    nmap_bytes_add(sizeof *map + map->capacity * sizeof *map->buckets);
+    return map;
+}
+static nmap_entry *nmap_find(nmap_t map, const char *key, uint64_t hash) {
+    if (!map) NVM2C_ABORT();
+    for (nmap_entry *entry = map->buckets[hash & (map->capacity - 1)]; entry; entry = entry->next)
+        if (entry->hash == hash && strcmp(entry->key, key) == 0) return entry;
+    return NULL;
+}
+static void nmap_grow(nmap_t map) {
+    if (map->capacity > SIZE_MAX / 2 / sizeof *map->buckets) NVM2C_ABORT();
+    size_t capacity = map->capacity * 2;
+    nmap_entry **buckets = calloc(capacity, sizeof *buckets); if (!buckets) NVM2C_ABORT();
+    for (size_t i = 0; i < map->capacity; ++i) {
+        nmap_entry *entry = map->buckets[i];
+        while (entry) { nmap_entry *next = entry->next;
+            size_t at = entry->hash & (capacity - 1);
+            entry->next = buckets[at]; buckets[at] = entry; entry = next; }
+    }
+    nmap_bytes_add((capacity - map->capacity) * sizeof *buckets);
+    free(map->buckets); map->buckets = buckets; map->capacity = capacity;
+}
+static nmap_t nmap_set(nmap_t map, const char *key, nmap_value value) {
+    if (!map || value.kind != map->value_kind) NVM2C_ABORT();
+    uint64_t hash = nmap_hash(key); nmap_entry *entry = nmap_find(map, key, hash);
+    nmap_value owned = nmap_copy_value(value);
+    if (entry) { nmap_release_value(entry->value); entry->value = owned; return map; }
+    char *owned_key = nmap_copy_text(key);
+    entry = malloc(sizeof *entry); if (!entry) NVM2C_ABORT();
+    nmap_bytes_add(sizeof *entry);
+    if (map->count >= map->capacity / 2) nmap_grow(map);
+    size_t at = hash & (map->capacity - 1);
+    *entry = (nmap_entry){hash, owned_key, owned, map->buckets[at]};
+    map->buckets[at] = entry; ++map->count; return map;
+}
+static int nmap_has(nmap_t map, const char *key) { return nmap_find(map, key, nmap_hash(key)) != NULL; }
+static nmap_value nmap_get(nmap_t map, const char *key) {
+    nmap_entry *entry = nmap_find(map, key, nmap_hash(key));
+    return entry ? nmap_copy_value(entry->value) : (nmap_value){0};
+}
+static size_t nmap_len(nmap_t map) { if (!map) NVM2C_ABORT(); return map->count; }
+static nmap_t nmap_delete(nmap_t map, const char *key) {
+    if (!map) NVM2C_ABORT();
+    uint64_t hash = nmap_hash(key);
+    nmap_entry **link = &map->buckets[hash & (map->capacity - 1)];
+    while (*link) { nmap_entry *entry = *link;
+        if (entry->hash == hash && strcmp(entry->key, key) == 0) {
+            *link = entry->next; nmap_release_text(entry->key); nmap_release_value(entry->value);
+            nmap_bytes_drop(sizeof *entry); free(entry); --map->count; break; }
+        link = &entry->next;
+    } return map;
+}
+static void nmap_destroy(nmap_t map) {
+    if (!map) return;
+    for (size_t i = 0; i < map->capacity; ++i) {
+        nmap_entry *entry = map->buckets[i];
+        while (entry) { nmap_entry *next = entry->next; nmap_release_text(entry->key);
+            nmap_release_value(entry->value); nmap_bytes_drop(sizeof *entry); free(entry); entry = next; }
+    } nmap_bytes_drop(sizeof *map + map->capacity * sizeof *map->buckets);
+    free(map->buckets); free(map);
+}
+struct naarr_s { nmap_value *data; size_t len; struct naarr_owner *owner; };
+static size_t nmap_collection_budget = 65536;
+typedef struct nmap_owned { nmap_t map; struct nmap_owned *next; unsigned marked; } nmap_owned;
+static nmap_owned *nmap_owned_head;
+typedef struct nvalue_owned { nmap_value value; struct nvalue_owned *next; unsigned marked; } nvalue_owned;
+static nvalue_owned *nvalue_owned_head;
+static size_t nmap_owned_live, nmap_owned_peak;
+static nmap_value nmap_owned_get(nmap_t map, const char *key) {
+    nmap_value value = nmap_get(map, key);
+    if (value.kind == 5) { nvalue_owned *owner = malloc(sizeof *owner);
+        if (!owner) { nmap_release_value(value); NVM2C_ABORT(); }
+        *owner = (nvalue_owned){value, nvalue_owned_head, 0}; nvalue_owned_head = owner;
+        nmap_bytes_add(sizeof *owner);
+        if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live; }
+    return value;
+}
+static inline nmap_value nvalue_from_float(double value) {
+    nmap_value result = {3, 0, NULL}; memcpy(&result.integer, &value, sizeof value); return result;
+}
+static inline double nvalue_require_float(nmap_value value) {
+    if (value.kind != 3) NVM2C_ABORT();
+    double result; memcpy(&result, &value.integer, sizeof result); return result;
+}
+static inline nmap_value nvalue_numeric(nmap_value a, nmap_value b, char op) {
+    if (op != '~' && a.kind == 9) a.kind = 1;
+    if (a.kind != 1 && a.kind != 3) NVM2C_ABORT();
+    if (op == '~') return a.kind == 3 ? nvalue_from_float(-nvalue_require_float(a)) : (nmap_value){1, ni64_from_bits(UINT64_C(0) - (uint64_t)a.integer), NULL};
+    if (b.kind == 9) b.kind = 1;
+    if (b.kind != 1 && b.kind != 3) NVM2C_ABORT();
+    if (a.kind == 1 && b.kind == 1) {
+        int64_t x = a.integer, y = b.integer, value;
+        if (op == '+') value = ni64_from_bits((uint64_t)x + (uint64_t)y);
+        else if (op == '-') value = ni64_from_bits((uint64_t)x - (uint64_t)y);
+        else if (op == '*') value = ni64_from_bits((uint64_t)x * (uint64_t)y);
+        else if (op == '/') value = y == 0 ? 0 : (x == INT64_MIN && y == -1) ? INT64_MIN : x / y;
+        else NVM2C_ABORT();
+        return (nmap_value){1, value, NULL};
+    }
+    double x = a.kind == 3 ? nvalue_require_float(a) : (double)a.integer;
+    double y = b.kind == 3 ? nvalue_require_float(b) : (double)b.integer;
+    if (op == '+') return nvalue_from_float(nano_rt_f64_add(x, y));
+    if (op == '-') return nvalue_from_float(nano_rt_f64_sub(x, y));
+    if (op == '*') return nvalue_from_float(nano_rt_f64_mul(x, y));
+    if (op == '/') return nvalue_from_float(nano_rt_f64_div(x, y));
+    NVM2C_ABORT();
+}
+static inline int64_t nvalue_require_int(nmap_value value) {
+    if (value.kind != 1) NVM2C_ABORT();
+    return value.integer;
+}
+static inline int64_t nvalue_require_bool(nmap_value value) {
+    if (value.kind != 4) NVM2C_ABORT();
+    return value.integer;
+}
+static inline const char *nvalue_require_string(nmap_value value) {
+    if (value.kind != 5) NVM2C_ABORT();
+    return value.text;
+}
+static inline nmap_t nvalue_require_map(nmap_value value) {
+    if (value.kind != 13 || !value.text) NVM2C_ABORT();
+    return (nmap_t)value.text;
+}
+static inline double nvalue_cast_float(nmap_value value) {
+    if (value.kind == 3) return nvalue_require_float(value);
+    if (value.kind == 1 || value.kind == 2) return (double)value.integer;
+    if (value.kind == 4) return value.integer ? 1.0 : 0.0;
+    if (value.kind == 5) return nparse_binary64(value.text);
+    return 0.0;
+}
+static inline uint8_t nvalue_cast_u8(nmap_value value) {
+    if (value.kind != 1 && value.kind != 2) NVM2C_ABORT();
+    return (uint8_t)value.integer;
+}
+static inline int64_t nvalue_cast_int(nmap_value value) {
+    if (value.kind == 3) return nf64_to_i64(nvalue_require_float(value));
+    return value.kind == 1 || value.kind == 2 || value.kind == 4 || value.kind == 9 ? value.integer : value.kind == 5 ? (int64_t)strtoll(value.text, NULL, 10) : 0;
+}
+static inline int nvalue_equal(nmap_value a, nmap_value b) {
+    if ((a.kind == 9 && b.kind == 1) || (a.kind == 1 && b.kind == 9)) return a.integer == b.integer;
+    if (a.kind == 1 && b.kind == 3) return (double)a.integer == nvalue_require_float(b);
+    if (a.kind == 3 && b.kind == 1) return nvalue_require_float(a) == (double)b.integer;
+    if (a.kind != b.kind) return 0;
+    if (a.kind == 8) NVM2C_ABORT();
+    if (a.kind == 7 || a.kind == 13) return a.text == b.text;
+    if (a.kind == 3) return nvalue_require_float(a) == nvalue_require_float(b);
+    if (a.kind == 0) return 1;
+    if (a.kind == 1 || a.kind == 2 || a.kind == 4 || a.kind == 9) return a.integer == b.integer;
+    if (a.text == b.text) return 1;
+    if (!a.text || !b.text) return 0;
+    return strcmp(a.text, b.text) == 0;
+}
+static inline int nvalue_compare(nmap_value a, nmap_value b) {
+    if ((a.kind == 9 && b.kind == 1) || (a.kind == 1 && b.kind == 9)) return (a.integer > b.integer) - (a.integer < b.integer);
+    if ((a.kind == 3 && (b.kind == 3 || b.kind == 1)) || (a.kind == 1 && b.kind == 3)) {
+        double x = a.kind == 3 ? nvalue_require_float(a) : (double)a.integer;
+        double y = b.kind == 3 ? nvalue_require_float(b) : (double)b.integer;
+        return (x > y) - (x < y);
+    }
+    if (a.kind != b.kind) return (int)a.kind - (int)b.kind;
+    if (a.kind == 1 || a.kind == 2 || a.kind == 4) return (a.integer > b.integer) - (a.integer < b.integer);
+    if (a.kind == 5) {
+        if (a.text == b.text) return 0;
+        if (!a.text) { return -1; } if (!b.text) { return 1; }
+        return strcmp(a.text, b.text);
+    }
+    return 0;
+}
+static nmap_t nmap_owned_new(uint8_t kind) {
+    nmap_t map = nmap_new(kind); nmap_owned *owner = malloc(sizeof *owner);
+    if (!owner) { nmap_destroy(map); NVM2C_ABORT(); }
+    *owner = (nmap_owned){map, nmap_owned_head, 0}; nmap_owned_head = owner;
+    nmap_bytes_add(sizeof *owner);
+    if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live;
+    return map;
+}
+static void nmap_release_owned(void) {
+    while (nvalue_owned_head) { nvalue_owned *owner = nvalue_owned_head;
+        nvalue_owned_head = owner->next; nmap_release_value(owner->value); nmap_bytes_drop(sizeof *owner); free(owner); --nmap_owned_live; }
+    while (nmap_owned_head) { nmap_owned *owner = nmap_owned_head;
+        nmap_owned_head = owner->next; nmap_destroy(owner->map); nmap_bytes_drop(sizeof *owner); free(owner); --nmap_owned_live; }
+}
+static nmap_value nglobal[1];
+typedef struct nrarr_s nrarr_s;
+typedef nrarr_s *nrarr_t;
+typedef struct nrec_s nrec_t;
+struct nrec_s { int64_t f[2]; const char *s[2]; narr_t a[2]; nsarr_t sa[2]; nrarr_t ra[2]; const nrec_t *rec[2]; uint8_t k[2], vk[2]; uint16_t n, tag; uint8_t kind; nmap_t m[2]; };
+struct nrarr_s { nrec_t *data; size_t len; struct nrarr_owner *owner; };
+
+typedef struct nrec_owned { nrec_t value; struct nrec_owned *next; } nrec_owned;
+static nrec_owned *nrec_owned_head;
+static inline const nrec_t *nrec_snapshot(nrec_t value) {
+    nrec_owned *node = malloc(sizeof *node);
+    if (!node) NVM2C_ABORT();
+    nagg_add(sizeof *node);
+    node->value = value; node->next = nrec_owned_head; nrec_owned_head = node;
+    return &node->value;
+}
+static void nrec_release_snapshots(void) {
+    while (nrec_owned_head) { nrec_owned *node = nrec_owned_head;
+        nrec_owned_head = node->next; nagg_drop(sizeof *node); free(node); }
+}
+typedef struct { uint8_t kind; const void *ptr; } nroot_ref;
+typedef struct { nroot_ref *items; size_t count, capacity; size_t *slots; size_t slot_count; } nroot_list;
+typedef struct nroot_frame { nroot_list live; struct nroot_frame *prev; } nroot_frame;
+static nroot_frame *nroot_head;
+static size_t nroot_hash(uint8_t kind, const void *ptr) {
+    uint64_t value = (uint64_t)(uintptr_t)ptr ^ kind;
+    value = (value ^ (value >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
+    value = (value ^ (value >> 27)) * UINT64_C(0x94d049bb133111eb);
+    return (size_t)(value ^ (value >> 31));
+}
+static size_t nroot_slot(const nroot_list *list, uint8_t kind, const void *ptr) {
+    size_t slot = nroot_hash(kind, ptr) & (list->slot_count - 1);
+    while (list->slots[slot]) {
+        size_t index = list->slots[slot] - 1;
+        if (list->items[index].kind == kind && list->items[index].ptr == ptr) break;
+        slot = (slot + 1) & (list->slot_count - 1);
+    }
+    return slot;
+}
+static int nroot_contains(const nroot_list *list, uint8_t kind, const void *ptr) {
+    return list->slot_count && list->slots[nroot_slot(list, kind, ptr)] != 0;
+}
+static inline void nroot_reset(nroot_list *list) {
+    list->count = 0;
+    if (list->slot_count) memset(list->slots, 0, list->slot_count * sizeof *list->slots);
+}
+static void nroot_destroy(nroot_list *list) {
+    free(list->items); free(list->slots); *list = (nroot_list){0};
+}
+static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+    if (!ptr || kind == 0 || kind == 2 || kind == 9 || kind == 11) return;
+    if (nroot_contains(list, kind, ptr)) return;
+    if (list->count >= list->slot_count / 2) {
+        if (list->slot_count > SIZE_MAX / 2 / sizeof *list->slots) NVM2C_ABORT();
+        size_t count = list->slot_count ? list->slot_count * 2 : 32;
+        size_t *slots = calloc(count, sizeof *slots);
+        if (!slots) NVM2C_ABORT();
+        free(list->slots); list->slots = slots; list->slot_count = count;
+        for (size_t i = 0; i < list->count; ++i)
+            list->slots[nroot_slot(list, list->items[i].kind, list->items[i].ptr)] = i + 1;
+    }
+    if (list->count == list->capacity) {
+        if (list->capacity > SIZE_MAX / 2 / sizeof *list->items) NVM2C_ABORT();
+        size_t capacity = list->capacity ? list->capacity * 2 : 16;
+        nroot_ref *items = realloc(list->items, capacity * sizeof *items);
+        if (!items) NVM2C_ABORT();
+        list->items = items; list->capacity = capacity;
+    }
+    size_t slot = nroot_slot(list, kind, ptr);
+    list->items[list->count++] = (nroot_ref){kind, ptr};
+    list->slots[slot] = list->count;
+}
+static void nroot_value(nroot_list *work, nmap_value value) {
+    if (value.kind == 8) nroot_add(work, 4, value.text);
+    else if (value.kind == 5) nroot_add(work, 1, value.text);
+    else if (value.kind == 13) nroot_add(work, 7, value.text);
+    else if (value.kind == 7) nroot_add(work, (uint8_t)value.integer, value.text);
+}
+static void nroot_trace(nroot_list *work) {
+    for (size_t cursor = 0; cursor < work->count; ++cursor) {
+        nroot_ref root = work->items[cursor];
+        if (root.kind == 8) nroot_value(work, *(const nmap_value *)root.ptr);
+        else if (root.kind == 3 || root.kind == 10 || root.kind == 12) {
+            const narr_s *a = root.ptr;
+            nroot_add(work, 128, a->owner);
+        }
+        else if (root.kind == 5) {
+            const nsarr_s *a = root.ptr;
+            nroot_add(work, 128, a->owner);
+            for (size_t i = 0; i < a->len; ++i) nroot_add(work, 1, a->data[i]);
+        } else if (root.kind == 13) {
+            const naarr_s *a = root.ptr;
+            nroot_add(work, 128, a->owner);
+            if (a->len && !a->data) NVM2C_ABORT();
+            for (size_t i = 0; i < a->len; ++i) nroot_value(work, a->data[i]);
+        } else if (root.kind == 6) {
+            const nrarr_s *a = root.ptr;
+            nroot_add(work, 128, a->owner);
+            if (a->len && !a->data) NVM2C_ABORT();
+            for (size_t i = 0; i < a->len; ++i) nroot_add(work, 4, &a->data[i]);
+        } else if (root.kind == 4) {
+            const nrec_t *r = root.ptr;
+            for (size_t i = 0; i < r->n; ++i) {
+                if (r->k[i] == 1) nroot_add(work, 1, r->s[i]);
+                else if (r->k[i] == 3 || r->k[i] == 10 || r->k[i] == 12) nroot_add(work, r->k[i], r->a[i]);
+                else if (r->k[i] == 4) nroot_add(work, 4, r->rec[i]);
+                else if (r->k[i] == 5) nroot_add(work, 5, r->sa[i]);
+                else if (r->k[i] == 6) nroot_add(work, 6, r->ra[i]);
+                else if (r->k[i] == 7) nroot_add(work, 7, r->m[i]);
+                else if (r->k[i] == 8) nroot_value(work, (nmap_value){r->vk[i], r->f[i], (char *)r->s[i]});
+            }
+        }
+    }
+    /* I mark each owner once after closing the same reachable graph. */
+    for (nvalue_owned *v = nvalue_owned_head; v; v = v->next)
+        if (nroot_contains(work, 1, v->value.text)) v->marked = 1;
+    for (nmap_owned *m = nmap_owned_head; m; m = m->next)
+        if (nroot_contains(work, 7, m->map)) m->marked = 1;
+}
+static void nmap_sweep(void) {
+    nmap_owned **maps = &nmap_owned_head;
+    while (*maps) {
+        nmap_owned *owner = *maps;
+        if (owner->marked) { owner->marked = 0; maps = &owner->next; }
+        else { *maps = owner->next; nmap_destroy(owner->map); nmap_bytes_drop(sizeof *owner); free(owner); --nmap_owned_live; }
+    }
+    nvalue_owned **values = &nvalue_owned_head;
+    while (*values) {
+        nvalue_owned *owner = *values;
+        if (owner->marked) { owner->marked = 0; values = &owner->next; }
+        else { *values = owner->next; nmap_release_value(owner->value); nmap_bytes_drop(sizeof *owner); free(owner); --nmap_owned_live; }
+    }
+}
+static void nagg_sweep(const nroot_list *roots) {
+    (void)roots;
+    nrec_owned **records = &nrec_owned_head;
+    while (*records) {
+        nrec_owned *owner = *records;
+        if (nroot_contains(roots, 4, &owner->value)) records = &owner->next;
+        else { *records = owner->next; nagg_drop(sizeof *owner); free(owner); }
+    }
+    nagg_allocation_debt = 0;
+    nagg_collection_budget = nagg_live_bytes > 65536 ? nagg_live_bytes : 65536;
+}
+static void nmap_collect(void) {
+    nroot_list work = {0};
+    for (nroot_frame *f = nroot_head; f; f = f->prev)
+        for (size_t i = 0; i < f->live.count; ++i)
+            nroot_add(&work, f->live.items[i].kind, f->live.items[i].ptr);
+    for (size_t i = 0; i < 1; ++i) nroot_value(&work, nglobal[i]);
+    nroot_trace(&work);
+    nagg_sweep(&work);
+    nroot_destroy(&work); nmap_sweep();
+    nmap_allocation_debt = 0;
+    nmap_collection_budget = nmap_live_bytes > 65536 ? nmap_live_bytes : 65536;
+}
+/* I trace fresh mutable edges for map debt or an owned byte budget.
+ * Without allocation, dropped owners wait for the next allocating safepoint. */
+static inline void nmap_collect_if_needed(void) {
+    if (nmap_allocation_debt >= nmap_collection_budget || nagg_allocation_debt >= nagg_collection_budget) nmap_collect();
+}
+static inline narr_t nvalue_require_int_array(nmap_value a) {
+    if (a.kind != 7 || a.integer != 3 || !a.text) NVM2C_ABORT();
+    return (narr_t)a.text;
+}
+static inline nrec_t nvalue_require_record(nmap_value value) {
+    if (value.kind != 8 || !value.text) NVM2C_ABORT();
+    const nrec_t *record = (const nrec_t *)value.text;
+    if (record->kind != 0) NVM2C_ABORT();
+    return *record;
+}
+static inline int64_t nvalue_array_len(nmap_value a) {
+    if (a.kind != 7 || !a.text) NVM2C_ABORT();
+    if (a.integer == 3 || a.integer == 10 || a.integer == 12) return (int64_t)((narr_t)a.text)->len;
+    if (a.integer == 5) return (int64_t)((nsarr_t)a.text)->len;
+    if (a.integer == 6) return (int64_t)((nrarr_t)a.text)->len;
+    NVM2C_ABORT();
+}
+static inline nmap_value nvalue_array_get(nmap_value a, int64_t index) {
+    int64_t length = nvalue_array_len(a);
+    if (index < 0 || (uint64_t)index >= (uint64_t)length) return (nmap_value){0, 0, NULL};
+    size_t at = (size_t)index;
+    if (a.integer == 6) NVM2C_ABORT();
+    if (a.integer == 3 || a.integer == 10 || a.integer == 12) return (nmap_value){a.integer == 12 ? 3 : a.integer == 10 ? 4 : 1, ((narr_t)a.text)->data[at], NULL};
+    return (nmap_value){5, 0, (char *)((nsarr_t)a.text)->data[at]};
+}
+static inline nmap_value nvalue_array_set(nmap_value a, int64_t index, nmap_value value) {
+    if (a.integer == 6) NVM2C_ABORT();
+    if (index < 0 || (uint64_t)index >= (uint64_t)nvalue_array_len(a)) NVM2C_ABORT();
+    size_t at = (size_t)index;
+    if (a.integer == 3) ((narr_t)a.text)->data[at] = nvalue_require_int(value);
+    else if (a.integer == 10) ((narr_t)a.text)->data[at] = nvalue_require_bool(value);
+    else if (a.integer == 12) ((narr_t)a.text)->data[at] = nvalue_from_float(nvalue_require_float(value)).integer;
+    else ((nsarr_t)a.text)->data[at] = nvalue_require_string(value);
+    return a;
+}
+static inline nmap_value nvalue_array_push(nmap_value a, nmap_value value) {
+    (void)nvalue_array_len(a); (void)value;
+    NVM2C_ABORT();
+}
+static int64_t nl_main(void);
+static void nl_store(const nrec_t * a0);
+
+static int64_t nl_main(void) {
+    (void)ni64_from_bits;
+    int64_t t[5] = {0}; (void)t;
+    double f[1] = {0}; (void)f;
+    const char *s[1] = {0}; (void)s;
+    narr_t a[1] = {0}; (void)a;
+    nsarr_t sa[1] = {0}; (void)sa;
+    nrec_t *r = 4 ? calloc(4, sizeof *r) : NULL;
+    if (4 && !r) NVM2C_ABORT();
+    nrarr_t ra[1] = {0}; (void)ra;
+    nmap_t m[1] = {0}; (void)m;
+    int64_t nresult = {0};
+    nmap_value v[1] = {0}; (void)v;
+    nroot_frame nroots = {0}; nroots.prev = nroot_head; nroot_head = &nroots;
+    if (0) goto L_return;
+    t[0] = 42LL;
+    r[0].n = 1;
+    r[0].kind = 0; r[0].tag = 0;
+    r[0].k[0] = 0;
+    r[0].f[0] = t[0];
+    r[1].n = 1;
+    r[1].kind = 0; r[1].tag = 0;
+    r[1].k[0] = 4;
+    r[1].rec[0] = nrec_snapshot(r[0]);
+    r[2].n = 1;
+    r[2].kind = 0; r[2].tag = 0;
+    r[2].k[0] = 4;
+    r[2].rec[0] = nrec_snapshot(r[1]);
+    nroot_reset(&nroots.live);
+    nroot_add(&nroots.live, 4, &r[2]);
+    nmap_collect_if_needed();
+    nl_store(&r[2]);
+    v[0] = nglobal[0];
+    r[3] = nvalue_require_record(v[0]);
+    if (0 >= r[3].n) NVM2C_ABORT();
+    if (r[3].k[0] != 0 && !(r[3].k[0] == 8 && r[3].vk[0] == 1)) NVM2C_ABORT();
+    t[1] = r[3].f[0];
+    t[2] = 42LL;
+    t[3] = t[1] == t[2];
+    if (!t[3]) NVM2C_ABORT();
+    t[4] = 0LL;
+    nresult = t[4];
+    goto L_return;
+L_return:
+    nroot_head = nroots.prev; nroot_destroy(&nroots.live);
+    free(r);
+    return nresult;
+}
+
+static void nl_store(const nrec_t * a0) {
+    (void)ni64_from_bits;
+    nrec_t *rl = calloc(1, sizeof *rl);
+    if (!rl) NVM2C_ABORT();
+    rl[0] = *a0;
+    int64_t t[1] = {0}; (void)t;
+    double f[1] = {0}; (void)f;
+    const char *s[1] = {0}; (void)s;
+    narr_t a[1] = {0}; (void)a;
+    nsarr_t sa[1] = {0}; (void)sa;
+    nrec_t *r = 3 ? calloc(3, sizeof *r) : NULL;
+    if (3 && !r) NVM2C_ABORT();
+    nrarr_t ra[1] = {0}; (void)ra;
+    nmap_t m[1] = {0}; (void)m;
+    nmap_value v[1] = {0}; (void)v;
+    nroot_frame nroots = {0}; nroots.prev = nroot_head; nroot_head = &nroots;
+    if (0) goto L_return;
+    r[0] = rl[0];
+    if (0 >= r[0].n) NVM2C_ABORT();
+    if (r[0].k[0] != 4) NVM2C_ABORT();
+    if (!r[0].rec[0]) NVM2C_ABORT();
+    r[1] = *r[0].rec[0];
+    if (0 >= r[1].n) NVM2C_ABORT();
+    if (r[1].k[0] != 4) NVM2C_ABORT();
+    if (!r[1].rec[0]) NVM2C_ABORT();
+    r[2] = *r[1].rec[0];
+    nglobal_record_0 = r[2];
+    nglobal[0] = (nmap_value){8, 0, (char *)&nglobal_record_0};
+    goto L_return;
+L_return:
+    nroot_head = nroots.prev; nroot_destroy(&nroots.live);
+    free(r);
+    free(rl);
+    return;
+}
+
+int main(void) {
+    (void)nf64_to_i64;
+    (void)nparse_binary64;
+    (void)nano_rt_f64_add; (void)nano_rt_f64_sub; (void)nano_rt_f64_mul; (void)nano_rt_f64_div;
+    (void)nrec_f64;
+    (void)nl_main;
+    (void)nl_store;
+    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;
+    (void)nvalue_numeric; (void)nvalue_from_float; (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_cast_u8; (void)nvalue_cast_float; (void)nvalue_equal;
+    (void)nvalue_compare;
+    (void)nvalue_require_record; (void)nvalue_require_int_array; (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;
+    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;
+    (void)nroot_reset; (void)nmap_collect_if_needed;
+    (void)nagg_add; (void)nagg_drop;
+    (void)nrec_snapshot;
+    int result = (int)nl_main();
+    nrec_release_snapshots();
+    nmap_release_owned();
+    return result;
+}
+
+----
+/tmp/nvm2cWACQtF/out.c:897:5: error: use of undeclared identifier 'nglobal_record_0'
+  897 |     nglobal_record_0 = r[2];
+      |     ^~~~~~~~~~~~~~~~
+/tmp/nvm2cWACQtF/out.c:898:46: error: use of undeclared identifier 'nglobal_record_0'
+  898 |     nglobal[0] = (nmap_value){8, 0, (char *)&nglobal_record_0};
+      |                                              ^~~~~~~~~~~~~~~~
+2 errors generated.
+---- generated C (cc failed) ----
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE 1
+#endif
+#ifndef _DARWIN_C_SOURCE
+#define _DARWIN_C_SOURCE 1
+#endif
+/* Generated by nvm2c from NanoISA. Not a VM wrapper. */
+#include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <stdio.h>
+/* I preserve invariant termination while naming its generated source. */
+#define NVM2C_ABORT() do { fprintf(stderr, "I stopped at a native invariant in %s at generated C line %d.\n", __func__, __LINE__); abort(); } while (0)
+/* I reconstruct wrapped bits without an out-of-range signed cast. */
+static inline int64_t ni64_from_bits(uint64_t bits) {
+    return bits <= INT64_MAX ? (int64_t)bits : -INT64_C(1) - (int64_t)(UINT64_MAX - bits);
+}
+#include <string.h>
+/* I retain binary64 bits in my existing 64-bit aggregate cells. */
+static inline double nrec_f64(int64_t cell) {
+    double value; memcpy(&value, &cell, sizeof value); return value;
+}
+#include <stdio.h>
+static inline int64_t nf64_to_i64(double value) {
+    if (!(value >= -0x1p63 && value < 0x1p63)) {
+        fputs("I cannot convert this float to int: I require a finite value in [-2^63, 2^63).\n", stderr);
+        exit(EXIT_FAILURE);
+    }
+    return (int64_t)value;
+}
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct nmap_s *nmap_t;
+typedef struct { int64_t *data; size_t len; struct narr_owner *owner; } narr_s;
+typedef narr_s *narr_t;
+typedef struct { const char **data; size_t len; struct nsarr_owner *owner; } nsarr_s;
+typedef nsarr_s *nsarr_t;
+typedef struct naarr_s naarr_s;
+typedef naarr_s *naarr_t;
+static size_t nagg_live_bytes, nagg_peak_bytes, nagg_allocation_debt;
+static size_t nagg_collection_budget = 65536;
+static inline void nagg_add(size_t bytes) {
+    if (bytes > SIZE_MAX - nagg_live_bytes || bytes > SIZE_MAX - nagg_allocation_debt) NVM2C_ABORT();
+    nagg_live_bytes += bytes; nagg_allocation_debt += bytes;
+    if (nagg_live_bytes > nagg_peak_bytes) nagg_peak_bytes = nagg_live_bytes;
+}
+static inline void nagg_drop(size_t bytes) {
+    if (bytes > nagg_live_bytes) NVM2C_ABORT();
+    nagg_live_bytes -= bytes;
+}
+/* I canonicalize only scalar binary arithmetic results, never transported bits. */
+#ifndef NANOLANG_BINARY64_ARITHMETIC_H
+#define NANOLANG_BINARY64_ARITHMETIC_H
+#include <float.h>
+#include <stdint.h>
+#include <string.h>
+
+#if defined(__FAST_MATH__) || (defined(__FINITE_MATH_ONLY__) && __FINITE_MATH_ONLY__)
+#error "I require ordinary IEEE arithmetic without fast-math."
+#endif
+#if FLT_RADIX != 2 || DBL_MANT_DIG != 53 || DBL_MAX_EXP != 1024 || DBL_MIN_EXP != -1021
+#error "I require binary64 double arithmetic."
+#endif
+#if !defined(FLT_EVAL_METHOD) || FLT_EVAL_METHOD != 0
+#error "I require operations evaluated in their binary64 type."
+#endif
+/* I retain a compile-time storage check in both C99 and C11 output. */
+typedef char nano_rt_binary64_storage_guard[
+    sizeof(double) == 8 && sizeof(uint64_t) == 8 ? 1 : -1];
+
+/* I inspect a rounded result with integer operations, not another FP operation. */
+static inline double nano_rt_f64_arithmetic_result(double value) {
+    uint64_t bits;
+    memcpy(&bits, &value, sizeof(bits));
+    if ((bits & UINT64_C(0x7ff0000000000000)) == UINT64_C(0x7ff0000000000000) &&
+        (bits & UINT64_C(0x000fffffffffffff)) != 0) {
+        bits = UINT64_C(0x7ff8000000000000);
+        memcpy(&value, &bits, sizeof(value));
+    }
+    return value;
+}
+
+/* Each volatile store/load is a binary64 rounding and noncontraction boundary. */
+static inline double nano_rt_f64_add(double a, double b) {
+    volatile double rounded = a + b;
+    return nano_rt_f64_arithmetic_result(rounded);
+}
+static inline double nano_rt_f64_sub(double a, double b) {
+    volatile double rounded = a - b;
+    return nano_rt_f64_arithmetic_result(rounded);
+}
+static inline double nano_rt_f64_mul(double a, double b) {
+    volatile double rounded = a * b;
+    return nano_rt_f64_arithmetic_result(rounded);
+}
+static inline double nano_rt_f64_div(double a, double b) {
+    uint64_t divisor;
+    memcpy(&divisor, &b, sizeof(divisor));
+    /* Either signed zero takes precedence even over a signaling NaN numerator. */
+    if ((divisor & UINT64_C(0x7fffffffffffffff)) == 0) return 0.0;
+    volatile double rounded = a / b;
+    return nano_rt_f64_arithmetic_result(rounded);
+}
+#endif
+#ifndef NANOISA_BINARY64_PARSE_H
+#define NANOISA_BINARY64_PARSE_H
+#include <stdint.h>
+/* I parse closed C-locale binary64 values with fixed-capacity integer math.
+ * My input is a valid byte view; NUL terminates its numeric prefix. */
+typedef struct {
+    uint32_t limb[128];
+    unsigned used;
+} NbpBig;
+static inline void nbp_zero(NbpBig *a) { *a = (NbpBig){{0}, 0}; }
+static inline void nbp_normalize(NbpBig *a) {
+    while (a->used && !a->limb[a->used - 1])
+        a->used--;
+}
+static inline int nbp_multiply(NbpBig *a, unsigned base, unsigned add) {
+    uint64_t carry = add;
+    for (unsigned i = 0; i < a->used; i++) {
+        uint64_t value = (uint64_t)a->limb[i] * base + carry;
+        a->limb[i] = (uint32_t)value;
+        carry = value >> 32;
+    }
+    if (carry) {
+        if (a->used == 128)
+            return 0;
+        a->limb[a->used++] = (uint32_t)carry;
+    }
+    return 1;
+}
+static inline unsigned nbp_bits(const NbpBig *a) {
+    if (!a->used)
+        return 0;
+    uint32_t top = a->limb[a->used - 1];
+    unsigned n = 0;
+    while (top) {
+        top >>= 1;
+        n++;
+    }
+    return (a->used - 1) * 32 + n;
+}
+static inline int nbp_shift(NbpBig *a, unsigned shift) {
+    if (!a->used || !shift)
+        return 1;
+    unsigned words = shift / 32, bits = shift % 32;
+    unsigned carry = bits && (a->limb[a->used - 1] >> (32 - bits));
+    if (words >= 128 || a->used + words + carry > 128)
+        return 0;
+    NbpBig result;
+    nbp_zero(&result);
+    result.used = a->used + words + carry;
+    for (unsigned i = 0; i < a->used; i++) {
+        uint64_t value = (uint64_t)a->limb[i] << bits;
+        result.limb[i + words] |= (uint32_t)value;
+        if (value >> 32)
+            result.limb[i + words + 1] |= (uint32_t)(value >> 32);
+    }
+    *a = result;
+    return 1;
+}
+static inline int nbp_compare(const NbpBig *a, const NbpBig *b) {
+    if (a->used != b->used)
+        return a->used > b->used ? 1 : -1;
+    for (unsigned i = a->used; i > 0; i--)
+        if (a->limb[i - 1] != b->limb[i - 1])
+            return a->limb[i - 1] > b->limb[i - 1] ? 1 : -1;
+    return 0;
+}
+static inline void nbp_subtract(NbpBig *a, const NbpBig *b) {
+    uint64_t borrow = 0;
+    for (unsigned i = 0; i < a->used; i++) {
+        uint64_t sub = (i < b->used ? b->limb[i] : 0) + borrow, value = a->limb[i];
+        a->limb[i] = (uint32_t)(value - sub);
+        borrow = value < sub;
+    }
+    nbp_normalize(a);
+}
+static inline int nbp_rational(NbpBig numerator, NbpBig denominator, int sticky, uint64_t *out) {
+    int exponent = (int)nbp_bits(&numerator) - (int)nbp_bits(&denominator);
+    NbpBig probe = exponent < 0 ? numerator : denominator;
+    if (!nbp_shift(&probe, (unsigned)(exponent < 0 ? -exponent : exponent)))
+        return 0;
+    if ((exponent < 0 ? nbp_compare(&probe, &denominator) : nbp_compare(&numerator, &probe)) < 0)
+        exponent--;
+    if (exponent > 1023) {
+        *out = UINT64_C(0x7ff0000000000000);
+        return 1;
+    }
+    int normal = exponent >= -1022, shift = normal ? 52 - exponent : 1074;
+    if (!nbp_shift(shift >= 0 ? &numerator : &denominator, (unsigned)(shift >= 0 ? shift : -shift)))
+        return 0;
+    int bit = (int)nbp_bits(&numerator) - (int)nbp_bits(&denominator);
+    if (bit >= 64)
+        return 0;
+    uint64_t quotient = 0;
+    for (; bit >= 0; bit--) {
+        probe = denominator;
+        if (!nbp_shift(&probe, (unsigned)bit))
+            return 0;
+        if (nbp_compare(&numerator, &probe) >= 0) {
+            nbp_subtract(&numerator, &probe);
+            quotient |= UINT64_C(1) << bit;
+        }
+    }
+    if (!nbp_shift(&numerator, 1))
+        return 0;
+    int half = nbp_compare(&numerator, &denominator);
+    if (half > 0 || (half == 0 && (sticky || (quotient & 1))))
+        quotient++;
+    if (normal) {
+        if (quotient == (UINT64_C(1) << 53)) {
+            quotient >>= 1;
+            exponent++;
+        }
+        if (exponent > 1023) {
+            *out = UINT64_C(0x7ff0000000000000);
+            return 1;
+        }
+        if (quotient < (UINT64_C(1) << 52) || quotient >= (UINT64_C(1) << 53))
+            return 0;
+        *out = ((uint64_t)(exponent + 1023) << 52) | (quotient - (UINT64_C(1) << 52));
+    } else {
+        if (quotient > (UINT64_C(1) << 52))
+            return 0;
+        *out = quotient;
+    }
+    return 1;
+}
+static inline unsigned char nbp_lower(unsigned char c) {
+    return c >= 'A' && c <= 'Z' ? (unsigned char)(c + 32) : c;
+}
+static inline int nbp_digit(unsigned char c) {
+    if (c >= '0' && c <= '9')
+        return c - '0';
+    c = nbp_lower(c);
+    return c >= 'a' && c <= 'f' ? c - 'a' + 10 : -1;
+}
+static inline int nbp_word(const unsigned char *text, uint32_t length, uint32_t start,
+                           const char *word, unsigned count) {
+    if (start > length || length - start < count)
+        return 0;
+    for (unsigned i = 0; i < count; i++)
+        if (nbp_lower(text[start + i]) != (unsigned char)word[i])
+            return 0;
+    return 1;
+}
+static inline uint64_t nbp_nan_payload(const unsigned char *text, uint32_t length, uint32_t start,
+                                       uint32_t *consumed) {
+    if (start >= length || text[start] != '(')
+        return 0;
+    uint32_t end = start + 1;
+    while (end < length) {
+        unsigned char c = nbp_lower(text[end]);
+        if (!((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_'))
+            break;
+        end++;
+    }
+    if (end == length || text[end] != ')')
+        return 0;
+    *consumed = end + 1;
+    uint32_t i = start + 1;
+    unsigned base = 10;
+    if (end - i >= 2 && text[i] == '0' && nbp_lower(text[i + 1]) == 'x') {
+        base = 16;
+        i += 2;
+    } else if (end - i > 1 && text[i] == '0')
+        base = 8;
+    if (i == end)
+        return 0;
+    uint64_t value = 0;
+    for (; i < end; i++) {
+        int digit = nbp_digit(text[i]);
+        if (digit < 0 || (unsigned)digit >= base)
+            return 0;
+        if (value > (UINT64_MAX - (unsigned)digit) / base)
+            value = UINT64_MAX;
+        else
+            value = value * base + (unsigned)digit;
+    }
+    return value;
+}
+static inline int nbp_parse_impl(const unsigned char *text, uint32_t length, uint64_t *out,
+                                 uint32_t *consumed) {
+    if (!out || (!text && length))
+        return 0;
+    *consumed = 0;
+    uint32_t i = 0;
+    while (i < length && (text[i] == ' ' || text[i] == '\t' || text[i] == '\n' || text[i] == '\r' ||
+                          text[i] == '\v' || text[i] == '\f'))
+        i++;
+    uint64_t sign = 0;
+    if (i < length && (text[i] == '-' || text[i] == '+')) {
+        if (text[i] == '-')
+            sign = UINT64_C(1) << 63;
+        i++;
+    }
+    if (nbp_word(text, length, i, "inf", 3)) {
+        *consumed = i + (nbp_word(text, length, i, "infinity", 8) ? 8 : 3);
+        *out = sign | UINT64_C(0x7ff0000000000000);
+        return 1;
+    }
+    if (nbp_word(text, length, i, "nan", 3)) {
+        *consumed = i + 3;
+        *out = sign | UINT64_C(0x7ff8000000000000) |
+               (nbp_nan_payload(text, length, i + 3, consumed) & UINT64_C(0xfffffffffffff));
+        return 1;
+    }
+    unsigned radix = 10, cap = 800;
+    if (length - i >= 3 && text[i] == '0' && nbp_lower(text[i + 1]) == 'x' &&
+        (nbp_digit(text[i + 2]) >= 0 ||
+         (length - i >= 4 && text[i + 2] == '.' && nbp_digit(text[i + 3]) >= 0))) {
+        radix = 16;
+        cap = 32;
+        i += 2;
+    }
+    NbpBig numerator;
+    nbp_zero(&numerator);
+    unsigned kept = 0;
+    int point = 0, saw_digit = 0, started = 0, sticky = 0;
+    int64_t fractional = 0, omitted = 0;
+    while (i < length) {
+        int digit = nbp_digit(text[i]);
+        if (digit >= 0 && (unsigned)digit < radix) {
+            saw_digit = 1;
+            if (point)
+                fractional++;
+            if (digit)
+                started = 1;
+            if (started) {
+                if (kept < cap) {
+                    if (!nbp_multiply(&numerator, radix, (unsigned)digit))
+                        return 0;
+                    kept++;
+                } else {
+                    omitted++;
+                    sticky |= digit != 0;
+                }
+            }
+            i++;
+            continue;
+        }
+        if (text[i] == '.' && !point) {
+            point = 1;
+            i++;
+            continue;
+        }
+        break;
+    }
+    if (!saw_digit) {
+        *out = 0;
+        return 1;
+    }
+    int64_t exponent = 0;
+    if (i < length && nbp_lower(text[i]) == (radix == 16 ? 'p' : 'e')) {
+        uint32_t next = i + 1;
+        int minus = 0;
+        if (next < length && (text[next] == '+' || text[next] == '-')) {
+            minus = text[next] == '-';
+            next++;
+        }
+        if (next < length && text[next] >= '0' && text[next] <= '9') {
+            const int64_t cap_exponent = INT64_C(1) << 40;
+            for (; next < length && text[next] >= '0' && text[next] <= '9'; next++) {
+                if (exponent < cap_exponent) {
+                    exponent = exponent * 10 + (text[next] - '0');
+                    if (exponent > cap_exponent)
+                        exponent = cap_exponent;
+                }
+            }
+            i = next;
+            if (minus)
+                exponent = -exponent;
+        }
+    }
+    *consumed = i;
+    if (!started) {
+        *out = sign;
+        return 1;
+    }
+    int64_t scale = exponent + (omitted - fractional) * (radix == 16 ? 4 : 1);
+    int64_t order = (radix == 16 ? (int64_t)nbp_bits(&numerator) - 1 : (int64_t)kept - 1) + scale;
+    if (order > (radix == 16 ? 1023 : 308)) {
+        *out = sign | UINT64_C(0x7ff0000000000000);
+        return 1;
+    }
+    if (order < (radix == 16 ? -1075 : -324)) {
+        *out = sign;
+        return 1;
+    }
+    NbpBig denominator;
+    nbp_zero(&denominator);
+    denominator.used = 1;
+    denominator.limb[0] = 1;
+    NbpBig *scaled = scale < 0 ? &denominator : &numerator;
+    unsigned power = (unsigned)(scale < 0 ? -scale : scale);
+    if (radix == 16) {
+        if (!nbp_shift(scaled, power))
+            return 0;
+    } else
+        for (unsigned step = 0; step < power; step++)
+            if (!nbp_multiply(scaled, 10, 0))
+                return 0;
+    uint64_t result;
+    if (!nbp_rational(numerator, denominator, sticky, &result))
+        return 0;
+    *out = sign | result;
+    return 1;
+}
+/* I publish both outputs only after checked parsing succeeds. An input with
+ * no numeric prefix has endpoint zero; optional endpoints preserve values. */
+static inline int nbp_parse_end(const unsigned char *text, uint32_t length, uint64_t *out,
+                                uint32_t *consumed) {
+    if (!out || (!text && length))
+        return 0;
+    uint64_t bits;
+    uint32_t end;
+    if (!nbp_parse_impl(text, length, &bits, &end))
+        return 0;
+    *out = bits;
+    if (consumed)
+        *consumed = end;
+    return 1;
+}
+static inline int nbp_parse(const unsigned char *text, uint32_t length, uint64_t *out) {
+    return nbp_parse_end(text, length, out, 0);
+}
+#endif
+static inline double nparse_binary64(const char *text) {
+    size_t length = text ? strlen(text) : 0; uint64_t bits = 0;
+    if (length > UINT32_MAX || !nbp_parse((const unsigned char *)text, (uint32_t)length, &bits)) NVM2C_ABORT();
+    double result; memcpy(&result, &bits, sizeof result); return result;
+}
+/* I count retained owned map storage, including API copies until release.
+ * Bucket growth charges net capacity; temporary old/new overlap and allocator
+ * overhead are not counted, so this is neither instantaneous allocation nor RSS. */
+static size_t nmap_live_bytes, nmap_peak_bytes, nmap_allocation_debt;
+static void nmap_bytes_add(size_t bytes) {
+    if (bytes > SIZE_MAX - nmap_live_bytes || bytes > SIZE_MAX - nmap_allocation_debt) NVM2C_ABORT();
+    nmap_live_bytes += bytes; nmap_allocation_debt += bytes;
+    if (nmap_live_bytes > nmap_peak_bytes) nmap_peak_bytes = nmap_live_bytes;
+}
+static void nmap_bytes_drop(size_t bytes) {
+    if (bytes > nmap_live_bytes) NVM2C_ABORT();
+    nmap_live_bytes -= bytes;
+}
+static size_t nmap_text_bytes(const char *text) {
+    if (!text) NVM2C_ABORT();
+    size_t n = strlen(text); if (n == SIZE_MAX) NVM2C_ABORT(); return n + 1;
+}
+static void nmap_release_text(char *text) {
+    nmap_bytes_drop(nmap_text_bytes(text)); free(text);
+}
+typedef struct { uint8_t kind; int64_t integer; char *text; } nmap_value;
+typedef struct nmap_entry { uint64_t hash; char *key; nmap_value value; struct nmap_entry *next; } nmap_entry;
+typedef struct nmap_s { nmap_entry **buckets; size_t capacity, count; uint8_t value_kind; } nmap_s;
+typedef nmap_s *nmap_t;
+static char *nmap_copy_text(const char *text) {
+    if (!text) NVM2C_ABORT();
+    size_t n = strlen(text); if (n == SIZE_MAX) NVM2C_ABORT();
+    char *copy = malloc(n + 1); if (!copy) NVM2C_ABORT();
+    nmap_bytes_add(n + 1); memcpy(copy, text, n + 1); return copy;
+}
+static nmap_value nmap_copy_value(nmap_value value) {
+    if (value.kind == 5) value.text = nmap_copy_text(value.text);
+    else if (value.kind == 1) value.text = NULL;
+    else NVM2C_ABORT();
+    return value;
+}
+static void nmap_release_value(nmap_value value) { if (value.kind == 5) nmap_release_text(value.text); }
+static uint64_t nmap_hash(const char *key) {
+    if (!key) NVM2C_ABORT();
+    uint64_t h = UINT64_C(14695981039346656037);
+    for (const unsigned char *p = (const unsigned char *)key; *p; ++p) {
+        h ^= *p; h *= UINT64_C(1099511628211);
+    } return h;
+}
+static nmap_t nmap_new(uint8_t value_kind) {
+    if (value_kind != 1 && value_kind != 5) NVM2C_ABORT();
+    nmap_t map = calloc(1, sizeof *map); if (!map) NVM2C_ABORT();
+    map->capacity = 16; map->value_kind = value_kind;
+    map->buckets = calloc(map->capacity, sizeof *map->buckets);
+    if (!map->buckets) { free(map); NVM2C_ABORT(); }
+    nmap_bytes_add(sizeof *map + map->capacity * sizeof *map->buckets);
+    return map;
+}
+static nmap_entry *nmap_find(nmap_t map, const char *key, uint64_t hash) {
+    if (!map) NVM2C_ABORT();
+    for (nmap_entry *entry = map->buckets[hash & (map->capacity - 1)]; entry; entry = entry->next)
+        if (entry->hash == hash && strcmp(entry->key, key) == 0) return entry;
+    return NULL;
+}
+static void nmap_grow(nmap_t map) {
+    if (map->capacity > SIZE_MAX / 2 / sizeof *map->buckets) NVM2C_ABORT();
+    size_t capacity = map->capacity * 2;
+    nmap_entry **buckets = calloc(capacity, sizeof *buckets); if (!buckets) NVM2C_ABORT();
+    for (size_t i = 0; i < map->capacity; ++i) {
+        nmap_entry *entry = map->buckets[i];
+        while (entry) { nmap_entry *next = entry->next;
+            size_t at = entry->hash & (capacity - 1);
+            entry->next = buckets[at]; buckets[at] = entry; entry = next; }
+    }
+    nmap_bytes_add((capacity - map->capacity) * sizeof *buckets);
+    free(map->buckets); map->buckets = buckets; map->capacity = capacity;
+}
+static nmap_t nmap_set(nmap_t map, const char *key, nmap_value value) {
+    if (!map || value.kind != map->value_kind) NVM2C_ABORT();
+    uint64_t hash = nmap_hash(key); nmap_entry *entry = nmap_find(map, key, hash);
+    nmap_value owned = nmap_copy_value(value);
+    if (entry) { nmap_release_value(entry->value); entry->value = owned; return map; }
+    char *owned_key = nmap_copy_text(key);
+    entry = malloc(sizeof *entry); if (!entry) NVM2C_ABORT();
+    nmap_bytes_add(sizeof *entry);
+    if (map->count >= map->capacity / 2) nmap_grow(map);
+    size_t at = hash & (map->capacity - 1);
+    *entry = (nmap_entry){hash, owned_key, owned, map->buckets[at]};
+    map->buckets[at] = entry; ++map->count; return map;
+}
+static int nmap_has(nmap_t map, const char *key) { return nmap_find(map, key, nmap_hash(key)) != NULL; }
+static nmap_value nmap_get(nmap_t map, const char *key) {
+    nmap_entry *entry = nmap_find(map, key, nmap_hash(key));
+    return entry ? nmap_copy_value(entry->value) : (nmap_value){0};
+}
+static size_t nmap_len(nmap_t map) { if (!map) NVM2C_ABORT(); return map->count; }
+static nmap_t nmap_delete(nmap_t map, const char *key) {
+    if (!map) NVM2C_ABORT();
+    uint64_t hash = nmap_hash(key);
+    nmap_entry **link = &map->buckets[hash & (map->capacity - 1)];
+    while (*link) { nmap_entry *entry = *link;
+        if (entry->hash == hash && strcmp(entry->key, key) == 0) {
+            *link = entry->next; nmap_release_text(entry->key); nmap_release_value(entry->value);
+            nmap_bytes_drop(sizeof *entry); free(entry); --map->count; break; }
+        link = &entry->next;
+    } return map;
+}
+static void nmap_destroy(nmap_t map) {
+    if (!map) return;
+    for (size_t i = 0; i < map->capacity; ++i) {
+        nmap_entry *entry = map->buckets[i];
+        while (entry) { nmap_entry *next = entry->next; nmap_release_text(entry->key);
+            nmap_release_value(entry->value); nmap_bytes_drop(sizeof *entry); free(entry); entry = next; }
+    } nmap_bytes_drop(sizeof *map + map->capacity * sizeof *map->buckets);
+    free(map->buckets); free(map);
+}
+struct naarr_s { nmap_value *data; size_t len; struct naarr_owner *owner; };
+static size_t nmap_collection_budget = 65536;
+typedef struct nmap_owned { nmap_t map; struct nmap_owned *next; unsigned marked; } nmap_owned;
+static nmap_owned *nmap_owned_head;
+typedef struct nvalue_owned { nmap_value value; struct nvalue_owned *next; unsigned marked; } nvalue_owned;
+static nvalue_owned *nvalue_owned_head;
+static size_t nmap_owned_live, nmap_owned_peak;
+static nmap_value nmap_owned_get(nmap_t map, const char *key) {
+    nmap_value value = nmap_get(map, key);
+    if (value.kind == 5) { nvalue_owned *owner = malloc(sizeof *owner);
+        if (!owner) { nmap_release_value(value); NVM2C_ABORT(); }
+        *owner = (nvalue_owned){value, nvalue_owned_head, 0}; nvalue_owned_head = owner;
+        nmap_bytes_add(sizeof *owner);
+        if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live; }
+    return value;
+}
+static inline nmap_value nvalue_from_float(double value) {
+    nmap_value result = {3, 0, NULL}; memcpy(&result.integer, &value, sizeof value); return result;
+}
+static inline double nvalue_require_float(nmap_value value) {
+    if (value.kind != 3) NVM2C_ABORT();
+    double result; memcpy(&result, &value.integer, sizeof result); return result;
+}
+static inline nmap_value nvalue_numeric(nmap_value a, nmap_value b, char op) {
+    if (op != '~' && a.kind == 9) a.kind = 1;
+    if (a.kind != 1 && a.kind != 3) NVM2C_ABORT();
+    if (op == '~') return a.kind == 3 ? nvalue_from_float(-nvalue_require_float(a)) : (nmap_value){1, ni64_from_bits(UINT64_C(0) - (uint64_t)a.integer), NULL};
+    if (b.kind == 9) b.kind = 1;
+    if (b.kind != 1 && b.kind != 3) NVM2C_ABORT();
+    if (a.kind == 1 && b.kind == 1) {
+        int64_t x = a.integer, y = b.integer, value;
+        if (op == '+') value = ni64_from_bits((uint64_t)x + (uint64_t)y);
+        else if (op == '-') value = ni64_from_bits((uint64_t)x - (uint64_t)y);
+        else if (op == '*') value = ni64_from_bits((uint64_t)x * (uint64_t)y);
+        else if (op == '/') value = y == 0 ? 0 : (x == INT64_MIN && y == -1) ? INT64_MIN : x / y;
+        else NVM2C_ABORT();
+        return (nmap_value){1, value, NULL};
+    }
+    double x = a.kind == 3 ? nvalue_require_float(a) : (double)a.integer;
+    double y = b.kind == 3 ? nvalue_require_float(b) : (double)b.integer;
+    if (op == '+') return nvalue_from_float(nano_rt_f64_add(x, y));
+    if (op == '-') return nvalue_from_float(nano_rt_f64_sub(x, y));
+    if (op == '*') return nvalue_from_float(nano_rt_f64_mul(x, y));
+    if (op == '/') return nvalue_from_float(nano_rt_f64_div(x, y));
+    NVM2C_ABORT();
+}
+static inline int64_t nvalue_require_int(nmap_value value) {
+    if (value.kind != 1) NVM2C_ABORT();
+    return value.integer;
+}
+static inline int64_t nvalue_require_bool(nmap_value value) {
+    if (value.kind != 4) NVM2C_ABORT();
+    return value.integer;
+}
+static inline const char *nvalue_require_string(nmap_value value) {
+    if (value.kind != 5) NVM2C_ABORT();
+    return value.text;
+}
+static inline nmap_t nvalue_require_map(nmap_value value) {
+    if (value.kind != 13 || !value.text) NVM2C_ABORT();
+    return (nmap_t)value.text;
+}
+static inline double nvalue_cast_float(nmap_value value) {
+    if (value.kind == 3) return nvalue_require_float(value);
+    if (value.kind == 1 || value.kind == 2) return (double)value.integer;
+    if (value.kind == 4) return value.integer ? 1.0 : 0.0;
+    if (value.kind == 5) return nparse_binary64(value.text);
+    return 0.0;
+}
+static inline uint8_t nvalue_cast_u8(nmap_value value) {
+    if (value.kind != 1 && value.kind != 2) NVM2C_ABORT();
+    return (uint8_t)value.integer;
+}
+static inline int64_t nvalue_cast_int(nmap_value value) {
+    if (value.kind == 3) return nf64_to_i64(nvalue_require_float(value));
+    return value.kind == 1 || value.kind == 2 || value.kind == 4 || value.kind == 9 ? value.integer : value.kind == 5 ? (int64_t)strtoll(value.text, NULL, 10) : 0;
+}
+static inline int nvalue_equal(nmap_value a, nmap_value b) {
+    if ((a.kind == 9 && b.kind == 1) || (a.kind == 1 && b.kind == 9)) return a.integer == b.integer;
+    if (a.kind == 1 && b.kind == 3) return (double)a.integer == nvalue_require_float(b);
+    if (a.kind == 3 && b.kind == 1) return nvalue_require_float(a) == (double)b.integer;
+    if (a.kind != b.kind) return 0;
+    if (a.kind == 8) NVM2C_ABORT();
+    if (a.kind == 7 || a.kind == 13) return a.text == b.text;
+    if (a.kind == 3) return nvalue_require_float(a) == nvalue_require_float(b);
+    if (a.kind == 0) return 1;
+    if (a.kind == 1 || a.kind == 2 || a.kind == 4 || a.kind == 9) return a.integer == b.integer;
+    if (a.text == b.text) return 1;
+    if (!a.text || !b.text) return 0;
+    return strcmp(a.text, b.text) == 0;
+}
+static inline int nvalue_compare(nmap_value a, nmap_value b) {
+    if ((a.kind == 9 && b.kind == 1) || (a.kind == 1 && b.kind == 9)) return (a.integer > b.integer) - (a.integer < b.integer);
+    if ((a.kind == 3 && (b.kind == 3 || b.kind == 1)) || (a.kind == 1 && b.kind == 3)) {
+        double x = a.kind == 3 ? nvalue_require_float(a) : (double)a.integer;
+        double y = b.kind == 3 ? nvalue_require_float(b) : (double)b.integer;
+        return (x > y) - (x < y);
+    }
+    if (a.kind != b.kind) return (int)a.kind - (int)b.kind;
+    if (a.kind == 1 || a.kind == 2 || a.kind == 4) return (a.integer > b.integer) - (a.integer < b.integer);
+    if (a.kind == 5) {
+        if (a.text == b.text) return 0;
+        if (!a.text) { return -1; } if (!b.text) { return 1; }
+        return strcmp(a.text, b.text);
+    }
+    return 0;
+}
+static nmap_t nmap_owned_new(uint8_t kind) {
+    nmap_t map = nmap_new(kind); nmap_owned *owner = malloc(sizeof *owner);
+    if (!owner) { nmap_destroy(map); NVM2C_ABORT(); }
+    *owner = (nmap_owned){map, nmap_owned_head, 0}; nmap_owned_head = owner;
+    nmap_bytes_add(sizeof *owner);
+    if (++nmap_owned_live > nmap_owned_peak) nmap_owned_peak = nmap_owned_live;
+    return map;
+}
+static void nmap_release_owned(void) {
+    while (nvalue_owned_head) { nvalue_owned *owner = nvalue_owned_head;
+        nvalue_owned_head = owner->next; nmap_release_value(owner->value); nmap_bytes_drop(sizeof *owner); free(owner); --nmap_owned_live; }
+    while (nmap_owned_head) { nmap_owned *owner = nmap_owned_head;
+        nmap_owned_head = owner->next; nmap_destroy(owner->map); nmap_bytes_drop(sizeof *owner); free(owner); --nmap_owned_live; }
+}
+static nmap_value nglobal[1];
+typedef struct nrarr_s nrarr_s;
+typedef nrarr_s *nrarr_t;
+typedef struct nrec_s nrec_t;
+struct nrec_s { int64_t f[2]; const char *s[2]; narr_t a[2]; nsarr_t sa[2]; nrarr_t ra[2]; const nrec_t *rec[2]; uint8_t k[2], vk[2]; uint16_t n, tag; uint8_t kind; nmap_t m[2]; };
+struct nrarr_s { nrec_t *data; size_t len; struct nrarr_owner *owner; };
+
+typedef struct nrec_owned { nrec_t value; struct nrec_owned *next; } nrec_owned;
+static nrec_owned *nrec_owned_head;
+static inline const nrec_t *nrec_snapshot(nrec_t value) {
+    nrec_owned *node = malloc(sizeof *node);
+    if (!node) NVM2C_ABORT();
+    nagg_add(sizeof *node);
+    node->value = value; node->next = nrec_owned_head; nrec_owned_head = node;
+    return &node->value;
+}
+static void nrec_release_snapshots(void) {
+    while (nrec_owned_head) { nrec_owned *node = nrec_owned_head;
+        nrec_owned_head = node->next; nagg_drop(sizeof *node); free(node); }
+}
+typedef struct { uint8_t kind; const void *ptr; } nroot_ref;
+typedef struct { nroot_ref *items; size_t count, capacity; size_t *slots; size_t slot_count; } nroot_list;
+typedef struct nroot_frame { nroot_list live; struct nroot_frame *prev; } nroot_frame;
+static nroot_frame *nroot_head;
+static size_t nroot_hash(uint8_t kind, const void *ptr) {
+    uint64_t value = (uint64_t)(uintptr_t)ptr ^ kind;
+    value = (value ^ (value >> 30)) * UINT64_C(0xbf58476d1ce4e5b9);
+    value = (value ^ (value >> 27)) * UINT64_C(0x94d049bb133111eb);
+    return (size_t)(value ^ (value >> 31));
+}
+static size_t nroot_slot(const nroot_list *list, uint8_t kind, const void *ptr) {
+    size_t slot = nroot_hash(kind, ptr) & (list->slot_count - 1);
+    while (list->slots[slot]) {
+        size_t index = list->slots[slot] - 1;
+        if (list->items[index].kind == kind && list->items[index].ptr == ptr) break;
+        slot = (slot + 1) & (list->slot_count - 1);
+    }
+    return slot;
+}
+static int nroot_contains(const nroot_list *list, uint8_t kind, const void *ptr) {
+    return list->slot_count && list->slots[nroot_slot(list, kind, ptr)] != 0;
+}
+static inline void nroot_reset(nroot_list *list) {
+    list->count = 0;
+    if (list->slot_count) memset(list->slots, 0, list->slot_count * sizeof *list->slots);
+}
+static void nroot_destroy(nroot_list *list) {
+    free(list->items); free(list->slots); *list = (nroot_list){0};
+}
+static void nroot_add(nroot_list *list, uint8_t kind, const void *ptr) {
+    if (!ptr || kind == 0 || kind == 2 || kind == 9 || kind == 11) return;
+    if (nroot_contains(list, kind, ptr)) return;
+    if (list->count >= list->slot_count / 2) {
+        if (list->slot_count > SIZE_MAX / 2 / sizeof *list->slots) NVM2C_ABORT();
+        size_t count = list->slot_count ? list->slot_count * 2 : 32;
+        size_t *slots = calloc(count, sizeof *slots);
+        if (!slots) NVM2C_ABORT();
+        free(list->slots); list->slots = slots; list->slot_count = count;
+        for (size_t i = 0; i < list->count; ++i)
+            list->slots[nroot_slot(list, list->items[i].kind, list->items[i].ptr)] = i + 1;
+    }
+    if (list->count == list->capacity) {
+        if (list->capacity > SIZE_MAX / 2 / sizeof *list->items) NVM2C_ABORT();
+        size_t capacity = list->capacity ? list->capacity * 2 : 16;
+        nroot_ref *items = realloc(list->items, capacity * sizeof *items);
+        if (!items) NVM2C_ABORT();
+        list->items = items; list->capacity = capacity;
+    }
+    size_t slot = nroot_slot(list, kind, ptr);
+    list->items[list->count++] = (nroot_ref){kind, ptr};
+    list->slots[slot] = list->count;
+}
+static void nroot_value(nroot_list *work, nmap_value value) {
+    if (value.kind == 8) nroot_add(work, 4, value.text);
+    else if (value.kind == 5) nroot_add(work, 1, value.text);
+    else if (value.kind == 13) nroot_add(work, 7, value.text);
+    else if (value.kind == 7) nroot_add(work, (uint8_t)value.integer, value.text);
+}
+static void nroot_trace(nroot_list *work) {
+    for (size_t cursor = 0; cursor < work->count; ++cursor) {
+        nroot_ref root = work->items[cursor];
+        if (root.kind == 8) nroot_value(work, *(const nmap_value *)root.ptr);
+        else if (root.kind == 3 || root.kind == 10 || root.kind == 12) {
+            const narr_s *a = root.ptr;
+            nroot_add(work, 128, a->owner);
+        }
+        else if (root.kind == 5) {
+            const nsarr_s *a = root.ptr;
+            nroot_add(work, 128, a->owner);
+            for (size_t i = 0; i < a->len; ++i) nroot_add(work, 1, a->data[i]);
+        } else if (root.kind == 13) {
+            const naarr_s *a = root.ptr;
+            nroot_add(work, 128, a->owner);
+            if (a->len && !a->data) NVM2C_ABORT();
+            for (size_t i = 0; i < a->len; ++i) nroot_value(work, a->data[i]);
+        } else if (root.kind == 6) {
+            const nrarr_s *a = root.ptr;
+            nroot_add(work, 128, a->owner);
+            if (a->len && !a->data) NVM2C_ABORT();
+            for (size_t i = 0; i < a->len; ++i) nroot_add(work, 4, &a->data[i]);
+        } else if (root.kind == 4) {
+            const nrec_t *r = root.ptr;
+            for (size_t i = 0; i < r->n; ++i) {
+                if (r->k[i] == 1) nroot_add(work, 1, r->s[i]);
+                else if (r->k[i] == 3 || r->k[i] == 10 || r->k[i] == 12) nroot_add(work, r->k[i], r->a[i]);
+                else if (r->k[i] == 4) nroot_add(work, 4, r->rec[i]);
+                else if (r->k[i] == 5) nroot_add(work, 5, r->sa[i]);
+                else if (r->k[i] == 6) nroot_add(work, 6, r->ra[i]);
+                else if (r->k[i] == 7) nroot_add(work, 7, r->m[i]);
+                else if (r->k[i] == 8) nroot_value(work, (nmap_value){r->vk[i], r->f[i], (char *)r->s[i]});
+            }
+        }
+    }
+    /* I mark each owner once after closing the same reachable graph. */
+    for (nvalue_owned *v = nvalue_owned_head; v; v = v->next)
+        if (nroot_contains(work, 1, v->value.text)) v->marked = 1;
+    for (nmap_owned *m = nmap_owned_head; m; m = m->next)
+        if (nroot_contains(work, 7, m->map)) m->marked = 1;
+}
+static void nmap_sweep(void) {
+    nmap_owned **maps = &nmap_owned_head;
+    while (*maps) {
+        nmap_owned *owner = *maps;
+        if (owner->marked) { owner->marked = 0; maps = &owner->next; }
+        else { *maps = owner->next; nmap_destroy(owner->map); nmap_bytes_drop(sizeof *owner); free(owner); --nmap_owned_live; }
+    }
+    nvalue_owned **values = &nvalue_owned_head;
+    while (*values) {
+        nvalue_owned *owner = *values;
+        if (owner->marked) { owner->marked = 0; values = &owner->next; }
+        else { *values = owner->next; nmap_release_value(owner->value); nmap_bytes_drop(sizeof *owner); free(owner); --nmap_owned_live; }
+    }
+}
+static void nagg_sweep(const nroot_list *roots) {
+    (void)roots;
+    nrec_owned **records = &nrec_owned_head;
+    while (*records) {
+        nrec_owned *owner = *records;
+        if (nroot_contains(roots, 4, &owner->value)) records = &owner->next;
+        else { *records = owner->next; nagg_drop(sizeof *owner); free(owner); }
+    }
+    nagg_allocation_debt = 0;
+    nagg_collection_budget = nagg_live_bytes > 65536 ? nagg_live_bytes : 65536;
+}
+static void nmap_collect(void) {
+    nroot_list work = {0};
+    for (nroot_frame *f = nroot_head; f; f = f->prev)
+        for (size_t i = 0; i < f->live.count; ++i)
+            nroot_add(&work, f->live.items[i].kind, f->live.items[i].ptr);
+    for (size_t i = 0; i < 1; ++i) nroot_value(&work, nglobal[i]);
+    nroot_trace(&work);
+    nagg_sweep(&work);
+    nroot_destroy(&work); nmap_sweep();
+    nmap_allocation_debt = 0;
+    nmap_collection_budget = nmap_live_bytes > 65536 ? nmap_live_bytes : 65536;
+}
+/* I trace fresh mutable edges for map debt or an owned byte budget.
+ * Without allocation, dropped owners wait for the next allocating safepoint. */
+static inline void nmap_collect_if_needed(void) {
+    if (nmap_allocation_debt >= nmap_collection_budget || nagg_allocation_debt >= nagg_collection_budget) nmap_collect();
+}
+static inline narr_t nvalue_require_int_array(nmap_value a) {
+    if (a.kind != 7 || a.integer != 3 || !a.text) NVM2C_ABORT();
+    return (narr_t)a.text;
+}
+static inline nrec_t nvalue_require_record(nmap_value value) {
+    if (value.kind != 8 || !value.text) NVM2C_ABORT();
+    const nrec_t *record = (const nrec_t *)value.text;
+    if (record->kind != 0) NVM2C_ABORT();
+    return *record;
+}
+static inline int64_t nvalue_array_len(nmap_value a) {
+    if (a.kind != 7 || !a.text) NVM2C_ABORT();
+    if (a.integer == 3 || a.integer == 10 || a.integer == 12) return (int64_t)((narr_t)a.text)->len;
+    if (a.integer == 5) return (int64_t)((nsarr_t)a.text)->len;
+    if (a.integer == 6) return (int64_t)((nrarr_t)a.text)->len;
+    NVM2C_ABORT();
+}
+static inline nmap_value nvalue_array_get(nmap_value a, int64_t index) {
+    int64_t length = nvalue_array_len(a);
+    if (index < 0 || (uint64_t)index >= (uint64_t)length) return (nmap_value){0, 0, NULL};
+    size_t at = (size_t)index;
+    if (a.integer == 6) NVM2C_ABORT();
+    if (a.integer == 3 || a.integer == 10 || a.integer == 12) return (nmap_value){a.integer == 12 ? 3 : a.integer == 10 ? 4 : 1, ((narr_t)a.text)->data[at], NULL};
+    return (nmap_value){5, 0, (char *)((nsarr_t)a.text)->data[at]};
+}
+static inline nmap_value nvalue_array_set(nmap_value a, int64_t index, nmap_value value) {
+    if (a.integer == 6) NVM2C_ABORT();
+    if (index < 0 || (uint64_t)index >= (uint64_t)nvalue_array_len(a)) NVM2C_ABORT();
+    size_t at = (size_t)index;
+    if (a.integer == 3) ((narr_t)a.text)->data[at] = nvalue_require_int(value);
+    else if (a.integer == 10) ((narr_t)a.text)->data[at] = nvalue_require_bool(value);
+    else if (a.integer == 12) ((narr_t)a.text)->data[at] = nvalue_from_float(nvalue_require_float(value)).integer;
+    else ((nsarr_t)a.text)->data[at] = nvalue_require_string(value);
+    return a;
+}
+static inline nmap_value nvalue_array_push(nmap_value a, nmap_value value) {
+    (void)nvalue_array_len(a); (void)value;
+    NVM2C_ABORT();
+}
+static void nl_store(const nrec_t * a0);
+static int64_t nl_main(void);
+
+static void nl_store(const nrec_t * a0) {
+    (void)ni64_from_bits;
+    nrec_t *rl = calloc(1, sizeof *rl);
+    if (!rl) NVM2C_ABORT();
+    rl[0] = *a0;
+    int64_t t[1] = {0}; (void)t;
+    double f[1] = {0}; (void)f;
+    const char *s[1] = {0}; (void)s;
+    narr_t a[1] = {0}; (void)a;
+    nsarr_t sa[1] = {0}; (void)sa;
+    nrec_t *r = 3 ? calloc(3, sizeof *r) : NULL;
+    if (3 && !r) NVM2C_ABORT();
+    nrarr_t ra[1] = {0}; (void)ra;
+    nmap_t m[1] = {0}; (void)m;
+    nmap_value v[1] = {0}; (void)v;
+    nroot_frame nroots = {0}; nroots.prev = nroot_head; nroot_head = &nroots;
+    if (0) goto L_return;
+    r[0] = rl[0];
+    if (0 >= r[0].n) NVM2C_ABORT();
+    if (r[0].k[0] != 4) NVM2C_ABORT();
+    if (!r[0].rec[0]) NVM2C_ABORT();
+    r[1] = *r[0].rec[0];
+    if (0 >= r[1].n) NVM2C_ABORT();
+    if (r[1].k[0] != 4) NVM2C_ABORT();
+    if (!r[1].rec[0]) NVM2C_ABORT();
+    r[2] = *r[1].rec[0];
+    nglobal_record_0 = r[2];
+    nglobal[0] = (nmap_value){8, 0, (char *)&nglobal_record_0};
+    goto L_return;
+L_return:
+    nroot_head = nroots.prev; nroot_destroy(&nroots.live);
+    free(r);
+    free(rl);
+    return;
+}
+
+static int64_t nl_main(void) {
+    (void)ni64_from_bits;
+    int64_t t[5] = {0}; (void)t;
+    double f[1] = {0}; (void)f;
+    const char *s[1] = {0}; (void)s;
+    narr_t a[1] = {0}; (void)a;
+    nsarr_t sa[1] = {0}; (void)sa;
+    nrec_t *r = 4 ? calloc(4, sizeof *r) : NULL;
+    if (4 && !r) NVM2C_ABORT();
+    nrarr_t ra[1] = {0}; (void)ra;
+    nmap_t m[1] = {0}; (void)m;
+    int64_t nresult = {0};
+    nmap_value v[1] = {0}; (void)v;
+    nroot_frame nroots = {0}; nroots.prev = nroot_head; nroot_head = &nroots;
+    if (0) goto L_return;
+    t[0] = 42LL;
+    r[0].n = 1;
+    r[0].kind = 0; r[0].tag = 0;
+    r[0].k[0] = 0;
+    r[0].f[0] = t[0];
+    r[1].n = 1;
+    r[1].kind = 0; r[1].tag = 0;
+    r[1].k[0] = 4;
+    r[1].rec[0] = nrec_snapshot(r[0]);
+    r[2].n = 1;
+    r[2].kind = 0; r[2].tag = 0;
+    r[2].k[0] = 4;
+    r[2].rec[0] = nrec_snapshot(r[1]);
+    nroot_reset(&nroots.live);
+    nroot_add(&nroots.live, 4, &r[2]);
+    nmap_collect_if_needed();
+    nl_store(&r[2]);
+    v[0] = nglobal[0];
+    r[3] = nvalue_require_record(v[0]);
+    if (0 >= r[3].n) NVM2C_ABORT();
+    if (r[3].k[0] != 0 && !(r[3].k[0] == 8 && r[3].vk[0] == 1)) NVM2C_ABORT();
+    t[1] = r[3].f[0];
+    t[2] = 42LL;
+    t[3] = t[1] == t[2];
+    if (!t[3]) NVM2C_ABORT();
+    t[4] = 0LL;
+    nresult = t[4];
+    goto L_return;
+L_return:
+    nroot_head = nroots.prev; nroot_destroy(&nroots.live);
+    free(r);
+    return nresult;
+}
+
+int main(void) {
+    (void)nf64_to_i64;
+    (void)nparse_binary64;
+    (void)nano_rt_f64_add; (void)nano_rt_f64_sub; (void)nano_rt_f64_mul; (void)nano_rt_f64_div;
+    (void)nrec_f64;
+    (void)nl_store;
+    (void)nl_main;
+    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;
+    (void)nvalue_numeric; (void)nvalue_from_float; (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_cast_u8; (void)nvalue_cast_float; (void)nvalue_equal;
+    (void)nvalue_compare;
+    (void)nvalue_require_record; (void)nvalue_require_int_array; (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;
+    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;
+    (void)nroot_reset; (void)nmap_collect_if_needed;
+    (void)nagg_add; (void)nagg_drop;
+    (void)nrec_snapshot;
+    int result = (int)nl_main();
+    nrec_release_snapshots();
+    nmap_release_owned();
+    return result;
+}
+
+----
+I stopped at a native invariant in nhost_walk_0 at generated C line 747.
+I stopped at a native invariant in nhost_walk_0 at generated C line 731.
+I stopped at a native invariant in nhost_walk_0 at generated C line 733.
+I stopped at a native invariant in nhost_walk_0 at generated C line 736.
+I stopped at a native invariant in nvalue_require_int at generated C line 626.
+I stopped at a native invariant in nvalue_require_int at generated C line 626.
+I stopped at a native invariant in nvalue_require_int at generated C line 626.
+I stopped at a native invariant in nl_update at generated C line 942.
+I stopped at a native invariant in nl_update at generated C line 942.
+I stopped at a native invariant in nvalue_array_len at generated C line 896.
+I stopped at a native invariant in nvalue_array_len at generated C line 896.
+I stopped at a native invariant in nvalue_array_len at generated C line 896.
+I stopped at a native invariant in nvalue_require_int at generated C line 678.
+I stopped at a native invariant in nl_prove at generated C line 61.
+I stopped at a native invariant in nvalue_array_len at generated C line 816.
+I stopped at a native invariant in nl_main at generated C line 914.
+I stopped at a native invariant in nvalue_require_int at generated C line 626.
+I stopped at a native invariant in nvalue_require_int at generated C line 626.
+I stopped at a native invariant in nvalue_require_int at generated C line 626.
+I stopped at a native invariant in nvalue_require_int at generated C line 626.
+I stopped at a native invariant in nvalue_require_int at generated C line 626.
+I stopped at a native invariant in nvalue_require_int at generated C line 626.
+I stopped at a native invariant in nvalue_require_int at generated C line 626.
+I stopped at a native invariant in nvalue_require_int at generated C line 626.
+I stopped at a native invariant in nvalue_require_int at generated C line 626.
+I stopped at a native invariant in nvalue_require_int at generated C line 641.
+I stopped at a native invariant in nvalue_require_int at generated C line 641.
+I stopped at a native invariant in nvalue_require_int at generated C line 641.
+I stopped at a native invariant in nvalue_require_int at generated C line 678.
+I stopped at a native invariant in nvalue_array_len at generated C line 816.
+I stopped at a native invariant in nvalue_array_len at generated C line 816.
+I stopped at a native invariant in nvalue_array_set at generated C line 893.
+I stopped at a native invariant in nvalue_array_set at generated C line 893.
+I stopped at a native invariant in nvalue_array_set at generated C line 893.
+I stopped at a native invariant in nvalue_array_set at generated C line 893.
+I stopped at a native invariant in nvalue_array_set at generated C line 893.
+I stopped at a native invariant in nvalue_array_set at generated C line 893.
+I stopped at a native invariant in nvalue_array_set at generated C line 893.
+I stopped at a native invariant in nvalue_array_set at generated C line 893.
+I stopped at a native invariant in nvalue_array_set at generated C line 893.
+I stopped at a native invariant in nvalue_array_set at generated C line 893.
+I stopped at a native invariant in nvalue_array_set at generated C line 893.
+I stopped at a native invariant in nvalue_array_set at generated C line 893.
+I stopped at a native invariant in nvalue_array_set at generated C line 917.
+I stopped at a native invariant in nvalue_array_set at generated C line 917.
+I stopped at a native invariant in nvalue_array_set at generated C line 917.
+I stopped at a native invariant in nvalue_array_set at generated C line 917.
+I stopped at a native invariant in nvalue_array_set at generated C line 917.
+I stopped at a native invariant in nvalue_array_set at generated C line 917.
+I stopped at a native invariant in nvalue_require_int at generated C line 578.
+I stopped at a native invariant in nvalue_require_bool at generated C line 582.
+I stopped at a native invariant in nvalue_require_string at generated C line 586.
+I stopped at a native invariant in nvalue_require_int at generated C line 578.
+I stopped at a native invariant in nvalue_require_int at generated C line 578.
+I stopped at a native invariant in nvalue_require_string at generated C line 586.
+I stopped at a native invariant in nvalue_require_string at generated C line 586.
+I stopped at a native invariant in nvalue_require_bool at generated C line 582.
+I stopped at a native invariant in nvalue_require_bool at generated C line 582.
+I stopped at a native invariant in nvalue_require_bool at generated C line 582.
+I stopped at a native invariant in nvalue_require_string at generated C line 602.
+I stopped at a native invariant in nvalue_require_string at generated C line 602.
+I stopped at a native invariant in nvalue_require_string at generated C line 602.
+I stopped at a native invariant in nvalue_require_string at generated C line 639.
+I stopped at a native invariant in nvalue_require_string at generated C line 602.
+I stopped at a native invariant in nl_main at generated C line 846.
+I stopped at a native invariant in nvalue_require_string at generated C line 586.
+I stopped at a native invariant in nvalue_require_bool at generated C line 582.
+I stopped at a native invariant in nvalue_require_bool at generated C line 582.
+I stopped at a native invariant in nvalue_require_bool at generated C line 582.
+I stopped at a native invariant in nvalue_require_int at generated C line 578.
+I stopped at a native invariant in nl_main at generated C line 881.
+
+[nvm2c] structured C11 from NanoISA...
+
+  FAIL: I preserve scalar, array and record values across nested-record global stores  (tests/nanoisa/test_nvm2c.c:1216)
+  FAIL: I preserve scalar, array and record values across nested-record global stores  (tests/nanoisa/test_nvm2c.c:1216)
+  FAIL: I reject incompatible scalar and aggregate stores to one global  (tests/nanoisa/test_nvm2c.c:1234)
+
+=== 2638 passed, 3 failed ===
+make: *** [test-nvm2c] Error 1

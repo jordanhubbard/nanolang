@@ -947,6 +947,7 @@ static int dap_run_program(void) {
     Environment *env = create_environment();
     ModuleList *modules = create_module_list();
     if (!process_imports(program, env, modules, g_dap.program_path)) {
+        env_require_destroyable(env);
         free_ast(program); free_tokens(tokens, token_count);
         free_environment(env); free_module_list(modules); clear_module_cache();
         free(source);
@@ -956,6 +957,7 @@ static int dap_run_program(void) {
     /* Type check */
     typecheck_set_current_file(g_dap.program_path);
     if (!type_check(program, env)) {
+        env_require_destroyable(env);
         free_ast(program); free_tokens(tokens, token_count);
         free_environment(env); free_module_list(modules); clear_module_cache();
         free(source);
@@ -995,6 +997,7 @@ static int dap_run_program(void) {
     g_dap.running = false;
 
     /* Cleanup */
+    env_require_destroyable(env);
     free_ast(program);
     free_tokens(tokens, token_count);
     free_environment(env);

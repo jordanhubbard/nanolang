@@ -1,0 +1,12 @@
+{
+  "compiler_revision": "75051f1931b1bca9e94b3b792fc89273179ecd8f",
+  "fixture_revision": "4cbbdd508885e63ee264e7edcb60a377e768d458",
+  "changed_paths": [
+    "Makefile.gnu",
+    "docs/NANOISA_RECORD_LITERAL_ORDER.md",
+    "docs/ROADMAP.md",
+    "tests/test_record_literal_order.py"
+  ],
+  "fixture_sha256": "502ea2e7d53c7c85915e05249be2155765915fd8616b4e6abf6502d0f7cc4c26",
+  "reuse_scope": "No compiler, runtime or Nano fixture changes; added optimization test and make target only."
+}

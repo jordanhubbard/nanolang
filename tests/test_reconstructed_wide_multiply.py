@@ -1,13 +1,13 @@
 """I test small independent wide products with successful pinned compilers."""
 from pathlib import Path
 import json
-import os
 import re
 import shutil
 import subprocess
 import tempfile
 import unittest
 from tests import test_reconstructed_integer_addition as addition
+from tests.native_toolchain import native_cc
 
 ROOT = Path(__file__).resolve().parents[1]
 MASK = (1 << 64)-1
@@ -58,7 +58,7 @@ class WideMultiply(unittest.TestCase):
         module = addition.IntegerReconstruction.assemble(self, directory, text)
         source, binary = directory/'native.c', directory/'native'
         self.checked([ROOT/'bin/nvm2c', module, '-o', source])
-        self.checked([os.environ.get('CC', 'cc'), '-std=c11', '-O1', '-Wall', '-Wextra', '-Werror',
+        self.checked([*native_cc(), '-std=c11', '-O1', '-Wall', '-Wextra', '-Werror',
                       '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
         self.checked([binary])
         return module

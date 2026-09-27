@@ -794,6 +794,15 @@ int main(int argc, char **argv) {
     ModuleBuildMetadata *meta = module_load_metadata(argv[2]);
     if (!meta) return 1;
     int status = 1;
+    if (!strcmp(argv[1], "typed-abi")) {
+        uint64_t exact = module_build_context(meta);
+        char *schema = meta->typed_abi;meta->typed_abi = NULL;
+        uint64_t absent = module_build_context(meta);meta->typed_abi = schema;
+        puts(schema ? schema : "null");
+        printf("%llu %llu\n", (unsigned long long)exact, (unsigned long long)absent);
+        module_metadata_free(meta);
+        return exact && absent ? 0 : 1;
+    }
     if (!strcmp(argv[1], "forwarded-invocation-allocation")) {
         ModuleBuildMetadata original = *meta;
         unsigned declined = 0, captured_count = 0;

@@ -5,6 +5,7 @@ import shlex
 import subprocess
 import tempfile
 import unittest
+from tests.managed_probe_flags import compiler_command, compile_flags, link_flags
 ROOT=Path(__file__).resolve().parents[1]
 
 class ArrayShapes(unittest.TestCase):
@@ -17,9 +18,9 @@ class ArrayShapes(unittest.TestCase):
         for name,compiler,flags in [('ordinary','cc',[]),('sanitized','clang',
             shlex.split(os.environ.get('NMS_NATIVE_CLANG_FLAGS',''))+['-fsanitize=address,undefined','-fno-sanitize-recover=all'])]:
             exe=cls.work/name
-            subprocess.run([compiler,*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror','-DNMA_TESTING',
+            subprocess.run([*compiler_command(compiler),*compile_flags(),*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror','-DNMA_TESTING',
                 ROOT/'src/nanoisa/managed_array_shapes.c',ROOT/'tests/nanoisa/test_managed_array_shapes.c',
-                *objects,'-lm','-lcrypto','-o',exe],cwd=ROOT,check=True,capture_output=True,text=True)
+                *objects,'-lm','-lcrypto',*link_flags(),'-o',exe],cwd=ROOT,check=True,capture_output=True,text=True)
             cls.probes.append(exe)
     @classmethod
     def tearDownClass(cls):cls.temp.cleanup()

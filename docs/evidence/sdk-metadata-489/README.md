@@ -1,0 +1,11 @@
+# I qualify owned typed C ABI metadata and cache fingerprints
+
+I qualify frozen `489e45c7330ab2fe2263a06c5672d31c0e8360e6` with fresh Linux GCC and Darwin Apple Clang ordinary providers, then Linux GCC and Darwin Homebrew Clang ASan/UBSan/LSan providers. All four lanes pass both owning methods: parser allocation/roundtrip ownership, and actual production generation-probe fingerprints/refusals. Each build and whole target retains its1,200-second bound; each supervised inner command retains240seconds.
+
+Linux ordinary/sanitized provider builds pass3.246/4.116seconds and owning targets pass1.076/2.158seconds. Darwin builds pass1.808/2.257seconds and owning targets pass2.093/7.040seconds. All source/provider/tool endpoint maps agree, every supervised leader is reaped and process group disappears, and both host terminal statuses are zero. Owning executable hashes and Darwin companion DWARF hashes are retained separately from provider maps.
+
+The controls retain closed/unique metadata grammar, exact bounded indices and C spellings, input-independent copied storage, canonical object ordering with ordered arrays, parser roundtrip, every measured allocation prefix in both failure modes and fresh recovery. Actual `module_build_context` comparisons prove absent-schema equality, canonical key-order stability, and fingerprint changes for meaningful target/type/member/function/result mutations. Missing/duplicate/unknown/malformed/NUL/oversized metadata refuses. No provider function is invoked.
+
+My516 report members are sealed by length and SHA256 in `seal.json`; the actual driver and frozen Git scope are included. The separately retained [819 first terminal](../sdk-metadata-819-first/README.md) remains a failed complete target: its two new methods passed, but an imported unrelated TestCase setup failed. The reviewed489 correction changes only helper import/binding lines and preserves all command code and assertions. All corrected providers are freshly rebuilt.
+
+This qualifies metadata parsing and build-context participation only. Semantic declaration resolution, generated typed C adapters, immutable image attachment, callbacks/COP transport and full installed SDK execution admission remain required.

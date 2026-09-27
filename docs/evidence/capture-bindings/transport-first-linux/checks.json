@@ -1,0 +1,161 @@
+{
+  "source": "e82158064",
+  "scope": "Fresh Linux GCC ordinary transport/codec/schema only; no broader capture or release acceptance.",
+  "histories": [
+    {
+      "name": "setup",
+      "bundle": "setup.tar.gz",
+      "sha256": "55a94de2ebde7666ba07b09b73e51f2eef8ad190149770843438322bb1c4d79e",
+      "files": [
+        {
+          "path": "run.py",
+          "bytes": 3182,
+          "sha256": "a118cf917163dfaf31629badb4a1024f924200c8e4a80317f25a8cf4346e6c1a"
+        },
+        {
+          "path": "reports/setup-terminal.json",
+          "bytes": 207,
+          "sha256": "762a8520a800cbec44a787d303e56df9132852d177af7a58b5c45c823c04c999"
+        }
+      ],
+      "retained_root": "/home/jkh/nanolang-qualification/capture-transport-e821-linux"
+    },
+    {
+      "name": "r2",
+      "bundle": "r2.tar.gz",
+      "sha256": "72e7550e6eac6c018d0c255a8b7613c6c0ae8ca933b3f494d698b6574e86f8d5",
+      "files": [
+        {
+          "path": "run.py",
+          "bytes": 3188,
+          "sha256": "b09c18c12bf5262e0368b1588bac5ad78c599af38bf64675a0244031eada8762"
+        },
+        {
+          "path": "reports/checks.json",
+          "bytes": 250,
+          "sha256": "10aaa23c08a3da03870270fe7dcbbd5cf29653c62f150ba284179b4ee93ffabc"
+        },
+        {
+          "path": "reports/command.json",
+          "bytes": 293,
+          "sha256": "5faca6962480e9d52371324551fe0057449f8b92a526e55d05339ddb46215587"
+        },
+        {
+          "path": "reports/inputs-after.json",
+          "bytes": 547697,
+          "sha256": "461f7a328f639d5c997f5c58533b2fe3935220d642c0c696c3e3a76ddabc46d8"
+        },
+        {
+          "path": "reports/inputs-before.json",
+          "bytes": 547697,
+          "sha256": "461f7a328f639d5c997f5c58533b2fe3935220d642c0c696c3e3a76ddabc46d8"
+        },
+        {
+          "path": "reports/products.json",
+          "bytes": 168,
+          "sha256": "de3ba7463c5dd4d36435a7b6edee84af893d60f33e04dd32c340be8ba23a28e2"
+        },
+        {
+          "path": "reports/source.json",
+          "bytes": 272,
+          "sha256": "05404f019a884b7cbf9742d393501dfcec5bf7f912f43b94181700d8bba520a9"
+        },
+        {
+          "path": "reports/stderr.log",
+          "bytes": 7665,
+          "sha256": "47af3292043104eaa0fb01fcb39dac39fa355741c30d41e3c2c2514ef2c34311"
+        },
+        {
+          "path": "reports/stdout.log",
+          "bytes": 492,
+          "sha256": "38ae5aa1764076acb54be068a036455ffcff68b0b09317f5eea73a1db48ad0d2"
+        },
+        {
+          "path": "reports/terminal.json",
+          "bytes": 146,
+          "sha256": "d1a85994af4ae4715f005b8d9601fb8d59419e2f67275d224666086c2a6ccddf"
+        },
+        {
+          "path": "reports/tools-after.json",
+          "bytes": 1165,
+          "sha256": "dbfa74fc6f04e2f180c42b410942f0987a8dee82b71008b8f5e6e6922c271e6c"
+        },
+        {
+          "path": "reports/tools-before.json",
+          "bytes": 1165,
+          "sha256": "dbfa74fc6f04e2f180c42b410942f0987a8dee82b71008b8f5e6e6922c271e6c"
+        }
+      ],
+      "retained_root": "/home/jkh/nanolang-qualification/capture-transport-e821-linux-r2"
+    },
+    {
+      "name": "r3",
+      "bundle": "r3.tar.gz",
+      "sha256": "f32ae60996b72d2939a25693d83c8cfd95ca5272b2073abd1e4056191b6abe40",
+      "files": [
+        {
+          "path": "run.py",
+          "bytes": 3458,
+          "sha256": "70666a5bfb7e0cde8e53c0993918c0e0d4959d86ff5ac4c0d99ecdd6d386ef34"
+        },
+        {
+          "path": "reports/checks.json",
+          "bytes": 250,
+          "sha256": "1c2ea603548dd3c643de6b8eef0404ff0da5d248870b499b840f23adbe4b932a"
+        },
+        {
+          "path": "reports/command.json",
+          "bytes": 293,
+          "sha256": "38372819c8d50b74fb68bc3ad6afd56fb6b39a2bfcb33dba03928f6cc774fe52"
+        },
+        {
+          "path": "reports/inputs-after.json",
+          "bytes": 547697,
+          "sha256": "461f7a328f639d5c997f5c58533b2fe3935220d642c0c696c3e3a76ddabc46d8"
+        },
+        {
+          "path": "reports/inputs-before.json",
+          "bytes": 547697,
+          "sha256": "461f7a328f639d5c997f5c58533b2fe3935220d642c0c696c3e3a76ddabc46d8"
+        },
+        {
+          "path": "reports/products.json",
+          "bytes": 12437,
+          "sha256": "cae271b4d774e5ce6cfb216dd057baf884bab57799533d007abbcb09d2619a69"
+        },
+        {
+          "path": "reports/source.json",
+          "bytes": 272,
+          "sha256": "05404f019a884b7cbf9742d393501dfcec5bf7f912f43b94181700d8bba520a9"
+        },
+        {
+          "path": "reports/stderr.log",
+          "bytes": 132,
+          "sha256": "54932bad16f6acd1c2032065c023ac131d9f58165e79d333e9931cccb720152e"
+        },
+        {
+          "path": "reports/stdout.log",
+          "bytes": 8814,
+          "sha256": "e731164e22d3151b616f4c2f27619c796839415a4932fe2991e48e0a1770adc2"
+        },
+        {
+          "path": "reports/terminal.json",
+          "bytes": 145,
+          "sha256": "365dac1d236f7ad4cac16a7c0fd2cf08be97f673ac150ffe97d8ca047b984fbd"
+        },
+        {
+          "path": "reports/tools-after.json",
+          "bytes": 1165,
+          "sha256": "dbfa74fc6f04e2f180c42b410942f0987a8dee82b71008b8f5e6e6922c271e6c"
+        },
+        {
+          "path": "reports/tools-before.json",
+          "bytes": 1165,
+          "sha256": "dbfa74fc6f04e2f180c42b410942f0987a8dee82b71008b8f5e6e6922c271e6c"
+        }
+      ],
+      "retained_root": "/home/jkh/nanolang-qualification/capture-transport-e821-linux-r3"
+    }
+  ],
+  "limitation": "First source archive setup failed before any compilation; retained setup diagnosis and driver, not a separate raw stderr file. r2 schema checker required a Git snapshot and failed; codec977 passed there. r3 uses the same corrected source archive and a local Git baseline, and all targeted checks pass. Actual products remain under the r3 retained root with hashes in reports/products.json."
+}

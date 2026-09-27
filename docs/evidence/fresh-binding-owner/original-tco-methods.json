@@ -1,0 +1,27 @@
+{
+  "base": "55cc9c83e",
+  "source": "c57d96975",
+  "original_method_count": 14,
+  "original_methods_unchanged": true,
+  "methods": {
+    "compile_run": "7b773ccdeebfaf06659357af754bfe8c8a7186ce15a397d3d986c92e84bdebef",
+    "check_both": "afbe187e6505938436ee231344515ff1c50c308c1e6a2aa4be20dd71ddb0467f",
+    "test_argument_swap": "ff3aca31e4ed023117682e1c5dc844907a5b900287c2a101b9d8c01bcf93bd71",
+    "test_early_return": "4a28e2bbe10be880595193143d3c462bcb09b8dd30b286c86b65ca74bf5f10b7",
+    "test_string_result": "d14748c4f49a1e8615945099d39467e43cb078ad2560d95b1fb31e5a31d10456",
+    "test_float_result": "17d465aa0b7a39c1b3e3438cfd8c5978843e4d58986b2bf79994e35e7c20c3bb",
+    "test_generated_name_collision": "f028da044d45dce1f632c7b21f0fe429ba5d4ffc6f483a90f95c154bc6d530b1",
+    "test_void_fallthrough": "5d17f88a9f901c93399316846daa08eb2892e359ec1062d94809ab4572cdd710",
+    "test_array_parameter_metadata_and_deep_recursion": "e6d4f9409ec19e10509bd8bcfd51c3fe8752f47da449a28d707f33286d278472",
+    "test_record_and_tuple_parameters": "135155c957987cfb2b32a03b901f78a54d232a313e16ba0ad3b91541c0a1f4b5",
+    "test_function_parameter_and_callable_expression": "f4e683b4b41c6056e50f643ded179096d13c05c0892485cc888aac1afdf7186d",
+    "test_parameter_shadowing_is_lexical": "6c8b850216ef9a85d475a9786d9322d30471495a8f2598b97e49d675d66a6052",
+    "test_tail_return_inside_while_preserves_loop_control": "6af59f514b219fe2d39109c7306e35efe0e13599f0a4f0f37a23a41037f88b98",
+    "test_tail_return_inside_for_preserves_loop_control": "94861658431beb5635f95f2a4cca7ae1977edc9f1762339b3610e99f4041b31c",
+    "test_tail_return_propagates_through_nested_loops": "6cd2b5b0841cd22a8acf1cd1ed509c3e74877db518a062a4ab33b0ee94088201",
+    "test_million_tail_calls": "59d16789da2e97b944d8cc22690c4bcd2d5494cc89c9559670be22649a1171eb"
+  },
+  "added": [
+    "test_reused_record_tuple_scalar_callback_parameter_names"
+  ]
+}

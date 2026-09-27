@@ -1,0 +1,33 @@
+{
+  "cc": [
+    "/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "flags": [
+    "-O0",
+    "-g",
+    "-isysroot",
+    "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer"
+  ],
+  "links": [
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-L/opt/homebrew/opt/openssl@3/lib"
+  ],
+  "native_cc": [
+    "/usr/bin/clang"
+  ],
+  "native_flags": [
+    "-isysroot",
+    "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  ],
+  "native_links": [
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-L/opt/homebrew/opt/openssl@3/lib"
+  ],
+  "python": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3"
+}

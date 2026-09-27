@@ -1,0 +1,304 @@
+{
+  "scope": "Static manifest and import ownership preparation; no execution",
+  "changes": [
+    {
+      "path": "modules/compiler_support/module.json",
+      "before_public": [
+        "compiler_support.c",
+        "../../src/module_builder.c",
+        "../../src/runtime/module_build_dir.c",
+        "../../src/cJSON.c"
+      ],
+      "after_public": [
+        "compiler_support.c",
+        "../../src/module_builder.c",
+        "../../src/runtime/module_build_dir.c"
+      ],
+      "before_private": [
+        "../../src/utf8.c"
+      ],
+      "after_private": [
+        "../../src/utf8.c",
+        "../../src/cJSON.c"
+      ]
+    },
+    {
+      "path": "modules/std/json/module.json",
+      "before_public": [
+        "json.c",
+        "../../../src/cJSON.c"
+      ],
+      "after_public": [
+        "json.c"
+      ],
+      "before_private": [],
+      "after_private": [
+        "../../../src/cJSON.c"
+      ]
+    },
+    {
+      "path": "modules/nanoisa/module.json",
+      "before_public": [
+        "nanoisa.c",
+        "../../src/nanoisa/isa.c",
+        "../../src/nanoisa/retained_layouts.c",
+        "../../src/nanoisa/passive.c",
+        "../../src/nanoisa/affine_bytecode.c",
+        "../../src/nanoisa/affine_state.c",
+        "../../src/nanoisa/mixed_float_proof.c",
+        "../../src/nanoisa/ownership_contracts.c",
+        "../../src/nanoisa/reference_places.c",
+        "../../src/nanoisa/file_flow.c",
+        "../../src/nanoisa/service_file_nominal.c",
+        "../../src/nanoisa/service_file_nominal_plan.c",
+        "../../src/nanoisa/service_bindings.c",
+        "../../src/nanoisa/service_bindings_module.c",
+        "../../src/nsi_file_plan.c",
+        "../../src/nanoisa/nvm_format.c",
+        "../../src/nanoisa/nvm_format_v2.c",
+        "../../src/nanoisa/nvm_v2_cursor.c",
+        "../../src/nanoisa/nvm_v2_constants.c",
+        "../../src/nanoisa/nvm_v2_signatures.c",
+        "../../src/nanoisa/nvm_v2_layouts.c",
+        "../../src/nanoisa/nvm_v2_functions.c",
+        "../../src/nanoisa/nvm_v2_imports.c",
+        "../../src/nanoisa/nvm_v2_module.c",
+        "../../src/nanoisa/nvm_v2_convert.c",
+        "../../src/nanoisa/local_bindings.c",
+        "../../src/nanoisa/assembler.c",
+        "../../src/nanoisa/disassembler.c",
+        "../../src/nanoisa/verifier.c",
+        "../../src/nanoisa/managed_array_shapes.c",
+        "../../src/nanoisa/verifier_types.c",
+        "../../src/nanovm/vm_decode.c",
+        "../../src/nanovm/vm_dispatch.c",
+        "../../src/nanovm/value.c",
+        "../../src/nanovm/heap.c",
+        "../../src/nanovm/heap_cycles.c"
+      ],
+      "after_public": [
+        "nanoisa.c",
+        "../../src/nanoisa/isa.c",
+        "../../src/nanoisa/retained_layouts.c",
+        "../../src/nanoisa/passive.c",
+        "../../src/nanoisa/affine_bytecode.c",
+        "../../src/nanoisa/affine_state.c",
+        "../../src/nanoisa/mixed_float_proof.c",
+        "../../src/nanoisa/ownership_contracts.c",
+        "../../src/nanoisa/reference_places.c",
+        "../../src/nanoisa/file_flow.c",
+        "../../src/nanoisa/service_file_nominal.c",
+        "../../src/nanoisa/service_file_nominal_plan.c",
+        "../../src/nanoisa/service_bindings.c",
+        "../../src/nanoisa/service_bindings_module.c",
+        "../../src/nanoisa/nvm_format.c",
+        "../../src/nanoisa/nvm_format_v2.c",
+        "../../src/nanoisa/nvm_v2_cursor.c",
+        "../../src/nanoisa/nvm_v2_constants.c",
+        "../../src/nanoisa/nvm_v2_signatures.c",
+        "../../src/nanoisa/nvm_v2_layouts.c",
+        "../../src/nanoisa/nvm_v2_functions.c",
+        "../../src/nanoisa/nvm_v2_imports.c",
+        "../../src/nanoisa/nvm_v2_module.c",
+        "../../src/nanoisa/nvm_v2_convert.c",
+        "../../src/nanoisa/local_bindings.c",
+        "../../src/nanoisa/assembler.c",
+        "../../src/nanoisa/disassembler.c",
+        "../../src/nanoisa/verifier.c",
+        "../../src/nanoisa/managed_array_shapes.c",
+        "../../src/nanoisa/verifier_types.c",
+        "../../src/nanovm/vm_decode.c",
+        "../../src/nanovm/vm_dispatch.c",
+        "../../src/nanovm/value.c",
+        "../../src/nanovm/heap.c",
+        "../../src/nanovm/heap_cycles.c"
+      ],
+      "before_private": [],
+      "after_private": [
+        "../../src/nsi_file_plan.c"
+      ]
+    },
+    {
+      "path": "modules/forth_see/module.json",
+      "before_public": [
+        "forth_see.c",
+        "../nanoisa/nanoisa.c",
+        "../../src/nanoisa/isa.c",
+        "../../src/nanoisa/passive.c",
+        "../../src/nanoisa/affine_bytecode.c",
+        "../../src/nanoisa/affine_state.c",
+        "../../src/nanoisa/mixed_float_proof.c",
+        "../../src/nanoisa/service_bindings.c",
+        "../../src/nanoisa/service_bindings_module.c",
+        "../../src/nanoisa/service_file_nominal.c",
+        "../../src/nanoisa/service_file_nominal_plan.c",
+        "../../src/nsi_file_plan.c",
+        "../../src/nanoisa/ownership_contracts.c",
+        "../../src/nanoisa/retained_layouts.c",
+        "../../src/nanoisa/reference_places.c",
+        "../../src/nanoisa/nvm_format.c",
+        "../../src/nanoisa/nvm_format_v2.c",
+        "../../src/nanoisa/nvm_v2_cursor.c",
+        "../../src/nanoisa/nvm_v2_constants.c",
+        "../../src/nanoisa/nvm_v2_signatures.c",
+        "../../src/nanoisa/nvm_v2_layouts.c",
+        "../../src/nanoisa/nvm_v2_functions.c",
+        "../../src/nanoisa/nvm_v2_imports.c",
+        "../../src/nanoisa/nvm_v2_module.c",
+        "../../src/nanoisa/nvm_v2_convert.c",
+        "../../src/nanoisa/local_bindings.c",
+        "../../src/nanoisa/assembler.c",
+        "../../src/nanoisa/disassembler.c",
+        "../../src/nanoisa/verifier.c",
+        "../../src/nanoisa/managed_array_shapes.c",
+        "../../src/nanoisa/verifier_types.c",
+        "../../src/nanovm/vm_decode.c",
+        "../../src/nanovm/vm_dispatch.c",
+        "../../src/nanovm/value.c",
+        "../../src/nanovm/heap.c",
+        "../../src/nanovm/heap_cycles.c"
+      ],
+      "after_public": [
+        "forth_see.c",
+        "../nanoisa/nanoisa.c",
+        "../../src/nanoisa/isa.c",
+        "../../src/nanoisa/passive.c",
+        "../../src/nanoisa/affine_bytecode.c",
+        "../../src/nanoisa/affine_state.c",
+        "../../src/nanoisa/mixed_float_proof.c",
+        "../../src/nanoisa/service_bindings.c",
+        "../../src/nanoisa/service_bindings_module.c",
+        "../../src/nanoisa/service_file_nominal.c",
+        "../../src/nanoisa/service_file_nominal_plan.c",
+        "../../src/nanoisa/ownership_contracts.c",
+        "../../src/nanoisa/retained_layouts.c",
+        "../../src/nanoisa/reference_places.c",
+        "../../src/nanoisa/nvm_format.c",
+        "../../src/nanoisa/nvm_format_v2.c",
+        "../../src/nanoisa/nvm_v2_cursor.c",
+        "../../src/nanoisa/nvm_v2_constants.c",
+        "../../src/nanoisa/nvm_v2_signatures.c",
+        "../../src/nanoisa/nvm_v2_layouts.c",
+        "../../src/nanoisa/nvm_v2_functions.c",
+        "../../src/nanoisa/nvm_v2_imports.c",
+        "../../src/nanoisa/nvm_v2_module.c",
+        "../../src/nanoisa/nvm_v2_convert.c",
+        "../../src/nanoisa/local_bindings.c",
+        "../../src/nanoisa/assembler.c",
+        "../../src/nanoisa/disassembler.c",
+        "../../src/nanoisa/verifier.c",
+        "../../src/nanoisa/managed_array_shapes.c",
+        "../../src/nanoisa/verifier_types.c",
+        "../../src/nanovm/vm_decode.c",
+        "../../src/nanovm/vm_dispatch.c",
+        "../../src/nanovm/value.c",
+        "../../src/nanovm/heap.c",
+        "../../src/nanovm/heap_cycles.c"
+      ],
+      "before_private": [],
+      "after_private": [
+        "../../src/nsi_file_plan.c"
+      ]
+    },
+    {
+      "path": "modules/file_source_catalog/module.json",
+      "before_public": [
+        "../../src/nanoisa/file_source_catalog.c",
+        "../../src/nsi_file_plan.c"
+      ],
+      "after_public": [
+        "../../src/nanoisa/file_source_catalog.c"
+      ],
+      "before_private": [],
+      "after_private": [
+        "../../src/nsi_file_plan.c"
+      ]
+    },
+    {
+      "path": "modules/file_companion/module.json",
+      "before_public": [
+        "../../src/file_companion_bridge.c",
+        "../../src/file_source_input.c",
+        "../../src/file_companion_snapshot.c",
+        "../../src/nsi_file_binding.c",
+        "../../src/nsi_file_plan.c",
+        "../../src/nsi.c",
+        "../../src/cJSON.c",
+        "../../src/utf8.c",
+        "../../src/nanoisa/file_source_catalog.c"
+      ],
+      "after_public": [
+        "../../src/file_companion_bridge.c",
+        "../../src/file_source_input.c",
+        "../../src/file_companion_snapshot.c",
+        "../../src/nsi_file_binding.c",
+        "../../src/nsi.c"
+      ],
+      "before_private": [],
+      "after_private": [
+        "../../src/nsi_file_plan.c",
+        "../../src/cJSON.c",
+        "../../src/utf8.c",
+        "../../src/nanoisa/file_source_catalog.c"
+      ]
+    }
+  ],
+  "imports": {
+    "compiler_support/compiler_support.nano": [
+      [
+        "cjson_provider",
+        "CompilerCJsonProvider"
+      ]
+    ],
+    "std/json/json.nano": [
+      [
+        "cjson_provider",
+        "JsonImplementationProvider"
+      ]
+    ],
+    "nanoisa/nanoisa.nano": [
+      [
+        "nsi_file_catalog_provider",
+        "NanoisaFileCatalogProvider"
+      ]
+    ],
+    "forth_see/forth_see.nano": [
+      [
+        "nsi_file_catalog_provider",
+        "ForthFileCatalogProvider"
+      ]
+    ],
+    "file_source_catalog/file_source_catalog.nano": [
+      [
+        "nsi_file_catalog_provider",
+        "SourceFileCatalogProvider"
+      ]
+    ],
+    "file_companion/file_companion.nano": [
+      [
+        "cjson_provider",
+        "CompanionCJsonProvider"
+      ],
+      [
+        "nsi_file_catalog_provider",
+        "CompanionPlanProvider"
+      ],
+      [
+        "file_source_catalog",
+        "CompanionCatalogProvider"
+      ]
+    ]
+  },
+  "canonical_public_owner_inventory": {
+    "src/cJSON.c": [
+      "modules/cjson_provider/module.json"
+    ],
+    "src/nsi_file_plan.c": [
+      "modules/nsi_file_catalog_provider/module.json"
+    ],
+    "src/nanoisa/file_source_catalog.c": [
+      "modules/file_source_catalog/module.json"
+    ],
+    "src/utf8.c": []
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "pin": "f54a250dc91248ff6ec639a18718cb823c0c70a7",
+  "configs": [
+    [
+      "gcc-ordinary",
+      "/bin/gcc",
+      []
+    ],
+    [
+      "gcc-sanitizer",
+      "/bin/gcc",
+      [
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ]
+    ],
+    [
+      "clang-sanitizer",
+      "/usr/local/bin/clang",
+      [
+        "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ]
+    ]
+  ],
+  "source_scope": "all active tracked inputs excluding historical docs/evidence, selected prepared provider objects and bin tools; complete fresh endpoints; generated module outputs separately mapped and may change",
+  "sanitizer_scope": "five fixture helpers rebuild their documented owning TUs; other prepared providers ordinary",
+  "tools_scope": "selected compilers/subtools/runtimes; not full transitive tool closure",
+  "cleanup": "bounded own observed descendant process groups; fixture also supervises each child"
+}

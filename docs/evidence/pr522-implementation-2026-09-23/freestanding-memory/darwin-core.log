@@ -1,0 +1,8 @@
+test_native_core_sanitizers_and_production_mode (tests.test_managed_string_core.ManagedCore.test_native_core_sanitizers_and_production_mode) ... ok
+test_production_wasm_and_verified_runtime_ir_have_no_test_hooks (tests.test_managed_string_core.ManagedCore.test_production_wasm_and_verified_runtime_ir_have_no_test_hooks) ... ok
+test_wasm_import_free_reuse_pressure_and_fresh_instances (tests.test_managed_string_core.ManagedCore.test_wasm_import_free_reuse_pressure_and_fresh_instances) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.536s
+
+OK

@@ -3,10 +3,26 @@
 #endif
 #include "compiler_support.h"
 #include "../../src/module_builder.h"
+#include "../../src/runtime/module_build_dir.h"
+#include "../../src/runtime/dyn_array.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+
+const char *nlc_runtime_root(void) {
+    static _Thread_local char root[4096];
+    static _Thread_local bool initialized;
+    if (initialized) return root;
+    bool installed;
+    initialized = true;
+    root[0] = 0;
+    if (nano_native_sdk_prepare() != NANO_SDK_OK ||
+        nano_native_sdk_root(root, sizeof(root), &installed) != NANO_SDK_OK) root[0] = 0;
+    return root;
+}
+
+int64_t nlc_native_array_abi(void) { return NANO_DYN_ARRAY_ABI_VERSION; }
 
 const char *nlc_module_artifact(const char *source_path) {
     static _Thread_local char *snapshot;

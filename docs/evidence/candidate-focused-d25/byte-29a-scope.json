@@ -1,0 +1,11 @@
+{
+  "pin": "29a3b7c4ab18a54fb6368610bcdea155b60a325c",
+  "reused_production": "9bc3cd88e",
+  "changed": [
+    "docs/CANONICAL_SDK_TYPED_PROVIDER_CONTRACT.md",
+    "docs/ROADMAP.md",
+    "tests/test_native_byte_array_identity.py"
+  ],
+  "archive_sha256": "d2f1b7b1faf91e0100e944a64f2a99eaf79018f51fd79270f275fe9cc0070cf5",
+  "driver_sha256": "0b7f846dea42aacf3696e2a14140f401563601cc862537cd18852364c5933e2f"
+}

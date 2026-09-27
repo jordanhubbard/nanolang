@@ -1,0 +1,12 @@
+struct Point { number: int }
+union Choice { Some { value: Point }, Text { value: string }, Empty {} }
+fn main()->int {
+ let mut choice: Choice = Choice.Some { value: Point { number: 7 } }
+ match choice { Some(p) => { assert (== p.value.number 7) } Text(t) => { assert false } Empty(e) => { assert false } }
+ set choice Choice.Text { value: "saved" }
+ match choice { Some(p) => { assert false } Text(t) => { assert (== t.value "saved") } Empty(e) => { assert false } }
+ set choice Choice.Empty {}
+ match choice { Some(p) => { assert false } Text(t) => { assert false } Empty(e) => { assert true } }
+ return 0
+}
+shadow main { assert (== (main) 0) }

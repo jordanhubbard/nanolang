@@ -1,0 +1,100 @@
+[
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-isysroot",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/Users/jkh/nanolang-qualification/record-lists-qualified-833",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.17582462499999973,
+    "log": {
+      "sha256": "3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc",
+      "bytes": 92,
+      "archive": "/Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/objects/3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_native_record_lists.NativeRecordLists.test_shared_storage_and_allocation_failures",
+      "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+      "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+    ],
+    "bound": 900,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/Users/jkh/nanolang-qualification/record-lists-qualified-833",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 3.88253225,
+    "log": {
+      "sha256": "5a1d37cdcdde13b1f55dc93ae240a076bbd4923aab7b7e546f8b528d0c93de68",
+      "bytes": 706,
+      "archive": "/Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/objects/5a1d37cdcdde13b1f55dc93ae240a076bbd4923aab7b7e546f8b528d0c93de68"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_native_record_lists.NativeRecordLists.test_shared_storage_and_allocation_failures",
+      "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+      "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+    ],
+    "bound": 900,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/Users/jkh/nanolang-qualification/record-lists-qualified-833",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 8.506921875,
+    "log": {
+      "sha256": "f616ea7ba8c4f5f98b94dcd2bbdfa92f526bee3660b65120f42169958d493b68",
+      "bytes": 714,
+      "archive": "/Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/objects/f616ea7ba8c4f5f98b94dcd2bbdfa92f526bee3660b65120f42169958d493b68"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_native_record_lists"
+    ],
+    "bound": 3600,
+    "status": 1,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/Users/jkh/nanolang-qualification/record-lists-qualified-833",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 16.127392667,
+    "log": {
+      "sha256": "f972d4d028629a444aac3814a57369e2779f1154b10d8903484eed5308c7221f",
+      "bytes": 2466,
+      "archive": "/Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/objects/f972d4d028629a444aac3814a57369e2779f1154b10d8903484eed5308c7221f"
+    },
+    "inputs_equal": true
+  }
+]

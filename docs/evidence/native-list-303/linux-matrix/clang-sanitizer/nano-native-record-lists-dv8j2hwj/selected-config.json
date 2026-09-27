@@ -1,0 +1,29 @@
+{
+  "cc": [
+    "/usr/local/bin/clang"
+  ],
+  "flags": [
+    "-O0",
+    "-g",
+    "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer"
+  ],
+  "links": [
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-rdynamic"
+  ],
+  "native_cc": [
+    "/bin/gcc"
+  ],
+  "native_flags": [],
+  "native_links": [
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-rdynamic"
+  ],
+  "python": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14"
+}

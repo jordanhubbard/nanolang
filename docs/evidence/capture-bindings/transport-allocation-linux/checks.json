@@ -1,0 +1,17 @@
+{
+  "terminal": {
+    "timeout": false,
+    "cleanup_errors": [],
+    "returncode": 0,
+    "seconds": 8.88839304400608,
+    "leader_reaped": true,
+    "group_gone": true
+  },
+  "source_unchanged": true,
+  "tools_unchanged": true,
+  "products": 83,
+  "qualified_revision": "b494b6da7",
+  "qualification_root": "/home/jkh/nanolang-qualification/capture-transport-b494-linux",
+  "archive_sha256": "cd62052e4373429c57426a364ee18b353899b67975c660ff2601a54a30f64ed7",
+  "scope": "Focused Linux GCC ordinary transport, capture allocation recovery, existing codec and schema controls; broader consumer and platform qualification remains open."
+}

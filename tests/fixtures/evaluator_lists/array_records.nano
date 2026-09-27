@@ -1,0 +1,21 @@
+module ArrayRecords
+pub struct Item { value: int }
+pub struct Holder { values: array<Item> }
+pub union Mixed<T> {
+    Both { fixed: array<Item>, supplied: array<T> }
+}
+pub union Nested<T> {
+    Wrapped { inner: Mixed<T> }
+}
+pub fn make(value: int) -> Item { return Item { value: value } }
+shadow make { assert (== (make 7).value 7) }
+pub fn values() -> array<Item> { return [(make 7), (make 9)] }
+shadow values { assert (== (at (values) 1).value 9) }
+pub fn forward(values: array<Item>) -> array<Item> { return values }
+shadow forward { assert (== (at (forward (values)) 0).value 7) }
+pub fn read(value: Item) -> int { return value.value }
+shadow read { assert (== (read (make 9)) 9) }
+pub fn keep(value: Item) -> bool { return (> value.value 7) }
+shadow keep { assert (keep (make 9)) assert (not (keep (make 7))) }
+pub fn raise(value: Item) -> Item { return (make (+ value.value 1)) }
+shadow raise { assert (== (raise (make 7)).value 8) }

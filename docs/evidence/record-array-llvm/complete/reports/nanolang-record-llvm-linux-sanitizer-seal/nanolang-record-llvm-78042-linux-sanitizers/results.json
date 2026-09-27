@@ -1,0 +1,17 @@
+[
+  {
+    "phase": "configuration",
+    "seconds": 0.197,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer-emission",
+    "seconds": 17.826,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer-native",
+    "seconds": 11435.264,
+    "status": 0
+  }
+]

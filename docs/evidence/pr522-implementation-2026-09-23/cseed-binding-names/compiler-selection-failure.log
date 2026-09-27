@@ -1,0 +1,15 @@
+...................F..
+======================================================================
+FAIL: test_owned_locals_release_during_nonlocal_return (tests.test_native_effect_execution.NativeEffectExecution.test_owned_locals_release_during_nonlocal_return)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_effect_execution.py", line 43, in test_owned_locals_release_during_nonlocal_return
+    self.assertEqual(run.returncode, 0, run.stderr.decode(errors="replace"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==47480==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+----------------------------------------------------------------------
+Ran 22 tests in 62.443s
+
+FAILED (failures=1)

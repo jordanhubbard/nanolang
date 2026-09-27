@@ -1,0 +1,426 @@
+{
+  "cleanup": [],
+  "owned": {
+    "186190": {
+      "command": "/usr/bin/python3 -m unittest -f -v tests.test_record_array_generated",
+      "group": 186190,
+      "parent": 185994,
+      "started": "Sun Sep 20 22:46:54 2026"
+    },
+    "187051": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -DRA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h -c src/nanoisa/verifier.c -o /tmp/nano-record-array-generated-fshz_g_7/emission-verifier.o",
+      "group": 187051,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:46:55 2026"
+    },
+    "187052": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D RA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h src/nanoisa/verifier.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/ -dumpbase emission-verifier.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccPEmQWj.s",
+      "group": 187051,
+      "parent": 187051,
+      "started": "Sun Sep 20 22:46:55 2026"
+    },
+    "188085": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa tests/nanoisa/test_record_array_generated_emission.c tests/nanoisa/record_array_alloc.c /tmp/nano-record-array-generated-fshz_g_7/emission-managed_array_shapes.o /tmp/nano-record-array-generated-fshz_g_7/emission-verifier.o /tmp/nano-record-array-generated-fshz_g_7/emission-verifier_types.o /tmp/nano-record-array-generated-fshz_g_7/emission-vm_decode.o /tmp/nano-record-array-generated-fshz_g_7/emission-ownership_contracts.o /tmp/nano-record-array-generated-fshz_g_7/emission-nvm_v2_layouts.o /tmp/nano-record-array-generated-fshz_g_7/emission-retained_layouts.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -rdynamic -o /tmp/nano-record-array-generated-fshz_g_7/emission",
+      "group": 188085,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:46:56 2026"
+    },
+    "188086": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE tests/nanoisa/test_record_array_generated_emission.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/emission- -dumpbase test_record_array_generated_emission.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccqoXYj8.s",
+      "group": 188085,
+      "parent": 188085,
+      "started": "Sun Sep 20 22:46:56 2026"
+    },
+    "189007": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -c src/nanoisa/managed_array_shapes.c -o /tmp/nano-record-array-generated-fshz_g_7/capture-managed_array_shapes.o",
+      "group": 189007,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:46:58 2026"
+    },
+    "189008": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE src/nanoisa/managed_array_shapes.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/ -dumpbase capture-managed_array_shapes.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cc7IvRU9.s",
+      "group": 189007,
+      "parent": 189007,
+      "started": "Sun Sep 20 22:46:58 2026"
+    },
+    "189545": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -c src/nanoisa/verifier.c -o /tmp/nano-record-array-generated-fshz_g_7/capture-verifier.o",
+      "group": 189545,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:46:58 2026"
+    },
+    "189547": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE src/nanoisa/verifier.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/ -dumpbase capture-verifier.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccBACqyM.s",
+      "group": 189545,
+      "parent": 189545,
+      "started": "Sun Sep 20 22:46:58 2026"
+    },
+    "189983": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -c src/nanoisa/retained_layouts.c -o /tmp/nano-record-array-generated-fshz_g_7/capture-retained_layouts.o",
+      "group": 189983,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:00 2026"
+    },
+    "189984": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE src/nanoisa/retained_layouts.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/ -dumpbase capture-retained_layouts.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccEBl79g.s",
+      "group": 189983,
+      "parent": 189983,
+      "started": "Sun Sep 20 22:47:00 2026"
+    },
+    "190914": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -c src/nanovm/vm_callback.c -o /tmp/nano-record-array-generated-fshz_g_7/capture-vm_callback.o",
+      "group": 190914,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:01 2026"
+    },
+    "190915": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE src/nanovm/vm_callback.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/ -dumpbase capture-vm_callback.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccT6W0A4.s",
+      "group": 190914,
+      "parent": 190914,
+      "started": "Sun Sep 20 22:47:01 2026"
+    },
+    "191496": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -c src/nanovm/cop_protocol.c -o /tmp/nano-record-array-generated-fshz_g_7/capture-cop_protocol.o",
+      "group": 191496,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:02 2026"
+    },
+    "191498": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE src/nanovm/cop_protocol.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/ -dumpbase capture-cop_protocol.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccQROGu9.s",
+      "group": 191496,
+      "parent": 191496,
+      "started": "Sun Sep 20 22:47:02 2026"
+    },
+    "191936": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa tests/nanoisa/test_record_array_generated_capture.c src/nanoisa/nvm2c_record_array_private.c tests/nanoisa/record_array_alloc.c /tmp/nano-record-array-generated-fshz_g_7/capture-managed_array_shapes.o /tmp/nano-record-array-generated-fshz_g_7/capture-verifier.o /tmp/nano-record-array-generated-fshz_g_7/capture-verifier_types.o /tmp/nano-record-array-generated-fshz_g_7/capture-vm_decode.o /tmp/nano-record-array-generated-fshz_g_7/capture-ownership_contracts.o /tmp/nano-record-array-generated-fshz_g_7/capture-nvm_v2_layouts.o /tmp/nano-record-array-generated-fshz_g_7/capture-retained_layouts.o /tmp/nano-record-array-generated-fshz_g_7/capture-vm_dispatch.o /tmp/nano-record-array-generated-fshz_g_7/capture-value.o /tmp/nano-record-array-generated-fshz_g_7/capture-heap.o /tmp/nano-record-array-generated-fshz_g_7/capture-heap_cycles.o /tmp/nano-record-array-generated-fshz_g_7/capture-vm_callback.o /tmp/nano-record-array-generated-fshz_g_7/capture-vm_ffi.o /tmp/nano-record-array-generated-fshz_g_7/capture-vm_builtins.o /tmp/nano-record-array-generated-fshz_g_7/capture-cop_protocol.o /tmp/nano-record-array-generated-fshz_g_7/capture-vm_ffi_arrays.o /tmp/nano-record-array-generated-fshz_g_7/capture-callback_runtime.o obj/bcp47.o obj/bench.o obj/bench_native.o obj/builtins_registry.o obj/cJSON.o obj/c_backend.o obj/catalog.o obj/channel.o obj/coroutine.o obj/cps_pass.o obj/dce_pass.o obj/diag_id.o obj/docgen.o obj/docgen_md.o obj/dwarf_info.o obj/effects.o obj/emit_typed_ast.o obj/env.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_io.o obj/eval/eval_math.o obj/eval/eval_string.o obj/fmt.o obj/fold_constants.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/lexer.o obj/locale.o obj/module.o obj/module_builder.o obj/module_metadata.o obj/nanocore_export.o obj/nanocore_subset.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/file_flow.o obj/nanoisa/frontend.o obj/nanoisa/isa.o obj/nanoisa/local_bindings.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/nanoisa_facade.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/passive.o obj/nanoisa/reference_places.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nominal_types.o obj/nsi_file_plan.o obj/opencl_backend.o obj/par_let_pass.o obj/parser.o obj/pgo_pass.o obj/ptx_backend.o obj/reflection.o obj/resource_flow.o obj/resource_tracking.o obj/riscv_backend.o obj/runtime/cli.o obj/runtime/dyn_array.o obj/runtime/effect_runtime.o obj/runtime/ffi_loader.o obj/runtime/gc.o obj/runtime/gc_struct.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTString.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTWhile.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_LexerToken.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_token.o obj/runtime/module_build_dir.o obj/runtime/nl_string.o obj/runtime/regex.o obj/runtime/token_helpers.o obj/stdlib_runtime.o obj/tco_pass.o obj/toon_output.o obj/transpiler.o obj/type_infer.o obj/typechecker.o obj/utf8.o -lm -lcrypto -lffi -rdynamic -o /tmp/nano-record-array-generated-fshz_g_7/capture",
+      "group": 191936,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:02 2026"
+    },
+    "191937": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE tests/nanoisa/test_record_array_generated_capture.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/capture- -dumpbase test_record_array_generated_capture.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccCh1qv0.s",
+      "group": 191936,
+      "parent": 191936,
+      "started": "Sun Sep 20 22:47:02 2026"
+    },
+    "195297": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE src/nanoisa/nvm2c_record_array_private.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/capture- -dumpbase nvm2c_record_array_private.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccCh1qv0.s",
+      "group": 191936,
+      "parent": 191936,
+      "started": "Sun Sep 20 22:47:08 2026"
+    },
+    "195601": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0003.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0003.replay.c /tmp/nano-record-array-generated-fshz_g_7/O0-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O0-linked-0003",
+      "group": 195601,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:09 2026"
+    },
+    "195603": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0003.c -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/O0-linked-0003- -dumpbase product-0003.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O0 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cc4BPRC2.s",
+      "group": 195601,
+      "parent": 195601,
+      "started": "Sun Sep 20 22:47:09 2026"
+    },
+    "196259": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0020.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0020.replay.c /tmp/nano-record-array-generated-fshz_g_7/O0-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O0-linked-0020",
+      "group": 196259,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:11 2026"
+    },
+    "196435": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0029.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0029.replay.c /tmp/nano-record-array-generated-fshz_g_7/O0-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O0-linked-0029",
+      "group": 196435,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:12 2026"
+    },
+    "196811": {
+      "command": "[gcc-13] <defunct>",
+      "group": 196811,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:15 2026"
+    },
+    "196938": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0066.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0066.replay.c /tmp/nano-record-array-generated-fshz_g_7/O0-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O0-linked-0066",
+      "group": 196938,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:16 2026"
+    },
+    "197100": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -c tests/nanoisa/record_array_alloc.c -o /tmp/nano-record-array-generated-fshz_g_7/O0-observed-allocator.o",
+      "group": 197100,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:17 2026"
+    },
+    "197371": {
+      "command": "[gcc-13] <defunct>",
+      "group": 197371,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:19 2026"
+    },
+    "197434": {
+      "command": "[O0-observed-001] <defunct>",
+      "group": 197434,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:20 2026"
+    },
+    "197498": {
+      "command": "[O0-observed-002] <defunct>",
+      "group": 197498,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:21 2026"
+    },
+    "197549": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0028.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0028.replay.c /tmp/nano-record-array-generated-fshz_g_7/O0-observed-runtime.o /tmp/nano-record-array-generated-fshz_g_7/O0-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O0-observed-0028",
+      "group": 197549,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:22 2026"
+    },
+    "197753": {
+      "command": "/tmp/nano-record-array-generated-fshz_g_7/O0-observed-0038",
+      "group": 197753,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:24 2026"
+    },
+    "197825": {
+      "command": "[gcc-13] <defunct>",
+      "group": 197825,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:25 2026"
+    },
+    "197888": {
+      "command": "[O0-observed-004] <defunct>",
+      "group": 197888,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:26 2026"
+    },
+    "197948": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0056.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0056.replay.c /tmp/nano-record-array-generated-fshz_g_7/O0-observed-runtime.o /tmp/nano-record-array-generated-fshz_g_7/O0-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O0-observed-0056",
+      "group": 197948,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:28 2026"
+    },
+    "197954": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/aarch64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/aarch64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccqtwJbn.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr --hash-style=gnu --as-needed -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux --fix-cortex-a53-843419 -pie -z now -z relro -o /tmp/nano-record-array-generated-fshz_g_7/O0-observed-0056 /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/Scrt1.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/aarch64-linux-gnu/13 -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/13/../../.. /tmp/ccmvbI5I.o /tmp/cc1a1K8G.o /tmp/nano-record-array-generated-fshz_g_7/O0-observed-runtime.o /tmp/nano-record-array-generated-fshz_g_7/O0-observed-allocator.o -lm -lgcc --push-state --as-needed -lgcc_s --pop-state -lpthread -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/aarch64-linux-gnu/13/crtendS.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crtn.o",
+      "group": 197948,
+      "parent": 197948,
+      "started": "Sun Sep 20 22:47:28 2026"
+    },
+    "198007": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 198007,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:29 2026"
+    },
+    "198128": {
+      "command": "/tmp/nano-record-array-generated-fshz_g_7/O0-observed-0063",
+      "group": 198128,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:47:29 2026"
+    },
+    "217048": {
+      "command": "/tmp/nano-record-array-generated-fshz_g_7/O0-observed-0064",
+      "group": 217048,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:48:08 2026"
+    },
+    "238434": {
+      "command": "/tmp/nano-record-array-generated-fshz_g_7/O0-observed-0065",
+      "group": 238434,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:48:47 2026"
+    },
+    "243856": {
+      "command": "/tmp/nano-record-array-generated-fshz_g_7/O0-observed-0066",
+      "group": 243856,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:49:25 2026"
+    },
+    "245495": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0070.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0070.replay.c /tmp/nano-record-array-generated-fshz_g_7/O0-observed-runtime.o /tmp/nano-record-array-generated-fshz_g_7/O0-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O0-observed-0070",
+      "group": 245495,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:05 2026"
+    },
+    "245496": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D NMS_TESTING -D NRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0070.c -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/O0-observed-0070- -dumpbase product-0070.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O0 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cceyv3Dj.s",
+      "group": 245495,
+      "parent": 245495,
+      "started": "Sun Sep 20 22:50:05 2026"
+    },
+    "245584": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -c src/nanoisa/record_array_generated_private.c -o /tmp/nano-record-array-generated-fshz_g_7/O2-linked-runtime.o",
+      "group": 245584,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:06 2026"
+    },
+    "245585": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE src/nanoisa/record_array_generated_private.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/ -dumpbase O2-linked-runtime.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccJbm0AG.s",
+      "group": 245584,
+      "parent": 245584,
+      "started": "Sun Sep 20 22:50:06 2026"
+    },
+    "245726": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0001.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0001.replay.c /tmp/nano-record-array-generated-fshz_g_7/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O2-linked-0001",
+      "group": 245726,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:07 2026"
+    },
+    "245727": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0001.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/O2-linked-0001- -dumpbase product-0001.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccvyYdUL.s",
+      "group": 245726,
+      "parent": 245726,
+      "started": "Sun Sep 20 22:50:07 2026"
+    },
+    "245958": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0022.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0022.replay.c /tmp/nano-record-array-generated-fshz_g_7/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O2-linked-0022",
+      "group": 245958,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:10 2026"
+    },
+    "245961": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0022.replay.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/O2-linked-0022- -dumpbase product-0022.replay.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccdK72Zz.s",
+      "group": 245958,
+      "parent": 245958,
+      "started": "Sun Sep 20 22:50:10 2026"
+    },
+    "246241": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0037.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0037.replay.c /tmp/nano-record-array-generated-fshz_g_7/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O2-linked-0037",
+      "group": 246241,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:12 2026"
+    },
+    "246312": {
+      "command": "[gcc-13] <defunct>",
+      "group": 246312,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:13 2026"
+    },
+    "246685": {
+      "command": "[gcc-13] <defunct>",
+      "group": 246685,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:15 2026"
+    },
+    "246789": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0063.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0063.replay.c /tmp/nano-record-array-generated-fshz_g_7/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O2-linked-0063",
+      "group": 246789,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:16 2026"
+    },
+    "246956": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0069.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0069.replay.c /tmp/nano-record-array-generated-fshz_g_7/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O2-linked-0069",
+      "group": 246956,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:17 2026"
+    },
+    "247085": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED -DRA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h -c src/nanoisa/record_array_generated_private.c -o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-runtime.o",
+      "group": 247085,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:18 2026"
+    },
+    "247086": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D NMS_TESTING -D NRG_OBSERVED -D RA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h src/nanoisa/record_array_generated_private.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/ -dumpbase O2-observed-runtime.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccbPZ72i.s",
+      "group": 247085,
+      "parent": 247085,
+      "started": "Sun Sep 20 22:50:18 2026"
+    },
+    "247243": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0008.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0008.replay.c /tmp/nano-record-array-generated-fshz_g_7/O2-observed-runtime.o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-0008",
+      "group": 247243,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:20 2026"
+    },
+    "247246": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D NMS_TESTING -D NRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0008.replay.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/O2-observed-0008- -dumpbase product-0008.replay.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccMiI2L8.s",
+      "group": 247243,
+      "parent": 247243,
+      "started": "Sun Sep 20 22:50:20 2026"
+    },
+    "247309": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0014.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0014.replay.c /tmp/nano-record-array-generated-fshz_g_7/O2-observed-runtime.o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-0014",
+      "group": 247309,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:21 2026"
+    },
+    "247562": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0020.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0020.replay.c /tmp/nano-record-array-generated-fshz_g_7/O2-observed-runtime.o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-0020",
+      "group": 247562,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:22 2026"
+    },
+    "247723": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0027.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0027.replay.c /tmp/nano-record-array-generated-fshz_g_7/O2-observed-runtime.o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-0027",
+      "group": 247723,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:23 2026"
+    },
+    "247724": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D NMS_TESTING -D NRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0027.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/O2-observed-0027- -dumpbase product-0027.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccz4yhiq.s",
+      "group": 247723,
+      "parent": 247723,
+      "started": "Sun Sep 20 22:50:23 2026"
+    },
+    "247848": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0039.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0039.replay.c /tmp/nano-record-array-generated-fshz_g_7/O2-observed-runtime.o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-0039",
+      "group": 247848,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:25 2026"
+    },
+    "247855": {
+      "command": "[cc1]",
+      "group": 247848,
+      "parent": 247848,
+      "started": "Sun Sep 20 22:50:25 2026"
+    },
+    "247958": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0045.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0045.replay.c /tmp/nano-record-array-generated-fshz_g_7/O2-observed-runtime.o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-0045",
+      "group": 247958,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:26 2026"
+    },
+    "248092": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0051.c /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0051.replay.c /tmp/nano-record-array-generated-fshz_g_7/O2-observed-runtime.o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-allocator.o -lm -pthread -o /tmp/nano-record-array-generated-fshz_g_7/O2-observed-0051",
+      "group": 248092,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:27 2026"
+    },
+    "248095": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D NMS_TESTING -D NRG_OBSERVED /tmp/nano-record-array-generated-fshz_g_7/corpus/product-0051.replay.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-generated-fshz_g_7/O2-observed-0051- -dumpbase product-0051.replay.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccBExorp.s",
+      "group": 248092,
+      "parent": 248092,
+      "started": "Sun Sep 20 22:50:27 2026"
+    },
+    "248310": {
+      "command": "/tmp/nano-record-array-generated-fshz_g_7/O2-observed-0063",
+      "group": 248310,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:29 2026"
+    },
+    "249108": {
+      "command": "[O2-observed-006] <defunct>",
+      "group": 249108,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:40 2026"
+    },
+    "250023": {
+      "command": "/tmp/nano-record-array-generated-fshz_g_7/O2-observed-0065",
+      "group": 250023,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:50:52 2026"
+    },
+    "251048": {
+      "command": "/tmp/nano-record-array-generated-fshz_g_7/O2-observed-0066",
+      "group": 251048,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:51:03 2026"
+    },
+    "251667": {
+      "command": "/tmp/nano-record-array-generated-fshz_g_7/O2-observed-0070",
+      "group": 251667,
+      "parent": 186190,
+      "started": "Sun Sep 20 22:51:16 2026"
+    }
+  },
+  "remaining": []
+}

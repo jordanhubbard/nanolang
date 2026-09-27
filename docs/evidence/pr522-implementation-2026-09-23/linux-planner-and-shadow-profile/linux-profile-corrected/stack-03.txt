@@ -1,0 +1,31 @@
+elapsed=38.187
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+0x0000e7bccceea9b0 in __asan::FakeStack::Allocate (this=0xe7bcc9cf7000, stack_size_log=20, class_id=2, real_stack=281474248066112) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:105
+#0  0x0000e7bccceea9b0 in __asan::FakeStack::Allocate (this=0xe7bcc9cf7000, stack_size_log=20, class_id=2, real_stack=281474248066112) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:105
+#1  __asan::OnMalloc (class_id=2, size=<optimized out>) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:229
+#2  __asan_stack_malloc_2 (size=<optimized out>) at ../../../../src/libsanitizer/asan/asan_fake_stack.cpp:275
+#3  0x0000b89100bec284 [PAC] in env_define_var_with_type_info (env=0x5120000001c0, name=0x502000130a50 "c", type=TYPE_INT, element_type=TYPE_UNKNOWN, type_info=0x0, is_mut=false, value=...) at src/env.c:459
+#4  0x0000b89100bec1f0 in env_define_var_with_element_type (env=0x5120000001c0, name=0x502000130a50 "c", type=TYPE_INT, element_type=TYPE_UNKNOWN, is_mut=false, value=...) at src/env.c:446
+#5  0x0000b89100bec188 in env_define_var (env=0x5120000001c0, name=0x502000130a50 "c", type=TYPE_INT, is_mut=false, value=...) at src/env.c:442
+#6  0x0000b89100c758f4 in eval_call_impl (node=0x50c000206740, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4775
+#7  0x0000b89100c560d0 in eval_call (node=0x50c000206740, env=0x5120000001c0) at src/eval.c:3034
+#8  0x0000b89100c7957c in eval_expression (expr=0x50c000206740, env=0x5120000001c0) at src/eval.c:4915
+#9  0x0000b89100c7d574 in eval_expression_other (expr=0x50c000236080, env=0x5120000001c0) at src/eval.c:5102
+#10 0x0000b89100c79590 in eval_expression (expr=0x50c000236080, env=0x5120000001c0) at src/eval.c:4917
+#11 0x0000b89100c96ed0 in eval_statement (stmt=0x50c000236080, env=0x5120000001c0) at src/eval.c:6210
+#12 0x0000b89100c22cf8 in eval_scoped_block (statements=0x5060000183e0, count=2, env=0x5120000001c0) at src/eval.c:242
+#13 0x0000b89100c91f80 in eval_statement (stmt=0x50c000236140, env=0x5120000001c0) at src/eval.c:5962
+#14 0x0000b89100c8c2b0 in eval_statement (stmt=0x50c000236200, env=0x5120000001c0) at src/eval.c:5805
+#15 0x0000b89100c7604c in eval_call_impl (node=0x50c00054b8c0, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4793
+#16 0x0000b89100c560d0 in eval_call (node=0x50c00054b8c0, env=0x5120000001c0) at src/eval.c:3034
+#17 0x0000b89100c7957c in eval_expression (expr=0x50c00054b8c0, env=0x5120000001c0) at src/eval.c:4915
+#18 0x0000b89100c8aa4c in eval_statement (stmt=0x50c00054b980, env=0x5120000001c0) at src/eval.c:5737
+#19 0x0000b89100c22cf8 in eval_scoped_block (statements=0x511000009140, count=26, env=0x5120000001c0) at src/eval.c:242
+#20 0x0000b89100c91f80 in eval_statement (stmt=0x50c0005572c0, env=0x5120000001c0) at src/eval.c:5962
+#21 0x0000b89100c981e4 in run_shadow_tests_scope (program=0x50c000786580, env=0x5120000001c0, modules=0x50200009e9f0, input_file=0xffffd494beaa "src_nano/nanoc_v06.nano", include_imports=true, verbose=true) at src/eval.c:6316
+#22 0x0000b89100cda91c in check_interpreted_shadows (program=0x50c000199cc0, env=0x5120000001c0, modules=0x50200009e9f0, input=0xffffd494beaa "src_nano/nanoc_v06.nano", opts=0xe7bcca300060) at src/main.c:502
+#23 0x0000b89100ce69e8 in compile_file (input_file=0xffffd494beaa "src_nano/nanoc_v06.nano", output_file=0xffffd494becf "/work/profile-stage1-sampled", opts=0xe7bcca300060) at src/main.c:1289
+#24 0x0000b89100cf3e4c in main (argc=5, argv=0xffffd494b788) at src/main.c:2321
+[Inferior 1 (process 76929) detached]
+warning: 105	../../../../src/libsanitizer/asan/asan_fake_stack.cpp: No such file or directory

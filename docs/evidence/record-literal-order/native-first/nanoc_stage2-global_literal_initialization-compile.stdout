@@ -1,0 +1,17 @@
+/tmp/nano_native_1789964243_0/program.c:752:1: error: unknown type name ‘nl_FnPtr_0’
+  752 | nl_FnPtr_0 nl_initial_callback;
+      | ^~~~~~~~~~
+/tmp/nano_native_1789964243_0/program.c: In function ‘nl_init_guarded_globals’:
+/tmp/nano_native_1789964243_0/program.c:764:25: warning: assignment to ‘int’ from ‘int64_t (*)(int64_t)’ {aka ‘long int (*)(long int)’} makes integer from pointer without a cast [-Wint-conversion]
+  764 |     nl_initial_callback = nl_initial_increment;
+      |                         ^
+In file included from /tmp/nanolang-record-literal-source-order/src/nanolang.h:16,
+                 from /tmp/nano_native_1789964243_0/program.c:23:
+/tmp/nanolang-record-literal-source-order/tests/nanovirt/fixtures/global_literal_initialization.nano: In function ‘nl_main’:
+/tmp/nanolang-record-literal-source-order/tests/nanovirt/fixtures/global_literal_initialization.nano:38:13: error: called object ‘nl_initial_callback’ is not a function or function pointer
+   38 |     assert (== (initial_callback 41) 42)
+      |             ^~~~~~~~~~~~~~~~~~~
+/tmp/nano_native_1789964243_0/program.c:752:12: note: declared here
+  752 | nl_FnPtr_0 nl_initial_callback;
+      |            ^~~~~~~~~~~~~~~~~~~
+I could not compile native shadows

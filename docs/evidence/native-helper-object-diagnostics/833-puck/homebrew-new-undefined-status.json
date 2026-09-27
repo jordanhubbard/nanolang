@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/usr/bin/nm",
+    "-u",
+    "/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/homebrew-new.o"
+  ],
+  "cwd": "/Users/jkh/nanolang-qualification/record-lists-qualified-303",
+  "timeout_seconds": 60,
+  "status": 0,
+  "timeout": false,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 0.012595833,
+  "stdout": {
+    "sha256": "d48a03140d29261e69b06f043e91a957906ef1e75dba560e71a3e0ddd49896ee",
+    "bytes": 349,
+    "archive": "/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/objects/d48a03140d29261e69b06f043e91a957906ef1e75dba560e71a3e0ddd49896ee"
+  },
+  "stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

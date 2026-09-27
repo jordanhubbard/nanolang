@@ -1,0 +1,34 @@
+{
+  "full-typecheck-before.json": {
+    "sha256": "3f54af9082b0083d0d14942cbfd2228a3a035af85cc195527a2c669351e9d5ed",
+    "bytes": 1357119
+  },
+  "generated-products.json": {
+    "sha256": "0a9218265e6e407e8ce57d7c236a85b500665271d5ba275ec00885a03089db59",
+    "bytes": 22217
+  },
+  "full-typecheck-products-after.json": {
+    "sha256": "0a9218265e6e407e8ce57d7c236a85b500665271d5ba275ec00885a03089db59",
+    "bytes": 22217
+  },
+  "full-typecheck-after.json": {
+    "sha256": "3f54af9082b0083d0d14942cbfd2228a3a035af85cc195527a2c669351e9d5ed",
+    "bytes": 1357119
+  },
+  "inputs-after.json": {
+    "sha256": "3f54af9082b0083d0d14942cbfd2228a3a035af85cc195527a2c669351e9d5ed",
+    "bytes": 1357119
+  },
+  "inputs-before.json": {
+    "sha256": "2057511e80b5eb20de3c52b1dde86ce9d7ec1178169944aa4caa48cf01bc3a4b",
+    "bytes": 1356787
+  },
+  "full-typecheck-products-before.json": {
+    "sha256": "419e3a9c5315e0de50ea1f3e499485dfe09c69264a06faedfcb01c1a6b91e039",
+    "bytes": 335
+  },
+  "inputs-before-run.json": {
+    "sha256": "3f54af9082b0083d0d14942cbfd2228a3a035af85cc195527a2c669351e9d5ed",
+    "bytes": 1357119
+  }
+}

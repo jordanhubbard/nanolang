@@ -1,0 +1,50 @@
+# I evaluate written fields once, then pack my declared layout.
+struct OrderedPair { first: int, second: int }
+struct OrderedNested { first: int, pair: OrderedPair }
+let mut literal_trace: int = 0
+fn literal_mark(value: int) -> int {
+    set literal_trace (+ (* literal_trace 10) value)
+    return value
+}
+shadow literal_mark {
+    set literal_trace 0
+    assert (== (literal_mark 4) 4)
+    assert (== literal_trace 4)
+}
+fn main() -> int {
+    set literal_trace 0
+    let reversed: OrderedPair = OrderedPair {
+        second: (literal_mark 2), first: (literal_mark 1)
+    }
+    assert (== literal_trace 21)
+    assert (== reversed.first 1)
+    assert (== reversed.second 2)
+    set literal_trace 0
+    let ordered: OrderedPair = OrderedPair {
+        first: (literal_mark 1), second: (literal_mark 2)
+    }
+    assert (== literal_trace 12)
+    assert (== ordered.first 1)
+    assert (== ordered.second 2)
+    set literal_trace 0
+    let nested: OrderedNested = OrderedNested {
+        pair: OrderedPair { second: (literal_mark 3), first: (literal_mark 2) },
+        first: (literal_mark 1)
+    }
+    assert (== literal_trace 321)
+    assert (== nested.first 1)
+    assert (== nested.pair.first 2)
+    assert (== nested.pair.second 3)
+    let mut i: int = 0
+    while (< i 20) {
+        set literal_trace 0
+        let repeated: OrderedPair = OrderedPair {
+            second: (literal_mark 2), first: (literal_mark 1)
+        }
+        assert (== literal_trace 21)
+        assert (== (+ repeated.first repeated.second) 3)
+        set i (+ i 1)
+    }
+    return 0
+}
+shadow main { assert (== (main) 0) }

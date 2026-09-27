@@ -1,0 +1,14 @@
+{
+  "pin": "4e4a17be00a9f4d381fee63359ded922775a342d",
+  "host": "linux",
+  "environment": {
+    "TMPDIR": "/tmp/nanolang-native-sdk-4e4a1-linux-preparation/tmp",
+    "CC": "/usr/bin/gcc",
+    "NANO_CC": "/usr/bin/gcc",
+    "NANOLANG_SDK_ROOT": "/tmp/nanolang-native-sdk-4e4a1-linux-source",
+    "NANO_SHADOW_TIMING": null,
+    "NANO_SHADOW_TIMEOUT_SECONDS": null,
+    "NANO_SDK_MIN_FREE_BYTES": "2147483648"
+  },
+  "scope": "fresh integrated build and C-seed/S1/S2 bootstrap; original compiler shadow bounds; ordinary providers"
+}

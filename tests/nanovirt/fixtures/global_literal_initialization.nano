@@ -1,0 +1,42 @@
+# I initialize every nonliteral global in its written source order.
+struct InitialPair { first: int, second: int }
+let mut initialization_trace: int = 0
+fn initial_mark(value: int) -> int {
+    set initialization_trace (+ (* initialization_trace 10) value)
+    return value
+}
+shadow initial_mark {
+    set initialization_trace 0
+    assert (== (initial_mark 4) 4)
+    assert (== initialization_trace 4)
+}
+fn initial_increment(value: int) -> int { return (+ value 1) }
+shadow initial_increment { assert (== (initial_increment 41) 42) }
+let initial_pair: InitialPair = InitialPair {
+    second: (initial_mark 2), first: (initial_mark 1)
+}
+let pair_order: int = initialization_trace
+let initial_array: array<int> = [initial_pair.second, initial_pair.first]
+let initial_tuple: (int, int) = (initial_pair.first, initial_pair.second)
+let initial_reference: int = initial_pair.second
+let initial_call: int = (initial_mark 3)
+let final_order: int = initialization_trace
+let initial_callback: fn(int) -> int = initial_increment
+let mut mutable_call: int = (initial_increment 8)
+fn main() -> int {
+    assert (== pair_order 21)
+    assert (== initial_pair.first 1)
+    assert (== initial_pair.second 2)
+    assert (== (array_length initial_array) 2)
+    assert (== (at initial_array 0) 2)
+    assert (== (at initial_array 1) 1)
+    assert (== initial_tuple.0 1)
+    assert (== initial_tuple.1 2)
+    assert (== initial_reference 2)
+    assert (== initial_call 3)
+    assert (== final_order 213)
+    assert (== (initial_callback 41) 42)
+    assert (== mutable_call 9)
+    return 0
+}
+shadow main { assert (== (main) 0) }

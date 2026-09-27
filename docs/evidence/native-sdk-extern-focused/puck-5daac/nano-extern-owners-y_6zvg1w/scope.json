@@ -1,0 +1,5 @@
+{
+  "scope": "actual included C checker; ordinary complete providers; no foreign invocation",
+  "controls": "both module registration orders, index refresh, same-owner idempotence, complete array/callback/tuple mismatches, both staged label allocation failures and recovery",
+  "exclusion": "not a full allocator sweep or historical collector OOM policy change"
+}

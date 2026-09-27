@@ -1,0 +1,22 @@
+{
+  "apple": {
+    "sha256": "e43a9c8403cd8c92e50e82eb7b8bea6cafeaaf34d10da9796256f05778f94eb7",
+    "bytes": 78552,
+    "mode": 493
+  },
+  "apple.dSYM/Contents/Info.plist": {
+    "sha256": "be3613c2291f26bbc050c5add82874b3a996909a67cc319c1f0c122f039f1213",
+    "bytes": 634,
+    "mode": 420
+  },
+  "apple.dSYM/Contents/Resources/DWARF/apple": {
+    "sha256": "179733790dfd150d9b9b59b401b75f937f45f55c0e66884e9eba2252094d7829",
+    "bytes": 91592,
+    "mode": 420
+  },
+  "apple.dSYM/Contents/Resources/Relocations/aarch64/apple.yml": {
+    "sha256": "22e86007fb229bd4a06e0f042146c3006d5b3536a17781dc8d10f6c3413d369c",
+    "bytes": 164,
+    "mode": 420
+  }
+}

@@ -1,0 +1,666 @@
+{
+  "linux": {
+    "pin": "1ac5e91df01b3cffadbbe97b61f0c9581fae52fb",
+    "archive_sha256": "4d1ca80618df1f5735a1b2f5c679fe3fb00005e51528389f29baeaad3f4a544f",
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "tools-after.json": {
+        "bytes": 303,
+        "sha256": "b05f1155395301fa94db51add29e3f30e65468084e91090f84e8b6026838a7d2"
+      },
+      "identity.json": {
+        "bytes": 791,
+        "sha256": "86d7e6494ad23a4885fc5378f81353a5a3894751f289b65127be3ef2c67b949c"
+      },
+      "phases.json": {
+        "bytes": 2326,
+        "sha256": "51879ebcaa4ea4abc69fb32e4cccc7c91d25e00b823a470e61353978cae3a9fb"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 450,
+        "sha256": "90c2351efb0acd601307abe9cac33850d8347ce0e66b8bb8580abc0518c6daaf"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 1058,
+        "sha256": "f24f583225cb59893087f4ce14b8328ac6de233f86f426bd5f73c40d6daeffb3"
+      },
+      "ordinary/products.json": {
+        "bytes": 7773,
+        "sha256": "cc849baea01b19a573c2deaf993d4b8024ad66e4bf25ea928c61b4d230ccf664"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 443,
+        "sha256": "28438b1571c138cbb59fd56bc403bc6b1a74228bfb0aea54cfbd98ee59762c50"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 6495,
+        "sha256": "d3792d7da3268fa901029f527b8e8baeff5dc71bd39ec7d7e6bde24494b0532f"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 30,
+        "sha256": "449eed8c2998494066b8ce7562c2154de43a5ffe32ea917390b24b4b2d7e623d"
+      },
+      "ordinary/source-after.json": {
+        "bytes": 427978,
+        "sha256": "cc8ada1c90f79452de3a49d23e790388a28f0dcd6fffb155e81145698cdbe454"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 6357,
+        "sha256": "4efe67a5edeb43c58111e7559d3e1515fe2b0b2aede153932ddcf58ae3143fc6"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 6495,
+        "sha256": "d3792d7da3268fa901029f527b8e8baeff5dc71bd39ec7d7e6bde24494b0532f"
+      },
+      "ordinary/ordinary-declarations.log": {
+        "bytes": 2158,
+        "sha256": "8e8184cf389a510039d4d8ff2bfcecf45a8cb28e9b867da94a15d03a85f012a3"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 427978,
+        "sha256": "cc8ada1c90f79452de3a49d23e790388a28f0dcd6fffb155e81145698cdbe454"
+      },
+      "ordinary/ordinary-declarations.json": {
+        "bytes": 473,
+        "sha256": "11189e1165c0e6c4df075be25f249525947d1bb9a3d326a380dec15756af904d"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 65,
+        "sha256": "eee81e67213f9d4967dd57ac8086be92d8d1dee93dcc4f768fa5430885b8ddb6"
+      },
+      "sanitized/providers.txt": {
+        "bytes": 1058,
+        "sha256": "f24f583225cb59893087f4ce14b8328ac6de233f86f426bd5f73c40d6daeffb3"
+      },
+      "sanitized/products.json": {
+        "bytes": 7773,
+        "sha256": "aea8815cbbe55cb19de46788578e283726ddd5c5095a441d9064883402832902"
+      },
+      "sanitized/providers.mk": {
+        "bytes": 446,
+        "sha256": "2df2b00f52651babc2946d661ccc015a7f31d21714fd05fe18a696a2ce789628"
+      },
+      "sanitized/providers-before.json": {
+        "bytes": 6533,
+        "sha256": "5260b2ad092ce2f27e41d5480504bc93b972f811343745a1c1d6dba53b020c11"
+      },
+      "sanitized/sanitized-providers.log": {
+        "bytes": 9359,
+        "sha256": "c312d55b2fe4f635b26aa4f770f8366db95705e543bc8e6109ee7867e6db2caf"
+      },
+      "sanitized/ldflags.txt": {
+        "bytes": 109,
+        "sha256": "e6a3c205b36c0d7f95e3cc06754c65c2d3afacc20d38cff8a10c7ae28c57bcc4"
+      },
+      "sanitized/source-after.json": {
+        "bytes": 427978,
+        "sha256": "cc8ada1c90f79452de3a49d23e790388a28f0dcd6fffb155e81145698cdbe454"
+      },
+      "sanitized/sanitized-declarations.log": {
+        "bytes": 2318,
+        "sha256": "83d3f08c6e74b167a8a5e7d46d573171d3dedf9ac3b1e4a0dfcf0d575d2547cf"
+      },
+      "sanitized/providers-after.json": {
+        "bytes": 6533,
+        "sha256": "5260b2ad092ce2f27e41d5480504bc93b972f811343745a1c1d6dba53b020c11"
+      },
+      "sanitized/source-before.json": {
+        "bytes": 427978,
+        "sha256": "cc8ada1c90f79452de3a49d23e790388a28f0dcd6fffb155e81145698cdbe454"
+      },
+      "sanitized/sanitized-providers.json": {
+        "bytes": 611,
+        "sha256": "9f4b96373f07373542bce2cf59c63e00f5bf5f387839cd8fde4ea4b97cfb853a"
+      },
+      "sanitized/cflags.txt": {
+        "bytes": 144,
+        "sha256": "ad1a592fe7c650cfbc2cc3fc83d635d2df4f011c0e19663ac48fb4ef6ee2b9ed"
+      },
+      "sanitized/sanitized-declarations.json": {
+        "bytes": 633,
+        "sha256": "da00c00a1e0e3b5c74ea71cc534a00fdd6a335616fc30141d67939c8da020ab6"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/linked-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/linked-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/instrumented-build-command.txt": {
+        "bytes": 1506,
+        "sha256": "d4a012d11821a2fcba189a2ceba98c1521b73a92623b5191b01e3afefb4cf765"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/instrumented-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/instrumented-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/linked-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/instrumented-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/instrumented-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/linked-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/instrumented-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/linked-run-stdout.log": {
+        "bytes": 179,
+        "sha256": "2236ba0a2c89c24812b16a20274d002c9d37d5663fdb160ffcb5c201c51fff54"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/instrumented-run-stdout.log": {
+        "bytes": 326,
+        "sha256": "bf6c959415c69961954ef9e45bb056516fa16df54b91ab488e8dfaab5761bca2"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/linked-run-command.txt": {
+        "bytes": 111,
+        "sha256": "9b64590a7d597401588f767add774c11ec756d821666ad1bc972aada173b62f9"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/linked-build-command.txt": {
+        "bytes": 1546,
+        "sha256": "a9ce90d730beddf502b122318ee9b1f60148f33a12d966009dfd0dec3c4d7d50"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/linked-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-013n25zs/instrumented-run-command.txt": {
+        "bytes": 117,
+        "sha256": "226320b3a8d96142af9fd408eb7651d21b4f068177cbda8bb84fb5be210e0af2"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/linked-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/linked-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/instrumented-build-command.txt": {
+        "bytes": 1347,
+        "sha256": "4e27d065e0cfb4946902c06e5488382190e66c06b781d34448fa5be7bcedeb1e"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/instrumented-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/instrumented-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/linked-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/instrumented-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/instrumented-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/linked-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/instrumented-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/linked-run-stdout.log": {
+        "bytes": 179,
+        "sha256": "2236ba0a2c89c24812b16a20274d002c9d37d5663fdb160ffcb5c201c51fff54"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/instrumented-run-stdout.log": {
+        "bytes": 326,
+        "sha256": "bf6c959415c69961954ef9e45bb056516fa16df54b91ab488e8dfaab5761bca2"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/linked-run-command.txt": {
+        "bytes": 110,
+        "sha256": "18bcc02b303371feb76828fbf3153db12823ff81548639acd9e0865281fd5bfb"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/linked-build-command.txt": {
+        "bytes": 1387,
+        "sha256": "b10b5bb23ee72fb3a767199c5a7e8e71860514dc607962f3a85467af2d94de17"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/linked-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1jhh3vl6/instrumented-run-command.txt": {
+        "bytes": 116,
+        "sha256": "21c40505d36b05b8ada04365b5c2ab1152a20bbd6037c83a528a8a0d0a044c5e"
+      }
+    },
+    "phases": [
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/sdk-budget-1ac-linux/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 3078552,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 6.476494938018732
+      },
+      {
+        "label": "ordinary-declarations",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/sdk-budget-1ac-linux/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "test-ownership-declaration-projection"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 3079532,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 2.583137129084207
+      },
+      {
+        "label": "sanitized-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/sdk-budget-1ac-linux/sanitized/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 3079740,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 11.157566696987487
+      },
+      {
+        "label": "sanitized-declarations",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/sdk-budget-1ac-linux/sanitized/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "test-ownership-declaration-projection"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 3080664,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 54.09323665604461
+      }
+    ]
+  },
+  "puck": {
+    "pin": "1ac5e91df01b3cffadbbe97b61f0c9581fae52fb",
+    "archive_sha256": "105e8db6865fc70933b18c5be76620baebc1f4bb61e859417b261646472032c2",
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "tools-after.json": {
+        "bytes": 416,
+        "sha256": "0c4e465b95ff309692e0066e7bbb06db9122ca59405af95386b0f0522fe23cec"
+      },
+      "identity.json": {
+        "bytes": 998,
+        "sha256": "3c9e4c01752a6c3c4d27fd0c23e2bd5dcc5b87d9dc9dea8c0c9170e4a182405a"
+      },
+      "phases.json": {
+        "bytes": 3214,
+        "sha256": "6edd1ec2d32e2dccbf00bfe789118c5d9b7eff96cbb32cf47eff79b0073c8cd2"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 665,
+        "sha256": "462461ed0e1f9b8931858e4fd8b6f6a419b27b6cb1048770a2eb6776c77f3746"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 1058,
+        "sha256": "f24f583225cb59893087f4ce14b8328ac6de233f86f426bd5f73c40d6daeffb3"
+      },
+      "ordinary/products.json": {
+        "bytes": 7773,
+        "sha256": "dc2e38651626e5ec1d3f28e593faaa502fb00317bd205c0ba47096425ed5d38f"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 443,
+        "sha256": "cc0509f87f0192b395af65d0c1fcb396b1321b143fda39dfe693732486d61452"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 6495,
+        "sha256": "4df15b55ddd048540dc8042705e934fce9e8a22339df5f3e6908cf048743f60d"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 158,
+        "sha256": "062dd193fa45f768a6565b3ed334f6b9095ffae555a7e28f94b95c2ac4628c15"
+      },
+      "ordinary/source-after.json": {
+        "bytes": 427978,
+        "sha256": "69480daa164853c711824be6ed5dddbabd6ecee526472563bd5fbdecc3c551c6"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 16351,
+        "sha256": "3b5643598bc3797672309853f94553917dbaf0f8b6755bac934906f2f4c4bbd4"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 6495,
+        "sha256": "4df15b55ddd048540dc8042705e934fce9e8a22339df5f3e6908cf048743f60d"
+      },
+      "ordinary/ordinary-declarations.log": {
+        "bytes": 2512,
+        "sha256": "402261614fc179939d39e44fb0d7bd4cfdb4994b2ae3c4e6b911d2a7f789ae94"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 427978,
+        "sha256": "69480daa164853c711824be6ed5dddbabd6ecee526472563bd5fbdecc3c551c6"
+      },
+      "ordinary/ordinary-declarations.json": {
+        "bytes": 688,
+        "sha256": "f7547a35345b4c9668c5cbbfb0d19084b61befdb7fd0d3e3f478929bea3bd717"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 324,
+        "sha256": "800a75971db3bbe43c2b4913abadcdf21c5bdea4ed817f57d04a9967bc955418"
+      },
+      "sanitized/providers.txt": {
+        "bytes": 1058,
+        "sha256": "f24f583225cb59893087f4ce14b8328ac6de233f86f426bd5f73c40d6daeffb3"
+      },
+      "sanitized/products.json": {
+        "bytes": 7773,
+        "sha256": "3db63cfcea2bb8dfc9d59386e29eeae6669edcbd0e66b27b02fe5dc4351b528d"
+      },
+      "sanitized/providers.mk": {
+        "bytes": 446,
+        "sha256": "b7277bb748f1ea3cc9dad2e5e453a2abea8b73a550ad36c54448d280c0b3eb79"
+      },
+      "sanitized/providers-before.json": {
+        "bytes": 6533,
+        "sha256": "f9e5cd24ef68a656c54fd356d8d3ae2bf8eb67ee52d2d7997932776df3533115"
+      },
+      "sanitized/sanitized-providers.log": {
+        "bytes": 20037,
+        "sha256": "19cd94f10e0185f08d037175d6a64a6b0f97f4b0ee6d32c57f023064338cc2f5"
+      },
+      "sanitized/ldflags.txt": {
+        "bytes": 237,
+        "sha256": "53938334859604f228dd491d07d8d54c4e672fc4a061e24db5a5a82af1f8a595"
+      },
+      "sanitized/source-after.json": {
+        "bytes": 427978,
+        "sha256": "69480daa164853c711824be6ed5dddbabd6ecee526472563bd5fbdecc3c551c6"
+      },
+      "sanitized/sanitized-declarations.log": {
+        "bytes": 2689,
+        "sha256": "35179bd6e1460277acc55302f4e2bd58b2ad0c32a3796ec04c97b9e57336a5a0"
+      },
+      "sanitized/providers-after.json": {
+        "bytes": 6533,
+        "sha256": "f9e5cd24ef68a656c54fd356d8d3ae2bf8eb67ee52d2d7997932776df3533115"
+      },
+      "sanitized/source-before.json": {
+        "bytes": 427978,
+        "sha256": "69480daa164853c711824be6ed5dddbabd6ecee526472563bd5fbdecc3c551c6"
+      },
+      "sanitized/sanitized-providers.json": {
+        "bytes": 836,
+        "sha256": "0d4bf868d471df5ceef8a0d3ffd7531013ac8115682e651d940b6b65b08aa102"
+      },
+      "sanitized/cflags.txt": {
+        "bytes": 403,
+        "sha256": "5d315177f3ad6169236736836c95671781ca7c02b1d1fd94019b6a4d40af539e"
+      },
+      "sanitized/sanitized-declarations.json": {
+        "bytes": 866,
+        "sha256": "e5bab6251a431fb739f7e9bf8ca6bf5d61d5351ba07beea6ab5a046e5913d21b"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/linked-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/linked-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/instrumented-build-command.txt": {
+        "bytes": 1915,
+        "sha256": "314116db5d0ee3e8c4c9d226e0a1e9876f329ee99d1e9c90bd404335cd2a7bc0"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/instrumented-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/instrumented-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/linked-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/instrumented-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/instrumented-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/linked-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/instrumented-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/linked-run-stdout.log": {
+        "bytes": 179,
+        "sha256": "2236ba0a2c89c24812b16a20274d002c9d37d5663fdb160ffcb5c201c51fff54"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/instrumented-run-stdout.log": {
+        "bytes": 326,
+        "sha256": "bf6c959415c69961954ef9e45bb056516fa16df54b91ab488e8dfaab5761bca2"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/linked-run-command.txt": {
+        "bytes": 111,
+        "sha256": "8d7995246145659395cecf29163962e1193d2bc8aa0d20b2248e7dae91035499"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/linked-build-command.txt": {
+        "bytes": 1955,
+        "sha256": "2979d7b81435264c22364492cbfbd99849d867cdf962ebd5138c4da0e7109ce9"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/linked-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0xvt4c9q/instrumented-run-command.txt": {
+        "bytes": 117,
+        "sha256": "f427daac0805aa2f7130ffbcac97618184482119f0d889760e23014638eec68f"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/linked-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/linked-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/instrumented-build-command.txt": {
+        "bytes": 1738,
+        "sha256": "4b7fd51e62943e3d035b7c9de4d43ca415a29ca8f0a84fab45b9afabc1865c43"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/instrumented-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/instrumented-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/linked-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/instrumented-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/instrumented-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/linked-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/instrumented-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/linked-run-stdout.log": {
+        "bytes": 179,
+        "sha256": "2236ba0a2c89c24812b16a20274d002c9d37d5663fdb160ffcb5c201c51fff54"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/instrumented-run-stdout.log": {
+        "bytes": 326,
+        "sha256": "bf6c959415c69961954ef9e45bb056516fa16df54b91ab488e8dfaab5761bca2"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/linked-run-command.txt": {
+        "bytes": 110,
+        "sha256": "8cf36277cea54374c09c35b6726a87f775a5354431ddf9368a648bc313f62421"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/linked-build-command.txt": {
+        "bytes": 1778,
+        "sha256": "c4a9d06a76bff4b439e15817454e13c97a6594e4a79e0e79064953cbf321e688"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/linked-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-4s3b_x6r/instrumented-run-command.txt": {
+        "bytes": 116,
+        "sha256": "9c39aa0f2603cc1111355ff3b170dc22c40cf5d6be99c98b85ed4e04a222c0ad"
+      }
+    },
+    "phases": [
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/sdk-budget-1ac-puck/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 26049,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 3.2262871250000003
+      },
+      {
+        "label": "ordinary-declarations",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/sdk-budget-1ac-puck/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "test-ownership-declaration-projection"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 26279,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 2.0870358330000003
+      },
+      {
+        "label": "sanitized-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/sdk-budget-1ac-puck/sanitized/providers.mk",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 26380,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 5.081874125
+      },
+      {
+        "label": "sanitized-declarations",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/sdk-budget-1ac-puck/sanitized/providers.mk",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "test-ownership-declaration-projection"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 26624,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 3.0204136249999998
+      }
+    ]
+  }
+}

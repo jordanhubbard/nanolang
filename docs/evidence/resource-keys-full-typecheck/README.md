@@ -1,0 +1,9 @@
+# Corrected full typecheck terminal
+
+I ran the original complete typecheck component at corrected source54e39da36 with the untouched qualified53cc Cseed and capture companion. The private focused-selector compiler was not invoked. Original imported-shadow selection, actual source paths, instrumentation environment and the60-second shared shadow deadline remained unchanged. I enabled timing and retained a stricter180-second outer supervisor.
+
+The compiler failed after117.532 seconds including preparation: its original60-second shadow alarm stopped execution. The outer supervisor did not time out, and every owned group disappeared. I completed433 shadows, including the additive control. Source18 item74 (`resource_instantiated_classify`, corrected line914) remained active; this is the same logical frontier as the original432/item73 terminal. Another164 checker shadows remain incomplete or unrun. Complete acceptance would require598 completed bodies and20 module initialization passes; no success record was produced.
+
+Completed bodies used56.036955462 seconds, compared with58.323442346 in the original source. My full-context declaration classification used6.817221979 seconds versus8.563604432 originally. Concrete payload used4.482266916 versus4.920267571. The two original520-statement parser bodies stayed at13.996569433/14.136947533 seconds. The focused declaration measurement3.419458948 is a distinct runtime selection; I do not transfer that timing to the full selection or infer its difference's cause.
+
+The bundle retains20 reports and184 CAS objects covering1,584 generated native files with their modes. Source/tool endpoint maps match. The actual failed command, complete timing records, executable/provider identities and supervision terminal remain available. Original CI preparation stays open; I do not extend the deadline or rerun an unchanged workload.

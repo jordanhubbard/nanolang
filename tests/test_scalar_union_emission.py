@@ -145,7 +145,7 @@ shadow main { assert true }
     def test_unsupported_payloads_and_failed_shadows_refuse(self):
         cases = {
             'resource': 'resource struct Item { value: int } union Box { Some { value: Item } } fn main() -> int { let x: Box = Box.Some { value: Item { value: 1 } } return 0 } shadow main { assert true }',
-            'nested': 'union Inner { Empty {} } union Box { Some { value: Inner } } fn main() -> int { let x: Box = Box.Some { value: Inner.Empty {} } return 0 } shadow main { assert true }',
+            'wrong_nested': 'union Inner { Empty {} } union Other { Empty {} } union Box { Some { value: Inner } } fn main() -> int { let x: Box = Box.Some { value: Other.Empty {} } return 0 } shadow main { assert true }',
             'failed_shadow': 'union Choice { Empty {} } fn main() -> int { let x: Choice = Choice.Empty {} return 0 } shadow main { assert false }',
             'wrong_return': 'union One { Empty {} } union Two { Empty {} } fn wrong() -> One { return Two.Empty {} } shadow wrong { assert true } fn main() -> int { let x: One = (wrong) return 0 } shadow main { assert true }',
         }

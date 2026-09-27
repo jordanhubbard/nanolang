@@ -1,0 +1,48 @@
+{
+  "cleanup": [],
+  "owned": {
+    "1404766": {
+      "command": "/usr/bin/python3 -m unittest -f -v tests.test_record_array_llvm.RecordArrayLLVM.test_01_emission_bounds",
+      "group": 1404766,
+      "parent": 1401475,
+      "started": "Mon Sep 21 01:11:13 2026"
+    },
+    "1404826": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -DRA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h -c src/nanoisa/verifier.c -o /tmp/nano-record-array-llvm-j92pbmqe/emission-verifier.o",
+      "group": 1404826,
+      "parent": 1404766,
+      "started": "Mon Sep 21 01:11:14 2026"
+    },
+    "1404827": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D RA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h src/nanoisa/verifier.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-j92pbmqe/ -dumpbase emission-verifier.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccMPhcWK.s",
+      "group": 1404826,
+      "parent": 1404826,
+      "started": "Mon Sep 21 01:11:14 2026"
+    },
+    "1404876": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -DRA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h -c src/nanoisa/nvm_v2_layouts.c -o /tmp/nano-record-array-llvm-j92pbmqe/emission-nvm_v2_layouts.o",
+      "group": 1404876,
+      "parent": 1404766,
+      "started": "Mon Sep 21 01:11:15 2026"
+    },
+    "1404877": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D RA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h src/nanoisa/nvm_v2_layouts.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-j92pbmqe/ -dumpbase emission-nvm_v2_layouts.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccFRIT6I.s",
+      "group": 1404876,
+      "parent": 1404876,
+      "started": "Mon Sep 21 01:11:15 2026"
+    },
+    "1404886": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa tests/nanoisa/test_record_array_llvm_emission.c tests/nanoisa/record_array_alloc.c /tmp/nano-record-array-llvm-j92pbmqe/emission-managed_array_shapes.o /tmp/nano-record-array-llvm-j92pbmqe/emission-verifier.o /tmp/nano-record-array-llvm-j92pbmqe/emission-verifier_types.o /tmp/nano-record-array-llvm-j92pbmqe/emission-vm_decode.o /tmp/nano-record-array-llvm-j92pbmqe/emission-ownership_contracts.o /tmp/nano-record-array-llvm-j92pbmqe/emission-nvm_v2_layouts.o /tmp/nano-record-array-llvm-j92pbmqe/emission-retained_layouts.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -rdynamic -o /tmp/nano-record-array-llvm-j92pbmqe/emission",
+      "group": 1404886,
+      "parent": 1404766,
+      "started": "Mon Sep 21 01:11:16 2026"
+    },
+    "1404887": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE tests/nanoisa/test_record_array_llvm_emission.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-j92pbmqe/emission- -dumpbase test_record_array_llvm_emission.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccaxVXaF.s",
+      "group": 1404886,
+      "parent": 1404886,
+      "started": "Mon Sep 21 01:11:16 2026"
+    }
+  },
+  "remaining": []
+}

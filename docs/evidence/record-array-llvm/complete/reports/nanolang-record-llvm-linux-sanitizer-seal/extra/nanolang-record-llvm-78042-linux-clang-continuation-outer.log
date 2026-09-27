@@ -1,0 +1,21 @@
+{"unchanged_reused_provider_entries": 167, "prior_map_sha256": "c4e63d334ca6c94c9a56fa44114e229c343a0d0e8f510a13f077b4722b7c8401"}
+{"pin": "7804258431ed8fba21fa33c5507b06ad9a1bbd94", "source_files": 3752, "root": "/tmp/nanolang-record-llvm-qualified-78042", "free_bytes": 3949056000, "selected": {"RECORD_LLVM_WASMTIME": "/home/jkh/.local/bin/wasmtime", "RECORD_LLVM_NODE": "/home/linuxbrew/.linuxbrew/bin/node", "RECORD_LLVM_C_BASELINE": "/tmp/nano-record-array-generated-x9fej2n6/corpus", "RECORD_LLVM_CLANG": "/usr/local/bin/clang", "RECORD_LLVM_OPT": "/usr/local/bin/opt", "RECORD_LLVM_LLC": "/usr/local/bin/llc", "RECORD_LLVM_NM": "/usr/local/bin/llvm-nm"}}
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-llvm-78042-driver.py", line 144, in <module>
+    values=dict(line.split('=',1) for line in (report/'configuration.log').read_text().splitlines() if '=' in line)
+                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/pathlib/__init__.py", line 787, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/nanolang-record-llvm-78042-linux-clang-continuation/configuration.log'
+Traceback (most recent call last):
+  File "/tmp/nanolang-record-llvm-78042-linux-clang-continuation-launch.py", line 32, in <module>
+    subprocess.run([sys.executable,'/tmp/nanolang-record-llvm-78042-driver.py',str(root),'/tmp/nanolang-record-llvm-78042-'+host+'-clang-continuation'],check=True,env=env)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/linuxbrew/.linuxbrew/opt/python@3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14', '/tmp/nanolang-record-llvm-78042-driver.py', '/tmp/nanolang-record-llvm-qualified-78042', '/tmp/nanolang-record-llvm-78042-linux-clang-continuation']' returned non-zero exit status 1.

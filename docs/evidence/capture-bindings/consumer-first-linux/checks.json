@@ -1,0 +1,23 @@
+{
+  "source": "a88e4fd85",
+  "build_launched": false,
+  "outcome": "Preflight refused below 2GiB before source extraction or compilation",
+  "qualification_root": "/home/jkh/nanolang-qualification/capture-consumers-a88-linux",
+  "syntax_only": {
+    "returncode": 0,
+    "argv": [
+      "gcc",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-DCAPTURE_TRANSPORT_CONSUMERS",
+      "-Isrc/nanoisa",
+      "-Isrc/nanovm",
+      "-Isrc",
+      "-fsyntax-only",
+      "tests/nanoisa/test_capture_transport.c"
+    ]
+  },
+  "acceptance": "Full consumer execution and both-host gates remain open"
+}

@@ -1,0 +1,17 @@
+{
+  "/tmp/nanolang-typecheck-lifetime-729ce-linux/env.o": {
+    "sha256": "33b862021cf8f371663c3951147e04629906913119ce89834d0301b7cafe1574",
+    "bytes": 418880,
+    "archive": "/tmp/nanolang-typecheck-lifetime-729ce-linux/objects/33b862021cf8f371663c3951147e04629906913119ce89834d0301b7cafe1574"
+  },
+  "/tmp/nanolang-typecheck-lifetime-729ce-linux/eval.o": {
+    "sha256": "615d6983c093c24baee3dfbd924e6532465aa044f79a74913141b4c049fcec09",
+    "bytes": 901816,
+    "archive": "/tmp/nanolang-typecheck-lifetime-729ce-linux/objects/615d6983c093c24baee3dfbd924e6532465aa044f79a74913141b4c049fcec09"
+  },
+  "/tmp/nanolang-typecheck-lifetime-729ce-linux/variables.mk": {
+    "sha256": "6f9c63dab581813da3163b30e7daa5339c55085bff95861ca2397f7d7f6924a6",
+    "bytes": 135,
+    "archive": "/tmp/nanolang-typecheck-lifetime-729ce-linux/objects/6f9c63dab581813da3163b30e7daa5339c55085bff95861ca2397f7d7f6924a6"
+  }
+}

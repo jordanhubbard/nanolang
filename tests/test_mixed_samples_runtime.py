@@ -28,7 +28,7 @@ class MixedSamplesRuntime(unittest.TestCase):
             result = self.checked([ROOT/'obj/test_mixed_samples_runtime', work])
             print(result.stdout, end='')
             cases = [line.split() for line in result.stdout.splitlines() if line.startswith('case ')]
-            self.assertEqual(len(cases), 12)
+            self.assertEqual(len(cases), 13)
             for _, index, status, value in cases:
                 with self.subTest(case=index):
                     source = work/f'case{index}.c'

@@ -1,6 +1,7 @@
 """I emit imported callback types before their C declarations."""
 from pathlib import Path
 import os
+import re
 import shlex
 import subprocess
 import tempfile
@@ -29,8 +30,14 @@ extern fn select_callback(callback: fn(int) -> bool) -> void
                                     cwd=ROOT, capture_output=True, text=True, timeout=30)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             text = generated.read_text()
-            self.assertLess(text.index("typedef void (*FnType_"), text.index("extern int64_t install("))
-            self.assertRegex(text, r"typedef void \(\*FnType_\d+\)\(void\*, void\*, int64_t\)")
+            callback = re.search(
+                r"typedef void \(\*(?P<name>[A-Za-z_][A-Za-z0-9_]*)\)"
+                r"\(void\*, void\*, int64_t\);", text)
+            self.assertIsNotNone(callback)
+            typedef = callback.group(0)
+            declaration = f"extern int64_t install({callback.group('name')} callback, void* context);"
+            self.assertIn(declaration, text)
+            self.assertLess(text.index(typedef), text.index(declaration))
             checked = subprocess.run([*shlex.split(os.environ.get("CC", "cc")),
                                       "-std=c11", "-Werror=incompatible-pointer-types",
                                       "-fsyntax-only", "-I", str(ROOT / "src"), str(generated)],

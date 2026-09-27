@@ -1,0 +1,124 @@
+
+/private/tmp/nanolang-record-lists-qualified-4382/bin/nanoc_c:	file format mach-o arm64
+
+Disassembly of section __TEXT,__text:
+
+000000010002bcfc <_eval_scope_release>:
+; eval_scope_release():
+10002bcfc: d10283ff    	sub	sp, sp, #0xa0
+10002bd00: a9046ffc    	stp	x28, x27, [sp, #0x40]
+10002bd04: a90567fa    	stp	x26, x25, [sp, #0x50]
+10002bd08: a9065ff8    	stp	x24, x23, [sp, #0x60]
+10002bd0c: a90757f6    	stp	x22, x21, [sp, #0x70]
+10002bd10: a9084ff4    	stp	x20, x19, [sp, #0x80]
+10002bd14: a9097bfd    	stp	x29, x30, [sp, #0x90]
+10002bd18: 910243fd    	add	x29, sp, #0x90
+10002bd1c: b90007e2    	str	w2, [sp, #0x4]
+10002bd20: aa0103f3    	mov	x19, x1
+10002bd24: aa0003f5    	mov	x21, x0
+10002bd28: b0000f28    	adrp	x8, 0x100210000 <_write+0x100210000>
+10002bd2c: f9402908    	ldr	x8, [x8, #0x50]
+10002bd30: f9400108    	ldr	x8, [x8]
+10002bd34: f9001fe8    	str	x8, [sp, #0x38]
+10002bd38: b9400808    	ldr	w8, [x0, #0x8]
+10002bd3c: 6b01011f    	cmp	w8, w1
+10002bd40: 5400094d    	b.le	0x10002be68 <_eval_scope_release+0x16c>
+10002bd44: 910023e8    	add	x8, sp, #0x8
+10002bd48: b27e0118    	orr	x24, x8, #0x4
+10002bd4c: 93407e79    	sxtw	x25, w19
+10002bd50: 52801308    	mov	w8, #0x98               ; =152
+10002bd54: 9b287e7a    	smull	x26, w19, w8
+10002bd58: 1400000a    	b	0x10002bd80 <_eval_scope_release+0x84>
+10002bd5c: f94002c0    	ldr	x0, [x22]
+10002bd60: 94059710    	bl	0x1001919a0 <_write+0x1001919a0>
+10002bd64: f9400ac0    	ldr	x0, [x22, #0x10]
+10002bd68: 9405970e    	bl	0x1001919a0 <_write+0x1001919a0>
+10002bd6c: 91000739    	add	x25, x25, #0x1
+10002bd70: b9800aa8    	ldrsw	x8, [x21, #0x8]
+10002bd74: 9102635a    	add	x26, x26, #0x98
+10002bd78: eb08033f    	cmp	x25, x8
+10002bd7c: 5400076a    	b.ge	0x10002be68 <_eval_scope_release+0x16c>
+10002bd80: f94002bc    	ldr	x28, [x21]
+10002bd84: 8b1a0396    	add	x22, x28, x26
+10002bd88: b9400ac8    	ldr	w8, [x22, #0x8]
+10002bd8c: aa1603f4    	mov	x20, x22
+10002bd90: b8430e9b    	ldr	w27, [x20, #0x30]!
+10002bd94: f8404289    	ldur	x9, [x20, #0x4]
+10002bd98: f90017e9    	str	x9, [sp, #0x28]
+10002bd9c: b9400e89    	ldr	w9, [x20, #0xc]
+10002bda0: b90033e9    	str	w9, [sp, #0x30]
+10002bda4: 121f7908    	and	w8, w8, #0xfffffffe
+10002bda8: 7100591f    	cmp	w8, #0x16
+10002bdac: 54fffd80    	b.eq	0x10002bd5c <_eval_scope_release+0x60>
+10002bdb0: a9415e96    	ldp	x22, x23, [x20, #0x10]
+10002bdb4: 71002b7f    	cmp	w27, #0xa
+10002bdb8: 7a461b64    	ccmp	w27, #0x6, #0x4, ne
+10002bdbc: 54000201    	b.ne	0x10002bdfc <_eval_scope_release+0x100>
+10002bdc0: b9000bfb    	str	w27, [sp, #0x8]
+10002bdc4: f94017e8    	ldr	x8, [sp, #0x28]
+10002bdc8: f9000308    	str	x8, [x24]
+10002bdcc: b94033e8    	ldr	w8, [sp, #0x30]
+10002bdd0: b9000b08    	str	w8, [x24, #0x8]
+10002bdd4: a901dff6    	stp	x22, x23, [sp, #0x18]
+10002bdd8: 910023e1    	add	x1, sp, #0x8
+10002bddc: aa1503e0    	mov	x0, x21
+10002bde0: 97ffc687    	bl	0x10001d7fc <_env_retire_value>
+10002bde4: 36000600    	tbz	w0, #0x0, 0x10002bea4 <_eval_scope_release+0x1a8>
+10002bde8: 910023e8    	add	x8, sp, #0x8
+10002bdec: 97ffc8d5    	bl	0x10001e140 <_create_void>
+10002bdf0: 3cc083e0    	ldur	q0, [sp, #0x8]
+10002bdf4: 3cc183e1    	ldur	q1, [sp, #0x18]
+10002bdf8: ad000680    	stp	q0, q1, [x20]
+10002bdfc: 8b1a0394    	add	x20, x28, x26
+10002be00: f9400280    	ldr	x0, [x20]
+10002be04: 940596e7    	bl	0x1001919a0 <_write+0x1001919a0>
+10002be08: f9400a80    	ldr	x0, [x20, #0x10]
+10002be0c: 940596e5    	bl	0x1001919a0 <_write+0x1001919a0>
+10002be10: 71002b7f    	cmp	w27, #0xa
+10002be14: 7a461b64    	ccmp	w27, #0x6, #0x4, ne
+10002be18: 54fffaa0    	b.eq	0x10002bd6c <_eval_scope_release+0x70>
+10002be1c: 71000f7f    	cmp	w27, #0x3
+10002be20: 540000e1    	b.ne	0x10002be3c <_eval_scope_release+0x140>
+10002be24: aa1603e0    	mov	x0, x22
+10002be28: 9404363c    	bl	0x100139718 <_gc_is_managed>
+10002be2c: 340001a0    	cbz	w0, 0x10002be60 <_eval_scope_release+0x164>
+10002be30: aa1603e0    	mov	x0, x22
+10002be34: 940435c8    	bl	0x100139554 <_gc_release>
+10002be38: 17ffffcd    	b	0x10002bd6c <_eval_scope_release+0x70>
+10002be3c: b94007e8    	ldr	w8, [sp, #0x4]
+10002be40: 34fff968    	cbz	w8, 0x10002bd6c <_eval_scope_release+0x70>
+10002be44: 7100277f    	cmp	w27, #0x9
+10002be48: 54fff921    	b.ne	0x10002bd6c <_eval_scope_release+0x70>
+10002be4c: aa1603e0    	mov	x0, x22
+10002be50: 940596d4    	bl	0x1001919a0 <_write+0x1001919a0>
+10002be54: aa1703e0    	mov	x0, x23
+10002be58: 97ffdd19    	bl	0x1000232bc <_free_function_signature>
+10002be5c: 17ffffc4    	b	0x10002bd6c <_eval_scope_release+0x70>
+10002be60: aa1603e0    	mov	x0, x22
+10002be64: 17ffffc1    	b	0x10002bd68 <_eval_scope_release+0x6c>
+10002be68: b9000ab3    	str	w19, [x21, #0x8]
+10002be6c: f9401fe8    	ldr	x8, [sp, #0x38]
+10002be70: b0000f29    	adrp	x9, 0x100210000 <_write+0x100210000>
+10002be74: f9402929    	ldr	x9, [x9, #0x50]
+10002be78: f9400129    	ldr	x9, [x9]
+10002be7c: eb08013f    	cmp	x9, x8
+10002be80: 54000261    	b.ne	0x10002becc <_eval_scope_release+0x1d0>
+10002be84: a9497bfd    	ldp	x29, x30, [sp, #0x90]
+10002be88: a9484ff4    	ldp	x20, x19, [sp, #0x80]
+10002be8c: a94757f6    	ldp	x22, x21, [sp, #0x70]
+10002be90: a9465ff8    	ldp	x24, x23, [sp, #0x60]
+10002be94: a94567fa    	ldp	x26, x25, [sp, #0x50]
+10002be98: a9446ffc    	ldp	x28, x27, [sp, #0x40]
+10002be9c: 910283ff    	add	sp, sp, #0xa0
+10002bea0: d65f03c0    	ret
+10002bea4: b0000f28    	adrp	x8, 0x100210000 <_write+0x100210000>
+10002bea8: f9402d08    	ldr	x8, [x8, #0x58]
+10002beac: f9400103    	ldr	x3, [x8]
+10002beb0: 90000b80    	adrp	x0, 0x10019b000 <_write+0x10019b000>
+10002beb4: 910c2400    	add	x0, x0, #0x309
+10002beb8: 52800521    	mov	w1, #0x29               ; =41
+10002bebc: 52800022    	mov	w2, #0x1                ; =1
+10002bec0: 940596c7    	bl	0x1001919dc <_write+0x1001919dc>
+10002bec4: 52800020    	mov	w0, #0x1                ; =1
+10002bec8: 94059665    	bl	0x10019185c <_write+0x10019185c>
+10002becc: 940595ec    	bl	0x10019167c <_write+0x10019167c>

@@ -4,6 +4,7 @@
 # Import this module instead of sdl_image.nano for cleaner code:
 # import "modules/sdl_image/sdl_image_safe.nano"
 
+unsafe module "modules/sdl/sdl.nano"
 import "modules/sdl_image/sdl_image.nano"
 
 # Safe wrapper for loading textures

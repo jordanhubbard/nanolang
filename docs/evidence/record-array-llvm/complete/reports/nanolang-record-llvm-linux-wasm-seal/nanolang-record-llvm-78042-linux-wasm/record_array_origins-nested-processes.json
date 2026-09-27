@@ -1,0 +1,72 @@
+{
+  "cleanup": [],
+  "owned": {
+    "1587906": {
+      "command": "/usr/bin/python3 -m unittest -f -v tests.test_record_array_origins",
+      "group": 1587906,
+      "parent": 1499611,
+      "started": "Mon Sep 21 01:48:28 2026"
+    },
+    "1587921": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -c src/nanoisa/verifier.c -o /tmp/nano-record-array-origins-yh_aq0f3/linked-verifier.o",
+      "group": 1587921,
+      "parent": 1587906,
+      "started": "Mon Sep 21 01:48:29 2026"
+    },
+    "1587922": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE src/nanoisa/verifier.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-origins-yh_aq0f3/ -dumpbase linked-verifier.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccNdJXGM.s",
+      "group": 1587921,
+      "parent": 1587921,
+      "started": "Mon Sep 21 01:48:29 2026"
+    },
+    "1588080": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -c src/nanoisa/nvm_v2_layouts.c -o /tmp/nano-record-array-origins-yh_aq0f3/linked-nvm_v2_layouts.o",
+      "group": 1588080,
+      "parent": 1587906,
+      "started": "Mon Sep 21 01:48:30 2026"
+    },
+    "1588081": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE src/nanoisa/nvm_v2_layouts.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-origins-yh_aq0f3/ -dumpbase linked-nvm_v2_layouts.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccEhPCeu.s",
+      "group": 1588080,
+      "parent": 1588080,
+      "started": "Mon Sep 21 01:48:30 2026"
+    },
+    "1588156": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math tests/nanoisa/test_record_array_origins.c tests/nanoisa/record_array_alloc.c /tmp/nano-record-array-origins-yh_aq0f3/linked-managed_array_shapes.o /tmp/nano-record-array-origins-yh_aq0f3/linked-verifier.o /tmp/nano-record-array-origins-yh_aq0f3/linked-verifier_types.o /tmp/nano-record-array-origins-yh_aq0f3/linked-vm_decode.o /tmp/nano-record-array-origins-yh_aq0f3/linked-ownership_contracts.o /tmp/nano-record-array-origins-yh_aq0f3/linked-nvm_v2_layouts.o /tmp/nano-record-array-origins-yh_aq0f3/linked-retained_layouts.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -rdynamic -o /tmp/nano-record-array-origins-yh_aq0f3/linked",
+      "group": 1588156,
+      "parent": 1587906,
+      "started": "Mon Sep 21 01:48:31 2026"
+    },
+    "1588235": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DRA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h -c src/nanoisa/ownership_contracts.c -o /tmp/nano-record-array-origins-yh_aq0f3/instrumented-ownership_contracts.o",
+      "group": 1588235,
+      "parent": 1587906,
+      "started": "Mon Sep 21 01:48:32 2026"
+    },
+    "1588236": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D RA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h src/nanoisa/ownership_contracts.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-origins-yh_aq0f3/ -dumpbase instrumented-ownership_contracts.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccr3oVTm.s",
+      "group": 1588235,
+      "parent": 1588235,
+      "started": "Mon Sep 21 01:48:32 2026"
+    },
+    "1588275": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DRA_WHITEBOX tests/nanoisa/test_record_array_origins.c tests/nanoisa/record_array_alloc.c /tmp/nano-record-array-origins-yh_aq0f3/instrumented-verifier.o /tmp/nano-record-array-origins-yh_aq0f3/instrumented-verifier_types.o /tmp/nano-record-array-origins-yh_aq0f3/instrumented-vm_decode.o /tmp/nano-record-array-origins-yh_aq0f3/instrumented-ownership_contracts.o /tmp/nano-record-array-origins-yh_aq0f3/instrumented-nvm_v2_layouts.o /tmp/nano-record-array-origins-yh_aq0f3/instrumented-retained_layouts.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -rdynamic -o /tmp/nano-record-array-origins-yh_aq0f3/instrumented",
+      "group": 1588275,
+      "parent": 1587906,
+      "started": "Mon Sep 21 01:48:33 2026"
+    },
+    "1588276": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D RA_WHITEBOX tests/nanoisa/test_record_array_origins.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-origins-yh_aq0f3/instrumented- -dumpbase test_record_array_origins.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccpwHJ47.s",
+      "group": 1588275,
+      "parent": 1588275,
+      "started": "Mon Sep 21 01:48:33 2026"
+    },
+    "1588290": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D RA_WHITEBOX tests/nanoisa/record_array_alloc.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-origins-yh_aq0f3/instrumented- -dumpbase record_array_alloc.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccpwHJ47.s",
+      "group": 1588275,
+      "parent": 1588275,
+      "started": "Mon Sep 21 01:48:35 2026"
+    }
+  },
+  "remaining": []
+}

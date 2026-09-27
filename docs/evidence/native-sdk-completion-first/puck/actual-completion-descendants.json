@@ -1,0 +1,84 @@
+{
+  "owned": {
+    "31610": {
+      "parent": 30953,
+      "group": 31610,
+      "started": "Mon Sep 21 22:31:03 2026",
+      "command": "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python -m unittest -f -v tests.test_shadow_completion.ShadowCompletion.test_actual_compiler_success_failure_and_live_deadline"
+    },
+    "31612": {
+      "parent": 31610,
+      "group": 31612,
+      "started": "Mon Sep 21 22:31:03 2026",
+      "command": "<defunct>"
+    },
+    "31616": {
+      "parent": 31612,
+      "group": 31612,
+      "started": "Mon Sep 21 22:31:03 2026",
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier -I/private/tmp/nanolang-native-sdk-bae59-puck-source/src -I/tmp/nanolang-native-sdk-bae59-puck-preparation/tmp/nanolang-lists-o5e8EM -o /tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/success /tmp/nanolang-native-sdk-bae59-puck-preparation/tmp/nanoc_31612_success.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_int.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_string.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_LexerToken.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_token.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_CompilerDiagnostic.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_CompilerSourceLocation.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTNumber.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTFloat.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTString.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTBool.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTIdentifier.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTBinaryOp.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTCall.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTModuleQualifiedCall.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTArrayLiteral.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTLet.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTSet.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTStmtRef.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTIf.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTWhile.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTFor.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTReturn.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTBlock.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTUnsafeBlock.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTPrint.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTAssert.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTFunction.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTShadow.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTStruct.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTStructLiteral.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTFieldAccess.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTEnum.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTUnion.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTUnionConstruct.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTMatch.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTImport.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTOpaqueType.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTServiceDecl.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTTupleLiteral.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/list_ASTTupleIndex.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/token_helpers.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/gc.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/effect_runtime.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/dyn_array.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/gc_struct.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/nl_string.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/cli.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/runtime/regex.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/utf8.c /private/tmp/nanolang-native-sdk-bae59-puck-source/src/coroutine.c -lm"
+    },
+    "31628": {
+      "parent": 31616,
+      "group": 31612,
+      "started": "Mon Sep 21 22:31:03 2026",
+      "command": "(clang)"
+    },
+    "31645": {
+      "parent": 31616,
+      "group": 31612,
+      "started": "Mon Sep 21 22:31:03 2026",
+      "command": "(clang)"
+    },
+    "31662": {
+      "parent": 31616,
+      "group": 31612,
+      "started": "Mon Sep 21 22:31:04 2026",
+      "command": "(clang)"
+    },
+    "31690": {
+      "parent": 31610,
+      "group": 31690,
+      "started": "Mon Sep 21 22:31:04 2026",
+      "command": "/tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/success"
+    },
+    "31691": {
+      "parent": 31610,
+      "group": 31610,
+      "started": "Mon Sep 21 22:31:04 2026",
+      "command": "(ps)"
+    },
+    "31707": {
+      "parent": 31610,
+      "group": 31610,
+      "started": "Mon Sep 21 22:31:04 2026",
+      "command": "(ps)"
+    },
+    "31721": {
+      "parent": 31610,
+      "group": 31610,
+      "started": "Mon Sep 21 22:31:05 2026",
+      "command": "ps -axo pid=,ppid=,pgid=,lstart=,args="
+    },
+    "31724": {
+      "parent": 31610,
+      "group": 31724,
+      "started": "Mon Sep 21 22:31:05 2026",
+      "command": "/private/tmp/nanolang-native-sdk-bae59-puck-source/bin/nanoc_c /tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/deadline.nano -o /tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/deadline --llm-shadow-json /tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/deadline-shadows.json"
+    },
+    "31726": {
+      "parent": 31724,
+      "group": 31724,
+      "started": "Mon Sep 21 22:31:05 2026",
+      "command": "/private/tmp/nanolang-native-sdk-bae59-puck-source/bin/nanoc_c /tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/deadline.nano -o /tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/deadline --llm-shadow-json /tmp/nanolang-native-sdk-bae59-puck-preparation/compiler-8wlbsujj/deadline-shadows.json"
+    },
+    "31746": {
+      "parent": 31610,
+      "group": 31610,
+      "started": "Mon Sep 21 22:31:06 2026",
+      "command": "ps -axo pid=,ppid=,pgid=,lstart=,args="
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

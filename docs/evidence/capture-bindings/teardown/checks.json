@@ -1,0 +1,254 @@
+{
+  "runs": [
+    {
+      "label": "first-linux",
+      "source": "bb08c4e1396d746d7f943c31455432a793ac988b",
+      "input_count": 953,
+      "local_directory": "/tmp/nanolang-vm-destroy-bb08c4e13",
+      "returncode": 2,
+      "elapsed_seconds": 22.924482095986605
+    },
+    {
+      "label": "first-darwin",
+      "source": "bb08c4e1396d746d7f943c31455432a793ac988b",
+      "input_count": 953,
+      "local_directory": "/tmp/nanolang-vm-destroy-bb08c4e13",
+      "returncode": 2,
+      "elapsed_seconds": 8.789259125000001
+    },
+    {
+      "label": "complete-linux",
+      "source": "bb08c4e1396d746d7f943c31455432a793ac988b",
+      "input_count": 989,
+      "local_directory": "/tmp/nanolang-vm-destroy-bb08c4e13-complete",
+      "returncode": 0,
+      "elapsed_seconds": 29.537926736986265
+    },
+    {
+      "label": "complete-darwin",
+      "source": "bb08c4e1396d746d7f943c31455432a793ac988b",
+      "input_count": 989,
+      "local_directory": "/tmp/nanolang-vm-destroy-bb08c4e13-complete",
+      "returncode": 0,
+      "elapsed_seconds": 13.243666082999999
+    }
+  ],
+  "files": {
+    "README.md": {
+      "sha256": "8cf2efae6dd0b67a401ac22771a91f163f1cb2237ad401cf28792122a90d2830",
+      "bytes": 2171
+    },
+    "complete/darwin/compiler-identity.json": {
+      "sha256": "b9820f216076159576df14151fa8c7f2242bdc498bbfce7fce2a99876aeb49c5",
+      "bytes": 143
+    },
+    "complete/darwin/compiler-version.json": {
+      "sha256": "cf9071cf0d23fdd82e800c1ec0da89fb6e1287ee2e2af0440602ded7228a08f3",
+      "bytes": 164
+    },
+    "complete/darwin/compiler-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "complete/darwin/compiler-version.stdout": {
+      "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+      "bytes": 200
+    },
+    "complete/darwin/complete.json": {
+      "sha256": "f7373706a4c2db6cfaf5dd71580734bce746ba9203e64f742cfb125f4aec5795",
+      "bytes": 123
+    },
+    "complete/darwin/inputs-after.json": {
+      "sha256": "f5c0db967208bfc200142f3ef756a1aeb83480dc0eadd38b41ece1d6616255e7",
+      "bytes": 159023
+    },
+    "complete/darwin/make-identity.json": {
+      "sha256": "d12b240265b92239b0f57067d3a47fc914a8dadaaf9c52797882fe34db8bdc4c",
+      "bytes": 141
+    },
+    "complete/darwin/make-version.json": {
+      "sha256": "74b8108d2ae6d61f3eb2d6936779161ecf2d8fe688b39bc8f784caa9431df584",
+      "bytes": 163
+    },
+    "complete/darwin/make-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "complete/darwin/make-version.stdout": {
+      "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+      "bytes": 263
+    },
+    "complete/darwin/ordinary-vm.json": {
+      "sha256": "b644a20d9bfe2271920b058ffd6b455f36c22545acd2268369f8503c1e664001",
+      "bytes": 199
+    },
+    "complete/darwin/ordinary-vm.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "complete/darwin/ordinary-vm.stdout": {
+      "sha256": "79ae87df2a9d56a46de97808711342430335af73e4fb76c9a423c4e3cfc73e0b",
+      "bytes": 61259
+    },
+    "complete/inputs.json": {
+      "sha256": "29ed143df2a177094caeff1fc9633d9f45dad054491b349bc93b2825d1cdd299",
+      "bytes": 168987
+    },
+    "complete/linux/compiler-identity.json": {
+      "sha256": "6ac189aca6c582f2c96433f99cd02064bddeb86bf12e966cea6e29379b9661cd",
+      "bytes": 160
+    },
+    "complete/linux/compiler-version.json": {
+      "sha256": "5cd97a820c240d1a913669bb54f1e914661485601cc91d1f90664293a9bab4a7",
+      "bytes": 163
+    },
+    "complete/linux/compiler-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "complete/linux/compiler-version.stdout": {
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+      "bytes": 246
+    },
+    "complete/linux/complete.json": {
+      "sha256": "96646c2adb89d77146e985f2a9e23834f9190fc5aa388e48272e75e7b43284ef",
+      "bytes": 144
+    },
+    "complete/linux/inputs-after.json": {
+      "sha256": "f5c0db967208bfc200142f3ef756a1aeb83480dc0eadd38b41ece1d6616255e7",
+      "bytes": 159023
+    },
+    "complete/linux/make-identity.json": {
+      "sha256": "2e63f20d97de18df38d6331a9fe17586002fad588a2d96932094cadee531715a",
+      "bytes": 141
+    },
+    "complete/linux/make-version.json": {
+      "sha256": "bf7bb67b1f6a60ce81bf6f09ed09584f1cc7c6741b630e621fc4faaf2cdd6469",
+      "bytes": 164
+    },
+    "complete/linux/make-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "complete/linux/make-version.stdout": {
+      "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+      "bytes": 303
+    },
+    "complete/linux/ordinary-vm.json": {
+      "sha256": "b1cf48507a3fe89d8c6c9e314ac18f3eadc33ba11de61537e6bbaa9900bdd3d2",
+      "bytes": 197
+    },
+    "complete/linux/ordinary-vm.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "complete/linux/ordinary-vm.stdout": {
+      "sha256": "a41d1a783ddb2b34f53ce321bb9dbd188e1f5146a41c6885e3aff17ed3a67267",
+      "bytes": 38301
+    },
+    "complete/run.py": {
+      "sha256": "d0fc97e5c8b110de382057b87a255d5213d3ef9551ac7816654903f435e37b13",
+      "bytes": 2819
+    },
+    "first/darwin/compiler-identity.json": {
+      "sha256": "b9820f216076159576df14151fa8c7f2242bdc498bbfce7fce2a99876aeb49c5",
+      "bytes": 143
+    },
+    "first/darwin/compiler-version.json": {
+      "sha256": "c76509489f307adb810bc1b876c04edd7779febd10d1991f52f1af3ae2983dd1",
+      "bytes": 164
+    },
+    "first/darwin/compiler-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "first/darwin/compiler-version.stdout": {
+      "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+      "bytes": 200
+    },
+    "first/darwin/make-identity.json": {
+      "sha256": "d12b240265b92239b0f57067d3a47fc914a8dadaaf9c52797882fe34db8bdc4c",
+      "bytes": 141
+    },
+    "first/darwin/make-version.json": {
+      "sha256": "93dca45f882bcb6a70c844a39360fa13187b33d15360ad45570d06e030acadf9",
+      "bytes": 154
+    },
+    "first/darwin/make-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "first/darwin/make-version.stdout": {
+      "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+      "bytes": 263
+    },
+    "first/darwin/ordinary-vm.json": {
+      "sha256": "23d2a9f5bf3b526c77e4f3702a35dab776aeb62c94f75e38b9ece5364dc4c79f",
+      "bytes": 198
+    },
+    "first/darwin/ordinary-vm.stderr": {
+      "sha256": "c146bc02ecf9f22fec594a316f08e858a95aa89c3bc83c097ee982c5766fa6ab",
+      "bytes": 302
+    },
+    "first/darwin/ordinary-vm.stdout": {
+      "sha256": "ee393d37d49349ee4dc3afc389266b8bf839cca4ca43c164f8c8ee21ef54acb3",
+      "bytes": 54655
+    },
+    "first/inputs.json": {
+      "sha256": "71d1f2d5390b26d0e5243f6257664a16a02b1bbe0989112b7d5b15fb38b497b5",
+      "bytes": 162699
+    },
+    "first/linux/compiler-identity.json": {
+      "sha256": "6ac189aca6c582f2c96433f99cd02064bddeb86bf12e966cea6e29379b9661cd",
+      "bytes": 160
+    },
+    "first/linux/compiler-version.json": {
+      "sha256": "ec3ea52e02f2cf374ff6b99d5403dfad538eb9451488967cbdd26dbaabf46a4c",
+      "bytes": 163
+    },
+    "first/linux/compiler-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "first/linux/compiler-version.stdout": {
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+      "bytes": 246
+    },
+    "first/linux/make-identity.json": {
+      "sha256": "2e63f20d97de18df38d6331a9fe17586002fad588a2d96932094cadee531715a",
+      "bytes": 141
+    },
+    "first/linux/make-version.json": {
+      "sha256": "ec408fdd84443b991874212ad9c051a2b1ab13a739457e507aafd6f0da858345",
+      "bytes": 164
+    },
+    "first/linux/make-version.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "first/linux/make-version.stdout": {
+      "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+      "bytes": 303
+    },
+    "first/linux/ordinary-vm.json": {
+      "sha256": "2667f14b900885bce5421f128796c2ee5ca06061513aa1a8044f13822c9429c4",
+      "bytes": 197
+    },
+    "first/linux/ordinary-vm.stderr": {
+      "sha256": "27a9b3fc5d93ca8ed1cd395eb2b633699bd94e151aea9a566ee637178be5b342",
+      "bytes": 390
+    },
+    "first/linux/ordinary-vm.stdout": {
+      "sha256": "88a743ed73b5e7634ca7f84c120f8a2eeac3bdf0b7d58f20de530af04a575caf",
+      "bytes": 31697
+    },
+    "first/run.py": {
+      "sha256": "d0fc97e5c8b110de382057b87a255d5213d3ef9551ac7816654903f435e37b13",
+      "bytes": 2819
+    },
+    "first-darwin-extraction.json": {
+      "sha256": "6cc98b5d5b39bc4635d7176079e803ca1a6c87443d800caada81e36e333f328c",
+      "bytes": 392
+    }
+  }
+}

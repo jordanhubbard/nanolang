@@ -1,0 +1,28 @@
+{
+  "cc": [
+    "/bin/gcc"
+  ],
+  "flags": [
+    "-O0",
+    "-g",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer"
+  ],
+  "links": [
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-rdynamic"
+  ],
+  "native_cc": [
+    "/bin/gcc"
+  ],
+  "native_flags": [],
+  "native_links": [
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-rdynamic"
+  ],
+  "python": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14"
+}

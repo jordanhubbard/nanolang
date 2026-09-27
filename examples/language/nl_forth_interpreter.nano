@@ -969,7 +969,7 @@ fn exec_tokens(stack: List<int>, rstack: List<int>, dspace: List<int>, wnames: L
                 } else {
                     # Built-in or unknown: disassemble from NanoISA bytecode
                     let see_nvm: string = "bin/nl_forth_interpreter_vm"
-                    let see_isa: string = (nl_forth_see sname see_nvm)
+                    let see_isa: string = (see sname see_nvm)
                     (println see_isa)
                 }
             }

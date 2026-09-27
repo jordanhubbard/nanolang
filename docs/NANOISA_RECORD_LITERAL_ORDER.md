@@ -1,0 +1,99 @@
+# My record literal evaluation order
+
+I keep task_865923a37b6d470c83326aed625b8897 open until actual paired source and backend checks pass. Static inspection found both NanoISA emitters visit declaration fields and evaluate the matching source expressions in that order. My evaluator visits explicit source fields in their written order. I preserve source order and evaluate every expression once before declaration-order packing.
+
+I first resolve and validate the complete mapping from each explicit field name to one unique declared field. Missing/duplicate/unknown fields refuse before publication. I stage each source expression in a fresh anonymous local in source order, with its declared expected scalar type, then load those local roots in declaration order for AGG_PACK. My ordinary existing local-count limits still apply; I do not borrow a visible name or reuse a source variable's slot. After packing I clear staged locals with VOID stores, retaining the packed record as the sole result owner. This must work inside repeated loops without retaining the last temporary graph until function return.
+
+For the C producer's existing spread form, I evaluate the base once first. I snapshot every inherited, non-overridden field into an owned local before evaluating explicit overrides, matching my evaluator's scalar snapshot order. Explicit overrides then execute once in their written order. I pack in destination declaration order and clear all private staging locals, including the base. Nested reference values retain their existing alias/value semantics; this checkpoint does not redefine deep-copy behavior. The independent Nano parser's missing spread syntax remains required full-graph work; I do not substitute the C producer for it.
+
+I require actual side-effect traces with reversed declaration/source order, unchanged ordered literals, nested literals, overwritten spread fields, an override that mutates an inherited scalar in the source record, once-only base evaluation and repeated loop ownership. I preserve first failure terminals and original shadow policy. Generated C/LLVM/Wasm routes qualify where their existing record admission supports the exact fixture; any missing route remains a full5.1 obligation.
+
+## My native producer prerequisite
+
+The same static audit finds both native C producers put side-effecting field expressions directly in designated compound initializers. C does not establish my written source evaluation order for those expressions. Thus native output is not an independent correct oracle until it is repaired too. I extend the same task to emit a private typed record temporary and sequenced field assignment statements inside the existing expression-block mechanism. I snapshot inherited fields before explicit overrides; every explicit assignment retains destination C conversion semantics. Temporary names must be disjoint from source bindings and remain safe under nested literal scopes. Actual source-order assertions, rather than agreement with the old native output, are my authority. I review both native and NanoISA changes before testing.
+
+## Native union initializers
+
+I found the same static ordering gap in native union designated initializers. I include both native producers and exact payload evaluation traces in task_9a1ba277fe3e45d5913d03305ece1e06 before implementation. My NanoISA union staging already follows written order; this finding does not qualify native behavior.
+
+## First NanoISA source checkpoint
+
+I implemented complete field mapping, anonymous staging, written-order evaluation and declaration-order packing in both NanoISA emitters. My C producer additionally snapshots inherited spread fields before overrides. Declared byte destinations retain contextual narrowing, and staged locals are cleared after packing. Native producers and Nano spread parsing remain required.
+
+The C producer builds and runs my new exact reversed/ordered/nested/repeated-loop source assertions successfully on Linux. The first full self-hosted emitter build refuses publication after four existing nisa_emit_function shadow expectations still require the old record constructor local counts. I retain that terminal. Each two-field literal now deliberately needs two anonymous slots; I will update those exact counts while retaining all payload/instruction assertions. This is not a full source/backend qualification.
+
+## Corrected bounded producer check
+
+At source79fe52cdb, my full C-seed build of the Nano emitter passes its mandatory shadows after the four exact local-count expectations include two anonymous roots. Both actual NanoISA producers emit, verify and execute the same unchanged record fixture: written and reversed order, nested construction, exact field payloads and20 repeated loop iterations. My automated test_record_literal_order regression also passes. Commands, first failure, corrected build log and products are retained in docs/evidence/record-literal-order.
+
+This is a Linux check of C-seed NanoVirt and the C-seed-built Nano emitter. Stage1/Stage2-built emitters, Darwin, native producers, spread side effects, byte destinations, failure boundaries and complete generated backend acceptance remain required before closing this task. I also recorded native tuple/array ordering under task_0ef97cccc6c441c59bd9eb2ec7c5ff05; their designated/variadic expressions need the same written-order audit.
+
+## Native source checkpoint
+
+I now sequence C-seed and Nano native record fields and union payloads into private typed temporaries. Both C-seed union AST forms share one ordered emitter. C-seed spread snapshots inherited fields before explicit overrides; Nano spread parsing remains open. Temporary selection avoids visible bindings and function symbols; nested literals have separate C expression scopes. Empty records retain the existing GNU empty-initializer form. I preserve the existing flat record and GC ownership conventions; this sequencing change is not a new deep-ownership guarantee.
+
+Static review also finds the Nano native global-literal fallback returns0 for a record initializer outside its explicitly runtime-initialized union route. Global record construction therefore needs a separate complete initializer correction under this task, with actual global source tests; I do not use local-only ordering checks to close global acceptance.
+
+My first complete component build with native sequencing passes, including parser/checker/transpiler shadows. Actual C-seed native compilation and execution pass both record and union trace fixtures, including nested records, zero-payload variants and an empty record. Self-hosted native products still require fresh bootstrap and their own source runs.
+
+## Complete nonliteral global initialization
+
+Task task_57661a28bf114448a4ee14642e7e1b90 covers the broader same static fallback: a function call, field/reference, array, tuple or callable initializer can also fall through to0. I will classify only NUMBER/FLOAT/STRING/BOOL as direct literal initialization. Every other expression must use generate_expression with its declared expected type in the existing ordered startup function, including guarded primitive initialization. I retain declaration/prototype order, direct literal behavior and first-error refusal. Actual C-seed/Stage1/Stage2 compiler and source tests must cover observable initialization order and stored payloads; source-tree inspection alone is not acceptance.
+
+Before executing the broad global fixture I also found C-seed global declarations discard record identity and omit tuple/callable typedef selection. I include exact annotation-based declaration emission and precollection of global tuple/callable types in the same initializer task. I retain ordinary runtime assignment order; I do not use inferred anonymous C types at file scope or erase nominal names.
+
+The complete component build passes with the nonliteral classifier and C-seed global declaration correction. Actual C-seed native output passes global record, array, tuple, reference, function-call, function-value and mutable-call initializer assertions, including captured initialization traces21 and213. My new native gate requires all three real compilers and keeps source/output artifacts. Fresh self-hosted bootstrap and that complete three-producer gate remain required; neither the component-build banner nor C-seed execution substitutes for them.
+
+## First three-producer native gate
+
+My 216ab bootstrap passes, including installed-compiler independence. In /tmp/nano-native-literal-order-z2tus_tj I retain all gate commands and outputs: C seed passes all three fixtures; Stage1 and Stage2 pass record and union fixtures but reject global initialization with unknown nl_FnPtr_0. I generate globals after flushing the function-type registry. I will prepare global text before that flush, preserving emitted typedef/prototype/global order, and test the unchanged payload/effect fixture.
+
+## Tuple and scalar-array sequencing
+
+My corrected callable-global bootstrap and unchanged nine native producer/fixture combinations pass. Next, under task_0ef97cccc6c441c59bd9eb2ec7c5ff05, I replace native tuple compound initializers with typed temporary field assignments in both producers. For C-seed scalar arrays I stage each operand before entering variadic helpers. I retain their existing argument conversions and ownership conventions; I require trace and payload checks before qualification. My self-hosted array path already emits sequential pushes. Full contextual types, ownership, platform and optimization coverage remains required.
+
+My first corrected C-seed tuple/array fixture compiles and runs successfully, with exact tuple21, array321 and nested-array123 traces and payload assertions. I retain its command/output directory at /tmp/nano-tuple-array-cseed-first-rfoz7zvg. Fresh tuple/array bootstrap is running; no Stage1/Stage2 or Darwin tuple/array acceptance claim yet.
+
+## Scalar variadic boundary
+
+My ordered staging preserves operand C types, but helper varargs read fixed types. I ledger task_8c8a62af03c043e49594d49f9c74a70d before changing this boundary. I will explicitly convert U8 through uint8_t then promoted int, float through double, bool through int and string through const char*. INT already converts through int64_t. I do not run mismatched old varargs to establish this static defect.
+
+My dbac tuple/array bootstrap and all twelve Linux producer/fixture combinations pass. I preserve commands, logs and product hashes in docs/evidence/record-literal-order/native-tuple-array. This checkpoint covers integer/nested-array ordering and prior record/union/global regressions. The next scalar ABI fixture extends float, string, bool and byte payload/effects; it does not replace the earlier evidence.
+
+My d7e expanded typed-array C-seed fixture compiles/runs successfully at /tmp/nano-scalar-array-cseed-first-akm8rjbp. Further static review identifies a separate interpreted-array gap: types_match accepts INT/U8, while eval array literal storage ignores declared U8 narrowing. That remains open under the same scalar-array task and full computed-byte scope. Ordinary INT/FLOAT annotation compatibility is not accepted by types_match; the explicit double conversion preserves the helper ABI but is not evidence of accepted mixed INT/FLOAT source arrays.
+
+My d7e typed scalar-array bootstrap and twelve Linux producer/fixture combinations pass, retained in docs/evidence/record-literal-order/native-scalar-array. I now narrow each interpreted array-literal element using the existing checked scalar-destination conversion after its exactly-once evaluation and nonlocal-return check. The expanded unchanged-order fixture checks computed257/-1/256 map to1/255/0 for byte arrays while ordinary integer arrays retain257/-1. Mutation and other aggregate destination requirements remain part of full computed-byte scope. Fresh bootstrap is running.
+
+## Self-hosted checked byte literals
+
+My8c2 Linux bootstrap passes; C seed passes computed257/-1/256 byte-array values, but Stage1 rejects the literal as array<int> (retained /tmp/nano-byte-array-stage1-first-rj1wxcgu). I will add check_contextual_value with parser/node/actual/expected/symbols/diagnostics/origin. It checks every actual member of a byte-array literal for known INT or exact U8, reports invalid/unknown members, annotates only after all pass, and leaves ordinary array value equality unchanged. Existing let/set/return/call hint sites and constructor payload contexts share it. General nominal record-field validation is owned by the native-effects task; no duplicate policy implementation.
+
+My frozen8c2 Darwin bootstrap passes in294.863s. Its full native gate passes ten producer/fixture combinations and rejects exactly Stage1/Stage2 computed byte-array literals with the same array<int>/array<u8> diagnostic. I retain the3725-input source manifest, equal before/after maps, tool/binary hashes and full reports under /tmp/nanolang-literal-order-8c2e693db, with initial terminal reports and checksums committed. The new contextual helper and direct shadow cover accepted member conversion, rejected mixed members without annotation mutation, and ordinary existing-array refusal; corrected Linux bootstrap is running.
+
+My a59 corrected contextual bootstrap passes, but the actual Stage1 fixture fails its unchanged byte payload shadow (retained /tmp/nano-byte-context-stage1-corrected-fvpn_ef9). Static review identifies all four Nano native array selectors falling through u8 to int; type_is_struct already excludes u8. I will select ELEM_U8/get_u8/push_u8/set_u8 explicitly. The shared destination helper will also accept known computed INT for scalar U8, preserving the established C-seed narrowing rule, with direct local/parameter/return tests. No ordinary array value equality is widened.
+
+## Corrected byte-storage qualification
+
+My cfa24ac130d6fbf80a3112d79ba0cf08d7ae588a checkpoint passes fresh native bootstrap on Linux and Darwin. Each host passes all twelve C-seed/Stage1/Stage2 combinations across record, union, global and tuple/array fixtures, including computed byte payloads and exactly-once effects. The Linux gate takes33.469s; Darwin bootstrap takes294.348s and its gate27.474s. The regression contains one unittest method with twelve producer/fixture combinations and24 successful compile/run commands per host.
+
+I retain reports and product hashes in [byte-storage-corrected](evidence/record-literal-order/byte-storage-corrected). Darwin uses a frozen export of3725 Git inputs excluding only docs/evidence; its source hashes and modes match before and after qualification. Linux runs in the retained source worktree; I do not claim it used the same frozen-export harness. Original rejected-byte and incorrect-storage terminals remain preserved separately.
+
+These results qualify this native checkpoint. They do not establish current-main integration, every optimization configuration, array mutation semantics, shared mutable captures, self-hosted spread parsing, complete generated backends or the NanoISA-only bootstrap fixed point. Those remain required for5.1.
+
+My next native gate keeps the default twelve combinations and adds explicit O0 and O2 configurations with unchanged source assertions. A transparent compiler wrapper records the real argument vectors before invoking the configured compiler. I require the final product command to contain the requested effective optimization setting; logging an environment request is insufficient. Each configuration retains separate commands, outputs and products. I require both hosts and all three producers before marking this coverage complete.
+
+## Current-main integration and observed optimization
+
+My75051f1931b1bca9e94b3b792fc89273179ecd8f integration includes main8f2a6c874. Fresh frozen3741-input exports pass bootstrap on Linux in320.008s and Darwin in312.510s. The default twelve-combination native gates pass in46.388s and36.591s respectively. Both complete source inventories match before and after each qualification.
+
+My4cbbdd508 test extension changes only this test, its Make target and documentation; compiler, runtime and Nano fixture inputs remain byte-identical to75051. I run the extension externally against those exact freshly built products, without changing their frozen trees. Explicit O0/O2 checks pass in95.017s on Linux and67.481s on Darwin. I inspect the final native product command for each case and confirm its last optimization argument matches the requested flag. Across default/O0/O2, both hosts pass72 producer/fixture combinations and144 compile/run commands. [Reports](evidence/record-literal-order/integrated-optimization) retain actual argument vectors, compiler-reuse justification, source maps, terminal logs and artifact inventories.
+
+Linux capacity required reversible compression of seven completed successful native gate product sets. I read back each archive member and verify its SHA-256, length and mode before removing the redundant uncompressed executable; logs, sources and every failure remain in place. Each original product directory retains successful-products.tar.gz, its member manifest and restoration instructions. The committed archive summary maps those retained directories and records701477175 bytes reclaimed. This storage change does not remove test evidence or establish any additional acceptance criterion.
+
+Full computed-byte, mutable-capture, spread-parser, generated-backend and NanoISA bootstrap obligations remain open. Passing native source fixtures does not close those requirements.
+
+## Retained evidence capacity
+
+My first attempt to compress an older retained archive locally stopped at its512MiB capacity guard; I kept the complete original and recorded the terminal before discarding only the incomplete duplicate. I then streamed compression to puck and verified the full decompressed5881559040-byte SHA-256 against the local original. The original archive also had a raw CAS hardlink, so removing its first pathname did not reclaim storage. I verified that remaining CAS object, retained its packed-object mapping, and replaced the redundant raw copy with the verified gzip. Both hosts retain the compressed1636686693-byte archive; the [storage manifest](evidence/record-literal-order/storage-recovery) records exact original and packed hashes, paths, modes and restoration instructions. The compressed format is storage only; it changes no source or test acceptance claim. Linux then had5.6GiB free and paused qualification could resume.
+
+A later capacity hold stopped new Linux preparation near2GiB. I packed the completed a2eda archive after confirming it had one local hardlink and no active consumer. I verified the full5709209600-byte original against remote decompression, retained a fsynced restoration mapping, then replaced only that raw copy with a verified1521032514-byte gzip. Local and puck copies remain; [the a2eda manifest](evidence/record-literal-order/storage-recovery/a2eda-packed-storage.json) preserves both hashes, source mode/time and paths. This reclaimed4188177086 bytes and allowed paused Linux qualification to resume.

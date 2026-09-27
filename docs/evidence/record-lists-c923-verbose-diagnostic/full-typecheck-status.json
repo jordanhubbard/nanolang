@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/tmp/nanolang-typecheck-refusal-c923-verbose/compiler-root/bin/nanoc-diagnostic",
+    "/home/jkh/Src/nanolang-record-lists-qualified-c923/src_nano/typecheck_driver.nano",
+    "--verbose",
+    "-o",
+    "/tmp/nanolang-typecheck-refusal-c923-verbose/typecheck"
+  ],
+  "cwd": "/tmp/nanolang-typecheck-refusal-c923-verbose/compiler-root",
+  "bound": 120,
+  "timeout": false,
+  "cleanup": [],
+  "returncode": 1,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 20.728991005104035,
+  "log": {
+    "sha256": "53c61e1f4e6a01fb0a44585d92f64c3ed6ca80db458811b231c9b6367fd2fa05",
+    "bytes": 80506,
+    "archive": "/tmp/nanolang-typecheck-refusal-c923-verbose/objects/53c61e1f4e6a01fb0a44585d92f64c3ed6ca80db458811b231c9b6367fd2fa05"
+  },
+  "inputs_equal": true
+}

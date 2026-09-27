@@ -1,0 +1,30 @@
+✓ Bootstrap Stage 0: C reference compiler ready
+
+==========================================
+Bootstrap Stage 1: Self-Hosted Compiler
+==========================================
+Compiling nanoc_v06.nano with C compiler...
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2092, column 9: Unused variable 'rejected'
+Warning at line 2213, column 9: Unused variable 'rejected'
+Warning at line 2220, column 13: Unused variable 'rejected'
+Warning at line 2258, column 9: Unused variable 'rejected'
+Warning at line 2262, column 9: Unused variable 'rejected'
+Warning at line 2269, column 13: Unused variable 'rejected'
+Warning at line 5384, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2092, column 9: Unused variable 'rejected'
+Warning at line 2213, column 9: Unused variable 'rejected'
+Warning at line 2220, column 13: Unused variable 'rejected'
+Warning at line 2258, column 9: Unused variable 'rejected'
+Warning at line 2262, column 9: Unused variable 'rejected'
+Warning at line 2269, column 13: Unused variable 'rejected'
+Warning at line 5384, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+I stopped shadow execution after 10 seconds.
+Shadow tests failed
+make: *** [Makefile.gnu:3697: .bootstrap1.built] Error 1

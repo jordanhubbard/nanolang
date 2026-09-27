@@ -1,0 +1,1644 @@
+{
+  "cleanup": [],
+  "owned": {
+    "1452080": {
+      "command": "/usr/bin/python3 -m unittest -f -v tests.test_record_array_llvm.RecordArrayLLVM.test_02_native_corpus",
+      "group": 1452080,
+      "parent": 1449030,
+      "started": "Mon Sep 21 01:25:27 2026"
+    },
+    "1452088": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -c src/nanoisa/verifier.c -o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-verifier.o",
+      "group": 1452088,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:28 2026"
+    },
+    "1452089": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE src/nanoisa/verifier.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/ -dumpbase native-capture-verifier.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccHMbsmo.s",
+      "group": 1452088,
+      "parent": 1452088,
+      "started": "Mon Sep 21 01:25:28 2026"
+    },
+    "1452232": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -c src/nanoisa/nvm_v2_layouts.c -o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-nvm_v2_layouts.o",
+      "group": 1452232,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:29 2026"
+    },
+    "1452233": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE src/nanoisa/nvm_v2_layouts.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/ -dumpbase native-capture-nvm_v2_layouts.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccUOW9zX.s",
+      "group": 1452232,
+      "parent": 1452232,
+      "started": "Mon Sep 21 01:25:29 2026"
+    },
+    "1452274": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -c src/nanovm/heap.c -o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-heap.o",
+      "group": 1452274,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:30 2026"
+    },
+    "1452275": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE src/nanovm/heap.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/ -dumpbase native-capture-heap.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccsfQqVV.s",
+      "group": 1452274,
+      "parent": 1452274,
+      "started": "Mon Sep 21 01:25:30 2026"
+    },
+    "1452292": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -c src/nanovm/vm_builtins.c -o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_builtins.o",
+      "group": 1452292,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:31 2026"
+    },
+    "1452293": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE src/nanovm/vm_builtins.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/ -dumpbase native-capture-vm_builtins.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cci7qwO7.s",
+      "group": 1452292,
+      "parent": 1452292,
+      "started": "Mon Sep 21 01:25:31 2026"
+    },
+    "1452309": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -DRECORD_LLVM_WASM32=0 tests/nanoisa/test_record_array_llvm_capture.c src/nanoisa/nvm2llvm_record_array_private.c tests/nanoisa/record_array_alloc.c /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-managed_array_shapes.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-verifier.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-verifier_types.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_decode.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-ownership_contracts.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-nvm_v2_layouts.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-retained_layouts.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_dispatch.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-value.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-heap.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-heap_cycles.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_callback.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_ffi.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_builtins.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-cop_protocol.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_ffi_arrays.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-callback_runtime.o obj/bcp47.o obj/bench.o obj/bench_native.o obj/builtins_registry.o obj/cJSON.o obj/c_backend.o obj/catalog.o obj/channel.o obj/coroutine.o obj/cps_pass.o obj/dce_pass.o obj/diag_id.o obj/docgen.o obj/docgen_md.o obj/dwarf_info.o obj/effects.o obj/emit_typed_ast.o obj/env.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_io.o obj/eval/eval_math.o obj/eval/eval_string.o obj/fmt.o obj/fold_constants.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/lexer.o obj/locale.o obj/module.o obj/module_builder.o obj/module_metadata.o obj/nanocore_export.o obj/nanocore_subset.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/file_flow.o obj/nanoisa/frontend.o obj/nanoisa/isa.o obj/nanoisa/local_bindings.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/nanoisa_facade.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/passive.o obj/nanoisa/reference_places.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nominal_types.o obj/nsi_file_plan.o obj/opencl_backend.o obj/par_let_pass.o obj/parser.o obj/pgo_pass.o obj/ptx_backend.o obj/reflection.o obj/resource_flow.o obj/resource_tracking.o obj/riscv_backend.o obj/runtime/cli.o obj/runtime/dyn_array.o obj/runtime/effect_runtime.o obj/runtime/ffi_loader.o obj/runtime/gc.o obj/runtime/gc_struct.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTString.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTWhile.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_LexerToken.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_token.o obj/runtime/module_build_dir.o obj/runtime/nl_string.o obj/runtime/regex.o obj/runtime/token_helpers.o obj/stdlib_runtime.o obj/tco_pass.o obj/toon_output.o obj/transpiler.o obj/type_infer.o obj/typechecker.o obj/utf8.o -lm -lcrypto -lffi -rdynamic -o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture",
+      "group": 1452309,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:32 2026"
+    },
+    "1452310": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D RECORD_LLVM_WASM32=0 tests/nanoisa/test_record_array_llvm_capture.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/native-capture- -dumpbase test_record_array_llvm_capture.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccBouPu3.s",
+      "group": 1452309,
+      "parent": 1452309,
+      "started": "Mon Sep 21 01:25:32 2026"
+    },
+    "1452874": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/aarch64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/aarch64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/cccw6Ufc.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux --fix-cortex-a53-843419 -pie -z now -z relro -o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/Scrt1.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/aarch64-linux-gnu/13 -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/13/../../.. /tmp/cc6ApW83.o /tmp/ccJ5cOBR.o /tmp/cc1h1zwZ.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-managed_array_shapes.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-verifier.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-verifier_types.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_decode.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-ownership_contracts.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-nvm_v2_layouts.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-retained_layouts.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_dispatch.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-value.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-heap.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-heap_cycles.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_callback.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_ffi.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_builtins.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-cop_protocol.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_ffi_arrays.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-callback_runtime.o obj/bcp47.o obj/bench.o obj/bench_native.o obj/builtins_registry.o obj/cJSON.o obj/c_backend.o obj/catalog.o obj/channel.o obj/coroutine.o obj/cps_pass.o obj/dce_pass.o obj/diag_id.o obj/docgen.o obj/docgen_md.o obj/dwarf_info.o obj/effects.o obj/emit_typed_ast.o obj/env.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_io.o obj/eval/eval_math.o obj/eval/eval_string.o obj/fmt.o obj/fold_constants.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/lexer.o obj/locale.o obj/module.o obj/module_builder.o obj/module_metadata.o obj/nanocore_export.o obj/nanocore_subset.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/file_flow.o obj/nanoisa/frontend.o obj/nanoisa/isa.o obj/nanoisa/local_bindings.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/nanoisa_facade.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/passive.o obj/nanoisa/reference_places.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nominal_types.o obj/nsi_file_plan.o obj/opencl_backend.o obj/par_let_pass.o obj/parser.o obj/pgo_pass.o obj/ptx_backend.o obj/reflection.o obj/resource_flow.o obj/resource_tracking.o obj/riscv_backend.o obj/runtime/cli.o obj/runtime/dyn_array.o obj/runtime/effect_runtime.o obj/runtime/ffi_loader.o obj/runtime/gc.o obj/runtime/gc_struct.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTString.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTWhile.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_LexerToken.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_token.o obj/runtime/module_build_dir.o obj/runtime/nl_string.o obj/runtime/regex.o obj/runtime/token_helpers.o obj/stdlib_runtime.o obj/tco_pass.o obj/toon_output.o obj/transpiler.o obj/type_infer.o obj/typechecker.o obj/utf8.o -lm -lcrypto -lffi -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/aarch64-linux-gnu/13/crtendS.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crtn.o",
+      "group": 1452309,
+      "parent": 1452309,
+      "started": "Mon Sep 21 01:25:37 2026"
+    },
+    "1452875": {
+      "command": "/bin/ld -plugin /usr/libexec/gcc/aarch64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/aarch64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/cccw6Ufc.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr --hash-style=gnu --as-needed -export-dynamic -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux --fix-cortex-a53-843419 -pie -z now -z relro -o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/Scrt1.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/aarch64-linux-gnu/13 -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/13/../../.. /tmp/cc6ApW83.o /tmp/ccJ5cOBR.o /tmp/cc1h1zwZ.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-managed_array_shapes.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-verifier.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-verifier_types.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_decode.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-ownership_contracts.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-nvm_v2_layouts.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-retained_layouts.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_dispatch.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-value.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-heap.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-heap_cycles.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_callback.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_ffi.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_builtins.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-cop_protocol.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-vm_ffi_arrays.o /tmp/nano-record-array-llvm-ojuo_sxl/native-capture-callback_runtime.o obj/bcp47.o obj/bench.o obj/bench_native.o obj/builtins_registry.o obj/cJSON.o obj/c_backend.o obj/catalog.o obj/channel.o obj/coroutine.o obj/cps_pass.o obj/dce_pass.o obj/diag_id.o obj/docgen.o obj/docgen_md.o obj/dwarf_info.o obj/effects.o obj/emit_typed_ast.o obj/env.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_io.o obj/eval/eval_math.o obj/eval/eval_string.o obj/fmt.o obj/fold_constants.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/lexer.o obj/locale.o obj/module.o obj/module_builder.o obj/module_metadata.o obj/nanocore_export.o obj/nanocore_subset.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/file_flow.o obj/nanoisa/frontend.o obj/nanoisa/isa.o obj/nanoisa/local_bindings.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/nanoisa_facade.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/passive.o obj/nanoisa/reference_places.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nominal_types.o obj/nsi_file_plan.o obj/opencl_backend.o obj/par_let_pass.o obj/parser.o obj/pgo_pass.o obj/ptx_backend.o obj/reflection.o obj/resource_flow.o obj/resource_tracking.o obj/riscv_backend.o obj/runtime/cli.o obj/runtime/dyn_array.o obj/runtime/effect_runtime.o obj/runtime/ffi_loader.o obj/runtime/gc.o obj/runtime/gc_struct.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTString.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTWhile.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_LexerToken.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_token.o obj/runtime/module_build_dir.o obj/runtime/nl_string.o obj/runtime/regex.o obj/runtime/token_helpers.o obj/stdlib_runtime.o obj/tco_pass.o obj/toon_output.o obj/transpiler.o obj/type_infer.o obj/typechecker.o obj/utf8.o -lm -lcrypto -lffi -lgcc --push-state --as-needed -lgcc_s --pop-state -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/aarch64-linux-gnu/13/crtendS.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crtn.o",
+      "group": 1452309,
+      "parent": 1452874,
+      "started": "Mon Sep 21 01:25:37 2026"
+    },
+    "1452883": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -DNMS_TESTING -DNMS_TEST_ALLOC_HOOKS -Dnrg_layout_field=nrg_layout_field_actual -Dnrg_create=nrg_create_actual -c src/nanoisa/record_array_generated_private.c -o /tmp/nano-record-array-llvm-ojuo_sxl/native-startup-runtime.o",
+      "group": 1452883,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:38 2026"
+    },
+    "1452884": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D NMS_TESTING -D NMS_TEST_ALLOC_HOOKS -D nrg_layout_field=nrg_layout_field_actual -D nrg_create=nrg_create_actual src/nanoisa/record_array_generated_private.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/ -dumpbase native-startup-runtime.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccb2R8xi.s",
+      "group": 1452883,
+      "parent": 1452883,
+      "started": "Mon Sep 21 01:25:38 2026"
+    },
+    "1453072": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 tests/nanoisa/test_record_array_generated_lifecycle.c /tmp/nano-record-array-llvm-ojuo_sxl/O0-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O0-linked-lifecycle",
+      "group": 1453072,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:40 2026"
+    },
+    "1453424": {
+      "command": "[gcc-13] <defunct>",
+      "group": 1453424,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:44 2026"
+    },
+    "1453821": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 /tmp/nano-record-array-llvm-ojuo_sxl/O0-linked-0051.o /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0051.replay.c /tmp/nano-record-array-llvm-ojuo_sxl/O0-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O0-linked-0051",
+      "group": 1453821,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:47 2026"
+    },
+    "1453896": {
+      "command": "[gcc-13] <defunct>",
+      "group": 1453896,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:48 2026"
+    },
+    "1454037": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 /tmp/nano-record-array-llvm-ojuo_sxl/O0-linked-0065.o /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0065.replay.c /tmp/nano-record-array-llvm-ojuo_sxl/O0-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O0-linked-0065",
+      "group": 1454037,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:49 2026"
+    },
+    "1454288": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0001 --fault-range 0 13 13",
+      "group": 1454288,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:51 2026"
+    },
+    "1454566": {
+      "command": "[O0-observed-001] <defunct>",
+      "group": 1454566,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:54 2026"
+    },
+    "1454701": {
+      "command": "[O0-observed-001] <defunct>",
+      "group": 1454701,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:55 2026"
+    },
+    "1454878": {
+      "command": "[O0-observed-002] <defunct>",
+      "group": 1454878,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:56 2026"
+    },
+    "1455016": {
+      "command": "[llc] <defunct>",
+      "group": 1455016,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:58 2026"
+    },
+    "1455077": {
+      "command": "[llc]",
+      "group": 1455077,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:25:59 2026"
+    },
+    "1455176": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0038.o /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0038.replay.c /tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0038",
+      "group": 1455176,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:00 2026"
+    },
+    "1455182": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/collect2 -plugin /usr/libexec/gcc/aarch64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/aarch64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccmi2Er2.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr --hash-style=gnu --as-needed -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux --fix-cortex-a53-843419 -pie -z now -z relro -o /tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0038 /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/Scrt1.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/aarch64-linux-gnu/13 -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/13/../../.. /tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0038.o /tmp/ccHb99uz.o /tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-runtime.o /tmp/ccEWpjiK.o -lm -lgcc --push-state --as-needed -lgcc_s --pop-state -lpthread -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/aarch64-linux-gnu/13/crtendS.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crtn.o",
+      "group": 1455176,
+      "parent": 1455176,
+      "started": "Mon Sep 21 01:26:00 2026"
+    },
+    "1455183": {
+      "command": "/bin/ld -plugin /usr/libexec/gcc/aarch64-linux-gnu/13/liblto_plugin.so -plugin-opt=/usr/libexec/gcc/aarch64-linux-gnu/13/lto-wrapper -plugin-opt=-fresolution=/tmp/ccmi2Er2.res -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s -plugin-opt=-pass-through=-lpthread -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_s --build-id --eh-frame-hdr --hash-style=gnu --as-needed -dynamic-linker /lib/ld-linux-aarch64.so.1 -X -EL -maarch64linux --fix-cortex-a53-843419 -pie -z now -z relro -o /tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0038 /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/Scrt1.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crti.o /usr/lib/gcc/aarch64-linux-gnu/13/crtbeginS.o -L/usr/lib/gcc/aarch64-linux-gnu/13 -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu -L/usr/lib/gcc/aarch64-linux-gnu/13/../../../../lib -L/lib/aarch64-linux-gnu -L/lib/../lib -L/usr/lib/aarch64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/aarch64-linux-gnu/13/../../.. /tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0038.o /tmp/ccHb99uz.o /tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-runtime.o /tmp/ccEWpjiK.o -lm -lgcc --push-state --as-needed -lgcc_s --pop-state -lpthread -lc -lgcc --push-state --as-needed -lgcc_s --pop-state /usr/lib/gcc/aarch64-linux-gnu/13/crtendS.o /usr/lib/gcc/aarch64-linux-gnu/13/../../../aarch64-linux-gnu/crtn.o",
+      "group": 1455176,
+      "parent": 1455182,
+      "started": "Mon Sep 21 01:26:00 2026"
+    },
+    "1455320": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0042.o /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0042.replay.c /tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0042",
+      "group": 1455320,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:01 2026"
+    },
+    "1455338": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D NMS_TESTING -D NRG_OBSERVED tests/nanoisa/record_array_alloc.c -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0042- -dumpbase record_array_alloc.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O0 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccOb8IuB.s",
+      "group": 1455320,
+      "parent": 1455320,
+      "started": "Mon Sep 21 01:26:01 2026"
+    },
+    "1455430": {
+      "command": "[llc] <defunct>",
+      "group": 1455430,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:02 2026"
+    },
+    "1455520": {
+      "command": "[gcc-13] <defunct>",
+      "group": 1455520,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:03 2026"
+    },
+    "1455653": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0058 --fault-range 0 7 7",
+      "group": 1455653,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:05 2026"
+    },
+    "1455705": {
+      "command": "[gcc-13] <defunct>",
+      "group": 1455705,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:06 2026"
+    },
+    "1455854": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 16 32 1042",
+      "group": 1455854,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:07 2026"
+    },
+    "1455912": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 48 64 1042",
+      "group": 1455912,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:08 2026"
+    },
+    "1455990": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 80 96 1042",
+      "group": 1455990,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:09 2026"
+    },
+    "1456090": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 112 128 1042",
+      "group": 1456090,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:10 2026"
+    },
+    "1456122": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 144 160 1042",
+      "group": 1456122,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:11 2026"
+    },
+    "1456287": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 176 192 1042",
+      "group": 1456287,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:12 2026"
+    },
+    "1456364": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 208 224 1042",
+      "group": 1456364,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:13 2026"
+    },
+    "1456397": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 240 256 1042",
+      "group": 1456397,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:14 2026"
+    },
+    "1456418": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 1456418,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:15 2026"
+    },
+    "1456428": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 288 304 1042",
+      "group": 1456428,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:16 2026"
+    },
+    "1456453": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 320 336 1042",
+      "group": 1456453,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:17 2026"
+    },
+    "1456802": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 352 368 1042",
+      "group": 1456802,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:18 2026"
+    },
+    "1456875": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 384 400 1042",
+      "group": 1456875,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:19 2026"
+    },
+    "1456932": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 1456932,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:20 2026"
+    },
+    "1456946": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 432 448 1042",
+      "group": 1456946,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:21 2026"
+    },
+    "1456954": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 464 480 1042",
+      "group": 1456954,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:22 2026"
+    },
+    "1457116": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 1457116,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:23 2026"
+    },
+    "1457157": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 512 528 1042",
+      "group": 1457157,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:24 2026"
+    },
+    "1457221": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 544 560 1042",
+      "group": 1457221,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:26 2026"
+    },
+    "1457228": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 560 576 1042",
+      "group": 1457228,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:26 2026"
+    },
+    "1457240": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 592 608 1042",
+      "group": 1457240,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:27 2026"
+    },
+    "1457259": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 608 624 1042",
+      "group": 1457259,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:28 2026"
+    },
+    "1457344": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 640 656 1042",
+      "group": 1457344,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:29 2026"
+    },
+    "1457410": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 1457410,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:30 2026"
+    },
+    "1457417": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 688 704 1042",
+      "group": 1457417,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:32 2026"
+    },
+    "1457424": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 704 720 1042",
+      "group": 1457424,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:32 2026"
+    },
+    "1457522": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 736 752 1042",
+      "group": 1457522,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:34 2026"
+    },
+    "1457530": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 752 768 1042",
+      "group": 1457530,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:34 2026"
+    },
+    "1457586": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 1457586,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:35 2026"
+    },
+    "1457669": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 800 816 1042",
+      "group": 1457669,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:37 2026"
+    },
+    "1457713": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 816 832 1042",
+      "group": 1457713,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:38 2026"
+    },
+    "1457787": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 1457787,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:38 2026"
+    },
+    "1458024": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 864 880 1042",
+      "group": 1458024,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:40 2026"
+    },
+    "1458046": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 880 896 1042",
+      "group": 1458046,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:41 2026"
+    },
+    "1458052": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 896 912 1042",
+      "group": 1458052,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:42 2026"
+    },
+    "1458059": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 912 928 1042",
+      "group": 1458059,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:42 2026"
+    },
+    "1458075": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 944 960 1042",
+      "group": 1458075,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:44 2026"
+    },
+    "1458164": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 960 976 1042",
+      "group": 1458164,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:45 2026"
+    },
+    "1458189": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 976 992 1042",
+      "group": 1458189,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:46 2026"
+    },
+    "1458195": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 992 1008 1042",
+      "group": 1458195,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:47 2026"
+    },
+    "1458298": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 1008 1024 1042",
+      "group": 1458298,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:47 2026"
+    },
+    "1458346": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0063 --fault-range 1040 1042 1042",
+      "group": 1458346,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:49 2026"
+    },
+    "1458541": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 16 32 1042",
+      "group": 1458541,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:50 2026"
+    },
+    "1458603": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 48 64 1042",
+      "group": 1458603,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:51 2026"
+    },
+    "1458611": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 80 96 1042",
+      "group": 1458611,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:52 2026"
+    },
+    "1458642": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 112 128 1042",
+      "group": 1458642,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:53 2026"
+    },
+    "1458682": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 144 160 1042",
+      "group": 1458682,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:54 2026"
+    },
+    "1458826": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 176 192 1042",
+      "group": 1458826,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:55 2026"
+    },
+    "1458837": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 208 224 1042",
+      "group": 1458837,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:56 2026"
+    },
+    "1458847": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 240 256 1042",
+      "group": 1458847,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:57 2026"
+    },
+    "1458853": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 1458853,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:58 2026"
+    },
+    "1458932": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 288 304 1042",
+      "group": 1458932,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:26:59 2026"
+    },
+    "1458973": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 320 336 1042",
+      "group": 1458973,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:00 2026"
+    },
+    "1459074": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 352 368 1042",
+      "group": 1459074,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:01 2026"
+    },
+    "1459101": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 384 400 1042",
+      "group": 1459101,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:02 2026"
+    },
+    "1459104": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 1459104,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:03 2026"
+    },
+    "1459120": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 432 448 1042",
+      "group": 1459120,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:04 2026"
+    },
+    "1459132": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 464 480 1042",
+      "group": 1459132,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:06 2026"
+    },
+    "1459138": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 1459138,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:06 2026"
+    },
+    "1459300": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 512 528 1042",
+      "group": 1459300,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:07 2026"
+    },
+    "1459374": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 544 560 1042",
+      "group": 1459374,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:09 2026"
+    },
+    "1459380": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 560 576 1042",
+      "group": 1459380,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:09 2026"
+    },
+    "1459444": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 592 608 1042",
+      "group": 1459444,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:11 2026"
+    },
+    "1459450": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 1459450,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:11 2026"
+    },
+    "1459545": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 640 656 1042",
+      "group": 1459545,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:13 2026"
+    },
+    "1459562": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 672 688 1042",
+      "group": 1459562,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:14 2026"
+    },
+    "1459567": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 688 704 1042",
+      "group": 1459567,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:15 2026"
+    },
+    "1459574": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 704 720 1042",
+      "group": 1459574,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:15 2026"
+    },
+    "1459602": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 736 752 1042",
+      "group": 1459602,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:17 2026"
+    },
+    "1459691": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 752 768 1042",
+      "group": 1459691,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:17 2026"
+    },
+    "1459970": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 800 816 1042",
+      "group": 1459970,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:20 2026"
+    },
+    "1460015": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 816 832 1042",
+      "group": 1460015,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:21 2026"
+    },
+    "1460118": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 848 864 1042",
+      "group": 1460118,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:22 2026"
+    },
+    "1460226": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 864 880 1042",
+      "group": 1460226,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:23 2026"
+    },
+    "1460243": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 880 896 1042",
+      "group": 1460243,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:24 2026"
+    },
+    "1460272": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 896 912 1042",
+      "group": 1460272,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:25 2026"
+    },
+    "1460347": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 928 944 1042",
+      "group": 1460347,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:26 2026"
+    },
+    "1460457": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 944 960 1042",
+      "group": 1460457,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:27 2026"
+    },
+    "1460800": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 960 976 1042",
+      "group": 1460800,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:28 2026"
+    },
+    "1460900": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 976 992 1042",
+      "group": 1460900,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:29 2026"
+    },
+    "1460908": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 992 1008 1042",
+      "group": 1460908,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:30 2026"
+    },
+    "1460965": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 1008 1024 1042",
+      "group": 1460965,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:30 2026"
+    },
+    "1461000": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0064 --fault-range 1040 1042 1042",
+      "group": 1461000,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:32 2026"
+    },
+    "1461341": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 16 32 1043",
+      "group": 1461341,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:33 2026"
+    },
+    "1461650": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 48 64 1043",
+      "group": 1461650,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:34 2026"
+    },
+    "1461705": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 80 96 1043",
+      "group": 1461705,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:35 2026"
+    },
+    "1461724": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 112 128 1043",
+      "group": 1461724,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:36 2026"
+    },
+    "1461809": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 144 160 1043",
+      "group": 1461809,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:37 2026"
+    },
+    "1461822": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 176 192 1043",
+      "group": 1461822,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:38 2026"
+    },
+    "1461929": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 208 224 1043",
+      "group": 1461929,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:39 2026"
+    },
+    "1462005": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 256 272 1043",
+      "group": 1462005,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:41 2026"
+    },
+    "1462020": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 288 304 1043",
+      "group": 1462020,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:42 2026"
+    },
+    "1462029": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 320 336 1043",
+      "group": 1462029,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:43 2026"
+    },
+    "1462129": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 352 368 1043",
+      "group": 1462129,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:44 2026"
+    },
+    "1462143": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 384 400 1043",
+      "group": 1462143,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:46 2026"
+    },
+    "1462169": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 400 416 1043",
+      "group": 1462169,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:46 2026"
+    },
+    "1462178": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 432 448 1043",
+      "group": 1462178,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:47 2026"
+    },
+    "1462196": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 464 480 1043",
+      "group": 1462196,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:48 2026"
+    },
+    "1462228": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 496 512 1043",
+      "group": 1462228,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:50 2026"
+    },
+    "1462317": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 512 528 1043",
+      "group": 1462317,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:50 2026"
+    },
+    "1462462": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 544 560 1043",
+      "group": 1462462,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:52 2026"
+    },
+    "1462592": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 576 592 1043",
+      "group": 1462592,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:53 2026"
+    },
+    "1462620": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 592 608 1043",
+      "group": 1462620,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:53 2026"
+    },
+    "1462713": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 624 640 1043",
+      "group": 1462713,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:55 2026"
+    },
+    "1462804": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 640 656 1043",
+      "group": 1462804,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:55 2026"
+    },
+    "1462820": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 672 688 1043",
+      "group": 1462820,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:57 2026"
+    },
+    "1462828": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 688 704 1043",
+      "group": 1462828,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:58 2026"
+    },
+    "1462847": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 720 736 1043",
+      "group": 1462847,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:27:59 2026"
+    },
+    "1462877": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 736 752 1043",
+      "group": 1462877,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:00 2026"
+    },
+    "1462886": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 752 768 1043",
+      "group": 1462886,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:00 2026"
+    },
+    "1463005": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 784 800 1043",
+      "group": 1463005,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:02 2026"
+    },
+    "1463030": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 800 816 1043",
+      "group": 1463030,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:03 2026"
+    },
+    "1463042": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 816 832 1043",
+      "group": 1463042,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:03 2026"
+    },
+    "1463061": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 848 864 1043",
+      "group": 1463061,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:05 2026"
+    },
+    "1463069": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 864 880 1043",
+      "group": 1463069,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:06 2026"
+    },
+    "1463163": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 880 896 1043",
+      "group": 1463163,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:07 2026"
+    },
+    "1463171": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 896 912 1043",
+      "group": 1463171,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:07 2026"
+    },
+    "1463236": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 928 944 1043",
+      "group": 1463236,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:09 2026"
+    },
+    "1463307": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 944 960 1043",
+      "group": 1463307,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:10 2026"
+    },
+    "1463315": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 960 976 1043",
+      "group": 1463315,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:11 2026"
+    },
+    "1463404": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 976 992 1043",
+      "group": 1463404,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:12 2026"
+    },
+    "1463416": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 992 1008 1043",
+      "group": 1463416,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:13 2026"
+    },
+    "1463457": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 1463457,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:13 2026"
+    },
+    "1463627": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0065 --fault-range 1040 1043 1043",
+      "group": 1463627,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:15 2026"
+    },
+    "1463666": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 16 32 1043",
+      "group": 1463666,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:16 2026"
+    },
+    "1463756": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 48 64 1043",
+      "group": 1463756,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:17 2026"
+    },
+    "1463774": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 80 96 1043",
+      "group": 1463774,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:18 2026"
+    },
+    "1463805": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 112 128 1043",
+      "group": 1463805,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:19 2026"
+    },
+    "1463831": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 144 160 1043",
+      "group": 1463831,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:20 2026"
+    },
+    "1463845": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 176 192 1043",
+      "group": 1463845,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:21 2026"
+    },
+    "1464229": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 224 240 1043",
+      "group": 1464229,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:23 2026"
+    },
+    "1464330": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 256 272 1043",
+      "group": 1464330,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:24 2026"
+    },
+    "1464402": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 288 304 1043",
+      "group": 1464402,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:25 2026"
+    },
+    "1464417": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 320 336 1043",
+      "group": 1464417,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:26 2026"
+    },
+    "1464426": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 352 368 1043",
+      "group": 1464426,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:28 2026"
+    },
+    "1464514": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 368 384 1043",
+      "group": 1464514,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:28 2026"
+    },
+    "1464530": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 400 416 1043",
+      "group": 1464530,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:29 2026"
+    },
+    "1464601": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 432 448 1043",
+      "group": 1464601,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:30 2026"
+    },
+    "1464629": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 464 480 1043",
+      "group": 1464629,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:32 2026"
+    },
+    "1464752": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 480 496 1043",
+      "group": 1464752,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:32 2026"
+    },
+    "1464867": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 512 528 1043",
+      "group": 1464867,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:33 2026"
+    },
+    "1464887": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 544 560 1043",
+      "group": 1464887,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:35 2026"
+    },
+    "1464907": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 560 576 1043",
+      "group": 1464907,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:35 2026"
+    },
+    "1464921": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 592 608 1043",
+      "group": 1464921,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:37 2026"
+    },
+    "1464945": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 608 624 1043",
+      "group": 1464945,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:37 2026"
+    },
+    "1464965": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 640 656 1043",
+      "group": 1464965,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:39 2026"
+    },
+    "1465056": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 656 672 1043",
+      "group": 1465056,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:39 2026"
+    },
+    "1465129": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 688 704 1043",
+      "group": 1465129,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:41 2026"
+    },
+    "1465137": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 704 720 1043",
+      "group": 1465137,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:41 2026"
+    },
+    "1465148": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 736 752 1043",
+      "group": 1465148,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:43 2026"
+    },
+    "1465160": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 752 768 1043",
+      "group": 1465160,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:44 2026"
+    },
+    "1465249": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 768 784 1043",
+      "group": 1465249,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:44 2026"
+    },
+    "1465270": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 800 816 1043",
+      "group": 1465270,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:46 2026"
+    },
+    "1465297": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 816 832 1043",
+      "group": 1465297,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:47 2026"
+    },
+    "1465309": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 832 848 1043",
+      "group": 1465309,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:47 2026"
+    },
+    "1465344": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 864 880 1043",
+      "group": 1465344,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:49 2026"
+    },
+    "1465432": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 880 896 1043",
+      "group": 1465432,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:50 2026"
+    },
+    "1465443": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 896 912 1043",
+      "group": 1465443,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:51 2026"
+    },
+    "1465452": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 912 928 1043",
+      "group": 1465452,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:51 2026"
+    },
+    "1465474": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 944 960 1043",
+      "group": 1465474,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:53 2026"
+    },
+    "1465512": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 960 976 1043",
+      "group": 1465512,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:54 2026"
+    },
+    "1465549": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 976 992 1043",
+      "group": 1465549,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:55 2026"
+    },
+    "1465717": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 992 1008 1043",
+      "group": 1465717,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:56 2026"
+    },
+    "1465726": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O0-observed-0066 --fault-range 1008 1024 1043",
+      "group": 1465726,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:57 2026"
+    },
+    "1465739": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 1465739,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:28:57 2026"
+    },
+    "1465958": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -c src/nanoisa/record_array_generated_private.c -o /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-runtime.o",
+      "group": 1465958,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:01 2026"
+    },
+    "1465959": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE src/nanoisa/record_array_generated_private.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/ -dumpbase O2-linked-runtime.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccXTfEJE.s",
+      "group": 1465958,
+      "parent": 1465958,
+      "started": "Mon Sep 21 01:29:01 2026"
+    },
+    "1466069": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0003.o /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0003.replay.c /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0003",
+      "group": 1466069,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:02 2026"
+    },
+    "1466071": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0003.replay.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0003- -dumpbase product-0003.replay.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cc824CNF.s",
+      "group": 1466069,
+      "parent": 1466069,
+      "started": "Mon Sep 21 01:29:02 2026"
+    },
+    "1466248": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0017.o /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0017.replay.c /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0017",
+      "group": 1466248,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:04 2026"
+    },
+    "1466249": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0017.replay.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0017- -dumpbase product-0017.replay.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccSsRHio.s",
+      "group": 1466248,
+      "parent": 1466248,
+      "started": "Mon Sep 21 01:29:04 2026"
+    },
+    "1466355": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0024.o /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0024.replay.c /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0024",
+      "group": 1466355,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:06 2026"
+    },
+    "1466356": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0024.replay.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0024- -dumpbase product-0024.replay.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccfFZ9ma.s",
+      "group": 1466355,
+      "parent": 1466355,
+      "started": "Mon Sep 21 01:29:06 2026"
+    },
+    "1466598": {
+      "command": "[llc] <defunct>",
+      "group": 1466598,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:07 2026"
+    },
+    "1466679": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0038.o /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0038.replay.c /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0038",
+      "group": 1466679,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:08 2026"
+    },
+    "1466765": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0045.o /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0045.replay.c /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-runtime.o -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0045",
+      "group": 1466765,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:09 2026"
+    },
+    "1466766": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0045.replay.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/O2-linked-0045- -dumpbase product-0045.replay.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/cckFuGYN.s",
+      "group": 1466765,
+      "parent": 1466765,
+      "started": "Mon Sep 21 01:29:09 2026"
+    },
+    "1467314": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED -DRA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h -c src/nanoisa/record_array_generated_private.c -o /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-runtime.o",
+      "group": 1467314,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:13 2026"
+    },
+    "1467315": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D NMS_TESTING -D NRG_OBSERVED -D RA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h src/nanoisa/record_array_generated_private.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/ -dumpbase O2-observed-runtime.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccJyJZxT.s",
+      "group": 1467314,
+      "parent": 1467314,
+      "started": "Mon Sep 21 01:29:13 2026"
+    },
+    "1467478": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0004.o /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0004.replay.c /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0004",
+      "group": 1467478,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:15 2026"
+    },
+    "1468107": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0029.o /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0029.replay.c /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0029",
+      "group": 1468107,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:21 2026"
+    },
+    "1468108": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D NMS_TESTING -D NRG_OBSERVED /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0029.replay.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0029- -dumpbase product-0029.replay.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccMNmzuH.s",
+      "group": 1468107,
+      "parent": 1468107,
+      "started": "Mon Sep 21 01:29:21 2026"
+    },
+    "1468165": {
+      "command": "[gcc-13] <defunct>",
+      "group": 1468165,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:22 2026"
+    },
+    "1468335": {
+      "command": "[llc]",
+      "group": 1468335,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:23 2026"
+    },
+    "1468652": {
+      "command": "[llc] <defunct>",
+      "group": 1468652,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:24 2026"
+    },
+    "1468977": {
+      "command": "[O2-observed-004] <defunct>",
+      "group": 1468977,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:26 2026"
+    },
+    "1469041": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0054.o /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0054.replay.c /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0054",
+      "group": 1469041,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:27 2026"
+    },
+    "1469042": {
+      "command": "/usr/libexec/gcc/aarch64-linux-gnu/13/cc1 -quiet -I src -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -imultiarch aarch64-linux-gnu -D_REENTRANT -D _DEFAULT_SOURCE -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -D NMS_TESTING -D NRG_OBSERVED /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0054.replay.c -D_FORTIFY_SOURCE=3 -quiet -dumpdir /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0054- -dumpbase product-0054.replay.c -dumpbase-ext .c -mlittle-endian -mabi=lp64 -g -g -O1 -O3 -O2 -Wall -Wextra -Werror -std=c11 -std=c99 -ftree-vectorize -fPIC -ffp-contract=off -fno-fast-math -fasynchronous-unwind-tables -fstack-protector-strong -Wformat-security -fstack-clash-protection -o /tmp/ccrARQGJ.s",
+      "group": 1469041,
+      "parent": 1469041,
+      "started": "Mon Sep 21 01:29:27 2026"
+    },
+    "1469305": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 48 64 1042",
+      "group": 1469305,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:30 2026"
+    },
+    "1469342": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 144 160 1042",
+      "group": 1469342,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:31 2026"
+    },
+    "1469375": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 240 256 1042",
+      "group": 1469375,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:32 2026"
+    },
+    "1469387": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 320 336 1042",
+      "group": 1469387,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:33 2026"
+    },
+    "1469493": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 400 416 1042",
+      "group": 1469493,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:34 2026"
+    },
+    "1469505": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 480 496 1042",
+      "group": 1469505,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:35 2026"
+    },
+    "1469604": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 544 560 1042",
+      "group": 1469604,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:36 2026"
+    },
+    "1469724": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 624 640 1042",
+      "group": 1469724,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:37 2026"
+    },
+    "1469785": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 704 720 1042",
+      "group": 1469785,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:38 2026"
+    },
+    "1469936": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 768 784 1042",
+      "group": 1469936,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:39 2026"
+    },
+    "1470020": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 832 848 1042",
+      "group": 1470020,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:40 2026"
+    },
+    "1470031": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 880 896 1042",
+      "group": 1470031,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:41 2026"
+    },
+    "1470049": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 944 960 1042",
+      "group": 1470049,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:42 2026"
+    },
+    "1470175": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0063 --fault-range 1008 1024 1042",
+      "group": 1470175,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:43 2026"
+    },
+    "1470279": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0064 --fault-range 0 16 1042",
+      "group": 1470279,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:44 2026"
+    },
+    "1470301": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0064 --fault-range 96 112 1042",
+      "group": 1470301,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:45 2026"
+    },
+    "1470316": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0064 --fault-range 192 208 1042",
+      "group": 1470316,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:46 2026"
+    },
+    "1470426": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0064 --fault-range 384 400 1042",
+      "group": 1470426,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:48 2026"
+    },
+    "1470460": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0064 --fault-range 464 480 1042",
+      "group": 1470460,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:49 2026"
+    },
+    "1470578": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0064 --fault-range 544 560 1042",
+      "group": 1470578,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:51 2026"
+    },
+    "1470603": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0064 --fault-range 688 704 1042",
+      "group": 1470603,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:53 2026"
+    },
+    "1470629": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0064 --fault-range 752 768 1042",
+      "group": 1470629,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:54 2026"
+    },
+    "1470725": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0064 --fault-range 816 832 1042",
+      "group": 1470725,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:55 2026"
+    },
+    "1470876": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0064 --fault-range 880 896 1042",
+      "group": 1470876,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:56 2026"
+    },
+    "1470892": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0064 --fault-range 944 960 1042",
+      "group": 1470892,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:57 2026"
+    },
+    "1470905": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0064 --fault-range 1008 1024 1042",
+      "group": 1470905,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:29:58 2026"
+    },
+    "1470950": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0065 --fault-range 112 128 1043",
+      "group": 1470950,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:00 2026"
+    },
+    "1471081": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0065 --fault-range 208 224 1043",
+      "group": 1471081,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:01 2026"
+    },
+    "1471244": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0065 --fault-range 384 400 1043",
+      "group": 1471244,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:03 2026"
+    },
+    "1471280": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0065 --fault-range 464 480 1043",
+      "group": 1471280,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:04 2026"
+    },
+    "1471318": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0065 --fault-range 544 560 1043",
+      "group": 1471318,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:05 2026"
+    },
+    "1471333": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0065 --fault-range 624 640 1043",
+      "group": 1471333,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:06 2026"
+    },
+    "1471425": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0065 --fault-range 688 704 1043",
+      "group": 1471425,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:07 2026"
+    },
+    "1471459": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0065 --fault-range 832 848 1043",
+      "group": 1471459,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:09 2026"
+    },
+    "1471468": {
+      "command": "[O2-observed-006] <defunct>",
+      "group": 1471468,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:10 2026"
+    },
+    "1471541": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0065 --fault-range 944 960 1043",
+      "group": 1471541,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:11 2026"
+    },
+    "1471636": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0065 --fault-range 1008 1024 1043",
+      "group": 1471636,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:12 2026"
+    },
+    "1471665": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0066 --fault-range 16 32 1043",
+      "group": 1471665,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:13 2026"
+    },
+    "1471686": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0066 --fault-range 112 128 1043",
+      "group": 1471686,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:14 2026"
+    },
+    "1471734": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0066 --fault-range 288 304 1043",
+      "group": 1471734,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:16 2026"
+    },
+    "1471829": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0066 --fault-range 384 400 1043",
+      "group": 1471829,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:17 2026"
+    },
+    "1471860": {
+      "command": "[O2-observed-006] <defunct>",
+      "group": 1471860,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:18 2026"
+    },
+    "1471899": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0066 --fault-range 544 560 1043",
+      "group": 1471899,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:19 2026"
+    },
+    "1471981": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0066 --fault-range 624 640 1043",
+      "group": 1471981,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:20 2026"
+    },
+    "1472033": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0066 --fault-range 704 720 1043",
+      "group": 1472033,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:21 2026"
+    },
+    "1472044": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0066 --fault-range 768 784 1043",
+      "group": 1472044,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:22 2026"
+    },
+    "1472146": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0066 --fault-range 832 848 1043",
+      "group": 1472146,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:23 2026"
+    },
+    "1472191": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0066 --fault-range 896 912 1043",
+      "group": 1472191,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:24 2026"
+    },
+    "1472258": {
+      "command": "/tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0066 --fault-range 960 976 1043",
+      "group": 1472258,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:25 2026"
+    },
+    "1472941": {
+      "command": "/bin/gcc-13 -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0072.o /tmp/nano-record-array-llvm-ojuo_sxl/native-corpus/product-0072.replay.c /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /tmp/nano-record-array-llvm-ojuo_sxl/O2-observed-0072",
+      "group": 1472941,
+      "parent": 1452080,
+      "started": "Mon Sep 21 01:30:28 2026"
+    }
+  },
+  "remaining": []
+}

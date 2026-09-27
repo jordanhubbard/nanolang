@@ -1,0 +1,5 @@
+# I link my origin fixture with its provider instrumentation
+
+My original PR948 units-08 terminal records unresolved sanitizer symbols from actual instrumented NanoISA providers. The owning Make recipe now exports its compiler and default compile/link flags explicitly, while dedicated origin-fixture overrides remain supported. The fixture keeps its original strict C11/O1 flags, allocation controls, assertions and120-second child deadlines.
+
+At source `1c50a0c85d3f5bcd14756422208dd407ffaf9c53`, fresh ordinary and ASan/UBSan owning gates pass. The retained actual argv verifies instrumentation on all three intercepted provider compilations and the final object link; the fifth command executes the original fixture. I retain the inner executable, its objects and command/output files, source/tool maps, original Make command and terminal. LSan is disabled and is not claimed. The separate passive-flow nvm2c prerequisite is source-reviewed but its full bootstrap-dependent owning gate remains required.

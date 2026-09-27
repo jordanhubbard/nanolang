@@ -1,0 +1,11 @@
+{
+  "base": "87436b7dc637d5e6b36d8e0a43005d08c5946a8c",
+  "source_sha256": {
+    "src_nano/compiler/nanoisa_codegen.nano": "0a4c229f86c07e56d90303c51b13fa1b1cb607fbfe85e085511d256717db21c2",
+    "src/transpiler_iterative_v3_twopass.c": "fa35b9e62fdad725c32377adfc0bea05bbbee7edb49bc05aa82ed2b3d2f378dc",
+    "tests/test_canonical_string_conversion.py": "38809650205d289f094acf8ab28ff6d1def6837a0b213640a81558ee7cb491e5",
+    "Makefile.gnu": "51c7a00632b840b74275093b6c748f94794694e921ff645ed95aa612cca917c7"
+  },
+  "host": "Darwin CXWWHGGJX0 25.6.0 Darwin Kernel Version 25.6.0: Tue Aug 18 17:48:46 PDT 2026; root:xnu-12377.161.15.700.19~2/RELEASE_ARM64_T6041 arm64",
+  "llvm": "Homebrew clang version 23.1.1\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /opt/homebrew/Cellar/llvm/23.1.1/bin\nConfiguration file: /opt/homebrew/Cellar/llvm/23.1.1/etc/clang/arm64-apple-darwin25.cfg\n"
+}

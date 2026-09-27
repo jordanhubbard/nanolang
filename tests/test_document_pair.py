@@ -16,13 +16,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class DocumentPairAcceptance(unittest.TestCase):
-    def test_narrative_keeps_code_blocks_together(self):
+    def test_narrative_keeps_every_monospace_code_block_together(self):
         with ZipFile(ROOT / "docs/presentation/nanolang-developer-overview.docx") as archive:
             document = ET.fromstring(archive.read("word/document.xml"))
         code = []
         for paragraph in document.findall(".//w:p", NS):
             value = "".join(node.text or "" for node in paragraph.findall(".//w:t", NS))
-            if value.startswith(("fn gcd(", "make test", ".nano source")):
+            fonts = paragraph.findall(".//w:rPr/w:rFonts", NS)
+            if any(font.get(f"{{{NS['w']}}}ascii") == "Courier New" or
+                   font.get(f"{{{NS['w']}}}hAnsi") == "Courier New"
+                   for font in fonts):
                 code.append(value)
                 keep = paragraph.find("w:pPr/w:keepLines", NS)
                 self.assertIsNotNone(keep, value)
@@ -44,12 +47,16 @@ class DocumentPairAcceptance(unittest.TestCase):
             for boundary in ("not whole-program proof", "not object identity", "unknown stays unknown"):
                 self.assertIn(boundary, verifier)
             cover = text("ppt/slides/slide1.xml")
-            self.assertIn("NANOLANG 5.0", cover)
+            self.assertIn("NANOLANG 5.1", cover)
+            self.assertNotIn("NANOLANG 5.0", cover)
             self.assertNotIn("DRAFT", cover)
             release = text("ppt/slides/slide15.xml")
-            for boundary in ("NanoISA-only bootstrap", "full backend parity", "isolated callback ABI"):
+            for boundary in ("verified .nvm default", "raw compiler fixed point",
+                             "no isolated callbacks", "formal core boundary"):
                 self.assertIn(boundary, release)
-            self.assertIn("mandatory release gates", text("ppt/notesSlides/notesSlide15.xml"))
+            release_notes = text("ppt/notesSlides/notesSlide15.xml")
+            self.assertIn("does not prove compiler correctness", release_notes)
+            self.assertIn("outside the public product contract", release_notes)
             source = (ROOT / "docs/presentation/examples/gcd.nano").read_text().strip()
             slide = ET.fromstring(archive.read("ppt/slides/slide10.xml"))
             frames = ["\n".join("".join(node.text or "" for node in p.findall(".//a:t", NS))

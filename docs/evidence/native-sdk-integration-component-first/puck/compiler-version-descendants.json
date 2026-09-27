@@ -1,0 +1,12 @@
+{
+  "owned": {
+    "36575": {
+      "parent": 36559,
+      "group": 36575,
+      "started": "Mon Sep 21 20:20:00 2026",
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang --version"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

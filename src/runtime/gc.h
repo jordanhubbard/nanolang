@@ -113,4 +113,15 @@ void* gc_unwrap(void* wrapper_ptr);
 /* Legacy function - deprecated, use gc_wrap_external instead */
 void gc_set_finalizer(void* ptr, GCFinalizer finalizer);
 
+/* I retain raw C-seed values until explicit free or process shutdown.
+ * Adoption consumes a fresh pointer; allocation failure calls its finalizer.
+ * Forget removes ownership without freeing the value. Finalizers may forget
+ * their already-detached value, but must not adopt new process-owned values.
+ * Explicit cleanup requires quiescent callers and invalidates all retained
+ * raw values. Count is observational; it does not establish ownership. */
+void* gc_process_own(void* ptr, GCFinalizer finalizer);
+void gc_process_forget(void* ptr);
+void gc_process_cleanup(void);
+size_t gc_process_owned_count(void);
+
 #endif /* NANOLANG_GC_H */

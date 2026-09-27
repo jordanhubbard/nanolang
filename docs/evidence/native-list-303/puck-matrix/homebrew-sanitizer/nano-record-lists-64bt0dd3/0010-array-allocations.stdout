@@ -1,0 +1,12 @@
+I measure the complete TypeInfo copy: 24 allocation attempts.
+I measure view 0: 3 allocation attempts.
+I measure view 1: 4 allocation attempts.
+I measure view 2: 5 allocation attempts.
+I measure view 3: 12 allocation attempts.
+I measure view 4: 3 allocation attempts.
+I measure view 5: 5 allocation attempts.
+I measure view 6: 3 allocation attempts.
+I measure view 7: 3 allocation attempts.
+I measure view 8: 4 allocation attempts.
+I measure view 9: 3 allocation attempts.
+I passed 4384 separate checker annotation allocation assertions.

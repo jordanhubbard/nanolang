@@ -1,0 +1,300 @@
+# My shared generated mixed runtime
+
+I prepare this design from reviewed PR936 head `d6179a7be0d564858c7f303c457e9ebeae50f606`.
+I have verified its actual merge `8f2a6c874cf8c64266d65744529fe20d24eeb9fd`;
+root independently audited the query and VM evidence before merging.
+I extend `NANOISA_MIXED_GENERATED_CONJUNCTION.md` and retain the complete goals of
+`task_f36b179a0f2b4a1b99c29ccd2af66f99`,
+`task_15f955fae5cf402d92bf88794122e9a2` and
+`task_488a05eb5e2a417caf83a8353363a30d`. This checkpoint changes documentation only.
+
+## Actual implementation boundary
+
+My qualified private VM executes the complete current copied query domain using
+real handlers. I now need generated operations with the same values, ownership,
+control flow and repeated-entry semantics. My existing `nvm2llvm.c` emits recursive
+host calls at OP_CALL and reuses old public verifier/heap selection. Its
+`nvm2llvm_managed.inc` calls the singleton `managed_module.c` adapter. My
+`nvm2c.c` has separate typed/owned/service routes and allocation sweeps. None of
+these is automatically a consumer of the new copied execution plan.
+
+I add a separate private generated runtime and emission entry points; I do not
+replace an old verifier result with a success bit or redirect old profiles.
+I use `managed_strings.c` counted primitives, including VM-policy arrays, with
+an explicit instance. I retain the old singleton adapter and exported ABI
+unchanged. I do not embed NanoVM, bytecode decoding or an opcode interpreter in
+my generated product.
+
+## First production checkpoint: instance and operation interface
+
+I first implement `record_array_generated_private.h/.c`: a source-private,
+macro-gated instance supporting an immutable generated descriptor, explicit
+frame/root storage, checked value transactions and status reporting. Before
+execution, its complete source review supplies exact C definitions, fieldwise
+ABI agreement, allocation/work table and a 93-row helper/emission map. This is
+a necessary runtime foundation; manual calls do not qualify an emitter.
+
+My generator consumes only a freshly prepared owned execution plan. It stages
+an exact immutable copy of strings, signatures, layout/field/type/binding facts,
+origin constraints, all instruction facts and direct control-flow successors.
+Preparation compares these defined fields and bytes with the plan, including
+all unused functions. No checksum substitutes for agreement. Generated product
+storage owns its tables through instance disposal; host plan storage may then
+be freed. A runtime ABI revision plus exact sizes/offsets and operation coverage
+must agree before creating a counted instance or publishing an output pointer.
+
+I keep NmsValue separate from NanoValue. My private execution status distinguishes
+TYPE, BOUNDS, ASSERT, MEMORY, arithmetic failure, frame overflow, BUSY and invalid
+state; I map actual core status explicitly and preserve the first error. I do
+not stretch the existing NmsStatus enum or its packed result convention. Reports
+copy defined fields and leave prior user result unchanged on failure. Successful
+heap results own one instance-local root until replacement/disposal; views never
+outlive that root. Cleanup errors do not overwrite the first execution error.
+
+I reserve 1024 frame records and a checked root capacity derived from the VM's
+524289 bound, with separate globals, retained result and constructor scratch
+counted explicitly. I show every call/return/initializer offset in the source
+checkpoint rather than treating that number as a new proof. Root slots begin
+VOID; moves clear sources, copies retain, and overwrite acquires before release.
+The initializer and root execute sequentially in the same instance. Committed
+globals survive a failed invocation exactly as in the qualified VM, while stack,
+locals and staging unwind. Prior returned values remain owned until successful
+replacement. Reentry while active returns BUSY without inspecting replacement
+tables, clearing state or acquiring cleanup responsibility.
+
+My qualified VM already reserves two separate preparation domains: up to
+128MiB and33554432 steps for the copied plan, plus up to128MiB and33554432
+steps for the private consumer. Its reported sums therefore permit256MiB and
+67108864 steps. My earlier combined128MiB design sentence was inconsistent
+with that implemented boundary. I preserve the two domains in generated
+preparation rather than narrowing otherwise qualified plans. I charge copied
+tables, instance/frame/root capacity, emission staging and all overlapping
+consumer temporaries to the consumer domain; I report both components and
+their checked sum. I release a reservation only after ownership ends. Retaining
+a plan and duplicating its tables does not permit charging those copies to the
+already reserved plan domain. If full generated preparation exceeds the second
+domain, I retain the concrete conflict for review before changing a bound.
+Runtime heap allocation follows existing checked core capacity/overflow rules;
+I introduce no arbitrary execution fuel or host recursion dependence. Wasm
+memory limits are explicit target configuration and exhaustion is MEMORY with
+complete cleanup, not permission to exclude eligible programs at preparation.
+
+## Ownership and collector correspondence
+
+I validate descriptor DAG, nominal receiver identity, declared field tags and
+flat element constraints at every create/get/update/copy boundary. Scalar type
+preflight precedes consuming operands, including all INT/FLOAT/BOOL operators
+and CAST_U8. Helpers that consume their arguments on failure are distinguished
+from borrowing helpers in the full operation table; generated slots are cleared
+exactly when consumption occurs. Values are never hidden in untracked C/LLVM
+temporaries across a call, allocation, collection or error branch.
+
+Counted record/array/string roots remain external references while collection
+runs. I prepare collector workspace before any graph-changing operation and
+collect only with all suspended caller roots visible. Failed workspace growth
+is an execution failure before mutation. I inspect the core release traversal
+and prove or repair its stack bound for the actual accepted nominal DAG before
+qualification; VM's instance-local acyclic release policy is not a proof about
+this different allocator. I preserve cycles/nested-array refusal in this first
+existing query domain, without claiming that its scalar origins establish
+physical acyclicity. General graph collection remains a required extension.
+
+## Generated C, then shared LLVM and Wasm lowering
+
+My first emitter checkpoint follows the reviewed runtime foundation and emits
+all 93 operations into actual C labels/operators. One generated function per
+source function executes basic blocks until CALL, RET or failure. A bounded
+outer scheduler selects a generated function/resume label; CALL saves an exact
+continuation, checks/reserves a frame before transferring arguments and returns
+to the scheduler. RET moves the result before clearing the frame. This scheduler
+selects generated control continuations, never reads code bytes or dispatches
+opcodes. It bounds host call depth independently of 1024 language frames.
+
+I then generate the equivalent LLVM blocks/functions against the same instance
+API, frame layout and operation ledger, using explicit native/wasm32 layouts.
+Native and Wasm share lowering; their target ABI, pointer widths and artifacts
+are independently verified. No new route uses old recursive generated calls.
+Wasm links the actual import-free counted runtime and bounded linear memory;
+C and native LLVM link only the required runtime objects, with no VM symbols.
+I inspect all actual93 operation cases and all256 opcode decisions before output.
+Unsupported new opcodes refuse atomically until this shared conjunction expands.
+
+Emission is transactional into a private buffer, with checked growth and an
+explicit output-byte/work bound in the emitter source checkpoint. Every source
+function and unreachable label must be covered before publication. Actual stream
+I/O failure is reported honestly; CLI file publication uses temporary files and
+atomic replacement. Private APIs precede any new CLI/public selector.
+
+## Acceptance and subsequent full product dependencies
+
+I first test the runtime interface's acquired-entry protocol, exact fields,
+1024/1025 frame boundary, root movement and finite allocation prefixes (persistent
+and one-shot) with fresh recovery. This does not count as generated acceptance.
+Then I translate the unchanged private VM corpus through C O0/O2, native LLVM
+O0/O2 and Wasm O0/O2 on both supported engines. I compare observable payload bits,
+identity/alias relationships, globals, prior results, statuses and cleanup rather
+than demanding identical allocation counts across different heaps.
+
+I require all five element tags, all93 operations, initializer failures, recursive
+frames, branch/backedge joins, partial constructors/copies, wrong-tag roots,
+repeated entries, retained results, source-input destruction and output sentinels.
+Allocation sweeps cover actual generated execution and collection preparation.
+Strict supported sanitizers identify which runtime and generated TUs/IR are
+instrumented. Installed-only isolated linkage verifies package symbols and absence
+of testing hooks/VM dispatch. Existing public/refusal/owned/File routes retain
+unchanged acceptance. First failures remain recorded; no gate narrows the corpus.
+
+Only after the VM/C/LLVM/Wasm conjunction passes do I propose explicit public
+selection with unchanged old route precedence and exact whole-module authority.
+Paired C/Nano producers must then preserve declaration/binding metadata across
+imports, generics, closures, shadows and source-order evaluation, and exercise
+actual bootstrap/compiler workloads through the selected route. A private
+fixture is not that bootstrap. Full executed scalar unions, nested and cyclic
+mixed graphs, indirect calls and richer source graphs remain required parent
+work, with their own complete ownership/query/collector/consumer conjunction.
+I neither mark those complete nor substitute the present flat-array domain for
+them. Existing refusals remain until each matching extension qualifies.
+
+## Ledger availability
+
+On this checkpoint's first ledger read, `mac task show` failed because its local
+login tunnel port34113 was occupied by an unmanaged process. I retain the three
+existing parent identities above and do not disturb the listener. This does not
+claim creation of a new child task; I will attach this checkpoint when ledger
+access is restored.
+
+## My first generated C source checkpoint
+
+My source-private files are `record_array_generated_private.h/.c` and
+`nvm2c_record_array_private.h/.c`. The runtime packages the existing counted core
+once, independently of `managed_module.c`; it exposes only scalar/pointer ABI
+arguments, including pointers to boxed values, for later direct LLVM lowering.
+I do not link this runtime alongside another copy of that core in one product.
+Its native instance is creator-thread-bound. My private Wasm target is ordinary
+single-threaded linear memory, with no shared-memory or thread imports.
+
+The C emitter has93 explicit opcode cases and an independent93-row ownership
+recipe switch. It compares all256 decisions with the copied-query support set,
+then redecodes each exact snapshot instruction and compares operands, stack
+counts, callee and successors. A separate boundary search checks every edge.
+Every function, including unused functions and unreachable labels, receives a
+real generated body. Each body contains a switch only for its saved continuation
+and direct labels/operators; runtime execution never fetches a bytecode opcode.
+CALL yields to the scheduler after moving arguments into a checked frame. RET
+yields after moving its result and releasing its frame. Scalar arithmetic is
+explicit generated C, with the canonical binary64 arithmetic source retained.
+String/record/array helpers follow their actual counted-core ownership contracts.
+
+My startup wrapper compares all defined function, parameter, descriptor, field
+and binding values with independently emitted constants, and checks identity of
+its immutable literal/function/table arrays before runtime creation. Literal
+bytes were copied from the owned plan into immutable generated storage; pointer
+identity binds their runtime views to those arrays. This is not a claim about
+tamper-proof native code. Runtime preparation checks ABI, nominal DAG and bounds
+again before binding descriptors. No old/public admission bit is consulted.
+
+| Stage | Charged or bounded storage/work |
+| --- | --- |
+| Copied query plan | Its existing reported peak/work, within128MiB/33554432, remains a separate domain. |
+| Emitter staging | Fixed named function/layout tables; all field and instruction allocations including zero-count allocation sentinels; output capacity, with old and replacement buffers simultaneously charged; formatted and copied bytes, decode/fact scans and edge searches. These stay within consumer128MiB/33554432. |
+| Generated instance | Explicit1024 frame metadata;524289 boxed roots; separate256 globals, retained result and completion root. Per-frame512 slots bound256 locals plus256 operands; index524288 holds the initializer result while root frames execute. |
+| Runtime validation | Named256-by256 adjacency bitset and256 ranks, with bounded binary searches and at most256 complete rank rounds. This automatic scratch is charged separately from the instance's retained requested bytes. |
+| Constructor scratch | Fixed256 payloads and256 tags; source operands remain roots through core allocation. No C recursion proportional to language depth. |
+| Heap/collector | Actual counted-core allocation hooks remain observable; prepared collection occurs before allocating transactions. Core release uses its existing allocation-free iterative worklist. Heap growth is execution memory, not silently included in preparation counters. |
+
+Generated descriptor and literal arrays are static product storage, not allocations
+owned by an instance. Reports distinguish that borrowed immutable storage from
+retained requested bytes and automatic validation scratch; full process/libc
+memory is not inferred from project allocation accounting. Complete fixtures
+must measure these claims, exact next bounds and any generated-output limit
+conflict before acceptance. I do not infer that equal numeric budgets establish
+equal preparation success for every maximum-size input without those checks.
+
+Strict GCC13 syntax checks pass for both new translation units. A static case
+inventory finds93 recipes and93 emission cases, with no missing/extra cases.
+These are source checks only: no generated product has run, and no runtime,
+LLVM/Wasm, installed-package or public acceptance follows yet. The next fixtures
+must compile the actual output, execute the unchanged VM corpus, compare all
+observable roots/statuses, and exercise emission/runtime faults and mismatches.
+
+### Generated C fixture checkpoint
+
+I capture the unchanged linked VM corpus and its actual retired-opcode counters,
+then emit separate C products and replay the observed status, scalar bits,
+counted strings, nominal layouts, array element kinds and within-epoch alias
+relations. Every product links only the generated C, replay driver and counted
+runtime; the runner checks undefined symbols for VM/query dependencies. I require
+all93 retired operations and all256 support decisions before accepting capture.
+Both O0 and O2 run linked and allocation-observed products. The observed products
+sweep every measured allocation position in one-shot and persistent modes, with
+independent recovery and zero retained allocations after disposal.
+
+My separate emission fixture checks exact MEMORY classification, preserved
+pointer/length/cost outputs, output-growth failure, exact work/byte boundaries
+and recovery at every measured allocation position. Its static review required
+`rg_charge` to preserve an existing failure rather than overwrite MEMORY with a
+later LIMIT, and to check accumulated counters before subtraction. This remains
+an unexecuted source correction, with an explicit fixture predicate.
+
+Separate manual adapter controls exercise ABI revision/size/offset/frame refusal,
+wrong-thread refusal, nested BUSY and busy-destroy refusal, acquired invocation
+completion, first-error retention, prior-result preservation and subsequent
+success. They do not substitute for generated-program parity. Under the intact
+acquired lifecycle, `nms_finish(NMS_OK)` only clears active state and cannot
+introduce an allocation or collection failure after result publication.
+
+The two-method Python runner uses file-backed bounded commands and preserves
+terminal/process-cleanup records. The added VM entry macro keeps its default
+main and all old assertions. Strict syntax-only checks have passed; none of the
+new fixtures or generated products has executed at this checkpoint. LLVM/Wasm,
+installed/public/source selection and the remaining full graph profile are still
+required later dependencies.
+
+### Exhaustive fault-worker scheduling contract
+
+I retain the first corrected6783 GCC sanitizer timeout unchanged. Product0063
+has1,042 measured allocation positions; its successful1,024-frame invocation
+costs0.461–0.622 seconds under the exact GCC O0 instrumented providers. Products
+0063–0066 each reach1,024 frames in the original captured corpus. The complete
+four-deep-product sweep contains thousands of independent recoveries; a single
+240-second product command is not a sufficient allowance for that measured work.
+I change only fixture scheduling, not production, allocation semantics or coverage.
+
+I first run each observed product in a baseline-only process. It performs the
+unchanged exact replay, a successful no-fault sequence and zero-live assertions,
+then reports its measured allocation-call count and peak payload bytes. I retain
+that terminal and the original product/source hashes. The count must be positive
+and representable; no cap or truncation may turn a large count into acceptance.
+
+I partition the exact half-open position interval [0,count) into consecutive
+nonoverlapping intervals of at most16 positions. Each fresh worker receives its
+explicit start/end and the expected baseline count. Before injecting any failure
+it repeats the unchanged replay and no-fault baseline, checks the exact expected
+count, and retains the baseline peak. For every assigned position it executes
+both one-shot and persistent failure modes, the original status/output/zero-live
+assertions, and an independent fresh successful recovery after each refusal.
+Neither failure nor recovery shares an instance with another trial. Every worker
+reports its exact range, count, both completed modes and recovery total; Python
+checks these against its requested interval and publishes a complete coverage
+manifest only after the contiguous union equals [0,count). Empty, overlapping,
+missing or out-of-range intervals cannot qualify a product. Linked products
+retain their existing single exact-replay command.
+
+Every compile, baseline and worker command retains the existing240-second bound,
+file-backed output, bounded TERM/KILL, leader reaping and group-disappearance
+proof. Workers run sequentially; failure stops dependent work. The external
+configuration supervisor inventories descendants by PID/start-time and performs
+bounded cleanup across their separate groups on every terminal. I set an explicit
+14,400-second aggregate configuration bound before execution: four captured
+1,024-frame workloads, provisionally estimated at1,042 positions each and four
+sequence invocations per position, project10,371 seconds using product0063's
+measured0.622-second successful invocation cost, before compilation and other
+cases. The other three counts and costs are estimates, not independent timings. This is a conservative
+scheduling allowance, not a proved runtime upper bound or permission to extend
+any worker deadline. I retain actual elapsed times and stop if either bound is
+reached. Baseline counts and actual worker timings will make this estimate
+checkable rather than silently replacing the historical1,800-second terminal.
+
+Fresh affected fixture builds are mandatory. Prior passing ordinary and Darwin
+histories stay attributed to their original pins. This change cannot establish
+LLVM/Wasm, public/source admission or remaining nested/cyclic graph acceptance.

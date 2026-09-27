@@ -9,11 +9,23 @@
 #include "gc.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
-#define NANO_DYN_ARRAY_ABI_VERSION 1u
+#define NANO_DYN_ARRAY_ABI_VERSION 2u
 /* I attach the compiled layout version to each array-bearing foreign export. */
 #define NANO_EXPORT_ARRAY_ABI(function) \
     __attribute__((visibility("default"))) const uint32_t function##__nano_array_abi = NANO_DYN_ARRAY_ABI_VERSION
+
+/* I bind each generated static provider to its own carrier declaration. */
+typedef struct {
+    void *function;
+    uint32_t version;
+} NanoLocalArrayAbi;
+#define NANO_DECLARE_LOCAL_ARRAY_ABI(function) \
+    static const NanoLocalArrayAbi function##__nano_local_array_storage = \
+        {(void *)(function), NANO_DYN_ARRAY_ABI_VERSION}; \
+    static const NanoLocalArrayAbi *const function##__nano_local_array_abi __attribute__((unused)) = \
+        &function##__nano_local_array_storage
 
 /* Element type enum (matches nanolang Value types) */
 typedef enum {
@@ -32,7 +44,7 @@ typedef struct {
     int64_t length;        /* Current number of elements */
     int64_t capacity;      /* Allocated capacity */
     ElementType elem_type; /* Element type */
-    uint8_t elem_size;     /* Size of each element in bytes */
+    size_t elem_size;      /* I retain the complete native record width. */
     void* data;            /* Element storage */
 } DynArray;
 
@@ -48,8 +60,8 @@ static inline bool dyn_array_has_storage(const DynArray *array, ElementType type
 /* I return NULL when construction or cloning cannot allocate representable
  * storage. Growth, reserve and first struct insertion abort on allocation or
  * capacity overflow: those APIs cannot report failure, and callers must not
- * continue writing into old storage. Struct width is currently 1..255 bytes
- * in this native ABI. Cloning copies flat record bytes, not owned child graphs. */
+ * continue writing into old storage. ABI2 retains a size_t struct width and
+ * checks its storage product. Cloning copies flat bytes, not owned child graphs. */
 /* Create new empty dynamic array */
 DynArray* dyn_array_new(ElementType elem_type);
 

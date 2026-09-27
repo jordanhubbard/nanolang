@@ -1,0 +1,82 @@
+{
+  "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/bin/python3.9": {
+    "sha256": "8e598855de9a6648bc670d5fe7a3a653f1fa967b74373ed7c4ca16fbc40c0de1",
+    "bytes": 102352,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/8e598855de9a6648bc670d5fe7a3a653f1fa967b74373ed7c4ca16fbc40c0de1"
+  },
+  "/opt/homebrew/Cellar/git/2.55.0/bin/git": {
+    "sha256": "5f0351f649aa1321345229d5256fc8043517778b134a3b4571ecdc3818f124b2",
+    "bytes": 3703376,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/5f0351f649aa1321345229d5256fc8043517778b134a3b4571ecdc3818f124b2"
+  },
+  "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23": {
+    "sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+    "bytes": 138440,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888"
+  },
+  "/opt/homebrew/Cellar/llvm/23.1.1/bin/llc": {
+    "sha256": "4fd8ad1455079339d7b80472270ca2741a3fb220073c8c0375fd6e21ce0312c3",
+    "bytes": 208272,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/4fd8ad1455079339d7b80472270ca2741a3fb220073c8c0375fd6e21ce0312c3"
+  },
+  "/opt/homebrew/Cellar/llvm/23.1.1/bin/lli": {
+    "sha256": "3713fbccc454b5f8bfbaf97861f1abcb9365ce50fd6fe9744794f2573ecc1258",
+    "bytes": 221984,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/3713fbccc454b5f8bfbaf97861f1abcb9365ce50fd6fe9744794f2573ecc1258"
+  },
+  "/opt/homebrew/Cellar/llvm/23.1.1/bin/opt": {
+    "sha256": "b6e4989e63e73eb18f03a2e9d77503ed2313e00a59d1c6a71ad188c331e2e33b",
+    "bytes": 309232,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/b6e4989e63e73eb18f03a2e9d77503ed2313e00a59d1c6a71ad188c331e2e33b"
+  },
+  "/opt/homebrew/Cellar/openssl@3/3.6.4/include/openssl/sha.h": {
+    "sha256": "7e006accd6565cc97dee672c097acc5e38482be7cd4fa1e0c316bf466425b895",
+    "bytes": 4404,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/7e006accd6565cc97dee672c097acc5e38482be7cd4fa1e0c316bf466425b895"
+  },
+  "/opt/homebrew/Cellar/openssl@3/3.6.4/lib/libcrypto.3.dylib": {
+    "sha256": "bae675614cd791d37ec35416ea9f87edcc85407d020810504cf458119b63522c",
+    "bytes": 4872736,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/bae675614cd791d37ec35416ea9f87edcc85407d020810504cf458119b63522c"
+  },
+  "/opt/homebrew/Cellar/pkgconf/3.0.7/bin/pkgconf": {
+    "sha256": "39b6b8b701470ebf31a24972bc1fafc7da54a5c32215d972fdadaf21c7cfa91b",
+    "bytes": 74768,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/39b6b8b701470ebf31a24972bc1fafc7da54a5c32215d972fdadaf21c7cfa91b"
+  },
+  "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14": {
+    "sha256": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634",
+    "bytes": 34640,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634"
+  },
+  "/opt/homebrew/bin/brew": {
+    "sha256": "c9a27029eb72dab04f4595041f7670bb03b4cb467297abba817883afb23e0bf3",
+    "bytes": 9158,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/c9a27029eb72dab04f4595041f7670bb03b4cb467297abba817883afb23e0bf3"
+  },
+  "/usr/bin/ar": {
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+    "bytes": 118640,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "/usr/bin/clang": {
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+    "bytes": 118640,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "/usr/bin/ld": {
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+    "bytes": 118640,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "/usr/bin/make": {
+    "sha256": "b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9",
+    "bytes": 118640,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/b8763cf250e607a778bb4603cecb5b90338814d0a3dfcba0d57b1de242f610e9"
+  },
+  "/usr/bin/perl": {
+    "sha256": "53bce3db7e095b596fa42626b55edc63e3388d7afecf45a0b1ecc5211721c812",
+    "bytes": 101648,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/53bce3db7e095b596fa42626b55edc63e3388d7afecf45a0b1ecc5211721c812"
+  }
+}

@@ -1,4 +1,8 @@
 """I retain synchronous admission controls; host callbacks are modeled explicitly."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import os
 from pathlib import Path
 import shlex
@@ -25,7 +29,7 @@ class OrdinaryAdmission(unittest.TestCase):
         self.store.mkdir()
         self.work.mkdir()
         self.index = 0
-        self.env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+        self.env = dict(os.environ, ASAN_OPTIONS=asan_options("halt_on_error=1"),
                         UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1', LSAN_OPTIONS='', NANO_VM_TRACE='0')
         cc = shlex.split(os.environ.get('ORDINARY_ADMISSION_CC', 'cc'))
         self.assertTrue(cc)

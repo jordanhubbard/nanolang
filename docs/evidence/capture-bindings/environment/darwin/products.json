@@ -1,0 +1,122 @@
+{
+  "apple": {
+    "sha256": "28a99c40b47f6ddaaf9476908b9d43fa4ea33b99bff450680c5d2171244e6d33",
+    "bytes": 79704,
+    "mode": 493
+  },
+  "apple-storage": {
+    "sha256": "92002e8dfb5b7604a0e01aa629e39750590c0860e940ec06ffc8ef556ac23f8e",
+    "bytes": 79696,
+    "mode": 493
+  },
+  "apple-storage.dSYM/Contents/Info.plist": {
+    "sha256": "6c22df9c7e4a3482d1e71bd01bc558aa9a36e647911d8c5015a0e7248e021942",
+    "bytes": 642,
+    "mode": 420
+  },
+  "apple-storage.dSYM/Contents/Resources/DWARF/apple-storage": {
+    "sha256": "60b5c76c9d27d469c34732d8b36f07604040d53d2b78d810945b450ce2ea9cea",
+    "bytes": 99860,
+    "mode": 420
+  },
+  "apple-storage.dSYM/Contents/Resources/Relocations/aarch64/apple-storage.yml": {
+    "sha256": "417520a8fc2c5928ca103c378f8ea1b72cc3ce480a4dd488ea4f885add202dec",
+    "bytes": 187,
+    "mode": 420
+  },
+  "apple.dSYM/Contents/Info.plist": {
+    "sha256": "be3613c2291f26bbc050c5add82874b3a996909a67cc319c1f0c122f039f1213",
+    "bytes": 634,
+    "mode": 420
+  },
+  "apple.dSYM/Contents/Resources/DWARF/apple": {
+    "sha256": "f170425ec92455e38dbeac946649dcbae24e08c3cdcd3716ff2d163b68b230ee",
+    "bytes": 98256,
+    "mode": 420
+  },
+  "apple.dSYM/Contents/Resources/Relocations/aarch64/apple.yml": {
+    "sha256": "9eadd9bd160bbc6b058f8812294c97e6fa8295cfb8f0fd8db0ee20cca86785d1",
+    "bytes": 179,
+    "mode": 420
+  },
+  "brew": {
+    "sha256": "977780c63bbb94d05690549909500dcf88dbc63d11459840f352db51dad84223",
+    "bytes": 79032,
+    "mode": 493
+  },
+  "brew-sanitized": {
+    "sha256": "89e08d08f64dd193db403bc91468e24f2ef67a3aab6df6441149377d41550b07",
+    "bytes": 419392,
+    "mode": 493
+  },
+  "brew-sanitized-storage": {
+    "sha256": "b1dfe07e93b1dfb290ab2bf9067244e9697c23441bf8f5be9965ca7949098376",
+    "bytes": 364792,
+    "mode": 493
+  },
+  "brew-sanitized-storage.dSYM/Contents/Info.plist": {
+    "sha256": "91e52da236507ef9b6992daf0dbd0af1d85b4bd54fe32e2fe0d6317cd0c0f37b",
+    "bytes": 651,
+    "mode": 420
+  },
+  "brew-sanitized-storage.dSYM/Contents/Resources/DWARF/brew-sanitized-storage": {
+    "sha256": "c77805eeb296c876c692fe35b6a37527848c98d44ab3ebf88022170f4e1953a0",
+    "bytes": 200851,
+    "mode": 420
+  },
+  "brew-sanitized-storage.dSYM/Contents/Resources/Relocations/aarch64/brew-sanitized-storage.yml": {
+    "sha256": "a9411e20a9aa814fe8ce100d5e55cac080533a4fbf2cf168106e6f7f5b9fd51a",
+    "bytes": 196,
+    "mode": 420
+  },
+  "brew-sanitized.dSYM/Contents/Info.plist": {
+    "sha256": "aadd2358469dce374f4d0bd2d1ab0b7271409a8687319fb9c56ae00f36c995e8",
+    "bytes": 643,
+    "mode": 420
+  },
+  "brew-sanitized.dSYM/Contents/Resources/DWARF/brew-sanitized": {
+    "sha256": "2ffbdc634f368def55549d739da07eeaf720a8923e6c043791bff5211b23fb3a",
+    "bytes": 210350,
+    "mode": 420
+  },
+  "brew-sanitized.dSYM/Contents/Resources/Relocations/aarch64/brew-sanitized.yml": {
+    "sha256": "f06d6ad38e8a6085ed7b757814244dea2f658eed97ddc49b87b06e85a384fa6d",
+    "bytes": 188,
+    "mode": 420
+  },
+  "brew-storage": {
+    "sha256": "5d79f4d002a6883bb65b37dab3de7f8788c9dfe866c81979e3ca037901645d25",
+    "bytes": 79008,
+    "mode": 493
+  },
+  "brew-storage.dSYM/Contents/Info.plist": {
+    "sha256": "b8b63ae08fed09e38ce9bf34c681f1f2439fc639f83ce46e88ffff28d827b0c1",
+    "bytes": 641,
+    "mode": 420
+  },
+  "brew-storage.dSYM/Contents/Resources/DWARF/brew-storage": {
+    "sha256": "d87da349dfa0b45b3514767d329fd5af67dea74a382e8406b25e062398ebaeff",
+    "bytes": 103719,
+    "mode": 420
+  },
+  "brew-storage.dSYM/Contents/Resources/Relocations/aarch64/brew-storage.yml": {
+    "sha256": "f74d0d983202583d52714645acde77388634602e13dca59440e386481790ab01",
+    "bytes": 186,
+    "mode": 420
+  },
+  "brew.dSYM/Contents/Info.plist": {
+    "sha256": "ff1a922637f977de7783267af27fc0e1044bb00bc990c119535fa36b366360a8",
+    "bytes": 633,
+    "mode": 420
+  },
+  "brew.dSYM/Contents/Resources/DWARF/brew": {
+    "sha256": "24eae44fd2994dc1b15810e7a9e95f3c3e2d5add475b2dd98a602cdcbb32e25b",
+    "bytes": 105261,
+    "mode": 420
+  },
+  "brew.dSYM/Contents/Resources/Relocations/aarch64/brew.yml": {
+    "sha256": "86a952e14a7c7606e39917d8975f88b5232421a5f24f67836b515b3ca3f7f245",
+    "bytes": 178,
+    "mode": 420
+  }
+}

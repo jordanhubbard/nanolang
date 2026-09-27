@@ -1,0 +1,144 @@
+{
+  "head": "50de86e7570289e3e19d65e6edf76a27c9288308",
+  "host": "sparky",
+  "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+  "scope": "fresh Make build/bootstrap and ordinary provider preparation only; no qualification implied; named tools and phase endpoint products retained",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0018225200474262238,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-record-lists-50de-linux-prepare/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/bin/gcc",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.001505748019553721,
+      "log": {
+        "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+        "bytes": 246,
+        "archive": "/tmp/nanolang-record-lists-50de-linux-prepare/objects/8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/usr/local/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.0318934730021283,
+      "log": {
+        "sha256": "62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131",
+        "bytes": 440,
+        "archive": "/tmp/nanolang-record-lists-50de-linux-prepare/objects/62e5bea8902be656a922bbe91cadd5c65d149c4e8dd9e012601138ea95034131"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.001873993081972003,
+      "log": {
+        "sha256": "d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513",
+        "bytes": 303,
+        "archive": "/tmp/nanolang-record-lists-50de-linux-prepare/objects/d8ccbe3c066e729f6a85e3fafc577e259567ce4490c674ef5fcc99d41ce18513"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "build",
+      "argv": [
+        "make",
+        "-j2",
+        "build",
+        "CC=/bin/gcc",
+        "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+        "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 82.7734068230493,
+      "log": {
+        "sha256": "dd75cc3b0cf4e87ca06c73cf90a2b4bc131eeb5f029b17893277d27c9a38f3fb",
+        "bytes": 29723,
+        "archive": "/tmp/nanolang-record-lists-50de-linux-prepare/objects/dd75cc3b0cf4e87ca06c73cf90a2b4bc131eeb5f029b17893277d27c9a38f3fb"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "bootstrap",
+      "argv": [
+        "make",
+        "-j2",
+        "bootstrap",
+        "CC=/bin/gcc",
+        "NMS_RUNTIME_CLANG=/usr/local/bin/clang",
+        "NMS_RUNTIME_OPT=/usr/local/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13"
+      ],
+      "bound_seconds": 1800,
+      "status": 2,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 48.789049876038916,
+      "log": {
+        "sha256": "9e4ba93ac38d646fad825829bbb531bb04aad025ade5662dc87e6aba763fa4ca",
+        "bytes": 1562,
+        "archive": "/tmp/nanolang-record-lists-50de-linux-prepare/objects/9e4ba93ac38d646fad825829bbb531bb04aad025ade5662dc87e6aba763fa4ca"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}

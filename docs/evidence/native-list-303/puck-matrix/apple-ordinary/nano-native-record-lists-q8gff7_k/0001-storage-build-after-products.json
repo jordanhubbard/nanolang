@@ -1,0 +1,18 @@
+{
+  "native-storage": {
+    "sha256": "b03ba897e6fe91dcbbd776c5f737dc87ab2380ee0dd7f37c54e114b6a84ff154",
+    "bytes": 55648
+  },
+  "native-storage.dSYM/Contents/Info.plist": {
+    "sha256": "665393eaa4443981cadf57323e7c35a7b918e0c2dce322a53f2b8bb49cb96dfe",
+    "bytes": 643
+  },
+  "native-storage.dSYM/Contents/Resources/DWARF/native-storage": {
+    "sha256": "c85e6034c3c3f96c75294e602feda4d5a38a9a0ddb0cb3cf60191ad88a5871bb",
+    "bytes": 18004
+  },
+  "native-storage.dSYM/Contents/Resources/Relocations/aarch64/native-storage.yml": {
+    "sha256": "4233d1ca441f1d0e9d52aa56f183592f596101758f67273e4959622de5d8a8b4",
+    "bytes": 212
+  }
+}

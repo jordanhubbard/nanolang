@@ -1,0 +1,127 @@
+{
+  "histories": [
+    "/run/user/1000/nanolang-llvm-o2-aed76-20260921/reports",
+    "/tmp/nanolang-record-llvm-78042-linux-sanitizers",
+    "/tmp/nanolang-record-llvm-78042-linux-clang-continuation-r2"
+  ],
+  "reports": 148,
+  "objects": 8880,
+  "object_bytes": 4644198741,
+  "references": 29382,
+  "equal_pairs": 16,
+  "pairs": [
+    "reports/clang-sanitizer-native-source-before.json",
+    "reports/clang-sanitizer-native-tools-before.json",
+    "reports/configuration-source-before.json",
+    "reports/configuration-tools-before.json",
+    "nanolang-record-llvm-78042-linux-sanitizers/configuration-source-before.json",
+    "nanolang-record-llvm-78042-linux-sanitizers/configuration-tools-before.json",
+    "nanolang-record-llvm-78042-linux-sanitizers/sanitizer-emission-source-before.json",
+    "nanolang-record-llvm-78042-linux-sanitizers/sanitizer-emission-tools-before.json",
+    "nanolang-record-llvm-78042-linux-sanitizers/sanitizer-native-source-before.json",
+    "nanolang-record-llvm-78042-linux-sanitizers/sanitizer-native-tools-before.json",
+    "nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-emission-source-before.json",
+    "nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-emission-tools-before.json",
+    "nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-native-source-before.json",
+    "nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-native-tools-before.json",
+    "nanolang-record-llvm-78042-linux-clang-continuation-r2/configuration-source-before.json",
+    "nanolang-record-llvm-78042-linux-clang-continuation-r2/configuration-tools-before.json"
+  ],
+  "terminals": [
+    {
+      "path": "reports/clang-sanitizer-native-terminal.json",
+      "bound": 14400,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "reports/configuration-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-llvm-78042-linux-sanitizers/clang-sanitizer-emission-terminal.json",
+      "free_bytes": 1736740864,
+      "launched": false,
+      "reason": "capacity preflight"
+    },
+    {
+      "path": "nanolang-record-llvm-78042-linux-sanitizers/configuration-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-llvm-78042-linux-sanitizers/sanitizer-emission-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-llvm-78042-linux-sanitizers/sanitizer-native-terminal.json",
+      "bound": 14400,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-emission-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-native-terminal.json",
+      "bound": 14400,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": -15,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-llvm-78042-linux-clang-continuation-r2/configuration-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    }
+  ],
+  "scope": "Only the explicitly selected completed histories. No current host-input rehash or full matrix acceptance is inferred; independent final inventory required."
+}

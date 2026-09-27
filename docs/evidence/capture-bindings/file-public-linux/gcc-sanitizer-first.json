@@ -1,0 +1,19 @@
+{
+  "terminal": {
+    "timeout": false,
+    "capacity_refusal": false,
+    "cleanup_errors": [],
+    "returncode": 2,
+    "seconds": 31.00126925704535,
+    "leader_reaped": true,
+    "tracked_remaining": {},
+    "group_gone": true
+  },
+  "source_unchanged": true,
+  "tools_unchanged": true,
+  "products": 179,
+  "source": "b99538d1b",
+  "archive_sha256": "3219340dc40ced18d2e00a6c71be08d19253bcf853007464c74b5e6acb632740",
+  "root": "/home/jkh/nanolang-qualification/capture-file-private-b995-linux-gcc-sanitizers",
+  "scope": "First strict GCC sanitized build stops at RISC-V argument register format warning before tests; no timeout or capacity refusal."
+}

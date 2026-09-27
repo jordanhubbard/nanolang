@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+    "-m",
+    "unittest",
+    "-v",
+    "-f",
+    "tests.test_native_record_lists.NativeRecordLists.test_shared_storage_and_allocation_failures",
+    "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+    "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+  ],
+  "bound": 900,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-303",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 3.717482195002958,
+  "log": {
+    "sha256": "64c621e3bcdb2215c406b1ee014c22265d455ae75e6844e78ae7337623c52b86",
+    "bytes": 847,
+    "archive": "/home/jkh/nanolang-qualification/record-lists-303-linux-matrix/objects/64c621e3bcdb2215c406b1ee014c22265d455ae75e6844e78ae7337623c52b86"
+  },
+  "inputs_equal": true
+}

@@ -1,0 +1,226 @@
+{
+  "scope": "I record static manifest duplication, not an executed link failure.",
+  "source_checkpoint": "1c6f7a5ef",
+  "inputs": {
+    "modules/nanoisa/module.json": "e74f250b5fd3e4937eeff423bc2cc350d6bf30405aa01eb2f5daf98a72fe9a80",
+    "modules/forth_see/module.json": "17c596000bdb834a073612a36a863d8bbd690a8efabe78f86545cff9f2c35630"
+  },
+  "owner": "modules/nanoisa/module.json",
+  "consumer": "modules/forth_see/module.json",
+  "shared_public_sources": [
+    {
+      "forth_relative": "../nanoisa/nanoisa.c",
+      "canonical": "modules/nanoisa/nanoisa.c",
+      "owner_relative": "nanoisa.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/isa.c",
+      "canonical": "src/nanoisa/isa.c",
+      "owner_relative": "../../src/nanoisa/isa.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/passive.c",
+      "canonical": "src/nanoisa/passive.c",
+      "owner_relative": "../../src/nanoisa/passive.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/affine_bytecode.c",
+      "canonical": "src/nanoisa/affine_bytecode.c",
+      "owner_relative": "../../src/nanoisa/affine_bytecode.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/affine_state.c",
+      "canonical": "src/nanoisa/affine_state.c",
+      "owner_relative": "../../src/nanoisa/affine_state.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/mixed_float_proof.c",
+      "canonical": "src/nanoisa/mixed_float_proof.c",
+      "owner_relative": "../../src/nanoisa/mixed_float_proof.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/service_bindings.c",
+      "canonical": "src/nanoisa/service_bindings.c",
+      "owner_relative": "../../src/nanoisa/service_bindings.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/service_bindings_module.c",
+      "canonical": "src/nanoisa/service_bindings_module.c",
+      "owner_relative": "../../src/nanoisa/service_bindings_module.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/service_file_nominal.c",
+      "canonical": "src/nanoisa/service_file_nominal.c",
+      "owner_relative": "../../src/nanoisa/service_file_nominal.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/service_file_nominal_plan.c",
+      "canonical": "src/nanoisa/service_file_nominal_plan.c",
+      "owner_relative": "../../src/nanoisa/service_file_nominal_plan.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/ownership_contracts.c",
+      "canonical": "src/nanoisa/ownership_contracts.c",
+      "owner_relative": "../../src/nanoisa/ownership_contracts.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/retained_layouts.c",
+      "canonical": "src/nanoisa/retained_layouts.c",
+      "owner_relative": "../../src/nanoisa/retained_layouts.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/reference_places.c",
+      "canonical": "src/nanoisa/reference_places.c",
+      "owner_relative": "../../src/nanoisa/reference_places.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/nvm_format.c",
+      "canonical": "src/nanoisa/nvm_format.c",
+      "owner_relative": "../../src/nanoisa/nvm_format.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/nvm_format_v2.c",
+      "canonical": "src/nanoisa/nvm_format_v2.c",
+      "owner_relative": "../../src/nanoisa/nvm_format_v2.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/nvm_v2_cursor.c",
+      "canonical": "src/nanoisa/nvm_v2_cursor.c",
+      "owner_relative": "../../src/nanoisa/nvm_v2_cursor.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/nvm_v2_constants.c",
+      "canonical": "src/nanoisa/nvm_v2_constants.c",
+      "owner_relative": "../../src/nanoisa/nvm_v2_constants.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/nvm_v2_signatures.c",
+      "canonical": "src/nanoisa/nvm_v2_signatures.c",
+      "owner_relative": "../../src/nanoisa/nvm_v2_signatures.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/nvm_v2_layouts.c",
+      "canonical": "src/nanoisa/nvm_v2_layouts.c",
+      "owner_relative": "../../src/nanoisa/nvm_v2_layouts.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/nvm_v2_functions.c",
+      "canonical": "src/nanoisa/nvm_v2_functions.c",
+      "owner_relative": "../../src/nanoisa/nvm_v2_functions.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/nvm_v2_imports.c",
+      "canonical": "src/nanoisa/nvm_v2_imports.c",
+      "owner_relative": "../../src/nanoisa/nvm_v2_imports.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/nvm_v2_module.c",
+      "canonical": "src/nanoisa/nvm_v2_module.c",
+      "owner_relative": "../../src/nanoisa/nvm_v2_module.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/nvm_v2_convert.c",
+      "canonical": "src/nanoisa/nvm_v2_convert.c",
+      "owner_relative": "../../src/nanoisa/nvm_v2_convert.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/local_bindings.c",
+      "canonical": "src/nanoisa/local_bindings.c",
+      "owner_relative": "../../src/nanoisa/local_bindings.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/assembler.c",
+      "canonical": "src/nanoisa/assembler.c",
+      "owner_relative": "../../src/nanoisa/assembler.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/disassembler.c",
+      "canonical": "src/nanoisa/disassembler.c",
+      "owner_relative": "../../src/nanoisa/disassembler.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/verifier.c",
+      "canonical": "src/nanoisa/verifier.c",
+      "owner_relative": "../../src/nanoisa/verifier.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/managed_array_shapes.c",
+      "canonical": "src/nanoisa/managed_array_shapes.c",
+      "owner_relative": "../../src/nanoisa/managed_array_shapes.c"
+    },
+    {
+      "forth_relative": "../../src/nanoisa/verifier_types.c",
+      "canonical": "src/nanoisa/verifier_types.c",
+      "owner_relative": "../../src/nanoisa/verifier_types.c"
+    },
+    {
+      "forth_relative": "../../src/nanovm/vm_decode.c",
+      "canonical": "src/nanovm/vm_decode.c",
+      "owner_relative": "../../src/nanovm/vm_decode.c"
+    },
+    {
+      "forth_relative": "../../src/nanovm/vm_dispatch.c",
+      "canonical": "src/nanovm/vm_dispatch.c",
+      "owner_relative": "../../src/nanovm/vm_dispatch.c"
+    },
+    {
+      "forth_relative": "../../src/nanovm/value.c",
+      "canonical": "src/nanovm/value.c",
+      "owner_relative": "../../src/nanovm/value.c"
+    },
+    {
+      "forth_relative": "../../src/nanovm/heap.c",
+      "canonical": "src/nanovm/heap.c",
+      "owner_relative": "../../src/nanovm/heap.c"
+    },
+    {
+      "forth_relative": "../../src/nanovm/heap_cycles.c",
+      "canonical": "src/nanovm/heap_cycles.c",
+      "owner_relative": "../../src/nanovm/heap_cycles.c"
+    }
+  ],
+  "proposed_forth_c_sources": [
+    "forth_see.c"
+  ],
+  "proposed_forth_shared_c_sources": [
+    "../../src/nsi_file_plan.c",
+    "../nanoisa/nanoisa.c",
+    "../../src/nanoisa/isa.c",
+    "../../src/nanoisa/passive.c",
+    "../../src/nanoisa/affine_bytecode.c",
+    "../../src/nanoisa/affine_state.c",
+    "../../src/nanoisa/mixed_float_proof.c",
+    "../../src/nanoisa/service_bindings.c",
+    "../../src/nanoisa/service_bindings_module.c",
+    "../../src/nanoisa/service_file_nominal.c",
+    "../../src/nanoisa/service_file_nominal_plan.c",
+    "../../src/nanoisa/ownership_contracts.c",
+    "../../src/nanoisa/retained_layouts.c",
+    "../../src/nanoisa/reference_places.c",
+    "../../src/nanoisa/nvm_format.c",
+    "../../src/nanoisa/nvm_format_v2.c",
+    "../../src/nanoisa/nvm_v2_cursor.c",
+    "../../src/nanoisa/nvm_v2_constants.c",
+    "../../src/nanoisa/nvm_v2_signatures.c",
+    "../../src/nanoisa/nvm_v2_layouts.c",
+    "../../src/nanoisa/nvm_v2_functions.c",
+    "../../src/nanoisa/nvm_v2_imports.c",
+    "../../src/nanoisa/nvm_v2_module.c",
+    "../../src/nanoisa/nvm_v2_convert.c",
+    "../../src/nanoisa/local_bindings.c",
+    "../../src/nanoisa/assembler.c",
+    "../../src/nanoisa/disassembler.c",
+    "../../src/nanoisa/verifier.c",
+    "../../src/nanoisa/managed_array_shapes.c",
+    "../../src/nanoisa/verifier_types.c",
+    "../../src/nanovm/vm_decode.c",
+    "../../src/nanovm/vm_dispatch.c",
+    "../../src/nanovm/value.c",
+    "../../src/nanovm/heap.c",
+    "../../src/nanovm/heap_cycles.c"
+  ],
+  "proposed_actual_import": "module \"modules/nanoisa/nanoisa.nano\" as ForthNanoisaProvider",
+  "unchanged_nanoisa_only": [
+    "../../src/nanoisa/file_flow.c"
+  ]
+}

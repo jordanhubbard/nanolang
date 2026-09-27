@@ -1,0 +1,1 @@
+/Users/jkh/nanolang-qualification/byte-array-879-puck/sanitized/source/bin/nano_vm --verify-only /Users/jkh/nanolang-qualification/byte-array-879-puck/sanitized/original-mutation/input.nvm

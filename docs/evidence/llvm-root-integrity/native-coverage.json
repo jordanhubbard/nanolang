@@ -1,0 +1,119 @@
+{
+  "status": "PASS",
+  "sealed_git_pin": "3d4afccb726e18c8b59813c1de1b710e3b56636f",
+  "cases_per_mode_optimization": 73,
+  "configurations": [
+    {
+      "configuration": "linux-gcc",
+      "artifact_report": "nanolang-record-llvm-linux-ordinary-seal/nanolang-record-llvm-78042-linux/ordinary-native-artifacts.json",
+      "optimizations": [
+        "O0",
+        "O2"
+      ],
+      "products": 292,
+      "verified_child_statuses": 2432,
+      "complete_fault_coverages": 146,
+      "fault_workers": 676,
+      "recoveries": 18976,
+      "partial_history_scope": null
+    },
+    {
+      "configuration": "linux-clang",
+      "artifact_report": "nanolang-record-llvm-linux-ordinary-seal/nanolang-record-llvm-78042-linux/clang-ordinary-native-artifacts.json",
+      "optimizations": [
+        "O0",
+        "O2"
+      ],
+      "products": 292,
+      "verified_child_statuses": 2432,
+      "complete_fault_coverages": 146,
+      "fault_workers": 676,
+      "recoveries": 18976,
+      "partial_history_scope": null
+    },
+    {
+      "configuration": "darwin-apple",
+      "artifact_report": "nanolang-record-llvm-darwin-recovery-seal/nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-artifacts.json",
+      "optimizations": [
+        "O0",
+        "O2"
+      ],
+      "products": 292,
+      "verified_child_statuses": 2432,
+      "complete_fault_coverages": 146,
+      "fault_workers": 676,
+      "recoveries": 18976,
+      "partial_history_scope": null
+    },
+    {
+      "configuration": "darwin-homebrew",
+      "artifact_report": "nanolang-record-llvm-darwin-recovery-seal/nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-artifacts.json",
+      "optimizations": [
+        "O0",
+        "O2"
+      ],
+      "products": 292,
+      "verified_child_statuses": 2432,
+      "complete_fault_coverages": 146,
+      "fault_workers": 676,
+      "recoveries": 18976,
+      "partial_history_scope": null
+    },
+    {
+      "configuration": "darwin-homebrew-sanitized",
+      "artifact_report": "nanolang-record-llvm-darwin-recovery-seal/nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-artifacts.json",
+      "optimizations": [
+        "O0",
+        "O2"
+      ],
+      "products": 292,
+      "verified_child_statuses": 2432,
+      "complete_fault_coverages": 146,
+      "fault_workers": 676,
+      "recoveries": 18976,
+      "partial_history_scope": null
+    },
+    {
+      "configuration": "linux-gcc-sanitized",
+      "artifact_report": "nanolang-record-llvm-linux-sanitizer-seal/nanolang-record-llvm-78042-linux-sanitizers/sanitizer-native-artifacts.json",
+      "optimizations": [
+        "O0",
+        "O2"
+      ],
+      "products": 292,
+      "verified_child_statuses": 2432,
+      "complete_fault_coverages": 146,
+      "fault_workers": 676,
+      "recoveries": 18976,
+      "partial_history_scope": null
+    },
+    {
+      "configuration": "linux-clang-sanitized-O0",
+      "artifact_report": "nanolang-record-llvm-linux-sanitizer-seal/nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-native-artifacts.json",
+      "optimizations": [
+        "O0"
+      ],
+      "products": 146,
+      "verified_child_statuses": 1216,
+      "complete_fault_coverages": 73,
+      "fault_workers": 338,
+      "recoveries": 9488,
+      "partial_history_scope": "O0 only from interrupted combined run; partial O2 excluded"
+    },
+    {
+      "configuration": "linux-clang-sanitized-O2",
+      "artifact_report": "nanolang-record-llvm-linux-sanitizer-seal/reports/clang-sanitizer-native-artifacts.json",
+      "optimizations": [
+        "O2"
+      ],
+      "products": 146,
+      "verified_child_statuses": 1216,
+      "complete_fault_coverages": 73,
+      "fault_workers": 338,
+      "recoveries": 9488,
+      "partial_history_scope": null
+    }
+  ],
+  "seconds": 3.39874882705044,
+  "scope": "Seven complete native configurations, with Linux Clang sanitized O0 and O2 independently attributed. Checks actual retained products, compile/link/verifier terminals, invoked executable identity, linked observation success, symbol exclusions and exact contiguous two-mode allocation recovery logs. Startup/emission/Wasm/package, normalized corpus equivalence and fresh current-main integration are separate obligations."
+}

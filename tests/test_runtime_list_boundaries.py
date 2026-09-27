@@ -5,6 +5,11 @@ import subprocess
 import tempfile
 import unittest
 
+try:
+    from tests.native_toolchain import native_cc
+except ModuleNotFoundError:
+    from native_toolchain import native_cc
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -12,8 +17,8 @@ class RuntimeListBoundaries(unittest.TestCase):
     def test_string_copy_failure_and_aliasing(self):
         with tempfile.TemporaryDirectory(prefix="nanolang-string-list-") as directory:
             binary = str(Path(directory) / "test")
-            compile = subprocess.run([
-                "cc", "-std=c99", "-Wall", "-Wextra", "-Werror", "-O2",
+            compile = subprocess.run([*native_cc(),
+                "-std=c99", "-Wall", "-Wextra", "-Werror", "-O2",
                 "-fsanitize=address,undefined", "-fno-sanitize-recover=undefined",
                 str(ROOT / "tests/test_string_list_failure.c"), "-o", binary],
                 text=True, capture_output=True, timeout=30)
@@ -84,8 +89,8 @@ int main(int argc, char **argv) {{
     return 0;
 }}
 ''')
-                    compile = subprocess.run([
-                        "cc", "-std=c99", "-Wall", "-Wextra", "-Werror", "-O2",
+                    compile = subprocess.run([*native_cc(),
+                        "-std=c99", "-Wall", "-Wextra", "-Werror", "-O2",
                         "-fsanitize=undefined", "-fno-sanitize-recover=undefined",
                         "-I", str(ROOT / "src"),
                         str(driver), "-o", str(path / "test")],

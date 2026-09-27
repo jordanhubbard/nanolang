@@ -1,0 +1,131 @@
+mkdir -p obj/build_bootstrap
+[tool] Building module index generator (C)...
+mkdir -p obj/runtime
+mkdir -p obj/eval
+mkdir -p obj/nanoisa
+mkdir -p obj/nanovirt
+mkdir -p obj/nanovm
+/usr/bin/gcc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -fPIC -shared -o bin/nano_as_capture.so src/runtime/assembler_capture.c -lm -lcrypto -lffi -rdynamic -ldl
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/ffi_bindgen.c -o obj/ffi_bindgen.o
+[schema] Generating compiler schema artifacts...
+[schema] Using Python version (bootstrap)...
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/assembler.c -o obj/nanoisa/assembler.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/disassembler.c -o obj/nanoisa/disassembler.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o obj/nanoisa/file_flow.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_catalog.c -o obj/nanoisa/file_source_catalog.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_source_plan.c -o obj/nanoisa/file_source_plan.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/frontend.c -o obj/nanoisa/frontend.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/isa.c -o obj/nanoisa/isa.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/local_bindings.c -o obj/nanoisa/local_bindings.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/mixed_float_proof.c -o obj/nanoisa/mixed_float_proof.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/nanoisa.c -o obj/nanoisa/nanoisa_facade.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o obj/nanoisa/nvm2c.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_shape.c -o obj/nanoisa/nvm2c_shape.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format.c -o obj/nanoisa/nvm_format.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format_v2.c -o obj/nanoisa/nvm_format_v2.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_constants.c -o obj/nanoisa/nvm_v2_constants.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_convert.c -o obj/nanoisa/nvm_v2_convert.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_cursor.c -o obj/nanoisa/nvm_v2_cursor.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_functions.c -o obj/nanoisa/nvm_v2_functions.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_imports.c -o obj/nanoisa/nvm_v2_imports.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_layouts.c -o obj/nanoisa/nvm_v2_layouts.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_module.c -o obj/nanoisa/nvm_v2_module.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_signatures.c -o obj/nanoisa/nvm_v2_signatures.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o obj/nanoisa/ownership_contracts.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/passive.c -o obj/nanoisa/passive.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/reference_places.c -o obj/nanoisa/reference_places.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o obj/nanoisa/retained_layouts.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings.c -o obj/nanoisa/service_bindings.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings_module.c -o obj/nanoisa/service_bindings_module.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal.c -o obj/nanoisa/service_file_nominal.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal_plan.c -o obj/nanoisa/service_file_nominal_plan.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier.c -o obj/nanoisa/verifier.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier_types.c -o obj/nanoisa/verifier_types.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/shadow_runner.c -o obj/nanovirt/shadow_runner.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP  -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/cop_protocol.c -o obj/nanovm/cop_protocol.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/heap.c -o obj/nanovm/heap.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/heap_cycles.c -o obj/nanovm/heap_cycles.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/value.c -o obj/nanovm/value.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_builtins.c -o obj/nanovm/vm_builtins.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_callback.c -o obj/nanovm/vm_callback.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_decode.c -o obj/nanovm/vm_decode.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_dispatch.c -o obj/nanovm/vm_dispatch.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_ffi.c -o obj/nanovm/vm_ffi.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_ffi_arrays.c -o obj/nanovm/vm_ffi_arrays.o
+[modules] Generating module index from manifests...
+Generating module index...
+Found 47 module manifests
+  ✓ sdl_ttf
+  ✓ math_ext
+  ✓ stdio
+  ✓ pybridge_warp
+  ✓ openai
+  ✓ pt2_module
+  ✓ std
+  ✓ sdl_mixer
+  ✓ pybridge_matplotlib
+  ✓ glut
+  ✓ nano_tools
+  ✓ sdl_image
+  ✓ audio_viz
+  ✓ pt2_state
+  ✓ nanoisa
+  ✓ mujoco
+  ✓ curl
+  ✓ ui_widgets
+  ✓ http_server
+  ✓ event
+  ✓ pt2_audio
+  ✓ opengl
+  ✓ sdl_term
+  ✓ stdlib
+  ✓ filesystem
+  ✓ glew
+  ✓ unicode
+  ✓ github
+  ✓ forth_see
+  ✓ pty
+  ✓ proptest
+  ✓ preferences
+  ✓ glfw
+  ✓ ncurses
+  ✓ bullet
+  ✓ readline
+  ✓ nano_eval
+  ✓ sdl
+  ✓ pybridge
+  ✓ nano_highlight
+  ✓ uv
+  ✓ tools
+  ✓ sdl_helpers
+  ✓ vector2d
+  ✓ sqlite
+  ✓ audio_helpers
+  ✓ log
+
+✓ Generated modules/index.json
+  47 modules indexed
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bcp47.c -o obj/bcp47.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bench.c -o obj/bench.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bench_native.c -o obj/bench_native.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/builtins_registry.c -o obj/builtins_registry.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/cJSON.c -o obj/cJSON.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/c_backend.c -o obj/c_backend.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/catalog.c -o obj/catalog.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/channel.c -o obj/channel.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/coroutine.c -o obj/coroutine.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/cps_pass.c -o obj/cps_pass.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/dce_pass.c -o obj/dce_pass.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/diag_id.c -o obj/diag_id.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/docgen.c -o obj/docgen.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/docgen_md.c -o obj/docgen_md.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/dwarf_info.c -o obj/dwarf_info.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/effects.c -o obj/effects.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/emit_typed_ast.c -o obj/emit_typed_ast.o
+/usr/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/env.c -o obj/env.o

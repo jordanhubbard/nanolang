@@ -14,7 +14,7 @@ from "modules/std/process.nano" import spawn, is_running, wait, exec, run, spawn
 from "modules/std/fs.nano" import exists, read, write, append, delete, basename, dirname, mkdir_p
 from "modules/std/env.nano" import get as env_get
 
-struct ModeConfig {
+pub struct ModeConfig {
     name: string,
     binary_prefix: string,
     binary_suffix: string,
@@ -25,7 +25,7 @@ struct ModeConfig {
     runner: string
 }
 
-struct ChildStatus {
+pub struct ChildStatus {
     example_path: string,
     pid: int,
     state: int,
@@ -56,12 +56,12 @@ shadow empty_child {
     assert (== c.state 0)
 }
 
-struct ProcessManager {
+pub struct ProcessManager {
     children: array<ChildStatus>,
     max_children: int
 }
 
-fn pm_new(max: int) -> ProcessManager {
+pub fn pm_new(max: int) -> ProcessManager {
     return ProcessManager { children: [], max_children: max }
 }
 
@@ -91,7 +91,7 @@ shadow pm_shell_quote {
     assert (== (pm_shell_quote "plain") "'plain'")
 }
 
-fn pm_runtime_log_path(example_path: string, pid: int) -> string {
+pub fn pm_runtime_log_path(example_path: string, pid: int) -> string {
     return (+ "/tmp/nanolang-launcher-" (+ (int_to_string pid) (+ "-" (+ (basename example_path) ".log"))))
 }
 
@@ -105,7 +105,7 @@ shadow pm_runtime_log_path {
 # leave a large burst (or the tail of an exiting child) sitting in the pipe.
 # The iteration cap keeps a chatty child from stalling the launcher's frame loop;
 # whatever is left is picked up by the next poll.
-fn pm_drain_fd(fd: int) -> string {
+pub fn pm_drain_fd(fd: int) -> string {
     if (< fd 0) { return "" }
     let mut collected: string = ""
     let mut reads: int = 0
@@ -135,7 +135,7 @@ shadow pm_drain_fd {
 
 # I keep the tail of a capture, because that is where the diagnostic lives.
 # The complete stream always stays on disk in the per-launch log.
-fn pm_tail(text: string, max_chars: int) -> string {
+pub fn pm_tail(text: string, max_chars: int) -> string {
     let tlen: int = (str_length text)
     if (<= tlen max_chars) { return text }
     return (+ "[... I truncated the earlier output; the full stream is in the log file ...]\n"
@@ -151,7 +151,7 @@ shadow pm_tail {
 # I record which examples I already filed so repeated launches of the same
 # broken example do not create duplicate tasks, even across launcher restarts
 # and even when the `mac` CLI is unavailable.
-fn pm_failure_marker_path(example_path: string) -> string {
+pub fn pm_failure_marker_path(example_path: string) -> string {
     return (+ "/tmp/nanolang-launcher-filed-" (+ (basename example_path) ".marker"))
 }
 
@@ -160,7 +160,7 @@ shadow pm_failure_marker_path {
         "/tmp/nanolang-launcher-filed-sdl_pong.nano.marker")
 }
 
-fn pm_output_has_error(output: string) -> bool {
+pub fn pm_output_has_error(output: string) -> bool {
     let lower: string = (str_to_lower output)
     if (str_contains lower "addresssanitizer") { return true }
     if (str_contains lower "segmentation fault") { return true }
@@ -234,7 +234,7 @@ shadow pm_file_failure_task {
     (delete log_path)
 }
 
-fn get_binary_name(example_path: string, mode: ModeConfig) -> string {
+pub fn get_binary_name(example_path: string, mode: ModeConfig) -> string {
     let base: string = (basename example_path)
     let blen: int = (str_length base)
     let mut stem: string = base
@@ -257,7 +257,7 @@ shadow get_binary_name {
     assert (== (get_binary_name "examples/games/sdl_pong.nano" vm_mode) "bin/vm_sdl_pong.nvm")
 }
 
-fn build_example(example_path: string, mode: ModeConfig) -> ChildStatus {
+pub fn build_example(example_path: string, mode: ModeConfig) -> ChildStatus {
     let output: string = (get_binary_name example_path mode)
     if (exists output) {
         return ChildStatus {
@@ -296,7 +296,7 @@ shadow build_example {
     }
 }
 
-fn pm_launch(pm: ProcessManager, example_path: string, mode: ModeConfig, default_args: string) -> ProcessManager {
+pub fn pm_launch(pm: ProcessManager, example_path: string, mode: ModeConfig, default_args: string) -> ProcessManager {
     let binary: string = (get_binary_name example_path mode)
     let mut launch_cmd: string = (+ "./" binary)
     if (> (str_length mode.runner) 0) {
@@ -354,7 +354,7 @@ shadow pm_find_child {
     assert (== (pm_find_child pm "nonexistent") -1)
 }
 
-fn pm_get_pid(pm: ProcessManager, example_path: string) -> int {
+pub fn pm_get_pid(pm: ProcessManager, example_path: string) -> int {
     let idx: int = (pm_find_child pm example_path)
     if (< idx 0) { return 0 }
     let child: ChildStatus = (at pm.children idx)
@@ -366,7 +366,7 @@ shadow pm_get_pid {
     assert (== (pm_get_pid pm "nonexistent") 0)
 }
 
-fn pm_is_running(pm: ProcessManager, example_path: string) -> bool {
+pub fn pm_is_running(pm: ProcessManager, example_path: string) -> bool {
     let idx: int = (pm_find_child pm example_path)
     if (< idx 0) { return false }
     let child: ChildStatus = (at pm.children idx)
@@ -381,7 +381,7 @@ shadow pm_is_running {
     assert (not (pm_is_running pm "nonexistent"))
 }
 
-fn pm_kill(pm: ProcessManager, example_path: string) -> ProcessManager {
+pub fn pm_kill(pm: ProcessManager, example_path: string) -> ProcessManager {
     let idx: int = (pm_find_child pm example_path)
     if (< idx 0) { return pm }
     let child: ChildStatus = (at pm.children idx)
@@ -478,7 +478,7 @@ shadow pm_kill {
     (delete log_path)
 }
 
-fn pm_kill_all(pm: ProcessManager) -> ProcessManager {
+pub fn pm_kill_all(pm: ProcessManager) -> ProcessManager {
     let mut remaining: ProcessManager = pm
     while (> (array_length remaining.children) 0) {
         let child: ChildStatus = (at remaining.children 0)
@@ -492,7 +492,7 @@ shadow pm_kill_all {
     assert (== (array_length (pm_kill_all pm).children) 0)
 }
 
-fn pm_poll(pm: ProcessManager) -> ProcessManager {
+pub fn pm_poll(pm: ProcessManager) -> ProcessManager {
     let mut new_children: array<ChildStatus> = []
     let mut i: int = 0
     while (< i (array_length pm.children)) {
@@ -580,7 +580,7 @@ shadow pm_poll {
     assert (== (array_length pm2.children) 0)
 }
 
-fn pm_running_count(pm: ProcessManager) -> int {
+pub fn pm_running_count(pm: ProcessManager) -> int {
     let mut count: int = 0
     let mut i: int = 0
     while (< i (array_length pm.children)) {
@@ -598,7 +598,7 @@ shadow pm_running_count {
     assert (== (pm_running_count pm) 0)
 }
 
-fn pm_cleanup_exited(pm: ProcessManager) -> ProcessManager {
+pub fn pm_cleanup_exited(pm: ProcessManager) -> ProcessManager {
     let mut new_children: array<ChildStatus> = []
     let mut i: int = 0
     while (< i (array_length pm.children)) {
@@ -617,7 +617,7 @@ shadow pm_cleanup_exited {
     assert (== (array_length pm2.children) 0)
 }
 
-fn parse_mode(mode_str: string) -> ModeConfig {
+pub fn parse_mode(mode_str: string) -> ModeConfig {
     if (== mode_str "stage3") {
         return ModeConfig {
             name: "stage3", binary_prefix: "", binary_suffix: "_stage3",
@@ -654,7 +654,7 @@ shadow parse_mode {
     assert (== m3.binary_prefix "")
 }
 
-fn next_mode(current: ModeConfig) -> ModeConfig {
+pub fn next_mode(current: ModeConfig) -> ModeConfig {
     if (== current.name "stage1") { return (parse_mode "stage3") }
     if (== current.name "stage3") { return (parse_mode "vm") }
     return (parse_mode "stage1")
@@ -670,7 +670,7 @@ shadow next_mode {
     assert (== m4.name "stage1")
 }
 
-fn init_mode() -> ModeConfig {
+pub fn init_mode() -> ModeConfig {
     let mode_str: string = (env_get "NANO_MODE")
     if (== (str_length mode_str) 0) {
         return (parse_mode "stage1")

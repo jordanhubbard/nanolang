@@ -1,0 +1,22 @@
+--- prepare-e456.py
++++ prepare-73b.py
+@@ -17,7 +17,7 @@
+ def snapshot(paths):return {str(p):entry(p) for p in sorted({pathlib.Path(x).resolve() for x in paths},key=str) if p.is_file()}
+ save('capacity-preflight.json',{'free_bytes':shutil.disk_usage(root).free,'minimum_bytes':2147483648})
+ assert shutil.disk_usage(root).free >= 2147483648, 'I require 2 GiB before preparation.'
+-pin=git('rev-parse','HEAD');assert pin=='e456006adf3dcabfce250d105c67656845c187e1'
++pin=git('rev-parse','HEAD');assert pin=='73b61d06f04cf291a1960dc0b3e2b583ffefcb44'
+ assert not git('status','--porcelain','--untracked-files=no')
+ assert not (root/'obj').exists() and not (root/'bin').exists()
+ cc='/usr/bin/clang' if darwin else '/bin/gcc';native='/opt/homebrew/opt/llvm/bin/clang' if darwin else '/bin/gcc'
+--- focused-e456.py
++++ focused-73b.py
+@@ -10,7 +10,7 @@
+   else:d.write_bytes(b)
+  return dict(sha256=h,bytes=len(b),archive=str(d))
+ def snapshot(paths):return {str(p):item(p) for p in sorted({pathlib.Path(x).resolve() for x in paths},key=str)}
+-pin='e456006adf3dcabfce250d105c67656845c187e1'
++pin='73b61d06f04cf291a1960dc0b3e2b583ffefcb44'
+ assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()==pin
+ assert json.loads((prior/'terminal.json').read_text())['status']=='PASS'
+ source=json.loads((prior/'source-initial.json').read_text());prepared=json.loads((prior/'provider-prepare-products-after.json').read_text());tools=json.loads((prior/'tools-initial.json').read_text())

@@ -1,0 +1,121 @@
+[
+  {
+    "argv": [
+      "/bin/gcc",
+      "-std=c99",
+      "-I/home/jkh/Src/nanolang-record-lists-qualified-303/src",
+      "-I/home/jkh/Src/nanolang-record-lists-qualified-303/modules/std",
+      "-I/home/jkh/Src/nanolang-record-lists-qualified-303/modules/std/collections",
+      "-I/home/jkh/Src/nanolang-record-lists-qualified-303/modules/std/json",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Wno-error=unused-function",
+      "-c",
+      "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/old.c",
+      "-o",
+      "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/gcc-old.o"
+    ],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-303",
+    "timeout_seconds": 60,
+    "status": 0,
+    "timeout": false,
+    "reaped": true,
+    "group_gone": true,
+    "seconds": 0.11388254398480058,
+    "stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "archive": "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "sha256": "29a29fa2fb19956b4645afae7b4f8bd5b410b2a659d2dec3c09f20cd7dd01ac0",
+      "bytes": 10217,
+      "archive": "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/objects/29a29fa2fb19956b4645afae7b4f8bd5b410b2a659d2dec3c09f20cd7dd01ac0"
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/nm",
+      "-u",
+      "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/gcc-old.o"
+    ],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-303",
+    "timeout_seconds": 60,
+    "status": 0,
+    "timeout": false,
+    "reaped": true,
+    "group_gone": true,
+    "seconds": 0.01594091800507158,
+    "stdout": {
+      "sha256": "4317c86aaa87ad14f2165176a0126b5575a8766bba7acfeb595ce5369d99ad0c",
+      "bytes": 2502,
+      "archive": "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/objects/4317c86aaa87ad14f2165176a0126b5575a8766bba7acfeb595ce5369d99ad0c"
+    },
+    "stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "archive": "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "argv": [
+      "/bin/gcc",
+      "-std=c99",
+      "-I/home/jkh/Src/nanolang-record-lists-qualified-303/src",
+      "-I/home/jkh/Src/nanolang-record-lists-qualified-303/modules/std",
+      "-I/home/jkh/Src/nanolang-record-lists-qualified-303/modules/std/collections",
+      "-I/home/jkh/Src/nanolang-record-lists-qualified-303/modules/std/json",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-c",
+      "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/new.c",
+      "-o",
+      "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/gcc-new.o"
+    ],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-303",
+    "timeout_seconds": 60,
+    "status": 0,
+    "timeout": false,
+    "reaped": true,
+    "group_gone": true,
+    "seconds": 0.11407747399061918,
+    "stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "archive": "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "archive": "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "argv": [
+      "/usr/bin/nm",
+      "-u",
+      "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/gcc-new.o"
+    ],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-303",
+    "timeout_seconds": 60,
+    "status": 0,
+    "timeout": false,
+    "reaped": true,
+    "group_gone": true,
+    "seconds": 0.01552256103605032,
+    "stdout": {
+      "sha256": "4317c86aaa87ad14f2165176a0126b5575a8766bba7acfeb595ce5369d99ad0c",
+      "bytes": 2502,
+      "archive": "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/objects/4317c86aaa87ad14f2165176a0126b5575a8766bba7acfeb595ce5369d99ad0c"
+    },
+    "stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "archive": "/home/jkh/nanolang-qualification/native-helper-833-linux-objects/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+]

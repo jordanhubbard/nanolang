@@ -1,0 +1,37 @@
+{
+  "head": "82c30f5ccf6ee95ec0bf70e05bca1ad6c25007ed",
+  "merge": "c2c813c291d28f9cfc5c58807ffae5bff84f5833",
+  "archive": "/home/jkh/nanolang-qualification/pr948-third-hosted/archives-continuation/sanitizer-providers-units-01.zip",
+  "archive_sha256": "38c5d5bea755e269d5b22ae312269c37ffb38cd4454bf393873ba539372baf46",
+  "tool": "/usr/local/bin/llvm-nm",
+  "tool_sha256": "38a98f50a5472c1fe442d8b831f8ef21a86795b0b695b12bff85b9f18b104ac8",
+  "products": [
+    {
+      "member": "bin/nanoc_c",
+      "sha256": "84dd498f5876745b1525030ccb3b856a2c0354d7a11e829486d16ae8dc0a9912",
+      "bytes": 67278944,
+      "asan": true,
+      "ubsan": true,
+      "status": 0,
+      "symbol_report_sha256": "a6c4f6322f5a3b4daab62f2154b8ae523604cd229a2b8ecfe6192529fa40a986"
+    },
+    {
+      "member": "bin/nanoc_stage1",
+      "sha256": "371345346fceeb3c6207f6eb7aab768532e9f47a15bdc21fe1d767098f1e18b1",
+      "bytes": 16694744,
+      "asan": false,
+      "ubsan": false,
+      "status": 0,
+      "symbol_report_sha256": "9a9593a53bd13d07951c701728562bf95ffa1232836d5a22eb1586e53d8f09ca"
+    },
+    {
+      "member": "bin/nanoc_stage2",
+      "sha256": "ee946ab2800b5de62499b6b97d712ef8ab67dcbbeb9418e7d96ca6c2e097bff6",
+      "bytes": 11341216,
+      "asan": false,
+      "ubsan": false,
+      "status": 0,
+      "symbol_report_sha256": "ca5aea9a0a6ca2e21f175c8a9e02f4a20b5a9e414f2d4b5d5882a4418c91758f"
+    }
+  ]
+}

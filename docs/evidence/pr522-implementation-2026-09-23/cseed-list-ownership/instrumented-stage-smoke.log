@@ -1,0 +1,50 @@
+Hello from NanoLang!
+
+=================================================================
+==17759==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 1025 byte(s) in 1 object(s) allocated from:
+    #0 0x00010659140c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001065712b8 in realpath+0xb4 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x352b8)
+    #2 0x000104c01fdc in path_canonical+0x4c (pr522-list-final-stage1:arm64+0x10024dfdc)
+    #3 0x0001049dc84c in std_fs__canonical+0x1c (pr522-list-final-stage1:arm64+0x10002884c)
+    #4 0x0001049bbc30 in nl_native_product_tool nanoc_v06.nano:1823
+    #5 0x0001049b82e0 in nl_compile_program nanoc_v06.nano:2223
+    #6 0x0001049b60f0 in nl_main nanoc_v06.nano:2388
+    #7 0x0001049b60f0 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 1025 byte(s) in 1 object(s) allocated from:
+    #0 0x00010659140c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001065712b8 in realpath+0xb4 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x352b8)
+    #2 0x000104c01fdc in path_canonical+0x4c (pr522-list-final-stage1:arm64+0x10024dfdc)
+    #3 0x0001049dc84c in std_fs__canonical+0x1c (pr522-list-final-stage1:arm64+0x10002884c)
+    #4 0x0001049bbc30 in nl_native_product_tool nanoc_v06.nano:1823
+    #5 0x0001049b84d8 in nl_compile_program nanoc_v06.nano:2246
+    #6 0x0001049b60f0 in nl_main nanoc_v06.nano:2388
+    #7 0x0001049b60f0 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 1025 byte(s) in 1 object(s) allocated from:
+    #0 0x00010659140c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001065712b8 in realpath+0xb4 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x352b8)
+    #2 0x000104c01fdc in path_canonical+0x4c (pr522-list-final-stage1:arm64+0x10024dfdc)
+    #3 0x0001049dc84c in std_fs__canonical+0x1c (pr522-list-final-stage1:arm64+0x10002884c)
+    #4 0x0001049bbc30 in nl_native_product_tool nanoc_v06.nano:1823
+    #5 0x0001049b85bc in nl_compile_program nanoc_v06.nano:2256
+    #6 0x0001049b60f0 in nl_main nanoc_v06.nano:2388
+    #7 0x0001049b60f0 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+Direct leak of 1025 byte(s) in 1 object(s) allocated from:
+    #0 0x00010659140c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)
+    #1 0x0001065712b8 in realpath+0xb4 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x352b8)
+    #2 0x000104c01fdc in path_canonical+0x4c (pr522-list-final-stage1:arm64+0x10024dfdc)
+    #3 0x0001049dc84c in std_fs__canonical+0x1c (pr522-list-final-stage1:arm64+0x10002884c)
+    #4 0x0001049b6804 in nl_merge_with_imports nanoc_v06.nano:1514
+    #5 0x0001049b6804 in nl_compile_program nanoc_v06.nano:2003
+    #6 0x0001049b60f0 in nl_main nanoc_v06.nano:2388
+    #7 0x0001049b60f0 in main nanoc_v06.nano:2401
+    #8 0x0001874e44e0 in start+0x1b4c (dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: 4100 byte(s) leaked in 4 allocation(s).

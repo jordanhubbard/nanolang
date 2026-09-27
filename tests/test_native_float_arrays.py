@@ -127,7 +127,7 @@ shadow main { assert (== (main) 0) }
                 self.checked([ROOT/'bin/nano_vm','--verify-only',module])
                 self.checked([ROOT/'bin/nano_vm',module])
                 self.checked([ROOT/'bin/nvm2c',module,'-o',generated])
-                self.checked([os.environ.get('CC','cc'),'-std=c11','-O2','-Wall','-Wextra','-Werror',
+                self.checked([*array_reads.native_compiler(),'-std=c11','-O2','-Wall','-Wextra','-Werror',
                               '-fsanitize=address,undefined','-fno-sanitize-recover=all',generated,'-lm','-o',binary])
                 self.checked([binary])
             for declaration in ('let xs: array<float> = [1]', 'let xs: array<int> = [1.5]',

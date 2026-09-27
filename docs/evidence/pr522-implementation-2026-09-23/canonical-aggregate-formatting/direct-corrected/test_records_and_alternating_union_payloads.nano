@@ -1,0 +1,18 @@
+enum Mode { Quiet = 3, Loud = 7 }
+struct Point { number: int, label: string, mode: Mode, values: array<float> }
+union Choice { Some { value: Point }, Text { value: string }, Empty {} }
+fn render(value: Choice) -> string { return (to_string value) }
+shadow render { assert (== (render Choice.Empty {}) "Choice.Empty") }
+fn main() -> int {
+ let point: Point = Point { number: 7, label: "saved", mode: Mode.Loud, values: [2.0, -1.5] }
+ let mut choice: Choice = Choice.Some { value: point }
+ let saved: string = (render choice)
+ set choice Choice.Text { value: "new" }
+ assert (== (render choice) "Choice.Text { value: new }")
+ assert (== saved "Choice.Some { value: Point { number: 7, label: saved, mode: Mode.Loud, values: [2.0, -1.5] } }")
+ set choice Choice.Empty {}
+ assert (== (cast_string choice) "Choice.Empty")
+ assert (== (to_string Mode.Loud) "7")
+ return 0
+}
+shadow main { assert (== (main) 0) }

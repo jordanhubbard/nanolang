@@ -1,0 +1,14 @@
+{
+  "pin": "25b5a77ee203d2e356964f686aecaa1ab4e01c0b",
+  "host": "linux",
+  "environment": {
+    "TMPDIR": "/tmp/nanolang-native-sdk-25b5a-linux-extern/tmp",
+    "CC": "/usr/bin/gcc",
+    "NANO_CC": "/usr/bin/gcc",
+    "NANOLANG_SDK_ROOT": "/tmp/nanolang-native-sdk-25b5a-linux-source",
+    "NANO_SHADOW_TIMING": null,
+    "NANO_SHADOW_TIMEOUT_SECONDS": null,
+    "NANO_SDK_MIN_FREE_BYTES": "2147483648"
+  },
+  "scope": "actual included extern checker controls with fully verified retained ordinary providers excluding main/typechecker; no compiler execution"
+}

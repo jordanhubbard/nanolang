@@ -1,0 +1,11 @@
+[
+  {
+    "command": [
+      "/tmp/nanolang-record-literal-source-order/bin/nanoc_stage1",
+      "tests/nanovirt/fixtures/tuple_array_literal_written_order.nano",
+      "-o",
+      "/tmp/nano-byte-array-stage1-first-rj1wxcgu/program"
+    ],
+    "returncode": 1
+  }
+]

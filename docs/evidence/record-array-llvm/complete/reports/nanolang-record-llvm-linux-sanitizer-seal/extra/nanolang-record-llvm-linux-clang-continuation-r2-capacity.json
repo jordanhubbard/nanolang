@@ -1,0 +1,23 @@
+{
+  "started": 1789996454.0270362,
+  "threshold_bytes": 1610612736,
+  "state": "capacity_stop",
+  "capacity_stop": true,
+  "driver_pid": 3336227,
+  "command": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14 /tmp/nanolang-record-llvm-78042-driver.py /tmp/nanolang-record-llvm-qualified-78042 /tmp/nanolang-record-llvm-78042-linux-clang-continuation-r2",
+  "children": {
+    "3336731": {
+      "parent": 3336227,
+      "group": 3336731,
+      "command": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14 -m unittest -f -v tests.test_record_array_llvm.RecordArrayLLVM.test_02_native_corpus"
+    }
+  },
+  "signals": [
+    {
+      "group": 3336731,
+      "signal": "SIGTERM"
+    }
+  ],
+  "minimum_free_bytes": 1425457152,
+  "finished": 1789997388.4671452
+}

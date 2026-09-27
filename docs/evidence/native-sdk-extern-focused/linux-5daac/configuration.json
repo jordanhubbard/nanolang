@@ -1,0 +1,14 @@
+{
+  "pin": "5daac37cf",
+  "host": "linux",
+  "environment": {
+    "TMPDIR": "/tmp/nanolang-native-sdk-5daac-linux-extern/tmp",
+    "CC": "/usr/bin/gcc",
+    "NANO_CC": "/usr/bin/gcc",
+    "NANOLANG_SDK_ROOT": "/tmp/nanolang-native-sdk-5daac-linux-source",
+    "NANO_SHADOW_TIMING": null,
+    "NANO_SHADOW_TIMEOUT_SECONDS": null,
+    "NANO_SDK_MIN_FREE_BYTES": "2147483648"
+  },
+  "scope": "actual included extern checker controls with fully verified retained ordinary providers excluding main/typechecker; no compiler execution"
+}

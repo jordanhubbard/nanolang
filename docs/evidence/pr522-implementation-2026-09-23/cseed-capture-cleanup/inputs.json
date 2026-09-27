@@ -1,0 +1,15 @@
+{
+  "source_sha256": {
+    "src/transpiler.c": "22504fba982af2a3e1fe111607031a9e2c4ded34adc9e4ffb435e502499e823a",
+    "src/runtime/cseed_capture.h": "fbbdf23d072519d76257732f36c598043b7f64799d0769176ed20e669efa34fc",
+    "tests/test_cseed_capture.py": "47b1c8cd7231a6251a3400417bbf3796a1f83187ff352baf76988c3d568c52bd",
+    "Makefile.gnu": "641cf187b35f484bbfc8f3b512cc688bc9884385790dc01299f3aea680b761cd"
+  },
+  "log_sha256": {
+    "instrumented-stage-smoke.log": "173472917948ce64fd397e501f25771f3e44a493a7fd2bd48eb1bf87427a39a7",
+    "transpiler-gate.log": "d330aaa4d3f7e834efbb05501d10d84035cee11cb52ebbfc18b6938ecf456c0f",
+    "instrumented-stage-build.log": "11c1bee87438b8744707ee4b03577aee63d1d59b3a9ddb06c7b8eb58a9d01a48",
+    "capture-tests.log": "e70fc770e242905a0a5f3c556adb2d0a4b10d0df97d4b61c5b6461d311a4a687",
+    "seed-build.log": "84c189e59955d8971765b150026c281842a5825ff2815237b4a55b762818df2d"
+  }
+}

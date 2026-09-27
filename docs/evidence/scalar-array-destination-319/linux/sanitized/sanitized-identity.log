@@ -1,0 +1,530 @@
+I require one declared union variant without a spread source
+I require one declared union variant without a spread source
+I require one declared union variant without a spread source
+I cannot resolve a qualified type in this source: alias.Box.Value
+I cannot allocate module-owned record identities
+I cannot resolve a qualified type in this source: alias.Box.Value
+I cannot allocate module-owned record identities
+I cannot resolve a qualified type in this source: unknown.Box.Value
+I cannot allocate module-owned record identities
+Error at line 1, column 37: Expected field name, variant name, or tuple index after '.'
+Error at line 1, column 37: Unexpected token in expression: DOT (type=18)
+Error at line 1, column 41: Expected field name, variant name, or tuple index after '.'
+Error at line 1, column 53: Expected '}' at end of struct literal (got EOF)
+Error at line 1, column 46: Expected '}' after struct literal fields (got EOF)
+Warning at line 1, column 101: Unused variable 'a'
+Warning at line 1, column 101: Unused variable 'a'
+Warning: Function 'bytes' is missing a shadow test
+Warning at line 1, column 86: Unused variable 'a'
+Warning: Function 'take' is missing a shadow test
+Warning at line 1, column 86: Unused variable 'a'
+Warning: Function 'take' is missing a shadow test
+Warning at line 1, column 132: Unused variable 'h'
+Warning at line 1, column 129: Unused variable 'h'
+Warning at line 1, column 101: Unused variable 'a'
+Warning at line 1, column 101: Unused variable 'a'
+Warning at line 1, column 129: Unused variable 'a'
+Warning at line 1, column 101: Unused variable 'a'
+Warning at line 1, column 115: Unused variable 'a'
+Warning at line 1, column 182: Unused variable 'x'
+Warning at line 1, column 248: Unused variable 'y'
+Warning at line 1, column 123: Unused variable 'b'
+Warning: Function 'make' is missing a shadow test
+Warning at line 1, column 179: Unused variable 'a'
+Error at line 1, column 153: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 153: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 131: Unused variable 'bytes'
+Error at line 1, column 138: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 138: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 170: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 170: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 131: Unused variable 'bytes'
+Error at line 1, column 145: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 145: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning: Function 'bytes' is missing a shadow test
+Warning at line 1, column 86: Unused variable 'a'
+Warning: Function 'take' is missing a shadow test
+Error at line 1, column 180: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 180: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 86: Unused variable 'a'
+Warning: Function 'take' is missing a shadow test
+Error at line 1, column 209: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 209: I require the declared argument type for this function value.
+Hint: Match every original nominal owner.
+Error at line 1, column 190: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 190: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 177: I require each record array field to match its complete declared element types.
+Hint: Keep every nested element and existing array in its declared type.
+Error at line 1, column 190: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 190: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 177: I require each record array field to match its complete declared element types.
+Hint: Keep every nested element and existing array in its declared type.
+Warning at line 1, column 162: Unused variable 'h'
+Error at line 1, column 197: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 182: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 182: I require each union field exactly once with a complete concrete destination.
+Hint: Preserve the declared variant, generic arguments and every payload field identity.
+Warning at line 1, column 159: Unused variable 'h'
+Error at line 1, column 157: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 156: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 131: Unused variable 'a'
+Error at line 1, column 161: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 150: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 131: Unused variable 'a'
+Error at line 1, column 214: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 148: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 129: Unused variable 'a'
+Error at line 1, column 122: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 119: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 119: Array elements must all have the same type (expected int, got bool).
+Hint: Use consistent element types or convert values.
+Error at line 1, column 119: I require checked byte-array members and literals from 0 through 255.
+Hint: Use a byte or computed integer; keep direct literals in range.
+Warning at line 1, column 101: Unused variable 'a'
+Error at line 1, column 122: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 119: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 119: I require checked byte-array members and literals from 0 through 255.
+Hint: Use a byte or computed integer; keep direct literals in range.
+Warning at line 1, column 101: Unused variable 'a'
+Error at line 1, column 122: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 119: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 119: I require checked byte-array members and literals from 0 through 255.
+Hint: Use a byte or computed integer; keep direct literals in range.
+Warning at line 1, column 101: Unused variable 'a'
+Error at line 1, column 120: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 119: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 119: I require checked byte-array members and literals from 0 through 255.
+Hint: Use a byte or computed integer; keep direct literals in range.
+Warning at line 1, column 101: Unused variable 'a'
+Error at line 1, column 158: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 152: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 132: Unused variable 'a'
+Error at line 1, column 119: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 119: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 101: Unused variable 'a'
+Warning: Function 'make' is missing a shadow test
+Error at line 1, column 199: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 199: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 181: Unused variable 'a'
+Warning: Function 'id' is missing a shadow test
+Error at line 1, column 147: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 147: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Warning at line 1, column 129: Unused variable 'a'
+Error at line 0, column 0: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 33: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 1, column 33: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+I cannot register this owned extern declaration: at
+Warning: Function 'at' is missing a shadow test
+I cannot register this owned extern declaration: array_push
+Warning: Function 'array_push' is missing a shadow test
+Error at line 0, column 0: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 0, column 0: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 0, column 0: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 0, column 0: I require this array value to preserve its complete destination representation.
+Hint: Use matching existing arrays, or checked literal members in the declared destination.
+Error at line 0, column 0: I require the retained nominal declaration and every substituted argument owner.
+Hint: Preserve the selected payload variant and complete nested annotation.
+Error at line 0, column 0: I require the destination's owner-aware callable signature.
+Hint: Preserve all parameter and return declarations.
+Error at line 0, column 0: I require the declared owner-aware callable value.
+Hint: Preserve complete signature metadata.
+Warning at line 2, column 1: Unused variable 'values'
+Error at line 0, column 0: I require every tuple child's complete declared annotation and owner.
+Hint: Preserve nested callable and container facts at this destination.
+Error at line 0, column 0: I cannot publish a tuple binding without its complete child annotations.
+Hint: Preserve the parsed destination or the checked inferred tuple proof.
+Error at line 1, column 49: Expected type annotation
+Error at line 1, column 49: Unexpected token in expression: GT (type=66)
+Error at line 1, column 50: Unexpected token in expression: DOT (type=18)
+Error at line 1, column 49: Expected type annotation
+Error at line 1, column 49: Unexpected token in expression: DOT (type=18)
+Warning at line 2, column 20: Unused variable 'box'
+I require one declared union variant without a spread source
+I cannot allocate module-owned record identities
+Error at line 2, column 39: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 2, column 20: Unused variable 'box'
+Warning at line 2, column 20: Unused variable 'box'
+Error at line 2, column 39: Unknown variant 'Missing' in union 'Box'.
+Hint: Available variants: Value
+Warning at line 2, column 20: Unused variable 'box'
+Error at line 2, column 39: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 2, column 20: Unused variable 'box'
+Warning at line 1, column 20: Unused variable 'box'
+I require one declared union variant without a spread source
+I cannot allocate module-owned record identities
+Error at line 1, column 39: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 20: Unused variable 'box'
+Warning at line 1, column 20: Unused variable 'box'
+Error at line 1, column 39: Unknown variant 'Missing' in union 'Box'.
+Hint: Available variants: Value
+Warning at line 1, column 20: Unused variable 'box'
+Error at line 1, column 39: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 20: Unused variable 'box'
+Warning at line 1, column 116: Unused variable 'box'
+Warning at line 1, column 204: Unused variable 'box'
+Warning at line 1, column 116: Unused variable 'box'
+Error at line 1, column 223: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 204: Unused variable 'box'
+Warning at line 1, column 116: Unused variable 'box'
+Error at line 1, column 223: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 204: Unused variable 'box'
+Warning at line 1, column 116: Unused variable 'box'
+Warning at line 1, column 204: Unused variable 'box'
+Warning at line 1, column 116: Unused variable 'box'
+Error at line 1, column 213: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 204: Unused variable 'box'
+Warning at line 1, column 116: Unused variable 'box'
+Error at line 1, column 213: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 204: Unused variable 'box'
+Warning at line 1, column 116: Unused variable 'box'
+Warning at line 1, column 204: Unused variable 'box'
+Warning at line 1, column 116: Unused variable 'box'
+Error at line 1, column 285: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 204: Unused variable 'box'
+Warning at line 1, column 116: Unused variable 'box'
+Error at line 1, column 285: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 204: Unused variable 'box'
+Warning at line 1, column 116: Unused variable 'box'
+Warning at line 1, column 116: Unused variable 'box'
+Error at line 1, column 220: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 116: Unused variable 'box'
+Error at line 1, column 220: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 116: Unused variable 'box'
+Warning at line 1, column 116: Unused variable 'box'
+Error at line 1, column 217: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 116: Unused variable 'box'
+Error at line 1, column 217: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 116: Unused variable 'box'
+Warning at line 1, column 204: Unused variable 'holder'
+Warning at line 1, column 116: Unused variable 'box'
+Error at line 1, column 234: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 234: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 204: Unused variable 'holder'
+Warning at line 1, column 116: Unused variable 'box'
+Error at line 1, column 234: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 234: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 204: Unused variable 'holder'
+Error at line 1, column 123: I require every declared union field exactly once.
+Hint: Use distinct field names from this variant.
+Warning at line 1, column 104: Unused variable 'box'
+Error at line 1, column 123: Variant 'Value' expects 2 field(s), got 1.
+Hint: Provide all required fields for the variant.
+Warning at line 1, column 104: Unused variable 'box'
+Error at line 1, column 123: I require every declared union field exactly once.
+Hint: Use distinct field names from this variant.
+Warning at line 1, column 104: Unused variable 'box'
+Error at line 1, column 123: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 104: Unused variable 'box'
+Warning at line 1, column 73: Unused variable 'box'
+Warning at line 1, column 72: Unused variable 'box'
+Warning at line 1, column 73: Unused variable 'box'
+Error at line 1, column 83: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 84: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 75: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 85: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 76: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 72: Unused variable 'box'
+Warning at line 1, column 71: Unused variable 'box'
+Warning at line 1, column 72: Unused variable 'box'
+Error at line 1, column 82: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 73: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 83: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 84: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 75: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 73: Unused variable 'box'
+Warning at line 1, column 72: Unused variable 'box'
+Warning at line 1, column 73: Unused variable 'box'
+Error at line 1, column 83: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 84: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 75: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 85: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 76: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 83: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 82: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 73: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 83: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 75: Unused variable 'box'
+Error at line 1, column 85: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 76: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 86: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 77: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 84: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 75: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 83: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 84: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 75: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 85: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 76: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 77: Unused variable 'box'
+Error at line 1, column 87: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 78: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 85: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 76: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 84: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 75: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 85: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 76: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 86: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 77: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Error at line 1, column 87: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 78: Unused variable 'box'
+Error at line 0, column 0: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 79: Unused variable 'box'
+Warning at line 1, column 74: Unused variable 'box'
+Warning at line 1, column 73: Unused variable 'box'
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 1, column 84: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 75: Unused variable 'box'
+Error at line 1, column 85: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 76: Unused variable 'box'
+Error at line 1, column 86: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 77: Unused variable 'box'
+Warning at line 1, column 74: Unused variable 'box'
+Warning at line 1, column 73: Unused variable 'box'
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 1, column 84: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 75: Unused variable 'box'
+Error at line 1, column 85: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 76: Unused variable 'box'
+Error at line 1, column 86: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 77: Unused variable 'box'
+Warning at line 1, column 74: Unused variable 'box'
+Warning at line 1, column 73: Unused variable 'box'
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 1, column 84: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 75: Unused variable 'box'
+Error at line 1, column 85: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 76: Unused variable 'box'
+Error at line 1, column 86: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 77: Unused variable 'box'
+Error at line 1, column 83: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 1, column 82: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 73: Unused variable 'box'
+Error at line 1, column 83: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 74: Unused variable 'box'
+Warning at line 1, column 75: Unused variable 'box'
+Error at line 1, column 85: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 76: Unused variable 'box'
+Error at line 1, column 86: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 77: Unused variable 'box'
+Error at line 1, column 83: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 1, column 82: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 73: Unused variable 'box'
+Error at line 1, column 83: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 1, column 84: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 75: Unused variable 'box'
+Warning at line 1, column 76: Unused variable 'box'
+Error at line 1, column 86: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 77: Unused variable 'box'
+Error at line 1, column 83: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 1, column 82: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 73: Unused variable 'box'
+Error at line 1, column 83: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 74: Unused variable 'box'
+Error at line 1, column 84: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 75: Unused variable 'box'
+Error at line 1, column 85: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 76: Unused variable 'box'
+Warning at line 1, column 77: Unused variable 'box'
+Warning at line 1, column 19: Unused variable 'value'
+Warning at line 1, column 80: Unused variable 'value'
+Warning at line 1, column 56: Unused variable 'box'
+Warning at line 1, column 30: Unused variable 'value'
+Warning at line 1, column 56: Unused variable 'box'
+Error at line 1, column 65: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 30: Unused variable 'value'
+Warning at line 1, column 56: Unused variable 'box'
+Error at line 1, column 65: I require the union payload value to match its complete concrete destination.
+Hint: Preserve the actual type and every fixed or substituted declaration owner.
+Warning at line 1, column 30: Unused variable 'value'
+Warning at line 1, column 56: Unused variable 'box'
+Warning at line 3, column 20: Unused variable 'box'
+Error at line 3, column 75: Return type mismatch: got bool, expected int.
+Hint: Ensure the returned value matches the function's declared return type.
+Warning at line 3, column 20: Unused variable 'box'
+Error at line 1, column 44: Return type mismatch: got bool, expected int.
+Hint: Ensure the returned value matches the function's declared return type.
+Warning at line 1, column 18: Unused variable 'pair'
+Warning at line 1, column 18: Unused variable 'pair'
+Error at line 1, column 44: Return type mismatch: got bool, expected int.
+Hint: Ensure the returned value matches the function's declared return type.
+Warning at line 1, column 18: Unused variable 'pair'
+Warning at line 1, column 18: Unused variable 'pair'
+Error at line 1, column 69: Assert condition must be bool
+Error at line 1, column 69: Assert condition must be bool
+-- E024 UNDEFINED VARIABLE -------------- native-cache.nano
+I cannot find a variable named `missing`.
+
+Hint: Check spelling or ensure the variable is in scope.
+I checked exact union constructor ownership and both allocation prefixes.
+I checked actual builtin objects and owner-bound array declaration obligations.

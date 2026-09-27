@@ -1,0 +1,191 @@
+[
+  {
+    "argv": [
+      "/bin/gcc",
+      "-print-file-name=libasan.so"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-a448",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.025362272979691625,
+    "log": {
+      "sha256": "86004312733f99d1ebc00026d51e415f7850be77559236ce81317fa437989265",
+      "bytes": 45,
+      "archive": "/tmp/nanolang-record-lists-a448-linux-matrix/objects/86004312733f99d1ebc00026d51e415f7850be77559236ce81317fa437989265"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/bin/gcc",
+      "-print-file-name=libubsan.so"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-a448",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.025713509996421635,
+    "log": {
+      "sha256": "3dadcc080d9079d4e80bc487ccd7b25878c1e94b3352b04cc01c258fd88f26f3",
+      "bytes": 46,
+      "archive": "/tmp/nanolang-record-lists-a448-linux-matrix/objects/3dadcc080d9079d4e80bc487ccd7b25878c1e94b3352b04cc01c258fd88f26f3"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/bin/gcc",
+      "-print-prog-name=cc1"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-a448",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.031269868020899594,
+    "log": {
+      "sha256": "64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f",
+      "bytes": 42,
+      "archive": "/tmp/nanolang-record-lists-a448-linux-matrix/objects/64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/bin/gcc",
+      "-print-prog-name=collect2"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-a448",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.03352456900756806,
+    "log": {
+      "sha256": "4b4b15d1de92fb69e39e13f15facb69e1a978a9b802ebfdda8231a16cebd55e1",
+      "bytes": 47,
+      "archive": "/tmp/nanolang-record-lists-a448-linux-matrix/objects/4b4b15d1de92fb69e39e13f15facb69e1a978a9b802ebfdda8231a16cebd55e1"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan.so"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-a448",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.03613468201365322,
+    "log": {
+      "sha256": "53147373a517c86bd659d958715d0a91f29963030e2f539b5b626a0ab0d302c3",
+      "bytes": 74,
+      "archive": "/tmp/nanolang-record-lists-a448-linux-matrix/objects/53147373a517c86bd659d958715d0a91f29963030e2f539b5b626a0ab0d302c3"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan.a"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-a448",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.03244727500714362,
+    "log": {
+      "sha256": "731b76cb47024d752310ac6ca0303ec0927c180e47b6ad81b54246f562a41425",
+      "bytes": 73,
+      "archive": "/tmp/nanolang-record-lists-a448-linux-matrix/objects/731b76cb47024d752310ac6ca0303ec0927c180e47b6ad81b54246f562a41425"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.asan-preinit.a"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-a448",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.03523750195745379,
+    "log": {
+      "sha256": "7c718250b1f5f4fd163e697869ca0d21ad6a8f5d6d5d8546ac4a84a7c575b87e",
+      "bytes": 81,
+      "archive": "/tmp/nanolang-record-lists-a448-linux-matrix/objects/7c718250b1f5f4fd163e697869ca0d21ad6a8f5d6d5d8546ac4a84a7c575b87e"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/usr/local/bin/clang",
+      "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+      "-print-file-name=libclang_rt.ubsan_standalone.a"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-a448",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.03652223804965615,
+    "log": {
+      "sha256": "190c89fa892958c08f74e7e4b03ecec3e9324653fadb5cc5a72f19df46a155ec",
+      "bytes": 85,
+      "archive": "/tmp/nanolang-record-lists-a448-linux-matrix/objects/190c89fa892958c08f74e7e4b03ecec3e9324653fadb5cc5a72f19df46a155ec"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+      "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+    ],
+    "bound": 900,
+    "status": 1,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-a448",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 2.2129913000389934,
+    "log": {
+      "sha256": "78f60ea019e18435d70a5bc89965b42886d12029ff4c51066c91a36dee4b25c6",
+      "bytes": 5419,
+      "archive": "/tmp/nanolang-record-lists-a448-linux-matrix/objects/78f60ea019e18435d70a5bc89965b42886d12029ff4c51066c91a36dee4b25c6"
+    },
+    "inputs_equal": true
+  }
+]

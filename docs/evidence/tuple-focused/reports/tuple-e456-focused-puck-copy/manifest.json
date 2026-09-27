@@ -1,0 +1,74 @@
+[
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-isysroot",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+      "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+    ],
+    "bound": 30,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/Users/jkh/nanolang-qualification/tuple-e456-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 0.060117999999999894,
+    "log": {
+      "sha256": "3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc",
+      "bytes": 92,
+      "archive": "/Users/jkh/nanolang-qualification/tuple-e456-focused/objects/3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+      "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+    ],
+    "bound": 900,
+    "status": 0,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/Users/jkh/nanolang-qualification/tuple-e456-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 7.260224999999999,
+    "log": {
+      "sha256": "840080e26551ff7d15df65cd4152b31ed3efbe27966f8adf7ebc90836aad8aa7",
+      "bytes": 448,
+      "archive": "/Users/jkh/nanolang-qualification/tuple-e456-focused/objects/840080e26551ff7d15df65cd4152b31ed3efbe27966f8adf7ebc90836aad8aa7"
+    },
+    "inputs_equal": true
+  },
+  {
+    "argv": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "-m",
+      "unittest",
+      "-v",
+      "-f",
+      "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+      "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+    ],
+    "bound": 900,
+    "status": 1,
+    "timeout": false,
+    "cleanup": [],
+    "cwd": "/Users/jkh/nanolang-qualification/tuple-e456-source",
+    "reaped": true,
+    "remaining_groups": [],
+    "seconds": 7.418314209,
+    "log": {
+      "sha256": "e47a24e64569feb756e683d75729e5603685ed3f6b9c4e60ef57f8520469fa87",
+      "bytes": 9550,
+      "archive": "/Users/jkh/nanolang-qualification/tuple-e456-focused/objects/e47a24e64569feb756e683d75729e5603685ed3f6b9c4e60ef57f8520469fa87"
+    },
+    "inputs_equal": true
+  }
+]

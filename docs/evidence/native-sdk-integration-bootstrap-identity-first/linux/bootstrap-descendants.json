@@ -1,0 +1,24 @@
+{
+  "owned": {
+    "3587732": {
+      "parent": 3528021,
+      "group": 3587732,
+      "started": "Mon Sep 21 20:42:57 2026",
+      "command": "make -j2 CC=/usr/bin/gcc bootstrap"
+    },
+    "3587762": {
+      "parent": 3587732,
+      "group": 3587732,
+      "started": "Mon Sep 21 20:42:57 2026",
+      "command": "bash -e -o pipefail -c if [ -f src_nano/nanoc_v06.nano ]; then \\ ?NANO_MODULE_PATH=modules NANO_BUILD_CACHE=/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/module_cache perl -e 'alarm 600; exec @ARGV; die \"I cannot execute the requested command: $!\\n\"' bin/nanoc_c src_nano/nanoc_v06.nano -o bin/nanoc_stage1 && \\ ?echo \"\u2713 Stage 1 compiler created: bin/nanoc_stage1\" && \\ ?echo \"\" && \\ ?echo \"Testing stage 1 compiler...\" && \\ ?if perl -e 'alarm 600; exec @ARGV; die \"I cannot execute the requested command: $!\\n\"' bin/nanoc_stage1 examples/language/nl_hello.nano -o /tmp/nanolang-native-sdk-1bf6a-linux-preparation/tmp/bootstrap_test && perl -e 'alarm 600; exec @ARGV; die \"I cannot execute the requested command: $!\\n\"' /tmp/nanolang-native-sdk-1bf6a-linux-preparation/tmp/bootstrap_test >/dev/null 2>&1; then \\ ??echo \"\u2713 Stage 1 compiler works!\"; \\ ??touch .bootstrap1.built; \\ ?else \\ ??echo \"\u274c Stage 1 compiler test failed\"; \\ ??exit 1; \\ ?fi; \\ else \\ ?echo \"\u274c Error: src_nano/nanoc_v06.nano not found!\"; \\ ?exit 1; \\ fi"
+    },
+    "3587763": {
+      "parent": 3587762,
+      "group": 3587732,
+      "started": "Mon Sep 21 20:42:57 2026",
+      "command": "bin/nanoc_c src_nano/nanoc_v06.nano -o bin/nanoc_stage1"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

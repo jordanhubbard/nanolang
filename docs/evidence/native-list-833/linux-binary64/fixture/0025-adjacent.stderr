@@ -1,0 +1,4 @@
+In file included from /home/jkh/nanolang-qualification/record-lists-833-linux-binary64/fixture/temporary/nano-binary64-arithmetic-ub2j5wfe/guard.c:4:
+/home/jkh/Src/nanolang-record-lists-qualified-833/src/binary64_arithmetic.h:12:2: error: #error "I require binary64 double arithmetic."
+   12 | #error "I require binary64 double arithmetic."
+      |  ^~~~~

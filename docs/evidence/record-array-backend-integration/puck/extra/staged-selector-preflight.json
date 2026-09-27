@@ -1,0 +1,16 @@
+{
+  "tools": {
+    "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang": "e8887481e0df8922f520032f377b524b30d18adb5bb4fbae60c8a5797affcbb5",
+    "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/wasmtime43": "130b4a32cecb619d52aefedda39c6733f00ee7460bbe8748f99eac72143c980c",
+    "/opt/homebrew/bin/node": "28f0fc07e2b86fc0eae5f9751f34ab14d63bd0132882f89cc4a5b4a44965592e",
+    "/opt/homebrew/bin/python3": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634",
+    "/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi/ffi.h": "cfc632aa9411334f99e14681008b2db105bc52b834f31b4d714d4326deac3a85"
+  },
+  "sdk": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+  "c_baseline": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/temporary/nano-record-array-generated-7fsct6x6/corpus",
+  "orchestration": {
+    "nanolang-record-backend-integration-driver.py": "2be05af0e6f1e9fbd5326df14e0c2fd6d57d430bc2572c60a0e6091d7e886969",
+    "nanolang-backend-integration-launch.py": "6e648e10c65b8a7f64b2787528ee0ca0813bbc63e1b27254723ec40f81c817c4",
+    "nanolang-record-package-retain.py": "652678513b52abafb1b492b578bf7f9937d76df814da62abfe0f77c3519f061f"
+  }
+}

@@ -121,5 +121,5 @@ fn unused() -> array<array<float>> { return (unsupported) }
 shadow unused { let values: array<array<float>> = (unused) }
 '''
         refusal = self.emit(source, expected=1)
-        self.assertIn("I cannot lower shadow unused at merged line", refusal.stdout)
+        self.assertIn("unsupported extern result or symbol unsupported", refusal.stdout)
         self.execute(self.emit(source, 1).stdout)

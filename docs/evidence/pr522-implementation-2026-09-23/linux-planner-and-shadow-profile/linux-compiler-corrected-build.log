@@ -1,0 +1,3 @@
+cc -Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer  -MMD -MP -c src/env.c -o /work/san/obj/env.o
+Stage 1: Building C reference compiler...
+✓ C Compiler: /work/san/bin/nanoc_c

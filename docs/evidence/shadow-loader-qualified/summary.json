@@ -1,0 +1,209 @@
+{
+  "production": "2039eb6b3",
+  "observable_callback_fixture": "bafadf615",
+  "full_compiler_and_bootstrap": "pending candidate integration; not executed here",
+  "archives": {
+    "2039-linux-reports.tar.gz": {
+      "sha256": "9be96dc8e6f74ab089956be0e8b85502c6a53317ebabe1789f861382ae702284",
+      "terminal": {
+        "status": 0,
+        "scope": "exact catalog and borrowed zero/one/two string VM/COP/native plus refusal/allocation, prepared-loader and original SDK probe controls, both actual shadow-fork failures and complete callback-shadow suite with constructor/thread child placement; full real-provider compiler prerequisite and original full typecheck remain separate"
+      },
+      "tools_unchanged": true,
+      "phases": [
+        {
+          "label": "fresh-providers",
+          "seconds": 14.595804927055724,
+          "returncode": 0
+        },
+        {
+          "label": "fork-failure-controls",
+          "seconds": 0.6454442730173469,
+          "returncode": 0
+        },
+        {
+          "label": "exact-contracts",
+          "seconds": 1.0764498120406643,
+          "returncode": 0
+        },
+        {
+          "label": "borrowed-string-controls",
+          "seconds": 1.2897959080291912,
+          "returncode": 0
+        },
+        {
+          "label": "loader-admission-controls",
+          "seconds": 0.64947044395376,
+          "returncode": 0
+        },
+        {
+          "label": "callback-and-interpreter-shadows",
+          "seconds": 9.426304658991285,
+          "returncode": 0
+        },
+        {
+          "label": "fresh-providers",
+          "seconds": 36.11722521297634,
+          "returncode": 0
+        },
+        {
+          "label": "fork-failure-controls",
+          "seconds": 1.5086031649261713,
+          "returncode": 0
+        },
+        {
+          "label": "exact-contracts",
+          "seconds": 2.7915031700395048,
+          "returncode": 0
+        },
+        {
+          "label": "borrowed-string-controls",
+          "seconds": 2.7886449890211225,
+          "returncode": 0
+        },
+        {
+          "label": "loader-admission-controls",
+          "seconds": 1.0726869100471959,
+          "returncode": 0
+        },
+        {
+          "label": "callback-and-interpreter-shadows",
+          "seconds": 15.424356702016667,
+          "returncode": 0
+        }
+      ],
+      "linked_provider_bytes_and_original_links_unchanged": true
+    },
+    "2039-puck-reports.tar.gz": {
+      "sha256": "c384c79eb704dba1c6decad9daf1d66c4ba2dfb376e9434203770f652a74568e",
+      "terminal": {
+        "status": 0,
+        "scope": "exact catalog and borrowed zero/one/two string VM/COP/native plus refusal/allocation, prepared-loader and original SDK probe controls, both actual shadow-fork failures and complete callback-shadow suite with constructor/thread child placement; full real-provider compiler prerequisite and original full typecheck remain separate"
+      },
+      "tools_unchanged": true,
+      "phases": [
+        {
+          "label": "fresh-providers",
+          "seconds": 10.296024082999999,
+          "returncode": 0
+        },
+        {
+          "label": "fork-failure-controls",
+          "seconds": 0.9448860840000002,
+          "returncode": 0
+        },
+        {
+          "label": "exact-contracts",
+          "seconds": 1.6435495000000007,
+          "returncode": 0
+        },
+        {
+          "label": "borrowed-string-controls",
+          "seconds": 2.635228458000002,
+          "returncode": 0
+        },
+        {
+          "label": "loader-admission-controls",
+          "seconds": 1.2051723340000002,
+          "returncode": 0
+        },
+        {
+          "label": "callback-and-interpreter-shadows",
+          "seconds": 8.329362916000001,
+          "returncode": 0
+        },
+        {
+          "label": "fresh-providers",
+          "seconds": 19.111577417,
+          "returncode": 0
+        },
+        {
+          "label": "fork-failure-controls",
+          "seconds": 1.3860339589999953,
+          "returncode": 0
+        },
+        {
+          "label": "exact-contracts",
+          "seconds": 23.253548957999996,
+          "returncode": 0
+        },
+        {
+          "label": "borrowed-string-controls",
+          "seconds": 5.326636041,
+          "returncode": 0
+        },
+        {
+          "label": "loader-admission-controls",
+          "seconds": 3.2366770419999966,
+          "returncode": 0
+        },
+        {
+          "label": "callback-and-interpreter-shadows",
+          "seconds": 20.22917341600001,
+          "returncode": 0
+        }
+      ],
+      "linked_provider_bytes_and_original_links_unchanged": true
+    },
+    "bafa-linux-first-setup.tar.gz": {
+      "sha256": "cbd4953010fe88110690da1254c8251615a02357d90d27afc6f1988a2431107f",
+      "terminal": {
+        "status": 1,
+        "error": "AssertionError()"
+      },
+      "tools_unchanged": true,
+      "scope": "setup only: copytree dereferenced cache links; no product invocation"
+    },
+    "bafa-linux-reports.tar.gz": {
+      "sha256": "c262dcafff91f30d581daf057a3c3acd8f9c32e38609f93956ab6ccccc799a11",
+      "terminal": {
+        "status": 0,
+        "scope": "complete six-method callback suite with observable sanitizer refusals and retained compiler streams; independently copied and hash-verified2039 products; full original typecheck separate"
+      },
+      "tools_unchanged": true,
+      "phases": [
+        {
+          "label": "callback-and-interpreter-shadows",
+          "seconds": 10.094955255044624,
+          "returncode": 0
+        },
+        {
+          "label": "callback-and-interpreter-shadows",
+          "seconds": 17.144931687042117,
+          "returncode": 0
+        }
+      ],
+      "linked_provider_bytes_and_original_links_unchanged": true
+    },
+    "bafa-puck-first-setup.tar.gz": {
+      "sha256": "7777607497b9c3c5d8fc00f0b380aeea8db26fce20cb43098435c6ea58db30bf",
+      "terminal": {
+        "status": 1,
+        "error": "AssertionError()"
+      },
+      "tools_unchanged": true,
+      "scope": "setup only: copytree dereferenced cache links; no product invocation"
+    },
+    "bafa-puck-reports.tar.gz": {
+      "sha256": "d9c6a74556565c11f4e69c683caeac9360d6b2ce162063d5a4144c1e498eced7",
+      "terminal": {
+        "status": 0,
+        "scope": "complete six-method callback suite with observable sanitizer refusals and retained compiler streams; independently copied and hash-verified2039 products; full original typecheck separate"
+      },
+      "tools_unchanged": true,
+      "phases": [
+        {
+          "label": "callback-and-interpreter-shadows",
+          "seconds": 10.011834834,
+          "returncode": 0
+        },
+        {
+          "label": "callback-and-interpreter-shadows",
+          "seconds": 22.23316525,
+          "returncode": 0
+        }
+      ],
+      "linked_provider_bytes_and_original_links_unchanged": true
+    }
+  }
+}

@@ -3,8 +3,8 @@ module "modules/dispatch/dispatch.nano" as dispatch
 
 fn run_callbacks() -> int {
     let mut state: array<int> = [0]
-    let q: NlQueue = (dispatch.queue_concurrent "nano.vm.callbacks")
-    let inner: NlQueue = (dispatch.queue_serial "nano.vm.inner")
+    let q: dispatch.NlQueue = (dispatch.queue_concurrent "nano.vm.callbacks")
+    let inner: dispatch.NlQueue = (dispatch.queue_serial "nano.vm.inner")
     (dispatch.queue_sync q fn() -> void {
         (dispatch.queue_sync inner fn() -> void {
             (array_set state 0 (+ (at state 0) 1))
@@ -12,7 +12,7 @@ fn run_callbacks() -> int {
     })
     assert (== (at state 0) 1)
     (dispatch.queue_destroy inner)
-    let group: NlQueueGroup = (dispatch.group_create)
+    let group: dispatch.NlQueueGroup = (dispatch.group_create)
     for i in (range 0 16) {
         (dispatch.group_async group q fn() -> void {
             (array_set state 0 (+ (at state 0) 1))

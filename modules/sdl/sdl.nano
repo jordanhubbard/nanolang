@@ -49,15 +49,15 @@ let SDL_GL_CONTEXT_PROFILE_CORE: int = 1
 let SDL_GL_CONTEXT_PROFILE_COMPATIBILITY: int = 2
 
 # SDL2 Core Functions
-extern fn SDL_Init(_flags: int) -> int
-extern fn SDL_Quit() -> void
-extern fn SDL_GetError() -> string
-extern fn SDL_GetTicks() -> int
-extern fn SDL_Delay(_ms: int) -> void
+pub extern fn SDL_Init(_flags: int) -> int
+pub extern fn SDL_Quit() -> void
+pub extern fn SDL_GetError() -> string
+pub extern fn SDL_GetTicks() -> int
+pub extern fn SDL_Delay(_ms: int) -> void
 
 # SDL2 Window Functions
-extern fn SDL_CreateWindow(_title: string, _x: int, _y: int, _w: int, _h: int, _flags: int) -> SDL_Window
-extern fn SDL_DestroyWindow(_window: SDL_Window) -> void
+pub extern fn SDL_CreateWindow(_title: string, _x: int, _y: int, _w: int, _h: int, _flags: int) -> SDL_Window
+pub extern fn SDL_DestroyWindow(_window: SDL_Window) -> void
 extern fn SDL_SetWindowTitle(_window: SDL_Window, _title: string) -> void
 extern fn SDL_SetWindowSize(_window: SDL_Window, _w: int, _h: int) -> void
 extern fn SDL_GetWindowSize(_window: SDL_Window, _w_ptr: int, _h_ptr: int) -> void
@@ -71,31 +71,31 @@ extern fn SDL_GL_SwapWindow(_window: SDL_Window) -> void
 extern fn SDL_GL_DeleteContext(_context: SDL_GLContext) -> void
 
 # SDL2 Renderer Functions  
-extern fn SDL_CreateRenderer(_window: SDL_Window, _index: int, _flags: int) -> SDL_Renderer
-extern fn SDL_DestroyRenderer(_renderer: SDL_Renderer) -> void
-extern fn SDL_RenderClear(_renderer: SDL_Renderer) -> int
-extern fn SDL_RenderPresent(_renderer: SDL_Renderer) -> void
+pub extern fn SDL_CreateRenderer(_window: SDL_Window, _index: int, _flags: int) -> SDL_Renderer
+pub extern fn SDL_DestroyRenderer(_renderer: SDL_Renderer) -> void
+pub extern fn SDL_RenderClear(_renderer: SDL_Renderer) -> int
+pub extern fn SDL_RenderPresent(_renderer: SDL_Renderer) -> void
 extern fn SDL_RenderSetLogicalSize(_renderer: SDL_Renderer, _w: int, _h: int) -> int
 extern fn SDL_RenderSetScale(_renderer: SDL_Renderer, _scale_x: float, _scale_y: float) -> int
-extern fn SDL_SetRenderDrawColor(_renderer: SDL_Renderer, _r: int, _g: int, _b: int, _a: int) -> int
+pub extern fn SDL_SetRenderDrawColor(_renderer: SDL_Renderer, _r: int, _g: int, _b: int, _a: int) -> int
 extern fn SDL_RenderFillRect(_renderer: SDL_Renderer, _rect_ptr: int) -> int
-extern fn SDL_RenderDrawPoint(_renderer: SDL_Renderer, _x: int, _y: int) -> int
-extern fn SDL_RenderDrawLine(_renderer: SDL_Renderer, _x1: int, _y1: int, _x2: int, _y2: int) -> int
+pub extern fn SDL_RenderDrawPoint(_renderer: SDL_Renderer, _x: int, _y: int) -> int
+pub extern fn SDL_RenderDrawLine(_renderer: SDL_Renderer, _x1: int, _y1: int, _x2: int, _y2: int) -> int
 extern fn SDL_RenderDrawRect(_renderer: SDL_Renderer, _rect_ptr: int) -> int
 extern fn SDL_SetRenderDrawBlendMode(_renderer: SDL_Renderer, _mode: int) -> int
 extern fn SDL_RenderCopy(_renderer: SDL_Renderer, _texture: SDL_Texture, _srcrect: int, _dstrect: int) -> int
-extern fn SDL_CreateTexture(_renderer: SDL_Renderer, _format: int, _access: int, _w: int, _h: int) -> SDL_Texture
+pub extern fn SDL_CreateTexture(_renderer: SDL_Renderer, _format: int, _access: int, _w: int, _h: int) -> SDL_Texture
 extern fn SDL_UpdateTexture(_texture: SDL_Texture, _rect: int, _pixels: int, _pitch: int) -> int
 extern fn SDL_SetTextureBlendMode(_texture: SDL_Texture, _mode: int) -> int
 extern fn SDL_SetTextureAlphaMod(_texture: SDL_Texture, _alpha: int) -> int
 extern fn SDL_QueryTexture(_texture: SDL_Texture, _format: int, _access: int, _w: int, _h: int) -> int
 extern fn SDL_CreateTextureFromSurface(_renderer: SDL_Renderer, _surface: SDL_Surface) -> SDL_Texture
-extern fn SDL_DestroyTexture(_texture: SDL_Texture) -> void
+pub extern fn SDL_DestroyTexture(_texture: SDL_Texture) -> void
 extern fn SDL_FreeSurface(_surface: SDL_Surface) -> void
 
 # SDL2 Event Functions
 extern fn SDL_PollEvent(_event_ptr: int) -> int
-extern fn SDL_EventState(_type: int, _state: int) -> int
+pub extern fn SDL_EventState(_type: int, _state: int) -> int
 
 # SDL2 Hints
 extern fn SDL_SetHint(_name: string, _value: string) -> int

@@ -1,0 +1,11 @@
+{
+  "parent": "51df58a97954095d03dce50f1553d51cfd207f79",
+  "sha256": {
+    "src/nanoisa/ownership_contracts.h": "d8f0a5d9b9c1591e0d4efd330a26c5d69f67d2b0afd23e17b23b68735df70dc2",
+    "src/nanoisa/ownership_contracts.c": "345bd9f551cca72de2a26608f9af0c1f887eb08743f96d8e00782638bd797258",
+    "src/nanoisa/affine_bytecode.c": "26593a3ca0b11839ab648a46da7acae685485d76de7084638a513c465741bdcb",
+    "src/nanoisa/verifier.c": "6a34c8b70f9d9ba1dd41681043744d6804900f82b861bccad1f53c09bff42c5d",
+    "tests/nanoisa/test_owned_scalar_global_contracts.c": "94d5d640ff368c29cb0103d3159074134c6bc687ae292c3f5f129233bd58192b",
+    "Makefile.gnu": "ea1a0378ac901b9d5c82e367f7b4f2988227020e4bd3ce41bbfbf8c0df4d3902"
+  }
+}

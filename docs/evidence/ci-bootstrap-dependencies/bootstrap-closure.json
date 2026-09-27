@@ -1,0 +1,454 @@
+[
+  {
+    "worker": "forth",
+    "native_bootstrap_targets": []
+  },
+  {
+    "worker": "source",
+    "native_bootstrap_targets": []
+  },
+  {
+    "worker": "units-00",
+    "native_bootstrap_targets": [
+      {
+        "target": "test-selfhost-array-compatibility",
+        "path": [
+          "test-selfhost-array-compatibility",
+          "bootstrap3"
+        ]
+      },
+      {
+        "target": "test-purity-contract",
+        "path": [
+          "test-purity-contract",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-local-binding-producers",
+        "path": [
+          "test-local-binding-producers",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-constructor-call-context",
+        "path": [
+          "test-constructor-call-context",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-explicit-generic-constructors",
+        "path": [
+          "test-explicit-generic-constructors",
+          "bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "worker": "units-01",
+    "native_bootstrap_targets": [
+      {
+        "target": "test-selfhost-map-types",
+        "path": [
+          "test-selfhost-map-types",
+          "bootstrap3"
+        ]
+      },
+      {
+        "target": "test-native-nested-generics",
+        "path": [
+          "test-native-nested-generics",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-borrow-annotations",
+        "path": [
+          "test-borrow-annotations",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-conditional-field-types",
+        "path": [
+          "test-conditional-field-types",
+          "bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "worker": "units-02",
+    "native_bootstrap_targets": [
+      {
+        "target": "test-selfhost-map-results",
+        "path": [
+          "test-selfhost-map-results",
+          "bootstrap3"
+        ]
+      },
+      {
+        "target": "test-generic-selected-patterns",
+        "path": [
+          "test-generic-selected-patterns",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-shared-borrows",
+        "path": [
+          "test-shared-borrows",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-affine-scalar-union-source",
+        "path": [
+          "test-affine-scalar-union-source",
+          "bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "worker": "units-03",
+    "native_bootstrap_targets": [
+      {
+        "target": "test-scalar-reconstruction",
+        "path": [
+          "test-scalar-reconstruction",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-selfhost-returned-calls",
+        "path": [
+          "test-selfhost-returned-calls",
+          "bootstrap3"
+        ]
+      },
+      {
+        "target": "test-selfhost-array-field-setter",
+        "path": [
+          "test-selfhost-array-field-setter",
+          "bootstrap3"
+        ]
+      },
+      {
+        "target": "test-selfhost-generic-contexts",
+        "path": [
+          "test-selfhost-generic-contexts",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-selfhost-range-bounds",
+        "path": [
+          "test-selfhost-range-bounds",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-legacy-float-conversion",
+        "path": [
+          "test-legacy-float-conversion",
+          "bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "worker": "units-04",
+    "native_bootstrap_targets": [
+      {
+        "target": "test-generic-selected-ownership",
+        "path": [
+          "test-generic-selected-ownership",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-selfhost-native-u8",
+        "path": [
+          "test-selfhost-native-u8",
+          "bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "worker": "units-05",
+    "native_bootstrap_targets": [
+      {
+        "target": "test-selfhost-byte-array-identity",
+        "path": [
+          "test-selfhost-byte-array-identity",
+          "bootstrap3"
+        ]
+      },
+      {
+        "target": "test-exclusive-borrows",
+        "path": [
+          "test-exclusive-borrows",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-named-scalar-callbacks",
+        "path": [
+          "test-named-scalar-callbacks",
+          "bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "worker": "units-06",
+    "native_bootstrap_targets": [
+      {
+        "target": "test-match-aggregate-results",
+        "path": [
+          "test-match-aggregate-results",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-ordinary-record-producers",
+        "path": [
+          "test-ordinary-record-producers",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-native-underscore-bindings",
+        "path": [
+          "test-native-underscore-bindings",
+          "bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "worker": "units-07",
+    "native_bootstrap_targets": []
+  },
+  {
+    "worker": "units-08",
+    "native_bootstrap_targets": [
+      {
+        "target": "test-union-literal-context",
+        "path": [
+          "test-union-literal-context",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-legacy-binary64-parse",
+        "path": [
+          "test-legacy-binary64-parse",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-unreachable-warning",
+        "path": [
+          "test-unreachable-warning",
+          "bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "worker": "units-09",
+    "native_bootstrap_targets": [
+      {
+        "target": "test-selected-variant-ownership",
+        "path": [
+          "test-selected-variant-ownership",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-global-resource-boundary",
+        "path": [
+          "test-global-resource-boundary",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-selfhost-float-values",
+        "path": [
+          "test-selfhost-float-values",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-underscore-payload",
+        "path": [
+          "test-underscore-payload",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-canonical-string-builtins",
+        "path": [
+          "test-canonical-string-builtins",
+          "bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "worker": "units-10",
+    "native_bootstrap_targets": [
+      {
+        "target": "test-canonical-nvm-output",
+        "path": [
+          "test-canonical-nvm-output",
+          "bootstrap3"
+        ]
+      },
+      {
+        "target": "test-native-nominal-order",
+        "path": [
+          "test-native-nominal-order",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-nested-borrows",
+        "path": [
+          "test-nested-borrows",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-passive-par-frontends",
+        "path": [
+          "test-passive-par-frontends",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-source-borrow-emission",
+        "path": [
+          "test-source-borrow-emission",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-checked-owner-selection",
+        "path": [
+          "test-checked-owner-selection",
+          "bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "worker": "units-11",
+    "native_bootstrap_targets": [
+      {
+        "target": "test-native-generic-record-fields",
+        "path": [
+          "test-native-generic-record-fields",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-nanoisa-local-inference",
+        "path": [
+          "test-nanoisa-local-inference",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-inline-owned-construction",
+        "path": [
+          "test-inline-owned-construction",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-canonical-filesystem",
+        "path": [
+          "test-canonical-filesystem",
+          "bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "worker": "units-12",
+    "native_bootstrap_targets": [
+      {
+        "target": "test-instantiated-ownership",
+        "path": [
+          "test-instantiated-ownership",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-resource-callback-boundary",
+        "path": [
+          "test-resource-callback-boundary",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-canonical-vm-shadows",
+        "path": [
+          "test-canonical-vm-shadows",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-passive-flow-frontends",
+        "path": [
+          "test-passive-flow-frontends",
+          "bootstrap"
+        ]
+      },
+      {
+        "target": "test-canonical-prefix-conversion",
+        "path": [
+          "test-canonical-prefix-conversion",
+          "bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "worker": "units-13",
+    "native_bootstrap_targets": [
+      {
+        "target": "test-selfhost-enum-metadata",
+        "path": [
+          "test-selfhost-enum-metadata",
+          "bootstrap3"
+        ]
+      },
+      {
+        "target": "test-native-module-linking",
+        "path": [
+          "test-native-module-linking",
+          "bootstrap3"
+        ]
+      },
+      {
+        "target": "test-generic-union-emission",
+        "path": [
+          "test-generic-union-emission",
+          "bootstrap"
+        ]
+      }
+    ]
+  },
+  {
+    "worker": "negative",
+    "native_bootstrap_targets": []
+  }
+]

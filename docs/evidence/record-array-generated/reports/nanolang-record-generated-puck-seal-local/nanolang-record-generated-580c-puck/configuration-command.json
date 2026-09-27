@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "make",
+    "-s",
+    "-f",
+    "Makefile.gnu",
+    "-f",
+    "/private/tmp/nanolang-record-generated-580c-puck/providers.mk",
+    "CC=/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "array-config"
+  ],
+  "selectors": {
+    "CC": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "LIBRARY_PATH": "/opt/homebrew/opt/openssl@3/lib",
+    "LSAN_OPTIONS": "",
+    "NANO_FILE_RUNTIME_CFLAGS": "-I/Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/include/ffi",
+    "SDKROOT": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "pin": "a1bb1cb85e5551f9e5bb10491f1608877ef6b7b5",
+  "reports": 472,
+  "report_bytes": 91689593,
+  "objects": 32923,
+  "object_bytes": 1186143976,
+  "verified_artifact_references": 123171,
+  "equal_source_tool_pairs": 72,
+  "terminal_reports": 37,
+  "nonzero_terminals": [
+    {
+      "path": "puck/reports/package-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 1,
+      "timeout": false
+    },
+    {
+      "path": "puck/extra/first-extraction-terminal.json",
+      "stage": "external source extraction before gates",
+      "selected_python": "python3 from noninteractive SSH PATH",
+      "returncode": 1,
+      "error": "TypeError: extractall() got an unexpected keyword argument 'filter'",
+      "source_files_extracted": 0,
+      "correction": "explicit /opt/homebrew/bin/python3 3.14.7"
+    }
+  ],
+  "unlaunched_terminals": [],
+  "seconds": 12.803049979032949,
+  "scope": "Independent exact local sealed report set and bytes; Git publication checked separately, every retained content-addressed object, referenced object identity and before/after pairs. Includes failed histories; not semantic corpus coverage, current integration or release acceptance."
+}

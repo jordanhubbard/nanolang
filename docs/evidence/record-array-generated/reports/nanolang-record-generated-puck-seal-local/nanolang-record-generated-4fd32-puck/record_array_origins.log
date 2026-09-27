@@ -1,0 +1,22 @@
+I retain query artifacts at /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-origins-nndt18ud
+test_complete_origin_and_allocation_controls (tests.test_record_array_origins.RecordArrayOrigins.test_complete_origin_and_allocation_controls) ... I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+PASS 787 record-array origin checks; no runtime admission
+I begin copied facts
+I begin alias/copy facts
+I begin refusal boundaries
+I begin call/global/join facts
+I begin old-mode compatibility
+I begin bounded accounting and recovery
+I measured 41 allocation positions and 65010 peak payload bytes; every refusal recovered
+PASS 1301 record-array origin checks; no runtime admission
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.633s
+
+OK

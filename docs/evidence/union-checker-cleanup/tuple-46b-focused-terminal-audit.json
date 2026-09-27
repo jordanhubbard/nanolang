@@ -1,0 +1,139 @@
+[
+  {
+    "root": "/home/jkh/nanolang-qualification/tuple-46b-linux-focused",
+    "cas_verified": 3951,
+    "selected": [
+      {
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-v",
+          "-f",
+          "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+          "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+        ],
+        "bound": 900,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "cwd": "/home/jkh/nanolang-qualification/tuple-46b-linux-source",
+        "reaped": true,
+        "remaining_groups": [],
+        "seconds": 15.254370412090793,
+        "log": {
+          "sha256": "a7d4ba0e931a2e142a8b5e738e882ab7fb1a4586214b63abd3379525296ffd08",
+          "bytes": 552,
+          "archive": "/home/jkh/nanolang-qualification/tuple-46b-linux-focused/objects/a7d4ba0e931a2e142a8b5e738e882ab7fb1a4586214b63abd3379525296ffd08"
+        },
+        "inputs_equal": true
+      },
+      {
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-v",
+          "-f",
+          "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+          "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+        ],
+        "bound": 900,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "cwd": "/home/jkh/nanolang-qualification/tuple-46b-linux-source",
+        "reaped": true,
+        "remaining_groups": [],
+        "seconds": 47.02784799505025,
+        "log": {
+          "sha256": "541966d7d68c15fd9d59fc14df05eae9b7b808ad84229b6189bcef9401710dcb",
+          "bytes": 553,
+          "archive": "/home/jkh/nanolang-qualification/tuple-46b-linux-focused/objects/541966d7d68c15fd9d59fc14df05eae9b7b808ad84229b6189bcef9401710dcb"
+        },
+        "inputs_equal": true
+      },
+      {
+        "argv": [
+          "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-v",
+          "-f",
+          "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+          "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+        ],
+        "bound": 900,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "cwd": "/home/jkh/nanolang-qualification/tuple-46b-linux-source",
+        "reaped": true,
+        "remaining_groups": [],
+        "seconds": 31.737850285018794,
+        "log": {
+          "sha256": "9570f192cf139ce671b0c6f3d4809fc2443efe1b62999ee6b4ee5ff1ed07c98c",
+          "bytes": 555,
+          "archive": "/home/jkh/nanolang-qualification/tuple-46b-linux-focused/objects/9570f192cf139ce671b0c6f3d4809fc2443efe1b62999ee6b4ee5ff1ed07c98c"
+        },
+        "inputs_equal": true
+      }
+    ]
+  },
+  {
+    "root": "/home/jkh/nanolang-qualification/tuple-46b-puck-focused-copy",
+    "cas_verified": 3939,
+    "selected": [
+      {
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-v",
+          "-f",
+          "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+          "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+        ],
+        "bound": 900,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "cwd": "/Users/jkh/nanolang-qualification/tuple-46b-source",
+        "reaped": true,
+        "remaining_groups": [],
+        "seconds": 8.482022834,
+        "log": {
+          "sha256": "2e718877e6a687a1e93fabad173a9b0fa9f08a4566552862fb3a738f9f7162b2",
+          "bytes": 447,
+          "archive": "/Users/jkh/nanolang-qualification/tuple-46b-focused/objects/2e718877e6a687a1e93fabad173a9b0fa9f08a4566552862fb3a738f9f7162b2"
+        },
+        "inputs_equal": true
+      },
+      {
+        "argv": [
+          "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+          "-m",
+          "unittest",
+          "-v",
+          "-f",
+          "tests.test_generic_record_lists.GenericRecordLists.test_checked_storage_scheduler_and_allocation_prefixes",
+          "tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity"
+        ],
+        "bound": 900,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "cwd": "/Users/jkh/nanolang-qualification/tuple-46b-source",
+        "reaped": true,
+        "remaining_groups": [],
+        "seconds": 25.948606792,
+        "log": {
+          "sha256": "3adb292b9d6752513fee11056b8c26afe11d323e4d5e4770292373e937ae87a3",
+          "bytes": 452,
+          "archive": "/Users/jkh/nanolang-qualification/tuple-46b-focused/objects/3adb292b9d6752513fee11056b8c26afe11d323e4d5e4770292373e937ae87a3"
+        },
+        "inputs_equal": true
+      }
+    ]
+  }
+]

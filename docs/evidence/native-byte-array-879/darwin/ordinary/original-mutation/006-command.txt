@@ -1,0 +1,1 @@
+/Users/jkh/nanolang-qualification/byte-array-879-puck/ordinary/source/bin/nvm2c /Users/jkh/nanolang-qualification/byte-array-879-puck/ordinary/original-mutation/input.nvm -o /Users/jkh/nanolang-qualification/byte-array-879-puck/ordinary/original-mutation/program.c

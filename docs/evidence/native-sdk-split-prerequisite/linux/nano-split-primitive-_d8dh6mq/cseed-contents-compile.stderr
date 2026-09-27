@@ -1,0 +1,6 @@
+[ffi_loader] Initialized
+Running shadow tests...
+Testing probe... PASSED
+Testing main... PASSED
+All shadow tests passed! (2 tests)
+[ffi_loader] Shut down

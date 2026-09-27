@@ -1,0 +1,142 @@
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:168:22: warning: unused function 'nano_rt_f64_add' [-Wunused-function]
+  168 | static inline double nano_rt_f64_add(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:172:22: warning: unused function 'nano_rt_f64_sub' [-Wunused-function]
+  172 | static inline double nano_rt_f64_sub(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:176:22: warning: unused function 'nano_rt_f64_mul' [-Wunused-function]
+  176 | static inline double nano_rt_f64_mul(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:180:22: warning: unused function 'nano_rt_f64_div' [-Wunused-function]
+  180 | static inline double nano_rt_f64_div(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:240:18: warning: unused function 'nl_array_slice' [-Wunused-function]
+  240 | static DynArray* nl_array_slice(DynArray* arr, int64_t start, int64_t length) {
+      |                  ^~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:385:18: warning: unused function 'nl_bytes_from_string' [-Wunused-function]
+  385 | static DynArray* nl_bytes_from_string(const char* s) {
+      |                  ^~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:396:20: warning: unused function 'nl_string_from_bytes' [-Wunused-function]
+  396 | static const char* nl_string_from_bytes(DynArray* bytes) {
+      |                    ^~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:470:20: warning: unused function 'nl_path_normalize' [-Wunused-function]
+  470 | static const char* nl_path_normalize(const char* p) { return path_normalize(p); }
+      |                    ^~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:471:20: warning: unused function 'nl_path_join' [-Wunused-function]
+  471 | static const char* nl_path_join(const char* a, const char* b) { return path_join(a, b); }
+      |                    ^~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:472:20: warning: unused function 'nl_path_basename' [-Wunused-function]
+  472 | static const char* nl_path_basename(const char* p) { return path_basename(p); }
+      |                    ^~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:473:20: warning: unused function 'nl_path_dirname' [-Wunused-function]
+  473 | static const char* nl_path_dirname(const char* p) { return path_dirname(p); }
+      |                    ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:474:20: warning: unused function 'nl_path_relpath' [-Wunused-function]
+  474 | static const char* nl_path_relpath(const char* t, const char* b) { return path_relpath(t, b); }
+      |                    ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:475:20: warning: unused function 'nl_file_read' [-Wunused-function]
+  475 | static const char* nl_file_read(const char* p) { return file_read(p); }
+      |                    ^~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:477:16: warning: unused function 'nl_fs_mkdir_p' [-Wunused-function]
+  477 | static int64_t nl_fs_mkdir_p(const char* p) { return fs_mkdir_p(p); }
+      |                ^~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:478:16: warning: unused function 'nl_file_copy' [-Wunused-function]
+  478 | static int64_t nl_file_copy(const char* s, const char* d) { return file_copy(s, d); }
+      |                ^~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:479:16: warning: unused function 'nl_dir_copy' [-Wunused-function]
+  479 | static int64_t nl_dir_copy(const char* s, const char* d) { return dir_copy(s, d); }
+      |                ^~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:487:20: warning: unused function 'nl_get_argv' [-Wunused-function]
+  487 | static const char* nl_get_argv(int64_t idx) { return get_argv(idx); }
+      |                    ^~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:488:20: warning: unused function 'nl_getenv' [-Wunused-function]
+  488 | static const char* nl_getenv(const char* name) { return nl_os_getenv(name); }
+      |                    ^~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:489:20: warning: unused function 'nl_env_get' [-Wunused-function]
+  489 | static const char* nl_env_get(const char* name) { return nl_os_getenv(name); }
+      |                    ^~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:492:16: warning: unused function 'nl_exec_shell' [-Wunused-function]
+  492 | static int64_t nl_exec_shell(const char* cmd) { return (int64_t)system(cmd); }
+      |                ^~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:495:20: warning: unused function 'nl_exec_capture' [-Wunused-function]
+  495 | static const char* nl_exec_capture(const char* cmd) {
+      |                    ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:517:14: warning: unused function 'nl_os_getcwd' [-Wunused-function]
+  517 | static char* nl_os_getcwd(void) {
+      |              ^~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:526:13: warning: unused function 'nl_os_exit' [-Wunused-function]
+  526 | static void nl_os_exit(int64_t code) { exit((int)code); }
+      |             ^~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:528:16: warning: unused function 'nl_os_chdir' [-Wunused-function]
+  528 | static int64_t nl_os_chdir(const char* path) { return (int64_t)chdir(path); }
+      |                ^~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:530:13: warning: unused function 'nl_os_file_exists' [-Wunused-function]
+  530 | static bool nl_os_file_exists(const char* path) {
+      |             ^~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:535:14: warning: unused function 'nl_os_tmp_dir' [-Wunused-function]
+  535 | static char* nl_os_tmp_dir(void) {
+      |              ^~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:546:14: warning: unused function 'nl_os_mktemp' [-Wunused-function]
+  546 | static char* nl_os_mktemp(const char* prefix) {
+      |              ^~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:563:14: warning: unused function 'nl_os_mktemp_dir' [-Wunused-function]
+  563 | static char* nl_os_mktemp_dir(const char* prefix) {
+      |              ^~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:582:20: warning: unused function 'cast_string' [-Wunused-function]
+  582 | static const char* cast_string(int64_t v) { return nl_int_to_string(v); }
+      |                    ^~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:583:20: warning: unused function 'to_string' [-Wunused-function]
+  583 | static const char* to_string(int64_t v) { return nl_int_to_string(v); }
+      |                    ^~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:586:18: warning: unused function 'nl_map' [-Wunused-function]
+  586 | static DynArray* nl_map(DynArray* arr, int64_t (*fn)(int64_t)) {
+      |                  ^~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:595:16: warning: unused function 'nano_rt_reduce_int' [-Wunused-function]
+  595 | static int64_t nano_rt_reduce_int(DynArray* arr, int64_t initial, int64_t (*fn)(int64_t, int64_t)) {
+      |                ^~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:604:18: warning: unused function 'nl_filter' [-Wunused-function]
+  604 | static DynArray* nl_filter(DynArray* arr, bool (*fn)(int64_t)) {
+      |                  ^~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:614:18: warning: unused function 'nl_map_str' [-Wunused-function]
+  614 | static DynArray* nl_map_str(DynArray* arr, const char* (*fn)(const char*)) {
+      |                  ^~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:623:20: warning: unused function 'nano_rt_reduce_str' [-Wunused-function]
+  623 | static const char* nano_rt_reduce_str(DynArray* arr, const char* initial, const char* (*fn)(const char*, const char*)) {
+      |                    ^~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:632:18: warning: unused function 'nl_filter_str' [-Wunused-function]
+  632 | static DynArray* nl_filter_str(DynArray* arr, bool (*fn)(const char*)) {
+      |                  ^~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:642:18: warning: unused function 'nl_map_float' [-Wunused-function]
+  642 | static DynArray* nl_map_float(DynArray* arr, double (*fn)(double)) {
+      |                  ^~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:651:15: warning: unused function 'nano_rt_reduce_float' [-Wunused-function]
+  651 | static double nano_rt_reduce_float(DynArray* arr, double initial, double (*fn)(double, double)) {
+      |               ^~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:660:18: warning: unused function 'nl_filter_float' [-Wunused-function]
+  660 | static DynArray* nl_filter_float(DynArray* arr, bool (*fn)(double)) {
+      |                  ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:670:18: warning: unused function 'nl_filter_bool' [-Wunused-function]
+  670 | static DynArray* nl_filter_bool(DynArray* arr, bool (*fn)(bool)) {
+      |                  ^~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:681:35: warning: unused function 'nl_map_new' [-Wunused-function]
+  681 | static inline HashMap_string_int* nl_map_new(void) { return nl_hashmap_string_int_alloc(16); }
+      |                                   ^~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:682:20: warning: unused function 'nl_map_put' [-Wunused-function]
+  682 | static inline void nl_map_put(HashMap_string_int* hm, const char* key, int64_t val) { nl_hashmap_string_int_put(hm, key, val); }
+      |                    ^~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:683:23: warning: unused function 'nl_map_get' [-Wunused-function]
+  683 | static inline int64_t nl_map_get(HashMap_string_int* hm, const char* key) { return nl_hashmap_string_int_get(hm, key); }
+      |                       ^~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:684:19: warning: unused function 'nl_map_has' [-Wunused-function]
+  684 | static inline int nl_map_has(HashMap_string_int* hm, const char* key) { return nl_hashmap_string_int_has(hm, key); }
+      |                   ^~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:685:23: warning: unused function 'nl_map_size' [-Wunused-function]
+  685 | static inline int64_t nl_map_size(HashMap_string_int* hm) { return hm->size; }
+      |                       ^~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:700:16: warning: unused function 'nl_timing_get_nanoseconds' [-Wunused-function]
+  700 | static int64_t nl_timing_get_nanoseconds(void) {
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/native-helper-833-puck-objects/old.c:720:16: warning: unused function 'nl_get_time_ms' [-Wunused-function]
+  720 | static int64_t nl_get_time_ms(void) { return nl_timing_get_microseconds() / 1000LL; }
+      |                ^~~~~~~~~~~~~~
+47 warnings generated.

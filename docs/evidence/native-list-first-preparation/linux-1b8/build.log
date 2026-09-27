@@ -1,0 +1,213 @@
+mkdir -p obj/build_bootstrap
+[tool] Building module index generator (C)...
+mkdir -p obj/runtime
+mkdir -p obj/eval
+mkdir -p obj/nanoisa
+mkdir -p obj/nanovirt
+mkdir -p obj/nanovm
+/bin/gcc  -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -fPIC -shared -o bin/nano_as_capture.so src/runtime/assembler_capture.c -lm -lcrypto -lffi -rdynamic -ldl
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/ffi_bindgen.c -o obj/ffi_bindgen.o
+[schema] Generating compiler schema artifacts...
+[schema] Using Python version (bootstrap)...
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/assembler.c -o obj/nanoisa/assembler.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/disassembler.c -o obj/nanoisa/disassembler.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o obj/nanoisa/file_flow.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/frontend.c -o obj/nanoisa/frontend.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/isa.c -o obj/nanoisa/isa.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/local_bindings.c -o obj/nanoisa/local_bindings.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/mixed_float_proof.c -o obj/nanoisa/mixed_float_proof.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -Imodules/nanoisa -c modules/nanoisa/nanoisa.c -o obj/nanoisa/nanoisa_facade.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c.c -o obj/nanoisa/nvm2c.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm2c_shape.c -o obj/nanoisa/nvm2c_shape.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format.c -o obj/nanoisa/nvm_format.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format_v2.c -o obj/nanoisa/nvm_format_v2.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_constants.c -o obj/nanoisa/nvm_v2_constants.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_convert.c -o obj/nanoisa/nvm_v2_convert.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_cursor.c -o obj/nanoisa/nvm_v2_cursor.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_functions.c -o obj/nanoisa/nvm_v2_functions.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_imports.c -o obj/nanoisa/nvm_v2_imports.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_layouts.c -o obj/nanoisa/nvm_v2_layouts.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_module.c -o obj/nanoisa/nvm_v2_module.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_signatures.c -o obj/nanoisa/nvm_v2_signatures.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o obj/nanoisa/ownership_contracts.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/passive.c -o obj/nanoisa/passive.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/reference_places.c -o obj/nanoisa/reference_places.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o obj/nanoisa/retained_layouts.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings.c -o obj/nanoisa/service_bindings.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings_module.c -o obj/nanoisa/service_bindings_module.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal.c -o obj/nanoisa/service_file_nominal.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal_plan.c -o obj/nanoisa/service_file_nominal_plan.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier.c -o obj/nanoisa/verifier.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier_types.c -o obj/nanoisa/verifier_types.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/shadow_runner.c -o obj/nanovirt/shadow_runner.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP  -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/cop_protocol.c -o obj/nanovm/cop_protocol.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/heap.c -o obj/nanovm/heap.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/heap_cycles.c -o obj/nanovm/heap_cycles.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/value.c -o obj/nanovm/value.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -ffp-contract=off -fno-fast-math -c src/nanovm/vm.c -o obj/nanovm/vm.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_builtins.c -o obj/nanovm/vm_builtins.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_callback.c -o obj/nanovm/vm_callback.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_decode.c -o obj/nanovm/vm_decode.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_dispatch.c -o obj/nanovm/vm_dispatch.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_ffi.c -o obj/nanovm/vm_ffi.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovm/vm_ffi_arrays.c -o obj/nanovm/vm_ffi_arrays.o
+[modules] Generating module index from manifests...
+Generating module index...
+Found 47 module manifests
+  ✓ sdl_ttf
+  ✓ math_ext
+  ✓ stdio
+  ✓ pybridge_warp
+  ✓ openai
+  ✓ pt2_module
+  ✓ std
+  ✓ sdl_mixer
+  ✓ pybridge_matplotlib
+  ✓ glut
+  ✓ nano_tools
+  ✓ sdl_image
+  ✓ audio_viz
+  ✓ pt2_state
+  ✓ nanoisa
+  ✓ mujoco
+  ✓ curl
+  ✓ ui_widgets
+  ✓ http_server
+  ✓ event
+  ✓ pt2_audio
+  ✓ opengl
+  ✓ sdl_term
+  ✓ stdlib
+  ✓ filesystem
+  ✓ glew
+  ✓ unicode
+  ✓ github
+  ✓ forth_see
+  ✓ pty
+  ✓ proptest
+  ✓ preferences
+  ✓ glfw
+  ✓ ncurses
+  ✓ bullet
+  ✓ readline
+  ✓ nano_eval
+  ✓ sdl
+  ✓ pybridge
+  ✓ nano_highlight
+  ✓ uv
+  ✓ tools
+  ✓ sdl_helpers
+  ✓ vector2d
+  ✓ sqlite
+  ✓ audio_helpers
+  ✓ log
+
+✓ Generated modules/index.json
+  47 modules indexed
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bcp47.c -o obj/bcp47.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bench.c -o obj/bench.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/bench_native.c -o obj/bench_native.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/builtins_registry.c -o obj/builtins_registry.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/cJSON.c -o obj/cJSON.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/c_backend.c -o obj/c_backend.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/catalog.c -o obj/catalog.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/channel.c -o obj/channel.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/coroutine.c -o obj/coroutine.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/cps_pass.c -o obj/cps_pass.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/dce_pass.c -o obj/dce_pass.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/diag_id.c -o obj/diag_id.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/docgen.c -o obj/docgen.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/docgen_md.c -o obj/docgen_md.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/dwarf_info.c -o obj/dwarf_info.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/effects.c -o obj/effects.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/emit_typed_ast.c -o obj/emit_typed_ast.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/env.c -o obj/env.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -ffp-contract=off -fno-fast-math -c src/eval.c -o obj/eval.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_hashmap.c -o obj/eval/eval_hashmap.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_io.c -o obj/eval/eval_io.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_math.c -o obj/eval/eval_math.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/eval/eval_string.c -o obj/eval/eval_string.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/fmt.c -o obj/fmt.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/fold_constants.c -o obj/fold_constants.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/interpreter_ffi.c -o obj/interpreter_ffi.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/json_diagnostics.c -o obj/json_diagnostics.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/lexer.c -o obj/lexer.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/locale.c -o obj/locale.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/main.c -o obj/main.o
+/bin/gcc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/module.c -o obj/module.o
+src/main.c: In function ‘compile_file’:
+src/main.c:1503:63: error: ‘%s’ directive output may be truncated writing up to 255 bytes into a region of size 64 [-Werror=format-truncation=]
+ 1503 |                 snprintf(detected_types[detected_count], 64, "%s", type_name);
+      |                                                               ^~   ~~~~~~~~~
+In file included from /usr/include/stdio.h:980,
+                 from src/runtime/shadow_timeout.h:4,
+                 from src/main.c:1:
+In function ‘snprintf’,
+    inlined from ‘compile_file’ at src/main.c:1503:17:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 1 and 256 bytes into a destination of size 64
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+src/main.c: In function ‘compile_file’:
+src/main.c:1522:71: error: ‘%s’ directive output may be truncated writing up to 255 bytes into a region of size 120 [-Werror=format-truncation=]
+ 1522 |                 snprintf(inline_check, sizeof(inline_check), "nl_list_%s_new", type_name);
+      |                                                                       ^~       ~~~~~~~~~
+In function ‘snprintf’,
+    inlined from ‘compile_file’ at src/main.c:1522:17:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 13 and 268 bytes into a destination of size 128
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+src/main.c: In function ‘compile_file’:
+src/main.c:1539:78: error: ‘%s’ directive output may be truncated writing up to 255 bytes into a region of size 125 [-Werror=format-truncation=]
+ 1539 |                     snprintf(nl_prefixed_type, sizeof(nl_prefixed_type), "nl_%s", type_name);
+      |                                                                              ^~   ~~~~~~~~~
+In function ‘snprintf’,
+    inlined from ‘compile_file’ at src/main.c:1539:21:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 4 and 259 bytes into a destination of size 128
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+src/main.c: In function ‘compile_file’:
+src/main.c:1563:89: error: ‘%s’ directive output may be truncated writing up to 255 bytes into a region of size 110 [-Werror=format-truncation=]
+ 1563 |                     snprintf(struct_pattern, sizeof(struct_pattern), "typedef struct nl_%s {", type_name);
+      |                                                                                         ^~     ~~~~~~~~~
+In function ‘snprintf’,
+    inlined from ‘compile_file’ at src/main.c:1563:21:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 21 and 276 bytes into a destination of size 128
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+src/main.c: In function ‘compile_file’:
+src/main.c:1569:88: error: ‘%s’ directive output may be truncated writing up to 255 bytes into a region of size 109 [-Werror=format-truncation=]
+ 1569 |                     snprintf(guard_pattern, sizeof(guard_pattern), "#ifndef DEFINED_nl_%s", type_name);
+      |                                                                                        ^~   ~~~~~~~~~
+In function ‘snprintf’,
+    inlined from ‘compile_file’ at src/main.c:1569:21:
+/usr/include/aarch64-linux-gnu/bits/stdio2.h:54:10: note: ‘__builtin___snprintf_chk’ output between 20 and 275 bytes into a destination of size 128
+   54 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   55 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   56 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+make: *** [Makefile.gnu:3528: obj/main.o] Error 1
+make: *** Waiting for unfinished jobs....

@@ -1,0 +1,478 @@
+{
+  "linux": {
+    "pin": "6d92a2d53cb330117731ab310e97b6a088731ccf",
+    "archive_sha256": "103c80837b0105bff44c0a4a700e528826b7c18274a5bf36c7ba7f6287984bb7",
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "sanitized-module-before.json": {
+        "bytes": 117,
+        "sha256": "add83dab2983752488d4fe07bbdc9c7c57eabcc74b468f651aab1fe59b51a997"
+      },
+      "sanitized-signature-before.json": {
+        "bytes": 117,
+        "sha256": "9ec1a3c2fe54a5a327e4444c18f52297a25a54eaa03865c0ab98e7ddcc7041a6"
+      },
+      "ordinary-signature-after.json": {
+        "bytes": 117,
+        "sha256": "98daa5de08b2e640119a80b868df4733ff9c48899960224ac00aa32e3d21528c"
+      },
+      "ordinary-module-before.json": {
+        "bytes": 117,
+        "sha256": "a4af3d14f9e4527e20989b98e937d6a2b3c389b7c8583d9cff8b4e79920993cd"
+      },
+      "ordinary-module-after.json": {
+        "bytes": 117,
+        "sha256": "a4af3d14f9e4527e20989b98e937d6a2b3c389b7c8583d9cff8b4e79920993cd"
+      },
+      "sanitized-signature.log": {
+        "bytes": 82,
+        "sha256": "d067a80a83b7cd5260f35509d8c2f87bdd43766394333f531377f4e43cb7e1bf"
+      },
+      "sanitized-signature-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary-signature-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tools-after.json": {
+        "bytes": 147,
+        "sha256": "203fc46be1b9cb267baee9beef64996cfed6f8e03aa7f08a540e896326aae9f0"
+      },
+      "ordinary-module-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary-signature-before.json": {
+        "bytes": 117,
+        "sha256": "98daa5de08b2e640119a80b868df4733ff9c48899960224ac00aa32e3d21528c"
+      },
+      "source-after.json": {
+        "bytes": 649354,
+        "sha256": "51c5d2e61db9b94f63369644634d3cd76fbc3deb9fbed55d00a10436fe1b0c22"
+      },
+      "identity.json": {
+        "bytes": 747,
+        "sha256": "6f5b31eec2b5b29195221f3c767377d2098b1a3bdc3fc2c54e7de62ec1fcdf91"
+      },
+      "ordinary-module.log": {
+        "bytes": 86,
+        "sha256": "6b78a89655886164bf498db9f1e34eec27eb9285e2d69786621a415fce2375f5"
+      },
+      "sanitized-module.log": {
+        "bytes": 86,
+        "sha256": "6b78a89655886164bf498db9f1e34eec27eb9285e2d69786621a415fce2375f5"
+      },
+      "sanitized-signature-after.json": {
+        "bytes": 117,
+        "sha256": "9ec1a3c2fe54a5a327e4444c18f52297a25a54eaa03865c0ab98e7ddcc7041a6"
+      },
+      "sanitized-module-after.json": {
+        "bytes": 117,
+        "sha256": "add83dab2983752488d4fe07bbdc9c7c57eabcc74b468f651aab1fe59b51a997"
+      },
+      "source-before.json": {
+        "bytes": 649354,
+        "sha256": "51c5d2e61db9b94f63369644634d3cd76fbc3deb9fbed55d00a10436fe1b0c22"
+      },
+      "sanitized-module-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "phases.json": {
+        "bytes": 3241,
+        "sha256": "0b3625301c3b0911c4c94865519c82161a1b551570f77eec0d5d7a6858686d5b"
+      },
+      "ordinary-signature.log": {
+        "bytes": 82,
+        "sha256": "d067a80a83b7cd5260f35509d8c2f87bdd43766394333f531377f4e43cb7e1bf"
+      }
+    },
+    "phases": [
+      {
+        "label": "ordinary-signature-build",
+        "argv": [
+          "/usr/bin/gcc",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O2",
+          "tests/test_sdk_signature_snapshot.c",
+          "-o",
+          "/home/jkh/nanolang-qualification/sdk-module-6d92-linux/ordinary-signature"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 2755696,
+        "seconds": 0.11396820901427418,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "ordinary-signature",
+        "argv": [
+          "/home/jkh/nanolang-qualification/sdk-module-6d92-linux/ordinary-signature"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 2755701,
+        "seconds": 0.0014079170068725944,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "ordinary-module-build",
+        "argv": [
+          "/usr/bin/gcc",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O2",
+          "tests/test_sdk_module_snapshot.c",
+          "-o",
+          "/home/jkh/nanolang-qualification/sdk-module-6d92-linux/ordinary-module"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 2755702,
+        "seconds": 0.2140636189142242,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "ordinary-module",
+        "argv": [
+          "/home/jkh/nanolang-qualification/sdk-module-6d92-linux/ordinary-module"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 2755712,
+        "seconds": 0.0015858389670029283,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "sanitized-signature-build",
+        "argv": [
+          "/usr/bin/gcc",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O1",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-fno-sanitize-recover=all",
+          "tests/test_sdk_signature_snapshot.c",
+          "-o",
+          "/home/jkh/nanolang-qualification/sdk-module-6d92-linux/sanitized-signature"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 2755713,
+        "seconds": 0.21430632506962866,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "sanitized-signature",
+        "argv": [
+          "/home/jkh/nanolang-qualification/sdk-module-6d92-linux/sanitized-signature"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 2755718,
+        "seconds": 0.007660104078240693,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "sanitized-module-build",
+        "argv": [
+          "/usr/bin/gcc",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O1",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-fno-sanitize-recover=all",
+          "tests/test_sdk_module_snapshot.c",
+          "-o",
+          "/home/jkh/nanolang-qualification/sdk-module-6d92-linux/sanitized-module"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 2755720,
+        "seconds": 0.3649805559543893,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "sanitized-module",
+        "argv": [
+          "/home/jkh/nanolang-qualification/sdk-module-6d92-linux/sanitized-module"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 2755741,
+        "seconds": 0.015899602905847132,
+        "returncode": 0,
+        "group_remaining": false
+      }
+    ]
+  },
+  "puck": {
+    "pin": "6d92a2d53cb330117731ab310e97b6a088731ccf",
+    "archive_sha256": "8c962d340982922b619ec90549a4fc2f52e1b05ed30b1bf53d44197fe98529d4",
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "sanitized-module-before.json": {
+        "bytes": 116,
+        "sha256": "4ebb4d84df7cf01ada15a8a99473ac3b4267ec6941481ded13c8c77fcd20bcfa"
+      },
+      "sanitized-signature-before.json": {
+        "bytes": 116,
+        "sha256": "9738db532eb3ef828b9e15863a2a43704b490a87391f5ea608b0b9dd8957dead"
+      },
+      "ordinary-signature-after.json": {
+        "bytes": 116,
+        "sha256": "d0384c5996dc8179ea734b2196094e1996a67dddd83d1d36284aad9fae16122b"
+      },
+      "ordinary-module-before.json": {
+        "bytes": 116,
+        "sha256": "10e1a31b6d60db015d841766730401cac151366e18dfe4c2bc68a2f7e0495fdc"
+      },
+      "ordinary-module-after.json": {
+        "bytes": 116,
+        "sha256": "10e1a31b6d60db015d841766730401cac151366e18dfe4c2bc68a2f7e0495fdc"
+      },
+      "sanitized-signature.log": {
+        "bytes": 82,
+        "sha256": "d067a80a83b7cd5260f35509d8c2f87bdd43766394333f531377f4e43cb7e1bf"
+      },
+      "sanitized-signature-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary-signature-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "tools-after.json": {
+        "bytes": 313,
+        "sha256": "17a0c6e408baf645d8c690649843f919844564ea63a0474510ec327b717fc8b5"
+      },
+      "ordinary-module-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary-signature-before.json": {
+        "bytes": 116,
+        "sha256": "d0384c5996dc8179ea734b2196094e1996a67dddd83d1d36284aad9fae16122b"
+      },
+      "source-after.json": {
+        "bytes": 649354,
+        "sha256": "179deec91a800d5c54736a937b317f54eee86b5f9920e3864d79e9d81e70b51a"
+      },
+      "identity.json": {
+        "bytes": 1039,
+        "sha256": "7792252cc6e636e4ddf5120a610bc6ee7e3478972c60ef46d4d2a18f7eae9643"
+      },
+      "ordinary-module.log": {
+        "bytes": 86,
+        "sha256": "6b78a89655886164bf498db9f1e34eec27eb9285e2d69786621a415fce2375f5"
+      },
+      "sanitized-module.log": {
+        "bytes": 86,
+        "sha256": "6b78a89655886164bf498db9f1e34eec27eb9285e2d69786621a415fce2375f5"
+      },
+      "sanitized-signature-after.json": {
+        "bytes": 116,
+        "sha256": "9738db532eb3ef828b9e15863a2a43704b490a87391f5ea608b0b9dd8957dead"
+      },
+      "sanitized-module-after.json": {
+        "bytes": 116,
+        "sha256": "4ebb4d84df7cf01ada15a8a99473ac3b4267ec6941481ded13c8c77fcd20bcfa"
+      },
+      "source-before.json": {
+        "bytes": 649354,
+        "sha256": "179deec91a800d5c54736a937b317f54eee86b5f9920e3864d79e9d81e70b51a"
+      },
+      "sanitized-module-build.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "phases.json": {
+        "bytes": 3753,
+        "sha256": "8cbe14aea5b53fadb78085f63ae648d4b00a672e05a3f2cc2f2f68de37e3107a"
+      },
+      "ordinary-signature.log": {
+        "bytes": 82,
+        "sha256": "d067a80a83b7cd5260f35509d8c2f87bdd43766394333f531377f4e43cb7e1bf"
+      }
+    },
+    "phases": [
+      {
+        "label": "ordinary-signature-build",
+        "argv": [
+          "/usr/bin/clang",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O2",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "tests/test_sdk_signature_snapshot.c",
+          "-o",
+          "/Users/jkh/nanolang-qualification/sdk-module-6d92-puck/ordinary-signature"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 45422,
+        "seconds": 0.14992654099478386,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "ordinary-signature",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/sdk-module-6d92-puck/ordinary-signature"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 45429,
+        "seconds": 0.3171278339868877,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "ordinary-module-build",
+        "argv": [
+          "/usr/bin/clang",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O2",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "tests/test_sdk_module_snapshot.c",
+          "-o",
+          "/Users/jkh/nanolang-qualification/sdk-module-6d92-puck/ordinary-module"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 45437,
+        "seconds": 0.21546537498943508,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "ordinary-module",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/sdk-module-6d92-puck/ordinary-module"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 45442,
+        "seconds": 0.1984432079916587,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "sanitized-signature-build",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O1",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-fno-sanitize-recover=all",
+          "tests/test_sdk_signature_snapshot.c",
+          "-o",
+          "/Users/jkh/nanolang-qualification/sdk-module-6d92-puck/sanitized-signature"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 45446,
+        "seconds": 0.26396037499944214,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "sanitized-signature",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/sdk-module-6d92-puck/sanitized-signature"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 45450,
+        "seconds": 0.4357592919986928,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "sanitized-module-build",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "-std=c99",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-g",
+          "-O1",
+          "-isysroot",
+          "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "-fno-sanitize-recover=all",
+          "tests/test_sdk_module_snapshot.c",
+          "-o",
+          "/Users/jkh/nanolang-qualification/sdk-module-6d92-puck/sanitized-module"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 45461,
+        "seconds": 0.27034991700202227,
+        "returncode": 0,
+        "group_remaining": false
+      },
+      {
+        "label": "sanitized-module",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/sdk-module-6d92-puck/sanitized-module"
+        ],
+        "bound": 60,
+        "timeout": false,
+        "pid": 45474,
+        "seconds": 0.3239119999925606,
+        "returncode": 0,
+        "group_remaining": false
+      }
+    ]
+  }
+}

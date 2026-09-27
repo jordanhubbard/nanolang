@@ -1,0 +1,62 @@
+{
+  "source": "de60d37c4",
+  "status": "PASS",
+  "configurations": [
+    {
+      "configuration": "darwin-apple",
+      "sha256": "810f5babbc9424857c62c0960f721ef0f524980904731d4ff011e19ad9f22a97",
+      "seconds": 1.0997867500009306,
+      "checks": 1063,
+      "source_and_tools_unchanged": true,
+      "retained_executable_verified": true
+    },
+    {
+      "configuration": "darwin-homebrew",
+      "sha256": "bf049478be6b92f6471cd35259d8493039b0762d1680badefedb0e9649fd3e04",
+      "seconds": 1.0881807080004364,
+      "checks": 1063,
+      "source_and_tools_unchanged": true,
+      "retained_executable_verified": true
+    },
+    {
+      "configuration": "darwin-sanitizers",
+      "sha256": "8defed17d48ab1d10fafa4017b4f8dd072408dd6a6452296c1704e94aec11d10",
+      "seconds": 1.0841397499971208,
+      "checks": 1063,
+      "source_and_tools_unchanged": true,
+      "retained_executable_verified": true
+    },
+    {
+      "configuration": "linux-clang-sanitizers",
+      "sha256": "ed669661924a7ec02d6c46e76a343f7be63e7843d12efe3bd6cadc17a22a0b04",
+      "seconds": 1.0485568379517645,
+      "checks": 1063,
+      "source_and_tools_unchanged": true,
+      "retained_executable_verified": true
+    },
+    {
+      "configuration": "linux-clang",
+      "sha256": "1a9f4a5dec76642395dff5011f11bb1071a19d3574d1b8b5adf53b7de2b1d595",
+      "seconds": 0.5250375049654394,
+      "checks": 1063,
+      "source_and_tools_unchanged": true,
+      "retained_executable_verified": true
+    },
+    {
+      "configuration": "linux-gcc-sanitizers",
+      "sha256": "2481c42629e9ff68798afaa19fbd3306fa976478ac7b7cd0a98cfe2c18b771d5",
+      "seconds": 1.0490805850131437,
+      "checks": 1063,
+      "source_and_tools_unchanged": true,
+      "retained_executable_verified": true
+    },
+    {
+      "configuration": "linux-gcc",
+      "sha256": "5e513bbf503063620cee988756b27c42d6f2cd5cf0f7e13d1b138f5d89e41ab6",
+      "seconds": 0.5256024380214512,
+      "checks": 1063,
+      "source_and_tools_unchanged": true,
+      "retained_executable_verified": true
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "src/nanoisa/capture_bindings.c": {
+    "sha256": "66bb4bca290aed55b718bfd743afe2214f02067b7ae45e932d12f4a894c0776c",
+    "bytes": 10108,
+    "mode": 436
+  },
+  "src/nanoisa/capture_bindings.h": {
+    "sha256": "ec5b008318758120a1ef3ea535b24b0e352cc25f630e19b0566f628db44e1ab0",
+    "bytes": 2308,
+    "mode": 436
+  },
+  "src/nanoisa/nvm_format.h": {
+    "sha256": "a49a6eb8b3a6ccc7603bccb51743c79d7e73efff27c6f2769e75bc7c01cd4a34",
+    "bytes": 15573,
+    "mode": 420
+  },
+  "src/nanoisa/nvm_format_v2.h": {
+    "sha256": "8e03de1a95814af5702b22fb4077f8e17c8e00b5ee22399fa877b7fba7110d59",
+    "bytes": 5599,
+    "mode": 420
+  },
+  "src/nanoisa/nvm_v2_sections.h": {
+    "sha256": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9",
+    "bytes": 18955,
+    "mode": 420
+  },
+  "src/nanoisa/nvm_v2_cursor.c": {
+    "sha256": "d84b11478f6034fd8bca29d63746abae67c9700a1e571d220de285f2c49748fb",
+    "bytes": 2099,
+    "mode": 420
+  },
+  "tests/nanoisa/test_capture_bindings.c": {
+    "sha256": "262161103ee3680385d8d1c40927decea3b6fc818908c7f6178df6acd842bff8",
+    "bytes": 10536,
+    "mode": 436
+  }
+}

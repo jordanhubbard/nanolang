@@ -1,0 +1,87 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 8.94,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.226,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.188,
+    "status": 0
+  },
+  {
+    "phase": "generated-discovery",
+    "seconds": 0.161,
+    "status": 0
+  },
+  {
+    "phase": "generated-ordinary-native",
+    "seconds": 286.231,
+    "status": 0
+  },
+  {
+    "phase": "generated-clang-native",
+    "seconds": 326.477,
+    "status": 0
+  },
+  {
+    "phase": "parity",
+    "seconds": 4.754,
+    "status": 0
+  },
+  {
+    "phase": "ordinary-emission",
+    "seconds": 2.201,
+    "status": 0
+  },
+  {
+    "phase": "ordinary-native",
+    "seconds": 303.475,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary-emission",
+    "seconds": 2.34,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary-native",
+    "seconds": 341.854,
+    "status": 0
+  },
+  {
+    "phase": "wasm",
+    "seconds": 535.361,
+    "status": 0
+  },
+  {
+    "phase": "old-private-vm",
+    "seconds": 14.743,
+    "status": 0
+  },
+  {
+    "phase": "record_array_global_flow",
+    "seconds": 3.855,
+    "status": 0
+  },
+  {
+    "phase": "record_array_execution",
+    "seconds": 4.073,
+    "status": 0
+  },
+  {
+    "phase": "record_array_origins",
+    "seconds": 3.57,
+    "status": 0
+  },
+  {
+    "phase": "package",
+    "seconds": 0.885,
+    "status": 1
+  }
+]

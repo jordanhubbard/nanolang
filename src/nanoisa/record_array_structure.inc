@@ -19,7 +19,7 @@ NvmArrayEligibilityResult nvm_record_array_structure_prepare(const NvmModule *m,
      * capacities are charged separately; allocator metadata is not measured. */
     if(!nvm_ra_bytes(b,65536) || !nvm_ra_steps(b,65536))
         return ra_result(NVM_ARRAY_LIMIT,0,"I reached my fixed scratch reservation.");
-    if(m->service_data || m->service_size || m->import_count || m->module_ref_count ||
+    if(nvm_capture_bindings_present(m) || m->service_data || m->service_size || m->import_count || m->module_ref_count ||
        m->passive_data || m->passive_size || m->callback_contract_count)
         return ra_result(NVM_ARRAY_UNRESOLVED,0,"I require a closed ordinary module without host contracts.");
     if(m->function_count>256 || m->string_count>NVM_MAX_STRINGS || m->code_size>16u*1024u*1024u)

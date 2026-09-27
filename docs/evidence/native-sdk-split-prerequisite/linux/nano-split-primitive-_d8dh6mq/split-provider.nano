@@ -1,0 +1,3 @@
+module split_provider
+pub fn str_split(value: int) -> int { return (+ value 1) }
+shadow str_split { assert (== (str_split 41) 42) }

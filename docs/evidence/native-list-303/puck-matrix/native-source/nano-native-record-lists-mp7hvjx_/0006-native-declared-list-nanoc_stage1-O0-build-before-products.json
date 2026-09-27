@@ -1,0 +1,46 @@
+{
+  "native-cc.py": {
+    "sha256": "d2a0ed252e09ad8fd35b2e9ad60ab964a6bf7f92b6dfba2eda095755c7ce253a",
+    "bytes": 537
+  },
+  "native-declared-list-nanoc_c-O0": {
+    "sha256": "5d9a98e869f16f204278ee9b00f07c15d12c0efc9a0132d8e3ff1a2721f73e23",
+    "bytes": 8686272
+  },
+  "native-declared-list-nanoc_c-O0.c": {
+    "sha256": "fd2dcd6235b7312383d379651ff6d9f4244670df68ec1f5e6727bc2ec2522d46",
+    "bytes": 64621
+  },
+  "native-declared-list-nanoc_c-O2": {
+    "sha256": "3b4cb69c82c549576ee357f1cf7175071293f567104cbac5783f306b0f0290a1",
+    "bytes": 8618352
+  },
+  "native-declared-list-nanoc_c-O2.c": {
+    "sha256": "fd2dcd6235b7312383d379651ff6d9f4244670df68ec1f5e6727bc2ec2522d46",
+    "bytes": 64621
+  },
+  "native-declared-list-nanoc_stage1-O0": {
+    "sha256": "d1f04e85c927f1a0b95bbd5cfe8fad92d921b3a20b88bb4c7586155f638abb7e",
+    "bytes": 30
+  },
+  "native-declared-list.nano": {
+    "sha256": "1c486c7aea925375fd23df05be65bd7dc36f785d6ccef097850899fbc69a9c66",
+    "bytes": 402
+  },
+  "native-storage": {
+    "sha256": "b60099eadf6ae76b058b07a7e621c1f5c4af431cf265c6c5508d25cdb58f6404",
+    "bytes": 55648
+  },
+  "native-storage.dSYM/Contents/Info.plist": {
+    "sha256": "665393eaa4443981cadf57323e7c35a7b918e0c2dce322a53f2b8bb49cb96dfe",
+    "bytes": 643
+  },
+  "native-storage.dSYM/Contents/Resources/DWARF/native-storage": {
+    "sha256": "1128e6c202a5a5542997b5626bd19c43c27d9fa051ef4d8f7d3aecc3abaaa486",
+    "bytes": 18004
+  },
+  "native-storage.dSYM/Contents/Resources/Relocations/aarch64/native-storage.yml": {
+    "sha256": "daace2f66bdbcb9c5c0859ab7ebeda92b33550f4ddd513e8096344ad2e31a1b2",
+    "bytes": 211
+  }
+}

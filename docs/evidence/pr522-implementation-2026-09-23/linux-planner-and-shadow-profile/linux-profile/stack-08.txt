@@ -1,0 +1,30 @@
+elapsed=38.165
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+0x0000ffe705af2b28 in __asan::AsanInitIsRunning () at ../../../../src/libsanitizer/asan/asan_rtl.cpp:83
+#0  0x0000ffe705af2b28 in __asan::AsanInitIsRunning () at ../../../../src/libsanitizer/asan/asan_rtl.cpp:83
+#1  0x0000ffe705ab31c8 in ___interceptor_strcmp (s1=0xc249a0617b20 "list_int_push", s2=0x502000310750 "token_percent") at ../../../../src/libsanitizer/sanitizer_common/sanitizer_common_interceptors.inc:461
+#2  0x0000c2499f74c210 [PAC] in safe_strcmp (s1=0xc249a0617b20 "list_int_push", s2=0x502000310750 "token_percent") at src/nanolang.h:1110
+#3  0x0000c2499f763d0c in env_get_function (env=0x5120000001c0, name=0x502000310750 "token_percent") at src/env.c:779
+#4  0x0000c2499f7df58c in eval_call_impl (node=0x50c00046edc0, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4401
+#5  0x0000c2499f7c6688 in eval_call (node=0x50c00046edc0, env=0x5120000001c0) at src/eval.c:3034
+#6  0x0000c2499f7e9b34 in eval_expression (expr=0x50c00046edc0, env=0x5120000001c0) at src/eval.c:4915
+#7  0x0000c2499f7c2e44 in eval_prefix_op (node=0x50c00046ee80, env=0x5120000001c0) at src/eval.c:2897
+#8  0x0000c2499f7e9910 in eval_expression (expr=0x50c00046ee80, env=0x5120000001c0) at src/eval.c:4912
+#9  0x0000c2499f7c597c in eval_prefix_op (node=0x50c00046ef40, env=0x5120000001c0) at src/eval.c:2997
+#10 0x0000c2499f7e9910 in eval_expression (expr=0x50c00046ef40, env=0x5120000001c0) at src/eval.c:4912
+#11 0x0000c2499f7c597c in eval_prefix_op (node=0x50c00046f000, env=0x5120000001c0) at src/eval.c:2997
+#12 0x0000c2499f7e9910 in eval_expression (expr=0x50c00046f000, env=0x5120000001c0) at src/eval.c:4912
+#13 0x0000c2499f7c4f4c in eval_prefix_op (node=0x50c00045ce80, env=0x5120000001c0) at src/eval.c:2987
+#14 0x0000c2499f7e9910 in eval_expression (expr=0x50c00045ce80, env=0x5120000001c0) at src/eval.c:4912
+#15 0x0000c2499f7e6540 in eval_call_impl (node=0x50c000471040, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4789
+#16 0x0000c2499f7c6688 in eval_call (node=0x50c000471040, env=0x5120000001c0) at src/eval.c:3034
+#17 0x0000c2499f7e9b34 in eval_expression (expr=0x50c000471040, env=0x5120000001c0) at src/eval.c:4915
+#18 0x0000c2499f7edb2c in eval_expression_other (expr=0x50c000482e00, env=0x5120000001c0) at src/eval.c:5102
+#19 0x0000c2499f7e9b48 in eval_expression (expr=0x50c000482e00, env=0x5120000001c0) at src/eval.c:4917
+#20 0x0000c2499f807488 in eval_statement (stmt=0x50c000482e00, env=0x5120000001c0) at src/eval.c:6210
+#21 0x0000c2499f7932b0 in eval_scoped_block (statements=0x506000034ee0, count=2, env=0x5120000001c0) at src/eval.c:242
+#22 0x0000c2499f802538 in eval_statement (stmt=0x50c000482ec0, env=0x5120000001c0) at src/eval.c:5962
+#23 0x0000c2499f7ede38 in eval_expression_other (expr=0x50c000482f80, env=0x5120000001c0) at src/eval.c:5107
+[Inferior 1 (process 42926) detached]
+warning: 83	../../../../src/libsanitizer/asan/asan_rtl.cpp: No such file or directory

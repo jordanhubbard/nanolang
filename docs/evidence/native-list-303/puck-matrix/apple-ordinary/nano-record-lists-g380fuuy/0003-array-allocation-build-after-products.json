@@ -1,0 +1,50 @@
+{
+  "array-allocations": {
+    "sha256": "0b8a8617870d2055ad67e0be529e782dc22e73b82e8e6bcc223109e01cfde5ac",
+    "bytes": 10044720
+  },
+  "array-allocations.dSYM/Contents/Info.plist": {
+    "sha256": "f5734afeb6bd7c51b33b1ddf5cf155dd0002e4cdb4c5cababc6c9a0d10ea8ef3",
+    "bytes": 646
+  },
+  "array-allocations.dSYM/Contents/Resources/DWARF/array-allocations": {
+    "sha256": "b3ceb1e4284e5f46a3a39ccce1ba46f749f62c88d76f6954f5403763541b27b4",
+    "bytes": 2495300
+  },
+  "array-allocations.dSYM/Contents/Resources/Relocations/aarch64/array-allocations.yml": {
+    "sha256": "fc5f6e4d54f88b7fc67ef20a81be028a37e81156d01d7d4f77637d53764df822",
+    "bytes": 208
+  },
+  "array-identity": {
+    "sha256": "b74999e956c17ffc1bc662df02c1a6a4f0319a8dd56c8eca9689404d752691e6",
+    "bytes": 10040688
+  },
+  "array-identity.dSYM/Contents/Info.plist": {
+    "sha256": "fbefd771a73c09a355feb5d7bf3d290ff40719a70e191e811316c88e4fa2de3a",
+    "bytes": 643
+  },
+  "array-identity.dSYM/Contents/Resources/DWARF/array-identity": {
+    "sha256": "cae59d92dcd157afe7b7d60ba3c2533ad3cbc8002288766972e9af422b710239",
+    "bytes": 2532596
+  },
+  "array-identity.dSYM/Contents/Resources/Relocations/aarch64/array-identity.yml": {
+    "sha256": "5cd78fa7a8b6af4e4eebe148586505ca1ffdec06a97840da60e2545935bfb2af",
+    "bytes": 205
+  },
+  "coroutine-errors": {
+    "sha256": "0cf9ac9705a2fd587b8a7d3491ee5cc5c322ffd5c7d3ddeecb63076174789d33",
+    "bytes": 37472
+  },
+  "coroutine-errors.dSYM/Contents/Info.plist": {
+    "sha256": "465ae21812d41029355f926ac40eb95150e745724cb8a3cdf2a4442baca0d3dd",
+    "bytes": 645
+  },
+  "coroutine-errors.dSYM/Contents/Resources/DWARF/coroutine-errors": {
+    "sha256": "b32d25d075e0a7581db3a276146f482a6c7d9d489b37022df24741e9c4ba5b80",
+    "bytes": 21492
+  },
+  "coroutine-errors.dSYM/Contents/Resources/Relocations/aarch64/coroutine-errors.yml": {
+    "sha256": "8584c27f25ad9b486f0606ac8e480b1bb506a5b14a1680dbc6360ea1bf16c2dc",
+    "bytes": 207
+  }
+}

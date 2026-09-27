@@ -4,6 +4,10 @@ My orchestrator prepares a fresh bootstrap before this gate. I do not rebuild
 or select another compiler silently. C sanitizers cover these three small
 providers and C fixtures; I do not advertise Nano recoverable allocation parity.
 """
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 from pathlib import Path
 import json
 import os
@@ -40,7 +44,7 @@ class FileSourcePlan(unittest.TestCase):
     @classmethod
     def command(cls,name,args,timeout=180,extra=None):
         args=list(map(str,args))
-        env=dict(os.environ,ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+        env=dict(os.environ,ASAN_OPTIONS=asan_options("halt_on_error=1"),
                  UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1',LSAN_OPTIONS='')
         if extra: env.update(extra)
         (cls.work/(name+'-command.json')).write_text(json.dumps(dict(argv=args,cwd=str(ROOT),

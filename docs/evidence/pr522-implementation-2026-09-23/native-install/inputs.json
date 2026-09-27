@@ -1,0 +1,14 @@
+{
+  "platform": "macOS-26.7-arm64-arm-64bit-Mach-O",
+  "source_sha256": {
+    "Makefile.gnu": "f4f2a8c176f03523c1fd87585f252e551fd8a00eddd2043386d176cd280869d9",
+    "src_nano/nanoc_v06.nano": "b4acdca7b45ea0989fec694c9a18e93ea0f5a5502940d137fd125e8d108dd11a",
+    "tests/test_native_install.py": "cbac2767d349ed0071b1d683bb6ff45a8df84992977d3a387de223ac60ffc0bc"
+  },
+  "log_sha256": {
+    "stage2-neighbors.log": "1c02da66de33bccd84e34d7fe53e04c03596caefa5369672ec3c5c3790d473c3",
+    "stage1-neighbors.log": "afabfb6f7a7b2933e6a81719363b07c211e4d6d42a58c665ad1b16b9054542d1",
+    "installed-package.log": "a96370f831fb5571dbfe676bcbbe1d7ab411e5a695888808c14109d5aec54a5d",
+    "bootstrap.log": "6f4834555993022cdddb484c56c1b5bba41216f25d1f973f8a34eebf690594a2"
+  }
+}

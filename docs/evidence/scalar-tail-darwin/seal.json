@@ -1,0 +1,3027 @@
+{
+  "tail-f8ba-root": {
+    "head": "f8ba6a01707e78cb204640ba0432dd33de31f738",
+    "bundle": "tail-f8ba-root-reports.tar.gz",
+    "bytes": 3330057,
+    "sha256": "bfb2447323e92833176b275dd7d11e7d310ec2870ef2586c11890e3b095a2298",
+    "reports": [
+      {
+        "path": "backend-build-owned-processes.json",
+        "bytes": 104,
+        "sha256": "a355e96bc926faa27fb61471fb3c34e4405998910874fdec65dbbb453915fd34"
+      },
+      {
+        "path": "backend-build-products-after.json",
+        "bytes": 1115,
+        "sha256": "370aee4b8a3d93e50e4defeb70a2518eeefbcdb4604aba507d310af4b6095ffc"
+      },
+      {
+        "path": "backend-build-products-before.json",
+        "bytes": 1115,
+        "sha256": "370aee4b8a3d93e50e4defeb70a2518eeefbcdb4604aba507d310af4b6095ffc"
+      },
+      {
+        "path": "backend-build-sources-after.json",
+        "bytes": 1314874,
+        "sha256": "9e30e5c3086368fa0f66d516642ac8a9960c4efa536aeb12b249f12cdf633b28"
+      },
+      {
+        "path": "backend-build-sources-before.json",
+        "bytes": 1314874,
+        "sha256": "9e30e5c3086368fa0f66d516642ac8a9960c4efa536aeb12b249f12cdf633b28"
+      },
+      {
+        "path": "backend-build-status.json",
+        "bytes": 929,
+        "sha256": "3fcfdb7546c09c6dbaa8f4dd47199d3153f9449df1ac6248537a3c05583bbbb9"
+      },
+      {
+        "path": "backend-build-tools-after.json",
+        "bytes": 4507,
+        "sha256": "13a19479ee4cca8efeb18a856643cb91c754541869b24a5f88de361b75b49099"
+      },
+      {
+        "path": "backend-build-tools-before.json",
+        "bytes": 4507,
+        "sha256": "13a19479ee4cca8efeb18a856643cb91c754541869b24a5f88de361b75b49099"
+      },
+      {
+        "path": "backend-build.log",
+        "bytes": 51,
+        "sha256": "a767163221d255fe35b2bc754906ade9365bfab9c794c9b3715cb46600449a5d"
+      },
+      {
+        "path": "compiler-owned-processes.json",
+        "bytes": 104,
+        "sha256": "823a9ec629d65d4a96db3fe8d4ecff8bf07d34764caa5452540613f9ce96d88a"
+      },
+      {
+        "path": "compiler-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "compiler-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "compiler-sources-after.json",
+        "bytes": 1314874,
+        "sha256": "9e30e5c3086368fa0f66d516642ac8a9960c4efa536aeb12b249f12cdf633b28"
+      },
+      {
+        "path": "compiler-sources-before.json",
+        "bytes": 1314874,
+        "sha256": "9e30e5c3086368fa0f66d516642ac8a9960c4efa536aeb12b249f12cdf633b28"
+      },
+      {
+        "path": "compiler-status.json",
+        "bytes": 573,
+        "sha256": "df1799ecfa50ab6ae98cda92b146a05c6b6482ba7d2d71383612c354a3082760"
+      },
+      {
+        "path": "compiler-tools-after.json",
+        "bytes": 4507,
+        "sha256": "13a19479ee4cca8efeb18a856643cb91c754541869b24a5f88de361b75b49099"
+      },
+      {
+        "path": "compiler-tools-before.json",
+        "bytes": 4507,
+        "sha256": "13a19479ee4cca8efeb18a856643cb91c754541869b24a5f88de361b75b49099"
+      },
+      {
+        "path": "compiler.log",
+        "bytes": 200,
+        "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+      },
+      {
+        "path": "discovery-owned-processes.json",
+        "bytes": 104,
+        "sha256": "6d082388063dfd2f1eccd118a688583b4e9d0e017af16da24ffdbd9cfc4c185b"
+      },
+      {
+        "path": "discovery-products-after.json",
+        "bytes": 1115,
+        "sha256": "370aee4b8a3d93e50e4defeb70a2518eeefbcdb4604aba507d310af4b6095ffc"
+      },
+      {
+        "path": "discovery-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "discovery-sources-after.json",
+        "bytes": 1314874,
+        "sha256": "9e30e5c3086368fa0f66d516642ac8a9960c4efa536aeb12b249f12cdf633b28"
+      },
+      {
+        "path": "discovery-sources-before.json",
+        "bytes": 1314874,
+        "sha256": "9e30e5c3086368fa0f66d516642ac8a9960c4efa536aeb12b249f12cdf633b28"
+      },
+      {
+        "path": "discovery-status.json",
+        "bytes": 813,
+        "sha256": "7859956bd1f841c2feb8ef31b87b0b4251e2da347716f0a515d02bc648ad53df"
+      },
+      {
+        "path": "discovery-tools-after.json",
+        "bytes": 4507,
+        "sha256": "13a19479ee4cca8efeb18a856643cb91c754541869b24a5f88de361b75b49099"
+      },
+      {
+        "path": "discovery-tools-before.json",
+        "bytes": 4507,
+        "sha256": "13a19479ee4cca8efeb18a856643cb91c754541869b24a5f88de361b75b49099"
+      },
+      {
+        "path": "discovery.log",
+        "bytes": 44,
+        "sha256": "1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898"
+      },
+      {
+        "path": "environment.json",
+        "bytes": 892,
+        "sha256": "14c4413198b6160b522b3365ca67893316b922c6a2f17c4fdb11414b4aa7eaab"
+      },
+      {
+        "path": "llvm-owned-processes.json",
+        "bytes": 104,
+        "sha256": "37093036265656a019a00da5d2eb4a8a302a8af16eb7b37de78275ab7180557c"
+      },
+      {
+        "path": "llvm-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "llvm-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "llvm-sources-after.json",
+        "bytes": 1314874,
+        "sha256": "9e30e5c3086368fa0f66d516642ac8a9960c4efa536aeb12b249f12cdf633b28"
+      },
+      {
+        "path": "llvm-sources-before.json",
+        "bytes": 1314874,
+        "sha256": "9e30e5c3086368fa0f66d516642ac8a9960c4efa536aeb12b249f12cdf633b28"
+      },
+      {
+        "path": "llvm-status.json",
+        "bytes": 587,
+        "sha256": "3e3ffa7fddaba88e5b8b4406220fbdc60dd5ed124435a65436d088fab7cb9e18"
+      },
+      {
+        "path": "llvm-tools-after.json",
+        "bytes": 4507,
+        "sha256": "13a19479ee4cca8efeb18a856643cb91c754541869b24a5f88de361b75b49099"
+      },
+      {
+        "path": "llvm-tools-before.json",
+        "bytes": 4507,
+        "sha256": "13a19479ee4cca8efeb18a856643cb91c754541869b24a5f88de361b75b49099"
+      },
+      {
+        "path": "llvm.log",
+        "bytes": 222,
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      {
+        "path": "make-owned-processes.json",
+        "bytes": 104,
+        "sha256": "f826b27e122f2d3055cfd1432a9257ccab468e946bdeee2465f3849258d44d4c"
+      },
+      {
+        "path": "make-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "make-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "make-sources-after.json",
+        "bytes": 1314874,
+        "sha256": "9e30e5c3086368fa0f66d516642ac8a9960c4efa536aeb12b249f12cdf633b28"
+      },
+      {
+        "path": "make-sources-before.json",
+        "bytes": 1314874,
+        "sha256": "9e30e5c3086368fa0f66d516642ac8a9960c4efa536aeb12b249f12cdf633b28"
+      },
+      {
+        "path": "make-status.json",
+        "bytes": 568,
+        "sha256": "f5491c8df5d01b00cd3ca6b04bcb3d299f92b11da3c5f285dda0993a85520b57"
+      },
+      {
+        "path": "make-tools-after.json",
+        "bytes": 4507,
+        "sha256": "13a19479ee4cca8efeb18a856643cb91c754541869b24a5f88de361b75b49099"
+      },
+      {
+        "path": "make-tools-before.json",
+        "bytes": 4507,
+        "sha256": "13a19479ee4cca8efeb18a856643cb91c754541869b24a5f88de361b75b49099"
+      },
+      {
+        "path": "make.log",
+        "bytes": 263,
+        "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+      },
+      {
+        "path": "manifest.json",
+        "bytes": 5006,
+        "sha256": "c263cbf253d8e6b2768737a29517126dec1e2442331f6e86a7af7da8f343c521"
+      },
+      {
+        "path": "native-compiler-owned-processes.json",
+        "bytes": 104,
+        "sha256": "0b8cdb81ca785fe1acff6d40f70b260a87a5212676e2973aeb4353b95f5f3e16"
+      },
+      {
+        "path": "native-compiler-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "native-compiler-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "native-compiler-sources-after.json",
+        "bytes": 1314874,
+        "sha256": "9e30e5c3086368fa0f66d516642ac8a9960c4efa536aeb12b249f12cdf633b28"
+      },
+      {
+        "path": "native-compiler-sources-before.json",
+        "bytes": 1314874,
+        "sha256": "9e30e5c3086368fa0f66d516642ac8a9960c4efa536aeb12b249f12cdf633b28"
+      },
+      {
+        "path": "native-compiler-status.json",
+        "bytes": 598,
+        "sha256": "4f9e7784ee105d5da8ff38d98a16a47fd9f49043884194d4b5822dfd7d84795f"
+      },
+      {
+        "path": "native-compiler-tools-after.json",
+        "bytes": 4507,
+        "sha256": "13a19479ee4cca8efeb18a856643cb91c754541869b24a5f88de361b75b49099"
+      },
+      {
+        "path": "native-compiler-tools-before.json",
+        "bytes": 4507,
+        "sha256": "13a19479ee4cca8efeb18a856643cb91c754541869b24a5f88de361b75b49099"
+      },
+      {
+        "path": "native-compiler.log",
+        "bytes": 222,
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      {
+        "path": "runner.json",
+        "bytes": 246,
+        "sha256": "f453930190a00a6beb1120c85115c05eb22229b82ddc9c626effa53cbb295865"
+      },
+      {
+        "path": "source-initial.json",
+        "bytes": 1314874,
+        "sha256": "9e30e5c3086368fa0f66d516642ac8a9960c4efa536aeb12b249f12cdf633b28"
+      },
+      {
+        "path": "tools-initial.json",
+        "bytes": 4507,
+        "sha256": "13a19479ee4cca8efeb18a856643cb91c754541869b24a5f88de361b75b49099"
+      },
+      {
+        "path": "tracked-paths.json",
+        "bytes": 7087607,
+        "sha256": "c4db9a87fe67a00f057ad568fa454c32b6edcd59a94e388b59caf90450ae0af3"
+      }
+    ],
+    "objects": 3761,
+    "phases": [
+      {
+        "name": "compiler",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5980845419981051,
+        "log": {
+          "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+          "bytes": 200,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-reports/objects/d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "native-compiler",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.6005080830072984,
+        "log": {
+          "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+          "bytes": 222,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-reports/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "llvm",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5927594999957364,
+        "log": {
+          "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+          "bytes": 222,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-reports/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "make",
+        "argv": [
+          "/usr/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5981134159956127,
+        "log": {
+          "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+          "bytes": 263,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-reports/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "discovery",
+        "argv": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-c",
+          "import unittest;from tests import test_llvm_tail_frames;s=unittest.defaultTestLoader.loadTestsFromModule(test_llvm_tail_frames);assert s.countTestCases()==6;print('I discover exactly six scalar tail methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5903203330090037,
+        "log": {
+          "sha256": "1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898",
+          "bytes": 44,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-reports/objects/1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "backend-build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/usr/bin/clang",
+          "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+          "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS=",
+          "CPPFLAGS=-I/opt/homebrew/opt/openssl@3/include",
+          "LDFLAGS=-L/opt/homebrew/opt/openssl@3/lib"
+        ],
+        "bound_seconds": 1200,
+        "status": 2,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.6059909999894444,
+        "log": {
+          "sha256": "a767163221d255fe35b2bc754906ade9365bfab9c794c9b3715cb46600449a5d",
+          "bytes": 51,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-reports/objects/a767163221d255fe35b2bc754906ade9365bfab9c794c9b3715cb46600449a5d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      }
+    ]
+  },
+  "tail-f8ba-root-r2": {
+    "head": "f8ba6a01707e78cb204640ba0432dd33de31f738",
+    "bundle": "tail-f8ba-root-r2-reports.tar.gz",
+    "bytes": 3331868,
+    "sha256": "9598723dcc798915b0eb68990e9ce137781620616b5273704dd2599fb55f4c7d",
+    "reports": [
+      {
+        "path": "backend-build-owned-processes.json",
+        "bytes": 508,
+        "sha256": "bd6eedbecf1c930effe979133b94f1748e410ffcc4e80daf89fe24a9cef257cb"
+      },
+      {
+        "path": "backend-build-products-after.json",
+        "bytes": 11318,
+        "sha256": "45f6ebdb8555e5f2723c72df211ba4773db114b87c69433e9a216ae2bc4e643d"
+      },
+      {
+        "path": "backend-build-products-before.json",
+        "bytes": 1133,
+        "sha256": "a320cf643f02d5829c6beff69d55721387ea62800917c5d4c88e215bdf310267"
+      },
+      {
+        "path": "backend-build-sources-after.json",
+        "bytes": 1337416,
+        "sha256": "4118df26e03bdf6e5890be8e84aa53205fec21d7cacbd8ad5c23620a7a4b3c44"
+      },
+      {
+        "path": "backend-build-sources-before.json",
+        "bytes": 1337416,
+        "sha256": "4118df26e03bdf6e5890be8e84aa53205fec21d7cacbd8ad5c23620a7a4b3c44"
+      },
+      {
+        "path": "backend-build-status.json",
+        "bytes": 919,
+        "sha256": "5ea66b9212b6b9b0558a78dcd2261241dcb2db6dfc4da675cac90da50f611422"
+      },
+      {
+        "path": "backend-build-tools-after.json",
+        "bytes": 4552,
+        "sha256": "db938f3344c29cc742784bf63680726c0818ce4ff9216fd119f3166d05b93f1e"
+      },
+      {
+        "path": "backend-build-tools-before.json",
+        "bytes": 4552,
+        "sha256": "db938f3344c29cc742784bf63680726c0818ce4ff9216fd119f3166d05b93f1e"
+      },
+      {
+        "path": "backend-build.log",
+        "bytes": 6879,
+        "sha256": "efea12da4a3f14b552f0a91c1d95d5fb63b081c01e769a7b6b192024d38a7137"
+      },
+      {
+        "path": "compiler-owned-processes.json",
+        "bytes": 104,
+        "sha256": "1e795406ef27dc3afb56525d82330248b078a742849278af22a182c0bf97070d"
+      },
+      {
+        "path": "compiler-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "compiler-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "compiler-sources-after.json",
+        "bytes": 1337416,
+        "sha256": "4118df26e03bdf6e5890be8e84aa53205fec21d7cacbd8ad5c23620a7a4b3c44"
+      },
+      {
+        "path": "compiler-sources-before.json",
+        "bytes": 1337416,
+        "sha256": "4118df26e03bdf6e5890be8e84aa53205fec21d7cacbd8ad5c23620a7a4b3c44"
+      },
+      {
+        "path": "compiler-status.json",
+        "bytes": 576,
+        "sha256": "8a6bf5c5a3614969f4daf031222e113778936f2ae0021d3a11ac154340907033"
+      },
+      {
+        "path": "compiler-tools-after.json",
+        "bytes": 4552,
+        "sha256": "db938f3344c29cc742784bf63680726c0818ce4ff9216fd119f3166d05b93f1e"
+      },
+      {
+        "path": "compiler-tools-before.json",
+        "bytes": 4552,
+        "sha256": "db938f3344c29cc742784bf63680726c0818ce4ff9216fd119f3166d05b93f1e"
+      },
+      {
+        "path": "compiler.log",
+        "bytes": 200,
+        "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+      },
+      {
+        "path": "discovery-owned-processes.json",
+        "bytes": 104,
+        "sha256": "c2f72e148f397224bfa5160c720c1415d464419b00494dcabeb0fff1073244ce"
+      },
+      {
+        "path": "discovery-products-after.json",
+        "bytes": 1133,
+        "sha256": "a320cf643f02d5829c6beff69d55721387ea62800917c5d4c88e215bdf310267"
+      },
+      {
+        "path": "discovery-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "discovery-sources-after.json",
+        "bytes": 1337416,
+        "sha256": "4118df26e03bdf6e5890be8e84aa53205fec21d7cacbd8ad5c23620a7a4b3c44"
+      },
+      {
+        "path": "discovery-sources-before.json",
+        "bytes": 1337416,
+        "sha256": "4118df26e03bdf6e5890be8e84aa53205fec21d7cacbd8ad5c23620a7a4b3c44"
+      },
+      {
+        "path": "discovery-status.json",
+        "bytes": 816,
+        "sha256": "fc21c1aec4f6ea25f0e86b72858b1b613309025933e785cf028f6ac5268e0017"
+      },
+      {
+        "path": "discovery-tools-after.json",
+        "bytes": 4552,
+        "sha256": "db938f3344c29cc742784bf63680726c0818ce4ff9216fd119f3166d05b93f1e"
+      },
+      {
+        "path": "discovery-tools-before.json",
+        "bytes": 4552,
+        "sha256": "db938f3344c29cc742784bf63680726c0818ce4ff9216fd119f3166d05b93f1e"
+      },
+      {
+        "path": "discovery.log",
+        "bytes": 44,
+        "sha256": "1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898"
+      },
+      {
+        "path": "environment.json",
+        "bytes": 898,
+        "sha256": "d09fc27d58014fbf73b0b451ca480fdc9e8001a45554ef66605207490e895b98"
+      },
+      {
+        "path": "llvm-owned-processes.json",
+        "bytes": 104,
+        "sha256": "3f35066c330deaa5bc2f975afe1fe13837411c3d8b1c8e00c2f87afede246ad0"
+      },
+      {
+        "path": "llvm-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "llvm-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "llvm-sources-after.json",
+        "bytes": 1337416,
+        "sha256": "4118df26e03bdf6e5890be8e84aa53205fec21d7cacbd8ad5c23620a7a4b3c44"
+      },
+      {
+        "path": "llvm-sources-before.json",
+        "bytes": 1337416,
+        "sha256": "4118df26e03bdf6e5890be8e84aa53205fec21d7cacbd8ad5c23620a7a4b3c44"
+      },
+      {
+        "path": "llvm-status.json",
+        "bytes": 590,
+        "sha256": "36490de1a9db56a6d9025a349f4cf78284758c77b80c79905fccd677d844c3e1"
+      },
+      {
+        "path": "llvm-tools-after.json",
+        "bytes": 4552,
+        "sha256": "db938f3344c29cc742784bf63680726c0818ce4ff9216fd119f3166d05b93f1e"
+      },
+      {
+        "path": "llvm-tools-before.json",
+        "bytes": 4552,
+        "sha256": "db938f3344c29cc742784bf63680726c0818ce4ff9216fd119f3166d05b93f1e"
+      },
+      {
+        "path": "llvm.log",
+        "bytes": 222,
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      {
+        "path": "make-owned-processes.json",
+        "bytes": 104,
+        "sha256": "1d73e505ab11992db5e3667fe9436d257721ef542f3b986387d78fc1a08ac85c"
+      },
+      {
+        "path": "make-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "make-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "make-sources-after.json",
+        "bytes": 1337416,
+        "sha256": "4118df26e03bdf6e5890be8e84aa53205fec21d7cacbd8ad5c23620a7a4b3c44"
+      },
+      {
+        "path": "make-sources-before.json",
+        "bytes": 1337416,
+        "sha256": "4118df26e03bdf6e5890be8e84aa53205fec21d7cacbd8ad5c23620a7a4b3c44"
+      },
+      {
+        "path": "make-status.json",
+        "bytes": 571,
+        "sha256": "e511e0fb20bbdb7d625f738847e180ef26d849835514669f5785ffa4d9406949"
+      },
+      {
+        "path": "make-tools-after.json",
+        "bytes": 4552,
+        "sha256": "db938f3344c29cc742784bf63680726c0818ce4ff9216fd119f3166d05b93f1e"
+      },
+      {
+        "path": "make-tools-before.json",
+        "bytes": 4552,
+        "sha256": "db938f3344c29cc742784bf63680726c0818ce4ff9216fd119f3166d05b93f1e"
+      },
+      {
+        "path": "make.log",
+        "bytes": 263,
+        "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+      },
+      {
+        "path": "manifest.json",
+        "bytes": 5007,
+        "sha256": "ed15f198435171b77371c451ff653d35af620c4a657372435495a1871779142f"
+      },
+      {
+        "path": "native-compiler-owned-processes.json",
+        "bytes": 104,
+        "sha256": "53bc5d867f5502f1fcd2430ca0adae3d3bc00147597f2b4a892f906978f7d429"
+      },
+      {
+        "path": "native-compiler-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "native-compiler-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "native-compiler-sources-after.json",
+        "bytes": 1337416,
+        "sha256": "4118df26e03bdf6e5890be8e84aa53205fec21d7cacbd8ad5c23620a7a4b3c44"
+      },
+      {
+        "path": "native-compiler-sources-before.json",
+        "bytes": 1337416,
+        "sha256": "4118df26e03bdf6e5890be8e84aa53205fec21d7cacbd8ad5c23620a7a4b3c44"
+      },
+      {
+        "path": "native-compiler-status.json",
+        "bytes": 601,
+        "sha256": "edf626ecef79c01516fa78ff981a1d5e896de61ab732c8ba9a16df8ef7afd9d8"
+      },
+      {
+        "path": "native-compiler-tools-after.json",
+        "bytes": 4552,
+        "sha256": "db938f3344c29cc742784bf63680726c0818ce4ff9216fd119f3166d05b93f1e"
+      },
+      {
+        "path": "native-compiler-tools-before.json",
+        "bytes": 4552,
+        "sha256": "db938f3344c29cc742784bf63680726c0818ce4ff9216fd119f3166d05b93f1e"
+      },
+      {
+        "path": "native-compiler.log",
+        "bytes": 222,
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      {
+        "path": "runner.json",
+        "bytes": 249,
+        "sha256": "42cdb372929f83e0dfe17b458fcce512cd87f01c257e08fe527e8779993ea808"
+      },
+      {
+        "path": "source-initial.json",
+        "bytes": 1337416,
+        "sha256": "4118df26e03bdf6e5890be8e84aa53205fec21d7cacbd8ad5c23620a7a4b3c44"
+      },
+      {
+        "path": "tools-initial.json",
+        "bytes": 4552,
+        "sha256": "db938f3344c29cc742784bf63680726c0818ce4ff9216fd119f3166d05b93f1e"
+      },
+      {
+        "path": "tracked-paths.json",
+        "bytes": 7087607,
+        "sha256": "c4db9a87fe67a00f057ad568fa454c32b6edcd59a94e388b59caf90450ae0af3"
+      }
+    ],
+    "objects": 3789,
+    "phases": [
+      {
+        "name": "compiler",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5979550000047311,
+        "log": {
+          "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+          "bytes": 200,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-r2-reports/objects/d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "native-compiler",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.6019194169930415,
+        "log": {
+          "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+          "bytes": 222,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-r2-reports/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "llvm",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5987083750078455,
+        "log": {
+          "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+          "bytes": 222,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-r2-reports/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "make",
+        "argv": [
+          "/usr/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5944696249935078,
+        "log": {
+          "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+          "bytes": 263,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-r2-reports/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "discovery",
+        "argv": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-c",
+          "import unittest;from tests import test_llvm_tail_frames;s=unittest.defaultTestLoader.loadTestsFromModule(test_llvm_tail_frames);assert s.countTestCases()==6;print('I discover exactly six scalar tail methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.6080541249975795,
+        "log": {
+          "sha256": "1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898",
+          "bytes": 44,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-r2-reports/objects/1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "backend-build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/usr/bin/clang",
+          "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+          "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS=",
+          "CPPFLAGS=-I/opt/homebrew/opt/openssl@3/include",
+          "LDFLAGS=-L/opt/homebrew/opt/openssl@3/lib"
+        ],
+        "bound_seconds": 1200,
+        "status": 2,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 1.1102731249993667,
+        "log": {
+          "sha256": "efea12da4a3f14b552f0a91c1d95d5fb63b081c01e769a7b6b192024d38a7137",
+          "bytes": 6879,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-r2-reports/objects/efea12da4a3f14b552f0a91c1d95d5fb63b081c01e769a7b6b192024d38a7137"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      }
+    ]
+  },
+  "tail-f8ba-root-r3": {
+    "head": "f8ba6a01707e78cb204640ba0432dd33de31f738",
+    "bundle": "tail-f8ba-root-r3-reports.tar.gz",
+    "bytes": 3867045,
+    "sha256": "f9e9163ce3050c4e70ab0c1dd1e056490b3d8a744a9e2ad47e03a70e00f62be7",
+    "reports": [
+      {
+        "path": "backend-build-owned-processes.json",
+        "bytes": 6366,
+        "sha256": "e9b97556ac77db190f8f7695a222a557e542502d555b0af7641ff9b1e160c5e5"
+      },
+      {
+        "path": "backend-build-products-after.json",
+        "bytes": 120053,
+        "sha256": "8c0a6a8b44cc39d488710af64ba45aaeea7a2dd5e03fbcd8e987511b1fe3939e"
+      },
+      {
+        "path": "backend-build-products-before.json",
+        "bytes": 1133,
+        "sha256": "2d82843d68e96165918f468cccad17b6c0942a2b7de11b743021d2a38b419ea3"
+      },
+      {
+        "path": "backend-build-sources-after.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "backend-build-sources-before.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "backend-build-status.json",
+        "bytes": 962,
+        "sha256": "1e19f7b0a5724cbb772227768e2e3a4e67d621167cd411bbb39661404249f6a6"
+      },
+      {
+        "path": "backend-build-tools-after.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "backend-build-tools-before.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "backend-build.log",
+        "bytes": 62252,
+        "sha256": "1198378fa7024769618728e5597f9f537af9c0a68ce0540270bb8df9c0d189eb"
+      },
+      {
+        "path": "compiler-owned-processes.json",
+        "bytes": 104,
+        "sha256": "7362c0b2b68a75a6ac96893d6f3329dcd406befa3ca069a35b8259b7d093f0a5"
+      },
+      {
+        "path": "compiler-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "compiler-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "compiler-sources-after.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "compiler-sources-before.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "compiler-status.json",
+        "bytes": 576,
+        "sha256": "3694fde13be0a46b370326c0ca636e9ab3a564d96afea2edc10cca2ab7c3df14"
+      },
+      {
+        "path": "compiler-tools-after.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "compiler-tools-before.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "compiler.log",
+        "bytes": 200,
+        "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+      },
+      {
+        "path": "discovery-owned-processes.json",
+        "bytes": 104,
+        "sha256": "7d410b27a130727ea24d841613d58a8b4f24f0c8975aded03d0a81f385e5bd5c"
+      },
+      {
+        "path": "discovery-products-after.json",
+        "bytes": 1133,
+        "sha256": "2d82843d68e96165918f468cccad17b6c0942a2b7de11b743021d2a38b419ea3"
+      },
+      {
+        "path": "discovery-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "discovery-sources-after.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "discovery-sources-before.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "discovery-status.json",
+        "bytes": 816,
+        "sha256": "a72530f10b8fa143634acac3898f359cef1dac53c7f10ef053fd2c74d8e24177"
+      },
+      {
+        "path": "discovery-tools-after.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "discovery-tools-before.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "discovery.log",
+        "bytes": 44,
+        "sha256": "1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898"
+      },
+      {
+        "path": "environment.json",
+        "bytes": 1043,
+        "sha256": "eb1caa4f33774ab899f74df68103347713f6feaac9cec0c8e667b598c30dc8a5"
+      },
+      {
+        "path": "llvm-owned-processes.json",
+        "bytes": 104,
+        "sha256": "1992a87eb461f70f6b098694eb44db1ff7ed689e595beef3ed56486f82dfd2d8"
+      },
+      {
+        "path": "llvm-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "llvm-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "llvm-sources-after.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "llvm-sources-before.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "llvm-status.json",
+        "bytes": 590,
+        "sha256": "3f09cbce1e1a9d5bba8ec3dad1d38370e9dafaf60ac0463e9271fc7fb7f669c6"
+      },
+      {
+        "path": "llvm-tools-after.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "llvm-tools-before.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "llvm.log",
+        "bytes": 222,
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      {
+        "path": "make-owned-processes.json",
+        "bytes": 104,
+        "sha256": "806176c4d6791bfb660aab6a758ff2a93f08238d54bde52c064b1d23ae600433"
+      },
+      {
+        "path": "make-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "make-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "make-sources-after.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "make-sources-before.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "make-status.json",
+        "bytes": 571,
+        "sha256": "07ca050df0c944e63f651fda716e31c71037cc1b74d7e43d7a0b85b532ed0959"
+      },
+      {
+        "path": "make-tools-after.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "make-tools-before.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "make.log",
+        "bytes": 263,
+        "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+      },
+      {
+        "path": "manifest.json",
+        "bytes": 5872,
+        "sha256": "764c4649b9e8e15c104c26f98ceeca264d8b354468537fd9d145c8093d97df8e"
+      },
+      {
+        "path": "native-compiler-owned-processes.json",
+        "bytes": 104,
+        "sha256": "9e755d05f1c43f40079ebef25e42cbbd5ca3d2a28fecbf647b3d2931f815d25f"
+      },
+      {
+        "path": "native-compiler-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "native-compiler-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "native-compiler-sources-after.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "native-compiler-sources-before.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "native-compiler-status.json",
+        "bytes": 643,
+        "sha256": "049283b0a5d80b6b8e0ab3284336a64a28b80c586725d6db06817b7116f092e5"
+      },
+      {
+        "path": "native-compiler-tools-after.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "native-compiler-tools-before.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "native-compiler.log",
+        "bytes": 222,
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      {
+        "path": "runner.json",
+        "bytes": 249,
+        "sha256": "c4d74392f834538bdb907724fad3e36f5257e65154ee06601a9b4f558fdd055d"
+      },
+      {
+        "path": "scalar-tail-owned-processes.json",
+        "bytes": 811,
+        "sha256": "997b059da52b19d306aa9e48268fdda7e4b56cb284fabc6de1c2091de7aaa31b"
+      },
+      {
+        "path": "scalar-tail-products-after.json",
+        "bytes": 120053,
+        "sha256": "8c0a6a8b44cc39d488710af64ba45aaeea7a2dd5e03fbcd8e987511b1fe3939e"
+      },
+      {
+        "path": "scalar-tail-products-before.json",
+        "bytes": 120053,
+        "sha256": "8c0a6a8b44cc39d488710af64ba45aaeea7a2dd5e03fbcd8e987511b1fe3939e"
+      },
+      {
+        "path": "scalar-tail-sources-after.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "scalar-tail-sources-before.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "scalar-tail-status.json",
+        "bytes": 675,
+        "sha256": "cc5f94fe4e360c8f3d91defa96dc651b1c63d15e30452d7fc92c0554970c3952"
+      },
+      {
+        "path": "scalar-tail-tools-after.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "scalar-tail-tools-before.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "scalar-tail.log",
+        "bytes": 1866,
+        "sha256": "c4d0a699b37a762097223443f351b12528ea4d6d957d5a379ff82d7e7f3966d8"
+      },
+      {
+        "path": "source-initial.json",
+        "bytes": 1337416,
+        "sha256": "132d1b4e22109404d4c4fdc590f908918933528881092766b5f7c26baec19ba0"
+      },
+      {
+        "path": "tools-initial.json",
+        "bytes": 5264,
+        "sha256": "74be40f70755d7e8ed44f5fb539c8bdbf26afe0a451b40f34f6c19bf9ae31389"
+      },
+      {
+        "path": "tracked-paths.json",
+        "bytes": 7087607,
+        "sha256": "c4db9a87fe67a00f057ad568fa454c32b6edcd59a94e388b59caf90450ae0af3"
+      }
+    ],
+    "objects": 4105,
+    "phases": [
+      {
+        "name": "compiler",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.6045433749968652,
+        "log": {
+          "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+          "bytes": 200,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-r3-reports/objects/d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "native-compiler",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.6025865830015391,
+        "log": {
+          "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+          "bytes": 222,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-r3-reports/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "llvm",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5999150420102524,
+        "log": {
+          "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+          "bytes": 222,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-r3-reports/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "make",
+        "argv": [
+          "/usr/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.6031321250047768,
+        "log": {
+          "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+          "bytes": 263,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-r3-reports/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "discovery",
+        "argv": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-c",
+          "import unittest;from tests import test_llvm_tail_frames;s=unittest.defaultTestLoader.loadTestsFromModule(test_llvm_tail_frames);assert s.countTestCases()==6;print('I discover exactly six scalar tail methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5938663749984698,
+        "log": {
+          "sha256": "1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898",
+          "bytes": 44,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-r3-reports/objects/1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "backend-build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/usr/bin/clang",
+          "NMS_RUNTIME_CLANG=/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+          "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS=",
+          "CPPFLAGS=-I/opt/homebrew/opt/openssl@3/include",
+          "LDFLAGS=-L/opt/homebrew/opt/openssl@3/lib"
+        ],
+        "bound_seconds": 1200,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 10.646413084003143,
+        "log": {
+          "sha256": "1198378fa7024769618728e5597f9f537af9c0a68ce0540270bb8df9c0d189eb",
+          "bytes": 62252,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-r3-reports/objects/1198378fa7024769618728e5597f9f537af9c0a68ce0540270bb8df9c0d189eb"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "scalar-tail",
+        "argv": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_llvm_tail_frames"
+        ],
+        "bound_seconds": 1800,
+        "status": 1,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 4.388072292000288,
+        "log": {
+          "sha256": "c4d0a699b37a762097223443f351b12528ea4d6d957d5a379ff82d7e7f3966d8",
+          "bytes": 1866,
+          "archive": "/Users/jkh/nanolang-qualification/tail-f8ba-root-r3-reports/objects/c4d0a699b37a762097223443f351b12528ea4d6d957d5a379ff82d7e7f3966d8"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      }
+    ]
+  },
+  "tail-ec974-root": {
+    "head": "ec97437be567c22d9ec2020d7b61244614ac18a2",
+    "bundle": "tail-ec974-root-reports.tar.gz",
+    "bytes": 3866580,
+    "sha256": "fb04f9b2f6a38a07a59a92de07e48c8694a6550d981b4fef3c1d56818a77b625",
+    "reports": [
+      {
+        "path": "backend-build-owned-processes.json",
+        "bytes": 5785,
+        "sha256": "4ffb16a183d253acf1cb57aa248935f63bb866eebcfaf5135b870e3faa6f8b56"
+      },
+      {
+        "path": "backend-build-products-after.json",
+        "bytes": 118669,
+        "sha256": "2ac352d74b2c185b80c04d336b68ac64a3aebd84888fb78a61407d8328302298"
+      },
+      {
+        "path": "backend-build-products-before.json",
+        "bytes": 1121,
+        "sha256": "d918707bee05d711cd75bec1853da10166aafbf6b6938ca4bc664bfce704e84b"
+      },
+      {
+        "path": "backend-build-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "backend-build-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "backend-build-status.json",
+        "bytes": 960,
+        "sha256": "f2683657a83ff5416b6544f3ed6b7cfb78bd9c04bc13d986524579d0be773177"
+      },
+      {
+        "path": "backend-build-tools-after.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "backend-build-tools-before.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "backend-build.log",
+        "bytes": 62252,
+        "sha256": "1198378fa7024769618728e5597f9f537af9c0a68ce0540270bb8df9c0d189eb"
+      },
+      {
+        "path": "compiler-owned-processes.json",
+        "bytes": 101,
+        "sha256": "2ff4c80029e3076ac46a39f27a500fb0a95ec540d28c0041c2f55f8a544479db"
+      },
+      {
+        "path": "compiler-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "compiler-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "compiler-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "compiler-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "compiler-status.json",
+        "bytes": 574,
+        "sha256": "c858b4c16774b9cdcd711ec36a1f45e9e596d89752e7eb8b5ff132bb17f9ea0f"
+      },
+      {
+        "path": "compiler-tools-after.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "compiler-tools-before.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "compiler.log",
+        "bytes": 200,
+        "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+      },
+      {
+        "path": "discovery-owned-processes.json",
+        "bytes": 101,
+        "sha256": "5061ed31956aba4ac8d7bda806eaf918d2136610873639666c3cf8833e25bbe6"
+      },
+      {
+        "path": "discovery-products-after.json",
+        "bytes": 1121,
+        "sha256": "d918707bee05d711cd75bec1853da10166aafbf6b6938ca4bc664bfce704e84b"
+      },
+      {
+        "path": "discovery-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "discovery-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "discovery-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "discovery-status.json",
+        "bytes": 814,
+        "sha256": "c7d0688677f1d1a6ac0077ba522a826465fd67e757748161e29da75773b7a1db"
+      },
+      {
+        "path": "discovery-tools-after.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "discovery-tools-before.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "discovery.log",
+        "bytes": 44,
+        "sha256": "1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898"
+      },
+      {
+        "path": "environment.json",
+        "bytes": 1039,
+        "sha256": "76e6228e20dfc31c55802b962478608c642fa7bf407318099d6d11d7cdb6aa13"
+      },
+      {
+        "path": "llvm-owned-processes.json",
+        "bytes": 101,
+        "sha256": "1f3beace61117836606d875025fe4737b85d21c3904482e8aea96187120b6a77"
+      },
+      {
+        "path": "llvm-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "llvm-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "llvm-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "llvm-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "llvm-status.json",
+        "bytes": 588,
+        "sha256": "2daa676936c89b4b146614c93f416aa97c018fd2f7b239562a57ad2dcfc0fbaa"
+      },
+      {
+        "path": "llvm-tools-after.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "llvm-tools-before.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "llvm.log",
+        "bytes": 222,
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      {
+        "path": "make-owned-processes.json",
+        "bytes": 101,
+        "sha256": "b6a3192a3b24464eafc6dbc41d98e283f03c9063f501f8d9a6c9dfbb3d20ea8e"
+      },
+      {
+        "path": "make-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "make-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "make-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "make-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "make-status.json",
+        "bytes": 569,
+        "sha256": "4da21a657ced21ec57d5a2d97eae81efa72ec29f5a47a7b6ab2e3526dbdf80d4"
+      },
+      {
+        "path": "make-tools-after.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "make-tools-before.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "make.log",
+        "bytes": 263,
+        "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+      },
+      {
+        "path": "manifest.json",
+        "bytes": 5859,
+        "sha256": "8c32a4b67ccd2b57f8aa1b965624c03cfba974426cee5a57df8bd14f14349f2d"
+      },
+      {
+        "path": "native-compiler-owned-processes.json",
+        "bytes": 101,
+        "sha256": "3db50954a1897e67906d4d4d56b80dafd6a57b933e8cc51a0be7953d0d6902c7"
+      },
+      {
+        "path": "native-compiler-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "native-compiler-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "native-compiler-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "native-compiler-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "native-compiler-status.json",
+        "bytes": 641,
+        "sha256": "419b6e6725e7101df627627ed9134c9680477c280ad0ebf0b110d0b77bb35df7"
+      },
+      {
+        "path": "native-compiler-tools-after.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "native-compiler-tools-before.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "native-compiler.log",
+        "bytes": 222,
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      {
+        "path": "runner.json",
+        "bytes": 247,
+        "sha256": "b84ff3ac3fba8a0fd5d293fd1786dd53329ba6fe4ce6ee8ec8a1f1d6cde21b27"
+      },
+      {
+        "path": "scalar-tail-owned-processes.json",
+        "bytes": 689,
+        "sha256": "ad413ee386f433d706b7f943a849b1a69952764e06e5ed2c616b5a90506fa28b"
+      },
+      {
+        "path": "scalar-tail-products-after.json",
+        "bytes": 118669,
+        "sha256": "2ac352d74b2c185b80c04d336b68ac64a3aebd84888fb78a61407d8328302298"
+      },
+      {
+        "path": "scalar-tail-products-before.json",
+        "bytes": 118669,
+        "sha256": "2ac352d74b2c185b80c04d336b68ac64a3aebd84888fb78a61407d8328302298"
+      },
+      {
+        "path": "scalar-tail-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "scalar-tail-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "scalar-tail-status.json",
+        "bytes": 674,
+        "sha256": "31a43dbc5cc983c94a7838934e46f53677856b33e7f3803ef99e731d67bf863b"
+      },
+      {
+        "path": "scalar-tail-tools-after.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "scalar-tail-tools-before.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "scalar-tail.log",
+        "bytes": 1856,
+        "sha256": "bfd7f55390e676a569af3bce360559e959d3cc4a3d300c8b53ce59a19611cc49"
+      },
+      {
+        "path": "source-initial.json",
+        "bytes": 1322388,
+        "sha256": "b3fe367e83940533ab10599838677951eb63c9a312fbd69eebc7a91f1a27012b"
+      },
+      {
+        "path": "tools-initial.json",
+        "bytes": 5230,
+        "sha256": "47cf988322d0cbc2e49dc362191e1244721e33b120ecc082267d9d9173a709ed"
+      },
+      {
+        "path": "tracked-paths.json",
+        "bytes": 7089277,
+        "sha256": "d1a4341f960836ec3f12625406b01850ad0379a2ba819bc4e3bad4111307f5b2"
+      }
+    ],
+    "objects": 4105,
+    "phases": [
+      {
+        "name": "compiler",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5997873749874998,
+        "log": {
+          "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+          "bytes": 200,
+          "archive": "/Users/jkh/nanolang-qualification/tail-ec974-root-reports/objects/d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "native-compiler",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5998014999931911,
+        "log": {
+          "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+          "bytes": 222,
+          "archive": "/Users/jkh/nanolang-qualification/tail-ec974-root-reports/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "llvm",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.6051684169942746,
+        "log": {
+          "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+          "bytes": 222,
+          "archive": "/Users/jkh/nanolang-qualification/tail-ec974-root-reports/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "make",
+        "argv": [
+          "/usr/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5986234999872977,
+        "log": {
+          "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+          "bytes": 263,
+          "archive": "/Users/jkh/nanolang-qualification/tail-ec974-root-reports/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "discovery",
+        "argv": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-c",
+          "import unittest;from tests import test_llvm_tail_frames;s=unittest.defaultTestLoader.loadTestsFromModule(test_llvm_tail_frames);assert s.countTestCases()==6;print('I discover exactly six scalar tail methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5985112079943065,
+        "log": {
+          "sha256": "1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898",
+          "bytes": 44,
+          "archive": "/Users/jkh/nanolang-qualification/tail-ec974-root-reports/objects/1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "backend-build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/usr/bin/clang",
+          "NMS_RUNTIME_CLANG=/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+          "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS=",
+          "CPPFLAGS=-I/opt/homebrew/opt/openssl@3/include",
+          "LDFLAGS=-L/opt/homebrew/opt/openssl@3/lib"
+        ],
+        "bound_seconds": 1200,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 10.671141541999532,
+        "log": {
+          "sha256": "1198378fa7024769618728e5597f9f537af9c0a68ce0540270bb8df9c0d189eb",
+          "bytes": 62252,
+          "archive": "/Users/jkh/nanolang-qualification/tail-ec974-root-reports/objects/1198378fa7024769618728e5597f9f537af9c0a68ce0540270bb8df9c0d189eb"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "scalar-tail",
+        "argv": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_llvm_tail_frames"
+        ],
+        "bound_seconds": 1800,
+        "status": 1,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 3.7859411249955883,
+        "log": {
+          "sha256": "bfd7f55390e676a569af3bce360559e959d3cc4a3d300c8b53ce59a19611cc49",
+          "bytes": 1856,
+          "archive": "/Users/jkh/nanolang-qualification/tail-ec974-root-reports/objects/bfd7f55390e676a569af3bce360559e959d3cc4a3d300c8b53ce59a19611cc49"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      }
+    ]
+  },
+  "tail-1f352-root": {
+    "head": "1f352e5439fa44b9966b275e77e712c8a8621272",
+    "bundle": "tail-1f352-root-reports.tar.gz",
+    "bytes": 3866801,
+    "sha256": "fc63bcb092df9db7317128ac08ff67441106cf695410449ee58c38321a82cc6f",
+    "reports": [
+      {
+        "path": "backend-build-owned-processes.json",
+        "bytes": 6366,
+        "sha256": "e23819c7c4344e682d438b23003aa363e15afa16fa48fcb2b91bad02d5c59414"
+      },
+      {
+        "path": "backend-build-products-after.json",
+        "bytes": 118669,
+        "sha256": "6832402283e98798ab85fbad3ccd12e7df90d85dbdfc47b26ce7f7b72500fab9"
+      },
+      {
+        "path": "backend-build-products-before.json",
+        "bytes": 1121,
+        "sha256": "d236fc0ae836e2e1e3ec850788d4c426a738e70a674d8b245edecf881390f73b"
+      },
+      {
+        "path": "backend-build-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "backend-build-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "backend-build-status.json",
+        "bytes": 960,
+        "sha256": "2521bb4126e409e20d1e77e3ecac9d4d4d92e63f206bed6260b87258db52ae2b"
+      },
+      {
+        "path": "backend-build-tools-after.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "backend-build-tools-before.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "backend-build.log",
+        "bytes": 62252,
+        "sha256": "1198378fa7024769618728e5597f9f537af9c0a68ce0540270bb8df9c0d189eb"
+      },
+      {
+        "path": "compiler-owned-processes.json",
+        "bytes": 104,
+        "sha256": "ce075731d932f5ee357c5e47444201d95ac0ce9cd282fd3bca31c4c5cbda505e"
+      },
+      {
+        "path": "compiler-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "compiler-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "compiler-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "compiler-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "compiler-status.json",
+        "bytes": 574,
+        "sha256": "929b5f14eafead73d9d5261d62b820f05b140d3b46f583bad29baa97eeed1a1c"
+      },
+      {
+        "path": "compiler-tools-after.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "compiler-tools-before.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "compiler.log",
+        "bytes": 200,
+        "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+      },
+      {
+        "path": "discovery-owned-processes.json",
+        "bytes": 104,
+        "sha256": "f23e4c74f90f975386244cac440c6267cfc5c5476f1033748c73f54d228ebaad"
+      },
+      {
+        "path": "discovery-products-after.json",
+        "bytes": 1121,
+        "sha256": "d236fc0ae836e2e1e3ec850788d4c426a738e70a674d8b245edecf881390f73b"
+      },
+      {
+        "path": "discovery-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "discovery-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "discovery-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "discovery-status.json",
+        "bytes": 814,
+        "sha256": "db476c3182805648e1865680226818434d8142d525cfe2c277ee3ad37f32019b"
+      },
+      {
+        "path": "discovery-tools-after.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "discovery-tools-before.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "discovery.log",
+        "bytes": 44,
+        "sha256": "1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898"
+      },
+      {
+        "path": "environment.json",
+        "bytes": 1039,
+        "sha256": "beb3cdefae27a9e0f33e03f22890e2167f465d02fb1a0dbc365e707607153bf7"
+      },
+      {
+        "path": "llvm-owned-processes.json",
+        "bytes": 104,
+        "sha256": "0a2925385a629ad84373af59602dd4fa89ddb6aa9428d9f5e23e2f1e699c0682"
+      },
+      {
+        "path": "llvm-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "llvm-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "llvm-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "llvm-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "llvm-status.json",
+        "bytes": 587,
+        "sha256": "468b41780354e5f68072b3267b2d6377878211b67262c364ddf575d3429354f0"
+      },
+      {
+        "path": "llvm-tools-after.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "llvm-tools-before.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "llvm.log",
+        "bytes": 222,
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      {
+        "path": "make-owned-processes.json",
+        "bytes": 104,
+        "sha256": "d92d7f1860a78977148ac24c7cdcb00b8806d9c3422db497a7cfdc8bcc854d22"
+      },
+      {
+        "path": "make-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "make-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "make-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "make-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "make-status.json",
+        "bytes": 569,
+        "sha256": "ae3aca333cd64b922a38759fed662f6c6d4740dd3cb3ee345e501691f4ac4973"
+      },
+      {
+        "path": "make-tools-after.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "make-tools-before.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "make.log",
+        "bytes": 263,
+        "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+      },
+      {
+        "path": "manifest.json",
+        "bytes": 5858,
+        "sha256": "9b8bd0fa80b11333d67962f95928a1d23f76b501123a3f2047fd4fc3fb8397a8"
+      },
+      {
+        "path": "native-compiler-owned-processes.json",
+        "bytes": 104,
+        "sha256": "866a280745f3c8a91554b50fdafdbcc8ed999bc9b8d22f71b60a2f7206c18d48"
+      },
+      {
+        "path": "native-compiler-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "native-compiler-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "native-compiler-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "native-compiler-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "native-compiler-status.json",
+        "bytes": 641,
+        "sha256": "e1978d1c2c081b1ce09a8e7c6aa7546694d81563b9504ad12de280bda5d31f4b"
+      },
+      {
+        "path": "native-compiler-tools-after.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "native-compiler-tools-before.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "native-compiler.log",
+        "bytes": 222,
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      {
+        "path": "runner.json",
+        "bytes": 247,
+        "sha256": "e7c1175773c86d1bf915a26d1f72b8385a7e8d3f8664586dd891cc39464a8e51"
+      },
+      {
+        "path": "scalar-tail-owned-processes.json",
+        "bytes": 4245,
+        "sha256": "aba8b5342897ba68fc7c549a8e457403f44e1c46be03b82acf65c9af8cf55cea"
+      },
+      {
+        "path": "scalar-tail-products-after.json",
+        "bytes": 118669,
+        "sha256": "6832402283e98798ab85fbad3ccd12e7df90d85dbdfc47b26ce7f7b72500fab9"
+      },
+      {
+        "path": "scalar-tail-products-before.json",
+        "bytes": 118669,
+        "sha256": "6832402283e98798ab85fbad3ccd12e7df90d85dbdfc47b26ce7f7b72500fab9"
+      },
+      {
+        "path": "scalar-tail-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "scalar-tail-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "scalar-tail-status.json",
+        "bytes": 674,
+        "sha256": "6ef9d8456fce13344730c7cfff116b6c0a7585e84291d046c1777c1ab4ca842f"
+      },
+      {
+        "path": "scalar-tail-tools-after.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "scalar-tail-tools-before.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "scalar-tail.log",
+        "bytes": 1937,
+        "sha256": "db7b7bb58a7f49beab38fa76a28954514b82edb32abb9fd74522f971b58c3047"
+      },
+      {
+        "path": "source-initial.json",
+        "bytes": 1322388,
+        "sha256": "3acb308ada6b3c3dc1dd9e82fe87b5a6439ac75519c99d85eb41f48535cfd99e"
+      },
+      {
+        "path": "terminal.json",
+        "bytes": 256,
+        "sha256": "68459ca1b8ab80979731631aaabe6f3ecbfc46a216320a58f18e9ba5711f79bc"
+      },
+      {
+        "path": "tools-initial.json",
+        "bytes": 5230,
+        "sha256": "975f5decee1c83e73d053b85f377a38fbedf28266bc524c912a73ae6f2085049"
+      },
+      {
+        "path": "tracked-paths.json",
+        "bytes": 7089277,
+        "sha256": "d1a4341f960836ec3f12625406b01850ad0379a2ba819bc4e3bad4111307f5b2"
+      }
+    ],
+    "objects": 4105,
+    "phases": [
+      {
+        "name": "compiler",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.6099750830035191,
+        "log": {
+          "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+          "bytes": 200,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-root-reports/objects/d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "native-compiler",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5979557079990627,
+        "log": {
+          "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+          "bytes": 222,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-root-reports/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "llvm",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.601780459008296,
+        "log": {
+          "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+          "bytes": 222,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-root-reports/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "make",
+        "argv": [
+          "/usr/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.6003090839949436,
+        "log": {
+          "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+          "bytes": 263,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-root-reports/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "discovery",
+        "argv": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-c",
+          "import unittest;from tests import test_llvm_tail_frames;s=unittest.defaultTestLoader.loadTestsFromModule(test_llvm_tail_frames);assert s.countTestCases()==6;print('I discover exactly six scalar tail methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5950121670030057,
+        "log": {
+          "sha256": "1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898",
+          "bytes": 44,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-root-reports/objects/1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "backend-build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/usr/bin/clang",
+          "NMS_RUNTIME_CLANG=/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+          "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS=",
+          "CPPFLAGS=-I/opt/homebrew/opt/openssl@3/include",
+          "LDFLAGS=-L/opt/homebrew/opt/openssl@3/lib"
+        ],
+        "bound_seconds": 1200,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 10.690450208989205,
+        "log": {
+          "sha256": "1198378fa7024769618728e5597f9f537af9c0a68ce0540270bb8df9c0d189eb",
+          "bytes": 62252,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-root-reports/objects/1198378fa7024769618728e5597f9f537af9c0a68ce0540270bb8df9c0d189eb"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "scalar-tail",
+        "argv": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_llvm_tail_frames"
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 20.265319999991334,
+        "log": {
+          "sha256": "db7b7bb58a7f49beab38fa76a28954514b82edb32abb9fd74522f971b58c3047",
+          "bytes": 1937,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-root-reports/objects/db7b7bb58a7f49beab38fa76a28954514b82edb32abb9fd74522f971b58c3047"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      }
+    ]
+  },
+  "tail-1f352-asan": {
+    "head": "1f352e5439fa44b9966b275e77e712c8a8621272",
+    "bundle": "tail-1f352-asan-reports.tar.gz",
+    "bytes": 3867170,
+    "sha256": "e0481f377c657c8bd199ec64ef835a34bdff27847fc9e19c7101b51b55d8975b",
+    "reports": [
+      {
+        "path": "backend-build-owned-processes.json",
+        "bytes": 6164,
+        "sha256": "6aab7e57eaaeca8ab5768adbd489cfe77d8c99dc20571927e6dfdede246631ee"
+      },
+      {
+        "path": "backend-build-products-after.json",
+        "bytes": 118669,
+        "sha256": "d5118e143c64c5a4ac5ea195dc3583acf3bc7ae91670dcfc80c269575b7377c1"
+      },
+      {
+        "path": "backend-build-products-before.json",
+        "bytes": 1121,
+        "sha256": "84ba19c3d8a3fa4b664c889c84da566ff63e974f40975212555e555d0441c87a"
+      },
+      {
+        "path": "backend-build-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "backend-build-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "backend-build-status.json",
+        "bytes": 960,
+        "sha256": "96dc2388a665dfd3a37f682ee7f5d23aa683f2baba112e4259c5e7726b724cd1"
+      },
+      {
+        "path": "backend-build-tools-after.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "backend-build-tools-before.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "backend-build.log",
+        "bytes": 62252,
+        "sha256": "1198378fa7024769618728e5597f9f537af9c0a68ce0540270bb8df9c0d189eb"
+      },
+      {
+        "path": "compiler-owned-processes.json",
+        "bytes": 104,
+        "sha256": "bce63c58fe30963346ff58d877006af751e0e6581628fdc179e819d43e6bf869"
+      },
+      {
+        "path": "compiler-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "compiler-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "compiler-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "compiler-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "compiler-status.json",
+        "bytes": 574,
+        "sha256": "5c3296a1047bf3b8185bbfbd52f06e46bd8eb2153f56f9b585ce02aa2916ae94"
+      },
+      {
+        "path": "compiler-tools-after.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "compiler-tools-before.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "compiler.log",
+        "bytes": 200,
+        "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+      },
+      {
+        "path": "discovery-owned-processes.json",
+        "bytes": 104,
+        "sha256": "1335298bb5d76287b643e0c8ab866964e309f627f8e71a90a8124faa33bae596"
+      },
+      {
+        "path": "discovery-products-after.json",
+        "bytes": 1121,
+        "sha256": "84ba19c3d8a3fa4b664c889c84da566ff63e974f40975212555e555d0441c87a"
+      },
+      {
+        "path": "discovery-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "discovery-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "discovery-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "discovery-status.json",
+        "bytes": 814,
+        "sha256": "8240431ab49e164db8e04a1596310ab301f19982fc1fcec19c97fe142ed833e1"
+      },
+      {
+        "path": "discovery-tools-after.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "discovery-tools-before.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "discovery.log",
+        "bytes": 44,
+        "sha256": "1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898"
+      },
+      {
+        "path": "environment.json",
+        "bytes": 1186,
+        "sha256": "8baf522f1cb991d02732f923de964d606df05f8dc940ca02702610efdb2149c0"
+      },
+      {
+        "path": "llvm-owned-processes.json",
+        "bytes": 104,
+        "sha256": "28f02b263e0e435207d6452f0a25cc0dc42c84ac83e5b7c0d3e3bc7322e05b72"
+      },
+      {
+        "path": "llvm-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "llvm-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "llvm-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "llvm-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "llvm-status.json",
+        "bytes": 588,
+        "sha256": "a9ce1504e437fce2000555cbc65897b7cc2fb51e3d7e4094f473bd1a42192a8a"
+      },
+      {
+        "path": "llvm-tools-after.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "llvm-tools-before.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "llvm.log",
+        "bytes": 222,
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      {
+        "path": "make-owned-processes.json",
+        "bytes": 104,
+        "sha256": "596102139c874619aea92759505ccb00aef04fdd90d6eb4a28a13f36356477d0"
+      },
+      {
+        "path": "make-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "make-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "make-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "make-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "make-status.json",
+        "bytes": 569,
+        "sha256": "f0544998cbd7da6ddea7b4df85ff1211c6d2c556b5c8830cc3380606eb67d4ac"
+      },
+      {
+        "path": "make-tools-after.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "make-tools-before.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "make.log",
+        "bytes": 263,
+        "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+      },
+      {
+        "path": "manifest.json",
+        "bytes": 5855,
+        "sha256": "33c67dc15dad9104de5aa43160fd2834d5a1002a021a02e6c4c432e4fc6e9e65"
+      },
+      {
+        "path": "native-compiler-owned-processes.json",
+        "bytes": 104,
+        "sha256": "2d6985278c9c0cc0b8bac8459b8e69a8204dff40e188ad8291c8a1217d585965"
+      },
+      {
+        "path": "native-compiler-products-after.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "native-compiler-products-before.json",
+        "bytes": 3,
+        "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+      },
+      {
+        "path": "native-compiler-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "native-compiler-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "native-compiler-status.json",
+        "bytes": 641,
+        "sha256": "31d29502726dcd22f4be75febfd7e6d321d0d18e9c21a38be55a02df9fc5e678"
+      },
+      {
+        "path": "native-compiler-tools-after.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "native-compiler-tools-before.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "native-compiler.log",
+        "bytes": 222,
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      {
+        "path": "runner.json",
+        "bytes": 247,
+        "sha256": "295cd154e863073154ba6accedb6cc119c0dda3035f4eac2200ea5ef2c012929"
+      },
+      {
+        "path": "scalar-tail-owned-processes.json",
+        "bytes": 6265,
+        "sha256": "46313b2859cf056c1b1fb9bafdd96fd72283dff4669d624d6cb511a708d8c33f"
+      },
+      {
+        "path": "scalar-tail-products-after.json",
+        "bytes": 118669,
+        "sha256": "d5118e143c64c5a4ac5ea195dc3583acf3bc7ae91670dcfc80c269575b7377c1"
+      },
+      {
+        "path": "scalar-tail-products-before.json",
+        "bytes": 118669,
+        "sha256": "d5118e143c64c5a4ac5ea195dc3583acf3bc7ae91670dcfc80c269575b7377c1"
+      },
+      {
+        "path": "scalar-tail-sources-after.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "scalar-tail-sources-before.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "scalar-tail-status.json",
+        "bytes": 674,
+        "sha256": "1bdc1a56dc5564d091a3dcb7a43e5937c7634810a90e2f609ecf23133a970af0"
+      },
+      {
+        "path": "scalar-tail-tools-after.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "scalar-tail-tools-before.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "scalar-tail.log",
+        "bytes": 1937,
+        "sha256": "fce88f8dd8939dbcee3f279653face74e36c3c68c2756dc00ab1fce298c44468"
+      },
+      {
+        "path": "source-initial.json",
+        "bytes": 1322388,
+        "sha256": "9606eff50177c5d44c58dc0a5a04aac3ae04c203a5c71b9672003abc7c8f1fbb"
+      },
+      {
+        "path": "terminal.json",
+        "bytes": 256,
+        "sha256": "68459ca1b8ab80979731631aaabe6f3ecbfc46a216320a58f18e9ba5711f79bc"
+      },
+      {
+        "path": "tools-initial.json",
+        "bytes": 5230,
+        "sha256": "189dbe4e410bb4dcb21c54c5b2586e94a989247759063a4d35c6efa8eb45e9c6"
+      },
+      {
+        "path": "tracked-paths.json",
+        "bytes": 7089277,
+        "sha256": "d1a4341f960836ec3f12625406b01850ad0379a2ba819bc4e3bad4111307f5b2"
+      }
+    ],
+    "objects": 4105,
+    "phases": [
+      {
+        "name": "compiler",
+        "argv": [
+          "/usr/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5947615420009242,
+        "log": {
+          "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+          "bytes": 200,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-asan-reports/objects/d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "native-compiler",
+        "argv": [
+          "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.5986299579963088,
+        "log": {
+          "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+          "bytes": 222,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-asan-reports/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "llvm",
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.6004787080019014,
+        "log": {
+          "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+          "bytes": 222,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-asan-reports/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "make",
+        "argv": [
+          "/usr/bin/make",
+          "--version"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.6193090829910943,
+        "log": {
+          "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+          "bytes": 263,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-asan-reports/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "discovery",
+        "argv": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-c",
+          "import unittest;from tests import test_llvm_tail_frames;s=unittest.defaultTestLoader.loadTestsFromModule(test_llvm_tail_frames);assert s.countTestCases()==6;print('I discover exactly six scalar tail methods.')"
+        ],
+        "bound_seconds": 30,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 0.6026554999989457,
+        "log": {
+          "sha256": "1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898",
+          "bytes": 44,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-asan-reports/objects/1d56212ea228a804dc101792959390abdab43f5b32850a8bd9183d52c4a44898"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "backend-build",
+        "argv": [
+          "make",
+          "-j2",
+          "nanoisa_dump",
+          "nano_vm",
+          "nvm2c",
+          "nvm2llvm",
+          "nvm2wasm",
+          "CC=/usr/bin/clang",
+          "NMS_RUNTIME_CLANG=/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+          "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+          "NMS_NATIVE_CLANG_FLAGS=",
+          "CPPFLAGS=-I/opt/homebrew/opt/openssl@3/include",
+          "LDFLAGS=-L/opt/homebrew/opt/openssl@3/lib"
+        ],
+        "bound_seconds": 1200,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 10.684226124998531,
+        "log": {
+          "sha256": "1198378fa7024769618728e5597f9f537af9c0a68ce0540270bb8df9c0d189eb",
+          "bytes": 62252,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-asan-reports/objects/1198378fa7024769618728e5597f9f537af9c0a68ce0540270bb8df9c0d189eb"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      },
+      {
+        "name": "scalar-tail",
+        "argv": [
+          "/opt/homebrew/opt/python@3.14/bin/python3.14",
+          "-m",
+          "unittest",
+          "-f",
+          "-v",
+          "tests.test_llvm_tail_frames"
+        ],
+        "bound_seconds": 1800,
+        "status": 0,
+        "timeout": false,
+        "cleanup": [],
+        "tracked_remaining": {},
+        "leader_reaped": true,
+        "group_gone": true,
+        "seconds": 30.416656624991447,
+        "log": {
+          "sha256": "fce88f8dd8939dbcee3f279653face74e36c3c68c2756dc00ab1fce298c44468",
+          "bytes": 1937,
+          "archive": "/Users/jkh/nanolang-qualification/tail-1f352-asan-reports/objects/fce88f8dd8939dbcee3f279653face74e36c3c68c2756dc00ab1fce298c44468"
+        },
+        "sources_equal": true,
+        "tools_equal": true
+      }
+    ]
+  }
+}

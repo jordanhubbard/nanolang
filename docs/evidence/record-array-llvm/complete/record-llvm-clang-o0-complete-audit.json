@@ -1,0 +1,744 @@
+{
+  "source": "7804258431ed8fba21fa33c5507b06ad9a1bbd94",
+  "root": "/tmp/nano-record-array-llvm-6gzgdsmh",
+  "original_corpus_unchanged": true,
+  "original_corpus_entries": 146,
+  "products": [
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0000",
+      "sha256": "96edf5c701452e8ff092469518f0f6a4e3e3af6d89a52f5db6d8eef4f6d804d0",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0000",
+      "sha256": "6d98e1ed4aa6a446775061535ca4b5c16eb4781955ad1816a5ff372c2f2a5853",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0001",
+      "sha256": "0a9d49c9d7a6609a60f44c065e9fdb2a41393b88f9b8b85b4d60335acffc6ca1",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0001",
+      "sha256": "37bad66e7cc174dad0c6c037187bbb5e6d65943ce6da36384fbae71071c52a11",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0002",
+      "sha256": "b4add610cf1ef2dd27a13ebd88db734b98bb62d416173f7644211f54b77e08ad",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0002",
+      "sha256": "81c4d591fe2f0bba79d945afe8c8e5d9337bc8229ee7305e9bfd10a46d1fc835",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0003",
+      "sha256": "8b6d76d09b94ee476bbd5295978e8bff7337267c79912936da0ac1eced0e7b4f",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0003",
+      "sha256": "4b661373ef273d1bc40b4bf4634b4d5db9f6513a7fa6482b54b66e9e96c64e4a",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0004",
+      "sha256": "edce975a3c9b6e9ed0403e81ac99db52b352e8d9d8cd05c2e554fa4926e9aaca",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0004",
+      "sha256": "1e9a49564f663412f3c880f1595eecb0995cca9cccb5743b515c054672e29783",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0005",
+      "sha256": "50fa39eedf93cbf9f27cc398def5ce9b0abc4358819257ed75d4af6940579974",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0005",
+      "sha256": "1225e782f0daf856fff3159d2ffa2067b10129dd75154f6a274abc02cbf7ae20",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0006",
+      "sha256": "4f9a56549c0fc5a2df3c370fc93d01030ff240a85b02b90e2dd2a7cd1e7e20a1",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0006",
+      "sha256": "e3216d3dddc0486235440d9735517eab66f41c22da969b99b9ffef8f4e7ba655",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0007",
+      "sha256": "fd8748bbfb875d78f3c6505f53a44d37d7c2e44a6c5acf041615c25dadd3eea1",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0007",
+      "sha256": "37bd1446f8d63ba723ebcf012d062ae56fe4ab338e6319b67576d6837b537b19",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0008",
+      "sha256": "bca27ac19fc3cdb11debed1f6b982f4e6669b5612e311ce32b8c55d206cf17c5",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0008",
+      "sha256": "da797b45c5cc80dd39352719bd94b32f8be57b1054d52bc4a0d22cc57244f59d",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0009",
+      "sha256": "0b23f12cb2dadc73c059fc842207737efc46de668875f12239532b2a6a6711cb",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0009",
+      "sha256": "7d75a63601b5edf8b0ae0f03d4622be80e38b5358e27220a200cd073aabb0d11",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0010",
+      "sha256": "6839ebd98176571d0c694ee5729824e69deba7abcd6e8c02bfa611cdd6f6562c",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0010",
+      "sha256": "f92caca6acf5d3e4b29b1aa322f81110a67abf4bb73bb0f43f2f6c32724207d1",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0011",
+      "sha256": "664630295e5a6493090145b190cbf4d1208fa34394b37fa95795f22a9a096974",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0011",
+      "sha256": "dffbc1938c0be2a048455485a7b3423e432bf2fd9fc06ed9bd24128adfc09e94",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0012",
+      "sha256": "4171f6e695cbcb09933a1d04a1ee6e1001b32e4529265145fe97c6ceeba973e4",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0012",
+      "sha256": "512b19c7f6dd7dcd8c3e0d0f22bc32ae6da3df7b78d63d7f8eacc401555b51f8",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0013",
+      "sha256": "0503fa9a442164333711a3a478d9a3e071ddc08ca5c0f072bb1e2432e225af37",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0013",
+      "sha256": "811510c1a2e80c88a137a99ee7fbbc23f3848fc54f2568c3279655dec3c67031",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0014",
+      "sha256": "f99bfba45c01cea6854ffac45f08e632d016e2d37e37c3c8ea4321a4bcb46426",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0014",
+      "sha256": "c4bde4b1c951ca99f0eb924a6fa9da161cff2920593e34ac4970e776334fecfc",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0015",
+      "sha256": "b833c9a27c1242647746dda7ab09a2606096dcf6a73fd5dd59cf43b2da0d2e9f",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0015",
+      "sha256": "ab8b30c0d470d5183c68df65840af7475c60150d9d408d7aad1c6a78e8bed45b",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0016",
+      "sha256": "89538781ae3e0edb9ed5e63695d596e66bda2162680172086a8f569a7c1882eb",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0016",
+      "sha256": "259dd7863d32f16f0ca07d9588adf639597f57186181892a50b7b1a707fa2804",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0017",
+      "sha256": "c7b80f9eba9b91e3088858acc587bff9665b6e78a7298e4c8e6d04037abe8765",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0017",
+      "sha256": "ec58aeb090e7d64ed667a582bb94b530639527fdd75b347da0b13c565ea38706",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0018",
+      "sha256": "9369a7eb3e8cec5482a988ff56b0144d94c9004b33c1a4e9133d814d0248cb9c",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0018",
+      "sha256": "45a2dfa1fae216f49758f312600ee0af859125eb0a6d15fcc136b3f63cda5b3a",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0019",
+      "sha256": "72c635c0600022e3fed23b54c8cab1452728d0e7317096bf10956ad9faa1ba8b",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0019",
+      "sha256": "9d18b18ed10e7bc40bf3eaf78e50a3d8525771d6a0cfeb52c22fae160fbf97e2",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0020",
+      "sha256": "77be7f63a5315fc6f3af5cad3a6836be63746868e6504790f117e618e0ddd8d9",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0020",
+      "sha256": "abaccab7fd550229d3c457990d3a6934525c46649a1fb7b36adb889a41fbb5de",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0021",
+      "sha256": "4dfe81b3b0e362636cce96274bca6946962567c75a81f44d56efffe739219a83",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0021",
+      "sha256": "cf3681c8a1e2ddb1bbd9ebd7fe2ff3cfb9d3427b2d3daafc96bef832f7c9a2a9",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0022",
+      "sha256": "c6aa2e1b4c585d8d32dc59ee21025b7f595ecd1d730de7e15408108f3216554c",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0022",
+      "sha256": "a686beea2503be249f157ecf1673f209de5850647f99b5994a86d700ed8cb929",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0023",
+      "sha256": "534caf33e619a3ff0d099d6d316f03626af45e6f10719a962e8d5ba56576f3e3",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0023",
+      "sha256": "4adcdba9b24c6cb7f135a5965ad430522e6543442b442fa675a03a26267bce11",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0024",
+      "sha256": "d2289e91f7cc3613b1adc3d4f479c906fc4d50ec5a21070feb416802c6210f2a",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0024",
+      "sha256": "b27e0654bb5684bc96657651a8c8c77b858528010e544fac3c347c8dd2364d8d",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0025",
+      "sha256": "7cd59250ced87d26ab2d8f9f10a167a8ee32d4e9fbd37dd18b56111d6cbffd43",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0025",
+      "sha256": "1d4d9bf09fcb138201cb8ff7118d7cfb90ce53e7929d1bcc090b9d14262a47d5",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0026",
+      "sha256": "4bc83e75d30c47d15786d8af95db8b7aaf8c5654da007a3a117e228a5d59f243",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0026",
+      "sha256": "0e842c05bd33395d6fec62bf54ef8ba9f6d500dc4248a9875d7dcb8e71806600",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0027",
+      "sha256": "8b8b5d023e868e15191475b52ca9936066782a33f95d90e14464278b0485a781",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0027",
+      "sha256": "d97e26161cf08fa2e0684b04451639208b59c4c8798d06bd6e8a2a13e2cb31ca",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0028",
+      "sha256": "1d471ecde082f16b7237c53ce6235d26ba77d6be42503a952aadeb1bd420eba2",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0028",
+      "sha256": "8ae744c3999121290f0d28ac64f03aeb31e7590ed681e7a65b09d7bfef8323b7",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0029",
+      "sha256": "d155f6053753bf82fe483773c314c9ff85ca114a76f4b6b381a232f0546430e3",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0029",
+      "sha256": "c75936eac5bc1892fe80a005f065f3ef08bb6adfe9a2085aa69fea8dc650e2ca",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0030",
+      "sha256": "5d80357ad67c405a22c4eff356934c96375d6f52ce35ab9da802f4948831d76c",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0030",
+      "sha256": "adc0a434ec7a2a819270480c89e98414ae37920c33ac8d98e6f51c4fe29cf05d",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0031",
+      "sha256": "69cad522de37b9bb00f18d9c339299a1df9ce88012fb5196fd8d9f8064816d9a",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0031",
+      "sha256": "5d4d657fe7b38f2e03fa29ac38ec9febbf9673a62abbbfb80152211de5228fed",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0032",
+      "sha256": "b2f95b05c274140b5ee0394acaafbaaeb743fb9c2acd814d5bc99784ff5aff85",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0032",
+      "sha256": "e649867f428fad8ffea1182225029b466f18ab2e42eb3e0a393270f67010f5ac",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0033",
+      "sha256": "620990c3a686b70d19eef4dfa49e9090a9a7183cdaf285e6304d3c610a134470",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0033",
+      "sha256": "0474991ef54166496dc7b477d7048c323c93380790cf0a3fb868e1f29349d5bc",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0034",
+      "sha256": "8975cf42f7fa9b476775216fcd7bec696706ff9ef146ab2442757259627c7d36",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0034",
+      "sha256": "2264cfffb98ace8654ae462494e1e16042874d779ef3fb1cfbd5d001965e4338",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0035",
+      "sha256": "8796ba9984498d2c1462537f5bf4d744d9923b349ac2eb3bee5fe024c76f3ef3",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0035",
+      "sha256": "5bb97b312c3a7cd44fc048852592c4778ba2c7b28c20c1f7dcfdd1d65543237e",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0036",
+      "sha256": "e9c4256676ceb3cb3fe1952eb72d6955f810e63d0f279244ec33c87fe49f24b3",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0036",
+      "sha256": "479f7e968e3d813ed0396c7e35222fdb26f82ee82fb8e76d4e8db2c0289700c5",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0037",
+      "sha256": "328b3596de7bb9209d496251437c35f89c2c2d01cdf97d8d2633c83b8129f57c",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0037",
+      "sha256": "1dd13a4533e295278b5b83d5905a3e729fb3df4fe04c1bcfe58130fb797fe6ff",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0038",
+      "sha256": "ee80ea41d53e0bcb747e5400cc5c1679c3525847eb55a56a0b64c9fd29b93f4b",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0038",
+      "sha256": "f5cb1b69aa7ac33692cc1a1ece964da1a8de71d61641301bc79e922d3759e503",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0039",
+      "sha256": "760157b43eefd920fbd5025ec070254209202f362ddfb112cd6df47ac73573c9",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0039",
+      "sha256": "a6843a8cbabd2bdde8dc5a76a797792cb5e9569ecf29a181bbfee6b367f07cbf",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0040",
+      "sha256": "c0384cae592bc5101f499ba44497aba835860446121abe537b2fe775c2f87e99",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0040",
+      "sha256": "bbad6a68bc030b36cec5d6173f21e4f1a1e4314b60e3d1818e616397ee59ee4b",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0041",
+      "sha256": "ffa640f809211785155d94d7e025ff1e84ceefe51464ecb103589f1df6bab79a",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0041",
+      "sha256": "7920a5a036cb39fa42cc79059ba6c85e8dc2f00b6264f157d4ca1e04f0c3d712",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0042",
+      "sha256": "640e2a6e4f42492cac8ee106adbc69d4d9beb86c8b7e823943d49cd644802f76",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0042",
+      "sha256": "b3c2de5aafd2aaf2b6f17cc3a1496a41217282884d59f5f213634689c581df95",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0043",
+      "sha256": "35100b251f5c7c750cc39eeb57a52b85eae2c637789634ff399e62bde0e486b7",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0043",
+      "sha256": "8b8914a97ab25669d301eb04fc95a1bacabe87948bc9349c13abf31293c5a3ba",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0044",
+      "sha256": "44e579224630116f6e24d5c9801e8f1256f7b83d057545a75e56468600580d5b",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0044",
+      "sha256": "0f04a7c1cb2bcd71f4db5e02172036739a1c8099c38a4c96ec37fbd2b4e63d8e",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0045",
+      "sha256": "8472d036153b1cea91abe59441b7bb2b1272ba9045fed0734c56e0132c0f4af1",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0045",
+      "sha256": "140e83c84723851d8ac74aed59134d1a1270614388eaf5406a922e853bc6e57b",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0046",
+      "sha256": "16c058b6d8159d681fc3cae48e0408be25eec760a3e3ef03d8caa66ea3512f0d",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0046",
+      "sha256": "220f2ad55a447f987857ae055c4ca610d3173c129bf934136cd72ef15e302948",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0047",
+      "sha256": "fee72494b6db8506928af84e51da2dc1f1813278443a0414ad3a9449756f32a0",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0047",
+      "sha256": "0447e6d770821f87559d6de594301c548abeaa2d1bd56e1bdde0c7d050b3ef10",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0048",
+      "sha256": "c6a4549cb59f981b2c863a840ce7272766732946476de294b3ec72656ddd970a",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0048",
+      "sha256": "02bb0d19d5233a7291f0c55642aaf58206cac73c685c195e785e9f832f347cf1",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0049",
+      "sha256": "634e28b13d6a574e378364fc7b7c414ffde0e6b07d26c9f3c691819c9262448c",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0049",
+      "sha256": "ce20033ab73ab593d8fc93cfa1935056f8d84ef0222dab18059988c2bf617bc8",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0050",
+      "sha256": "8c11302cd648c8aed726885e7ce50ca317b1f85841c1d58fbb3facec48f02a7c",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0050",
+      "sha256": "d39021613fd4f4414e024f3de1c6830c348228e8789b36d48a1b6b99846f7137",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0051",
+      "sha256": "4dd7e0afcc45546859745165adc0634d80341c57c8e30e0a2193ce60970edb71",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0051",
+      "sha256": "61ed35ce95ad1305583496e913b1b12a77289a7b74361c0a9eaf6eb17ea9924b",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0052",
+      "sha256": "e6774f59225066b9f99db6a5dc1b01835e18671660625d71d18f1270ab6278f0",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0052",
+      "sha256": "0f44e49d7b1d0f79c522a969b24155043dd3752e6da266355c3d2b3a394611bb",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0053",
+      "sha256": "3efbcafa128cdde150dfb99e76c0797a8a64a948413219156a8e01077a560a36",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0053",
+      "sha256": "65eb39b96848e96ca8c64c668c2b672e5c37942deac619f5a131cb6d4ed8b94f",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0054",
+      "sha256": "1772610c1e075c2ef33f6991bcd3dab2400ccf99883ec5586411ccf429885267",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0054",
+      "sha256": "6a45a73a363dab9f98c80b6b9a6a0301cb3c65aa8f160a3157d00d9041acfd55",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0055",
+      "sha256": "cbb3726c9c84763f12a3b4552750c43eb9d81b33c1efcc295b344d37932cf5f9",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0055",
+      "sha256": "4f9ca1afca8c70cda97d97d3509a8ce65c29372f3d04852aa00c49820ac664a1",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0056",
+      "sha256": "114dbab39957133de3fc60dac0c3642c19e0244c92100a37967248673092043e",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0056",
+      "sha256": "af4d958d7521710a36ee2902e08f50cfd08d36add6a5769cdaeabea465e541ca",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0057",
+      "sha256": "97ba210d93ef378cf1c7358531e94dd3d41a4a08bf9abddd02a2382fef01575f",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0057",
+      "sha256": "d8edb3d4bbec57eac3afa0009f6dc3e7d32be1405252478b54a1473713145d08",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0058",
+      "sha256": "166e68068b2849cc6fc4268d9a70eb89d3fd7274510bfdf7e6871c44fd9bb4d6",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0058",
+      "sha256": "763949b473c2922fc862fc8ecd474b9ec9d1b3d2fd729f43518cbe7c0b6fe0d6",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0059",
+      "sha256": "537ae93646ce54ffc055957a04f2b2398998efb3ca5343c84aaf98a8f175e95d",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0059",
+      "sha256": "d3aa42d4309d9898af94c3799ec25cb5f8be295eca36b963dd4bf9f02001cab9",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0060",
+      "sha256": "27a10c475c11f467d4f9d243ed1abd5d9b43a1edb85e790673bf8a629d9e759e",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0060",
+      "sha256": "24a242cdb26b7b47a349247d484181f67b7f50a4d80d19d243774dbae728956a",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0061",
+      "sha256": "1edc1f33d0bdd5e787bf30db84debcd2ad2cf502a7cd2e561b96e5e615d10744",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0061",
+      "sha256": "04fc77276db4caf98faf4398ff4d2ff9712c5012dbbe47f23b1a9405fcd2d00a",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0062",
+      "sha256": "5424cede305403acfb6c895191ea9b6d110d02555219b504b0c4e9e564573a40",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0062",
+      "sha256": "700c641b3b535db2a8e53988fc04be6ba6884a00ff68a103f35faff88ee24a9a",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0063",
+      "sha256": "8b2c7f0a36da90aeede3c16f2709816a7e7a2f70fcd42bacab4173b689965c1d",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0063",
+      "sha256": "15fbbbff7cc3d083894bae715234f4240042037e1f04e7a6533afe73dce70b3d",
+      "statuses": 73
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0064",
+      "sha256": "af8b8667596c3309bd3022bcf9878cc3796db5a21bbdac2d690a7294bfc3c167",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0064",
+      "sha256": "160c649b8a70d3237cc27c9f579de6c30804287b61368057250578f6cf191665",
+      "statuses": 73
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0065",
+      "sha256": "4f32524b7519cfac6590fdb54abab938e5d9d856c8a2c125c294ca7742f89181",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0065",
+      "sha256": "499a9281663ac0dec60156f090626afd818e640d8666a9fad59ac582c6496e09",
+      "statuses": 73
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0066",
+      "sha256": "81e2ca16977548afbf0b7a96b00e6068d701a3c29dc84acd39bdb5a4a799bb56",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0066",
+      "sha256": "2a3faf92c0e6dc988ee6082700cd0b6563ed56d4452ae280fd0af1411c780921",
+      "statuses": 73
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0067",
+      "sha256": "305b2b54e33677031ed10add025545781748db3e150cfdd01973ab7066d28535",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0067",
+      "sha256": "7456271ce3a8b0af79af5d55f452d24568b97ddb229a560493f7f1ed6e71e5e2",
+      "statuses": 9
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0068",
+      "sha256": "da38a20c2d466aa2b49853f5cb676e9317639b1bb26ad2928102846483b3de44",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0068",
+      "sha256": "21e1e008a054d9540a9e7e7bedbd86e8a75e8a92ebd1fbdd57fc2c5f3b3fadc7",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0069",
+      "sha256": "91bbbd4cbbf9da498b46290c077ed75a18d32ccce66d7854eb91433e28f3d941",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0069",
+      "sha256": "15b73a536fa4aecfb42e8278592469ee78364d401f82bacbf525d649abe095b1",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0070",
+      "sha256": "93e00dec81b51bd7ecd78e8491f1abbb13426a7fc6d27c04806f0a3387a8a401",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0070",
+      "sha256": "92105cd775bcf83e8c3597a1ea924da7eb80093f44d8fe08de0e6a9b0282dfd4",
+      "statuses": 12
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0071",
+      "sha256": "8e2f0b0b7e250e841c730e983aa1a3e7f31164283352e74f8b7d72e2591d611e",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0071",
+      "sha256": "e63a768757b496101587c8dee879a6a51ad15f16c5c871bb1e36440d4f2906b5",
+      "statuses": 8
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-linked-0072",
+      "sha256": "bafe54e6947d179265a53dba5114524aa750701d240f252b198c63cfe3ae668c",
+      "statuses": 7
+    },
+    {
+      "product": "/tmp/nano-record-array-llvm-6gzgdsmh/O0-observed-0072",
+      "sha256": "16463b4b0f49fd421d6b59d215482793cdaa44bf83ed0158a16ac7097f900e21",
+      "statuses": 8
+    }
+  ],
+  "coverage_records": 73,
+  "fault_workers": 338,
+  "recoveries": 9488,
+  "outer": "capacity stop after O0 completed; O2 partial; no full-phase pass",
+  "all_O0_statuses": 1365,
+  "all_O0_statuses_clean": true
+}

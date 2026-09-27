@@ -1,0 +1,3 @@
+module "/tmp/pr522-scalar-owner-probe/api.nano" as provider
+fn main() -> int { assert (== (provider.value) 37) return 0 }
+shadow main { assert (== (main) 0) }

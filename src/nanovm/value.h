@@ -34,7 +34,10 @@ typedef struct {
     uint8_t tag;  /* NanoValueTag */
     /* VM-local callable owner: 1=root, 2+linked index; 0 is invalid.
      * I use the tag's existing alignment padding, keeping values at 16 bytes. */
-    uint32_t callable_module;
+    union {
+        uint32_t callable_module;
+        uint32_t opaque_owner; /* Zero: local pointer/null; nonzero: COP generation. */
+    };
     union {
         int64_t  i64;
         double   f64;
@@ -55,6 +58,14 @@ typedef struct {
         void      *obj;       /* Generic heap object pointer */
     } as;
 } NanoValue;
+
+/* I initialize every ownership bit for process-local opaque producers. */
+static inline NanoValue val_opaque(void *pointer) {
+    NanoValue value = {0};
+    value.tag = TAG_OPAQUE;
+    value.as.obj = pointer;
+    return value;
+}
 
 /* ========================================================================
  * Value constructors

@@ -1,0 +1,1 @@
+/home/jkh/nanolang-qualification/byte-array-879-linux/sanitized/source/bin/nano_vm --verify-only /home/jkh/nanolang-qualification/byte-array-879-linux/sanitized/original-mutation/input.nvm

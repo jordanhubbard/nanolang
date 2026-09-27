@@ -1,0 +1,9 @@
+AddressSanitizer:DEADLYSIGNAL
+=================================================================
+==57571==ERROR: AddressSanitizer: stack-overflow on address 0x0001679b77b8 (pc 0x0001006a4a9c bp 0x00016f75aba0 sp 0x0001679b6a80 T0)
+    #0 0x0001006a4a9c in main test_vm.c:5972
+    #1 0x00019d9afe7c in start+0x1a1c (dyld:arm64e+0x31e7c)
+
+SUMMARY: AddressSanitizer: stack-overflow test_vm.c:5972 in main
+==57571==ABORTING
+make: *** [test-nanovm] Abort trap: 6

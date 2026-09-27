@@ -1,0 +1,9 @@
+/private/tmp/nanolang-native-sdk-bae59-puck-source/tests/str_split_result_context.c:100:57: error: too few arguments to function call, expected 5, have 4
+  100 |     check_concrete_union_arrays(env, &expected, value, 0);
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~                         ^
+/private/tmp/nanolang-native-sdk-bae59-puck-source/tests/../src/typechecker.c:1904:13: note: 'check_concrete_union_arrays' declared here
+ 1904 | static void check_concrete_union_arrays(Environment *env, const TypeInfo *expected,
+      |             ^                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 1905 |     const char *owner, ASTNode *value, unsigned depth) {
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.

@@ -1,0 +1,60 @@
+In file included from tests/nanoisa/test_capture_bindings.c:34:
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:228:13: error: use of undeclared identifier 'DecodedInstruction'
+  228 |             DecodedInstruction instruction;
+      |             ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:229:30: error: call to undeclared function 'isa_decode'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  229 |             uint32_t width = isa_decode(module->code + function->code_offset + position,
+      |                              ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:230:52: error: use of undeclared identifier 'instruction'
+  230 |                 function->code_length - position, &instruction);
+      |                                                    ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:232:21: error: use of undeclared identifier 'instruction'
+  232 |             switch (instruction.opcode) {
+      |                     ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:233:18: error: use of undeclared identifier 'OP_CLOSURE_NEW'
+  233 |             case OP_CLOSURE_NEW:
+      |                  ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:235:18: error: use of undeclared identifier 'OP_BIND_INIT_LOCAL'
+  235 |             case OP_BIND_INIT_LOCAL: case OP_BIND_CLEAR_LOCAL:
+      |                  ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:235:43: error: use of undeclared identifier 'OP_BIND_CLEAR_LOCAL'
+  235 |             case OP_BIND_INIT_LOCAL: case OP_BIND_CLEAR_LOCAL:
+      |                                           ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:236:18: error: use of undeclared identifier 'OP_LOAD_LOCAL'
+  236 |             case OP_LOAD_LOCAL: case OP_STORE_LOCAL: {
+      |                  ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:236:38: error: use of undeclared identifier 'OP_STORE_LOCAL'
+  236 |             case OP_LOAD_LOCAL: case OP_STORE_LOCAL: {
+      |                                      ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:237:33: error: use of undeclared identifier 'instruction'
+  237 |                 uint16_t slot = instruction.operands[0].u16;
+      |                                 ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:239:22: error: use of undeclared identifier 'instruction'
+  239 |                     (instruction.opcode == OP_STORE_LOCAL &&
+      |                      ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:239:44: error: use of undeclared identifier 'OP_STORE_LOCAL'
+  239 |                     (instruction.opcode == OP_STORE_LOCAL &&
+      |                                            ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:244:18: error: use of undeclared identifier 'OP_LOAD_UPVALUE'
+  244 |             case OP_LOAD_UPVALUE: case OP_STORE_UPVALUE: {
+      |                  ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:244:40: error: use of undeclared identifier 'OP_STORE_UPVALUE'
+  244 |             case OP_LOAD_UPVALUE: case OP_STORE_UPVALUE: {
+      |                                        ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:245:33: error: use of undeclared identifier 'instruction'
+  245 |                 uint16_t slot = instruction.operands[1].u16;
+      |                                 ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:246:21: error: use of undeclared identifier 'instruction'
+  246 |                 if (instruction.operands[0].u16 || slot >= binding->upvalue_count ||
+      |                     ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:247:22: error: use of undeclared identifier 'instruction'
+  247 |                     (instruction.opcode == OP_STORE_UPVALUE &&
+      |                      ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:247:44: error: use of undeclared identifier 'OP_STORE_UPVALUE'
+  247 |                     (instruction.opcode == OP_STORE_UPVALUE &&
+      |                                            ^
+tests/nanoisa/../../src/nanoisa/capture_bindings.c:252:18: error: use of undeclared identifier 'OP_CLOSURE_BIND'
+  252 |             case OP_CLOSURE_BIND:
+      |                  ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.

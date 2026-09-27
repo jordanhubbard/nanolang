@@ -233,14 +233,20 @@ create_release() {
     
     info "Creating release v$version..."
     
-    # Get changelog entry for release notes (handle first-release case)
-    local release_notes commit_count
+    # Keep the public release body bounded. The exhaustive per-commit ledger
+    # belongs in CHANGELOG.md; long development spans can exceed GitHub's
+    # release-body boundary when every subject is repeated here.
+    local commit_count release_record release_intro
     if git rev-parse "v$prev_version" &>/dev/null; then
-        release_notes=$(git log "v$prev_version"..HEAD --pretty=format:"- %s" --no-merges)
         commit_count=$(git rev-list --count "v$prev_version"..HEAD)
     else
-        release_notes=$(git log --pretty=format:"- %s" --no-merges)
         commit_count=$(git rev-list --count HEAD)
+    fi
+    release_record="docs/RELEASE_${version%.*}.md"
+    if [[ -f "$release_record" ]]; then
+        release_intro=$(awk 'NR == 1 { next } /^## / { exit } NF == 0 { if (seen) exit; next } { seen = 1; print }' "$release_record")
+    else
+        release_intro="I retain the complete reviewed change ledger in CHANGELOG.md."
     fi
     # test_status is now passed as argument (no longer runs make test again)
     
@@ -257,13 +263,14 @@ create_release() {
 - **Commits since v$prev_version**: $commit_count
 - **Test Status**: $test_status
 
-### Changes
+### Release summary
 
-$release_notes
+$release_intro
 EOF
     if [[ -n "$compare_url" ]]; then
-        printf '\n### Links\n- [Full Changelog](%s)\n- [Documentation](%s/tree/main/docs)\n\n---\n\n**Full Changelog**: %s\n' \
-            "$compare_url" "${REPO_URL}" "$compare_url" >> /tmp/release_notes.md
+        printf '\n### Links\n- [Full release record](%s/blob/v%s/%s)\n- [Complete change ledger](%s/blob/v%s/CHANGELOG.md)\n- [Full comparison](%s)\n- [Documentation](%s/tree/v%s/docs)\n' \
+            "$REPO_URL" "$version" "$release_record" "$REPO_URL" "$version" \
+            "$compare_url" "$REPO_URL" "$version" >> /tmp/release_notes.md
     fi
     
     # Commit release metadata (if there are changes to commit)

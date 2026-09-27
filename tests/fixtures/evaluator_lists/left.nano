@@ -1,0 +1,14 @@
+module Left
+pub struct Item { text: string, number: int }
+pub fn make(number: int) -> Item { return Item { text: (int_to_string number), number: number } }
+shadow make { assert (== (make 7).text "7") }
+pub fn read(value: Item) -> int { return value.number }
+shadow read { assert (== (read (make 7)) 7) }
+pub fn make_list() -> List<Item> {
+    let xs: List<Item> = (list_Item_new)
+    (list_Item_push xs (make 7))
+    return xs
+}
+shadow make_list { let xs: List<Item> = (make_list) assert (== (list_Item_length xs) 1) }
+pub fn read_list(xs: List<Item>) -> int { return (list_Item_get xs 0).number }
+shadow read_list { assert (== (read_list (make_list)) 7) }

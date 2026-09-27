@@ -17,7 +17,10 @@
 #include "../src/interpreter_ffi.h"
 #include "../src/runtime/ffi_loader.h"
 #include "../src/runtime/dyn_array.h"
+#include "../src/runtime/list_string.h"
 #include <errno.h>
+#include <spawn.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -708,6 +711,7 @@ void test_eval_struct_creation_and_access(void) {
     Value args[2] = {three, four};
     Value pt = call_function("make_point", args, 2, ctx.env);
     ASSERT(pt.type == VAL_STRUCT);
+    env_discard_value_snapshot(pt);
 
     run_ctx_free(&ctx);
 }
@@ -1065,6 +1069,7 @@ void test_eval_tuple_types(void) {
     Value args[2] = {three, four};
     Value pair = call_function("make_pair", args, 2, ctx.env);
     ASSERT(pair.type == VAL_TUPLE);
+    env_discard_value_snapshot(pair);
 
     run_ctx_free(&ctx);
 }
@@ -1836,47 +1841,227 @@ void test_eval_match_wildcards_follow_lexical_order(void) {
     run_ctx_free(&ctx);
 }
 
+static const char *eval_fixture_executable;
+extern char **environ;
+static RunCtx terminal_match_context;
+static void terminal_match_cleanup(void) {
+    /* I own exactly the fixture's zero-payload constructor. The general
+     * Environment destructor does not own arbitrary aliased union values. */
+    Environment *env = terminal_match_context.env;
+    bool retired = false;
+    for (int i = 0; env && i < env->symbol_count; ++i) {
+        Symbol *symbol = &env->symbols[i];
+        if (symbol->value.type != VAL_UNION) continue;
+        if (env_union_result_borrowed(env, symbol->value)) continue;
+        UnionValue *value = symbol->value.as.union_val;
+        if (retired || !symbol->name || strcmp(symbol->name, "value") ||
+            !value || !value->union_name || strcmp(value->union_name, "Choice") ||
+            !value->variant_name || strcmp(value->variant_name, "None") ||
+            value->variant_index != 1 || value->field_count != 0 ||
+            value->field_names || value->field_values) {
+            fprintf(stderr, "I cannot retire an unexpected terminal fixture union.\n");
+            abort();
+        }
+        symbol->value = create_void();
+        free(value->union_name);
+        free(value->variant_name);
+        free(value);
+        retired = true;
+    }
+    run_ctx_free(&terminal_match_context);
+}
+static int terminal_match_worker(void) {
+    if (atexit(terminal_match_cleanup) != 0) return 90;
+    const char *source =
+        "union Choice { Some { number: int }, None {} }\n"
+        "fn unchecked_miss() -> int {\n"
+        "  let value: Choice = Choice.None {}\n"
+        "  let selected: int = match value { Some(payload) => payload.number }\n"
+        "  return selected\n"
+        "}\n";
+    RunCtx *ctx = &terminal_match_context;
+    ctx->tokens = tokenize(source, &ctx->token_count);
+    ctx->program = ctx->tokens ? parse_program(ctx->tokens, ctx->token_count) : NULL;
+    ctx->env = ctx->program ? create_environment() : NULL;
+    if (!ctx->tokens || !ctx->program || !ctx->env || !run_program(ctx->program, ctx->env)) return 90;
+    /* I preserve the deliberately incomplete source and original checker bypass.
+     * The production fatal exit invokes fixture cleanup through normal atexit. */
+    ASTNode *definition = NULL;
+    for (int i = 0; i < ctx->program->as.program.count; ++i) {
+        ASTNode *item = ctx->program->as.program.items[i];
+        if (item->type == AST_FUNCTION &&
+            strcmp(item->as.function.name, "unchecked_miss") == 0)
+            definition = item;
+    }
+    if (!definition || definition->as.function.param_count != 0 ||
+        definition->as.function.return_type != TYPE_INT) return 90;
+    Function function = {0};
+    function.name = definition->as.function.name;
+    function.return_type = TYPE_INT;
+    function.body = definition->as.function.body;
+    env_define_function(ctx->env, function);
+    (void)call_function("unchecked_miss", NULL, 0, ctx->env);
+    return 91;
+}
+
+/* I retain callable leaves after their original binding and handler retire. */
+void test_eval_callable_projection_lifetimes(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Holder { callback: fn(int) -> int }\n"
+        "struct Outer { inner: Holder }\n"
+        "effect Capture { pack : fn(int) -> int -> void }\n"
+        "fn increment(n: int) -> int { return (+ n 1) }\n"
+        "shadow increment { assert (== (increment 7) 8) }\n"
+        "fn replacement(n: int) -> int { return (+ n 2) }\n"
+        "shadow replacement { assert (== (replacement 7) 9) }\n"
+        "fn projected(f: fn(int) -> int) -> Holder {\n"
+        " let mut original: fn(int) -> int = f\n"
+        " let held: Holder = Holder { callback: original }\n"
+        " let mut copied: fn(int) -> int = held.callback\n"
+        " set copied held.callback\n"
+        " set original replacement\n"
+        " assert (== (copied 7) 8)\n"
+        " return held\n"
+        "}\n"
+        "shadow projected { let held: Holder = (projected increment) let f: fn(int) -> int = held.callback assert (== (f 7) 8) }\n"
+        "fn retained() -> Outer {\n"
+        " let mut stored: Outer = Outer { inner: Holder { callback: replacement } }\n"
+        " let ignored = handle { perform Capture.pack(increment) } with {\n"
+        "  pack f -> { set stored Outer { inner: Holder { callback: f } } }\n"
+        " }\n"
+        " return stored\n"
+        "}\n"
+        "shadow retained { let held: Outer = (retained) let f: fn(int) -> int = held.inner.callback assert (== (f 7) 8) }\n"
+        "fn main() -> int {\n"
+        " let held: Holder = (projected increment)\n"
+        " let f: fn(int) -> int = held.callback\n"
+        " let nested: Outer = (retained)\n"
+        " let g: fn(int) -> int = nested.inner.callback\n"
+        " return (+ (f 7) (g 7))\n"
+        "}\n"
+        "shadow main { assert (== (main) 16) }\n"));
+    for (int i = 0; i < 32; ++i) {
+        Value result = call_function("main", NULL, 0, ctx.env);
+        ASSERT_EQ(result.type, VAL_INT);
+        ASSERT_EQ(result.as.int_val, 16);
+        ASSERT(nl_effect_find_handler("Capture", "pack", NULL) == NULL);
+    }
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+}
+
+void test_eval_handled_record_identity(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Packet { value: int }\n"
+        "effect Supply { next : int -> Packet }\n"
+        "fn direct() -> Packet {\n"
+        " return handle { perform Supply.next(8) } with { next n -> Packet { value: n } }\n"
+        "}\n"
+        "shadow direct { let p: Packet = (direct) assert (== p.value 8) }\n"
+        "fn branch(n: int) -> Packet {\n"
+        " return handle { perform Supply.next(n) } with {\n"
+        "  next value -> { if (== value 0) { return Packet { value: 41 } } else { Packet { value: value } } }\n"
+        " }\n"
+        "}\n"
+        "shadow branch { let a: Packet = (branch 0) let b: Packet = (branch 9) assert (== a.value 41) assert (== b.value 9) }\n"
+        "fn lexical() -> int {\n"
+        " let p: Packet = handle { perform Supply.next(0) } with { next n -> { return 73 } }\n"
+        " return p.value\n"
+        "}\n"
+        "shadow lexical { assert (== (lexical) 73) }\n"
+        "fn projected() -> int {\n"
+        " let p: Packet = handle { perform Supply.next(12) } with { next n -> Packet { value: n } }\n"
+        " return p.value\n"
+        "}\n"
+        "shadow projected { assert (== (projected) 12) }\n"
+        "fn nested() -> Packet {\n"
+        " return handle { perform Supply.next(8) } with { next n -> cond (true if true { Packet { value: n } } else { Packet { value: 0 } }) (else Packet { value: 0 }) }\n"
+        "}\n"
+        "shadow nested { let p: Packet = (nested) assert (== p.value 8) }\n"
+        "fn matched() -> Packet {\n"
+        " return handle { perform Supply.next(8) } with { next n -> match n { 8 => if true { Packet { value: n } } else { Packet { value: 0 } }, _ => Packet { value: 0 } } }\n"
+        "}\n"
+        "shadow matched { let p: Packet = (matched) assert (== p.value 8) }\n"
+        "fn main() -> int { let a: Packet = (direct) let b: Packet = (branch 0) let c: Packet = (branch 9) let d: Packet = (nested) let e: Packet = (matched) return (+ e.value (+ d.value (+ a.value (+ b.value (+ c.value (+ (lexical) (projected))))))) }\n"
+        "shadow main { assert (== (main) 159) }\n"));
+    Value result = call_function("main", NULL, 0, ctx.env);
+    ASSERT_EQ(result.type, VAL_INT);
+    ASSERT_EQ(result.as.int_val, 159);
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
+    run_ctx_free(&ctx);
+
+    const char *invalid[] = {
+        "Other { value: n }",
+        "{ if (== n 0) { Packet { value: n } } else { Other { value: n } } }",
+        "{ let absent: int = n }",
+        "{ return 17 }",
+        "cond (true if true { Packet { value: true } } else { Packet { value: n } }) (else Packet { value: n })",
+        "cond (true if true { Packet { value: n } } else { Packet { value: true } }) (else Packet { value: n })",
+        "match n { 8 => if true { Packet { value: true } } else { Packet { value: n } }, _ => Packet { value: n } }",
+        "n"
+    };
+    for (size_t i = 0; i < sizeof invalid / sizeof *invalid; ++i) {
+        char source[2048];
+        int size = snprintf(source, sizeof source,
+            "struct Packet { value: int }\nstruct Other { value: int }\n"
+            "effect Supply { next : int -> Packet }\n"
+            "fn bad() -> Packet { return handle { perform Supply.next(8) } with { next n -> %s } }\n"
+            "shadow bad { assert true }\nfn main() -> int { return 0 }\nshadow main { assert true }\n", invalid[i]);
+        ASSERT(size > 0 && (size_t)size < sizeof source);
+        ASSERT(!run_ctx_init(&ctx, source));
+        run_ctx_free(&ctx);
+    }
+    /* I distinguish two identically shaped, identically named declarations. */
+    for (int wrong_owner = 0; wrong_owner < 2; ++wrong_owner) {
+        int owner_count = 0, caller_count = 0;
+        Token *owner_tokens = tokenize("struct Packet { value: int }\neffect Supply { next : Packet -> Packet }\n", &owner_count);
+        ASSERT(owner_tokens);
+        ASTNode *owner_ast = parse_program(owner_tokens, owner_count);
+        ASSERT(owner_ast);
+        Environment *env = create_environment(); ASSERT(env);
+        env->current_module = "Defining";
+        ASSERT(type_check_module(owner_ast, env));
+        NominalIdentity packet = env_nominal_identity(env, "Packet", "Defining", TYPE_STRUCT);
+        ASSERT(packet.ordinal);
+        env->current_module = "Caller";
+        ASSERT(env_register_nominal_import(env, "Caller", "RemotePacket", packet));
+        char source[2048];
+        int size = snprintf(source, sizeof source,
+            "struct Packet { value: int }\nfn main() -> int {\n"
+            "let p: RemotePacket = handle { perform Supply.next(RemotePacket { value: 4 }) } with { next q -> %s }\n"
+            "return p.value }\nshadow main { assert (== (main) 4) }\n",
+            wrong_owner ? "Packet { value: 4 }" : "q");
+        ASSERT(size > 0 && (size_t)size < sizeof source);
+        Token *caller_tokens = tokenize(source, &caller_count); ASSERT(caller_tokens);
+        ASTNode *caller_ast = parse_program(caller_tokens, caller_count); ASSERT(caller_ast);
+        suppress_stderr();
+        bool checked = type_check(caller_ast, env);
+        restore_stderr();
+        ASSERT(checked == !wrong_owner);
+        free_environment(env);
+        free_ast(caller_ast); free_tokens(caller_tokens, caller_count);
+        free_ast(owner_ast); free_tokens(owner_tokens, owner_count);
+        clear_module_cache();
+    }
+}
+
 void test_eval_match_miss_is_terminal(void) {
     int errors[2];
     ASSERT(pipe(errors) == 0);
     fflush(NULL);
-    pid_t child = fork();
-    ASSERT(child >= 0);
-    if (child == 0) {
-        close(errors[0]);
-        ASSERT(dup2(errors[1], STDERR_FILENO) >= 0);
-        close(errors[1]);
-        const char *source =
-            "union Choice { Some { number: int }, None {} }\n"
-            "fn unchecked_miss() -> int {\n"
-            "  let value: Choice = Choice.None {}\n"
-            "  let selected: int = match value { Some(payload) => payload.number }\n"
-            "  return selected\n"
-            "}\n";
-        int token_count = 0;
-        Token *tokens = tokenize(source, &token_count);
-        ASTNode *program = tokens ? parse_program(tokens, token_count) : NULL;
-        Environment *env = program ? create_environment() : NULL;
-        if (!tokens || !program || !env || !run_program(program, env)) _exit(90);
-        /* I bypass checking only for this deliberately incomplete AST. The
-         * checker normally registers functions; run_program does not. */
-        ASTNode *definition = NULL;
-        for (int i = 0; i < program->as.program.count; ++i) {
-            ASTNode *item = program->as.program.items[i];
-            if (item->type == AST_FUNCTION &&
-                strcmp(item->as.function.name, "unchecked_miss") == 0)
-                definition = item;
-        }
-        if (!definition || definition->as.function.param_count != 0 ||
-            definition->as.function.return_type != TYPE_INT) _exit(90);
-        Function function = {0};
-        function.name = definition->as.function.name;
-        function.return_type = TYPE_INT;
-        function.body = definition->as.function.body;
-        env_define_function(env, function);
-        (void)call_function("unchecked_miss", NULL, 0, env);
-        _exit(91);
-    }
+    posix_spawn_file_actions_t actions;
+    ASSERT(posix_spawn_file_actions_init(&actions) == 0);
+    ASSERT(posix_spawn_file_actions_addclose(&actions, errors[0]) == 0);
+    ASSERT(posix_spawn_file_actions_adddup2(&actions, errors[1], STDERR_FILENO) == 0);
+    if (errors[1] != STDERR_FILENO)
+        ASSERT(posix_spawn_file_actions_addclose(&actions, errors[1]) == 0);
+    char *arguments[] = {(char *)eval_fixture_executable, "--terminal-match-worker", NULL};
+    pid_t child;
+    int spawned = posix_spawn(&child, eval_fixture_executable, &actions, NULL, arguments, environ);
+    ASSERT(posix_spawn_file_actions_destroy(&actions) == 0);
+    ASSERT(spawned == 0);
 
     close(errors[1]);
     char message[512], chunk[256];
@@ -1885,13 +2070,13 @@ void test_eval_match_miss_is_terminal(void) {
     for (;;) {
         ssize_t length = read(errors[0], chunk, sizeof(chunk));
         if (length < 0 && errno == EINTR) continue;
-        if (length < 0) { read_ok = false; break; }
+        if (length < 0) { read_ok = false; (void)kill(child, SIGKILL); break; }
         if (!length) break;
         size_t available = sizeof(message) - 1 - used;
         size_t count = (size_t)length < available ? (size_t)length : available;
         memcpy(message + used, chunk, count);
         used += count;
-        if (count != (size_t)length) truncated = true;
+        if (count != (size_t)length) { truncated = true; (void)kill(child, SIGKILL); break; }
     }
     close(errors[0]);
     message[used] = '\0';
@@ -1899,14 +2084,14 @@ void test_eval_match_miss_is_terminal(void) {
     pid_t waited;
     do { waited = waitpid(child, &status, 0); } while (waited < 0 && errno == EINTR);
     ASSERT(waited == child);
+    const char *expected = "I cannot continue: a checked match reached no successful arm.\n";
+    if (!read_ok || truncated || !WIFEXITED(status) || WEXITSTATUS(status) != EXIT_FAILURE || strcmp(message, expected))
+        fprintf(stderr, "I observed unchecked-match child status %d, truncated %d and stderr: %s\n", status, truncated, message);
     ASSERT(read_ok);
     ASSERT(!truncated);
-    if (!WIFEXITED(status) || WEXITSTATUS(status) != EXIT_FAILURE)
-        fprintf(stderr, "I observed unchecked-match child status %d and stderr: %s\n", status, message);
     ASSERT(WIFEXITED(status));
     ASSERT(WEXITSTATUS(status) == EXIT_FAILURE);
-    ASSERT(strstr(message,
-        "I cannot continue: a checked match reached no successful arm.") != NULL);
+    ASSERT(strcmp(message, expected) == 0);
 }
 
 void test_eval_union_with_data(void) {
@@ -2142,11 +2327,10 @@ void test_eval_map_declared_scalar_results(void) {
                         if (type == 0) ASSERT(((long long *)array->data)[0] == 42);
                         if (type == 1) ASSERT(((double *)array->data)[0] == 1.5);
                         if (type == 2) ASSERT(((bool *)array->data)[0]);
-                        if (type == 3) { ASSERT(!strcmp(((char **)array->data)[0], "mapped")); free(((char **)array->data)[0]); }
+                        if (type == 3) { ASSERT(!strcmp(((char **)array->data)[0], "mapped")); }
                         ASSERT(((long long *)input.as.array_val->data)[0] == 7);
                     }
-                    free(array->data);
-                    free(array);
+                    /* My evaluator owns this returned fixed array until ctx cleanup. */
                 }
                 run_ctx_free(&ctx);
                 if (!dynamic) { free(input.as.array_val->data); free(input.as.array_val); }
@@ -2334,6 +2518,89 @@ void test_eval_for_over_float_array(void) {
     );
     ASSERT(ok);
     run_ctx_free(&ctx);
+}
+
+/* I keep the iteration copy alive when its collection changes, and return an
+ * independent public snapshot through normal and early exits. Caller arrays
+ * and lists remain caller-owned in this fixture. */
+void test_eval_string_loop_bindings(void) {
+    const char *source =
+        "fn walk(xs:array<string>, mode:int)->string {\n"
+        " let mut last:string = \"empty\" let mut index:int = 0\n"
+        " for item in xs {\n"
+        "  if (== mode 3) { return item }\n"
+        "  if (== mode 4) { (array_set xs index \"changed\") }\n"
+        "  set last item set index (+ index 1)\n"
+        "  if (== mode 1) { continue }\n"
+        "  if (== mode 2) { break }\n"
+        " } return last\n"
+        "}\n"
+        "shadow walk { assert (== (walk [\"first\", \"second\"] 3) \"first\") }\n"
+        "fn walk_list(xs:list_string, mode:int)->string {\n"
+        " let mut last:string = \"empty\" let mut index:int = 0\n"
+        " for item in xs {\n"
+        "  if (== mode 3) { return item }\n"
+        "  if (== mode 4) { (list_string_set xs index \"changed\") }\n"
+        "  set last item set index (+ index 1)\n"
+        "  if (== mode 1) { continue }\n"
+        "  if (== mode 2) { break }\n"
+        " } return last\n"
+        "}\n"
+        "shadow walk_list {\n"
+        " let xs:list_string = (list_string_new) (list_string_push xs \"first\")\n"
+        " assert (== (walk_list xs 3) \"first\") (list_string_free xs)\n"
+        "}\n"
+        "fn main()->int { return 0 }\n";
+    for (int kind = 0; kind < 3; ++kind) for (int mode = 0; mode < 5; ++mode)
+    for (int empty = 0; empty < 2; ++empty) {
+        RunCtx ctx;
+        ASSERT(run_ctx_init(&ctx, source));
+        for (int repeat = 0; repeat < 8; ++repeat) {
+            int length = empty ? 0 : 2;
+            const char *texts[] = {"first", "second"};
+            char *dynamic_inputs[2] = {NULL, NULL};
+            Value input = create_void();
+            List_string *list = NULL;
+            if (kind == 0) {
+                input = create_array(VAL_STRING, length, length);
+                for (int i = 0; i < length; ++i)
+                    ((char **)input.as.array_val->data)[i] = strdup(texts[i]);
+            } else if (kind == 1) {
+                input.type = VAL_DYN_ARRAY;
+                input.as.dyn_array_val = dyn_array_new(ELEM_STRING);
+                ASSERT_NOT_NULL(input.as.dyn_array_val);
+                for (int i = 0; i < length; ++i) {
+                    dynamic_inputs[i] = strdup(texts[i]);
+                    input.as.dyn_array_val = dyn_array_push_string(input.as.dyn_array_val, dynamic_inputs[i]);
+                }
+            } else {
+                list = list_string_new();
+                for (int i = 0; i < length; ++i) list_string_push(list, texts[i]);
+                input = create_int((intptr_t)list);
+            }
+            Value args[] = {input, create_int(mode)};
+            Value result = call_function(kind == 2 ? "walk_list" : "walk", args, 2, ctx.env);
+            const char *expected = empty ? "empty" : mode == 2 || mode == 3 ? "first" : "second";
+            ASSERT_EQ(result.type, VAL_STRING);
+            ASSERT(strcmp(result.as.string_val, expected) == 0);
+            for (int i = 0; i < length; ++i) {
+                const char *stored = kind == 0 ? ((char **)input.as.array_val->data)[i] :
+                    kind == 1 ? dyn_array_get_string(input.as.dyn_array_val, i) : list_string_get(list, i);
+                ASSERT(strcmp(stored, mode == 4 ? "changed" : texts[i]) == 0);
+            }
+            if (kind == 0) {
+                for (int i = 0; i < length; ++i) free(((char **)input.as.array_val->data)[i]);
+                free(input.as.array_val->data); free(input.as.array_val);
+            } else if (kind == 1) {
+                /* My evaluator owns replacement copies; original inputs stay caller-owned. */
+                for (int i = 0; i < length; ++i) free(dynamic_inputs[i]);
+                gc_release(input.as.dyn_array_val);
+            } else list_string_free(list);
+            if (repeat == 7) run_ctx_free(&ctx);
+            ASSERT(strcmp(result.as.string_val, expected) == 0);
+            env_discard_value_snapshot(result);
+        }
+    }
 }
 
 /* Coroutine spawn + scheduler_run (lines 48-56, 2841-2870, 4391-4401) */
@@ -2677,15 +2944,25 @@ void test_eval_epoch_milliseconds(void) {
     RunCtx ctx;
     ASSERT(run_ctx_init(&ctx,
         "extern fn nl_get_time_ms() -> int\n"
+        "extern fn nl_timing_get_microseconds() -> int\n"
         "fn now() -> int { unsafe { return (nl_get_time_ms) } }\n"
+        "fn now_us() -> int { unsafe { return (nl_timing_get_microseconds) } }\n"
         "fn main() -> int { return 0 }\n"
-        "shadow now { assert (> (now) 0) }\n"));
-    const struct { time_t seconds; long nanoseconds; long long expected; } cases[] = {
-        {0, 0, 0},
-        {1700000000, 999999, 1700000000000LL},
-        {1700000000, 1000000, 1700000000001LL},
-        {1700000000, 999999999, 1700000000999LL},
-        {1700000001, 0, 1700000001000LL},
+        "shadow now { assert (> (now) 0) }\n"
+        "shadow now_us { assert (> (now_us) 0) }\n"));
+    const struct {
+        time_t seconds;
+        long nanoseconds;
+        long long expected_ms;
+        long long expected_us;
+    } cases[] = {
+        {0, 0, 0, 0},
+        {1700000000, 999, 1700000000000LL, 1700000000000000LL},
+        {1700000000, 1000, 1700000000000LL, 1700000000000001LL},
+        {1700000000, 999999, 1700000000000LL, 1700000000000999LL},
+        {1700000000, 1000000, 1700000000001LL, 1700000000001000LL},
+        {1700000000, 999999999, 1700000000999LL, 1700000000999999LL},
+        {1700000001, 0, 1700000001000LL, 1700000001000000LL},
     };
     s_epoch_clock_active = 1;
     for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
@@ -2696,7 +2973,13 @@ void test_eval_epoch_milliseconds(void) {
         ASSERT_EQ(s_epoch_clock_calls, 1);
         ASSERT_EQ(s_epoch_clock_id, CLOCK_REALTIME);
         ASSERT(result.type == VAL_INT);
-        ASSERT_EQ(result.as.int_val, cases[i].expected);
+        ASSERT_EQ(result.as.int_val, cases[i].expected_ms);
+        s_epoch_clock_calls = 0;
+        result = call_function("now_us", NULL, 0, ctx.env);
+        ASSERT_EQ(s_epoch_clock_calls, 1);
+        ASSERT_EQ(s_epoch_clock_id, CLOCK_REALTIME);
+        ASSERT(result.type == VAL_INT);
+        ASSERT_EQ(result.as.int_val, cases[i].expected_us);
     }
     s_epoch_clock_active = 0;
     run_ctx_free(&ctx);
@@ -3001,10 +3284,16 @@ static void test_eval_file_write_failures(void) {
     remove(args[0].as.string_val);
 }
 
-int main(void) {
+int main(int argc, char **argv) {
+    eval_fixture_executable = argv[0];
+    if (argc == 2 && strcmp(argv[1], "--terminal-match-worker") == 0)
+        return terminal_match_worker();
+    ASSERT(argc == 1);
     TEST(eval_declared_push_initializer_bindings);
     TEST(eval_file_write_failures);
     TEST(eval_handler_return_async_calls);
+    TEST(eval_callable_projection_lifetimes);
+    TEST(eval_handled_record_identity);
     TEST(eval_handler_return_higher_order);
     TEST(eval_handler_return_partial_literal_cleanup);
     TEST(eval_handler_return_recursive_activation);
@@ -3114,6 +3403,7 @@ int main(void) {
     TEST(eval_array_scalar_broadcast_mul);
     TEST(eval_for_over_dynarray);
     TEST(eval_for_over_float_array);
+    TEST(eval_string_loop_bindings);
     TEST(eval_coroutine_spawn_and_run);
     TEST(eval_async_fn_direct_call);
     TEST(eval_string_format_struct);

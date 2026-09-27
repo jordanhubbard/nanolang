@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/usr/bin/gcc",
+    "-print-prog-name=cc1"
+  ],
+  "cwd": "/tmp/nanolang-native-sdk-1bf6a-linux-source",
+  "expected": [
+    0
+  ],
+  "environment": {
+    "PATH": "/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/usr/local/cuda/bin:/opt/bin/:/home/jkh/.codex/tmp/arg0/codex-arg0q1IvSc:/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/home/jkh/.local/share/pnpm:/home/jkh/gocode/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/cuda/bin:/snap/bin:/home/jkh/.cargo/bin:/home/jkh/.ghcup/bin:/home/jkh/.local/bin:/home/jkh/.local/bin:/sbin:/usr/sbin:/bin:/usr/bin:/home/jkh/Bin:.",
+    "CC": "/usr/bin/gcc",
+    "NANO_CC": "/usr/bin/gcc",
+    "TMPDIR": "/tmp/nanolang-native-sdk-1bf6a-linux-preparation/tmp",
+    "NANOLANG_SDK_ROOT": "/tmp/nanolang-native-sdk-1bf6a-linux-source",
+    "NANO_BUILD_CACHE": null,
+    "NANO_MODULE_PATH": null,
+    "NANO_SHADOW_TRACE": null,
+    "NANOVMD_SOCKET": null,
+    "SDK_CC_LOG": null,
+    "SDK_REAL_CC": null,
+    "SDK_REFUSED_SOURCE": null,
+    "SDK_REFUSAL_HIT": null,
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "LSAN_OPTIONS": "",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+  }
+}

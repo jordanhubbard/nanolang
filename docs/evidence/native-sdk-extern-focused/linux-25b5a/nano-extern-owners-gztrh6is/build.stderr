@@ -1,0 +1,15 @@
+In file included from /tmp/nanolang-native-sdk-25b5a-linux-source/tests/extern_declaration_owners.c:14:
+/tmp/nanolang-native-sdk-25b5a-linux-source/tests/../src/typechecker.c: In function ‘extern_declaration_view’:
+/tmp/nanolang-native-sdk-25b5a-linux-source/tests/../src/typechecker.c:8353:12: error: expected expression before ‘{’ token
+ 8353 |     return {.name = item->as.function.name,
+      |            ^
+/tmp/nanolang-native-sdk-25b5a-linux-source/tests/../src/typechecker.c:8352:54: error: unused parameter ‘env’ [-Werror=unused-parameter]
+ 8352 | static Function extern_declaration_view(Environment *env, const ASTNode *item) {
+      |                                         ~~~~~~~~~~~~~^~~
+/tmp/nanolang-native-sdk-25b5a-linux-source/tests/../src/typechecker.c:8352:74: error: unused parameter ‘item’ [-Werror=unused-parameter]
+ 8352 | static Function extern_declaration_view(Environment *env, const ASTNode *item) {
+      |                                                           ~~~~~~~~~~~~~~~^~~~
+/tmp/nanolang-native-sdk-25b5a-linux-source/tests/../src/typechecker.c:8363:1: error: control reaches end of non-void function [-Werror=return-type]
+ 8363 | }
+      | ^
+cc1: all warnings being treated as errors

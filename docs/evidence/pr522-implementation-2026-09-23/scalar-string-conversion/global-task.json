@@ -1,0 +1,262 @@
+{
+  "evidence": [],
+  "flow": {
+    "completions": [],
+    "schema": "mac.task_flow_detail.v1",
+    "spans": [
+      {
+        "attempt": 1,
+        "created_at": "2026-09-17T05:51:06.757754+00:00",
+        "duration_seconds": null,
+        "ended_at": null,
+        "id": "flow_43c6b79f40a0564e2a903a296264c6c9",
+        "metadata": {
+          "source_event": "task.created"
+        },
+        "outcome": "pending",
+        "project": "nanolang",
+        "stage": "ready_queue",
+        "started_at": "2026-09-17T05:51:06.757754+00:00",
+        "task_id": "task_95796f5f49564ed4a911fd05a1aac5b4",
+        "updated_at": "2026-09-17T05:51:06.757754+00:00"
+      }
+    ]
+  },
+  "history": [
+    {
+      "actor": "human",
+      "created_at": "2026-09-17T05:51:06.757754+00:00",
+      "detail": {
+        "dependencies": [],
+        "execution_contract_type": "repository",
+        "required_capabilities": [],
+        "title": "Carry record and map globals through standalone AOT"
+      },
+      "event_type": "task.created",
+      "from_state": null,
+      "id": "hist_f761a0363745485aa0751c8c9e9ec965",
+      "task_id": "task_95796f5f49564ed4a911fd05a1aac5b4",
+      "to_state": "open"
+    }
+  ],
+  "llm_usage": {
+    "cached_input_tokens": 0,
+    "input_tokens": 0,
+    "model_latency_ms": 0,
+    "observed_route_count": 0,
+    "output_tokens": 0,
+    "providers": [],
+    "requested_models": [],
+    "resolved_models": [],
+    "response_models": [],
+    "routes": [],
+    "schema": "mac.task_llm_usage.v1",
+    "total_tokens": 0,
+    "truncated": false,
+    "upstream_attempt_count": 0
+  },
+  "profile": {
+    "commands": {
+      "duration_ms": 0,
+      "failure_count": 0,
+      "output_bytes": 0,
+      "terminal_count": 0,
+      "truncated": false
+    },
+    "kpis": {
+      "accepted_success": 0.0,
+      "cached_input_tokens": 0,
+      "cost_known": false,
+      "cost_usd": 0.0,
+      "cycles_to_accept": 0.0,
+      "delayed_quality_success": 0.0,
+      "escaped_defect_severity": 0,
+      "executor_attempts": 0.0,
+      "input_tokens": 0,
+      "lead_time_ms": 0.0,
+      "model_latency_ms": 0,
+      "observed_at": "2026-09-24T19:51:06.789082+00:00",
+      "output_tokens": 0,
+      "priced_routes": 0,
+      "project": "nanolang",
+      "publication_count": 0,
+      "quality_source": "pending",
+      "quality_validated": false,
+      "rejected_reviews": 0.0,
+      "review_attempts": 0.0,
+      "route_count": 0,
+      "schema": "mac.task_kpis.v1",
+      "state": "open",
+      "task_id": "task_95796f5f49564ed4a911fd05a1aac5b4",
+      "terminal": false,
+      "total_tokens": 0
+    },
+    "progress": {
+      "evidence_count": 0,
+      "publication_count": 0,
+      "review_count": 0
+    },
+    "provider_attempt_count": 0,
+    "schema": "mac.task_execution_profile.v1",
+    "signals": [],
+    "state_dwell_ms": {
+      "open": 655200038.348
+    },
+    "task_id": "task_95796f5f49564ed4a911fd05a1aac5b4"
+  },
+  "publications": [],
+  "reviews": [],
+  "task": {
+    "attempt_count": 0,
+    "completed_at": null,
+    "created_at": "2026-09-17T05:51:06.752265+00:00",
+    "created_by_human": null,
+    "dependencies": [],
+    "description": "Real globals emitter parity passes seed/selfhost opcode checks and VM, but nvm2c LOAD_GLOBAL simulates generic VALUE while HM operations require MAP; STORE_GLOBAL explicitly rejects map/aggregate values. Implement truthful tagged global map/record transport and access plus lifetime rooting; test initializer function returns, mutation, field/map operations and VM/native equivalence. Required full compiler native execution; current scalar/string-array global support does not fulfill this.",
+    "id": "task_95796f5f49564ed4a911fd05a1aac5b4",
+    "last_updated_at": "2026-09-17T05:51:06.752265+00:00",
+    "lease_id": null,
+    "leased_until": null,
+    "max_attempts": 3,
+    "metadata": {
+      "acc_metadata": {
+        "repository_contract_project": "nanolang",
+        "repository_contract_schema": "mac.repository_contract.v1",
+        "workflow_role": "work"
+      },
+      "execution_contract": {
+        "evidence_type": "repo_change",
+        "quality": "strong",
+        "repository_contract": {
+          "bootstrap": {
+            "command": "make build",
+            "creates": [
+              "bin/nanoc",
+              "bin/nano"
+            ]
+          },
+          "canonical_remote_url": "git@github.com:jordanhubbard/nanolang.git",
+          "contract_path": ".mac/project.yaml",
+          "default_branch": "main",
+          "evidence": {
+            "required": [
+              "repo.head_sha",
+              "repo.pushed",
+              "repo.dirty",
+              "repo.files_changed",
+              "tests"
+            ]
+          },
+          "platforms": [
+            "darwin",
+            "linux",
+            "wsl2"
+          ],
+          "project": "nanolang",
+          "schema": "mac.repository_contract.v1",
+          "test": {
+            "command": "make test-quick"
+          },
+          "toolchain": {
+            "required_commands": [
+              "python3",
+              "git",
+              "gh",
+              "make",
+              "cc"
+            ]
+          }
+        },
+        "repository_id": "projectrepo_ea061135933c485498ca97f7724c89d9",
+        "repository_path": "/Users/jkh/.mac/src/nanolang",
+        "schema": "mac.task_execution_contract.v1",
+        "source": "registered_project",
+        "type": "repository"
+      },
+      "origin": {
+        "repository_contract": {
+          "bootstrap": {
+            "command": "make build",
+            "creates": [
+              "bin/nanoc",
+              "bin/nano"
+            ]
+          },
+          "canonical_remote_url": "git@github.com:jordanhubbard/nanolang.git",
+          "contract_path": ".mac/project.yaml",
+          "default_branch": "main",
+          "evidence": {
+            "required": [
+              "repo.head_sha",
+              "repo.pushed",
+              "repo.dirty",
+              "repo.files_changed",
+              "tests"
+            ]
+          },
+          "platforms": [
+            "darwin",
+            "linux",
+            "wsl2"
+          ],
+          "project": "nanolang",
+          "schema": "mac.repository_contract.v1",
+          "test": {
+            "command": "make test-quick"
+          },
+          "toolchain": {
+            "required_commands": [
+              "python3",
+              "git",
+              "gh",
+              "make",
+              "cc"
+            ]
+          }
+        },
+        "repository_id": "projectrepo_ea061135933c485498ca97f7724c89d9",
+        "repository_name": "nanolang",
+        "repository_path": "/Users/jkh/.mac/src/nanolang",
+        "source": "repo-nanolang",
+        "type": "direct_task"
+      },
+      "scientific_optimizer": {
+        "arm": "control",
+        "assigned_at": "2026-09-17T05:51:06.755654+00:00",
+        "experiment_id": "experiment_310b4390019d4393985873719896c517",
+        "phase": "experiment",
+        "policy_id": "policy_a6574cf8ac9d47799b0d48fa5bd18c2f",
+        "propensity": 0.1,
+        "schema": "mac.scientific_assignment.v1",
+        "stratum": "unknown:strong",
+        "task_id": "task_95796f5f49564ed4a911fd05a1aac5b4"
+      },
+      "scientific_policy": {
+        "name": "baseline",
+        "policy_id": "policy_a6574cf8ac9d47799b0d48fa5bd18c2f",
+        "schema": "mac.scientific_policy.v1",
+        "version": 1
+      },
+      "target_agent_id": "agent_cli_aa517b99ddeec98e",
+      "toolchain_requirements": {
+        "required_commands": [
+          "python3",
+          "git",
+          "gh",
+          "make",
+          "cc"
+        ],
+        "schema": "mac.task_toolchain_requirements.v1",
+        "source": "repository_contract.toolchain.required_commands"
+      }
+    },
+    "owner_agent_id": null,
+    "priority": 1,
+    "project": "nanolang",
+    "required_capabilities": [],
+    "started_at": null,
+    "state": "open",
+    "title": "Carry record and map globals through standalone AOT",
+    "updated_at": "2026-09-17T05:51:06.752265+00:00"
+  }
+}

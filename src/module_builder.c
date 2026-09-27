@@ -34,6 +34,7 @@
 
 // JSON parsing (simple, minimal implementation for module.json)
 #include "cJSON.h"
+#include "module_sdk_abi.inc"
 
 bool module_builder_verbose = false;
 static bool module_builder_can_prompt_sudo = false;
@@ -447,6 +448,10 @@ static uint64_t module_build_context(const ModuleBuildMetadata *meta) {
         hash_context_field(&hash, adapter->function_name);
         hash_context_field(&hash, adapter->adapter_symbol);
         hash_context_field(&hash, adapter->worker_thread ? "worker" : "owner");
+    }
+    if (meta->typed_abi) {
+        hash_context_field(&hash, "typed-provider-c-abi-v1");
+        hash_context_field(&hash, meta->typed_abi);
     }
     const char *groups[] = {"compiler", "platform-compiler", "linker", "platform-linker"};
     for (size_t group = 0; group < 4; group++) {
@@ -1912,6 +1917,13 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
         return NULL;
     }
 
+    if (!module_parse_typed_abi(json, meta)) {
+        fprintf(stderr, "I require a bounded, unique typed C ABI schema: %s\n", path);
+        module_metadata_free(meta);
+        cJSON_Delete(json);
+        return NULL;
+    }
+
     // Parse fields
     cJSON *name = cJSON_GetObjectItem(json, "name");
     if (name && cJSON_IsString(name)) {
@@ -2066,18 +2078,28 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
         if (dir_exists(meta->include_dirs[i])) continue;
 
         char parent[1024];
-        strncpy(parent, module_dir, sizeof(parent) - 1);
-        parent[sizeof(parent) - 1] = '\0';
+        size_t parent_length = strlen(module_dir);
+        if (parent_length >= sizeof(parent)) {
+            cJSON_Delete(json); module_metadata_free(meta); return NULL;
+        }
+        memcpy(parent, module_dir, parent_length + 1);
         bool resolved = false;
         for (int depth = 0; depth < 8 && !resolved; depth++) {
             char *slash = strrchr(parent, '/');
             if (!slash) break;
             *slash = '\0';
             char candidate[2048];
-            snprintf(candidate, sizeof(candidate), "%s/%s", parent, meta->include_dirs[i]);
+            int length = snprintf(candidate, sizeof(candidate), "%s/%s", parent, meta->include_dirs[i]);
+            if (length < 0 || (size_t)length >= sizeof(candidate)) {
+                cJSON_Delete(json); module_metadata_free(meta); return NULL;
+            }
             if (dir_exists(candidate)) {
+                char *replacement = strdup(candidate);
+                if (!replacement) {
+                    cJSON_Delete(json); module_metadata_free(meta); return NULL;
+                }
                 free(meta->include_dirs[i]);
-                meta->include_dirs[i] = strdup(candidate);
+                meta->include_dirs[i] = replacement;
                 resolved = true;
             }
         }
@@ -2099,24 +2121,61 @@ static ModuleBuildMetadata* module_load_metadata_at_directory(const char *module
         if (dir_exists(inc_path)) continue;
 
         char parent[1024];
-        strncpy(parent, module_dir, sizeof(parent) - 1);
-        parent[sizeof(parent) - 1] = '\0';
+        size_t parent_length = strlen(module_dir);
+        if (parent_length >= sizeof(parent)) {
+            cJSON_Delete(json); module_metadata_free(meta); return NULL;
+        }
+        memcpy(parent, module_dir, parent_length + 1);
         for (int depth = 0; depth < 8; depth++) {
             char *slash = strrchr(parent, '/');
             if (!slash) break;
             *slash = '\0';
             char candidate[2048];
-            snprintf(candidate, sizeof(candidate), "%s/%s", parent, inc_path);
+            int joined = snprintf(candidate, sizeof(candidate), "%s/%s", parent, inc_path);
+            if (joined < 0 || (size_t)joined >= sizeof(candidate)) {
+                cJSON_Delete(json); module_metadata_free(meta); return NULL;
+            }
             if (dir_exists(candidate)) {
-                char resolved_flag[2060];
-                snprintf(resolved_flag, sizeof(resolved_flag), "-I%s", candidate);
+                char *quoted = module_quote_path(candidate);
+                size_t length = quoted ? strlen(quoted) : 0;
+                char *resolved_flag = quoted && length <= SIZE_MAX - 3 ? malloc(length + 3) : NULL;
+                if (!resolved_flag) {
+                    free(quoted); cJSON_Delete(json); module_metadata_free(meta); return NULL;
+                }
+                memcpy(resolved_flag, "-I", 2);
+                memcpy(resolved_flag + 2, quoted, length + 1);
+                free(quoted);
                 free(meta->cflags[i]);
-                meta->cflags[i] = strdup(resolved_flag);
+                meta->cflags[i] = resolved_flag;
                 break;
             }
         }
     }
 
+    /* I append the actual driver's verified installed runtime header root.
+     * Source/unprepared metadata tools retain their existing include behavior. */
+    char sdk_include[4096];
+    if (!nano_native_prepared_include(sdk_include, sizeof(sdk_include))) {
+        cJSON_Delete(json); module_metadata_free(meta); return NULL;
+    }
+    if (sdk_include[0]) {
+        bool duplicate = false;
+        for (size_t i = 0; i < meta->include_dirs_count; ++i)
+            if (!strcmp(meta->include_dirs[i], sdk_include)) duplicate = true;
+        if (!duplicate) {
+            if (meta->include_dirs_count >= SIZE_MAX / sizeof(char *) - 1) {
+                cJSON_Delete(json); module_metadata_free(meta); return NULL;
+            }
+            char *copy = strdup(sdk_include);
+            char **grown = copy ? realloc(meta->include_dirs,
+                (meta->include_dirs_count + 1) * sizeof(char *)) : NULL;
+            if (!grown) {
+                free(copy); cJSON_Delete(json); module_metadata_free(meta); return NULL;
+            }
+            meta->include_dirs = grown;
+            meta->include_dirs[meta->include_dirs_count++] = copy;
+        }
+    }
     cJSON_Delete(json);
     return meta;
 }
@@ -2186,6 +2245,7 @@ void module_metadata_free(ModuleBuildMetadata *meta) {
         free(meta->callback_adapters[i].adapter_symbol);
     }
     free(meta->callback_adapters);
+    free(meta->typed_abi);
 
     free(meta);
 }
@@ -2230,7 +2290,7 @@ static bool module_needs_rebuild_with_flags(const char *module_dir, ModuleBuildM
     struct stat object_stat;
     if (lstat(object_file, &object_stat) != 0 || !S_ISREG(object_stat.st_mode) || object_stat.st_size == 0) {
         if (module_builder_verbose) {
-            printf("[Module] %s needs build: object file missing\n", meta->name);
+            fprintf(stderr, "[Module] %s needs build: object file missing\n", meta->name);
         }
         return true;
     }
@@ -2251,7 +2311,7 @@ static bool module_needs_rebuild_with_flags(const char *module_dir, ModuleBuildM
     if (lstat(shared_lib, &library_stat) != 0 || !S_ISREG(library_stat.st_mode) ||
         library_stat.st_size == 0) {
         if (module_builder_verbose) {
-            printf("[Module] I must rebuild %s: shared library missing or empty\n", meta->name);
+            fprintf(stderr, "[Module] I must rebuild %s: shared library missing or empty\n", meta->name);
         }
         return true;
     }
@@ -2261,7 +2321,7 @@ static bool module_needs_rebuild_with_flags(const char *module_dir, ModuleBuildM
      * (handles git checkout, rsync copies, CI environments). */
     if (hashes_match(module_dir, meta, flags)) {
         if (module_builder_verbose) {
-            printf("[Module] %s up-to-date (hash cache hit)\n", meta->name);
+            fprintf(stderr, "[Module] %s up-to-date (hash cache hit)\n", meta->name);
         }
         return false;
     }
@@ -3486,8 +3546,15 @@ static bool module_link_response_safe(const ModuleBuildMetadata *meta, const Mod
     char word[4096];
     int status;
     while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
-        if (!strchr(word, '@')) continue;
-        if (word[0] != '@') return false;
+        const char *at = strchr(word, '@');
+        if (!at) continue;
+        /* Driver response files start with @. A linker response can also be
+         * carried inside -Wl,. Literal paths such as Homebrew's openssl@3 are
+         * ordinary words and do not hide another argument stream. */
+        if (word[0] != '@') {
+            if (!strncmp(word, "-Wl,", 4)) return false;
+            continue;
+        }
         if (link_word[0] && !strcmp(word, link_word)) continue;
         bool found = false;
         for (size_t group = 0; group < 3 && !found; group++) {
@@ -5003,7 +5070,7 @@ static int module_execute_unit(ModuleBuildMetadata *meta, const ModulePkgFlags *
     const char *source = group ? meta->shared_c_sources[index] : meta->c_sources[index];
     if (mode == MODULE_SNAPSHOT_NATIVE_UNITS && module_source_kind(source) > 1) {
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD"))
-            printf("[Module] I copy captured native unit %s\n", source);
+            fprintf(stderr, "[Module] I copy captured native unit %s\n", source);
         return module_copy_native_unit(directory, group, index, object) ? 0 : -1;
     }
 #ifdef __linux__
@@ -5017,7 +5084,7 @@ static int module_execute_unit(ModuleBuildMetadata *meta, const ModulePkgFlags *
         if (fd < 0) return -1;
         bool ok = module_snapshot_command(meta, flags, command, capacity, prefix, directory, group, index,
                                            object, mode, descriptor);
-        if (ok && (module_builder_verbose || getenv("NANO_VERBOSE_BUILD"))) printf("[Module] %s\n", command);
+        if (ok && (module_builder_verbose || getenv("NANO_VERBOSE_BUILD"))) fprintf(stderr, "[Module] %s\n", command);
         if (ok) ok = module_read_execute(command);
         if (close(fd)) ok = false;
         int status = ok ? 0 : -1;
@@ -5026,7 +5093,7 @@ static int module_execute_unit(ModuleBuildMetadata *meta, const ModulePkgFlags *
 #endif
     if (mode != MODULE_SNAPSHOT_NONE &&
         !module_snapshot_command(meta, flags, command, capacity, prefix, directory, group, index, object, mode, NULL)) return -1;
-    if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) printf("[Module] %s\n", command);
+    if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) fprintf(stderr, "[Module] %s\n", command);
     if (dependency) return module_run_source_command(command, dependency);
     return module_build_append(command, capacity, " 2>/dev/null") ? system(command) : -1;
 }
@@ -5319,7 +5386,8 @@ static bool module_equal_libraries(const char *left, const char *right) {
  * A failed link is not permission to retry and hide its failure. */
 static int module_linux_link_matches(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
                                      const char *objects, const char *staging, const char *object_file) {
-    char retained[2048] = {0}, candidate[2048] = {0}, command[4096] = {0};
+    char retained[2048] = {0}, candidate[2048] = {0};
+    char command[NL_MODULE_LINK_COMMAND_CAPACITY] = {0};
     bool ok = module_build_append(retained, sizeof(retained), "%s/lib%s.so", objects, meta->name) &&
         module_build_append(candidate, sizeof(candidate), "%s/lib%s.so", staging, meta->name) &&
         module_shared_link_command(meta, flags, object_file, candidate, objects, command, sizeof(command));
@@ -5504,7 +5572,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             return NULL;
         }
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-            printf("[Module] Building %s...\n", meta->name ? meta->name : "unknown");
+            fprintf(stderr, "[Module] Building %s...\n", meta->name ? meta->name : "unknown");
         }
 
         // Get CC from environment, module.json, or use POSIX cc
@@ -5562,7 +5630,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 }
             }
 
-            char combine_cmd[8192] = {0};
+            char combine_cmd[NL_MODULE_LINK_COMMAND_CAPACITY] = {0};
 #ifdef __APPLE__
             /* I am producing one relocatable object, not a runnable image.
              * Apple Clang otherwise adds -lSystem and compiler-rt to `cc -r`;
@@ -5580,7 +5648,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             }
 
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-                printf("[Module] %s\n", combine_cmd);
+                fprintf(stderr, "[Module] %s\n", combine_cmd);
             }
 
             int combine_result = command_ok ? system(combine_cmd) : -1;
@@ -5588,14 +5656,15 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             free(src_objects);
 
             if (combine_result != 0) {
-                fprintf(stderr, "Error: Failed to combine objects for module %s\n", meta->name);
+                fprintf(stderr, command_ok ? "I could not combine objects for module %s\n" :
+                        "I could not construct the complete object link for module %s\n", meta->name);
                 free(build_dir);
                 return NULL;
             }
         }
 
         if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-            printf("[Module] ✓ Built %s\n", meta->name);
+            fprintf(stderr, "[Module] ✓ Built %s\n", meta->name);
         }
         
         /* Also create shared library for interpreter FFI */
@@ -5618,9 +5687,16 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         }
 
         if (shared_dir_ok) {
-            char lib_cmd[4096] = {0};
+            /* I use the same bounded command extent as my link-query grammar.
+             * Every private provider contributes its complete object path. */
+            char lib_cmd[NL_MODULE_LINK_COMMAND_CAPACITY] = {0};
             command_ok &= module_shared_link_command(meta, flags, object_file, shared_lib,
                                                       build_dir, lib_cmd, sizeof(lib_cmd));
+            if (!command_ok) {
+                fprintf(stderr, "I could not construct the complete shared link for %s\n", meta->name);
+                free(build_dir);
+                return NULL;
+            }
 
             /* Note: ldflags/system libs/frameworks are included above via shared_ldflags */
 
@@ -5653,7 +5729,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
 
             /* Build shared library */
             if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-                printf("[Module] Building shared library: %s\n", lib_cmd);
+                fprintf(stderr, "[Module] Building shared library: %s\n", lib_cmd);
             }
             
             int lib_result = -1;
@@ -5661,7 +5737,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
             /* I preserve an ordinary link when dependency capture is not
              * supported. I admit my retained compiler argument transports,
              * but not indirect user response inputs hidden from this format. */
-            char recorded_command[8192] = {0}, link_record[2048] = {0};
+            char recorded_command[NL_MODULE_LINK_COMMAND_CAPACITY] = {0}, link_record[2048] = {0};
             bool capture = command_ok && link_observation && module_link_response_safe(meta, flags, lib_cmd) &&
                 module_build_append(link_record, sizeof(link_record), "%s/.link-dependencies", build_dir) &&
                 module_build_append(recorded_command, sizeof(recorded_command), "%s -Xlinker -dependency_info", lib_cmd) &&
@@ -5702,12 +5778,12 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 free(build_dir);
                 return NULL;
             } else if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
-                printf("[Module] ✓ Built shared library %s\n", shared_lib);
+                fprintf(stderr, "[Module] ✓ Built shared library %s\n", shared_lib);
             }
         }
     } else {
         if (module_builder_verbose) {
-            printf("[Module] %s up to date (using cache)\n", meta->name);
+            fprintf(stderr, "[Module] %s up to date (using cache)\n", meta->name);
         }
     }
 

@@ -1,0 +1,118 @@
+{
+  "RECORD_LLVM_CLANG": {
+    "path": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+    "sha256": "e8887481e0df8922f520032f377b524b30d18adb5bb4fbae60c8a5797affcbb5"
+  },
+  "RECORD_LLVM_LLC": {
+    "path": "/opt/homebrew/Cellar/llvm/23.1.1/bin/llc",
+    "sha256": "4fd8ad1455079339d7b80472270ca2741a3fb220073c8c0375fd6e21ce0312c3"
+  },
+  "RECORD_LLVM_NM": {
+    "path": "/opt/homebrew/Cellar/llvm/23.1.1/bin/llvm-nm",
+    "sha256": "9d4f5f9664a4587e5752f90b03df43a14b1eeb41f1b34afbd24710d8839a6de7"
+  },
+  "RECORD_LLVM_NODE": {
+    "path": "/opt/homebrew/Cellar/node/26.9.0/bin/node",
+    "sha256": "28f0fc07e2b86fc0eae5f9751f34ab14d63bd0132882f89cc4a5b4a44965592e"
+  },
+  "RECORD_LLVM_OPT": {
+    "path": "/opt/homebrew/Cellar/llvm/23.1.1/bin/opt",
+    "sha256": "b6e4989e63e73eb18f03a2e9d77503ed2313e00a59d1c6a71ad188c331e2e33b"
+  },
+  "RECORD_LLVM_WASMTIME": {
+    "path": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/wasmtime43",
+    "sha256": "130b4a32cecb619d52aefedda39c6733f00ee7460bbe8748f99eac72143c980c"
+  },
+  "apple_clang": {
+    "path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang",
+    "sha256": "be5518e9c6736cda8dfc3486ce11e8112a2e08045084260691cf41f57a653f59"
+  },
+  "apple_ld": {
+    "path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld",
+    "sha256": "59dd8bfc2656bf8a3a413f26225bbc9133ed58dea82e959428a9d645c700250d"
+  },
+  "ar": {
+    "path": "/usr/bin/ar",
+    "sha256": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2"
+  },
+  "cc": {
+    "path": "/usr/bin/cc",
+    "sha256": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2"
+  },
+  "clang": {
+    "path": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+    "sha256": "e8887481e0df8922f520032f377b524b30d18adb5bb4fbae60c8a5797affcbb5"
+  },
+  "driver_python": {
+    "path": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "sha256": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634"
+  },
+  "ffi_header": {
+    "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX26.4.sdk/usr/include/ffi/ffi.h",
+    "sha256": "cfc632aa9411334f99e14681008b2db105bc52b834f31b4d714d4326deac3a85"
+  },
+  "gcc": {
+    "path": "/usr/bin/gcc",
+    "sha256": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2"
+  },
+  "ld": {
+    "path": "/usr/bin/ld",
+    "sha256": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2"
+  },
+  "libcrypto": {
+    "path": "/opt/homebrew/Cellar/openssl@3/3.6.4/lib/libcrypto.3.dylib",
+    "sha256": "bae675614cd791d37ec35416ea9f87edcc85407d020810504cf458119b63522c"
+  },
+  "make": {
+    "path": "/usr/bin/make",
+    "sha256": "34129c71a01a74f7f3b2443521519b2e5447553fa187f5fcafaaf8c42cc192e2"
+  },
+  "ordinary": {
+    "path": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+    "sha256": "e8887481e0df8922f520032f377b524b30d18adb5bb4fbae60c8a5797affcbb5"
+  },
+  "package_node": {
+    "path": "/opt/homebrew/Cellar/node/26.9.0/bin/node",
+    "sha256": "28f0fc07e2b86fc0eae5f9751f34ab14d63bd0132882f89cc4a5b4a44965592e"
+  },
+  "package_opt": {
+    "path": "/opt/homebrew/Cellar/llvm/23.1.1/bin/opt",
+    "sha256": "b6e4989e63e73eb18f03a2e9d77503ed2313e00a59d1c6a71ad188c331e2e33b"
+  },
+  "package_runner": {
+    "path": "/Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/nanolang-record-package-retain.py",
+    "sha256": "652678513b52abafb1b492b578bf7f9937d76df814da62abfe0f77c3519f061f"
+  },
+  "package_wasmtime": {
+    "path": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/wasmtime43",
+    "sha256": "130b4a32cecb619d52aefedda39c6733f00ee7460bbe8748f99eac72143c980c"
+  },
+  "pkg-config": {
+    "path": "/opt/homebrew/Cellar/pkgconf/3.0.7/bin/pkgconf",
+    "sha256": "39b6b8b701470ebf31a24972bc1fafc7da54a5c32215d972fdadaf21c7cfa91b"
+  },
+  "ps": {
+    "path": "/bin/ps",
+    "sha256": "a06fe087161557f1f8c030672eaedcd90bc6a8e92b8f2d44e07cffedc3349205"
+  },
+  "python3": {
+    "path": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/bin/python3.14",
+    "sha256": "87d4df53fd91304be5bac391fb204643c36b7df2023c04a0953bcbc7d4fdf634"
+  },
+  "real_clang": {
+    "path": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23",
+    "sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888"
+  },
+  "sanitizer": {
+    "path": "/Users/jkh/nanolang-qualification/vm-effects-recovery-20260921/tools/clang",
+    "sha256": "e8887481e0df8922f520032f377b524b30d18adb5bb4fbae60c8a5797affcbb5"
+  },
+  "wasm_ld": {
+    "path": "/opt/homebrew/Cellar/lld/23.1.1/bin/lld",
+    "sha256": "1f80841d925f7b7d875d88e593e6e12dd496ab9227fc60f6ce9b07f73df6c81e"
+  },
+  "xcrun": {
+    "path": "/usr/bin/xcrun",
+    "sha256": "bbe7671518a3905f9d3fce54312fbc77c2876b0d62aca74a0688fa869d31a8a9"
+  }
+}

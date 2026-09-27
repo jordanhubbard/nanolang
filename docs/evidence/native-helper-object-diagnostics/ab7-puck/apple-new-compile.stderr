@@ -1,0 +1,182 @@
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:729:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  729 | NANO_RT_OPTIONAL_SUPPORT(nano_rt_f64_arithmetic_result)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:156:22: note: previous definition is here
+  156 | static inline double nano_rt_f64_arithmetic_result(double value) {
+      |                      ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:730:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  730 | NANO_RT_OPTIONAL_SUPPORT(nano_rt_f64_add)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:168:22: note: previous definition is here
+  168 | static inline double nano_rt_f64_add(double a, double b) {
+      |                      ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:731:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  731 | NANO_RT_OPTIONAL_SUPPORT(nano_rt_f64_sub)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:172:22: note: previous definition is here
+  172 | static inline double nano_rt_f64_sub(double a, double b) {
+      |                      ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:732:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  732 | NANO_RT_OPTIONAL_SUPPORT(nano_rt_f64_mul)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:176:22: note: previous definition is here
+  176 | static inline double nano_rt_f64_mul(double a, double b) {
+      |                      ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:733:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  733 | NANO_RT_OPTIONAL_SUPPORT(nano_rt_f64_div)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:180:22: note: previous definition is here
+  180 | static inline double nano_rt_f64_div(double a, double b) {
+      |                      ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:734:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  734 | NANO_RT_OPTIONAL_SUPPORT(nano_rt_f64_nonfinite)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:216:1: note: previous definition is here
+  216 | NL_BINARY64_FORMAT_HELPERS
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:202:27: note: expanded from macro 'NL_BINARY64_FORMAT_HELPERS'
+  202 | static inline const char *nano_rt_f64_nonfinite(double value) { \
+      |                           ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:735:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  735 | NANO_RT_OPTIONAL_SUPPORT(nano_rt_f64_format)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:216:1: note: previous definition is here
+  216 | NL_BINARY64_FORMAT_HELPERS
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:208:19: note: expanded from macro 'NL_BINARY64_FORMAT_HELPERS'
+  208 | static inline int nano_rt_f64_format(char *out, size_t size, double value) { \
+      |                   ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:736:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  736 | NANO_RT_OPTIONAL_SUPPORT(nano_rt_f64_print)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:216:1: note: previous definition is here
+  216 | NL_BINARY64_FORMAT_HELPERS
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:212:19: note: expanded from macro 'NL_BINARY64_FORMAT_HELPERS'
+  212 | static inline int nano_rt_f64_print(FILE *out, double value) { \
+      |                   ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:737:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  737 | NANO_RT_OPTIONAL_SUPPORT(nl_array_slice)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:240:18: note: previous definition is here
+  240 | static DynArray* nl_array_slice(DynArray* arr, int64_t start, int64_t length) {
+      |                  ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:738:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  738 | NANO_RT_OPTIONAL_SUPPORT(nl_bytes_from_string)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:385:18: note: previous definition is here
+  385 | static DynArray* nl_bytes_from_string(const char* s) {
+      |                  ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:739:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  739 | NANO_RT_OPTIONAL_SUPPORT(nl_string_from_bytes)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:396:20: note: previous definition is here
+  396 | static const char* nl_string_from_bytes(DynArray* bytes) {
+      |                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:740:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  740 | NANO_RT_OPTIONAL_SUPPORT(nl_path_normalize)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:470:20: note: previous definition is here
+  470 | static const char* nl_path_normalize(const char* p) { return path_normalize(p); }
+      |                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:741:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  741 | NANO_RT_OPTIONAL_SUPPORT(nl_path_join)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:471:20: note: previous definition is here
+  471 | static const char* nl_path_join(const char* a, const char* b) { return path_join(a, b); }
+      |                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:742:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  742 | NANO_RT_OPTIONAL_SUPPORT(nl_path_basename)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:472:20: note: previous definition is here
+  472 | static const char* nl_path_basename(const char* p) { return path_basename(p); }
+      |                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:743:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  743 | NANO_RT_OPTIONAL_SUPPORT(nl_path_dirname)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:473:20: note: previous definition is here
+  473 | static const char* nl_path_dirname(const char* p) { return path_dirname(p); }
+      |                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:744:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  744 | NANO_RT_OPTIONAL_SUPPORT(nl_path_relpath)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:474:20: note: previous definition is here
+  474 | static const char* nl_path_relpath(const char* t, const char* b) { return path_relpath(t, b); }
+      |                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:745:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  745 | NANO_RT_OPTIONAL_SUPPORT(nl_file_read)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:475:20: note: previous definition is here
+  475 | static const char* nl_file_read(const char* p) { return file_read(p); }
+      |                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:746:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  746 | NANO_RT_OPTIONAL_SUPPORT(nl_fs_mkdir_p)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:477:16: note: previous definition is here
+  477 | static int64_t nl_fs_mkdir_p(const char* p) { return fs_mkdir_p(p); }
+      |                ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:747:1: error: attribute declaration must precede definition [-Werror,-Wignored-attributes]
+  747 | NANO_RT_OPTIONAL_SUPPORT(nl_file_copy)
+      | ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:725:84: note: expanded from macro 'NANO_RT_OPTIONAL_SUPPORT'
+  725 | #define NANO_RT_OPTIONAL_SUPPORT(name) static __typeof__(name) name __attribute__((unused));
+      |                                                                                    ^
+/Users/jkh/nanolang-qualification/native-helper-ab7-puck-objects/new.c:478:16: note: previous definition is here
+  478 | static int64_t nl_file_copy(const char* s, const char* d) { return file_copy(s, d); }
+      |                ^
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.

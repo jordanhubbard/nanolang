@@ -53,3 +53,15 @@ host libraries remain hash-identical after the gates. I retain the exact
 [pins and logs](evidence/reconstruction-scalar-comparisons.json). The existing
 C-seed warning task stays open; I changed reconstruction representation only.
 No current-product bootstrap or full reconstruction result is claimed.
+
+## I use one outer C condition group
+
+For C `if` and `while`, I use the statement's required parentheses as the
+outer group of a binary condition. I retain every operand's existing grouping.
+This avoids rendering `if ((a == b))`, which Clang rejects under the existing
+strict warning flags. I do not change the typed expression tree, evaluated
+operand snapshots, branch order or NanoLang rendering. The unchanged complete
+scalar reconstruction gate owns qualification of this correction
+(`task_e88279df132f4f6ea092b7a288c9cf88`).
+
+My [current repair evidence](evidence/pr522-implementation-2026-09-23/reconstruction-conditions/README.md) records fresh bootstrap and the complete 60-method gate passing. Native bootstrap binaries differ; this is not canonical fixed-point evidence.

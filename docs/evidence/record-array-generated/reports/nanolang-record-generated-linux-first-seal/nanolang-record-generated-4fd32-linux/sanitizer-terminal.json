@@ -1,0 +1,12 @@
+{
+  "bound": 1800,
+  "cleanup_signals": [
+    "SIGTERM"
+  ],
+  "errors": [],
+  "group_disappeared": true,
+  "launched": true,
+  "leader_reaped": true,
+  "returncode": -15,
+  "timeout": true
+}

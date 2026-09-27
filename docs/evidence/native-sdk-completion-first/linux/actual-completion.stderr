@@ -1,0 +1,6 @@
+test_actual_compiler_success_failure_and_live_deadline (tests.test_shadow_completion.ShadowCompletion.test_actual_compiler_success_failure_and_live_deadline) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.077s
+
+OK

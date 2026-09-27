@@ -1,0 +1,14 @@
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2092, column 9: Unused variable 'rejected'
+Warning at line 2213, column 9: Unused variable 'rejected'
+Warning at line 2220, column 13: Unused variable 'rejected'
+Warning at line 2258, column 9: Unused variable 'rejected'
+Warning at line 2262, column 9: Unused variable 'rejected'
+Warning at line 2269, column 13: Unused variable 'rejected'
+Warning at line 5384, column 17: Unused variable 'imported'
+Error: I reject ambiguous module introspection identity: std_fs
+Error at line 3, column 1: Failed to load module '/home/jkh/Src/nanolang-record-lists-qualified-cb489/modules/std/fs.nano'
+Error: Failed to process imports for module '/home/jkh/Src/nanolang-list-discarded-fact-diagnostic/modules/nanoisa/nanoisa.nano'
+Error at line 22, column 1: Failed to load module '/home/jkh/Src/nanolang-list-discarded-fact-diagnostic/modules/nanoisa/nanoisa.nano'
+Module loading failed

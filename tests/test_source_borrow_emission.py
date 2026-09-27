@@ -1,4 +1,8 @@
 """I admit a closed source-reference profile only with executable ownership."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 from pathlib import Path
 import os
 import subprocess
@@ -69,7 +73,7 @@ class SourceBorrowEmission(unittest.TestCase):
         self.command(native_test_compiler(), '-std=c11', '-Wall', '-Wextra', '-Werror',
                      '-fsanitize=address,undefined', '-fno-omit-frame-pointer', source, '-o', native)
         result = subprocess.run([native], cwd=ROOT, capture_output=True, timeout=30,
-                                env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+                                env={**os.environ, 'ASAN_OPTIONS': asan_options("halt_on_error=1")})
         # My standalone wrapper maps internal assertion status 2 to exit status 1.
         self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
         self.assertNotIn(b'Sanitizer', result.stderr)

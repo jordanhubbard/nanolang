@@ -1,0 +1,30 @@
+{
+  "cleanup": [],
+  "owned": {
+    "3760939": {
+      "command": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14 /run/user/1000/nanolang-backend-integration-a1bb-20260921/reports/controls/package-retain.py",
+      "group": 3760939,
+      "parent": 3591010,
+      "started": "Mon Sep 21 07:51:58 2026"
+    },
+    "3760972": {
+      "command": "/usr/local/bin/clang --target=wasm32-unknown-unknown -O2 -ffreestanding -fno-builtin -nostdlib /run/user/1000/nanolang-backend-integration-a1bb-20260921/source/tests/nanoisa/test_managed_module.c -Wl,--no-entry -Wl,--export=nms_module_tests -Wl,--export=nms_module_dispose_first -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/reports/package-artifacts/nano-module-abi-4bee66pn/module.wasm",
+      "group": 3760939,
+      "parent": 3760939,
+      "started": "Mon Sep 21 07:51:59 2026"
+    },
+    "3760973": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple wasm32-unknown-unknown -O2 -emit-obj -dumpdir /run/user/1000/nanolang-backend-integration-a1bb-20260921/reports/package-artifacts/nano-module-abi-4bee66pn/module.wasm- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name test_managed_module.c -mrelocation-model static -mframe-pointer=none -ffp-contract=on -fno-rounding-math -mconstructor-aliases -ffreestanding -target-cpu generic -fvisibility=hidden -debugger-tuning=gdb -fdebug-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -fcoverage-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -resource-dir /usr/local/lib/clang/23 -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /include -ferror-limit 19 -fno-builtin -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/reports/package-artifacts/test_managed_module-64a441.o -x c /run/user/1000/nanolang-backend-integration-a1bb-20260921/source/tests/nanoisa/test_managed_module.c",
+      "group": 3760939,
+      "parent": 3760972,
+      "started": "Mon Sep 21 07:51:59 2026"
+    },
+    "3761097": {
+      "command": "/usr/local/bin/clang -std=c11 -O2 -ffreestanding -fno-builtin -fno-ident -Wall -Wextra -Werror -S -emit-llvm --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 src/nanoisa/managed_module.c -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/reports/package-artifacts/nano-runtime-ir-259r3x1c/native.ll",
+      "group": 3760939,
+      "parent": 3760939,
+      "started": "Mon Sep 21 07:52:00 2026"
+    }
+  },
+  "remaining": []
+}

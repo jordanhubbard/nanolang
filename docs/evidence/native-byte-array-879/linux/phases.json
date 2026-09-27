@@ -1,0 +1,79 @@
+[
+  {
+    "label": "ordinary-native",
+    "argv": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_native_byte_array_identity"
+    ],
+    "bound": 1200,
+    "timeout": false,
+    "pid": 1035574,
+    "returncode": 0,
+    "remaining_groups": [],
+    "seconds": 1.5177168149966747
+  },
+  {
+    "label": "sanitized-build",
+    "argv": [
+      "/bin/make",
+      "-f",
+      "Makefile.gnu",
+      "-j2",
+      "CC=/usr/bin/gcc",
+      "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "nvm2c",
+      "nanoisa_dump",
+      "nano_vm",
+      "nano_virt"
+    ],
+    "bound": 1200,
+    "timeout": false,
+    "pid": 1036133,
+    "returncode": 0,
+    "remaining_groups": [],
+    "seconds": 31.34292786300648
+  },
+  {
+    "label": "sanitized-shapes",
+    "argv": [
+      "/bin/make",
+      "-f",
+      "Makefile.gnu",
+      "-j2",
+      "CC=/usr/bin/gcc",
+      "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+      "PYTHON_WITH_YAML=/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "test-nvm2c-shapes"
+    ],
+    "bound": 240,
+    "timeout": false,
+    "pid": 1039779,
+    "returncode": 0,
+    "remaining_groups": [],
+    "seconds": 1.0818429490318522
+  },
+  {
+    "label": "sanitized-native",
+    "argv": [
+      "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14",
+      "-m",
+      "unittest",
+      "-f",
+      "-v",
+      "tests.test_native_byte_array_identity"
+    ],
+    "bound": 1200,
+    "timeout": false,
+    "pid": 1039835,
+    "returncode": 0,
+    "remaining_groups": [],
+    "seconds": 2.8007144550792873
+  }
+]

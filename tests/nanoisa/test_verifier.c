@@ -564,6 +564,38 @@ static void test_empty_function_code_ranges(void) {
     PASS(test_name);
 }
 
+static void test_unordered_ranges_preserve_first_error(void) {
+    const char *test_name = "ranges: unordered maxima and original error precedence";
+    uint8_t code[6] = {OP_RET, OP_RET, OP_RET, OP_RET, OP_RET, OP_RET};
+    NvmModule *mod = make_simple_module(code, sizeof(code), 0, 0);
+    NvmFunctionEntry entry = mod->functions[0];
+    for (int i = 0; i < 3; i++) nvm_add_function(mod, &entry);
+    mod->functions[0].code_offset = 4; mod->functions[0].code_length = 2;
+    mod->functions[1].code_offset = 0; mod->functions[1].code_length = 2;
+    mod->functions[2].code_offset = 2; mod->functions[2].code_length = 2;
+    mod->functions[3].code_offset = 6; mod->functions[3].code_length = 0;
+    ASSERT(nvm_verify(mod).ok, "unordered disjoint and adjacent ranges must pass");
+
+    mod->functions[2].code_length = 3;
+    NvmVerifyResult r = nvm_verify(mod);
+    ASSERT(!r.ok && strstr(r.error_msg, "function[2] code range overlaps function[0]"),
+           "lower-address predecessor must not hide an earlier high range");
+    mod->functions[2].code_length = 2;
+    mod->functions[3].code_offset = 1; mod->functions[3].code_length = 4;
+    r = nvm_verify(mod);
+    ASSERT(!r.ok && strstr(r.error_msg, "function[3] code range overlaps function[0]"),
+           "multiple conflicts must report original table order, not address order");
+    mod->functions[3].name_idx = mod->string_count;
+    r = nvm_verify(mod);
+    ASSERT(!r.ok && strstr(r.error_msg, "function[3] name_idx"),
+           "invalid metadata must still precede that function's overlap check");
+    mod->functions[3].name_idx = entry.name_idx;
+    mod->functions[3].code_offset = 6; mod->functions[3].code_length = 0;
+    ASSERT(nvm_verify(mod).ok, "fresh verification must recover after range restoration");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 static void test_function_code_length_beyond_end(void) {
     const char *test_name = "nvm_verify: code_length beyond code_size fails";
     uint8_t code[4];
@@ -1673,7 +1705,71 @@ static void test_effect_handler_verification(void) {
     PASS(test_name);
 }
 
+static void test_capture_binding_admission_refused(void) {
+    const char *test_name = "capture binding transport requires complete execution admission";
+    const NanoOpcode opcodes[] = {OP_BIND_INIT_LOCAL, OP_BIND_CLEAR_LOCAL, OP_CLOSURE_BIND};
+    for (size_t i = 0; i < sizeof(opcodes)/sizeof(opcodes[0]); ++i) {
+        uint8_t code[64];
+        uint32_t size = i == 2 ? emit(code, opcodes[i], (uint32_t)0) : emit(code, opcodes[i], 0);
+        ASSERT(size != 0, "I require the real shared decoder encoding");
+        size += emit(code + size, OP_RET);
+        NvmModule *mod = make_simple_module(code, size, 1, 0);
+        NvmVerifyResult result = nvm_verify(mod);
+        nvm_module_free(mod);
+        ASSERT(!result.ok && strstr(result.error_msg, "capture binding admission"),
+               "I must refuse recognized capture operations before execution");
+    }
+    PASS(test_name);
+}
+
+/* Classification expires at every public boundary, including mutations of
+ * the same original module. These are refusals; no File opcode executes. */
+static void test_service_classification_is_invocation_local(void) {
+    const char *test_name = "service classification: mutation, metadata and linked boundaries";
+    uint8_t code[64];
+    uint32_t n = emit(code, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    NvmModule *plain = make_simple_module(code, n, 0, 0);
+    const NvmModule *linked[] = {mod};
+    uint16_t depth = 4321;
+    ASSERT(nvm_verify(mod).ok, "ordinary module must verify");
+    ASSERT(nvm_verify_function(mod, 0).ok, "ordinary function must verify");
+    ASSERT(nvm_verify_function_max_stack(mod, 0, &depth).ok && depth == 0,
+           "ordinary stack result must publish zero");
+    ASSERT(nvm_verify_linked(plain, linked, 1).ok, "ordinary linked module must verify");
+
+    mod->code[0] = OP_FILE_DROP_STACK;
+    depth = 4321;
+    ASSERT(!nvm_verify(mod).ok, "fresh full call must see changed File opcode");
+    ASSERT(!nvm_verify_function(mod, 0).ok, "fresh function call must see File opcode");
+    ASSERT(!nvm_verify_function_max_stack(mod, 0, &depth).ok && depth == 4321,
+           "File refusal must preserve maximum-stack output");
+    ASSERT(!nvm_verify_linked(mod, NULL, 0).ok, "linked root must see File opcode");
+    ASSERT(!nvm_verify_linked(plain, linked, 1).ok, "linked peer must see File opcode");
+    ASSERT(nvm_verify(plain).ok, "different ordinary module must remain independent");
+
+    mod->code[0] = OP_RET;
+    ASSERT(nvm_verify(mod).ok, "restored code must receive fresh classification");
+    mod->service_size = 1;
+    depth = 4321;
+    ASSERT(!nvm_verify(mod).ok && !nvm_verify_function(mod, 0).ok,
+           "metadata alone must refuse full and function entry");
+    ASSERT(!nvm_verify_function_max_stack(mod, 0, &depth).ok && depth == 4321,
+           "metadata refusal must preserve maximum-stack output");
+    ASSERT(!nvm_verify_linked(mod, NULL, 0).ok &&
+           !nvm_verify_linked(plain, linked, 1).ok, "metadata must refuse linked entries");
+    mod->service_size = 0;
+    ASSERT(nvm_verify(mod).ok && nvm_verify_function(mod, 0).ok &&
+           nvm_verify_linked(plain, linked, 1).ok, "restored metadata must recover");
+    ASSERT(nvm_verify_function_max_stack(mod, 0, &depth).ok && depth == 0,
+           "recovered stack query must publish its actual result");
+    nvm_module_free(plain);
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 int main(void) {
+    test_capture_binding_admission_refused();
     test_effect_handler_verification();
     printf("\n[verifier] NanoVM bytecode verifier tests...\n\n");
 
@@ -1687,6 +1783,7 @@ int main(void) {
     test_overlapping_function_code_ranges();
     test_contained_function_code_range();
     test_empty_function_code_ranges();
+    test_unordered_ranges_preserve_first_error();
     test_function_code_length_beyond_end();
     test_function_name_idx_overflow();
     test_invalid_function_result_signature();
@@ -1768,6 +1865,7 @@ int main(void) {
     test_implicit_return_shape_is_checked();
     test_implicit_return_shape_releases_ownership_state();
     test_implicit_return_with_matching_shape_passes();
+    test_service_classification_is_invocation_local();
     test_max_stack_of_an_empty_function();
     test_max_stack_counts_the_deepest_point();
     test_max_stack_is_refused_for_an_unverifiable_function();

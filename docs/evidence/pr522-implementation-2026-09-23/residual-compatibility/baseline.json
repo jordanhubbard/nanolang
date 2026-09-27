@@ -1,0 +1,35 @@
+{
+  "source_commit": "180422cd0f27a1e6108b2fa8493ffad861a35fe3",
+  "compiler": "nanoc_stage1",
+  "command": "NANOLANG_AFFINE_COMPILERS=nanoc_stage1 python3 -m unittest -v tests.test_union_literal_context tests.test_native_generic_record_fields tests.test_match_aggregate_results",
+  "exit_code": 1,
+  "methods": 23,
+  "failures": [
+    "test_generic_record_array (tests.test_union_literal_context.UnionLiteralContext.test_generic_record_array)",
+    "test_nested_generic_record_array (tests.test_union_literal_context.UnionLiteralContext.test_nested_generic_record_array)",
+    "test_nongeneric_record_array (tests.test_union_literal_context.UnionLiteralContext.test_nongeneric_record_array)",
+    "test_direct_field_match_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_executes) (compiler='nanoc_stage1')",
+    "test_direct_field_match_expression_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_expression_executes) (compiler='nanoc_stage1')",
+    "test_distinct_instances_execute (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_distinct_instances_execute) (compiler='nanoc_stage1')",
+    "test_empty_inline_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_empty_inline_field_executes) (compiler='nanoc_stage1')",
+    "test_forward_union_declaration_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_forward_union_declaration_executes) (compiler='nanoc_stage1')",
+    "test_imported_field_layout_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_imported_field_layout_executes) (compiler='nanoc_stage1')",
+    "test_nested_generic_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_generic_field_executes) (compiler='nanoc_stage1')",
+    "test_nested_record_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_record_executes) (compiler='nanoc_stage1')",
+    "test_nonempty_field_payload_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nonempty_field_payload_executes) (compiler='nanoc_stage1')",
+    "test_two_argument_result_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_two_argument_result_field_executes) (compiler='nanoc_stage1')",
+    "test_generic_union_result (tests.test_match_aggregate_results.MatchAggregateResults.test_generic_union_result)",
+    "test_integer_selector_union_result (tests.test_match_aggregate_results.MatchAggregateResults.test_integer_selector_union_result)",
+    "test_scalar_match_result (tests.test_match_aggregate_results.MatchAggregateResults.test_scalar_match_result)"
+  ],
+  "diagnostics": [
+    "1 != 0 : I cannot lower this checked program: I require exhaustive union expression arms with one exact scalar result type",
+    "1 != 0 : I cannot lower this checked program: I require the exact declared union type",
+    "1 != 0 : I cannot lower this checked program: unsupported local type Box<Plain>",
+    "1 != 0 : I cannot lower this checked program: unsupported local type Box<array<Plain>>",
+    "1 != 0 : I cannot lower this checked program: unsupported local type Outer",
+    "1 != 0 : I cannot lower this checked program: unsupported local type State",
+    "1 != 0 : I cannot lower this checked program: unsupported local type Values"
+  ],
+  "uncompressed_sha256": "a56c5e695551c11a9162fe0084907b0880217a6bed3a359776efd306a6b3e5d0"
+}

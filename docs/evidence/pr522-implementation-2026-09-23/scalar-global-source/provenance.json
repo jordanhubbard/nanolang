@@ -1,0 +1,8 @@
+{
+  "parent": "9d51e219c1df14fcdddf1b86c0db8c86845954af",
+  "sha256": {
+    "src/nanovirt/borrow_codegen.inc": "1378d6058fa94be9bde9a3c6b4dc87bc6408d5c84176f30a71a66814f143163c",
+    "tests/test_owned_scalar_global_source.py": "eac777b7198f1089aa3422f9f18a76c9a5f37f931817fc30bc2c98d6516c0d3c",
+    "Makefile.gnu": "0e5e2bfadb3dded4c7769c9e34ce8913ba39af2c02c4989971767e38108f66af"
+  }
+}

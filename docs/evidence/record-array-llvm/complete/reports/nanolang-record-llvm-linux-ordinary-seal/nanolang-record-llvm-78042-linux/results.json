@@ -1,0 +1,42 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 20.563,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.164,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.154,
+    "status": 0
+  },
+  {
+    "phase": "parity",
+    "seconds": 10.326,
+    "status": 0
+  },
+  {
+    "phase": "ordinary-emission",
+    "seconds": 4.144,
+    "status": 0
+  },
+  {
+    "phase": "ordinary-native",
+    "seconds": 301.332,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary-emission",
+    "seconds": 2.656,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary-native",
+    "seconds": 308.399,
+    "status": 0
+  }
+]

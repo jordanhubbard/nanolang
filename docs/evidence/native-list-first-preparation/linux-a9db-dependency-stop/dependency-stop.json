@@ -1,0 +1,8 @@
+{
+  "reason": "I stop dependent bootstrap after original Darwin Stage2 exposed a NULL DynArray assertion; this is an orchestration stop, not an independently observed Linux product failure.",
+  "group": 1641572,
+  "signals": [
+    "SIGTERM",
+    "absent"
+  ]
+}

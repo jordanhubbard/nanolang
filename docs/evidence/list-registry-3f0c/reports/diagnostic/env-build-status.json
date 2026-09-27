@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "/bin/gcc",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-O3",
+    "-ftree-vectorize",
+    "-fPIC",
+    "-Isrc",
+    "-D_GNU_SOURCE",
+    "-DNANO_EVALUATOR_LIFETIME_TIMING",
+    "-c",
+    "/home/jkh/Src/nanolang-list-registry-shadow-timing/src/env.c",
+    "-o",
+    "/tmp/nanolang-list-registry-3f0c-linux/env.o"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-40870",
+  "bound": 120,
+  "timeout": false,
+  "cleanup": [],
+  "returncode": 0,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 1.7403044330421835,
+  "log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-list-registry-3f0c-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "inputs_equal": true
+}

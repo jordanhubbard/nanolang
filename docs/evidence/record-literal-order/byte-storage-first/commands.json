@@ -1,0 +1,11 @@
+[
+  {
+    "command": [
+      "/tmp/nanolang-record-literal-source-order/bin/nanoc_stage1",
+      "tests/nanovirt/fixtures/tuple_array_literal_written_order.nano",
+      "-o",
+      "/tmp/nano-byte-context-stage1-corrected-fvpn_ef9/program"
+    ],
+    "returncode": 1
+  }
+]

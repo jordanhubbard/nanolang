@@ -1,0 +1,3 @@
+ld: warning: ignoring duplicate libraries: '-lm'
+ld: warning: ignoring duplicate libraries: '-lm'
+I kept generated C in /Users/jkh/nanolang-qualification/record-lists-833-puck-matrix/native-source/nano-native-record-lists-6tzdfu4t/temporary/nano_native_1789985010_0/program.c

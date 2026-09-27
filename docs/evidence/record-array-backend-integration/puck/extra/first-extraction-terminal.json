@@ -1,0 +1,1 @@
+{"stage": "external source extraction before gates", "selected_python": "python3 from noninteractive SSH PATH", "returncode": 1, "error": "TypeError: extractall() got an unexpected keyword argument 'filter'", "source_files_extracted": 0, "correction": "explicit /opt/homebrew/bin/python3 3.14.7"}

@@ -1,0 +1,49 @@
+calls=100000 sum=4999950000 elapsed=0.001090
+=================================================================
+==94432==ERROR: AddressSanitizer: stack-use-after-return on address 0xe75fe6235620 at pc 0xc15901fc0c20 bp 0xffffc25e9a50 sp 0xffffc25e9a48
+READ of size 8 at 0xe75fe6235620 thread T0
+    #0 0xc15901fc0c1c in main /tmp/fake_stack_probe.c:20:31
+    #1 0xe75fe82084c0  (/lib/aarch64-linux-gnu/libc.so.6+0x284c0) (BuildId: 27027b96e5b8c475fc327aa445bea1c71d37b4e2)
+    #2 0xe75fe8208594 in __libc_start_main (/lib/aarch64-linux-gnu/libc.so.6+0x28594) (BuildId: 27027b96e5b8c475fc327aa445bea1c71d37b4e2)
+    #3 0xc15901ee42ac in _start (/tmp/fake_stack_clang+0x342ac) (BuildId: dd0e8270cd7685bcf64b739d445ac40cf56d00ef)
+
+Address 0xe75fe6235620 is located in stack of thread T0 at offset 32 in frame
+    #0 0xc15901fc0ddc in work /tmp/fake_stack_probe.c:5
+
+  This frame has 1 object(s):
+    [32, 64) 'local' (line 6) <== Memory access at offset 32 is inside this variable
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-use-after-return /tmp/fake_stack_probe.c:20:31 in main
+Shadow bytes around the buggy address:
+  0xe75fe6235380: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0xe75fe6235400: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0xe75fe6235480: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0xe75fe6235500: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0xe75fe6235580: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+=>0xe75fe6235600: f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0xe75fe6235680: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0xe75fe6235700: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0xe75fe6235780: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0xe75fe6235800: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+  0xe75fe6235880: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==94432==ABORTING

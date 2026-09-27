@@ -1,0 +1,61 @@
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:168:22: error: unused function 'nano_rt_f64_add' [-Werror,-Wunused-function]
+  168 | static inline double nano_rt_f64_add(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:172:22: error: unused function 'nano_rt_f64_sub' [-Werror,-Wunused-function]
+  172 | static inline double nano_rt_f64_sub(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:176:22: error: unused function 'nano_rt_f64_mul' [-Werror,-Wunused-function]
+  176 | static inline double nano_rt_f64_mul(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:180:22: error: unused function 'nano_rt_f64_div' [-Werror,-Wunused-function]
+  180 | static inline double nano_rt_f64_div(double a, double b) {
+      |                      ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:240:18: error: unused function 'nl_array_slice' [-Werror,-Wunused-function]
+  240 | static DynArray* nl_array_slice(DynArray* arr, int64_t start, int64_t length) {
+      |                  ^~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:385:18: error: unused function 'nl_bytes_from_string' [-Werror,-Wunused-function]
+  385 | static DynArray* nl_bytes_from_string(const char* s) {
+      |                  ^~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:396:20: error: unused function 'nl_string_from_bytes' [-Werror,-Wunused-function]
+  396 | static const char* nl_string_from_bytes(DynArray* bytes) {
+      |                    ^~~~~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:470:20: error: unused function 'nl_path_normalize' [-Werror,-Wunused-function]
+  470 | static const char* nl_path_normalize(const char* p) { return path_normalize(p); }
+      |                    ^~~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:471:20: error: unused function 'nl_path_join' [-Werror,-Wunused-function]
+  471 | static const char* nl_path_join(const char* a, const char* b) { return path_join(a, b); }
+      |                    ^~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:472:20: error: unused function 'nl_path_basename' [-Werror,-Wunused-function]
+  472 | static const char* nl_path_basename(const char* p) { return path_basename(p); }
+      |                    ^~~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:473:20: error: unused function 'nl_path_dirname' [-Werror,-Wunused-function]
+  473 | static const char* nl_path_dirname(const char* p) { return path_dirname(p); }
+      |                    ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:474:20: error: unused function 'nl_path_relpath' [-Werror,-Wunused-function]
+  474 | static const char* nl_path_relpath(const char* t, const char* b) { return path_relpath(t, b); }
+      |                    ^~~~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:475:20: error: unused function 'nl_file_read' [-Werror,-Wunused-function]
+  475 | static const char* nl_file_read(const char* p) { return file_read(p); }
+      |                    ^~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:477:16: error: unused function 'nl_fs_mkdir_p' [-Werror,-Wunused-function]
+  477 | static int64_t nl_fs_mkdir_p(const char* p) { return fs_mkdir_p(p); }
+      |                ^~~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:478:16: error: unused function 'nl_file_copy' [-Werror,-Wunused-function]
+  478 | static int64_t nl_file_copy(const char* s, const char* d) { return file_copy(s, d); }
+      |                ^~~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:479:16: error: unused function 'nl_dir_copy' [-Werror,-Wunused-function]
+  479 | static int64_t nl_dir_copy(const char* s, const char* d) { return dir_copy(s, d); }
+      |                ^~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:487:20: error: unused function 'nl_get_argv' [-Werror,-Wunused-function]
+  487 | static const char* nl_get_argv(int64_t idx) { return get_argv(idx); }
+      |                    ^~~~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:488:20: error: unused function 'nl_getenv' [-Werror,-Wunused-function]
+  488 | static const char* nl_getenv(const char* name) { return nl_os_getenv(name); }
+      |                    ^~~~~~~~~
+/Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c:489:20: error: unused function 'nl_env_get' [-Werror,-Wunused-function]
+  489 | static const char* nl_env_get(const char* name) { return nl_os_getenv(name); }
+      |                    ^~~~~~~~~~
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+I could not compile native shadows
+I kept generated C in /Users/jkh/nanolang-qualification/record-lists-303-puck-matrix/native-source/nano-native-record-lists-mp7hvjx_/temporary/nano_native_1789982221_0/program.c

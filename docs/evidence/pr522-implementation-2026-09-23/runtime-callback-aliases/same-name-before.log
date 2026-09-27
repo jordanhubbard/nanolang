@@ -1,0 +1,56 @@
+I retain declared push artifacts in /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanolang-declared-push-j0735smz
+test_runtime_alias_retains_each_callers_target (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_runtime_alias_retains_each_callers_target) ... 
+  test_runtime_alias_retains_each_callers_target (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_runtime_alias_retains_each_callers_target) (case='runtime-alias-targets', compiler='nanoc_c') ... FAIL
+  test_runtime_alias_retains_each_callers_target (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_runtime_alias_retains_each_callers_target) (case='runtime-alias-targets', compiler='nanoc_stage1') ... FAIL
+  test_runtime_alias_retains_each_callers_target (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_runtime_alias_retains_each_callers_target) (case='runtime-alias-targets', compiler='nanoc_stage2') ... FAIL
+
+======================================================================
+FAIL: test_runtime_alias_retains_each_callers_target (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_runtime_alias_retains_each_callers_target) (case='runtime-alias-targets', compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_array_push_identity.py", line 34, in positive
+    self.command([ROOT / 'bin' / compiler, source, '-o', binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_array_push_identity.py", line 23, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanolang-declared-push-j0735smz/runtime-alias-targets.nano:6:16: error: redefinition of 'callback'
+    6 |     BinaryOp_0 callback = callback;
+      |                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanolang-declared-push-j0735smz/runtime-alias-targets.nano:6:37: note: previous definition is here
+    6 | static int64_t nl_invoke(BinaryOp_0 callback) {
+      |                                     ^
+1 error generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_runtime_alias_retains_each_callers_target (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_runtime_alias_retains_each_callers_target) (case='runtime-alias-targets', compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_array_push_identity.py", line 34, in positive
+    self.command([ROOT / 'bin' / compiler, source, '-o', binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_array_push_identity.py", line 23, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I cannot refine an indirect stored callback to one declared function
+
+
+======================================================================
+FAIL: test_runtime_alias_retains_each_callers_target (tests.test_declared_array_push_identity.DeclaredArrayPushIdentity.test_runtime_alias_retains_each_callers_target) (case='runtime-alias-targets', compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_array_push_identity.py", line 34, in positive
+    self.command([ROOT / 'bin' / compiler, source, '-o', binary])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_declared_array_push_identity.py", line 23, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I cannot refine an indirect stored callback to one declared function
+
+
+----------------------------------------------------------------------
+Ran 1 test in 1.212s
+
+FAILED (failures=3)

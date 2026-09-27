@@ -1,0 +1,42 @@
+{
+  "clang": {
+    "sha256": "8655ea9537755ef4542e6028c760d1d382547ca6ffa8899e6b90244eeace42f0",
+    "bytes": 181200,
+    "mode": 493
+  },
+  "clang-sanitized": {
+    "sha256": "8456037ff6b7f348a26cf12a048e247ea794579dd8ff1e27ae0d43bffa0531cd",
+    "bytes": 12640264,
+    "mode": 493
+  },
+  "clang-sanitized-storage": {
+    "sha256": "56e8c6fec0867762e08849319bcc14467647742b980d1f6c19bec6f0801b0215",
+    "bytes": 12542016,
+    "mode": 493
+  },
+  "clang-storage": {
+    "sha256": "f1c9ed75c5fa1ce6fe4947ff2a567aec0d1359442127bb5b294d390582f1deb5",
+    "bytes": 177008,
+    "mode": 493
+  },
+  "gcc": {
+    "sha256": "7ba3828899b98c1aefe6fb1c39544feefc499224475104a3fb06276566e0a5ed",
+    "bytes": 210088,
+    "mode": 493
+  },
+  "gcc-sanitized": {
+    "sha256": "0cc674773115e5dadcd53fa223169b6828f1df581d96a6c0e03c566b6531a99f",
+    "bytes": 1081240,
+    "mode": 493
+  },
+  "gcc-sanitized-storage": {
+    "sha256": "a072e2577ce51790f04b676d15cc5453a7c4417c3b73e0ed384475baa4b3992f",
+    "bytes": 979752,
+    "mode": 493
+  },
+  "gcc-storage": {
+    "sha256": "1ee2d899e788d14f1558590503605607fed375f08d5283f26ef22a770453632d",
+    "bytes": 206224,
+    "mode": 493
+  }
+}

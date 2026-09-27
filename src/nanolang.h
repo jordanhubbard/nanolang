@@ -65,6 +65,10 @@ typedef struct {
     char **field_names;      /* Array of field names */
     Value *field_values;     /* Array of field values */
     int field_count;         /* Number of fields */
+    /* I own this complete field-name buffer when non-NULL. Its individual
+     * names stay writable but are released only through env_discard_record.
+     * Zero keeps the individually allocated name representation. */
+    char *field_name_storage;
 } StructValue;
 
 /* Union value (tagged union) */
@@ -118,7 +122,7 @@ typedef struct TypeInfo {
     
     /* For generic types: List<int> */
     char *generic_name;              /* e.g., "List" */
-    struct TypeInfo **type_params;   /* e.g., [TypeInfo{TYPE_INT}] */
+    struct TypeInfo **type_params;   /* Generic args; TYPE_TUPLE: complete owned children. */
     int type_param_count;            /* Number of type parameters */
     
     /* For tuple types: (int, string, bool) */
@@ -290,6 +294,7 @@ struct ASTNode {
             Type map_key_type; /* Checked scalar constructor context. */
             Type map_value_type;
             bool map_context_checked;
+            bool checked_u8_array_mutation; /* Checked builtin destination; values remain VAL_INT. */
             FunctionSignature *checked_signature; /* Owned indirect-call context after lexical checking. */
             char *concrete_func_name;  /* For generic function calls: monomorphized name (e.g., "identity_int") */
         } call;
@@ -595,6 +600,12 @@ typedef enum {
     RESOURCE_CONSUMED   /* Resource variable consumed (ownership transferred) */
 } ResourceUseState;
 
+/* Environment-local declaration identity. Zero means unresolved. */
+typedef struct {
+    Type kind;
+    size_t ordinal;
+} NominalIdentity;
+
 /* Symbol table entry for variables */
 typedef struct {
     char *name;
@@ -625,6 +636,11 @@ typedef struct {
      * line in some other module. Not owned: it points at a path string the
      * caller keeps alive for the compilation. */
     const char *def_file;
+    /* Environment-owned annotation contexts, never borrowed current_module storage. */
+    const char *nominal_owner;
+    const char *callable_owner;
+    bool inferred_nominal;
+    struct CheckerNominalView *checker_nominal_view; /* Environment-owned checker proof; no runtime Value ownership. */
 } Symbol;
 
 /* Function table entry */
@@ -640,6 +656,7 @@ typedef struct {
     ASTNode *body;
     ASTNode *shadow_test;
     bool is_extern;  /* Mark external C functions */
+    bool checker_builtin_placeholder; /* Only checker-owned registration rows; never callable identity. */
     bool is_gpu;     /* @gpu annotation: function targets GPU / PTX */
     bool is_async;   /* Mark async functions (declared with `async fn`) */
     bool is_pure;    /* pure fn: no mutation, no I/O, only pure callees */
@@ -665,9 +682,9 @@ typedef struct {
     char *original_name;
     char **field_names;
     Type *field_types;
-    char **field_type_names;  /* For TYPE_STRUCT/TYPE_UNION fields: actual type name (e.g., "Vec3") */
-    Type *field_element_types;  /* For TYPE_ARRAY fields: element type (e.g., TYPE_STRING for array<string>) */
-    TypeInfo **field_type_info; /* Borrowed from the defining AST. */
+    char **field_type_names;  /* Owned strings/vector, like field_names; complete annotations below remain borrowed. */
+    Type *field_element_types;  /* Owned element-tag vector for array fields. */
+    TypeInfo **field_type_info; /* Environment borrows AST; metadata snapshot owns copies. */
     int field_count;
     bool is_pub;     /* Visibility: public (true) vs private (false) - default false */
     bool is_resource;  /* Resource type: affine semantics (use at most once) */
@@ -706,8 +723,21 @@ typedef struct {
 /* Opaque type definition entry (for C pointer types) */
 typedef struct {
     char *name;            /* Type name in nanolang (e.g., "GLFWwindow") */
-    char *c_type_name;     /* C type with pointer (e.g., "GLFWwindow*") */
+    char *c_type_name;     /* Original C pointer spelling, separate from identity. */
+    char *origin;          /* Owned canonical source, or explicit synthetic root. */
+    char *identity;        /* Owned counted declaration key, never a C identifier. */
 } OpaqueTypeDef;
+typedef struct {
+    char *origin;          /* Owned canonical importing source. */
+    char *name;            /* Owned original visible spelling. */
+    char *identity;        /* Owned target declaration key. */
+    bool hidden_by_local_type;
+} OpaqueTypeBinding;
+
+typedef struct {
+    const ASTNode *literal; /* Borrowed invocation-local key. */
+    TypeInfo *type_info;    /* Owned complete checked emission annotation. */
+} TupleLiteralBinding;
 
 /* Effect operation signature */
 typedef struct {
@@ -742,6 +772,8 @@ typedef struct {
     char **type_arg_names;     /* e.g., ["Point"] for user types, NULL for primitives */
     char *concrete_name;       /* e.g., "List_int" or "List_Point" (generated name) */
     TypeInfo *type_info;       /* Owned concrete union payload substitution context. */
+    NominalIdentity list_element; /* Zero for non-list instances. */
+    size_t list_functions[4];     /* Exact generated function ordinals, plus one. */
 } GenericInstantiation;
 
 /* Generic function instantiation (for user-defined generic functions like fn identity(x: T) -> T) */
@@ -796,13 +828,29 @@ typedef struct {
     int import_capacity;
 } ImportTracker;
 
+typedef struct EnvEvaluationProvider EnvEvaluationProvider;
+typedef struct EnvTaskIdentity EnvTaskIdentity;
+
 /* Environment for variable and function storage */
 typedef struct {
     Symbol *symbols;
     int symbol_count;
     int symbol_capacity;
+    struct EnvProviderEdge *evaluation_providers;
+    size_t evaluation_leases; /* Pending calls and borrowed completed results prevent teardown. */
+    EnvTaskIdentity *task_identity; /* Separate identity survives scalar task completion. */
+    struct EnvUnionRoot *union_roots; /* Evaluator constructors only; aliases borrow. */
+    struct EnvRecordList *record_lists; /* Evaluator-owned handles, including tombstones. */
+    struct EnvRecordResult *record_results; /* Cumulative borrowed result snapshots. */
+    struct EnvRecordIndex *record_result_index; /* Exact typed-root membership; arena owns entries. */
+    TupleLiteralBinding *tuple_literal_bindings;
+    size_t tuple_literal_binding_count;
+    struct CheckerNominalExpression *checker_nominal_expressions; /* Borrowed AST keys, Environment-owned proofs. */
+    struct EnvCollectionAllocation *collection_allocations; /* Evaluator-created collections only. */
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
+    struct EnvNominalImport *nominal_imports; /* Owned direct importer-to-declaration edges. */
     struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */
+    struct EnvFunctionIndex *function_index; /* Owned optional numeric name candidates. */
     Function *functions;
     int function_count;
     int function_capacity;
@@ -818,6 +866,13 @@ typedef struct {
     OpaqueTypeDef *opaque_types;
     int opaque_type_count;
     int opaque_type_capacity;
+    OpaqueTypeBinding *opaque_bindings;
+    size_t opaque_binding_count;
+    bool opaque_resolution_failed;
+    size_t *opaque_reserved_indices;
+    size_t opaque_reserved_count;
+    TupleLiteralBinding *array_expression_bindings;
+    size_t array_expression_binding_count;
     EffectDef *effects;          /* Registered algebraic effects */
     int effect_count;
     int effect_capacity;
@@ -888,7 +943,17 @@ typedef struct {
 } Stage1Parser;
 
 ASTNode *parse_program(Token *tokens, int token_count);
-bool ast_has_service_declaration(const ASTNode *program);
+/* I inspect valid parser roots: service declarations occur only at program
+ * scope. Module declarations hold names, not child ASTs; imported programs are
+ * separately checked by process_imports. I do not validate arbitrary forged ASTs. */
+static inline bool ast_has_service_declaration(const ASTNode *program) {
+    if (!program) return false;
+    if (program->type == AST_SERVICE_DECL) return true;
+    if (program->type != AST_PROGRAM) return false;
+    for (int i = 0; i < program->as.program.count; ++i)
+        if (ast_has_service_declaration(program->as.program.items[i])) return true;
+    return false;
+}
 bool ast_is_value_expression(ASTNodeType type);
 bool ast_always_returns(const ASTNode *node);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */
@@ -909,6 +974,17 @@ bool run_shadow_tests(ASTNode *program, Environment *env, bool verbose);
 
 /* Interpreter */
 bool run_program(ASTNode *program, Environment *env);
+/* Fixed-array and interpreter HashMap identities returned here transfer no
+ * ownership. Evaluator-created collections borrow their Environment; an alias
+ * of a caller-created input keeps its caller owner. Those owners must outlive
+ * all such references. Copied record/tuple containers still borrow nested
+ * collection leaves from their Environment or caller owner; that owner must
+ * remain alive while those leaves are used. Existing string/record/tuple/
+ * callable snapshots and DynArray GC references keep their separate contracts.
+ * A dynamic array's GC buffer does not own its reference leaves. Fresh string
+ * and record leaves created by my evaluator borrow their Environment; callers
+ * must keep it alive while reading them. Caller-provided leaves keep their
+ * caller owner, even when the evaluator mutates another slot in that array. */
 Value call_function(const char *name, Value *args, int arg_count, Environment *env);
 /* REPL support */
 Value repl_eval_node(ASTNode *node, Environment *env);
@@ -921,6 +997,8 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
 Environment *create_environment(void);
 /* I invalidate cached names before replacing/appending symbols outside env_define_var. */
 void env_symbol_index_invalidate(Environment *env);
+/* I invalidate before in-place function-name replacement outside env_define_function. */
+void env_function_index_invalidate(Environment *env);
 
 /* The file whose code is currently being processed.
  *
@@ -933,9 +1011,46 @@ void env_symbol_index_invalidate(Environment *env);
 void env_set_current_file(Environment *env, const char *path);
 const char *env_current_file(Environment *env);
 void free_environment(Environment *env);
+EnvEvaluationProvider *env_provider_new(void);
+bool env_register_provider(Environment *env, EnvEvaluationProvider *provider);
+bool env_provider_close(EnvEvaluationProvider *provider);
+void env_provider_release(EnvEvaluationProvider *provider);
+bool env_task_identity_retain(EnvTaskIdentity *identity);
+void env_task_identity_release(EnvTaskIdentity *identity);
+bool env_acquire_evaluation_lease(Environment *env);
+void env_release_evaluation_lease(Environment *env);
+bool env_can_destroy(Environment *env);
+void env_require_destroyable(Environment *env);
+/* I copy record/tuple/string graphs; other reference fields stay borrowed. */
+bool env_clone_value_snapshot(Value source, Value *out);
+void env_discard_value_snapshot(Value owned);
+bool env_value_snapshot(Environment *env, Value source, Value *out);
+bool env_retire_value(Environment *env, Value owned);
+bool env_clone_record(Value source, Value *out);
+void env_discard_record(StructValue *record);
+bool env_record_snapshot(Environment *env, Value source, Value *out);
+bool env_record_result_borrowed(Environment *env, Value value);
+/* Public union results borrow their Environment, including copied composite leaves.
+ * Failed construction leaves both output and registry unchanged. Raw create_union
+ * remains caller-owned and is never adopted by assignment or lookup. */
+bool env_union_result_borrowed(Environment *env, Value value);
+bool env_create_union(Environment *env, const char *name, int variant,
+                      const char *variant_name, char **names, Value *values,
+                      int count, Value *out);
+bool env_retire_record(Environment *env, Value owned);
+bool env_record_list_identity(Environment *env, Value handle, NominalIdentity *out);
+bool env_record_list_apply(Environment *env, NominalIdentity element,
+                           const char *operation, const Value *args, int argc, Value *out);
+NominalIdentity env_generated_list_element(Environment *env, const Function *function);
+
 /* Transfer one newly allocated checker-only block; NULL is a no-op.
  * Borrowed AST/signature blocks and runtime values must never enter this registry. */
 void *env_own_checker_allocation(Environment *env, void *allocation);
+bool env_register_new_collection(Environment *env, void *allocation, void (*destroy)(void *));
+bool env_detach_collection(Environment *env, void *allocation);
+/* I transfer one independently owned annotation tree only on success. */
+bool env_own_checker_type_info(Environment *env, TypeInfo *info);
+bool env_own_checker_object(Environment *env, void *object, void (*destroy)(void *));
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value);
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value);
@@ -944,11 +1059,20 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);
+const char *checked_array_record_name(ASTNode *array, Environment *env);
+bool env_function_is_named_builtin(const Function *function, const char *name);
 bool env_array_push_is_builtin(Environment *env, int line, int column);
+bool env_function_is_builtin(const Function *function);
+bool env_native_array_operation(const char *name);
+bool env_native_array_is_builtin(Environment *env, const char *name, int line, int column);
 bool is_builtin_function(const char *name);
 void env_define_struct(Environment *env, StructDef struct_def);
 StructDef *env_get_struct(Environment *env, const char *name);
 StructDef *env_get_struct_owned(Environment *env, const char *name, const char *owner);
+NominalIdentity env_nominal_identity(Environment *env, const char *name, const char *owner, Type kind);
+bool env_register_nominal_import(Environment *env, const char *importer, const char *name, NominalIdentity identity);
+const char *env_nominal_name(Environment *env, NominalIdentity identity);
+const char *env_nominal_owner(Environment *env, NominalIdentity identity);
 bool bind_nominal_records(ASTNode *program, Environment *env);
 void env_register_namespace(Environment *env, const char *alias, const char *module_name,
                             char **function_names, int function_count,
@@ -964,7 +1088,8 @@ void env_add_module_exported_function(Environment *env, const char *module_name,
 void env_add_module_exported_struct(Environment *env, const char *module_name, const char *struct_name);
 void env_define_enum(Environment *env, EnumDef enum_def);
 EnumDef *env_get_enum(Environment *env, const char *name);
-void env_register_list_instantiation(Environment *env, const char *element_type);
+bool env_register_list_instantiation(Environment *env, const char *element_type);
+const char *env_function_signature_owner(Environment *env, const Function *function);
 void env_register_hashmap_instantiation(Environment *env, const char *key_type, const char *value_type);
 /* I return an owned recursive C specialization spelling. */
 char *typeinfo_to_generic_arg_name(TypeInfo *info);
@@ -974,7 +1099,16 @@ int env_get_enum_variant(Environment *env, const char *variant_name);
 /* I take ownership of a newly registered union and its allocated metadata. */
 void env_define_union(Environment *env, UnionDef union_def);
 UnionDef *env_get_union(Environment *env, const char *name);
-void env_define_opaque_type(Environment *env, const char *name);
+bool opaque_type_info_present(const TypeInfo *info);
+char *opaque_type_info_key(const TypeInfo *info);
+bool env_register_opaque_union_context(Environment *, const TypeInfo *, bool *added);
+bool env_reserve_opaque_symbol_prefix(Environment *env, const char *name);
+size_t env_opaque_symbol_prefix(const Environment *env);
+bool env_define_opaque_type(Environment *env, const char *name);
+bool env_prepare_opaque_types(Environment *env, ASTNode *program);
+bool env_import_opaque_types(Environment *env, const ASTNode *import, const ASTNode *target_program,
+                             const char *importer, const char *target);
+void env_free_opaque_types(Environment *env);
 OpaqueTypeDef *env_get_opaque_type(Environment *env, const char *name);
 int env_get_union_variant_index(Environment *env, const char *union_name, const char *variant_name);
 
@@ -1006,12 +1140,33 @@ Value create_function(const char *function_name, FunctionSignature *signature);
 /* Function signature helpers */
 FunctionSignature *create_function_signature(Type *param_types, int param_count, Type return_type);
 FunctionSignature *function_signature_from_function(const Function *function);
+/* I preserve *out on failure; NULL source is a successful NULL copy. */
+bool copy_function_signature_checked(const FunctionSignature *source, FunctionSignature **out);
 FunctionSignature *copy_function_signature(const FunctionSignature *signature);
 void free_function_signature(FunctionSignature *sig);
 bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);
+const TypeInfo *type_info_tuple_element(const TypeInfo *, int, TypeInfo *);
+bool type_info_tuple_valid(const TypeInfo *);
+bool env_bind_tuple_literal(Environment *, const ASTNode *, const TypeInfo *);
+const TypeInfo *env_tuple_literal_info(const Environment *, const ASTNode *);
+bool type_info_tuple_refresh(TypeInfo *);
+/* I classify existing complete array value storage, not source admission. */
+bool type_info_exact_array_element(const TypeInfo *);
+bool type_info_needs_array_context(const TypeInfo *);
+bool env_bind_array_expression(Environment *, const ASTNode *, const TypeInfo *);
+const TypeInfo *env_array_expression_info(const Environment *, const ASTNode *);
+const TypeInfo *checked_expression_type_info(ASTNode *, Environment *);
+/* I return two owning emission copies, preserving both outputs on failure.
+ * A NULL variant denotes the complete union rather than a selected payload. */
+bool checked_union_projection_copy(ASTNode *, Environment *, TypeInfo **, char **);
+/* I return an owning signature copy; the caller releases it. */
+FunctionSignature *checked_callable_signature_copy(ASTNode *, Environment *);
 bool type_infos_equal(const TypeInfo *left, const TypeInfo *right);
 void free_type_info(TypeInfo *info);
 TypeInfo *copy_payload_type_info(const TypeInfo *info);
+/* Like the checked signature copy, failure preserves *out. */
+bool copy_payload_type_info_checked(const TypeInfo *source, TypeInfo **out);
+TypeInfo *copy_complete_type_info_checked(const TypeInfo *source);
 void free_payload_type_info(TypeInfo *info);
 TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int field, const TypeInfo *arguments);
 

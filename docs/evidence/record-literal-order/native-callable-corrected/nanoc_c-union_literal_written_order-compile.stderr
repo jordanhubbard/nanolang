@@ -1,0 +1,8 @@
+Warning at line 15, column 5: Unused variable 'empty'
+Warning at line 21, column 5: Unused variable 'none'
+Warning at line 33, column 5: Unused variable 'none'
+Warning at line 38, column 5: Unused variable 'payload'
+Warning at line 38, column 5: Unused variable 'nothing'
+Warning at line 26: contract condition is always false
+Warning at line 35: contract condition is always false
+Warning at line 39: contract condition is always false

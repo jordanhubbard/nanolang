@@ -1,4 +1,8 @@
 """I reclaim temporary native strings without losing reachable aliases."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import os
 from pathlib import Path
 import subprocess
@@ -44,7 +48,7 @@ class NativeStringRetention(unittest.TestCase):
             self.run_checked(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                               source, '-o', binary])
-            result = self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+            result = self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': asan_options()})
             print(result.stdout, end='')
 
     def test_growing_string_without_maps_has_bounded_retention(self):

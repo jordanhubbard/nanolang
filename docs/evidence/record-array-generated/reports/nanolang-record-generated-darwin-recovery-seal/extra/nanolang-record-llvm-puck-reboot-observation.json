@@ -1,0 +1,16 @@
+{
+  "at": 1789978937.47918,
+  "command": [
+    "ssh",
+    "-o",
+    "BatchMode=yes",
+    "-o",
+    "ConnectTimeout=10",
+    "puck.local",
+    "hostname; uptime; sysctl kern.boottime; ls -ld /private/tmp/nanolang-record-llvm-63b8a-puck /private/tmp/nanolang-record-generated-partition-puck-seal /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-llvm-8qvy_p6j"
+  ],
+  "returncode": 1,
+  "stdout": "puck\n 1:22  up 10 mins, 1 user, load averages: 26.01 44.33 24.57\nkern.boottime: { sec = 1789978331, usec = 938983 } Mon Sep 21 01:12:11 2026\n",
+  "stderr": "ls: /private/tmp/nanolang-record-generated-partition-puck-seal: No such file or directory\nls: /private/tmp/nanolang-record-llvm-63b8a-puck: No such file or directory\nls: /private/var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-record-array-llvm-8qvy_p6j: No such file or directory\n",
+  "scope": "Read-only recovery. No phase outcome inferred from missing files."
+}

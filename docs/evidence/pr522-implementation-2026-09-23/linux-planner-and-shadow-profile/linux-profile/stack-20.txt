@@ -1,0 +1,30 @@
+elapsed=51.032
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+0x0000c2499f75d924 in env_define_var_with_type_info (env=0x5120000001c0, name=0x502000130dd0 "s", type=TYPE_STRING, element_type=TYPE_UNKNOWN, type_info=0x0, is_mut=false, value=...) at src/env.c:520
+520	            if (env->symbols[i].value.type == VAL_STRING &&
+#0  0x0000c2499f75d924 in env_define_var_with_type_info (env=0x5120000001c0, name=0x502000130dd0 "s", type=TYPE_STRING, element_type=TYPE_UNKNOWN, type_info=0x0, is_mut=false, value=...) at src/env.c:520
+#1  0x0000c2499f75c1f0 in env_define_var_with_element_type (env=0x5120000001c0, name=0x502000130dd0 "s", type=TYPE_STRING, element_type=TYPE_UNKNOWN, is_mut=false, value=...) at src/env.c:446
+#2  0x0000c2499f75c188 in env_define_var (env=0x5120000001c0, name=0x502000130dd0 "s", type=TYPE_STRING, is_mut=false, value=...) at src/env.c:442
+#3  0x0000c2499f7e5eac in eval_call_impl (node=0x50c0001c1f80, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4775
+#4  0x0000c2499f7c6688 in eval_call (node=0x50c0001c1f80, env=0x5120000001c0) at src/eval.c:3034
+#5  0x0000c2499f7e9b34 in eval_expression (expr=0x50c0001c1f80, env=0x5120000001c0) at src/eval.c:4915
+#6  0x0000c2499f7fb004 in eval_statement (stmt=0x50c0001c2040, env=0x5120000001c0) at src/eval.c:5737
+#7  0x0000c2499f7932b0 in eval_scoped_block (statements=0x506000015080, count=2, env=0x5120000001c0) at src/eval.c:242
+#8  0x0000c2499f802538 in eval_statement (stmt=0x50c0001c3b40, env=0x5120000001c0) at src/eval.c:5962
+#9  0x0000c2499f7ede38 in eval_expression_other (expr=0x50c0001c3c00, env=0x5120000001c0) at src/eval.c:5107
+#10 0x0000c2499f7e9b48 in eval_expression (expr=0x50c0001c3c00, env=0x5120000001c0) at src/eval.c:4917
+#11 0x0000c2499f807488 in eval_statement (stmt=0x50c0001c3c00, env=0x5120000001c0) at src/eval.c:6210
+#12 0x0000c2499f7932b0 in eval_scoped_block (statements=0x506000014fc0, count=2, env=0x5120000001c0) at src/eval.c:242
+#13 0x0000c2499f802538 in eval_statement (stmt=0x50c0001c3cc0, env=0x5120000001c0) at src/eval.c:5962
+#14 0x0000c2499f7ede38 in eval_expression_other (expr=0x50c0001c3d80, env=0x5120000001c0) at src/eval.c:5107
+#15 0x0000c2499f7e9b48 in eval_expression (expr=0x50c0001c3d80, env=0x5120000001c0) at src/eval.c:4917
+#16 0x0000c2499f807488 in eval_statement (stmt=0x50c0001c3d80, env=0x5120000001c0) at src/eval.c:6210
+#17 0x0000c2499f7e6604 in eval_call_impl (node=0x50c0001dbc00, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4793
+#18 0x0000c2499f7c6688 in eval_call (node=0x50c0001dbc00, env=0x5120000001c0) at src/eval.c:3034
+#19 0x0000c2499f7e9b34 in eval_expression (expr=0x50c0001dbc00, env=0x5120000001c0) at src/eval.c:4915
+#20 0x0000c2499f7fb004 in eval_statement (stmt=0x50c0001dbcc0, env=0x5120000001c0) at src/eval.c:5737
+#21 0x0000c2499f7e6604 in eval_call_impl (node=0x50c000224080, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4793
+#22 0x0000c2499f7c6688 in eval_call (node=0x50c000224080, env=0x5120000001c0) at src/eval.c:3034
+#23 0x0000c2499f7e9b34 in eval_expression (expr=0x50c000224080, env=0x5120000001c0) at src/eval.c:4915
+[Inferior 1 (process 42926) detached]

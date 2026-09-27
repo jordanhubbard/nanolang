@@ -1,0 +1,10 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -DNANO_WRAPPER_CRYPTO_DIR='"/opt/homebrew/opt/openssl@3/lib"' -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/stdlib_runtime.c -o obj/stdlib_runtime.o
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+python3 -m unittest tests.test_cseed_aggregate_formatting
+..
+----------------------------------------------------------------------
+Ran 2 tests in 2.464s
+
+OK

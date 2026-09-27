@@ -1,0 +1,65 @@
+{
+  "provider-symbols.json": {
+    "original": "/home/jkh/nanolang-qualification/pr948-third-hosted/provider-instrumentation/result.json",
+    "bytes": 1408,
+    "sha256": "495a227c6c5759a267e59751c8271c2afce9293cb8a686dcff83a75d246930de",
+    "stored_bytes": 1408,
+    "stored_sha256": "495a227c6c5759a267e59751c8271c2afce9293cb8a686dcff83a75d246930de"
+  },
+  "audit-provider-symbols.py": {
+    "original": "/tmp/audit-pr948-82-provider-instrumentation.py",
+    "bytes": 1414,
+    "sha256": "4355429e2b3cb733bf84eb4702297afec0c7622cf9b3ed4ec032d489a723e4b0",
+    "stored_bytes": 1414,
+    "stored_sha256": "4355429e2b3cb733bf84eb4702297afec0c7622cf9b3ed4ec032d489a723e4b0"
+  },
+  "nanoc_c.nm.txt.gz": {
+    "original": "/home/jkh/nanolang-qualification/pr948-third-hosted/provider-instrumentation/nanoc_c.nm.txt",
+    "bytes": 214059,
+    "sha256": "a6c4f6322f5a3b4daab62f2154b8ae523604cd229a2b8ecfe6192529fa40a986",
+    "stored_bytes": 43479,
+    "stored_sha256": "faeca33ae4d49e5b402680c7d14f2e3586445e8f91470ffeb4a4557f64b3f143"
+  },
+  "nanoc_stage1.nm.txt.gz": {
+    "original": "/home/jkh/nanolang-qualification/pr948-third-hosted/provider-instrumentation/nanoc_stage1.nm.txt",
+    "bytes": 559904,
+    "sha256": "9a9593a53bd13d07951c701728562bf95ffa1232836d5a22eb1586e53d8f09ca",
+    "stored_bytes": 92826,
+    "stored_sha256": "7da7b976086228d761845fc9569e23d87e7af736d21a93b74bdce2848c68d9ad"
+  },
+  "nanoc_stage2.nm.txt.gz": {
+    "original": "/home/jkh/nanolang-qualification/pr948-third-hosted/provider-instrumentation/nanoc_stage2.nm.txt",
+    "bytes": 181539,
+    "sha256": "ca5aea9a0a6ca2e21f175c8a9e02f4a20b5a9e414f2d4b5d5882a4418c91758f",
+    "stored_bytes": 36003,
+    "stored_sha256": "88ba86435ff711ede7c93023e9333676022352568c84e3354b82a83312cce5df"
+  },
+  "resolved-make-database.json": {
+    "original": "/home/jkh/nanolang-qualification/ci-preparation-8eae-plan/make-database.json",
+    "bytes": 257,
+    "sha256": "354a0a507bc26e62e110e6403469d0798df11d40cb40c94009d7bb87957b2e42",
+    "stored_bytes": 257,
+    "stored_sha256": "354a0a507bc26e62e110e6403469d0798df11d40cb40c94009d7bb87957b2e42"
+  },
+  "resolved-make-database.stderr": {
+    "original": "/home/jkh/nanolang-qualification/ci-preparation-8eae-plan/make-database.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stored_bytes": 0,
+    "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "resolved-make-database.stdout.gz": {
+    "original": "/home/jkh/nanolang-qualification/ci-preparation-8eae-plan/make-database.stdout",
+    "bytes": 1247432,
+    "sha256": "238fd58637d2d20fc6a3868000b425f75a2533a30cf923ea057181b45fcf56f4",
+    "stored_bytes": 115135,
+    "stored_sha256": "dc96070029d5192478d37b956dfa46d55c34db41ce5da05bc426b91702d9073c"
+  },
+  "resolved-plan.json": {
+    "original": "/home/jkh/nanolang-qualification/ci-preparation-8eae-plan/plan.json",
+    "bytes": 22264,
+    "sha256": "407fbad0fc907da9a831a7f63389f23cd7096b9a216f639d8bf7e7ef41f62cde",
+    "stored_bytes": 22264,
+    "stored_sha256": "407fbad0fc907da9a831a7f63389f23cd7096b9a216f639d8bf7e7ef41f62cde"
+  }
+}

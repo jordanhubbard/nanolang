@@ -1,0 +1,18 @@
+{
+  "61289": [
+    53972,
+    "(node)"
+  ],
+  "53914": [
+    53910,
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/make -j2 test-record-array-llvm CC=/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "53972": [
+    53914,
+    "/Library/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python -m unittest -f -v tests.test_record_array_llvm"
+  ],
+  "53910": [
+    71631,
+    "/usr/local/bin/bash -lc env RECORD_LLVM_C_BASELINE=/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-array-generated-efwbgr8i/corpus RECORD_LLVM_CLANG=/opt/homebrew/opt/llvm/bin/clang RECORD_LLVM_OPT=/opt/homebrew/opt/llvm/bin/opt RECORD_LLVM_LLC=/opt/homebrew/opt/llvm/bin/llc RECORD_LLVM_NM=/opt/homebrew/opt/llvm/bin/llvm-nm RECORD_LLVM_WASMTIME=/opt/homebrew/bin/wasmtime RECORD_LLVM_NODE=/opt/homebrew/bin/node NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt make -j2 test-record-array-llvm CC=/opt/homebrew/opt/llvm/bin/clang > /tmp/pr522-darwin-llvm-zero-after.log 2>&1"
+  ]
+}

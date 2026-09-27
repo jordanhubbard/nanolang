@@ -1,0 +1,16 @@
+{
+  "remote_path": "/tmp/nanolang-file-service-parser-a2eda.retained.tar.gz",
+  "original_bytes": 5709209600,
+  "original_sha256": "227907ca7e84a5f0a89017864bd617d1f0cedddbb78b8899cfda0262ab788591",
+  "compressed_bytes": 1521032514,
+  "compressed_sha256": "37bc45b0164c5554354d3f531d02d09c805c294db919683851dba250afa49b92",
+  "decompressed_verified": true,
+  "original_local_path": "/tmp/nanolang-file-service-parser-a2eda.tar",
+  "original_mode": 420,
+  "original_mtime_ns": 1789913903531383710,
+  "remote_host": "jkh@puck.local",
+  "seconds": 64.89845661306754,
+  "restore": "scp jkh@puck.local:/tmp/nanolang-file-service-parser-a2eda.retained.tar.gz . ; gzip -dc nanolang-file-service-parser-a2eda.retained.tar.gz > nanolang-file-service-parser-a2eda.tar",
+  "local_compressed_path": "/tmp/nanolang-file-service-parser-a2eda.tar.gz",
+  "local_compressed_verified": true
+}

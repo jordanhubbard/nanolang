@@ -1,0 +1,22 @@
+{
+  "pr522-global-runtime-alloc2.log.gz": {
+    "uncompressed_sha256": "f602fa39c4eddab3755d7bad561f491ab79ab0dbf06eafc506db23431162daa6",
+    "exit_code": 2
+  },
+  "pr522-global-runtime-alloc3.log.gz": {
+    "uncompressed_sha256": "dc88407626ae05149f7afdb1c3d7a59cfa9251b51f658c5c909a0058cd0e7ab4",
+    "exit_code": 0
+  },
+  "pr522-global-runtime-asan.log.gz": {
+    "uncompressed_sha256": "a390e0eb593f77fd3ddab0a084b0ebee0bd833e127fb8ec1d569fec06c0268a1",
+    "exit_code": 0
+  },
+  "pr522-global-runtime-switch.log.gz": {
+    "uncompressed_sha256": "a390e0eb593f77fd3ddab0a084b0ebee0bd833e127fb8ec1d569fec06c0268a1",
+    "exit_code": 0
+  },
+  "pr522-global-runtime-regressions.log.gz": {
+    "uncompressed_sha256": "98235ee16af423739e53ed26fea28f7b6efb7c926a318a900808cf0f8f99dfc8",
+    "exit_code": 0
+  }
+}

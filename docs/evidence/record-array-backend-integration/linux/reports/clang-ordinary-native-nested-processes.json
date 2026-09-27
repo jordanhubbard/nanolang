@@ -1,0 +1,1650 @@
+{
+  "cleanup": [],
+  "owned": {
+    "3656243": {
+      "command": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14 -m unittest -f -v tests.test_record_array_llvm.RecordArrayLLVM.test_02_native_corpus",
+      "group": 3656243,
+      "parent": 3591010,
+      "started": "Mon Sep 21 07:35:30 2026"
+    },
+    "3656357": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -c src/nanovm/heap.c -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-heap.o",
+      "group": 3656357,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:32 2026"
+    },
+    "3656493": {
+      "command": "[clang] <defunct>",
+      "group": 3656493,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:33 2026"
+    },
+    "3656496": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -DRECORD_LLVM_WASM32=0 tests/nanoisa/test_record_array_llvm_capture.c src/nanoisa/nvm2llvm_record_array_private.c tests/nanoisa/record_array_alloc.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-managed_array_shapes.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-verifier.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-verifier_types.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-vm_decode.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-ownership_contracts.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-nvm_v2_layouts.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-retained_layouts.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-vm_dispatch.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-value.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-heap.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-heap_cycles.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-vm_callback.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-vm_ffi.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-vm_builtins.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-cop_protocol.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-vm_ffi_arrays.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture-callback_runtime.o obj/bcp47.o obj/bench.o obj/bench_native.o obj/builtins_registry.o obj/cJSON.o obj/c_backend.o obj/catalog.o obj/channel.o obj/coroutine.o obj/cps_pass.o obj/dce_pass.o obj/diag_id.o obj/docgen.o obj/docgen_md.o obj/dwarf_info.o obj/effects.o obj/emit_typed_ast.o obj/env.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_io.o obj/eval/eval_math.o obj/eval/eval_string.o obj/fmt.o obj/fold_constants.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/lexer.o obj/locale.o obj/module.o obj/module_builder.o obj/module_metadata.o obj/nanocore_export.o obj/nanocore_subset.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/file_flow.o obj/nanoisa/frontend.o obj/nanoisa/isa.o obj/nanoisa/local_bindings.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/nanoisa_facade.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/passive.o obj/nanoisa/reference_places.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nominal_types.o obj/nsi_file_plan.o obj/opencl_backend.o obj/par_let_pass.o obj/parser.o obj/pgo_pass.o obj/ptx_backend.o obj/reflection.o obj/resource_flow.o obj/resource_tracking.o obj/riscv_backend.o obj/runtime/cli.o obj/runtime/dyn_array.o obj/runtime/effect_runtime.o obj/runtime/ffi_loader.o obj/runtime/gc.o obj/runtime/gc_struct.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTString.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTWhile.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_LexerToken.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_token.o obj/runtime/module_build_dir.o obj/runtime/nl_string.o obj/runtime/regex.o obj/runtime/token_helpers.o obj/stdlib_runtime.o obj/tco_pass.o obj/toon_output.o obj/transpiler.o obj/type_infer.o obj/typechecker.o obj/utf8.o -lm -lcrypto -lffi -rdynamic -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture",
+      "group": 3656496,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:34 2026"
+    },
+    "3656497": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O3 -emit-obj -dumpdir /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-capture- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name test_record_array_llvm_capture.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -fcoverage-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -D RECORD_LLVM_WASM32=0 -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/test_record_array_llvm_capture-fb3411.o -x c tests/nanoisa/test_record_array_llvm_capture.c",
+      "group": 3656496,
+      "parent": 3656496,
+      "started": "Mon Sep 21 07:35:34 2026"
+    },
+    "3656594": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -DNMS_TESTING -DNMS_TEST_ALLOC_HOOKS -Dnrg_layout_field=nrg_layout_field_actual -Dnrg_create=nrg_create_actual -c src/nanoisa/record_array_generated_private.c -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-startup-runtime.o",
+      "group": 3656594,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:36 2026"
+    },
+    "3656847": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-linked-0014.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0014.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-linked-runtime.o -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-linked-0014",
+      "group": 3656847,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:40 2026"
+    },
+    "3656910": {
+      "command": "[clang] <defunct>",
+      "group": 3656910,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:41 2026"
+    },
+    "3657148": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-linked-0036.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0036.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-linked-runtime.o -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-linked-0036",
+      "group": 3657148,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:43 2026"
+    },
+    "3657149": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O0 -emit-obj -dumpdir /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-linked-0036- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0036.replay.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -fcoverage-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/product-0036-921a93.o -x c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0036.replay.c",
+      "group": 3657148,
+      "parent": 3657148,
+      "started": "Mon Sep 21 07:35:43 2026"
+    },
+    "3657304": {
+      "command": "[clang] <defunct>",
+      "group": 3657304,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:44 2026"
+    },
+    "3657610": {
+      "command": "/usr/local/bin/llc -filetype=obj -relocation-model=pic /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-linked-0070.optimized.ll -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-linked-0070.o",
+      "group": 3657610,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:48 2026"
+    },
+    "3657876": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0005.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0005.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0005",
+      "group": 3657876,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:50 2026"
+    },
+    "3658355": {
+      "command": "[llc]",
+      "group": 3658355,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:52 2026"
+    },
+    "3658432": {
+      "command": "/usr/local/bin/llc -filetype=obj -relocation-model=pic /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0017.optimized.ll -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0017.o",
+      "group": 3658432,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:53 2026"
+    },
+    "3658590": {
+      "command": "[opt] <defunct>",
+      "group": 3658590,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:54 2026"
+    },
+    "3658805": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0033.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0033.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0033",
+      "group": 3658805,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:57 2026"
+    },
+    "3658806": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O0 -emit-obj -dumpdir /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0033- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0033.replay.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -fcoverage-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -D NMS_TESTING -D NRG_OBSERVED -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/product-0033-27aefa.o -x c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0033.replay.c",
+      "group": 3658805,
+      "parent": 3658805,
+      "started": "Mon Sep 21 07:35:57 2026"
+    },
+    "3658856": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0037.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0037.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0037",
+      "group": 3658856,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:58 2026"
+    },
+    "3659002": {
+      "command": "[llc] <defunct>",
+      "group": 3659002,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:35:59 2026"
+    },
+    "3659110": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0045.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0045.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0045",
+      "group": 3659110,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:00 2026"
+    },
+    "3659167": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0049.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0049.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0049",
+      "group": 3659167,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:01 2026"
+    },
+    "3659673": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0057.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0057.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0057",
+      "group": 3659673,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:03 2026"
+    },
+    "3659674": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O0 -emit-obj -dumpdir /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0057- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0057.replay.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -fcoverage-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -D NMS_TESTING -D NRG_OBSERVED -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/product-0057-dc62ef.o -x c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0057.replay.c",
+      "group": 3659673,
+      "parent": 3659673,
+      "started": "Mon Sep 21 07:36:03 2026"
+    },
+    "3659759": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O0 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0061.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0061.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0061",
+      "group": 3659759,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:04 2026"
+    },
+    "3659858": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 0 16 1042",
+      "group": 3659858,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:05 2026"
+    },
+    "3659872": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 32 48 1042",
+      "group": 3659872,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:06 2026"
+    },
+    "3659885": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 64 80 1042",
+      "group": 3659885,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:07 2026"
+    },
+    "3659894": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 96 112 1042",
+      "group": 3659894,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:08 2026"
+    },
+    "3659901": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 112 128 1042",
+      "group": 3659901,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:09 2026"
+    },
+    "3659999": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 144 160 1042",
+      "group": 3659999,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:10 2026"
+    },
+    "3660014": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 176 192 1042",
+      "group": 3660014,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:11 2026"
+    },
+    "3660030": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 208 224 1042",
+      "group": 3660030,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:12 2026"
+    },
+    "3660098": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 240 256 1042",
+      "group": 3660098,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:13 2026"
+    },
+    "3660121": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 256 272 1042",
+      "group": 3660121,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:14 2026"
+    },
+    "3660249": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 288 304 1042",
+      "group": 3660249,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:15 2026"
+    },
+    "3660361": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 320 336 1042",
+      "group": 3660361,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:16 2026"
+    },
+    "3660397": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 3660397,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:17 2026"
+    },
+    "3660490": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 368 384 1042",
+      "group": 3660490,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:18 2026"
+    },
+    "3660849": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 400 416 1042",
+      "group": 3660849,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:19 2026"
+    },
+    "3660939": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 416 432 1042",
+      "group": 3660939,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:20 2026"
+    },
+    "3661484": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 448 464 1042",
+      "group": 3661484,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:21 2026"
+    },
+    "3661698": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 3661698,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:22 2026"
+    },
+    "3661815": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 496 512 1042",
+      "group": 3661815,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:23 2026"
+    },
+    "3661857": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 528 544 1042",
+      "group": 3661857,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:25 2026"
+    },
+    "3661937": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 544 560 1042",
+      "group": 3661937,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:25 2026"
+    },
+    "3662337": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 576 592 1042",
+      "group": 3662337,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:27 2026"
+    },
+    "3662386": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 592 608 1042",
+      "group": 3662386,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:27 2026"
+    },
+    "3662395": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 3662395,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:28 2026"
+    },
+    "3662569": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 640 656 1042",
+      "group": 3662569,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:30 2026"
+    },
+    "3662587": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 656 672 1042",
+      "group": 3662587,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:30 2026"
+    },
+    "3662688": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 688 704 1042",
+      "group": 3662688,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:32 2026"
+    },
+    "3662696": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 704 720 1042",
+      "group": 3662696,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:33 2026"
+    },
+    "3662735": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 720 736 1042",
+      "group": 3662735,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:33 2026"
+    },
+    "3662790": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 752 768 1042",
+      "group": 3662790,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:35 2026"
+    },
+    "3662805": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 768 784 1042",
+      "group": 3662805,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:36 2026"
+    },
+    "3662812": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 784 800 1042",
+      "group": 3662812,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:36 2026"
+    },
+    "3662946": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 800 816 1042",
+      "group": 3662946,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:37 2026"
+    },
+    "3662991": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 832 848 1042",
+      "group": 3662991,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:39 2026"
+    },
+    "3663000": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 848 864 1042",
+      "group": 3663000,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:40 2026"
+    },
+    "3663011": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 864 880 1042",
+      "group": 3663011,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:41 2026"
+    },
+    "3663024": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 880 896 1042",
+      "group": 3663024,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:42 2026"
+    },
+    "3663113": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 896 912 1042",
+      "group": 3663113,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:42 2026"
+    },
+    "3663122": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 912 928 1042",
+      "group": 3663122,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:43 2026"
+    },
+    "3663192": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 944 960 1042",
+      "group": 3663192,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:45 2026"
+    },
+    "3663208": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 960 976 1042",
+      "group": 3663208,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:46 2026"
+    },
+    "3663216": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 976 992 1042",
+      "group": 3663216,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:47 2026"
+    },
+    "3663323": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 992 1008 1042",
+      "group": 3663323,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:48 2026"
+    },
+    "3663392": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 1008 1024 1042",
+      "group": 3663392,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:49 2026"
+    },
+    "3663488": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0063 --fault-range 1024 1040 1042",
+      "group": 3663488,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:50 2026"
+    },
+    "3663530": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 0 16 1042",
+      "group": 3663530,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:51 2026"
+    },
+    "3663534": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 3663534,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:52 2026"
+    },
+    "3663547": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 48 64 1042",
+      "group": 3663547,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:53 2026"
+    },
+    "3663685": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 80 96 1042",
+      "group": 3663685,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:54 2026"
+    },
+    "3663699": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 112 128 1042",
+      "group": 3663699,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:55 2026"
+    },
+    "3663711": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 144 160 1042",
+      "group": 3663711,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:56 2026"
+    },
+    "3663725": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 176 192 1042",
+      "group": 3663725,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:57 2026"
+    },
+    "3663732": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 192 208 1042",
+      "group": 3663732,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:58 2026"
+    },
+    "3663841": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 224 240 1042",
+      "group": 3663841,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:36:59 2026"
+    },
+    "3663915": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 256 272 1042",
+      "group": 3663915,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:00 2026"
+    },
+    "3663928": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 288 304 1042",
+      "group": 3663928,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:01 2026"
+    },
+    "3663935": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 304 320 1042",
+      "group": 3663935,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:02 2026"
+    },
+    "3663950": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 336 352 1042",
+      "group": 3663950,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:03 2026"
+    },
+    "3664078": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 368 384 1042",
+      "group": 3664078,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:04 2026"
+    },
+    "3664088": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 384 400 1042",
+      "group": 3664088,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:05 2026"
+    },
+    "3664106": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 416 432 1042",
+      "group": 3664106,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:06 2026"
+    },
+    "3664244": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 464 480 1042",
+      "group": 3664244,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:08 2026"
+    },
+    "3664410": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 496 512 1042",
+      "group": 3664410,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:10 2026"
+    },
+    "3664480": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 512 528 1042",
+      "group": 3664480,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:10 2026"
+    },
+    "3664545": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 544 560 1042",
+      "group": 3664545,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:12 2026"
+    },
+    "3664553": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 560 576 1042",
+      "group": 3664553,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:12 2026"
+    },
+    "3664567": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 592 608 1042",
+      "group": 3664567,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:14 2026"
+    },
+    "3664594": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 608 624 1042",
+      "group": 3664594,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:14 2026"
+    },
+    "3664718": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 624 640 1042",
+      "group": 3664718,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:15 2026"
+    },
+    "3664740": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 656 672 1042",
+      "group": 3664740,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:17 2026"
+    },
+    "3664767": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 672 688 1042",
+      "group": 3664767,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:17 2026"
+    },
+    "3664812": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 720 736 1042",
+      "group": 3664812,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:20 2026"
+    },
+    "3664838": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 736 752 1042",
+      "group": 3664838,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:20 2026"
+    },
+    "3664915": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 752 768 1042",
+      "group": 3664915,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:21 2026"
+    },
+    "3664933": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 784 800 1042",
+      "group": 3664933,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:23 2026"
+    },
+    "3665230": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 800 816 1042",
+      "group": 3665230,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:24 2026"
+    },
+    "3665268": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 816 832 1042",
+      "group": 3665268,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:25 2026"
+    },
+    "3665360": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 832 848 1042",
+      "group": 3665360,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:25 2026"
+    },
+    "3665455": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 3665455,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:26 2026"
+    },
+    "3665478": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 880 896 1042",
+      "group": 3665478,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:28 2026"
+    },
+    "3665485": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 896 912 1042",
+      "group": 3665485,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:29 2026"
+    },
+    "3665598": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 912 928 1042",
+      "group": 3665598,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:30 2026"
+    },
+    "3665654": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 928 944 1042",
+      "group": 3665654,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:31 2026"
+    },
+    "3665787": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 944 960 1042",
+      "group": 3665787,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:32 2026"
+    },
+    "3665823": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 960 976 1042",
+      "group": 3665823,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:33 2026"
+    },
+    "3665887": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 976 992 1042",
+      "group": 3665887,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:33 2026"
+    },
+    "3665929": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 992 1008 1042",
+      "group": 3665929,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:34 2026"
+    },
+    "3665941": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 1008 1024 1042",
+      "group": 3665941,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:35 2026"
+    },
+    "3665953": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0064 --fault-range 1024 1040 1042",
+      "group": 3665953,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:36 2026"
+    },
+    "3666061": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 3666061,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:38 2026"
+    },
+    "3666070": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 32 48 1043",
+      "group": 3666070,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:39 2026"
+    },
+    "3666086": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 64 80 1043",
+      "group": 3666086,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:40 2026"
+    },
+    "3666098": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 96 112 1043",
+      "group": 3666098,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:41 2026"
+    },
+    "3666192": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 128 144 1043",
+      "group": 3666192,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:42 2026"
+    },
+    "3666226": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 144 160 1043",
+      "group": 3666226,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:43 2026"
+    },
+    "3666389": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 176 192 1043",
+      "group": 3666389,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:44 2026"
+    },
+    "3666473": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 208 224 1043",
+      "group": 3666473,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:45 2026"
+    },
+    "3666486": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 240 256 1043",
+      "group": 3666486,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:46 2026"
+    },
+    "3666494": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 256 272 1043",
+      "group": 3666494,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:47 2026"
+    },
+    "3666608": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 288 304 1043",
+      "group": 3666608,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:48 2026"
+    },
+    "3666659": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 320 336 1043",
+      "group": 3666659,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:50 2026"
+    },
+    "3666672": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 336 352 1043",
+      "group": 3666672,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:50 2026"
+    },
+    "3666694": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 368 384 1043",
+      "group": 3666694,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:51 2026"
+    },
+    "3666723": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 400 416 1043",
+      "group": 3666723,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:53 2026"
+    },
+    "3666813": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 416 432 1043",
+      "group": 3666813,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:53 2026"
+    },
+    "3666868": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 448 464 1043",
+      "group": 3666868,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:55 2026"
+    },
+    "3666876": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 464 480 1043",
+      "group": 3666876,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:55 2026"
+    },
+    "3666895": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 496 512 1043",
+      "group": 3666895,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:57 2026"
+    },
+    "3666902": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 512 528 1043",
+      "group": 3666902,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:57 2026"
+    },
+    "3666989": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 544 560 1043",
+      "group": 3666989,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:59 2026"
+    },
+    "3667000": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 560 576 1043",
+      "group": 3667000,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:37:59 2026"
+    },
+    "3667099": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 592 608 1043",
+      "group": 3667099,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:01 2026"
+    },
+    "3667135": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 608 624 1043",
+      "group": 3667135,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:01 2026"
+    },
+    "3667210": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 640 656 1043",
+      "group": 3667210,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:03 2026"
+    },
+    "3667217": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 656 672 1043",
+      "group": 3667217,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:04 2026"
+    },
+    "3667343": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 672 688 1043",
+      "group": 3667343,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:04 2026"
+    },
+    "3667362": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 704 720 1043",
+      "group": 3667362,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:06 2026"
+    },
+    "3667369": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 720 736 1043",
+      "group": 3667369,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:07 2026"
+    },
+    "3667376": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 736 752 1043",
+      "group": 3667376,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:08 2026"
+    },
+    "3667383": {
+      "command": "[O0-observed-006]",
+      "group": 3667383,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:08 2026"
+    },
+    "3667487": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 784 800 1043",
+      "group": 3667487,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:10 2026"
+    },
+    "3667499": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 800 816 1043",
+      "group": 3667499,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:11 2026"
+    },
+    "3667506": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 816 832 1043",
+      "group": 3667506,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:12 2026"
+    },
+    "3667514": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 832 848 1043",
+      "group": 3667514,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:12 2026"
+    },
+    "3667528": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 864 880 1043",
+      "group": 3667528,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:14 2026"
+    },
+    "3667674": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 880 896 1043",
+      "group": 3667674,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:15 2026"
+    },
+    "3667692": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 896 912 1043",
+      "group": 3667692,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:16 2026"
+    },
+    "3667777": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 912 928 1043",
+      "group": 3667777,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:17 2026"
+    },
+    "3667819": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 928 944 1043",
+      "group": 3667819,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:18 2026"
+    },
+    "3667827": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 944 960 1043",
+      "group": 3667827,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:19 2026"
+    },
+    "3667853": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 960 976 1043",
+      "group": 3667853,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:20 2026"
+    },
+    "3667948": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 3667948,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:20 2026"
+    },
+    "3667969": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 1008 1024 1043",
+      "group": 3667969,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:22 2026"
+    },
+    "3667990": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 1024 1040 1043",
+      "group": 3667990,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:23 2026"
+    },
+    "3668103": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0065 --fault-range 1040 1043 1043",
+      "group": 3668103,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:24 2026"
+    },
+    "3668343": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 16 32 1043",
+      "group": 3668343,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:25 2026"
+    },
+    "3668526": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 64 80 1043",
+      "group": 3668526,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:27 2026"
+    },
+    "3668571": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 96 112 1043",
+      "group": 3668571,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:28 2026"
+    },
+    "3668579": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 128 144 1043",
+      "group": 3668579,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:29 2026"
+    },
+    "3668674": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 160 176 1043",
+      "group": 3668674,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:30 2026"
+    },
+    "3668767": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 192 208 1043",
+      "group": 3668767,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:32 2026"
+    },
+    "3668827": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 208 224 1043",
+      "group": 3668827,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:32 2026"
+    },
+    "3668898": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 240 256 1043",
+      "group": 3668898,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:33 2026"
+    },
+    "3668941": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 272 288 1043",
+      "group": 3668941,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:35 2026"
+    },
+    "3668954": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 304 320 1043",
+      "group": 3668954,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:36 2026"
+    },
+    "3668967": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 320 336 1043",
+      "group": 3668967,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:36 2026"
+    },
+    "3669060": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 352 368 1043",
+      "group": 3669060,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:38 2026"
+    },
+    "3669073": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 384 400 1043",
+      "group": 3669073,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:39 2026"
+    },
+    "3669081": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 400 416 1043",
+      "group": 3669081,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:39 2026"
+    },
+    "3669114": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 432 448 1043",
+      "group": 3669114,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:41 2026"
+    },
+    "3669120": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 448 464 1043",
+      "group": 3669120,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:41 2026"
+    },
+    "3669279": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 480 496 1043",
+      "group": 3669279,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:43 2026"
+    },
+    "3669336": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 528 544 1043",
+      "group": 3669336,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:45 2026"
+    },
+    "3669373": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 560 576 1043",
+      "group": 3669373,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:46 2026"
+    },
+    "3669388": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 576 592 1043",
+      "group": 3669388,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:47 2026"
+    },
+    "3669626": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 592 608 1043",
+      "group": 3669626,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:47 2026"
+    },
+    "3669790": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 624 640 1043",
+      "group": 3669790,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:49 2026"
+    },
+    "3669847": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 640 656 1043",
+      "group": 3669847,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:50 2026"
+    },
+    "3669869": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 672 688 1043",
+      "group": 3669869,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:51 2026"
+    },
+    "3669878": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 688 704 1043",
+      "group": 3669878,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:52 2026"
+    },
+    "3669903": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 704 720 1043",
+      "group": 3669903,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:53 2026"
+    },
+    "3670001": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 3670001,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:53 2026"
+    },
+    "3670039": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 752 768 1043",
+      "group": 3670039,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:55 2026"
+    },
+    "3670051": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 768 784 1043",
+      "group": 3670051,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:56 2026"
+    },
+    "3670058": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 784 800 1043",
+      "group": 3670058,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:57 2026"
+    },
+    "3670066": {
+      "command": "[O0-observed-006] <defunct>",
+      "group": 3670066,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:58 2026"
+    },
+    "3670162": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 832 848 1043",
+      "group": 3670162,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:38:59 2026"
+    },
+    "3670231": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 848 864 1043",
+      "group": 3670231,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:00 2026"
+    },
+    "3670265": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 864 880 1043",
+      "group": 3670265,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:01 2026"
+    },
+    "3670273": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 880 896 1043",
+      "group": 3670273,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:02 2026"
+    },
+    "3670280": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 896 912 1043",
+      "group": 3670280,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:03 2026"
+    },
+    "3670475": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 928 944 1043",
+      "group": 3670475,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:04 2026"
+    },
+    "3670515": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 944 960 1043",
+      "group": 3670515,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:05 2026"
+    },
+    "3670552": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 960 976 1043",
+      "group": 3670552,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:06 2026"
+    },
+    "3670563": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 976 992 1043",
+      "group": 3670563,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:07 2026"
+    },
+    "3670570": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 992 1008 1043",
+      "group": 3670570,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:08 2026"
+    },
+    "3670582": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 1008 1024 1043",
+      "group": 3670582,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:09 2026"
+    },
+    "3670674": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O0-observed-0066 --fault-range 1024 1040 1043",
+      "group": 3670674,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:10 2026"
+    },
+    "3670770": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -c src/nanoisa/record_array_generated_private.c -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-linked-runtime.o",
+      "group": 3670770,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:14 2026"
+    },
+    "3670991": {
+      "command": "[clang] <defunct>",
+      "group": 3670991,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:16 2026"
+    },
+    "3671206": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-linked-0028.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0028.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-linked-runtime.o -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-linked-0028",
+      "group": 3671206,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:19 2026"
+    },
+    "3671668": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-linked-0055.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0055.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-linked-runtime.o -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-linked-0055",
+      "group": 3671668,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:23 2026"
+    },
+    "3671676": {
+      "command": "[clang-23]",
+      "group": 3671668,
+      "parent": 3671668,
+      "started": "Mon Sep 21 07:39:23 2026"
+    },
+    "3671759": {
+      "command": "/usr/local/bin/llc -filetype=obj -relocation-model=pic /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-linked-0062.optimized.ll -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-linked-0062.o",
+      "group": 3671759,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:24 2026"
+    },
+    "3671877": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED -DRA_ALLOC_WRAP -include tests/nanoisa/record_array_alloc.h -c src/nanoisa/record_array_generated_private.c -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-runtime.o",
+      "group": 3671877,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:26 2026"
+    },
+    "3672014": {
+      "command": "[clang] <defunct>",
+      "group": 3672014,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:27 2026"
+    },
+    "3672067": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0006.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0006.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0006",
+      "group": 3672067,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:28 2026"
+    },
+    "3672069": {
+      "command": "[clang-23]",
+      "group": 3672067,
+      "parent": 3672067,
+      "started": "Mon Sep 21 07:39:28 2026"
+    },
+    "3672304": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0019.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0019.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0019",
+      "group": 3672304,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:31 2026"
+    },
+    "3672305": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O2 -emit-obj -dumpdir /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0019- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0019.replay.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -fcoverage-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -D NMS_TESTING -D NRG_OBSERVED -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/product-0019-b6d8fc.o -x c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0019.replay.c",
+      "group": 3672304,
+      "parent": 3672304,
+      "started": "Mon Sep 21 07:39:31 2026"
+    },
+    "3672608": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0023.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0023.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0023",
+      "group": 3672608,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:32 2026"
+    },
+    "3672651": {
+      "command": "[clang-23]",
+      "group": 3672608,
+      "parent": 3672608,
+      "started": "Mon Sep 21 07:39:32 2026"
+    },
+    "3672953": {
+      "command": "[clang] <defunct>",
+      "group": 3672953,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:33 2026"
+    },
+    "3673095": {
+      "command": "[clang] <defunct>",
+      "group": 3673095,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:34 2026"
+    },
+    "3673247": {
+      "command": "[clang] <defunct>",
+      "group": 3673247,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:36 2026"
+    },
+    "3673416": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0044.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0044.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0044",
+      "group": 3673416,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:37 2026"
+    },
+    "3673417": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O2 -emit-obj -dumpdir /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0044- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0044.replay.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -fcoverage-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -D NMS_TESTING -D NRG_OBSERVED -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/product-0044-e64833.o -x c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0044.replay.c",
+      "group": 3673416,
+      "parent": 3673416,
+      "started": "Mon Sep 21 07:39:37 2026"
+    },
+    "3673463": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0048.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0048.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0048",
+      "group": 3673463,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:38 2026"
+    },
+    "3673572": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0053.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0053.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0053",
+      "group": 3673572,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:39 2026"
+    },
+    "3673652": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0057.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0057.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0057",
+      "group": 3673652,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:40 2026"
+    },
+    "3673653": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O2 -emit-obj -dumpdir /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0057- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name product-0057.replay.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -fcoverage-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -D NMS_TESTING -D NRG_OBSERVED -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/product-0057-4e5283.o -x c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0057.replay.c",
+      "group": 3673652,
+      "parent": 3673652,
+      "started": "Mon Sep 21 07:39:40 2026"
+    },
+    "3673703": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0061.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0061.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0061",
+      "group": 3673703,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:41 2026"
+    },
+    "3673710": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O2 -emit-obj -dumpdir /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0061- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name record_array_alloc.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -fcoverage-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -D NMS_TESTING -D NRG_OBSERVED -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/record_array_alloc-b2a577.o -x c tests/nanoisa/record_array_alloc.c",
+      "group": 3673703,
+      "parent": 3673703,
+      "started": "Mon Sep 21 07:39:41 2026"
+    },
+    "3673824": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0063 --fault-range 32 48 1042",
+      "group": 3673824,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:42 2026"
+    },
+    "3673838": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0063 --fault-range 128 144 1042",
+      "group": 3673838,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:43 2026"
+    },
+    "3673850": {
+      "command": "[O2-observed-006] <defunct>",
+      "group": 3673850,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:44 2026"
+    },
+    "3674039": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0063 --fault-range 432 448 1042",
+      "group": 3674039,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:47 2026"
+    },
+    "3674112": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0063 --fault-range 528 544 1042",
+      "group": 3674112,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:48 2026"
+    },
+    "3674207": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0063 --fault-range 608 624 1042",
+      "group": 3674207,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:49 2026"
+    },
+    "3674241": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0063 --fault-range 688 704 1042",
+      "group": 3674241,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:50 2026"
+    },
+    "3674296": {
+      "command": "[O2-observed-006] <defunct>",
+      "group": 3674296,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:50 2026"
+    },
+    "3674328": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0063 --fault-range 832 848 1042",
+      "group": 3674328,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:52 2026"
+    },
+    "3674460": {
+      "command": "[O2-observed-006] <defunct>",
+      "group": 3674460,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:53 2026"
+    },
+    "3674523": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0063 --fault-range 1024 1040 1042",
+      "group": 3674523,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:55 2026"
+    },
+    "3674591": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0064 --fault-range 64 80 1042",
+      "group": 3674591,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:56 2026"
+    },
+    "3674603": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0064 --fault-range 160 176 1042",
+      "group": 3674603,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:57 2026"
+    },
+    "3674618": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0064 --fault-range 256 272 1042",
+      "group": 3674618,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:58 2026"
+    },
+    "3674777": {
+      "command": "[O2-observed-006] <defunct>",
+      "group": 3674777,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:39:59 2026"
+    },
+    "3674852": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0064 --fault-range 464 480 1042",
+      "group": 3674852,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:00 2026"
+    },
+    "3674878": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0064 --fault-range 544 560 1042",
+      "group": 3674878,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:01 2026"
+    },
+    "3674912": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0064 --fault-range 624 640 1042",
+      "group": 3674912,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:02 2026"
+    },
+    "3674923": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0064 --fault-range 704 720 1042",
+      "group": 3674923,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:03 2026"
+    },
+    "3674934": {
+      "command": "[O2-observed-006] <defunct>",
+      "group": 3674934,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:04 2026"
+    },
+    "3675070": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0064 --fault-range 848 864 1042",
+      "group": 3675070,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:05 2026"
+    },
+    "3675110": {
+      "command": "[O2-observed-006] <defunct>",
+      "group": 3675110,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:07 2026"
+    },
+    "3675136": {
+      "command": "/usr/local/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -ffp-contract=off -fno-fast-math --gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13 -DNANO_RECORD_ARRAY_PRIVATE_RUNTIME -DNANO_RECORD_ARRAY_GENERATED_PRIVATE -Isrc -Isrc/nanoisa -Itests/nanoisa -Iobj/nanoisa -O2 -DNMS_TESTING -DNRG_OBSERVED /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0065.o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/native-corpus/product-0065.replay.c /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-runtime.o tests/nanoisa/record_array_alloc.c -lm -pthread -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0065",
+      "group": 3675136,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:08 2026"
+    },
+    "3675154": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple aarch64-unknown-linux-gnu -O2 -emit-obj -dumpdir /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0065- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name record_array_alloc.c -mrelocation-model pic -pic-level 2 -fhalf-no-semantic-interposition -mframe-pointer=non-leaf-no-reserve -fmath-errno -ffp-contract=off -fno-rounding-math -mconstructor-aliases -funwind-tables=2 -enable-tlsdesc -target-cpu generic -target-feature +v8a -target-feature +fp-armv8 -target-feature +neon -target-abi aapcs -gkey-instructions -debug-info-kind=constructor -dwarf-version=5 -debugger-tuning=gdb -fdebug-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -fcoverage-compilation-dir=/run/user/1000/nanolang-backend-integration-a1bb-20260921/source -resource-dir /usr/local/lib/clang/23 -D _DEFAULT_SOURCE -I src -D _GNU_SOURCE -D NANO_RECORD_ARRAY_PRIVATE_RUNTIME -D NANO_RECORD_ARRAY_GENERATED_PRIVATE -I src -I src/nanoisa -I tests/nanoisa -I obj/nanoisa -D NMS_TESTING -D NRG_OBSERVED -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /usr/local/include -internal-isystem /usr/lib/gcc/aarch64-linux-gnu/13/../../../../aarch64-linux-gnu/include -internal-externc-isystem /usr/include/aarch64-linux-gnu -internal-externc-isystem /include -internal-externc-isystem /usr/include -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -ferror-limit 19 -pthread -fno-signed-char -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -target-feature +outline-atomics -target-feature -fmv -faddrsig -fdwarf2-cfi-asm -o /run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/record_array_alloc-5211b2.o -x c tests/nanoisa/record_array_alloc.c",
+      "group": 3675136,
+      "parent": 3675136,
+      "started": "Mon Sep 21 07:40:08 2026"
+    },
+    "3675229": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0065 --fault-range 80 96 1043",
+      "group": 3675229,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:09 2026"
+    },
+    "3675330": {
+      "command": "[O2-observed-006]",
+      "group": 3675330,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:10 2026"
+    },
+    "3675350": {
+      "command": "[O2-observed-006] <defunct>",
+      "group": 3675350,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:11 2026"
+    },
+    "3675363": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0065 --fault-range 384 400 1043",
+      "group": 3675363,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:12 2026"
+    },
+    "3675392": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0065 --fault-range 560 576 1043",
+      "group": 3675392,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:14 2026"
+    },
+    "3675588": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0065 --fault-range 640 656 1043",
+      "group": 3675588,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:15 2026"
+    },
+    "3675661": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0065 --fault-range 720 736 1043",
+      "group": 3675661,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:16 2026"
+    },
+    "3675739": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0065 --fault-range 864 880 1043",
+      "group": 3675739,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:18 2026"
+    },
+    "3675755": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0065 --fault-range 928 944 1043",
+      "group": 3675755,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:19 2026"
+    },
+    "3675787": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0065 --fault-range 992 1008 1043",
+      "group": 3675787,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:20 2026"
+    },
+    "3675899": {
+      "command": "[O2-observed-006] <defunct>",
+      "group": 3675899,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:21 2026"
+    },
+    "3675983": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0066 --fault-range 208 224 1043",
+      "group": 3675983,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:23 2026"
+    },
+    "3676023": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0066 --fault-range 304 320 1043",
+      "group": 3676023,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:24 2026"
+    },
+    "3676052": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0066 --fault-range 400 416 1043",
+      "group": 3676052,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:25 2026"
+    },
+    "3676151": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0066 --fault-range 496 512 1043",
+      "group": 3676151,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:26 2026"
+    },
+    "3676168": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0066 --fault-range 576 592 1043",
+      "group": 3676168,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:27 2026"
+    },
+    "3676276": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0066 --fault-range 656 672 1043",
+      "group": 3676276,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:28 2026"
+    },
+    "3676303": {
+      "command": "[O2-observed-006] <defunct>",
+      "group": 3676303,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:29 2026"
+    },
+    "3676381": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0066 --fault-range 800 816 1043",
+      "group": 3676381,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:30 2026"
+    },
+    "3676494": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0066 --fault-range 880 896 1043",
+      "group": 3676494,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:31 2026"
+    },
+    "3676514": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0066 --fault-range 944 960 1043",
+      "group": 3676514,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:32 2026"
+    },
+    "3676525": {
+      "command": "/run/user/1000/nanolang-backend-integration-a1bb-20260921/temporary/nano-record-array-llvm-v5ilog4l/O2-observed-0066 --fault-range 1008 1024 1043",
+      "group": 3676525,
+      "parent": 3656243,
+      "started": "Mon Sep 21 07:40:34 2026"
+    }
+  },
+  "remaining": []
+}

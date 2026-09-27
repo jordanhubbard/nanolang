@@ -1,0 +1,702 @@
+{
+  "source_pin": "1bf6ab7589d14e26be2f8d86d519ac8853e2f945",
+  "scope": "I retain both full component build successes and separate bootstrap first checker refusals. No self-hosted compiler bootstrap or installed SDK acceptance passed. Component logs are invocation-private; complete provider products remain in frozen source roots.",
+  "records": [
+    {
+      "original": "inputs/native-sdk-1bf6a-selected-git.json",
+      "path": "inputs/native-sdk-1bf6a-selected-git.json.gz",
+      "bytes": 979888,
+      "sha256": "ecba06f99d3c151fd4533465491204f0ce4bddac8a1a1d921b5fb1709d2cef79",
+      "stored_bytes": 317872,
+      "stored_sha256": "6b2689c1f625db0b918d6746859ec35aac0b3d1373bf4de66f575d80af1bb676"
+    },
+    {
+      "original": "linux/bootstrap-capacity.json",
+      "path": "linux/bootstrap-capacity.json",
+      "bytes": 58,
+      "sha256": "cddfe92f83d247cc4524540d10ba8cc38a60a29069b1281da5c658fac6ffb7b4",
+      "stored_bytes": 58,
+      "stored_sha256": "cddfe92f83d247cc4524540d10ba8cc38a60a29069b1281da5c658fac6ffb7b4"
+    },
+    {
+      "original": "linux/bootstrap-command.json",
+      "path": "linux/bootstrap-command.json",
+      "bytes": 1384,
+      "sha256": "01e5485da64050904dbf3a3925661deecee257a414bd2d51534957776ce3cc02",
+      "stored_bytes": 1384,
+      "stored_sha256": "01e5485da64050904dbf3a3925661deecee257a414bd2d51534957776ce3cc02"
+    },
+    {
+      "original": "linux/bootstrap-descendants.json",
+      "path": "linux/bootstrap-descendants.json",
+      "bytes": 1641,
+      "sha256": "a684d3175ac951f6b1b561f11652be30b1bfbc9be142425b2a51b23e15727240",
+      "stored_bytes": 1641,
+      "stored_sha256": "a684d3175ac951f6b1b561f11652be30b1bfbc9be142425b2a51b23e15727240"
+    },
+    {
+      "original": "linux/bootstrap-status.json",
+      "path": "linux/bootstrap-status.json",
+      "bytes": 241,
+      "sha256": "e0bf29d629947d489d1d3cf5af5ed8d85c30f09ec7414a4c7131d3733c56b0e6",
+      "stored_bytes": 241,
+      "stored_sha256": "e0bf29d629947d489d1d3cf5af5ed8d85c30f09ec7414a4c7131d3733c56b0e6"
+    },
+    {
+      "original": "linux/bootstrap.stderr",
+      "path": "linux/bootstrap.stderr",
+      "bytes": 15180,
+      "sha256": "d10400f25cbb33e7f86ba227868d66de1bc6a853b3f39caadbc47f9c13cfadbe",
+      "stored_bytes": 15180,
+      "stored_sha256": "d10400f25cbb33e7f86ba227868d66de1bc6a853b3f39caadbc47f9c13cfadbe"
+    },
+    {
+      "original": "linux/bootstrap.stdout",
+      "path": "linux/bootstrap.stdout",
+      "bytes": 221,
+      "sha256": "5f2a904d3707f29985f83a0e24be2535a2774c7e8a54fa705fddf502cb482b23",
+      "stored_bytes": 221,
+      "stored_sha256": "5f2a904d3707f29985f83a0e24be2535a2774c7e8a54fa705fddf502cb482b23"
+    },
+    {
+      "original": "linux/build-capacity.json",
+      "path": "linux/build-capacity.json",
+      "bytes": 58,
+      "sha256": "d71a1cd90b859f448e105d5273597c2c148d94169b9dd2b6b554a34040ec39bf",
+      "stored_bytes": 58,
+      "stored_sha256": "d71a1cd90b859f448e105d5273597c2c148d94169b9dd2b6b554a34040ec39bf"
+    },
+    {
+      "original": "linux/build-command.json",
+      "path": "linux/build-command.json",
+      "bytes": 1380,
+      "sha256": "a1aa60fbfad495aaeebf59f850e8b7ade38b6ee8147496fb06355f56fdfefcf2",
+      "stored_bytes": 1380,
+      "stored_sha256": "a1aa60fbfad495aaeebf59f850e8b7ade38b6ee8147496fb06355f56fdfefcf2"
+    },
+    {
+      "original": "linux/build-descendants.json",
+      "path": "linux/build-descendants.json.gz",
+      "bytes": 313605,
+      "sha256": "d8d59a53c66ab80ae6b7bb6d09a1d832c0ea4bd62bc9992d67710953fbcedc2d",
+      "stored_bytes": 16303,
+      "stored_sha256": "d638776194c4f7d77ef08061ca7c564b60f1e44fb3c5b10a0600c6c4c518d0d7"
+    },
+    {
+      "original": "linux/build-status.json",
+      "path": "linux/build-status.json",
+      "bytes": 240,
+      "sha256": "45183b0d2b8190cde69e152963df0652dc37ccc3a766851662597963f50b5c76",
+      "stored_bytes": 240,
+      "stored_sha256": "45183b0d2b8190cde69e152963df0652dc37ccc3a766851662597963f50b5c76"
+    },
+    {
+      "original": "linux/build.stderr",
+      "path": "linux/build.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "linux/build.stdout",
+      "path": "linux/build.stdout",
+      "bytes": 31665,
+      "sha256": "2d878b6cc52db33768a2dc0521438c14f5de358c35019de5954723f3016efddb",
+      "stored_bytes": 31665,
+      "stored_sha256": "2d878b6cc52db33768a2dc0521438c14f5de358c35019de5954723f3016efddb"
+    },
+    {
+      "original": "linux/compiler-owner-capacity.json",
+      "path": "linux/compiler-owner-capacity.json",
+      "bytes": 58,
+      "sha256": "32f14051b3833d23a604ef487f14d861ed2d52df66072847467c5b8e57c443d9",
+      "stored_bytes": 58,
+      "stored_sha256": "32f14051b3833d23a604ef487f14d861ed2d52df66072847467c5b8e57c443d9"
+    },
+    {
+      "original": "linux/compiler-owner-command.json",
+      "path": "linux/compiler-owner-command.json",
+      "bytes": 1369,
+      "sha256": "37e379641bfb4a5d7125fafd3c290accf1d5711a0c6a485aa054463f552749b9",
+      "stored_bytes": 1369,
+      "stored_sha256": "37e379641bfb4a5d7125fafd3c290accf1d5711a0c6a485aa054463f552749b9"
+    },
+    {
+      "original": "linux/compiler-owner-descendants.json",
+      "path": "linux/compiler-owner-descendants.json",
+      "bytes": 54,
+      "sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c"
+    },
+    {
+      "original": "linux/compiler-owner-status.json",
+      "path": "linux/compiler-owner-status.json",
+      "bytes": 242,
+      "sha256": "520b04f2f391124d341e48a97aaa7096206265ae103db44c9b174132d506f4a2",
+      "stored_bytes": 242,
+      "stored_sha256": "520b04f2f391124d341e48a97aaa7096206265ae103db44c9b174132d506f4a2"
+    },
+    {
+      "original": "linux/compiler-owner.stderr",
+      "path": "linux/compiler-owner.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "linux/compiler-owner.stdout",
+      "path": "linux/compiler-owner.stdout",
+      "bytes": 42,
+      "sha256": "64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f",
+      "stored_bytes": 42,
+      "stored_sha256": "64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f"
+    },
+    {
+      "original": "linux/compiler-version-capacity.json",
+      "path": "linux/compiler-version-capacity.json",
+      "bytes": 58,
+      "sha256": "59aa1d5ac53e772279f5b92a4ac681749bbea77dc861b24f917366ff608fdb55",
+      "stored_bytes": 58,
+      "stored_sha256": "59aa1d5ac53e772279f5b92a4ac681749bbea77dc861b24f917366ff608fdb55"
+    },
+    {
+      "original": "linux/compiler-version-command.json",
+      "path": "linux/compiler-version-command.json",
+      "bytes": 1358,
+      "sha256": "328c759d6d79f49964adbad25344baa406c76a2b15e05ca6b4b7ee3345f6e42d",
+      "stored_bytes": 1358,
+      "stored_sha256": "328c759d6d79f49964adbad25344baa406c76a2b15e05ca6b4b7ee3345f6e42d"
+    },
+    {
+      "original": "linux/compiler-version-descendants.json",
+      "path": "linux/compiler-version-descendants.json",
+      "bytes": 54,
+      "sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c"
+    },
+    {
+      "original": "linux/compiler-version-status.json",
+      "path": "linux/compiler-version-status.json",
+      "bytes": 242,
+      "sha256": "a0db468429b8f00a953883ccf78dc7bb00d8746a33bba6e98ccdfc8a9c260fe6",
+      "stored_bytes": 242,
+      "stored_sha256": "a0db468429b8f00a953883ccf78dc7bb00d8746a33bba6e98ccdfc8a9c260fe6"
+    },
+    {
+      "original": "linux/compiler-version.stderr",
+      "path": "linux/compiler-version.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "linux/compiler-version.stdout",
+      "path": "linux/compiler-version.stdout",
+      "bytes": 246,
+      "sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048",
+      "stored_bytes": 246,
+      "stored_sha256": "8497f84b2b8334c413d9c6166bd39d009ba55d2ff60a8f23e66dfa5819c2b048"
+    },
+    {
+      "original": "linux/component-log-map.json",
+      "path": "linux/component-log-map.json",
+      "bytes": 952,
+      "sha256": "52a127709a294b4f27a22f511a5c7b78fab770e6df29ad3be3e378d11af47a6c",
+      "stored_bytes": 952,
+      "stored_sha256": "52a127709a294b4f27a22f511a5c7b78fab770e6df29ad3be3e378d11af47a6c"
+    },
+    {
+      "original": "linux/configuration.json",
+      "path": "linux/configuration.json",
+      "bytes": 532,
+      "sha256": "38560d1eb57c2c7020453431bc858dae0bf5a007a37c07743a6af21cb7757694",
+      "stored_bytes": 532,
+      "stored_sha256": "38560d1eb57c2c7020453431bc858dae0bf5a007a37c07743a6af21cb7757694"
+    },
+    {
+      "original": "linux/first-failure.json",
+      "path": "linux/first-failure.json",
+      "bytes": 9030,
+      "sha256": "f0a7c144dd9fb552bf2a5fffad2f10c30e518896969fbad198f812caeb96c244",
+      "stored_bytes": 9030,
+      "stored_sha256": "f0a7c144dd9fb552bf2a5fffad2f10c30e518896969fbad198f812caeb96c244"
+    },
+    {
+      "original": "linux/products-after.json",
+      "path": "linux/products-after.json.gz",
+      "bytes": 56794,
+      "sha256": "86ee7c37b7a90b316d988d501f9ff9a264ca700bc1d5f3020dcfb22912ceadd6",
+      "stored_bytes": 18655,
+      "stored_sha256": "ce03305a4c21b17da74c46ec344eaf01042e7ab1f8bcd25a51f07368be42148a"
+    },
+    {
+      "original": "linux/products-before.json",
+      "path": "linux/products-before.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "stored_bytes": 3,
+      "stored_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "original": "linux/source-after.json",
+      "path": "linux/source-after.json.gz",
+      "bytes": 628872,
+      "sha256": "5a277b15a3018d5947a6c4db65800d9f34935caa04686ef8ff92fa299c4130bb",
+      "stored_bytes": 211104,
+      "stored_sha256": "b95a84a7ed2e437df496c8510755826aaabeb5823c5fcf8954ca363a37494670"
+    },
+    {
+      "original": "linux/source-before.json",
+      "path": "linux/source-before.json.gz",
+      "bytes": 628872,
+      "sha256": "5a277b15a3018d5947a6c4db65800d9f34935caa04686ef8ff92fa299c4130bb",
+      "stored_bytes": 211104,
+      "stored_sha256": "b95a84a7ed2e437df496c8510755826aaabeb5823c5fcf8954ca363a37494670"
+    },
+    {
+      "original": "linux/terminal.json",
+      "path": "linux/terminal.json",
+      "bytes": 9085,
+      "sha256": "d0a8e4529aeca0c4c8c9e91cf4de4d076d1d4d4cb15b63517549ed6b4eaa3c62",
+      "stored_bytes": 9085,
+      "stored_sha256": "d0a8e4529aeca0c4c8c9e91cf4de4d076d1d4d4cb15b63517549ed6b4eaa3c62"
+    },
+    {
+      "original": "linux/tools-after.json",
+      "path": "linux/tools-after.json",
+      "bytes": 1320,
+      "sha256": "db520925af2c92c4cac3f8fb78623777998d8782b6d78e743770231d4291ddb7",
+      "stored_bytes": 1320,
+      "stored_sha256": "db520925af2c92c4cac3f8fb78623777998d8782b6d78e743770231d4291ddb7"
+    },
+    {
+      "original": "linux/tools-before.json",
+      "path": "linux/tools-before.json",
+      "bytes": 1320,
+      "sha256": "db520925af2c92c4cac3f8fb78623777998d8782b6d78e743770231d4291ddb7",
+      "stored_bytes": 1320,
+      "stored_sha256": "db520925af2c92c4cac3f8fb78623777998d8782b6d78e743770231d4291ddb7"
+    },
+    {
+      "original": "linux/tmp/nanolang_stage2_parser.log",
+      "path": "linux/tmp/nanolang_stage2_parser.log.gz",
+      "bytes": 67841,
+      "sha256": "84433c4444cd826ed2981655c2c4b2ea261ab7c8095a3ff0c6922603ad24b922",
+      "stored_bytes": 2292,
+      "stored_sha256": "3743624385bd4bcfd60552d599bb51713b13305aa86266a3f6f5740c7f005300"
+    },
+    {
+      "original": "linux/tmp/nanolang_stage2_transpiler.log",
+      "path": "linux/tmp/nanolang_stage2_transpiler.log.gz",
+      "bytes": 112575,
+      "sha256": "b587500743cfded6cd8ce05bcc9613be9c8ffc0649ed59c011c37fa298a3a522",
+      "stored_bytes": 3579,
+      "stored_sha256": "08b0f5295cd81abf0f7ef44840a6ac08263eb905219476ba471ed4de7626e338"
+    },
+    {
+      "original": "linux/tmp/nanolang_stage2_typecheck.log",
+      "path": "linux/tmp/nanolang_stage2_typecheck.log.gz",
+      "bytes": 134885,
+      "sha256": "df8763eb5d7d2e92e80724033d594c01676cf4aaae71fbcdba6d540a520f5ccd",
+      "stored_bytes": 4166,
+      "stored_sha256": "1bdf64287b11f44fb801b48310afba11304240d97aa75a4487410c063e6c75a6"
+    },
+    {
+      "original": "linux/tmp/nanolang_stage3_parser.log",
+      "path": "linux/tmp/nanolang_stage3_parser.log",
+      "bytes": 37,
+      "sha256": "c6b4ace9a783a116fe700f104f21d6f33b77bbff57717bda6ebcc98bfe7fe9ed",
+      "stored_bytes": 37,
+      "stored_sha256": "c6b4ace9a783a116fe700f104f21d6f33b77bbff57717bda6ebcc98bfe7fe9ed"
+    },
+    {
+      "original": "linux/tmp/nanolang_stage3_transpiler.log",
+      "path": "linux/tmp/nanolang_stage3_transpiler.log",
+      "bytes": 41,
+      "sha256": "9847e7915b73a3b369a835d776b3b2c3bf670c88a6da376b6983955b56b6fd58",
+      "stored_bytes": 41,
+      "stored_sha256": "9847e7915b73a3b369a835d776b3b2c3bf670c88a6da376b6983955b56b6fd58"
+    },
+    {
+      "original": "linux/tmp/nanolang_stage3_typecheck.log",
+      "path": "linux/tmp/nanolang_stage3_typecheck.log",
+      "bytes": 38,
+      "sha256": "e8cb849203a390f095b0a900056b497d46fdc899909f57431afbb1f2eb5345a5",
+      "stored_bytes": 38,
+      "stored_sha256": "e8cb849203a390f095b0a900056b497d46fdc899909f57431afbb1f2eb5345a5"
+    },
+    {
+      "original": "puck/bootstrap-capacity.json",
+      "path": "puck/bootstrap-capacity.json",
+      "bytes": 58,
+      "sha256": "0a786336741ab99f0d9d88cdab89e511026fdd9e105175b2e81714da4610e539",
+      "stored_bytes": 58,
+      "stored_sha256": "0a786336741ab99f0d9d88cdab89e511026fdd9e105175b2e81714da4610e539"
+    },
+    {
+      "original": "puck/bootstrap-command.json",
+      "path": "puck/bootstrap-command.json",
+      "bytes": 835,
+      "sha256": "dcf86122204c7afbbbe2998d05ab7dbe9859637b5231a389f27799299a586639",
+      "stored_bytes": 835,
+      "stored_sha256": "dcf86122204c7afbbbe2998d05ab7dbe9859637b5231a389f27799299a586639"
+    },
+    {
+      "original": "puck/bootstrap-descendants.json",
+      "path": "puck/bootstrap-descendants.json",
+      "bytes": 473,
+      "sha256": "4c932452ba59a527ebc75b9786757c369966c5c446d047b649103224a662f7c5",
+      "stored_bytes": 473,
+      "stored_sha256": "4c932452ba59a527ebc75b9786757c369966c5c446d047b649103224a662f7c5"
+    },
+    {
+      "original": "puck/bootstrap-status.json",
+      "path": "puck/bootstrap-status.json",
+      "bytes": 241,
+      "sha256": "e6f983564a00806b927b68c3b11a0dd700d67f9148df486f53d2ec32d2812925",
+      "stored_bytes": 241,
+      "stored_sha256": "e6f983564a00806b927b68c3b11a0dd700d67f9148df486f53d2ec32d2812925"
+    },
+    {
+      "original": "puck/bootstrap.stderr",
+      "path": "puck/bootstrap.stderr",
+      "bytes": 15161,
+      "sha256": "61644554aedba36137a69bfbe618c8a6949c5a70b730fa11c37ef9cda6792d06",
+      "stored_bytes": 15161,
+      "stored_sha256": "61644554aedba36137a69bfbe618c8a6949c5a70b730fa11c37ef9cda6792d06"
+    },
+    {
+      "original": "puck/bootstrap.stdout",
+      "path": "puck/bootstrap.stdout",
+      "bytes": 221,
+      "sha256": "5f2a904d3707f29985f83a0e24be2535a2774c7e8a54fa705fddf502cb482b23",
+      "stored_bytes": 221,
+      "stored_sha256": "5f2a904d3707f29985f83a0e24be2535a2774c7e8a54fa705fddf502cb482b23"
+    },
+    {
+      "original": "puck/build-capacity.json",
+      "path": "puck/build-capacity.json",
+      "bytes": 58,
+      "sha256": "c371f30f86268012e191c40937670a6dec92eb27b1e6a5e41104da5c369f132e",
+      "stored_bytes": 58,
+      "stored_sha256": "c371f30f86268012e191c40937670a6dec92eb27b1e6a5e41104da5c369f132e"
+    },
+    {
+      "original": "puck/build-command.json",
+      "path": "puck/build-command.json",
+      "bytes": 831,
+      "sha256": "b2c74005f253d0276264c1e9ab53318f8957fa09a5a1ba26619a09bc09a6c079",
+      "stored_bytes": 831,
+      "stored_sha256": "b2c74005f253d0276264c1e9ab53318f8957fa09a5a1ba26619a09bc09a6c079"
+    },
+    {
+      "original": "puck/build-descendants.json",
+      "path": "puck/build-descendants.json.gz",
+      "bytes": 387223,
+      "sha256": "589ee3095b00126331980e220c214b9182ad69b0dbe5f4594607318d2582e393",
+      "stored_bytes": 15204,
+      "stored_sha256": "c191dd69ae6d6e093c2dbd10dbdb8945d909a409384f4f6f0da7ab509c187139"
+    },
+    {
+      "original": "puck/build-status.json",
+      "path": "puck/build-status.json",
+      "bytes": 233,
+      "sha256": "3b83d7a8fee2aa97ceffbad40c4536b121dc57e5567b046ab18446c5c56e9fbb",
+      "stored_bytes": 233,
+      "stored_sha256": "3b83d7a8fee2aa97ceffbad40c4536b121dc57e5567b046ab18446c5c56e9fbb"
+    },
+    {
+      "original": "puck/build.stderr",
+      "path": "puck/build.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "puck/build.stdout",
+      "path": "puck/build.stdout.gz",
+      "bytes": 56619,
+      "sha256": "c9f71cf4e5397973c62783d75de9d58f18dae3aac569e944c2e0d2d129bdf4a3",
+      "stored_bytes": 3633,
+      "stored_sha256": "d45d767e6029ab1b678e46306ffeb178cbd141248fde9b1c229fcf7b3b906065"
+    },
+    {
+      "original": "puck/compiler-owner-capacity.json",
+      "path": "puck/compiler-owner-capacity.json",
+      "bytes": 58,
+      "sha256": "18dc0759585b0129505e1f07b99d3e2fd473865bdc582a84cde0ed2cf809ff8d",
+      "stored_bytes": 58,
+      "stored_sha256": "18dc0759585b0129505e1f07b99d3e2fd473865bdc582a84cde0ed2cf809ff8d"
+    },
+    {
+      "original": "puck/compiler-owner-command.json",
+      "path": "puck/compiler-owner-command.json",
+      "bytes": 819,
+      "sha256": "9498de34597c34bfcb8afe419af8159571754c544c473acfcce139f245bef231",
+      "stored_bytes": 819,
+      "stored_sha256": "9498de34597c34bfcb8afe419af8159571754c544c473acfcce139f245bef231"
+    },
+    {
+      "original": "puck/compiler-owner-descendants.json",
+      "path": "puck/compiler-owner-descendants.json",
+      "bytes": 54,
+      "sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c"
+    },
+    {
+      "original": "puck/compiler-owner-status.json",
+      "path": "puck/compiler-owner-status.json",
+      "bytes": 242,
+      "sha256": "69d6f92c87994254ac8a621c486040ca85994349d6bf0f328347402b4f632a67",
+      "stored_bytes": 242,
+      "stored_sha256": "69d6f92c87994254ac8a621c486040ca85994349d6bf0f328347402b4f632a67"
+    },
+    {
+      "original": "puck/compiler-owner.stderr",
+      "path": "puck/compiler-owner.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "puck/compiler-owner.stdout",
+      "path": "puck/compiler-owner.stdout",
+      "bytes": 93,
+      "sha256": "083060ae79a9cc17bc69cb6166b1e16396c638b533de036324d8c6d49b77af24",
+      "stored_bytes": 93,
+      "stored_sha256": "083060ae79a9cc17bc69cb6166b1e16396c638b533de036324d8c6d49b77af24"
+    },
+    {
+      "original": "puck/compiler-version-capacity.json",
+      "path": "puck/compiler-version-capacity.json",
+      "bytes": 58,
+      "sha256": "3ad4bfcbdcdcf4ed7b7e84220e022cc9dc5bcceeeba2684940c9c5750ba73132",
+      "stored_bytes": 58,
+      "stored_sha256": "3ad4bfcbdcdcf4ed7b7e84220e022cc9dc5bcceeeba2684940c9c5750ba73132"
+    },
+    {
+      "original": "puck/compiler-version-command.json",
+      "path": "puck/compiler-version-command.json",
+      "bytes": 809,
+      "sha256": "b69b57743b3f6240dbd0bca9d75a2cf069fda393acac158c2f93dda0dc11a38e",
+      "stored_bytes": 809,
+      "stored_sha256": "b69b57743b3f6240dbd0bca9d75a2cf069fda393acac158c2f93dda0dc11a38e"
+    },
+    {
+      "original": "puck/compiler-version-descendants.json",
+      "path": "puck/compiler-version-descendants.json",
+      "bytes": 290,
+      "sha256": "aceff9db1f336c282eb478cb8a2fcd6c261574a517ade58197d61f0675ce8717",
+      "stored_bytes": 290,
+      "stored_sha256": "aceff9db1f336c282eb478cb8a2fcd6c261574a517ade58197d61f0675ce8717"
+    },
+    {
+      "original": "puck/compiler-version-status.json",
+      "path": "puck/compiler-version-status.json",
+      "bytes": 234,
+      "sha256": "003ba554cc00f913fef8ce40c6fe11e48fc0c41b4612a6065eb47b9a156fdf13",
+      "stored_bytes": 234,
+      "stored_sha256": "003ba554cc00f913fef8ce40c6fe11e48fc0c41b4612a6065eb47b9a156fdf13"
+    },
+    {
+      "original": "puck/compiler-version.stderr",
+      "path": "puck/compiler-version.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "puck/compiler-version.stdout",
+      "path": "puck/compiler-version.stdout",
+      "bytes": 200,
+      "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+      "stored_bytes": 200,
+      "stored_sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+    },
+    {
+      "original": "puck/component-log-map.json",
+      "path": "puck/component-log-map.json",
+      "bytes": 952,
+      "sha256": "c397ebab1d56dda5c2b36735a9b6712b44ddd0f2113f5f84d43e6e1a881ce6ed",
+      "stored_bytes": 952,
+      "stored_sha256": "c397ebab1d56dda5c2b36735a9b6712b44ddd0f2113f5f84d43e6e1a881ce6ed"
+    },
+    {
+      "original": "puck/configuration.json",
+      "path": "puck/configuration.json",
+      "bytes": 939,
+      "sha256": "2ca19c12c33575ecbecd6bac2dd2af1f67afc2ac2b28be4415262aa59571de82",
+      "stored_bytes": 939,
+      "stored_sha256": "2ca19c12c33575ecbecd6bac2dd2af1f67afc2ac2b28be4415262aa59571de82"
+    },
+    {
+      "original": "puck/first-failure.json",
+      "path": "puck/first-failure.json",
+      "bytes": 9030,
+      "sha256": "8a8dc54d8911e95d9c0bf08eb913da048328f755a8d05ffc23b20b27ea98d537",
+      "stored_bytes": 9030,
+      "stored_sha256": "8a8dc54d8911e95d9c0bf08eb913da048328f755a8d05ffc23b20b27ea98d537"
+    },
+    {
+      "original": "puck/products-after.json",
+      "path": "puck/products-after.json.gz",
+      "bytes": 54480,
+      "sha256": "56472e222a97124ecc7e734bea1f0b6b4c175808a238938b9da6d74b098605c5",
+      "stored_bytes": 18441,
+      "stored_sha256": "f861ff873aa21835c6ca51b6f236f67e9eadfe80d66556d7ed2f8b922d657fc8"
+    },
+    {
+      "original": "puck/products-before.json",
+      "path": "puck/products-before.json",
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "stored_bytes": 3,
+      "stored_sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    {
+      "original": "puck/sdk-path-capacity.json",
+      "path": "puck/sdk-path-capacity.json",
+      "bytes": 58,
+      "sha256": "cfc6cf9d4eeec12301cf09550936db1a777766768c223733369d0aa3aadf1b27",
+      "stored_bytes": 58,
+      "stored_sha256": "cfc6cf9d4eeec12301cf09550936db1a777766768c223733369d0aa3aadf1b27"
+    },
+    {
+      "original": "puck/sdk-path-command.json",
+      "path": "puck/sdk-path-command.json",
+      "bytes": 815,
+      "sha256": "5df6e20022f13792ebb8c1da0d8e5ec03d25455679b41e3de4961ac6fa79e1db",
+      "stored_bytes": 815,
+      "stored_sha256": "5df6e20022f13792ebb8c1da0d8e5ec03d25455679b41e3de4961ac6fa79e1db"
+    },
+    {
+      "original": "puck/sdk-path-descendants.json",
+      "path": "puck/sdk-path-descendants.json",
+      "bytes": 54,
+      "sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c",
+      "stored_bytes": 54,
+      "stored_sha256": "b8b610b1465577d1d2b538c0180ddf802769761f7881d974c936330d2106ed1c"
+    },
+    {
+      "original": "puck/sdk-path-status.json",
+      "path": "puck/sdk-path-status.json",
+      "bytes": 232,
+      "sha256": "7847dd6df987491e5f11a17d2811f20a7324e78143812727e23667c96b98f512",
+      "stored_bytes": 232,
+      "stored_sha256": "7847dd6df987491e5f11a17d2811f20a7324e78143812727e23667c96b98f512"
+    },
+    {
+      "original": "puck/sdk-path.stderr",
+      "path": "puck/sdk-path.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stored_bytes": 0,
+      "stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "original": "puck/sdk-path.stdout",
+      "path": "puck/sdk-path.stdout",
+      "bytes": 95,
+      "sha256": "5cb2cff3541ae65432805aa9d9bbfa3454381ef60694cc7b47eed0e2bf973aaf",
+      "stored_bytes": 95,
+      "stored_sha256": "5cb2cff3541ae65432805aa9d9bbfa3454381ef60694cc7b47eed0e2bf973aaf"
+    },
+    {
+      "original": "puck/source-after.json",
+      "path": "puck/source-after.json.gz",
+      "bytes": 628872,
+      "sha256": "5a277b15a3018d5947a6c4db65800d9f34935caa04686ef8ff92fa299c4130bb",
+      "stored_bytes": 211104,
+      "stored_sha256": "b95a84a7ed2e437df496c8510755826aaabeb5823c5fcf8954ca363a37494670"
+    },
+    {
+      "original": "puck/source-before.json",
+      "path": "puck/source-before.json.gz",
+      "bytes": 628872,
+      "sha256": "5a277b15a3018d5947a6c4db65800d9f34935caa04686ef8ff92fa299c4130bb",
+      "stored_bytes": 211104,
+      "stored_sha256": "b95a84a7ed2e437df496c8510755826aaabeb5823c5fcf8954ca363a37494670"
+    },
+    {
+      "original": "puck/terminal.json",
+      "path": "puck/terminal.json",
+      "bytes": 9085,
+      "sha256": "e140c1c3bf3918452d94521f6800748000785203dce907202f243c2051b84320",
+      "stored_bytes": 9085,
+      "stored_sha256": "e140c1c3bf3918452d94521f6800748000785203dce907202f243c2051b84320"
+    },
+    {
+      "original": "puck/tools-after.json",
+      "path": "puck/tools-after.json",
+      "bytes": 1365,
+      "sha256": "ee06dbc0cb4d77fd12f7f8f7d407dc69f2c74cf0897b7f83f5b5926b95f6362d",
+      "stored_bytes": 1365,
+      "stored_sha256": "ee06dbc0cb4d77fd12f7f8f7d407dc69f2c74cf0897b7f83f5b5926b95f6362d"
+    },
+    {
+      "original": "puck/tools-before.json",
+      "path": "puck/tools-before.json",
+      "bytes": 1365,
+      "sha256": "ee06dbc0cb4d77fd12f7f8f7d407dc69f2c74cf0897b7f83f5b5926b95f6362d",
+      "stored_bytes": 1365,
+      "stored_sha256": "ee06dbc0cb4d77fd12f7f8f7d407dc69f2c74cf0897b7f83f5b5926b95f6362d"
+    },
+    {
+      "original": "puck/tmp/nanolang_stage2_parser.log",
+      "path": "puck/tmp/nanolang_stage2_parser.log.gz",
+      "bytes": 67452,
+      "sha256": "0859077f2c93af4ab8be83697a0bfada542112680a06b89e4759b68a000272b0",
+      "stored_bytes": 2284,
+      "stored_sha256": "3dec77ca856b457707f9af40010847058179ee753d96909ef62dad51e729a8c0"
+    },
+    {
+      "original": "puck/tmp/nanolang_stage2_transpiler.log",
+      "path": "puck/tmp/nanolang_stage2_transpiler.log.gz",
+      "bytes": 111930,
+      "sha256": "c71629c228dea8ae75ab6401582088fc31b374a36a5f1f3d1b08620e40eecd30",
+      "stored_bytes": 3560,
+      "stored_sha256": "4d975c60594d2b7f95d7e65c3b630b8ad0eb54f783cf4c69ab31ee22e1b4e2da"
+    },
+    {
+      "original": "puck/tmp/nanolang_stage2_typecheck.log",
+      "path": "puck/tmp/nanolang_stage2_typecheck.log.gz",
+      "bytes": 134112,
+      "sha256": "a0c0bf5a731c4de6e223ea88f605f4c691545b4c1ff7dede91972821e4bc6022",
+      "stored_bytes": 4144,
+      "stored_sha256": "5f534c01a603efd9fd424232a0ba90c485f9a2379b75c96998d61f09ec16b24c"
+    },
+    {
+      "original": "puck/tmp/nanolang_stage3_parser.log",
+      "path": "puck/tmp/nanolang_stage3_parser.log",
+      "bytes": 37,
+      "sha256": "c6b4ace9a783a116fe700f104f21d6f33b77bbff57717bda6ebcc98bfe7fe9ed",
+      "stored_bytes": 37,
+      "stored_sha256": "c6b4ace9a783a116fe700f104f21d6f33b77bbff57717bda6ebcc98bfe7fe9ed"
+    },
+    {
+      "original": "puck/tmp/nanolang_stage3_transpiler.log",
+      "path": "puck/tmp/nanolang_stage3_transpiler.log",
+      "bytes": 41,
+      "sha256": "9847e7915b73a3b369a835d776b3b2c3bf670c88a6da376b6983955b56b6fd58",
+      "stored_bytes": 41,
+      "stored_sha256": "9847e7915b73a3b369a835d776b3b2c3bf670c88a6da376b6983955b56b6fd58"
+    },
+    {
+      "original": "puck/tmp/nanolang_stage3_typecheck.log",
+      "path": "puck/tmp/nanolang_stage3_typecheck.log",
+      "bytes": 38,
+      "sha256": "e8cb849203a390f095b0a900056b497d46fdc899909f57431afbb1f2eb5345a5",
+      "stored_bytes": 38,
+      "stored_sha256": "e8cb849203a390f095b0a900056b497d46fdc899909f57431afbb1f2eb5345a5"
+    }
+  ]
+}

@@ -1,4 +1,8 @@
 """I keep record locals off the C stack without changing their value or roots."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import os
 from pathlib import Path
 import subprocess
@@ -27,7 +31,7 @@ class NativeRecordLocals(unittest.TestCase):
         self.checked(['cc', '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                       '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                       source, '-o', binary])
-        self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+        self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': asan_options()})
 
     def test_wide_local_frames_preserve_recursive_values_with_small_static_stack(self):
         # I retain different records across a call and check every value on unwind.

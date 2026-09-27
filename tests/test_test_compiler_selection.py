@@ -115,8 +115,11 @@ output.chmod(0o700)
             (root / ".bootstrap-ready").touch()
             expected = "nanoc_c" if target == "test" else "nanoc_stage2"
             mutated = "nanoc_stage2" if expected == "nanoc_c" else "nanoc_c"
-            runner = next(line for line in recipe("test-impl").splitlines(keepends=True)
-                          if "./tests/run_all_tests.sh" in line)
+            runner = "".join(next(line for line in recipe(phase).splitlines(keepends=True)
+                                  if "./tests/run_all_tests.sh" in line)
+                             for phase in ("test-ci-programs-language",
+                                           "test-ci-programs-app",
+                                           "test-ci-programs-unit"))
             makefile = '''COMPILER = bin/nanoc
 COMPILER_C = bin/nanoc_c
 NANOC_STAGE2 = bin/nanoc_stage2
@@ -145,6 +148,10 @@ test-impl: test-units
             self.assertEqual(result.returncode == 0, not fail, result.stdout + result.stderr)
             calls = (root / "calls").read_text().splitlines()
             wanted = "nano_virt" if backend in ("vm", "daemon") else expected
+            if fail:
+                self.assertTrue(calls)
+                self.assertTrue(all(call.startswith(wanted + " ") for call in calls))
+                return
             self.assertEqual(set(calls), {wanted + " " + source for source in corpus})
             self.assertEqual(len(calls), len(corpus))
 

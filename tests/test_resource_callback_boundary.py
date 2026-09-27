@@ -88,6 +88,31 @@ shadow close_handle { assert (== (close_handle Handle { fd: 7 }) 7) }
 fn probe(consume: fn(Handle) -> int) -> int { let owner: Handle = Handle { fd: 7 } return (consume owner) }
 shadow probe { assert (== (probe close_handle) 7) }""", False)
 
+    def test_fixed_resource_void_callback(self):
+        self.check("""fn discard(owner: Handle) -> void { let Handle { fd } = owner assert (== fd 7) }
+shadow discard { (discard Handle { fd: 7 }) }
+fn probe(drop: fn(Handle) -> void) -> int {
+    let owner: Handle = Handle { fd: 7 }
+    (drop owner)
+    return 7
+}
+shadow probe { assert (== (probe discard) 7) }""", False)
+
+    def test_fixed_resource_returned_callback_alias(self):
+        self.check("""fn close_handle(owner: Handle) -> int { let Handle { fd } = owner return fd }
+shadow close_handle { assert (== (close_handle Handle { fd: 7 }) 7) }
+fn close_other(owner: Handle) -> int { let Handle { fd } = owner return (+ fd 1) }
+shadow close_other { assert (== (close_other Handle { fd: 7 }) 8) }
+fn choose(flag: bool) -> fn(Handle) -> int { if flag { return close_handle } return close_other }
+shadow choose { let consume: fn(Handle) -> int = (choose true) assert (== (consume Handle { fd: 7 }) 7) }
+fn probe(flag: bool) -> int {
+    let consume: fn(Handle) -> int = (choose flag)
+    let alias: fn(Handle) -> int = consume
+    let owner: Handle = Handle { fd: 7 }
+    return (alias owner)
+}
+shadow probe { assert (== (probe true) 7) assert (== (probe false) 8) }""", False)
+
     def test_ordinary_generic_callback(self):
         self.check('''fn make() -> Box<int> { return Box.Some { value: 7 } }
 shadow make { let value: Box<int> = (make) match value { Some(payload) => { assert (== payload.value 7) }, None(empty) => { assert false } } }

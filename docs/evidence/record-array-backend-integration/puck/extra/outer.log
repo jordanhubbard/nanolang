@@ -1,0 +1,17 @@
+{"phase": "setup", "status": 0, "seconds": 8.94}
+{"phase": "configuration", "status": 0, "seconds": 0.226}
+{"phase": "discovery", "status": 0, "seconds": 0.188}
+{"phase": "generated-discovery", "status": 0, "seconds": 0.161}
+{"phase": "generated-ordinary-native", "status": 0, "seconds": 286.231}
+{"phase": "generated-clang-native", "status": 0, "seconds": 326.477}
+{"phase": "parity", "status": 0, "seconds": 4.754}
+{"phase": "ordinary-emission", "status": 0, "seconds": 2.201}
+{"phase": "ordinary-native", "status": 0, "seconds": 303.475}
+{"phase": "clang-ordinary-emission", "status": 0, "seconds": 2.34}
+{"phase": "clang-ordinary-native", "status": 0, "seconds": 341.854}
+{"phase": "wasm", "status": 0, "seconds": 535.361}
+{"phase": "old-private-vm", "status": 0, "seconds": 14.743}
+{"phase": "record_array_global_flow", "status": 0, "seconds": 3.855}
+{"phase": "record_array_execution", "status": 0, "seconds": 4.073}
+{"phase": "record_array_origins", "status": 0, "seconds": 3.57}
+{"phase": "package", "status": 1, "seconds": 0.885}

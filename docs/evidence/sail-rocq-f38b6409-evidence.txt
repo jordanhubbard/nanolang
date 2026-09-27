@@ -1,0 +1,76 @@
+Bounded Sail-to-Rocq proof refresh
+
+MAC task: task_f3524c87530e4b49aa71b5bf50e287e5
+Worker: agent_cli_nanolang_sail_darwin
+Source: f38b6409e0c4d94d84a4f1ac748e516cd100f6be
+Source tree: 1fbb2d1a837e97c4a557b4303405996299bcf1cc
+Production source: ece241ba56c34ae6e47639cd7d618f43f20ba25d
+Roadmap committed before execution: d021ad9927f1fdfd8a8c6a3b72acf68c2430dcfa
+Checkout: /tmp/nanolang-sail-rocq-f38b6409.oZQmJd
+Checkout status after execution: clean detached HEAD
+
+Command:
+bash scripts/check_sail_container.sh --rocq-check
+
+Started: 2026-09-18T10:30:36Z
+Finished: 2026-09-18T10:39:25Z
+Elapsed: 529.47 seconds
+Exit status: 0
+
+Retained log:
+/tmp/nanolang-sail-rocq-f38b6409-f3524c.log
+SHA-256: 1ffe983f11e0757d2784aeed74775a7527d63bbab641756724b59cadaad8a02d
+Size: 2573 bytes, 54 lines
+
+Pinned identities:
+scripts/check_sail_container.sh
+  a66192c614bb6de9dd10a78b9ff61babba2efb52f4acd8bd6c0f36adc15a4202
+formal/sail/stack_slice.sail
+  ae27a4e755f0f872e31b7a7a523a6963c5af82228257bb40bd4f60e21c8c1629
+formal/sail/StackSliceProofs.v
+  2f773b4fde344114e72e7f3cc2a7b6bfdfaba63f3144e8f2572ff2e7d889e8f4
+formal/check_assumptions.sh
+  a58b5b4cc55c76b612dcca70e03edd3e6e1d88fe9447ad537fec5fe454a4fa3e
+Rocq image and local image ID
+  rocq/rocq-prover@sha256:3ed9c46fa02e9fd7748a959abebb11b36f8818d10738dcc93edc67354c313ce2
+  sha256:3ed9c46fa02e9fd7748a959abebb11b36f8818d10738dcc93edc67354c313ce2
+  linux/amd64
+Sail release
+  0.20.2-binary
+  Sail 0.20.2 (sail2 @ 3b7af38d66466ecadad563158b07ce2f82fe05da)
+  archive SHA-256 26b59bcab2d66e9f220d317dfe45f8b09170ed70e59a824553d6f525134d1ff6
+Rocq support packages installed inside the disposable container
+  coq 9.0.1
+  coq-core 9.0.1
+  coq-stdlib 9.0.0
+  coq-sail-stdpp 0.20.2
+  coq-stdpp 1.12.0
+  coq-stdpp-bitvector 1.12.0
+
+The assumption audit checked these nine named theorems. The log contains nine
+instances of "Closed under the global context":
+
+1. nop_identity
+2. push_then_pop
+3. dup_then_pop
+4. swap_involution
+5. dup_underflow
+6. pop_underflow
+7. swap_empty_underflow
+8. swap_singleton_underflow
+9. execute_frame_extension
+
+The script then ran `opam exec -- coqchk -silent StackSliceProofs`. The command
+returned successfully under `set -euo pipefail`, and the post-check marker
+"I checked bounded stack-model lemmas, not VM refinement." appears once.
+
+This invocation did not pass `--execute`. The log contains no decode_cases,
+vm_cases or executable stack-slice corpus markers. The script installed proof
+dependencies only inside its `docker run --rm` container and removed its
+temporary host directory through its EXIT trap. It made no host configuration
+change and executed no historical failing artifact.
+
+This refresh checks the bounded generated Rocq stack model and its named
+lemmas. It does not establish ISA/VM refinement, decoder correctness,
+production correspondence or the full formal-foundations parent. It does not
+authorize release publication.

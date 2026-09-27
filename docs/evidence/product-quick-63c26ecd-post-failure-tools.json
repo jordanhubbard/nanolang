@@ -1,0 +1,39 @@
+{
+  "scope": "post-failure observation, not a pre-run integrity comparison",
+  "source": "63c26ecd2723f8c480eaba4b25ebdf797f4764bd",
+  "source_clean": true,
+  "tools": {
+    "bin/nanoc": {
+      "resolved": "/home/jkh/Src/nanolang-product-quick-63c26ecd/bin/nanoc_stage2",
+      "sha256": "1709ebb179750575c4638737ef54af573600790a417f018d42f17d6847521341"
+    },
+    "bin/nanoc_c": {
+      "resolved": "/home/jkh/Src/nanolang-product-quick-63c26ecd/bin/nanoc_c",
+      "sha256": "24133c1c3211a2665476114a9e7bf55c8e87c2bfd40bdcb5a0988039c2bef475"
+    },
+    "bin/nanoc_stage1": {
+      "resolved": "/home/jkh/Src/nanolang-product-quick-63c26ecd/bin/nanoc_stage1",
+      "sha256": "238ce8e33216d0ddb30dffdc28dd3ec0c33e7c1a4c2ab571ef39ceace9507fd4"
+    },
+    "bin/nanoc_stage2": {
+      "resolved": "/home/jkh/Src/nanolang-product-quick-63c26ecd/bin/nanoc_stage2",
+      "sha256": "1709ebb179750575c4638737ef54af573600790a417f018d42f17d6847521341"
+    },
+    "bin/nano_vm": {
+      "resolved": "/home/jkh/Src/nanolang-product-quick-63c26ecd/bin/nano_vm",
+      "sha256": "e4ede5af4cee939cb86399ac00acb2e8c234a5614d495f972530f247cf3b175c"
+    },
+    "bin/nvm2c": {
+      "resolved": "/home/jkh/Src/nanolang-product-quick-63c26ecd/bin/nvm2c",
+      "sha256": "3b76c8bc454109423a9bd4df40a54ee7064c41703b9a8324d395639c9301d9e9"
+    },
+    "bin/nanoisa": {
+      "resolved": "/home/jkh/Src/nanolang-product-quick-63c26ecd/bin/nanoisa",
+      "sha256": "e1ee6e0ffbeadc02524d4f183807d308be86ac4323d95aad5ca9c44ced907f9d"
+    },
+    "bin/nanoisa_emit": {
+      "resolved": "/home/jkh/Src/nanolang-product-quick-63c26ecd/bin/nanoisa_emit",
+      "sha256": "66c707d15565be35e3b303177ca87771ff0c3332552eda25f4d9664412eec201"
+    }
+  }
+}

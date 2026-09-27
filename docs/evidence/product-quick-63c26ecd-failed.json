@@ -1,0 +1,49 @@
+{
+  "source": "63c26ecd2723f8c480eaba4b25ebdf797f4764bd",
+  "steps": [
+    {
+      "name": "bootstrap",
+      "command": [
+        "make",
+        "-j8",
+        "bootstrap"
+      ],
+      "status": 0,
+      "seconds": 195.998,
+      "log": "/tmp/nanolang-product-quick-63c26ecd/bootstrap.log",
+      "sha256": "82982b578c79ba7c0107ad79ba5542a85f55de28ac4a16be646ad653d6fbfbca"
+    },
+    {
+      "name": "tools",
+      "command": [
+        "make",
+        "-j8",
+        "nanoisa_emit",
+        "nano_virt",
+        "nano_vm",
+        "nvm2c",
+        "nvm2c-runtime",
+        "nanoisa_dump"
+      ],
+      "status": 0,
+      "seconds": 26.133,
+      "log": "/tmp/nanolang-product-quick-63c26ecd/tools.log",
+      "sha256": "9dc1307d930779e59978de5efdaa0843a31b2b63d57cc543f16db203baeb519d"
+    },
+    {
+      "name": "test-quick",
+      "command": [
+        "make",
+        "test-quick"
+      ],
+      "status": 2,
+      "seconds": 1222.257,
+      "log": "/tmp/nanolang-product-quick-63c26ecd/test-quick.log",
+      "sha256": "99ada7b64f57447ac5ae8fc43a1b69a8314757e83ed9274c08f51c87ba35d226"
+    }
+  ],
+  "post_bootstrap_compilers": {
+    "bin/nanoc_stage1": "5fa99d9bcafb1aa00f9e0970e4859b152cedc8cff4167aaf9fbcc4ef3bfffcf0",
+    "bin/nanoc_stage2": "1709ebb179750575c4638737ef54af573600790a417f018d42f17d6847521341"
+  }
+}

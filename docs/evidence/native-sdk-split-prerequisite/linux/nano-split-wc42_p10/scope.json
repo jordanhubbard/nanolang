@@ -1,0 +1,11 @@
+{
+  "fresh_instrumented_if_selected": [
+    "actual included eval.c in evaluator probe",
+    "actual gc.c",
+    "actual dyn_array.c",
+    "generated native helper/probe"
+  ],
+  "common_and_native_probe_eval": "ordinary, explicitly hashed",
+  "faults": "initial array and each segment GC allocation at the owning call site; array-growth interior allocation is not injected",
+  "bootstrap": "external; a retained-producer refresh is not clean C-seed bootstrap"
+}

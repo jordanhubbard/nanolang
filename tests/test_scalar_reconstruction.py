@@ -6,6 +6,8 @@ import shlex
 import subprocess
 import tempfile
 import unittest
+
+from tests.native_toolchain import native_cc
 ROOT = Path(__file__).resolve().parents[1]
 
 LOOP = '''.entry main
@@ -111,6 +113,10 @@ class ScalarReconstruction(unittest.TestCase):
                 for forbidden in (r'\bgoto\b',r'nano_vm',r'nvm_blob',r'\bswitch\b',r'\bdispatch\b'):
                     self.assertNotRegex(source,forbidden)
                 self.assertIn('return',source)
+                if language == 'c':
+                    operand = r'(?:[A-Za-z_][A-Za-z0-9_]*|INT64_C\([^()]*\)|UINT8_C\([^()]*\)|true|false)'
+                    redundant = rf'(?m)^\s*(?:if|while) \(\({operand} (?:==|!=|<=|>=|<|>) {operand}\)\) \{{$'
+                    self.assertNotRegex(source, redundant)
                 for name in names:
                     self.assertIn(name,source)
                 if structured:
@@ -118,7 +124,7 @@ class ScalarReconstruction(unittest.TestCase):
                     self.assertIn('nlr_l0_state',source);self.assertIn('nlr_l1_state',source)
                 if language=='c':
                     binary=directory/'c-program'
-                    self.checked(shlex.split(os.environ.get('CC','cc'))+['-std=c11','-O1','-Wall','-Wextra','-Werror',
+                    self.checked(native_cc()+['-std=c11','-O1','-Wall','-Wextra','-Werror',
                                   '-fsanitize=address,undefined','-fno-sanitize-recover=all',output,'-o',binary])
                     self.checked([binary],expected)
                 else:

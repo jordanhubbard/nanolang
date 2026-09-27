@@ -584,43 +584,46 @@ DynArray *dyn_array_sorted(DynArray *arr) {
 DynArray* dyn_array_push_struct(DynArray* arr, const void* struct_ptr, size_t struct_size) {
     assert(arr != NULL && "DynArray: NULL array");
     assert(struct_ptr != NULL && "DynArray: NULL struct pointer");
-    /* My current native array ABI stores width in one byte. */
-    if (struct_size == 0 || struct_size > UINT8_MAX) darray_allocation_failure();
-    /* I snapshot a borrowed element before growth can invalidate its address. */
-    unsigned char snapshot[UINT8_MAX];
-    memcpy(snapshot, struct_ptr, struct_size);
-    /* Auto-promote empty arrays to ELEM_STRUCT on first struct push.
-     * This handles empty array literals [] whose element type couldn't
-     * be inferred at compile time (e.g. bare [] passed as function args). */
-    if (arr->length == 0 && arr->elem_type != ELEM_STRUCT) {
-        arr->elem_type = ELEM_STRUCT;
-        if (arr->data) { free(arr->data); arr->data = NULL; }
-        arr->elem_size = 0;
+    /* I validate the complete intended storage before reading a borrowed value. */
+    if (!struct_size || arr->length < 0 || arr->capacity <= 0 ||
+        arr->length > arr->capacity) darray_allocation_failure();
+    bool promote = arr->length == 0 && arr->elem_type != ELEM_STRUCT;
+    if (!promote && (arr->elem_type != ELEM_STRUCT ||
+        (arr->elem_size && arr->elem_size != struct_size) ||
+        (arr->elem_size && !arr->data) ||
+        (arr->length && (!arr->elem_size || !arr->data)) ||
+        (!arr->elem_size && arr->data))) darray_allocation_failure();
+    int64_t capacity = arr->capacity;
+    if (arr->length == capacity) {
+        if (capacity > INT64_MAX / GROWTH_FACTOR) darray_allocation_failure();
+        capacity *= GROWTH_FACTOR;
     }
-    assert(arr->elem_type == ELEM_STRUCT && "DynArray: Type mismatch");
+    size_t bytes;
+    if (!darray_storage_size(capacity, struct_size, &bytes) ||
+        bytes > SIZE_MAX - (DARRAY_ALIGN - 1)) darray_allocation_failure();
 
-    /* Set struct size and allocate on first push */
-    if (arr->elem_size == 0) {
-        size_t bytes;
-        if (!struct_size || !darray_storage_size(arr->capacity, struct_size, &bytes))
-            darray_allocation_failure();
-        arr->data = darray_aligned_alloc(bytes);
-        if (arr->data == NULL) {
+    /* I snapshot aliases before replacing storage; large records use owned scratch. */
+    unsigned char small[UINT8_MAX];
+    unsigned char *snapshot = struct_size <= sizeof small ? small : malloc(struct_size);
+    if (!snapshot) darray_allocation_failure();
+    memcpy(snapshot, struct_ptr, struct_size);
+    if (promote || !arr->elem_size || capacity != arr->capacity) {
+        void *storage = darray_aligned_alloc(bytes);
+        if (!storage) {
+            if (snapshot != small) free(snapshot);
             darray_allocation_failure();
         }
+        if (arr->length) memcpy(storage, arr->data, (size_t)arr->length * struct_size);
+        free(arr->data);
+        arr->data = storage;
+        arr->capacity = capacity;
         arr->elem_size = struct_size;
+        arr->elem_type = ELEM_STRUCT;
     }
-    
-    if (arr->elem_size != struct_size) darray_allocation_failure();
-    
-    if (arr->length >= arr->capacity) {
-        dyn_array_grow(arr);
-    }
-    
-    /* Copy struct into array */
     void* dest = (uint8_t*)arr->data + (arr->length * arr->elem_size);
     memcpy(dest, snapshot, struct_size);
     arr->length++;
+    if (snapshot != small) free(snapshot);
     
     return arr;
 }

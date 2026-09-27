@@ -1,0 +1,47 @@
+{
+  "/tmp/nanolang-evaluator-lifetime-4abf-linux/compiler-root/bin/nanoc-diagnostic": {
+    "sha256": "9a1efcc5680cf8ff125c0728d70246058c2fbc09ffb25d92fa4ae48431758542",
+    "bytes": 19231016,
+    "archive": "/tmp/nanolang-evaluator-lifetime-4abf-linux/objects/9a1efcc5680cf8ff125c0728d70246058c2fbc09ffb25d92fa4ae48431758542"
+  },
+  "/tmp/nanolang-evaluator-lifetime-4abf-linux/compiler-root/obj/nano_modules/compiler_contracts.o": {
+    "sha256": "102b571567bd773587159b2fcb370b66492224e0efb3441994c2422d15468e27",
+    "bytes": 200736,
+    "archive": "/tmp/nanolang-evaluator-lifetime-4abf-linux/objects/102b571567bd773587159b2fcb370b66492224e0efb3441994c2422d15468e27"
+  },
+  "/tmp/nanolang-evaluator-lifetime-4abf-linux/compiler-root/obj/nano_modules/diagnostics.o": {
+    "sha256": "08b2b15d608295a7ccc8c90f6b053cbc1513117c81b0c7b381c56ecd89724224",
+    "bytes": 481184,
+    "archive": "/tmp/nanolang-evaluator-lifetime-4abf-linux/objects/08b2b15d608295a7ccc8c90f6b053cbc1513117c81b0c7b381c56ecd89724224"
+  },
+  "/tmp/nanolang-evaluator-lifetime-4abf-linux/compiler-root/obj/nano_modules/token_value_bytes.o": {
+    "sha256": "4917583e957ce61b6ae4b8143bfa24e1b8301db0ca8020c785646df66a526569",
+    "bytes": 180080,
+    "archive": "/tmp/nanolang-evaluator-lifetime-4abf-linux/objects/4917583e957ce61b6ae4b8143bfa24e1b8301db0ca8020c785646df66a526569"
+  },
+  "/tmp/nanolang-evaluator-lifetime-4abf-linux/compiler-root/obj/nano_modules/ir.o": {
+    "sha256": "f078d5e531a326aff460181c82d8dd0ca0d0e86e779b6f62665da080f2cce7ee",
+    "bytes": 409744,
+    "archive": "/tmp/nanolang-evaluator-lifetime-4abf-linux/objects/f078d5e531a326aff460181c82d8dd0ca0d0e86e779b6f62665da080f2cce7ee"
+  },
+  "/tmp/nanolang-evaluator-lifetime-4abf-linux/compiler-root/obj/nano_modules/compiler_schema.o": {
+    "sha256": "5daacfebd9dfede7659855e1e89b141ea1bf4373be0e042dd978ba85c3affaff",
+    "bytes": 191368,
+    "archive": "/tmp/nanolang-evaluator-lifetime-4abf-linux/objects/5daacfebd9dfede7659855e1e89b141ea1bf4373be0e042dd978ba85c3affaff"
+  },
+  "/tmp/nanolang-evaluator-lifetime-4abf-linux/compiler-root/obj/nano_modules/ast_shared.o": {
+    "sha256": "a15a10b830e680ce1986abd17c4c08c8fc6c44b8086bf243d50fdbc7465a12c4",
+    "bytes": 409760,
+    "archive": "/tmp/nanolang-evaluator-lifetime-4abf-linux/objects/a15a10b830e680ce1986abd17c4c08c8fc6c44b8086bf243d50fdbc7465a12c4"
+  },
+  "/tmp/nanolang-evaluator-lifetime-4abf-linux/compiler-root/obj/nano_modules/compiler_ast.o": {
+    "sha256": "5b4ed86a63fd05a1391ba171d2702c5f92759e9c0e6c6309b63e103c0fca8e77",
+    "bytes": 409768,
+    "archive": "/tmp/nanolang-evaluator-lifetime-4abf-linux/objects/5b4ed86a63fd05a1391ba171d2702c5f92759e9c0e6c6309b63e103c0fca8e77"
+  },
+  "/tmp/nanolang-evaluator-lifetime-4abf-linux/module-cache/v2-7112700719535fef141158afa936cdee115560cf538e40a651ac663ed5d79e72/.build.lock": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "archive": "/tmp/nanolang-evaluator-lifetime-4abf-linux/objects/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

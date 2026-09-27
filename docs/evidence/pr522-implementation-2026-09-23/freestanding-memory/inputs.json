@@ -1,0 +1,13 @@
+{
+  "base": "af73d89064dd2c0b8ba3e2ed7fb1bbf159898dea",
+  "sources": {
+    "src/nanoisa/managed_strings.c": "dd21ba4b7e1f08c4dfded58418209950eb2df77e3d2bba4ca88b2212e6ff60f3",
+    "src/nanoisa/managed_native_source.h": "7868a137e0c1598761920a38fdc78994ccae3825ba54bbc93e60364b47bbb1c0",
+    "src/nanoisa/record_array_generated_private.c": "5139137a42c528cb69755d5c75a951ccab7530afdcfb4632b4c40509ac8a69d5",
+    "tests/test_managed_runtime_package.py": "806a518d5a94803f1febb594effef1b292b4529b9be2a3e7bd0a37a6af1a4e8d",
+    "tests/nanoisa/test_wasm_memory.c": "08f2184425d77c4119bec4e43bc7e46888d2e3ed621f041eca3aae55b6082477",
+    "tests/nanoisa/test_managed_strings.c": "c310bc50c96d15f05207ffd4699cef7b869880bf7bd2db4a0ecc9983a3be476b"
+  },
+  "linux_base": "e18e8bd5a with the listed runtime/test changes",
+  "scope": "Full corrected generated-consumer corpus qualification is running; package/core and matched program 62 checks are complete."
+}

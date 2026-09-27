@@ -1,0 +1,4 @@
+{
+  "status": 1,
+  "error": "AssertionError({'label': 'ordinary-identity', 'argv': ['/home/jkh/nanolang-qualification/scalar-array-f328-linux/ordinary/identity'], 'bound': 180, 'timeout': False, 'pid': 1349905, 'returncode': -6, 'remaining_groups': [], 'seconds': 1.2896327580092475})"
+}

@@ -1,0 +1,45 @@
+module "array_records.nano" as records
+module "array_records.nano" as again
+struct Local { value: int }
+struct LocalHolder { values: array<Local>, nested: array<array<Local>> }
+fn local(value: int) -> Local { return Local { value: value } }
+shadow local { assert (== (local 3).value 3) }
+fn forward(values: array<Local>) -> array<Local> { return values }
+shadow forward { assert (== (at (forward [(local 3)]) 0).value 3) }
+fn choose(flag: bool) -> array<Local> {
+    return (if flag { [(local 3)] } else { [(local 5)] })
+}
+shadow choose { assert (== (at (choose true) 0).value 3) assert (== (at (choose false) 0).value 5) }
+fn main() -> int {
+    let mut values: array<Local> = []
+    set values (forward [(local 3), (local 5)])
+    let inferred = values
+    let holder: LocalHolder = LocalHolder { values: inferred, nested: [[], values] }
+    let row = (at holder.nested 1)
+    let first = (array_get row 0)
+    assert (== first.value 3)
+    assert (== (at holder.values 1).value 5)
+    let call: fn(array<Local>) -> array<Local> = forward
+    assert (== (at (call row) 1).value 5)
+    let mut sum: int = 0
+    for value in values { set sum (+ sum value.value) }
+    assert (== sum 8)
+    let nested: array<array<Local>> = [[], values]
+    for inner in nested {
+        for value in inner { set sum (+ sum value.value) }
+    }
+    assert (== sum 16)
+    let imported = (records.values)
+    let alias: array<again.Item> = imported
+    let foreign_holder: records.Holder = records.Holder { values: alias }
+    let foreign_call: fn(array<records.Item>) -> array<records.Item> = records.forward
+    assert (== (records.read (at (foreign_call foreign_holder.values) 0)) 7)
+    let cond_values = (cond (true (records.values)) (else (records.forward alias)))
+    let match_values = (match false { true => { alias } false => { cond_values } })
+    let if_values = (if false { alias } else { match_values })
+    for value in if_values { set sum (+ sum (records.read value)) }
+    assert (== sum 32)
+    assert (== (at (choose false) 0).value 5)
+    return 0
+}
+shadow main { assert (== (main) 0) }

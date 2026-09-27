@@ -1,0 +1,9 @@
+# I qualify every managed probe link with its owning flags
+
+Source63b4111f9 passes the three unchanged owning gates with fresh ordinary providers and fresh GCC ASan/UBSan providers, with LSan enabled: array/graph eligibility27 methods, record eligibility16 methods, and LLVM managed records11 methods in each configuration. Original strict flags, selected variants, assertions and30/45/60-second fixture deadlines remain unchanged. Each owning command has the original1200-second outer bound. The first hosted missing-runtime links remain failures in the corrected-hosted seal.
+
+I verify all eight actual direct probe compiler commands per configuration. Every command retains C11/O1/Wall/Wextra/Werror/DNMA_TESTING and receives the selected owning flags after Make expansion. The instrumented provider's undefined symbol inventory contains actual ASan and UBSan references; successful child links include matching instrumentation flags. Dedicated Clang support selection remains explicit through NMS_NATIVE_CLANG_FLAGS, selecting the installed GCC13 support directory without suppressing warnings.
+
+My two lossless bundles contain6,992 reports,12 equal source/tool pairs and six successful reaped/group-absent outer terminals. I hash all628 separately indexed local CAS objects and every decompressed report member. The unchanged previously reviewed external retention hook records actual subprocess argv/output/status and retains original TemporaryDirectory products. Inner executable/source products are indexed in retained-child-artifacts.json; I do not substitute reconstructed files. The hook and actual tools are part of the original tool maps.
+
+Ordinary whole-command times are11.680,5.157 and23.466seconds. Instrumented times are30.460,57.137 and53.264seconds. This is precise Linux owning-boundary evidence, not an all-platform or full-release claim. All broader compiler source/bootstrap/ownership tasks remain independently required.

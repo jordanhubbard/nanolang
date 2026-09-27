@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-print-file-name=libclang_rt.asan_osx_dynamic.dylib"
+  ],
+  "bound": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/private/tmp/nanolang-record-lists-qualified-0e72",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 0.04127595900000003,
+  "log": {
+    "sha256": "3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc",
+    "bytes": 92,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-focused/objects/3f306e406a522899cb33d989e490c8294af6b2f35816a240ff8d2633c44e7fcc"
+  },
+  "inputs_equal": true
+}

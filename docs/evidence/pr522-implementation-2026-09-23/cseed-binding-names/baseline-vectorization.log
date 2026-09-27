@@ -1,0 +1,17 @@
+tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: error: loop not vectorized: the optimizer was unable to perform the requested transformation; the transformation might be disabled or specified as part of an unsupported transformation ordering [-Werror,-Wpass-failed=transform-warning]
+  126 | int main(int argc, char **argv) {
+      |     ^
+tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:82:9
+tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:83:9
+tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: error: loop not vectorized: the optimizer was unable to perform the requested transformation; the transformation might be disabled or specified as part of an unsupported transformation ordering [-Werror,-Wpass-failed=transform-warning]
+  126 | int main(int argc, char **argv) {
+      |     ^
+tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:83:9
+tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:97:9
+tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: error: loop not vectorized: the optimizer was unable to perform the requested transformation; the transformation might be disabled or specified as part of an unsupported transformation ordering [-Werror,-Wpass-failed=transform-warning]
+  126 | int main(int argc, char **argv) {
+      |     ^
+tests/nanoisa/fixtures/native_underscore_bindings.nano:126:5: note: could not determine the original source location for tests/nanoisa/fixtures/native_underscore_bindings.nano:97:9
+3 errors generated.
+C compilation failed
+exit=1

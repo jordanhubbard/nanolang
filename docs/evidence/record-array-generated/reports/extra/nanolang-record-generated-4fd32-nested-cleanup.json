@@ -1,0 +1,22 @@
+{
+  "selected_path_prefix": "/tmp/nano-record-array-generated-ls4eyzd3/",
+  "observed": {
+    "4041705": {
+      "pgid": 4041705,
+      "command": "/tmp/nano-record-array-generated-ls4eyzd3/O0-observed-0006"
+    },
+    "4113315": {
+      "pgid": 4113315,
+      "command": "/tmp/nano-record-array-generated-ls4eyzd3/O0-observed-0007"
+    }
+  },
+  "outer_terminal_exists": true,
+  "cleanup": [
+    {
+      "pgid": 4113315,
+      "signal": "SIGTERM"
+    }
+  ],
+  "remaining": {},
+  "all_selected_nested_processes_absent": true
+}

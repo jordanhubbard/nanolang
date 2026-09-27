@@ -1,0 +1,27 @@
+{
+  "pr": 946,
+  "head": "8ad34a272d16c6dff957f285e0bf46381c5779d0",
+  "logs": [
+    {
+      "job": "job-106399011953",
+      "raw_bytes": 7356041,
+      "raw_sha256": "042d53915fef2a7d5983d248daab44411aab70cb66392b441c81ef4f7f5afb18",
+      "archive": "job-106399011953.log.gz",
+      "archive_sha256": "9810c8fb96c5b0917da282eadd03b6f3e4b2a23ec9c836aecfddca59d6c5245d"
+    },
+    {
+      "job": "job-106399012149",
+      "raw_bytes": 7356373,
+      "raw_sha256": "a4d8655040ad5a60d733302bbec257c082b7842a36b6dfe1e64744a74021f0cb",
+      "archive": "job-106399012149.log.gz",
+      "archive_sha256": "b73dced9ec9cba84717b86b709d9b08494dad8107bbf06283144b1bb6ed93468"
+    },
+    {
+      "job": "job-106399012210",
+      "raw_bytes": 782264,
+      "raw_sha256": "ea74078c06256abec3b9a52e6d6a63d4109513582217bb8d543ef9cf79935771",
+      "archive": "job-106399012210.log.gz",
+      "archive_sha256": "9c1607bd071f1c6d0f80e7a86bb102e4d9c3077b5484ca7e24bb94c179c0e8ff"
+    }
+  ]
+}

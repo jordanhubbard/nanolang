@@ -1,0 +1,12 @@
+{
+  "cleanup": [],
+  "owned": {
+    "56788": {
+      "command": "/usr/bin/python3 -c import unittest;from tests import test_record_array_generated as m;s=unittest.defaultTestLoader.loadTestsFromModule(m);print(s.countTestCases());assert s.countTestCases()==2",
+      "group": 56788,
+      "parent": 54486,
+      "started": "Sun Sep 20 22:31:14 2026"
+    }
+  },
+  "remaining": []
+}

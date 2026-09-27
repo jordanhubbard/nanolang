@@ -1,0 +1,12 @@
+{
+  "label": "sanitized-allocations",
+  "argv": [
+    "/Users/jkh/nanolang-qualification/scalar-array-319-puck/sanitized/allocations"
+  ],
+  "bound": 180,
+  "timeout": false,
+  "pid": 84055,
+  "returncode": 0,
+  "remaining_groups": [],
+  "seconds": 3.837344417000004
+}

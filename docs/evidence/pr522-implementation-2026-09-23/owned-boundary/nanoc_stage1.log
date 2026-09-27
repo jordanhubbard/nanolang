@@ -1,0 +1,22 @@
+test_resource_and_ordinary_selected_arms (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_resource_and_ordinary_selected_arms) ... FAIL
+
+======================================================================
+FAIL: test_resource_and_ordinary_selected_arms (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_resource_and_ordinary_selected_arms)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_generic_selected_ownership.py", line 39, in test_resource_and_ordinary_selected_arms
+    self.check(PREFIX + CONSUME + MAIN, True)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_generic_selected_ownership.py", line 36, in check
+    generic.GenericAffineIdentity().check(source, accepted)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_affine_generic_identity.py", line 27, in check
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require exact concrete scalar union signatures in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.017s
+
+FAILED (failures=1)

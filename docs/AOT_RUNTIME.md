@@ -31,10 +31,13 @@ Linux also needs dynamic symbol export so `dlopen` can resolve them. I do not
 link a separate collector into each module; ownership stays with the host.
 
 This object provides my existing `DynArray`, GC and GC-struct implementation.
-It is not the complete NanoVM runtime, a new ABI version, or permission to cast
-foreign arrays into AOT arrays. My filesystem adapter still checks its foreign
-array ABI, copies the result and invokes the foreign release function. I retain
-the exact library path recorded in the module.
+It also provides the shared JSON and UTF-8 support used by declared native
+module providers. Those support objects do not grant file or compiler authority;
+the source module manifests still select and link the owning providers. This is
+not the complete NanoVM runtime, a new ABI version, or permission to cast foreign
+arrays into AOT arrays. My filesystem adapter still checks its foreign array ABI,
+copies the result and invokes the foreign release function. I retain the exact
+library path recorded in the module.
 
 These commands describe repository builds. Relocatable packaging, broader
 foreign APIs, Windows linking and full compiler acceptance remain separate gates.

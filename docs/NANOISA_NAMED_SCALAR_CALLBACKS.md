@@ -103,3 +103,27 @@ reconstruction or complete aggregate3717/full release.
 My implementation audit finds selfhost nisa_par_scalar does not admit U8. I
 retain U8 as an explicit fallback boundary in this paired child; I do not expand
 the selfhost functional ABI solely to enlarge this specialization.
+
+## I retain exact factory results in immutable callback locals
+
+My canonical source emitter uses the same exact-target resolver for a callback
+local as for a supported computed selector. An immutable local can retain a
+named function, an already resolved local alias, or the result of a defined
+zero-argument selector whose final return names one exact function. The
+selector's declared signature and the local annotation must match that target.
+Unresolved or mutable callback locals retain checked refusal.
+
+I emit the initializer's actual value once before adding the local name to the
+binding environment. A factory call therefore keeps its effects and returned
+FUNCREF; an alias loads the existing local. I retain the exact target separately
+for later signature checks and the existing functional-array specialization.
+I do not replace a factory call with a bare function constant. This does not
+add general branching callback target inference, captures or resource callback
+ownership lowering.
+
+Compiler shadows check factory CALL/STORE, alias LOAD/STORE and mismatched
+signatures. The shared purity gate retains its original pure factory case and
+adds an effect-counting factory whose result and local alias are invoked
+without rerunning the factory (`task_fa1064830d1b43d3a7d8753d03db76a6`).
+
+My [factory-local qualification](evidence/pr522-implementation-2026-09-23/factory-locals/README.md) records fresh bootstrap and passing purity/returned-call gates in both native stages, including instrumented generated programs. The adjacent generic function-value gate still retains 14 native translation failures.

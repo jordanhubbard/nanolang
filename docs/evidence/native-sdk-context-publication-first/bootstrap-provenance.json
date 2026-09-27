@@ -1,0 +1,6 @@
+{
+  "report": "/tmp/nanolang-native-sdk-bae59-puck-preparation",
+  "pin": "bae599477588b57b89159e10f03d5f5518ca6093",
+  "fixture_pin": "70f8a7de85dfb597d65a39ea3c190750f30fd406",
+  "scope": "actual fresh bae Stage1/Stage2 copied with unchanged entire production closure; no new bootstrap at fixture pin"
+}

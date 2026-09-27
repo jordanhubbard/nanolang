@@ -12,7 +12,7 @@
 
 from "modules/std/fs.nano" import walkdir, basename, join, read, exists, dirname
 
-struct ExampleInfo {
+pub struct ExampleInfo {
     path: string,
     name: string,
     description: string,
@@ -75,7 +75,7 @@ shadow infer_category_from_path {
     assert (== (infer_category_from_path "examples/sdl_launcher.nano") "tools")
 }
 
-fn find_icon(example_path: string) -> string {
+pub fn find_icon(example_path: string) -> string {
     let base: string = (basename example_path)
     let blen: int = (str_length base)
     let mut stem: string = base
@@ -110,7 +110,7 @@ shadow is_example_file {
     assert (not (is_example_file "readme.txt"))
 }
 
-fn parse_example_header(path: string) -> ExampleInfo {
+pub fn parse_example_header(path: string) -> ExampleInfo {
     let content: string = (read path)
     let mut nm: string = ""
     let mut ds: string = ""
@@ -194,7 +194,7 @@ shadow parse_example_header {
     assert (== 0 0)
 }
 
-fn discover_examples(root: string) -> array<ExampleInfo> {
+pub fn discover_examples(root: string) -> array<ExampleInfo> {
     let all_files: array<string> = (walkdir root)
     let mut examples: array<ExampleInfo> = []
     let mut i: int = 0
@@ -259,7 +259,7 @@ shadow is_graphical_demo {
     assert (not (is_graphical_demo cli))
 }
 
-fn filter_graphical_demos(examples: array<ExampleInfo>) -> array<ExampleInfo> {
+pub fn filter_graphical_demos(examples: array<ExampleInfo>) -> array<ExampleInfo> {
     let mut out: array<ExampleInfo> = []
     let mut i: int = 0
     while (< i (array_length examples)) {
@@ -295,7 +295,7 @@ shadow filter_graphical_demos {
     assert (== (array_length (filter_graphical_demos exs)) 1)
 }
 
-fn filter_by_category(examples: array<ExampleInfo>, category: string) -> array<ExampleInfo> {
+pub fn filter_by_category(examples: array<ExampleInfo>, category: string) -> array<ExampleInfo> {
     if (== category "all") { return examples }
     let mut filtered: array<ExampleInfo> = []
     let mut i: int = 0
@@ -327,7 +327,7 @@ shadow filter_by_category {
     assert (== (array_length (filter_by_category exs "all")) 2)
 }
 
-fn collect_categories(examples: array<ExampleInfo>) -> array<string> {
+pub fn collect_categories(examples: array<ExampleInfo>) -> array<string> {
     let mut cats: array<string> = []
     let mut i: int = 0
     while (< i (array_length examples)) {

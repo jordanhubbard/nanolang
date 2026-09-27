@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/bin/gcc",
+    "-print-prog-name=collect2"
+  ],
+  "bound": 30,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-0e72",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 0.03205214405898005,
+  "log": {
+    "sha256": "4b4b15d1de92fb69e39e13f15facb69e1a978a9b802ebfdda8231a16cebd55e1",
+    "bytes": 47,
+    "archive": "/tmp/nanolang-record-lists-0e72-linux-focused/objects/4b4b15d1de92fb69e39e13f15facb69e1a978a9b802ebfdda8231a16cebd55e1"
+  },
+  "inputs_equal": true
+}

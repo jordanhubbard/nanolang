@@ -1,0 +1,42 @@
+{
+  "pin": "f44712e0265064784d1bea1cb9109f3b4424fc89",
+  "scope": "I ran only the canonical Python source inventory generator main in an isolated copied-input tree; no compiler, runtime gate, installer or source product ran.",
+  "argv": [
+    "python3",
+    "copied/scripts/generate_native_sdk_inventory.py",
+    "--root",
+    "copied"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "",
+  "added_inputs": [
+    "src/env_provider_leases.inc",
+    "src/env_record_lists.inc",
+    "src/env_signature_snapshot.inc",
+    "src/runtime/native_record_list.h",
+    "src/typechecker_native_context.inc",
+    "src/typechecker_nominal_arrays.inc",
+    "src/typechecker_nominal_context.inc"
+  ],
+  "removed_inputs": [],
+  "outputs": [
+    {
+      "path": "src/runtime/native_sdk_inventory.inc",
+      "bytes": 45843,
+      "sha256": "be94887421a0c113b01f6488370ec9d15aae83d2399db7b4161aea92a624e16f",
+      "equal": true
+    },
+    {
+      "path": "scripts/native_sdk_objects.mk",
+      "bytes": 4563,
+      "sha256": "ed7f33a2bee4fce4c47f91a0b41d0100855f2fc07074bc79c2ecbe7496e1718a",
+      "equal": true
+    }
+  ],
+  "input_sha256": {
+    "scripts/generate_native_sdk_inventory.py": "daaebb447a7ac62a487e3a405983b038477fc886410292f3e8135f129e5debc0",
+    "scripts/native_sdk_inputs.json": "73d65e4afd499fcf52b4d7b45fa40f9b21ee8e80dbeaf105cb387cf0719ab868",
+    "scripts/native_sdk_objects.json": "a38b7f7939be2eda9e367f338027139b8df262d2c1489c4effeefb28f2225b12"
+  }
+}

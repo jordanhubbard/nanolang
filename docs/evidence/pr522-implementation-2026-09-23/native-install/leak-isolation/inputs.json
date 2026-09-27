@@ -1,0 +1,41 @@
+{
+  "compiler_sha256": "2614942ad8a862d5ca6df9e5dd8851d0414d9646da4b0e24416aa2237584f128",
+  "runs": [
+    {
+      "name": "help",
+      "args": [
+        "--help"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "bytecode",
+      "args": [
+        "examples/language/nl_hello.nano",
+        "--emit-nvm",
+        "-o",
+        "/tmp/pr522-leak-hello.nvm"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "c",
+      "args": [
+        "examples/language/nl_hello.nano",
+        "--emit-c",
+        "-o",
+        "/tmp/pr522-leak-hello.c"
+      ],
+      "exit_code": 1
+    },
+    {
+      "name": "native",
+      "args": [
+        "examples/language/nl_hello.nano",
+        "-o",
+        "/tmp/pr522-leak-hello"
+      ],
+      "exit_code": 1
+    }
+  ]
+}

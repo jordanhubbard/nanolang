@@ -40,7 +40,9 @@ Value builtin_str_concat(Value *args) {
         return create_void();
     }
 
-    return create_string(result);
+    Value copied = create_string(result);
+    free(result);
+    return copied;
 }
 
 Value builtin_str_substring(Value *args) {
@@ -78,7 +80,9 @@ Value builtin_str_substring(Value *args) {
     }
 
     char *result = nl_cstr_substring(str, start, length);
-    return create_string(result);
+    Value copied = create_string(result);
+    free(result);
+    return copied;
 }
 
 Value builtin_str_contains(Value *args) {

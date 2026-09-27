@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/home/jkh/Src/nanolang-record-lists-qualified-833/bin/nanoc_stage1",
+    "/home/jkh/nanolang-qualification/record-lists-833-linux-matrix/native-source/nano-native-record-lists-qpiuox8m/native-declared-list.nano",
+    "-o",
+    "/home/jkh/nanolang-qualification/record-lists-833-linux-matrix/native-source/nano-native-record-lists-qpiuox8m/native-declared-list-nanoc_stage1-O0",
+    "--keep-c"
+  ],
+  "cwd": "/home/jkh/Src/nanolang-record-lists-qualified-833",
+  "timeout": 300,
+  "expected": [
+    0
+  ],
+  "extra": {
+    "NATIVE_LIST_TOOL_CONFIG": "{\"cc\": [\"/bin/gcc\"], \"flags\": [], \"links\": [\"-lm\", \"-lcrypto\", \"-lffi\", \"-rdynamic\"], \"optimization\": \"-O0\", \"reports\": \"/home/jkh/nanolang-qualification/record-lists-833-linux-matrix/native-source/nano-native-record-lists-qpiuox8m\"}",
+    "NANO_CC": "/home/linuxbrew/.linuxbrew/opt/python@3.14/bin/python3.14 /home/jkh/nanolang-qualification/record-lists-833-linux-matrix/native-source/nano-native-record-lists-qpiuox8m/native-cc.py"
+  },
+  "TMPDIR": "/home/jkh/nanolang-qualification/record-lists-833-linux-matrix/native-source/nano-native-record-lists-qpiuox8m/temporary",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

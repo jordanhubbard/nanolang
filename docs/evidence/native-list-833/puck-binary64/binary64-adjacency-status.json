@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+    "/Users/jkh/nanolang-qualification/run-binary64-retained-tests.py",
+    "/Users/jkh/nanolang-qualification/record-lists-qualified-833",
+    "/Users/jkh/nanolang-qualification/record-lists-833-puck-binary64/fixture"
+  ],
+  "bound": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "cwd": "/Users/jkh/nanolang-qualification/record-lists-qualified-833",
+  "reaped": true,
+  "remaining_groups": [],
+  "seconds": 24.37436375,
+  "log": {
+    "sha256": "5b1eb10aeb9c3a4c5eec0cc5fe1172476c7971b06446d7b339d7d0accc2568c6",
+    "bytes": 1504,
+    "archive": "/Users/jkh/nanolang-qualification/record-lists-833-puck-binary64/objects/5b1eb10aeb9c3a4c5eec0cc5fe1172476c7971b06446d7b339d7d0accc2568c6"
+  },
+  "inputs_equal": true
+}

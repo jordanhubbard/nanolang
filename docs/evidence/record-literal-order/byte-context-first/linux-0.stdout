@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0001] Variable narrowed: I expected a value of type `array<u8>`, but found `array<int>`. (/tmp/nanolang-record-literal-source-order/tests/nanovirt/fixtures/tuple_array_literal_written_order.nano:96:5)

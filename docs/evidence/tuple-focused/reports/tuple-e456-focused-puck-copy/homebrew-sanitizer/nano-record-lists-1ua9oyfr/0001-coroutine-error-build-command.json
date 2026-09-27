@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-O0",
+    "-g",
+    "-isysroot",
+    "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-I",
+    "/Users/jkh/nanolang-qualification/tuple-e456-source/src",
+    "/Users/jkh/nanolang-qualification/tuple-e456-source/tests/test_coroutine_error_allocation.c",
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-L/opt/homebrew/opt/openssl@3/lib",
+    "-o",
+    "/Users/jkh/nanolang-qualification/tuple-e456-focused/homebrew-sanitizer/nano-record-lists-1ua9oyfr/coroutine-errors"
+  ],
+  "cwd": "/Users/jkh/nanolang-qualification/tuple-e456-source",
+  "timeout": 180,
+  "expected": [
+    0
+  ],
+  "extra": null,
+  "TMPDIR": "/Users/jkh/nanolang-qualification/tuple-e456-focused/homebrew-sanitizer/nano-record-lists-1ua9oyfr/temporary",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

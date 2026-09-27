@@ -1,7 +1,40 @@
 /* I keep same-numbered local references distinct through a value-call DAG. */
 #define MULTIPLE_CONSUMING_ALLOC_TEST
 #include "test_multiple_consuming_calls.c"
+static NvmModule *callback_value_fixture(unsigned kind) {
+    char source[4096];
+    const char *producer=kind==2 ? "PUSH_I64 1" : kind==3 ? "LOAD_LOCAL 1" :
+                         kind==5 ? "FUNCREF 9" : "FUNCREF 1";
+    const char *control=kind==1 ? "PUSH_BOOL 0\nASSERT\n" :
+        kind==4 ? "LOAD_LOCAL 1\nPUSH_I64 1\nADD\nPOP\n" :
+        kind==7 ? "LOAD_LOCAL 1\nFUNCREF 1\nCALL_INDIRECT 0 1\nPOP\nPOP\n" : "";
+    snprintf(source,sizeof(source),
+        ".types 3 0 0\n.entry 0\n.function main 0 16 0 int 1\n"
+        "PUSH_I64 42\nOWN_PACK 0\nOWN_STORE_LOCAL 0\n"
+        "%s\nCALL 1\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nDUP\nPOP\nPOP\n"
+        "%sOWN_UNPACK_LOCAL 0\nRET\n.end\n"
+        ".function echo 1 16 %u function 1\n%s\nRET\n.end\n.parameters 1 function\n",
+        producer,control,kind==6?1:0,kind==8?"PUSH_I64 1":"LOAD_LOCAL 0");
+    AsmResult assembled;NvmModule *m=asm_assemble_unverified(source,&assembled);
+    if(!m)fprintf(stderr,"%s\n",assembled.message);
+    CHECK(m);
+    NvmModule *layouts=fixture();m->layout_data=layouts->layout_data;layouts->layout_data=NULL;
+    m->layout_size=layouts->layout_size;nvm_module_free(layouts);
+    m->ownership_size=16+2*140+4;m->ownership_data=calloc(m->ownership_size,1);CHECK(m->ownership_data);
+    uint8_t *data=m->ownership_data;word(data,2);word(data+4,3);data[8]=data[9]=data[10]=3;word(data+12,2);
+    for(unsigned fn=0;fn<2;fn++) {
+        unsigned header=16+fn*140,base=header+12;data[header]=16;data[header+2]=fn?1:0;
+        slot(data+header+4,fn?TAG_FUNCTION:TAG_INT,0,NVM_V2_NO_INDEX);
+        for(unsigned local=0;local<16;local++) {
+            uint8_t tag=(!fn && !local)?TAG_STRUCT:((!fn && local==1)||(fn && !local))?TAG_FUNCTION:TAG_INT;
+            slot(data+base+8*local,tag,0,tag==TAG_STRUCT?0:NVM_V2_NO_INDEX);
+        }
+    }
+    bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK&&needs);
+    return m;
+}
 static NvmModule *graph_fixture(unsigned failure,unsigned functions) {
+    if(functions==2)return callback_value_fixture(failure);
     (void)multiple_fixture;(void)multiple_refusals;
     char source[20000]=".types 3 0 0\n.entry 0\n";
     for(unsigned fn=0;fn<functions;fn++) {
@@ -35,6 +68,22 @@ static NvmModule *graph_fixture(unsigned failure,unsigned functions) {
     bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK&&needs);return m;
 }
 static void graph_refusals(void) {
+    /* I admit local carriers, never callable resource fields or borrows. */
+    for(unsigned kind=0;kind<3;kind++) {
+        NvmModule *m=callback_value_fixture(0);
+        if(!kind) {
+            NvmV2Layouts layouts={0};
+            CHECK(nvm_v2_layouts_decode(m->layout_data,m->layout_size,&layouts)==NVM_V2_OK);
+            layouts.items[0].fields[0].type_tag=TAG_FUNCTION;
+            CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+            nvm_v2_layouts_free(&layouts);
+        } else slot(m->ownership_data+16+12+8,TAG_FUNCTION,kind==1?1:0,kind==1?NVM_V2_NO_INDEX:0);
+        CHECK(!nvm_verify_owned_module(m).ok);nvm_module_free(m);
+    }
+    for(unsigned kind=2;kind<=8;kind++) {
+        NvmModule *m=callback_value_fixture(kind);
+        CHECK(!nvm_verify_owned_module(m).ok);nvm_module_free(m);
+    }
     for(unsigned kind=0;kind<4;kind++) {
         NvmModule *m=graph_fixture(0,kind==3?9:8);
         if(kind<3) {
@@ -81,18 +130,18 @@ int main(int argc,char **argv) {
     CHECK(argc==2||argc==3);
     graph_phase("ordinary-start",0,0,0);ordinary_chain();graph_phase("ordinary-done",0,0,0);
     graph_phase("refusals-start",0,0,0);graph_refusals();graph_phase("refusals-done",0,0,0);
-    unsigned begin=0,end=10;
+    unsigned begin=0,end=12;
     if(argc==3) {
         char *text_end=NULL;unsigned long selected=strtoul(argv[2],&text_end,10);
-        CHECK(argv[2][0]&&!*text_end&&selected<10);begin=(unsigned)selected;end=begin+1;
+        CHECK(argv[2][0]&&!*text_end&&selected<12);begin=(unsigned)selected;end=begin+1;
     }
     graph_phase("four-start",0,0,0);
     NvmModule *four=graph_fixture(0,4);consuming_verified(four);nvm_module_free(four);
     graph_phase("four-done",0,0,0);
     for(unsigned index=begin;index<end;index++) {
-        bool fails=index>0&&index<9;
+        bool fails=(index>0&&index<9)||index==11;
         graph_phase("fixture-start",index,0,0);
-        NvmModule *m=graph_fixture(fails?index:0,index==9?4:8);
+        NvmModule *m=index>=10?graph_fixture(index==11?1:0,2):graph_fixture(fails?index:0,index==9?4:8);
         graph_phase("verify-start",index,0,0);consuming_verified(m);
         graph_phase("artifacts-start",index,0,0);artifacts(m,argv[1],index);
         graph_phase("artifacts-done",index,0,0);

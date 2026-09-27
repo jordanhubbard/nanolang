@@ -1,0 +1,107 @@
+{
+  "histories": [
+    "/tmp/nanolang-record-generated-6783e-linux",
+    "/tmp/nanolang-record-generated-6783e-r2-linux"
+  ],
+  "reports": 94,
+  "objects": 4011,
+  "object_bytes": 495450501,
+  "references": 14605,
+  "equal_pairs": 14,
+  "pairs": [
+    "nanolang-record-generated-6783e-linux/configuration-source-before.json",
+    "nanolang-record-generated-6783e-linux/configuration-tools-before.json",
+    "nanolang-record-generated-6783e-linux/discovery-source-before.json",
+    "nanolang-record-generated-6783e-linux/discovery-tools-before.json",
+    "nanolang-record-generated-6783e-linux/ordinary-source-before.json",
+    "nanolang-record-generated-6783e-linux/ordinary-tools-before.json",
+    "nanolang-record-generated-6783e-linux/setup-source-before.json",
+    "nanolang-record-generated-6783e-linux/setup-tools-before.json",
+    "nanolang-record-generated-6783e-r2-linux/clang-ordinary-source-before.json",
+    "nanolang-record-generated-6783e-r2-linux/clang-ordinary-tools-before.json",
+    "nanolang-record-generated-6783e-r2-linux/ordinary-source-before.json",
+    "nanolang-record-generated-6783e-r2-linux/ordinary-tools-before.json",
+    "nanolang-record-generated-6783e-r2-linux/sanitizer-source-before.json",
+    "nanolang-record-generated-6783e-r2-linux/sanitizer-tools-before.json"
+  ],
+  "terminals": [
+    {
+      "path": "nanolang-record-generated-6783e-linux/configuration-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-generated-6783e-linux/discovery-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-generated-6783e-linux/ordinary-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": -15,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-generated-6783e-linux/setup-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-generated-6783e-r2-linux/clang-ordinary-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-generated-6783e-r2-linux/ordinary-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-generated-6783e-r2-linux/sanitizer-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 1,
+      "timeout": false
+    }
+  ],
+  "scope": "Only the explicitly selected completed histories. No current host-input rehash or full matrix acceptance is inferred; independent final inventory required."
+}

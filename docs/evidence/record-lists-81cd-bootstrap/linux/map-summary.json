@@ -1,0 +1,25 @@
+{
+  "root": "/tmp/nanolang-record-lists-81cd-linux-prepare",
+  "maps": {
+    "build-sources": {
+      "before_sha256": "692a3fc495ef71b063d5d960addfce82e6a935bc45225a710b34cc5a061a588d",
+      "after_sha256": "692a3fc495ef71b063d5d960addfce82e6a935bc45225a710b34cc5a061a588d",
+      "equal": true
+    },
+    "build-tools": {
+      "before_sha256": "5d287d02083c621a8feebe36ece18e30e96dd925a6302ff9bdf3e20eb5049c6b",
+      "after_sha256": "5d287d02083c621a8feebe36ece18e30e96dd925a6302ff9bdf3e20eb5049c6b",
+      "equal": true
+    },
+    "bootstrap-sources": {
+      "before_sha256": "692a3fc495ef71b063d5d960addfce82e6a935bc45225a710b34cc5a061a588d",
+      "after_sha256": "692a3fc495ef71b063d5d960addfce82e6a935bc45225a710b34cc5a061a588d",
+      "equal": true
+    },
+    "bootstrap-tools": {
+      "before_sha256": "5d287d02083c621a8feebe36ece18e30e96dd925a6302ff9bdf3e20eb5049c6b",
+      "after_sha256": "5d287d02083c621a8feebe36ece18e30e96dd925a6302ff9bdf3e20eb5049c6b",
+      "equal": true
+    }
+  }
+}

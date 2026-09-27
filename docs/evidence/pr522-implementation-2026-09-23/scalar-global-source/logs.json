@@ -1,0 +1,30 @@
+{
+  "pr522-global-c-build.log.gz": {
+    "uncompressed_sha256": "9fa0dd3931bc0a53f66821ad1817a6f212691c58434e0c035337370369df87ca",
+    "exit_code": 2
+  },
+  "pr522-global-c-build2.log.gz": {
+    "uncompressed_sha256": "df4336222ea00d89d8885559fea9e59694353590603dcec7a0d78e9e43a18962",
+    "exit_code": 0
+  },
+  "pr522-global-c-source.log.gz": {
+    "uncompressed_sha256": "55f4d193ba3524abbcd99bf121ae9bcc5c64ccf9c426333b4d9ae6aa44ecbf53",
+    "exit_code": 0
+  },
+  "pr522-global-c-source2.log.gz": {
+    "uncompressed_sha256": "36fb72fbaca317f6389aa36eceecdac2177af9a274e5298ddcbcfea61a57e0f9",
+    "exit_code": 1
+  },
+  "pr522-global-c-source3.log.gz": {
+    "uncompressed_sha256": "3e52dce232dcade4d86607000f0e5f27bcb8024c4efb61a75324355c865cb5db",
+    "exit_code": 0
+  },
+  "pr522-global-c-asan.log.gz": {
+    "uncompressed_sha256": "dd221309d66488a7cd91aed0d9859d3b74004289e0c3bc3a097b1883135b3869",
+    "exit_code": 0
+  },
+  "pr522-global-c-regressions.log.gz": {
+    "uncompressed_sha256": "11fd39dac24aa2aede2ffc8b0df9bae3730c68d7216ab7e1ca14c0961a88c83a",
+    "exit_code": 0
+  }
+}

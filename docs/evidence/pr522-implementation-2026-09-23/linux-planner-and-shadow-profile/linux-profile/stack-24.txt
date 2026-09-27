@@ -1,0 +1,30 @@
+elapsed=55.368
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/aarch64-linux-gnu/libthread_db.so.1".
+0x0000ffe705b11044 in __sanitizer::IsValidFrame (frame=<optimized out>, stack_top=281474869407744, stack_bottom=281474861019136) at ../../../../src/libsanitizer/sanitizer_common/sanitizer_stacktrace.h:171
+#0  0x0000ffe705b11044 in __sanitizer::IsValidFrame (frame=<optimized out>, stack_top=281474869407744, stack_bottom=281474861019136) at ../../../../src/libsanitizer/sanitizer_common/sanitizer_stacktrace.h:171
+#1  __sanitizer::BufferedStackTrace::UnwindFast (this=0xfffff9973e28, pc=281367697842616, bp=<optimized out>, stack_top=281474869407744, stack_bottom=281474861019136, max_depth=30) at ../../../../src/libsanitizer/sanitizer_common/sanitizer_stacktrace.cpp:110
+#2  0x0000ffe705af59d4 [PAC] in __sanitizer::BufferedStackTrace::UnwindImpl (this=this@entry=0xfffff9973e28, pc=pc@entry=281367697842616, bp=bp@entry=281474869184064, context=context@entry=0x0, request_fast=request_fast@entry=true, max_depth=30) at ../../../../src/libsanitizer/asan/asan_stack.cpp:69
+#3  0x0000ffe705ae61f8 [PAC] in __sanitizer::BufferedStackTrace::Unwind (this=0xfffff9973e28, pc=281367697842616, bp=281474869184064, context=0x0, request_fast=true, max_depth=<optimized out>) at ../../../../src/libsanitizer/sanitizer_common/sanitizer_stacktrace.h:130
+#4  ___interceptor_free (ptr=0x50200fcd6310) at ../../../../src/libsanitizer/asan/asan_malloc_linux.cpp:52
+#5  0x0000c2499f7ea0ec [PAC] in eval_expression_other (expr=0x50c0007957c0, env=0x5120000001c0) at src/eval.c:4931
+#6  0x0000c2499f7e9b48 in eval_expression (expr=0x50c0007957c0, env=0x5120000001c0) at src/eval.c:4917
+#7  0x0000c2499f7bb1bc in eval_prefix_op (node=0x50c000795ac0, env=0x5120000001c0) at src/eval.c:2527
+#8  0x0000c2499f7e9910 in eval_expression (expr=0x50c000795ac0, env=0x5120000001c0) at src/eval.c:4912
+#9  0x0000c2499f7fb004 in eval_statement (stmt=0x50c000795b80, env=0x5120000001c0) at src/eval.c:5737
+#10 0x0000c2499f7932b0 in eval_scoped_block (statements=0x506000053600, count=7, env=0x5120000001c0) at src/eval.c:242
+#11 0x0000c2499f802538 in eval_statement (stmt=0x50c000799d80, env=0x5120000001c0) at src/eval.c:5962
+#12 0x0000c2499f7fc868 in eval_statement (stmt=0x50c000799e40, env=0x5120000001c0) at src/eval.c:5805
+#13 0x0000c2499f7e6604 in eval_call_impl (node=0x50c0007acbc0, env=0x5120000001c0, bound_name=0x0) at src/eval.c:4793
+#14 0x0000c2499f7c6688 in eval_call (node=0x50c0007acbc0, env=0x5120000001c0) at src/eval.c:3034
+#15 0x0000c2499f7e9b34 in eval_expression (expr=0x50c0007acbc0, env=0x5120000001c0) at src/eval.c:4915
+#16 0x0000c2499f7c2e44 in eval_prefix_op (node=0x50c0007acc80, env=0x5120000001c0) at src/eval.c:2897
+#17 0x0000c2499f7e9910 in eval_expression (expr=0x50c0007acc80, env=0x5120000001c0) at src/eval.c:4912
+#18 0x0000c2499f7edb2c in eval_expression_other (expr=0x50c0007af800, env=0x5120000001c0) at src/eval.c:5102
+#19 0x0000c2499f7e9b48 in eval_expression (expr=0x50c0007af800, env=0x5120000001c0) at src/eval.c:4917
+#20 0x0000c2499f807488 in eval_statement (stmt=0x50c0007af800, env=0x5120000001c0) at src/eval.c:6210
+#21 0x0000c2499f7932b0 in eval_scoped_block (statements=0x506000054440, count=3, env=0x5120000001c0) at src/eval.c:242
+#22 0x0000c2499f802538 in eval_statement (stmt=0x50c0007afbc0, env=0x5120000001c0) at src/eval.c:5962
+#23 0x0000c2499f7fc868 in eval_statement (stmt=0x50c0007afc80, env=0x5120000001c0) at src/eval.c:5805
+[Inferior 1 (process 42926) detached]
+warning: 171	../../../../src/libsanitizer/sanitizer_common/sanitizer_stacktrace.h: No such file or directory

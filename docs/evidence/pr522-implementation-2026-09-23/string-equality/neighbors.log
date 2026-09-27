@@ -1,0 +1,64 @@
+..FF...FF............I retain declared push artifacts in /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanolang-declared-push-40ie7wkb
+..................................
+======================================================================
+FAIL: test_existing_comprehensive_fstrings (tests.test_canonical_string_conversion.CanonicalStringConversion.test_existing_comprehensive_fstrings) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_string_conversion.py", line 95, in test_existing_comprehensive_fstrings
+    self.checked([ROOT/'bin'/compiler,source,*(['--emit-nvm'] if vm else []),'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_string_conversion.py", line 36, in checked
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified NanoISA product to C
+f-string comprehensive tests PASSED
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-comprehensive-fstrings-g9qa39yi/.nano-product.x4L0lK/program.nvm': I cannot classify unsupported opcode STR_EQ (0x44) in function 0 at offset 15
+
+
+======================================================================
+FAIL: test_existing_comprehensive_fstrings (tests.test_canonical_string_conversion.CanonicalStringConversion.test_existing_comprehensive_fstrings) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_string_conversion.py", line 95, in test_existing_comprehensive_fstrings
+    self.checked([ROOT/'bin'/compiler,source,*(['--emit-nvm'] if vm else []),'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_string_conversion.py", line 36, in checked
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified NanoISA product to C
+f-string comprehensive tests PASSED
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-comprehensive-fstrings-g9qa39yi/.nano-product.MKX4Jo/program.nvm': I cannot classify unsupported opcode STR_EQ (0x44) in function 0 at offset 15
+
+
+======================================================================
+FAIL: test_string_equality_values_and_order (tests.test_canonical_string_conversion.CanonicalStringConversion.test_string_equality_values_and_order) (compiler='nanoc_stage1', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_string_conversion.py", line 126, in test_string_equality_values_and_order
+    self.checked([ROOT/'bin'/compiler,source,*(['--emit-nvm'] if vm else []),'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_string_conversion.py", line 36, in checked
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-string-equality-4vn318ui/.nano-product.cBNStv/program.nvm': I cannot classify unsupported opcode STR_EQ (0x44) in function 0 at offset 42
+
+
+======================================================================
+FAIL: test_string_equality_values_and_order (tests.test_canonical_string_conversion.CanonicalStringConversion.test_string_equality_values_and_order) (compiler='nanoc_stage2', vm=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_string_conversion.py", line 126, in test_string_equality_values_and_order
+    self.checked([ROOT/'bin'/compiler,source,*(['--emit-nvm'] if vm else []),'-o',output])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_canonical_string_conversion.py", line 36, in checked
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-string-equality-4vn318ui/.nano-product.VdfDnA/program.nvm': I cannot classify unsupported opcode STR_EQ (0x44) in function 0 at offset 42
+
+
+----------------------------------------------------------------------
+Ran 53 tests in 51.423s
+
+FAILED (failures=4)

@@ -1,0 +1,792 @@
+{
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/bcp47.o": {
+    "sha256": "12d39ba9aaebec8f83b0c3b300e3d6c179c1eaa43f01e998c5d1f8f0e7a18e98",
+    "bytes": 27376,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/bench.o": {
+    "sha256": "fb0ee7d98997a0c95a471f1eaa25f7271095a6b8cf943e471171ffd0570db2cc",
+    "bytes": 71760,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/bench_native.o": {
+    "sha256": "82bfface3a5042d05a464f4b6be9150ab9831cc23e31aa60cfef4be9d4975a33",
+    "bytes": 42328,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/builtins_registry.o": {
+    "sha256": "8c2225ae5fe895003e78714b3c6f472ebcd8aef37a210589197561b363fb8392",
+    "bytes": 27472,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/cJSON.o": {
+    "sha256": "90c83d2982c098e61d8d571260c9d3452b690b1591acd9272b9cfbaf8ae80638",
+    "bytes": 208064,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/c_backend.o": {
+    "sha256": "990e39b8910949a2accc49b2868172ec3ebbd43dae1445131ffdf052cb4d60ac",
+    "bytes": 495176,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/catalog.o": {
+    "sha256": "a715d505547a4a7d211fce4f9081385449d3d350d745e35f2296a1c5abeb000b",
+    "bytes": 54080,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/channel.o": {
+    "sha256": "2fb98ff06061ecd9e658248f5775a5cffbb0416603c3b29f1602eccd477d14c2",
+    "bytes": 20960,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/coroutine.o": {
+    "sha256": "50105eac65846fad6bb89baa81c15024217e42995e032c76dcec81e2160ed0c6",
+    "bytes": 52848,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/cps_pass.o": {
+    "sha256": "a202a51b5dbdc4584da2e00b1c79c3799637fb967f2a5328e0f546e591a10ac9",
+    "bytes": 39992,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/dce_pass.o": {
+    "sha256": "50dff813d8f42f52db30f3ba1f5d4ef98720d86f7405bc201a414d4efa65c471",
+    "bytes": 56752,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/diag_id.o": {
+    "sha256": "07bb5782999619cdfdd1120fd3fedea39af2bf2d8f3a40bcddce9ef95afa8a95",
+    "bytes": 7584,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/docgen.o": {
+    "sha256": "cccd5eed6fca9bf598207febee8b79883c110f8612a97cc19402f4a2f1ff3700",
+    "bytes": 130800,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/docgen_md.o": {
+    "sha256": "30422a80381062fdaf298d502e7c4bc5a1b603258efb7868635925932ca52796",
+    "bytes": 97440,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/dwarf_info.o": {
+    "sha256": "3d09366fce0cedc53f877581024b39ef954faf64558421f003d5f1684ba4b7a5",
+    "bytes": 41656,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/effects.o": {
+    "sha256": "167c27b7d1d396c7834b43496c57cbaefc1f764a8bf3842d229c83d82f28a104",
+    "bytes": 109888,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/emit_typed_ast.o": {
+    "sha256": "39bcc7d41648f3d9fbd80a79abe0f6359ba4e543036cd996b799693e52bbac17",
+    "bytes": 166240,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/env.o": {
+    "sha256": "a9302d5a33d7f0121e83247d7632e7c3623d79316a983c4c23bde481c0177cf9",
+    "bytes": 631408,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/eval.o": {
+    "sha256": "b4503e8e06070f101164c05388dd1574925d4664c2da436dad64e31d0250c7cd",
+    "bytes": 929568,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/eval/eval_hashmap.o": {
+    "sha256": "a129e3931d45d1874fc7b78212e40c0bf17e68140f29a3c08a72ec6f6f077883",
+    "bytes": 28496,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/eval/eval_io.o": {
+    "sha256": "a2c487c52bec1d76b3363d5734b96c52ba43f2c15bce449e655acf74c966acc6",
+    "bytes": 159064,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/eval/eval_math.o": {
+    "sha256": "2dd28172f565fafaff03b5c3d343cc056f0fd42441b79b318ec2d8ca20704327",
+    "bytes": 35432,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/eval/eval_string.o": {
+    "sha256": "2d8434af8df7a878c33ca2430cdc45776f83e0779c96e39a1dd7e1b58540a2ba",
+    "bytes": 61624,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/file_companion_snapshot.o": {
+    "sha256": "ed3eb1bef29b0e374e89c7fc7f18fc2a1543b4afd55858f3a932ed3d6b2fd8fe",
+    "bytes": 50096,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/file_source_input.o": {
+    "sha256": "31bf24745d94da3e21a50d3eeb2030554d4165e56c78bf84e35193e2f1845498",
+    "bytes": 21384,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/file_source_resolution.o": {
+    "sha256": "6c9c30869a1b9060dca6eb7418e17d76a5552ff76bb6c06200282dc1c013e45f",
+    "bytes": 102592,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/fmt.o": {
+    "sha256": "990d48e990cf2bdda5477f40f64a6b7eaf6b6ecdf29cd5054ea9367b7d258bea",
+    "bytes": 43992,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/fold_constants.o": {
+    "sha256": "3e40bfb2b796af1becdb9864acbfd8688a99303b5740960102b3a429ee21c6b1",
+    "bytes": 68448,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/interpreter_ffi.o": {
+    "sha256": "084ad3a16d6238bc5fb8a5b2b3c524f0a19b3013753d8b70be3af3a7cefc9481",
+    "bytes": 88240,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/json_diagnostics.o": {
+    "sha256": "de1054ee22ea6a38eed4079f47d3dd048d5e0d1778118949ab033fa769baaf96",
+    "bytes": 42984,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/lexer.o": {
+    "sha256": "77bd96d9da62e70a1d2c961592e6ec665d900b6d4f475993da13d455cb274d00",
+    "bytes": 93848,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/locale.o": {
+    "sha256": "6025190a5a82157fc05b42c60c759fd3504be0f708bd3f8adfdfe0744ae5dc29",
+    "bytes": 20400,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/main.o": {
+    "sha256": "50688c060e5bfbcc4b2ee6b14d9d236aa73e42eecd82a666d1bf87e6e79e468d",
+    "bytes": 402712,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/module.o": {
+    "sha256": "d4aeedd4c7461e1ae79c070bbf95ef5e9961143c6f4ad6af5cc531804fed4b4e",
+    "bytes": 368392,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/module_builder.o": {
+    "sha256": "3d114358dca926d86a7348b68b2bd5ed92d1ca00104bbddc93920384de40d124",
+    "bytes": 1252096,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/module_metadata.o": {
+    "sha256": "9dd2b996769faa37c321753384468d7f597920ba0f0489d5bae08f41fd67c44d",
+    "bytes": 242848,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanocore_export.o": {
+    "sha256": "1d5818f1ff6733700e663949ca4eb0e0cda807405e293de11d1f2b848591c080",
+    "bytes": 120656,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanocore_subset.o": {
+    "sha256": "1468b5c8f9b8af2dad0a1a3f04c327042188bfc8101906a8efe3500a504558a2",
+    "bytes": 85416,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/affine_bytecode.o": {
+    "sha256": "24abf2d57e2e0454ca3ce59b1c0ada246c1f09ea1a17dd12c6e8cb904223938d",
+    "bytes": 113128,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/affine_state.o": {
+    "sha256": "8b142f9665e96d96180d8739ca169d38bc8d366d17b6285dc34565b39ac33c41",
+    "bytes": 382584,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/assembler.o": {
+    "sha256": "6889e8b3d5f0521404ce233dd8a8dde3b7cd947e45e564ea6fc9c8e405e27f72",
+    "bytes": 238688,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/disassembler.o": {
+    "sha256": "56d1821f43fe81ec4ccb09c87c9faaac983b6ec577b72da8cc11a02c6e04fb79",
+    "bytes": 95456,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/file_flow.o": {
+    "sha256": "8b53b9a4b162ab179c9cf4d2078a992194a55d42b29100b4698e1c9d781ebb53",
+    "bytes": 622696,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/file_source_catalog.o": {
+    "sha256": "1d4d3f6a55d4122307b82ae559a6524b9c3af6fa96948bd463b499f1aaa2493f",
+    "bytes": 83480,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/file_source_plan.o": {
+    "sha256": "a96cca04f4e6ad0d2cee70d89768dbc1df91bedf507bde65d3da5341dbc0f6a7",
+    "bytes": 33568,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/frontend.o": {
+    "sha256": "e49ff63d670f4def6a4aaa490efc0e4b38ab199ec8e45bcf3b3f2278fceda252",
+    "bytes": 53992,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/isa.o": {
+    "sha256": "d73de3f7f46f93787fc61b3343d1ce8679182d8a656460ea1646802d67b44672",
+    "bytes": 50464,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/local_bindings.o": {
+    "sha256": "0207e69bad3e894b7698158c36fa7e5012d6f0bd9df47d3f15afde08502dffd5",
+    "bytes": 43216,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/managed_array_shapes.o": {
+    "sha256": "ff54d74bb966642887c4e66693f0eaf35b3ddd3dffaa03e3cb6cc7b3414482f5",
+    "bytes": 323888,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/mixed_float_proof.o": {
+    "sha256": "9ed051981c0d6afc761d51b9541ca19cb415d713ee88ca074c6410e4ffc2b546",
+    "bytes": 154208,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/nanoisa_facade.o": {
+    "sha256": "8cd0bdf195c0b13ec3b13d15001df8f6ffb58264efe763c84596894fb9379278",
+    "bytes": 116744,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/nvm2c.o": {
+    "sha256": "8a6b301f16cec47a27cfa84d672db6bb387860908d7265b6c3e45ff5993b430e",
+    "bytes": 1329352,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/nvm2c_shape.o": {
+    "sha256": "25660988cd726e03e25cdb7427536504f419ba26480b49433b95944a1c760adb",
+    "bytes": 64616,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/nvm_format.o": {
+    "sha256": "2e00133a75453b86676e34847934f14cb31f53efd27b88ce5dcda3fbecefe7f1",
+    "bytes": 112784,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/nvm_format_v2.o": {
+    "sha256": "bab76e2cfeba9f2f7466b296bf13cc2b197b7b5a589bfc55ff76279f4fe8abbd",
+    "bytes": 31424,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/nvm_v2_constants.o": {
+    "sha256": "4a22c37feba4dfc26a32d942402df9dfb105e0ab1eb031e2a52efd6dc6956bc8",
+    "bytes": 19352,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/nvm_v2_convert.o": {
+    "sha256": "9c7784bce0d6c1888a13e12ecb8e870e504c92cec40944845733a69de6d5ae59",
+    "bytes": 87016,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/nvm_v2_cursor.o": {
+    "sha256": "f45579bd676899b6f622984cde462f8f710af945c21cc6e055a98933bcb5070b",
+    "bytes": 13104,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/nvm_v2_functions.o": {
+    "sha256": "39f667d536fd20a4c79eef9e7bfb6155a4009a21f008d427bc8b7b147d43f095",
+    "bytes": 26512,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/nvm_v2_imports.o": {
+    "sha256": "e89bd0b2f9e8cd5e413b229c4d56bf61b9e7b23be7017a5873809061d350dda1",
+    "bytes": 45864,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/nvm_v2_layouts.o": {
+    "sha256": "a87f220110286339cac6e34f58c1ded938caf0aaa0d64bea842d0669caac9098",
+    "bytes": 40272,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/nvm_v2_module.o": {
+    "sha256": "6cc433d5280713894f35b7bd4ca83698080b76268bb9f402e6e7e3f8959c8dfe",
+    "bytes": 67736,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/nvm_v2_signatures.o": {
+    "sha256": "092107d0eda00bacb8ed2cbb0ad94f5da6f12c19666dc030fcd27bc34581ce1d",
+    "bytes": 22960,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/ownership_contracts.o": {
+    "sha256": "eabc7598457291a1f0eeac7ba9dadbdc72ba226046b2655ea3874df48833652d",
+    "bytes": 116000,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/passive.o": {
+    "sha256": "483ff2894d0f181239d3b6ea9efb3e1ff587606430f59a53834e1876b8ab285e",
+    "bytes": 94480,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/reference_places.o": {
+    "sha256": "9dcf5303debcafac81ff8c684968da2eff315eef67f36a64c598920265e3b905",
+    "bytes": 21368,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/retained_layouts.o": {
+    "sha256": "71507ff9d4c5deac27a8d583b42a368976d068c3e40ae5628e57748aef6b0c8e",
+    "bytes": 280320,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/service_bindings.o": {
+    "sha256": "119ab57e95aa62048a58320bf3381cf3089f02c8d727d628d328c297a30997af",
+    "bytes": 15456,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/service_bindings_module.o": {
+    "sha256": "95d2cdcd0272e062a64036658814da27173d93f6f89b9efb3d4e3b357eb3bd97",
+    "bytes": 68208,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/service_file_nominal.o": {
+    "sha256": "6465f5cb80422b730b4d4b3e23735989d4efef9e5e550c6b04629392688c70cc",
+    "bytes": 20032,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/service_file_nominal_plan.o": {
+    "sha256": "879ac39b9897ba8164c3770fa3c3db965f03f304e4b7d078225bb28c41d92eb0",
+    "bytes": 58376,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/verifier.o": {
+    "sha256": "591e8ca8f1980a6b64ba5c2e121cfc332427bc15e3fcf7374e3439aa83963509",
+    "bytes": 271960,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanoisa/verifier_types.o": {
+    "sha256": "49047827eb964dc0021a0438b815f40139356f9fe715767d63974211423925ac",
+    "bytes": 55272,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovirt/codegen.o": {
+    "sha256": "122588df364b98038a8c5f917cf5a984f261273c7b3ecc1c331ded08660e5482",
+    "bytes": 1105048,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovirt/shadow_runner.o": {
+    "sha256": "88e829fa2662b2cdd178d12909de99f544ea17d4954bc19bc4a36ccae10d9c2f",
+    "bytes": 123128,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovirt/wrapper_gen.o": {
+    "sha256": "cd3afc034868daa563b08645decfdad4a66e6749c285ff15108939c61e1b14f1",
+    "bytes": 177448,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovm/cop_protocol.o": {
+    "sha256": "89d40d246bcb0b40dcc75808523a0e67a9bbd68ef7641666b299942133e217f9",
+    "bytes": 133640,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovm/heap.o": {
+    "sha256": "9f508cb724bc993b31ddd67682d0340fac12a1fd8303570108fa96a44ed6d2db",
+    "bytes": 94112,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovm/heap_cycles.o": {
+    "sha256": "1678508d9a773b9238a6469d8d759d80d6fda4ede6186572750dcab730a0fffa",
+    "bytes": 76160,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovm/value.o": {
+    "sha256": "42c31d7fa3d5591ea28de26f3d95076b0897d07bfb771cc7b051b0fb683ca944",
+    "bytes": 46632,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovm/vm.o": {
+    "sha256": "85acea472ab6a8f65a33a667bb061aec68c436f214d94c944cdfcc82d39e7a02",
+    "bytes": 875696,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovm/vm_builtins.o": {
+    "sha256": "e7a32de9127211198a4f522909ae90f6e11b555a05f75e21af75823fe174fc17",
+    "bytes": 84208,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovm/vm_callback.o": {
+    "sha256": "6cd00f720d17ecc88b3f63d9e9c0c965db77138f1ea514d293e39cafaf84bb52",
+    "bytes": 47024,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovm/vm_decode.o": {
+    "sha256": "450177def8cf10a97350e7c06e1378c10be52d2360b84ff028aaf5b0823491a9",
+    "bytes": 46544,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovm/vm_dispatch.o": {
+    "sha256": "4cce003714ac2cf8a78e38d169d56313ea97b7cc6b5125ebc1597e4f2dce5079",
+    "bytes": 48352,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovm/vm_ffi.o": {
+    "sha256": "cdd3a8c73ef3c4d4bb6fe2bb3cba9298c7484ba9201999c0e8f2bbb39b142faf",
+    "bytes": 317304,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nanovm/vm_ffi_arrays.o": {
+    "sha256": "515d851371795b62001cf080608663a13061ff023fbcd1ae6d4c9234ea82e1d4",
+    "bytes": 58160,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nominal_types.o": {
+    "sha256": "fb62fca2739b1384bb8ce6e82284bef5ba4b662eabfd4205d2924c6af2b77c6e",
+    "bytes": 123880,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nsi.o": {
+    "sha256": "14518e78b1bdac5c9aa8fc8c75e511db4a50a76f92700aff701f8cf6b330dbda",
+    "bytes": 120928,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nsi_file_binding.o": {
+    "sha256": "f0b998da6f4059106c801ac59d925a239b8f1be1de3863717ba71884db7f4ce5",
+    "bytes": 129896,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/nsi_file_plan.o": {
+    "sha256": "46f0490a62ba8ce6a434f5720ee2f996bf51901e9fcd3fc1322087028df2debb",
+    "bytes": 37992,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/opencl_backend.o": {
+    "sha256": "0449ef00f3b78fe402836ff8522bbbea70c825611178f2146ffe5c8e7e5018e3",
+    "bytes": 98200,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/par_let_pass.o": {
+    "sha256": "434edefe83e8812ef5aa216b11d34a723742a0017d2d092d9f3bba89b37e71f9",
+    "bytes": 37224,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/parser.o": {
+    "sha256": "6a33087ee1bebce8358d6964061f3117d809f359e7f55d27e1aa3c2b4bedec34",
+    "bytes": 755088,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/pgo_pass.o": {
+    "sha256": "ac445ee4cb6c673a5874b8bb1c9e601557c71c83c0462cf0cf02d90e7da657ad",
+    "bytes": 69224,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/ptx_backend.o": {
+    "sha256": "f2f5f1bb00d7406f604cc42844d562fd312ba2586f575067a91f20063869248e",
+    "bytes": 102472,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/reflection.o": {
+    "sha256": "3911caebe793f0055ab3ed523b4f532d95f3f8cf76f2d2397c8f15723d11fae4",
+    "bytes": 102016,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/resource_flow.o": {
+    "sha256": "f0e7bdd7b6b0d5dc2f55cefb189e0fbb5011fee458a0802c47588d45012b8679",
+    "bytes": 294560,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/resource_tracking.o": {
+    "sha256": "cb450e9b0323c2973fb3e4366acb33ec1a057b44db968ec57ce183a1ba339adb",
+    "bytes": 129576,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/riscv_backend.o": {
+    "sha256": "cdcd436c76ec47aece6ff6e0418479becfb10b5f87e7428985ca52dd9ea4cf19",
+    "bytes": 81464,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/callback_runtime.o": {
+    "sha256": "738b3ba0525ea5dcde6719aa468289f9433f9653891d84b92df74fbc2d55535f",
+    "bytes": 42200,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/cli.o": {
+    "sha256": "a43a4953953f54a0137641f3d4a03a15714601216853fbc53785e6d916578036",
+    "bytes": 7440,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/dyn_array.o": {
+    "sha256": "b4ab861785a0c9f858367aa5fc8a89738445d471c4fd5ac46d234a4d4cd0db58",
+    "bytes": 99040,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/effect_runtime.o": {
+    "sha256": "89454a859d0bc4efdadd91eb23ce40523ff330480494c2ac49335a4d8c5c43b0",
+    "bytes": 5336,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/ffi_loader.o": {
+    "sha256": "6fa7c05fa3b76e30017de5f9c9dbdda23847a9d2fc455ba3b5d9bd48c4bebe66",
+    "bytes": 57952,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/gc.o": {
+    "sha256": "bf2b90ca3d8a7479da7ba345e475ca73a3939da5a833a66ab771dbbd09179a50",
+    "bytes": 8427200,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/gc_struct.o": {
+    "sha256": "6d3f3f1485b7dfc7c9596526b945bd63b16692ef00b4a86a9b08a17252f2c4a6",
+    "bytes": 24688,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTArrayLiteral.o": {
+    "sha256": "05e83814cc11c8d4170af593b4f594e1b3f3baea3cae978495e7f966550d926d",
+    "bytes": 29136,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTAssert.o": {
+    "sha256": "826230e3f59ce10ebca1e13d060b83058e0a77d4623c849c511a26d6c6aa47b6",
+    "bytes": 29120,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTBinaryOp.o": {
+    "sha256": "0a1cee505ee6b8cd4ccaedaefe77202d290f83cff2e97a42e204312ba5996b33",
+    "bytes": 27512,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTBlock.o": {
+    "sha256": "08669adbb154a0f0a75dcc9846a307dd0b41a97b6b8d77223d6bb98fe465db3f",
+    "bytes": 28968,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTBool.o": {
+    "sha256": "0cc8af10dc734b94de6087d8a4f38468488b3f7c6f83c93aea6b86845df9811f",
+    "bytes": 29256,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTCall.o": {
+    "sha256": "1c051e0ee9f0ba98f04652dc4278a90b44e888845991706ef8baa15ded308473",
+    "bytes": 28928,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTEnum.o": {
+    "sha256": "c2fc37607cc14ab605ee83c88b22c79dcd924dc07b59bcbdd08fd0e5dfbff8b4",
+    "bytes": 28080,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTFieldAccess.o": {
+    "sha256": "8391a389bfd43830cf7c0c602ab9ff8d5f24357b11ae1b1a7ef63deb5011fff3",
+    "bytes": 29096,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTFloat.o": {
+    "sha256": "d03081889d9a282c285123155d568ef260df37765d4a0395dc6ffba8f05abfa0",
+    "bytes": 28960,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTFor.o": {
+    "sha256": "cf2af613a86851546ed74d27ba1effe843591c86f1539e2a0a0d49eecf7bd03e",
+    "bytes": 27192,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTFunction.o": {
+    "sha256": "fb3458fe609989f69d4e3db4d40271c2a1cdd73a79fc6dac5f4290b1458675e8",
+    "bytes": 27432,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTIdentifier.o": {
+    "sha256": "1230c73ca5876678571003f7e9ac34f07b92e6859aa2e60b4eee4a5b76492409",
+    "bytes": 29144,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTIf.o": {
+    "sha256": "a610cf4587b4422b2ae76a901fea9cc89b11cf8b3736362bc977a3806ff4a742",
+    "bytes": 28872,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTImport.o": {
+    "sha256": "b1a8938b514796060fee56a54ef554ad3ccef3bf88b709af76ecb5bc98ee4cca",
+    "bytes": 28416,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTLet.o": {
+    "sha256": "ce1275235324d410133eeb3e9ebd6e7dd0927feda13428d0ae122ec1e519f0c9",
+    "bytes": 28312,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTMatch.o": {
+    "sha256": "df01bdfc07e98d17100cc85a1522a5ec22a983d636d45550bf50905c8fc35395",
+    "bytes": 28416,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTModuleQualifiedCall.o": {
+    "sha256": "d9802b8f126cd58175e4553a3a4f2f77ccd01b485186d1329ae11c8de1685df1",
+    "bytes": 27760,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTNumber.o": {
+    "sha256": "ddd89a65ff09e70c7a99bbdc1e8e75af374b7e8d7c1376a55acb61ba6b9b44ad",
+    "bytes": 29000,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTOpaqueType.o": {
+    "sha256": "dad9c88878bbb05a8ceca878edd2f7eac6f23049a8eb028812c8fa0c39b76aa9",
+    "bytes": 29152,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTPrint.o": {
+    "sha256": "a2823deff7b29f5a2db8aa5ac7ef95b84a6e75d11202eaca0d983dccd45bda69",
+    "bytes": 29072,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTReturn.o": {
+    "sha256": "905e33173fb6b926d172a0c3a4ad5cd05b7ed921911ef1b98fe2691f1e3747a5",
+    "bytes": 29104,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTServiceDecl.o": {
+    "sha256": "4e708af4ecb94bfdf0b89379d5c54c2b3c4e3c904df58885cfe2b9b14b587042",
+    "bytes": 27600,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTSet.o": {
+    "sha256": "cceb9558d35415a104d5aa42c03ac0d5f388287cd2733efae3cd71e7dc349dde",
+    "bytes": 27184,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTShadow.o": {
+    "sha256": "ad1d26c1ada5658cecb1154d0c8d98efe9de995e4779edba96a89b5b810e981f",
+    "bytes": 28872,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTStmtRef.o": {
+    "sha256": "5cd337cd010b7901af5386e2cc7dd5ca691a081663e1b487505a786f9b253d3b",
+    "bytes": 28936,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTString.o": {
+    "sha256": "e8e1beba1a870ceba19a1cab7d86718bee927f6ccfa8d73feb0912a85404482b",
+    "bytes": 29000,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTStruct.o": {
+    "sha256": "e2a7ffaaadafad998792f903f8b1260a0c2e93a9a05cfd8eeaf32d2e7b1f546f",
+    "bytes": 28360,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTStructLiteral.o": {
+    "sha256": "209c867a4c1166c2c58ef0f95d64d3f04fbadd324af5bdc5ce86510298f25d20",
+    "bytes": 28520,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTTupleIndex.o": {
+    "sha256": "ec11a9ea8dc35782a02143a1bcea314d989c218f0a2f6d8a6f436d7bec778293",
+    "bytes": 29288,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTTupleLiteral.o": {
+    "sha256": "03b1c3590a5e762ed79c64243545f762885676150b2312ddcd4732461555a8c7",
+    "bytes": 28336,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTUnion.o": {
+    "sha256": "50af295e6f91083c9550ed13e01805fdbfd1b8c2a1dc950377237ff55497bc6d",
+    "bytes": 28392,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTUnionConstruct.o": {
+    "sha256": "d28366f512276524b5734ea47b46137e4e2053a76464680149aa2d250dd48ae1",
+    "bytes": 28544,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTUnsafeBlock.o": {
+    "sha256": "135eb581aa0c640246724c2deafc98ca88c702e19426f68651b4eb36cd342771",
+    "bytes": 29264,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_ASTWhile.o": {
+    "sha256": "599ee1be96e01598d5a2083a5656b1b5e0be6f21025bd568f7795325ac56c406",
+    "bytes": 29120,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_CompilerDiagnostic.o": {
+    "sha256": "e348654e2a6beaee56bda34c35c3fdb658fe836a193fbcfb40ed9d2b303bffc6",
+    "bytes": 27808,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_CompilerSourceLocation.o": {
+    "sha256": "6c5048fcb788b2a618e048a6741666cbfe7b4adf00bd65298cecff82b56bf045",
+    "bytes": 29672,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_LexerToken.o": {
+    "sha256": "d6f9ca31e7c2053445662a7155b4ec7c2b3cc929db19958df85ec4320beb2825",
+    "bytes": 29032,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_int.o": {
+    "sha256": "850191802f69c8d1ed4c19aee6aa422341b3549f3810268db1e9dd68b03ab9e6",
+    "bytes": 28560,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_string.o": {
+    "sha256": "2772d34e93396767b05535ac817007c0427bc6ef3b314e6a2a32889c2eae930c",
+    "bytes": 31392,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/list_token.o": {
+    "sha256": "f6dbe29532dabbaf2c254214bd6e6134389daa9b14c8aa0b714bd530bd54dac5",
+    "bytes": 28840,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/module_build_dir.o": {
+    "sha256": "553544ed95d1136be475bd5dca5f2a6cca35e1b2676ae27fba6f82dee1e1a94c",
+    "bytes": 167072,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/nl_string.o": {
+    "sha256": "e2d0d11146359f1488c0f2c6ff1c86547e590ff8e47a624f4b5bc0b8bd7e2db6",
+    "bytes": 41936,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/regex.o": {
+    "sha256": "a1499177d71a9c84dfef0cee4e096a718704ab012d5fd3111c34a9c3f851e200",
+    "bytes": 27968,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/runtime/token_helpers.o": {
+    "sha256": "c3d41d59a2cf314efe7c761fe62d76cbf6d83e5d89ba160bf149de6edb12cffd",
+    "bytes": 9088,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/stdlib_runtime.o": {
+    "sha256": "d3f4990bf9e2ce60cfca5f5fa125c5554cbee2f239fbab3027b6ac05510b4414",
+    "bytes": 374184,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/tco_pass.o": {
+    "sha256": "4a0071af21985f02e428d7174a15aa197e5a5111e1c20415291e94241987d23e",
+    "bytes": 121288,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/toon_output.o": {
+    "sha256": "278d4c22e34d223ef78260d47279eb5c8eb76cb59095f60198393297ab1df543",
+    "bytes": 30888,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/transpiler.o": {
+    "sha256": "e6a68e66d1f6a3bee045c98dd9695e68edebe00163bd2d859df39a41de4d84b5",
+    "bytes": 1312232,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/type_infer.o": {
+    "sha256": "08395fb0ff71618068e7c658f0e6f82484db140ccb52d809139e089bdffa81e5",
+    "bytes": 264992,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/typechecker.o": {
+    "sha256": "ffa5fdf3fb1c32b1ec4e453f15ff849034d4109aca5eece291c808e97615a257",
+    "bytes": 1322544,
+    "mode": 436
+  },
+  "/tmp/nanolang-native-sdk-1bf6a-linux-source/obj/utf8.o": {
+    "sha256": "ae6a3e7c7c7247aa4e61b4a6f11d5af9371fdb8d7604f9b0b18b816a83b06ebc",
+    "bytes": 18672,
+    "mode": 436
+  }
+}

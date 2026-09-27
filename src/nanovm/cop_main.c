@@ -34,6 +34,7 @@ static VmHeap g_heap;
 
 /* The module whose import table we serve */
 static NvmModule *g_module = NULL;
+static CopOpaqueWorker g_opaque;
 
 static bool handle_init(int in_fd, uint32_t payload_len) {
     /* Receive serialized .nvm module blob */
@@ -104,8 +105,8 @@ static bool handle_ffi_req(int in_fd, uint32_t payload_len) {
     uint8_t *reply = NULL;
     uint32_t reply_size = 0;
     char error[256] = {0};
-    bool ok = cop_execute_request(payload, payload_len, g_module, &g_heap,
-                                  &reply, &reply_size, error, sizeof error);
+    bool ok = cop_execute_request_owned(payload, payload_len, g_module, &g_heap,
+                                  &reply, &reply_size, error, sizeof error, &g_opaque);
     free(payload);
     bool sent = ok ? cop_send(STDOUT_FILENO, COP_MSG_FFI_RESULT, reply, reply_size)
                    : cop_send(STDOUT_FILENO, COP_MSG_FFI_ERROR, error, (uint32_t)strlen(error));
@@ -154,6 +155,7 @@ int main(void) {
     }
 
 cleanup:
+    cop_opaque_worker_clear(&g_opaque);
     vm_ffi_shutdown();
     if (g_module) nvm_module_free(g_module);
     vm_heap_destroy(&g_heap);

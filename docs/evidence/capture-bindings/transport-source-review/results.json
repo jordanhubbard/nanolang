@@ -1,0 +1,262 @@
+{
+  "revision": "ee681548fbe5ee26d091e42927bbdb27132611b2",
+  "scope": "syntax only; no product execution or qualification",
+  "checks": [
+    {
+      "file": "src/nanoisa/assembler.c",
+      "sha256": "f5ff768cd203ccb66f5bcc3eeaa6ab47c6eff49e3f86b9cccc04b243bd64af97",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanoisa/assembler.c"
+      ],
+      "exit": 0,
+      "seconds": 0.029924835893325508
+    },
+    {
+      "file": "src/nanoisa/capture_bindings.c",
+      "sha256": "768519dd8acc181100247da4f810dfe2b89e06e2a746465299021fe96eb841d4",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanoisa/capture_bindings.c"
+      ],
+      "exit": 0,
+      "seconds": 0.02047714893706143
+    },
+    {
+      "file": "src/nanoisa/disassembler.c",
+      "sha256": "8f93e513df134c03a89510fed304a966526242447846ba4a38bd1b63dd5f515b",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanoisa/disassembler.c"
+      ],
+      "exit": 0,
+      "seconds": 0.02298872801475227
+    },
+    {
+      "file": "src/nanoisa/nvm2c.c",
+      "sha256": "6b313651e5d316fd8f7da7cf89fa159fecc7ba918242dd93689c14b5cd2e3f7f",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanoisa/nvm2c.c"
+      ],
+      "exit": 0,
+      "seconds": 0.10703304491471499
+    },
+    {
+      "file": "src/nanoisa/nvm2llvm.c",
+      "sha256": "abd04ec0a56d62b505ecc74ea48070a7241ffca8a0e6774fe9a723ffbe98b04b",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanoisa/nvm2llvm.c"
+      ],
+      "exit": 1,
+      "seconds": 0.011709998012520373
+    },
+    {
+      "file": "src/nanoisa/nvm_format.c",
+      "sha256": "19f9fbb6f46a7491cb326d61bb2023736f9a483f7d73088cff023ea288fb2ee2",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanoisa/nvm_format.c"
+      ],
+      "exit": 0,
+      "seconds": 0.03539519407786429
+    },
+    {
+      "file": "src/nanoisa/nvm_v2_convert.c",
+      "sha256": "d833da19db137d538e4900be0cc11d65a5f3bb2ce46353cceaa0a66b1037a411",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanoisa/nvm_v2_convert.c"
+      ],
+      "exit": 0,
+      "seconds": 0.020791997900232673
+    },
+    {
+      "file": "src/nanoisa/nvm_v2_module.c",
+      "sha256": "a3cfa7e776d1df0b60a7be9175f338c68317be800706556a2191de32d2e25b29",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanoisa/nvm_v2_module.c"
+      ],
+      "exit": 0,
+      "seconds": 0.02112217794638127
+    },
+    {
+      "file": "src/nanoisa/portable_host_plan.c",
+      "sha256": "0b1b41b351a2bccc442fff0e06324e765524d6ac358f5b13e0393b86c596380b",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanoisa/portable_host_plan.c"
+      ],
+      "exit": 0,
+      "seconds": 0.020519323064945638
+    },
+    {
+      "file": "src/nanoisa/service_bindings_module.c",
+      "sha256": "cf30a9206361e4e02ea4d26e84a3332a8540f4cb69940c278b1cce0e2340e631",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanoisa/service_bindings_module.c"
+      ],
+      "exit": 0,
+      "seconds": 0.022092939936555922
+    },
+    {
+      "file": "src/nanoisa/service_file_nominal_plan.c",
+      "sha256": "5e2eaceaa16e845d5de7c479cff6babb8ecc02d91ed79f16e95effbc56a55c42",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanoisa/service_file_nominal_plan.c"
+      ],
+      "exit": 0,
+      "seconds": 0.020938239991664886
+    },
+    {
+      "file": "src/nanoisa/verifier.c",
+      "sha256": "d0e05b8190d6b12f81388e553b487b0deccaa77781057438414f2a02a6d4e287",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanoisa/verifier.c"
+      ],
+      "exit": 0,
+      "seconds": 0.04196980898268521
+    },
+    {
+      "file": "src/nanoisa/verifier_types.c",
+      "sha256": "665736c00055e86ad9f1a78377a990c1b49f4376cd3793fcbd6a1f6df637df60",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanoisa/verifier_types.c"
+      ],
+      "exit": 0,
+      "seconds": 0.022445056005381048
+    },
+    {
+      "file": "src/nanovm/vm.c",
+      "sha256": "8fda59bdcd6eaee075745b0dfe4aefd137563a2f027dddcc41b0c39fb0ddaf73",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanovm/vm.c"
+      ],
+      "exit": 0,
+      "seconds": 0.07694989396259189
+    },
+    {
+      "file": "src/nanovm/vm_ffi.c",
+      "sha256": "14140db8cb11abdf933c9f516895005e4824ea1111e76e8e49bac8008e8c7515",
+      "command": [
+        "/usr/bin/cc",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-std=c99",
+        "-D_GNU_SOURCE",
+        "-Isrc",
+        "-fsyntax-only",
+        "src/nanovm/vm_ffi.c"
+      ],
+      "exit": 0,
+      "seconds": 0.032237304956652224
+    }
+  ],
+  "limitation": "nvm2llvm syntax check did not compile: Make-generated managed_runtime_ir.h is absent. Full owning build and all behavioral qualification remain required."
+}

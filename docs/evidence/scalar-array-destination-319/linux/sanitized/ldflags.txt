@@ -1,0 +1,1 @@
+-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -lcrypto -lffi  -rdynamic

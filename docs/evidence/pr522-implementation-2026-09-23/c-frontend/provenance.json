@@ -1,0 +1,9 @@
+{
+  "head": "4d23f3cb224bd25e9a676e9e34d7300447753111",
+  "sha256": {
+    "src/nanovirt/borrow_codegen.inc": "62d427145126aa89625a4413d7b6d50571056de658346732b1518e8759395eaa",
+    "tests/test_generic_selected_ownership.py": "dce25fa55c45cb62f74d21def98ada4b8da3d06aafd5523450d37706ee3c7352",
+    "bin/nano_virt": "6ecf02413ea4e1f9a4fde5060ce908303cad78194eb8d1752a79bb0184c1de31"
+  },
+  "baseline_sha256": "b6fd506c636ec782cff6aaf2d35f66ac3ad08e3b890b6eb40278f9b9fbc0ae49"
+}

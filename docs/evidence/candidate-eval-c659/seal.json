@@ -1,0 +1,94 @@
+{
+  "linux.tar.gz": {
+    "sha256": "bc65b9ca41457481f868e9f74df87a6abe5be619c4c94f97ba02dd12581bbd3b",
+    "bytes": 440725,
+    "members": {
+      "identity.json": {
+        "bytes": 791,
+        "sha256": "fbfdc176d0c3e1de58f86037403eb02cc1a306c2ef17c1fa01991b9b4a221b8a"
+      },
+      "ordinary/ordinary-build.json": {
+        "bytes": 454,
+        "sha256": "c20fc6f641d8b4e312a106d88d4be3faa6cee4c35468b7a60704ff1ae2b2bbfd"
+      },
+      "ordinary/ordinary-build.log": {
+        "bytes": 24210,
+        "sha256": "ab5548f9f5a4a39d49b61313c4a2ef61c193530a85aa9a5b5e5f3fc69710d22a"
+      },
+      "ordinary/ordinary-eval.json": {
+        "bytes": 456,
+        "sha256": "9ad039fc105ef6f69a419032897a7d4a22e822bfa2ed2be2251ac2ed241fcfd8"
+      },
+      "ordinary/ordinary-eval.log": {
+        "bytes": 10479,
+        "sha256": "9a0f5482e8f6f7d9a4e903f3ce36aed298fbb49fe576e0adb545cf6374a7543e"
+      },
+      "ordinary/source-after-failure.json": {
+        "bytes": 646216,
+        "sha256": "15a4555a969c9f3e209332750d0159a7ed444449393b5447b1fcdf9710c5f8e7"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 646216,
+        "sha256": "15a4555a969c9f3e209332750d0159a7ed444449393b5447b1fcdf9710c5f8e7"
+      },
+      "phases.json": {
+        "bytes": 995,
+        "sha256": "db0549b19cdf504b990bbe9c301f56c29f54a56fee79c8c5a05f425f61086a8c"
+      },
+      "terminal.json": {
+        "bytes": 446,
+        "sha256": "07c80c07a9e58bdfcb052bfe36ce7c36f59d7f66cdd16fa3f62ac8e7776cc550"
+      },
+      "tools-after-failure.json": {
+        "bytes": 303,
+        "sha256": "b05f1155395301fa94db51add29e3f30e65468084e91090f84e8b6026838a7d2"
+      }
+    }
+  },
+  "puck.tar.gz": {
+    "sha256": "f5e61673ac2797552aca0f1f3cd7fd0d8b8811f86fe97fd22fa11a9c071103ad",
+    "bytes": 431651,
+    "members": {
+      "identity.json": {
+        "bytes": 998,
+        "sha256": "beac391a20fc963168a6f4eb425239f174580bf66f89ff99fc8ce0bd2b0fad60"
+      },
+      "ordinary/ordinary-build.json": {
+        "bytes": 670,
+        "sha256": "5f260f24d6dee03ddf3c3ed4577c2481f273c1186f7a1686c44bdf0adcc48efb"
+      },
+      "ordinary/ordinary-build.log": {
+        "bytes": 66821,
+        "sha256": "7e367be1f65b79063a8a940308e8141712ef15d8309c6fb27de693b08f832067"
+      },
+      "ordinary/ordinary-eval.json": {
+        "bytes": 672,
+        "sha256": "8742fa0dea6203aed747da2342ea5354537829b98eeb2e323a354d051ad4f955"
+      },
+      "ordinary/ordinary-eval.log": {
+        "bytes": 11644,
+        "sha256": "58b8d10b1112dea64f594575c092bf5d731dfa36befecd61927bcb6d26c8d6e8"
+      },
+      "ordinary/source-after-failure.json": {
+        "bytes": 646216,
+        "sha256": "15a4555a969c9f3e209332750d0159a7ed444449393b5447b1fcdf9710c5f8e7"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 646216,
+        "sha256": "15a4555a969c9f3e209332750d0159a7ed444449393b5447b1fcdf9710c5f8e7"
+      },
+      "phases.json": {
+        "bytes": 1427,
+        "sha256": "2358c0ba031dd49f5b1365a8ac86c1efdd582b1c7074be7f7ba5b8a616ee830a"
+      },
+      "terminal.json": {
+        "bytes": 662,
+        "sha256": "4b38804dc76dd14003d0ac5d4046628f9eb4a1646045c20bac8654061580c5f8"
+      },
+      "tools-after-failure.json": {
+        "bytes": 416,
+        "sha256": "0c4e465b95ff309692e0066e7bbb06db9122ca59405af95386b0f0522fe23cec"
+      }
+    }
+  }
+}

@@ -57,7 +57,7 @@ fn is_playable_default(path: string) -> bool {
     if (== (nl_fs_is_directory path) 1) {
         return (> (count_playable_audio path) 0)
     }
-    if (== (nl_fs_file_exists path) 1) {
+    if (exists path) {
         if (str_ends_with path ".mod") { return true }
         if (str_ends_with path ".mp3") { return true }
         if (str_ends_with path ".ogg") { return true }

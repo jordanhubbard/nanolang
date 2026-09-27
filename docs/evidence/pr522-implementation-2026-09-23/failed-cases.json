@@ -1,0 +1,142 @@
+{
+  "Build and Test (macos-14, arm64)": [
+    "FAIL: test_nested_loops_zero_one_and_multiple_iterations (tests.test_scalar_reconstruction.ScalarReconstruction.test_nested_loops_zero_one_and_multiple_iterations) (start=3)",
+    "FAIL: test_nested_loops_zero_one_and_multiple_iterations (tests.test_scalar_reconstruction.ScalarReconstruction.test_nested_loops_zero_one_and_multiple_iterations) (start=2)",
+    "FAIL: test_nested_loops_zero_one_and_multiple_iterations (tests.test_scalar_reconstruction.ScalarReconstruction.test_nested_loops_zero_one_and_multiple_iterations) (start=0)",
+    "FAIL: test_arithmetic_pretest_loop (tests.test_reconstructed_integer_addition.IntegerReconstruction.test_arithmetic_pretest_loop)",
+    "FAIL: test_multiplication_in_structured_loop (tests.test_reconstructed_integer_multiplication.IntegerMultiplication.test_multiplication_in_structured_loop)",
+    "FAIL: test_division_pretest_loop_and_remainder_snapshot (tests.test_reconstructed_integer_division.IntegerDivision.test_division_pretest_loop_and_remainder_snapshot)",
+    "FAIL: test_unsigned_division_loop_and_remainder_snapshot (tests.test_reconstructed_unsigned_division.UnsignedDivision.test_unsigned_division_loop_and_remainder_snapshot)",
+    "FAIL: test_call_snapshot_and_indexed_loop_condition (tests.test_reconstructed_indexed_stack.IndexedStack.test_call_snapshot_and_indexed_loop_condition)",
+    "FAIL: test_call_and_local_snapshots (tests.test_reconstructed_wide_multiply.WideMultiply.test_call_and_local_snapshots)",
+    "FAIL: test_pure_loop_condition_and_body_words (tests.test_reconstructed_wide_multiply.WideMultiply.test_pure_loop_condition_and_body_words)",
+    "FAIL: test_call_local_snapshots_and_loop_condition (tests.test_reconstructed_generic_integer.GenericInteger.test_call_local_snapshots_and_loop_condition)",
+    "FAIL: test_call_local_snapshot_and_pure_loop (tests.test_reconstructed_rot3.ScalarRot3.test_call_local_snapshot_and_pure_loop)",
+    "FAIL: test_distinct_values_and_mixed_tags (tests.test_reconstructed_rot3.ScalarRot3.test_distinct_values_and_mixed_tags) (values=(11, 22, 33))",
+    "FAIL: test_distinct_values_and_mixed_tags (tests.test_reconstructed_rot3.ScalarRot3.test_distinct_values_and_mixed_tags) (values=(True, 22, False))",
+    "FAIL: test_distinct_values_and_mixed_tags (tests.test_reconstructed_rot3.ScalarRot3.test_distinct_values_and_mixed_tags) (values=(11, False, True))",
+    "FAIL: test_mixed_constant_retains_calls_and_local_snapshot (tests.test_reconstructed_comparisons.ScalarComparisons.test_mixed_constant_retains_calls_and_local_snapshot)",
+    "FAIL: test_pure_loop_comparisons (tests.test_reconstructed_comparisons.ScalarComparisons.test_pure_loop_comparisons)",
+    "FAIL: test_loop_high_result_and_call_snapshot (tests.test_reconstructed_carry_borrow.CarryBorrow.test_loop_high_result_and_call_snapshot)",
+    "make: *** [test] Error 2"
+  ],
+  "Code Coverage": [
+    "FAIL: test_artifact_paths_preserve_library_identity_and_execution (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_artifact_paths_preserve_library_identity_and_execution)",
+    "FAIL: test_assembly_publication_status_and_error_run_in_both_backends (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_assembly_publication_status_and_error_run_in_both_backends)",
+    "FAIL: test_reachable_refusal_reports_precise_boundary (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_reachable_refusal_reports_precise_boundary)",
+    "FAIL: test_source_aliases_and_rejections_preserve_files (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_source_aliases_and_rejections_preserve_files)",
+    "make: *** [Makefile.gnu:2736: test] Error 2"
+  ],
+  "Build and Test (ubuntu-latest, x64)": [
+    "FAIL: test_reachable_refusal_reports_precise_boundary (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_reachable_refusal_reports_precise_boundary)",
+    "FAIL: test_source_aliases_and_rejections_preserve_files (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_source_aliases_and_rejections_preserve_files)",
+    "make: *** [Makefile.gnu:2736: test] Error 2"
+  ],
+  "Build and Test (ubuntu-24.04-arm, arm64)": [
+    "FAIL: test_reachable_refusal_reports_precise_boundary (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_reachable_refusal_reports_precise_boundary)",
+    "FAIL: test_source_aliases_and_rejections_preserve_files (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_source_aliases_and_rejections_preserve_files)",
+    "make: *** [Makefile.gnu:2736: test] Error 2"
+  ],
+  "Sanitizer (units-01)": [
+    "FAIL: test_integer (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_integer) (compiler='nanoc_stage1')",
+    "FAIL: test_integer (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_integer) (compiler='nanoc_stage2')",
+    "FAIL: test_nested (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_nested) (compiler='nanoc_stage1')",
+    "FAIL: test_nested (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_nested) (compiler='nanoc_stage2')",
+    "FAIL: test_owned_generic_transfer (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_owned_generic_transfer)",
+    "FAIL: test_string (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_string) (compiler='nanoc_stage1')",
+    "FAIL: test_string (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_string) (compiler='nanoc_stage2')",
+    "make: *** [Makefile.gnu:4614: test-generic-selected-patterns] Error 1"
+  ],
+  "Sanitizer (units-08)": [
+    "make: *** [Makefile.gnu:3723: .bootstrap1.built] Error 1"
+  ],
+  "Sanitizer (units-07)": [
+    "FAIL: test_generic_record_array (tests.test_union_literal_context.UnionLiteralContext.test_generic_record_array)",
+    "FAIL: test_nested_generic_record_array (tests.test_union_literal_context.UnionLiteralContext.test_nested_generic_record_array)",
+    "FAIL: test_nongeneric_record_array (tests.test_union_literal_context.UnionLiteralContext.test_nongeneric_record_array)",
+    "make: *** [Makefile.gnu:4577: test-union-literal-context] Error 1"
+  ],
+  "Sanitizer (units-00)": [
+    "FAIL: test_nested_union_copy_parameter_and_payloads (tests.test_native_nested_generics.NativeNestedGenerics.test_nested_union_copy_parameter_and_payloads) (compiler='nanoc_stage1')",
+    "FAIL: test_nested_union_copy_parameter_and_payloads (tests.test_native_nested_generics.NativeNestedGenerics.test_nested_union_copy_parameter_and_payloads) (compiler='nanoc_stage2')",
+    "make: *** [Makefile.gnu:4609: test-native-nested-generics] Error 1"
+  ],
+  "Sanitizer (units-02)": [
+    "FAIL: test_nested_array_replacement_context (__main__.ArrayFieldSetter.test_nested_array_replacement_context) (compiler='nanoc_stage1')",
+    "FAIL: test_nested_array_replacement_context (__main__.ArrayFieldSetter.test_nested_array_replacement_context) (compiler='nanoc_stage2')",
+    "make: *** [Makefile.gnu:4547: test-selfhost-array-field-setter] Error 1"
+  ],
+  "Sanitizer (units-10)": [
+    "FAIL: test_direct_field_match_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_executes) (compiler='nanoc_stage1')",
+    "FAIL: test_direct_field_match_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_executes) (compiler='nanoc_stage2')",
+    "FAIL: test_direct_field_match_expression_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_expression_executes) (compiler='nanoc_stage1')",
+    "FAIL: test_direct_field_match_expression_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_direct_field_match_expression_executes) (compiler='nanoc_stage2')",
+    "FAIL: test_distinct_instances_execute (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_distinct_instances_execute) (compiler='nanoc_stage1')",
+    "FAIL: test_distinct_instances_execute (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_distinct_instances_execute) (compiler='nanoc_stage2')",
+    "FAIL: test_empty_inline_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_empty_inline_field_executes) (compiler='nanoc_stage1')",
+    "FAIL: test_empty_inline_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_empty_inline_field_executes) (compiler='nanoc_stage2')",
+    "FAIL: test_forward_union_declaration_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_forward_union_declaration_executes) (compiler='nanoc_stage1')",
+    "FAIL: test_forward_union_declaration_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_forward_union_declaration_executes) (compiler='nanoc_stage2')",
+    "FAIL: test_imported_field_layout_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_imported_field_layout_executes) (compiler='nanoc_stage1')",
+    "FAIL: test_imported_field_layout_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_imported_field_layout_executes) (compiler='nanoc_stage2')",
+    "FAIL: test_nested_generic_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_generic_field_executes) (compiler='nanoc_stage1')",
+    "FAIL: test_nested_generic_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_generic_field_executes) (compiler='nanoc_stage2')",
+    "FAIL: test_nested_record_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_record_executes) (compiler='nanoc_stage1')",
+    "FAIL: test_nested_record_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nested_record_executes) (compiler='nanoc_stage2')",
+    "FAIL: test_nonempty_field_payload_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nonempty_field_payload_executes) (compiler='nanoc_stage1')",
+    "FAIL: test_nonempty_field_payload_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_nonempty_field_payload_executes) (compiler='nanoc_stage2')",
+    "FAIL: test_two_argument_result_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_two_argument_result_field_executes) (compiler='nanoc_stage1')",
+    "FAIL: test_two_argument_result_field_executes (tests.test_native_generic_record_fields.NativeGenericRecordLayout.test_two_argument_result_field_executes) (compiler='nanoc_stage2')",
+    "make: *** [Makefile.gnu:4660: test-native-generic-record-fields] Error 1"
+  ],
+  "Sanitizer (units-05)": [
+    "FAIL: test_generic_union_result (tests.test_match_aggregate_results.MatchAggregateResults.test_generic_union_result)",
+    "FAIL: test_integer_selector_union_result (tests.test_match_aggregate_results.MatchAggregateResults.test_integer_selector_union_result)",
+    "FAIL: test_scalar_match_result (tests.test_match_aggregate_results.MatchAggregateResults.test_scalar_match_result)",
+    "make: *** [Makefile.gnu:4634: test-match-aggregate-results] Error 1"
+  ],
+  "Sanitizer (units-06)": [
+    "FAIL: test_declarations_transport_and_unchanged_profiles (tests.test_ordinary_record_authority.OrdinaryAuthority.test_declarations_transport_and_unchanged_profiles)",
+    "make: *** [Makefile.gnu:4804: test-ordinary-record-authority] Error 1"
+  ],
+  "Sanitizer (units-03)": [
+    "FAIL: test_branch_join_consumes_outer_owner (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_branch_join_consumes_outer_owner)",
+    "FAIL: test_conditional_constructor_return (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_conditional_constructor_return)",
+    "FAIL: test_declared_constructor_argument (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_declared_constructor_argument)",
+    "FAIL: test_declared_constructor_return (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_declared_constructor_return)",
+    "FAIL: test_declared_return_and_alias_transfer (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_declared_return_and_alias_transfer)",
+    "FAIL: test_empty_arm_has_no_obligation (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_empty_arm_has_no_obligation)",
+    "FAIL: test_match_constructor_return (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_match_constructor_return)",
+    "FAIL: test_nested_generic_transfer (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_nested_generic_transfer)",
+    "FAIL: test_ordinary_selected_arm_can_be_ignored (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_ordinary_selected_arm_can_be_ignored)",
+    "FAIL: test_resource_and_ordinary_selected_arms (tests.test_generic_selected_ownership.GenericSelectedOwnership.test_resource_and_ordinary_selected_arms)",
+    "make: *** [Makefile.gnu:4624: test-generic-selected-ownership] Error 1"
+  ],
+  "Sanitizer (units-09)": [
+    "FAIL: test_artifact_paths_preserve_library_identity_and_execution (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_artifact_paths_preserve_library_identity_and_execution)",
+    "FAIL: test_assembly_publication_status_and_error_run_in_both_backends (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_assembly_publication_status_and_error_run_in_both_backends)",
+    "FAIL: test_reachable_refusal_reports_precise_boundary (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_reachable_refusal_reports_precise_boundary)",
+    "FAIL: test_source_aliases_and_rejections_preserve_files (tests.test_canonical_nvm_output.CanonicalNvmOutput.test_source_aliases_and_rejections_preserve_files)",
+    "make: *** [Makefile.gnu:4502: test-canonical-nvm-output] Error 1"
+  ],
+  "Sanitizer (units-11)": [
+    "FAIL: test_nested_ordinary_instantiation (tests.test_instantiated_ownership.InstantiatedOwnership.test_nested_ordinary_instantiation) (compiler='nanoc_stage1')",
+    "FAIL: test_nested_ordinary_instantiation (tests.test_instantiated_ownership.InstantiatedOwnership.test_nested_ordinary_instantiation) (compiler='nanoc_stage2')",
+    "FAIL: test_nested_unused_resource_argument_has_no_payload_owner (tests.test_instantiated_ownership.InstantiatedOwnership.test_nested_unused_resource_argument_has_no_payload_owner) (compiler='nanoc_stage1')",
+    "FAIL: test_nested_unused_resource_argument_has_no_payload_owner (tests.test_instantiated_ownership.InstantiatedOwnership.test_nested_unused_resource_argument_has_no_payload_owner) (compiler='nanoc_stage2')",
+    "FAIL: test_result_arguments_survive_alias_and_return (tests.test_instantiated_ownership.InstantiatedOwnership.test_result_arguments_survive_alias_and_return) (compiler='nanoc_stage1')",
+    "FAIL: test_result_arguments_survive_alias_and_return (tests.test_instantiated_ownership.InstantiatedOwnership.test_result_arguments_survive_alias_and_return) (compiler='nanoc_stage2')",
+    "FAIL: test_unused_resource_argument_has_no_payload_owner (tests.test_instantiated_ownership.InstantiatedOwnership.test_unused_resource_argument_has_no_payload_owner) (compiler='nanoc_stage1')",
+    "FAIL: test_unused_resource_argument_has_no_payload_owner (tests.test_instantiated_ownership.InstantiatedOwnership.test_unused_resource_argument_has_no_payload_owner) (compiler='nanoc_stage2')",
+    "make: *** [Makefile.gnu:4596: test-instantiated-ownership] Error 1"
+  ],
+  "Sanitizer (units-13)": [
+    "FAIL: test_shared_frontend_contract (__main__.PurityContract.test_shared_frontend_contract) (case='match_expression', compiler='nanoc_stage2')",
+    "FAIL: test_shared_frontend_contract (__main__.PurityContract.test_shared_frontend_contract) (case='function_reference', compiler='nanoc_stage2')",
+    "make: *** [Makefile.gnu:4528: test-purity-contract] Error 1"
+  ],
+  "Sanitizer (units-12)": [
+    "ERROR: test_shared_parser_values (__main__.EnumMetadata.test_shared_parser_values) (compiler='nanoc_stage2')",
+    "make: *** [Makefile.gnu:4524: test-selfhost-enum-metadata] Error 1"
+  ]
+}

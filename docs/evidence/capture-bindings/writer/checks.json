@@ -1,0 +1,49 @@
+{
+  "source": "46718646a7f9c138c2c9d84be10cddb23b1f95d3",
+  "review": "Independent VM agent static review of46718646a: no scoped blocker.",
+  "results": [
+    {
+      "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+      "configuration": "clang",
+      "stdout": "I passed 803 capture payload checks; reader and writer allocation failures recover without live storage.",
+      "seconds": 0.0014424290275201201
+    },
+    {
+      "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+      "configuration": "clang-sanitized",
+      "stdout": "I passed 803 capture payload checks; reader and writer allocation failures recover without live storage.",
+      "seconds": 0.01588725100737065
+    },
+    {
+      "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+      "configuration": "gcc",
+      "stdout": "I passed 803 capture payload checks; reader and writer allocation failures recover without live storage.",
+      "seconds": 0.0014777099713683128
+    },
+    {
+      "platform": "Linux-6.17.0-1032-nvidia-aarch64-with-glibc2.39",
+      "configuration": "gcc-sanitized",
+      "stdout": "I passed 803 capture payload checks; reader and writer allocation failures recover without live storage.",
+      "seconds": 0.007606811006553471
+    },
+    {
+      "platform": "macOS-26.6.2-arm64-arm-64bit",
+      "configuration": "apple",
+      "stdout": "I passed 803 capture payload checks; reader and writer allocation failures recover without live storage.",
+      "seconds": 0.409125208
+    },
+    {
+      "platform": "macOS-26.6.2-arm64-arm-64bit",
+      "configuration": "brew",
+      "stdout": "I passed 803 capture payload checks; reader and writer allocation failures recover without live storage.",
+      "seconds": 0.22896187499999998
+    },
+    {
+      "platform": "macOS-26.6.2-arm64-arm-64bit",
+      "configuration": "brew-sanitized",
+      "stdout": "I passed 803 capture payload checks; reader and writer allocation failures recover without live storage.",
+      "seconds": 0.39085187499999985
+    }
+  ],
+  "scope": "Canonical payload reader/writer only. Container admission, verifier, closure runtime and all backend execution remain open."
+}

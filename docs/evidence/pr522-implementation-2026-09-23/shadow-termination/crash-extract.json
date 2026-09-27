@@ -1,0 +1,468 @@
+{
+  "exception": {
+    "codes": "0x0000000000000002, 0x000000016d37ab20",
+    "message": "Could not determine thread index for stack guard region",
+    "rawCodes": [
+      2,
+      6127332128
+    ],
+    "type": "EXC_BAD_ACCESS",
+    "signal": "SIGILL",
+    "subtype": "KERN_PROTECTION_FAILURE at 0x000000016d37ab20"
+  },
+  "termination": {
+    "flags": 0,
+    "code": 11,
+    "namespace": "SIGNAL",
+    "indicator": "Segmentation fault: 11"
+  },
+  "vmRegionInfo": "0x16d37ab20 is in 0x169b78000-0x16d37c000;  bytes after start: 58731296  bytes before end: 5343\n      REGION TYPE                    START - END         [ VSIZE] PRT/MAX SHRMOD  REGION DETAIL\n      MALLOC metadata             12d600000-12d604000    [   16K] rw-/rwx SM=COW  \n      GAP OF 0x3c574000 BYTES\n--->  Stack Guard                 169b78000-16d37c000    [ 56.0M] ---/rwx SM=PRV  \n      Stack                       16d37c000-16db78000    [ 8176K] rw-/rwx SM=SHM  ",
+  "asi": {
+    "libsystem_c.dylib": [
+      "crashed on child side of fork pre-exec"
+    ]
+  },
+  "thread": {
+    "frames": [
+      {
+        "imageOffset": 1764576,
+        "sourceLine": 3041,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call_impl",
+        "imageIndex": 0,
+        "symbolLocation": 928
+      },
+      {
+        "imageOffset": 1712668,
+        "sourceLine": 3034,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call",
+        "imageIndex": 0,
+        "symbolLocation": 1808
+      },
+      {
+        "imageOffset": 1562316,
+        "sourceLine": 4981,
+        "sourceFile": "eval.c",
+        "symbol": "eval_expression",
+        "imageIndex": 0,
+        "symbolLocation": 11356
+      },
+      {
+        "imageOffset": 1452256,
+        "sourceLine": 5721,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 7744
+      },
+      {
+        "imageOffset": 1643580,
+        "sourceLine": 242,
+        "sourceFile": "eval.c",
+        "symbol": "eval_scoped_block",
+        "imageIndex": 0,
+        "symbolLocation": 920
+      },
+      {
+        "imageOffset": 1482632,
+        "sourceLine": 5946,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 38120
+      },
+      {
+        "imageOffset": 1575696,
+        "sourceLine": 5091,
+        "sourceFile": "eval.c",
+        "symbol": "eval_expression",
+        "imageIndex": 0,
+        "symbolLocation": 24736
+      },
+      {
+        "imageOffset": 1517332,
+        "sourceLine": 6194,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 72820
+      },
+      {
+        "imageOffset": 1961284,
+        "sourceLine": 4780,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call_impl",
+        "imageIndex": 0,
+        "symbolLocation": 197636
+      },
+      {
+        "imageOffset": 1712668,
+        "sourceLine": 3034,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call",
+        "imageIndex": 0,
+        "symbolLocation": 1808
+      },
+      {
+        "imageOffset": 1562316,
+        "sourceLine": 4981,
+        "sourceFile": "eval.c",
+        "symbol": "eval_expression",
+        "imageIndex": 0,
+        "symbolLocation": 11356
+      },
+      {
+        "imageOffset": 1574876,
+        "sourceLine": 5086,
+        "sourceFile": "eval.c",
+        "symbol": "eval_expression",
+        "imageIndex": 0,
+        "symbolLocation": 23916
+      },
+      {
+        "imageOffset": 1517332,
+        "sourceLine": 6194,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 72820
+      },
+      {
+        "imageOffset": 1643580,
+        "sourceLine": 242,
+        "sourceFile": "eval.c",
+        "symbol": "eval_scoped_block",
+        "imageIndex": 0,
+        "symbolLocation": 920
+      },
+      {
+        "imageOffset": 1482632,
+        "sourceLine": 5946,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 38120
+      },
+      {
+        "imageOffset": 1575696,
+        "sourceLine": 5091,
+        "sourceFile": "eval.c",
+        "symbol": "eval_expression",
+        "imageIndex": 0,
+        "symbolLocation": 24736
+      },
+      {
+        "imageOffset": 1517332,
+        "sourceLine": 6194,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 72820
+      },
+      {
+        "imageOffset": 1961284,
+        "sourceLine": 4780,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call_impl",
+        "imageIndex": 0,
+        "symbolLocation": 197636
+      },
+      {
+        "imageOffset": 1712668,
+        "sourceLine": 3034,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call",
+        "imageIndex": 0,
+        "symbolLocation": 1808
+      },
+      {
+        "imageOffset": 1562316,
+        "sourceLine": 4981,
+        "sourceFile": "eval.c",
+        "symbol": "eval_expression",
+        "imageIndex": 0,
+        "symbolLocation": 11356
+      },
+      {
+        "imageOffset": 1961172,
+        "sourceLine": 4776,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call_impl",
+        "imageIndex": 0,
+        "symbolLocation": 197524
+      },
+      {
+        "imageOffset": 1712668,
+        "sourceLine": 3034,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call",
+        "imageIndex": 0,
+        "symbolLocation": 1808
+      },
+      {
+        "imageOffset": 1562316,
+        "sourceLine": 4981,
+        "sourceFile": "eval.c",
+        "symbol": "eval_expression",
+        "imageIndex": 0,
+        "symbolLocation": 11356
+      },
+      {
+        "imageOffset": 1452256,
+        "sourceLine": 5721,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 7744
+      },
+      {
+        "imageOffset": 1643580,
+        "sourceLine": 242,
+        "sourceFile": "eval.c",
+        "symbol": "eval_scoped_block",
+        "imageIndex": 0,
+        "symbolLocation": 920
+      },
+      {
+        "imageOffset": 1482632,
+        "sourceLine": 5946,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 38120
+      },
+      {
+        "imageOffset": 1575696,
+        "sourceLine": 5091,
+        "sourceFile": "eval.c",
+        "symbol": "eval_expression",
+        "imageIndex": 0,
+        "symbolLocation": 24736
+      },
+      {
+        "imageOffset": 1517332,
+        "sourceLine": 6194,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 72820
+      },
+      {
+        "imageOffset": 1643580,
+        "sourceLine": 242,
+        "sourceFile": "eval.c",
+        "symbol": "eval_scoped_block",
+        "imageIndex": 0,
+        "symbolLocation": 920
+      },
+      {
+        "imageOffset": 1482632,
+        "sourceLine": 5946,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 38120
+      },
+      {
+        "imageOffset": 1575696,
+        "sourceLine": 5091,
+        "sourceFile": "eval.c",
+        "symbol": "eval_expression",
+        "imageIndex": 0,
+        "symbolLocation": 24736
+      },
+      {
+        "imageOffset": 1517332,
+        "sourceLine": 6194,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 72820
+      },
+      {
+        "imageOffset": 1961284,
+        "sourceLine": 4780,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call_impl",
+        "imageIndex": 0,
+        "symbolLocation": 197636
+      },
+      {
+        "imageOffset": 1712668,
+        "sourceLine": 3034,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call",
+        "imageIndex": 0,
+        "symbolLocation": 1808
+      },
+      {
+        "imageOffset": 1562316,
+        "sourceLine": 4981,
+        "sourceFile": "eval.c",
+        "symbol": "eval_expression",
+        "imageIndex": 0,
+        "symbolLocation": 11356
+      },
+      {
+        "imageOffset": 1455044,
+        "sourceLine": 5750,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 10532
+      },
+      {
+        "imageOffset": 1643580,
+        "sourceLine": 242,
+        "sourceFile": "eval.c",
+        "symbol": "eval_scoped_block",
+        "imageIndex": 0,
+        "symbolLocation": 920
+      },
+      {
+        "imageOffset": 1482632,
+        "sourceLine": 5946,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 38120
+      },
+      {
+        "imageOffset": 1459808,
+        "sourceLine": 5789,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 15296
+      },
+      {
+        "imageOffset": 1961284,
+        "sourceLine": 4780,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call_impl",
+        "imageIndex": 0,
+        "symbolLocation": 197636
+      },
+      {
+        "imageOffset": 1712668,
+        "sourceLine": 3034,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call",
+        "imageIndex": 0,
+        "symbolLocation": 1808
+      },
+      {
+        "imageOffset": 1562316,
+        "sourceLine": 4981,
+        "sourceFile": "eval.c",
+        "symbol": "eval_expression",
+        "imageIndex": 0,
+        "symbolLocation": 11356
+      },
+      {
+        "imageOffset": 1961172,
+        "sourceLine": 4776,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call_impl",
+        "imageIndex": 0,
+        "symbolLocation": 197524
+      },
+      {
+        "imageOffset": 1712668,
+        "sourceLine": 3034,
+        "sourceFile": "eval.c",
+        "symbol": "eval_call",
+        "imageIndex": 0,
+        "symbolLocation": 1808
+      },
+      {
+        "imageOffset": 1562316,
+        "sourceLine": 4981,
+        "sourceFile": "eval.c",
+        "symbol": "eval_expression",
+        "imageIndex": 0,
+        "symbolLocation": 11356
+      },
+      {
+        "imageOffset": 1452256,
+        "sourceLine": 5721,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 7744
+      },
+      {
+        "imageOffset": 1643580,
+        "sourceLine": 242,
+        "sourceFile": "eval.c",
+        "symbol": "eval_scoped_block",
+        "imageIndex": 0,
+        "symbolLocation": 920
+      },
+      {
+        "imageOffset": 1482632,
+        "sourceLine": 5946,
+        "sourceFile": "eval.c",
+        "symbol": "eval_statement",
+        "imageIndex": 0,
+        "symbolLocation": 38120
+      },
+      {
+        "imageOffset": 1440528,
+        "sourceLine": 6300,
+        "sourceFile": "eval.c",
+        "symbol": "run_shadow_tests_scope",
+        "imageIndex": 0,
+        "symbolLocation": 8836
+      },
+      {
+        "imageOffset": 2649936,
+        "sourceLine": 502,
+        "sourceFile": "main.c",
+        "symbol": "check_interpreted_shadows",
+        "imageIndex": 0,
+        "symbolLocation": 3244
+      },
+      {
+        "imageOffset": 2606612,
+        "sourceLine": 1166,
+        "sourceFile": "main.c",
+        "symbol": "compile_file",
+        "imageIndex": 0,
+        "symbolLocation": 39740
+      },
+      {
+        "imageOffset": 2558480,
+        "sourceLine": 2198,
+        "sourceFile": "main.c",
+        "symbol": "main",
+        "imageIndex": 0,
+        "symbolLocation": 37988
+      },
+      {
+        "imageOffset": 132324,
+        "symbol": "start",
+        "symbolLocation": 6992,
+        "imageIndex": 7
+      }
+    ],
+    "recursionInfoArray": [
+      {
+        "hottestElided": 26,
+        "coldestElided": 406,
+        "depth": 87,
+        "keyFrame": {
+          "imageOffset": 1482632,
+          "sourceLine": 5946,
+          "sourceFile": "eval.c",
+          "symbol": "eval_statement",
+          "imageIndex": 0,
+          "symbolLocation": 38120
+        }
+      }
+    ],
+    "originalLength": 435
+  },
+  "original_sha256": "2d0bcb50c90bda029823d3895cd0d91763f5da65180d4d13777edad363439255"
+}

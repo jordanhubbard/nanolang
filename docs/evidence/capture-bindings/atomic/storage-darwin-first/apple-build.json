@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "tests/nanovm/test_binding_state.c",
+    "src/nanovm/heap.c",
+    "src/nanovm/heap_cycles.c",
+    "src/nanovm/value.c",
+    "src/nanoisa/isa.c",
+    "-lm",
+    "-o",
+    "/Users/jkh/nanolang-qualification/binding-state-1482e18e3/reports-darwin/apple"
+  ],
+  "returncode": 0,
+  "timed_out": false,
+  "group_gone": true,
+  "elapsed_seconds": 0.259951542
+}

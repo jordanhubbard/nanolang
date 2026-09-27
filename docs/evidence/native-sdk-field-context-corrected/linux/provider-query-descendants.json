@@ -1,0 +1,12 @@
+{
+  "owned": {
+    "593714": {
+      "parent": 593562,
+      "group": 593714,
+      "started": "Mon Sep 21 23:15:47 2026",
+      "command": "make -f Makefile.gnu -f /tmp/nanolang-native-sdk-dc9-linux-direct-r2/query.mk -s split_inventory"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

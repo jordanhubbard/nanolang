@@ -1,0 +1,16 @@
+{
+  "base": "f0e80cd019ae9d34f943e6368d7d6a2b91583cbe",
+  "sha256": {
+    "src/nanoisa/nvm2c.c": "792cdc4cae3871d6d8ebbaaf372f4d6d9aff59ea6583de0a5fa53053996a7602",
+    "src/transpiler.c": "10aca5db66e7546a4c2e7a35e2d6c90b13f486cd014309f87741dd3989290b42",
+    "src/transpiler_iterative_v3_twopass.c": "7cbbfad9d7737f656d9b1a7819f1be5f3f2c5a412d524d864d04c39a54e4ecbd",
+    "src/typechecker.c": "a7cf3f68ad7e4547b4eea9fef05ba866b5a635f9807ca144c89979dcbc123496",
+    "tests/nanoisa/test_nvm2c.c": "3fa0d895ad37084089eb188477a122ce582430b75f84194062b86062d71befcf",
+    "tests/test_nanoisa_flat_records.py": "972835b623d7009f6bed6710ac1739b73a6752e6131979f918c8d756e28ccac6",
+    "tests/test_canonical_aggregate_globals.py": "1e1177f57057e0b1ffb868a8e42bd86c3344b53ea122c1759ba64f114ddf498a",
+    "bin/nvm2c": "30360f17b19dec71ab738754c9d886b6ed36260b31f1515f64e487cc41db0df9",
+    "bin/nanoc_c": "56b8f5985962dfd83a5cc48661074d7abaeb90bb384929c818b6631357a9b58c",
+    "bin/nanoc_stage1": "62bb9239501d49177d2201139fd3a6a69bebf86460cea67fae32a166bc94b52b",
+    "bin/nanoc_stage2": "4bcffda81a8c0302d87687a11efb34f8cabe65c4639ad49c754a0e3ddc0d00b6"
+  }
+}

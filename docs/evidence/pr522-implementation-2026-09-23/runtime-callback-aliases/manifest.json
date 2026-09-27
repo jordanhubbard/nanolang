@@ -1,0 +1,22 @@
+{
+  "base": "79a174f7390ada67798104fcc3561062d37d17c5",
+  "inputs": {
+    "src_nano/compiler/nanoisa_codegen.nano": "64286df19287570c41fb6f1dd3a60d76ae7ddb8b2122825a9f692b92c9340a73",
+    "tests/test_declared_array_push_identity.py": "fc58fd9ca4c733d4a2a59124143db22f600bc8e755c1645488bfaef2c6fe40c3",
+    "bin/nanoc_c": "5337ee79f521b2263490dfbde1b495b4ceb79b89f2e450e54dfc9f3ec61c1b76",
+    "bin/nanoc_stage1": "c45271232c6dfa74283bf3051784c8ac371d5923377976f4a66d3d1dc87b9986",
+    "bin/nanoc_stage2": "387d8fa1da5ac5253dc3e45852f0fdf1a3d3201f0e9431b33ae6b2534ad6361c",
+    "bin/nvm2c": "9c00f4ee8e934e5d59a19494940513a7ec7d0f8d30d9c03624a52b68385f8d82"
+  },
+  "evidence": {
+    "bootstrap-after.log": "944e59b051fc081f2a56f293dcd3c0bf04eed27655e03a378fd1774adda6e314",
+    "transition-before-stage2.log": "38e1164d0bf169cb7743f0f9fb78d0919799be01827c10358e1a4d418aa8f575",
+    "bootstrap-shadow-fixture-error.log": "ab0446ff985163dfbc463420a0a2a773cf87f4c67315017ccec007f7cb3f8fbd",
+    "same-name-before.log": "6c06c9f13e581e24fbd91851c6008068fbcc7985abf89a4ba6521e58d4452da6",
+    "README.md": "f42a97eb532f5b9524448ac3ec34fee1acc5bec0bfcf028bc795251a50863bdb",
+    "instrumented-after.log": "a1f8b597f1a6ebbab75089d98080fc09260447a501c143934b1ae7b1c860e56a",
+    "ordinary-after.log": "2ae7f55c74b7cd6830670ba6233df3da4d3a738ebc6c6746e1389dfe8158a9c6",
+    "shadow-debug.log": "9370236ac7c17c76995b59b9e92aa61b6533d1b497d2a3f3227716846a01dd53",
+    "same-name-reproducer.nano": "aaaed6250ee3db191169996d1a6af9638f055208a94ce18af8b7cf5ea98f3cad"
+  }
+}

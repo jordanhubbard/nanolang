@@ -1,0 +1,77 @@
+{
+  "src/nanoisa/capture_bindings.c": {
+    "sha256": "6ff2ed8c90dca2d80555c4835c9879cdd27aef4b2c0e5fb82547b3799fb4b877",
+    "bytes": 13292,
+    "mode": 436
+  },
+  "src/nanoisa/capture_bindings.h": {
+    "sha256": "68fc9dd4b0f6f1755c46f0baa53f6668f0fd5012d232cad10dfc08c60c770dca",
+    "bytes": 2748,
+    "mode": 436
+  },
+  "src/nanoisa/nvm_format.h": {
+    "sha256": "a49a6eb8b3a6ccc7603bccb51743c79d7e73efff27c6f2769e75bc7c01cd4a34",
+    "bytes": 15573,
+    "mode": 420
+  },
+  "src/nanoisa/nvm_format_v2.h": {
+    "sha256": "8e03de1a95814af5702b22fb4077f8e17c8e00b5ee22399fa877b7fba7110d59",
+    "bytes": 5599,
+    "mode": 420
+  },
+  "src/nanoisa/nvm_v2_sections.h": {
+    "sha256": "f94de1674003f719c618ab83a593d80e5a8da6d7caa940c0732be419d782c3b9",
+    "bytes": 18955,
+    "mode": 420
+  },
+  "src/nanoisa/nvm_v2_cursor.c": {
+    "sha256": "d84b11478f6034fd8bca29d63746abae67c9700a1e571d220de285f2c49748fb",
+    "bytes": 2099,
+    "mode": 420
+  },
+  "tests/nanoisa/test_capture_bindings.c": {
+    "sha256": "5d2000db35de8c4a0571eb9ca769764aec6b00dbde4d34f4d96e5b9be0f72c3d",
+    "bytes": 14499,
+    "mode": 436
+  },
+  "src/nanoisa/isa.c": {
+    "sha256": "4d77cf7e8f951f388218432e596f9dd7279727438f612be53b9f7fadd5b6eb59",
+    "bytes": 9852,
+    "mode": 420
+  },
+  "src/nanoisa/isa.h": {
+    "sha256": "e540389ef8fb793498736eb717796122ceb396e5ff6894adabd0532173655fa5",
+    "bytes": 19096,
+    "mode": 420
+  },
+  "src/nanoisa/generated_schema.h": {
+    "sha256": "604a8c09a0bd06d9db5aec7ed9b0dff9b127ad29c14adc48587cb500a8a39c8e",
+    "bytes": 27126,
+    "mode": 420
+  },
+  "src/nanoisa/verifier.c": {
+    "sha256": "8306b5f226a762adce621b90e68b89e60aeda1c0a243cfe60c27824d9bc4613a",
+    "bytes": 67118,
+    "mode": 420
+  },
+  "src/nanovm/vm.c": {
+    "sha256": "b9980c1c433f9931b90000305b56e77c1cd0988543c1f9ee82a60aef10109491",
+    "bytes": 242290,
+    "mode": 420
+  },
+  "scripts/gen_nanoisa_schema.py": {
+    "sha256": "be3d0af6c40a784fdc1a5aac279a969020c9290cb25f932ab84566d110084f58",
+    "bytes": 9024,
+    "mode": 420
+  },
+  "spec/nanoisa.yaml": {
+    "sha256": "3c938ccb6e1598080031a7f37e106cf3da831a62680bc113cfbd7957a021d56f",
+    "bytes": 34008,
+    "mode": 420
+  },
+  "tests/test_nanoisa_schema.py": {
+    "sha256": "05be16f62438e0e97bf2cc6bcdb0458743e6f20981327ec3d5b754012ccd77a9",
+    "bytes": 20490,
+    "mode": 420
+  }
+}

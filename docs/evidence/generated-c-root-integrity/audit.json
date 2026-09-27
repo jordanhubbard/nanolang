@@ -1,0 +1,8 @@
+{
+  "scope": "Independent retained report and CAS byte integrity only; semantic acceptance and current-main integration remain separate.",
+  "reports": 946,
+  "objects": 28899,
+  "object_bytes": 6765906543,
+  "errors": [],
+  "seconds": 20.58957798802294
+}

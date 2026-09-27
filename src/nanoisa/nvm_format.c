@@ -141,6 +141,7 @@ void nvm_module_free(NvmModule *mod) {
     free(mod->passive_data);
     free(mod->layout_data);
     free(mod->ownership_data);
+    free(mod->capture_data);
     free(mod->service_data);
     free(mod->metadata);
     free(mod->module_refs);    free(mod->call_descriptors);
@@ -305,6 +306,19 @@ bool nvm_set_function_param_types(NvmModule *mod, uint32_t index,
     if (count) memcpy(copy, tags, count);
     free(mod->function_param_types[index]);
     mod->function_param_types[index] = copy;
+    return true;
+}
+
+static bool declared_scalar(uint8_t tag) {
+    return tag == TAG_INT || tag == TAG_ENUM || tag == TAG_FLOAT ||
+           tag == TAG_BOOL || tag == TAG_U8 || tag == TAG_STRING;
+}
+
+bool nvm_declared_scalar_shape_valid(const uint8_t *tags, uint16_t count, uint8_t result) {
+    if (count > NANO_MAX_FFI_ARGS || (count && !tags) ||
+        (result != TAG_VOID && !declared_scalar(result))) return false;
+    for (uint16_t i = 0; i < count; i++)
+        if (!declared_scalar(tags[i])) return false;
     return true;
 }
 
@@ -649,7 +663,7 @@ bool nvm_file_instructions_present(const NvmModule *m) {
 }
 
 uint8_t *nvm_serialize(const NvmModule *mod, uint32_t *out_size) {
-    if (nvm_file_instructions_present(mod) || mod->service_data || mod->service_size || mod->metadata_count || mod->callback_contract_count || mod->passive_size || mod->layout_size || mod->ownership_size) {
+    if (nvm_capture_bindings_present(mod) || nvm_file_instructions_present(mod) || mod->service_data || mod->service_size || mod->metadata_count || mod->callback_contract_count || mod->passive_size || mod->layout_size || mod->ownership_size) {
         if (out_size) *out_size = 0;
         return NULL;
     }

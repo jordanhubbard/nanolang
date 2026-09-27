@@ -1,0 +1,49 @@
+calls=100 sum=4950 elapsed=0.000003
+=================================================================
+==94414==ERROR: AddressSanitizer: stack-use-after-return on address 0xf5a9da203220 at pc 0xb98efc2d1da4 bp 0xffffe90d6670 sp 0xffffe90d6660
+READ of size 8 at 0xf5a9da203220 thread T0
+    #0 0xb98efc2d1da0 in main /tmp/fake_stack_probe.c:20
+    #1 0xf5a9dc6284c0  (/lib/aarch64-linux-gnu/libc.so.6+0x284c0) (BuildId: 27027b96e5b8c475fc327aa445bea1c71d37b4e2)
+    #2 0xf5a9dc628594 in __libc_start_main (/lib/aarch64-linux-gnu/libc.so.6+0x28594) (BuildId: 27027b96e5b8c475fc327aa445bea1c71d37b4e2)
+    #3 0xb98efc2d16ac in _start (/tmp/fake_stack_gcc+0x16ac) (BuildId: dc50ccd4de1323deb3ec622475432c39272b7f99)
+
+Address 0xf5a9da203220 is located in stack of thread T0 at offset 32 in frame
+    #0 0xb98efc2d17a4 in work /tmp/fake_stack_probe.c:5
+
+  This frame has 1 object(s):
+    [32, 64) 'local' (line 6) <== Memory access at offset 32 is inside this variable
+HINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork
+      (longjmp and C++ exceptions *are* supported)
+SUMMARY: AddressSanitizer: stack-use-after-return /tmp/fake_stack_probe.c:20 in main
+Shadow bytes around the buggy address:
+  0xf5a9da202f80: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 00 00 00 00
+  0xf5a9da203000: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 00 00 00 00
+  0xf5a9da203080: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 00 00 00 00
+  0xf5a9da203100: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 00 00 00 00
+  0xf5a9da203180: f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 f5 00 00 00 00
+=>0xf5a9da203200: f5 f5 f5 f5[f5]f5 f5 f5 f5 f5 f5 f5 00 00 00 00
+  0xf5a9da203280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0xf5a9da203300: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0xf5a9da203380: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0xf5a9da203400: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0xf5a9da203480: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==94414==ABORTING

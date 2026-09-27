@@ -1,0 +1,14 @@
+-- E001 TYPE MISMATCH --- /tmp/nanolang-split-d1e41-linux-evidence/nano-split-primitive-_d8dh6mq/cseed-refuse-arity.nano
+I require STRING elements for this array<string> annotation.
+
+1| fn main() -> int { let parts: array<string> = (str_split "a") return 0 }
+                                                 ^
+Hint: Preserve the result's string element annotation.
+-- E003 ARITY MISMATCH --- /tmp/nanolang-split-d1e41-linux-evidence/nano-split-primitive-_d8dh6mq/cseed-refuse-arity.nano
+I require two strings for str_split.
+
+1| fn main() -> int { let parts: array<string> = (str_split "a") return 0 }
+                                                 ^
+Hint: Pass a string and a delimiter.
+Warning at line 1, column 20: Unused variable 'parts'
+Type checking failed

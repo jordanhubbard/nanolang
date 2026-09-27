@@ -316,6 +316,76 @@ static void test_import_kinds_and_bindings(void) {
     nvm_module_free(m);
 }
 
+static void test_declared_scalar_transport(void) {
+    uint8_t tags[] = {TAG_INT, TAG_ENUM, TAG_FLOAT, TAG_BOOL, TAG_U8, TAG_STRING};
+    NvmModule *m = nvm_module_new();
+    uint32_t path = nvm_add_string(m, "/exact/lib.so", 13);
+    uint32_t symbol = nvm_add_string(m, "scalar", 6);
+    nvm_add_import(m, path, symbol, sizeof tags, TAG_STRING, tags);
+    m->imports[0].kind = NVM_IMPORT_DECLARED_SCALAR_ARTIFACT;
+    NvmV2Module v2;
+    CHECK_RESULT(nvm_v2_from_nvm_module(m, &v2), NVM_V2_OK, "I retain the declared scalar contract");
+    uint8_t bytes[4096]; size_t size = 0;
+    CHECK_RESULT(nvm_v2_module_serialize(&v2, bytes, sizeof bytes, &size), NVM_V2_OK,
+                 "I encode the declared scalar contract");
+    NvmV2Module decoded;
+    CHECK_RESULT(nvm_v2_module_deserialize(bytes, size, &decoded), NVM_V2_OK,
+                 "I validate the declared scalar wire contract");
+    NvmModule *back = NULL;
+    CHECK_RESULT(nvm_v2_to_nvm_module(&decoded, &back), NVM_V2_OK, "I restore the declaration");
+    if (back) {
+        CHECK(back->imports[0].kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT &&
+              back->imports[0].param_count == sizeof tags &&
+              back->imports[0].return_type == TAG_STRING &&
+              memcmp(back->import_param_types[0], tags, sizeof tags) == 0,
+              "I preserve heterogeneous parameter order and result");
+        CHECK(nvm_verify(back).ok, "I validate unused declared scalar imports");
+        nvm_module_free(back);
+    }
+    nvm_v2_module_free(&decoded);
+    nvm_v2_module_free(&v2);
+    const char *bad[] = {"", "scalar\0hidden", "relative.so", "/lib\0hidden"};
+    uint32_t lengths[] = {0, 13, 11, 11};
+    for (unsigned i = 0; i < 4; i++) {
+        m->imports[0].module_name_idx = path;
+        m->imports[0].function_name_idx = symbol;
+        uint32_t bad_idx = nvm_add_string(m, bad[i], lengths[i]);
+        if (i < 2) m->imports[0].function_name_idx = bad_idx;
+        else m->imports[0].module_name_idx = bad_idx;
+        CHECK_RESULT(nvm_v2_from_nvm_module(m, &v2), NVM_V2_OK, "I construct malformed counted names");
+        CHECK_RESULT(nvm_v2_module_serialize(&v2, bytes, sizeof bytes, &size), NVM_V2_OK,
+                     "I encode the malformed fixture");
+        CHECK(nvm_v2_module_deserialize(bytes, size, &decoded) != NVM_V2_OK,
+              "I refuse malformed unused scalar declarations");
+        nvm_v2_module_free(&v2);
+    }
+    m->imports[0].module_name_idx = path;
+    m->imports[0].function_name_idx = symbol;
+    uint8_t invalid_tags[] = {TAG_VOID, TAG_OPAQUE, TAG_ARRAY, TAG_FUNCTION, UINT8_MAX};
+    for (unsigned i = 0; i < sizeof invalid_tags; i++) {
+        m->import_param_types[0][0] = invalid_tags[i];
+        CHECK_RESULT(nvm_v2_from_nvm_module(m, &v2), NVM_V2_OK, "I construct an invalid scalar signature");
+        CHECK_RESULT(nvm_v2_module_serialize(&v2, bytes, sizeof bytes, &size), NVM_V2_OK,
+                     "I encode the invalid signature fixture");
+        CHECK(nvm_v2_module_deserialize(bytes, size, &decoded) != NVM_V2_OK,
+              "I reject invalid unused scalar signatures during loading");
+        nvm_v2_module_free(&v2);
+    }
+    CHECK(nvm_declared_scalar_shape_valid(tags, sizeof tags, TAG_VOID), "I allow a void result");
+    CHECK(!nvm_declared_scalar_shape_valid(NULL, 1, TAG_INT), "I require all parameter tags");
+    CHECK(!nvm_declared_scalar_shape_valid(tags, UINT16_MAX, TAG_INT), "I bound foreign arity");
+    for (unsigned tag = 0; tag <= UINT8_MAX; tag++) {
+        uint8_t t = (uint8_t)tag;
+        bool scalar = t == TAG_INT || t == TAG_ENUM || t == TAG_FLOAT ||
+                      t == TAG_BOOL || t == TAG_U8 || t == TAG_STRING;
+        CHECK(nvm_declared_scalar_shape_valid(&t, 1, TAG_VOID) == scalar,
+              "I admit only declared scalar parameters");
+        CHECK(nvm_declared_scalar_shape_valid(NULL, 0, t) == (scalar || t == TAG_VOID),
+              "I admit only declared scalar or void results");
+    }
+    nvm_module_free(m);
+}
+
 static void test_parameter_tags_survive(void) {
     NvmModule *m = build_v1();
     CHECK(m != NULL, "I allocate a typed signature fixture");
@@ -454,6 +524,7 @@ int main(void) {
     printf("\n[nvm_v2_convert] NvmModule <-> v2 bridge tests...\n\n");
     test_round_trip_through_v2();
     test_parameter_tags_survive();
+    test_declared_scalar_transport();
     test_reused_signature_pool_keeps_undeclared_parameters_void();
     test_import_kinds_and_bindings();
     test_header_flags_are_derived();

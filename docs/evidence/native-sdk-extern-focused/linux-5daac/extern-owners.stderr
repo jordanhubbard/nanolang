@@ -1,0 +1,6 @@
+test_exact_owners_signatures_and_label_failures (tests.test_extern_declaration_owners.ExternDeclarationOwners.test_exact_owners_signatures_and_label_failures) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.594s
+
+OK

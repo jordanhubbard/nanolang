@@ -1,0 +1,11 @@
+{
+  "parent": "7eea2decd8c91fbb5f4cbfebfe2ea57464e152e8",
+  "sha256": {
+    "src/nanovirt/borrow_codegen.inc": "19deb207f7eaa4af11719272bf338a7be6e8aab29b5941a6af5508ad2ef230ab",
+    "src/typechecker.c": "58894e2a1853a5c2a241c3117732e7c30abdec0234cd40f253e0c2b37d06ec3e",
+    "tests/test_owned_union_source.py": "8431872dcb72148f7321f7a898ed297ea9ecdab5c3cf9142184768074c2b0277",
+    "Makefile.gnu": "28d652892cb8f6d85a4ccf2413b691f0dce24d845876cfa7084db8071370fb9d",
+    "bin/nano_virt": "d958e4925953beba940a03490cf2aff46dd14c6c7a9e719ee22fc8c7b02ef67b",
+    "/tmp/pr522-owned-nano-virt": "b09a440c98c13e5cd3283c8cb2c9fb11a087b4bcf4f02d41c2e79f947788d3c0"
+  }
+}

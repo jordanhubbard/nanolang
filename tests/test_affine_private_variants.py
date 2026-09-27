@@ -1,4 +1,8 @@
 """I retain constructor invariants without executing bytecode."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import os
 from pathlib import Path
 import shlex
@@ -25,7 +29,7 @@ class AffinePrivateVariants(unittest.TestCase):
         self.store.mkdir()
         self.work.mkdir()
         self.index = 0
-        self.env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+        self.env = dict(os.environ, ASAN_OPTIONS=asan_options("halt_on_error=1"),
                         UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1', LSAN_OPTIONS='')
         cc = shlex.split(os.environ.get('AFFINE_VARIANTS_CC', 'cc'))
         self.assertTrue(cc)

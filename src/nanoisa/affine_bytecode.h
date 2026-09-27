@@ -18,6 +18,15 @@ typedef struct {
  * including unreachable code. This graph check alone grants no execution. */
 bool nvm_affine_value_call_graph(const NvmModule *module);
 
+/* I infer conservative callback sets for a closed owned value graph. This plan
+ * does not check ownership transfers or grant executable admission. Bit f names
+ * same-module function f. I return NULL for unresolved targets or cycles. */
+typedef struct NvmAffineTargets NvmAffineTargets;
+NvmAffineTargets *nvm_affine_targets_create(const NvmModule *module);
+void nvm_affine_targets_free(NvmAffineTargets *targets);
+bool nvm_affine_targets_at(const NvmAffineTargets *targets,uint32_t function,
+                           uint32_t byte_offset,uint8_t *mask);
+
 /* I analyze the documented scalar/record-observation/owned-transfer subset without changing
  * the module. Success is NOT executable verification. Caller alias binding,
  * reference opcodes and standalone runtime eligibility remain separate. */

@@ -152,7 +152,8 @@ static void wire_controls(void){
  NvmV2Header h;CHECK(nvm_v2_read_header(bytes,size,&h)==NVM_V2_OK);uint32_t features=h.feature_bits;
  const uint32_t required[]={NVM_V2_FEATURE_FFI,NVM_V2_FEATURE_RETAINED_LAYOUTS,NVM_V2_FEATURE_OWNERSHIP,NVM_V2_FEATURE_SERVICE_BINDINGS};
  for(unsigned i=0;i<4;i++){h.feature_bits=features & ~required[i];nvm_v2_write_header(bytes,&h);expect_hosted(bytes,size,NVM_FILE_FLOW_INVALID);}
- h.feature_bits=features|UINT32_C(0x400);nvm_v2_write_header(bytes,&h);expect_hosted(bytes,size,NVM_FILE_FLOW_INVALID);memcpy(bytes,original,size);
+ h.feature_bits=features|UINT32_C(0x80000000);nvm_v2_write_header(bytes,&h);expect_hosted(bytes,size,NVM_FILE_FLOW_INVALID);memcpy(bytes,original,size);
+ h.feature_bits=features|NVM_V2_FEATURE_CAPTURE_BINDINGS;nvm_v2_write_header(bytes,&h);expect_hosted(bytes,size,NVM_FILE_FLOW_UNRESOLVED);memcpy(bytes,original,size);
  h.feature_bits=features|NVM_V2_FEATURE_CALLBACKS;nvm_v2_write_header(bytes,&h);expect_hosted(bytes,size,NVM_FILE_FLOW_UNRESOLVED);memcpy(bytes,original,size);
  NvmV2SectionEntry service_section=section(bytes,size,NVM_V2_SECTION_SERVICE_BINDINGS);bytes[service_section.offset]=1;rehash(bytes,size);expect_hosted(bytes,size,NVM_FILE_FLOW_INVALID);memcpy(bytes,original,size);
  bytes[3]=1;expect_hosted(bytes,size,NVM_FILE_FLOW_INVALID);memcpy(bytes,original,size);

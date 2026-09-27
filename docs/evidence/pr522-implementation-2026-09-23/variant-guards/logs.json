@@ -1,0 +1,22 @@
+{
+  "variant-guard-build-qualified.log": {
+    "bytes": 1768,
+    "sha256": "10f6ab1028a1faf0aead5da24ecd238016fc5639fea8087a669791bdc049ceb9"
+  },
+  "variant-guard-qualified.log": {
+    "bytes": 2470,
+    "sha256": "d201fd5ec6aeda7ecd9bb0f25140ab76167bd102cda1046557854a558f20e26c"
+  },
+  "variant-guard-bound.log": {
+    "bytes": 286,
+    "sha256": "d69e0e974bee16e13548f0387f5bffef5f5a06ad7b5859444360892b73942794"
+  },
+  "variant-guard-translator-qualified.log": {
+    "bytes": 13553,
+    "sha256": "692e765ecdd5ff9b0b7fe74af3cf3e2f90363600e91045e833dac0ef6b65bbef"
+  },
+  "variant-guard-asan-qualified.log": {
+    "bytes": 544,
+    "sha256": "c8b19b365eb5e2554aa4080592db0e87dd188bdd1d702798be469a3f35321e10"
+  }
+}

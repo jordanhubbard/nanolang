@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <stdint.h>
 
 /* ── Global scheduler instance ─────────────────────────────────────────── */
 NanoScheduler g_scheduler = { .initialized = false };
@@ -51,7 +52,8 @@ static NanoCoroutine *coro_by_id(int id) {
 }
 
 /* ── Spawn ─────────────────────────────────────────────────────────────── */
-int nano_coro_spawn(CoroFn fn, void *arg) {
+static int coro_spawn(CoroFn fn, void *arg, CoroArgDropFn arg_drop,
+                      CoroResultDropFn result_drop, CoroResultCloneFn result_clone) {
     if (!g_scheduler.initialized) nano_scheduler_init();
     if (!fn || g_scheduler.count == INT_MAX) return -1;
 
@@ -74,6 +76,9 @@ int nano_coro_spawn(CoroFn fn, void *arg) {
     coro->status = CORO_READY;
     coro->fn = fn;
     coro->arg = arg;
+    coro->arg_drop = arg_drop;
+    coro->result_drop = result_drop;
+    coro->result_clone = result_clone;
     coro->awaiting_id = -1;
     coro->error_msg = NULL;
     memset(&coro->result, 0, sizeof(Value));
@@ -82,16 +87,128 @@ int nano_coro_spawn(CoroFn fn, void *arg) {
     return id;
 }
 
+int nano_coro_spawn(CoroFn fn, void *arg) {
+    return coro_spawn(fn, arg, NULL, NULL, NULL);
+}
+
+int nano_coro_spawn_owned(CoroFn fn, void *arg, CoroArgDropFn arg_drop,
+                         CoroResultDropFn result_drop, CoroResultCloneFn result_clone) {
+    if (!arg_drop || !result_drop || !result_clone) return -1;
+    return coro_spawn(fn, arg, arg_drop, result_drop, result_clone);
+}
+
+int nano_coro_spawn_contextual(CoroFn fn, void *arg, CoroArgDropFn arg_drop,
+    CoroResultDropFn result_drop, CoroResultCloneFn result_clone,
+    void *context, const void *identity, CoroContextSettleFn settle,
+    CoroArgDropFn context_drop) {
+    if (!context || !identity || !settle || !context_drop) return -1;
+    int id = nano_coro_spawn_owned(fn, arg, arg_drop, result_drop, result_clone);
+    if (id < 0) return -1;
+    NanoCoroutine *coro = coro_by_id(id);
+    coro->result_context = context;
+    coro->context_identity = identity;
+    coro->context_settle = settle;
+    coro->context_drop = context_drop;
+    return id;
+}
+
+bool nano_coro_context_matches(int id, const void *identity) {
+    NanoCoroutine *coro = coro_by_id(id);
+    return coro && identity && coro->context_identity == identity;
+}
+
+static void coro_settle_context(NanoCoroutine *coro) {
+    CoroContextSettleFn settle = coro->context_settle;
+    coro->context_settle = NULL;
+    if (settle) settle(coro->result_context, coro->status, coro->result);
+}
+
+static void coro_drop_argument(NanoCoroutine *coro) {
+    CoroArgDropFn drop = coro->arg_drop;
+    if (!drop) return; /* Legacy borrowed arguments stay observable until release. */
+    void *arg = coro->arg;
+    coro->arg_drop = NULL;
+    coro->arg = NULL;
+    coro->fn = NULL;
+    if (drop) drop(arg);
+}
+
+static void coro_fail(NanoCoroutine *coro, const char *message) {
+    coro->status = CORO_ERROR;
+    coro->error_msg = NULL;
+    if (message) {
+        size_t length = strlen(message);
+        if (length < SIZE_MAX) {
+            coro->error_msg = malloc(length + 1);
+            if (coro->error_msg) memcpy(coro->error_msg, message, length + 1);
+        }
+    }
+}
+
 bool nano_coro_release(int id) {
     NanoCoroutine *coro = coro_by_id(id);
     if (!coro || coro->active ||
         (coro->status != CORO_DONE && coro->status != CORO_ERROR)) return false;
+    /* My active latch also protects trusted cleanup hooks from slot reuse. */
+    coro->active = true;
+    CoroResultDropFn drop = coro->result_drop;
+    Value result = coro->result;
+    coro->result_drop = NULL;
+    coro->result_clone = NULL;
+    memset(&coro->result, 0, sizeof(coro->result));
+    coro->result.type = VAL_VOID;
+    coro_drop_argument(coro);
+    if (drop) drop(result);
+    CoroArgDropFn context_drop = coro->context_drop;
+    void *context = coro->result_context;
+    coro->context_drop = NULL;
+    coro->result_context = NULL;
+    coro->context_identity = NULL;
+    if (context_drop) context_drop(context);
     free(coro->error_msg);
     memset(coro, 0, sizeof(*coro));
     coro->id = -1;
     coro->status = CORO_DONE;
     coro->awaiting_id = -1;
     coro->result.type = VAL_VOID;
+    return true;
+}
+
+bool nano_coro_cancel(int id) {
+    NanoCoroutine *coro = coro_by_id(id);
+    if (!coro || coro->active || coro->status != CORO_READY) return false;
+    coro->active = true;
+    coro_fail(coro, "I cancelled this pending task.");
+    coro_settle_context(coro);
+    coro_drop_argument(coro);
+    coro->active = false;
+    return true;
+}
+
+/* Both public execution paths use the same active-frame and ownership rule.
+ * Early complete/error is terminal, but does not make my callback reclaimable. */
+static bool coro_run(int slot) {
+    NanoCoroutine *coro = &g_scheduler.coroutines[slot];
+    if (coro->active || coro->status != CORO_READY || !coro->fn) return false;
+    int previous = g_scheduler.current;
+    g_scheduler.current = slot;
+    coro->status = CORO_RUNNING;
+    coro->active = true;
+    Value result = coro->fn(coro->arg, coro->id);
+    if (coro->status == CORO_RUNNING) {
+        coro->result = result;
+        coro->status = CORO_DONE;
+    } else {
+        if (coro->status != CORO_DONE && coro->status != CORO_ERROR)
+            coro_fail(coro, "I require a terminal state when a task callback returns.");
+        CoroResultDropFn drop = coro->result_drop;
+        if (drop) drop(result);
+    }
+    coro_settle_context(coro);
+    coro_drop_argument(coro);
+    g_scheduler.current = previous;
+    coro->active = false;
+    if (g_scheduler.step_count < INT_MAX) ++g_scheduler.step_count;
     return true;
 }
 
@@ -137,25 +254,7 @@ bool nano_scheduler_step(void) {
 
     if (found < 0) return false; /* Nothing ready */
 
-    NanoCoroutine *coro = &g_scheduler.coroutines[found];
-    int prev_current = g_scheduler.current;
-    g_scheduler.current = found;
-    coro->status = CORO_RUNNING;
-    coro->active = true;
-
-    /* Run coroutine to completion (or until it calls await on another coro) */
-    Value result = coro->fn(coro->arg, coro->id);
-    coro->active = false;
-
-    /* If still running (wasn't suspended by await), mark as done */
-    if (coro->status == CORO_RUNNING) {
-        coro->status = CORO_DONE;
-        coro->result = result;
-    }
-
-    g_scheduler.current = prev_current;
-    g_scheduler.step_count++;
-    return true;
+    return coro_run(found);
 }
 
 /* ── Run until done ─────────────────────────────────────────────────── */
@@ -204,28 +303,8 @@ Value nano_coro_await_id(int coro_id) {
            && steps++ < max_steps) {
         /* Try to run the target coroutine directly if it's ready */
         if (target->status == CORO_READY) {
-            int prev_current = g_scheduler.current;
-            /* Find the slot index for target */
-            int slot = -1;
-            for (int i = 0; i < MAX_COROUTINES; i++) {
-                if (g_scheduler.coroutines[i].id == coro_id) {
-                    slot = i;
-                    break;
-                }
-            }
-            if (slot >= 0) {
-                g_scheduler.current = slot;
-                target->status = CORO_RUNNING;
-                target->active = true;
-                Value result = target->fn(target->arg, target->id);
-                target->active = false;
-                if (target->status == CORO_RUNNING) {
-                    target->status = CORO_DONE;
-                    target->result = result;
-                }
-                g_scheduler.current = prev_current;
-                g_scheduler.step_count++;
-            }
+            int slot = (int)(target - g_scheduler.coroutines);
+            if (!coro_run(slot)) break;
         } else {
             /* Run other ready coroutines that might unblock this one */
             if (!nano_scheduler_step()) break;
@@ -254,6 +333,25 @@ Value nano_coro_result(int coro_id) {
     return c->result;
 }
 
+bool nano_coro_result_copy(int id, Value *out) {
+    NanoCoroutine *coro = coro_by_id(id);
+    if (!coro || !out || out == &coro->result || coro->status != CORO_DONE || !coro->result_clone) return false;
+    bool active = coro->active;
+    coro->active = true;
+    Value copy;
+    bool ok = coro->result_clone(coro->result, &copy);
+    coro->active = active;
+    if (ok) *out = copy;
+    return ok;
+}
+
+bool nano_coro_await_copy(int id, Value *out) {
+    NanoCoroutine *coro = coro_by_id(id);
+    if (!coro || !out || out == &coro->result || !coro->result_clone) return false;
+    (void)nano_coro_await_id(id);
+    return nano_coro_result_copy(id, out);
+}
+
 bool nano_coro_is_done(int coro_id) {
     NanoCoroutine *c = coro_by_id(coro_id);
     return c && (c->status == CORO_DONE || c->status == CORO_ERROR);
@@ -276,22 +374,22 @@ void nano_coro_complete(Value result) {
     if (g_scheduler.current < 0) return;
     NanoCoroutine *c = &g_scheduler.coroutines[g_scheduler.current];
     if (c->status != CORO_RUNNING) return;
+    if (c->result_clone) {
+        Value copy;
+        if (!c->result_clone(result, &copy)) {
+            coro_fail(c, "I cannot copy an early task result.");
+            return;
+        }
+        c->result = copy;
+    } else c->result = result;
     c->status = CORO_DONE;
-    c->result = result;
 }
 
 void nano_coro_error(const char *msg) {
     if (g_scheduler.current < 0) return;
     NanoCoroutine *c = &g_scheduler.coroutines[g_scheduler.current];
     if (c->status != CORO_RUNNING) return;
-    c->status = CORO_ERROR;
-    if (msg) {
-        size_t len = strlen(msg);
-        c->error_msg = (char *)malloc(len + 1);
-        if (c->error_msg) memcpy(c->error_msg, msg, len + 1);
-    } else {
-        c->error_msg = NULL;
-    }
+    coro_fail(c, msg);
 }
 
 int nano_coro_current_id(void) {

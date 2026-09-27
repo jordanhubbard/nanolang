@@ -1,4 +1,8 @@
 """I preserve VM truthiness and effects on native conditional branches."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import os
 from pathlib import Path
 import subprocess
@@ -11,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class NativeJumpTrue(unittest.TestCase):
     def run_command(self, args):
         return subprocess.run([str(x) for x in args], capture_output=True, text=True,
-                              timeout=90, env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                              timeout=90, env={**os.environ, 'ASAN_OPTIONS': asan_options()})
 
     def checked(self, args):
         result = self.run_command(args)
@@ -101,5 +105,5 @@ class NativeJumpTrue(unittest.TestCase):
             output.write_text('retained')
             result = self.run_command([ROOT / 'bin/nvm2c', module, '-o', output])
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn('record to optional', result.stderr)
+            self.assertIn('I require preserved runtime tags for TYPE_CHECK', result.stderr)
             self.assertEqual(output.read_text(), 'retained')

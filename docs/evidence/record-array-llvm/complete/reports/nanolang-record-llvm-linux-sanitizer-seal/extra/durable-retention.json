@@ -1,0 +1,16 @@
+{
+  "local": {
+    "archive_sha256": "9108c092f55c11ed8fd4ddfff111641b88fe088fe8a4271041b4e592f69ece4b",
+    "members": 13364,
+    "status": "PASS"
+  },
+  "remote": {
+    "archive_sha256": "9108c092f55c11ed8fd4ddfff111641b88fe088fe8a4271041b4e592f69ece4b",
+    "members": 13364,
+    "status": "PASS"
+  },
+  "durable_remote": "/Users/jkh/nanolang-qualification/nanolang-llvm-o2-aed76-20260921",
+  "gate_returncode": 0,
+  "corpus_correspondence": "PASS",
+  "temporary_data_removed": false
+}

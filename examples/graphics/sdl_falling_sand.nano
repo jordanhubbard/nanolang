@@ -11,7 +11,7 @@ unsafe module "modules/sdl_helpers/sdl_helpers.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf.nano"
 unsafe module "modules/sdl_ttf/sdl_ttf_helpers.nano"
 module "modules/ui_widgets/ui_widgets.nano"
-module "modules/dispatch/dispatch.nano"
+module "modules/dispatch/dispatch.nano" as dispatch
 
 # === ENUMS ===
 enum Material {
@@ -536,8 +536,8 @@ fn main() -> int {
     (println "")
 
     # Set up dispatch infrastructure for parallel physics
-    let q_phys: NlQueue = (queue_concurrent "nano.sand.physics")
-    let g_phys: NlQueueGroup = (group_create)
+    let q_phys: dispatch.NlQueue = (dispatch.queue_concurrent "nano.sand.physics")
+    let g_phys: dispatch.NlQueueGroup = (dispatch.group_create)
 
     # Game state
     let mut running: bool = true
@@ -698,9 +698,9 @@ fn main() -> int {
             let mut step: int = 0
             while (< step PHYSICS_STEPS_PER_FRAME) {
                 # PARALLEL: left strip (x=0..398) and right strip (x=401..799)
-                (group_async g_phys q_phys update_physics_left)
-                (group_async g_phys q_phys update_physics_right)
-                let wait_rc: int = (group_wait_ms g_phys 1000)
+                (dispatch.group_async g_phys q_phys update_physics_left)
+                (dispatch.group_async g_phys q_phys update_physics_right)
+                let wait_rc: int = (dispatch.group_wait_ms g_phys 1000)
                 if (!= wait_rc 0) {
                     (println "WARN: physics step timeout")
                 } else {}
@@ -724,8 +724,8 @@ fn main() -> int {
     }
 
     # Cleanup
-    (group_destroy g_phys)
-    (queue_destroy q_phys)
+    (dispatch.group_destroy g_phys)
+    (dispatch.queue_destroy q_phys)
     (TTF_CloseFont font)
     (TTF_Quit)
     (SDL_DestroyRenderer renderer)

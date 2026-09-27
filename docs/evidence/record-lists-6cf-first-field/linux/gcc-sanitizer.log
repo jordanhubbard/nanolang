@@ -1,0 +1,7 @@
+I retain record-list artifacts at /tmp/nanolang-record-lists-6cf-linux-matrix/gcc-sanitizer/nano-record-lists-dxnabece
+test_array_intrinsic_and_declaration_identity (tests.test_generic_record_lists.GenericRecordLists.test_array_intrinsic_and_declaration_identity) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 9.278s
+
+OK

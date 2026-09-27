@@ -1,0 +1,6 @@
+struct Plain { value: int }
+union Box<T> { None {}, Some { values: array<T> } }
+fn read(value: Box<array<Plain>>) -> int { match value { Some(v) => { let rows: array<array<Plain>> = v.values let items: array<Plain> = (at rows 0) let first: Plain = (at items 0) return first.value } None(n) => { return 0 } } }
+shadow read { let value: Box<array<Plain>> = Box.Some { values: [[Plain { value: 7 }]] } assert (== (read value) 7) }
+fn main() -> int { let value: Box<array<Plain>> = Box.Some { values: [[Plain { value: 9 }]] } return (- (read value) 9) }
+shadow main { assert (== (main) 0) }

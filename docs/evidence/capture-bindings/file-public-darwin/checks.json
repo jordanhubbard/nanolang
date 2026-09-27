@@ -1,0 +1,42 @@
+[
+  {
+    "label": "missing-reference",
+    "root": "/Users/jkh/nanolang-qualification/capture-file-public-d1f-darwin",
+    "archive_sha256": "20c320b0bd7046319777c893aa2782a7957153e01d2a44c0c8848f5b5ae493de",
+    "checks": {
+      "terminal": {
+        "timeout": false,
+        "capacity_refusal": false,
+        "cleanup_errors": [],
+        "returncode": 2,
+        "seconds": 40.539242332997674,
+        "leader_reaped": true,
+        "tracked_remaining": {},
+        "group_gone": true
+      },
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "products": 2129
+    }
+  },
+  {
+    "label": "passed",
+    "root": "/Users/jkh/nanolang-qualification/capture-file-public-d1f-darwin-r2",
+    "archive_sha256": "9fa5644046a720f78c8117be63c317093a38a4e13372905ff222967a79ac7f22",
+    "checks": {
+      "terminal": {
+        "timeout": false,
+        "capacity_refusal": false,
+        "cleanup_errors": [],
+        "returncode": 0,
+        "seconds": 58.23238804100038,
+        "leader_reaped": true,
+        "tracked_remaining": {},
+        "group_gone": true
+      },
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "products": 3876
+    }
+  }
+]

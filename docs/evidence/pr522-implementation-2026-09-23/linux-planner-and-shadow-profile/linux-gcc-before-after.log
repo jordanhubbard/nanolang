@@ -1,0 +1,10 @@
+In file included from src/nanoisa/affine_bytecode.c:738:
+src/nanoisa/affine_targets.inc: In function 'nvm_affine_targets_create':
+src/nanoisa/affine_targets.inc:208:53: error: writing 1 byte into a region of size 0 [-Werror=stringop-overflow=]
+  208 |             if(plan->edges[f]&(1u<<k))plan->edges[f]|=plan->edges[k];
+      |                                       ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~
+src/nanoisa/affine_targets.inc:14:13: note: at offset 8 into destination object 'edges' of size 8
+   14 |     uint8_t edges[NVM_OWNED_MAX_FUNCTIONS];
+      |             ^~~~~
+cc1: all warnings being treated as errors
+before=1 after=0

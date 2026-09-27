@@ -1,0 +1,688 @@
+{
+  "source": "7804258431ed8fba21fa33c5507b06ad9a1bbd94",
+  "package_correction": "425bcbc786d00f171adb66cdc58af0783f23ef1b",
+  "native_optimization_fixture": "aed76cdb3",
+  "reports": 637,
+  "objects": 37086,
+  "object_bytes": 5820577421,
+  "references": 136103,
+  "equal_pairs": 90,
+  "histories": [
+    {
+      "seal": "nanolang-record-llvm-linux-ordinary-seal",
+      "histories": [
+        "/tmp/nanolang-record-llvm-63b8a-linux",
+        "/tmp/nanolang-record-llvm-78042-linux"
+      ],
+      "reports": 176,
+      "objects": 7123,
+      "object_bytes": 435316369,
+      "references": 27421,
+      "equal_pairs": 28,
+      "pairs": [
+        "nanolang-record-llvm-63b8a-linux/configuration-source-before.json",
+        "nanolang-record-llvm-63b8a-linux/configuration-tools-before.json",
+        "nanolang-record-llvm-63b8a-linux/discovery-source-before.json",
+        "nanolang-record-llvm-63b8a-linux/discovery-tools-before.json",
+        "nanolang-record-llvm-63b8a-linux/ordinary-emission-source-before.json",
+        "nanolang-record-llvm-63b8a-linux/ordinary-emission-tools-before.json",
+        "nanolang-record-llvm-63b8a-linux/ordinary-native-source-before.json",
+        "nanolang-record-llvm-63b8a-linux/ordinary-native-tools-before.json",
+        "nanolang-record-llvm-63b8a-linux/parity-source-before.json",
+        "nanolang-record-llvm-63b8a-linux/parity-tools-before.json",
+        "nanolang-record-llvm-63b8a-linux/setup-source-before.json",
+        "nanolang-record-llvm-63b8a-linux/setup-tools-before.json",
+        "nanolang-record-llvm-78042-linux/clang-ordinary-emission-source-before.json",
+        "nanolang-record-llvm-78042-linux/clang-ordinary-emission-tools-before.json",
+        "nanolang-record-llvm-78042-linux/clang-ordinary-native-source-before.json",
+        "nanolang-record-llvm-78042-linux/clang-ordinary-native-tools-before.json",
+        "nanolang-record-llvm-78042-linux/configuration-source-before.json",
+        "nanolang-record-llvm-78042-linux/configuration-tools-before.json",
+        "nanolang-record-llvm-78042-linux/discovery-source-before.json",
+        "nanolang-record-llvm-78042-linux/discovery-tools-before.json",
+        "nanolang-record-llvm-78042-linux/ordinary-emission-source-before.json",
+        "nanolang-record-llvm-78042-linux/ordinary-emission-tools-before.json",
+        "nanolang-record-llvm-78042-linux/ordinary-native-source-before.json",
+        "nanolang-record-llvm-78042-linux/ordinary-native-tools-before.json",
+        "nanolang-record-llvm-78042-linux/parity-source-before.json",
+        "nanolang-record-llvm-78042-linux/parity-tools-before.json",
+        "nanolang-record-llvm-78042-linux/setup-source-before.json",
+        "nanolang-record-llvm-78042-linux/setup-tools-before.json"
+      ],
+      "terminals": [
+        {
+          "path": "nanolang-record-llvm-63b8a-linux/configuration-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-63b8a-linux/discovery-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-63b8a-linux/ordinary-emission-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-63b8a-linux/ordinary-native-terminal.json",
+          "bound": 14400,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 1,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-63b8a-linux/parity-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-63b8a-linux/setup-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux/clang-ordinary-emission-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux/clang-ordinary-native-terminal.json",
+          "bound": 14400,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux/configuration-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux/discovery-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux/ordinary-emission-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux/ordinary-native-terminal.json",
+          "bound": 14400,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux/parity-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux/setup-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        }
+      ],
+      "scope": "Only the explicitly selected completed histories. No current host-input rehash or full matrix acceptance is inferred; independent final inventory required."
+    },
+    {
+      "seal": "nanolang-record-llvm-linux-wasm-seal",
+      "histories": [
+        "/tmp/nanolang-record-llvm-78042-linux-wasm"
+      ],
+      "reports": 78,
+      "objects": 4885,
+      "object_bytes": 199707124,
+      "references": 18971,
+      "equal_pairs": 12,
+      "pairs": [
+        "nanolang-record-llvm-78042-linux-wasm/configuration-source-before.json",
+        "nanolang-record-llvm-78042-linux-wasm/configuration-tools-before.json",
+        "nanolang-record-llvm-78042-linux-wasm/old-private-vm-source-before.json",
+        "nanolang-record-llvm-78042-linux-wasm/old-private-vm-tools-before.json",
+        "nanolang-record-llvm-78042-linux-wasm/record_array_execution-source-before.json",
+        "nanolang-record-llvm-78042-linux-wasm/record_array_execution-tools-before.json",
+        "nanolang-record-llvm-78042-linux-wasm/record_array_global_flow-source-before.json",
+        "nanolang-record-llvm-78042-linux-wasm/record_array_global_flow-tools-before.json",
+        "nanolang-record-llvm-78042-linux-wasm/record_array_origins-source-before.json",
+        "nanolang-record-llvm-78042-linux-wasm/record_array_origins-tools-before.json",
+        "nanolang-record-llvm-78042-linux-wasm/wasm-source-before.json",
+        "nanolang-record-llvm-78042-linux-wasm/wasm-tools-before.json"
+      ],
+      "terminals": [
+        {
+          "path": "nanolang-record-llvm-78042-linux-wasm/configuration-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux-wasm/old-private-vm-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux-wasm/record_array_execution-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux-wasm/record_array_global_flow-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux-wasm/record_array_origins-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux-wasm/wasm-terminal.json",
+          "bound": 28800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        }
+      ],
+      "scope": "Only the explicitly selected completed histories. No current host-input rehash or full matrix acceptance is inferred; independent final inventory required."
+    },
+    {
+      "seal": "nanolang-record-llvm-darwin-recovery-seal",
+      "histories": [
+        "/tmp/nanolang-record-llvm-78042-recovery-puck-backup"
+      ],
+      "reports": 181,
+      "objects": 17599,
+      "object_bytes": 638937640,
+      "references": 60000,
+      "equal_pairs": 30,
+      "pairs": [
+        "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/configuration-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/configuration-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/discovery-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/discovery-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/parity-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/parity-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/setup-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/setup-tools-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/wasm-source-before.json",
+        "nanolang-record-llvm-78042-recovery-puck-backup/wasm-tools-before.json"
+      ],
+      "terminals": [
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-emission-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/clang-ordinary-native-terminal.json",
+          "bound": 14400,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/configuration-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/discovery-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/old-private-vm-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-emission-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/ordinary-native-terminal.json",
+          "bound": 14400,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/parity-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/record_array_execution-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/record_array_global_flow-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/record_array_origins-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-emission-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/sanitizer-native-terminal.json",
+          "bound": 14400,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/setup-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-recovery-puck-backup/wasm-terminal.json",
+          "bound": 28800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        }
+      ],
+      "scope": "Only the explicitly selected completed histories. No current host-input rehash or full matrix acceptance is inferred; independent final inventory required."
+    },
+    {
+      "seal": "nanolang-record-package-425bc-final-seal",
+      "histories": [
+        "/tmp/nanolang-record-package-425bc-linux",
+        "/tmp/nanolang-record-package-425bc-puck-backup"
+      ],
+      "reports": 39,
+      "objects": 109,
+      "object_bytes": 26305412,
+      "references": 329,
+      "equal_pairs": 4,
+      "pairs": [
+        "nanolang-record-package-425bc-linux/package-source-before.json",
+        "nanolang-record-package-425bc-linux/package-tools-before.json",
+        "nanolang-record-package-425bc-puck-backup/package-source-before.json",
+        "nanolang-record-package-425bc-puck-backup/package-tools-before.json"
+      ],
+      "terminals": [
+        {
+          "path": "nanolang-record-package-425bc-linux/package-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-package-425bc-puck-backup/package-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        }
+      ],
+      "scope": "Only the explicitly selected completed histories. No current host-input rehash or full matrix acceptance is inferred; independent final inventory required."
+    },
+    {
+      "seal": "nanolang-record-llvm-linux-sanitizer-seal",
+      "histories": [
+        "/run/user/1000/nanolang-llvm-o2-aed76-20260921/reports",
+        "/tmp/nanolang-record-llvm-78042-linux-sanitizers",
+        "/tmp/nanolang-record-llvm-78042-linux-clang-continuation-r2"
+      ],
+      "reports": 148,
+      "objects": 8880,
+      "object_bytes": 4644198741,
+      "references": 29382,
+      "equal_pairs": 16,
+      "pairs": [
+        "reports/clang-sanitizer-native-source-before.json",
+        "reports/clang-sanitizer-native-tools-before.json",
+        "reports/configuration-source-before.json",
+        "reports/configuration-tools-before.json",
+        "nanolang-record-llvm-78042-linux-sanitizers/configuration-source-before.json",
+        "nanolang-record-llvm-78042-linux-sanitizers/configuration-tools-before.json",
+        "nanolang-record-llvm-78042-linux-sanitizers/sanitizer-emission-source-before.json",
+        "nanolang-record-llvm-78042-linux-sanitizers/sanitizer-emission-tools-before.json",
+        "nanolang-record-llvm-78042-linux-sanitizers/sanitizer-native-source-before.json",
+        "nanolang-record-llvm-78042-linux-sanitizers/sanitizer-native-tools-before.json",
+        "nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-emission-source-before.json",
+        "nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-emission-tools-before.json",
+        "nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-native-source-before.json",
+        "nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-native-tools-before.json",
+        "nanolang-record-llvm-78042-linux-clang-continuation-r2/configuration-source-before.json",
+        "nanolang-record-llvm-78042-linux-clang-continuation-r2/configuration-tools-before.json"
+      ],
+      "terminals": [
+        {
+          "path": "reports/clang-sanitizer-native-terminal.json",
+          "bound": 14400,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "reports/configuration-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux-sanitizers/clang-sanitizer-emission-terminal.json",
+          "free_bytes": 1736740864,
+          "launched": false,
+          "reason": "capacity preflight"
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux-sanitizers/configuration-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux-sanitizers/sanitizer-emission-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux-sanitizers/sanitizer-native-terminal.json",
+          "bound": 14400,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-emission-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux-clang-continuation-r2/clang-sanitizer-native-terminal.json",
+          "bound": 14400,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": -15,
+          "timeout": false
+        },
+        {
+          "path": "nanolang-record-llvm-78042-linux-clang-continuation-r2/configuration-terminal.json",
+          "bound": 1800,
+          "cleanup_signals": [],
+          "errors": [],
+          "group_disappeared": true,
+          "launched": true,
+          "leader_reaped": true,
+          "returncode": 0,
+          "timeout": false
+        }
+      ],
+      "scope": "Only the explicitly selected completed histories. No current host-input rehash or full matrix acceptance is inferred; independent final inventory required."
+    }
+  ],
+  "scope": "Exact complete retained selected histories; earlier remote-only evidence lost at reboot remains explicitly outside passing retained gates. Public/source/full graphs remain required."
+}

@@ -1,9 +1,17 @@
 #include "nanolang.h"
+#include "list_operation.h"
 #include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
 #include <stdarg.h>
 #include <libgen.h>
+#include <limits.h>
+#include "transpiler_opaque_names.inc"
+static const char *native_derived_type_name(const TypeInfo *);
+static bool native_derived_forwarded(const char *);
+static bool native_derived_emitted(const TypeInfo *);
+static void emit_native_type_info(Environment *, StringBuilder *, TypeInfo *);
+
 
 /* String builder for C code generation - now defined in stdlib_runtime.h */
 
@@ -77,9 +85,18 @@ static void sb_appendf(StringBuilder *sb, const char *fmt, ...) {
  * Returns true on success, false if buffer would overflow */
 static bool build_monomorphized_name(char *dest, size_t dest_size, 
                                      const char *base_name, 
-                                     const char **type_args, int type_arg_count) {
+                                     const char **type_args, int type_arg_count, const TypeInfo *complete) {
     if (!dest || !base_name || dest_size == 0) return false;
     
+    if (opaque_type_info_present(complete)) {
+        char *key = opaque_type_info_key(complete);
+        if (!key) native_opaque_name_failure();
+        const char *name = native_opaque_projection(key);
+        int written = snprintf(dest, dest_size, "%s", name);
+        free(key);
+        if (written < 0 || (size_t)written >= dest_size) native_opaque_name_failure();
+        return true;
+    }
     /* Start with base name */
     size_t pos = 0;
     int written = snprintf(dest + pos, dest_size - pos, "%s", base_name);
@@ -118,7 +135,7 @@ static bool build_monomorphized_name_from_typeinfo(char *dest, size_t dest_size,
                       .type_params = type_params, .type_param_count = type_param_count };
     char *name = typeinfo_to_generic_arg_name(&info);
     if (!name) return false;
-    int written = snprintf(dest, dest_size, "%s", name);
+    int written = snprintf(dest, dest_size, "%s", native_opaque_projection(name));
     free(name);
     return written >= 0 && (size_t)written < dest_size;
 }
@@ -168,17 +185,7 @@ static bool is_runtime_typedef(const char *name) {
 
 /* Schema-defined list element types have dedicated runtime list implementations */
 static bool is_schema_list_type(const char *name) {
-    if (!name) return false;
-    if (strncmp(name, "AST", 3) == 0) {
-        return true;
-    }
-    if (strcmp(name, "LexerToken") == 0) {
-        return true;
-    }
-    if (strcmp(name, "CompilerDiagnostic") == 0) {
-        return true;
-    }
-    return false;
+    return nl_list_has_schema_runtime(name);
 }
 
 /* Check if an enum/struct name would conflict with C runtime types */
@@ -199,6 +206,7 @@ static _Thread_local uint32_t native_declared_letters;
 /* Get prefixed type name for user-defined types */
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_type_name(const char *name) {
+    name = native_opaque_projection(name);
     static _Thread_local char *buffer;
     static _Thread_local size_t capacity;
     
@@ -263,6 +271,11 @@ static const char *get_prefixed_variant_name(const char *enum_name, const char *
 /* Get prefixed variant struct name for unions: UnionName.Variant -> nl_UnionName_Variant */
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_variant_struct_name(const char *union_name, const char *variant_name) {
+    union_name = native_opaque_projection(union_name);
+    if (!union_name || !variant_name) {
+        fprintf(stderr, "I cannot emit a union variant without both name components\n");
+        exit(1);
+    }
     static _Thread_local char buffer[512];
     snprintf(buffer, sizeof(buffer), "nl_%s_%s", union_name, variant_name);
     return buffer;
@@ -271,6 +284,11 @@ static const char *get_prefixed_variant_struct_name(const char *union_name, cons
 /* Get prefixed union tag name: nl_UnionName_TAG_Variant */
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
 static const char *get_prefixed_tag_name(const char *union_name, const char *variant_name) {
+    union_name = native_opaque_projection(union_name);
+    if (!union_name || !variant_name) {
+        fprintf(stderr, "I cannot emit a union variant without both name components\n");
+        exit(1);
+    }
     static _Thread_local char buffer[512];
     if (is_runtime_typedef(union_name)) {
         snprintf(buffer, sizeof(buffer), "%s_TAG_%s", union_name, variant_name);
@@ -291,6 +309,8 @@ typedef struct {
 /* Tuple type registry for generating tuple struct typedefs */
 typedef struct {
     TypeInfo **tuples;
+    bool *owned;
+    const Environment *env;
     char **typedef_names;
     int count;
     int capacity;
@@ -454,8 +474,8 @@ static void collect_headers_from_module(const char *module_path) {
         for (size_t i = 0; i < meta->headers_count; i++) {
             add_module_header(meta->headers[i], meta->header_priority);
         }
-        module_metadata_free(meta);
     }
+    module_metadata_free(meta);
     
     free(path_copy);
 }
@@ -500,7 +520,7 @@ static void free_fn_type_registry(FunctionTypeRegistry *reg) {
 }
 
 /* Tuple type registry functions */
-static TupleTypeRegistry *create_tuple_type_registry(void) {
+static TupleTypeRegistry *create_tuple_type_registry(const Environment *env) {
     TupleTypeRegistry *reg = malloc(sizeof(TupleTypeRegistry));
     if (!reg) {
         fprintf(stderr, "Error: Out of memory allocating TupleTypeRegistry\n");
@@ -519,6 +539,9 @@ static TupleTypeRegistry *create_tuple_type_registry(void) {
         free(reg);
         exit(1);
     }
+    reg->owned = calloc(16, sizeof(bool));
+    if (!reg->owned) { free(reg->tuples); free(reg->typedef_names); free(reg); fprintf(stderr, "I cannot retain a complete native tuple registry.\n"); exit(1); }
+    reg->env = env;
     reg->count = 0;
     reg->capacity = 16;
     return reg;
@@ -532,7 +555,10 @@ static void free_tuple_type_registry(TupleTypeRegistry *reg) {
         }
         free(reg->typedef_names);
     }
-    /* Tuple registry does not own TypeInfo (AST owns it). */
+    for (int i = 0; i < reg->count; ++i)
+        if (reg->owned[i]) free_payload_type_info(reg->tuples[i]);
+    free(reg->owned);
+    /* I borrow AST/context rows and own explicitly transferred temporaries. */
     if (reg->tuples) {
         free(reg->tuples);
     }
@@ -541,18 +567,19 @@ static void free_tuple_type_registry(TupleTypeRegistry *reg) {
 
 /* Check if two tuple types are equal */
 static bool tuple_types_equal(TypeInfo *a, TypeInfo *b) {
-    if (!a || !b) return false;
-    if (a->tuple_element_count != b->tuple_element_count) return false;
-    
-    for (int i = 0; i < a->tuple_element_count; i++) {
-        if (a->tuple_types[i] != b->tuple_types[i]) return false;
-    }
-    
-    return true;
+    return a && b && type_infos_equal(a, b);
 }
 
 /* Generate typedef name for a tuple type */
 static char *get_tuple_typedef_name(TypeInfo *info, int index) {
+    if (opaque_type_info_present(info)) {
+        char *key = opaque_type_info_key(info);
+        if (!key) native_opaque_name_failure();
+        char *name = strdup(native_opaque_projection(key));
+        free(key);
+        if (!name) native_opaque_name_failure();
+        return name;
+    }
     StringBuilder *sb = sb_create();
     
     sb_append(sb, "Tuple");
@@ -581,32 +608,39 @@ static char *get_tuple_typedef_name(TypeInfo *info, int index) {
 }
 
 /* Register a tuple type and get its typedef name */
-static const char *register_tuple_type(TupleTypeRegistry *reg, TypeInfo *info) {
+static const char *register_tuple_type_mode(TupleTypeRegistry *reg, TypeInfo *info, bool owned) {
     /* Check if already registered */
     for (int i = 0; i < reg->count; i++) {
         if (tuple_types_equal(reg->tuples[i], info)) {
+            if (owned) free_payload_type_info(info);
             return reg->typedef_names[i];
         }
     }
     
     /* Register new tuple type */
     if (reg->count >= reg->capacity) {
-        if ((size_t)reg->capacity > SIZE_MAX / 2) {
+        if (reg->capacity > INT_MAX / 2 || (size_t)reg->capacity > SIZE_MAX / (2 * sizeof(TypeInfo *))) {
             fprintf(stderr, "Error: Tuple registry capacity overflow\n");
             exit(1);
         }
         int new_capacity = reg->capacity * 2;
-        TypeInfo **new_tuples = realloc(reg->tuples, sizeof(TypeInfo*) * new_capacity);
-        char **new_names = realloc(reg->typedef_names, sizeof(char*) * new_capacity);
-        if (!new_tuples || !new_names) {
-            fprintf(stderr, "Error: Out of memory in tuple registry\n");
-            exit(1);
+        TypeInfo **new_tuples = malloc(sizeof(TypeInfo*) * (size_t)new_capacity);
+        char **new_names = malloc(sizeof(char*) * (size_t)new_capacity);
+        bool *new_owned = calloc((size_t)new_capacity, sizeof(bool));
+        if (!new_tuples || !new_names || !new_owned) {
+            free(new_tuples); free(new_names); free(new_owned);
+            if (owned) free_payload_type_info(info);
+            fprintf(stderr, "I cannot retain a complete native tuple registry.\n"); exit(1);
         }
-        reg->tuples = new_tuples;
-        reg->typedef_names = new_names;
+        memcpy(new_tuples, reg->tuples, (size_t)reg->count * sizeof *new_tuples);
+        memcpy(new_names, reg->typedef_names, (size_t)reg->count * sizeof *new_names);
+        memcpy(new_owned, reg->owned, (size_t)reg->count * sizeof *new_owned);
+        free(reg->tuples); free(reg->typedef_names); free(reg->owned);
+        reg->tuples = new_tuples; reg->typedef_names = new_names; reg->owned = new_owned;
         reg->capacity = new_capacity;
     }
     
+    reg->owned[reg->count] = owned;
     reg->tuples[reg->count] = info;
     reg->typedef_names[reg->count] = get_tuple_typedef_name(info, reg->count);
     reg->count++;
@@ -614,15 +648,29 @@ static const char *register_tuple_type(TupleTypeRegistry *reg, TypeInfo *info) {
     return reg->typedef_names[reg->count - 1];
 }
 
+static const char *register_tuple_type(TupleTypeRegistry *reg, TypeInfo *info) {
+    return register_tuple_type_mode(reg, info, false);
+}
+
 /* Generate C typedef for a tuple type */
-static void generate_tuple_typedef(StringBuilder *sb, TypeInfo *info, const char *typedef_name) {
-    sb_appendf(sb, "typedef struct { ");
+static void generate_tuple_typedef(StringBuilder *sb, TypeInfo *info, const char *typedef_name, Environment *env) {
+    if (native_derived_forwarded(typedef_name)) sb_appendf(sb, "struct %s { ", typedef_name);
+    else sb_appendf(sb, "typedef struct { ");
+    if (!info->tuple_element_count) sb_append(sb, "int _placeholder");
     for (int i = 0; i < info->tuple_element_count; i++) {
         if (i > 0) sb_append(sb, "; ");
+        TypeInfo flat;
+        const TypeInfo *child = type_info_tuple_element(info, i, &flat);
+        if (!child) native_opaque_name_failure();
+        if (info->type_param_count) {
+            emit_native_type_info(env, sb, (TypeInfo *)child);
+            sb_appendf(sb, " _%d", i); continue;
+        }
         Type t = info->tuple_types[i];
         if (t == TYPE_STRUCT || t == TYPE_UNION || t == TYPE_ENUM) {
             if (info->tuple_type_names && info->tuple_type_names[i]) {
-                const char *prefixed = get_prefixed_type_name(info->tuple_type_names[i]);
+                const char *prefixed = env_get_opaque_type(env, info->tuple_type_names[i])
+                    ? "void*" : get_prefixed_type_name(info->tuple_type_names[i]);
                 sb_appendf(sb, "%s _%d", prefixed, i);
             } else {
                 sb_appendf(sb, "void* /* tuple composite */ _%d", i);
@@ -631,11 +679,21 @@ static void generate_tuple_typedef(StringBuilder *sb, TypeInfo *info, const char
             sb_appendf(sb, "%s _%d", type_to_c(t), i);
         }
     }
-    sb_appendf(sb, "; } %s;\n", typedef_name);
+    if (native_derived_forwarded(typedef_name)) sb_append(sb, "; };\n");
+    else sb_appendf(sb, "; } %s;\n", typedef_name);
 }
 
 /* Generate unique typedef name for a function signature */
 static char *get_function_typedef_name(FunctionSignature *sig, int index) {
+    TypeInfo view = {.base_type = TYPE_FUNCTION, .fn_sig = sig};
+    if (opaque_type_info_present(&view)) {
+        char *key = opaque_type_info_key(&view);
+        if (!key) native_opaque_name_failure();
+        char *name = strdup(native_opaque_projection(key));
+        free(key);
+        if (!name) native_opaque_name_failure();
+        return name;
+    }
     char *name = malloc(64);
     if (!name) {
         fprintf(stderr, "Error: Out of memory allocating function typedef name\n");
@@ -699,7 +757,9 @@ static void emit_native_type_info(Environment *env, StringBuilder *sb, TypeInfo 
 
 static void emit_signature_type(StringBuilder *sb, Environment *env, Type type,
                                 const char *name, TypeInfo *info) {
-    if (info && (type == TYPE_STRUCT || type == TYPE_UNION || type == TYPE_ENUM)) {
+    if (info && native_derived_type_name(info) && (type == TYPE_TUPLE || type == TYPE_FUNCTION)) {
+        emit_native_type_info(env, sb, info);
+    } else if (info && (type == TYPE_STRUCT || type == TYPE_UNION || type == TYPE_ENUM)) {
         emit_native_type_info(env, sb, info);
     } else if (info && (type == TYPE_LIST_GENERIC || type == TYPE_HASHMAP)) {
         char *concrete = typeinfo_to_generic_arg_name(info);
@@ -726,6 +786,17 @@ static void emit_signature_parameters(StringBuilder *sb, Environment *env, Funct
 /* I use complete annotation trees for each native callback boundary. */
 static void generate_function_typedef(StringBuilder *sb, FunctionSignature *sig,
                                      const char *typedef_name, Environment *env) {
+    TypeInfo function = {.base_type = TYPE_FUNCTION, .fn_sig = sig};
+    if (native_derived_type_name(&function)) {
+        TypeInfo result = {.base_type = sig->return_type, .generic_name = sig->return_struct_name, .fn_sig = sig->return_fn_sig};
+        if (sig->return_type_info) result = *sig->return_type_info;
+        if (!result.fn_sig) result.fn_sig = sig->return_fn_sig;
+        sb_append(sb, "typedef ");
+        emit_signature_type(sb, env, result.base_type, result.generic_name, &result);
+        sb_appendf(sb, " (*%s)(", typedef_name);
+        emit_signature_parameters(sb, env, sig);
+        sb_append(sb, ");\n"); return;
+    }
     sb_append(sb, "typedef ");
     if (sig->return_type == TYPE_FUNCTION && sig->return_fn_sig) {
         FunctionSignature *inner = sig->return_fn_sig;
@@ -848,6 +919,7 @@ static void emit_generic_forward_decl(StringBuilder *sb, const ASTNode *orig,
     else        sb_append(sb, type_to_c(rt));
 
     sb_appendf(sb, " nl_%s(", inst->mono_name);
+    if (orig->as.function.param_count == 0) sb_append(sb, "void");
 
     /* Parameters */
     for (int j = 0; j < orig->as.function.param_count; j++) {
@@ -935,9 +1007,7 @@ static const char *get_c_func_name_with_module(const char *nano_name, const char
     }
     
     /* Don't prefix list runtime functions */
-    if (strncmp(nano_name, "list_int_", 9) == 0 || 
-        strncmp(nano_name, "list_string_", 12) == 0 ||
-        strncmp(nano_name, "nl_list_Token_", 11) == 0) {
+    if (strncmp(nano_name, "nl_list_Token_", 11) == 0) {
         return nano_name;
     }
     
@@ -982,7 +1052,10 @@ static const char *get_c_func_name_with_module(const char *nano_name, const char
     }
     
     /* I keep an allowed declaration separate from my retained builtin helper. */
-    if (strcmp(nano_name, "array_push") == 0) return "__nl_declared_array_push";
+    if (env_native_array_operation(nano_name)) {
+        snprintf(buffer, sizeof(buffer), "__nl_declared_%s", nano_name);
+        return buffer;
+    }
 
     /* Legacy: prefix with nl_ for global scope */
     snprintf(buffer, sizeof(buffer), "nl_%s", nano_name);
@@ -1014,6 +1087,7 @@ bool g_trace_mode = false;            /* --trace: emit trace guard in next funct
 const char *g_trace_func_name = NULL; /* name of function being traced */
 
 #define TRANSPILER_INTERNAL_TYPES_DEFINED
+static const char *native_list_element(Environment *env, const GenericInstantiation *inst);
 #include "transpiler_iterative_v3_twopass.c"
 
 
@@ -1040,63 +1114,16 @@ static void collect_tuple_types_from_expr(ASTNode *expr, TupleTypeRegistry *reg)
     if (!expr) return;
     
     switch (expr->type) {
-        case AST_TUPLE_LITERAL:
-            if (expr->as.tuple_literal.element_count > 0) {
-                if (expr->as.tuple_literal.element_types) {
-                    /* Element types are set - register directly */
-                    TypeInfo *temp_info = malloc(sizeof(TypeInfo));
-                    if (!temp_info) {
-                        fprintf(stderr, "Error: Out of memory allocating tuple TypeInfo\n");
-                        exit(1);
-                    }
-                    temp_info->tuple_element_count = expr->as.tuple_literal.element_count;
-                    temp_info->tuple_types = malloc(sizeof(Type) * expr->as.tuple_literal.element_count);
-                    if (!temp_info->tuple_types) {
-                        fprintf(stderr, "Error: Out of memory allocating tuple types array\n");
-                        free(temp_info);
-                        exit(1);
-                    }
-                    for (int i = 0; i < expr->as.tuple_literal.element_count; i++) {
-                        temp_info->tuple_types[i] = expr->as.tuple_literal.element_types[i];
-                    }
-                    temp_info->tuple_type_names = NULL;
-                    register_tuple_type(reg, temp_info);
-                } else {
-                    /* Element types not set - infer from elements */
-                    TypeInfo *temp_info = malloc(sizeof(TypeInfo));
-                    if (!temp_info) {
-                        fprintf(stderr, "Error: Out of memory allocating tuple TypeInfo\n");
-                        exit(1);
-                    }
-                    temp_info->tuple_element_count = expr->as.tuple_literal.element_count;
-                    temp_info->tuple_types = malloc(sizeof(Type) * expr->as.tuple_literal.element_count);
-                    if (!temp_info->tuple_types) {
-                        fprintf(stderr, "Error: Out of memory allocating tuple types array\n");
-                        free(temp_info);
-                        exit(1);
-                    }
-                    for (int i = 0; i < expr->as.tuple_literal.element_count; i++) {
-                        /* Try to infer type from expression */
-                        Type elem_type = TYPE_INT;  /* Default to int */
-                        ASTNode *elem = expr->as.tuple_literal.elements[i];
-                        if (elem) {
-                            if (elem->type == AST_NUMBER) elem_type = TYPE_INT;
-                            else if (elem->type == AST_STRING) elem_type = TYPE_STRING;
-                            else if (elem->type == AST_BOOL) elem_type = TYPE_BOOL;
-                            else if (elem->type == AST_FLOAT) elem_type = TYPE_FLOAT;
-                            else if (elem->type == AST_IDENTIFIER) elem_type = TYPE_INT;  /* Assume int for vars */
-                        }
-                        temp_info->tuple_types[i] = elem_type;
-                    }
-                    temp_info->tuple_type_names = NULL;
-                    register_tuple_type(reg, temp_info);
-                }
-            }
+        case AST_TUPLE_LITERAL: {
+            const TypeInfo *complete = checked_expression_type_info(expr, (Environment *)reg->env);
+            if (!complete || !type_info_tuple_valid(complete)) native_opaque_name_failure();
+            register_tuple_type(reg, (TypeInfo *)complete);
             /* Also collect from tuple elements */
             for (int i = 0; i < expr->as.tuple_literal.element_count; i++) {
                 collect_tuple_types_from_expr(expr->as.tuple_literal.elements[i], reg);
             }
             break;
+        }
         case AST_PREFIX_OP:
             for (int i = 0; i < expr->as.prefix_op.arg_count; i++) {
                 collect_tuple_types_from_expr(expr->as.prefix_op.args[i], reg);
@@ -1276,6 +1303,7 @@ static void generate_c_headers(StringBuilder *sb) {
     
     sb_append(sb, "\n/* nanolang runtime */\n");
     sb_append(sb, "#include \"runtime/list_int.h\"\n");
+    sb_append(sb, "#include \"runtime/native_record_list.h\"\n");
     sb_append(sb, "#include \"runtime/list_string.h\"\n");
     sb_append(sb, "#include \"runtime/list_token.h\"\n");
     sb_append(sb, "#include \"runtime/token_helpers.h\"\n");
@@ -1318,215 +1346,88 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "\n");
 }
 
-/* Generate List<T> specializations and forward declarations */
-static void generate_list_specializations(Environment *env, StringBuilder *sb) {
-    /* Forward declare List types BEFORE structs (in case structs contain List fields) */
-    int capacity_early = 32;
-    char **detected_list_types_early = malloc(sizeof(char*) * capacity_early);
-    if (!detected_list_types_early) {
-        fprintf(stderr, "Error: Out of memory allocating list types array\n");
+/* I consume the exact registered record, never a spelling-only specialization. */
+static const char *native_list_element(Environment *env, const GenericInstantiation *inst) {
+    if (!inst->generic_name || strcmp(inst->generic_name, "List")) return NULL;
+    const char *name = env_nominal_name(env, inst->list_element);
+    if (inst->list_element.kind != TYPE_STRUCT || !inst->list_element.ordinal ||
+        !name || inst->type_arg_count != 1 || !inst->type_arg_names ||
+        !inst->type_arg_names[0] || strcmp(name, inst->type_arg_names[0])) {
+        fprintf(stderr, "I cannot emit a list without its exact registered record.\n");
         exit(1);
     }
-    int detected_list_count_early = 0;
-    
-    if (env && env->generic_instances) {
-        for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
-            GenericInstantiation *inst = &env->generic_instances[i];
-            if (inst && strcmp(inst->generic_name, "List") == 0 && inst->type_arg_names && inst->type_arg_names[0]) {
-                const char *elem_type = inst->type_arg_names[0];
-                bool found = false;
-                for (int j = 0; j < detected_list_count_early; j++) {
-                    if (strcmp(detected_list_types_early[j], elem_type) == 0) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found) {
-                    /* Grow array if needed */
-                    if (detected_list_count_early >= capacity_early) {
-                        capacity_early *= 2;
-                        char **new_array = realloc(detected_list_types_early, sizeof(char*) * capacity_early);
-                        if (!new_array) {
-                            fprintf(stderr, "Error: Out of memory growing list types array to %d\n", capacity_early);
-                            free(detected_list_types_early);
-                            exit(1);
-                        }
-                        detected_list_types_early = new_array;
-                    }
-                    detected_list_types_early[detected_list_count_early++] = (char*)elem_type;
-                }
-            }
-        }
-    }
-    
-    if (detected_list_count_early > 0) {
-        sb_append(sb, "/* ========== Generic List Forward Declarations ========== */\n");
-        for (int i = 0; i < detected_list_count_early; i++) {
-            sb_appendf(sb, "#ifndef FORWARD_DEFINED_List_%s\n", detected_list_types_early[i]);
-            sb_appendf(sb, "#define FORWARD_DEFINED_List_%s\n", detected_list_types_early[i]);
-            sb_appendf(sb, "typedef struct List_%s List_%s;\n", detected_list_types_early[i], detected_list_types_early[i]);
-            sb_append(sb, "#endif\n");
-        }
-        sb_append(sb, "/* ========== End Generic List Forward Declarations ========== */\n\n");
-    }
-    
-    free(detected_list_types_early);
+    return name;
 }
 
-/* Generate List<T> includes and implementations */
+/* Generate List<T> forward declarations before complete record definitions. */
+static void generate_list_specializations(Environment *env, StringBuilder *sb) {
+    if (!env) return;
+    for (int i = 0; i < env->generic_instance_count; ++i) {
+        const char *name = native_list_element(env, &env->generic_instances[i]);
+        if (!name) continue;
+        sb_appendf(sb, "#ifndef FORWARD_DEFINED_List_%s\n", name);
+        sb_appendf(sb, "#define FORWARD_DEFINED_List_%s\n", name);
+        sb_appendf(sb, "typedef struct List_%s List_%s;\n#endif\n", name, name);
+    }
+}
+
+/* Generate List<T> providers after complete record definitions. */
 static void generate_list_implementations(Environment *env, StringBuilder *sb) {
-    /* Detect generic list usage BEFORE emitting includes */
-    int capacity = 32;
-    char **detected_list_types = malloc(sizeof(char*) * capacity);
-    if (!detected_list_types) {
-        fprintf(stderr, "Error: Out of memory allocating list types array\n");
-        exit(1);
-    }
-    int detected_list_count = 0;
-    
-    /* Scan generic instantiations for List<Type> usage */
-    if (env && env->generic_instances) {
-        for (int i = 0; i < env->generic_instance_count && i < 1000; i++) {
-            GenericInstantiation *inst = &env->generic_instances[i];
-            if (inst && strcmp(inst->generic_name, "List") == 0 && inst->type_arg_names && inst->type_arg_names[0]) {
-                const char *elem_type = inst->type_arg_names[0];
-                /* Check if already detected */
-                bool found = false;
-                for (int j = 0; j < detected_list_count; j++) {
-                    if (strcmp(detected_list_types[j], elem_type) == 0) {
-                        found = true;
-                        break;
+    if (!env) return;
+    for (int i = 0; i < env->generic_instance_count; ++i) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        const char *name = native_list_element(env, inst);
+        if (!name) continue;
+        bool duplicate = false;
+        for (int j = 0; j < i; ++j) {
+            GenericInstantiation *prior = &env->generic_instances[j];
+            if (prior->list_element.kind == inst->list_element.kind &&
+                prior->list_element.ordinal == inst->list_element.ordinal) duplicate = true;
+        }
+        if (duplicate) continue;
+        StructDef *record = &env->structs[inst->list_element.ordinal - 1];
+        if (record->is_extern && is_schema_list_type(name)) {
+            sb_appendf(sb, "#include \"runtime/list_%s.h\"\n", name);
+            /* I preserve the raw list ABI while owning constructor results. */
+            sb_append(sb, "#ifndef __wasm__\n#include \"runtime/list_capacity.h\"\n");
+            sb_appendf(sb, "static inline void __nano_seed_list_%s_finalize(void *value) { nl_list_%s_free((List_%s*)value); }\n", name, name, name);
+            sb_appendf(sb, "static inline List_%s *__nano_seed_list_%s_adopt(List_%s *value) {\n", name, name, name);
+            sb_appendf(sb, "    List_%s *owned = gc_process_own(value, __nano_seed_list_%s_finalize);\n", name, name);
+            sb_append(sb, "    if (!owned) { fputs(\"I could not retain list ownership.\\n\", stderr); exit(1); }\n    return owned;\n}\n");
+            sb_appendf(sb, "static inline List_%s *__nano_seed_list_%s_new(void) { return __nano_seed_list_%s_adopt(nl_list_%s_new()); }\n", name, name, name, name);
+            sb_appendf(sb, "static inline List_%s *__nano_seed_list_%s_with_capacity(int64_t capacity) { return __nano_seed_list_%s_adopt(nl_list_%s_with_capacity(nl_list_checked_capacity(capacity))); }\n", name, name, name, name);
+            sb_appendf(sb, "static inline void __nano_seed_list_%s_free(List_%s *value) { gc_process_forget(value); nl_list_%s_free(value); }\n", name, name, name);
+            sb_appendf(sb, "#define nl_list_%s_new __nano_seed_list_%s_new\n", name, name);
+            sb_appendf(sb, "#define nl_list_%s_with_capacity __nano_seed_list_%s_with_capacity\n", name, name);
+            sb_appendf(sb, "#define nl_list_%s_free __nano_seed_list_%s_free\n", name, name);
+            static const char *aliases[] = {"new", "with_capacity", "push", "pop", "insert",
+                "remove", "set", "get", "clear", "length", "capacity", "is_empty", "free"};
+            for (size_t op = 0; op < sizeof(aliases) / sizeof(aliases[0]); ++op)
+                sb_appendf(sb, "#define list_%s_%s nl_list_%s_%s\n",
+                           name, aliases[op], name, aliases[op]);
+            sb_append(sb, "#endif\n");
+        } else {
+            static const char *operations[] = {"new", "push", "get", "set", "insert", "remove",
+                "pop", "length", "capacity", "is_empty", "clear", "free", "validate", "index", "reserve"};
+            for (size_t op = 0; op < sizeof(operations) / sizeof(operations[0]); ++op) {
+                char generated[512];
+                snprintf(generated, sizeof(generated), "nl_list_%s_%s", name, operations[op]);
+                for (int f = 0; f < env->function_count; ++f) {
+                    Function *function = &env->functions[f];
+                    if (!function->name || env_generated_list_element(env, function).ordinal) continue;
+                    const char *actual = get_c_func_name_with_module(function->alias_of ? function->alias_of : function->name,
+                                                                    function->module_name, function->is_extern);
+                    if (!strcmp(actual, generated)) {
+                        fprintf(stderr, "I cannot share a native list provider symbol with a declaration.\n");
+                        exit(1);
                     }
                 }
-                if (!found) {
-                    /* Grow array if needed */
-                    if (detected_list_count >= capacity) {
-                        capacity *= 2;
-                        char **new_array = realloc(detected_list_types, sizeof(char*) * capacity);
-                        if (!new_array) {
-                            fprintf(stderr, "Error: Out of memory growing list types array to %d\n", capacity);
-                            free(detected_list_types);
-                            exit(1);
-                        }
-                        detected_list_types = new_array;
-                    }
-                    detected_list_types[detected_list_count++] = (char*)elem_type;
-                }
             }
+            const char *c_type = record->is_extern ? name : get_prefixed_type_name(name);
+            sb_append(sb, "#include \"runtime/native_record_list.h\"\n");
+            sb_appendf(sb, "NL_DEFINE_RECORD_LIST(%s, %s)\n\n", name, c_type);
         }
     }
-    
-    if (detected_list_count > 0) {
-        bool emitted_runtime_includes = false;
-        for (int i = 0; i < detected_list_count; i++) {
-            const char *type_name = detected_list_types[i];
-            if (is_schema_list_type(type_name)) {
-                if (!emitted_runtime_includes) {
-                    sb_append(sb, "/* ========== Schema List Runtime Includes ========== */\n");
-                    emitted_runtime_includes = true;
-                }
-                sb_appendf(sb, "#include \"runtime/list_%s.h\"\n", type_name);
-            }
-        }
-        if (emitted_runtime_includes) {
-            sb_append(sb, "/* ========== End Schema List Runtime Includes ========== */\n\n");
-        }
-
-        bool emitted_specializations = false;
-        for (int i = 0; i < detected_list_count; i++) {
-            const char *type_name = detected_list_types[i];
-            if (is_schema_list_type(type_name)) {
-                continue;
-            }
-
-            if (!emitted_specializations) {
-                sb_append(sb, "/* ========== Generic List Specializations ========== */\n\n");
-                emitted_specializations = true;
-            }
-
-            const char *prefixed = get_prefixed_type_name(type_name);
-            char *prefixed_elem_type = prefixed ? strdup(prefixed) : NULL;
-            if (!prefixed_elem_type) {
-                fprintf(stderr, "Error: Out of memory duplicating prefixed list type for %s\n", type_name);
-                exit(1);
-            }
-            char specialized_name[256];
-            snprintf(specialized_name, sizeof(specialized_name), "List_%s", type_name);
-
-            sb_appendf(sb, "struct %s {\n", specialized_name);
-            sb_appendf(sb, "    %s *data;\n", prefixed_elem_type);
-            sb_appendf(sb, "    int count;\n");
-            sb_appendf(sb, "    int capacity;\n");
-            sb_appendf(sb, "};\n\n");
-
-            sb_appendf(sb, "List_%s* nl_list_%s_new(void) {\n", type_name, type_name);
-            sb_appendf(sb, "    %s *list = malloc(sizeof(%s));\n", specialized_name, specialized_name);
-            sb_appendf(sb, "    if (!list) return NULL;\n");
-            sb_appendf(sb, "    list->capacity = 4;\n");
-            sb_appendf(sb, "    list->count = 0;\n");
-            sb_appendf(sb, "    list->data = malloc(sizeof(%s) * list->capacity);\n", prefixed_elem_type);
-            sb_appendf(sb, "    if (!list->data) { free(list); return NULL; }\n");
-            sb_appendf(sb, "    return list;\n");
-            sb_appendf(sb, "}\n\n");
-
-            sb_appendf(sb, "void nl_list_%s_push(List_%s *list, %s value) {\n",
-                      type_name, type_name, prefixed_elem_type);
-            sb_appendf(sb, "    if (!list) return;\n");
-            sb_appendf(sb, "    if (list->count >= list->capacity) {\n");
-            sb_appendf(sb, "        int new_capacity = list->capacity * 2;\n");
-            sb_appendf(sb, "        %s *new_data = realloc(list->data, sizeof(%s) * new_capacity);\n",
-                      prefixed_elem_type, prefixed_elem_type);
-            sb_appendf(sb, "        if (!new_data) return;\n");
-            sb_appendf(sb, "        list->data = new_data;\n");
-            sb_appendf(sb, "        list->capacity = new_capacity;\n");
-            sb_appendf(sb, "    }\n");
-            sb_appendf(sb, "    list->data[list->count++] = value;\n");
-            sb_appendf(sb, "}\n\n");
-
-            sb_appendf(sb, "%s nl_list_%s_get(List_%s *list, int index) {\n",
-                      prefixed_elem_type, type_name, type_name);
-            sb_appendf(sb, "    return list->data[index];\n");
-            sb_appendf(sb, "}\n\n");
-
-            sb_appendf(sb, "void nl_list_%s_set(List_%s *list, int index, %s value) {\n",
-                      type_name, type_name, prefixed_elem_type);
-            sb_appendf(sb, "    if (!list) return;\n");
-            sb_appendf(sb, "    if (index < 0 || index >= list->count) return;\n");
-            sb_appendf(sb, "    list->data[index] = value;\n");
-            sb_appendf(sb, "}\n\n");
-
-            sb_appendf(sb, "int nl_list_%s_length(List_%s *list) {\n", type_name, type_name);
-            sb_appendf(sb, "    return list ? list->count : 0;\n");
-            sb_appendf(sb, "}\n\n");
-
-            /* Emit unqualified aliases (without nl_ prefix) so user code that
-             * declares 'extern fn list_X_push(...)' resolves to the generated
-             * implementation without needing forward declarations. */
-            sb_appendf(sb, "#ifndef list_%s_new\n", type_name);
-            sb_appendf(sb, "#define list_%s_new nl_list_%s_new\n", type_name, type_name);
-            sb_appendf(sb, "#endif\n");
-            sb_appendf(sb, "#ifndef list_%s_push\n", type_name);
-            sb_appendf(sb, "#define list_%s_push nl_list_%s_push\n", type_name, type_name);
-            sb_appendf(sb, "#endif\n");
-            sb_appendf(sb, "#ifndef list_%s_get\n", type_name);
-            sb_appendf(sb, "#define list_%s_get nl_list_%s_get\n", type_name, type_name);
-            sb_appendf(sb, "#endif\n");
-            sb_appendf(sb, "#ifndef list_%s_set\n", type_name);
-            sb_appendf(sb, "#define list_%s_set nl_list_%s_set\n", type_name, type_name);
-            sb_appendf(sb, "#endif\n");
-            sb_appendf(sb, "#ifndef list_%s_length\n", type_name);
-            sb_appendf(sb, "#define list_%s_length nl_list_%s_length\n", type_name, type_name);
-            sb_appendf(sb, "#endif\n\n");
-
-            free(prefixed_elem_type);
-        }
-
-        if (emitted_specializations) {
-            sb_append(sb, "/* ========== End Generic List Specializations ========== */\n\n");
-        }
-    }
-    
-    free(detected_list_types);
 }
 
 static void generate_hashmap_specializations(Environment *env, StringBuilder *sb) {
@@ -1625,6 +1526,11 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_appendf(sb, "    %s_Entry *entries;\n", struct_name);
         sb_append(sb, "};\n\n");
 
+        sb_appendf(sb, "static void nl_hashmap_%s_free(%s *hm);\n", suffix, struct_name);
+        sb_append(sb, "#ifndef __wasm__\n");
+        sb_appendf(sb, "static void nl_hashmap_%s_finalize(void *value) { nl_hashmap_%s_free((%s*)value); }\n", suffix, suffix, struct_name);
+        sb_append(sb, "#endif\n");
+
         sb_appendf(sb, "static %s* nl_hashmap_%s_alloc(int64_t cap) {\n", struct_name, suffix);
         sb_appendf(sb, "    %s *hm = (%s*)malloc(sizeof(%s));\n", struct_name, struct_name, struct_name);
         sb_append(sb, "    if (!hm) return NULL;\n");
@@ -1633,6 +1539,9 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "    hm->tombstones = 0;\n");
         sb_appendf(sb, "    hm->entries = (%s_Entry*)calloc((size_t)cap, sizeof(%s_Entry));\n", struct_name, struct_name);
         sb_append(sb, "    if (!hm->entries) { free(hm); return NULL; }\n");
+        sb_append(sb, "#ifndef __wasm__\n");
+        sb_appendf(sb, "    return (%s*)gc_process_own(hm, nl_hashmap_%s_finalize);\n", struct_name, suffix);
+        sb_append(sb, "#endif\n");
         sb_append(sb, "    return hm;\n");
         sb_append(sb, "}\n\n");
 
@@ -1782,6 +1691,7 @@ static void generate_hashmap_implementations(Environment *env, StringBuilder *sb
         sb_append(sb, "}\n\n");
 
         sb_appendf(sb, "static void nl_hashmap_%s_free(%s *hm) {\n", suffix, struct_name);
+        sb_append(sb, "#ifndef __wasm__\n    gc_process_forget(hm);\n#endif\n");
         sb_append(sb, "    if (!hm) return;\n");
         sb_appendf(sb, "    nl_hashmap_%s_clear(hm);\n", suffix);
         sb_append(sb, "    free(hm->entries);\n");
@@ -2015,7 +1925,7 @@ static void __attribute__((unused)) generate_union_definitions(Environment *env,
             if (!build_monomorphized_name(monomorphized_name, sizeof(monomorphized_name),
                                           inst->generic_name, 
                                           (const char **)inst->type_arg_names, 
-                                          inst->type_arg_count)) {
+                                          inst->type_arg_count, inst->type_info)) {
                 fprintf(stderr, "Warning: Monomorphized type name too long for %s, skipping\n", 
                         inst->generic_name);
                 continue;
@@ -2176,6 +2086,7 @@ typedef struct {
 
 static int find_composite_type_item(NLCompositeTypeItem *items, int count, const char *name) {
     if (!name) return -1;
+    name = native_opaque_projection(name);
     for (int i = 0; i < count; i++) {
         if (items[i].name && strcmp(items[i].name, name) == 0) {
             return i;
@@ -2210,12 +2121,14 @@ static void emit_struct_definition_single(Environment *env, StringBuilder *sb, S
     
     /* For runtime types, use the name without struct keyword if possible, 
      * but we need to define it if it's not already defined. */
-    sb_appendf(sb, "typedef struct %s {\n", prefixed_name_dup);
+    sb_appendf(sb, native_derived_forwarded(prefixed_name_dup) ? "struct %s {\n" : "typedef struct %s {\n", prefixed_name_dup);
     for (int j = 0; j < sdef->field_count; j++) {
         sb_append(sb, "    ");
 
         TypeInfo *info = sdef->field_type_info ? sdef->field_type_info[j] : NULL;
-        if (info && info->generic_name && info->type_param_count > 0 &&
+        if (info && native_derived_type_name(info)) {
+            emit_native_type_info(env, sb, info);
+        } else if (info && info->generic_name && info->type_param_count > 0 &&
             env_get_union(env, info->generic_name)) {
             char *field_name = native_record_field_name(env, sdef, j);
             if (!field_name) { fprintf(stderr, "I cannot allocate a native record field type\n"); exit(1); }
@@ -2243,7 +2156,8 @@ static void emit_struct_definition_single(Environment *env, StringBuilder *sb, S
         }
         sb_appendf(sb, " %s;\n", sdef->field_names[j]);
     }
-    sb_appendf(sb, "} %s;\n", prefixed_name_dup);
+    if (native_derived_forwarded(prefixed_name_dup)) sb_append(sb, "};\n");
+    else sb_appendf(sb, "} %s;\n", prefixed_name_dup);
     sb_append(sb, "#endif\n\n");
     free((void*)prefixed_name_dup);
 }
@@ -2267,7 +2181,11 @@ static void emit_union_definition_single(Environment *env, StringBuilder *sb, Un
                 sb_append(sb, "    ");
                 Type ft = udef->variant_field_types[j][k];
 
-                if (ft == TYPE_STRUCT && udef->variant_field_type_names && udef->variant_field_type_names[j] &&
+                TypeInfo *complete = udef->variant_field_type_info && udef->variant_field_type_info[j]
+                    ? udef->variant_field_type_info[j][k] : NULL;
+                if (complete && native_derived_type_name(complete)) {
+                    emit_native_type_info(env, sb, complete);
+                } else if (ft == TYPE_STRUCT && udef->variant_field_type_names && udef->variant_field_type_names[j] &&
                     udef->variant_field_type_names[j][k] &&
                     env_get_opaque_type(env, udef->variant_field_type_names[j][k])) {
                     sb_append(sb, "void*");
@@ -2296,7 +2214,7 @@ static void emit_union_definition_single(Environment *env, StringBuilder *sb, Un
     }
     sb_appendf(sb, "} %s_Tag;\n\n", prefixed_union);
 
-    sb_appendf(sb, "typedef struct %s {\n", prefixed_union);
+    sb_appendf(sb, native_derived_forwarded(prefixed_union) ? "struct %s {\n" : "typedef struct %s {\n", prefixed_union);
     sb_appendf(sb, "    %s_Tag tag;\n", prefixed_union);
     sb_append(sb, "    union {\n");
     for (int j = 0; j < udef->variant_count; j++) {
@@ -2308,12 +2226,24 @@ static void emit_union_definition_single(Environment *env, StringBuilder *sb, Un
         }
     }
     sb_append(sb, "    } data;\n");
-    sb_appendf(sb, "} %s;\n\n", prefixed_union);
+    if (native_derived_forwarded(prefixed_union)) sb_append(sb, "};\n\n");
+    else sb_appendf(sb, "} %s;\n\n", prefixed_union);
 
     free((void*)prefixed_union);
 }
 
 static void emit_native_type_info(Environment *env, StringBuilder *sb, TypeInfo *info) {
+    if (info->base_type == TYPE_LIST_GENERIC) {
+        char *name = typeinfo_to_generic_arg_name(info);
+        if (!name) { fprintf(stderr, "I cannot allocate a native list payload type\n"); exit(1); }
+        sb_appendf(sb, "%s*", name);
+        free(name);
+        return;
+    }
+    const char *derived = native_derived_type_name(info);
+    if (derived && (info->base_type == TYPE_TUPLE || info->base_type == TYPE_FUNCTION)) {
+        sb_append(sb, derived); return;
+    }
     if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION || info->base_type == TYPE_ENUM) && info->generic_name) {
         if (env_get_opaque_type(env, info->generic_name)) { sb_append(sb, "void*"); return; }
         char *name = typeinfo_to_generic_arg_name(info);
@@ -2411,7 +2341,7 @@ static void emit_generic_union_instantiation(Environment *env, StringBuilder *sb
     }
     sb_appendf(sb, "} %s_Tag;\n\n", prefixed_union);
 
-    sb_appendf(sb, "typedef struct %s {\n", prefixed_union);
+    sb_appendf(sb, native_derived_forwarded(prefixed_union) ? "struct %s {\n" : "typedef struct %s {\n", prefixed_union);
     sb_appendf(sb, "    %s_Tag tag;\n", prefixed_union);
     sb_append(sb, "    union {\n");
 
@@ -2425,7 +2355,8 @@ static void emit_generic_union_instantiation(Environment *env, StringBuilder *sb
     }
 
     sb_append(sb, "    } data;\n");
-    sb_appendf(sb, "} %s;\n\n", prefixed_union);
+    if (native_derived_forwarded(prefixed_union)) sb_append(sb, "};\n\n");
+    else sb_appendf(sb, "} %s;\n\n", prefixed_union);
 
     free((void*)prefixed_union);
 }
@@ -2480,7 +2411,7 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
             if (!build_monomorphized_name(monomorphized_name_buf, sizeof(monomorphized_name_buf),
                                           inst->generic_name,
                                           (const char **)inst->type_arg_names,
-                                          inst->type_arg_count)) {
+                                          inst->type_arg_count, inst->type_info)) {
                 continue;
             }
 
@@ -2945,7 +2876,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
             if (!build_monomorphized_name(monomorphized_name, sizeof(monomorphized_name),
                                           inst->generic_name,
                                           (const char **)inst->type_arg_names,
-                                          inst->type_arg_count)) {
+                                          inst->type_arg_count, inst->type_info)) {
                 continue;
             }
 
@@ -3140,7 +3071,7 @@ static void generate_to_string_helpers(Environment *env, StringBuilder *sb) {
             if (!build_monomorphized_name(monomorphized_name, sizeof(monomorphized_name),
                                           inst->generic_name,
                                           (const char **)inst->type_arg_names,
-                                          inst->type_arg_count)) {
+                                          inst->type_arg_count, inst->type_info)) {
                 continue;
             }
 
@@ -3347,6 +3278,7 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
             }
 
             sb_appendf(sb, " %s(", c_name);
+            if (mi->as.function.param_count == 0) sb_append(sb, "void");
 
             /* Parameters */
             for (int p = 0; p < mi->as.function.param_count; p++) {
@@ -3532,6 +3464,7 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
             /* Use namespace-aware function name (handles module::function -> module__function) */
             const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name, item->as.function.is_extern);
             sb_appendf(sb, " %s(", c_func_name);
+            if (item->as.function.param_count == 0) sb_append(sb, "void");
             
             /* Function parameters */
             for (int j = 0; j < item->as.function.param_count; j++) {
@@ -3642,6 +3575,51 @@ static void pop_native_function_metadata(Environment *env, int first) {
     env->symbol_count = first;
 }
 
+/* I bind generic parameters from their declaration and resolved instance only. */
+static void bind_native_generic_parameter(Environment *env, const Parameter *param,
+                                          const GenericFuncInstance *inst) {
+    Type type = param->type;
+    const char *name = param->struct_type_name;
+    TypeInfo *info = param->type_info;
+    TypeInfo resolved = {0};
+    bool own_info = false;
+    if (type == TYPE_STRUCT && is_type_var(name)) {
+        for (int k = 0; k < inst->binding_count; ++k) {
+            if (strcmp(inst->var_names[k], name) != 0) continue;
+            type = inst->bound_types[k];
+            name = inst->bound_type_names[k];
+            resolved.base_type = type;
+            resolved.generic_name = (char *)name;
+            info = &resolved;
+            own_info = true;
+            break;
+        }
+    } else if (!info && type == TYPE_FUNCTION && param->fn_sig) {
+        resolved.base_type = TYPE_FUNCTION;
+        resolved.fn_sig = param->fn_sig;
+        info = &resolved;
+        own_info = true;
+    }
+    if (own_info) {
+        TypeInfo *copy = NULL;
+        if (!copy_payload_type_info_checked(info, &copy) ||
+            !env_own_checker_type_info(env, copy)) {
+            free_payload_type_info(copy);
+            fprintf(stderr, "I cannot retain a generic parameter annotation.\n");
+            exit(1);
+        }
+        info = copy;
+    }
+    char *owned_name = name ? strdup(name) : NULL;
+    if (name && !owned_name) {
+        fprintf(stderr, "I cannot retain a generic parameter name.\n");
+        exit(1);
+    }
+    env_define_var_with_type_info(env, param->name, type, param->element_type,
+                                 info, true, create_void());
+    env->symbols[env->symbol_count - 1].struct_type_name = owned_name;
+}
+
 /* Emit implementation for one generic function instance (must appear after transpile_statement macro) */
 static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
                                           const GenericFuncInstance *inst,
@@ -3658,6 +3636,7 @@ static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
     else        sb_append(sb, type_to_c(rt));
 
     sb_appendf(sb, " nl_%s(", inst->mono_name);
+    if (orig->as.function.param_count == 0) sb_append(sb, "void");
 
     /* Parameters */
     for (int j = 0; j < orig->as.function.param_count; j++) {
@@ -3673,19 +3652,7 @@ static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
     /* Add parameters with concrete types to env for body transpilation */
     int saved_sym_count = env->symbol_count;
     for (int j = 0; j < orig->as.function.param_count; j++) {
-        Type pt = orig->as.function.params[j].type;
-        const char *ps = orig->as.function.params[j].struct_type_name;
-        Type concrete_t = pt;
-        if (pt == TYPE_STRUCT && is_type_var(ps)) {
-            for (int k = 0; k < inst->binding_count; k++) {
-                if (strcmp(inst->var_names[k], ps) == 0) {
-                    concrete_t = inst->bound_types[k];
-                    break;
-                }
-            }
-        }
-        Value dummy = {0};
-        env_define_var(env, orig->as.function.params[j].name, concrete_t, true, dummy);
+        bind_native_generic_parameter(env, &orig->as.function.params[j], inst);
     }
 
     transpile_statement(sb, orig->as.function.body, 0, env, fn_registry);
@@ -3804,6 +3771,7 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
             /* Use namespace-aware function name (handles module::function -> module__function) */
             const char *c_func_name = get_c_func_name_with_module(item->as.function.name, module_name, item->as.function.is_extern);
             sb_appendf(sb, " %s(", c_func_name);
+            if (item->as.function.param_count == 0) sb_append(sb, "void");
             
             /* Function parameters */
             for (int j = 0; j < item->as.function.param_count; j++) {
@@ -3900,9 +3868,7 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                     located_param->scope_end_column = item->as.function.body->scope_end_column;
                 }
                 
-                /* A parameter owns its declared nominal metadata. The generic
-                 * environment helper may inherit a prior same-name symbol;
-                 * that symbol can belong to an unrelated function. */
+                /* A parameter owns its declared nominal metadata. */
                 free(located_param->struct_type_name);
                 located_param->struct_type_name = NULL;
                 if (item->as.function.params[j].struct_type_name) {
@@ -3998,28 +3964,16 @@ static void generate_process_operations(StringBuilder *sb) {
     sb_append(sb, "    return (int64_t)isatty((int)fd);\n");
     sb_append(sb, "}\n\n");
 
-    sb_append(sb, "/* Capture stdout from a shell command */\n");
-    sb_append(sb, "static inline const char* nl_exec_capture(const char* cmd) {\n");
-    sb_append(sb, "    FILE* pipe = popen(cmd, \"r\");\n");
-    sb_append(sb, "    if (!pipe) return \"\";\n");
-    sb_append(sb, "    char* out = (char*)malloc(65536);\n");
-    sb_append(sb, "    if (!out) { pclose(pipe); return \"\"; }\n");
-    sb_append(sb, "    size_t total = 0;\n");
-    sb_append(sb, "    while (total < 65535) {\n");
-    sb_append(sb, "        size_t n = fread(out + total, 1, 65535 - total, pipe);\n");
-    sb_append(sb, "        if (n == 0) break;\n");
-    sb_append(sb, "        total += n;\n");
-    sb_append(sb, "    }\n");
-    sb_append(sb, "    out[total] = '\\0';\n");
-    sb_append(sb, "    pclose(pipe);\n");
-    sb_append(sb, "    return out;\n");
-    sb_append(sb, "}\n\n");
-
+    sb_append(sb, "#include \"runtime/cseed_capture.h\"\n");
     sb_append(sb, "#include \"runtime/process_capture.h\"\n");
     sb_append(sb, "#ifndef NANOLANG_STD_PROCESS_H\n");
+    sb_append(sb, "static DynArray* nl_os_process_run(const char* command);\n");
+    sb_append(sb, "NANO_DECLARE_LOCAL_ARRAY_ABI(nl_os_process_run);\n");
     sb_append(sb, "static DynArray* nl_os_process_run(const char* command) {\n");
     sb_append(sb, "    return nl_process_run_capture(command);\n");
     sb_append(sb, "}\n");
+    sb_append(sb, "#else\n");
+    sb_append(sb, "static const NanoLocalArrayAbi *const nl_os_process_run__nano_local_array_abi = NULL;\n");
     sb_append(sb, "#endif /* NANOLANG_STD_PROCESS_H */\n\n");
 }
 
@@ -4058,6 +4012,9 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
     if (env && env->profile_gprof && has_local_main) {
         const char *c_main_name = get_c_func_name_with_module("main", main_func->module_name, main_func->is_extern);
         sb_append(sb, "int main(int argc, char **argv) {\n");
+        sb_append(sb, "#ifndef __wasm__\n");
+        sb_append(sb, "    if (atexit(gc_shutdown) != 0) { fprintf(stderr, \"I could not register GC shutdown.\\n\"); return 1; }\n");
+        sb_append(sb, "#endif\n");
         sb_append(sb, "    g_argc = argc;\n");
         sb_append(sb, "    g_argv = argv;\n");
         sb_append(sb, "    setvbuf(stdout, NULL, _IOLBF, 0);\n");
@@ -4066,6 +4023,9 @@ static void generate_main_wrapper(StringBuilder *sb, ASTNode *program, Environme
     } else {
         /* Normal main without gprof profiling */
         sb_append(sb, "int main(int argc, char **argv) {\n");
+        sb_append(sb, "#ifndef __wasm__\n");
+        sb_append(sb, "    if (atexit(gc_shutdown) != 0) { fprintf(stderr, \"I could not register GC shutdown.\\n\"); return 1; }\n");
+        sb_append(sb, "#endif\n");
         sb_append(sb, "    g_argc = argc;\n");
         sb_append(sb, "    g_argv = argv;\n");
         /* Line-buffer stdout so println output appears immediately even when piped */
@@ -4108,7 +4068,8 @@ static bool is_c_constant_initializer(ASTNode *expr) {
 /* Generate top-level globals (constants + mutable globals).
  * For non-constant initializers, emit a small runtime initializer.
  */
-static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Environment *env) {
+static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Environment *env,
+                                      FunctionTypeRegistry *fn_registry, TupleTypeRegistry *tuple_registry) {
     sb_append(sb, "/* Top-level globals */\n");
 
     ASTNode **runtime_inits = NULL;
@@ -4153,7 +4114,9 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
                 sb_append(sb, type_to_c(item->as.let.var_type));
             }
             sb_appendf(sb, " %s = ", item->as.let.name);
+            if (item->as.let.var_type == TYPE_U8) sb_append(sb, "(uint8_t)(");
             transpile_expression(sb, item->as.let.value, env);
+            if (item->as.let.var_type == TYPE_U8) sb_append(sb, ")");
             sb_append(sb, ";\n");
             continue;
         }
@@ -4175,15 +4138,29 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
             } else {
                 sb_append(sb, "void*");
             }
-        } else if (item->as.let.var_type == TYPE_UNION && item->as.let.type_info) {
-            emit_native_type_info(env, sb, item->as.let.type_info);
+        } else if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION ||
+                   item->as.let.var_type == TYPE_ENUM) {
+            if (item->as.let.type_info && item->as.let.type_info->generic_name)
+                emit_native_type_info(env, sb, item->as.let.type_info);
+            else if (item->as.let.type_name)
+                sb_append(sb, get_prefixed_type_name(item->as.let.type_name));
+            else if (item->as.let.type_info)
+                emit_native_type_info(env, sb, item->as.let.type_info);
+            else
+                sb_append(sb, type_to_c(item->as.let.var_type));
+        } else if (item->as.let.var_type == TYPE_TUPLE && item->as.let.type_info) {
+            sb_append(sb, register_tuple_type(tuple_registry, item->as.let.type_info));
+        } else if (item->as.let.var_type == TYPE_FUNCTION && item->as.let.fn_sig) {
+            sb_append(sb, register_function_signature(fn_registry, item->as.let.fn_sig));
         } else {
             sb_append(sb, type_to_c(item->as.let.var_type));
         }
         sb_appendf(sb, " %s", item->as.let.name);
         if (is_const_init) {
             sb_append(sb, " = ");
+            if (item->as.let.var_type == TYPE_U8) sb_append(sb, "(uint8_t)(");
             transpile_expression(sb, item->as.let.value, env);
+            if (item->as.let.var_type == TYPE_U8) sb_append(sb, ")");
         }
         sb_append(sb, ";\n");
 
@@ -4213,7 +4190,9 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
         for (int i = 0; i < runtime_init_count; i++) {
             ASTNode *item = runtime_inits[i];
             sb_appendf(sb, "    %s = ", item->as.let.name);
+            if (item->as.let.var_type == TYPE_U8) sb_append(sb, "(uint8_t)(");
             transpile_expression(sb, item->as.let.value, env);
+            if (item->as.let.var_type == TYPE_U8) sb_append(sb, ")");
             sb_append(sb, ";\n");
         }
         sb_append(sb, "}\n");
@@ -4256,6 +4235,8 @@ static void generate_type_typedefs(StringBuilder *sb, FunctionTypeRegistry *fn_r
     if (fn_registry->count > 0) {
         sb_append(sb, "/* Function Type Typedefs */\n");
         for (int i = 0; i < fn_registry->count; i++) {
+            TypeInfo info = {.base_type = TYPE_FUNCTION, .fn_sig = fn_registry->signatures[i]};
+            if (native_derived_emitted(&info)) continue;
             generate_function_typedef(sb, fn_registry->signatures[i],
                                     fn_registry->typedef_names[i], env);
         }
@@ -4266,8 +4247,9 @@ static void generate_type_typedefs(StringBuilder *sb, FunctionTypeRegistry *fn_r
     if (tuple_registry->count > 0) {
         sb_appendf(sb, "/* Tuple Type Typedefs (found %d types) */\n", tuple_registry->count);
         for (int i = 0; i < tuple_registry->count; i++) {
+            if (native_derived_emitted(tuple_registry->tuples[i])) continue;
             generate_tuple_typedef(sb, tuple_registry->tuples[i],
-                                 tuple_registry->typedef_names[i]);
+                                 tuple_registry->typedef_names[i], env);
         }
         sb_append(sb, "\n");
     }
@@ -4280,6 +4262,13 @@ static void collect_function_and_tuple_types(ASTNode *program, FunctionTypeRegis
         ASTNode *item = program->as.program.items[i];
         /* async fn declarations wrap a normal function node — treat them identically */
         if (item->type == AST_ASYNC_FN) item = item->as.async_fn.function;
+
+        if (item->type == AST_LET) {
+            collect_fn_sigs(item, fn_registry);
+            if (item->as.let.var_type == TYPE_TUPLE && item->as.let.type_info)
+                register_tuple_type(tuple_registry, item->as.let.type_info);
+            collect_tuple_types_from_stmt(item, tuple_registry);
+        }
 
         if (item->type == AST_FUNCTION) {
             /* Check parameters for function types */
@@ -4362,7 +4351,55 @@ static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry
     }
 }
 
-/* Generate module extern declarations (extern functions from imported modules) */
+/* I require an explicit, same-source companion before adopting foreign storage.
+ * These adapters retain the raw string ABI until explicit release or exit. */
+static void generate_owned_string_adapters(StringBuilder *sb, Environment *env) {
+    if (!env) return;
+    sb_append(sb, "#ifndef __wasm__\n");
+    for (int i = 0; i < env->function_count; ++i) {
+        Function *fn = &env->functions[i];
+        if (!fn->is_extern || fn->return_type != TYPE_STRING || !fn->name ||
+            fn->alias_of || !fn->source_file || strchr(fn->name, '.') ||
+            (fn->param_count > 0 && !fn->params)) continue;
+        bool scalar = true;
+        for (int j = 0; j < fn->param_count; ++j) {
+            Type t = fn->params[j].type;
+            if (t != TYPE_INT && t != TYPE_U8 && t != TYPE_FLOAT &&
+                t != TYPE_BOOL && t != TYPE_STRING) scalar = false;
+        }
+        if (!scalar) continue;
+        char release[1024];
+        int length = snprintf(release, sizeof(release), "%s__nano_string_release_v1", fn->name);
+        if (length < 0 || (size_t)length >= sizeof(release)) continue;
+        Function *cleanup = env_get_function(env, release);
+        if (!cleanup || !cleanup->is_extern || cleanup->return_type != TYPE_VOID ||
+            cleanup->param_count != 1 || !cleanup->params || cleanup->params[0].type != TYPE_STRING ||
+            !cleanup->source_file || strcmp(fn->source_file, cleanup->source_file) != 0)
+            continue;
+        sb_appendf(sb, "static void __nano_seed_string_%s_finalize(void *p) { %s((const char*)p); }\n",
+                   fn->name, release);
+        sb_appendf(sb, "static const char *__nano_seed_string_%s(", fn->name);
+        if (!fn->param_count) sb_append(sb, "void");
+        for (int j = 0; j < fn->param_count; ++j) {
+            if (j) sb_append(sb, ", ");
+            sb_appendf(sb, "%s a%d", type_to_c(fn->params[j].type), j);
+        }
+        sb_appendf(sb, ") { const char *p = %s(", fn->name);
+        for (int j = 0; j < fn->param_count; ++j) {
+            if (j) sb_append(sb, ", ");
+            sb_appendf(sb, "a%d", j);
+        }
+        sb_appendf(sb, "); if (!p) return NULL; const char *owned = gc_process_own((void*)p, __nano_seed_string_%s_finalize); "
+                   "if (!owned) { fprintf(stderr, \"I could not retain an owned foreign string.\\n\"); exit(1); } return owned; }\n", fn->name);
+        sb_appendf(sb, "static void __nano_seed_string_%s_release(const char *p) { gc_process_forget((void*)p); %s(p); }\n",
+                   fn->name, release);
+        /* Object-like names also preserve ownership through function values. */
+        sb_appendf(sb, "#define %s __nano_seed_string_%s\n#define %s __nano_seed_string_%s_release\n",
+                   fn->name, fn->name, release, fn->name);
+    }
+    sb_append(sb, "#endif\n");
+}
+
 static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *program, Environment *env, FunctionTypeRegistry *fn_registry) {
     /* Generate extern declarations for module wrapper functions (e.g., nl_sqlite3_*)
      * Note: System library functions (e.g., SDL_*, sqlite3_*) are declared in module headers,
@@ -4763,6 +4800,8 @@ static void generate_effect_dispatch(StringBuilder *sb, ASTNode *program, Enviro
 }
 
 /* Transpile program to C */
+#include "transpiler_opaque_declarations.inc"
+
 static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char *input_file) {
     if (ast_has_service_declaration(program)) { fprintf(stderr, "I have not resolved File service declarations for this consumer.\n"); return NULL; }
     if (!program || program->type != AST_PROGRAM) {
@@ -4849,6 +4888,30 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     /* Coroutine runtime builtins (coro_spawn, scheduler_run, etc.) */
     generate_coroutine_builtins(sb);
 
+    /* ========== Function Type Typedefs ========== */
+    /* Collect all function signatures and tuple types used in the program */
+    FunctionTypeRegistry *fn_registry = create_fn_type_registry();
+    TupleTypeRegistry *tuple_registry = create_tuple_type_registry(env);
+    g_tuple_registry = tuple_registry;  /* Set global registry for expression transpilation */
+
+    collect_module_function_types(program, fn_registry, input_file);
+    collect_function_and_tuple_types(program, fn_registry, tuple_registry);
+    /* I register transitive foreign signatures before their declarations. */
+    for (int i = 0; i < env->function_count; ++i) {
+        Function *function = &env->functions[i];
+        if (!function->is_extern) continue;
+        if (function->return_type == TYPE_FUNCTION && function->return_fn_sig)
+            register_function_signature(fn_registry, function->return_fn_sig);
+        for (int j = 0; j < function->param_count; ++j) {
+            Parameter *parameter = &function->params[j];
+            if (parameter->type == TYPE_FUNCTION && parameter->fn_sig)
+                register_function_signature(fn_registry, parameter->fn_sig);
+        }
+    }
+
+
+    NativeDerivedGraph *derived_graph = native_derived_prepare(env, fn_registry, tuple_registry);
+
     /* Generate enum typedefs first (before structs, since structs may use enums) */
     generate_enum_definitions(env, sb);
 
@@ -4859,7 +4922,8 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     generate_hashmap_specializations(env, sb);
 
     /* Generate struct + union definitions in dependency-safe order */
-    generate_struct_and_union_definitions_ordered(env, sb);
+    if (derived_graph) native_derived_emit(derived_graph, sb);
+    else generate_struct_and_union_definitions_ordered(env, sb);
 
     /* Generate compile-time struct metadata reflection functions */
     generate_struct_metadata(env, sb);
@@ -4877,28 +4941,6 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
 
     /* Generate to_string helpers for user-defined types */
     generate_to_string_helpers(env, sb);
-
-    /* ========== Function Type Typedefs ========== */
-    /* Collect all function signatures and tuple types used in the program */
-    FunctionTypeRegistry *fn_registry = create_fn_type_registry();
-    TupleTypeRegistry *tuple_registry = create_tuple_type_registry();
-    g_tuple_registry = tuple_registry;  /* Set global registry for expression transpilation */
-    
-    collect_module_function_types(program, fn_registry, input_file);
-    collect_function_and_tuple_types(program, fn_registry, tuple_registry);
-    /* I register transitive foreign signatures before their declarations. */
-    for (int i = 0; i < env->function_count; ++i) {
-        Function *function = &env->functions[i];
-        if (!function->is_extern) continue;
-        if (function->return_type == TYPE_FUNCTION && function->return_fn_sig)
-            register_function_signature(fn_registry, function->return_fn_sig);
-        for (int j = 0; j < function->param_count; ++j) {
-            Parameter *parameter = &function->params[j];
-            if (parameter->type == TYPE_FUNCTION && parameter->fn_sig)
-                register_function_signature(fn_registry, parameter->fn_sig);
-        }
-    }
-
     
     /* Generate typedef declarations */
     generate_type_typedefs(sb, fn_registry, tuple_registry, env);
@@ -4911,6 +4953,7 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
 
     /* Also generate extern declarations for extern functions from imported modules */
     generate_module_extern_declarations(sb, program, env, fn_registry);
+    generate_owned_string_adapters(sb, env);
 
     /* Forward declare imported module functions */
     generate_module_function_declarations(sb, program, env, input_file, fn_registry);
@@ -4919,7 +4962,7 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     generate_program_function_declarations(sb, program, env, fn_registry, tuple_registry);
 
     /* Emit top-level globals in their original initialization order. */
-    generate_toplevel_globals(sb, program, env);
+    generate_toplevel_globals(sb, program, env, fn_registry, tuple_registry);
 
     /* Generate function implementations */
     effect_helpers = sb_create(); effect_serial = 0;
@@ -4941,6 +4984,7 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     /* Cleanup */
     free_fn_type_registry(fn_registry);
     free_tuple_type_registry(tuple_registry);
+    native_derived_graph_free(derived_graph); native_derived_graph = NULL;
     g_tuple_registry = NULL;  /* Clear global registry */
     clear_module_headers();  /* Clear collected headers */
 
@@ -4951,6 +4995,12 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
 
 /* I retain no borrowed declaration pointer and restore context on every exit. */
 char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file) {
+    NativeOpaqueNames names = {.prefix = env ? env_opaque_symbol_prefix(env) : 0};
+    NativeOpaqueNames *previous_names = native_opaque_names;
+    NativeDerivedGraph *previous_graph = native_derived_graph;
+    TupleTypeRegistry *previous_tuples = g_tuple_registry;
+    native_derived_graph = NULL;
+    native_opaque_names = &names;
     uint32_t previous = native_declared_letters;
     native_declared_letters = 0;
     for (int i = 0; env && i < env->union_count; ++i) {
@@ -4965,5 +5015,8 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     }
     char *result = transpile_to_c_impl(program, env, input_file);
     native_declared_letters = previous;
+    native_opaque_names = previous_names;
+    native_derived_graph = previous_graph; g_tuple_registry = previous_tuples;
+    native_opaque_names_free(&names);
     return result;
 }

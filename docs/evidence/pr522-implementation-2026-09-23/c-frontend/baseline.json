@@ -1,0 +1,154 @@
+[
+  {
+    "case": "test_branch_join_consumes_outer_owner",
+    "expected_accept": true,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Warning at line 21, column 20: Unused variable 'error'\nI could not compile shadows at line 6: I require scalar concrete union arguments in my source borrow profile\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_conditional_constructor_return",
+    "expected_accept": true,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I could not compile shadows at line 6: I require scalar concrete union arguments in my source borrow profile\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_declared_constructor_argument",
+    "expected_accept": true,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I could not compile shadows at line 6: I require scalar concrete union arguments in my source borrow profile\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_declared_constructor_return",
+    "expected_accept": true,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I could not compile shadows at line 6: I require scalar concrete union arguments in my source borrow profile\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_declared_return_and_alias_transfer",
+    "expected_accept": true,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I could not compile shadows at line 6: I require scalar concrete union arguments in my source borrow profile\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_drop_selected_field_rejected",
+    "expected_accept": false,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I cannot verify affine ownership at line 8, column 54: resource remains live at scope exit \u2014 value\nWarning at line 8, column 20: Unused variable 'value'\nerror: type check failed\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_drop_union_rejected",
+    "expected_accept": false,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I cannot verify affine ownership at line 6, column 1: resource remains live at scope exit \u2014 value\nWarning at line 6, column 1: Unused variable 'value'\nWarning: Function 'abandon' is missing a shadow test\nerror: type check failed\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_duplicate_consume_rejected",
+    "expected_accept": false,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I cannot verify affine ownership at line 22, column 63: I cannot use a moved value \u2014 value\nerror: type check failed\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_empty_arm_has_no_obligation",
+    "expected_accept": true,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I could not compile shadows at line 6: I require scalar concrete union arguments in my source borrow profile\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_incomplete_match_rejected",
+    "expected_accept": false,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "-- E035 NON-EXHAUSTIVE MATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/pr522-c-parity-il18g_tu/source.nano\nI require this match to cover every variant; I am missing: Err\n\n6| fn consume(value: Result<Handle,string>) -> int { match value { Ok(payload) => { let Result.Ok { value } = payload return (close_handle value) } } }\n                                                     ^^^^^\nHint: Add unconditional arms for the missing variants or one unconditional wildcard.\nI cannot verify affine ownership at line 6, column 51: I require an exhaustive unguarded owned match with supported concrete payloads\nI cannot verify affine ownership at line 6, column 82: this control-flow boundary needs ownership lowering \u2014 __owned$109\nI cannot verify affine ownership at line 6, column 82: this control-flow boundary needs ownership lowering \u2014 value\nI cannot verify affine ownership at line 6, column 82: this control-flow boundary needs ownership lowering \u2014 __owned$109\nI cannot verify affine ownership at line 6, column 82: this control-flow boundary needs ownership lowering \u2014 value\nI cannot verify affine ownership at line 6, column 108: this boundary needs ownership lowering \u2014 payload\nI cannot verify affine ownership at line 6, column 82: this control-flow boundary needs ownership lowering \u2014 __owned$109\nI cannot verify affine ownership at line 6, column 82: this control-flow boundary needs ownership lowering \u2014 value\nI cannot verify affine ownership at line 6, column 137: this boundary needs ownership lowering \u2014 value\nI cannot verify affine ownership at line 6, column 116: resource remains live at scope exit \u2014 value\nWarning: Function 'consume' is missing a shadow test\nerror: type check failed\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_join_mismatch_rejected",
+    "expected_accept": false,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I cannot verify affine ownership at line 6, column 66: match arms disagree on ownership \u2014 other\nI cannot verify affine ownership at line 6, column 1: resource remains live at scope exit \u2014 other\nWarning: Function 'joined' is missing a shadow test\nerror: type check failed\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_match_constructor_return",
+    "expected_accept": true,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Warning at line 20, column 9: Unused variable 'payload'\nI could not compile shadows at line 6: I require scalar concrete union arguments in my source borrow profile\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_match_then_reuse_rejected",
+    "expected_accept": false,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I cannot verify affine ownership at line 22, column 19: I cannot use a moved value \u2014 value\nWarning: Function 'reuse' is missing a shadow test\nerror: type check failed\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_nested_generic_transfer",
+    "expected_accept": true,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Warning at line 19, column 54: Unused variable 'payload'\nI could not compile shadows at line 6: I require scalar concrete union arguments in my source borrow profile\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_ordinary_selected_arm_can_be_ignored",
+    "expected_accept": true,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "Warning at line 7, column 2: Unused variable 'payload'\nI could not compile shadows at line 6: I require scalar concrete union arguments in my source borrow profile\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_partial_move_rejected",
+    "expected_accept": false,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I cannot verify affine ownership at line 8, column 48: I cannot partially move a resource field \u2014 value\nI cannot verify affine ownership at line 8, column 20: resource remains live at scope exit \u2014 payload\nerror: type check failed\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_resource_and_ordinary_selected_arms",
+    "expected_accept": true,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I could not compile shadows at line 6: I require scalar concrete union arguments in my source borrow profile\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_resource_collection_still_rejected",
+    "expected_accept": false,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I cannot verify affine ownership at line 6, column 1: generic or tuple resource ownership needs lowering\nI cannot verify affine ownership at line 6, column 1: resource remains live at scope exit \u2014 value\nWarning at line 6, column 1: Unused variable 'value'\nWarning: Function 'abandon' is missing a shadow test\nerror: type check failed\n",
+    "prior_preserved": true
+  },
+  {
+    "case": "test_unresolved_tuple_still_rejected",
+    "expected_accept": false,
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I cannot verify affine ownership at line 7, column 1: generic or tuple resource ownership needs lowering\nI cannot verify affine ownership at line 7, column 1: resource remains live at scope exit \u2014 value\nWarning at line 7, column 1: Unused variable 'value'\nWarning: Function 'abandon' is missing a shadow test\nerror: type check failed\n",
+    "prior_preserved": true
+  }
+]

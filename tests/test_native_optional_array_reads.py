@@ -1,4 +1,10 @@
 """I retain missing scalar array elements as void until a consumer checks them."""
+try:
+    from tests.sanitizer_options import asan_options
+    from tests.native_toolchain import native_cc
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
+    from native_toolchain import native_cc
 from pathlib import Path
 import os
 import subprocess
@@ -9,7 +15,7 @@ ROOT=Path(__file__).resolve().parents[1]
 class OptionalArrayReads(unittest.TestCase):
     def checked(self,args):
         r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=60,
-                         env={**os.environ,'ASAN_OPTIONS':'detect_leaks=1:halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
+                         env={**os.environ,'ASAN_OPTIONS':asan_options("halt_on_error=1"),'UBSAN_OPTIONS':'halt_on_error=1'})
         self.assertEqual(r.returncode,0,r.stdout+r.stderr)
         return r
     def paired(self,text):
@@ -20,7 +26,7 @@ class OptionalArrayReads(unittest.TestCase):
             self.checked([ROOT/'bin/nano_vm','--verify-only',module])
             self.checked([ROOT/'bin/nano_vm',module])
             self.checked([ROOT/'bin/nvm2c',module,'-o',source])
-            self.checked([os.environ.get('CC','cc'),'-std=c11','-O1','-Wall','-Wextra','-Werror',
+            self.checked([*native_cc(),'-std=c11','-O1','-Wall','-Wextra','-Werror',
                           '-fsanitize=address,undefined','-fno-sanitize-recover=all',source,'-o',binary])
             self.checked([binary])
     def test_tags_bounds_locals_and_calls(self):

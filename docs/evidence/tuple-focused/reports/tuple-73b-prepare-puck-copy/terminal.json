@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "head": "73b61d06f04cf291a1960dc0b3e2b583ffefcb44",
+  "scope": "fresh ordinary COMMON_OBJECTS/RUNTIME_OBJECTS for focused parser/checker/lifetime fixtures only; no build/bootstrap/native corpus claim"
+}

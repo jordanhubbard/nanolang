@@ -2,13 +2,13 @@
 
 [![CI](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml/badge.svg)](https://github.com/jordanhubbard/nanolang/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
-![Bootstrap](https://img.shields.io/badge/bootstrap-self--hosting%20in%20progress-yellow.svg)
+![Bootstrap](https://img.shields.io/badge/bootstrap-bytecode%20fixed%20point-green.svg)
 
 **I am a programming language designed for machines to write and humans to read, and a secure runtime that hosts least-privilege services on an ordinary kernel.** I require tests, I use unambiguous syntax, and my core is formally proved.
 
-I transpile to C when you need native performance. NanoISA is my verified bytecode VM; it isolates dangerous external calls in a separate process. After 4.0 I added versioned service contracts, unforgeable capabilities, a POSIX fabric, and a trap journal. I do not claim a kernel. My core semantics are mechanically proved in Coq — type soundness, progress, determinism, and the big-step ↔ small-step equivalence proof are all complete and `Admitted`-free.
+I emit verified NanoISA bytecode as my portable compiler product. I translate that module to C11 when you need a native process, and I can execute it directly in NanoVM. NanoVM can isolate supported external calls in a separate process. After 4.0 I added versioned service contracts, unforgeable capabilities, a POSIX fabric, and a trap journal. I do not claim a kernel. My core semantics are mechanically proved in Coq — type soundness, progress, determinism, and the big-step ↔ small-step equivalence proof are all complete and `Admitted`-free.
 
-I published v5.0.0 with the language/runtime changes in [my release contract](docs/RELEASE_5.0.md). My planned v5.1.0 must complete the [full remaining roadmap](docs/ROADMAP.md), including NanoISA-only compilation and matching compiler bytecode. Those architecture gates remain unfinished.
+`v5.1.0` is my One IR release. Its [release record](docs/RELEASE_5.1.md) describes the NanoISA-only product path, matching self-hosted compiler bytecode, platform evidence and deliberate boundaries. I preserve the narrower [5.0 record](docs/RELEASE_5.0.md) as history.
 
 ## Documentation
 
@@ -21,10 +21,11 @@ I published v5.0.0 with the language/runtime changes in [my release contract](do
 - [NanoISA VM Architecture](docs/NANOISA.md) - How my virtual machine is structured.
 - [Formal Verification](formal/README.md) - My Coq proof suite.
 - [Performance Monitoring and LLM Optimization](docs/PERFORMANCE_MONITORING.md) - `-pg` JSON, OS collectors, and a measured optimization loop.
+- [NanoLang 5.1](docs/RELEASE_5.1.md) - One verified compiler product, self-hosted bytecode fixed point, AOT translators, ownership work and exact release boundaries.
 - [NanoLang 5.0](docs/RELEASE_5.0.md) - Language-contract changes, dependency shadows by default, module/cache hardening, and explicit unfinished runtime boundaries.
 - [NanoLang 4.5](docs/RELEASE_4.5.md) - Previous public cut covering 4.1–4.5: Forth evidence, NSI, capabilities, POSIX fabric, isolated Nano Emacs, effects-to-policy, trap journal.
 - [NanoLang 4.0](docs/RELEASE_4.0.md) - NanoISA v2, the verifier, and measured dispatch.
-- [Developer overview](docs/presentation/README.md) - Local 5.0 release-edition deck and narrative; published Google artifacts remain the 4.5 edition.
+- [Developer overview](docs/presentation/README.md) - Local 5.1 release-edition deck and narrative; external Google publication remains a separate action.
 - [All Documentation](docs/DOCS_INDEX.md) - An index of everything I have to say.
 
 ## Quick Start
@@ -66,7 +67,7 @@ EOF
 - **NanoISA Virtual Machine** - I include a stack-based VM with 161 portable opcodes in an 8-bit opcode space. It isolates FFI calls in a co-process and can run as a daemon. Bytecode is verified before it runs.
 - **Automatic Memory Management** - I use reference counting so you never call `free()`. Heap allocations carry a small per-retain/release cost; pauses are deterministic. NanoVM also collects reference cycles (`src/nanovm/heap_cycles.c`); generated C already did.
 - **Machine-Led Optimization** - I run constant folding and dead-code elimination before code generation. I also support profile-guided inlining on my native C path.
-- **Shared IR** - I lower NanoLang and Nano Forth to NanoISA. C remains my production native path. Future LLVM, WebAssembly, JVM, and other general targets translate from NanoISA so every frontend shares one typed and verified boundary. PTX, OpenCL, and RISC-V remain direct experimental targets during that migration.
+- **One verified IR** - I lower NanoLang and Nano Forth to NanoISA. My default portable product is `.nvm`; C11 native, LLVM IR and WebAssembly are translators of that verified module. PTX, OpenCL, RISC-V and other restricted profiles remain explicitly experimental where their complete general-language contract is not established.
 - **Algebraic Effects** - I support typed, resumable effects with `effect`, `perform`, and `handle`. Side effects are explicit and composable.
 - **Async / Await** - I lower `async fn` and `await` to a CPS state machine at compile time.
 - **Dual Notation** - I support both prefix `(+ a b)` and infix `a + b` operators. My prefix calls are unambiguous.

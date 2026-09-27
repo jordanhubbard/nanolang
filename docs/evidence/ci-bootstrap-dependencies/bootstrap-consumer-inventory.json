@@ -1,0 +1,1709 @@
+[
+  {
+    "target": "test-selfhost-array-compatibility",
+    "path": [
+      "test-selfhost-array-compatibility",
+      "bootstrap3"
+    ],
+    "worker": "units-00",
+    "commands": [
+      "\t@python3 -m unittest tests.test_selfhost_array_compatibility"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_selfhost_array_compatibility.py",
+        "matches": [
+          {
+            "line": 17,
+            "text": "run = subprocess.run([str(ROOT / \"bin/nanoc_stage2\"), str(source),"
+          },
+          {
+            "line": 48,
+            "text": "for compiler in (\"nanoc_c\", \"nanoc_stage1\", \"nanoc_stage2\"):"
+          },
+          {
+            "line": 92,
+            "text": "run = subprocess.run([str(ROOT / \"bin/nanoc_stage2\"), str(source),"
+          },
+          {
+            "line": 126,
+            "text": "run = subprocess.run([str(ROOT / \"bin/nanoc_stage2\"), str(source),"
+          },
+          {
+            "line": 155,
+            "text": "run = subprocess.run([str(ROOT / \"bin/nanoc_stage2\"), str(source),"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-purity-contract",
+    "path": [
+      "test-purity-contract",
+      "bootstrap"
+    ],
+    "worker": "units-00",
+    "commands": [
+      "\tpython3 scripts/gen_purity_intrinsics.py --check",
+      "\tpython3 tests/test_purity_contract.py"
+    ],
+    "fixtures": [
+      {
+        "path": "scripts/gen_purity_intrinsics.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_purity_contract.py",
+        "matches": [
+          {
+            "line": 9,
+            "text": "COMPILERS = [ROOT / \"bin/nanoc_c\", Path(os.environ.get(\"NANOLANG_SELFHOST_COMPILER\", ROOT / \"bin/nanoc_stage2\"))]"
+          },
+          {
+            "line": 80,
+            "text": "for compiler in COMPILERS:"
+          },
+          {
+            "line": 102,
+            "text": "for compiler in COMPILERS:"
+          },
+          {
+            "line": 109,
+            "text": "for compiler in COMPILERS:"
+          },
+          {
+            "line": 129,
+            "text": "result = self.command([COMPILERS[0], source, '-o', output])"
+          },
+          {
+            "line": 150,
+            "text": "result = self.command([COMPILERS[0], path, \"-o\", output])"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-local-binding-producers",
+    "path": [
+      "test-local-binding-producers",
+      "bootstrap"
+    ],
+    "worker": "units-00",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_local_binding_metadata"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_local_binding_metadata.py",
+        "matches": [
+          {
+            "line": 40,
+            "text": "for driver in (\"nano_virt\", \"nanoc_stage1\", \"nanoc_stage2\"):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-constructor-call-context",
+    "path": [
+      "test-constructor-call-context",
+      "bootstrap"
+    ],
+    "worker": "units-00",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_constructor_call_context"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_constructor_call_context.py",
+        "matches": [
+          {
+            "line": 11,
+            "text": "COMPILERS = os.environ.get('NANO_CONSTRUCTOR_COMPILERS', 'nanoc_stage1,nanoc_stage2').split(',')"
+          },
+          {
+            "line": 26,
+            "text": "for compiler in COMPILERS:"
+          },
+          {
+            "line": 64,
+            "text": "for compiler in COMPILERS:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-explicit-generic-constructors",
+    "path": [
+      "test-explicit-generic-constructors",
+      "bootstrap"
+    ],
+    "worker": "units-00",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_explicit_generic_constructors"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_explicit_generic_constructors.py",
+        "matches": [
+          {
+            "line": 62,
+            "text": "for tool in [*self.raw, ROOT/'bin/nano_virt', ROOT/'bin/nanoc_stage1', ROOT/'bin/nanoc_stage2']:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-selfhost-map-types",
+    "path": [
+      "test-selfhost-map-types",
+      "bootstrap3"
+    ],
+    "worker": "units-01",
+    "commands": [
+      "\t@python3 -m unittest tests.test_selfhost_map_types"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_selfhost_map_types.py",
+        "matches": [
+          {
+            "line": 32,
+            "text": "run = subprocess.run([str(ROOT / \"bin/nanoc_stage2\"), str(source),"
+          },
+          {
+            "line": 57,
+            "text": "run = subprocess.run([str(ROOT / \"bin/nanoc_stage2\"), str(source),"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-native-nested-generics",
+    "path": [
+      "test-native-nested-generics",
+      "bootstrap"
+    ],
+    "worker": "units-01",
+    "commands": [
+      "\tpython3 -m unittest tests.test_native_nested_generics"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_native_nested_generics.py",
+        "matches": [
+          {
+            "line": 34,
+            "text": "def check_fixture(self, name, compilers=(\"nanoc_c\", \"nanoc_stage1\", \"nanoc_stage2\")):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-borrow-annotations",
+    "path": [
+      "test-borrow-annotations",
+      "bootstrap"
+    ],
+    "worker": "units-01",
+    "commands": [
+      "\tpython3 tests/test_borrow_annotations.py"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_borrow_annotations.py",
+        "matches": [
+          {
+            "line": 9,
+            "text": "COMPILERS = os.environ.get('NANO_BORROW_COMPILERS', 'nanoc_c,nanoc_stage1,nanoc_stage2').split(',')"
+          },
+          {
+            "line": 15,
+            "text": "for compiler in COMPILERS:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-conditional-field-types",
+    "path": [
+      "test-conditional-field-types",
+      "bootstrap"
+    ],
+    "worker": "units-01",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_conditional_field_types"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_conditional_field_types.py",
+        "matches": [
+          {
+            "line": 24,
+            "text": "for compiler in (\"nanoc_c\", \"nano_virt\", \"nanoc_stage1\", \"nanoc_stage2\"):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-selfhost-map-results",
+    "path": [
+      "test-selfhost-map-results",
+      "bootstrap3"
+    ],
+    "worker": "units-02",
+    "commands": [
+      "\t@NANOLANG_MAP_SELFHOST=1 python3 tests/test_map_results.py"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_map_results.py",
+        "matches": [
+          {
+            "line": 43,
+            "text": "built = subprocess.run([str(ROOT / \"bin/nanoc_stage2\"), str(source),"
+          },
+          {
+            "line": 55,
+            "text": "backends = ((\"nanoc_stage2\", False),) if os.environ.get(\"NANOLANG_MAP_SELFHOST\") else ("
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-generic-selected-patterns",
+    "path": [
+      "test-generic-selected-patterns",
+      "bootstrap"
+    ],
+    "worker": "units-02",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_generic_selected_patterns"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_generic_selected_patterns.py",
+        "matches": [
+          {
+            "line": 11,
+            "text": "for compiler in generic.COMPILERS:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-shared-borrows",
+    "path": [
+      "test-shared-borrows",
+      "bootstrap"
+    ],
+    "worker": "units-02",
+    "commands": [
+      "\tpython3 tests/test_shared_borrows.py"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_shared_borrows.py",
+        "matches": [
+          {
+            "line": 10,
+            "text": "COMPILERS = os.environ.get('NANO_BORROW_COMPILERS', 'nanoc_c,nanoc_stage1,nanoc_stage2').split(',')"
+          },
+          {
+            "line": 21,
+            "text": "for compiler in COMPILERS:"
+          },
+          {
+            "line": 110,
+            "text": "for compiler, flags in [('nano_virt', ['--emit-nvm']), ('nanoc_stage1', ['--emit-nvm']), ('nanoc_stage2', ['--emit-nvm'])]:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-affine-scalar-union-source",
+    "path": [
+      "test-affine-scalar-union-source",
+      "bootstrap"
+    ],
+    "worker": "units-02",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_affine_scalar_union_source"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_affine_scalar_union_source.py",
+        "matches": [
+          {
+            "line": 215,
+            "text": "self.command(ROOT / 'bin/nanoc_stage2', ROOT / 'src_nano/nanoisa_emit.nano',"
+          },
+          {
+            "line": 240,
+            "text": "for compiler_name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 253,
+            "text": "for compiler_name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 294,
+            "text": "for compiler_name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 304,
+            "text": "self.command(ROOT / 'bin/nanoc_stage2', ROOT / 'src_nano/nanoisa_emit.nano',"
+          },
+          {
+            "line": 310,
+            "text": "('stage1', ROOT / 'bin/nanoc_stage1'),"
+          },
+          {
+            "line": 311,
+            "text": "('stage2', ROOT / 'bin/nanoc_stage2'),"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-scalar-reconstruction",
+    "path": [
+      "test-scalar-reconstruction",
+      "bootstrap"
+    ],
+    "worker": "units-03",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_scalar_reconstruction tests.test_reconstructed_integer_addition tests.test_reconstructed_integer_multiplication tests.test_reconstructed_integer_division tests.test_reconstructed_integer_shifts tests.test_reconstructed_integer_bitwise tests.test_reconstructed_unsigned_comparisons tests.test_reconstructed_unsigned_division tests.test_reconstructed_indexed_stack tests.test_reconstruction_harness_diagnostics tests.test_reconstructed_truthiness tests.test_reconstructed_wide_multiply tests.test_reconstructed_generic_integer tests.test_reconstructed_rot3 tests.test_reconstructed_comparisons tests.test_reconstructed_carry_borrow tests.test_reconstructed_u8"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_reconstructed_carry_borrow.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstructed_comparisons.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstructed_generic_integer.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstructed_indexed_stack.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstructed_integer_addition.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstructed_integer_bitwise.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstructed_integer_division.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstructed_integer_multiplication.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstructed_integer_shifts.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstructed_rot3.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstructed_truthiness.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstructed_u8.py",
+        "matches": [
+          {
+            "line": 42,
+            "text": "for producer in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 189,
+            "text": "for producer in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 217,
+            "text": "for producer in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          }
+        ]
+      },
+      {
+        "path": "tests/test_reconstructed_unsigned_comparisons.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstructed_unsigned_division.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstructed_wide_multiply.py",
+        "matches": []
+      },
+      {
+        "path": "tests/test_reconstruction_harness_diagnostics.py",
+        "matches": [
+          {
+            "line": 12,
+            "text": "for stage in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          }
+        ]
+      },
+      {
+        "path": "tests/test_scalar_reconstruction.py",
+        "matches": [
+          {
+            "line": 127,
+            "text": "for driver in ('nanoc_c','nanoc_stage1','nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-selfhost-returned-calls",
+    "path": [
+      "test-selfhost-returned-calls",
+      "bootstrap3"
+    ],
+    "worker": "units-03",
+    "commands": [
+      "\t@python3 -m unittest tests.test_selfhost_returned_calls"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_selfhost_returned_calls.py",
+        "matches": [
+          {
+            "line": 9,
+            "text": "COMPILER = Path(os.environ.get(\"NANOLANG_SELFHOST_COMPILER\", ROOT / \"bin/nanoc_stage2\")).resolve()"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-selfhost-array-field-setter",
+    "path": [
+      "test-selfhost-array-field-setter",
+      "bootstrap3"
+    ],
+    "worker": "units-03",
+    "commands": [
+      "\tpython3 tests/test_selfhost_array_field_setter.py"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_selfhost_array_field_setter.py",
+        "matches": [
+          {
+            "line": 15,
+            "text": "for name in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-selfhost-generic-contexts",
+    "path": [
+      "test-selfhost-generic-contexts",
+      "bootstrap"
+    ],
+    "worker": "units-03",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_selfhost_generic_contexts"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_selfhost_generic_contexts.py",
+        "matches": [
+          {
+            "line": 13,
+            "text": "for stage in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 38,
+            "text": "for stage in ('nanoc_stage1', 'nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-selfhost-range-bounds",
+    "path": [
+      "test-selfhost-range-bounds",
+      "bootstrap"
+    ],
+    "worker": "units-03",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_selfhost_range_bounds"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_selfhost_range_bounds.py",
+        "matches": [
+          {
+            "line": 9,
+            "text": "COMPILERS = Path(os.environ.get(\"NANOLANG_RANGE_COMPILER_ROOT\", ROOT / \"bin\"))"
+          },
+          {
+            "line": 15,
+            "text": "for compiler in (\"nanoc_c\", \"nanoc_stage1\", \"nanoc_stage2\"):"
+          },
+          {
+            "line": 18,
+            "text": "result = subprocess.run([COMPILERS / compiler, source, \"-o\", output], cwd=ROOT,"
+          },
+          {
+            "line": 27,
+            "text": "for compiler in (\"nanoc_c\", \"nanoc_stage1\", \"nanoc_stage2\"):"
+          },
+          {
+            "line": 32,
+            "text": "result = subprocess.run([COMPILERS / compiler, path, \"-o\", output], cwd=ROOT,"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-legacy-float-conversion",
+    "path": [
+      "test-legacy-float-conversion",
+      "bootstrap"
+    ],
+    "worker": "units-03",
+    "commands": [
+      "\t@python3 -m unittest tests.test_legacy_float_conversion"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_legacy_float_conversion.py",
+        "matches": [
+          {
+            "line": 28,
+            "text": "for name in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-generic-selected-ownership",
+    "path": [
+      "test-generic-selected-ownership",
+      "bootstrap"
+    ],
+    "worker": "units-04",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_generic_selected_ownership"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_generic_selected_ownership.py",
+        "matches": [
+          {
+            "line": 140,
+            "text": "'nanoc_stage1': 'exhaustive unguarded owned match',"
+          },
+          {
+            "line": 141,
+            "text": "'nanoc_stage2': 'exhaustive unguarded owned match',"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-selfhost-native-u8",
+    "path": [
+      "test-selfhost-native-u8",
+      "bootstrap"
+    ],
+    "worker": "units-04",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_selfhost_native_u8"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_selfhost_native_u8.py",
+        "matches": [
+          {
+            "line": 12,
+            "text": "COMPILERS = Path(os.environ.get(\"NANOLANG_U8_COMPILER_ROOT\", ROOT / \"bin\"))"
+          },
+          {
+            "line": 18,
+            "text": "for compiler in (\"nanoc_c\", \"nanoc_stage1\", \"nanoc_stage2\"):"
+          },
+          {
+            "line": 24,
+            "text": "[COMPILERS / compiler, FIXTURE, \"-o\", output],"
+          },
+          {
+            "line": 41,
+            "text": "for compiler in (\"nanoc_c\", \"nanoc_stage1\", \"nanoc_stage2\"):"
+          },
+          {
+            "line": 50,
+            "text": "[COMPILERS / compiler, path, \"-o\", output],"
+          },
+          {
+            "line": 67,
+            "text": "for compiler in (\"nanoc_c\", \"nanoc_stage1\", \"nanoc_stage2\"):"
+          },
+          {
+            "line": 76,
+            "text": "[COMPILERS / compiler, path, \"-o\", output],"
+          },
+          {
+            "line": 111,
+            "text": "configured = os.environ.get(\"NANOLANG_U8_C_COMPILERS\", \"cc\")"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-selfhost-byte-array-identity",
+    "path": [
+      "test-selfhost-byte-array-identity",
+      "bootstrap3"
+    ],
+    "worker": "units-05",
+    "commands": [
+      "\t@python3 -m unittest -v tests.test_selfhost_byte_array_identity"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_selfhost_byte_array_identity.py",
+        "matches": [
+          {
+            "line": 44,
+            "text": "for producer in (\"nanoc_c\", \"nanoc_stage1\", \"nanoc_stage2\"):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-exclusive-borrows",
+    "path": [
+      "test-exclusive-borrows",
+      "bootstrap"
+    ],
+    "worker": "units-05",
+    "commands": [
+      "\tpython3 tests/test_exclusive_borrows.py"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_exclusive_borrows.py",
+        "matches": [
+          {
+            "line": 10,
+            "text": "COMPILERS = os.environ.get('NANO_BORROW_COMPILERS', 'nanoc_c,nanoc_stage1,nanoc_stage2').split(',')"
+          },
+          {
+            "line": 23,
+            "text": "for compiler in COMPILERS:"
+          },
+          {
+            "line": 187,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-named-scalar-callbacks",
+    "path": [
+      "test-named-scalar-callbacks",
+      "bootstrap"
+    ],
+    "worker": "units-05",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_named_scalar_callbacks"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_named_scalar_callbacks.py",
+        "matches": [
+          {
+            "line": 24,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 74,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 135,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-match-aggregate-results",
+    "path": [
+      "test-match-aggregate-results",
+      "bootstrap"
+    ],
+    "worker": "units-06",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_match_aggregate_results"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_match_aggregate_results.py",
+        "matches": []
+      }
+    ]
+  },
+  {
+    "target": "test-ordinary-record-producers",
+    "path": [
+      "test-ordinary-record-producers",
+      "bootstrap"
+    ],
+    "worker": "units-06",
+    "commands": [
+      "\t$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)",
+      "\tpython3 -m unittest -v tests.test_ordinary_record_producers"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_ordinary_record_producers.py",
+        "matches": [
+          {
+            "line": 43,
+            "text": "for compiler in ('nanoc_c','nanoc_stage1','nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-native-underscore-bindings",
+    "path": [
+      "test-native-underscore-bindings",
+      "bootstrap"
+    ],
+    "worker": "units-06",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_native_underscore_bindings"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_native_underscore_bindings.py",
+        "matches": [
+          {
+            "line": 9,
+            "text": "COMPILERS = Path(os.environ.get('NANOLANG_DISCARD_COMPILER_ROOT', ROOT/'bin'))"
+          },
+          {
+            "line": 21,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 24,
+            "text": "self.run_checked([COMPILERS/compiler, SOURCE, '-o', output])"
+          },
+          {
+            "line": 39,
+            "text": "self.run_checked([COMPILERS/'nanoc_c', SOURCE, '--keep-c', '-o', output])"
+          },
+          {
+            "line": 61,
+            "text": "self.run_checked([COMPILERS/'nanoc_c', path, '-o', output])"
+          },
+          {
+            "line": 66,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 71,
+            "text": "result = subprocess.run([COMPILERS/compiler, path, '-o', output], cwd=ROOT,"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-union-literal-context",
+    "path": [
+      "test-union-literal-context",
+      "bootstrap"
+    ],
+    "worker": "units-08",
+    "commands": [
+      "\tpython3 -m unittest tests.test_union_literal_context"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_union_literal_context.py",
+        "matches": [
+          {
+            "line": 57,
+            "text": "for compiler in generic.COMPILERS:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-legacy-binary64-parse",
+    "path": [
+      "test-legacy-binary64-parse",
+      "bootstrap"
+    ],
+    "worker": "units-08",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_legacy_binary64_parse"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_legacy_binary64_parse.py",
+        "matches": [
+          {
+            "line": 63,
+            "text": "for compiler in ('nanoc_c','nanoc_stage1','nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-unreachable-warning",
+    "path": [
+      "test-unreachable-warning",
+      "bootstrap"
+    ],
+    "worker": "units-08",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_unreachable_warning"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_unreachable_warning.py",
+        "matches": [
+          {
+            "line": 26,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 36,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 47,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-selected-variant-ownership",
+    "path": [
+      "test-selected-variant-ownership",
+      "bootstrap"
+    ],
+    "worker": "units-09",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_selected_variant_patterns tests.test_selected_variant_ownership"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_selected_variant_ownership.py",
+        "matches": [
+          {
+            "line": 36,
+            "text": "for compiler in generic.COMPILERS:"
+          },
+          {
+            "line": 80,
+            "text": "'nanoc_stage1': 'exhaustive unguarded owned match',"
+          },
+          {
+            "line": 81,
+            "text": "'nanoc_stage2': 'exhaustive unguarded owned match',"
+          }
+        ]
+      },
+      {
+        "path": "tests/test_selected_variant_patterns.py",
+        "matches": [
+          {
+            "line": 22,
+            "text": "for compiler in generic.COMPILERS:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-global-resource-boundary",
+    "path": [
+      "test-global-resource-boundary",
+      "bootstrap"
+    ],
+    "worker": "units-09",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_global_resource_boundary"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_global_resource_boundary.py",
+        "matches": [
+          {
+            "line": 13,
+            "text": "for compiler in generic.COMPILERS:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-selfhost-float-values",
+    "path": [
+      "test-selfhost-float-values",
+      "bootstrap"
+    ],
+    "worker": "units-09",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_selfhost_float_values"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_selfhost_float_values.py",
+        "matches": [
+          {
+            "line": 9,
+            "text": "COMPILERS = Path(os.environ.get(\"NANOLANG_FLOAT_COMPILER_ROOT\", ROOT / \"bin\"))"
+          },
+          {
+            "line": 15,
+            "text": "for compiler in (\"nanoc_c\", \"nanoc_stage1\", \"nanoc_stage2\"):"
+          },
+          {
+            "line": 18,
+            "text": "result = subprocess.run([COMPILERS / compiler, source, \"-o\", output], cwd=ROOT,"
+          },
+          {
+            "line": 27,
+            "text": "for compiler in (\"nanoc_c\", \"nanoc_stage1\", \"nanoc_stage2\"):"
+          },
+          {
+            "line": 30,
+            "text": "result = subprocess.run([COMPILERS / compiler, source, \"-o\", output], cwd=ROOT,"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-underscore-payload",
+    "path": [
+      "test-underscore-payload",
+      "bootstrap"
+    ],
+    "worker": "units-09",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_underscore_payload"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_underscore_payload.py",
+        "matches": [
+          {
+            "line": 40,
+            "text": "for cc in ('nanoc_c','nanoc_stage1','nanoc_stage2'):"
+          },
+          {
+            "line": 55,
+            "text": "for cc in ('nanoc_c','nanoc_stage1','nanoc_stage2'):"
+          },
+          {
+            "line": 65,
+            "text": "for cc in ('nanoc_c','nanoc_stage1','nanoc_stage2','nano_virt'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-canonical-string-builtins",
+    "path": [
+      "test-canonical-string-builtins",
+      "bootstrap"
+    ],
+    "worker": "units-09",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_canonical_string_builtins"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_canonical_string_builtins.py",
+        "matches": [
+          {
+            "line": 10,
+            "text": "COMPILER = Path(os.environ.get('NANOLANG_SELFHOST_COMPILER', ROOT / 'bin/nanoc_stage2')).resolve()"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-canonical-nvm-output",
+    "path": [
+      "test-canonical-nvm-output",
+      "bootstrap3"
+    ],
+    "worker": "units-10",
+    "commands": [
+      "\t@python3 -m unittest tests.test_canonical_nvm_output"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_canonical_nvm_output.py",
+        "matches": [
+          {
+            "line": 11,
+            "text": "COMPILER = Path(os.environ.get(\"NANOLANG_SELFHOST_COMPILER\", ROOT / \"bin/nanoc_stage2\")).resolve()"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-native-nominal-order",
+    "path": [
+      "test-native-nominal-order",
+      "bootstrap"
+    ],
+    "worker": "units-10",
+    "commands": [
+      "\t@python3 -m unittest -v tests.test_native_nominal_order"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_native_nominal_order.py",
+        "matches": [
+          {
+            "line": 10,
+            "text": "COMPILERS = os.environ.get('NANOLANG_NOMINAL_COMPILERS', 'nanoc_stage1,nanoc_stage2').split(',')"
+          },
+          {
+            "line": 15,
+            "text": "for compiler in COMPILERS:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-nested-borrows",
+    "path": [
+      "test-nested-borrows",
+      "bootstrap"
+    ],
+    "worker": "units-10",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_nested_borrows"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_nested_borrows.py",
+        "matches": [
+          {
+            "line": 10,
+            "text": "COMPILERS = os.environ.get('NANO_BORROW_COMPILERS', 'nanoc_c,nanoc_stage1,nanoc_stage2').split(',')"
+          },
+          {
+            "line": 29,
+            "text": "for compiler in COMPILERS:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-passive-par-frontends",
+    "path": [
+      "test-passive-par-frontends",
+      "bootstrap"
+    ],
+    "worker": "units-10",
+    "commands": [
+      "\tpython3 -m unittest tests.test_passive_par_frontends"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_passive_par_frontends.py",
+        "matches": [
+          {
+            "line": 37,
+            "text": "for name in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 52,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 95,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2', 'nanoisa_emit'):"
+          },
+          {
+            "line": 118,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-source-borrow-emission",
+    "path": [
+      "test-source-borrow-emission",
+      "bootstrap"
+    ],
+    "worker": "units-10",
+    "commands": [
+      "\t$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)",
+      "\t@python3 -m unittest -v tests.test_source_borrow_emission"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_source_borrow_emission.py",
+        "matches": [
+          {
+            "line": 40,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 101,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 130,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 188,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 237,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 271,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 320,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 358,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 396,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 426,
+            "text": "for compiler in [ROOT / 'bin' / name for name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          },
+          {
+            "line": 476,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 519,
+            "text": "for compiler in [ROOT / 'bin' / item for item in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          },
+          {
+            "line": 562,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 613,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 647,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 683,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 709,
+            "text": "for compiler in [ROOT / 'bin' / name for name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          },
+          {
+            "line": 732,
+            "text": "for compiler in [ROOT / 'bin' / name for name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          },
+          {
+            "line": 762,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 807,
+            "text": "for compiler in [ROOT / 'bin' / name for name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          },
+          {
+            "line": 835,
+            "text": "for compiler in [ROOT / 'bin' / name for name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          },
+          {
+            "line": 852,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 906,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 943,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 1024,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 1046,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 1082,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 1107,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 1147,
+            "text": "for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          },
+          {
+            "line": 1165,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 1206,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 1258,
+            "text": "for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          },
+          {
+            "line": 1293,
+            "text": "for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          },
+          {
+            "line": 1301,
+            "text": "if label == 'no-transfer' and compiler.name in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 1332,
+            "text": "for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          },
+          {
+            "line": 1406,
+            "text": "compilers = [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')]"
+          },
+          {
+            "line": 1538,
+            "text": "for compiler in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 1597,
+            "text": "for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          },
+          {
+            "line": 1673,
+            "text": "for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          },
+          {
+            "line": 1745,
+            "text": "for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-checked-owner-selection",
+    "path": [
+      "test-checked-owner-selection",
+      "bootstrap"
+    ],
+    "worker": "units-10",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_checked_owner_selection.CheckedOwnerSelection"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_checked_owner_selection.py",
+        "matches": [
+          {
+            "line": 28,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 81,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-native-generic-record-fields",
+    "path": [
+      "test-native-generic-record-fields",
+      "bootstrap"
+    ],
+    "worker": "units-11",
+    "commands": [
+      "\t@python3 -m unittest tests.test_native_generic_record_fields"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_native_generic_record_fields.py",
+        "matches": [
+          {
+            "line": 16,
+            "text": "for compiler in generic.COMPILERS:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-nanoisa-local-inference",
+    "path": [
+      "test-nanoisa-local-inference",
+      "bootstrap"
+    ],
+    "worker": "units-11",
+    "commands": [
+      "\tpython3 -m unittest tests.test_nanoisa_local_inference"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_nanoisa_local_inference.py",
+        "matches": [
+          {
+            "line": 21,
+            "text": "for stage in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 44,
+            "text": "for stage in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 62,
+            "text": "for stage in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 80,
+            "text": "for stage in ('nanoc_stage1', 'nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-inline-owned-construction",
+    "path": [
+      "test-inline-owned-construction",
+      "bootstrap"
+    ],
+    "worker": "units-11",
+    "commands": [
+      "\t$(CC) $(CFLAGS) -o obj/borrow_shadow_names tests/nanovirt/borrow_shadow_names.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)",
+      "\tpython3 -m unittest -v tests.test_inline_owned_construction"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_inline_owned_construction.py",
+        "matches": [
+          {
+            "line": 52,
+            "text": "for compiler in [ROOT / 'bin' / x for x in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2')] + self.emitters:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-canonical-filesystem",
+    "path": [
+      "test-canonical-filesystem",
+      "bootstrap"
+    ],
+    "worker": "units-11",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_canonical_filesystem"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_canonical_filesystem.py",
+        "matches": [
+          {
+            "line": 11,
+            "text": "COMPILER = Path(os.environ.get('NANOLANG_SELFHOST_COMPILER', ROOT / 'bin/nanoc_stage2')).resolve()"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-instantiated-ownership",
+    "path": [
+      "test-instantiated-ownership",
+      "bootstrap"
+    ],
+    "worker": "units-12",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_instantiated_ownership"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_instantiated_ownership.py",
+        "matches": []
+      }
+    ]
+  },
+  {
+    "target": "test-resource-callback-boundary",
+    "path": [
+      "test-resource-callback-boundary",
+      "bootstrap"
+    ],
+    "worker": "units-12",
+    "commands": [
+      "\tpython3 -m unittest tests.test_resource_callback_boundary"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_resource_callback_boundary.py",
+        "matches": [
+          {
+            "line": 9,
+            "text": "COMPILERS = os.environ.get('NANO_CALLBACK_COMPILERS', 'nanoc_c,nanoc_stage1,nanoc_stage2').split(',')"
+          },
+          {
+            "line": 18,
+            "text": "for compiler in COMPILERS:"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-canonical-vm-shadows",
+    "path": [
+      "test-canonical-vm-shadows",
+      "bootstrap"
+    ],
+    "worker": "units-12",
+    "commands": [
+      "\tpython3 -m unittest tests.test_canonical_vm_shadows"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_canonical_vm_shadows.py",
+        "matches": [
+          {
+            "line": 10,
+            "text": "COMPILER = Path(os.environ.get('NANOLANG_SELFHOST_COMPILER', ROOT/'bin/nanoc_stage2')).resolve()"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-passive-flow-frontends",
+    "path": [
+      "test-passive-flow-frontends",
+      "bootstrap"
+    ],
+    "worker": "units-12",
+    "commands": [
+      "\tpython3 -m unittest tests.test_passive_flow_frontends"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_passive_flow_frontends.py",
+        "matches": [
+          {
+            "line": 23,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 42,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 68,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2', 'nanoisa_emit'):"
+          },
+          {
+            "line": 130,
+            "text": "for compiler in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-canonical-prefix-conversion",
+    "path": [
+      "test-canonical-prefix-conversion",
+      "bootstrap"
+    ],
+    "worker": "units-12",
+    "commands": [
+      "\tpython3 -m unittest -v tests.test_canonical_prefix_conversion"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_canonical_prefix_conversion.py",
+        "matches": [
+          {
+            "line": 18,
+            "text": "def exercise(self, source, work, compilers=('nano_virt', 'nanoc_stage1', 'nanoc_stage2')):"
+          },
+          {
+            "line": 64,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 85,
+            "text": "self.exercise(source, work, ('nanoc_stage1', 'nanoc_stage2'))"
+          },
+          {
+            "line": 95,
+            "text": "self.exercise(source, work, ('nanoc_stage1', 'nanoc_stage2'))"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-selfhost-enum-metadata",
+    "path": [
+      "test-selfhost-enum-metadata",
+      "bootstrap3"
+    ],
+    "worker": "units-13",
+    "commands": [
+      "\tpython3 tests/test_selfhost_enum_metadata.py"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_selfhost_enum_metadata.py",
+        "matches": [
+          {
+            "line": 1,
+            "text": "\"\"\"I keep enum parser metadata consistent across my bootstrap compilers.\"\"\""
+          },
+          {
+            "line": 11,
+            "text": "for name in ('nanoc_c', 'nanoc_stage1', 'nanoc_stage2'):"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-native-module-linking",
+    "path": [
+      "test-native-module-linking",
+      "bootstrap3"
+    ],
+    "worker": "units-13",
+    "commands": [
+      "\t@python3 -m unittest tests.test_native_module_linking"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_native_module_linking.py",
+        "matches": [
+          {
+            "line": 10,
+            "text": "COMPILER = Path(os.environ.get(\"NANOLANG_SELFHOST_COMPILER\", ROOT / \"bin/nanoc_stage2\")).resolve()"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "target": "test-generic-union-emission",
+    "path": [
+      "test-generic-union-emission",
+      "bootstrap"
+    ],
+    "worker": "units-13",
+    "commands": [
+      "\t@python3 -m unittest -v tests.test_generic_union_emission"
+    ],
+    "fixtures": [
+      {
+        "path": "tests/test_generic_union_emission.py",
+        "matches": [
+          {
+            "line": 84,
+            "text": "for tool in [*self.raw, ROOT/'bin/nanoc_stage1', ROOT/'bin/nanoc_stage2']:"
+          },
+          {
+            "line": 126,
+            "text": "for compiler in ('nanoc_stage1', 'nanoc_stage2'):"
+          },
+          {
+            "line": 132,
+            "text": "'NANOLANG_AFFINE_COMPILERS': 'nanoc_stage1,nanoc_stage2'})"
+          }
+        ]
+      }
+    ]
+  }
+]

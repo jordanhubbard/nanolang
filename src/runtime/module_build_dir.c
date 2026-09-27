@@ -8,6 +8,8 @@
 #include <errno.h>
 #include <openssl/sha.h>
 
+#include "native_sdk.inc"
+
 bool nano_module_build_dir(const char *module_dir, char *dest, size_t dest_size) {
     if (!dest || dest_size == 0) {
         return false;

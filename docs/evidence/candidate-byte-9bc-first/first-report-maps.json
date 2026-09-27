@@ -1,0 +1,22 @@
+{
+  "linux-first-reports.tar.gz": {
+    "bytes": 508544,
+    "sha256": "8971a38e0cd0e82dfa10608609e7b5129a48dfc07176f65c662edd96bcf83d1b"
+  },
+  "puck-first-reports.tar.gz": {
+    "bytes": 505711,
+    "sha256": "0117a73b2c334339b9c9382c9f955e69a11d16eea38cc50607b6a80385441723"
+  },
+  "source.tar.gz": {
+    "bytes": 15991080,
+    "sha256": "8b16de33f03d112d347fe7ac899f1d427c36d5a0a2ec3085b9f76150b02e14f6"
+  },
+  "run.py": {
+    "bytes": 5176,
+    "sha256": "a221b61d7b9fe213a8a7af3eefeaa574031f2c003d7799b62da32b7f4a3150d4"
+  },
+  "archive-scope.json": {
+    "bytes": 1005159,
+    "sha256": "7d460eb593a6f04964669b7ac87f4c3f2acbed948537524068af45367b30fd19"
+  }
+}

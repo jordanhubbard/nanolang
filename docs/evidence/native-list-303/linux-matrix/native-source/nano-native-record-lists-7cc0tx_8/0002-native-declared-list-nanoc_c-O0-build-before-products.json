@@ -1,0 +1,18 @@
+{
+  "native-cc.py": {
+    "sha256": "d2a0ed252e09ad8fd35b2e9ad60ab964a6bf7f92b6dfba2eda095755c7ce253a",
+    "bytes": 537
+  },
+  "native-declared-list-nanoc_c-O0": {
+    "sha256": "d1f04e85c927f1a0b95bbd5cfe8fad92d921b3a20b88bb4c7586155f638abb7e",
+    "bytes": 30
+  },
+  "native-declared-list.nano": {
+    "sha256": "1c486c7aea925375fd23df05be65bd7dc36f785d6ccef097850899fbc69a9c66",
+    "bytes": 402
+  },
+  "native-storage": {
+    "sha256": "c3cc111c6ebc32983571963ae977e8c9e0b163824c9c061ac62ccb1b2798c1e1",
+    "bytes": 83496
+  }
+}

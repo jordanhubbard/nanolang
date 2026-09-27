@@ -1,0 +1,22 @@
+{
+  "pin": "6cf93095e7c3c26b75315052f4c36dffa7eedf04",
+  "configs": [
+    [
+      "apple-ordinary",
+      "/usr/bin/clang",
+      []
+    ],
+    [
+      "homebrew-sanitizer",
+      "/opt/homebrew/opt/llvm/bin/clang",
+      [
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer"
+      ]
+    ]
+  ],
+  "source_scope": "all active tracked inputs excluding historical docs/evidence, selected prepared provider objects and bin tools; complete fresh endpoints; generated module outputs separately mapped and may change",
+  "sanitizer_scope": "five fixture helpers rebuild their documented owning TUs; other prepared providers ordinary",
+  "tools_scope": "selected compilers/subtools/runtimes; not full transitive tool closure",
+  "cleanup": "bounded own observed descendant process groups; fixture also supervises each child"
+}

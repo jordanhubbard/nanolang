@@ -1,0 +1,22 @@
+{
+  "clang": {
+    "sha256": "5fdd0977013424f78e5fc70e3a91ca3e699aa9b11ff3ed7d4b4aa0f7fbe98bfc",
+    "bytes": 168640,
+    "mode": 493
+  },
+  "clang-sanitized": {
+    "sha256": "53cbe6917ea662e7c3881c54f2530d995f0875dfee99f46210057564a8ab95ab",
+    "bytes": 12452928,
+    "mode": 493
+  },
+  "gcc": {
+    "sha256": "6fd2fee270ca1682c20792372d50078ac81ebed7532fc21cfb0f0dec1a24e12e",
+    "bytes": 194680,
+    "mode": 493
+  },
+  "gcc-sanitized": {
+    "sha256": "cd52760974854f178370aae703110e1b3503374ac4751d0733fb1e893dd13e59",
+    "bytes": 864040,
+    "mode": 493
+  }
+}

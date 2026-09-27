@@ -1,0 +1,1 @@
+/usr/bin/gcc -std=c11 -O2 -Wall -Wextra -Werror /home/jkh/nanolang-qualification/byte-array-879-linux/ordinary/original-mutation/program.c -o /home/jkh/nanolang-qualification/byte-array-879-linux/ordinary/original-mutation/O2

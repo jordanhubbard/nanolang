@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-g",
+    "-O1",
+    "tests/nanoisa/test_capture_bindings.c",
+    "src/nanoisa/nvm_v2_cursor.c",
+    "-o",
+    "/private/tmp/nanolang-capture-bindings-46718646a/reports-darwin/brew"
+  ],
+  "returncode": 0,
+  "timed_out": false,
+  "group_gone": true,
+  "elapsed_seconds": 0.39152429200000005
+}

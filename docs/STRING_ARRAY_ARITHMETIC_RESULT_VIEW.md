@@ -1,0 +1,7 @@
+# String array arithmetic result view
+
+I retain c34's first owning checker refusal before any new dynamic-child operation. A bounded checker-only diagnostic links101 rehashed ordinary providers and evaluates no source program. It reports incomplete destination representation and missing original declaration-owner facts on the three string-array addition returns. My coarse arithmetic checker already admits these operations, but `nominal_value_view` only preserves scalar prefix results. Native complete-array work has no prefix-result adapter.
+
+I add only a binary TOKEN_PLUS complete-view adapter for exact STRING scalar/array operands, with at least one array. I recursively obtain both operand views using existing owner-aware resolution and depth bounds. Array operands must project an exact STRING child; both-array views must agree. I transfer the actual array operand view to the result, preserving complete child provenance and owned copy semantics. I discard all temporary operand/child views on failure. I do not infer STRING from the destination or unknown operands, admit other operators, or convert bool/record/numeric leaves.
+
+The original dynamic fixture remains unchanged. I add checker-only refusal controls for non-string leaves, scalar mismatch and unsupported string-array subtraction. Source review precedes the corrected original owning collection and checker gates. Original60/10 compiler deadlines and full evaluator acceptance remain separate.

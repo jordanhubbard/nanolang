@@ -1,0 +1,29 @@
+I require one declared union variant without a spread source
+I require one declared union variant without a spread source
+I require one declared union variant without a spread source
+I cannot resolve a qualified type in this source: alias.Box.Value
+I cannot allocate module-owned record identities
+I cannot resolve a qualified type in this source: alias.Box.Value
+I cannot allocate module-owned record identities
+I cannot resolve a qualified type in this source: unknown.Box.Value
+I cannot allocate module-owned record identities
+Error at line 1, column 37: Expected field name, variant name, or tuple index after '.'
+Error at line 1, column 37: Unexpected token in expression: DOT (type=18)
+Error at line 1, column 41: Expected field name, variant name, or tuple index after '.'
+Error at line 1, column 53: Expected '}' at end of struct literal (got EOF)
+Error at line 1, column 46: Expected '}' after struct literal fields (got EOF)
+Error at line 1, column 37: I cannot find a function named `cast_u8`.
+Hint: Check spelling or ensure the function is defined/imported.
+Error at line 1, column 34: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 1, column 37: I cannot find a function named `cast_u8`.
+Hint: Check spelling or ensure the function is defined/imported.
+Error at line 1, column 34: Array elements must all have the same type (expected int, got unknown).
+Hint: Use consistent element types or convert values.
+Error at line 1, column 37: I cannot find a function named `cast_u8`.
+Hint: Check spelling or ensure the function is defined/imported.
+Error at line 1, column 34: I require checked byte-array members and literals from 0 through 255.
+Hint: Use a byte or computed integer; keep direct literals in range.
+Warning at line 1, column 16: Unused variable 'a'
+Assertion failed: (ok == expected), function scalar_array_source, file test_nominal_array_identity.c, line 983.
+I checked exact union constructor ownership and both allocation prefixes.

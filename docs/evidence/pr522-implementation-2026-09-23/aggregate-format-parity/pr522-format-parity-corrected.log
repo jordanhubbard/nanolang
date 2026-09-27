@@ -1,0 +1,37 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -c src/typechecker.c -o obj/typechecker.o
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+python3 -m unittest tests.test_cseed_aggregate_formatting
+F....
+======================================================================
+FAIL: test_enum_union_fields_and_nested_float_arrays (tests.test_cseed_aggregate_formatting.AggregateFormatting.test_enum_union_fields_and_nested_float_arrays)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 27, in test_enum_union_fields_and_nested_float_arrays
+            self.execute(r'''enum Mode { Quiet = 3, Loud = 7 }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Choice { Selected { mode: Mode }, Empty {} }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_cseed_aggregate_formatting.py", line 18, in execute
+    self.assertEqual(result.returncode, 0, str(command) + "\n" + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-7ri6op6a/case.nano'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-7ri6op6a/product')]
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-cseed-format-7ri6op6a/case.nano
+I require the declared enum payload type.
+
+8|  let state: State = State { mode: Mode.Loud, choice: Choice.Selected { mode: Mode.Quiet }, values: nested }
+                                                                                    ^
+Hint: Match the declared enum or union and its concrete arguments.
+Type checking failed
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 5.834s
+
+FAILED (failures=1)
+make: *** [test-cseed-aggregate-formatting] Error 1

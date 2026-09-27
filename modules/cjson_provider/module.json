@@ -1,0 +1,8 @@
+{
+  "name": "cjson_provider",
+  "version": "1.0.0",
+  "description": "I own the public static cJSON implementation without adding source authority.",
+  "c_sources": [
+    "../../src/cJSON.c"
+  ]
+}

@@ -1,0 +1,11 @@
+module "/home/jkh/Src/nanolang-record-lists-qualified-6cf/tests/fixtures/evaluator_lists/array_records.nano" as records
+struct Item { value: int }
+struct Holder { values: array<Item> }
+fn make() -> Item { return Item { value: 31 } }
+shadow make { assert (== (make).value 31) }
+fn consume(values: array<Item>) -> int { return (array_length values) }
+shadow consume { assert (== (consume [(make)]) 1) }
+fn keep(value: Item) -> bool { return true }
+shadow keep { assert (keep (make)) }
+fn main() -> int { let holder: Holder = Holder { values: (records.values) } return 0 }
+shadow main { assert true }

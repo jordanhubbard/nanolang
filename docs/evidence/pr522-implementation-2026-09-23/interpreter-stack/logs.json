@@ -1,0 +1,42 @@
+{
+  "stack-recursion-before.log": {
+    "sha256": "329f356dc3e282a893b33d5207ab034dbe964719f5bb7962f993f265d307f05d",
+    "bytes": 3327
+  },
+  "stack-recursion-after.log": {
+    "sha256": "86f2b8f4c0eeed1929cbbd2572c2cc3200bafa35bdc62a82ded6e9557eae3869",
+    "bytes": 3327
+  },
+  "stack-recursion-dispatch.log": {
+    "sha256": "48e38d6bbdaa54a779ba5242405a41ea7977723aece1aef3e1faeb3e1a60ab01",
+    "bytes": 1651
+  },
+  "stack-recursion-baseline-final.log": {
+    "sha256": "2195c7e4016459b8136eee05015ed57fc3c836df340b6452a129d72edebc031e",
+    "bytes": 3396
+  },
+  "stack-recursion-final.log": {
+    "sha256": "f48481d209c504ac831e5e8b3400f30ae8baece380fe950b48bbd95e28df561e",
+    "bytes": 598
+  },
+  "stack-compiler-profile.log": {
+    "sha256": "de4b7669a30e8a32cf52892de59e63baa26f0cad3c1cc8ca2ce05e3180f32dc2",
+    "bytes": 133848
+  },
+  "stack-dispatch-instrument-build.log": {
+    "sha256": "f2bbdaa5ca012708407fd421781fd24b518ba4be7c647c77b228509eac171e43",
+    "bytes": 4649
+  },
+  "stack-frames.json": {
+    "sha256": "da652d13a0f2bdd391144263a8dcd9dc0c4c0b6b0e6b17b4ab544c88ee7cc192",
+    "bytes": 4914
+  },
+  "stack-eval-regression.log": {
+    "sha256": "d24c426038559e5e28c357b176ed6ee2dfafbc9189904c893d28f80834438a29",
+    "bytes": 21368
+  },
+  "stack-sanitizer-inventory.log": {
+    "sha256": "580de38a738782beb9a516826f306c53da895b2d4194bb76445155403a0a6c83",
+    "bytes": 1590
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "pin": "75979e19a23cf7dd9d36e0fa6d1e9ce78a935ce5",
+  "unchanged_production_pin": "6783e59aafac8f1192f2d154ebe25789a99ea745",
+  "changed_paths": [
+    "docs/NANOISA_MIXED_GENERATED_RUNTIME.md",
+    "docs/ROADMAP.md",
+    "tests/nanoisa/test_record_array_generated_capture.c",
+    "tests/test_record_array_generated.py"
+  ],
+  "hashes": {
+    "/tmp/nanolang-record-generated-75979-driver.py": "b2ac64f3bed0c686d62894a6948e0ee60b8a0387044a45d064c690507b51b85f",
+    "/tmp/nanolang-record-generated-75979-launch.py": "440a604d15918d652a8f7fb45a37cb21b7972e2349602849e3a38124ca8e6cf2",
+    "/tmp/nanolang-record-generated-75979-source.json": "6b645fbba89c520f68bc90ad39d642675ee9e34e79e389d27c4c206947d65be6",
+    "/tmp/nanolang-record-generated-75979-source.tar.gz": "2d91e1282f90d3ea3196d1f359a57653737a517cd8c031fb4513d2ffa0313da8"
+  },
+  "worker_bound": 240,
+  "configuration_bound": 14400,
+  "darwin_phases": [
+    "setup",
+    "configuration",
+    "discovery",
+    "ordinary"
+  ],
+  "linux_phases": [
+    "setup",
+    "configuration",
+    "discovery",
+    "ordinary",
+    "sanitizer",
+    "clang-sanitizer",
+    "old-private-vm",
+    "record_array_global_flow",
+    "record_array_execution",
+    "record_array_origins"
+  ]
+}

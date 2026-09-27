@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/Users/jkh/nanolang-qualification/tuple-73b-focused/apple-ordinary/nano-record-lists-_fg_qo59/array-allocations"
+  ],
+  "cwd": "/Users/jkh/nanolang-qualification/tuple-73b-source",
+  "timeout": 180,
+  "expected": [
+    0
+  ],
+  "extra": null,
+  "TMPDIR": "/Users/jkh/nanolang-qualification/tuple-73b-focused/apple-ordinary/nano-record-lists-_fg_qo59/temporary",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

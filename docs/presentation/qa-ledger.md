@@ -1,5 +1,30 @@
 # NanoLang presentation QA ledger
 
+## 2026-09-20 local 5.1 release edition
+
+I regenerated both local members from the One IR contract in
+`docs/RELEASE_5.1.md` and the exact fixed-point evidence recorded in
+`docs/presentation/source-notes.md`. `make presentation` accepts 16 slides and
+35 narrative headings. Its document-pair verifier reports no geometry, notes,
+heading, placeholder or credential failures.
+
+I inspected the contact sheet and every changed full-size slide, including the
+cover, One IR pipeline, release boundary and closing slides. Text is readable,
+the mechanism remains visible, and I observed no clipping, overlap or broken
+connectors. The Pillow renderer is a layout aid rather than a pixel-identical
+PowerPoint or Google Slides renderer.
+
+The canonical DOCX renderer could not produce page images on this host because
+the installed `soffice` launcher points to a missing LibreOffice application.
+I therefore retain the structural document-pair result rather than claiming
+native Word visual acceptance. I have not uploaded either member; the external
+Google files remain the 4.5 edition. Local artifact SHA-256 hashes:
+
+- PPTX: `b0e140760bbac8dfba5c2ff40836116cdcca640eb905ae98a33f2f6b86683440`
+- DOCX: `073c2cb542132e3635f027036b267bdb471dafcdc260e9084c9e04377d2fc3a5`
+- Acceptance report: `3050e7791b6eeb6f8c6c3bcb3bd18cf483bab65a0d3f1656af1ba50e17d12ba0`
+- Contact sheet: `42e0d643f9c0891b354010dbde095127a2a1939cab1a13b70b605dbec1231215`
+
 ## 2026-09-16 local 5.0 release edition
 
 I regenerated both local members from the release scope and bounded evidence

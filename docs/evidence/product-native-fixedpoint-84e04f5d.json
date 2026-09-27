@@ -1,0 +1,316 @@
+{
+  "source_commit": "84e04f5d65896b383151b4e5a089b637d887b72d",
+  "code_base": "84e04f5d65896b383151b4e5a089b637d887b72d",
+  "root": "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d",
+  "stage_timeout_seconds": 1800,
+  "owned_rss_limit_gib": 48,
+  "minimum_host_available_gib": 32,
+  "helper_sha256": "51d8fe2da58d680c31bfe37172e79045eea256df80be38bb31aebff84ca7f4c6",
+  "translator_sha256": "880e10e687f6fb23789988ba02f2df71d4befaa0918256a8c364c5e543af4743",
+  "stages": {
+    "seed-build": {
+      "argv": [
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/bin/nanoc_c",
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/src_nano/nanoc_v06.nano",
+        "-o",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/seed"
+      ],
+      "budget_seconds": 600,
+      "started": 1789712540.7801898,
+      "peak_owned_rss_kib": 1054668,
+      "pid": 2017972,
+      "exit_code": 0,
+      "elapsed_seconds": 37.8259293140145
+    },
+    "initial-emission": {
+      "argv": [
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/seed",
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/initial.nvm"
+      ],
+      "budget_seconds": 600,
+      "started": 1789712578.6064007,
+      "peak_owned_rss_kib": 5181256,
+      "pid": 2056689,
+      "exit_code": 0,
+      "elapsed_seconds": 126.23090870800661
+    },
+    "initial-verify": {
+      "argv": [
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/bin/nano_vm",
+        "--verify-only",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/initial.nvm"
+      ],
+      "budget_seconds": 60,
+      "started": 1789712704.8376222,
+      "peak_owned_rss_kib": 744,
+      "pid": 2084783,
+      "exit_code": 0,
+      "elapsed_seconds": 0.17438092199154198
+    },
+    "initial-translation": {
+      "argv": [
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/bin/nvm2c",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/initial.nvm",
+        "-o",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/initial.c"
+      ],
+      "budget_seconds": 240,
+      "started": 1789712705.125512,
+      "peak_owned_rss_kib": 1024,
+      "pid": 2084823,
+      "exit_code": 0,
+      "elapsed_seconds": 4.475654284993652
+    },
+    "initial-native-build": {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/initial.c",
+        "-o",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/initial-native",
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/bin/nano_aot_runtime.o",
+        "-lm",
+        "-Wl,--export-dynamic",
+        "-ldl"
+      ],
+      "budget_seconds": 240,
+      "started": 1789712709.6014147,
+      "peak_owned_rss_kib": 826352,
+      "pid": 2085500,
+      "exit_code": 0,
+      "elapsed_seconds": 83.88711207197048
+    },
+    "initial-help": {
+      "argv": [
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/initial-native",
+        "--help"
+      ],
+      "budget_seconds": 10,
+      "started": 1789712793.5138662,
+      "peak_owned_rss_kib": 1124,
+      "pid": 2094117,
+      "exit_code": 0,
+      "elapsed_seconds": 0.0026061339885927737
+    },
+    "initial-hello-compile": {
+      "argv": [
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/initial-native",
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/examples/language/nl_hello.nano",
+        "--emit-nvm",
+        "-o",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/initial-hello.nvm"
+      ],
+      "budget_seconds": 180,
+      "started": 1789712793.516776,
+      "peak_owned_rss_kib": 680,
+      "pid": 2094118,
+      "exit_code": 0,
+      "elapsed_seconds": 0.06525056099053472
+    },
+    "initial-hello-verify": {
+      "argv": [
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/bin/nano_vm",
+        "--verify-only",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/initial-hello.nvm"
+      ],
+      "budget_seconds": 60,
+      "started": 1789712793.5824473,
+      "peak_owned_rss_kib": 892,
+      "pid": 2094125,
+      "exit_code": 0,
+      "elapsed_seconds": 0.00231806596275419
+    },
+    "initial-hello-execute": {
+      "argv": [
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/bin/nano_vm",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/initial-hello.nvm"
+      ],
+      "budget_seconds": 10,
+      "started": 1789712793.5850914,
+      "peak_owned_rss_kib": 548,
+      "pid": 2094127,
+      "exit_code": 0,
+      "elapsed_seconds": 0.004265229974407703
+    },
+    "stage1": {
+      "argv": [
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/initial-native",
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/stage1.nvm"
+      ],
+      "budget_seconds": 1800,
+      "started": 1789712793.589681,
+      "peak_owned_rss_kib": 3475812,
+      "pid": 2094131,
+      "exit_code": 0,
+      "elapsed_seconds": 1090.7318649530062
+    },
+    "stage1-verify": {
+      "argv": [
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/bin/nano_vm",
+        "--verify-only",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/stage1.nvm"
+      ],
+      "budget_seconds": 60,
+      "started": 1789713884.3220758,
+      "peak_owned_rss_kib": 672,
+      "pid": 2356129,
+      "exit_code": 0,
+      "elapsed_seconds": 0.16503116895910352
+    },
+    "stage1-translation": {
+      "argv": [
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/bin/nvm2c",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/stage1.nvm",
+        "-o",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/stage1.c"
+      ],
+      "budget_seconds": 240,
+      "started": 1789713884.5997443,
+      "peak_owned_rss_kib": 1468,
+      "pid": 2356162,
+      "exit_code": 0,
+      "elapsed_seconds": 4.526558990008198
+    },
+    "stage1-native-build": {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/stage1.c",
+        "-o",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/stage1-native",
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/bin/nano_aot_runtime.o",
+        "-lm",
+        "-Wl,--export-dynamic",
+        "-ldl"
+      ],
+      "budget_seconds": 240,
+      "started": 1789713889.1267476,
+      "peak_owned_rss_kib": 1022956,
+      "pid": 2356794,
+      "exit_code": 0,
+      "elapsed_seconds": 84.83715823298553
+    },
+    "stage1-help": {
+      "argv": [
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/stage1-native",
+        "--help"
+      ],
+      "budget_seconds": 10,
+      "started": 1789713973.9642887,
+      "peak_owned_rss_kib": 392,
+      "pid": 2388559,
+      "exit_code": 0,
+      "elapsed_seconds": 0.0023537109955213964
+    },
+    "stage2": {
+      "argv": [
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/stage1-native",
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/stage2.nvm"
+      ],
+      "budget_seconds": 1800,
+      "started": 1789713973.9667454,
+      "peak_owned_rss_kib": 2839456,
+      "pid": 2388561,
+      "exit_code": 0,
+      "elapsed_seconds": 1086.7314468669938
+    },
+    "stage2-verify": {
+      "argv": [
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/bin/nano_vm",
+        "--verify-only",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/stage2.nvm"
+      ],
+      "budget_seconds": 60,
+      "started": 1789715060.6985633,
+      "peak_owned_rss_kib": 316,
+      "pid": 2662793,
+      "exit_code": 0,
+      "elapsed_seconds": 0.16493624699069187
+    },
+    "hello-compile": {
+      "argv": [
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/stage1-native",
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/examples/language/nl_hello.nano",
+        "--emit-nvm",
+        "-o",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/hello.nvm"
+      ],
+      "budget_seconds": 180,
+      "started": 1789715060.981305,
+      "peak_owned_rss_kib": 2048,
+      "pid": 2662893,
+      "exit_code": 0,
+      "elapsed_seconds": 0.04207637201761827
+    },
+    "hello-verify": {
+      "argv": [
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/bin/nano_vm",
+        "--verify-only",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/hello.nvm"
+      ],
+      "budget_seconds": 60,
+      "started": 1789715061.0238893,
+      "peak_owned_rss_kib": 1096,
+      "pid": 2662898,
+      "exit_code": 0,
+      "elapsed_seconds": 0.0023643369786441326
+    },
+    "hello-execute": {
+      "argv": [
+        "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/bin/nano_vm",
+        "/tmp/nanolang-product-native-fixedpoint-84e04f5d/hello.nvm"
+      ],
+      "budget_seconds": 10,
+      "started": 1789715061.0265532,
+      "peak_owned_rss_kib": 748,
+      "pid": 2662899,
+      "exit_code": 0,
+      "elapsed_seconds": 0.004323342000134289
+    }
+  },
+  "boundary": "I run the current canonical VM-shadow route at this pin; I make no speed attribution against the earlier C-shadow source. Native full self-compilation and raw fixed point remain distinct results.",
+  "initial_module_sha256": "ba9e46c9ae4cb93a8231073fb67e8d38dfd939346ad4831f2f1fc7464dd1b5fe",
+  "initial_module_bytes": 398488,
+  "initial_host_libraries": {
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/modules/compiler_support/.build/.nano-gen-QcbbTi/libcompiler_support.so": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/modules/nanoisa/.build/.nano-gen-Y6olnN/libnanoisa.so": "6b533d5aae78023aa69d7d7d5235499bb4d348526e997b9c00b44b15b62b89c1",
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/modules/std/.build/.nano-gen-sl3SFi/libstd.so": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4"
+  },
+  "initial_native_sha256": "ed3536fe1662ab5a1090cde6e6c9eb334be57cba4ede761f516ea15fb75ee1f8",
+  "initial_c_sha256": "ae8a40d19e5c384aae94cd78a87deb00ea49d5b7e16b9765d64eca568f48c607",
+  "stage1_sha256": "ba9e46c9ae4cb93a8231073fb67e8d38dfd939346ad4831f2f1fc7464dd1b5fe",
+  "stage1_bytes": 398488,
+  "stage1_host_libraries": {
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/modules/compiler_support/.build/.nano-gen-QcbbTi/libcompiler_support.so": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/modules/nanoisa/.build/.nano-gen-Y6olnN/libnanoisa.so": "6b533d5aae78023aa69d7d7d5235499bb4d348526e997b9c00b44b15b62b89c1",
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/modules/std/.build/.nano-gen-sl3SFi/libstd.so": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4"
+  },
+  "stage2_sha256": "ba9e46c9ae4cb93a8231073fb67e8d38dfd939346ad4831f2f1fc7464dd1b5fe",
+  "stage2_bytes": 398488,
+  "stage2_host_libraries": {
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/modules/compiler_support/.build/.nano-gen-QcbbTi/libcompiler_support.so": "f34f77c929a25241724b8d369ffdc9a579ef168400d124fb8dfbfaa2f99cbee5",
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/modules/nanoisa/.build/.nano-gen-Y6olnN/libnanoisa.so": "6b533d5aae78023aa69d7d7d5235499bb4d348526e997b9c00b44b15b62b89c1",
+    "/home/jkh/Src/nanolang-product-native-fixedpoint-84e04f5d/modules/std/.build/.nano-gen-sl3SFi/libstd.so": "62006770aa6efff24fbbf6009e89fd69d69b6fdf064f73e7ecee36e6b124bdc4"
+  },
+  "host_closure_equal": true,
+  "raw_initial_stage1_equal": true,
+  "raw_stage1_stage2_equal": true,
+  "complete": true
+}

@@ -1,0 +1,42 @@
+{
+  "temporary/nano-binary64-arithmetic-lab3x_73/1.log": {
+    "sha256": "88745e3c732a815f7e17ac6831458ed2302159bb525df5adec09cd1fae767bce",
+    "bytes": 114
+  },
+  "temporary/nano-binary64-arithmetic-lab3x_73/2.log": {
+    "sha256": "652f25a9aaf2618731a04ede8308585b7834cc100c68da8661f4d306ce018c3e",
+    "bytes": 485
+  },
+  "temporary/nano-binary64-arithmetic-lab3x_73/3.log": {
+    "sha256": "09a1b769e72a61316173d34af95c4b37a756fcf30e512715615e2b572a29532a",
+    "bytes": 2671
+  },
+  "temporary/nano-binary64-arithmetic-lab3x_73/4.log": {
+    "sha256": "267e9672c0936046b6269474aa74c8dd3bcd0739f6df15385c86283a9e3a1520",
+    "bytes": 551
+  },
+  "temporary/nano-binary64-arithmetic-lab3x_73/5.log": {
+    "sha256": "c5c6cbb3debeb853a865584723ffff00d52da8ab67cbad7e8bd711b604bc5a53",
+    "bytes": 158
+  },
+  "temporary/nano-binary64-arithmetic-lab3x_73/emit": {
+    "sha256": "706845469399820550f9b4d93fcfde8302b86b0f41a4bea72b41f45afee3e2d0",
+    "bytes": 33528
+  },
+  "temporary/nano-binary64-arithmetic-lab3x_73/emit.c": {
+    "sha256": "c14119c7d48ec2c0819e751965a2e218d8f92ffe62b27d2c51009a1338770198",
+    "bytes": 129
+  },
+  "temporary/nano-binary64-arithmetic-lab3x_73/run3": {
+    "sha256": "49f12621c73ea7b1090207990a2aee24d4ee4832c4bb54fd9df03d0f5a6a4546",
+    "bytes": 53848
+  },
+  "temporary/nano-binary64-arithmetic-lab3x_73/run5": {
+    "sha256": "5b607373e15125723e351311a5b135a235116a33cb95a2d2a624b20281655013",
+    "bytes": 52104
+  },
+  "temporary/nano-binary64-arithmetic-lab3x_73/standalone.c": {
+    "sha256": "ee76a327bb5354cf35f4a387743ea3eb2d52607dd5927708f430d338d796a3b1",
+    "bytes": 5630
+  }
+}

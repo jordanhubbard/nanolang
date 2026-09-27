@@ -1,0 +1,93 @@
+✓ Bootstrap Stage 0: C reference compiler ready
+
+==========================================
+Bootstrap Stage 1: Self-Hosted Compiler
+==========================================
+Compiling nanoc_v06.nano with C compiler...
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2092, column 9: Unused variable 'rejected'
+Warning at line 2213, column 9: Unused variable 'rejected'
+Warning at line 2220, column 13: Unused variable 'rejected'
+Warning at line 2258, column 9: Unused variable 'rejected'
+Warning at line 2262, column 9: Unused variable 'rejected'
+Warning at line 2269, column 13: Unused variable 'rejected'
+Warning at line 5384, column 17: Unused variable 'imported'
+Error at line 347, column 38: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 347, column 38: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 347, column 38: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 355, column 27: I require the exact ordinary record declaration at this value boundary.
+Hint: Preserve declaration and module identity; implicit enum lists remain unsupported.
+Error at line 356, column 21: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 356, column 21: I require the receiver's declared nominal element type for this array mutation.
+Hint: Preserve complete receiver facts and each inserted record's declaration and owner.
+Error at line 356, column 21: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 356, column 21: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 366, column 27: I require the exact ordinary record declaration at this value boundary.
+Hint: Preserve declaration and module identity; implicit enum lists remain unsupported.
+Error at line 367, column 21: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 367, column 21: I require the receiver's declared nominal element type for this array mutation.
+Hint: Preserve complete receiver facts and each inserted record's declaration and owner.
+Error at line 367, column 21: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 367, column 21: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 377, column 27: I require the exact ordinary record declaration at this value boundary.
+Hint: Preserve declaration and module identity; implicit enum lists remain unsupported.
+Error at line 378, column 21: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 378, column 21: I require the receiver's declared nominal element type for this array mutation.
+Hint: Preserve complete receiver facts and each inserted record's declaration and owner.
+Error at line 378, column 21: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 378, column 21: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 382, column 12: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 382, column 12: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 400, column 46: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 400, column 46: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 400, column 46: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 417, column 37: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 417, column 73: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 417, column 37: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 417, column 37: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 431, column 41: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 431, column 82: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 431, column 41: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 431, column 41: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 434, column 41: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 434, column 77: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 434, column 41: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 434, column 41: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error at line 443, column 12: I require each array leaf's original declaration owner.
+Hint: Preserve fixed definition leaves and concrete argument identities.
+Error at line 443, column 12: I require the declared nominal record type for this array.
+Hint: Preserve every nested element declaration and its module identity.
+Error: Type checking failed for module '/private/tmp/nanolang-record-lists-qualified-132f/src_nano/compiler/module_loader.nano'
+Error at line 24, column 1: Failed to load module '/private/tmp/nanolang-record-lists-qualified-132f/src_nano/compiler/module_loader.nano'
+Module loading failed
+make: *** [.bootstrap1.built] Error 1

@@ -1,0 +1,42 @@
+src/transpiler.c:3677:        env_define_var(env, orig->as.function.params[j].name, concrete_t, true, dummy);
+src/transpiler.c:3879:                env_define_var_with_type_info(env, item->as.function.params[j].name,
+src/transpiler_iterative_v3_twopass.c:975:    env_define_var_with_type_info(env, name, checked.type, checked.element_type,
+src/transpiler_iterative_v3_twopass.c:4162:            env_define_var_with_type_info(env, stmt->as.let.name, stmt->as.let.var_type,
+src/transpiler_iterative_v3_twopass.c:4705:            env_define_var_with_type_info(env, expr->as.handle_expr.handler_param_names[h][p], op->params[p].type, op->params[p].element_type, op->params[p].type_info, true, value);
+src/module.c:1188:                    env_define_var(env, module_item->as.let.name, 
+src/nanovirt/codegen.c:2365:    env_define_var_with_type_info(cg->env, name, checked.type, checked.element_type,
+src/nanovirt/codegen.c:3253:    env_define_var_with_type_info(cg->env, param->name, param->type,
+src/nanovirt/codegen.c:3736:        env_define_var_with_type_info(cg->env, node->as.let.name, node->as.let.var_type,
+src/eval.c:4688:        env_define_var(env, func->params[i].name, func->params[i].type, false, param_value);
+src/eval.c:5295:                        env_define_var(env, binding, TYPE_STRUCT, false, binding_value);
+src/eval.c:5527:                env_define_var(henv, param, TYPE_UNKNOWN, false, args[i]);
+src/eval.c:5600:            env_define_var_with_type_info(env,
+src/eval.c:5719:                env_define_var(env, loop_var, TYPE_INT, false, create_int(start));
+src/eval.c:5752:                    env_define_var(env, loop_var, TYPE_STRUCT, true, create_void());
+src/eval.c:5780:                env_define_var(env, loop_var, TYPE_INT, true, create_void());
+src/eval.c:5931:                env_define_var_with_type_info(env,
+src/eval.c:6368:        env_define_var(env, func->params[i].name, func->params[i].type, false, param_value);
+src/typechecker.c:5157:                    env_define_var_with_type_info(env,
+src/typechecker.c:5476:                            env_define_var_with_type_info(env, pname, param->type,
+src/typechecker.c:5518:                    env_define_var(env, param, TYPE_UNKNOWN, false, dummy);
+src/typechecker.c:5786:                env_define_var_with_type_info(tc->env, stmt->as.let.name, inferred,
+src/typechecker.c:6110:            env_define_var_with_type_info(tc->env, stmt->as.let.name, env_type, element_type, type_info, stmt->as.let.is_mut, val);
+src/typechecker.c:6347:            env_define_var_with_type_info(tc->env, stmt->as.for_stmt.var_name, loop_var_type,
+src/typechecker.c:6569:                env_define_var_with_type_info(tc->env, stmt->as.par_let.names[i],
+src/typechecker.c:6608:                    env_define_var(tc->env, param, TYPE_UNKNOWN, false, dummy);
+src/typechecker.c:6757:                    env_define_var_with_type_info(tc->env,
+src/typechecker.c:6874:                        env_define_var_with_type_info(tc->env, param->name,
+src/typechecker.c:8864:            env_define_var_with_type_info(env,
+src/typechecker.c:9019:                    env_define_var_with_type_info(env, item->as.function.params[j].name, param_type, element_type, param_type_info, false, val);
+src/typechecker.c:9027:                    env_define_var_with_type_info(env, item->as.function.params[j].name, param_type, TYPE_UNKNOWN, type_info, false, val);
+src/typechecker.c:9029:                    env_define_var_with_element_type(env, item->as.function.params[j].name,
+src/typechecker.c:9635:            env_define_var_with_type_info(env,
+src/typechecker.c:9806:                    env_define_var_with_type_info(env, item->as.function.params[j].name, param_type, element_type, param_type_info, false, val);
+src/typechecker.c:9814:                    env_define_var_with_type_info(env, item->as.function.params[j].name, param_type, TYPE_UNKNOWN, type_info, false, val);
+src/typechecker.c:9818:                    env_define_var_with_element_type(env, item->as.function.params[j].name, param_type, element_type, false, val);
+src/typechecker.c:9820:                    env_define_var(env, item->as.function.params[j].name, param_type, false, val);
+src/env.c:451:void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value) {
+src/env.c:452:    env_define_var_with_element_type(env, name, type, TYPE_UNKNOWN, is_mut, value);
+src/env.c:455:void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value) {
+src/env.c:456:    env_define_var_with_type_info(env, name, type, element_type, NULL, is_mut, value);
+src/env.c:469:void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value) {

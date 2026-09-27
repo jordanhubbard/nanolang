@@ -1,0 +1,12 @@
+[
+  {
+    "path": "/home/jkh/nanolang-qualification/frame-bindings-20260921/nanolang-frame-bindings-19ab5a368/darwin-failed-test_vm",
+    "bytes": 24762136,
+    "sha256": "4fa4931a991b416a1ff49e1936b5394e68642912bb1417af06b5ef4d3ac93915"
+  },
+  {
+    "path": "/home/jkh/nanolang-qualification/frame-bindings-20260921/nanolang-frame-bindings-8225b1d73/runner-preflight.o",
+    "bytes": 2145352,
+    "sha256": "cac587fe148256ff1423085284961605c6b830494b08708c2fe0408382de94ec"
+  }
+]

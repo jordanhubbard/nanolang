@@ -1,0 +1,26 @@
+struct Item { label: string, items: array<string> }
+union Choice { Box { value: Item }, Text { value: string }, Empty {} }
+let mut current: Choice = Choice.Empty {}
+fn identity(value: Choice) -> Choice { return value }
+shadow identity {
+ let value: Choice = (identity Choice.Empty {})
+ match value { Box(b) => { assert false } Text(t) => { assert false } Empty(e) => { assert true } }
+}
+fn main() -> int {
+ set current (identity Choice.Box { value: Item { label: (+ "saved" "-label"), items: [(+ "saved" "-array")] } })
+ let saved: Choice = current
+ let mut i: int = 0
+ while (< i 300) {
+  set current (identity Choice.Text { value: (+ "temporary-" (to_string i)) })
+  set i (+ i 1)
+ }
+ set current Choice.Empty {}
+ match saved {
+  Box(b) => { assert (== b.value.label "saved-label") assert (== (at b.value.items 0) "saved-array") }
+  Text(t) => { assert false }
+  Empty(e) => { assert false }
+ }
+ assert (== (to_string saved) "Choice.Box { value: Item { label: saved-label, items: [\"saved-array\"] } }")
+ return 0
+}
+shadow main { assert (== (main) 0) }

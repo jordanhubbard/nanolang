@@ -1,0 +1,22 @@
+{
+  "source": "fn main() -> int { assert (== (to_string [1, 2]) \"[1, 2]\") return 0 }\nshadow main { assert true }\n",
+  "results": [
+    {
+      "compiler": "nanoc_c",
+      "compiler_sha256": "735c215e1a38440cc46bfa62e9d131c661e3365cee83119cd7c879d7d3b9fb1d",
+      "build_exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "run_exit": 0,
+      "run_stdout": "",
+      "run_stderr": ""
+    },
+    {
+      "compiler": "nanoc_stage2",
+      "compiler_sha256": "4f7ded16ad23db703320c285e2aeb4ada9e40a3b1b273b7b5cf5fe420e2dc83f",
+      "build_exit": 1,
+      "stdout": "I cannot lower this checked program: string concat needs two strings\n",
+      "stderr": ""
+    }
+  ]
+}

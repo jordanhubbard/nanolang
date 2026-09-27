@@ -130,9 +130,11 @@ class EnumScalars(unittest.TestCase):
                         result = self.run_cmd(['wasmtime','run','--invoke','nano_entry',output])
                         self.assertEqual(result.stdout, '0\n')
 
+    def test_scalar_tail_call_is_admitted(self):
+        self.paired('CALL relay\nPOP\n', '.function identity 0 0 0 enum 1\nENUM_VAL 0 1\nRET\n.end\n.function relay 0 0 0 enum 1\nTAIL_CALL identity\n.end\n')
+
     def test_profile_refusals_preserve_output(self):
         for text in (
-            self.program('CALL relay\nPOP\n','.function identity 0 0 0 enum 1\nENUM_VAL 0 1\nRET\n.end\n.function relay 0 0 0 enum 1\nTAIL_CALL identity\n.end\n'),
             '.types 1 1 0\n.entry main\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n',
         ):
             with self.subTest(text=text):

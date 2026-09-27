@@ -1,0 +1,169 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -DNANO_WRAPPER_CRYPTO_DIR='"/opt/homebrew/opt/openssl@3/lib"' -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+✓ Bootstrap Stage 0: C reference compiler ready
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+		obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+		obj/nanovm/main.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib 
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+
+==========================================
+Bootstrap Stage 1: Self-Hosted Compiler
+==========================================
+Compiling nanoc_v06.nano with C compiler...
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2502, column 9: Unused variable 'rejected'
+Warning at line 2631, column 9: Unused variable 'rejected'
+Warning at line 2638, column 13: Unused variable 'rejected'
+Warning at line 2719, column 9: Unused variable 'rejected'
+Warning at line 2728, column 9: Unused variable 'rejected'
+Warning at line 2733, column 13: Unused variable 'rejected'
+Warning at line 2853, column 9: Unused variable 'rejected'
+Warning at line 2862, column 13: Unused variable 'rejected'
+Warning at line 2923, column 9: Unused variable 'rejected'
+Warning at line 2927, column 9: Unused variable 'rejected'
+Warning at line 2934, column 13: Unused variable 'rejected'
+Warning at line 6744, column 21: Unused variable 'imported'
+Warning at line 6894, column 13: Unused variable 'rejected'
+Warning at line 6900, column 17: Unused variable 'rejected'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2502, column 9: Unused variable 'rejected'
+Warning at line 2631, column 9: Unused variable 'rejected'
+Warning at line 2638, column 13: Unused variable 'rejected'
+Warning at line 2719, column 9: Unused variable 'rejected'
+Warning at line 2728, column 9: Unused variable 'rejected'
+Warning at line 2733, column 13: Unused variable 'rejected'
+Warning at line 2853, column 9: Unused variable 'rejected'
+Warning at line 2862, column 13: Unused variable 'rejected'
+Warning at line 2923, column 9: Unused variable 'rejected'
+Warning at line 2927, column 9: Unused variable 'rejected'
+Warning at line 2934, column 13: Unused variable 'rejected'
+Warning at line 6744, column 21: Unused variable 'imported'
+Warning at line 6894, column 13: Unused variable 'rejected'
+Warning at line 6900, column 17: Unused variable 'rejected'
+Warning at line 9, column 1: Unused variable 'parser'
+✓ Stage 1 compiler created: bin/nanoc_stage1
+
+Testing stage 1 compiler...
+Hello from NanoLang!
+✓ Stage 1 compiler works!
+
+==========================================
+Bootstrap Stage 2: Recompilation
+==========================================
+Compiling nanoc_v06.nano with stage 1 compiler...
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I cannot define a record twice in one module: Handle
+I cannot define a function twice in one module: answer
+I cannot resolve a qualified function in this module: lib.answer
+I require separate artifact and diagnostic destinations
+I require separate artifact and diagnostic destinations
+I will not overwrite a source file: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_QkmMka/source.nano
+I will not overwrite a source file: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_QkmMka/source.nano
+I cannot check source/output file identity: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_QkmMka/missing
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Usage: nanoc <input.nano> [-o output] [options]
+
+Without an output or target, I publish a sibling .nvm file.
+Options:
+  -o <file>        I publish a native executable unless --emit-nvm or --target c is selected
+  -v, --verbose    Verbose compilation output
+  -k, --keep-c     Keep generated C file
+  --target <t>    native (default) or c (NanoISA C11 source, no native compilation)
+  --emit-nvm     I publish verified NanoISA (default output: sibling .nvm)
+  --test-imports  I run dependency shadows before root shadows (default)
+  --root-shadows-only  I run only root-file shadows
+  --              End options; the remaining argument is my input path
+  -fshow-intermediate-code  Print generated C to stdout
+  -h, --help       Show this help
+  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)
+
+This compiler is 100% written in NanoLang!
+Pipeline: Lex → Parse → Typecheck → NanoISA → Product
+
+✓ Stage 2 compiler created: bin/nanoc_stage2
+
+Testing stage 2 compiler...
+Hello from NanoLang!
+✓ Stage 2 compiler works!
+
+==========================================
+Bootstrap Stage 3: Verification
+==========================================
+Comparing stage 1 and stage 2 binaries...
+
+-rwxr-xr-x  1 jordanh  staff    12M Sep 24 08:02 bin/nanoc_stage1
+-rwxr-xr-x  1 jordanh  staff    14M Sep 24 08:06 bin/nanoc_stage2
+
+⚠️  Bootstrap verification: Binaries differ
+
+Stage 1 size: 12058928
+Stage 2 size: 15159672
+
+I have not diagnosed the difference. These causes remain hypotheses:
+  - Embedded timestamps or other native artifact metadata
+  - Non-deterministic code generation
+  - Different compiler optimizations
+
+Both stages passed the configured smoke test; that is not a correctness proof.
+Canonical NanoISA artifact equality remains a separate 5.0 gate.
+
+==========================================
+Installing Self-Hosted Compiler
+==========================================
+Updating bin/nanoc to use self-hosted compiler...
+✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)
+
+Smoke test: installed bin/nanoc compiles + runs nl_hello.nano...
+Hello from NanoLang!
+✓ installed compiler works
+
+Verifying bin/nanoc does not depend on bin/nanoc_c...
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+
+All subsequent builds (test, examples) will use the self-hosted compiler!
+
+
+==========================================
+✅ TRUE BOOTSTRAP COMPLETE!
+==========================================
+Bootstrap Status:
+
+  ✅ Stage 0: C reference compiler (bin/nanoc)
+  ✅ Stage 1: Self-hosted compiler (bin/nanoc_stage1)
+  ✅ Stage 2: Recompiled compiler (bin/nanoc_stage2)
+  Stage 3: recorded comparison and installed-compiler smoke checks passed.
+
+  I do not infer compiler correctness or release readiness from this stamp.
+
+
+✓ Self-hosted compiler installed as bin/nanoc
+✓ Stage binaries preserved in bin/ for verification
+✓ All future builds will use the self-hosted compiler
+

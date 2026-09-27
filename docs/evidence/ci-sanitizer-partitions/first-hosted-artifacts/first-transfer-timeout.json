@@ -1,0 +1,9 @@
+{
+  "artifact_id": 10674668469,
+  "return": "TimeoutExpired",
+  "bound_seconds": 180,
+  "partial_bytes": 111951872,
+  "partial_sha256": "8832e58299e220a108fcb6b6f1f8c63492eebfb781aacc3e1ad50b0cbfed4325",
+  "no_gh_process_remaining": true,
+  "continuation": "fresh path,600-second transport bound based on111951872bytes transferred in180seconds; product bounds unchanged"
+}

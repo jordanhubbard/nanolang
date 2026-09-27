@@ -1,0 +1,120 @@
+{
+  "head": "e456006adf3dcabfce250d105c67656845c187e1",
+  "host": "puck",
+  "platform": "macOS-27.0-arm64-arm-64bit",
+  "scope": "fresh ordinary COMMON_OBJECTS/RUNTIME_OBJECTS for focused parser/checker/lifetime fixtures only; no build/bootstrap/native corpus claim",
+  "phases": [
+    {
+      "name": "compiler",
+      "argv": [
+        "/usr/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.1509558339999999,
+      "log": {
+        "sha256": "d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6",
+        "bytes": 200,
+        "archive": "/Users/jkh/nanolang-qualification/tuple-e456-prepare/objects/d87322adfba2b471d2b068c103e5f911163098f765508ae7a76526c90a149ca6"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "native-compiler",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.20840562500000015,
+      "log": {
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+        "bytes": 222,
+        "archive": "/Users/jkh/nanolang-qualification/tuple-e456-prepare/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "llvm",
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.04877425000000013,
+      "log": {
+        "sha256": "a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522",
+        "bytes": 222,
+        "archive": "/Users/jkh/nanolang-qualification/tuple-e456-prepare/objects/a191aad879d7868aedd544521484aade2b4663631a677b32889b9fafaa21b522"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "make",
+      "argv": [
+        "/usr/bin/make",
+        "--version"
+      ],
+      "bound_seconds": 30,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 0.011896583000000405,
+      "log": {
+        "sha256": "a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d",
+        "bytes": 263,
+        "archive": "/Users/jkh/nanolang-qualification/tuple-e456-prepare/objects/a016391a1d6319276db894666203e6f0a008e257a0c58616d779951ed943054d"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    },
+    {
+      "name": "provider-prepare",
+      "argv": [
+        "make",
+        "-f",
+        "/Users/jkh/nanolang-qualification/tuple-e456-prepare/prepare.mk",
+        "-j2",
+        "list-prepare",
+        "CC=/usr/bin/clang",
+        "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+        "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+        "NMS_NATIVE_CLANG_FLAGS=-isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+      ],
+      "bound_seconds": 1800,
+      "status": 0,
+      "timeout": false,
+      "cleanup": [],
+      "leader_reaped": true,
+      "group_gone": true,
+      "seconds": 5.380777333,
+      "log": {
+        "sha256": "a5f5fb7210737e123c979eb80df6db23d6a39c4c021fb8fc3c9e99f5a1886d40",
+        "bytes": 31208,
+        "archive": "/Users/jkh/nanolang-qualification/tuple-e456-prepare/objects/a5f5fb7210737e123c979eb80df6db23d6a39c4c021fb8fc3c9e99f5a1886d40"
+      },
+      "sources_equal": true,
+      "tools_equal": true
+    }
+  ]
+}

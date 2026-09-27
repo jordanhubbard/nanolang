@@ -20,6 +20,9 @@ class BootstrapMessages(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="nanolang-bootstrap-messages-") as directory:
             root = Path(directory)
             shutil.copyfile(ROOT / "Makefile.gnu", root / "Makefile.gnu")
+            (root / "scripts").mkdir()
+            shutil.copyfile(ROOT / "scripts/native_sdk_objects.mk",
+                            root / "scripts/native_sdk_objects.mk")
             (root / "bin").mkdir()
             (root / ".bootstrap2.built").touch()
             for name, suffix in [("nanoc_stage1", ""),

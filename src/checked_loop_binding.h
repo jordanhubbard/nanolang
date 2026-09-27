@@ -30,6 +30,9 @@ static bool reestablish_checked_loop_binding(Environment *env, ASTNode *loop) {
     free(binding->struct_type_name);
     binding->struct_type_name = nominal;
     binding->is_resource = checked.is_resource;
+    binding->nominal_owner = checked.nominal_owner;
+    binding->callable_owner = checked.callable_owner;
+    binding->checker_nominal_view = checked.checker_nominal_view;
     binding->scope_end_line = loop->as.for_stmt.body->scope_end_line;
     binding->scope_end_column = loop->as.for_stmt.body->scope_end_column;
     return true;

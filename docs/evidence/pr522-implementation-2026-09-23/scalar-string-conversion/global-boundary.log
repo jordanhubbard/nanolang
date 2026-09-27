@@ -1,0 +1,49 @@
+..........FF...FF
+======================================================================
+FAIL: test_ordinary_globals_execute (tests.test_global_resource_boundary.GlobalResourceBoundary.test_ordinary_globals_execute) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_global_resource_boundary.py", line 24, in check
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-owner-7xr06pt8/.nano-product.hhqvKf/program.nvm': I cannot yet store an aggregate or unresolved global in function 1 at offset 25
+
+
+======================================================================
+FAIL: test_ordinary_globals_execute (tests.test_global_resource_boundary.GlobalResourceBoundary.test_ordinary_globals_execute) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_global_resource_boundary.py", line 24, in check
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-owner-sdxb4cwa/.nano-product.SBoAbF/program.nvm': I cannot yet store an aggregate or unresolved global in function 1 at offset 25
+
+
+======================================================================
+FAIL: test_unused_resource_argument_is_ordinary (tests.test_global_resource_boundary.GlobalResourceBoundary.test_unused_resource_argument_is_ordinary) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_global_resource_boundary.py", line 24, in check
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-owner-1s4aob1_/.nano-product.IqMf5B/program.nvm': I cannot yet store an aggregate or unresolved global in function 1 at offset 25
+
+
+======================================================================
+FAIL: test_unused_resource_argument_is_ordinary (tests.test_global_resource_boundary.GlobalResourceBoundary.test_unused_resource_argument_is_ordinary) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_global_resource_boundary.py", line 24, in check
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified NanoISA product to C
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-owner-akc8ggx7/.nano-product.1FHgri/program.nvm': I cannot yet store an aggregate or unresolved global in function 1 at offset 25
+
+
+----------------------------------------------------------------------
+Ran 15 tests in 4.672s
+
+FAILED (failures=4)

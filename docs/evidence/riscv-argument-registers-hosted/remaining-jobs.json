@@ -1,0 +1,16 @@
+[
+  {
+    "job": "106399011913",
+    "raw_bytes": 7337208,
+    "raw_sha256": "ea9f9bbe59c6488deaa6551d01b495b7bf0cd21d84ba7b10b07eecbc1ef4ecff",
+    "archive": "job-106399011913.log.gz",
+    "archive_sha256": "7cd59a66f5b294c8063bc6b00d4f940195a1a0ac10bd7effbf71d4c5fe27b62d"
+  },
+  {
+    "job": "106399012080",
+    "raw_bytes": 718940,
+    "raw_sha256": "5065cdedd347a51fcc3d888bdaa0139815d9c40972a556ed6046ae986b7e6903",
+    "archive": "job-106399012080.log.gz",
+    "archive_sha256": "1853158bec15f383b0c230351dc9fad66eb5b804583907cbf004f322dd1d3647"
+  }
+]

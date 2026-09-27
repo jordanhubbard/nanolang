@@ -1,0 +1,77 @@
+[
+  {
+    "phase": "setup",
+    "seconds": 9.23,
+    "status": 0
+  },
+  {
+    "phase": "configuration",
+    "seconds": 0.222,
+    "status": 0
+  },
+  {
+    "phase": "discovery",
+    "seconds": 0.195,
+    "status": 0
+  },
+  {
+    "phase": "parity",
+    "seconds": 4.684,
+    "status": 0
+  },
+  {
+    "phase": "ordinary-emission",
+    "seconds": 2.159,
+    "status": 0
+  },
+  {
+    "phase": "ordinary-native",
+    "seconds": 309.5,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary-emission",
+    "seconds": 2.37,
+    "status": 0
+  },
+  {
+    "phase": "clang-ordinary-native",
+    "seconds": 347.739,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer-emission",
+    "seconds": 4.822,
+    "status": 0
+  },
+  {
+    "phase": "sanitizer-native",
+    "seconds": 1263.516,
+    "status": 0
+  },
+  {
+    "phase": "wasm",
+    "seconds": 553.359,
+    "status": 0
+  },
+  {
+    "phase": "old-private-vm",
+    "seconds": 14.661,
+    "status": 0
+  },
+  {
+    "phase": "record_array_global_flow",
+    "seconds": 3.74,
+    "status": 0
+  },
+  {
+    "phase": "record_array_execution",
+    "seconds": 3.946,
+    "status": 0
+  },
+  {
+    "phase": "record_array_origins",
+    "seconds": 3.479,
+    "status": 0
+  }
+]

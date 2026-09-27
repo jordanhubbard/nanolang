@@ -1,0 +1,679 @@
+{
+  "native_pin": "8028ab194",
+  "sdk_pin": "243747e4f",
+  "status": "I completed source integration for independent review; I have not built or executed integrated products.",
+  "hunks": [
+    {
+      "path": "src/env.c",
+      "hunk": 0,
+      "native_sha256": "bc2e852044c988ccf96e15a12321682ed78844cb3399289f4cb9adbccb3d3106",
+      "sdk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resolution_sha256": "bc2e852044c988ccf96e15a12321682ed78844cb3399289f4cb9adbccb3d3106",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/env.c",
+      "hunk": 1,
+      "native_sha256": "23ec4c36b0d20add3312669926279d9a6bc121d025d5c4a0837363959ff96df6",
+      "sdk_sha256": "fe289d31581caaa986b75425b8298ee22fbb1826cda46eb9b47816e4d4d18598",
+      "resolution_sha256": "f768b7568f75899c882ccce255183d6778e18b5ced96a7df59966fa2d481079d",
+      "reason": "I retain indexed actual declaration lookup and add reviewed source str_split precedence."
+    },
+    {
+      "path": "src/env.c",
+      "hunk": 2,
+      "native_sha256": "c492e3b5cd1ca19ebeede7dce6b6b70d8b0b4ccbd2f21f0a6e528c3a832a7bf4",
+      "sdk_sha256": "536247a13f7fd6fe39f404d08ebc645a4f92b99559c167bae2917d7a3ea3e718",
+      "resolution_sha256": "45a8f64aa13d16e5e039aa082173b3153d62cd5ea638aa96b47c7abc72423174",
+      "reason": "I preserve the public indexed wrapper and add str_split to actual intrinsic selection."
+    },
+    {
+      "path": "src/env.c",
+      "hunk": 3,
+      "native_sha256": "3054621051f2ee43146f355dd086936b8f0b75c578521a85c000cbc1ca4213a7",
+      "sdk_sha256": "224fa7c5f3f4f664cb1ddb11e9a24011ade3fbbbcb6ae166e67ba4544b4370eb",
+      "resolution_sha256": "3054621051f2ee43146f355dd086936b8f0b75c578521a85c000cbc1ca4213a7",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/env.c",
+      "hunk": 4,
+      "native_sha256": "87f14720c994c9cf93710764a5daf1bb60d66abd5ef01fd64a5917b7f8f10bc8",
+      "sdk_sha256": "2793d3db18457756380970248e6d2d976590f302a2f4bfac2db7c89c55e2eff0",
+      "resolution_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "I use the single following include pair and native owned tuple helpers later in this file."
+    },
+    {
+      "path": "src/env_opaque_keys.inc",
+      "hunk": 0,
+      "native_sha256": "105fc6902cd2f171be74f6657acfde1bcefefc353cdaed31e7b6805380e37b70",
+      "sdk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resolution_sha256": "105fc6902cd2f171be74f6657acfde1bcefefc353cdaed31e7b6805380e37b70",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/env_opaque_keys.inc",
+      "hunk": 1,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "34beefd516933e88b5d61f10d339dbd33b1d54444b599f4e2fece88ad3e45073",
+      "resolution_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/env_opaque_types.inc",
+      "hunk": 0,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "423e200888ffd0f2132b5ed5475a836feb22994f9619e41d3c23d9153d556129",
+      "resolution_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/env_opaque_types.inc",
+      "hunk": 1,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "4ea85527a88e5044857e8855a29a9e8a430a72c3e9f3aef408d068afb6dc0267",
+      "resolution_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/nanolang.h",
+      "hunk": 0,
+      "native_sha256": "8031b965a7693bbfddea9fd0be284216b19549b1ed4807f0bbeb28861c02bcc0",
+      "sdk_sha256": "740ca349c03196c6226588171681756307ef693a7f77c8078a713a556c3ff2eb",
+      "resolution_sha256": "8031b965a7693bbfddea9fd0be284216b19549b1ed4807f0bbeb28861c02bcc0",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/nanolang.h",
+      "hunk": 1,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "78908dd5bbb5aa26d854355301e2ed15405e96b059f3c3d691535c57b2fb9acb",
+      "resolution_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/nanolang.h",
+      "hunk": 2,
+      "native_sha256": "ba23b067509c0215227c2b62b2ac6ad61daa0fef3ef8020af4811d85b7059ee5",
+      "sdk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resolution_sha256": "ba23b067509c0215227c2b62b2ac6ad61daa0fef3ef8020af4811d85b7059ee5",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/nanolang.h",
+      "hunk": 3,
+      "native_sha256": "82ec09de5d0a5cd353288ee7d3c6d8a7b2358812a8174cb79c47a6c5dd063b7c",
+      "sdk_sha256": "decb8f4310e925749245232ca5a3b3ded2c3a45bd140f14b25adc443f22a7555",
+      "resolution_sha256": "82ec09de5d0a5cd353288ee7d3c6d8a7b2358812a8174cb79c47a6c5dd063b7c",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/nominal_types.c",
+      "hunk": 0,
+      "native_sha256": "55bc5d9f92500391d422c54c7b2817012e88c03a5c8a90e875a66617939d3466",
+      "sdk_sha256": "a323f312496a5cc9293f49996c70c1469e1b766a5ac7abfeda8aa84e89353c7b",
+      "resolution_sha256": "55bc5d9f92500391d422c54c7b2817012e88c03a5c8a90e875a66617939d3466",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/nominal_types.c",
+      "hunk": 1,
+      "native_sha256": "a024837c9ad999d4318e15957674a9f2142cf630687001a795bd396589d87f64",
+      "sdk_sha256": "b7049e5966074d9cf003bdff3df8690810e7744f277aa3c7e0f24e26faf452c1",
+      "resolution_sha256": "a024837c9ad999d4318e15957674a9f2142cf630687001a795bd396589d87f64",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/nominal_types.c",
+      "hunk": 2,
+      "native_sha256": "ef2afb1f1a8b4e1847e404f948b51d8ca63430798cb445b35c62365ddc4f27e4",
+      "sdk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resolution_sha256": "ef2afb1f1a8b4e1847e404f948b51d8ca63430798cb445b35c62365ddc4f27e4",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/transpiler.c",
+      "hunk": 0,
+      "native_sha256": "8a16ae7ec56b7983b500688965d34d3f7426b6355915cc67e0e183700302deae",
+      "sdk_sha256": "e39195229b43bf74552f86b05406908a346e465bf121bf368411d4d676850d14",
+      "resolution_sha256": "8a16ae7ec56b7983b500688965d34d3f7426b6355915cc67e0e183700302deae",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/transpiler.c",
+      "hunk": 1,
+      "native_sha256": "4e87d709a9a472492c556c5ec8b7110c818b7badc402d413e61cffe1189190ab",
+      "sdk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resolution_sha256": "4e87d709a9a472492c556c5ec8b7110c818b7badc402d413e61cffe1189190ab",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/transpiler.c",
+      "hunk": 2,
+      "native_sha256": "2e405c21d21f20afd5b7099e13035fc2d860d2c256e0d9327c1fd5a88105a81b",
+      "sdk_sha256": "385e37d07fbb8ceda02ea0b40adb1bbb5a4b5e37205ba7e3faa59737879f9f11",
+      "resolution_sha256": "2e405c21d21f20afd5b7099e13035fc2d860d2c256e0d9327c1fd5a88105a81b",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/transpiler.c",
+      "hunk": 3,
+      "native_sha256": "3c50ab428f4f455e91f4241f83aa57e2fcb8a9cba1141129751d96fc4b4ed248",
+      "sdk_sha256": "d7ea4a00525c26faa71d3b1dda218790bf349adb4a460cacbea91d73932ceb0a",
+      "resolution_sha256": "3c50ab428f4f455e91f4241f83aa57e2fcb8a9cba1141129751d96fc4b4ed248",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/transpiler.c",
+      "hunk": 4,
+      "native_sha256": "91a3ffcf71e7df2aa47c55646a32b3d9707efe7fcf04bd38e2d55e55d062077c",
+      "sdk_sha256": "4714723f440a41182b4d20b20440d99260f028935d72a948985e7f77e1a3efc6",
+      "resolution_sha256": "91a3ffcf71e7df2aa47c55646a32b3d9707efe7fcf04bd38e2d55e55d062077c",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/transpiler.c",
+      "hunk": 5,
+      "native_sha256": "de69903aeeff6d7547e8afdfb8555a80d6d119365ac68568819693760bc5aee7",
+      "sdk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resolution_sha256": "de69903aeeff6d7547e8afdfb8555a80d6d119365ac68568819693760bc5aee7",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/transpiler_iterative_v3_twopass.c",
+      "hunk": 0,
+      "native_sha256": "3704139bc88a1078f83d4ae208d8e34f4a269931bfe270ef5166b00babd8e406",
+      "sdk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resolution_sha256": "3704139bc88a1078f83d4ae208d8e34f4a269931bfe270ef5166b00babd8e406",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/transpiler_iterative_v3_twopass.c",
+      "hunk": 1,
+      "native_sha256": "ec48cc74c47be8eec3cac35f04f550ba2cfa2a5739d90c60ec1f2aba793e3685",
+      "sdk_sha256": "6b90b5ba2ec97713645e912fccf1c85cbde4061ed2309344c8348033fcdb04d3",
+      "resolution_sha256": "ec48cc74c47be8eec3cac35f04f550ba2cfa2a5739d90c60ec1f2aba793e3685",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/transpiler_opaque_declarations.inc",
+      "hunk": 0,
+      "native_sha256": "a81a98478baae823a854f2533e16d04f1732e463d04078ee31adf74d56d4bfad",
+      "sdk_sha256": "07e5638f3bc753ab4565c2aa26f9a7e7b99424aa7c34871a73a659ad6cf6dde4",
+      "resolution_sha256": "a81a98478baae823a854f2533e16d04f1732e463d04078ee31adf74d56d4bfad",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "src/transpiler_opaque_declarations.inc",
+      "hunk": 1,
+      "native_sha256": "1190674cdaa325d694f529723e4697724c31028e9eb29318569de6dc6dba9312",
+      "sdk_sha256": "84317f7b40581ab8692c8410624c66e6d07bff03e98a9accc187c44ddac2f5ce",
+      "resolution_sha256": "1190674cdaa325d694f529723e4697724c31028e9eb29318569de6dc6dba9312",
+      "reason": "I retain native complete ownership, contextual identity, and derived declaration behavior."
+    },
+    {
+      "path": "Makefile.gnu",
+      "hunk": 0,
+      "native_sha256": "3260f5706c41e0158d900e6cc7e54ab0362bf1b1c3ad79466479c8d2be7459c4",
+      "sdk_sha256": "65add6f1298c4905119ce586b0f52f7ba3be0902b7823d7d1f4f573c9ebc7ca7",
+      "resolution_sha256": "576d8d57212097283e51eb9f015cd31c51c81a0768c2d2d84f7ac7d78a30d8f6",
+      "reason": "I retain both prerequisite and gate closures in ordered additive form."
+    },
+    {
+      "path": "Makefile.gnu",
+      "hunk": 1,
+      "native_sha256": "1fb35fe658bd47b0b3e49f21a51ffef231945fe986781e3bce11252566475cdb",
+      "sdk_sha256": "5cea92a8a4b3e57331932b624ae65693e7f844f0d59a786510ca7266996624e5",
+      "resolution_sha256": "0477a8fd2bc9149c1cd903ed558a74de49679bcd70790f49b43a022bdd2efaa3",
+      "reason": "I retain both prerequisite and gate closures in ordered additive form."
+    },
+    {
+      "path": "docs/NANOISA_COMPUTED_U8_CONVERSION.md",
+      "hunk": 0,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "3a285b0bea5cec111502c04456de28f5405d54676c824171b1aa16052b20a0a2",
+      "resolution_sha256": "3a285b0bea5cec111502c04456de28f5405d54676c824171b1aa16052b20a0a2",
+      "reason": "I retain both ordered records."
+    },
+    {
+      "path": "docs/ROADMAP.md",
+      "hunk": 0,
+      "native_sha256": "147df274ddccc40ba6f719d7540a53fa212ec7962ab70b959ad0523bbc4db8c8",
+      "sdk_sha256": "92cb4a392f0e965317e4bc7ef5b523800ec3be16992884950101e27c0bee9a3b",
+      "resolution_sha256": "d8c9ffc3a51b1086bebf9221765f964df4b71361173bf76c8fa03a00e75cd224",
+      "reason": "I retain both ordered records."
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "hunk": 0,
+      "native_sha256": "a4ce733bf85ad3d769edd8b1203bfc96fe0dfa81a69937f371c65d3cf75560bb",
+      "sdk_sha256": "3ed90b28c1f42c5ae11d901c25cddc2f0bb79787bef75638c46fc4ec8e496633",
+      "resolution_sha256": "3ed90b28c1f42c5ae11d901c25cddc2f0bb79787bef75638c46fc4ec8e496633",
+      "reason": "I preserve actual parsed public visibility and merged opaque-origin shadow."
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "hunk": 1,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "1f575ed763f6f5f8885114d019fa25519b2785583fde50518d6d0843327b0c16",
+      "resolution_sha256": "1f575ed763f6f5f8885114d019fa25519b2785583fde50518d6d0843327b0c16",
+      "reason": "I preserve actual parsed public visibility and merged opaque-origin shadow."
+    },
+    {
+      "path": "src_nano/transpiler.nano",
+      "hunk": 0,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "990a01c41bf1c5b39228be6132773e80a067e9897f0932cdd0a2ca3e421c072c",
+      "resolution_sha256": "990a01c41bf1c5b39228be6132773e80a067e9897f0932cdd0a2ca3e421c072c",
+      "reason": "I add reviewed str_split intrinsic result/selection and its shadow."
+    },
+    {
+      "path": "src_nano/transpiler.nano",
+      "hunk": 1,
+      "native_sha256": "00df7c500a2c42f1562c8ee2da9fa0caf6e9d69ae4c2580734b11413023f125c",
+      "sdk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resolution_sha256": "00df7c500a2c42f1562c8ee2da9fa0caf6e9d69ae4c2580734b11413023f125c",
+      "reason": "I retain native complete derived and list behavior."
+    },
+    {
+      "path": "src_nano/transpiler.nano",
+      "hunk": 2,
+      "native_sha256": "93c7a67e2433bd11984e025bda049bbd8515ebd82e7b7c2e986222d8d1395507",
+      "sdk_sha256": "4aa6c551e2e90b8d20147bcaeed5cbe26940c10959884f57d60f9219aadf35bf",
+      "resolution_sha256": "4aa6c551e2e90b8d20147bcaeed5cbe26940c10959884f57d60f9219aadf35bf",
+      "reason": "I add reviewed str_split intrinsic result/selection and its shadow."
+    },
+    {
+      "path": "src_nano/transpiler.nano",
+      "hunk": 3,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "0ff92cea53475031bccc3903c79c834b655db74a830357eceefc94282305da3e",
+      "resolution_sha256": "0ff92cea53475031bccc3903c79c834b655db74a830357eceefc94282305da3e",
+      "reason": "I add reviewed str_split intrinsic result/selection and its shadow."
+    },
+    {
+      "path": "src_nano/transpiler.nano",
+      "hunk": 4,
+      "native_sha256": "3f21ebba3e55d149ab2ef53330389d908192217dcd7931a1298c9504ff12131e",
+      "sdk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resolution_sha256": "3f21ebba3e55d149ab2ef53330389d908192217dcd7931a1298c9504ff12131e",
+      "reason": "I retain native complete derived and list behavior."
+    },
+    {
+      "path": "src_nano/transpiler.nano",
+      "hunk": 5,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "42018bbcae6889e3749389739d235b82053f815d0dd2f4beb02ccc420811fbf5",
+      "resolution_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "I retain the earlier native global discovery before any declarations; I remove duplicate discovery."
+    },
+    {
+      "path": "src_nano/transpiler.nano",
+      "hunk": 6,
+      "native_sha256": "b714bd30999577ecf2227c41954855e9d83225e57b98d2df21e7048b15ff5170",
+      "sdk_sha256": "9bc3fa0c34808986c9d5f89cc21c0f1d78c3062b53b9a35682a814611e73c8ae",
+      "resolution_sha256": "b714bd30999577ecf2227c41954855e9d83225e57b98d2df21e7048b15ff5170",
+      "reason": "I retain native complete derived and list behavior."
+    },
+    {
+      "path": "src_nano/transpiler.nano",
+      "hunk": 7,
+      "native_sha256": "93418058a0400ee8da5c75c1e4c7ef1c6559e700b00797e4185967946df5c49a",
+      "sdk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resolution_sha256": "93418058a0400ee8da5c75c1e4c7ef1c6559e700b00797e4185967946df5c49a",
+      "reason": "I retain native complete derived and list behavior."
+    },
+    {
+      "path": "src_nano/transpiler.nano",
+      "hunk": 8,
+      "native_sha256": "94947aedaa3a6309212c51c2378ef79760431f2c690daa4e8246a86bdf30a4cb",
+      "sdk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resolution_sha256": "94947aedaa3a6309212c51c2378ef79760431f2c690daa4e8246a86bdf30a4cb",
+      "reason": "I retain native complete derived and list behavior."
+    },
+    {
+      "path": "src_nano/transpiler.nano",
+      "hunk": 9,
+      "native_sha256": "bbb281b33eefd8432bffaa9a3f744fd05c65aba803c861505f4774706efd3f8b",
+      "sdk_sha256": "c9d7ebafd4e892da8d613831283fe1e4f712ceedbc7f4d33cdfe869692284b87",
+      "resolution_sha256": "ada049a5b180c86d9db5c6cd25c4225020834e67f26434d5283bb98c7f2c32fa",
+      "reason": "I retain native list reset and SDK File consumer refusal."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 0,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "bc28d8e1dcc294d63849f0231d550a541376ca02dbb454389564bb72b031d9ea",
+      "resolution_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 1,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "33c0fa441f65b92e716cf30d6c3c1bf69594b7c4e6f598e504f364b3a2c8200e",
+      "resolution_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 2,
+      "native_sha256": "3a2b83f04d32d38296564b812a935063238cb3a24862953bfea2f778a5e6b15a",
+      "sdk_sha256": "26bec256f7e92bdb4024295a51df51b85f0e3cb9171d2ca20498f14b1f68fc9b",
+      "resolution_sha256": "3a2b83f04d32d38296564b812a935063238cb3a24862953bfea2f778a5e6b15a",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 3,
+      "native_sha256": "c8cbc77053801dff9db4fbe6d69366510b4f930c241ff3dc4a53e86be10a369d",
+      "sdk_sha256": "9a516f89e361e971fa25b597aeeb205da408f2415f9c9c72e4c24d4333efee41",
+      "resolution_sha256": "c8cbc77053801dff9db4fbe6d69366510b4f930c241ff3dc4a53e86be10a369d",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 4,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "1e0ea1b80f8021d203a5daec301a70157e5c34822dc1bbcff36ea3480381fd3b",
+      "resolution_sha256": "1e0ea1b80f8021d203a5daec301a70157e5c34822dc1bbcff36ea3480381fd3b",
+      "reason": "I declare the existing inference fallback for missing STRING element metadata."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 5,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "47698884ec307270763074fbe2ab7f6294cb037b236562e15159bf7fafad4bee",
+      "resolution_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 6,
+      "native_sha256": "941339f5271ed922a841d1ab399ebb19096a13e5a80599a18053ca2bd9ed3f73",
+      "sdk_sha256": "7bebfae60ccb19c466b960e05962623ff75710842008b90dfda4eb0a02f4c2f3",
+      "resolution_sha256": "941339f5271ed922a841d1ab399ebb19096a13e5a80599a18053ca2bd9ed3f73",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 7,
+      "native_sha256": "5acdafcc814165916a64ca8d3cf85b3f90b85b05f5b631bcbb95968539d25e41",
+      "sdk_sha256": "07730673d9e70d01eb183c8df14161c971775ee72b0386a4949a698c3a6b3859",
+      "resolution_sha256": "e95b0103922d01797ce75e6f0d946b90f43d559ebf564d8f2fdf4f14fca6ee25",
+      "reason": "I use the complete tuple child while preserving the original expected owner."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 8,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "38413a8f4983f417fac9bde31c0d3923f8be9f7c225da9f3b4417395556caa7a",
+      "resolution_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 9,
+      "native_sha256": "0e10a1024ec826e724ace9276491b6ca432721bc100d3378d9bca8287aff86a3",
+      "sdk_sha256": "d7806d10ab0fb1be6c8e2e8e094f51860229b58b59f786468db738eafa05cd93",
+      "resolution_sha256": "0e10a1024ec826e724ace9276491b6ca432721bc100d3378d9bca8287aff86a3",
+      "reason": "I retain native tuple recursion; I port only the symmetric STRING block to the existing native array branch."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 10,
+      "native_sha256": "201646c7872f10d5913cfaef8d0899fd3f51ae1e3b5d516abaa179ebb87e26e8",
+      "sdk_sha256": "3602c3bb39e8c1d06a375a73b10a75ae9be86691854e05ad676c163f97d98908",
+      "resolution_sha256": "201646c7872f10d5913cfaef8d0899fd3f51ae1e3b5d516abaa179ebb87e26e8",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 11,
+      "native_sha256": "6e566c495ffee28fc62eff803a745c0ad25285c2d6432652c76743d3dd15bc3a",
+      "sdk_sha256": "a4fada209a75fd23212a2d05af2949e740effdf26d25931dfcb2f9e2c21d7f14",
+      "resolution_sha256": "39a34ef5b98758d9628adecbad1039e0c87de0f5d2f769bb433ce0ca1d9db479",
+      "reason": "I use actual intrinsic authority for STRING result inference and preserve native array-new handling."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 12,
+      "native_sha256": "389bb21a809440d9f47ab4906ff80d9097e9c321122aa7ed106df078e879e80d",
+      "sdk_sha256": "fb9f81f48c6a1b494c01242ce45db5820a5dd19936929af58009c6fddd31048d",
+      "resolution_sha256": "389bb21a809440d9f47ab4906ff80d9097e9c321122aa7ed106df078e879e80d",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 13,
+      "native_sha256": "796f29a45e7e0f3f4cda76c33c5f4ee96bceddd2d5731122c203486a5d036497",
+      "sdk_sha256": "023ba786f93fc012485cb5d52cfdc55c078f42e0cfb471399a2afe8774fb494c",
+      "resolution_sha256": "796f29a45e7e0f3f4cda76c33c5f4ee96bceddd2d5731122c203486a5d036497",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 14,
+      "native_sha256": "514c7db616b0e3179a60cfd68e9c43bb9743bf503cd75b721bfc0a250ef3e332",
+      "sdk_sha256": "cb8660b94fdac4c082539c84ec013e479c99dc8cb06019710f9ac5ca0225c591",
+      "resolution_sha256": "514c7db616b0e3179a60cfd68e9c43bb9743bf503cd75b721bfc0a250ef3e332",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 15,
+      "native_sha256": "1762d853734a282345fd713bc8b5a15d7966313056d4d303a3f96337b6d7a032",
+      "sdk_sha256": "877ed383150dcf293ee6debc68ca1194baf44d0c3c9ff5b667b6be21f33368c7",
+      "resolution_sha256": "1762d853734a282345fd713bc8b5a15d7966313056d4d303a3f96337b6d7a032",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 16,
+      "native_sha256": "6cb225449f4ffd04fe024b24854f7e8b90886abc9d6f0814f499f21c9b913b08",
+      "sdk_sha256": "83c2a0d48594888e5134323f46bcbea6a9239bf1810ae882ca0c0a0e3304e180",
+      "resolution_sha256": "6cb225449f4ffd04fe024b24854f7e8b90886abc9d6f0814f499f21c9b913b08",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 17,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "bb1458d98ac071786e7d30503e373f8fd1e406132c09e2a6832764749c052231",
+      "resolution_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 18,
+      "native_sha256": "12704074ae44b1e007d27075f7276bd460360c4059bc3146a3436ce0c4ce64e6",
+      "sdk_sha256": "ac9a10908080aaea7a7649cdaea2f327f2fc4fc9c59ad10aca7180597e5d9fee",
+      "resolution_sha256": "12704074ae44b1e007d27075f7276bd460360c4059bc3146a3436ce0c4ce64e6",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 19,
+      "native_sha256": "ea3f6bed32d179075524215924016bd530fbdea3cdeab65bc6567a38984ecd73",
+      "sdk_sha256": "defa7ded7b8c88b8d1e91c7a420480ee70ea5316145119146c0573ed9887b9bf",
+      "resolution_sha256": "ea3f6bed32d179075524215924016bd530fbdea3cdeab65bc6567a38984ecd73",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 20,
+      "native_sha256": "93eed1c1220e4c96e2166d4d57c82570d593dc2b48ef8fa886d6ca5c9e502ba4",
+      "sdk_sha256": "476410021828fc779cafd40439939cfdd22c7efca2be25b08c301ac32804088b",
+      "resolution_sha256": "93eed1c1220e4c96e2166d4d57c82570d593dc2b48ef8fa886d6ca5c9e502ba4",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 21,
+      "native_sha256": "acb991a872e81a82a676bb34f763a41189c028e7d9d0dec968a56a4ff72c39ba",
+      "sdk_sha256": "2a5ed3970513d28dfcf69a8c08e5947f5281398626fabaf3c388c892203a8b7f",
+      "resolution_sha256": "acb991a872e81a82a676bb34f763a41189c028e7d9d0dec968a56a4ff72c39ba",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 22,
+      "native_sha256": "5ec7e876212984543dd85694d1d0829db44c0ca4bb43aeb5cc61c10590a2c38b",
+      "sdk_sha256": "760b64e4debec2eed36094ae4ee424b4531521f8c4dcdfd7c74342c085ee8a18",
+      "resolution_sha256": "5ec7e876212984543dd85694d1d0829db44c0ca4bb43aeb5cc61c10590a2c38b",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 23,
+      "native_sha256": "9dd35859ee1249c19a927fb970bdd299da2e67d9d0d68b756104c454ed295da0",
+      "sdk_sha256": "b3b6bfbbd902cde58d6366d987c2596559a47f6b495f8d0800da42c7f3ecb1d3",
+      "resolution_sha256": "9dd35859ee1249c19a927fb970bdd299da2e67d9d0d68b756104c454ed295da0",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 24,
+      "native_sha256": "a22302c804d97df6eb9272159496447bcfa9bd74f380b389ea37bad77ed64ef9",
+      "sdk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resolution_sha256": "a22302c804d97df6eb9272159496447bcfa9bd74f380b389ea37bad77ed64ef9",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 25,
+      "native_sha256": "a39c3d513b5ba4de0c10926d50bd0be540c49b012ee70204ca0c13b59ffad03f",
+      "sdk_sha256": "b96133d6d12287f09dbe7a47a97e1ab17b336435adeda8981a3caeb9d341b376",
+      "resolution_sha256": "7df41dd23723e849f58414186f1fa7ce0280a32d6b6a9f8f457a6a2704e9d70c",
+      "reason": "I add File refusal inside the native implementation; public wrappers still own rollback."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 26,
+      "native_sha256": "9fd3aec5a6350f825dd73bfcc932c5594f722f7b74f16bdb73b4e8b311361ef0",
+      "sdk_sha256": "243b287494fe7435b0acd64b9d96846c98ccb293b1b71b014ec5fd669ab3ea87",
+      "resolution_sha256": "efe413e22cd310627bfbff7e3f199929caf98e78639ad223b884c2c5238ae8ff",
+      "reason": "I add File refusal inside the native implementation; public wrappers still own rollback."
+    },
+    {
+      "path": "src/typechecker.c",
+      "hunk": 27,
+      "native_sha256": "e73aa53353969b24e842a15dced86e37e9e43646054c50892b71ce0380a14887",
+      "sdk_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resolution_sha256": "e73aa53353969b24e842a15dced86e37e9e43646054c50892b71ce0380a14887",
+      "reason": "I retain the complete native contextual checker, original owner and rollback boundary."
+    },
+    {
+      "path": "src_nano/typecheck.nano",
+      "hunk": 0,
+      "native_sha256": "5063db1f86fdda53214268d96bc1edaf78fbe1f44cebb7e84f201c3db6228f40",
+      "sdk_sha256": "c4f094fd1bcfb1e5db2d7a857c70134886421993f1f8dcb0778135d94f2e2bd2",
+      "resolution_sha256": "5063db1f86fdda53214268d96bc1edaf78fbe1f44cebb7e84f201c3db6228f40",
+      "reason": "I keep native array-new checking and move the SDK private-call guard directly after actual name binding."
+    },
+    {
+      "path": "src_nano/typecheck.nano",
+      "hunk": 1,
+      "native_sha256": "e471348966cbc77f4c3afb0f2a43c068a03d8aad2f554235d6bce8e8169aa320",
+      "sdk_sha256": "976d6616aebbb4ad9b1c804ae13c2b5c4a02046ca7c9fdcbff531a4e7bdea736",
+      "resolution_sha256": "e471348966cbc77f4c3afb0f2a43c068a03d8aad2f554235d6bce8e8169aa320",
+      "reason": "I preserve the native complete contextual value, array receiver, or record-field checker rather than its older STRING-only adapter."
+    },
+    {
+      "path": "src_nano/typecheck.nano",
+      "hunk": 2,
+      "native_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sdk_sha256": "58968f4aad9d7401f1b940eba95de7ec9a1353ce848b7d4ad3f84a2c477d8132",
+      "resolution_sha256": "4fafb7429823a2ed2817ac66dafde4b8eb18160879ba068f67a54221dc25508c",
+      "reason": "I add actual str_split type/arity checking; existing native array operations already validate complete nested stores and receiver authority."
+    },
+    {
+      "path": "src_nano/typecheck.nano",
+      "hunk": 3,
+      "native_sha256": "7b3f1ec1f9cf01787dbbc4437ff88657a70bb30b4a6d21fb189c158992a220f4",
+      "sdk_sha256": "5fe23ec1849a5a82de34fab15e86714aca9c6ad4e393aa2ea0fdb4650436ca26",
+      "resolution_sha256": "8a7a0b714fba9da0c0e3eff868dafb3786f553f634d4241e226d42e30bd70c8b",
+      "reason": "I preserve native lexical/list precedence and extend it to str_split."
+    },
+    {
+      "path": "src_nano/typecheck.nano",
+      "hunk": 4,
+      "native_sha256": "7d82a5898d11bb7125fdb9dfb2a1f5ab34aa6b716be8998b540216f645ca0cb7",
+      "sdk_sha256": "61d44b9bc7709399f4082dcf5d7feeb39c6843aefd06a8677849de73e5b1a867",
+      "resolution_sha256": "7d82a5898d11bb7125fdb9dfb2a1f5ab34aa6b716be8998b540216f645ca0cb7",
+      "reason": "I preserve the native complete contextual value, array receiver, or record-field checker rather than its older STRING-only adapter."
+    },
+    {
+      "path": "src_nano/typecheck.nano",
+      "hunk": 5,
+      "native_sha256": "1f9c99c00aec2b55036e699b6c7000513f3c22ffcf7a524d3bc93bc6d9f05754",
+      "sdk_sha256": "acbeec16185687c2213d027ce1ea3c25da72cdbd4d2f586e3e6ca5d29239c021",
+      "resolution_sha256": "1f9c99c00aec2b55036e699b6c7000513f3c22ffcf7a524d3bc93bc6d9f05754",
+      "reason": "I preserve the native complete contextual value, array receiver, or record-field checker rather than its older STRING-only adapter."
+    },
+    {
+      "path": "src_nano/typecheck.nano",
+      "hunk": 6,
+      "native_sha256": "c80f4fd6ed18e747c4d55b1fc19fb3d72a365b6637230aaef9d8691b0ce8bfea",
+      "sdk_sha256": "39ae53d899d64b33ee1e4f21fd375013d313a622791044ca840b1f99a85e0bdd",
+      "resolution_sha256": "0f0da27e63dcde9b14419dce4cb3b5cbd79bb7c918ec5fcef9dfd53a00f7bacb",
+      "reason": "I retain native complete contextual validation and the additive concrete STRING-union destination comparison."
+    },
+    {
+      "path": "src_nano/typecheck.nano",
+      "hunk": 7,
+      "native_sha256": "b19e4632b907c790ea1923590a7e9ff9339f4524d3cbbcf5b2c8fa5c91affa62",
+      "sdk_sha256": "1fb787c2f5a7cbc095c182f615fc9c2e7e55693821fa4cbd97f6087a0648b571",
+      "resolution_sha256": "6a7ee9a930b443d47b93f64faefaaa76c76e602ac9f8ed9546e7f2fe9c606a5c",
+      "reason": "I retain native complete contextual validation and the additive concrete STRING-union destination comparison."
+    },
+    {
+      "path": "src_nano/typecheck.nano",
+      "hunk": 8,
+      "native_sha256": "babdf556d4db32f010856b8ec98703243b901a82cf9a64b9e9818d26c3b72290",
+      "sdk_sha256": "91168137e13afd2c6c0a638dbd1749d36e7ca1b2d21a4a86fa995905c39fee2f",
+      "resolution_sha256": "1665557fcabc7da373e0c68d691d1dfe1a2eeac56e43e0d56d58960aa597879c",
+      "reason": "I retain native complete contextual validation and the additive concrete STRING-union destination comparison."
+    },
+    {
+      "path": "src_nano/typecheck.nano",
+      "hunk": 9,
+      "native_sha256": "b3c83201e23e3995a9a7a9741ce53c6b9546a2233d1016bcb4578d2cc6f8e73f",
+      "sdk_sha256": "1769d4b55fff68289f472608d718dec64cd7e7db7ecbd147a57939c782558c19",
+      "resolution_sha256": "db7ecbeaac6076a812e9d8c3a03017ab556ae55dd05eafdc32c2908175d6ec05",
+      "reason": "I retain native complete contextual validation and the additive concrete STRING-union destination comparison."
+    }
+  ],
+  "supplemental_reviewed_pin": "ecaf373f0",
+  "post_hunk_adapters": [
+    "I preserve the native indirect_argument_matches plus contextual_argument_matches ownership chain; no ownerless complete callable equality replaces it.",
+    "I add actual builtin str_split STRING-array NominalView copying; checked publication and suffix rollback stay native. Repeated metadata reads return the same retained array row.",
+    "I remove older eager SDK array/map metadata publication and two duplicate nongeneric union discovery loops introduced by automatic merging.",
+    "I include the seven native foundation headers/includes in installed inputs and regenerate the required C input table.",
+    "I preflight module Environment teardown before the SDK-added list-generation failure clears its isolated cache.",
+    "I retain the old three canonical-provider identity shadow properties through the actual native_provider_add registry."
+  ],
+  "final_source_sha256": {
+    "Makefile.gnu": "f05d8c1873e79571834c882c22031d249a92512359d3a4a42ab647e1abb3bb18",
+    "docs/NANOISA_COMPUTED_U8_CONVERSION.md": "a842759a9c5683c5ff96212afcc5a0a1c386cec8133cc31cdb1b9c628f4f03b9",
+    "docs/ROADMAP.md": "3ba65d7250a48a1230f887baf14cf34af9f5b9daa0f40cf6b846dcc5a96182a9",
+    "scripts/native_sdk_inputs.json": "73d65e4afd499fcf52b4d7b45fa40f9b21ee8e80dbeaf105cb387cf0719ab868",
+    "src/builtins_registry.c": "364def1c1b4dde7e4296e1e591fd6a199517efd0fc1a2c43775117e435272983",
+    "src/env.c": "d3c60e91b1969d7e5e4072af318fbdf8745caf6d381f948e9cf0b9a69cc0a0c7",
+    "src/env_opaque_keys.inc": "49f513eb8d0df342daa36eba5700bacd0746e77bb8c209708e15d775e06a6e61",
+    "src/env_opaque_types.inc": "cd3f0d7d3ba4d731991655225028473aa6d548cc6eeae89a2ebd2cf2c3a5db51",
+    "src/module.c": "d696368a6e6be9a824b34d2c83cfe38fadb63e22ed712ea8c32868cffb2b7e62",
+    "src/nanolang.h": "d456b510f60f0f1063b2848aed9c85ea891e246a37e29b7b1cd63f84aee0d569",
+    "src/nominal_types.c": "f0611a8806804e478adc6d5ca3467b85dd22863f11c17b2ee1acbe02bb13ad03",
+    "src/runtime/native_sdk_inventory.inc": "be94887421a0c113b01f6488370ec9d15aae83d2399db7b4161aea92a624e16f",
+    "src/transpiler.c": "537d279d47a2ac9f48ccee201a01be3d5a3b5a9b3d79f38e036bb21444d38f03",
+    "src/transpiler_iterative_v3_twopass.c": "9475edfb66e5da0905b85fb29b53c827479709ae2751e6d2eba7dc2d21d52b25",
+    "src/transpiler_opaque_declarations.inc": "1f6ddba4ed0c588b0eacc11378f0ced3ef18bc88f24f56a21ce37ded810e8e3f",
+    "src/typechecker.c": "643d2b3d64c55f150128067ea756daf30748745740ed783508d4c67706ee0a0d",
+    "src/typechecker_nominal_arrays.inc": "ac2c0dc7f53ad8d7965b5dd850160f76ef2f7617ddc3d06a1bfc5168ca5dc6c2",
+    "src_nano/nanoc_v06.nano": "fe6d90eebbd7009ccddc516b641b34a4975291f6af0bb104a9ea1b85e7998024",
+    "src_nano/transpiler.nano": "d2e8559df4b9ad591778701c95b6e922e190ca27a4fe05079022d2b7dd38f7b1",
+    "src_nano/typecheck.nano": "95a3160ca426270fe401ba006ee9ac3320edeb5bb8645ee64a2b58ad4e79e888",
+    "tests/test_native_record_lists.py": "352a733e96c0ff9d371eed3c30374a63dfbfff0c3438917801ac10a035e978ae"
+  }
+}

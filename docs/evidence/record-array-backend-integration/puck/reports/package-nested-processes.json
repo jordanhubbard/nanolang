@@ -1,0 +1,12 @@
+{
+  "cleanup": [],
+  "owned": {
+    "16593": {
+      "command": "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python /Users/jkh/nanolang-qualification/nanolang-backend-integration-a1bb-20260921/reports/controls/package-retain.py",
+      "group": 16593,
+      "parent": 89766,
+      "started": "Mon Sep 21 08:02:19 2026"
+    }
+  },
+  "remaining": []
+}

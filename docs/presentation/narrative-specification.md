@@ -6,11 +6,12 @@ Give a developer the technical account behind the companion deck. Explain my
 syntax, compiler and VM pipeline, runtime boundaries, tests, diagnostics, and
 release evidence without turning future roadmap items into current features.
 
-This local member is an unpublished 5.0 release edition. I retain historical
-release sections, distinguish shadow policy from enforcement and tests from
-proof, and use the shared `examples/gcd.nano` source rather than an untested
-code-shaped placeholder. #211's header dependency repair is implemented, not
-an outstanding limitation. Full runtime isolation and backend parity remain open.
+This local member is my 5.1 release edition. I retain historical release
+sections, distinguish shadow policy from enforcement and tests from proof,
+and use the shared `examples/gcd.nano` source rather than an untested
+code-shaped placeholder. I present the completed One IR product transition,
+raw compiler fixed point and translator boundary without claiming universal
+backend parity or production isolation.
 
 ## Heading hierarchy
 
@@ -22,7 +23,7 @@ an outstanding limitation. Full runtime isolation and backend parity remain open
    2.2. Shadow tests
    2.3. The formal core and its boundary
 3. The compilation paths
-   3.1. C transpilation
+   3.1. Verified product and C translation
    3.2. NanoISA generation
    3.3. NanoVM execution
    3.4. Side-table debug data
@@ -44,7 +45,7 @@ an outstanding limitation. Full runtime isolation and backend parity remain open
    7.3. NSI, capabilities, and POSIX fabric
    7.4. Isolated Nano Emacs walker
    7.5. Effects, policy, journal, and provenance
-8. My 5.0 release contract
+8. My 5.1 One IR release contract
 9. What I have not done
 10. How to work on me
    10.1. Read the source and roadmap

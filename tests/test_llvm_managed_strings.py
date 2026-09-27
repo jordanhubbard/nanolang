@@ -1,4 +1,8 @@
 """I exercise actual emitted ownership across VM, native LLVM and Wasm."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import json
 import os
 import re
@@ -32,7 +36,7 @@ class ManagedStrings(unittest.TestCase):
 
     def run_cmd(self, args, success=True):
         p = subprocess.run([str(x) for x in args], text=True, capture_output=True, timeout=45,
-            env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1:abort_on_error=1'})
+            env={**os.environ, 'ASAN_OPTIONS':asan_options("abort_on_error=1")})
         self.assertEqual(p.returncode == 0, success, str(args)+'\n'+p.stdout+p.stderr)
         return p
 

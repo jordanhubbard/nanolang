@@ -1,0 +1,12 @@
+module Right
+pub struct Item { text: string, number: int }
+pub fn make(number: int) -> Item { return Item { text: (int_to_string number), number: number } }
+shadow make { assert (== (make 8).text "8") }
+pub fn read(value: Item) -> int { return value.number }
+shadow read { assert (== (read (make 8)) 8) }
+pub fn make_list() -> List<Item> {
+    let xs: List<Item> = (list_Item_new)
+    (list_Item_push xs (make 8))
+    return xs
+}
+shadow make_list { let xs: List<Item> = (make_list) assert (== (list_Item_length xs) 1) }

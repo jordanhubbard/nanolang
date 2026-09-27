@@ -1,0 +1,7 @@
+cc1: fatal error: tests/nanovm/test_substring_contract.c: No such file or directory
+compilation terminated.
+cc1: fatal error: tests/nanovm/test_callback_allocation.c: No such file or directory
+compilation terminated.
+make: *** [Makefile.gnu:740: test-vm-callback-allocation] Error 1
+make: *** Waiting for unfinished jobs....
+make: *** [Makefile.gnu:724: test-vm-substring-contract] Error 1

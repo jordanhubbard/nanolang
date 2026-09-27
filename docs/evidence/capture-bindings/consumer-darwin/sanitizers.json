@@ -1,0 +1,27 @@
+{
+  "terminal": {
+    "timeout": false,
+    "cleanup_errors": [],
+    "returncode": 0,
+    "seconds": 21.551421374999336,
+    "leader_reaped": true,
+    "group_gone": true
+  },
+  "source_unchanged": true,
+  "tools_unchanged": true,
+  "products": 322,
+  "revision": "5d8ca9be9",
+  "archive_sha256": "3c12614a6abd3a6f65a0e40ee7339f74c0d4df5239cc71d2ec7954129930665a",
+  "markers": [
+    "I passed 977 capture payload checks; reader and writer allocation failures recover without live storage.",
+    "I passed 180 capture transport checks.",
+    "I passed 243 capture transport checks.",
+    "I passed 541 capture transport checks."
+  ],
+  "sanitizers": {
+    "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+    "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+    "LSAN_OPTIONS": "exitcode=23"
+  },
+  "qualification_root": "/Users/jkh/nanolang-qualification/capture-consumers-5d8-darwin-sanitizers"
+}

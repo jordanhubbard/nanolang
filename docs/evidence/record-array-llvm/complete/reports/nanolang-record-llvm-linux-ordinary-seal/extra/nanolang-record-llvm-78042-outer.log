@@ -1,0 +1,9 @@
+{"pin": "7804258431ed8fba21fa33c5507b06ad9a1bbd94", "source_files": 3752, "root": "/tmp/nanolang-record-llvm-qualified-78042", "free_bytes": 46475898880, "selected": {"RECORD_LLVM_WASMTIME": "/home/jkh/.local/bin/wasmtime", "RECORD_LLVM_NODE": "/home/linuxbrew/.linuxbrew/bin/node", "RECORD_LLVM_C_BASELINE": "/tmp/nano-record-array-generated-x9fej2n6/corpus", "RECORD_LLVM_CLANG": "/usr/local/bin/clang", "RECORD_LLVM_OPT": "/usr/local/bin/opt", "RECORD_LLVM_LLC": "/usr/local/bin/llc", "RECORD_LLVM_NM": "/usr/local/bin/llvm-nm"}}
+{"phase": "setup", "status": 0, "seconds": 20.563}
+{"phase": "configuration", "status": 0, "seconds": 0.164}
+{"phase": "discovery", "status": 0, "seconds": 0.154}
+{"phase": "parity", "status": 0, "seconds": 10.326}
+{"phase": "ordinary-emission", "status": 0, "seconds": 4.144}
+{"phase": "ordinary-native", "status": 0, "seconds": 301.332}
+{"phase": "clang-ordinary-emission", "status": 0, "seconds": 2.656}
+{"phase": "clang-ordinary-native", "status": 0, "seconds": 308.399}

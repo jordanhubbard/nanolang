@@ -1,0 +1,16 @@
+{
+  "source_commit": "89eb454fe2e54ad883e6cb932b83967e071f6249",
+  "sha256": {
+    "bin/nanoc_stage1": "2614942ad8a862d5ca6df9e5dd8851d0414d9646da4b0e24416aa2237584f128",
+    "src_nano/nanoc_v06.nano": "b4acdca7b45ea0989fec694c9a18e93ea0f5a5502940d137fd125e8d108dd11a",
+    "tests/test_native_install.py": "cbac2767d349ed0071b1d683bb6ff45a8df84992977d3a387de223ac60ffc0bc"
+  },
+  "log_sha256": "4c57260bbae66d7dadb9a31a171bf7e38c1109b11f01f2dadb695ca6ecceeec6",
+  "environment": {
+    "NANO_CC": "/opt/homebrew/opt/llvm/bin/clang",
+    "NANO_CFLAGS": "-O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all",
+    "NANO_LDFLAGS": "-fsanitize=address,undefined",
+    "ASAN_OPTIONS": "detect_leaks=1:detect_stack_use_after_return=1",
+    "UBSAN_OPTIONS": "halt_on_error=1"
+  }
+}

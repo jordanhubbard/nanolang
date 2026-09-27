@@ -1,0 +1,54 @@
+{
+  "owned": {
+    "31048": {
+      "parent": 30953,
+      "group": 31048,
+      "started": "Mon Sep 21 22:30:49 2026",
+      "command": "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python -m unittest -f -v tests.test_shadow_completion.ShadowCompletion.test_exact_decision_boundaries"
+    },
+    "31050": {
+      "parent": 31048,
+      "group": 31050,
+      "started": "Mon Sep 21 22:30:49 2026",
+      "command": "/opt/homebrew/opt/llvm/bin/clang -O1 -g -fno-omit-frame-pointer -fsanitize=address,undefined -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -I /private/tmp/nanolang-native-sdk-bae59-puck-source/src /private/tmp/nanolang-native-sdk-bae59-puck-source/tests/shadow_completion_probe.c -o /tmp/nanolang-native-sdk-bae59-puck-preparation/decision-izp5m5dl/probe"
+    },
+    "31055": {
+      "parent": 31050,
+      "group": 31050,
+      "started": "Mon Sep 21 22:30:49 2026",
+      "command": "/opt/homebrew/Cellar/llvm/23.1.1/bin/clang-23 -cc1 -triple arm64-apple-macosx26.2.0 -O1 -Wundef-prefix=TARGET_OS_ -Werror=undef-prefix -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -emit-obj -dumpdir /tmp/nanolang-native-sdk-bae59-puck-preparation/decision-izp5m5dl/probe- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name shadow_completion_probe.c -mrelocation-model pic -pic-level 2 -mframe-pointer=non-leaf-no-reserve -ffp-contract=on -fno-rounding-math -funwind-tables=2 -fobjc-msgsend-selector-stubs -fobjc-msgsend-class-selector-stubs -target-sdk-version=26.2 -fdepfile-entry=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/SDKSettings.json -fcompatibility-qualified-id-block-type-checking -fvisibility-inlines-hidden-static-local-var -fdefine-target-os-macros -fno-modulemap-allow-subdirectory-search -enable-tlsdesc -target-cpu apple-m1 -target-feature +v8.4a -target-feature +aes -target-feature +altnzcv -target-feature +ccdp -target-feature +ccpp -target-feature +complxnum -target-feature +crc -target-feature +dotprod -target-feature +flagm -target-feature +fp-armv8 -target-feature +fp16fml -target-feature +fptoint -target-feature +fullfp16 -target-feature +jsconv -target-feature +lse -target-feature +neon -target-feature +pauth -target-feature +perfmon -target-feature +predres -target-feature +ras -target-feature +rcpc -target-feature +rdm -target-feature +sb -target-feature +sha2 -target-feature +sha3 -target-feature +specrestrict -target-feature +ssbs -target-abi darwinpcs -tune-cpu apple-m5 -gkey-instructions -debug-info-kind=standalone -dwarf-version=5 -debugger-tuning=lldb -gsimple-template-names=simple -debug-forward-template-params -fdebug-compilation-dir=/private/tmp/nanolang-native-sdk-bae59-puck-source -target-linker-version 1267 -fcoverage-compilation-dir=/private/tmp/nanolang-native-sdk-bae59-puck-source -resource-dir /opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX27.sdk -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -D _POSIX_C_SOURCE=200809L -I /private/tmp/nanolang-native-sdk-bae59-puck-source/src -I/usr/local/include -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/local/include -internal-isystem /opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/SubFrameworks -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/Library/Frameworks -Wall -Wextra -Werror -std=c11 -ferror-limit 19 -stack-protector 1 -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -fmax-type-align=16 -fsanitize=address,alignment,array-bounds,bool,builtin,enum,float-cast-overflow,function,integer-divide-by-zero,nonnull-attribute,null,object-size,pointer-overflow,return,returns-nonnull-attribute,shift-base,shift-exponent,signed-integer-overflow,unreachable,vla-bound -fsanitize-recover=alignment,array-bounds,bool,builtin,enum,float-cast-overflow,function,integer-divide-by-zero,nonnull-attribute,null,object-size,pointer-overflow,returns-nonnull-attribute,shift-base,shift-exponent,signed-integer-overflow,vla-bound -fsanitize-merge=alignment,array-bounds,bool,builtin,enum,float-cast-overflow,function,integer-divide-by-zero,nonnull-attribute,null,object-size,pointer-overflow,return,returns-nonnull-attribute,shift-base,shift-exponent,signed-integer-overflow,unreachable,vla-bound -fsanitize-system-ignorelist=/opt/homebrew/Cellar/llvm/23.1.1/lib/clang/23/share/asan_ignorelist.txt -fno-sanitize-memory-param-retval -fsanitize-address-use-after-scope -fsanitize-address-globals-dead-stripping -fno-assume-sane-operator-new -fdwarf2-cfi-asm -o /tmp/nanolang-native-sdk-bae59-puck-preparation/tmp/shadow_completion_probe-638296.o -x c /private/tmp/nanolang-native-sdk-bae59-puck-source/tests/shadow_completion_probe.c"
+    },
+    "31069": {
+      "parent": 31048,
+      "group": 31048,
+      "started": "Mon Sep 21 22:30:49 2026",
+      "command": "(ps)"
+    },
+    "31075": {
+      "parent": 31048,
+      "group": 31075,
+      "started": "Mon Sep 21 22:30:50 2026",
+      "command": "/tmp/nanolang-native-sdk-bae59-puck-preparation/decision-izp5m5dl/probe"
+    },
+    "31078": {
+      "parent": 31075,
+      "group": 31075,
+      "started": "Mon Sep 21 22:30:50 2026",
+      "command": "<defunct>"
+    },
+    "31088": {
+      "parent": 31075,
+      "group": 31075,
+      "started": "Mon Sep 21 22:30:51 2026",
+      "command": "<defunct>"
+    },
+    "31108": {
+      "parent": 31048,
+      "group": 31048,
+      "started": "Mon Sep 21 22:30:52 2026",
+      "command": "(ps)"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

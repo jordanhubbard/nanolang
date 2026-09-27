@@ -1,0 +1,6 @@
+{
+  "src/nanoisa/nvm2c_shape.c": "9928ddc8350dd83eece8515efb363b303b6cab4f277891973ca8e813bd046027",
+  "src/nanoisa/nvm2c_shape.h": "eb0f0494055ff3d01087e9e0a652ece52d7abf86b6410643a5f33d1716f71d51",
+  "tests/nanoisa/test_nvm2c_shape.c": "9f68fe60b001191fb96f19036c6f1070456df1fd5874632b44d241ada46dafc9",
+  "bin/nvm2c": "7e3e1b4ada5f12cc1021808866963a5daf0915c49f889c8f42963c5f261cb530"
+}

@@ -1,0 +1,137 @@
+(lldb) target create "bin/nanoc_stage1"
+Current executable set to '/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1' (arm64).
+(lldb) settings set -- target.run-args  "/tmp/pr522-scalar-owner-probe/main.nano" "-o" "/tmp/pr522-scalar-owner-probe/program"
+(lldb) command script import /tmp/pr522_owner_trace.py
+(lldb) breakpoint set -n nanoisa_codegen__nisa_call_index
+Breakpoint 1: where = nanoc_stage1`nanoisa_codegen__nisa_call_index, address = 0x00000001001aec7c
+(lldb) breakpoint command add -F pr522_owner_trace.enter 1
+(lldb) run
+CALL (6, 6, 31, 0, 38, 0, 0, 0) INDEX 1
+CALL (6, 6, 31, 0, 38, 0, 0, 0) INDEX 1
+CALL () INDEX 1
+CALL (6, 6, 31, 0, 38, 0, 0, 0) INDEX 1
+CALL () INDEX 1
+CALL (6, 6, 31, 0, 38, 0, 0, 0) INDEX 1
+CALL (6, 6, 31, 0, 38, 0, 0, 0) INDEX 1
+CALL () INDEX 0
+CALL () INDEX 0
+CALL (6, 2, 37, 0, 4, 0, 0, 0) INDEX 0
+CALL () INDEX 0
+CALL () INDEX 0
+CALL (6, 2, 37, 0, 4, 0, 0, 0) INDEX 0
+CALL (6, 2, 37, 0, 4, 0, 0, 0) INDEX 0
+CALL (6, 2, 37, 0, 4, 0, 0, 0) INDEX 0
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL (6, 3, 27, 1, 4, 0, 0, 0) INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL (6, 3, 27, 1, 4, 0, 0, 0) INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL (6, 3, 27, 1, 4, 0, 0, 0) INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL (6, 3, 27, 1, 4, 0, 0, 0) INDEX 1
+CALL () INDEX 1
+CALL (6, 3, 27, 1, 4, 0, 0, 0) INDEX 1
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL (6, 7, 26, 2, 4, 0, 0, 0) INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL (6, 7, 26, 2, 4, 0, 0, 0) INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL (6, 7, 26, 2, 4, 0, 0, 0) INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL (6, 7, 26, 2, 4, 0, 0, 0) INDEX 2
+CALL () INDEX 2
+CALL () INDEX 2
+CALL (6, 7, 26, 2, 4, 0, 0, 0) INDEX 2
+CALL () INDEX 0
+CALL () INDEX 0
+CALL () INDEX 0
+CALL () INDEX 0
+CALL () INDEX 0
+CALL () INDEX 0
+CALL () INDEX 0
+CALL (6, 2, 37, 0, 4, 0, 0, 0) INDEX 0
+CALL () INDEX 0
+CALL () INDEX 0
+CALL () INDEX 0
+CALL () INDEX 0
+CALL () INDEX 0
+CALL () INDEX 0
+CALL () INDEX 0
+CALL (6, 2, 37, 0, 4, 0, 0, 0) INDEX 0
+CALL () INDEX 0
+CALL (6, 2, 37, 0, 4, 0, 0, 0) INDEX 0
+CALL () INDEX 0
+CALL (6, 2, 37, 0, 4, 0, 0, 0) INDEX 0
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL (6, 6, 31, 0, 38, 0, 0, 0) INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL (6, 6, 31, 0, 38, 0, 0, 0) INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL (6, 6, 31, 0, 38, 0, 0, 0) INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL (6, 6, 31, 0, 38, 0, 0, 0) INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL () INDEX 1
+CALL (6, 6, 31, 0, 38, 0, 0, 0) INDEX 1
+I could not verify the shadow module: Undefined function symbol: scalar_probe
+Process 32418 launched: '/Users/jordanh/Src/nanolang-pr522-repair/bin/nanoc_stage1' (arm64)
+Process 32418 exited with status = 1 (0x00000001)

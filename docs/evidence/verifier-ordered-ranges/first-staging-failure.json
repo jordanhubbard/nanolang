@@ -1,0 +1,7 @@
+{
+  "status": 1,
+  "stage": "before extraction and product execution",
+  "command": "python3 /Users/jkh/nanolang-qualification/stage-verifier-ranges-puck.py",
+  "stderr": "AttributeError: module hashlib has no attribute file_digest",
+  "correction": "Select existing inventoried /opt/homebrew/opt/python@3.14/bin/python3.14 explicitly; source script unchanged"
+}

@@ -1,0 +1,12 @@
+{
+  "source_head": "7793ff5fe928a0826190ef41fbdc4e58de642def",
+  "command": "NANOLANG_AFFINE_COMPILERS=<compiler> NANO_NATIVE_TEST_CC=/opt/homebrew/opt/llvm/bin/clang python3 -m unittest -v tests.test_generic_selected_ownership.GenericSelectedOwnership.test_resource_and_ordinary_selected_arms",
+  "files": {
+    "nanoc_c.log": "0c78e05b969a36d341e065931e743c72d7c262be081169222d3ddca6071846a4",
+    "bin/nanoc_c": "7ba68fe6931b88be914ea088276ed68d70a9b740c41f3de4ea6b254f23c7c283",
+    "nanoc_stage1.log": "88914b6c0fa6731232639e0520df37ced608f2e3d2ab08d1282bbbfdaa11ed2f",
+    "bin/nanoc_stage1": "6cc23863f10b818b5088fe1666b3705f03395449cc18b1b2e88dc76815f56c8a",
+    "nanoc_stage2.log": "826125efe561e398de52129bc0c40eb89534fd22d2f75ce49d2497958dac88e6",
+    "bin/nanoc_stage2": "d7ff759366ff14350de3365f98eb55c58662e16b2a7e7ed441146fdc4ff748ce"
+  }
+}

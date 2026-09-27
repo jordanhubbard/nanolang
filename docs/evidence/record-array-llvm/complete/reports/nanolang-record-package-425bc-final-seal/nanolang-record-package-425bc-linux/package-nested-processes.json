@@ -1,0 +1,24 @@
+{
+  "cleanup": [],
+  "owned": {
+    "1653996": {
+      "command": "/usr/bin/python3 /tmp/nanolang-record-package-425bc-linux/controls/retained-package.py",
+      "group": 1653996,
+      "parent": 1653249,
+      "started": "Mon Sep 21 01:56:38 2026"
+    },
+    "1654440": {
+      "command": "/usr/local/bin/clang --target=wasm32-unknown-unknown -O2 -ffreestanding -fno-builtin -nostdlib /tmp/nanolang-record-package-qualified-425bc/tests/nanoisa/test_managed_module.c -Wl,--no-entry -Wl,--export=nms_module_tests -Wl,--export=nms_module_dispose_first -o /tmp/nanolang-record-package-425bc-linux/package-artifacts/nano-module-abi-fm08gjjx/module.wasm",
+      "group": 1653996,
+      "parent": 1653996,
+      "started": "Mon Sep 21 01:56:39 2026"
+    },
+    "1654446": {
+      "command": "/usr/local/bin/clang-23 -cc1 -triple wasm32-unknown-unknown -O2 -emit-obj -dumpdir /tmp/nanolang-record-package-425bc-linux/package-artifacts/nano-module-abi-fm08gjjx/module.wasm- -disable-free -clear-ast-before-backend -disable-llvm-verifier -discard-value-names -main-file-name test_managed_module.c -mrelocation-model static -mframe-pointer=none -ffp-contract=on -fno-rounding-math -mconstructor-aliases -ffreestanding -target-cpu generic -fvisibility=hidden -debugger-tuning=gdb -fdebug-compilation-dir=/tmp/nanolang-record-package-qualified-425bc -fcoverage-compilation-dir=/tmp/nanolang-record-package-qualified-425bc -resource-dir /usr/local/lib/clang/23 -internal-isystem /usr/local/lib/clang/23/include -internal-isystem /include -ferror-limit 19 -fno-builtin -fgnuc-version=4.2.1 -fskip-odr-check-in-gmf -vectorize-loops -vectorize-slp -o /tmp/nanolang-record-package-425bc-linux/package-artifacts/test_managed_module-0d896f.o -x c /tmp/nanolang-record-package-qualified-425bc/tests/nanoisa/test_managed_module.c",
+      "group": 1653996,
+      "parent": 1654440,
+      "started": "Mon Sep 21 01:56:39 2026"
+    }
+  },
+  "remaining": []
+}

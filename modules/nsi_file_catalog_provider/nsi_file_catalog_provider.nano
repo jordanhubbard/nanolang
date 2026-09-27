@@ -1,0 +1,2 @@
+# I retain one real provider import edge; I declare no callable API.
+module nsi_file_catalog_provider

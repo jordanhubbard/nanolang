@@ -1,0 +1,1395 @@
+{
+  "root": "/tmp/nanolang-record-lists-0e72-linux-focused",
+  "files": {
+    "clang-sanitizer-inputs-before.json.gz": {
+      "source_name": "clang-sanitizer-inputs-before.json",
+      "source_sha256": "24656bf7a3898d02ed74b8a705cd4593dafcb70b156d439e32ed6e6a90dd5e75",
+      "source_bytes": 1282728,
+      "stored_sha256": "ce9050a34847b559b4a7ecc1b890e24a631ec0468b937f2f05b4d786b5d6f060"
+    },
+    "gcc-ordinary.log": {
+      "source_name": "gcc-ordinary.log",
+      "source_sha256": "622d3626b75449d7862830944583c2097d822e120a37a35cdd823ef13a71226a",
+      "source_bytes": 540,
+      "stored_sha256": "622d3626b75449d7862830944583c2097d822e120a37a35cdd823ef13a71226a"
+    },
+    "clang-asan-preinit.a-inputs-after.json.gz": {
+      "source_name": "clang-asan-preinit.a-inputs-after.json",
+      "source_sha256": "9de61fa247b5038dfbbda8d4ee86acc2b1a5ca91b44830f96c5f13ca801d0056",
+      "source_bytes": 1282060,
+      "stored_sha256": "57da470cde4de533bbe0991c77e0ff13792636034bc1be274d652ea57a14ba15"
+    },
+    "terminal.json": {
+      "source_name": "terminal.json",
+      "source_sha256": "0bc93f6c7d10361dccd11074982fb68ab0e9d615f17c3e002aade680f8b4388e",
+      "source_bytes": 268,
+      "stored_sha256": "0bc93f6c7d10361dccd11074982fb68ab0e9d615f17c3e002aade680f8b4388e"
+    },
+    "gcc-sanitizer-inputs-after.json.gz": {
+      "source_name": "gcc-sanitizer-inputs-after.json",
+      "source_sha256": "24656bf7a3898d02ed74b8a705cd4593dafcb70b156d439e32ed6e6a90dd5e75",
+      "source_bytes": 1282728,
+      "stored_sha256": "ce9050a34847b559b4a7ecc1b890e24a631ec0468b937f2f05b4d786b5d6f060"
+    },
+    "clang-asan-products-after.json.gz": {
+      "source_name": "clang-asan-products-after.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "gcc-ubsan-inputs-before.json.gz": {
+      "source_name": "gcc-ubsan-inputs-before.json",
+      "source_sha256": "e8569da69234dad1aed2ae4da2417e215aa3fc6305ee8fba765542288c5ddf2e",
+      "source_bytes": 1280517,
+      "stored_sha256": "42ba257173f8b4b421f68e1f66d89a82ed167acd311ac569b3969f0aef6c6cae"
+    },
+    "gcc-cc1-inputs-after.json.gz": {
+      "source_name": "gcc-cc1-inputs-after.json",
+      "source_sha256": "667daaae521b14935b4319d8c8f79297ab5ac6efa03bd9588541680721e2e968",
+      "source_bytes": 1280814,
+      "stored_sha256": "e9d812e377aca279a56e4a13d0e9eca7be7bf8d97a0e39def836c9ff5870a0f1"
+    },
+    "gcc-ordinary-products-before.json.gz": {
+      "source_name": "gcc-ordinary-products-before.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "clang-asan-inputs-after.json.gz": {
+      "source_name": "clang-asan-inputs-after.json",
+      "source_sha256": "57032417ab486ead8592a83c6b364ff6f1605b10c7df2adbd2a4c096544e0758",
+      "source_bytes": 1281407,
+      "stored_sha256": "2cbae1766e0e9677fc4b6fb4d268d574919b9876420015688d9b07c4d03917d6"
+    },
+    "gcc-asan.log": {
+      "source_name": "gcc-asan.log",
+      "source_sha256": "86004312733f99d1ebc00026d51e415f7850be77559236ce81317fa437989265",
+      "source_bytes": 45,
+      "stored_sha256": "86004312733f99d1ebc00026d51e415f7850be77559236ce81317fa437989265"
+    },
+    "gcc-collect2-inputs-before.json.gz": {
+      "source_name": "gcc-collect2-inputs-before.json",
+      "source_sha256": "269af42bb4788e733ee0b40a72d504c94cc57131370acaa887ccb52af0cbace3",
+      "source_bytes": 1281109,
+      "stored_sha256": "cec97502b7dc0a3602043a7289814f3d11a2206670f953c3ec255731598046f3"
+    },
+    "gcc-ordinary-status.json": {
+      "source_name": "gcc-ordinary-status.json",
+      "source_sha256": "99d373afb2573126395d368cd674e80cc41bcf5b580e113a3c34429590989bb1",
+      "source_bytes": 831,
+      "stored_sha256": "99d373afb2573126395d368cd674e80cc41bcf5b580e113a3c34429590989bb1"
+    },
+    "clang-sanitizer-products-before.json.gz": {
+      "source_name": "clang-sanitizer-products-before.json",
+      "source_sha256": "2a7f82302189f70993510694f42864f6c5ea873ac7e8d1e6f874f67a5f63d89b",
+      "source_bytes": 306965,
+      "stored_sha256": "1c9ae1b2178dee4e512e07ec83452d12aa46f09959e0cea932e537101f55d7e5"
+    },
+    "gcc-ubsan-products-after.json.gz": {
+      "source_name": "gcc-ubsan-products-after.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "clang-sanitizer-inputs-after.json.gz": {
+      "source_name": "clang-sanitizer-inputs-after.json",
+      "source_sha256": "24656bf7a3898d02ed74b8a705cd4593dafcb70b156d439e32ed6e6a90dd5e75",
+      "source_bytes": 1282728,
+      "stored_sha256": "ce9050a34847b559b4a7ecc1b890e24a631ec0468b937f2f05b4d786b5d6f060"
+    },
+    "clang-sanitizer-products-after.json.gz": {
+      "source_name": "clang-sanitizer-products-after.json",
+      "source_sha256": "2a7f82302189f70993510694f42864f6c5ea873ac7e8d1e6f874f67a5f63d89b",
+      "source_bytes": 306965,
+      "stored_sha256": "1c9ae1b2178dee4e512e07ec83452d12aa46f09959e0cea932e537101f55d7e5"
+    },
+    "gcc-sanitizer-config.json": {
+      "source_name": "gcc-sanitizer-config.json",
+      "source_sha256": "b10087fd9bc0ca161b5472733726126adc6a87925f670517db0e18635869d722",
+      "source_bytes": 8245,
+      "stored_sha256": "b10087fd9bc0ca161b5472733726126adc6a87925f670517db0e18635869d722"
+    },
+    "clang-asan-status.json": {
+      "source_name": "clang-asan-status.json",
+      "source_sha256": "af0a74293f63247f8707ea1f9728333654b2da47cdc62fafbc4b7c7affc8a3ad",
+      "source_bytes": 633,
+      "stored_sha256": "af0a74293f63247f8707ea1f9728333654b2da47cdc62fafbc4b7c7affc8a3ad"
+    },
+    "gcc-sanitizer-status.json": {
+      "source_name": "gcc-sanitizer-status.json",
+      "source_sha256": "29d55662148d141934e17f4085d8f12bc9fefbef495de5592e3fc1c4a20c0107",
+      "source_bytes": 829,
+      "stored_sha256": "29d55662148d141934e17f4085d8f12bc9fefbef495de5592e3fc1c4a20c0107"
+    },
+    "clang-asan.a.log": {
+      "source_name": "clang-asan.a.log",
+      "source_sha256": "731b76cb47024d752310ac6ca0303ec0927c180e47b6ad81b54246f562a41425",
+      "source_bytes": 73,
+      "stored_sha256": "731b76cb47024d752310ac6ca0303ec0927c180e47b6ad81b54246f562a41425"
+    },
+    "gcc-cc1-products-before.json.gz": {
+      "source_name": "gcc-cc1-products-before.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "gcc-ubsan.log": {
+      "source_name": "gcc-ubsan.log",
+      "source_sha256": "3dadcc080d9079d4e80bc487ccd7b25878c1e94b3352b04cc01c258fd88f26f3",
+      "source_bytes": 46,
+      "stored_sha256": "3dadcc080d9079d4e80bc487ccd7b25878c1e94b3352b04cc01c258fd88f26f3"
+    },
+    "manifest.json": {
+      "source_name": "manifest.json",
+      "source_sha256": "3b3c6e64b9a4d5e830c6553002138c519a38c6d5fdca4c09065ce88e2394611a",
+      "source_bytes": 7737,
+      "stored_sha256": "3b3c6e64b9a4d5e830c6553002138c519a38c6d5fdca4c09065ce88e2394611a"
+    },
+    "gcc-collect2.log": {
+      "source_name": "gcc-collect2.log",
+      "source_sha256": "4b4b15d1de92fb69e39e13f15facb69e1a978a9b802ebfdda8231a16cebd55e1",
+      "source_bytes": 47,
+      "stored_sha256": "4b4b15d1de92fb69e39e13f15facb69e1a978a9b802ebfdda8231a16cebd55e1"
+    },
+    "gcc-ordinary-inputs-before.json.gz": {
+      "source_name": "gcc-ordinary-inputs-before.json",
+      "source_sha256": "24656bf7a3898d02ed74b8a705cd4593dafcb70b156d439e32ed6e6a90dd5e75",
+      "source_bytes": 1282728,
+      "stored_sha256": "ce9050a34847b559b4a7ecc1b890e24a631ec0468b937f2f05b4d786b5d6f060"
+    },
+    "gcc-cc1-inputs-before.json.gz": {
+      "source_name": "gcc-cc1-inputs-before.json",
+      "source_sha256": "667daaae521b14935b4319d8c8f79297ab5ac6efa03bd9588541680721e2e968",
+      "source_bytes": 1280814,
+      "stored_sha256": "e9d812e377aca279a56e4a13d0e9eca7be7bf8d97a0e39def836c9ff5870a0f1"
+    },
+    "gcc-ordinary-config.json": {
+      "source_name": "gcc-ordinary-config.json",
+      "source_sha256": "f7e43ecfee7765be8ea8d377876a40d9b1dde0916cc5b80fa3d18ff3430cf981",
+      "source_bytes": 8191,
+      "stored_sha256": "f7e43ecfee7765be8ea8d377876a40d9b1dde0916cc5b80fa3d18ff3430cf981"
+    },
+    "clang-asan-preinit.a-status.json": {
+      "source_name": "clang-asan-preinit.a-status.json",
+      "source_sha256": "0a09f1e1f297ecb489a0d75cbe4e71ac1d44716734f2c9ad41b508a01c3126e5",
+      "source_bytes": 641,
+      "stored_sha256": "0a09f1e1f297ecb489a0d75cbe4e71ac1d44716734f2c9ad41b508a01c3126e5"
+    },
+    "clang-ubsan_standalone.a-products-after.json.gz": {
+      "source_name": "clang-ubsan_standalone.a-products-after.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "clang-asan-preinit.a.log": {
+      "source_name": "clang-asan-preinit.a.log",
+      "source_sha256": "7c718250b1f5f4fd163e697869ca0d21ad6a8f5d6d5d8546ac4a84a7c575b87e",
+      "source_bytes": 81,
+      "stored_sha256": "7c718250b1f5f4fd163e697869ca0d21ad6a8f5d6d5d8546ac4a84a7c575b87e"
+    },
+    "gcc-sanitizer-products-after.json.gz": {
+      "source_name": "gcc-sanitizer-products-after.json",
+      "source_sha256": "2a7f82302189f70993510694f42864f6c5ea873ac7e8d1e6f874f67a5f63d89b",
+      "source_bytes": 306965,
+      "stored_sha256": "1c9ae1b2178dee4e512e07ec83452d12aa46f09959e0cea932e537101f55d7e5"
+    },
+    "clang-ubsan_standalone.a-status.json": {
+      "source_name": "clang-ubsan_standalone.a-status.json",
+      "source_sha256": "b733e6dde29b7f20231c354316850f5e530f616fb7bf5e3756d765eb23fe40f2",
+      "source_bytes": 644,
+      "stored_sha256": "b733e6dde29b7f20231c354316850f5e530f616fb7bf5e3756d765eb23fe40f2"
+    },
+    "gcc-sanitizer-inputs-before.json.gz": {
+      "source_name": "gcc-sanitizer-inputs-before.json",
+      "source_sha256": "24656bf7a3898d02ed74b8a705cd4593dafcb70b156d439e32ed6e6a90dd5e75",
+      "source_bytes": 1282728,
+      "stored_sha256": "ce9050a34847b559b4a7ecc1b890e24a631ec0468b937f2f05b4d786b5d6f060"
+    },
+    "clang-asan.log": {
+      "source_name": "clang-asan.log",
+      "source_sha256": "53147373a517c86bd659d958715d0a91f29963030e2f539b5b626a0ab0d302c3",
+      "source_bytes": 74,
+      "stored_sha256": "53147373a517c86bd659d958715d0a91f29963030e2f539b5b626a0ab0d302c3"
+    },
+    "clang-asan-preinit.a-products-after.json.gz": {
+      "source_name": "clang-asan-preinit.a-products-after.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "gcc-asan-inputs-before.json.gz": {
+      "source_name": "gcc-asan-inputs-before.json",
+      "source_sha256": "67c9a659bcca2056e9471236af6deb17e0060b0b2ba998eb001ed0411a229136",
+      "source_bytes": 1280220,
+      "stored_sha256": "d15c1f33658d3d98dc7e6240736b435532ce011636f832cdbb0ff69a15bd8ef6"
+    },
+    "clang-asan-preinit.a-products-before.json.gz": {
+      "source_name": "clang-asan-preinit.a-products-before.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "clang-asan.a-inputs-after.json.gz": {
+      "source_name": "clang-asan.a-inputs-after.json",
+      "source_sha256": "34ee4e0b115bac0c7f4c343c2f99bbe62de242ca5a13cba37c1729cef432933a",
+      "source_bytes": 1281734,
+      "stored_sha256": "ab2f2c7cbd7d26a99df90056561f0e8e3611d07c142ca9bca7fe8627f17fa4e0"
+    },
+    "clang-sanitizer-config.json": {
+      "source_name": "clang-sanitizer-config.json",
+      "source_sha256": "36fcd7b20657dcb430b28631d2de90f2a9d8384f8f3db632a95d57cf11502e82",
+      "source_bytes": 8311,
+      "stored_sha256": "36fcd7b20657dcb430b28631d2de90f2a9d8384f8f3db632a95d57cf11502e82"
+    },
+    "gcc-collect2-products-before.json.gz": {
+      "source_name": "gcc-collect2-products-before.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "clang-ubsan_standalone.a-inputs-after.json.gz": {
+      "source_name": "clang-ubsan_standalone.a-inputs-after.json",
+      "source_sha256": "505563daa2bd7ce518da7c17aa585c71becc797d9aa8e097eecc9c940ee07f32",
+      "source_bytes": 1282391,
+      "stored_sha256": "892508cb9d1b9854fabd44daf353bcfc7f94fe7cfab62e87291395c98ed7972e"
+    },
+    "gcc-asan-status.json": {
+      "source_name": "gcc-asan-status.json",
+      "source_sha256": "c2cceb123263b9f877d0cd9e6d53f0ed222795b2cee89749132c93833ac8a6b0",
+      "source_bytes": 553,
+      "stored_sha256": "c2cceb123263b9f877d0cd9e6d53f0ed222795b2cee89749132c93833ac8a6b0"
+    },
+    "clang-asan.a-inputs-before.json.gz": {
+      "source_name": "clang-asan.a-inputs-before.json",
+      "source_sha256": "34ee4e0b115bac0c7f4c343c2f99bbe62de242ca5a13cba37c1729cef432933a",
+      "source_bytes": 1281734,
+      "stored_sha256": "ab2f2c7cbd7d26a99df90056561f0e8e3611d07c142ca9bca7fe8627f17fa4e0"
+    },
+    "gcc-ubsan-status.json": {
+      "source_name": "gcc-ubsan-status.json",
+      "source_sha256": "6f7cf2bd439356ec24df36c6961733fc108f512874e24dcbd753fd156a85aa03",
+      "source_bytes": 555,
+      "stored_sha256": "6f7cf2bd439356ec24df36c6961733fc108f512874e24dcbd753fd156a85aa03"
+    },
+    "gcc-ubsan-products-before.json.gz": {
+      "source_name": "gcc-ubsan-products-before.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "runner.json": {
+      "source_name": "runner.json",
+      "source_sha256": "bef3c4b224ff498baa61b1bfc9046756222fba3d8bcb58d4de05c04462bd8eae",
+      "source_bytes": 235,
+      "stored_sha256": "bef3c4b224ff498baa61b1bfc9046756222fba3d8bcb58d4de05c04462bd8eae"
+    },
+    "gcc-asan-products-after.json.gz": {
+      "source_name": "gcc-asan-products-after.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "clang-asan.a-status.json": {
+      "source_name": "clang-asan.a-status.json",
+      "source_sha256": "d7f99137baf03388c05f3a1a9ff3c6bcfbc4fd6ffd837f8d00eb035864feca79",
+      "source_bytes": 633,
+      "stored_sha256": "d7f99137baf03388c05f3a1a9ff3c6bcfbc4fd6ffd837f8d00eb035864feca79"
+    },
+    "clang-ubsan_standalone.a-inputs-before.json.gz": {
+      "source_name": "clang-ubsan_standalone.a-inputs-before.json",
+      "source_sha256": "505563daa2bd7ce518da7c17aa585c71becc797d9aa8e097eecc9c940ee07f32",
+      "source_bytes": 1282391,
+      "stored_sha256": "892508cb9d1b9854fabd44daf353bcfc7f94fe7cfab62e87291395c98ed7972e"
+    },
+    "clang-ubsan_standalone.a-products-before.json.gz": {
+      "source_name": "clang-ubsan_standalone.a-products-before.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "clang-asan-inputs-before.json.gz": {
+      "source_name": "clang-asan-inputs-before.json",
+      "source_sha256": "57032417ab486ead8592a83c6b364ff6f1605b10c7df2adbd2a4c096544e0758",
+      "source_bytes": 1281407,
+      "stored_sha256": "2cbae1766e0e9677fc4b6fb4d268d574919b9876420015688d9b07c4d03917d6"
+    },
+    "clang-asan-products-before.json.gz": {
+      "source_name": "clang-asan-products-before.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "gcc-asan-inputs-after.json.gz": {
+      "source_name": "gcc-asan-inputs-after.json",
+      "source_sha256": "67c9a659bcca2056e9471236af6deb17e0060b0b2ba998eb001ed0411a229136",
+      "source_bytes": 1280220,
+      "stored_sha256": "d15c1f33658d3d98dc7e6240736b435532ce011636f832cdbb0ff69a15bd8ef6"
+    },
+    "gcc-cc1-status.json": {
+      "source_name": "gcc-cc1-status.json",
+      "source_sha256": "17763e72677201b21d0985a1dcd42b9fb74df2ea50c1470e5ac12cfee4f08e56",
+      "source_bytes": 545,
+      "stored_sha256": "17763e72677201b21d0985a1dcd42b9fb74df2ea50c1470e5ac12cfee4f08e56"
+    },
+    "gcc-collect2-inputs-after.json.gz": {
+      "source_name": "gcc-collect2-inputs-after.json",
+      "source_sha256": "269af42bb4788e733ee0b40a72d504c94cc57131370acaa887ccb52af0cbace3",
+      "source_bytes": 1281109,
+      "stored_sha256": "cec97502b7dc0a3602043a7289814f3d11a2206670f953c3ec255731598046f3"
+    },
+    "gcc-sanitizer-products-before.json.gz": {
+      "source_name": "gcc-sanitizer-products-before.json",
+      "source_sha256": "2a7f82302189f70993510694f42864f6c5ea873ac7e8d1e6f874f67a5f63d89b",
+      "source_bytes": 306965,
+      "stored_sha256": "1c9ae1b2178dee4e512e07ec83452d12aa46f09959e0cea932e537101f55d7e5"
+    },
+    "gcc-collect2-status.json": {
+      "source_name": "gcc-collect2-status.json",
+      "source_sha256": "38296c7c5704020a8be81f381a511d1429226569bd47284fea3a58959e4b9d42",
+      "source_bytes": 551,
+      "stored_sha256": "38296c7c5704020a8be81f381a511d1429226569bd47284fea3a58959e4b9d42"
+    },
+    "clang-asan.a-products-before.json.gz": {
+      "source_name": "clang-asan.a-products-before.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "clang-sanitizer-status.json": {
+      "source_name": "clang-sanitizer-status.json",
+      "source_sha256": "730d77d2a1ec76d166a7584764cc3f987ac8228b8fa5d9e25f3bc203308bc664",
+      "source_bytes": 830,
+      "stored_sha256": "730d77d2a1ec76d166a7584764cc3f987ac8228b8fa5d9e25f3bc203308bc664"
+    },
+    "gcc-cc1.log": {
+      "source_name": "gcc-cc1.log",
+      "source_sha256": "64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f",
+      "source_bytes": 42,
+      "stored_sha256": "64100c02e42bb883018a5b1899a6a041a9148e9eaa2272b266f59442fb76e81f"
+    },
+    "clang-asan.a-products-after.json.gz": {
+      "source_name": "clang-asan.a-products-after.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "gcc-ordinary-inputs-after.json.gz": {
+      "source_name": "gcc-ordinary-inputs-after.json",
+      "source_sha256": "24656bf7a3898d02ed74b8a705cd4593dafcb70b156d439e32ed6e6a90dd5e75",
+      "source_bytes": 1282728,
+      "stored_sha256": "ce9050a34847b559b4a7ecc1b890e24a631ec0468b937f2f05b4d786b5d6f060"
+    },
+    "gcc-ordinary-products-after.json.gz": {
+      "source_name": "gcc-ordinary-products-after.json",
+      "source_sha256": "2a7f82302189f70993510694f42864f6c5ea873ac7e8d1e6f874f67a5f63d89b",
+      "source_bytes": 306965,
+      "stored_sha256": "1c9ae1b2178dee4e512e07ec83452d12aa46f09959e0cea932e537101f55d7e5"
+    },
+    "clang-ubsan_standalone.a.log": {
+      "source_name": "clang-ubsan_standalone.a.log",
+      "source_sha256": "190c89fa892958c08f74e7e4b03ecec3e9324653fadb5cc5a72f19df46a155ec",
+      "source_bytes": 85,
+      "stored_sha256": "190c89fa892958c08f74e7e4b03ecec3e9324653fadb5cc5a72f19df46a155ec"
+    },
+    "gcc-asan-products-before.json.gz": {
+      "source_name": "gcc-asan-products-before.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "gcc-cc1-products-after.json.gz": {
+      "source_name": "gcc-cc1-products-after.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "gcc-collect2-products-after.json.gz": {
+      "source_name": "gcc-collect2-products-after.json",
+      "source_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "source_bytes": 306604,
+      "stored_sha256": "13a559abb022de443d02859518b0e645067194a0393ebbdada232956a2c96c05"
+    },
+    "clang-sanitizer.log": {
+      "source_name": "clang-sanitizer.log",
+      "source_sha256": "1a6ce6e4d310819fbc5ff6d2437eef0f762017d0539dfba6d285a88b7d0a661b",
+      "source_bytes": 543,
+      "stored_sha256": "1a6ce6e4d310819fbc5ff6d2437eef0f762017d0539dfba6d285a88b7d0a661b"
+    },
+    "clang-asan-preinit.a-inputs-before.json.gz": {
+      "source_name": "clang-asan-preinit.a-inputs-before.json",
+      "source_sha256": "9de61fa247b5038dfbbda8d4ee86acc2b1a5ca91b44830f96c5f13ca801d0056",
+      "source_bytes": 1282060,
+      "stored_sha256": "57da470cde4de533bbe0991c77e0ff13792636034bc1be274d652ea57a14ba15"
+    },
+    "gcc-ubsan-inputs-after.json.gz": {
+      "source_name": "gcc-ubsan-inputs-after.json",
+      "source_sha256": "e8569da69234dad1aed2ae4da2417e215aa3fc6305ee8fba765542288c5ddf2e",
+      "source_bytes": 1280517,
+      "stored_sha256": "42ba257173f8b4b421f68e1f66d89a82ed167acd311ac569b3969f0aef6c6cae"
+    },
+    "scope.json": {
+      "source_name": "scope.json",
+      "source_sha256": "7d957bb75bc73267a638c3c5515d2dee0be87e9eba1a51d7c801f020b770df44",
+      "source_bytes": 1025,
+      "stored_sha256": "7d957bb75bc73267a638c3c5515d2dee0be87e9eba1a51d7c801f020b770df44"
+    },
+    "gcc-sanitizer.log": {
+      "source_name": "gcc-sanitizer.log",
+      "source_sha256": "1191e53f14900c82ac151d93874d91f5051cbadb5a7a864ce8f3836e25638f35",
+      "source_bytes": 541,
+      "stored_sha256": "1191e53f14900c82ac151d93874d91f5051cbadb5a7a864ce8f3836e25638f35"
+    }
+  },
+  "pairs": {
+    "clang-sanitizer-inputs-before.json": {
+      "before_sha256": "24656bf7a3898d02ed74b8a705cd4593dafcb70b156d439e32ed6e6a90dd5e75",
+      "after_sha256": "24656bf7a3898d02ed74b8a705cd4593dafcb70b156d439e32ed6e6a90dd5e75",
+      "equal": true,
+      "product_map": false
+    },
+    "gcc-ubsan-inputs-before.json": {
+      "before_sha256": "e8569da69234dad1aed2ae4da2417e215aa3fc6305ee8fba765542288c5ddf2e",
+      "after_sha256": "e8569da69234dad1aed2ae4da2417e215aa3fc6305ee8fba765542288c5ddf2e",
+      "equal": true,
+      "product_map": false
+    },
+    "gcc-ordinary-products-before.json": {
+      "before_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "after_sha256": "2a7f82302189f70993510694f42864f6c5ea873ac7e8d1e6f874f67a5f63d89b",
+      "equal": false,
+      "product_map": true
+    },
+    "gcc-collect2-inputs-before.json": {
+      "before_sha256": "269af42bb4788e733ee0b40a72d504c94cc57131370acaa887ccb52af0cbace3",
+      "after_sha256": "269af42bb4788e733ee0b40a72d504c94cc57131370acaa887ccb52af0cbace3",
+      "equal": true,
+      "product_map": false
+    },
+    "clang-sanitizer-products-before.json": {
+      "before_sha256": "2a7f82302189f70993510694f42864f6c5ea873ac7e8d1e6f874f67a5f63d89b",
+      "after_sha256": "2a7f82302189f70993510694f42864f6c5ea873ac7e8d1e6f874f67a5f63d89b",
+      "equal": true,
+      "product_map": true
+    },
+    "gcc-cc1-products-before.json": {
+      "before_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "after_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "equal": true,
+      "product_map": true
+    },
+    "gcc-ordinary-inputs-before.json": {
+      "before_sha256": "24656bf7a3898d02ed74b8a705cd4593dafcb70b156d439e32ed6e6a90dd5e75",
+      "after_sha256": "24656bf7a3898d02ed74b8a705cd4593dafcb70b156d439e32ed6e6a90dd5e75",
+      "equal": true,
+      "product_map": false
+    },
+    "gcc-cc1-inputs-before.json": {
+      "before_sha256": "667daaae521b14935b4319d8c8f79297ab5ac6efa03bd9588541680721e2e968",
+      "after_sha256": "667daaae521b14935b4319d8c8f79297ab5ac6efa03bd9588541680721e2e968",
+      "equal": true,
+      "product_map": false
+    },
+    "gcc-sanitizer-inputs-before.json": {
+      "before_sha256": "24656bf7a3898d02ed74b8a705cd4593dafcb70b156d439e32ed6e6a90dd5e75",
+      "after_sha256": "24656bf7a3898d02ed74b8a705cd4593dafcb70b156d439e32ed6e6a90dd5e75",
+      "equal": true,
+      "product_map": false
+    },
+    "gcc-asan-inputs-before.json": {
+      "before_sha256": "67c9a659bcca2056e9471236af6deb17e0060b0b2ba998eb001ed0411a229136",
+      "after_sha256": "67c9a659bcca2056e9471236af6deb17e0060b0b2ba998eb001ed0411a229136",
+      "equal": true,
+      "product_map": false
+    },
+    "clang-asan-preinit.a-products-before.json": {
+      "before_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "after_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "equal": true,
+      "product_map": true
+    },
+    "gcc-collect2-products-before.json": {
+      "before_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "after_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "equal": true,
+      "product_map": true
+    },
+    "clang-asan.a-inputs-before.json": {
+      "before_sha256": "34ee4e0b115bac0c7f4c343c2f99bbe62de242ca5a13cba37c1729cef432933a",
+      "after_sha256": "34ee4e0b115bac0c7f4c343c2f99bbe62de242ca5a13cba37c1729cef432933a",
+      "equal": true,
+      "product_map": false
+    },
+    "gcc-ubsan-products-before.json": {
+      "before_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "after_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "equal": true,
+      "product_map": true
+    },
+    "clang-ubsan_standalone.a-inputs-before.json": {
+      "before_sha256": "505563daa2bd7ce518da7c17aa585c71becc797d9aa8e097eecc9c940ee07f32",
+      "after_sha256": "505563daa2bd7ce518da7c17aa585c71becc797d9aa8e097eecc9c940ee07f32",
+      "equal": true,
+      "product_map": false
+    },
+    "clang-ubsan_standalone.a-products-before.json": {
+      "before_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "after_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "equal": true,
+      "product_map": true
+    },
+    "clang-asan-inputs-before.json": {
+      "before_sha256": "57032417ab486ead8592a83c6b364ff6f1605b10c7df2adbd2a4c096544e0758",
+      "after_sha256": "57032417ab486ead8592a83c6b364ff6f1605b10c7df2adbd2a4c096544e0758",
+      "equal": true,
+      "product_map": false
+    },
+    "clang-asan-products-before.json": {
+      "before_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "after_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "equal": true,
+      "product_map": true
+    },
+    "gcc-sanitizer-products-before.json": {
+      "before_sha256": "2a7f82302189f70993510694f42864f6c5ea873ac7e8d1e6f874f67a5f63d89b",
+      "after_sha256": "2a7f82302189f70993510694f42864f6c5ea873ac7e8d1e6f874f67a5f63d89b",
+      "equal": true,
+      "product_map": true
+    },
+    "clang-asan.a-products-before.json": {
+      "before_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "after_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "equal": true,
+      "product_map": true
+    },
+    "gcc-asan-products-before.json": {
+      "before_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "after_sha256": "60981f1e6e0b9f263b4959f39d9d21e20a338a7c6478b273673a21c2275c4364",
+      "equal": true,
+      "product_map": true
+    },
+    "clang-asan-preinit.a-inputs-before.json": {
+      "before_sha256": "9de61fa247b5038dfbbda8d4ee86acc2b1a5ca91b44830f96c5f13ca801d0056",
+      "after_sha256": "9de61fa247b5038dfbbda8d4ee86acc2b1a5ca91b44830f96c5f13ca801d0056",
+      "equal": true,
+      "product_map": false
+    }
+  },
+  "retained_helper_files": {
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0009-array-identity.stdout": {
+      "sha256": "89e2fe079076c71b52ee0dd2707654c54c9287776ffcc267fcf7bc4c66b461cd",
+      "bytes": 80
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0003-array-allocation-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0005-parsed-build-after-products.json": {
+      "sha256": "0361805228484ebd11cc17d2152ebddd5d8820112787b84a23fb3af7f6d90296",
+      "bytes": 666
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/parsed-lifetimes": {
+      "sha256": "395d4f2352e6b498ca92907297e2eeef28032186d6dfa86bd025679145f143ce",
+      "bytes": 28746920
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0001-coroutine-error-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0009-array-identity.stderr": {
+      "sha256": "688fb714ac30b8c20a5ab8d1e426ce43b91f2210eb6d8133a8b36a34ea68ac2b",
+      "bytes": 550
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0003-array-allocation-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0009-array-identity-after-products.json": {
+      "sha256": "0361805228484ebd11cc17d2152ebddd5d8820112787b84a23fb3af7f6d90296",
+      "bytes": 666
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0002-array-identity-build-status.json": {
+      "sha256": "af9c0a8c651dc73ccebb8e83580893a8213048eae8c8c0c9a25c003d5d4652bb",
+      "bytes": 148
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0001-coroutine-error-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0010-array-allocations.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0005-parsed-build-command.json": {
+      "sha256": "9e83237b27f6bd6618460983c87e721b3268c7b0db0b52fd64f089df2a6e7f9c",
+      "bytes": 9126
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0007-checked-lifetimes-status.json": {
+      "sha256": "5fbdc8cdc79a103722dcf45dbec68d90b2bcf9b0b784837b5cda4a18002aab59",
+      "bytes": 148
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0001-coroutine-error-build-command.json": {
+      "sha256": "9965e30329e356108b697d11c811dbc44c48c90876d4e7e759159b2b75b917e1",
+      "bytes": 973
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0002-array-identity-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0002-array-identity-build-before-products.json": {
+      "sha256": "b8c240293aa9348cb33816a269c03aae0fed35f3f8aa5b1c2a767540f99413b1",
+      "bytes": 136
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0004-owned-build-command.json": {
+      "sha256": "a7ff2c8ef2e09dccf34b9640631b42027f8161c4d25f9515c9cb69742b41e564",
+      "bytes": 9091
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0003-array-allocation-build-after-products.json": {
+      "sha256": "b7ef3318a8f66b2d0bb9050f74258ddeb71de65fe1837ade79c21fe9d8bf4d4c",
+      "bytes": 401
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0001-coroutine-error-build-after-products.json": {
+      "sha256": "b8c240293aa9348cb33816a269c03aae0fed35f3f8aa5b1c2a767540f99413b1",
+      "bytes": 136
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0007-checked-lifetimes.stdout": {
+      "sha256": "851ece21235cfa86de6c4836f038692cf09da7b658e6be8029b2a12dd7661e51",
+      "bytes": 45
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0002-array-identity-build-after-products.json": {
+      "sha256": "eb87f2e359f70b451bd1a29cebb1d5049c52af3ead3a8913262b0c6f9fede69d",
+      "bytes": 267
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0004-owned-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/array-allocations": {
+      "sha256": "07d07368569ba8841bce8768e0883cd12240e8942565a211c408d20c08709def",
+      "bytes": 31080944
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0003-array-allocation-build-command.json": {
+      "sha256": "d1dbd1df81050470b69bb4232d67a28ef01edbc8aea330961978c362a358a44b",
+      "bytes": 9034
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/provider-inputs-after.json": {
+      "sha256": "682fe736baa7a9324d7ea99bfc94f4e2420f616d43ae76961706c3cc24b379c7",
+      "bytes": 14703
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0006-coroutine-error-allocations-command.json": {
+      "sha256": "ed6973c422cfb0b8f00eadee9e2e3b4109daebfbe679ec19cc364528fb9fd8a6",
+      "bytes": 502
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0002-array-identity-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0005-parsed-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0009-array-identity-status.json": {
+      "sha256": "516dd008dc715f9265c30c5a4d59dc2f27847484b1652203ac214cd2db970570",
+      "bytes": 149
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0004-owned-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0010-array-allocations-before-products.json": {
+      "sha256": "0361805228484ebd11cc17d2152ebddd5d8820112787b84a23fb3af7f6d90296",
+      "bytes": 666
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0007-checked-lifetimes-after-products.json": {
+      "sha256": "0361805228484ebd11cc17d2152ebddd5d8820112787b84a23fb3af7f6d90296",
+      "bytes": 666
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0008-checked-callable-hook-status.json": {
+      "sha256": "2a1f24ce65c6ce30aa0cd0c9c3eeafeec12070cb93dadc007a4a1c4042d19024",
+      "bytes": 150
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0006-coroutine-error-allocations.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0003-array-allocation-build-before-products.json": {
+      "sha256": "eb87f2e359f70b451bd1a29cebb1d5049c52af3ead3a8913262b0c6f9fede69d",
+      "bytes": 267
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0006-coroutine-error-allocations-before-products.json": {
+      "sha256": "0361805228484ebd11cc17d2152ebddd5d8820112787b84a23fb3af7f6d90296",
+      "bytes": 666
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0008-checked-callable-hook.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0009-array-identity-command.json": {
+      "sha256": "bf36e8e39054c52b7d643493d831216c7c8642402ef41cc059d1f657779ba39a",
+      "bytes": 500
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/selected-config.json": {
+      "sha256": "dae21068c6b5197eeb8c5e95edf2a2be953beeb3d747538ea387616760d4e1eb",
+      "bytes": 8402
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0007-checked-lifetimes-before-products.json": {
+      "sha256": "0361805228484ebd11cc17d2152ebddd5d8820112787b84a23fb3af7f6d90296",
+      "bytes": 666
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0004-owned-build-after-products.json": {
+      "sha256": "25dec06d0a41499d41224a8254e1ebba383850541f09a6b91db337ce8f15d71f",
+      "bytes": 533
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0005-parsed-build-before-products.json": {
+      "sha256": "25dec06d0a41499d41224a8254e1ebba383850541f09a6b91db337ce8f15d71f",
+      "bytes": 533
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0008-checked-callable-hook-command.json": {
+      "sha256": "204d9cf84f8a562259284b9b95062b9132577309e3419e5425748f4f84d3f610",
+      "bytes": 518
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0001-coroutine-error-build-before-products.json": {
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0006-coroutine-error-allocations-after-products.json": {
+      "sha256": "0361805228484ebd11cc17d2152ebddd5d8820112787b84a23fb3af7f6d90296",
+      "bytes": 666
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0007-checked-lifetimes-command.json": {
+      "sha256": "86c7f5a06c7f100499374158a0ef91d00f82dde86fd552f847065b01531c5527",
+      "bytes": 501
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/coroutine-errors": {
+      "sha256": "6ba234108a447fd6328fcba1e2b15ada716e25b4e1613fa4ea2f86ef4764d558",
+      "bytes": 12056552
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0008-checked-callable-hook-after-products.json": {
+      "sha256": "0361805228484ebd11cc17d2152ebddd5d8820112787b84a23fb3af7f6d90296",
+      "bytes": 666
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0003-array-allocation-build-status.json": {
+      "sha256": "b64f5c624b4448d6aa2f2d44452a77dd0106ca49e5d5e245a82a3bdd5c9ea8ca",
+      "bytes": 148
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0009-array-identity-before-products.json": {
+      "sha256": "0361805228484ebd11cc17d2152ebddd5d8820112787b84a23fb3af7f6d90296",
+      "bytes": 666
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0002-array-identity-build-command.json": {
+      "sha256": "54d780d2a7be6a05a291c0d63cbcd8e9556ce7276aaa72d2f674b66f6bc763e5",
+      "bytes": 8991
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0005-parsed-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0010-array-allocations-command.json": {
+      "sha256": "87e25e87dbb35218d01175cdae18992a81de2859df2c63eb4509b04cccae60d1",
+      "bytes": 503
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0010-array-allocations-after-products.json": {
+      "sha256": "0361805228484ebd11cc17d2152ebddd5d8820112787b84a23fb3af7f6d90296",
+      "bytes": 666
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0005-parsed-build-status.json": {
+      "sha256": "f3477caeed1ff2087fa1e21392c222f66ded59a2efeac92e52eff0ffb84c4856",
+      "bytes": 148
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/array-identity": {
+      "sha256": "f29486d19110ccca792bca9267fb825792ef832a36d36bee3b3af915f91daf6c",
+      "bytes": 30164264
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0001-coroutine-error-build-status.json": {
+      "sha256": "55c335e3546ef3a61ebe272e3b7f49a0c1ae6a4179f0fc71f51add6acf1c25c8",
+      "bytes": 149
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0004-owned-build-before-products.json": {
+      "sha256": "b7ef3318a8f66b2d0bb9050f74258ddeb71de65fe1837ade79c21fe9d8bf4d4c",
+      "bytes": 401
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0006-coroutine-error-allocations-status.json": {
+      "sha256": "44f948426d8917e0938da06cff99f4bb47a38b73d7d6c43a42dc8b1f376fd938",
+      "bytes": 149
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0008-checked-callable-hook-before-products.json": {
+      "sha256": "0361805228484ebd11cc17d2152ebddd5d8820112787b84a23fb3af7f6d90296",
+      "bytes": 666
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0010-array-allocations-status.json": {
+      "sha256": "cd675ddf1748fbbbabdfde21d3cb1be33db4e1cc4d7733ddd86e0f2c5aeac4ff",
+      "bytes": 149
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0007-checked-lifetimes.stderr": {
+      "sha256": "5ec9007f29964ec19e1a3dd75bc59227c6b64d7d0218d0ff454fcb397eb9601a",
+      "bytes": 48
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0006-coroutine-error-allocations.stdout": {
+      "sha256": "6383e31617c3ba93cf7ae5cbb59694e247156e975fd643ac3b2496ac75306e20",
+      "bytes": 71
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0008-checked-callable-hook.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/provider-inputs-before.json": {
+      "sha256": "682fe736baa7a9324d7ea99bfc94f4e2420f616d43ae76961706c3cc24b379c7",
+      "bytes": 14703
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0010-array-allocations.stdout": {
+      "sha256": "9075f5e4469da84cbe39c267017f20d86fe983bb95f8cbfd530039781f945b7b",
+      "bytes": 538
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/0004-owned-build-status.json": {
+      "sha256": "29dd43256a3d8d97c577b6f455e1e36fe38919a4ff74f887d1edbdf7d44da522",
+      "bytes": 148
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/clang-sanitizer/nano-record-lists-x9kb4uz4/owned-lifetimes": {
+      "sha256": "ea2cbef92c5547e53ecb58e67e79417ee7924993ac814ae4ac6e86a3908ad219",
+      "bytes": 30144152
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0009-array-identity.stdout": {
+      "sha256": "89e2fe079076c71b52ee0dd2707654c54c9287776ffcc267fcf7bc4c66b461cd",
+      "bytes": 80
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0003-array-allocation-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0005-parsed-build-after-products.json": {
+      "sha256": "b5d4ad8376bd78709ab7dc65c38e742e2da83afbd53882ff1867487ce4f00345",
+      "bytes": 663
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/parsed-lifetimes": {
+      "sha256": "b56941b3cb80e02006e88ea8f9e08ab8ed065f6ca7f3f7632c551984bdfd72dc",
+      "bytes": 14376384
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0001-coroutine-error-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0009-array-identity.stderr": {
+      "sha256": "688fb714ac30b8c20a5ab8d1e426ce43b91f2210eb6d8133a8b36a34ea68ac2b",
+      "bytes": 550
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0003-array-allocation-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0009-array-identity-after-products.json": {
+      "sha256": "b5d4ad8376bd78709ab7dc65c38e742e2da83afbd53882ff1867487ce4f00345",
+      "bytes": 663
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0002-array-identity-build-status.json": {
+      "sha256": "db0629dcd9b663dd992f1b8778cf243da92f6d3ab6468db4e2e49f61d1cc39a9",
+      "bytes": 148
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0001-coroutine-error-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0010-array-allocations.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0005-parsed-build-command.json": {
+      "sha256": "dae0df5488659f0b344e973e310b9652e3dbe281fce7330fa511803875642607",
+      "bytes": 8982
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0007-checked-lifetimes-status.json": {
+      "sha256": "d2f02419f6b646cf77fc328011bcaa8bafc2d6b39668a28c3375c60465dac1dd",
+      "bytes": 148
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0001-coroutine-error-build-command.json": {
+      "sha256": "29fcd12c41900fb60765b0de7cbd20db8da7fcd1ce9b18cdbc95b55ead762679",
+      "bytes": 829
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0002-array-identity-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0002-array-identity-build-before-products.json": {
+      "sha256": "d1d08e68f8a3022645f8a225b9243362c82de04db732be5ae6efcb2d06f2d470",
+      "bytes": 133
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0004-owned-build-command.json": {
+      "sha256": "bf2fcbc7c4a814146963d7452a1c8226af022db57a8415ca2f5d7c67c1c4ca8c",
+      "bytes": 8947
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0003-array-allocation-build-after-products.json": {
+      "sha256": "3d1b8ab4ce6f524bf0ac6bd57ce4946afb1a0265d8cbd349af06f86db1bebdf8",
+      "bytes": 398
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0001-coroutine-error-build-after-products.json": {
+      "sha256": "d1d08e68f8a3022645f8a225b9243362c82de04db732be5ae6efcb2d06f2d470",
+      "bytes": 133
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0007-checked-lifetimes.stdout": {
+      "sha256": "851ece21235cfa86de6c4836f038692cf09da7b658e6be8029b2a12dd7661e51",
+      "bytes": 45
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0002-array-identity-build-after-products.json": {
+      "sha256": "cfca2c13e95b2dfdafafadcefdee0ce54f2f6342ecf7b47ddfb4a97c6af71ece",
+      "bytes": 264
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0004-owned-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/array-allocations": {
+      "sha256": "a61e8dc765b698b2a36ede3f60086279e9e58b107c373b7a43e3dce13fd8a7b0",
+      "bytes": 14233568
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0003-array-allocation-build-command.json": {
+      "sha256": "59e608a734e937ce4612f8a9b7c2dc03e73dfac3e23291c087a9e6a49de25769",
+      "bytes": 8890
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/provider-inputs-after.json": {
+      "sha256": "682fe736baa7a9324d7ea99bfc94f4e2420f616d43ae76961706c3cc24b379c7",
+      "bytes": 14703
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0006-coroutine-error-allocations-command.json": {
+      "sha256": "96421dc632ef15ad0304378f43492ddcbdf1780f447c1a82ae26f4f1c401435e",
+      "bytes": 496
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0002-array-identity-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0005-parsed-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0009-array-identity-status.json": {
+      "sha256": "c9584e55ed2518d009c23cfe38a397e1a22c6ee6dafa9fd1ba4bcfc71bac3701",
+      "bytes": 151
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0004-owned-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0010-array-allocations-before-products.json": {
+      "sha256": "b5d4ad8376bd78709ab7dc65c38e742e2da83afbd53882ff1867487ce4f00345",
+      "bytes": 663
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0007-checked-lifetimes-after-products.json": {
+      "sha256": "b5d4ad8376bd78709ab7dc65c38e742e2da83afbd53882ff1867487ce4f00345",
+      "bytes": 663
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0008-checked-callable-hook-status.json": {
+      "sha256": "7f882e6fa0eac90b35c2a47899b28cc94dcef0c6aca265eb35e7f3064864e504",
+      "bytes": 150
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0006-coroutine-error-allocations.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0003-array-allocation-build-before-products.json": {
+      "sha256": "cfca2c13e95b2dfdafafadcefdee0ce54f2f6342ecf7b47ddfb4a97c6af71ece",
+      "bytes": 264
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0006-coroutine-error-allocations-before-products.json": {
+      "sha256": "b5d4ad8376bd78709ab7dc65c38e742e2da83afbd53882ff1867487ce4f00345",
+      "bytes": 663
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0008-checked-callable-hook.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0009-array-identity-command.json": {
+      "sha256": "dea013a16a578a4c2ac51fb9a576a9132b29149a649e3236c8eb3451c70ddb24",
+      "bytes": 494
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/selected-config.json": {
+      "sha256": "d2a04853381c20e48986e865f70694feb177a281bdd33a7fcbee0aaa112e6e89",
+      "bytes": 8264
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0007-checked-lifetimes-before-products.json": {
+      "sha256": "b5d4ad8376bd78709ab7dc65c38e742e2da83afbd53882ff1867487ce4f00345",
+      "bytes": 663
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0004-owned-build-after-products.json": {
+      "sha256": "35e82866f305793f8d0888cb2c254e8755316ecd969470b712797f027157da66",
+      "bytes": 530
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0005-parsed-build-before-products.json": {
+      "sha256": "35e82866f305793f8d0888cb2c254e8755316ecd969470b712797f027157da66",
+      "bytes": 530
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0008-checked-callable-hook-command.json": {
+      "sha256": "1da0cbdf6e9ee2f298b917e55562e05b8ba9ecddee9a24c09289ae1870aebc31",
+      "bytes": 512
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0001-coroutine-error-build-before-products.json": {
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0006-coroutine-error-allocations-after-products.json": {
+      "sha256": "b5d4ad8376bd78709ab7dc65c38e742e2da83afbd53882ff1867487ce4f00345",
+      "bytes": 663
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0007-checked-lifetimes-command.json": {
+      "sha256": "e8c2fe08dee2a1b870a21b652b4d652c90f13a5ee44c3ef448505a78b12b329f",
+      "bytes": 495
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/coroutine-errors": {
+      "sha256": "731f5320c6879465ba234d3528bd36c7fef3eab14b8cca8b1be26cbe3a843093",
+      "bytes": 85136
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0008-checked-callable-hook-after-products.json": {
+      "sha256": "b5d4ad8376bd78709ab7dc65c38e742e2da83afbd53882ff1867487ce4f00345",
+      "bytes": 663
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0003-array-allocation-build-status.json": {
+      "sha256": "d045dd25fe537e3512533b8840f0058eed7f5922f223e0524bc47062691bf105",
+      "bytes": 148
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0009-array-identity-before-products.json": {
+      "sha256": "b5d4ad8376bd78709ab7dc65c38e742e2da83afbd53882ff1867487ce4f00345",
+      "bytes": 663
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0002-array-identity-build-command.json": {
+      "sha256": "6ba3e787c8dbb50d27386ed550ed549e36bee9cf88f470dc334f9fd29076debb",
+      "bytes": 8847
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0005-parsed-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0010-array-allocations-command.json": {
+      "sha256": "31de6e682f627c364637ef2fd347617ba74f611dc43ac99942c29906ce2a26b7",
+      "bytes": 497
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0010-array-allocations-after-products.json": {
+      "sha256": "b5d4ad8376bd78709ab7dc65c38e742e2da83afbd53882ff1867487ce4f00345",
+      "bytes": 663
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0005-parsed-build-status.json": {
+      "sha256": "10fc3f83b3c005830fd682cc999e7e7aa0ce289a737dbc2af93c3281b27c38bb",
+      "bytes": 148
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/array-identity": {
+      "sha256": "7ebc4bd7f895aed871d30170f578b976cf640eb20efa0f4cdea1eabb12ea6cee",
+      "bytes": 14363952
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0001-coroutine-error-build-status.json": {
+      "sha256": "d14523059692a7cf13bea019f9abd64d68a4e243ea3a9c4e275504896256a6ca",
+      "bytes": 149
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0004-owned-build-before-products.json": {
+      "sha256": "3d1b8ab4ce6f524bf0ac6bd57ce4946afb1a0265d8cbd349af06f86db1bebdf8",
+      "bytes": 398
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0006-coroutine-error-allocations-status.json": {
+      "sha256": "404b430b70261254dfce9e4144a1eb388023237ba5836b9fc5ec4dbeb59e286a",
+      "bytes": 149
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0008-checked-callable-hook-before-products.json": {
+      "sha256": "b5d4ad8376bd78709ab7dc65c38e742e2da83afbd53882ff1867487ce4f00345",
+      "bytes": 663
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0010-array-allocations-status.json": {
+      "sha256": "09eec0888403127819afd7fa7a077d5ef954672dc3cb659f2181d9dbc4ae9c3c",
+      "bytes": 150
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0007-checked-lifetimes.stderr": {
+      "sha256": "5ec9007f29964ec19e1a3dd75bc59227c6b64d7d0218d0ff454fcb397eb9601a",
+      "bytes": 48
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0006-coroutine-error-allocations.stdout": {
+      "sha256": "6383e31617c3ba93cf7ae5cbb59694e247156e975fd643ac3b2496ac75306e20",
+      "bytes": 71
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0008-checked-callable-hook.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/provider-inputs-before.json": {
+      "sha256": "682fe736baa7a9324d7ea99bfc94f4e2420f616d43ae76961706c3cc24b379c7",
+      "bytes": 14703
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0010-array-allocations.stdout": {
+      "sha256": "9075f5e4469da84cbe39c267017f20d86fe983bb95f8cbfd530039781f945b7b",
+      "bytes": 538
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/0004-owned-build-status.json": {
+      "sha256": "a97035faa2636237210d38e703416811475d5869160955698a07e335199215e3",
+      "bytes": 148
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-ordinary/nano-record-lists-rkfcr3zk/owned-lifetimes": {
+      "sha256": "3dcba3d463a4e221dd83eaf801411ccc67bb497f4d795f08e66ff8e1379353ef",
+      "bytes": 14319392
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0009-array-identity.stdout": {
+      "sha256": "89e2fe079076c71b52ee0dd2707654c54c9287776ffcc267fcf7bc4c66b461cd",
+      "bytes": 80
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0003-array-allocation-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0005-parsed-build-after-products.json": {
+      "sha256": "14672ca8fbe5b51b6846600905b03ff06ff803111fede64194c8c5d49f0047f9",
+      "bytes": 664
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/parsed-lifetimes": {
+      "sha256": "e2fd5bdc53c81ae558a0f85ff40512069deed463d332d535019ef9243989d046",
+      "bytes": 17264912
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0001-coroutine-error-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0009-array-identity.stderr": {
+      "sha256": "688fb714ac30b8c20a5ab8d1e426ce43b91f2210eb6d8133a8b36a34ea68ac2b",
+      "bytes": 550
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0003-array-allocation-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0009-array-identity-after-products.json": {
+      "sha256": "14672ca8fbe5b51b6846600905b03ff06ff803111fede64194c8c5d49f0047f9",
+      "bytes": 664
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0002-array-identity-build-status.json": {
+      "sha256": "376573d58d6f0aa92d683f96d93ce5bef5f54cc873a11800a8964fb9f19c4226",
+      "bytes": 148
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0001-coroutine-error-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0010-array-allocations.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0005-parsed-build-command.json": {
+      "sha256": "6ef7036f4402d2e58dddc1a4ecd7503c27c3dea7623e571ca93ce2517752e27c",
+      "bytes": 9051
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0007-checked-lifetimes-status.json": {
+      "sha256": "b9027af1f4827657fa58255e64eb5d7f2c041ff3fcbdc76af2d96060e513c4ce",
+      "bytes": 149
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0001-coroutine-error-build-command.json": {
+      "sha256": "39897890b6c765aa1b6155bed41cf249319c4108d63b5ccac9929b3efca9c15f",
+      "bytes": 898
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0002-array-identity-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0002-array-identity-build-before-products.json": {
+      "sha256": "be242b85f0720b338758604adb9591e1815bc96fcf623bdd5f4eba24e79cd903",
+      "bytes": 134
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0004-owned-build-command.json": {
+      "sha256": "21be574645e2eea378ec1a22c1cf06b785e9269c3458be74a12f7ceef0829c2d",
+      "bytes": 9016
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0003-array-allocation-build-after-products.json": {
+      "sha256": "f833067776562a0dbc7115c337db148f0f72d4b604fae8462cb2029572ad960b",
+      "bytes": 399
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0001-coroutine-error-build-after-products.json": {
+      "sha256": "be242b85f0720b338758604adb9591e1815bc96fcf623bdd5f4eba24e79cd903",
+      "bytes": 134
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0007-checked-lifetimes.stdout": {
+      "sha256": "851ece21235cfa86de6c4836f038692cf09da7b658e6be8029b2a12dd7661e51",
+      "bytes": 45
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0002-array-identity-build-after-products.json": {
+      "sha256": "deec8f40ac6b1ef8c6edcae4f72af7c3c784a23802370412b28227e4d08e9509",
+      "bytes": 265
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0004-owned-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/array-allocations": {
+      "sha256": "18994731798d6a4c73ccafa985541bc49b0367c51df89b077935c9fa5afa1db5",
+      "bytes": 19482872
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0003-array-allocation-build-command.json": {
+      "sha256": "c8f910cb49a9e278541d492cd74748160fedd6386ae8dacab39fc57af27131bc",
+      "bytes": 8959
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/provider-inputs-after.json": {
+      "sha256": "682fe736baa7a9324d7ea99bfc94f4e2420f616d43ae76961706c3cc24b379c7",
+      "bytes": 14703
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0006-coroutine-error-allocations-command.json": {
+      "sha256": "651b0a336cbfcc24dee782b09ea62ed7ace30a8931c539f9c7efbb45232db29b",
+      "bytes": 498
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0002-array-identity-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0005-parsed-build.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0009-array-identity-status.json": {
+      "sha256": "bbddd37a6ea4a9fd7fd8910ca793dfac82899d67a8b79d35aec58c8254735ba6",
+      "bytes": 150
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0004-owned-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0010-array-allocations-before-products.json": {
+      "sha256": "14672ca8fbe5b51b6846600905b03ff06ff803111fede64194c8c5d49f0047f9",
+      "bytes": 664
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0007-checked-lifetimes-after-products.json": {
+      "sha256": "14672ca8fbe5b51b6846600905b03ff06ff803111fede64194c8c5d49f0047f9",
+      "bytes": 664
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0008-checked-callable-hook-status.json": {
+      "sha256": "1a91960247848748d8cf88b5611be279ceb155d34282be214ccf855e3221f5c9",
+      "bytes": 150
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0006-coroutine-error-allocations.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0003-array-allocation-build-before-products.json": {
+      "sha256": "deec8f40ac6b1ef8c6edcae4f72af7c3c784a23802370412b28227e4d08e9509",
+      "bytes": 265
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0006-coroutine-error-allocations-before-products.json": {
+      "sha256": "14672ca8fbe5b51b6846600905b03ff06ff803111fede64194c8c5d49f0047f9",
+      "bytes": 664
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0008-checked-callable-hook.stdout": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0009-array-identity-command.json": {
+      "sha256": "832c15ee427b6bcbda19b34d824a7719e30de40d80c4ab5551c78dd2e6544609",
+      "bytes": 496
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/selected-config.json": {
+      "sha256": "668d98aef848fe3bb2d97bc9eaf190e52915a5a6cfd1932f058e4136732d46fe",
+      "bytes": 8331
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0007-checked-lifetimes-before-products.json": {
+      "sha256": "14672ca8fbe5b51b6846600905b03ff06ff803111fede64194c8c5d49f0047f9",
+      "bytes": 664
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0004-owned-build-after-products.json": {
+      "sha256": "c1ade01f7aec38eb99e713ae591a00f10c81e8656c7564574a3f06d09d419c09",
+      "bytes": 531
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0005-parsed-build-before-products.json": {
+      "sha256": "c1ade01f7aec38eb99e713ae591a00f10c81e8656c7564574a3f06d09d419c09",
+      "bytes": 531
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0008-checked-callable-hook-command.json": {
+      "sha256": "3651467e6430814fc48bfed23add864370e17648c5417b676458633a45dc183f",
+      "bytes": 514
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0001-coroutine-error-build-before-products.json": {
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+      "bytes": 3
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0006-coroutine-error-allocations-after-products.json": {
+      "sha256": "14672ca8fbe5b51b6846600905b03ff06ff803111fede64194c8c5d49f0047f9",
+      "bytes": 664
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0007-checked-lifetimes-command.json": {
+      "sha256": "e212b4c056b65aa2fd28014df438afda1a0d6b15ee1c4fcb4f5e1ae2e7c8faf4",
+      "bytes": 497
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/coroutine-errors": {
+      "sha256": "50a47cec90eacba5613f13f6dc3b25bee3dcf2eced3cfb8f898dcf2ad0a8c8b0",
+      "bytes": 198416
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0008-checked-callable-hook-after-products.json": {
+      "sha256": "14672ca8fbe5b51b6846600905b03ff06ff803111fede64194c8c5d49f0047f9",
+      "bytes": 664
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0003-array-allocation-build-status.json": {
+      "sha256": "47508be762c6aeeb9e12ffd5471507847c03b33dcbea19f6accd97c98bc5ee62",
+      "bytes": 147
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0009-array-identity-before-products.json": {
+      "sha256": "14672ca8fbe5b51b6846600905b03ff06ff803111fede64194c8c5d49f0047f9",
+      "bytes": 664
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0002-array-identity-build-command.json": {
+      "sha256": "dfd52a189da5eab0f9483efb8a5622a7f0563ea4b903f51187dc1113d7f6f27d",
+      "bytes": 8916
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0005-parsed-build.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0010-array-allocations-command.json": {
+      "sha256": "ad29f0500937eeae095aee1ff90506f419b6c717a3233f6cb062743ea46b62ac",
+      "bytes": 499
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0010-array-allocations-after-products.json": {
+      "sha256": "14672ca8fbe5b51b6846600905b03ff06ff803111fede64194c8c5d49f0047f9",
+      "bytes": 664
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0005-parsed-build-status.json": {
+      "sha256": "d4ec08df775f556ec36c888e9ffc103dff11dfdb1f58a12183bd9b4093f4dc4f",
+      "bytes": 148
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/array-identity": {
+      "sha256": "03166e53bdd9ee821199ae1cac887d668f297e7aeea426003ff0989a24e08f66",
+      "bytes": 18206264
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0001-coroutine-error-build-status.json": {
+      "sha256": "bb03def2fab65845a8921d2772f12faff41634ee4dfb00f41b7afb4e698ad48d",
+      "bytes": 149
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0004-owned-build-before-products.json": {
+      "sha256": "f833067776562a0dbc7115c337db148f0f72d4b604fae8462cb2029572ad960b",
+      "bytes": 399
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0006-coroutine-error-allocations-status.json": {
+      "sha256": "c36f2e62034fa0873035158d1167c9382ea6b930910a5e1ba717c400f74a516b",
+      "bytes": 149
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0008-checked-callable-hook-before-products.json": {
+      "sha256": "14672ca8fbe5b51b6846600905b03ff06ff803111fede64194c8c5d49f0047f9",
+      "bytes": 664
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0010-array-allocations-status.json": {
+      "sha256": "06d555b800949c92b613b7af2be0474079628dae37fbb29d097b01b04260e7c2",
+      "bytes": 149
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0007-checked-lifetimes.stderr": {
+      "sha256": "5ec9007f29964ec19e1a3dd75bc59227c6b64d7d0218d0ff454fcb397eb9601a",
+      "bytes": 48
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0006-coroutine-error-allocations.stdout": {
+      "sha256": "6383e31617c3ba93cf7ae5cbb59694e247156e975fd643ac3b2496ac75306e20",
+      "bytes": 71
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0008-checked-callable-hook.stderr": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/provider-inputs-before.json": {
+      "sha256": "682fe736baa7a9324d7ea99bfc94f4e2420f616d43ae76961706c3cc24b379c7",
+      "bytes": 14703
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0010-array-allocations.stdout": {
+      "sha256": "9075f5e4469da84cbe39c267017f20d86fe983bb95f8cbfd530039781f945b7b",
+      "bytes": 538
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/0004-owned-build-status.json": {
+      "sha256": "b0e8cc59478e3b56f1e49309696aa2b5a8df92bcc4a0fa23a701c50ae57cb6d2",
+      "bytes": 147
+    },
+    "/tmp/nanolang-record-lists-0e72-linux-focused/gcc-sanitizer/nano-record-lists-9quflsih/owned-lifetimes": {
+      "sha256": "a055360f1c53c9e6b1c871eeaa5862691af6db7e218b10b94b4c4cf4940492e6",
+      "bytes": 19064680
+    }
+  }
+}

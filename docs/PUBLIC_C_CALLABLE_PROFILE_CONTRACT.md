@@ -19,3 +19,26 @@ Original6ade closes only after a clause-to-evidence audit establishes its actual
 My frozen f5855788 focused three-method gates pass under GCC and Clang, and all seven ordinary programs pass. Both adjacent fifty-method gates finish with46 passes and four failures: private concat/int/length/format fixtures assert that TYPE_FUNCTION-bound or expression callees emit text successfully. Their prior success checked spelling only, not a qualified callable ABI. This contradicts the newly reviewed checked-refusal contract. I retain both original terminal logs and all46 file/three compiler identities; I do not execute those failed artifacts again.
 
 Before any fixture change, I record a harness-only correction: these exact local-bound and expression-call controls must require the callable diagnostic and no emitted expression bytes, then reset invocation-local error state for later independent controls. Existing direct declaration and descriptive scalar checked-signature success controls, scalar conversion behavior, output publication and recovery remain unchanged. I freeze the corrected four fixtures before fresh focused and adjacent gates. Production remains byte-identical; this is not a new callable admission or a claim that the first aggregate gate passed.
+
+## I retain checked scalar import identities in source-only emission
+
+My C seed's `--target c` path retains the checked dependency function closure.
+I resolve each direct call in its declaring module's namespace, including
+transitive aliases and private helpers. Same-spelled functions in distinct
+modules receive distinct private C names. I derive qualified result types from
+the resolved declaration. I emit prototypes before definitions and preserve
+my root entry identity. This path does not execute dependency or root shadows.
+
+This import closure admits scalar function declarations (int, u8, float, bool,
+string and void) within my existing C expression profile. Imported storage and
+nominal declarations receive checked refusal before publication; this does not
+establish an imported layout or callable-value ABI. My direct AST API retains
+its existing flattened qualified-name convention when no checked resolver is
+provided. An optional resolver borrows its context and declarations for both
+planning and emission; each returned definition must occur in the retained root.
+
+My imported-shadow suite compiles and executes the resulting C, including two
+transitive dependencies with same-spelled helpers and string results. Deliberately
+failing shadows remain unexecuted. Unsupported imported storage preserves the
+previous artifact. My standalone API checks use the same service-declaration
+predicate as the parser, without requiring the parser to link into each fixture.

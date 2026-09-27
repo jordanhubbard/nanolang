@@ -1,0 +1,29 @@
+
+======================================================================
+FAIL: test_native_aggregates_and_global_initialization (tests.test_record_literal_order.NativeLiteralOrder) (compiler='nanoc_stage1', fixture='tuple_array_literal_written_order')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-literal-order-8c2e693db/source/tests/test_record_literal_order.py", line 62, in test_native_aggregates_and_global_initialization
+    self.assertEqual(result.returncode, 0,
+AssertionError: 1 != 0 : nanoc_stage1-tuple_array_literal_written_order-compile; retained in /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-lzfp0k1r
+NSType checking failed
+Diagnostics:
+  [E0001] Variable narrowed: I expected a value of type `array<u8>`, but found `array<int>`. (/private/tmp/nanolang-literal-order-8c2e693db/source/tests/nanovirt/fixtures/tuple_array_literal_written_order.nano:96:5)
+
+
+======================================================================
+FAIL: test_native_aggregates_and_global_initialization (tests.test_record_literal_order.NativeLiteralOrder) (compiler='nanoc_stage2', fixture='tuple_array_literal_written_order')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-literal-order-8c2e693db/source/tests/test_record_literal_order.py", line 62, in test_native_aggregates_and_global_initialization
+    self.assertEqual(result.returncode, 0,
+AssertionError: 1 != 0 : nanoc_stage2-tuple_array_literal_written_order-compile; retained in /var/folders/v0/pxyl2_m512v5j9nhv674pt400000gn/T/nano-native-literal-order-lzfp0k1r
+NSType checking failed
+Diagnostics:
+  [E0001] Variable narrowed: I expected a value of type `array<u8>`, but found `array<int>`. (/private/tmp/nanolang-literal-order-8c2e693db/source/tests/nanovirt/fixtures/tuple_array_literal_written_order.nano:96:5)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 21.851s
+
+FAILED (failures=2)

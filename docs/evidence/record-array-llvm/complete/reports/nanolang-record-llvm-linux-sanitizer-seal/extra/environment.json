@@ -1,0 +1,11 @@
+{
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "CARRIER_EXTRA_TOOLS": "{\"wasm_ld\": \"/usr/local/bin/wasm-ld\"}",
+  "CARRIER_PHASES": "clang-sanitizer-emission,clang-sanitizer-native",
+  "CARRIER_SAN_CC": "/bin/gcc-13",
+  "CC": "/bin/gcc-13",
+  "LSAN_OPTIONS": "",
+  "NMS_NATIVE_CLANG_FLAGS": "--gcc-install-dir=/usr/lib/gcc/aarch64-linux-gnu/13",
+  "PATH": "/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/usr/local/cuda/bin:/opt/bin/:/home/jkh/.codex/tmp/arg0/codex-arg0q1IvSc:/usr/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-arm64/vendor/aarch64-unknown-linux-musl/codex-path:/home/jkh/.local/share/pnpm:/home/jkh/gocode/bin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/cuda/bin:/snap/bin:/home/jkh/.cargo/bin:/home/jkh/.ghcup/bin:/home/jkh/.local/bin:/home/jkh/.local/bin:/sbin:/usr/sbin:/bin:/usr/bin:/home/jkh/Bin:.",
+  "UBSAN_OPTIONS": "halt_on_error=1"
+}

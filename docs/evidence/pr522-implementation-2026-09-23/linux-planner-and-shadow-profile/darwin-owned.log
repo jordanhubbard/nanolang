@@ -1,0 +1,1013 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -Isrc/nanoisa -o obj/test_affine_bytecode tests/nanoisa/test_affine_bytecode.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+obj/test_affine_bytecode
+6098 affine bytecode checks passed
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -Isrc/nanoisa -Dmalloc=affine_bytecode_test_malloc -Dcalloc=affine_bytecode_test_calloc -Drealloc=affine_bytecode_test_realloc -DNVM_AFFINE_TEST_VISIT_LIMIT=affine_bytecode_test_visit_limit -c src/nanoisa/affine_bytecode.c -o obj/test_affine_bytecode_alloc.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -Isrc/nanoisa -DAFFINE_BYTECODE_ALLOCATION_TEST -o obj/test_affine_bytecode_alloc tests/nanoisa/test_affine_bytecode.c obj/test_affine_bytecode_alloc.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+obj/test_affine_bytecode_alloc
+6619 affine bytecode checks passed
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+		obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+		obj/nanovm/main.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib 
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/opt/openssl@3/include -Isrc/nanoisa -o obj/test_owned_indirect_calls tests/nanoisa/test_owned_indirect_calls.c obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/opt/openssl@3/lib
+NANO_OWNED_INDIRECT_TEST=obj/test_owned_indirect_calls python3 -m unittest -v tests.test_owned_indirect_calls
+test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) ... 
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='0') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='1') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='2') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='3') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='4') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='5') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='6') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='7') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='8') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='9') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='10') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='11') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='12') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='13') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='14') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='15') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='16') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='17') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='18') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='19') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='20') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='21') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='22') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='23') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='24') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='25') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='26') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='27') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='28') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='29') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='30') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='31') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='32') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='33') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='34') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='35') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='36') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='37') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='38') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='39') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='40') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='41') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='42') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='43') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='44') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='45') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='46') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='47') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='48') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='49') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='50') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='51') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='52') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='53') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='54') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='55') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='56') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='57') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='58') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='59') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='60') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='61') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='62') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='63') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='64') ... FAIL
+  test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='65') ... FAIL
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='0')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78445==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78454==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78462==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='3')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78470==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='4')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78478==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='5')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78486==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='6')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78494==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='7')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78502==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='8')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78510==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='9')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78518==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='10')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78526==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='11')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78534==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='12')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78542==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='13')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78550==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='14')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78558==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='15')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78566==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='16')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78574==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='17')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78582==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='18')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78590==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='19')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78598==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='20')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78606==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='21')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78614==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='22')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78622==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='23')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78630==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='24')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78638==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='25')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78646==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='26')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78654==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='27')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78662==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='28')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78670==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='29')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78678==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='30')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78686==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='31')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78694==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='32')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78702==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='33')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78710==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='34')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78718==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='35')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78726==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='36')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78734==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='37')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78742==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='38')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78750==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='39')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78758==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='40')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78766==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='41')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78774==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='42')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78782==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='43')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78790==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='44')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78798==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='45')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78806==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='46')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78814==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='47')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78822==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='48')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78830==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='49')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78838==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='50')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78846==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='51')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78854==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='52')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78862==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='53')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78870==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='54')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78878==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='55')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78886==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='56')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78894==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='57')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78902==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='58')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78910==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='59')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78918==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='60')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78926==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='61')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78934==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='62')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78942==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='63')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78950==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='64')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78958==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_owned_value_graphs_and_cleanup (tests.test_owned_indirect_calls.OwnedIndirectCalls.test_owned_value_graphs_and_cleanup) (case='65')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 73, in test_owned_value_graphs_and_cleanup
+    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_owned_value_graphs.py", line 20, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==78966==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 9.014s
+
+FAILED (failures=66)
+case 0 0 42
+case 1 0 41
+case 2 0 42
+case 3 0 42
+case 4 0 42
+case 5 0 42
+case 6 0 42
+case 7 0 42
+case 8 0 42
+case 9 0 42
+case 10 2 42
+case 11 2 42
+case 12 2 42
+case 13 2 42
+case 14 2 42
+case 15 2 42
+case 16 0 42
+case 17 0 41
+case 18 0 42
+case 19 0 42
+case 20 0 42
+case 21 0 42
+case 22 0 42
+case 23 0 42
+case 24 0 42
+case 25 0 42
+case 26 0 42
+case 27 0 41
+case 28 0 42
+case 29 0 42
+case 30 0 42
+case 31 0 42
+case 32 0 42
+case 33 0 42
+case 34 0 42
+case 35 0 42
+case 36 0 42
+case 37 0 41
+case 38 0 42
+case 39 0 42
+case 40 0 42
+case 41 0 42
+case 42 0 42
+case 43 0 42
+case 44 0 42
+case 45 0 42
+case 46 0 42
+case 47 0 41
+case 48 0 42
+case 49 0 42
+case 50 0 42
+case 51 0 42
+case 52 0 42
+case 53 0 42
+case 54 0 42
+case 55 0 42
+case 56 0 42
+case 57 0 41
+case 58 0 42
+case 59 0 42
+case 60 0 42
+case 61 0 42
+case 62 0 42
+case 63 0 42
+case 64 0 42
+case 65 0 42
+8246 owned indirect call checks passed
+make: *** [test-owned-indirect-calls] Error 1

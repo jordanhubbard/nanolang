@@ -7,6 +7,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/* I check the language INT before narrowing to the native list ABI. */
+static inline int nl_list_checked_capacity(int64_t capacity) {
+    if (capacity < 0 || capacity > INT_MAX) {
+        fprintf(stderr, "I cannot represent this list capacity.\n");
+        exit(1);
+    }
+    return (int)capacity;
+}
+
 /* I retain the list API's fail-fast contract, with checked integer arithmetic. */
 static inline void nl_list_validate_capacity(int capacity, size_t element_size) {
     if (capacity < 0 || element_size == 0 || (size_t)capacity > SIZE_MAX / element_size) {

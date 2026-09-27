@@ -1,0 +1,103 @@
+{
+  "base": "d7dc02381",
+  "canonical": "e0a5fdd6f",
+  "changed_inputs": [
+    {
+      "path": "Makefile.gnu",
+      "sha256": "50f66777fa05a588ef28dae15a008b3a6571c61f95775d567a8ac965967583ed",
+      "upstream_equal": false,
+      "scope": "I retain additive local Make targets."
+    },
+    {
+      "path": "src/nanoisa/managed_array_shapes.c",
+      "sha256": "cd281d0319889021d2f24db80479a9195df6a82da16c2aa158a900ff2012c7b9",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src/nanoisa/managed_record_array_execution.h",
+      "sha256": "1b432da98af5cff8c6ca077cb9962da4e1530f4705671e41f055845eeed7bc11",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src/nanoisa/managed_record_array_execution.inc",
+      "sha256": "07c4e921bc3ed012b503693360865400f3d8ed9a88b98f4bf2f044edbd32ffd5",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src/nanoisa/nvm2c.c",
+      "sha256": "80e49534592e428c3a970918a2cb708f7c22d8e9cf2a8f030494ed59e6a824e3",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src/nanoisa/nvm2llvm.c",
+      "sha256": "78c45beeb7e8c2e3c1c148a7ba560740d215d4263d791394853e28ec4d937007",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src/nanoisa/nvm_v2_layouts.c",
+      "sha256": "f158f79c7a99b54b3d3eb5e584f00a55bc5a6ec0fa71c4ae1e02f96d69253710",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src/nanoisa/ordinary_array_authority.inc",
+      "sha256": "a664da380b985ef79d2976814b34a29dbad9a812dffaee6d410e8e614c831c64",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src/nanoisa/ownership_layouts_private.h",
+      "sha256": "368eb1f787ab1e4ee95ca8333d7600e5d6fc5ff4bf5b5de0815290d0de2cd164",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src/nanoisa/verifier.c",
+      "sha256": "e61adcadf570468921060facb19363d1c81d8d33066a3af6f55d99d47c53f6df",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src/nanovirt/borrow_codegen.inc",
+      "sha256": "62d427145126aa89625a4413d7b6d50571056de658346732b1518e8759395eaa",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src/nanovirt/codegen.c",
+      "sha256": "833a73581521355bd6132a57e62d2bdbfaf4e11da307c1011653ae1b50b3fbd8",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src/nanovm/vm.c",
+      "sha256": "017676fe09bbd28898e70530dccf29c79b8dfa125878ff12085450504a8d2f92",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src_nano/compiler/nanoisa_borrows.nano",
+      "sha256": "1e33b522674a2b25142c5997c129fb7c3bc79888a361200081c3af68f087e636",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src_nano/compiler/nominal_bindings.nano",
+      "sha256": "35d59ee4fc3dd436043f056dda6d91401d49ec1bbb98c37953f2248e480b0c34",
+      "upstream_equal": true,
+      "scope": "I require exact incoming source identity."
+    },
+    {
+      "path": "src_nano/nanoc_v06.nano",
+      "sha256": "a6df870aff43b2fa3ee3c712592d8cf0830844d5a3a3bda608fdca90670b52df",
+      "upstream_equal": false,
+      "scope": "I apply the upstream flag helper at shared provider profile assembly."
+    }
+  ],
+  "scope": "I retain all earlier qualification trees. This is a fresh unqualified integration, not a reinterpretation of earlier runs. Historical docs/evidence are Git-retained but omitted from this sparse source worktree and future selected-input export only."
+}

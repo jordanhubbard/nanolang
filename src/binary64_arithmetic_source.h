@@ -1,4 +1,4 @@
-/* I generate this from binary64_arithmetic.h; do not edit. SHA256 97a282226c07249d2c2c28f4e14f4bed3a07a838267534928e36f889d26a67d5 */
+/* I generate this from binary64_arithmetic.h; do not edit. SHA256 49f450e9eabbd64dc837660e5c893d1c658775b2b8aa86bd5380a5b09a42aa4e */
 #ifndef NANOLANG_BINARY64_ARITHMETIC_SOURCE_H
 #define NANOLANG_BINARY64_ARITHMETIC_SOURCE_H
 static const char nl_binary64_arithmetic_source[] =
@@ -22,8 +22,14 @@ static const char nl_binary64_arithmetic_source[] =
 "typedef char nano_rt_binary64_storage_guard[\n"
 "    sizeof(double) == 8 && sizeof(uint64_t) == 8 ? 1 : -1];\n"
 "\n"
+"#if defined(__GNUC__) || defined(__clang__)\n"
+"#define NL_BINARY64_ARITHMETIC_OPTIONAL __attribute__((unused))\n"
+"#else\n"
+"#define NL_BINARY64_ARITHMETIC_OPTIONAL\n"
+"#endif\n"
+"\n"
 "/* I inspect a rounded result with integer operations, not another FP operation. */\n"
-"static inline double nano_rt_f64_arithmetic_result(double value) {\n"
+"static inline NL_BINARY64_ARITHMETIC_OPTIONAL double nano_rt_f64_arithmetic_result(double value) {\n"
 "    uint64_t bits;\n"
 "    memcpy(&bits, &value, sizeof(bits));\n"
 "    if ((bits & UINT64_C(0x7ff0000000000000)) == UINT64_C(0x7ff0000000000000) &&\n"
@@ -35,19 +41,19 @@ static const char nl_binary64_arithmetic_source[] =
 "}\n"
 "\n"
 "/* Each volatile store/load is a binary64 rounding and noncontraction boundary. */\n"
-"static inline double nano_rt_f64_add(double a, double b) {\n"
+"static inline NL_BINARY64_ARITHMETIC_OPTIONAL double nano_rt_f64_add(double a, double b) {\n"
 "    volatile double rounded = a + b;\n"
 "    return nano_rt_f64_arithmetic_result(rounded);\n"
 "}\n"
-"static inline double nano_rt_f64_sub(double a, double b) {\n"
+"static inline NL_BINARY64_ARITHMETIC_OPTIONAL double nano_rt_f64_sub(double a, double b) {\n"
 "    volatile double rounded = a - b;\n"
 "    return nano_rt_f64_arithmetic_result(rounded);\n"
 "}\n"
-"static inline double nano_rt_f64_mul(double a, double b) {\n"
+"static inline NL_BINARY64_ARITHMETIC_OPTIONAL double nano_rt_f64_mul(double a, double b) {\n"
 "    volatile double rounded = a * b;\n"
 "    return nano_rt_f64_arithmetic_result(rounded);\n"
 "}\n"
-"static inline double nano_rt_f64_div(double a, double b) {\n"
+"static inline NL_BINARY64_ARITHMETIC_OPTIONAL double nano_rt_f64_div(double a, double b) {\n"
 "    uint64_t divisor;\n"
 "    memcpy(&divisor, &b, sizeof(divisor));\n"
 "    /* Either signed zero takes precedence even over a signaling NaN numerator. */\n"
@@ -55,6 +61,7 @@ static const char nl_binary64_arithmetic_source[] =
 "    volatile double rounded = a / b;\n"
 "    return nano_rt_f64_arithmetic_result(rounded);\n"
 "}\n"
+"#undef NL_BINARY64_ARITHMETIC_OPTIONAL\n"
 "#endif\n"
 ;
 #endif

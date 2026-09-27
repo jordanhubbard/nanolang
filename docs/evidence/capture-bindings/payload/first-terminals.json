@@ -1,0 +1,27 @@
+{
+  "source": "60a8b4d1c5c1ca53e5a38256aaa826f61bd12584",
+  "linux_gcc": "714 checks passed",
+  "linux_clang": {
+    "argv": [
+      "/usr/local/bin/clang",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-O1",
+      "tests/nanoisa/test_capture_bindings.c",
+      "src/nanoisa/nvm_v2_cursor.c",
+      "-o",
+      "/tmp/nanolang-capture-bindings-60a8b4d1c/reports-linux/clang"
+    ],
+    "returncode": 1,
+    "timed_out": false,
+    "group_gone": true,
+    "elapsed_seconds": 0.015729136997833848
+  },
+  "clang_diagnostic": "clang: error: future releases of the clang compiler will prefer GCC installations containing libstdc++ include directories; '/usr/lib/gcc/aarch64-linux-gnu/13' would be chosen over '/usr/lib/gcc/aarch64-linux-gnu/14' [-Werror,-Wgcc-install-dir-libstdcxx]\n",
+  "darwin": "Input-mode equality refused before compiler invocation; all seven file hashes equal, three new files changed0664 to0644 by extraction umask.",
+  "correction": "Explicit GCC13 selection retains strict warnings; fresh Darwin tar extraction uses -p to retain source modes. No source or assertions changed.",
+  "corrected_driver_sha256": "5651230e80b76d03f323207378392ed752e884a4daf55f36db295e12ba6325db"
+}

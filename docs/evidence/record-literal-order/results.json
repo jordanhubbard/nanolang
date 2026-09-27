@@ -1,0 +1,70 @@
+[
+  {
+    "producer": "nano_virt",
+    "stage": "emit",
+    "command": [
+      "/tmp/nanolang-record-literal-source-order/bin/nano_virt",
+      "/tmp/nanolang-record-literal-source-order/tests/nanovirt/fixtures/record_literal_written_order.nano",
+      "--emit-nvm",
+      "-o",
+      "/tmp/nanolang-record-order-source-first/nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "seconds": 0.01220870204269886
+  },
+  {
+    "producer": "nano_virt",
+    "stage": "verify",
+    "command": [
+      "/tmp/nanolang-record-literal-source-order/bin/nano_vm",
+      "--verify-only",
+      "/tmp/nanolang-record-order-source-first/nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "seconds": 0.002266824012622237
+  },
+  {
+    "producer": "nano_virt",
+    "stage": "run",
+    "command": [
+      "/tmp/nanolang-record-literal-source-order/bin/nano_vm",
+      "/tmp/nanolang-record-order-source-first/nano_virt.nvm"
+    ],
+    "returncode": 0,
+    "seconds": 0.0020490260794758797
+  },
+  {
+    "producer": "nanoisa_emit",
+    "stage": "emit",
+    "command": [
+      "/tmp/nanolang-record-literal-source-order/bin/nanoisa_emit",
+      "/tmp/nanolang-record-literal-source-order/tests/nanovirt/fixtures/record_literal_written_order.nano",
+      "--emit-nvm",
+      "-o",
+      "/tmp/nanolang-record-order-source-first/nanoisa_emit.nvm"
+    ],
+    "returncode": 0,
+    "seconds": 0.012595382984727621
+  },
+  {
+    "producer": "nanoisa_emit",
+    "stage": "verify",
+    "command": [
+      "/tmp/nanolang-record-literal-source-order/bin/nano_vm",
+      "--verify-only",
+      "/tmp/nanolang-record-order-source-first/nanoisa_emit.nvm"
+    ],
+    "returncode": 0,
+    "seconds": 0.001770364004187286
+  },
+  {
+    "producer": "nanoisa_emit",
+    "stage": "run",
+    "command": [
+      "/tmp/nanolang-record-literal-source-order/bin/nano_vm",
+      "/tmp/nanolang-record-order-source-first/nanoisa_emit.nvm"
+    ],
+    "returncode": 0,
+    "seconds": 0.0020297140581533313
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "CC": "/bin/gcc",
+  "NANO_BUILD_CACHE": "/tmp/nanolang-discarded-facts-1dca-fixtures/module-cache",
+  "NANO_MODULE_PATH": "/home/jkh/Src/nanolang-list-discarded-fact-diagnostic/modules",
+  "NANO_AS_CAPTURE_HELPER": "/home/jkh/Src/nanolang-record-lists-qualified-cb489/bin/nano_as_capture.so",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "LSAN_OPTIONS": "",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1"
+}

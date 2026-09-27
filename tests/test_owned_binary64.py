@@ -1,4 +1,8 @@
 """I retain binary64 scalar semantics and owner cleanup in one verified module."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import os
 from pathlib import Path
 import subprocess
@@ -59,7 +63,7 @@ POLICY
                     self.checked([cc, '-std=c11', '-Wall', '-Wextra', '-Werror',
                                   '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
                                   '-g', harness, '-o', binary])
-                    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+                    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': asan_options("halt_on_error=1")})
                     self.checked([cc, '-std=c11', '-Wall', '-Wextra', '-Werror', source, '-o', binary])
                     native = subprocess.run([binary], capture_output=True, timeout=90)
                     self.assertEqual(native.returncode, vm.returncode, native.stderr)

@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "/usr/bin/clang",
+    "-O0",
+    "-g",
+    "-std=c99",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-I",
+    "/Users/jkh/nanolang-qualification/tuple-e456-source/src",
+    "/Users/jkh/nanolang-qualification/tuple-e456-source/tests/test_coroutine_error_allocation.c",
+    "-lm",
+    "-lcrypto",
+    "-lffi",
+    "-L/opt/homebrew/opt/openssl@3/lib",
+    "-o",
+    "/Users/jkh/nanolang-qualification/tuple-e456-focused/apple-ordinary/nano-record-lists-vqdggmh3/coroutine-errors"
+  ],
+  "cwd": "/Users/jkh/nanolang-qualification/tuple-e456-source",
+  "timeout": 180,
+  "expected": [
+    0
+  ],
+  "extra": null,
+  "TMPDIR": "/Users/jkh/nanolang-qualification/tuple-e456-focused/apple-ordinary/nano-record-lists-vqdggmh3/temporary",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

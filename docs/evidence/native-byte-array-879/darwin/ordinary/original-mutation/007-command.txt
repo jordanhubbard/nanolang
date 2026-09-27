@@ -1,0 +1,1 @@
+/usr/bin/clang -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -std=c11 -O0 -Wall -Wextra -Werror /Users/jkh/nanolang-qualification/byte-array-879-puck/ordinary/original-mutation/program.c -o /Users/jkh/nanolang-qualification/byte-array-879-puck/ordinary/original-mutation/O0

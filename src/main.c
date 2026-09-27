@@ -1,6 +1,13 @@
+#include "runtime/module_build_dir.h"
+#include "runtime/ffi_loader.h"
+#include <pthread.h>
+#include "runtime/dyn_array.h"
 #include "runtime/shadow_timeout.h"
+#include "runtime/shadow_completion.h"
+#include "runtime/shadow_timing.h"
 #include "nanovirt/shadow_runner.h"
 #include "nanolang.h"
+#include "file_source_resolution.h"
 #include "colors.h"
 #include "version.h"
 #include "module_builder.h"
@@ -80,6 +87,7 @@ extern void json_diagnostics_cleanup(void);
 typedef struct {
     bool verbose;
     bool keep_c;
+    bool allow_temporary_files; /* Descriptive preparation only until source admission. */
     bool show_intermediate_code;
     bool test_imports;
     bool save_asm;            /* -S flag: save generated C to .genC file */
@@ -136,33 +144,10 @@ const char *get_project_root(void) {
     return g_project_root[0] ? g_project_root : ".";
 }
 
-static void resolve_project_root(const char *argv0) {
-    char exe_path[PATH_MAX];
-    if (realpath(argv0, exe_path) == NULL) {
-        /* Fallback: use CWD */
-        if (getcwd(g_project_root, sizeof(g_project_root)) == NULL) {
-            strcpy(g_project_root, ".");
-        }
-        return;
-    }
-    /* Strip binary name: /path/to/bin/nanoc_c -> /path/to/bin */
-    char *slash = strrchr(exe_path, '/');
-    if (slash) {
-        *slash = '\0';
-        /* Strip bin/: /path/to/bin -> /path/to */
-        slash = strrchr(exe_path, '/');
-        if (slash) {
-            *slash = '\0';
-        }
-    }
-    {
-        size_t n = strlen(exe_path);
-        if (n >= sizeof(g_project_root)) {
-            n = sizeof(g_project_root) - 1;
-        }
-        memcpy(g_project_root, exe_path, n);
-        g_project_root[n] = '\0';
-    }
+static bool resolve_project_root(void) {
+    bool installed;
+    return nano_native_sdk_root(g_project_root, sizeof(g_project_root), &installed) == NANO_SDK_OK &&
+           nano_native_sdk_prepare() == NANO_SDK_OK;
 }
 
 static void json_escape(FILE *out, const char *s) {
@@ -187,7 +172,7 @@ static const char *phase_name(int phase) {
         case CompilerPhase_PHASE_LEXER: return "lexer";
         case CompilerPhase_PHASE_PARSER: return "parser";
         case CompilerPhase_PHASE_TYPECHECK: return "typecheck";
-        case CompilerPhase_PHASE_TRANSPILER: return "transpiler";
+        case CompilerPhase_PHASE_LOWERING: return "lowering";
         case CompilerPhase_PHASE_RUNTIME: return "runtime";
         default: return "unknown";
     }
@@ -455,6 +440,45 @@ static int determinize_macho_uuid_and_signature(const char *path) {
 }
 #endif
 
+static bool load_interpreted_shadow_providers(Environment *env, ModuleList *modules,
+                                               CompilerOptions *opts) {
+    /* I open interpreter providers only after my final shadow fork. */
+    if (!ffi_init(opts->verbose)) return false;
+    for (int i = 0; i < modules->count; i++) {
+        const char *module_path = modules->module_paths[i];
+
+        char *module_dir = strdup(module_path);
+        if (!module_dir) return false;
+        char *last_slash = strrchr(module_dir, '/');
+        if (last_slash) {
+            *last_slash = '\0';
+        } else {
+            free(module_dir);
+            module_dir = strdup(".");
+            if (!module_dir) return false;
+        }
+
+        ModuleBuildMetadata *meta = module_load_metadata(module_dir);
+
+        char mod_name[256];
+        if (meta && meta->name) {
+            snprintf(mod_name, sizeof(mod_name), "%s", meta->name);
+        } else {
+            const char *base_name = last_slash ? last_slash + 1 : module_path;
+            snprintf(mod_name, sizeof(mod_name), "%s", base_name);
+            char *dot = strrchr(mod_name, '.');
+            if (dot) *dot = '\0';
+        }
+
+        (void)ffi_load_module(mod_name, module_path, env, opts->verbose);
+
+        if (meta) module_metadata_free(meta);
+        free(module_dir);
+    }
+
+    return true;
+}
+
 static bool check_interpreted_shadows(ASTNode *program, Environment *env,
                                       ModuleList *modules, const char *input,
                                       CompilerOptions *opts) {
@@ -488,19 +512,49 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         fprintf(stderr, "I cannot configure the shadow completion channel.\n");
         return false;
     }
+    nl_shadow_timing("parent_before_fork", -1, -1, 0, 1, 0);
     fflush(NULL);
+    int previous_cancel;
+    FfiLoaderFork loader_token = {0};
+    if (pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &previous_cancel) != 0) {
+        close(completion[0]); close(completion[1]);
+        fprintf(stderr, "I cannot protect shadow loader preparation.\n");
+        return false;
+    }
+    if (!ffi_loader_shadow_prepare(&loader_token)) {
+        close(completion[0]); close(completion[1]);
+        (void)pthread_setcancelstate(previous_cancel, NULL);
+        fprintf(stderr, "I require an idle loader without prior native image entry for shadows.\n");
+        return false;
+    }
+    /* I share the exact start with the child; fork time consumes the budget. */
+    struct timespec start, now, pause = {0, 10000000};
+    if (clock_gettime(CLOCK_MONOTONIC, &start) != 0) {
+        close(completion[0]);
+        close(completion[1]);
+        (void)ffi_loader_fork_parent(&loader_token);
+        (void)pthread_setcancelstate(previous_cancel, NULL);
+        fprintf(stderr, "I cannot measure the shadow execution deadline.\n");
+        return false;
+    }
     pid_t child = fork();
     if (child == 0) {
+        if (!ffi_loader_fork_child(&loader_token)) _exit(1);
+        (void)pthread_setcancelstate(previous_cancel, NULL);
         close(completion[0]);
         /* I isolate compiler state, not host authority. */
         signal(SIGALRM, SIG_DFL);
         alarm((unsigned)shadow_seconds);
         if (dup2(STDERR_FILENO, STDOUT_FILENO) < 0) _exit(1);
+        nl_shadow_timing("callback_start", -1, -1, 0, 0, 0);
         int callback_status = check_callback_shadows(program, env, modules, input,
                                                      opts->test_imports);
+        nl_shadow_timing("callback_end", -1, -1, 0, 0, callback_status);
         bool passed = callback_status != 0 ? callback_status > 0 :
+            load_interpreted_shadow_providers(env, modules, opts) &&
             run_shadow_tests_scope(program, env, modules, input,
                                    opts->test_imports, opts->verbose);
+        nl_shadow_timing("selection_end", -1, -1, 0, 0, passed ? 0 : 1);
         if (callback_status != 0 && opts->llm_shadow_json_path) {
             FILE *report = fopen(opts->llm_shadow_json_path, "w");
             if (!report) passed = false;
@@ -512,28 +566,33 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
                 if (fclose(report) != 0 || !written) passed = false;
             }
         }
-        unsigned char done = 1;
-        if (passed && write(completion[1], &done, 1) != 1) passed = false;
+        if (fflush(NULL) != 0) passed = false;
+        NlShadowCompletion done = {0};
+        done.tag = NL_SHADOW_COMPLETION_TAG;
+        if (passed && clock_gettime(CLOCK_MONOTONIC, &done.finished) != 0)
+            passed = false;
+        if (passed && write(completion[1], &done, sizeof(done)) != (ssize_t)sizeof(done))
+            passed = false;
+        /* I perform no program, callback, flush or observer work after publication. */
         close(completion[1]);
-        fflush(NULL);
         _exit(passed ? 0 : 1);
     }
     int fork_error = errno;
+    (void)ffi_loader_fork_parent(&loader_token);
     close(completion[1]);
     if (child < 0) {
         close(completion[0]);
+        (void)pthread_setcancelstate(previous_cancel, NULL);
         fprintf(stderr, "I cannot start shadow execution: %s\n", strerror(fork_error));
         return false;
     }
-    struct timespec start, now, pause = {0, 10000000};
-    bool clock_ok = clock_gettime(CLOCK_MONOTONIC, &start) == 0;
     bool timed_out = false, clock_failed = false;
     int status = 0;
     pid_t waited;
     for (;;) {
         waited = waitpid(child, &status, WNOHANG);
         if (waited == child || (waited < 0 && errno != EINTR)) break;
-        clock_failed = !clock_ok || clock_gettime(CLOCK_MONOTONIC, &now) != 0;
+        clock_failed = clock_gettime(CLOCK_MONOTONIC, &now) != 0;
         timed_out = !clock_failed && (now.tv_sec - start.tv_sec > shadow_seconds ||
             (now.tv_sec - start.tv_sec == shadow_seconds && now.tv_nsec >= start.tv_nsec));
         if (clock_failed || timed_out) {
@@ -544,29 +603,177 @@ static bool check_interpreted_shadows(ASTNode *program, Environment *env,
         nanosleep(&pause, NULL);
     }
     int wait_error = errno;
-    unsigned char done = 0;
-    bool completed = read(completion[0], &done, 1) == 1 && done == 1;
+    nl_shadow_timing("parent_after_wait", -1, -1, 0, 1, waited < 0 ? -1 : status);
+    NlShadowCompletion done = {0};
+    ssize_t received = read(completion[0], &done, sizeof(done));
     close(completion[0]);
+    (void)pthread_setcancelstate(previous_cancel, NULL);
+    size_t record_bytes = received < 0 ? 0 : (size_t)received;
+    bool completed = nl_shadow_completion_ontime(&done, record_bytes, &start,
+                                                  shadow_seconds);
     if (waited < 0) {
         fprintf(stderr, "I cannot supervise shadow execution: %s\n", strerror(wait_error));
         return false;
     }
-    if (clock_failed || timed_out || !completed || !WIFEXITED(status) || WEXITSTATUS(status) != 0) {
+    if (!nl_shadow_completion_accept(&done, record_bytes, &start, shadow_seconds,
+                                     clock_failed, waited < 0, status)) {
         if (clock_failed)
             fprintf(stderr, "I cannot measure the shadow execution deadline.\n");
-        else if (timed_out || (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
+        else if (timed_out || (!completed && nl_shadow_completion_valid(
+                              &done, record_bytes, &start, shadow_seconds)) ||
+                 (WIFSIGNALED(status) && WTERMSIG(status) == SIGALRM))
             fprintf(stderr, "I stopped shadow execution after %d seconds.\n", shadow_seconds);
+        else if (WIFSIGNALED(status))
+            fprintf(stderr, "I stopped shadow execution after signal %d.\n", WTERMSIG(status));
+        else if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+            fprintf(stderr, "I will not publish output after shadow execution exited with status %d.\n",
+                    WEXITSTATUS(status));
         else
-            fprintf(stderr, "I will not publish output after failed shadow execution.\n");
+            fprintf(stderr, "I will not publish output without completed shadow execution.\n");
         return false;
     }
     return true;
+}
+
+typedef struct {
+    ASTNode *declaration;
+    const char *owner;
+} CSourceFunction;
+
+typedef struct {
+    Environment *env;
+    CSourceFunction *functions;
+    size_t count;
+    const char *root_owner;
+} CSourceClosure;
+
+/* I borrow the checker's callee identity, including transitive namespace owners. */
+static ASTNode *resolve_c_source_function(void *context, ASTNode *caller,
+                                         const char *name, const char *alias) {
+    CSourceClosure *closure = context;
+    if (!name) return NULL;
+    const char *owner = closure->root_owner;
+    for (size_t i = 0; caller && i < closure->count; ++i)
+        if (closure->functions[i].declaration == caller) {
+            owner = closure->functions[i].owner;
+            break;
+        }
+    char *qualified = NULL;
+    if (alias) {
+        size_t a = strlen(alias), n = strlen(name);
+        if (a > SIZE_MAX - n - 2) return NULL;
+        qualified = malloc(a + n + 2);
+        if (!qualified) return NULL;
+        snprintf(qualified, a + n + 2, "%s.%s", alias, name);
+    }
+    char *saved = closure->env->current_module;
+    closure->env->current_module = (char *)owner;
+    Function *function = env_get_function(closure->env, qualified ? qualified : name);
+    closure->env->current_module = saved;
+    free(qualified);
+    if (!function) return NULL;
+    const char *original = function->alias_of ? function->alias_of : function->name;
+    for (size_t i = 0; i < closure->count; ++i) {
+        CSourceFunction *entry = &closure->functions[i];
+        ASTNode *node = entry->declaration;
+        if (strcmp(node->as.function.name, original) || node->as.function.body != function->body)
+            continue;
+        if (function->body || ((!entry->owner && !function->module_name) ||
+            (entry->owner && function->module_name && !strcmp(entry->owner, function->module_name))))
+            return node;
+    }
+    return NULL;
+}
+
+static bool c_source_scalar(Type type) {
+    return type == TYPE_INT || type == TYPE_U8 || type == TYPE_FLOAT ||
+           type == TYPE_BOOL || type == TYPE_STRING || type == TYPE_VOID;
+}
+
+/* My C seed closes scalar function imports without executing their shadows.
+ * Imported storage/nominal declarations require a separate retained layout plan. */
+static int emit_c_source_closure(ASTNode *program, Environment *env, ModuleList *modules,
+                                  const char *output, const char *input, CBOptions *options) {
+    if (!modules || !modules->count) return c_backend_emit(program, output, input, options);
+    if (!program || program->type != AST_PROGRAM) return 1;
+    size_t total = (size_t)program->as.program.count;
+    for (int i = 0; i < modules->count; ++i) {
+        ASTNode *dependency = get_cached_module_ast(modules->module_paths[i]);
+        if (!dependency || dependency->type != AST_PROGRAM || dependency->as.program.count < 0 ||
+            (size_t)dependency->as.program.count > (size_t)INT_MAX - total) {
+            fprintf(stderr, "I require a complete checked C source dependency closure.\n");
+            return 1;
+        }
+        total += (size_t)dependency->as.program.count;
+    }
+    ASTNode **items = calloc(total ? total : 1, sizeof *items);
+    CSourceFunction *functions = calloc(total ? total : 1, sizeof *functions);
+    char **owners = calloc((size_t)modules->count, sizeof *owners);
+    if (!items || !functions || !owners) {
+        free(items); free(functions); free(owners);
+        fprintf(stderr, "I could not retain my C source dependency closure.\n");
+        return 1;
+    }
+    CSourceClosure closure = {env, functions, 0, env->current_module};
+    size_t count = 0;
+    int result = 1;
+    for (int unit = 0; unit <= modules->count; ++unit) {
+        bool imported = unit < modules->count;
+        ASTNode *root = imported ? get_cached_module_ast(modules->module_paths[unit]) : program;
+        const char *owner = closure.root_owner;
+        if (imported) {
+            owners[unit] = module_program_name(root, modules->module_paths[unit]);
+            if (!owners[unit]) goto cleanup;
+            owner = owners[unit];
+        }
+        for (int i = 0; i < root->as.program.count; ++i) {
+            ASTNode *node = root->as.program.items[i];
+            if (imported) {
+                if (node->type == AST_IMPORT || node->type == AST_MODULE_DECL || node->type == AST_SHADOW)
+                    continue;
+                if (node->type != AST_FUNCTION || !c_source_scalar(node->as.function.return_type)) {
+                    fprintf(stderr, "I require scalar function declarations in this C source import profile.\n");
+                    goto cleanup;
+                }
+                for (int p = 0; p < node->as.function.param_count; ++p)
+                    if (!c_source_scalar(node->as.function.params[p].type)) {
+                        fprintf(stderr, "I require scalar parameters in this C source import profile.\n");
+                        goto cleanup;
+                    }
+            }
+            items[count++] = node;
+            if (node->type == AST_FUNCTION) functions[closure.count++] = (CSourceFunction){node, owner};
+        }
+    }
+    ASTNode linked = *program;
+    linked.as.program.items = items;
+    linked.as.program.count = (int)count;
+    CBOptions retained = *options;
+    retained.resolve_function = resolve_c_source_function;
+    retained.function_context = &closure;
+    result = c_backend_emit(&linked, output, input, &retained);
+cleanup:
+    for (int i = 0; i < modules->count; ++i) free(owners[i]);
+    free(owners); free(functions); free(items);
+    return result;
 }
 
 /* Compile nanolang source to executable */
 static int compile_file(const char *input_file, const char *output_file, CompilerOptions *opts) {
     List_CompilerDiagnostic *diags = nl_list_CompilerDiagnostic_new();
 
+    if (opts->allow_temporary_files) {
+        NlFileResolution *prepared = NULL;
+        NlFileResolutionReport report = nl_file_source_resolve(input_file, &prepared);
+        if (report.status != NL_FILE_RESOLUTION_NONE) {
+            if (report.status == NL_FILE_RESOLUTION_PREPARED)
+                fprintf(stderr, "I prepared File source declarations; source lowering is not admitted.\n");
+            else fprintf(stderr, "I cannot prepare complete File source declarations: %d\n", (int)report.status);
+            nl_file_source_resolution_free(prepared);
+            nl_list_CompilerDiagnostic_free(diags);
+            return 1;
+        }
+    }
     /* Read source file */
     FILE *file = fopen(input_file, "rb");
     if (!file) {
@@ -671,6 +878,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (!process_imports(program, env, modules, input_file)) {
         human_diag(NL_DIAG_IMPORT_FAILED);
         diags_push_id(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_IMPORT_FAILED);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -725,6 +933,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             json_diagnostics_output();
             json_diagnostics_cleanup();
         }
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -799,6 +1008,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             printf("  Load with: cuModuleLoad(&mod, \"%s\");\n", ptx_out);
             printf("  Or compile: nvcc -ptx %s -o %s.cubin\n", ptx_out, ptx_out);
         }
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -828,6 +1038,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             printf("  Load with: clCreateProgramWithSource + clBuildProgram\n");
             printf("  CPU fallback: set POCL_DEVICES=cpu (POCL required)\n");
         }
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -852,11 +1063,12 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
         if (opts->verbose) printf("Emitting C → %s\n", c_out);
         CBOptions cb_opts = {0}; cb_opts.verbose = opts->verbose;
-        int c_rc = c_backend_emit(program, c_out, input_file, &cb_opts);
+        int c_rc = emit_c_source_closure(program, env, modules, c_out, input_file, &cb_opts);
         if (c_rc == 0 && opts->verbose) {
             printf("✓ C source emitted to %s\n", c_out);
             printf("  Compile with: gcc -std=c11 %s -o prog\n", c_out);
         }
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -889,6 +1101,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         } else {
             fprintf(stderr, "RISC-V backend failed\n");
         }
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -916,6 +1129,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
         int bench_rc = bench_run_program(program, env, &bopts, input_file, json_out);
         if (json_out) fclose(json_out);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -933,6 +1147,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
             nanocore_free_trust_report(report);
         }
         /* Clean up and exit - trust report is an analysis-only mode */
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -989,6 +1204,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         printf("\nSummary: %d checked, %d matched, %d warnings, %d skipped (not verified)\n",
                checked, matched, failed, skipped);
 
+        env_require_destroyable(env);
+
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1016,6 +1233,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         if (!emit_module_reflection(opts->reflect_output_path, program, env, name_copy)) {
             fprintf(stderr, "Error: Failed to emit module reflection\n");
             free(name_copy);
+            env_require_destroyable(env);
             free_ast(program);
             free_tokens(tokens, token_count);
             free_environment(env);
@@ -1030,6 +1248,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         free(name_copy);
         
         /* Clean up and exit - no need to compile when reflecting */
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1067,6 +1286,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         if (!emit_doc_md(md_out, program, source, name_copy)) {
             fprintf(stderr, "Error: Failed to emit Markdown docs\n");
             free(name_copy);
+            env_require_destroyable(env);
             free_ast(program);
             free_tokens(tokens, token_count);
             free_environment(env);
@@ -1078,6 +1298,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
         if (opts->verbose) printf("✓ Markdown docs written to %s\n", md_out);
         free(name_copy);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1090,6 +1311,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Phase 4.45: Emit typed AST as JSON (if requested) */
     if (opts->emit_typed_ast) {
         emit_typed_ast_json(input_file, program, env);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1101,11 +1323,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     /* Phase 4.5: Build imported modules (object + shared libs) */
     if (modules->count > 0) {
+        if (opts->keep_c) nano_native_retain_private_work();
         if (!compile_modules(modules, env, &module_objs,
                              module_compile_flags, sizeof(module_compile_flags),
                              opts->verbose)) {
             fprintf(stderr, "Error: Failed to compile modules\n");
             diags_push_id(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_MOD_COMPILE);
+            env_require_destroyable(env);
             free_ast(program);
             free_tokens(tokens, token_count);
             free_environment(env);
@@ -1120,38 +1344,6 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         }
     }
 
-    /* Phase 4.6: Initialize FFI and load module shared libraries for shadow tests */
-    (void)ffi_init(opts->verbose);
-    for (int i = 0; i < modules->count; i++) {
-        const char *module_path = modules->module_paths[i];
-
-        char *module_dir = strdup(module_path);
-        char *last_slash = strrchr(module_dir, '/');
-        if (last_slash) {
-            *last_slash = '\0';
-        } else {
-            free(module_dir);
-            module_dir = strdup(".");
-        }
-
-        ModuleBuildMetadata *meta = module_load_metadata(module_dir);
-
-        char mod_name[256];
-        if (meta && meta->name) {
-            snprintf(mod_name, sizeof(mod_name), "%s", meta->name);
-        } else {
-            const char *base_name = last_slash ? last_slash + 1 : module_path;
-            snprintf(mod_name, sizeof(mod_name), "%s", base_name);
-            char *dot = strrchr(mod_name, '.');
-            if (dot) *dot = '\0';
-        }
-
-        (void)ffi_load_module(mod_name, module_path, env, opts->verbose);
-
-        if (meta) module_metadata_free(meta);
-        free(module_dir);
-    }
-
     /* Phase 5: Shadow-Test Execution (Compile-Time Function Execution) */
     if (opts->llm_shadow_json_path && opts->llm_shadow_json_path[0] != '\0') {
         setenv("NANO_LLM_SHADOW_JSON", opts->llm_shadow_json_path, 1);
@@ -1161,6 +1353,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (!check_interpreted_shadows(program, env, modules, input_file, opts)) {
         human_diag(NL_DIAG_SHADOW_FAILED);
         diags_push_id(diags, CompilerPhase_PHASE_RUNTIME, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_SHADOW_FAILED);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1202,7 +1395,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     char *c_code = transpile_to_c(program, env, input_file);
     if (!c_code) {
         human_diag(NL_DIAG_TRANS_FAILED);
-        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_TRANS_FAILED);
+        diags_push_id(diags, CompilerPhase_PHASE_LOWERING, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_TRANS_FAILED);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1264,8 +1458,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     if (!c_file) {
         fprintf(stderr, "%s: %s\n", nl_catalog_text(NL_DIAG_C_TEMP),
                 nl_utf8_cstr_or_marker(temp_c_file));
-        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_C_TEMP);
+        diags_push_id(diags, CompilerPhase_PHASE_LOWERING, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_C_TEMP);
         free(c_code);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1282,7 +1477,8 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     fclose(c_file);
     if (opts->verbose) printf("✓ Generated C code: %s\n", temp_c_file);
 
-    char compile_cmd[16384];  /* Increased to handle long command lines with many modules */
+    enum { NATIVE_FINAL_COMMAND_BYTES = 65536 }; /* Inclusive of the trailing NUL. */
+    char *compile_cmd = NULL;
     
     /* Build include flags */
     char include_flags[8192] = "";
@@ -1375,6 +1571,13 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     
     /* Detect and generate generic list types from the C code AND compiler_schema.h */
     char generated_lists[1024] = "";
+    char generated_directory[4096];
+    int generated_length = snprintf(generated_directory, sizeof(generated_directory),
+                                    "%s/nanolang-lists-XXXXXX", get_tmp_dir());
+    bool generated_ready = generated_length >= 0 && (size_t)generated_length < sizeof(generated_directory) &&
+                           mkdtemp(generated_directory) != NULL;
+    if (!generated_ready) generated_directory[0] = 0;
+    include_paths_valid = include_paths_valid && generated_ready;
     char detected_types[64][64]; /* Increased to handle more types */
     int detected_count = 0;
     
@@ -1400,9 +1603,14 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                     end++;
                 }
                 if (*end == '*' || *end == ' ' || *end == '\n' || *end == ';') {
-                    int len = end - ptr;
+                    size_t len = (size_t)(end - ptr);
                     char type_name[64];
-                    strncpy(type_name, ptr, len);
+                    if (!len || len >= sizeof(type_name)) {
+                        include_paths_valid = false;
+                        fprintf(stderr, "I cannot represent this schema list wrapper name.\n");
+                        continue;
+                    }
+                    memcpy(type_name, ptr, len);
                     type_name[len] = '\0';
                     
                     if (strcmp(type_name, "int") != 0 && strcmp(type_name, "string") != 0 && strcmp(type_name, "token") != 0 && strcmp(type_name, "Generic") != 0) {
@@ -1440,11 +1648,28 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         
         /* Check if followed by * or space (valid list type) */
         if (*end_ptr == '*' || *end_ptr == ' ' || *end_ptr == '\n') {
-            int len = end_ptr - scan_ptr;
-            char type_name[64];
-            strncpy(type_name, scan_ptr, len);
-            type_name[len] = '\0';
+            size_t len = (size_t)(end_ptr - scan_ptr);
+            char provider_type_name[256];
+            if (!len || len >= sizeof(provider_type_name)) {
+                include_paths_valid = false;
+                fprintf(stderr, "I cannot represent this native list specialization name.\n");
+                continue;
+            }
+            memcpy(provider_type_name, scan_ptr, len);
+            provider_type_name[len] = '\0';
+            /* I emitted the complete provider in the translation unit itself. */
+            char provider_marker[300];
+            snprintf(provider_marker, sizeof(provider_marker), "NL_DEFINE_RECORD_LIST(%s,", provider_type_name);
+            if (strstr(c_code, provider_marker)) continue;
+            if (len >= sizeof(detected_types[0])) {
+                include_paths_valid = false;
+                fprintf(stderr, "I cannot represent this legacy external list wrapper name.\n");
+                continue;
+            }
             
+            char type_name[sizeof(detected_types[0])];
+            memcpy(type_name, provider_type_name, len + 1);
+
             /* Skip built-in types */
             if (strcmp(type_name, "int") == 0 || 
                 strcmp(type_name, "string") == 0 || 
@@ -1502,21 +1727,15 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                     c_type = nl_prefixed_type;
                 }
                 
-                char gen_cmd[8192];
-                snprintf(gen_cmd, sizeof(gen_cmd),
-                        "%s/scripts/generate_list.sh %s %s %s > /dev/null 2>&1",
-                        get_project_root(), type_name, get_tmp_dir(), c_type);
-                if (opts->verbose) {
-                    printf("Generating List<%s> runtime...\n", type_name);
+                if (!generated_ready || !nano_native_generate_list(get_project_root(), generated_directory, type_name, c_type)) {
+                    fprintf(stderr, "I could not generate the required List<%s> runtime\n", type_name);
+                    include_paths_valid = false;
+                    break;
                 }
-                int gen_result = system(gen_cmd);
-                if (gen_result != 0 && opts->verbose) {
-                    fprintf(stderr, "Warning: Failed to generate list_%s runtime\n", type_name);
-                }
-                
+
                 /* Create wrapper that includes struct definition */
-                char wrapper_file[512];
-                snprintf(wrapper_file, sizeof(wrapper_file), "%s/list_%s_wrapper.c", get_tmp_dir(), type_name);
+                char wrapper_file[8192];
+                snprintf(wrapper_file, sizeof(wrapper_file), "%s/list_%s_wrapper.c", generated_directory, type_name);
                 FILE *wrapper = fopen(wrapper_file, "w");
                 if (wrapper) {
                     /* Extract struct definition from generated C code */
@@ -1585,7 +1804,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                         fprintf(wrapper, "\n/* Guard macro set - typedef already defined above */\n");
                         fprintf(wrapper, "#define NL_%s_DEFINED\n\n", type_upper);
                         fprintf(wrapper, "/* Include list implementation */\n");
-                        fprintf(wrapper, "#include \"%s/list_%s.c\"\n", get_tmp_dir(), type_name);
+                        fprintf(wrapper, "#include \"list_%s.c\"\n", type_name);
                     } else {
                         /* Fallback: just include the list file.
                          * We include schema headers in case it's a schema type. */
@@ -1596,14 +1815,17 @@ static int compile_file(const char *input_file, const char *output_file, Compile
                         fprintf(wrapper, "#include <string.h>\n\n");
                         fprintf(wrapper, "#include \"nanolang.h\"\n");
                         fprintf(wrapper, "#include \"generated/compiler_schema.h\"\n\n");
-                        fprintf(wrapper, "#include \"%s/list_%s.c\"\n", get_tmp_dir(), type_name);
+                        fprintf(wrapper, "#include \"list_%s.c\"\n", type_name);
                     }
-                    fclose(wrapper);
+                    if (ferror(wrapper)) include_paths_valid = false;
+                    if (fclose(wrapper)) include_paths_valid = false;
+                } else {
+                    include_paths_valid = false;
                 }
                 
                 /* Add wrapper to compile list */
                 char list_file[256];
-                int list_length = snprintf(list_file, sizeof(list_file), "%s/list_%s_wrapper.c", get_tmp_dir(), type_name);
+                int list_length = snprintf(list_file, sizeof(list_file), "%s/list_%s_wrapper.c", generated_directory, type_name);
                 if (list_length < 0 || (size_t)list_length >= sizeof(list_file)) include_paths_valid = false;
                 include_paths_valid = module_append_path_flag(generated_lists, sizeof(generated_lists), "", list_file) && include_paths_valid;
             }
@@ -1659,7 +1881,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Add TMPDIR to include path for generated list headers */
     char include_flags_with_tmp[12288];
     snprintf(include_flags_with_tmp, sizeof(include_flags_with_tmp), "%s", include_flags);
-    include_paths_valid = module_append_include(include_flags_with_tmp, sizeof(include_flags_with_tmp), get_tmp_dir()) && include_paths_valid;
+    include_paths_valid = module_append_include(include_flags_with_tmp, sizeof(include_flags_with_tmp), generated_directory) && include_paths_valid;
     
     const char *cc = getenv("NANO_CC");
     if (!cc) cc = getenv("CC");
@@ -1697,19 +1919,30 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     char *quoted_output = module_quote_path(output_file);
     char *quoted_temp_source = module_quote_path(temp_c_file);
-    int cmd_len = quoted_output && quoted_temp_source ? snprintf(compile_cmd, sizeof(compile_cmd),
-            "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s %s %s -o %s %s %s %s %s %s",
-            cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, quoted_output, quoted_temp_source, module_objs ? module_objs : "", runtime_files, lib_path_flags, lib_flags) : -1;
+    const char *compile_format = "%s -std=c99 -Wall -Wextra -Werror -Wno-error=unused-function -Wno-error=unused-parameter -Wno-error=unused-variable -Wno-error=unused-but-set-variable -Wno-error=logical-not-parentheses -Wno-error=duplicate-decl-specifier %s %s %s %s %s -o %s %s %s %s %s %s";
+    int cmd_len = quoted_output && quoted_temp_source ? snprintf(NULL, 0,
+            compile_format, cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, quoted_output, quoted_temp_source, module_objs ? module_objs : "", runtime_files, lib_path_flags, lib_flags) : -1;
+    int formatted = -1;
+    if (include_paths_valid && cmd_len >= 0 && (size_t)cmd_len < NATIVE_FINAL_COMMAND_BYTES) {
+        /* This bound proves the NUL addition fits before I allocate. */
+        size_t command_bytes = (size_t)cmd_len + 1;
+        compile_cmd = malloc(command_bytes);
+        if (compile_cmd) formatted = snprintf(compile_cmd, command_bytes,
+            compile_format, cc, profile_flags, coverage_flags, nano_cflags, include_flags_with_tmp, export_dynamic_flag, quoted_output, quoted_temp_source, module_objs ? module_objs : "", runtime_files, lib_path_flags, lib_flags);
+    }
     free(quoted_output);
     free(quoted_temp_source);
     free(module_objs);
     
-    if (!include_paths_valid || cmd_len < 0 || cmd_len >= (int)sizeof(compile_cmd)) {
+    if (!include_paths_valid || !compile_cmd || formatted != cmd_len) {
+        free(compile_cmd);
         human_diag(NL_DIAG_CC_CMD);
-        fprintf(stderr, "I could not represent all compiler arguments (%d command bytes, limit %zu).\n", cmd_len, sizeof(compile_cmd));
+        fprintf(stderr, "I could not represent all compiler arguments (%d command bytes, limit %zu).\n", cmd_len, (size_t)NATIVE_FINAL_COMMAND_BYTES);
         fprintf(stderr, "Try reducing the number of modules or shortening paths.\n");
-        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_CMD);
+        diags_push_id(diags, CompilerPhase_PHASE_LOWERING, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_CMD);
+        if (!opts->keep_c) nano_native_remove_private_tree(generated_directory);
         free(c_code);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1727,6 +1960,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
 
     if (opts->verbose) printf("Compiling C code: %s\n", compile_cmd);
     int result = system(compile_cmd);
+    free(compile_cmd);
 
     if (result == 0) {
         if (deterministic_outputs_enabled()) {
@@ -1737,9 +1971,11 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         if (opts->verbose) printf("✓ Compilation successful: %s\n", output_file);
     } else {
         human_diag(NL_DIAG_CC_FAILED);
-        diags_push_id(diags, CompilerPhase_PHASE_TRANSPILER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_FAILED);
+        diags_push_id(diags, CompilerPhase_PHASE_LOWERING, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_CC_FAILED);
         /* Cleanup */
+        if (!opts->keep_c) nano_native_remove_private_tree(generated_directory);
         free(c_code);
+        env_require_destroyable(env);
         free_ast(program);
         free_tokens(tokens, token_count);
         free_environment(env);
@@ -1766,7 +2002,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     nl_list_CompilerDiagnostic_free(diags);
 
     /* Cleanup */
+    if (!opts->keep_c) nano_native_remove_private_tree(generated_directory);
     free(c_code);
+    env_require_destroyable(env);
     free_ast(program);
     free_tokens(tokens, token_count);
     free_environment(env);
@@ -1785,7 +2023,14 @@ int main(int argc, char *argv[]) {
     g_argv = argv;
 
     /* Resolve project root from binary location (enables compilation from any CWD) */
-    resolve_project_root(argv[0]);
+    if (argc == 2 && strcmp(argv[1], "--native-array-abi") == 0) {
+        printf("%u\n", NANO_DYN_ARRAY_ABI_VERSION);
+        return 0;
+    }
+    if (!resolve_project_root()) {
+        fprintf(stderr, "I require a complete compatible native SDK or source root\n");
+        return 1;
+    }
     
     /* Handle --version */
     if (argc >= 2 && (strcmp(argv[1], "--version") == 0 || strcmp(argv[1], "-v") == 0)) {
@@ -1804,6 +2049,7 @@ int main(int argc, char *argv[]) {
         printf("  -o <file>      Specify output file (default: $TMPDIR/nanoc_a.out)\n");
         printf("  --verbose      Show detailed compilation steps and commands\n");
         printf("                 (also enabled by NANO_VERBOSE_BUILD=1 env var)\n");
+        printf("  --allow-temporary-files  Prepare File source facts only; source execution remains held\n");
         printf("  --keep-c       Keep generated C file (saves to output dir instead of /tmp)\n");
         printf("  -fshow-intermediate-code  Print generated C to stdout\n");
         printf("  -S             Save generated C to <input>.genC (for inspection)\n");
@@ -2013,6 +2259,8 @@ int main(int argc, char *argv[]) {
             i++;
         } else if (strcmp(argv[i], "--verbose") == 0) {
             opts.verbose = true;
+        } else if (strcmp(argv[i], "--allow-temporary-files") == 0) {
+            opts.allow_temporary_files = true;
         } else if (strcmp(argv[i], "--keep-c") == 0) {
             opts.keep_c = true;
         } else if (strcmp(argv[i], "-fshow-intermediate-code") == 0) {

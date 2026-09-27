@@ -1,0 +1,42 @@
+{
+  "scope": "Independent four fresh generated-C integration configuration terminal, child status, 73-case O0/O2 linked/observed products and complete fault-range/recovery audit. Current-main integration and production correspondence remain separate.",
+  "phases": [
+    {
+      "report_root": "linux/reports",
+      "phase": "generated-ordinary-native",
+      "child_statuses": 1590,
+      "products": 292,
+      "fault_coverage_records": 146,
+      "recoveries": 18976,
+      "source_tools_unchanged": true
+    },
+    {
+      "report_root": "linux/reports",
+      "phase": "generated-clang-native",
+      "child_statuses": 1590,
+      "products": 292,
+      "fault_coverage_records": 146,
+      "recoveries": 18976,
+      "source_tools_unchanged": true
+    },
+    {
+      "report_root": "puck/reports",
+      "phase": "generated-ordinary-native",
+      "child_statuses": 1590,
+      "products": 292,
+      "fault_coverage_records": 146,
+      "recoveries": 18976,
+      "source_tools_unchanged": true
+    },
+    {
+      "report_root": "puck/reports",
+      "phase": "generated-clang-native",
+      "child_statuses": 1590,
+      "products": 292,
+      "fault_coverage_records": 146,
+      "recoveries": 18976,
+      "source_tools_unchanged": true
+    }
+  ],
+  "passed": true
+}

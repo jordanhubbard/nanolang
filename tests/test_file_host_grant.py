@@ -1,4 +1,8 @@
 """I check the preparatory grant, never a File dispatcher or host service."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import json
 import os
 from pathlib import Path
@@ -23,7 +27,7 @@ class FileHostGrant(unittest.TestCase):
         commands = []
         env = dict(os.environ)
         env.pop("LSAN_OPTIONS", None)
-        env["ASAN_OPTIONS"] = "detect_leaks=1:halt_on_error=1"
+        env["ASAN_OPTIONS"] = asan_options("halt_on_error=1")
         env["UBSAN_OPTIONS"] = "halt_on_error=1:print_stacktrace=1"
 
         def run(command, expected=0):

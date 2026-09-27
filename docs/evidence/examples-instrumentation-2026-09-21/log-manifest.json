@@ -1,0 +1,72 @@
+[
+  {
+    "file": "baseline.log.gz",
+    "uncompressed_bytes": 1060,
+    "uncompressed_sha256": "1b0bbb190200969a87581d42adff8d1c45c4db566637fdb39a153fc4707d1628"
+  },
+  {
+    "file": "boids-verbose.log.gz",
+    "uncompressed_bytes": 398631,
+    "uncompressed_sha256": "da425b066e1dceb1d62f480b3d01b7bf9a241f4f3fa761277ec13f9ad7b2edd5"
+  },
+  {
+    "file": "sanitizer-build.log.gz",
+    "uncompressed_bytes": 58987,
+    "uncompressed_sha256": "ce1598bf2ca266671650844021a5215b779698f22a6a6f2d835734440cd228cb"
+  },
+  {
+    "file": "boids-san.log.gz",
+    "uncompressed_bytes": 5500,
+    "uncompressed_sha256": "b934f0322d1c4c58213867aec1bba1a45c549138c3daea962319b1347b8a813f"
+  },
+  {
+    "file": "boids-san-root.log.gz",
+    "uncompressed_bytes": 3525,
+    "uncompressed_sha256": "581f5045332b951497a38862e871d1d38559fee98cb775cfea887330f925bda4"
+  },
+  {
+    "file": "boids-san-sample.txt.gz",
+    "uncompressed_bytes": 213428,
+    "uncompressed_sha256": "d0fb2a626a3a4d6fa031741714c12ee6636372bb806898541b81ce1160481342"
+  },
+  {
+    "file": "boids-san-lldb.log.gz",
+    "uncompressed_bytes": 3221,
+    "uncompressed_sha256": "40e0b4158de9f7a92b8ca843e0c3a0b369e1086b5b5a58a0407c4b2ae6a06191"
+  },
+  {
+    "file": "boids-san-dyld.log.gz",
+    "uncompressed_bytes": 3525,
+    "uncompressed_sha256": "581f5045332b951497a38862e871d1d38559fee98cb775cfea887330f925bda4"
+  },
+  {
+    "file": "boids-san-loader.log.gz",
+    "uncompressed_bytes": 418535,
+    "uncompressed_sha256": "ed235f59a71e44ad942d06dd727c159a6e095e1463fb4187b2a3d3f6f13c2f9b"
+  },
+  {
+    "file": "boids-opengl.log.xz",
+    "uncompressed_bytes": 79339653,
+    "uncompressed_sha256": "6d3c0a7f6a3126fa19507e154161492bc90c0aeafe1b97103b7068dc5772e790"
+  },
+  {
+    "file": "boids-default-control.log.xz",
+    "uncompressed_bytes": 79338856,
+    "uncompressed_sha256": "2e6ab07e618b04efa38d0866c445c90915bc6b178b21e198e8b007b808a5cd43"
+  },
+  {
+    "file": "make-instrumented.log.gz",
+    "uncompressed_bytes": 580226,
+    "uncompressed_sha256": "d541a556b0e722eba85a8844795b6998d8974f6f9134a2bb2935862d0c51ab55"
+  },
+  {
+    "file": "make-instrumented-loader.log.gz",
+    "uncompressed_bytes": 1012058,
+    "uncompressed_sha256": "c427c6bd97672921f8161466a0878d34a7c2ac50b36d46a5088c2bc06f269158"
+  },
+  {
+    "file": "make-ordinary-after.log.gz",
+    "uncompressed_bytes": 52168,
+    "uncompressed_sha256": "ed7917bd8ecdcec4f1e27f1ed905d2b2fa294cc8080216065255ab6307aac045"
+  }
+]

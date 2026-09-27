@@ -36,8 +36,7 @@ static NanoCallbackStatus callback_execute(void *payload, const NanoCallbackValu
         case NANO_CALLBACK_BOOL: values[i] = val_bool(args[i].as.byte != 0); break;
         case NANO_CALLBACK_BYTE: values[i] = val_u8(args[i].as.byte); break;
         case NANO_CALLBACK_POINTER:
-            values[i] = val_void(); values[i].tag = TAG_OPAQUE;
-            values[i].as.obj = args[i].as.pointer; break;
+            values[i] = val_opaque(args[i].as.pointer); break;
         default: return NANO_CALLBACK_TYPE_ERROR;
         }
     }
@@ -58,7 +57,10 @@ static NanoCallbackStatus callback_execute(void *payload, const NanoCallbackValu
     case TAG_FLOAT: result->as.number = returned.as.f64; break;
     case TAG_BOOL: result->as.byte = returned.as.boolean; break;
     case TAG_U8: result->as.byte = returned.as.u8; break;
-    case TAG_OPAQUE: result->as.pointer = returned.as.obj; break;
+    case TAG_OPAQUE:
+        if (returned.opaque_owner) return NANO_CALLBACK_TYPE_ERROR;
+        result->as.pointer = returned.as.obj;
+        break;
     default:
         vm_release(&root->vm->heap, returned);
         return NANO_CALLBACK_TYPE_ERROR;

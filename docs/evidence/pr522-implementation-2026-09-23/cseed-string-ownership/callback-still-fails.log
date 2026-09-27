@@ -1,0 +1,8 @@
+docs/evidence/pr522-implementation-2026-09-23/runtime-callback-aliases/same-name-reproducer.nano:6:16: error: redefinition of 'callback'
+    6 |     BinaryOp_0 callback = callback;
+      |                ^
+docs/evidence/pr522-implementation-2026-09-23/runtime-callback-aliases/same-name-reproducer.nano:6:37: note: previous definition is here
+    6 | static int64_t nl_invoke(BinaryOp_0 callback) {
+      |                                     ^
+1 error generated.
+C compilation failed

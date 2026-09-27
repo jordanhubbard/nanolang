@@ -1,0 +1,9 @@
+# Resource classification declaration view
+
+I retain the original and corrected full-component deadline failures at c5084b874 and356b73335. The local declaration-key cache improved the full-context declaration shadow from8.564 to6.817 seconds but did not complete the component. I do not rerun that unchanged workload or raise its deadline.
+
+My next change reduces the data copied along the measured recursive path. `resource_type_identity`, `resource_concrete_identity`, `resource_concrete_payload_fact`, `resource_classify`, `resource_instantiated_classify` and `tc_selected_payload_union` consume only the Parser's struct and union lists. I will keep their existing Parser-facing signatures and create a two-list `ResourceDeclarations` value directly inside each wrapper. Recursive internal helpers receive that view and use the same typed list getters. The view carries existing list identities; it does not clone declarations, detach ownership or persist beyond the synchronous call.
+
+I preserve every original body decision and traversal order, exact mb_owner calls and declaration spelling, selected-variant lookup, generic substitution, active recursion sets, depth128 guards, fixed-point updates and refusal behavior. The selected-variant implementation remains shared through its original wrapper. I do not introduce global memoization, cache module state across calls, change lookup authority or move original shadows. The earlier invocation-local key cache remains in place.
+
+I add direct small controls for the six internal helpers while retaining every original shadow, including both520-statement parser controls. I require independent source review, then focused measurements under the same original-module context and deadline. Complete original preparation is attempted only after a meaningful measured improvement; no focused result closes CI. Collection ownership implementation remains in its separate branch.

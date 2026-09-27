@@ -1,4 +1,8 @@
 """I root owned builtin host results and copies of borrowed facade strings."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import json
 import os
 from pathlib import Path
@@ -32,7 +36,7 @@ class NativeHostStrings(unittest.TestCase):
         self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                       '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                       source, '-o', binary, '-lm', '-ldl'])
-        return self.command([binary, *args], env={**environment, 'ASAN_OPTIONS': 'detect_leaks=1'})
+        return self.command([binary, *args], env={**environment, 'ASAN_OPTIONS': asan_options()})
 
     def test_argv_environment_copies_without_allocating_string_opcodes(self):
         text = ('.import "" "get_argv" string int\n.import "" "vm_getenv" string string\n'

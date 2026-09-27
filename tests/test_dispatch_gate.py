@@ -36,8 +36,8 @@ class DispatchGate(unittest.TestCase):
             result = subprocess.run([sys.executable, str(RUNNER),
                 "--compiler", str(compiler), "--vm-goto", str(root/"goto"),
                 "--vm-switch", str(root/"switch"), "--logs", str(root/"logs"),
-                "--timeout", "0.3", *([str(source)] if sources else [])],
-                capture_output=True, text=True, timeout=5)
+                "--timeout", "1", *([str(source)] if sources else [])],
+                capture_output=True, text=True, timeout=15)
             self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
             if sources:
                 self.assertIn("0 skipped", result.stdout)

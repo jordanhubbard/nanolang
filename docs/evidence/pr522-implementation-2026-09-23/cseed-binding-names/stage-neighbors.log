@@ -1,0 +1,50 @@
+..FF..FF.....I retain declared push artifacts in /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanolang-declared-push-c6w8vest
+..................................
+======================================================================
+FAIL: test_failed_shadow_preserves_output (tests.test_native_underscore_bindings.NativeUnderscoreBindings.test_failed_shadow_preserves_output) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 74, in test_failed_shadow_preserves_output
+    self.assertIn('shadow', (result.stdout + result.stderr).lower())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'shadow' not found in 'i cannot lower this checked program: i require two string operands for str_concat\n'
+
+======================================================================
+FAIL: test_failed_shadow_preserves_output (tests.test_native_underscore_bindings.NativeUnderscoreBindings.test_failed_shadow_preserves_output) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 74, in test_failed_shadow_preserves_output
+    self.assertIn('shadow', (result.stdout + result.stderr).lower())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'shadow' not found in 'i cannot lower this checked program: i require two string operands for str_concat\n'
+
+======================================================================
+FAIL: test_native_compiler_stages (tests.test_native_underscore_bindings.NativeUnderscoreBindings.test_native_compiler_stages) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 24, in test_native_compiler_stages
+    self.run_checked([COMPILERS/compiler, SOURCE, '-o', output])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 17, in run_checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require two string operands for str_concat
+
+
+======================================================================
+FAIL: test_native_compiler_stages (tests.test_native_underscore_bindings.NativeUnderscoreBindings.test_native_compiler_stages) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 24, in test_native_compiler_stages
+    self.run_checked([COMPILERS/compiler, SOURCE, '-o', output])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_underscore_bindings.py", line 17, in run_checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require two string operands for str_concat
+
+
+----------------------------------------------------------------------
+Ran 45 tests in 45.640s
+
+FAILED (failures=4)

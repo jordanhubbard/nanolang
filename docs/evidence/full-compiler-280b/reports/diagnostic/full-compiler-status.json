@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/tmp/nanolang-full-compiler-timing-280b-linux/compiler-root/bin/nanoc-diagnostic",
+    "/home/jkh/Src/nanolang-record-lists-qualified-50de/src_nano/nanoc_v06.nano",
+    "-o",
+    "/tmp/nanolang-full-compiler-timing-280b-linux/nanoc_stage1"
+  ],
+  "cwd": "/tmp/nanolang-full-compiler-timing-280b-linux/compiler-root",
+  "bound": 120,
+  "timeout": false,
+  "cleanup": [],
+  "returncode": 1,
+  "reaped": true,
+  "group_gone": true,
+  "seconds": 50.62706481106579,
+  "log": {
+    "sha256": "0ea23004c40674a7be40a213150d6317acf4608484444c39f11f6f3236bb4079",
+    "bytes": 1501024,
+    "archive": "/tmp/nanolang-full-compiler-timing-280b-linux/objects/0ea23004c40674a7be40a213150d6317acf4608484444c39f11f6f3236bb4079"
+  },
+  "inputs_equal": true
+}

@@ -1,0 +1,2 @@
+iteration=0 create=0.003861513 run=0.460559395 destroy=0.000664708 calls=1042 peak=8533192 live=0 bytes=0
+iteration=1 create=0.004041050 run=0.621696523 destroy=0.000657205 calls=1042 peak=8533192 live=0 bytes=0

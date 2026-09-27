@@ -1,0 +1,59 @@
+{
+  "pin": "1ff96ffe2c81fe39eac6e2abe33ca15c1746b995",
+  "files": {
+    "src/nanoisa/generated_schema.h": {
+      "git_blob": "10636254d79e0e4221e3b7a3c960f720544c21d1",
+      "sha256": "604a8c09a0bd06d9db5aec7ed9b0dff9b127ad29c14adc48587cb500a8a39c8e",
+      "bytes": 27126,
+      "mode": "100644"
+    },
+    "src/nanoisa/isa.h": {
+      "git_blob": "587bbd5d8b600294808da90320d6f0fada7e2702",
+      "sha256": "e540389ef8fb793498736eb717796122ceb396e5ff6894adabd0532173655fa5",
+      "bytes": 19096,
+      "mode": "100644"
+    },
+    "src/nanoisa/nvm_format.h": {
+      "git_blob": "70dc897ec824722037629de8633ab3e4ba973cf7",
+      "sha256": "188ffcb42a6b25b553e6fa57c0356c36ed3a4c4a2f90771a67f19309bafc50ec",
+      "bytes": 16013,
+      "mode": "100644"
+    },
+    "src/nanoisa/nvm_format_v2.h": {
+      "git_blob": "8ebb5848cff0c1576adbe182a2530aea95420499",
+      "sha256": "46fa83691461d535e5b02b4d30bbb890c86d3008d946dc937da45bbdb05c272b",
+      "bytes": 5694,
+      "mode": "100644"
+    },
+    "src/nanoisa/nvm_v2_sections.h": {
+      "git_blob": "791e23805be03438da8b5ecc3363fd971f1f60c9",
+      "sha256": "e4bac6faec58afad5b0f9b68446351985845a050f5c81ddfd34a67db77eb8c83",
+      "bytes": 19062,
+      "mode": "100644"
+    },
+    "src/nanoisa/sdk_provider_codec.h": {
+      "git_blob": "4608dc107d6dfe495b1d67cf0ba01abcdc9f8839",
+      "sha256": "4191fb55b8c4d110ec8c08beecbc7ddefdd02be498cba5594bae8d3417210159",
+      "bytes": 3260,
+      "mode": "100644"
+    },
+    "src/nanoisa/sdk_signature_snapshot.c": {
+      "git_blob": "9a62dca1af21886df35efffc07b4f854979b477e",
+      "sha256": "37cc2f22cbf37e1117e213e047aa3fb09625a9dafd72b199fe770d41bf6765b1",
+      "bytes": 4686,
+      "mode": "100644"
+    },
+    "src/nanoisa/sdk_signature_snapshot.h": {
+      "git_blob": "100f22718a82ab048a3829daab066ee695d07621",
+      "sha256": "cce33105da0ba7aefab306e2cf6aab55b0eedbbc272871a5c282a842a9d40e79",
+      "bytes": 1643,
+      "mode": "100644"
+    },
+    "tests/test_sdk_signature_snapshot.c": {
+      "git_blob": "547599920dea0f1cbda5358e7c2fc1a2cf69edb7",
+      "sha256": "b0e0e419274838342f2aae1cfeab0cd4f4b9137bbf466fc06a184c17c0ffda33",
+      "bytes": 5195,
+      "mode": "100644"
+    }
+  }
+}

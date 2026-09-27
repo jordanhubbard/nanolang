@@ -1,0 +1,23 @@
+{
+  "c.log": "ca36c0e33cf7dc89daa9a3e986a9b38ae99acb21f9359e813c1fa61d8f2ade05",
+  "fixture-results.json": "9e5633c20017371e24512180aa829ddbbff68141b75f86633db1b84ce5cf2c22",
+  "c-corrected.log": "c0f7c7b65b1f20ca29bb0cd02b29f1a0ac50a8390f2e19e98563a83834d33b31",
+  "strict-roots-results.json": "260a63f71eb53444d7a50ac5e36a5175c3cdf0b74d5474baa2c53207f18128c0",
+  "map.nano": "ff3ca795a88ba9edcc1abb228e9cec8958ecdfd10f4df35f6999a0a7ee39eb75",
+  "bytecode.log": "6c2c7750094db4d7267c1988f072d1389cc0e6ca798e4e841e5a34b0ef3f60e9",
+  "help.log": "cf688890817389a697b56123b8171a4566e92ee6c1f310bb452361f3c77d7152",
+  "capture-strict-roots.log": "5418f064043dbc2862fb869fe332451b9ebffe9600b02365d4b3daee61e2eaf1",
+  "map-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "README.md": "10fe1f0f9fb03eacb25550cc7c64ff30585da1490347374176bac7c734b5c266",
+  "map-explicit-free.nano": "8672aef6fb2ab4c0c2fb4042c59d937424df6356ec22463db1d9914be72ecc10",
+  "map-strict-roots.log": "989228cc4b432f2940a0ef389d7f447a2bc166c3047a7e5c9304bf8c5367efc1",
+  "native.log": "5d28ebb9af5e2b5f1d282017a77bf84b1f55defb1bb63c5192758777ae0dbd1f",
+  "inputs.json": "48d9495630f542ec23583aae39402ce2d18c1e168e5375ff32eaf9a67197dd6a",
+  "map-explicit-free-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "capture.nano": "c8cbac9e6a5f65fd3762f9650caf0c295854fc6fadb098522950b01d336c78c9",
+  "map-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "capture-build.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "capture-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "map-explicit-free-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "map-explicit-free-strict-roots.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

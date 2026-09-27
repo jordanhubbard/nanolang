@@ -1,0 +1,654 @@
+{
+  "scope": "I inventory tracked source/module/fixture texts by owning layout, header, width and ABI authority references; this is an auditable dependency search, not executed whole-repository compatibility proof.",
+  "native_layout_owner": "src/runtime/dyn_array.h",
+  "manual_production_replica": "src/nanoisa/nvm2c.c: emitted nh_array_value; size_t width and owning ABI macro value",
+  "intentional_stale_layout_fixtures": [
+    "tests/nanovm/ffi_artifact_fixture.c",
+    "tests/test_native_array_abi.py"
+  ],
+  "count": 88,
+  "paths": {
+    "Makefile.gnu": {
+      "sha256": "50f66777fa05a588ef28dae15a008b3a6571c61f95775d567a8ac965967583ed",
+      "classes": [
+        "owning_header"
+      ]
+    },
+    "modules/filesystem/filesystem.c": {
+      "sha256": "b8a842f0ae10bc0844f984a6abfd9867e4abb5258daccebaff791d3e939c2919",
+      "classes": [
+        "layout_use",
+        "abi_authority"
+      ]
+    },
+    "modules/filesystem/filesystem.h": {
+      "sha256": "92f53c8ae81dc80e162190296baa3a4c68d131b95648ed0ef3963fa282f56414",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "modules/glew/glew.c": {
+      "sha256": "ef9ee7eba562149cff0877bacfc505795b4e057276bf0dae4a49cb0163664c3f",
+      "classes": [
+        "owning_header"
+      ]
+    },
+    "modules/glew/glew_arrays.c": {
+      "sha256": "9c3c43a268833e446ae50887990775932511b0dd0a2f9ec3a7227bdf7f3a46b3",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "abi_authority"
+      ]
+    },
+    "modules/glew/glew_wrappers.h": {
+      "sha256": "1275c1e1cb6f3a0d0dbdeb46e0b7fd4d41c60f5ad1817faa0360084268931fbc",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "modules/gpu/cuda_runtime.c": {
+      "sha256": "8a91e85a78281c57477fa872ea54c4a50568ed428731ac11d7563fcb4109c613",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "abi_authority"
+      ]
+    },
+    "modules/gpu/opencl_runtime.c": {
+      "sha256": "b27fa3803b864ed69a68e92a265bf9f6ee056af148cd4425aba477d1970746df",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "abi_authority"
+      ]
+    },
+    "modules/preferences/preferences.c": {
+      "sha256": "67ed47e2ccf56ec52b73bb8ac1e2635e9968e9b35a396d54e51325c1522ee768",
+      "classes": [
+        "layout_use",
+        "width_access",
+        "abi_authority"
+      ]
+    },
+    "modules/preferences/preferences.h": {
+      "sha256": "f1d6edda9f7e2c821862bc676e0cf033f1450ce3b7dcdaa183295dc63a344c7a",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "modules/sdl_helpers/sdl_helpers.c": {
+      "sha256": "2ac0d1bcac90d4a18bee35eb02303b4f3132119df24e180b135b0b51ddcbde29",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "abi_authority"
+      ]
+    },
+    "modules/sdl_image/sdl_image_arrays.c": {
+      "sha256": "c76f93c207e3f2dbc69ed317b99e72173796c27f75a8ae6c6a01db7cea584430",
+      "classes": [
+        "layout_use",
+        "abi_authority"
+      ]
+    },
+    "modules/sdl_image/sdl_image_helpers.h": {
+      "sha256": "ea0f7552fd0654369dc0d439ee32dbc8cd94f6f25f47a15e6fdfa34c6859edb0",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "modules/std/collections/collections.c": {
+      "sha256": "3a27620822e7b640597abe6fc736f3e6c203b1be64592db93afed7198cea39b5",
+      "classes": [
+        "layout_use",
+        "abi_authority"
+      ]
+    },
+    "modules/std/collections/collections.h": {
+      "sha256": "b5f7fc2cdaaa17fba8016e74b27575a0ac4b40c45adbb4b480c143bc2991e545",
+      "classes": [
+        "layout_use"
+      ]
+    },
+    "modules/std/fs.c": {
+      "sha256": "8a54e1d0b2f452f7c4f000338b569559a8e6da214a3743579208bb463dc2fda1",
+      "classes": [
+        "layout_use",
+        "abi_authority"
+      ]
+    },
+    "modules/std/fs.h": {
+      "sha256": "bf76a1c1bcf523c60d6fa7678aee05e8946c5d41ca786f2a2cad115bfac05196",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "modules/std/json/.build/source_hashes.json": {
+      "sha256": "194fe94c0d7052c74fdb4bcc83682a956a41610c27ea6dec4f1fd1bd5a073947",
+      "classes": [
+        "owning_header"
+      ]
+    },
+    "modules/std/json/json.c": {
+      "sha256": "02d77e019714db01707ba187cb17b0ed2d8fe01efa49cab10d598e682e4f2406",
+      "classes": [
+        "layout_use",
+        "abi_authority"
+      ]
+    },
+    "modules/std/json/json.h": {
+      "sha256": "d68d728ebc469dcc4321e4ad36f23b653c1c527b2c89ec6af9528e5b46528128",
+      "classes": [
+        "layout_use"
+      ]
+    },
+    "modules/std/peg/peg.c": {
+      "sha256": "2bc723e971e4cdddc1756bf9001f5f8089a8f1ca9f54b3f8c70af49fd35d1219",
+      "classes": [
+        "layout_use",
+        "abi_authority"
+      ]
+    },
+    "modules/std/peg/peg.h": {
+      "sha256": "0102d03509fab5e286ddbef79d78862b1e639a07c6a144e09cb61457298fa61f",
+      "classes": [
+        "layout_use"
+      ]
+    },
+    "modules/std/process.c": {
+      "sha256": "4b1ad3526647c633f1ca80df1ef81c8a33db5f15c04ab0f1c1f0017343ad863f",
+      "classes": [
+        "layout_use",
+        "abi_authority"
+      ]
+    },
+    "modules/std/process.h": {
+      "sha256": "0aacd983ed02bd351e74603f6f3de6dbfcf166b1f02be791ef164cd47029d12b",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "modules/ui_widgets/ui_widgets.c": {
+      "sha256": "37d3da576a4b1341fa5914a60c77c1d7a65572f933acfb8cb21aca695b0f42ca",
+      "classes": [
+        "layout_use",
+        "width_access",
+        "abi_authority"
+      ]
+    },
+    "modules/ui_widgets/ui_widgets.h": {
+      "sha256": "4edf7c347401ce413be12337b993d6d6071aea6e4d1b27fb25d939063bbcbed3",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "src/env.c": {
+      "sha256": "47cf5d8f36ccf6f45b0efc5b727cc9d2d2f9b99db5b80ac10cf662a3b344a4a1",
+      "classes": [
+        "width_access"
+      ]
+    },
+    "src/eval.c": {
+      "sha256": "2a1ab34209d5be17051689170b8eead1b71362fc6d5f21e3681b0233dbd3260e",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "src/eval/eval_io.c": {
+      "sha256": "9a295767de018174675471e4d0905cefafff8a3f95d1e7a1f7fddbb33351ad4f",
+      "classes": [
+        "layout_use"
+      ]
+    },
+    "src/generated/compiler_schema.h": {
+      "sha256": "7b3afd3e486ff29db188e180b85775461d9c171ca1262872f99d079a7cdb85f1",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "src/main.c": {
+      "sha256": "e7a04bab57c03cf69c0ea3a9d3ddeea7e69a2fe71f9276ed35760ff34d4155ec",
+      "classes": [
+        "layout_use"
+      ]
+    },
+    "src/nanoisa/nvm2c.c": {
+      "sha256": "737544607649338701072e6dc621820a275a428e8e402d8419bf03cc04bb89ee",
+      "classes": [
+        "owning_header",
+        "width_access",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "src/nanolang.h": {
+      "sha256": "57945d731d2af70323be2cb4c6c363bdbc9367eaff1f5e9b0de3f7381a15ce5d",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "src/nanovm/vm_builtins.c": {
+      "sha256": "616dfffe58362ff8a94bf583a43136e4a9c3801ea1e03d972bce94692aefd215",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "width_access"
+      ]
+    },
+    "src/nanovm/vm_builtins.h": {
+      "sha256": "9acbe7128e504b80268b56beff93e9cb27e0cc64a47927365fbd1d9fa7771a89",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "src/nanovm/vm_ffi.c": {
+      "sha256": "2c4cb8c18cc73df23aea54e1e91929b6aa77a4929627aefaa3f2228dd2298355",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "abi_authority"
+      ]
+    },
+    "src/nanovm/vm_ffi_arrays.c": {
+      "sha256": "86ad159793e18844fd90b35436ea7d42096296721cd2f92229fdf722366825c9",
+      "classes": [
+        "layout_use",
+        "width_access"
+      ]
+    },
+    "src/nanovm/vm_ffi_arrays.h": {
+      "sha256": "acc42aba68836240186cd7c9e947a0125294c9881642338924532c2bb01c2bb5",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "src/runtime/directory_walk.h": {
+      "sha256": "dd136324b4f4bb7adaa09a4551e4f7f93470e70725b6a1f25f8ac61401799823",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "src/runtime/dyn_array.c": {
+      "sha256": "826d517ba6dad88ccf57e451a97a220d6630ba3a9180183c0e432e5e5875844b",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "width_access"
+      ]
+    },
+    "src/runtime/dyn_array.h": {
+      "sha256": "7988af4226161f0f336d8e17e6eda31261f1f76dc4dab87e380a5f61309a5f86",
+      "classes": [
+        "layout_use",
+        "width_access",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "src/runtime/ffi_loader.c": {
+      "sha256": "274915c5429441f087beb48804ed0c6d052d7086e93e0712692423ceda7d2a22",
+      "classes": [
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "src/runtime/ffi_loader.h": {
+      "sha256": "ffdb56d5b793388c1b64166be6de7b18092ed423c7ac38de499d5d3aa3fd80eb",
+      "classes": [
+        "abi_authority"
+      ]
+    },
+    "src/runtime/file_bytes.h": {
+      "sha256": "36bef5a7c379ddcabb8bcad99bc54f94ae06fb55fd35e710289eebb9e74dc110",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "src/runtime/file_text.h": {
+      "sha256": "42c3324c03180e4d2ce6868575f2b8d30af9e129076e13bdb184c209aa08d94a",
+      "classes": [
+        "layout_use"
+      ]
+    },
+    "src/runtime/gc.c": {
+      "sha256": "4251552bf53aefc58572d634ad1a9679b81b76cc1a228bfddc140e4cee9a10e2",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "src/runtime/native_array_abi.h": {
+      "sha256": "0cf0cc24bb953eb7f38ab9133ef72654dfbe084365faec5bd0a70eae46a89619",
+      "classes": [
+        "abi_authority"
+      ]
+    },
+    "src/runtime/process_capture.h": {
+      "sha256": "cd4e18b0edbfaad1982944d037103bac0783d40001cbb6f8ce53ede8e4f79a81",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "src/runtime/regex.c": {
+      "sha256": "18095f85de51e3ca79ad63d01e64f9dfd00a8c8f099ff1b64cdaec1d9c9b1c2c",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "src/stdlib_runtime.c": {
+      "sha256": "cbe142aed219b6619b0249ecfee8596edae14006823d9373ce2a4bd0ab137590",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "width_access"
+      ]
+    },
+    "src/transpiler.c": {
+      "sha256": "b3b75e63270d1a7dd08250461c4bcf6352b6d12727ca76f198b239fc2a73a532",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "src/transpiler_iterative_v3_twopass.c": {
+      "sha256": "898fbf2ab102c99a4336201ce016d06134e2f4db867bd0b1530cf24238fa5c2a",
+      "classes": [
+        "layout_use",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "src_nano/transpiler.nano": {
+      "sha256": "3afe0fc9e85478ffee4ba781fea8ff592929966549ba7fef8ee04e2f128686c0",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "width_access",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "tests/fs_walk_probe.c": {
+      "sha256": "65e0bb573383fc9a599d74bba85e82cace5f01f2f606c388a6236cab2fe2ac53",
+      "classes": [
+        "layout_use"
+      ]
+    },
+    "tests/nanoisa/test_nvm2c.c": {
+      "sha256": "fc6f3282380980689e49bf1ad5f1b9bdbaebcab6c3a13f974a4e44bacfd6e152",
+      "classes": [
+        "foreign_marker"
+      ]
+    },
+    "tests/nanovm/ffi_artifact_fixture.c": {
+      "sha256": "4573d4a29e608ed75be0beb1fb89997bcb7c88f6547d0a94c4deb3f528c8a357",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "width_access",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "tests/nanovm/test_ffi_arrays.c": {
+      "sha256": "f4f87ba80ae16d8991998757a36bc47bf66dfe2c0f37d097c3a56909f2f2465c",
+      "classes": [
+        "layout_use",
+        "width_access"
+      ]
+    },
+    "tests/nanovm/test_vm_builtins.c": {
+      "sha256": "e5753ac078e9e2a1a808890136ae51034af609075586bbfbb093a3aa5e7529c9",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "tests/nanovm/test_vm_ffi.c": {
+      "sha256": "1265e6cc9b6b5830474d752f4c23bbe5c647d0191ff55db83f06a8267477985b",
+      "classes": [
+        "owning_header"
+      ]
+    },
+    "tests/native_array_slice_helper.c": {
+      "sha256": "d9559dafd0eb0ca53c76d53eaa37bf975e3f04d13ab5df73a78eda20a89255f4",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "tests/test_array_abi_loader.py": {
+      "sha256": "9d9ec35c146d9af0999f73bd4af8da2249ac92fd60944c00b6c24ed46ba61540",
+      "classes": [
+        "owning_header",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "tests/test_binary64_arithmetic_eval.c": {
+      "sha256": "51b484c87b3d44cb6ccb0c0737b827ea72da236177c07003f0b085ec557b0641",
+      "classes": [
+        "layout_use"
+      ]
+    },
+    "tests/test_collection_array_exports.c": {
+      "sha256": "4b92a3c4a65e07ce59155b9a1457c430afe561ce28acaa12a90331b73368bd30",
+      "classes": [
+        "layout_use",
+        "width_access",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "tests/test_dyn_array.c": {
+      "sha256": "228c793099fb3b879bff661f30274e88dc6d31f743bafa1d6819f6d6eb277391",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "width_access"
+      ]
+    },
+    "tests/test_dyn_array_allocation.c": {
+      "sha256": "4c9d601ff417d161d8109917e1e8f2311b803fa665228edf661d15f66b1475d7",
+      "classes": [
+        "layout_use",
+        "width_access",
+        "abi_authority"
+      ]
+    },
+    "tests/test_emitted_array_binary64.c": {
+      "sha256": "8e5fd10ff7d0be2ce1cda44322d3ed73e876bafb65bd8cfe1cf9f4164245c604",
+      "classes": [
+        "layout_use"
+      ]
+    },
+    "tests/test_emitted_array_binary64.py": {
+      "sha256": "41ed8c83db7a26ff57bf9677c59cb4a022ad9cae4f1285ab86ecc8f5b2f6f858",
+      "classes": [
+        "owning_header"
+      ]
+    },
+    "tests/test_env_simple.c": {
+      "sha256": "98374742c3405eb0c6c896bdccdf7af673750549cc59d776ac55dc3d4925e1e9",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "width_access"
+      ]
+    },
+    "tests/test_eval.c": {
+      "sha256": "9b91bd37c043d09b77de0fa1ac666f35b4e77c61e07a86751e4438429aa96875",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "tests/test_file_bytes.c": {
+      "sha256": "ce0c3f4b3eb8c22a516a409ef1c699d93216d7e4cbbe1366cf68da7a4bf0164f",
+      "classes": [
+        "owning_header",
+        "layout_use"
+      ]
+    },
+    "tests/test_filesystem_array_exports.c": {
+      "sha256": "609b62d04e1aa330f76ae35b37f7ae05357dce60ac57cd2ff7c4aa926e99e259",
+      "classes": [
+        "layout_use",
+        "width_access",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "tests/test_fs_walkdir.c": {
+      "sha256": "15ab02db5b1e6d69c21a5be0737d341524f282320b96be1a49ae5350f829646e",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "width_access"
+      ]
+    },
+    "tests/test_glew_array_boundary.py": {
+      "sha256": "94d13505279d2d696827b2cfa778784818ab0d0652cd2389aa13af42b7839d3e",
+      "classes": [
+        "foreign_marker"
+      ]
+    },
+    "tests/test_glew_arrays.c": {
+      "sha256": "326451e8ee8de21f89c6bc86a16dfdb11e213713c46d091fd7513d5d88f4f235",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "width_access",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "tests/test_gpu_array_boundary.c": {
+      "sha256": "1e5d47c0d232aab54c75bcbbf780ff2ae1666c477a41970ba89df4253c3156cd",
+      "classes": [
+        "layout_use",
+        "width_access"
+      ]
+    },
+    "tests/test_native_array_abi.py": {
+      "sha256": "49d210876967d6dfa903c41bded57482fb4472f17acc9dd2f737f9cc1073c1e2",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "width_access",
+        "foreign_marker"
+      ]
+    },
+    "tests/test_path_ops_v2.c": {
+      "sha256": "6aa68516f25ecc1568d9f59b28fc5250bfe196d8d7645db2509e38c5b2ad5520",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "width_access"
+      ]
+    },
+    "tests/test_peg_array_exports.c": {
+      "sha256": "3c6322aac8977d20773456890a8da4bfe76fca542298786f3bcf6d78f82b7826",
+      "classes": [
+        "layout_use",
+        "width_access",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "tests/test_preferences_save.c": {
+      "sha256": "a871fc905f5bcc33885a54b7b065d9197e49419391f796b9ead6df2a35332c5a",
+      "classes": [
+        "layout_use",
+        "width_access",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "tests/test_process.c": {
+      "sha256": "4d74bc13409ce989a922a7e1abae96478e0b920234ba584d9440253cc5f67d7e",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "width_access"
+      ]
+    },
+    "tests/test_process_pipe_array.c": {
+      "sha256": "c723e44147ba78f84e680672095d47b033d98163eafaa3ef2b69a6997d8be8b2",
+      "classes": [
+        "layout_use",
+        "width_access",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "tests/test_process_run_array.c": {
+      "sha256": "cd0c273f77b1536f63494fc9b3fd5ed0052debb9eb706333b5c8f4beddb11da0",
+      "classes": [
+        "layout_use",
+        "width_access",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "tests/test_sdl_array_boundary.c": {
+      "sha256": "1159cdb9f32e1c463fab991eb53a0ada90767906718a728f0b4cfe4eb98b3b21",
+      "classes": [
+        "owning_header",
+        "layout_use",
+        "width_access"
+      ]
+    },
+    "tests/test_sdl_image_array_boundary.py": {
+      "sha256": "a192303d3a4f582c9d76c3d8c232e0c79571536e030f7e2f52f599e5ff4fef61",
+      "classes": [
+        "foreign_marker"
+      ]
+    },
+    "tests/test_sdl_image_arrays.c": {
+      "sha256": "f4bcad92859f23ad69bd492d338a1ac1727b6da86dc913247cf12fedc718e433",
+      "classes": [
+        "layout_use",
+        "width_access"
+      ]
+    },
+    "tests/test_selfhost_native_array_slice.py": {
+      "sha256": "f4be9cb190ae8912010f300c37f4cb38400efc13524dc7ae39e495dd96bf98c9",
+      "classes": [
+        "layout_use"
+      ]
+    },
+    "tests/test_ui_array_bounds.c": {
+      "sha256": "d00af00f4c921d8ad054b77c7698e1a3ef4f7d4c66195517700aa8d052000ff2",
+      "classes": [
+        "layout_use",
+        "width_access",
+        "abi_authority",
+        "foreign_marker"
+      ]
+    },
+    "tests/test_walk_result_release.c": {
+      "sha256": "15fd81bed370827090f74582c575e37f354c8b0fd81258819e642615cf2ffeb4",
+      "classes": [
+        "layout_use"
+      ]
+    }
+  }
+}

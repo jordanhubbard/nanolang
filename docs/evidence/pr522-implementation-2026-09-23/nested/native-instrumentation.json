@@ -1,0 +1,9 @@
+{
+  "source_sha256": "7a8cbe6e98acbfab35fd88b1c099bcb8e7295566060c02afd26abecc0c8013bf",
+  "module_sha256": "40d7d8e442af9c9ea76bb68c3d9b1b625fcaef57e891983ae51880d7aff059f3",
+  "compiler": "/opt/homebrew/opt/llvm/bin/clang",
+  "flags": "-std=c11 -Wall -Wextra -Werror -g -O1 -fsanitize=address,undefined -fno-sanitize-recover=all",
+  "ASAN_OPTIONS": "detect_leaks=1",
+  "UBSAN_OPTIONS": "halt_on_error=1",
+  "exit_code": 0
+}

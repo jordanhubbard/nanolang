@@ -9,6 +9,7 @@
 
 #include "service_bindings_module.h"
 #include "disassembler.h"
+#include "capture_bindings.h"
 #include "isa.h"
 #include <stdlib.h>
 #include <string.h>
@@ -348,9 +349,9 @@ static void disasm_write_quoted(FILE *out, const NvmModule *mod, uint32_t idx) {
     fputc('"', out);
 }
 
-void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
-                                  DisasmStyle style) {
-    if (nvm_service_execution_pending(mod)) return;
+/* I validate required capture metadata once before publishing module text. */
+static void disasm_module_write_validated(const NvmModule *mod, FILE *out,
+                                         DisasmStyle style) {
     /* String pool */
     for (uint32_t i = 0; i < mod->string_count; i++) {
         if (!nvm_get_string(mod, i)) continue;
@@ -394,6 +395,7 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
         for (uint32_t i = 0; i < mod->import_count; i++) {
             if (mod->imports[i].kind != NVM_IMPORT_FFI)
                 fprintf(out, ".import_kind %u %s\n", i,
+                        mod->imports[i].kind == NVM_IMPORT_DECLARED_SCALAR_ARTIFACT ? "declared_scalar_artifact" :
                         mod->imports[i].kind == NVM_IMPORT_ARTIFACT ? "artifact" : "coprocess");
         }
         for (uint32_t i = 0; i < mod->callback_contract_count; i++) {
@@ -466,6 +468,15 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
         fprintf(out, "\n");
     }
 
+    if (style == DISASM_STYLE_CANONICAL && mod->capture_size) {
+        for (uint32_t i = 0; i < mod->capture_size; ++i) {
+            if (i % 32 == 0) fprintf(out, ".capture_bindings \"");
+            fprintf(out, "%02x", mod->capture_data[i]);
+            if (i % 32 == 31 || i + 1 == mod->capture_size) fprintf(out, "\"\n");
+        }
+        fprintf(out, "\n");
+    }
+
     /* Entry point */
     if (mod->header.flags & NVM_FLAG_HAS_MAIN) {
         fprintf(out, ".entry %u\n\n", mod->header.entry_point);
@@ -498,19 +509,30 @@ void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
     }
 }
 
+void disasm_module_to_file_styled(const NvmModule *mod, FILE *out,
+                                  DisasmStyle style) {
+    if (!mod || !out || nvm_service_execution_pending(mod) ||
+        nvm_capture_bindings_validate_module(mod) != NVM_CAPTURE_OK) return;
+    disasm_module_write_validated(mod, out, style);
+}
+
 void disasm_module_to_file(const NvmModule *mod, FILE *out) {
     disasm_module_to_file_styled(mod, out, DISASM_STYLE_DETAILED);
 }
 
 char *disasm_module_styled(const NvmModule *mod, DisasmStyle style) {
-    if (nvm_service_execution_pending(mod)) return NULL;
+    if (!mod || nvm_service_execution_pending(mod) ||
+        nvm_capture_bindings_validate_module(mod) != NVM_CAPTURE_OK) return NULL;
     char *buf = NULL;
     size_t buf_size = 0;
     FILE *stream = open_memstream(&buf, &buf_size);
     if (!stream) return NULL;
 
-    disasm_module_to_file_styled(mod, stream, style);
-    fclose(stream);
+    disasm_module_write_validated(mod, stream, style);
+    if (fclose(stream) != 0) {
+        free(buf);
+        return NULL;
+    }
 
     return buf;
 }

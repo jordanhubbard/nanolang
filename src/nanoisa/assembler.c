@@ -10,6 +10,7 @@
 #include "local_bindings.h"
 #include "isa.h"
 #include "verifier.h"
+#include "capture_bindings.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -947,14 +948,15 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return flow_directive(state, directive, p, result);
 
         if (strcmp(directive, "passive") == 0 || strcmp(directive, "layouts") == 0 ||
-            strcmp(directive, "ownership") == 0) {
+            strcmp(directive, "ownership") == 0 || strcmp(directive, "capture_bindings") == 0) {
             bool layouts = strcmp(directive, "layouts") == 0;
             bool ownership = strcmp(directive, "ownership") == 0;
-            uint8_t **payload = ownership ? &state->mod->ownership_data :
+            bool captures = strcmp(directive, "capture_bindings") == 0;
+            uint8_t **payload = captures ? &state->mod->capture_data : ownership ? &state->mod->ownership_data :
                 layouts ? &state->mod->layout_data : &state->mod->passive_data;
-            uint32_t *payload_size = ownership ? &state->mod->ownership_size :
+            uint32_t *payload_size = captures ? &state->mod->capture_size : ownership ? &state->mod->ownership_size :
                 layouts ? &state->mod->layout_size : &state->mod->passive_size;
-            if (!layouts && !ownership && state->passive_structured)
+            if (!captures && !layouts && !ownership && state->passive_structured)
                 return par_error(result, "I cannot mix raw passive chunks and producer markers.");
             char hex[4096];
             uint32_t length;
@@ -975,6 +977,13 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             uint32_t bytes = length / 2;
             if (bytes > UINT32_MAX - *payload_size) {
                 result->error = ASM_ERR_MEMORY;
+                return false;
+            }
+            if (captures && (*payload_size > NVM_CAPTURE_TRANSPORT_BYTES ||
+                bytes > NVM_CAPTURE_TRANSPORT_BYTES - *payload_size)) {
+                result->error = ASM_ERR_MEMORY;
+                snprintf(result->message, sizeof result->message,
+                         "I require capture payload bytes within my transport budget");
                 return false;
             }
             uint8_t *data = realloc(*payload, *payload_size + bytes);
@@ -1152,12 +1161,13 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             char kind[32];
             if (!parse_uint32(&p, &index) || index >= state->mod->import_count ||
                 !parse_identifier(&p, kind, sizeof(kind)) || !at_line_end(p) ||
-                (strcmp(kind, "ffi") && strcmp(kind, "coprocess") && strcmp(kind, "artifact"))) {
+                (strcmp(kind, "ffi") && strcmp(kind, "coprocess") && strcmp(kind, "artifact") && strcmp(kind, "declared_scalar_artifact"))) {
                 result->error = ASM_ERR_BAD_OPERAND;
-                snprintf(result->message, sizeof(result->message), "I expect .import_kind index ffi|coprocess|artifact");
+                snprintf(result->message, sizeof(result->message), "I expect .import_kind index ffi|coprocess|artifact|declared_scalar_artifact");
                 return false;
             }
-            state->mod->imports[index].kind = !strcmp(kind, "artifact") ? NVM_IMPORT_ARTIFACT :
+            state->mod->imports[index].kind = !strcmp(kind, "declared_scalar_artifact") ? NVM_IMPORT_DECLARED_SCALAR_ARTIFACT :
+                !strcmp(kind, "artifact") ? NVM_IMPORT_ARTIFACT :
                 !strcmp(kind, "coprocess") ? NVM_IMPORT_COPROCESS : NVM_IMPORT_FFI;
             return true;
         }
@@ -1581,6 +1591,12 @@ static NvmModule *asm_assemble_impl(const char *source, AsmResult *result,
     NvmModule *mod = state.mod;
     asm_state_cleanup(&state);
 
+    if (nvm_capture_bindings_validate_module(mod) != NVM_CAPTURE_OK) {
+        result->error = ASM_ERR_VERIFY;
+        snprintf(result->message, sizeof result->message, "I require complete capture binding transport");
+        nvm_module_free(mod);
+        return NULL;
+    }
     if (verify) {
         NvmVerifyResult verdict = nvm_verify(mod);
         if (!verdict.ok) {

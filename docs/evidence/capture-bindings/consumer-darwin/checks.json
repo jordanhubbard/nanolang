@@ -1,0 +1,56 @@
+[
+  {
+    "label": "first",
+    "remote_root": "/Users/jkh/nanolang-qualification/capture-consumers-a88-darwin",
+    "archive_sha256": "3d7812e74865661932a5f3f73099631cd019c01cd60d44293bb7dc80c69b6d1d",
+    "checks": {
+      "terminal": {
+        "timeout": false,
+        "cleanup_errors": [],
+        "returncode": 2,
+        "seconds": 0.36642770799880964,
+        "leader_reaped": true,
+        "group_gone": true
+      },
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "products": 7
+    }
+  },
+  {
+    "label": "sdk-corrected",
+    "remote_root": "/Users/jkh/nanolang-qualification/capture-consumers-a88-darwin-r2",
+    "archive_sha256": "3a018494bff8613cc8d44c97e9e77e2b454edfaca97582023a49874275214ac5",
+    "checks": {
+      "terminal": {
+        "timeout": false,
+        "cleanup_errors": [],
+        "returncode": 2,
+        "seconds": 8.423166083000979,
+        "leader_reaped": true,
+        "group_gone": true
+      },
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "products": 303
+    }
+  },
+  {
+    "label": "passed",
+    "remote_root": "/Users/jkh/nanolang-qualification/capture-consumers-5d8-darwin",
+    "archive_sha256": "f0238fe2345d2358ecfef883754db85794c7c6717a3a4c64900463776bc83fec",
+    "checks": {
+      "terminal": {
+        "timeout": false,
+        "cleanup_errors": [],
+        "returncode": 0,
+        "seconds": 8.887232708999363,
+        "leader_reaped": true,
+        "group_gone": true
+      },
+      "source_unchanged": true,
+      "tools_unchanged": true,
+      "products": 307
+    }
+  }
+]

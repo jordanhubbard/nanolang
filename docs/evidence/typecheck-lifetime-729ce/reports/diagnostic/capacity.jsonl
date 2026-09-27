@@ -1,0 +1,8 @@
+{"phase": "variables", "seconds": 0.8860994289861992, "free_bytes": 4894076928}
+{"phase": "env-build", "seconds": 0.8452448468888178, "free_bytes": 4889112576}
+{"phase": "eval-build", "seconds": 0.8692462539765984, "free_bytes": 4878344192}
+{"phase": "typechecker-build", "seconds": 0.8669455829076469, "free_bytes": 4876533760}
+{"phase": "link", "seconds": 0.8734932630322874, "free_bytes": 4869251072}
+{"phase": "full-typecheck", "seconds": 0.8799673429457471, "free_bytes": 4823220224}
+{"phase": "full-typecheck", "seconds": 10.880235892022029, "free_bytes": 4816224256}
+{"phase": "full-typecheck", "seconds": 20.880555019015446, "free_bytes": 4809842688}

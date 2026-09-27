@@ -5,6 +5,7 @@ import shlex
 import subprocess
 import tempfile
 import unittest
+from tests.managed_probe_flags import compiler_command, compile_flags, link_flags
 ROOT=Path(__file__).resolve().parents[1]
 class GraphOrigins(unittest.TestCase):
     @classmethod
@@ -12,7 +13,7 @@ class GraphOrigins(unittest.TestCase):
         cls.temp=tempfile.TemporaryDirectory(prefix='nano-graph-origins-');cls.work=Path(cls.temp.name);cls.probes=[]
         for name,cc,flags in [('ordinary','cc',[]),('sanitized','clang',shlex.split(os.environ.get('NMS_NATIVE_CLANG_FLAGS',''))+['-fsanitize=address,undefined','-fno-sanitize-recover=all'])]:
             exe=cls.work/name
-            p=subprocess.run([cc,*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror','-DNMA_TESTING',ROOT/'src/nanoisa/managed_array_shapes.c',ROOT/'tests/nanoisa/test_managed_graph_origins.c',*shlex.split(os.environ['NMA_LINK_OBJECTS']),'-lm','-lcrypto','-o',exe],capture_output=True,text=True)
+            p=subprocess.run([*compiler_command(cc),*compile_flags(),*flags,'-std=c11','-O1','-Wall','-Wextra','-Werror','-DNMA_TESTING',ROOT/'src/nanoisa/managed_array_shapes.c',ROOT/'tests/nanoisa/test_managed_graph_origins.c',*shlex.split(os.environ['NMA_LINK_OBJECTS']),'-lm','-lcrypto',*link_flags(),'-o',exe],capture_output=True,text=True)
             if p.returncode:raise RuntimeError(p.stdout+p.stderr)
             cls.probes.append(exe)
     @classmethod

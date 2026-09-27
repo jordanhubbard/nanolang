@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0010] I require two strings for str_split. (/private/tmp/nanolang-split-d1e41-puck-evidence/nano-split-primitive-oap66fib/refresh2-refuse-source-type.nano:1:47)

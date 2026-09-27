@@ -1,0 +1,7 @@
+# My first opaque transport prerequisites
+
+I retain ab7 fresh Linux ordinary providers PASS and the original fixture threshold mismatch (4195 bytes versus provider requirement greater than8192). Corrected b66 changes only that input to12289 bytes: fresh providers and all new owning controls PASS, then the unchanged original COP protocol reports35/36 PASS and stops at its missing bad-import diagnostic. Static inspection also finds the following original completed-prefix assertion, so I correct ordered validation before any replay.
+
+My93e successor includes bounded diagnostics and ordered valid-prefix publication with pre-reserved opaque capacity. It remains subject to fresh gates. Neither first terminal reached sanitizer, original FFI or lifecycle groups; Darwin was staged and never launched. No threaded-fork or exec acceptance is claimed. I retain full products outside Git under the named qualification roots and archive raw terminal logs plus complete source/tool/product maps here. The corrected archive excludes only historical docs/evidence, avoiding recopying unrelated qualification archives.
+
+My93e ordinary new token, original COP protocol and original fuzz controls pass on both hosts. Both then stop at original VM FFI too-many-arguments missing-error assertion (28/29 pass). The07cc successor preserves that original assertion and adds explicit failure-output/provider-count controls after auditing all new diagnostic guards. Neither93e sanitizer or lifecycle phase was reached.

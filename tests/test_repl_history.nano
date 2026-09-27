@@ -3,14 +3,14 @@
  * Tests get_history_path, save_session, load_session in isolation.
  */
 from "modules/readline/readline.nano" import rl_read_history, rl_write_history, rl_stifle_history
-from "modules/std/env.nano" import nl_os_getenv
-from "modules/std/fs.nano" import file_read, file_write
+from "modules/std/env.nano" import get
+from "modules/std/fs.nano" import read, write
 from "modules/std/collections/stringbuilder.nano" import StringBuilder, sb_new, sb_append, sb_to_string
 
 /* ── Helpers (duplicated from full_repl.nano for standalone testing) ── */
 
 fn get_history_path() -> string {
-    let home: string = (nl_os_getenv "HOME")
+    let home: string = (get "HOME")
     if (> (str_length home) 0) {
         return (str_concat home "/.nano_history")
     }
@@ -28,7 +28,7 @@ fn save_session(preamble_sb: StringBuilder, path: string) -> int {
     if (== (str_length content) 0) {
         return 0
     }
-    let result: int = (file_write path content)
+    let result: int = (write path content)
     return result
 }
 
@@ -38,13 +38,13 @@ shadow save_session {
     let r: int = (save_session sb "/tmp/nano_test_session.nano")
     assert (== r 0)
     /* Verify file was written */
-    let content: string = (file_read "/tmp/nano_test_session.nano")
+    let content: string = (read "/tmp/nano_test_session.nano")
     assert (str_contains content "answer")
     assert (str_contains content "42")
 }
 
 fn load_session_content(preamble_sb: StringBuilder, path: string) -> int {
-    let content: string = (file_read path)
+    let content: string = (read path)
     if (== (str_length content) 0) {
         return 1
     }
@@ -54,7 +54,7 @@ fn load_session_content(preamble_sb: StringBuilder, path: string) -> int {
 
 shadow load_session_content {
     /* Write a temp file, then load it */
-    let ok: int = (file_write "/tmp/nano_load_test.nano" "let loaded: int = 99\n")
+    let ok: int = (write "/tmp/nano_load_test.nano" "let loaded: int = 99\n")
     assert (== ok 0)
     let sb: StringBuilder = (sb_new)
     let r: int = (load_session_content sb "/tmp/nano_load_test.nano")

@@ -1,0 +1,666 @@
+{
+  "linux": {
+    "pin": "8bf4112cf8dbb893e2bb7c48c9e0cb7bc925d066",
+    "archive_sha256": "0df9a0e2656dfd5bbb1dcdfed76dfa89ac769abc6e3addfcb17ae80204c8e9fe",
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "tools-after.json": {
+        "bytes": 303,
+        "sha256": "b05f1155395301fa94db51add29e3f30e65468084e91090f84e8b6026838a7d2"
+      },
+      "identity.json": {
+        "bytes": 791,
+        "sha256": "6eb6397f0d215f08efa8f44f3721132ed2836c6e900075be45646a8b9240193b"
+      },
+      "phases.json": {
+        "bytes": 2344,
+        "sha256": "e51c1e8230173482dccb4460e4d76b80c6e75557f6957c6aae6693ad30f7703c"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 455,
+        "sha256": "957b13f1078b279d9eb89ca76a483bcc911d63efddcc0adad26677e445fe2abc"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 1058,
+        "sha256": "f24f583225cb59893087f4ce14b8328ac6de233f86f426bd5f73c40d6daeffb3"
+      },
+      "ordinary/products.json": {
+        "bytes": 7773,
+        "sha256": "cb307bf88640ef213957729e6de1a2a4761720aa016bddc1d26b476565a5aebe"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 455,
+        "sha256": "6f4873e37cca464600459011d9492168a979735814e461db47959982d012af2d"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 6647,
+        "sha256": "24a0bf8668a5beafa7b8d4e976aecba4c53140a07047aeed3925d4decc64d5dc"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 30,
+        "sha256": "449eed8c2998494066b8ce7562c2154de43a5ffe32ea917390b24b4b2d7e623d"
+      },
+      "ordinary/source-after.json": {
+        "bytes": 426499,
+        "sha256": "8366427c30609f384e5b4fa1d53e4f96d8c4e54eb6673fa25544ed8e57023655"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 6357,
+        "sha256": "4efe67a5edeb43c58111e7559d3e1515fe2b0b2aede153932ddcf58ae3143fc6"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 6647,
+        "sha256": "24a0bf8668a5beafa7b8d4e976aecba4c53140a07047aeed3925d4decc64d5dc"
+      },
+      "ordinary/ordinary-declarations.log": {
+        "bytes": 2162,
+        "sha256": "51c30a8d5d29ee02e901d3fbfbc51020c86d9a82536c860d393e28ee8f6318f1"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 426499,
+        "sha256": "8366427c30609f384e5b4fa1d53e4f96d8c4e54eb6673fa25544ed8e57023655"
+      },
+      "ordinary/ordinary-declarations.json": {
+        "bytes": 478,
+        "sha256": "313d7c741145b0875eef2dab35b7e165093b0a1b4ad5daad5a46c8d49ef2affd"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 65,
+        "sha256": "eee81e67213f9d4967dd57ac8086be92d8d1dee93dcc4f768fa5430885b8ddb6"
+      },
+      "sanitized/providers.txt": {
+        "bytes": 1058,
+        "sha256": "f24f583225cb59893087f4ce14b8328ac6de233f86f426bd5f73c40d6daeffb3"
+      },
+      "sanitized/products.json": {
+        "bytes": 7773,
+        "sha256": "a0545c9e231be65e54c22693654bbde5685efc07410b3d53f1c7355d6f4b5188"
+      },
+      "sanitized/providers.mk": {
+        "bytes": 458,
+        "sha256": "06db6f1066a07d7335d1c089def03b9e1ac21e1210c6c581b954452c95cbc625"
+      },
+      "sanitized/providers-before.json": {
+        "bytes": 6685,
+        "sha256": "0139f43c2ed48bdb81386263e9ce38eca2dd79281c32503d672572ca8062d9cc"
+      },
+      "sanitized/sanitized-providers.log": {
+        "bytes": 9359,
+        "sha256": "c312d55b2fe4f635b26aa4f770f8366db95705e543bc8e6109ee7867e6db2caf"
+      },
+      "sanitized/ldflags.txt": {
+        "bytes": 109,
+        "sha256": "e6a3c205b36c0d7f95e3cc06754c65c2d3afacc20d38cff8a10c7ae28c57bcc4"
+      },
+      "sanitized/source-after.json": {
+        "bytes": 426499,
+        "sha256": "8366427c30609f384e5b4fa1d53e4f96d8c4e54eb6673fa25544ed8e57023655"
+      },
+      "sanitized/sanitized-declarations.log": {
+        "bytes": 2322,
+        "sha256": "2afaf5a47b1f7449ce085cee7e96c42cc6a247f13f3ea4db621c3ebd7807a9fb"
+      },
+      "sanitized/providers-after.json": {
+        "bytes": 6685,
+        "sha256": "0139f43c2ed48bdb81386263e9ce38eca2dd79281c32503d672572ca8062d9cc"
+      },
+      "sanitized/source-before.json": {
+        "bytes": 426499,
+        "sha256": "8366427c30609f384e5b4fa1d53e4f96d8c4e54eb6673fa25544ed8e57023655"
+      },
+      "sanitized/sanitized-providers.json": {
+        "bytes": 615,
+        "sha256": "fa8ad9d6e60cdd540455668c9a8f57f4a9e16bee5d78f5a470780b89876bf5ab"
+      },
+      "sanitized/cflags.txt": {
+        "bytes": 144,
+        "sha256": "ad1a592fe7c650cfbc2cc3fc83d635d2df4f011c0e19663ac48fb4ef6ee2b9ed"
+      },
+      "sanitized/sanitized-declarations.json": {
+        "bytes": 637,
+        "sha256": "dc6a3d1f42086fd5f25b0042e073fb07ee93dfc8fc4e737dfb0554c19bc4be72"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/linked-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/linked-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/instrumented-build-command.txt": {
+        "bytes": 1510,
+        "sha256": "cf1c2ae9782517488c25c4f20ba1a3ca8301f4e532110de7c98b853c6c1c7f1c"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/instrumented-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/instrumented-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/linked-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/instrumented-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/instrumented-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/linked-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/instrumented-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/linked-run-stdout.log": {
+        "bytes": 179,
+        "sha256": "5e066d50f30be0677861206803e4933ba5534de9c148d4974b1d04a85e02d294"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/instrumented-run-stdout.log": {
+        "bytes": 326,
+        "sha256": "30cd54d6e1cbde68f273b678f510b4d4f8f9c9073547bd070832a380248b32c0"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/linked-run-command.txt": {
+        "bytes": 115,
+        "sha256": "ea4d1e87a11ac2e14af4e02dc03b8bfb1f5fe2a08364873a606e59bdde3c8f5a"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/linked-build-command.txt": {
+        "bytes": 1550,
+        "sha256": "c2977f35116cf113921be34cb89bb22c406aa6d34fd44d3afd22f83bb99f8bb2"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/linked-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-ed7bpkco/instrumented-run-command.txt": {
+        "bytes": 121,
+        "sha256": "761c6f75e074b0bb94a7ee0ca0aabafc13bc2682522b99e6ff07326a6479fd26"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/linked-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/linked-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/instrumented-build-command.txt": {
+        "bytes": 1351,
+        "sha256": "c360f5c6ed5d83b35e502b47e9afda5004a9919939a55d7a4ee393a15f3344d9"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/instrumented-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/instrumented-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/linked-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/instrumented-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/instrumented-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/linked-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/instrumented-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/linked-run-stdout.log": {
+        "bytes": 179,
+        "sha256": "5e066d50f30be0677861206803e4933ba5534de9c148d4974b1d04a85e02d294"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/instrumented-run-stdout.log": {
+        "bytes": 326,
+        "sha256": "30cd54d6e1cbde68f273b678f510b4d4f8f9c9073547bd070832a380248b32c0"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/linked-run-command.txt": {
+        "bytes": 114,
+        "sha256": "95bd5152e46f2f687ebe0f5250b5a2ca57b584a7a39d197f4545dcc6e2949ee2"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/linked-build-command.txt": {
+        "bytes": 1391,
+        "sha256": "d6c93a6c2a1c64880749e2e6ccdf9a7fd291499ea491fc9a9c75d7d2f83fcbe8"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/linked-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-whjgk_az/instrumented-run-command.txt": {
+        "bytes": 120,
+        "sha256": "c6df0e9e8bd12d24efad829592f188fe9f531582671fb2dbf3eab39e04624729"
+      }
+    },
+    "phases": [
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/declaration-v2-8bf-linux/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2885950,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 6.2417042929446325
+      },
+      {
+        "label": "ordinary-declarations",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/declaration-v2-8bf-linux/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE",
+          "LDFLAGS=-lm",
+          "test-ownership-declaration-projection"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2886770,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 2.1543659099843353
+      },
+      {
+        "label": "sanitized-providers",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/declaration-v2-8bf-linux/sanitized/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2887291,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 11.277349853073247
+      },
+      {
+        "label": "sanitized-declarations",
+        "argv": [
+          "/bin/make",
+          "-f",
+          "/home/jkh/nanolang-qualification/declaration-v2-8bf-linux/sanitized/providers.mk",
+          "-j2",
+          "CC=/usr/bin/gcc",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "test-ownership-declaration-projection"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 2889096,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 53.16105780901853
+      }
+    ]
+  },
+  "puck": {
+    "pin": "8bf4112cf8dbb893e2bb7c48c9e0cb7bc925d066",
+    "archive_sha256": "77d8034cec4ff78079add23652f5e727eb2f770eb5687f87318b43652445164c",
+    "members": {
+      "terminal.json": {
+        "bytes": 18,
+        "sha256": "370aaa466bf7fdf5df8dec2004f5e0b4d5d352b7060c00c4a1204cc89b4b641a"
+      },
+      "tools-after.json": {
+        "bytes": 402,
+        "sha256": "f17a605e03b41e7dcddbf1175b93386adad488facb1e2f09f9259a1f93c371ed"
+      },
+      "identity.json": {
+        "bytes": 1008,
+        "sha256": "08d33a6dbf4b85bb49907dc10b4ada8f586788edc06354981800a4184cf7730b"
+      },
+      "phases.json": {
+        "bytes": 3233,
+        "sha256": "8c63e3fc1953fc5762849d20d3724127bbc410ef02e076f972919618171e51e4"
+      },
+      "ordinary/ordinary-providers.json": {
+        "bytes": 668,
+        "sha256": "b5c4a501f80b0a040c9ff511784f22b03c3550a76e41ab1b17cd379d11b7cd50"
+      },
+      "ordinary/providers.txt": {
+        "bytes": 1058,
+        "sha256": "f24f583225cb59893087f4ce14b8328ac6de233f86f426bd5f73c40d6daeffb3"
+      },
+      "ordinary/products.json": {
+        "bytes": 7773,
+        "sha256": "42926d2ef25185b1600eed61e6e73dd9aa2bffbdc7eea32f27d1a43613501c84"
+      },
+      "ordinary/providers.mk": {
+        "bytes": 455,
+        "sha256": "f0b82b92c7e231397321f5340471ca93674b04defd13ecb9799e64d27793e578"
+      },
+      "ordinary/providers-before.json": {
+        "bytes": 6647,
+        "sha256": "73620d4ffd3b9bd7595361a3724a9a15d7373523c11b42e09c5847b9006219be"
+      },
+      "ordinary/ldflags.txt": {
+        "bytes": 158,
+        "sha256": "062dd193fa45f768a6565b3ed334f6b9095ffae555a7e28f94b95c2ac4628c15"
+      },
+      "ordinary/source-after.json": {
+        "bytes": 426499,
+        "sha256": "28ed433f970097fb8b6be672267731b37c6c27e49bb456584bac854081a7b95b"
+      },
+      "ordinary/ordinary-providers.log": {
+        "bytes": 16351,
+        "sha256": "3b5643598bc3797672309853f94553917dbaf0f8b6755bac934906f2f4c4bbd4"
+      },
+      "ordinary/providers-after.json": {
+        "bytes": 6647,
+        "sha256": "73620d4ffd3b9bd7595361a3724a9a15d7373523c11b42e09c5847b9006219be"
+      },
+      "ordinary/ordinary-declarations.log": {
+        "bytes": 2553,
+        "sha256": "cf54c040d9b8b74df073fc4556ff92d33c9b18400790ae4dc3d89bccaa1923ff"
+      },
+      "ordinary/source-before.json": {
+        "bytes": 426499,
+        "sha256": "28ed433f970097fb8b6be672267731b37c6c27e49bb456584bac854081a7b95b"
+      },
+      "ordinary/ordinary-declarations.json": {
+        "bytes": 691,
+        "sha256": "7b054f68a4867d3cacbbebdbe315d90a3a80c7790c6a699fd0aba3d0262d5912"
+      },
+      "ordinary/cflags.txt": {
+        "bytes": 324,
+        "sha256": "800a75971db3bbe43c2b4913abadcdf21c5bdea4ed817f57d04a9967bc955418"
+      },
+      "sanitized/providers.txt": {
+        "bytes": 1058,
+        "sha256": "f24f583225cb59893087f4ce14b8328ac6de233f86f426bd5f73c40d6daeffb3"
+      },
+      "sanitized/products.json": {
+        "bytes": 7773,
+        "sha256": "6c194ca7cf2a1995bf0e2da108dbed53996ba5cb8e2ce63cf5bd3039f0b1b647"
+      },
+      "sanitized/providers.mk": {
+        "bytes": 458,
+        "sha256": "fa81eb5980dccd47e1fb65d184b61ee46f30a668326d4f294f4eafc847f69611"
+      },
+      "sanitized/providers-before.json": {
+        "bytes": 6685,
+        "sha256": "00727097825c21bad8d264023fc052a174d53f3a0e4efbc70213579c88ab299c"
+      },
+      "sanitized/sanitized-providers.log": {
+        "bytes": 20037,
+        "sha256": "19cd94f10e0185f08d037175d6a64a6b0f97f4b0ee6d32c57f023064338cc2f5"
+      },
+      "sanitized/ldflags.txt": {
+        "bytes": 237,
+        "sha256": "53938334859604f228dd491d07d8d54c4e672fc4a061e24db5a5a82af1f8a595"
+      },
+      "sanitized/source-after.json": {
+        "bytes": 426499,
+        "sha256": "28ed433f970097fb8b6be672267731b37c6c27e49bb456584bac854081a7b95b"
+      },
+      "sanitized/sanitized-declarations.log": {
+        "bytes": 2730,
+        "sha256": "0dd7728700ed65a058d1cec5becabb3610d46581a29d92490656e77f94ff1036"
+      },
+      "sanitized/providers-after.json": {
+        "bytes": 6685,
+        "sha256": "00727097825c21bad8d264023fc052a174d53f3a0e4efbc70213579c88ab299c"
+      },
+      "sanitized/source-before.json": {
+        "bytes": 426499,
+        "sha256": "28ed433f970097fb8b6be672267731b37c6c27e49bb456584bac854081a7b95b"
+      },
+      "sanitized/sanitized-providers.json": {
+        "bytes": 845,
+        "sha256": "df02a79419c07b3dbac19d085a1d5aacc08707d681f8ded21b0c88d86f76335a"
+      },
+      "sanitized/cflags.txt": {
+        "bytes": 403,
+        "sha256": "5d315177f3ad6169236736836c95671781ca7c02b1d1fd94019b6a4d40af539e"
+      },
+      "sanitized/sanitized-declarations.json": {
+        "bytes": 870,
+        "sha256": "2ccba16e985989065f48dfa29b1091b31b6d0036cd8bfbbf330019f2bc889b85"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/linked-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/linked-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/instrumented-build-command.txt": {
+        "bytes": 1919,
+        "sha256": "e078bb730a1b09a4d464222c5edc25e5e74d5c8285e87ca127832ff8113eaa1c"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/instrumented-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/instrumented-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/linked-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/instrumented-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/instrumented-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/linked-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/instrumented-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/linked-run-stdout.log": {
+        "bytes": 179,
+        "sha256": "5e066d50f30be0677861206803e4933ba5534de9c148d4974b1d04a85e02d294"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/instrumented-run-stdout.log": {
+        "bytes": 326,
+        "sha256": "30cd54d6e1cbde68f273b678f510b4d4f8f9c9073547bd070832a380248b32c0"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/linked-run-command.txt": {
+        "bytes": 115,
+        "sha256": "ab8c2164d52391d7aac0e80ed72e41e5b1fb741ddb185ac7a83b83db82dc892b"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/linked-build-command.txt": {
+        "bytes": 1959,
+        "sha256": "5c54f00c760873a3346ed88d51e9d18fbd93bd09a922a65993fd950176d87042"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/linked-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "sanitized/tmp/nano-ownership-declaration-0x0na39q/instrumented-run-command.txt": {
+        "bytes": 121,
+        "sha256": "1fb43924a7fb26d54bcd47b6db2efada65aad2f4a9e0e6988b1b091b9ce25f9d"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/linked-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/linked-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/instrumented-build-command.txt": {
+        "bytes": 1742,
+        "sha256": "544ce5fd3cd97a3e7ff99c9a82d3742f818b8ea5a034f218f4c5ea901282b0d8"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/instrumented-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/instrumented-run-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/linked-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/instrumented-build-stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/instrumented-build-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/linked-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/instrumented-build-status.json": {
+        "bytes": 181,
+        "sha256": "c1d2fe7712e97c4bfe9f203f46a10b4163de79a5feddac0a6e0003b00cd613f7"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/linked-run-stdout.log": {
+        "bytes": 179,
+        "sha256": "5e066d50f30be0677861206803e4933ba5534de9c148d4974b1d04a85e02d294"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/instrumented-run-stdout.log": {
+        "bytes": 326,
+        "sha256": "30cd54d6e1cbde68f273b678f510b4d4f8f9c9073547bd070832a380248b32c0"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/linked-run-command.txt": {
+        "bytes": 114,
+        "sha256": "91a743537362a4de5e99cdf3e821d5e6b76701935483ca50c1ec459be4c90dc5"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/linked-build-command.txt": {
+        "bytes": 1782,
+        "sha256": "a5b026b9a024da365746f6199adf9284a9538b1c54eca8b2efc0f40f1b4e3139"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/linked-run-stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "ordinary/tmp/nano-ownership-declaration-1yttt8d2/instrumented-run-command.txt": {
+        "bytes": 120,
+        "sha256": "f4cb25aad3d11708d047749bef8fabfac63a3a412d0905be4589626b312e0ff8"
+      }
+    },
+    "phases": [
+      {
+        "label": "ordinary-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/declaration-v2-8bf-puck/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 83826,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 3.442921750000096
+      },
+      {
+        "label": "ordinary-declarations",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/declaration-v2-8bf-puck/ordinary/providers.mk",
+          "-j2",
+          "CC=/usr/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O2 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk",
+          "test-ownership-declaration-projection"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 84077,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 2.119156415996258
+      },
+      {
+        "label": "sanitized-providers",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/declaration-v2-8bf-puck/sanitized/providers.mk",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "focused-providers"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 84141,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 5.28820454099332
+      },
+      {
+        "label": "sanitized-declarations",
+        "argv": [
+          "/usr/bin/make",
+          "-f",
+          "/Users/jkh/nanolang-qualification/declaration-v2-8bf-puck/sanitized/providers.mk",
+          "-j2",
+          "CC=/opt/homebrew/opt/llvm/bin/clang",
+          "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O1 -fPIC -Isrc -D_GNU_SOURCE -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "LDFLAGS=-lm -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+          "test-ownership-declaration-projection"
+        ],
+        "bound": 1200,
+        "timeout": false,
+        "pid": 84408,
+        "returncode": 0,
+        "remaining_groups": [],
+        "seconds": 3.0186538340058178
+      }
+    ]
+  }
+}

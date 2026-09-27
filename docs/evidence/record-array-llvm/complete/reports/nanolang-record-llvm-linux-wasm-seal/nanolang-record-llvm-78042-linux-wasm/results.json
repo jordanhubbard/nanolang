@@ -1,0 +1,32 @@
+[
+  {
+    "phase": "configuration",
+    "seconds": 0.163,
+    "status": 0
+  },
+  {
+    "phase": "wasm",
+    "seconds": 629.262,
+    "status": 0
+  },
+  {
+    "phase": "old-private-vm",
+    "seconds": 21.021,
+    "status": 0
+  },
+  {
+    "phase": "record_array_global_flow",
+    "seconds": 6.991,
+    "status": 0
+  },
+  {
+    "phase": "record_array_execution",
+    "seconds": 7.301,
+    "status": 0
+  },
+  {
+    "phase": "record_array_origins",
+    "seconds": 6.348,
+    "status": 0
+  }
+]

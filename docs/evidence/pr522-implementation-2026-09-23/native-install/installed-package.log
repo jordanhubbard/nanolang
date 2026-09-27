@@ -1,0 +1,6 @@
+test_installed_scalar_product_and_uninstall (tests.test_native_install.NativeInstall.test_installed_scalar_product_and_uninstall) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 335.494s
+
+OK

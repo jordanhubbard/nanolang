@@ -1,0 +1,81 @@
+{
+  "scope": "object-only counterfactual optional redeclaration insertion into retained actual first-failure shadow C; no executable linked or run; fresh actual emitted qualification remains required",
+  "names": [
+    "nano_rt_f64_arithmetic_result",
+    "nano_rt_f64_add",
+    "nano_rt_f64_sub",
+    "nano_rt_f64_mul",
+    "nano_rt_f64_div",
+    "nano_rt_f64_nonfinite",
+    "nano_rt_f64_format",
+    "nano_rt_f64_print",
+    "nl_array_slice",
+    "nl_bytes_from_string",
+    "nl_string_from_bytes",
+    "nl_path_normalize",
+    "nl_path_join",
+    "nl_path_basename",
+    "nl_path_dirname",
+    "nl_path_relpath",
+    "nl_file_read",
+    "nl_fs_mkdir_p",
+    "nl_file_copy",
+    "nl_dir_copy",
+    "nl_get_argv",
+    "nl_getenv",
+    "nl_env_get",
+    "nl_exec_shell",
+    "nl_exec_capture",
+    "nl_os_getcwd",
+    "nl_os_exit",
+    "nl_os_chdir",
+    "nl_os_file_exists",
+    "nl_os_tmp_dir",
+    "nl_os_mktemp",
+    "nl_os_mktemp_dir",
+    "cast_string",
+    "to_string",
+    "nl_map",
+    "nano_rt_reduce_int",
+    "nl_filter",
+    "nl_map_str",
+    "nano_rt_reduce_str",
+    "nl_filter_str",
+    "nl_map_float",
+    "nano_rt_reduce_float",
+    "nl_filter_float",
+    "nl_filter_bool",
+    "nl_map_new",
+    "nl_map_put",
+    "nl_map_get",
+    "nl_map_has",
+    "nl_map_size",
+    "nl_timing_get_microseconds",
+    "nl_timing_get_nanoseconds",
+    "nl_get_time_ms"
+  ],
+  "insertions": 1,
+  "flags": [
+    "-std=c99",
+    "-I/home/jkh/Src/nanolang-record-lists-qualified-303/src",
+    "-I/home/jkh/Src/nanolang-record-lists-qualified-303/modules/std",
+    "-I/home/jkh/Src/nanolang-record-lists-qualified-303/modules/std/collections",
+    "-I/home/jkh/Src/nanolang-record-lists-qualified-303/modules/std/json"
+  ],
+  "original_source": {
+    "sha256": "7268f8556ab9aa54ffb9ce7489a255a2b2c7f6517ae16213b19ea083565899d0",
+    "bytes": 28396,
+    "archive": "/home/jkh/nanolang-qualification/native-helper-ab7-linux-objects/objects/7268f8556ab9aa54ffb9ce7489a255a2b2c7f6517ae16213b19ea083565899d0"
+  },
+  "emitter_source": {
+    "sha256": "ff245e6a6b6395ab029a35dc74e02ca6298467c1024c0303c1bcffb01fe40edc",
+    "bytes": 461060,
+    "archive": "/home/jkh/nanolang-qualification/native-helper-ab7-linux-objects/objects/ff245e6a6b6395ab029a35dc74e02ca6298467c1024c0303c1bcffb01fe40edc"
+  },
+  "configs": [
+    [
+      "gcc",
+      "/bin/gcc"
+    ]
+  ]
+}

@@ -1,0 +1,10 @@
+fn increment(value: int) -> int { return (+ value 1) }
+shadow increment { assert (== (increment 41) 42) }
+fn probe() -> int {
+    let str_split: fn(int)->int = increment
+    assert (== (str_split 41) 42)
+    return 0
+}
+shadow probe { assert (== (probe) 0) }
+fn main() -> int { return (probe) }
+shadow main { assert (== (main) 0) }

@@ -1,0 +1,41 @@
+.....E.........................
+======================================================================
+ERROR: test_mixed_variant_record_branch_join (tests.test_native_variant_scalar_carriers.VariantScalarCarriers.test_mixed_variant_record_branch_join) (selected=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_variant_scalar_carriers.py", line 74, in test_mixed_variant_record_branch_join
+    self.paired(HEADER+f'.function main 0 0 0 int 1\nPUSH_BOOL {selected}\nJMP_FALSE other\n'
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'PUSH_I64 7\nAGG_PACK 1 0 0 1\nJMP joined\nother:\nPUSH_STR kept\nAGG_PACK 1 0 1 1\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'joined:\nCALL display\nPUSH_STR '+expected+'\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function display 1 1 0 string 1\nLOAD_LOCAL 0\nAGG_GET 0\nCAST_STRING\nRET\n.end\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 24, in paired
+    self.checked([ROOT/'bin/nano_vm','--verify-only',module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang-pr522-repair/tests/test_native_optional_array_reads.py", line 15, in checked
+    r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=60,
+                     env={**os.environ,'ASAN_OPTIONS':'detect_leaks=1:halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/jordanh/Src/nanolang-pr522-repair/bin/nano_vm'
+
+----------------------------------------------------------------------
+Ran 31 tests in 90.465s
+
+FAILED (errors=1)

@@ -1,0 +1,5 @@
+In file included from /Users/jkh/nanolang-qualification/record-lists-833-puck-binary64/fixture/temporary/nano-binary64-arithmetic-jyrui481/guard.c:4:
+/Users/jkh/nanolang-qualification/record-lists-qualified-833/src/binary64_arithmetic.h:15:2: error: "I require operations evaluated in their binary64 type."
+   15 | #error "I require operations evaluated in their binary64 type."
+      |  ^
+1 error generated.

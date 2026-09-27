@@ -1,4 +1,8 @@
 """I retain distinct concrete scalar-union instances in my affine source path."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 from pathlib import Path
 import os
 import subprocess
@@ -163,7 +167,7 @@ class AffineScalarUnionSource(unittest.TestCase):
         self.command(compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
                      '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
                      native_source, '-o', native)
-        runtime = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'}
+        runtime = {**os.environ, 'ASAN_OPTIONS': asan_options("halt_on_error=1")}
         executed = self.command(native, env=runtime)
         self.assertEqual(executed.stdout, expected)
 

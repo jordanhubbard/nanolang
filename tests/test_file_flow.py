@@ -1,4 +1,8 @@
 """I qualify private File flow states, never bytecode or host execution."""
+try:
+    from tests.sanitizer_options import asan_options
+except ModuleNotFoundError:
+    from sanitizer_options import asan_options
 import os
 from pathlib import Path
 import shlex
@@ -27,7 +31,7 @@ class FileFlow(unittest.TestCase):
             sources += ["src/nanoisa/service_file_nominal_plan.c", "src/nanoisa/file_flow.c"]
         command = [*self.compiler, *self.flags, *(["-DFLOW_INSTRUMENT"] if instrument else []),
                    *sources, *self.objects, *self.ldflags, "-o", str(exe)]
-        env = dict(os.environ, ASAN_OPTIONS="detect_leaks=1:halt_on_error=1",
+        env = dict(os.environ, ASAN_OPTIONS=asan_options("halt_on_error=1"),
                    UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
         for label, args in (("build", command), ("run", [str(exe)])):
             (self.artifacts / f"{name}-{label}-command.txt").write_text(shlex.join(args) + "\n")

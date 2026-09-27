@@ -1,0 +1,11 @@
+test_different_source_with_runtime_basename_is_retained (tests.test_native_module_linking.NativeModuleLinking.test_different_source_with_runtime_basename_is_retained) ... ok
+test_external_source_retains_repository_module_manifest (tests.test_native_module_linking.NativeModuleLinking.test_external_source_retains_repository_module_manifest) ... ok
+test_runtime_source_is_not_linked_twice_and_crypto_follows_objects (tests.test_native_module_linking.NativeModuleLinking.test_runtime_source_is_not_linked_twice_and_crypto_follows_objects) ... ok
+test_missing_manifest_preserves_prior_output (tests.test_declared_scalar_source.DeclaredScalarSource.test_missing_manifest_preserves_prior_output) ... ok
+test_mixed_scalar_manifest_through_native_and_vm (tests.test_declared_scalar_source.DeclaredScalarSource.test_mixed_scalar_manifest_through_native_and_vm) ... ok
+test_unsupported_declared_shape_preserves_prior_output (tests.test_declared_scalar_source.DeclaredScalarSource.test_unsupported_declared_shape_preserves_prior_output) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 7.029s
+
+OK

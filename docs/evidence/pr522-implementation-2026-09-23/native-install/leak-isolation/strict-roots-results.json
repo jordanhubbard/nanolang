@@ -1,0 +1,17 @@
+{
+  "LSAN_OPTIONS": "use_stacks=0:use_registers=0",
+  "runs": [
+    {
+      "name": "capture",
+      "exit_code": 1
+    },
+    {
+      "name": "map",
+      "exit_code": 1
+    },
+    {
+      "name": "map-explicit-free",
+      "exit_code": 0
+    }
+  ]
+}

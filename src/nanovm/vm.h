@@ -7,8 +7,10 @@
 #ifndef NANOVM_VM_H
 #define NANOVM_VM_H
 
+#include "cop_opaque.h"
 #include "value.h"
 #include "heap.h"
+#include "binding_state.h"
 #include "vm_decode.h"
 #include "vm_dispatch.h"
 #include "../nanoisa/isa.h"
@@ -75,6 +77,7 @@ typedef struct {
     uint32_t stack_base;      /* Stack index where this frame's locals begin */
     uint16_t local_count;     /* Number of locals (including params) */
     VmClosure *closure;       /* Non-NULL if this is a closure call */
+    VmBindingState *binding_state; /* Owned physical locals; never the effect owner's state. */
     /* The callable this frame was entered through, when the frame owns a
      * reference to it. CALL_INDIRECT pops the callable off the stack, which
      * transfers the stack's reference; the frame has to hold it for the
@@ -155,7 +158,8 @@ typedef struct VmState {
      * every reachable instruction, so re-checking them at dispatch time
      * is redundant. Cleared conservatively whenever a module changes or a
      * new, unverified module is linked. */
-    bool verified;    VmModuleConstants module_constants;
+    bool verified;
+    VmModuleConstants module_constants;
 
     /* Operand stack */
     NanoValue *stack;
@@ -220,6 +224,7 @@ typedef struct VmState {
     /* Original pipe fds (used for INIT/SHUTDOWN and large-payload fallback) */
     int cop_in_fd;            /* Pipe to co-process stdin (-1 if none) */
     int cop_out_fd;           /* Pipe from co-process stdout (-1 if none) */
+    CopOpaqueOwner cop_opaque;
     int cop_pid;              /* Co-process PID (-1 if none) */
 
     /* Shared-memory mailbox (fast path for small FFI calls, e.g. pixels) */
@@ -288,6 +293,11 @@ typedef struct {
 
 /* Initialize VM state for a module */
 void vm_init(VmState *vm, const NvmModule *module);
+/* I accept this faster initialization only immediately after
+ * nvm_verify_linked(module, NULL, 0) succeeds for this exact, still-immutable
+ * standalone root module. Linking or
+ * rebuilding recomputes the complete proof before execution continues. */
+void vm_init_after_verify(VmState *vm, const NvmModule *module);
 
 /* Destroy VM state (free stack, heap, etc.) */
 void vm_destroy(VmState *vm);

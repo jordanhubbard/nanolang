@@ -36,7 +36,7 @@ static bool unsupported_opcode(uint8_t op) {
     case OP_CALL_MODULE: case OP_CALL_INDIRECT: case OP_CLOSURE_NEW:
     case OP_LOAD_UPVALUE: case OP_STORE_UPVALUE:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL:
-    case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL: case OP_CALL_REF:
+    case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL: case OP_OWN_UNPACK_VARIANT: case OP_CALL_REF:
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:
     case OP_REF_GET: case OP_REF_SET:
@@ -98,8 +98,8 @@ NvmPortableReadResult nvm_portable_read_plan(const NvmModule *m,
                               "I require disjoint function bodies before scanning.");
         }
     }
-    if (nvm_service_execution_pending(m))
-        STOP(NVM_PORTABLE_READ_UNSUPPORTED, "I keep pending File service authority separate.");
+    if ((nvm_capture_bindings_present(m) || nvm_service_execution_pending(m)))
+        STOP(NVM_PORTABLE_READ_UNSUPPORTED, "I require service and capture admission before portable execution.");
     if (m->ownership_data || m->ownership_size || m->layout_data || m->layout_size ||
         m->passive_data || m->passive_size || m->module_ref_count ||
         m->callback_contract_count ||

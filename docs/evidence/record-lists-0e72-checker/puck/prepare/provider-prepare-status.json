@@ -1,0 +1,28 @@
+{
+  "name": "provider-prepare",
+  "argv": [
+    "make",
+    "-f",
+    "/private/tmp/nanolang-record-lists-0e72-puck-prepare/prepare.mk",
+    "-j2",
+    "list-prepare",
+    "CC=/usr/bin/clang",
+    "NMS_RUNTIME_CLANG=/opt/homebrew/opt/llvm/bin/clang",
+    "NMS_RUNTIME_OPT=/opt/homebrew/opt/llvm/bin/opt",
+    "NMS_NATIVE_CLANG_FLAGS="
+  ],
+  "bound_seconds": 1800,
+  "status": 0,
+  "timeout": false,
+  "cleanup": [],
+  "leader_reaped": true,
+  "group_gone": true,
+  "seconds": 0.9497091250000267,
+  "log": {
+    "sha256": "88b3a597424b844d2176233a3cd39ec041859dea5f8193f0827ed6b80a6e0c2e",
+    "bytes": 12887,
+    "archive": "/private/tmp/nanolang-record-lists-0e72-puck-prepare/objects/88b3a597424b844d2176233a3cd39ec041859dea5f8193f0827ed6b80a6e0c2e"
+  },
+  "sources_equal": true,
+  "tools_equal": true
+}

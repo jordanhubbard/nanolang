@@ -1,0 +1,93 @@
+{
+  "histories": [
+    "/tmp/nanolang-record-llvm-78042-linux-wasm"
+  ],
+  "reports": 78,
+  "objects": 4885,
+  "object_bytes": 199707124,
+  "references": 18971,
+  "equal_pairs": 12,
+  "pairs": [
+    "nanolang-record-llvm-78042-linux-wasm/configuration-source-before.json",
+    "nanolang-record-llvm-78042-linux-wasm/configuration-tools-before.json",
+    "nanolang-record-llvm-78042-linux-wasm/old-private-vm-source-before.json",
+    "nanolang-record-llvm-78042-linux-wasm/old-private-vm-tools-before.json",
+    "nanolang-record-llvm-78042-linux-wasm/record_array_execution-source-before.json",
+    "nanolang-record-llvm-78042-linux-wasm/record_array_execution-tools-before.json",
+    "nanolang-record-llvm-78042-linux-wasm/record_array_global_flow-source-before.json",
+    "nanolang-record-llvm-78042-linux-wasm/record_array_global_flow-tools-before.json",
+    "nanolang-record-llvm-78042-linux-wasm/record_array_origins-source-before.json",
+    "nanolang-record-llvm-78042-linux-wasm/record_array_origins-tools-before.json",
+    "nanolang-record-llvm-78042-linux-wasm/wasm-source-before.json",
+    "nanolang-record-llvm-78042-linux-wasm/wasm-tools-before.json"
+  ],
+  "terminals": [
+    {
+      "path": "nanolang-record-llvm-78042-linux-wasm/configuration-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-llvm-78042-linux-wasm/old-private-vm-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-llvm-78042-linux-wasm/record_array_execution-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-llvm-78042-linux-wasm/record_array_global_flow-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-llvm-78042-linux-wasm/record_array_origins-terminal.json",
+      "bound": 1800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    },
+    {
+      "path": "nanolang-record-llvm-78042-linux-wasm/wasm-terminal.json",
+      "bound": 28800,
+      "cleanup_signals": [],
+      "errors": [],
+      "group_disappeared": true,
+      "launched": true,
+      "leader_reaped": true,
+      "returncode": 0,
+      "timeout": false
+    }
+  ],
+  "scope": "Only the explicitly selected completed histories. No current host-input rehash or full matrix acceptance is inferred; independent final inventory required."
+}

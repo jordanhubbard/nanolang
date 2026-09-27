@@ -1,0 +1,12 @@
+{
+  "owned": {
+    "30985": {
+      "parent": 30983,
+      "group": 30985,
+      "started": "Mon Sep 21 22:30:46 2026",
+      "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -O2 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -std=c11 -D_POSIX_C_SOURCE=200809L -Wall -Wextra -Werror -I /private/tmp/nanolang-native-sdk-bae59-puck-source/src /private/tmp/nanolang-native-sdk-bae59-puck-source/tests/shadow_completion_probe.c -o /tmp/nanolang-native-sdk-bae59-puck-preparation/decision-_ugv_g6l/probe"
+    }
+  },
+  "cleanup": [],
+  "remaining": []
+}

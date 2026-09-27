@@ -1,0 +1,1 @@
+/bin/gcc -std=c11 -Wall -Wextra -Werror -I/home/jkh/Src/nanolang-record-lists-qualified-833/src /home/jkh/nanolang-qualification/record-lists-833-linux-binary64/fixture/temporary/nano-binary64-arithmetic-lbzj1obj/emit.c -o /home/jkh/nanolang-qualification/record-lists-833-linux-binary64/fixture/temporary/nano-binary64-arithmetic-lbzj1obj/emit
