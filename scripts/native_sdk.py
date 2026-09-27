@@ -21,6 +21,7 @@ ABI = 2
 LIMIT_FILES = 8192
 LIMIT_BYTES = 1024 * 1024 * 1024
 PUBLIC = ('nanoc', 'nanoc_c', 'nano_virt', 'nano_vm', 'nano_cop', 'nano_vmd', 'nanoisa', 'nvm2c')
+PUBLIC_PATHS = PUBLIC + OBJECT_ROLES
 HEADER = b'NANOLANG_SDK_ABI=2\n'
 MANIFEST = 'sdk.inputs'
 
@@ -240,7 +241,7 @@ def install(source, prefix, inventory):
     ensure_dirs(parent)
     ensure_dirs(prefix / 'bin')
     target = parent / identity
-    commands = PUBLIC + (('nano_as_capture.so',) if 'bin/nano_as_capture.so' in selected else ())
+    commands = PUBLIC_PATHS + (('nano_as_capture.so',) if 'bin/nano_as_capture.so' in selected else ())
     # I check every existing public command before publishing or replacing one.
     for name in commands:
         destination = prefix / 'bin' / name
@@ -353,7 +354,7 @@ def uninstall(prefix):
                 raise ValueError('I refuse to remove a modified SDK-owned input')
             directories.update(generation / v for v in Path(r['path']).parents
                                if str(v) != '.')
-        for name in PUBLIC + ('nano_as_capture.so',):
+        for name in PUBLIC_PATHS + ('nano_as_capture.so',):
             command = owned_path(prefix, 'bin') / name
             expected = '../lib/nanolang/sdk/' + identity + '/bin/' + name
             if command.is_symlink() and os.readlink(command) == expected:

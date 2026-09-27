@@ -144,6 +144,9 @@ class NativeSdk(unittest.TestCase):
         self.assertFalse(survived.exists())
 
     def test_a_root_identity_private_products_and_lists(self):
+        runtime = self.prefix/'bin/nano_aot_runtime.o'
+        self.assertTrue(runtime.is_symlink())
+        self.assertEqual(runtime.resolve(), self.generation/'bin/nano_aot_runtime.o')
         out,_,_=self.command('installed-root',[self.probe,'root','0','installed'],extra={'NANOLANG_SDK_ROOT':self.generation})
         self.assertEqual(spans(out)['ROOT'],str(self.generation))
         callback_out,_,_=self.command('loader-callback',[self.probe,'callback','0','installed'],extra={'NANOLANG_SDK_ROOT':self.generation})
@@ -612,7 +615,7 @@ class NativeSdk(unittest.TestCase):
         self.assertEqual((self.prefix/'unrelated').read_bytes(),b'user sentinel')
         self.assertTrue((self.generation/'unowned-empty').is_dir());self.assertEqual((self.generation/'unowned-file').read_bytes(),b'keep')
         for row in self.rows:self.assertFalse(os.path.lexists(self.generation/row['path']))
-        for name in sdk.PUBLIC:self.assertFalse(os.path.lexists(self.prefix/'bin'/name))
+        for name in sdk.PUBLIC_PATHS:self.assertFalse(os.path.lexists(self.prefix/'bin'/name))
         self.assertFalse((self.prefix/'lib/libnano_file_runtime.a').exists())
         self.assertFalse(any((self.prefix/'include/nanolang/file').rglob('*.h')))
         self.assertFalse((self.generation/'sdk.inputs').exists())

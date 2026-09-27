@@ -277,6 +277,24 @@ class SanitizerPartitions(unittest.TestCase):
             finally:
                 os.chdir(previous)
 
+    def test_bootstrap_bundle_names_the_actual_nanoisa_product(self):
+        products = partition.BUNDLE_PRODUCTS['bootstrap']
+        self.assertIn('bin/nanoisa', products)
+        self.assertNotIn('bin/nanoisa_dump', products)
+        self.assertIn('nanoisa_dump', partition.PROVIDERS)
+
+    def test_bundle_refusal_names_every_missing_product(self):
+        value = partition.plan('head', self.inventory())
+        with tempfile.TemporaryDirectory() as tmp:
+            previous = Path.cwd()
+            try:
+                os.chdir(tmp)
+                with mock.patch.object(partition, 'current_head', return_value='head'), \
+                     self.assertRaisesRegex(ValueError, 'bin/nanoc_c, bin/nanoc_stage1'):
+                    partition.bundle_create(Path(tmp) / 'bundle', value, 'bootstrap')
+            finally:
+                os.chdir(previous)
+
     def test_instrumentation_refuses_missing_products_tool_failure_and_plain_stage(self):
         worker = {'id': 'unit', 'native_bootstrap': True}
         good = b' U __asan_init\n U __ubsan_handle_add_overflow\n'

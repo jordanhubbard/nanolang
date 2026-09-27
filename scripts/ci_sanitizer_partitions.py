@@ -67,7 +67,7 @@ BUNDLE_PRODUCTS = {
                       *STAGE2_PROVIDER_OBJECTS, STAGE2_NVM, STAGE2_C, STAGE2_OBJECT),
     'stage2': ('bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage1_driver', 'bin/nanoc_stage2'),
     'bootstrap': ('bin/nanoc_c', 'bin/nanoc_stage1', 'bin/nanoc_stage2',
-                  'bin/nanoisa_emit', 'bin/nano_virt', 'bin/nano_vm', 'bin/nvm2c', 'bin/nanoisa_dump'),
+                  'bin/nanoisa_emit', 'bin/nano_virt', 'bin/nano_vm', 'bin/nvm2c', 'bin/nanoisa'),
 }
 
 
@@ -250,8 +250,10 @@ def bundle_create(output, manifest, stage):
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     required = BUNDLE_PRODUCTS[stage]
-    if any(not Path(path).is_file() for path in required):
-        raise ValueError('I require every sanitizer bundle product before publication.')
+    missing = [path for path in required if not Path(path).is_file()]
+    if missing:
+        raise ValueError('I require every sanitizer bundle product before publication: ' +
+                         ', '.join(missing))
     selected = [Path(path) for path in (*BUNDLE_PATHS, *BUNDLE_SENTINELS) if Path(path).exists()]
     archive = output / (stage + '.tar.gz')
     with tarfile.open(archive, 'w:gz') as stream:
