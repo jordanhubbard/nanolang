@@ -397,6 +397,7 @@ jobs:
         run: |
           LLVM_BIN=$(/usr/bin/llvm-config --bindir)
           echo "$LLVM_BIN" >> "$GITHUB_PATH"
+
       - name: Verify exact head and inventory
         run: python3 scripts/ci_sanitizer_partitions.py verify --manifest "$PLAN" --worker negative --output "$REPORT"
       - name: Build instrumented C-reference and component stages
@@ -817,6 +818,9 @@ jobs:
             test -x "$LLVM_BIN/$tool"
           done
           echo "$LLVM_BIN" >> "$GITHUB_PATH"
+
+      - name: Install pinned Wasmtime runtime
+        run: ./scripts/ci-install-wasmtime.sh
 
       - name: Verify exact head and complete unit inventory
         id: verify

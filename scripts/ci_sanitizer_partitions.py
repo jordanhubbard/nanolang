@@ -395,7 +395,9 @@ def command_for(worker, phase):
     if phase == 'tests':
         if worker['id'] == 'negative':
             return ['bash', 'tests/run_negative_tests.sh']
-        return ['make', *worker['targets'], *FLAGS]
+        retained = (['--old-file=.bootstrap1.built', '--old-file=.bootstrap2.built',
+                     '--old-file=.bootstrap3.built'] if worker['native_bootstrap'] else [])
+        return ['make', *retained, *worker['targets'], *FLAGS]
     raise ValueError('I refuse an unknown phase.')
 
 

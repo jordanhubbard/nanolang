@@ -105,5 +105,5 @@ class NativeJumpTrue(unittest.TestCase):
             output.write_text('retained')
             result = self.run_command([ROOT / 'bin/nvm2c', module, '-o', output])
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn('record to optional', result.stderr)
+            self.assertIn('I require preserved runtime tags for TYPE_CHECK', result.stderr)
             self.assertEqual(output.read_text(), 'retained')

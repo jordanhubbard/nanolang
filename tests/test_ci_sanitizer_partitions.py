@@ -113,6 +113,11 @@ class SanitizerPartitions(unittest.TestCase):
         with self.assertRaises(ValueError):
             partition.command_for(value['workers'][0], 'providers')
 
+        native_worker = {'id': 'native', 'targets': ['test-native'], 'native_bootstrap': True}
+        self.assertEqual(partition.command_for(native_worker, 'tests'),
+                         ['make', '--old-file=.bootstrap1.built', '--old-file=.bootstrap2.built',
+                          '--old-file=.bootstrap3.built', 'test-native', *partition.FLAGS])
+
     def test_aggregate_requires_all_exact_successful_workers(self):
         value = partition.plan('head', self.inventory())
         with tempfile.TemporaryDirectory() as tmp:
@@ -375,6 +380,9 @@ class SanitizerPartitions(unittest.TestCase):
         self.assertIn(' instrumentation --manifest ', instrumentation['run'])
         self.assertLess(workers['steps'].index(instrumentation), workers['steps'].index(tests))
         self.assertEqual(jobs['sanitizer-workers']['needs'], ['sanitizer-plan', 'sanitizer-providers'])
+        wasmtime = next(step for step in workers['steps']
+                        if step.get('name') == 'Install pinned Wasmtime runtime')
+        self.assertEqual(wasmtime['run'], './scripts/ci-install-wasmtime.sh')
         self.assertEqual(jobs['sanitizers']['needs'],
                          ['sanitizer-plan', 'sanitizer-base', 'sanitizer-stage1',
                           'sanitizer-stage2-nvm', 'sanitizer-stage2-c', 'sanitizer-stage2-object',
