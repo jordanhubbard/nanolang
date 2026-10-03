@@ -125,6 +125,13 @@ sys.exit(subprocess.run([{shutil.which('cc')!r}] + sys.argv[1:]).returncode)
                 self.assertFalse((self.directory / "injected").exists())
                 self.assertFalse(list(self.directory.glob(".nano-wrapper-*")))
 
+    def test_readable_non_object_override_falls_back_to_build_objects(self):
+        empty = self.directory / "empty object directory"
+        empty.mkdir()
+        self.env["NANO_VIRT_LIB"] = str(empty)
+        self.finish(self.start())
+        self.execute()
+
     def test_failed_compilers_preserve_existing_output(self):
         self.finish(self.start())
         old = self.output.read_bytes()

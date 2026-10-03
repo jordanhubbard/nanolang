@@ -53,13 +53,13 @@ static bool ordinary_blob(NvmModule **module, uint8_t **blob, uint32_t *size) {
     return true;
 }
 
-/* ── find_obj_dir via env var (failure: path doesn't have vm.o) ────────── */
+/* ── find_obj_dir rejects readable directories without the link closure ─ */
 
 TEST(wrapper_generate_nonexistent_lib_path) {
     /*
      * Set NANO_VIRT_LIB to /tmp (exists, readable) but
-     * /tmp/nanovm/vm.o does not exist → wrapper_generate returns false.
-     * This covers find_obj_dir env-var path and the vm.o existence check.
+     * /tmp/nanovm/vm.o does not exist, so I fall back to the object tree
+     * beside nano_virt instead of constructing /tmp runtime paths.
      */
     setenv("NANO_VIRT_LIB", "/tmp", 1);
 
@@ -69,8 +69,9 @@ TEST(wrapper_generate_nonexistent_lib_path) {
     bool ok = wrapper_generate(mod, blob, bsize,
                                "/tmp/test_wrapper_gen_out",
                                "test.nano", NULL, false);
-    /* Expected false: /tmp/nanovm/vm.o does not exist */
-    ASSERT(!ok);
+    ASSERT(ok);
+    ASSERT(access("/tmp/test_wrapper_gen_out", X_OK) == 0);
+    remove("/tmp/test_wrapper_gen_out");
 
     free(blob);
     nvm_module_free(mod);
@@ -79,8 +80,7 @@ TEST(wrapper_generate_nonexistent_lib_path) {
 
 TEST(wrapper_generate_daemon_nonexistent_lib) {
     /*
-     * Same as above but for wrapper_generate_daemon.
-     * /tmp/nanovm/vmd_client.o doesn't exist → returns false.
+     * Same fallback applies to daemon wrappers.
      */
     setenv("NANO_VIRT_LIB", "/tmp", 1);
 
@@ -88,7 +88,9 @@ TEST(wrapper_generate_daemon_nonexistent_lib) {
     ASSERT(ordinary_blob(&mod, &blob, &bsize));
     bool ok = wrapper_generate_daemon(blob, bsize,
                                       "/tmp/test_daemon_gen_out", false);
-    ASSERT(!ok);
+    ASSERT(ok);
+    ASSERT(access("/tmp/test_daemon_gen_out", X_OK) == 0);
+    remove("/tmp/test_daemon_gen_out");
     free(blob);
     nvm_module_free(mod);
 

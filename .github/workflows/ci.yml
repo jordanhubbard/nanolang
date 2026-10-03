@@ -9,6 +9,9 @@ on:
 
 env:
   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+  # Every bootstrap still runs shadows; slower and instrumented runners get a
+  # larger finite deadline instead of disabling that gate.
+  NANO_SHADOW_TIMEOUT_SECONDS: "60"
 
 jobs:
   build-and-test:
@@ -374,9 +377,6 @@ jobs:
             libutf8proc-dev
 
       - name: Build with AddressSanitizer
-        # Instrumented bootstrap shadows retain a finite execution deadline.
-        env:
-          NANO_SHADOW_TIMEOUT_SECONDS: "60"
         run: |
           # Disable leak detection for exit-time leaks in short-lived compiler process
           # AddressSanitizer still catches real memory issues (use-after-free, buffer overflow, etc.)
@@ -384,15 +384,11 @@ jobs:
           make sanitize
 
       - name: Complete 3-stage bootstrap with sanitizers
-        env:
-          NANO_SHADOW_TIMEOUT_SECONDS: "60"
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
 
       - name: Run tests with sanitizers
-        env:
-          NANO_SHADOW_TIMEOUT_SECONDS: "60"
         timeout-minutes: 45  # Sanitizer instrumentation is substantially slower.
         run: |
           export ASAN_OPTIONS=detect_leaks=0

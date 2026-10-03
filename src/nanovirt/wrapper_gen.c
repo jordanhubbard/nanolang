@@ -33,6 +33,15 @@ static char *wrapper_path(const char *directory, const char *name) {
     return path;
 }
 
+static bool wrapper_obj_dir(const char *directory) {
+    char *vm = wrapper_path(directory, "nanovm/vm.o");
+    char *runtime = wrapper_path(directory, "runtime/module_build_dir.o");
+    bool valid = vm && runtime && access(vm, R_OK) == 0 && access(runtime, R_OK) == 0;
+    free(vm);
+    free(runtime);
+    return valid;
+}
+
 /* I encode path bytes as fixed-width octal C escapes, not source syntax. */
 static void write_path_literal(FILE *f, const char *path) {
     fputc('"', f);
@@ -58,7 +67,7 @@ static char *find_obj_dir(void) {
     /* 1. Environment variable */
     const char *env_dir = getenv("NANO_VIRT_LIB");
     if (env_dir) {
-        if (access(env_dir, R_OK) == 0) {
+        if (access(env_dir, R_OK) == 0 && wrapper_obj_dir(env_dir)) {
             if (env_dir[0] == '/') return strdup(env_dir);
             char *cwd = getcwd(NULL, 0);
             if (!cwd) return NULL;
@@ -80,7 +89,7 @@ static char *find_obj_dir(void) {
             char *dir = dirname(exe_path);
             char obj_path[4096];
             int n = snprintf(obj_path, sizeof(obj_path), "%s/../obj", dir);
-            if (n >= 0 && (size_t)n < sizeof(obj_path) && access(obj_path, R_OK) == 0) {
+            if (n >= 0 && (size_t)n < sizeof(obj_path) && wrapper_obj_dir(obj_path)) {
                 /* Resolve to canonical path */
                 char *real = realpath(obj_path, NULL);
                 if (real) return real;
@@ -96,7 +105,7 @@ static char *find_obj_dir(void) {
             char *dir = dirname(exe_path);
             char obj_path[4096];
             int n = snprintf(obj_path, sizeof(obj_path), "%s/../obj", dir);
-            if (n >= 0 && (size_t)n < sizeof(obj_path) && access(obj_path, R_OK) == 0) {
+            if (n >= 0 && (size_t)n < sizeof(obj_path) && wrapper_obj_dir(obj_path)) {
                 char *real = realpath(obj_path, NULL);
                 if (real) return real;
                 return strdup(obj_path);
@@ -106,7 +115,7 @@ static char *find_obj_dir(void) {
 #endif
 
     /* 3. CWD fallback */
-    if (access("obj", R_OK) == 0) {
+    if (wrapper_obj_dir("obj")) {
         char *real = realpath("obj", NULL);
         if (real) return real;
         return strdup("obj");
