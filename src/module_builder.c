@@ -5862,7 +5862,11 @@ static bool module_sync_directory(const char *path, bool ancestors) {
         if (!module_sync_fd(fd)) break;
         if (!ancestors) { ok = true; break; }
         int parent = openat(fd, "..", O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
-        if (parent < 0) break;
+        /* A sandbox (Landlock, seccomp, a container user) may deny opening
+         * an ancestor such as "/". That ancestor is outside what I may
+         * persist; I end the walk there instead of failing the publication.
+         * Every directory I could open was synced above. */
+        if (parent < 0) { ok = errno == EACCES || errno == EPERM; break; }
         struct stat current_stat, parent_stat;
         if (fstat(fd, &current_stat) != 0 || fstat(parent, &parent_stat) != 0) {
             close(parent);
