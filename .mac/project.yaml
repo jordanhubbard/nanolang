@@ -12,6 +12,9 @@ toolchain:
     - gh
     - make
     - cc
+    - pkg-config
+    - libffi-dev
+    - libssl-dev
 bootstrap:
   command: make build
   creates:
