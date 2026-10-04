@@ -342,7 +342,7 @@ jobs:
   sanitizers:
     name: Memory Sanitizers
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 150
     permissions:
       contents: read
 
@@ -389,7 +389,13 @@ jobs:
           make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
 
       - name: Run tests with sanitizers
-        timeout-minutes: 45  # Sanitizer instrumentation is substantially slower.
+        # Sanitizer instrumentation is substantially slower, and the full
+        # instrumented unit suite outgrew the previous 45-minute budget: hosted
+        # run 37201123652 was cancelled at exactly 45 minutes while tests were
+        # still running. Raise the step well above that ceiling and keep the
+        # job-level limit above the step so a slow-but-progressing suite can
+        # finish.
+        timeout-minutes: 120
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           make test-units CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer" LDFLAGS="-lm -lcrypto -fsanitize=address,undefined"

@@ -24,11 +24,11 @@ class CIWorkflowTests(unittest.TestCase):
 
     def test_sanitizers_have_instrumented_runtime_budget(self):
         job = self.jobs["sanitizers"]
-        self.assertGreaterEqual(job["timeout-minutes"], 60)
+        self.assertGreaterEqual(job["timeout-minutes"], 150)
         test_step = next(
             step for step in job["steps"] if step["name"] == "Run tests with sanitizers"
         )
-        self.assertGreaterEqual(test_step["timeout-minutes"], 45)
+        self.assertGreaterEqual(test_step["timeout-minutes"], 120)
 
     def test_sqlite_headers_are_installed_for_test_jobs(self):
         build_commands = "\n".join(
