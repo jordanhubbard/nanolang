@@ -626,6 +626,15 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
         array_expr->as.call.arg_count == 2 &&
         env_array_push_is_builtin(env, array_expr->line, array_expr->column))
         return infer_array_element_type(array_expr->as.call.args[0], env);
+    /* filter and array_slice preserve their source array's element type. */
+    if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
+        array_expr->as.call.name && array_expr->as.call.arg_count >= 1) {
+        const char *name = array_expr->as.call.name;
+        bool keeps_source = (!strcmp(name, "filter") && array_expr->as.call.arg_count == 2) ||
+                            (!strcmp(name, "array_slice") && array_expr->as.call.arg_count >= 2);
+        if (keeps_source)
+            return infer_array_element_type(array_expr->as.call.args[0], env);
+    }
 
     const TypeInfo *info = array_expr_type_info(array_expr, env);
     if (info && info->base_type == TYPE_ARRAY && info->element_type) {
@@ -4285,11 +4294,19 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 bool is_dyn_array = false;
                 Type dyn_elem_type = TYPE_INT;
 
-                if (range && range->type == AST_IDENTIFIER) {
-                    Symbol *arr_sym = env_get_var_visible_at(env, range->as.identifier, range->line, range->column);
-                    if (arr_sym && arr_sym->type == TYPE_ARRAY) {
+                if (range) {
+                    if (range->type == AST_IDENTIFIER) {
+                        Symbol *arr_sym = env_get_var_visible_at(env, range->as.identifier, range->line, range->column);
+                        if (arr_sym && arr_sym->type == TYPE_ARRAY) {
+                            is_dyn_array = true;
+                            dyn_elem_type = arr_sym->element_type;
+                        }
+                    } else if (check_expression(range, env) == TYPE_ARRAY) {
+                        /* Inline literal or computed array: I materialize the
+                         * expression once and infer its element metadata. */
                         is_dyn_array = true;
-                        dyn_elem_type = arr_sym->element_type;
+                        Type inferred = infer_array_element_type(range, env);
+                        if (inferred != TYPE_UNKNOWN) dyn_elem_type = inferred;
                     }
                 }
 

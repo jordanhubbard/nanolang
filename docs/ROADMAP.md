@@ -9707,11 +9707,13 @@ Compiler product:
       (`task_be93f56b6a5848ebbd23ef30ccd7bfd4`) while retaining allocated slots.
       Nested same-name variables and bounds referring to outer locals pass
       exact C-seed/self-hosted bytecode and VM/native execution controls.
-- [ ] I infer C-seed loop element metadata from inline and computed arrays
-      (`task_911317d4234c46049c3dea1a2d0a153d`). The current `AST_FOR` checker
-      only reads identifier receivers, so inline string/bool literals give an
-      integer loop variable and reject valid bodies. I retain the failing
-      expanded probe and use explicit typed locals as the current control.
+- [x] I infer C-seed loop element metadata from inline and computed arrays
+      (`task_911317d4234c46049c3dea1a2d0a153d`). My `AST_FOR` checker now
+      derives the loop variable type from literals, producer calls,
+      `map`/`filter`/`array_slice`, and field access, and my C transpiler
+      materializes those iterables once instead of dropping the body. My
+      expanded probe `tests/nl_control_array_elements.nano` passes. See
+      `docs/evidence/cseed-loop-element-metadata.md`.
 - [x] I preserve C-seed native range bounds once in source order and compile
       valid early-return array loops without inapplicable vectorization hints
       (`task_c3d168ec8de94d18a1f63445f2c6cea0`). My collision-checked argument

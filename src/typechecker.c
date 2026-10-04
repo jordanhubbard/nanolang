@@ -1180,6 +1180,15 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
         Type argument;
         return map_callback_type(array_expr->as.call.args[1], env, &arity, &argument);
     }
+    /* filter and array_slice preserve their source array's element type. */
+    if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
+        array_expr->as.call.name && array_expr->as.call.arg_count >= 1) {
+        const char *name = array_expr->as.call.name;
+        bool keeps_source = (!strcmp(name, "filter") && array_expr->as.call.arg_count == 2) ||
+                            (!strcmp(name, "array_slice") && array_expr->as.call.arg_count >= 2);
+        if (keeps_source)
+            return infer_array_element_type(array_expr->as.call.args[0], env);
+    }
     TypeInfo *info = try_get_expr_type_info(array_expr, env);
     if (info && info->base_type == TYPE_ARRAY && info->element_type)
         return resolved_array_element(info->element_type->base_type, info->element_type->generic_name, env);
@@ -5379,22 +5388,22 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
         case AST_FOR: {
             /* Determine loop variable type from iterable */
-            Type iter_type = check_expression(stmt->as.for_stmt.range_expr, tc->env);
+            ASTNode *range_expr = stmt->as.for_stmt.range_expr;
+            Type iter_type = check_expression(range_expr, tc->env);
 
             Type loop_var_type = TYPE_INT;  /* default for range(start, end) */
             const char *loop_var_struct_name = NULL;
 
             if (iter_type == TYPE_ARRAY) {
-                /* Look up array variable to get element type */
-                ASTNode *rng = stmt->as.for_stmt.range_expr;
-                if (rng && rng->type == AST_IDENTIFIER) {
-                    Symbol *arr_sym = env_get_var(tc->env, rng->as.identifier);
-                    if (arr_sym && arr_sym->element_type != TYPE_UNKNOWN) {
-                        loop_var_type = arr_sym->element_type;
-                    }
-                    if (loop_var_type == TYPE_STRUCT && arr_sym && arr_sym->struct_type_name) {
-                        loop_var_struct_name = arr_sym->struct_type_name;
-                    }
+                /* I infer element metadata from the iterable expression itself,
+                 * whether it is a named array, an inline literal, or a
+                 * computed array such as a call or slice. */
+                Type element_type = infer_array_element_type(range_expr, tc->env);
+                if (element_type != TYPE_UNKNOWN) {
+                    loop_var_type = element_type;
+                }
+                if (loop_var_type == TYPE_STRUCT) {
+                    loop_var_struct_name = array_record_name(range_expr, tc->env);
                 }
             } else if (iter_type == TYPE_LIST_STRING) {
                 loop_var_type = TYPE_STRING;
