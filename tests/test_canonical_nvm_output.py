@@ -212,6 +212,26 @@ shadow main { assert (== (main) 0) }
                 self.assertEqual(output.read_bytes(), b"prior")
             self.assertFalse(list(directory.glob("*.tmp.*")))
 
+    def test_canonical_module_translates_to_vm_independent_c11(self):
+        with tempfile.TemporaryDirectory(prefix="canonical-aot-") as tmp:
+            directory = Path(tmp)
+            source = ROOT / "tests" / "nanoisa" / "fixtures" / "cut_a_add.nano"
+            module, c_file, executable = (directory / name for name in
+                                          ("cut_a.nvm", "cut_a.c", "cut_a"))
+            self.run_command([ROOT / "bin/nano_virt", source, "--emit-nvm",
+                              "--strip-debug", "-o", module])
+            self.run_command([ROOT / "bin/nano_vm", "--verify-only", module])
+            self.run_command([ROOT / "bin/nvm2c", module, "-o", c_file])
+            emitted = c_file.read_text()
+            for token in ("nano_vm", "nano_cop", "nano_vmd"):
+                self.assertNotIn(token, emitted,
+                                 f"canonical AOT C names the VM process {token}")
+            self.run_command(["cc", "-std=c11", "-Wall", "-Wextra", "-Werror", c_file,
+                              ROOT / "bin/nano_aot_runtime.o", "-lm",
+                              *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
+                              "-o", executable])
+            self.run_command([executable], expected=42)
+
 
 if __name__ == "__main__":
     unittest.main()
