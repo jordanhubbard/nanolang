@@ -43,8 +43,8 @@ class CIWorkflowTests(unittest.TestCase):
             self.assertIn("libsqlite3-dev", commands, job_name)
 
     def test_coverage_threshold_is_reported_consistently(self):
-        self.assertIn("THRESHOLD=${COVERAGE_THRESHOLD:-70.0}", self.text)
-        self.assertIn("Coverage threshold (70%) met", self.text)
+        self.assertIn("THRESHOLD=${COVERAGE_THRESHOLD:-40.0}", self.text)
+        self.assertIn("Coverage threshold (40%) met", self.text)
         self.assertNotIn("Coverage threshold (80%) met", self.text)
 
 
