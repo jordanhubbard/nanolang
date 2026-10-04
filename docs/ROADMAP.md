@@ -10685,7 +10685,7 @@ Other translators:
       - [ ] I implement the reviewed private read-text adapter/managed-copy checkpoint under b7ef after query899 actual merge f42201461 ([exact API and staged contract](NANOISA_PORTABLE_READ_TEXT_ADAPTERS.md)): copied immutable allowlist, real native read/close, rooted borrowed argument and owned copied result, bounded scratch and first-error cleanup. Source review precedes fixtures or host effects.
       - [ ] I qualify direct native/LLVM and separately reviewed wasm32 Node/Wasmtime adapters with real files, exact ABI/ranges, denial before effects, allocation/root recovery and copied-return lifetime. Direct adapter acceptance does not admit NanoISA CALL_EXTERN; complete target authority, opt-in source/emission and installed linkage remain later checkpoints.
       - [ ] I retain the full parent continuation for byte/aggregate results, remaining filesystem/process/compiler capabilities and exact linked-module identities. This first read-text step does not close2d2, replace15f/488 authority or narrow compiler/bootstrap/fixed-point gates.
-- [ ] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend.
+- [x] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend. I admit the last shared-profile stack-rotation opcode, `ROT3`, and lower it in `nvm2llvm` as `[bottom,middle,top] -> [top,bottom,middle]`, matching NanoVM and native C AOT; VM/C/unoptimized/optimized/linked-LLVM parity tests and `make test-verifier-profiles` pass.
 - [ ] I implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
 - [ ] I reintroduce LLVM and Wasm only behind those translators, with full
       applicable-language coverage.

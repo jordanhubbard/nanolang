@@ -400,6 +400,14 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
         case OP_POP: pop(&frame, pc, "a"); break;
         case OP_DUP: pop(&frame, pc, "a"); push(&frame, pc, "a"); push(&frame, pc, "a"); break;
         case OP_SWAP: pop(&frame, pc, "b"); pop(&frame, pc, "a"); push(&frame, pc, "b"); push(&frame, pc, "a"); break;
+        case OP_ROT3: {
+            /* I rotate [bottom, middle, top] to [top, bottom, middle], matching
+             * NanoVM and native C AOT. Popping in top-to-bottom order keeps the
+             * managed frame's single-owner accounting exact. */
+            pop(&frame, pc, "c"); pop(&frame, pc, "b"); pop(&frame, pc, "a");
+            push(&frame, pc, "c"); push(&frame, pc, "a"); push(&frame, pc, "b");
+            break;
+        }
         case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
             fprintf(out, " %%p%u_local = getelementptr %%V, ptr %%locals, i64 %u\n", pc, ins.operands[0].u16);
             if (ins.opcode == OP_LOAD_LOCAL) {

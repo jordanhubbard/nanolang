@@ -37,6 +37,7 @@ class VerifierProfiles(unittest.TestCase):
             'managed_ends': ('.string text "x"\n' + entry + 'PUSH_STR text\nPUSH_STR text\nSTR_ENDS_WITH\nPOP\n' + end, True, False),
             'managed_float_parse': ('.string text "1.25"\n' + entry + 'PUSH_STR text\nCAST_FLOAT\nPOP\n' + end, True, False),
             'global_opcode': (entry + 'PUSH_I64 9\nSTORE_GLOBAL 0\n' + end, True, True),
+            'stack_rot3': (entry + 'PUSH_I64 1\nPUSH_I64 2\nPUSH_I64 3\nROT3\nPOP\nPOP\nPOP\n' + end, True, True),
             'import': ('.import "" "get_argc" int\n' + entry + end, True, False),
             'nominal_table': ('.types 1 0 0\n' + entry + end, True, False),
             'nonscalar_parameter': (entry + end + '.function helper 1 1 0 int 1\n.parameters helper string\nPUSH_I64 0\nRET\n.end\n', True, False),

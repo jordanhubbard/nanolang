@@ -232,6 +232,103 @@ RET
 .end
 ''')
 
+    def test_rot3_stack_rotation(self):
+        self.compare('''.entry main
+.function main 0 0 0 int 1
+PUSH_I64 11
+PUSH_I64 22
+PUSH_I64 33
+ROT3
+PUSH_I64 22
+I64_EQ
+ASSERT
+PUSH_I64 11
+I64_EQ
+ASSERT
+PUSH_I64 33
+I64_EQ
+ASSERT
+PUSH_I64 11
+PUSH_I64 22
+PUSH_I64 33
+ROT3
+ROT3
+ROT3
+PUSH_I64 33
+I64_EQ
+ASSERT
+PUSH_I64 22
+I64_EQ
+ASSERT
+PUSH_I64 11
+I64_EQ
+ASSERT
+PUSH_I64 11
+PUSH_BOOL 1
+PUSH_I64 33
+ROT3
+POP
+PUSH_I64 11
+I64_EQ
+ASSERT
+PUSH_I64 33
+I64_EQ
+ASSERT
+PUSH_I64 0
+RET
+.end
+''')
+
+    def test_rot3_calls_locals_and_loop(self):
+        self.compare('''.entry main
+.function main 0 2 0 int 1
+PUSH_I64 0
+STORE_LOCAL 0
+PUSH_I64 0
+STORE_LOCAL 1
+loop:
+LOAD_LOCAL 0
+PUSH_I64 5
+I64_LT_S
+JMP_FALSE done
+LOAD_LOCAL 0
+LOAD_LOCAL 0
+PUSH_I64 1
+I64_ADD
+LOAD_LOCAL 0
+PUSH_I64 2
+I64_ADD
+CALL rotate3
+LOAD_LOCAL 1
+I64_ADD
+STORE_LOCAL 1
+LOAD_LOCAL 0
+PUSH_I64 1
+I64_ADD
+STORE_LOCAL 0
+JMP loop
+done:
+LOAD_LOCAL 1
+PUSH_I64 15
+I64_EQ
+ASSERT
+PUSH_I64 0
+RET
+.end
+.function rotate3 3 3 0 int 1
+.parameters rotate3 int int int
+LOAD_LOCAL 0
+LOAD_LOCAL 1
+LOAD_LOCAL 2
+ROT3
+STORE_LOCAL 0
+STORE_LOCAL 1
+STORE_LOCAL 2
+LOAD_LOCAL 0
+RET
+.end
+''')
+
     def test_runtime_tag_preserved_across_call(self):
         self.compare('''.entry main
 .function main 0 0 0 int 1
