@@ -10274,9 +10274,12 @@ Compiler product:
 - [ ] I rename `CompilerPhase_PHASE_TRANSPILER`; the pipeline ends at NanoISA.
 
 `nvm2c` as canonical AOT:
-- [ ] I make C11 the canonical ahead-of-time portability backend from NanoISA.
+- [x] I make C11 the canonical ahead-of-time portability backend from NanoISA.
       A generated process does not require `nano_vm`, `nano_cop`, or
-      `nano_vmd` to compute.
+      `nano_vmd` to compute. `make test-canonical-nvm-output` emits the Cut A
+      fixture through `nvm2c` and `cc`, confirms the C names no VM process
+      component, and runs it without a VM (MAC
+      `task_9f95d78c2f4a47b8b53196ce4d7a2d91`).
 - [x] My C seed emits `ARR_NEW TAG_STRUCT` for an empty `List<record>`, so its
       NanoISA element kind does not depend on a later push
       (`task_2ef5249b949443adab10c45e16a70c5b`, `make test-nanovirt`).

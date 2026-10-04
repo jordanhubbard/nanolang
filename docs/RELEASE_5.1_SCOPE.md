@@ -45,7 +45,7 @@ experiments. Line references point to the unchecked Phase 20 rows in
 
 ## C AOT, metadata, and profiles
 
-- **Required (10272):** Make C11 the canonical AOT consumer of NanoISA without a VM process dependency.
+- **Done (10272):** Make C11 the canonical AOT consumer of NanoISA without a VM process dependency.
 - **Required (10278):** Cover compiler functions, records, control flow, arrays, strings, modules, and declared host ABI in `nvm2c`.
 - **Required (10280):** Lower `CALL_EXTERN` only through the declared host ABI and refuse unsupported imports.
 - **Required (10282):** Keep `wrapper_gen` explicitly packaged-interpreter-only in the CLI and documentation.
