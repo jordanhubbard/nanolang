@@ -9511,7 +9511,7 @@ Ownership and proposal closure:
       contradictions around at-most-once use versus mandatory cleanup,
       by-value consumption versus borrowing, moves, explicit discard, nested
       resources, collections, branches, loops, returns, and error paths.
-- [ ] I replace the C seed's identifier-state prototype with path-sensitive
+- [x] I replace the C seed's identifier-state prototype with path-sensitive
       ownership analysis and a rule-by-rule conformance corpus
       (`task_c4e2f078cef8c4e461f0de3711c8a2b9`).
       I superseded the cancelled task above with the merged growable
@@ -9522,7 +9522,11 @@ Ownership and proposal closure:
       emitted-facts and full-matrix clauses remain under ownership ed702 and
       `task_28f2fb4b1f3c8a5ce93df628bb569d76`; partial frontend coverage does
       not close that conjunction. [Checkpoint](evidence/affine-c-seed-flow.md),
-      [subsequent paired flow](evidence/affine-selfhost-flow.md).
+      [subsequent paired flow](evidence/affine-selfhost-flow.md). Re-verified
+      on `main` `b6b332d5`: the path-sensitive pass checks 300 owners and 1832
+      allocation-failure positions plus nested/cyclic/deep/module-owned
+      classification, and `tests/nl_control_array_elements.nano` compiles and
+      runs clean.
 - [x] I qualify the original pinned resource syntax/analysis/diagnostic corpus
       across the C seed and self-hosted bootstrap stages
       (`task_20048de825616195b9f2bc492231a851`). The subsequent paired flow
