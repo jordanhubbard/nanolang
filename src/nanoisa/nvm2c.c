@@ -126,6 +126,7 @@ static int boolean_result(uint8_t opcode) {
     case OP_LT: case OP_LE: case OP_GT: case OP_GE:
     case OP_I64_LT_S: case OP_I64_LE_S: case OP_I64_GT_S: case OP_I64_GE_S:
     case OP_STR_STARTS_WITH: case OP_STR_ENDS_WITH: case OP_STR_CONTAINS:
+    case OP_STR_EQ:
     case OP_HM_HAS: case OP_TYPE_CHECK: return 1;
     default: return 0;
     }
@@ -1637,6 +1638,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             break;
         }
         case OP_EQ:
+        case OP_STR_EQ:
         case OP_LT: case OP_LE: case OP_GT: case OP_GE:
         case OP_NE: {
             Nvm2cSimSlot rhs, lhs;
@@ -3814,6 +3816,24 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_I64_EQ:
             emit_binop(b, &st, "==");
             break;
+        case OP_STR_EQ: {
+            /* Dedicated content equality for two strings. The VM treats
+             * STR_EQ exactly as string EQ, with no numeric promotion. */
+            uint8_t rk = NVM2C_VK_INT, lk = NVM2C_VK_INT;
+            int rhs = stack_pop_kind(b, &st, &rk);
+            int lhs = stack_pop_kind(b, &st, &lk);
+            if (b->failed) goto done;
+            if (lk != NVM2C_VK_STR || rk != NVM2C_VK_STR) {
+                nvm2c_fail(b, "function %u: OP_STR_EQ requires two string operands", idx);
+                goto done;
+            }
+            char expr[192];
+            snprintf(expr, sizeof expr,
+                     "(int64_t)(strcmp(s[%d] ? s[%d] : \"\", s[%d] ? s[%d] : \"\") == 0)",
+                     lhs, lhs, rhs, rhs);
+            stack_push_bool(b, &st, expr);
+            break;
+        }
         case OP_EQ:
         case OP_NE: {
             uint8_t rk = NVM2C_VK_INT;
