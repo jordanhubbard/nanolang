@@ -2590,6 +2590,40 @@ void test_eval_empty_array_aliases(void) {
     run_ctx_free(&ctx);
 }
 
+/* I reclaim the environment's shared static arrays and their owned elements at
+ * interpreter teardown, releasing each distinct container exactly once even
+ * when several bindings and record fields alias it. */
+void test_eval_static_array_alias_reclaim(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "struct Row { cells: array<string> }\n"
+        "let mut shared: array<string> = [\"keep\", \"me\"]\n"
+        "let alias: array<string> = shared\n"
+        "let nested: array<array<int>> = [[1, 2], [3, 4, 5]]\n"
+        "let rows: array<Row> = [Row { cells: shared }]\n"
+        "fn touch() -> int {\n"
+        " (array_push shared \"again\")\n"
+        " assert (== (at alias 2) \"again\")\n"
+        " assert (== (at (at rows 0).cells 2) \"again\")\n"
+        " return (array_length alias) }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow main { assert (== (main) 0) }\n"));
+
+    /* Shared identity holds across bindings and record fields before teardown. */
+    Value touched = call_function("touch", NULL, 0, ctx.env);
+    ASSERT_EQ(touched.type, VAL_INT);
+    ASSERT_EQ(touched.as.int_val, 3);
+
+    /* Teardown reclaims each distinct container and its string elements once.
+     * A double free of the shared array aborts this process. */
+    size_t before = env_static_array_reclaim_count();
+    free_environment(ctx.env);
+    ctx.env = NULL;
+    ASSERT(env_static_array_reclaim_count() - before >= 5);
+    if (ctx.program) free_ast(ctx.program);
+    if (ctx.tokens)  free_tokens(ctx.tokens, ctx.token_count);
+}
+
 void test_eval_array_append_and_dynamic_write(void) {
     RunCtx ctx;
     ASSERT(run_ctx_init(&ctx,
@@ -3123,6 +3157,7 @@ int main(void) {
     TEST(eval_struct_array_literal);
     TEST(eval_array_literal_evaluates_once_in_order);
     TEST(eval_empty_array_aliases);
+    TEST(eval_static_array_alias_reclaim);
     TEST(eval_array_append_and_dynamic_write);
     TEST(eval_record_alias_reassignment);
     TEST(eval_record_alias_across_direct_calls);

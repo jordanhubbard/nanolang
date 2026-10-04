@@ -9886,10 +9886,12 @@ Compiler product:
       A dependency manifest's `include_dirs` and `-I` cflags now reach the
       dependent's compile flags, including through another dependency;
       `tests.test_native_module_generation_selection` proves the chain.
-- [ ] I reclaim shared static-array containers and their owned elements at an
+- [x] I reclaim shared static-array containers and their owned elements at an
       alias-safe interpreter lifetime boundary
-      (`task_5eba51e216e343549c8ca7846713b6a3`). My current environment cleanup
-      ignores static arrays; append alias tests do not establish leak freedom.
+      (`task_5eba51e216e343549c8ca7846713b6a3`). My environment teardown now
+      frees each distinct static container once, including nested arrays and
+      record-owned string elements, and never double-frees an alias; see
+      `tests/test_eval.c::test_eval_static_array_alias_reclaim`.
 - [x] I preserve aliases when my shadow interpreter appends to an empty
       array (`task_adb9b837ce4144a68a9d91ea00749ae0`). I initialize shared
       static storage in place and preserve pop/remove compatibility. See

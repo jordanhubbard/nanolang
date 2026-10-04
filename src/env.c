@@ -255,9 +255,154 @@ static void env_free_value(Value v) {
     }
 }
 
+/* ── Alias-safe static-array reclamation ─────────────────────────────────
+ * Static arrays are owned by the interpreter environment, not by one binding:
+ * a container and its owned record/string elements can be referenced from
+ * several symbols and nested fields at once. At the interpreter lifetime
+ * boundary I release each distinct container exactly once, so shared storage
+ * is reclaimed without a double free. The type checker separately owns a few
+ * placeholder arrays and keeps them out of this pass.
+ */
+typedef struct {
+    const void **freed;
+    size_t freed_count, freed_cap;
+} EnvArrayReclaim;
+
+static size_t s_static_array_reclaims;
+
+size_t env_static_array_reclaim_count(void) {
+    return s_static_array_reclaims;
+}
+
+/* The type checker owns a few placeholder arrays through the explicit checker
+ * allocation list; those are freed there and must not be reclaimed twice. */
+static bool env_is_checker_allocation(Environment *env, const void *ptr) {
+    if (!ptr) return false;
+    for (struct EnvCheckerAllocation *entry = env->checker_allocations;
+         entry; entry = entry->next) {
+        if (entry->allocation == ptr) return true;
+    }
+    return false;
+}
+
+static bool env_ptrset_has(const void **set, size_t count, const void *ptr) {
+    for (size_t i = 0; i < count; i++) {
+        if (set[i] == ptr) return true;
+    }
+    return false;
+}
+
+static void env_ptrset_add(const void ***set, size_t *count, size_t *cap, const void *ptr) {
+    if (!ptr || env_ptrset_has(*set, *count, ptr)) return;
+    if (*count == *cap) {
+        size_t next = *cap ? *cap * 2 : 16;
+        const void **grown = realloc((void *)*set, next * sizeof(**set));
+        if (!grown) {
+            fprintf(stderr, "I could not track array reclamation.\n");
+            exit(1);
+        }
+        *set = grown;
+        *cap = next;
+    }
+    (*set)[(*count)++] = ptr;
+}
+
+/* I release one static array's storage, its owned elements and any nested
+ * arrays. The freed set keeps shared containers from being released twice. */
+static void env_release_array(EnvArrayReclaim *ctx, Array *arr) {
+    if (!arr) return;
+    if (env_ptrset_has(ctx->freed, ctx->freed_count, arr)) return;
+    env_ptrset_add(&ctx->freed, &ctx->freed_count, &ctx->freed_cap, arr);
+    s_static_array_reclaims++;
+
+    if (arr->element_type == VAL_ARRAY) {
+        Value *elems = (Value *)arr->data;
+        for (int i = 0; i < arr->length; i++) {
+            if (elems[i].type == VAL_ARRAY) env_release_array(ctx, elems[i].as.array_val);
+        }
+    } else if (arr->element_type == VAL_STRUCT) {
+        StructValue **elems = (StructValue **)arr->data;
+        for (int i = 0; i < arr->length; i++) {
+            StructValue *sv = elems[i];
+            if (!sv) continue;
+            for (int j = 0; j < sv->field_count; j++) {
+                if (sv->field_values[j].type == VAL_ARRAY)
+                    env_release_array(ctx, sv->field_values[j].as.array_val);
+            }
+            for (int j = 0; j < sv->field_count; j++) {
+                free(sv->field_names[j]);
+                Value f = sv->field_values[j];
+                if (f.type == VAL_STRING) {
+                    if (gc_is_managed(f.as.string_val)) gc_release(f.as.string_val);
+                    else free(f.as.string_val);
+                }
+            }
+            free(sv->field_names);
+            free(sv->field_values);
+            free(sv->struct_name);
+            free(sv);
+        }
+    } else if (arr->element_type == VAL_STRING) {
+        char **elems = (char **)arr->data;
+        for (int i = 0; i < arr->length; i++) free(elems[i]);
+    }
+    free(arr->data);
+    free(arr);
+}
+
+/* I release arrays reachable through an owning value without freeing that
+ * value's own container; the ordinary value teardown still owns the record,
+ * union or tuple header. */
+static void env_release_value_arrays(EnvArrayReclaim *ctx, Value v) {
+    switch (v.type) {
+        case VAL_ARRAY:
+            env_release_array(ctx, v.as.array_val);
+            break;
+        case VAL_STRUCT: {
+            StructValue *sv = v.as.struct_val;
+            if (!sv) break;
+            for (int j = 0; j < sv->field_count; j++)
+                env_release_value_arrays(ctx, sv->field_values[j]);
+            break;
+        }
+        case VAL_UNION: {
+            UnionValue *uv = v.as.union_val;
+            if (!uv) break;
+            for (int j = 0; j < uv->field_count; j++)
+                env_release_value_arrays(ctx, uv->field_values[j]);
+            break;
+        }
+        case VAL_TUPLE: {
+            TupleValue *tv = v.as.tuple_val;
+            if (!tv) break;
+            for (int j = 0; j < tv->element_count; j++)
+                env_release_value_arrays(ctx, tv->elements[j]);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void env_reclaim_static_arrays(Environment *env) {
+    if (!env) return;
+    EnvArrayReclaim ctx;
+    memset(&ctx, 0, sizeof ctx);
+    for (int i = 0; i < env->symbol_count; i++) {
+        Value v = env->symbols[i].value;
+        if (v.type == VAL_ARRAY && env_is_checker_allocation(env, v.as.array_val))
+            continue;
+        env_release_value_arrays(&ctx, v);
+    }
+    free(ctx.freed);
+}
+
 /* Free environment */
 void free_environment(Environment *env) {
     env_symbol_index_invalidate(env);
+    /* I reclaim every static array exactly once before the string/record
+     * teardown below, so shared containers and their elements do not leak. */
+    env_reclaim_static_arrays(env);
     for (int i = 0; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
         if (env->symbols[i].struct_type_name) {

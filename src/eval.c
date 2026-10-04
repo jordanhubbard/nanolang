@@ -4595,7 +4595,8 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
                 if (elem_type == VAL_STRING) {
                     char *s = NULL;
                     if (is_keys) s = e->key.s; else s = e->value.s;
-                    ((char**)out.as.array_val->data)[out_idx++] = s;
+                    /* I copy map-owned strings so the returned array owns them. */
+                    ((char**)out.as.array_val->data)[out_idx++] = s ? strdup(s) : NULL;
                 } else {
                     int64_t v = 0;
                     if (is_keys) v = e->key.i; else v = e->value.i;
