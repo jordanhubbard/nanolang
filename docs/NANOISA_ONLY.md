@@ -286,11 +286,11 @@ identity; `grow_s` runs as native C), and Cut A mixed int/string
 records (`AGG_PACK`/`AGG_GET`; `get_s` runs as native C; nested
 records stay refused). Nested arrays,
 nested records, `ARR_SET`, `AGG_SET`, variants, tuples, array
-equality, `STR_TRIM`, substring of arrays, and printing
-arrays/records stay refused. The rest of the
-compiler subset (modules, host ABI, and the remaining string
-library) is still open. A pinned suite must match on `nano_vm` and
-on AOT C.
+equality, substring of arrays, and printing arrays/records stay
+refused. Module initializers, the declared host ABI for imports,
+dedicated `STR_EQ`, and `STR_TRIM` now run as native C; the rest of
+the string library is still open. A pinned suite must match on
+`nano_vm` and on AOT C.
 
 **C — Product output is the module.** Self-hosted `nanoc --emit-nvm`
 is the compiler. `-o binary` is `nvm2c | cc`, a tool pipeline written

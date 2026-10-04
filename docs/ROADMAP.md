@@ -10287,8 +10287,12 @@ Compiler product:
 - [x] My C seed emits `ARR_NEW TAG_STRUCT` for an empty `List<record>`, so its
       NanoISA element kind does not depend on a later push
       (`task_2ef5249b949443adab10c45e16a70c5b`, `make test-nanovirt`).
-- [ ] `nvm2c` covers the compiler subset: functions, structs, loops, arrays,
-      strings, modules, and a declared host ABI for `extern`.
+- [x] `nvm2c` covers the compiler subset: functions, structs, loops, arrays,
+      strings, modules, and a declared host ABI for `extern`. The dedicated
+      `STR_EQ` opcode that the self-hosted codegen emits for string equality
+      now runs as native C; `make test-nvm2c` (2,431 passed) also exercises
+      the module initializer and the builtin host ABI (MAC
+      `task_4b883e3f334e405f847546bdd773c18b`).
 - [ ] I map `CALL_EXTERN` to that host ABI or I refuse the module. I do not
       emit a co-process client and call it AOT.
 - [ ] `wrapper_gen` remains a packaged-interpreter path. It is not "native"

@@ -1475,6 +1475,63 @@ static void test_str_to_upper_is_refused(void) {
     nvm_module_free(m);
 }
 
+/* I run the dedicated STR_EQ opcode, which the self-hosted codegen emits for
+ * string equality, without a VM process. */
+static void test_str_eq_runs_without_nano_vm(void) {
+    const char *src =
+        ".string hi \"hi\"\n"
+        ".string no \"no\"\n"
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_STR hi\n"
+        "  PUSH_STR hi\n"
+        "  STR_EQ\n"
+        "  ASSERT\n"
+        "  PUSH_STR hi\n"
+        "  PUSH_STR no\n"
+        "  STR_EQ\n"
+        "  BOOL_NOT\n"
+        "  ASSERT\n"
+        "  PUSH_I64 0\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "STR_EQ fixture");
+    CHECK(m != NULL, "STR_EQ fixture assembles");
+    if (!m) return;
+    char *c = emit_or_fail(m, "nvm2c emits C for STR_EQ");
+    if (!c) {
+        nvm_module_free(m);
+        return;
+    }
+    CHECK(strstr(c, "nano_vm") == NULL, "STR_EQ C does not name nano_vm");
+    CHECK(strstr(c, "strcmp(") != NULL, "STR_EQ compares string content");
+    int status = -1;
+    CHECK(compile_and_run(c, &status) == 0, "STR_EQ C compiles and runs");
+    CHECK(status == 0, "STR_EQ distinguishes equal and unequal strings");
+    free(c);
+    nvm_module_free(m);
+}
+
+static void test_str_eq_rejects_non_strings(void) {
+    const char *src =
+        ".entry 0\n"
+        ".function main 0 0 0 int 1\n"
+        "  PUSH_I64 1\n"
+        "  PUSH_I64 1\n"
+        "  STR_EQ\n"
+        "  RET\n"
+        ".end\n";
+    NvmModule *m = assemble_ok(src, "STR_EQ integer refusal");
+    CHECK(m != NULL, "STR_EQ integer fixture assembles");
+    if (!m) return;
+    char err[256] = {0};
+    char *c = nvm2c_emit(m, err, sizeof err);
+    CHECK(c == NULL, "STR_EQ refuses non-string operands");
+    CHECK(strstr(err, "STR_EQ") != NULL, "STR_EQ refusal names the opcode");
+    free(c);
+    nvm_module_free(m);
+}
+
 static void test_push_str_len_runs_without_nano_vm(void) {
     const char *src =
         ".string hi \"hi\"\n"
@@ -6646,6 +6703,8 @@ int main(int argc, char **argv) {
     test_real_walk_artifact();
     test_call_extern_is_refused();
     test_str_to_upper_is_refused();
+    test_str_eq_runs_without_nano_vm();
+    test_str_eq_rejects_non_strings();
     test_push_str_len_runs_without_nano_vm();
     test_str_concat_len_runs_without_nano_vm();
     test_greeting_runs_without_nano_vm();
