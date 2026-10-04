@@ -825,8 +825,11 @@ static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
     if (want_float && type != TYPE_FLOAT) emit_op(cg, OP_CAST_FLOAT);
 }
 
-/* An integer literal acquires the byte tag only from an exact checked
- * destination. I do not turn arbitrary integer expressions into bytes. */
+/* A byte destination narrows computed int-like values by the defined
+ * unsigned modulo-256 conversion, matching C's uint8_t assignment. Literal
+ * range policy stays exact, and definite non-byte scalar or aggregate types
+ * still refuse. TYPE_UNKNOWN and the row-polymorphic record placeholder are
+ * the checker's imprecise builtin results; the runtime cast is their check. */
 static void compile_expected_tag(CG *cg, ASTNode *node, uint8_t tag) {
     if (tag == TAG_U8) {
         if (node && node->type == AST_NUMBER) {
@@ -837,10 +840,19 @@ static void compile_expected_tag(CG *cg, ASTNode *node, uint8_t tag) {
             emit_op(cg, OP_PUSH_U8, (uint8_t)node->as.number);
             return;
         }
-        if (check_expression(node, cg->env) != TYPE_U8) {
+        Type checked = check_expression(node, cg->env);
+        if (checked == TYPE_U8) {
+            compile_expr(cg, node);
+            return;
+        }
+        if (checked != TYPE_INT && checked != TYPE_UNKNOWN &&
+            checked != TYPE_OPEN_RECORD) {
             cg_error(cg, node ? node->line : 0, "I require the declared byte value type");
             return;
         }
+        compile_expr(cg, node);
+        emit_op(cg, OP_CAST_U8);
+        return;
     }
     compile_expr(cg, node);
 }
@@ -916,6 +928,112 @@ static int32_t named_scalar_callback(CG *cg, ASTNode *call, bool reduce) {
     if (reduce && (function->params[0].type != function->return_type ||
         check_expression(call->as.call.args[1], cg->env) != function->return_type)) return -1;
     return fn_find_body(cg, function->body);
+}
+
+/* I lower checked generic list mutations using existing array operations. I
+ * stage every argument into a scratch local before observing the length, so a
+ * later argument that reassigns the source binding cannot change the receiver.
+ * Scratch roots are cleared once the result is on the operand stack. */
+static void compile_list_mutation(CG *cg, ASTNode *node, const char *operation) {
+    bool insert = !strcmp(operation, "insert");
+    bool pop = !strcmp(operation, "pop");
+    int argc = insert ? 3 : pop ? 1 : 2;
+    if (node->as.call.arg_count != argc) {
+        cg_error(cg, node->line, "I require a checked generic list mutation");
+        return;
+    }
+    /* Reserve before child expressions can add their own scratch locals. */
+    uint16_t slots[4];
+    int count = argc + 1;
+    if (cg->local_count > MAX_LOCALS - count ||
+        cg->local_binding_count > MAX_LOCALS - count) {
+        cg_error(cg, node->line, "I cannot reserve list mutation locals");
+        return;
+    }
+    for (int i = 0; i < count; ++i) slots[i] = local_add(cg, "", node->line);
+    uint16_t array = slots[0], length = slots[argc];
+    for (int i = 0; i < argc; ++i) {
+        compile_expr(cg, node->as.call.args[i]);
+        emit_op(cg, OP_STORE_LOCAL, (int)slots[i]);
+    }
+    emit_op(cg, OP_LOAD_LOCAL, (int)array);
+    emit_op(cg, OP_ARR_LEN);
+    emit_op(cg, OP_STORE_LOCAL, (int)length);
+    if (pop) {
+        emit_op(cg, OP_LOAD_LOCAL, (int)length);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, OP_I64_GT_S);
+        emit_op(cg, OP_ASSERT);
+        emit_op(cg, OP_LOAD_LOCAL, (int)array);
+        emit_op(cg, OP_ARR_POP);
+    } else {
+        uint16_t index = slots[1];
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_PUSH_I64, (int64_t)0);
+        emit_op(cg, OP_I64_GE_S);
+        emit_op(cg, OP_ASSERT);
+        emit_op(cg, OP_LOAD_LOCAL, (int)index);
+        emit_op(cg, OP_LOAD_LOCAL, (int)length);
+        emit_op(cg, insert ? OP_I64_LE_S : OP_I64_LT_S);
+        emit_op(cg, OP_ASSERT);
+        if (insert) {
+            /* Append the staged value once, then shift the old tail right. */
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)slots[2]);
+            emit_op(cg, OP_ARR_PUSH);
+            emit_op(cg, OP_POP);
+            /* The original length doubles as the descending destination. */
+            uint32_t top = cg->code_size;
+            emit_op(cg, OP_LOAD_LOCAL, (int)length);
+            emit_op(cg, OP_LOAD_LOCAL, (int)index);
+            emit_op(cg, OP_I64_GT_S);
+            uint32_t done = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)length);
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)length);
+            emit_op(cg, OP_PUSH_I64, (int64_t)1);
+            emit_op(cg, OP_I64_SUB);
+            emit_op(cg, OP_ARR_GET);
+            emit_op(cg, OP_ARR_SET);
+            emit_op(cg, OP_POP);
+            emit_op(cg, OP_LOAD_LOCAL, (int)length);
+            emit_op(cg, OP_PUSH_I64, (int64_t)1);
+            emit_op(cg, OP_I64_SUB);
+            emit_op(cg, OP_STORE_LOCAL, (int)length);
+            uint32_t again = emit_op(cg, OP_JMP, (int32_t)0);
+            if (cg->had_error) return;
+            /* This generated loop is fixed size, independent of input length. */
+            if ((uint64_t)cg->code_size - top > INT32_MAX) {
+                cg_error(cg, node->line, "I cannot encode the list mutation branch");
+                return;
+            }
+            patch_jump(cg, again + 1, again, top);
+            patch_jump(cg, done + 1, done, cg->code_size);
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)index);
+            emit_op(cg, OP_LOAD_LOCAL, (int)slots[2]);
+            emit_op(cg, OP_ARR_SET);
+            emit_op(cg, OP_POP);
+        } else {
+            /* A value-returning remove publishes the retained element; the
+             * generic record form is void in the current checker contract. */
+            bool returns_value = check_expression(node, cg->env) != TYPE_VOID;
+            if (returns_value) {
+                emit_op(cg, OP_LOAD_LOCAL, (int)array);
+                emit_op(cg, OP_LOAD_LOCAL, (int)index);
+                emit_op(cg, OP_ARR_GET);
+            }
+            emit_op(cg, OP_LOAD_LOCAL, (int)array);
+            emit_op(cg, OP_LOAD_LOCAL, (int)index);
+            emit_op(cg, OP_ARR_REMOVE);
+            emit_op(cg, OP_POP);
+        }
+    }
+    for (int i = 0; i < count; ++i) {
+        emit_op(cg, OP_PUSH_VOID);
+        emit_op(cg, OP_STORE_LOCAL, (int)slots[i]);
+    }
 }
 
 /* Handle built-in function calls. Returns true if handled, false if not a builtin. */
@@ -1920,6 +2038,15 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         /* Find the operation suffix */
         const char *suffix = strrchr(name, '_');
         if (suffix) {
+            if ((strcmp(suffix, "_insert") == 0 && argc == 3) ||
+                (strcmp(suffix, "_remove") == 0 && argc == 2) ||
+                (strcmp(suffix, "_pop") == 0 && argc == 1)) {
+                /* A real extern or bytecode declaration with this spelling
+                 * retains call precedence over the generic lowering. */
+                if (extern_find(cg, name) >= 0) return false;
+                compile_list_mutation(cg, node, suffix + 1);
+                return true;
+            }
             if (strcmp(suffix, "_new") == 0 && argc == 0) {
                 /* list_T_new() -> create empty array */
                 emit_op(cg, OP_ARR_NEW, (int)list_element_tag(cg, name, suffix));
