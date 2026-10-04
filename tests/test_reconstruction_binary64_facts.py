@@ -1,4 +1,4 @@
-"""I retain operand bits without admitting float source reconstruction."""
+"""I retain operand bits and refuse float source I do not reconstruct."""
 from pathlib import Path
 import json
 import struct
@@ -56,7 +56,9 @@ class Binary64Facts(unittest.TestCase):
     def test_source_refusal_preserves_previous_outputs(self):
         with tempfile.TemporaryDirectory() as tmp:
             directory = Path(tmp)
-            module = self.module(directory, 'DUP\nF64_ADD\n')
+            # Typed F64 arithmetic is admitted by the arithmetic contract; I
+            # assert refusal against an operation that remains unsupported.
+            module = self.module(directory, 'CAST_FLOAT\n')
             for target in ('c', 'nano'):
                 output = directory/f'previous.{target}'
                 output.write_text('retained output\n')
@@ -64,7 +66,7 @@ class Binary64Facts(unittest.TestCase):
                                          '-o', output], cwd=ROOT, capture_output=True,
                                         text=True, timeout=30)
                 self.assertNotEqual(result.returncode, 0)
-                self.assertIn('F64_ADD', result.stderr)
+                self.assertIn('CAST_FLOAT', result.stderr)
                 self.assertEqual(output.read_text(), 'retained output\n')
 
 if __name__ == '__main__':
