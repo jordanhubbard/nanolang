@@ -939,6 +939,13 @@ void *env_own_checker_allocation(Environment *env, void *allocation);
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value);
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value);
+
+/* I reclaim static-array containers and their owned elements when the
+ * interpreter environment is torn down. Aliased containers are released once. */
+void env_reclaim_static_arrays(Environment *env);
+
+/* Diagnostic: number of static-array containers reclaimed at teardown. */
+size_t env_static_array_reclaim_count(void);
 Symbol *env_get_var(Environment *env, const char *name);
 Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column);
 void env_set_var(Environment *env, const char *name, Value value);

@@ -30,7 +30,7 @@ experiments. Line references point to the unchecked Phase 20 rows in
 
 - **Required (9707):** Infer C-seed loop element metadata for inline and computed arrays; compiler-source lowering depends on valid loops. **Done.**
 - **Done (9879):** Propagate transitive foreign header paths through C-seed module compilation.
-- **Required (9882):** Reclaim shared static arrays and owned elements at an alias-safe interpreter boundary.
+- **Done (9882):** Reclaim shared static arrays and owned elements at an alias-safe interpreter boundary.
 - **Required (9902):** Define Boolean List syntax and backend parity before the compiler product claims list coverage.
 - **Required (9941):** Reconcile the legacy `string_from_char` alias so VM and AOT resolve the same host contract.
 - **Required (9978):** Prevent ordinary record names from colliding with native runtime helper names.
