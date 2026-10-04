@@ -342,7 +342,7 @@ jobs:
   sanitizers:
     name: Memory Sanitizers
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 100
     permissions:
       contents: read
 
@@ -389,7 +389,7 @@ jobs:
           make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
 
       - name: Run tests with sanitizers
-        timeout-minutes: 45  # Sanitizer instrumentation is substantially slower.
+        timeout-minutes: 80  # Sanitizer instrumentation is substantially slower; 45 was exceeded once the corpus grew (2026-10-04).
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           make test-units CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer" LDFLAGS="-lm -lcrypto -fsanitize=address,undefined"
