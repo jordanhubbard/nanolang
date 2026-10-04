@@ -6,7 +6,7 @@ experiments. Line references point to the unchecked Phase 20 rows in
 
 ## Ownership and services
 
-- **Required (9511):** Replace the C seed ownership prototype with path-sensitive analysis; both frontends need the same affine rules.
+- **Done (9511):** Replace the C seed ownership prototype with path-sensitive analysis; both frontends need the same affine rules.
 - **Required (9538):** Preserve verified ownership facts through the module, linker, reconstruction, and every shipped translator.
 - **Required (9547):** Connect generated File and Result descriptors to a verified service-call boundary; integer wrappers are not enough.
 - **Required (9549):** Integrate the reviewed five-method File descriptor query before executable service publication.
