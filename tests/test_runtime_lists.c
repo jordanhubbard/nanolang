@@ -12,6 +12,7 @@
 
 /* Include non-AST list headers */
 #include "../src/runtime/list_int.h"
+#include "../src/runtime/list_bool.h"
 #include "../src/runtime/list_string.h"
 #include "../src/runtime/list_LexerToken.h"
 #include "../src/runtime/list_token.h"
@@ -155,6 +156,41 @@ static void test_non_ast_lists(void) {
         ASSERT_EQ(list_string_length(ls), 10);
         list_string_free(ls);
         printf("  ✓ List_string\n");
+    }
+
+    /* list_bool */
+    {
+        List_bool *lb = list_bool_new();
+        ASSERT(lb != NULL);
+        ASSERT(list_bool_is_empty(lb));
+        ASSERT_EQ(list_bool_length(lb), 0);
+        ASSERT(list_bool_capacity(lb) > 0);
+        list_bool_push(lb, true);
+        list_bool_push(lb, false);
+        ASSERT_EQ(list_bool_length(lb), 2);
+        ASSERT(!list_bool_is_empty(lb));
+        ASSERT(list_bool_get(lb, 0));
+        ASSERT(!list_bool_get(lb, 1));
+        list_bool_set(lb, 0, false);
+        ASSERT(!list_bool_get(lb, 0));
+        list_bool_insert(lb, 0, true);
+        ASSERT_EQ(list_bool_length(lb), 3);
+        ASSERT(list_bool_get(lb, 0));
+        ASSERT(list_bool_remove(lb, 0));
+        ASSERT_EQ(list_bool_length(lb), 2);
+        ASSERT(!list_bool_pop(lb));
+        ASSERT_EQ(list_bool_length(lb), 1);
+        list_bool_clear(lb);
+        ASSERT_EQ(list_bool_length(lb), 0);
+        List_bool *lb2 = list_bool_with_capacity(4);
+        ASSERT(lb2 != NULL);
+        list_bool_free(lb2);
+        for (int i = 0; i < 10; i++) list_bool_push(lb, (i % 2) == 0);
+        ASSERT_EQ(list_bool_length(lb), 10);
+        ASSERT(list_bool_get(lb, 0));
+        ASSERT(!list_bool_get(lb, 1));
+        list_bool_free(lb);
+        printf("  ✓ List_bool\n");
     }
 
     /* nl_list_LexerToken */
@@ -306,6 +342,6 @@ int main(void) {
 
     test_non_ast_lists();
 
-    printf("\n✓ All runtime list tests passed! (33 AST + 6 non-AST list types)\n");
+    printf("\n✓ All runtime list tests passed! (33 AST + 7 non-AST list types)\n");
     return 0;
 }

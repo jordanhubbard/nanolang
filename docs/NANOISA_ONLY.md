@@ -282,7 +282,8 @@ void `list_int_push` (`ARR_PUSH` then `POP` keeps array identity;
 `ch` runs as native C; out of range is `-1`), and Cut A empty
 `List<string>` (`ARR_NEW` tag 1; `blank_s` runs as native C), and
 Cut A void `list_string_push` (`ARR_PUSH` then `POP` keeps string-array
-identity; `grow_s` runs as native C), and Cut A mixed int/string
+identity; `grow_s` runs as native C), and Cut A `List<bool>`
+(`ARR_NEW` tag 4; push/get/set/length run as native C), and Cut A mixed int/string
 records (`AGG_PACK`/`AGG_GET`; `get_s` runs as native C; nested
 records stay refused). Nested arrays,
 nested records, `ARR_SET`, `AGG_SET`, variants, tuples, array

@@ -188,7 +188,7 @@ static int cb_storage_type(CBCtx *c, Type type, const char *name,
 }
 static int cb_node_storage(CBCtx *c, const ASTNode *node) {
     static const Type unsupported[]={TYPE_BSTRING,TYPE_GENERIC,TYPE_LIST_INT,TYPE_LIST_STRING,
-        TYPE_LIST_TOKEN,TYPE_LIST_GENERIC,TYPE_HASHMAP,TYPE_TUPLE,TYPE_OPAQUE,
+        TYPE_LIST_TOKEN,TYPE_LIST_BOOL,TYPE_LIST_GENERIC,TYPE_HASHMAP,TYPE_TUPLE,TYPE_OPAQUE,
         TYPE_OPEN_RECORD,TYPE_UNKNOWN,TYPE_BORROW_SHARED,TYPE_BORROW_MUT};
     for(size_t i=0;i<sizeof unsupported/sizeof unsupported[0];i++)
         if(cb_node_has_kind(node,unsupported[i])) return cb_type_refusal(c);

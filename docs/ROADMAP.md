@@ -9908,8 +9908,11 @@ Compiler product:
       execution. See `docs/evidence/selfhost-artifact-imports.md`.
 - [x] I validate array/list append element types before emitting bytecode
       (`task_e354c7131ebf40e3b177ba5a6cab1aba`); malformed append types now refuse publication.
-- [ ] I define boolean List syntax and backend parity before claiming support
-      (`task_9556b493260246be8e271b27e29cdf02`); my C parser rejects `List<bool>`.
+- [x] I define boolean List syntax and backend parity before claiming support
+      (`task_9556b493260246be8e271b27e29cdf02`). My C seed parses `List<bool>`,
+      my native C runtime, NanoVM and interpreter agree on the boolean element
+      type, and the new language and runtime checks pass. See
+      `docs/evidence/boolean-list-parity.md`.
 - [x] I lower boolean arrays required by my compiler, preserving bool/int
       separation and typed bytecode tags (`task_76a8de9b6d84450faf717fd0333e0cee`).
       Fourteen opcode comparisons and VM/native execution pass; see

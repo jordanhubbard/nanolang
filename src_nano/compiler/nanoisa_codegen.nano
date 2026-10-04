@@ -598,7 +598,9 @@ fn nisa_local_type_ok(t: string) -> bool {
                            (or (== t "array<string>")
                                (or (== t "List<int>")
                                    (or (== t "list_int")
-                                       (or (== t "List<string>") (== t "list_string"))))))
+                                       (or (== t "List<string>")
+                                           (or (== t "list_string")
+                                               (or (== t "List<bool>") (== t "list_bool"))))))))
             }
         }
     }
@@ -616,6 +618,8 @@ shadow nisa_local_type_ok {
     assert (nisa_local_type_ok "list_int")
     assert (nisa_local_type_ok "List<string>")
     assert (nisa_local_type_ok "list_string")
+    assert (nisa_local_type_ok "List<bool>")
+    assert (nisa_local_type_ok "list_bool")
     assert (nisa_local_type_ok "array<bool>")
     assert (nisa_local_type_ok "array<float>")
 }
@@ -1526,7 +1530,7 @@ fn nisa_field_shape_supported(parser: Parser, field: string, ancestors: array<st
     if (or (== field "float") (or (== field "int") (or (== field "string") (== field "bool")))) { return true }
     if (== field "array<float>") { return true }
     if (or (== field "array<bool>") (or (== field "array<int>") (== field "array<string>"))) { return true }
-    if (or (== field "List<int>") (== field "List<string>")) { return true }
+    if (or (== field "List<int>") (or (== field "List<string>") (== field "List<bool>"))) { return true }
     if (and (str_starts_with field "array<") (str_ends_with field ">")) {
         let element: string = (str_substring field 6 (- (str_length field) 7))
         return (or (>= (nisa_enum_index parser element) 0) (nisa_record_shape_supported parser element ancestors))
@@ -1545,6 +1549,7 @@ shadow nisa_field_shape_supported {
     assert (nisa_field_shape_supported parser "HashMap<string,int>" [])
     assert (not (nisa_field_shape_supported parser "HashMap<int,int>" []))
     assert (nisa_field_shape_supported parser "array<bool>" [])
+    assert (nisa_field_shape_supported parser "List<bool>" [])
     assert (nisa_field_shape_supported parser "float" [])
     assert (nisa_field_shape_supported parser "array<float>" [])
     assert (not (nisa_field_shape_supported parser "array<array<float>>" []))
@@ -1660,6 +1665,7 @@ shadow nisa_type_ok {
     assert (nisa_type_ok p "Tok")
     assert (nisa_type_ok p "array<string>")
     assert (nisa_type_ok p "List<string>")
+    assert (nisa_type_ok p "List<bool>")
     assert (nisa_type_ok p "List<Tok>")
     assert (nisa_type_ok p "List<Box>")
     assert (nisa_type_ok p "array<bool>")
@@ -2443,6 +2449,7 @@ fn nisa_element_type(parser: Parser, container: string) -> string {
     }
     if (or (== container "array<int>") (or (== container "List<int>") (== container "list_int"))) { return "int" }
     if (or (== container "array<string>") (or (== container "List<string>") (== container "list_string"))) { return "string" }
+    if (or (== container "List<bool>") (== container "list_bool")) { return "bool" }
     if (and (str_starts_with container "List<") (str_ends_with container ">")) {
         let element: string = (str_substring container 5 (- (str_length container) 6))
         if (or (>= (nisa_enum_index parser element) 0) (nisa_is_pin_record parser element)) { return element }
@@ -2456,6 +2463,7 @@ shadow nisa_element_type {
     assert (== (nisa_element_type parser "array<string>") "string")
     assert (== (nisa_element_type parser "List<int>") "int")
     assert (== (nisa_element_type parser "List<Entry>") "Entry")
+    assert (== (nisa_element_type parser "List<bool>") "bool")
     assert (== (nisa_element_type parser "array<bool>") "bool")
     assert (== (nisa_element_type parser "array<float>") "float")
 }
@@ -4862,12 +4870,8 @@ fn nisa_result_tag(parser: Parser, t: string) -> string {
         return t
     } else {
         if (and (str_starts_with t "List<") (str_ends_with t ">")) {
-            let inner: string = (str_substring t 5 (- (str_length t) 6))
-            if (or (>= (nisa_enum_index parser inner) 0) (nisa_is_pin_record parser inner)) {
-                return "array"
-            } else {
-                return ""
-            }
+            if (nisa_type_ok parser t) { return "array" }
+            return ""
         } else {
             if (nisa_is_pin_record parser t) {
                 return "struct"
@@ -4890,6 +4894,7 @@ shadow nisa_result_tag {
     assert (== (nisa_result_tag p "Box") "struct")
     assert (== (nisa_result_tag p "List<Tok>") "array")
     assert (== (nisa_result_tag p "List<Box>") "array")
+    assert (== (nisa_result_tag p "List<bool>") "array")
     assert (== (nisa_result_tag p "(int,string,bool)") "tuple")
 }
 

@@ -108,7 +108,8 @@ typedef enum {
     TYPE_OPEN_RECORD,  /* Row-polymorphic record: {f1:T1, f2:T2 | r} */
     TYPE_UNKNOWN,
     TYPE_BORROW_SHARED, /* Parser annotation; lowering remains guarded. */
-    TYPE_BORROW_MUT
+    TYPE_BORROW_MUT,
+    TYPE_LIST_BOOL      /* Boolean list: List<bool>, full list runtime. */
 } Type;
 
 /* Extended type information for arrays and generics */

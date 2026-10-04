@@ -217,6 +217,7 @@ static const char *type_base_name(Type t) {
         case TYPE_LIST_INT:     return "List<int>";
         case TYPE_LIST_STRING:  return "List<string>";
         case TYPE_LIST_TOKEN:   return "List<Token>";
+        case TYPE_LIST_BOOL:    return "List<bool>";
         case TYPE_LIST_GENERIC: return "List<T>";
         case TYPE_HASHMAP:      return "HashMap";
         case TYPE_FUNCTION:     return "fn";

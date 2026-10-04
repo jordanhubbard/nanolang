@@ -49,6 +49,7 @@ static const char *type_str(Type t, const char *struct_type_name) {
         case TYPE_LIST_INT:     return "List<int>";
         case TYPE_LIST_STRING:  return "List<string>";
         case TYPE_LIST_TOKEN:   return "List<token>";
+        case TYPE_LIST_BOOL:    return "List<bool>";
         case TYPE_ARRAY:        return "array";
         case TYPE_TUPLE:        return "tuple";
         case TYPE_FUNCTION:     return "function";

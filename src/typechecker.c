@@ -452,6 +452,7 @@ const char *type_to_string(Type type) {
         case TYPE_FUNCTION: return "function";
         case TYPE_LIST_INT: return "list_int";
         case TYPE_LIST_STRING: return "list_string";
+        case TYPE_LIST_BOOL: return "list_bool";
         case TYPE_HASHMAP: return "HashMap";
         case TYPE_OPEN_RECORD: return "open_record";
         case TYPE_UNKNOWN: return "unknown";
@@ -1582,6 +1583,7 @@ static bool reduce_types_exact(const TypeInfo *a, const TypeInfo *b,
         case TYPE_INT: case TYPE_U8: case TYPE_FLOAT: case TYPE_BOOL:
         case TYPE_STRING: case TYPE_BSTRING:
         case TYPE_LIST_INT: case TYPE_LIST_STRING: case TYPE_LIST_TOKEN:
+        case TYPE_LIST_BOOL:
             return true;
         case TYPE_ARRAY:
             return reduce_types_exact(a->element_type, b->element_type, env, depth + 1);
@@ -4958,7 +4960,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* Handle generic lists: List<UserType> - Register BEFORE checking expression */
             if (declared_type == TYPE_LIST_GENERIC && stmt->as.let.type_name) {
                 const char *element_type = stmt->as.let.type_name;
-                
                 /* Verify element type exists (struct or enum must be defined) */
                 if (!env_get_struct(tc->env, element_type) && !env_get_enum(tc->env, element_type)) {
                     fprintf(stderr, "Error at line %d, column %d: Unknown type '%s' in List<%s>\n",
@@ -5407,6 +5408,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 }
             } else if (iter_type == TYPE_LIST_STRING) {
                 loop_var_type = TYPE_STRING;
+            } else if (iter_type == TYPE_LIST_BOOL) {
+                loop_var_type = TYPE_BOOL;
             } else if (iter_type == TYPE_LIST_GENERIC) {
                 /* Look up list variable to get element type */
                 ASTNode *rng = stmt->as.for_stmt.range_expr;
@@ -6055,6 +6058,11 @@ static const char *builtin_function_names[] = {
     "list_int_get", "list_int_set", "list_int_insert", "list_int_remove",
     "list_int_length", "list_int_capacity", "list_int_is_empty", "list_int_clear",
     "list_int_free",
+    /* List operations - list_bool */
+    "list_bool_new", "list_bool_with_capacity", "list_bool_push", "list_bool_pop",
+    "list_bool_get", "list_bool_set", "list_bool_insert", "list_bool_remove",
+    "list_bool_length", "list_bool_capacity", "list_bool_is_empty", "list_bool_clear",
+    "list_bool_free",
     /* List operations - list_string */
     "list_string_new", "list_string_with_capacity", "list_string_push", "list_string_pop",
     "list_string_get", "list_string_set", "list_string_insert", "list_string_remove",
@@ -6895,6 +6903,137 @@ static void register_builtin_functions(Environment *env) {
     func.is_extern = false;
     env_define_function(env, func);
     
+    /* list_bool operations */
+    func.name = "list_bool_new";
+    func.params = NULL;
+    func.param_count = 0;
+    func.return_type = TYPE_LIST_BOOL;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "list_bool_with_capacity";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_LIST_BOOL;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "list_bool_push";
+    func.params = NULL;
+    func.param_count = 2;  /* list, value */
+    func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "list_bool_pop";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "list_bool_get";
+    func.params = NULL;
+    func.param_count = 2;  /* list, index */
+    func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "list_bool_set";
+    func.params = NULL;
+    func.param_count = 3;  /* list, index, value */
+    func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "list_bool_insert";
+    func.params = NULL;
+    func.param_count = 3;  /* list, index, value */
+    func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "list_bool_remove";
+    func.params = NULL;
+    func.param_count = 2;  /* list, index */
+    func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "list_bool_length";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "list_bool_capacity";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_INT;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "list_bool_is_empty";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_BOOL;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "list_bool_clear";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
+    func.name = "list_bool_free";
+    func.params = NULL;
+    func.param_count = 1;
+    func.return_type = TYPE_VOID;
+    func.return_type_info = NULL;
+    func.body = NULL;
+    func.shadow_test = NULL;
+    func.is_extern = false;
+    env_define_function(env, func);
+
     /* list_string operations */
     func.name = "list_string_new";
     func.params = NULL;

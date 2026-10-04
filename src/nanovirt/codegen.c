@@ -554,6 +554,7 @@ static uint8_t type_to_tag(Type t, const char *name, Environment *env) {
         case TYPE_LIST_INT:
         case TYPE_LIST_STRING:
         case TYPE_LIST_TOKEN:
+        case TYPE_LIST_BOOL:
         case TYPE_LIST_GENERIC: return TAG_ARRAY;
         case TYPE_STRUCT:  return TAG_STRUCT;
         case TYPE_OPEN_RECORD: return TAG_STRUCT;
