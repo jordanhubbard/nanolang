@@ -10300,8 +10300,10 @@ Compiler product:
       now runs as native C; `make test-nvm2c` (2,431 passed) also exercises
       the module initializer and the builtin host ABI (MAC
       `task_4b883e3f334e405f847546bdd773c18b`).
-- [ ] I map `CALL_EXTERN` to that host ABI or I refuse the module. I do not
-      emit a co-process client and call it AOT.
+- [x] I map `CALL_EXTERN` to that host ABI or I refuse the module. I do not
+      emit a co-process client and call it AOT. `make test-nvm2c` (2,431 passed)
+      proves the exact builtin and artifact adapters and the refusal path
+      (MAC `task_4b883e3f334e405f847546bdd773c18b`).
 - [ ] `wrapper_gen` remains a packaged-interpreter path. It is not "native"
       in 5.0 documentation or CLI defaults.
 - [x] I ship a `nvm2c` tool (seed in C). `make nvm2c` writes `bin/nvm2c`.
