@@ -1,0 +1,99 @@
+/* nl_control_array_elements.nano - Loop element metadata for inline and
+ * computed arrays. Category: Core Language - Control Flow
+ */
+
+fn double_it(n: int) -> int { return (* n 2) }
+shadow double_it { assert (== (double_it 4) 8) }
+
+fn is_even(n: int) -> bool { return (== (% n 2) 0) }
+shadow is_even { assert (is_even 2) assert (not (is_even 3)) }
+
+fn nonempty(s: string) -> bool { return (> (str_length s) 0) }
+shadow nonempty { assert (nonempty "n") assert (not (nonempty "")) }
+
+fn inline_words() -> array<string> { return ["a", "b", "c"] }
+shadow inline_words { assert (== (at (inline_words) 0) "a") }
+
+struct WordBag { words: array<string> }
+
+/* Inline array literals must bind a loop variable with the element type. */
+fn sums_inline_ints() -> int {
+    let mut sum: int = 0
+    for value in [1, 2, 3, 4] { set sum (+ sum value) }
+    return sum
+}
+shadow sums_inline_ints { assert (== (sums_inline_ints) 10) }
+
+fn joins_inline_strings() -> string {
+    let mut text: string = ""
+    for word in ["x", "y", "z"] { set text (+ text word) }
+    return text
+}
+shadow joins_inline_strings { assert (== (joins_inline_strings) "xyz") }
+
+fn counts_inline_bools() -> int {
+    let mut count: int = 0
+    for flag in [true, false, true, true] { if flag { set count (+ count 1) } }
+    return count
+}
+shadow counts_inline_bools { assert (== (counts_inline_bools) 3) }
+
+/* Computed arrays must be materialized once and keep their element type. */
+fn joins_computed_strings() -> string {
+    let mut text: string = ""
+    for word in (inline_words) { set text (+ text word) }
+    return text
+}
+shadow joins_computed_strings { assert (== (joins_computed_strings) "abc") }
+
+fn sums_filtered() -> int {
+    let mut sum: int = 0
+    for value in (filter [1, 2, 3, 4, 5] is_even) { set sum (+ sum value) }
+    return sum
+}
+shadow sums_filtered { assert (== (sums_filtered) 6) }
+
+fn joins_sliced() -> string {
+    let words: array<string> = ["a", "b", "c", "d"]
+    let mut text: string = ""
+    for word in (array_slice words 1 2) { set text (+ text word) }
+    return text
+}
+shadow joins_sliced { assert (== (joins_sliced) "bc") }
+
+fn sums_mapped() -> int {
+    let mut sum: int = 0
+    for value in (map [1, 2, 3] double_it) { set sum (+ sum value) }
+    return sum
+}
+shadow sums_mapped { assert (== (sums_mapped) 12) }
+
+fn joins_field_array() -> string {
+    let bag: WordBag = WordBag { words: ["m", "n"] }
+    let mut text: string = ""
+    for word in bag.words { set text (+ text word) }
+    return text
+}
+shadow joins_field_array { assert (== (joins_field_array) "mn") }
+
+fn joins_filtered_strings() -> string {
+    let mut text: string = ""
+    for word in (filter ["", "p", "", "q"] nonempty) { set text (+ text word) }
+    return text
+}
+shadow joins_filtered_strings { assert (== (joins_filtered_strings) "pq") }
+
+fn main() -> int {
+    assert (== (sums_inline_ints) 10)
+    assert (== (joins_inline_strings) "xyz")
+    assert (== (counts_inline_bools) 3)
+    assert (== (joins_computed_strings) "abc")
+    assert (== (sums_filtered) 6)
+    assert (== (joins_sliced) "bc")
+    assert (== (sums_mapped) 12)
+    assert (== (joins_field_array) "mn")
+    assert (== (joins_filtered_strings) "pq")
+    (println "nl_control_array_elements: All loop element tests passed!")
+    return 0
+}
+shadow main { assert (== (main) 0) }
