@@ -11,6 +11,7 @@
 #include "runtime/list_int.h"
 #include "runtime/list_string.h"
 #include "runtime/list_token.h"
+#include "runtime/list_bool.h"
 #include "runtime/gc.h"
 #include "runtime/dyn_array.h"
 #include "tracing.h"
@@ -3923,6 +3924,72 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
         return create_void();
     }
 
+    /* list_bool operations - the interpreter uses the same boolean list
+     * runtime as the native C backend so both agree on the element type. */
+    if (strcmp(name, "list_bool_new") == 0) {
+        List_bool *list = list_bool_new();
+        return create_int((long long)list);
+    }
+    if (strcmp(name, "list_bool_with_capacity") == 0) {
+        List_bool *list = list_bool_with_capacity(args[0].as.int_val);
+        return create_int((long long)list);
+    }
+    if (strcmp(name, "list_bool_push") == 0) {
+        List_bool *list = (List_bool*)args[0].as.int_val;
+        bool value = (args[1].type == VAL_BOOL)
+            ? args[1].as.bool_val : (args[1].as.int_val != 0);
+        list_bool_push(list, value);
+        return create_void();
+    }
+    if (strcmp(name, "list_bool_pop") == 0) {
+        List_bool *list = (List_bool*)args[0].as.int_val;
+        return create_bool(list_bool_pop(list));
+    }
+    if (strcmp(name, "list_bool_get") == 0) {
+        List_bool *list = (List_bool*)args[0].as.int_val;
+        return create_bool(list_bool_get(list, args[1].as.int_val));
+    }
+    if (strcmp(name, "list_bool_set") == 0) {
+        List_bool *list = (List_bool*)args[0].as.int_val;
+        bool value = (args[2].type == VAL_BOOL)
+            ? args[2].as.bool_val : (args[2].as.int_val != 0);
+        list_bool_set(list, args[1].as.int_val, value);
+        return create_void();
+    }
+    if (strcmp(name, "list_bool_insert") == 0) {
+        List_bool *list = (List_bool*)args[0].as.int_val;
+        bool value = (args[2].type == VAL_BOOL)
+            ? args[2].as.bool_val : (args[2].as.int_val != 0);
+        list_bool_insert(list, args[1].as.int_val, value);
+        return create_void();
+    }
+    if (strcmp(name, "list_bool_remove") == 0) {
+        List_bool *list = (List_bool*)args[0].as.int_val;
+        return create_bool(list_bool_remove(list, args[1].as.int_val));
+    }
+    if (strcmp(name, "list_bool_length") == 0) {
+        List_bool *list = (List_bool*)args[0].as.int_val;
+        return create_int(list_bool_length(list));
+    }
+    if (strcmp(name, "list_bool_capacity") == 0) {
+        List_bool *list = (List_bool*)args[0].as.int_val;
+        return create_int(list_bool_capacity(list));
+    }
+    if (strcmp(name, "list_bool_is_empty") == 0) {
+        List_bool *list = (List_bool*)args[0].as.int_val;
+        return create_bool(list_bool_is_empty(list));
+    }
+    if (strcmp(name, "list_bool_clear") == 0) {
+        List_bool *list = (List_bool*)args[0].as.int_val;
+        list_bool_clear(list);
+        return create_void();
+    }
+    if (strcmp(name, "list_bool_free") == 0) {
+        List_bool *list = (List_bool*)args[0].as.int_val;
+        list_bool_free(list);
+        return create_void();
+    }
+
     /* Generic list functions: list_TypeName_operation for user-defined types */
     /* Pattern: list_ASTNumber_new, list_Point_push, etc. */
     /* For interpreter/shadow tests, we use a simple generic list that stores pointers */
@@ -5914,6 +5981,16 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                     if (!lst) { env->symbol_count = loop_var_index; return create_void(); }
                     for (int idx = 0; idx < lst->length; idx++) {
                         env->symbols[loop_var_index].value = create_string(lst->data[idx]);
+                        result = eval_statement(stmt->as.for_stmt.body, env);
+                        if (result.is_return) { env->symbol_count = loop_var_index; return result; }
+                        if (result.is_break) { result = create_void(); break; }
+                        if (result.is_continue) { result = create_void(); continue; }
+                    }
+                } else if (list_type == TYPE_LIST_BOOL) {
+                    List_bool *lst = (List_bool*)(intptr_t)iter_val.as.int_val;
+                    if (!lst) { env->symbol_count = loop_var_index; return create_void(); }
+                    for (int idx = 0; idx < lst->length; idx++) {
+                        env->symbols[loop_var_index].value = create_bool(lst->data[idx]);
                         result = eval_statement(stmt->as.for_stmt.body, env);
                         if (result.is_return) { env->symbol_count = loop_var_index; return result; }
                         if (result.is_break) { result = create_void(); break; }

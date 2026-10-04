@@ -1046,6 +1046,7 @@ static bool is_generic_list_runtime_fn(const char *name) {
     if (strncmp(name, "list_int_", 9) == 0) return false;
     if (strncmp(name, "list_string_", 12) == 0) return false;
     if (strncmp(name, "list_token_", 11) == 0) return false;
+    if (strncmp(name, "list_bool_", 10) == 0) return false;
     return true;
 }
 
@@ -4396,6 +4397,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         } else if (list_sym->type == TYPE_LIST_STRING) {
                             is_list = true;
                             list_elem_type = TYPE_STRING;
+                        } else if (list_sym->type == TYPE_LIST_BOOL) {
+                            is_list = true;
+                            list_elem_type = TYPE_BOOL;
                         } else if (list_sym->type == TYPE_LIST_GENERIC) {
                             is_list = true;
                             list_elem_type = list_sym->element_type;
@@ -4423,6 +4427,11 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                         list_len_fn = "list_string_length";
                         snprintf(elem_decl_buf, sizeof(elem_decl_buf),
                                  "const char* %s = list_string_get(__nl_lst, __nl_idx);\n", var);
+                    } else if (list_elem_type == TYPE_BOOL) {
+                        list_c_type = "List_bool*";
+                        list_len_fn = "list_bool_length";
+                        snprintf(elem_decl_buf, sizeof(elem_decl_buf),
+                                 "bool %s = list_bool_get(__nl_lst, __nl_idx);\n", var);
                     } else if (list_elem_type == TYPE_STRUCT && list_struct_name) {
                         /* Generic struct list: List_TypeName* */
                         static char lc_buf[64]; static char ll_buf[64];

@@ -31,7 +31,7 @@ experiments. Line references point to the unchecked Phase 20 rows in
 - **Required (9707):** Infer C-seed loop element metadata for inline and computed arrays; compiler-source lowering depends on valid loops. **Done.**
 - **Done (9879):** Propagate transitive foreign header paths through C-seed module compilation.
 - **Done (9882):** Reclaim shared static arrays and owned elements at an alias-safe interpreter boundary.
-- **Required (9902):** Define Boolean List syntax and backend parity before the compiler product claims list coverage.
+- **Done (9902):** Define Boolean List syntax and backend parity before the compiler product claims list coverage. `List<bool>` now parses and the interpreter, native C and NanoVM backends share its boolean element contract (`tests/nl_types_bool_list.nano`).
 - **Required (9941):** Reconcile the legacy `string_from_char` alias so VM and AOT resolve the same host contract.
 - **Required (9978):** Prevent ordinary record names from colliding with native runtime helper names.
 - **Required (10055):** Carry record and map globals through standalone AOT with correct runtime ownership.

@@ -272,6 +272,7 @@ static const char *format_type_for_trace(Type type) {
         case TYPE_ENUM: return "enum";
         case TYPE_LIST_INT: return "list_int";
         case TYPE_LIST_STRING: return "list_string";
+        case TYPE_LIST_BOOL: return "list_bool";
         default: return "unknown";
     }
 }

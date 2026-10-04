@@ -327,7 +327,7 @@ static bool build_obj_list(char **buf, const char *obj_dir, bool daemon) {
         "eval/eval_string.o", "eval/eval_io.o", NULL
     };
     static const char *runtime_objs[] = {
-        "runtime/list_int.o", "runtime/list_string.o",
+        "runtime/list_int.o", "runtime/list_bool.o", "runtime/list_string.o",
         "runtime/list_LexerToken.o", "runtime/list_token.o",
         "runtime/list_CompilerDiagnostic.o", "runtime/list_CompilerSourceLocation.o",
         "runtime/list_ASTNumber.o", "runtime/list_ASTFloat.o",

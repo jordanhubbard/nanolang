@@ -133,11 +133,11 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     const char *root = get_project_root();
     if (opts->verbose) {
         snprintf(compile_cmd, sizeof(compile_cmd),
-                "%s -std=c99 -I%s/src -o %s %s %s/src/runtime/list_int.c %s/src/runtime/list_string.c -lm",
+                "%s -std=c99 -I%s/src -o %s %s %s/src/runtime/list_int.c %s/src/runtime/list_bool.c %s/src/runtime/list_string.c -lm",
                 cc, root, output_file, temp_c_file, root, root);
     } else {
         snprintf(compile_cmd, sizeof(compile_cmd),
-                "%s -std=c99 -I%s/src -o %s %s %s/src/runtime/list_int.c %s/src/runtime/list_string.c -lm 2>/dev/null",
+                "%s -std=c99 -I%s/src -o %s %s %s/src/runtime/list_int.c %s/src/runtime/list_bool.c %s/src/runtime/list_string.c -lm 2>/dev/null",
                 cc, root, output_file, temp_c_file, root, root);
     }
 
@@ -235,4 +235,3 @@ int main(int argc, char *argv[]) {
 
     return compile_file(input_file, output_file, &opts);
 }
-

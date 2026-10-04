@@ -1,0 +1,114 @@
+/* nl_types_bool_list.nano - Boolean List syntax and backend parity
+ *
+ * Exercises List<bool> through the C seed parser, the native runtime and the
+ * NanoVM backend: construction, push/get/set, insert/remove/pop, iteration and
+ * use as a parameter and return type. Boolean elements stay bool, not int.
+ *
+ * Category: Core Language - Types
+ */
+
+/* ==== PART 1: Construction and element reads ==== */
+
+fn make_flags(n: int) -> List<bool> {
+    let flags: List<bool> = (list_bool_new)
+    let mut i = 0
+    while (< i n) {
+        (list_bool_push flags (== (% i 2) 0))
+        set i (+ i 1)
+    }
+    return flags
+}
+
+shadow make_flags {
+    let flags: List<bool> = (make_flags 4)
+    assert (== (list_bool_length flags) 4)
+    assert (== (list_bool_get flags 0) true)
+    assert (== (list_bool_get flags 1) false)
+    assert (== (list_bool_get flags 2) true)
+}
+
+/* ==== PART 2: Boolean elements stay bool in conditions ==== */
+
+fn count_true(flags: List<bool>) -> int {
+    let mut i = 0
+    let mut total = 0
+    let n = (list_bool_length flags)
+    while (< i n) {
+        if (list_bool_get flags i) {
+            set total (+ total 1)
+        }
+        set i (+ i 1)
+    }
+    return total
+}
+
+shadow count_true {
+    assert (== (count_true (make_flags 4)) 2)
+    assert (== (count_true (make_flags 5)) 3)
+}
+
+/* ==== PART 3: Mutation keeps the boolean element type ==== */
+
+fn test_mutation() -> bool {
+    let flags: List<bool> = (list_bool_new)
+    (list_bool_push flags true)
+    (list_bool_push flags false)
+    (list_bool_set flags 1 true)
+    if (!= (list_bool_get flags 1) true) { return false }
+    (list_bool_insert flags 0 false)
+    if (!= (list_bool_get flags 0) false) { return false }
+    if (!= (list_bool_remove flags 0) false) { return false }
+    if (!= (list_bool_pop flags) true) { return false }
+    if (!= (list_bool_length flags) 1) { return false }
+    return true
+}
+
+shadow test_mutation {
+    assert (== (test_mutation) true)
+}
+
+/* ==== PART 4: Iteration over a boolean list ==== */
+
+fn test_iteration() -> int {
+    let flags: List<bool> = (make_flags 6)
+    let mut total = 0
+    for flag in flags {
+        if flag {
+            set total (+ total 1)
+        }
+    }
+    return total
+}
+
+shadow test_iteration {
+    assert (== (test_iteration) 3)
+}
+
+/* ==== PART 5: Boolean operators consume list elements directly ==== */
+
+fn test_boolean_operators() -> bool {
+    let flags: List<bool> = (list_bool_new)
+    (list_bool_push flags true)
+    (list_bool_push flags false)
+    let first = (list_bool_get flags 0)
+    let second = (list_bool_get flags 1)
+    if (!= (and first true) true) { return false }
+    if (!= (or second false) false) { return false }
+    if (!= (not second) true) { return false }
+    return true
+}
+
+shadow test_boolean_operators {
+    assert (== (test_boolean_operators) true)
+}
+
+/* ==== Main ==== */
+
+fn main() -> int {
+    (println "nl_types_bool_list: All boolean list tests passed!")
+    return 0
+}
+
+shadow main {
+    assert (== (main) 0)
+}

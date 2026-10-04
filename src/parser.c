@@ -438,6 +438,11 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                     } else if (type_param_tok->token_type == TOKEN_TYPE_STRING) {
                         type = TYPE_LIST_STRING;
                         advance(p);
+                    } else if (type_param_tok->token_type == TOKEN_TYPE_BOOL) {
+                        /* Boolean lists carry a distinct element type across the
+                         * native runtime, NanoVM and interpreter. */
+                        type = TYPE_LIST_BOOL;
+                        advance(p);
                     } else if (type_param_tok->token_type == TOKEN_IDENTIFIER) {
                         /* Generic list with user-defined type: List<Point>, List<Player>, etc. */
                         type = TYPE_LIST_GENERIC;

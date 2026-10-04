@@ -880,6 +880,7 @@ static const char *type_to_c(Type type) {
         case TYPE_LIST_INT: return "List_int*";
         case TYPE_LIST_STRING: return "List_string*";
         case TYPE_LIST_TOKEN: return "List_Token*";
+        case TYPE_LIST_BOOL: return "List_bool*";
         case TYPE_LIST_GENERIC: return ""; /* Will be handled specially with type_name */
         case TYPE_HASHMAP: return "void*"; /* Specialized as HashMap_K_V* when TypeInfo is available */
         case TYPE_OPAQUE: return "void*"; /* Opaque pointers stored as void* */
@@ -937,6 +938,7 @@ static const char *get_c_func_name_with_module(const char *nano_name, const char
     /* Don't prefix list runtime functions */
     if (strncmp(nano_name, "list_int_", 9) == 0 || 
         strncmp(nano_name, "list_string_", 12) == 0 ||
+        strncmp(nano_name, "list_bool_", 10) == 0 ||
         strncmp(nano_name, "nl_list_Token_", 11) == 0) {
         return nano_name;
     }
@@ -1278,6 +1280,7 @@ static void generate_c_headers(StringBuilder *sb) {
     sb_append(sb, "#include \"runtime/list_int.h\"\n");
     sb_append(sb, "#include \"runtime/list_string.h\"\n");
     sb_append(sb, "#include \"runtime/list_token.h\"\n");
+    sb_append(sb, "#include \"runtime/list_bool.h\"\n");
     sb_append(sb, "#include \"runtime/token_helpers.h\"\n");
     sb_append(sb, "#include <sys/stat.h>\n");
     sb_append(sb, "#include <sys/types.h>\n");

@@ -1621,7 +1621,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     /* Build runtime files string (paths relative to project root) */
     /* Note: sdl_helpers.c is NOT included here - it's provided by the sdl_helpers module */
     static const char *runtime_basenames[] = {
-        "runtime/list_int.c", "runtime/list_string.c", "runtime/list_LexerToken.c",
+        "runtime/list_int.c", "runtime/list_bool.c", "runtime/list_string.c", "runtime/list_LexerToken.c",
         "runtime/list_token.c", "runtime/list_CompilerDiagnostic.c",
         "runtime/list_CompilerSourceLocation.c", "runtime/list_ASTNumber.c",
         "runtime/list_ASTFloat.c", "runtime/list_ASTString.c", "runtime/list_ASTBool.c",
