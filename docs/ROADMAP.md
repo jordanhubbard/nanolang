@@ -9881,9 +9881,11 @@ Compiler product:
 - [x] I apply my existing `nano_aot_runtime.o` host-link contract to the
       canonical artifact regression (`task_e56bc32177f04739ae5a8935ead863b1`).
       Its initial native invocation omitted the required runtime exports.
-- [ ] I propagate required foreign header search paths through transitive
-      C-seed module compilation (`task_c00a44f21a2841068b3be742d1b2ccb9`). My
-      module compiler currently omits a dependency manifest's header directory.
+- [x] I propagate required foreign header search paths through transitive
+      C-seed module compilation (`task_c00a44f21a2841068b3be742d1b2ccb9`).
+      A dependency manifest's `include_dirs` and `-I` cflags now reach the
+      dependent's compile flags, including through another dependency;
+      `tests.test_native_module_generation_selection` proves the chain.
 - [ ] I reclaim shared static-array containers and their owned elements at an
       alias-safe interpreter lifetime boundary
       (`task_5eba51e216e343549c8ca7846713b6a3`). My current environment cleanup

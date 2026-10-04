@@ -10,6 +10,70 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class NativeModuleGenerationSelection(unittest.TestCase):
+    def test_transitive_dependency_header_paths_reach_module_compilation(self):
+        with tempfile.TemporaryDirectory(prefix="nano-dep-headers-") as tmp:
+            work = Path(tmp)
+
+            # A leaf dependency exposes its header directory through module.json.
+            bridge = work / "bridge"
+            bridge_include = bridge / "include"
+            bridge_include.mkdir(parents=True)
+            (bridge_include / "bridge_value.h").write_text(
+                "#include <stdint.h>\n#define BRIDGE_BASE 40\n")
+            (bridge / "module.json").write_text(json.dumps({
+                "name": "bridge", "headers": ["bridge_value.h"],
+                "include_dirs": [str(bridge_include)]}))
+
+            # A middle dependency names the bridge and includes its header.
+            middle = work / "middle"
+            middle.mkdir()
+            (middle / "middle.c").write_text(
+                "#include <bridge_value.h>\n"
+                "int64_t middle_value(void) { return BRIDGE_BASE + 1; }\n")
+            (middle / "middle_api.nano").write_text("pub extern fn middle_value() -> int\n")
+            (middle / "module.json").write_text(json.dumps({
+                "name": "middle", "c_sources": ["middle.c"], "dependencies": ["bridge"]}))
+
+            # A second dependency exposes its header directory through cflags.
+            flags = work / "flags"
+            flags_include = flags / "api"
+            flags_include.mkdir(parents=True)
+            (flags_include / "flags_value.h").write_text(
+                "#include <stdint.h>\n#define FLAGS_BASE 10\n")
+            (flags / "module.json").write_text(json.dumps({
+                "name": "flags", "headers": ["flags_value.h"],
+                "cflags": ["-I" + str(flags_include)]}))
+
+            # The top module reaches both headers through its declared
+            # dependencies: one directly, the other only transitively.
+            top = work / "top"
+            top.mkdir()
+            (top / "top.c").write_text(
+                "#include <bridge_value.h>\n"
+                "#include <flags_value.h>\n"
+                "int64_t top_value(void) { return BRIDGE_BASE + FLAGS_BASE + 2; }\n")
+            (top / "top_api.nano").write_text("pub extern fn top_value() -> int\n")
+            (top / "module.json").write_text(json.dumps({
+                "name": "top", "c_sources": ["top.c"],
+                "dependencies": ["middle", "flags"]}))
+
+            source = work / "main.nano"
+            source.write_text(
+                'module "middle/middle_api.nano" as middle\n'
+                'module "top/top_api.nano" as top\n'
+                'fn main() -> int { unsafe { assert (== (middle.middle_value) 41) '
+                'assert (== (top.top_value) 52) } return 0 }\n'
+                'shadow main { assert (== (main) 0) }\n')
+            env = os.environ.copy()
+            for name in ("NANO_CC", "CC"):
+                env.pop(name, None)
+            env["NANO_BUILD_CACHE"] = str(work / "cache")
+            result = subprocess.run(
+                [str(ROOT / "bin/nanoc_c"), str(source), "-o", str(work / "program")],
+                cwd=ROOT, env=env, capture_output=True, timeout=120)
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
+            subprocess.run([str(work / "program")], check=True, timeout=10)
+
     def test_long_link_closure_keeps_every_foreign_object(self):
         with tempfile.TemporaryDirectory(prefix="nano-long-link-") as tmp:
             work = Path(tmp)

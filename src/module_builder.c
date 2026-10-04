@@ -6225,11 +6225,150 @@ static bool module_capture_invocation(const ModuleBuildMetadata *meta, ModuleBui
     return true;
 }
 
+/* I resolve one dependency name to the module directory that owns its
+ * manifest. I look beside the dependent module first, then the configured
+ * module search path, so a manifest can name a sibling foreign module
+ * without an absolute path. */
+static char *module_dependency_directory(ModuleBuilder *builder, const char *module_dir, const char *name) {
+    if (!module_dir || !name || !name[0]) return NULL;
+
+    char candidate[4096];
+    char manifest[4096];
+    const char *slash = strrchr(module_dir, '/');
+    if (slash) {
+        int length = snprintf(candidate, sizeof(candidate), "%.*s/%s",
+                              (int)(slash - module_dir), module_dir, name);
+        if (length > 0 && (size_t)length < sizeof(candidate)) {
+            int manifest_length = snprintf(manifest, sizeof(manifest), "%s/module.json", candidate);
+            if (manifest_length > 0 && (size_t)manifest_length < sizeof(manifest) &&
+                file_exists(manifest)) return strdup(candidate);
+        }
+    }
+
+    const char *search = builder && builder->module_path ? builder->module_path :
+                         getenv("NANO_MODULE_PATH");
+    if (search && search[0]) {
+        char *copy = strdup(search);
+        if (copy) {
+            for (char *token = strtok(copy, ":;"); token; token = strtok(NULL, ":;")) {
+                if (!token[0]) continue;
+                int length = snprintf(candidate, sizeof(candidate), "%s/%s", token, name);
+                if (length <= 0 || (size_t)length >= sizeof(candidate)) continue;
+                int manifest_length = snprintf(manifest, sizeof(manifest), "%s/module.json", candidate);
+                if (manifest_length > 0 && (size_t)manifest_length < sizeof(manifest) &&
+                    file_exists(manifest)) {
+                    free(copy);
+                    return strdup(candidate);
+                }
+            }
+            free(copy);
+        }
+    }
+    return NULL;
+}
+
+/* I append a dependency's declared header search paths to the dependent's
+ * include directories. `include_dirs` carries directory paths; `cflags` may
+ * carry -I paths in either attached or separated form. */
+static void module_append_dependency_include(ModuleBuildMetadata *target,
+                                             const ModuleBuildMetadata *dependency,
+                                             const char *path) {
+    if (!target || !dependency || !path || !path[0]) return;
+    char candidate[4096];
+    if (dependency->module_dir && path[0] != '/') {
+        int length = snprintf(candidate, sizeof(candidate), "%s/%s", dependency->module_dir, path);
+        if (length > 0 && (size_t)length < sizeof(candidate) && dir_exists(candidate)) {
+            append_string_array_unique(&target->include_dirs, &target->include_dirs_count, candidate);
+            return;
+        }
+    }
+    append_string_array_unique(&target->include_dirs, &target->include_dirs_count, path);
+}
+
+static void module_append_dependency_includes(ModuleBuildMetadata *target,
+                                              const ModuleBuildMetadata *dependency) {
+    if (!target || !dependency) return;
+
+    for (size_t i = 0; i < dependency->include_dirs_count; i++)
+        module_append_dependency_include(target, dependency, dependency->include_dirs[i]);
+
+    for (size_t group = 0; group < 4; group++) {
+        size_t count = group == 0 ? dependency->cflags_count :
+                       group == 1 ? dependency->cflags_macos_count :
+                       group == 2 ? dependency->cflags_linux_count : dependency->cflags_freebsd_count;
+        char **flags = group == 0 ? dependency->cflags :
+                       group == 1 ? dependency->cflags_macos :
+                       group == 2 ? dependency->cflags_linux : dependency->cflags_freebsd;
+        for (size_t i = 0; i < count; i++) {
+            const char *cursor = flags[i];
+            char word[4096];
+            while (cursor && module_flag_word(&cursor, word, sizeof(word)) > 0) {
+                if (strcmp(word, "-I") == 0) {
+                    if (module_flag_word(&cursor, word, sizeof(word)) == 1 && word[0])
+                        module_append_dependency_include(target, dependency, word);
+                } else if (strncmp(word, "-I", 2) == 0 && word[2]) {
+                    module_append_dependency_include(target, dependency, word + 2);
+                }
+            }
+        }
+    }
+}
+
+/* I walk the dependency graph once per physical module and copy every
+ * dependency manifest's header search paths into the dependent. The visited
+ * list bounds a cyclic or repeated dependency edge. */
+static void module_propagate_dependency_includes(ModuleBuilder *builder, ModuleBuildMetadata *target,
+                                                 const ModuleBuildMetadata *current,
+                                                 char ***visited, size_t *visited_count, size_t depth) {
+    if (!target || !current || depth > 64) return;
+
+    for (size_t i = 0; i < current->dependencies_count; i++) {
+        char *directory = module_dependency_directory(builder, current->module_dir, current->dependencies[i]);
+        if (!directory) continue;
+
+        char resolved[4096];
+        const char *identity = realpath(directory, resolved) ? resolved : directory;
+        bool seen = false;
+        for (size_t j = 0; j < *visited_count && !seen; j++)
+            seen = strcmp((*visited)[j], identity) == 0;
+        if (seen) {
+            free(directory);
+            continue;
+        }
+
+        char **grown = realloc(*visited, sizeof(char *) * (*visited_count + 1));
+        if (!grown) {
+            free(directory);
+            return;
+        }
+        *visited = grown;
+        (*visited)[*visited_count] = strdup(identity);
+        if (!(*visited)[*visited_count]) {
+            free(directory);
+            return;
+        }
+        (*visited_count)++;
+
+        ModuleBuildMetadata *dependency = module_load_metadata(directory);
+        if (dependency) {
+            module_append_dependency_includes(target, dependency);
+            module_propagate_dependency_includes(builder, target, dependency, visited, visited_count, depth + 1);
+            module_metadata_free(dependency);
+        }
+        free(directory);
+    }
+}
+
 ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta) {
     if (!meta || !ensure_module_system_deps(meta)) {
         module_trace_evidence("build-system-dependencies", 1, 0, false);
         return NULL;
     }
+    char **visited = NULL;
+    size_t visited_count = 0;
+    module_propagate_dependency_includes(builder, meta, meta, &visited, &visited_count, 0);
+    for (size_t i = 0; i < visited_count; i++) free(visited[i]);
+    free(visited);
     ModuleBuildMetadata captured;
     ModulePkgFlags flags;
     if (!module_capture_invocation(meta, &captured, &flags)) {
