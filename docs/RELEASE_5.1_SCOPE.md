@@ -48,7 +48,7 @@ experiments. Line references point to the unchecked Phase 20 rows in
 - **Done (10272):** Make C11 the canonical AOT consumer of NanoISA without a VM process dependency.
 - **Done (10278):** Cover compiler functions, records, control flow, arrays, strings, modules, and declared host ABI in `nvm2c`; `STR_EQ` is now native (`make test-nvm2c`, 2,431 passed).
 - **Done (10280):** Lower `CALL_EXTERN` only through the declared host ABI and refuse unsupported imports; `make test-nvm2c` (2,431 passed) covers the builtin and artifact adapters and the refusal path.
-- **Required (10282):** Keep `wrapper_gen` explicitly packaged-interpreter-only in the CLI and documentation.
+- **Done (10282):** Keep `wrapper_gen` explicitly packaged-interpreter-only in the CLI and documentation; the `-o` help and verbose output name a packaged interpreter, never native AOT (`make test-wrapper-packaged-interpreter`).
 - **Required (10400):** Store local names in module metadata for useful reconstruction and diagnostics.
 - **Required (10407):** Preserve purity, affine, generic, effect, and exhaustiveness frontend facts in module metadata.
 - **Required (10409):** Recover structured `if`, `while`, and `return` from verified control flow for reconstruction.

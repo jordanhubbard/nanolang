@@ -10306,8 +10306,11 @@ Compiler product:
       emit a co-process client and call it AOT. `make test-nvm2c` (2,431 passed)
       proves the exact builtin and artifact adapters and the refusal path
       (MAC `task_4b883e3f334e405f847546bdd773c18b`).
-- [ ] `wrapper_gen` remains a packaged-interpreter path. It is not "native"
-      in 5.0 documentation or CLI defaults.
+- [x] `wrapper_gen` remains a packaged-interpreter path. It is not "native"
+      in 5.0 documentation or CLI defaults; the `-o` default is labeled a
+      packaged interpreter and the docs point native AOT at `nvm2c`
+      (`make test-wrapper-packaged-interpreter`; MAC
+      `task_7d654304b594442f9ca555658ab2b44a`).
 - [x] I ship a `nvm2c` tool (seed in C). `make nvm2c` writes `bin/nvm2c`.
       `make test-nvm2c` runs the library and the CLI. Generated C does not
       name `nano_vm`. I may later write `nvm2c` in myself.

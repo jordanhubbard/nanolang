@@ -1,11 +1,14 @@
 /*
- * nano_virt main.c - CLI for compiling .nano to .nvm bytecode or native binary
+ * nano_virt main.c - CLI for compiling .nano to .nvm bytecode or a packaged
+ * interpreter executable
  *
  * Usage: nano_virt input.nano [-o output] [--run] [--emit-nvm] [--emit-nvm-v2] [--daemon-wrapper] [-v]
  *
  * Pipeline: .nano → lexer → parser → typechecker → codegen → .nvm
  * With -o:        writes .nvm bytecode (if .nvm extension or --emit-nvm)
- *                 or native executable (otherwise, via wrapper_gen)
+ *                 or a packaged-interpreter executable (otherwise, via
+ *                 wrapper_gen, which embeds nano_vm). It is never native AOT;
+ *                 native AOT is bin/nvm2c.
  * With --run:     executes the .nvm via the embedded VM
  */
 
@@ -58,11 +61,12 @@ static void usage(const char *prog) {
     fprintf(stderr, "Usage: %s <input.nano> [-o output] [--run] [--emit-nvm] [--emit-nvm-v2] [--strip-debug] [--daemon-wrapper] [-v]\n", prog);
     fprintf(stderr, "\n");
     fprintf(stderr, "Options:\n");
-    fprintf(stderr, "  -o <path>          Packaged interpreter (wrapper_gen embeds nano_vm),\n");
-    fprintf(stderr, "                     or .nvm if --emit-nvm / the path ends in .nvm\n");
-    fprintf(stderr, "                     5.0 native AOT is bin/nvm2c, not this default\n");
+    fprintf(stderr, "  -o <path>          Packaged interpreter only: wrapper_gen embeds\n");
+    fprintf(stderr, "                     nano_vm to run the module. It is not native AOT.\n");
+    fprintf(stderr, "                     Use --emit-nvm or a .nvm path for bytecode;\n");
+    fprintf(stderr, "                     native AOT is bin/nvm2c, not this default\n");
     fprintf(stderr, "  --run              Execute after compilation (in-process VM)\n");
-    fprintf(stderr, "  --emit-nvm         Write raw .nvm bytecode instead of native binary\n");
+    fprintf(stderr, "  --emit-nvm         Write raw .nvm bytecode instead of the packaged interpreter\n");
     fprintf(stderr, "  --emit-nvm-v2      Retired alias for --emit-nvm (v2 is the default since 4.0)\n");
     fprintf(stderr, "  --strip-debug      Strip source-map debug info from emitted module\n");
     fprintf(stderr, "  --test-imports     I run dependency shadows before root shadows (default)\n");
@@ -283,9 +287,9 @@ int main(int argc, char **argv) {
                 printf("Wrote %u bytes of NVM bytecode to %s\n", size, output);
             }
         } else {
-            /* Generate native executable */
+            /* Generate a packaged interpreter, never native AOT. */
             if (verbose) {
-                printf("Generating native executable: %s\n", output);
+                printf("Generating packaged interpreter (wrapper_gen): %s\n", output);
             }
             if (!wrapper_generate(cg.module, blob, size, output, input,
                                   program, verbose)) {
@@ -300,7 +304,7 @@ int main(int argc, char **argv) {
                 return 1;
             }
             if (verbose) {
-                printf("Native executable generated: %s\n", output);
+                printf("Packaged interpreter generated: %s\n", output);
             }
         }
         free(blob);
