@@ -47,7 +47,7 @@ That rewrite is not 4.x work. `nano_virt -o` remains a packaged interpreter.
 nano_virt input.nano [-o output] [--run] [--emit-nvm] [--strip-debug] [--daemon-wrapper] [-v]
 ```
 
-- `-o <path>`: Packaged interpreter (wrapper_gen embeds `nano_vm`), or `.nvm` if `--emit-nvm` / the path ends in `.nvm`. 5.0 native AOT is `bin/nvm2c`, not this default.
+- `-o <path>`: Packaged interpreter only (wrapper_gen embeds `nano_vm`), or `.nvm` if `--emit-nvm` / the path ends in `.nvm`. `wrapper_gen` is never native AOT; 5.0 native AOT is `bin/nvm2c`, not this default.
 - `--run`: Execute immediately after compilation (in-process VM)
 - `--emit-nvm`: Write raw .nvm bytecode instead of native binary
 - `--strip-debug`: Remove debug/source-map data from emitted module

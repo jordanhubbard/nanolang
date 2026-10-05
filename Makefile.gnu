@@ -903,6 +903,11 @@ test-wrapper-gen: nano_virt $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJE
 	@rm -f tests/nanovirt/test_wrapper_gen
 	@python3 -m unittest tests.test_wrapper_publication
 
+.PHONY: test-wrapper-packaged-interpreter
+test-wrapper-packaged-interpreter: nano_virt
+	@python3 -m unittest tests.test_wrapper_packaged_interpreter
+test-units: test-wrapper-packaged-interpreter
+
 # ── NanoVM Daemon (vmd) objects ───────────────────────────────────────────────
 VMD_SOURCES = $(NANOVM_DIR)/vmd_protocol.c $(NANOVM_DIR)/vmd_client.c $(NANOVM_DIR)/vmd_server.c
 VMD_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(VMD_SOURCES))
@@ -3096,6 +3101,7 @@ test-quick: build
 	@$(MAKE) --no-print-directory check-stdlib-docs
 	@$(MAKE) --no-print-directory test-forth-gforth-diff
 	@$(MAKE) --no-print-directory test-affine-selfhost
+	@$(MAKE) --no-print-directory test-wrapper-packaged-interpreter
 	@$(MAKE) --no-print-directory test-forth-jackson
 	@$(MAKE) --no-print-directory test-scheme
 	@$(MAKE) --no-print-directory test-ml
