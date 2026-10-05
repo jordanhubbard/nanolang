@@ -10697,7 +10697,7 @@ Other translators:
       - [ ] I qualify direct native/LLVM and separately reviewed wasm32 Node/Wasmtime adapters with real files, exact ABI/ranges, denial before effects, allocation/root recovery and copied-return lifetime. Direct adapter acceptance does not admit NanoISA CALL_EXTERN; complete target authority, opt-in source/emission and installed linkage remain later checkpoints.
       - [ ] I retain the full parent continuation for byte/aggregate results, remaining filesystem/process/compiler capabilities and exact linked-module identities. This first read-text step does not close2d2, replace15f/488 authority or narrow compiler/bootstrap/fixed-point gates.
 - [x] I implement LLVM IR as a NanoISA translator rather than a NanoLang AST backend. I admit the last shared-profile stack-rotation opcode, `ROT3`, and lower it in `nvm2llvm` as `[bottom,middle,top] -> [top,bottom,middle]`, matching NanoVM and native C AOT; VM/C/unoptimized/optimized/linked-LLVM parity tests and `make test-verifier-profiles` pass.
-- [ ] I implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend.
+- [x] I implement WebAssembly as a NanoISA translator rather than a NanoLang AST backend. I translate verified NanoISA through the same closed-profile `nvm2llvm` lowering, including the last shared stack-rotation opcode `ROT3`; VM/C/LLVM/Wasmtime/import-free Node parity tests and `make test-nvm2wasm` pass ([evidence](NANOISA_WASM.md)).
 - [ ] I reintroduce LLVM and Wasm only behind those translators, with full
       applicable-language coverage.
 - [ ] I evaluate JVM bytecode, SPIR-V, PTX, OpenCL, and Metal as NanoISA

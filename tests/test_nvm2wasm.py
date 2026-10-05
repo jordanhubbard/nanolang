@@ -43,6 +43,8 @@ class ScalarWasm(unittest.TestCase):
     test_calls_loops_branch_effects_and_bool_transport = llvm_tests.ScalarLLVM.test_calls_loops_branch_effects_and_bool_transport
     test_scalar_tags_boolean_ops_and_argument_order = llvm_tests.ScalarLLVM.test_scalar_tags_boolean_ops_and_argument_order
     test_recursive_call_and_stack_join = llvm_tests.ScalarLLVM.test_recursive_call_and_stack_join
+    test_rot3_stack_rotation = llvm_tests.ScalarLLVM.test_rot3_stack_rotation
+    test_rot3_calls_locals_and_loop = llvm_tests.ScalarLLVM.test_rot3_calls_locals_and_loop
     test_existing_predicate_and_unused_array_signature = llvm_tests.ScalarLLVM.test_existing_predicate_and_unused_array_signature
 
     program = float_tests.LLVMFloats.program
