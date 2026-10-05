@@ -9954,9 +9954,11 @@ Compiler product:
       assignment and nested payload boundaries before output publication.
       Native emission context remains separate. Evidence:
       `docs/evidence/concrete-union-array-contracts.md`.
-- [ ] I reconcile the legacy raw `string_from_char` host alias: my AOT
+- [x] I reconcile the legacy raw `string_from_char` host alias: my AOT
       adapter accepts it, while my VM resolves only canonical
       `vm_string_from_char`. I preserve the canonical emitted contract.
+      NanoVM now exports the same byte-character host under both names, and
+      `tests/test_one_ir_compiler.py` executes both in VM and AOT
       (`task_dbe0c69106984f22b59c241f3be08919`).
 - [x] I track native `string_from_char` allocations for cleanup
       (`task_d2b7c2616e2148a1871c25e1a7ac127d`). Unsuppressed LeakSanitizer
