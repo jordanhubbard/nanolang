@@ -60,3 +60,10 @@ CAST_INT followed by typed I64 comparisons. That byte checkpoint retained generi
 [generic scalar comparison continuation](evidence/generic-scalar-comparisons.md)
 admits the six comparison opcodes with exact VM tag, NaN and integer-rounding
 behavior. Generic arithmetic and strings remain refused.
+
+My Wasm translator now covers the complete closed scalar profile that
+`nvm2llvm` admits, including the last stack-rotation opcode `ROT3`. I rotate
+`[bottom, middle, top]` to `[top, bottom, middle]`, matching NanoVM and native C
+AOT, and `make test-nvm2wasm` runs both shared ROT3 fixtures through VM, C,
+LLVM, Wasmtime and import-free Node. No NanoLang AST backend remains on the
+Wasm path; I translate only verified NanoISA.

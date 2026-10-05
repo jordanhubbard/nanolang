@@ -69,7 +69,7 @@ experiments. Line references point to the unchecked Phase 20 rows in
 ## Translators and release gates
 
 - **Done (10672):** Complete LLVM IR translation from NanoISA rather than from the NanoLang AST. I admit `ROT3` in the shared closed profile and lower it in `nvm2llvm`; VM/C/LLVM parity tests pass.
-- **Required (10673):** Complete WebAssembly translation from NanoISA rather than from the NanoLang AST.
+- **Done (10673):** Complete WebAssembly translation from NanoISA rather than from the NanoLang AST. I translate verified NanoISA through the shared `nvm2llvm` closed profile, including `ROT3`; VM/C/LLVM/Wasmtime/import-free Node parity tests pass.
 - **Required (10674):** Cover the applicable language in both translators before exposing them as release targets.
 - **Deferred-to-later (10676):** Evaluate JVM, SPIR-V, PTX, OpenCL, and Metal translators; 5.1 does not ship every evaluated optional target.
 - **Required (10680):** Run one pinned module corpus through NanoVM, C AOT, LLVM, and Wasm and compare semantics.
