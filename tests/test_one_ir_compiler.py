@@ -180,9 +180,9 @@ class OneIrCompiler(unittest.TestCase):
                                                     ("input.nasm", "input.nvm", "input.c", "input"))
                 assembly.write_text(text)
                 self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
-                # The legacy unprefixed AOT alias is not a registered VM host.
-                if name != "string_from_char":
-                    self.run_checked([ROOT / "bin/nano_vm", module])
+                # The canonical name and the legacy AOT alias must resolve in
+                # both backends, not just in the AOT adapter.
+                self.run_checked([ROOT / "bin/nano_vm", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                 # I count actual allocation/free calls as well as checking leaks:
                 # a global owner list alone must not hide unreleased memory.
@@ -222,6 +222,29 @@ static inline void tracked_free(void *p) {
                                   "-fno-omit-frame-pointer", source, "-o", binary])
                 result = subprocess.run([binary], env=environment, capture_output=True, timeout=30)
                 self.assertEqual(result.returncode, 0, (result.stdout + result.stderr).decode(errors="replace"))
+
+    def test_legacy_string_from_char_alias_resolves_in_vm_and_aot(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc, "I require the host C compiler")
+        # The canonical emitter writes `vm_string_from_char`, while the AOT
+        # adapter also accepts the legacy raw `string_from_char` import. I
+        # require NanoVM to resolve both names to the same byte-character host.
+        for name in ("vm_string_from_char", "string_from_char"):
+            with self.subTest(name=name), tempfile.TemporaryDirectory(prefix="nano-from-char-alias-") as tmp:
+                work = Path(tmp)
+                assembly, module, source, binary = (work / leaf for leaf in
+                                                    ("input.nasm", "input.nvm", "input.c", "input"))
+                assembly.write_text(
+                    f'.import "" "{name}" string int\n.entry main\n'
+                    '.function main 0 0 0 int 1\n'
+                    'PUSH_I64 65\nCALL_EXTERN 0\nPUSH_I64 0\nSTR_CHAR_AT\n'
+                    'PUSH_I64 65\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n')
+                self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                # Both backends must accept both the canonical and legacy name.
+                self.run_checked([ROOT / "bin/nano_vm", module])
+                self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
+                self.run_checked([binary])
 
     def test_compiler_bytecode_to_native_to_program(self):
         cc = shutil.which("cc")

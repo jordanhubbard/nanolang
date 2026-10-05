@@ -178,6 +178,13 @@ char *vm_string_from_char(int64_t code) {
     return nl_cstr_from_char(code);
 }
 
+/* The AOT adapter maps the legacy raw `string_from_char` import to the same
+ * byte-character host contract. The VM resolves imports by symbol name, so I
+ * export the alias here rather than leaving the legacy name AOT-only. */
+char *string_from_char(int64_t code) {
+    return nl_cstr_from_char(code);
+}
+
 /* ── Character classification ────────────────────────────────────── */
 
 int64_t vm_is_digit(int64_t c) { return nl_ascii_isdigit((int)c) ? 1 : 0; }

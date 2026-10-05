@@ -32,6 +32,9 @@ char *vm_format(const char *template, DynArray *arguments);
 int64_t vm_str_index_of(const char *haystack, const char *needle);
 int64_t vm_str_last_index_of(const char *haystack, const char *needle);
 char *vm_string_from_char(int64_t code);
+/* Legacy unprefixed alias: the AOT host adapter accepts it, so the VM exports
+ * the same byte-character contract under that name for parity. */
+char *string_from_char(int64_t code);
 
 /* Binary string */
 DynArray *vm_array_sort(DynArray *array);
