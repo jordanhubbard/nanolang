@@ -6481,16 +6481,6 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
     let or_sym: Symbol = (symbol_new "or" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
     set symbols (env_add_symbol symbols or_sym)
 
-    /* Bootstrap: Add known top-level global variables from transpiler.nano */
-    let module_aliases_sym: Symbol = (symbol_new "module_aliases" (type_array TypeKind.TYPE_STRING "string") true false 0 (empty_param_types) (type_void))
-    set symbols (env_add_symbol symbols module_aliases_sym)
-    let module_alias_targets_sym: Symbol = (symbol_new "module_alias_targets" (type_array TypeKind.TYPE_STRING "string") true false 0 (empty_param_types) (type_void))
-    set symbols (env_add_symbol symbols module_alias_targets_sym)
-    let func_aliases_sym: Symbol = (symbol_new "func_aliases" (type_array TypeKind.TYPE_STRING "string") true false 0 (empty_param_types) (type_void))
-    set symbols (env_add_symbol symbols func_aliases_sym)
-    let func_alias_targets_sym: Symbol = (symbol_new "func_alias_targets" (type_array TypeKind.TYPE_STRING "string") true false 0 (empty_param_types) (type_void))
-    set symbols (env_add_symbol symbols func_alias_targets_sym)
-
     /* Phase 0.5: Add global let constants to symbol table */
     let global_let_count: int = (parser_get_let_count parser)
     let local_lets: array<bool> = (typecheck_local_lets parser)
@@ -6582,6 +6572,16 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
         }
         set i (+ i 1)
     }
+    # I include expression diagnostics even when their unknown result permits
+    # the enclosing function check to continue without incrementing its count.
+    let mut diagnostic_errors: int = 0
+    for diagnostic_index in (range 0 (Diagnostics.diag_list_count env.diagnostics)) {
+        let diagnostic: CompilerDiagnostic = (Diagnostics.diag_list_get env.diagnostics diagnostic_index)
+        if (== diagnostic.severity DiagnosticSeverity.DIAG_ERROR) {
+            set diagnostic_errors (+ diagnostic_errors 1)
+        }
+    }
+    if (> diagnostic_errors error_count) { set error_count diagnostic_errors }
     let had_error: bool = (or (> error_count 0) (Diagnostics.diag_list_has_errors env.diagnostics))
     return (typecheck_output env.diagnostics error_count had_error)
 }

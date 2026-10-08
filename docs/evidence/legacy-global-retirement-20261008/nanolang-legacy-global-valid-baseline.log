@@ -1,0 +1,30 @@
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   check_legacy_global_declarations  /private/tmp/nanolang-legacy-global-valid-baseline.nano:17:13
+  #1   $shadow_537_check_legacy_global_declarations  /private/tmp/nanolang-legacy-global-valid-baseline.nano:23:43
+  #2   $shadow_entry  /private/tmp/nanolang-legacy-global-valid-baseline.nano:?
+I failed a shadow: Assertion failed
+Stack trace (most recent call first):
+  #0   check_legacy_global_declarations  /private/tmp/nanolang-legacy-global-valid-baseline.nano:17:13
+  #1   $shadow_537_check_legacy_global_declarations  /private/tmp/nanolang-legacy-global-valid-baseline.nano:23:43
+  #2   $shadow_entry  /private/tmp/nanolang-legacy-global-valid-baseline.nano:?
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I will not publish output after failed shadow execution
