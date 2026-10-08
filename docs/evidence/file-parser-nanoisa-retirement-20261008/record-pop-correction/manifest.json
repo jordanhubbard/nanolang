@@ -1,0 +1,14 @@
+{
+  "base": "f6f8fb1e81576ccfb69fd5f8af524cd60a9b3d52",
+  "source_state": "dirty checkpoint, hashes observed after terminal checks",
+  "component_exit_code": 0,
+  "raw_exit_code": 0,
+  "regression_exit_code": 0,
+  "sha256": {
+    "src/nanoisa/nvm2c.c": "20142f9e3705f41a615a303c6ae2137b89a9387eddf75c8d5f6e4e80fea3e59b",
+    "src/nanoisa/nvm2c_map_roots.inc": "50956596a6a9a622a41050fb8042553edd23b82f1e50ad040915ac672eadd8e6",
+    "tests/test_native_array_pop.py": "8d44e44b721d8ab9cc4d523da0d4893469d322ac658eb8f068f5de4fe163c788",
+    "bin/nvm2c": "7f63573fe72c8173d8c4a3eae58acc397333c3e865fc95d8a45ba1444b23ed80",
+    "/private/tmp/nanolang-list-removal-driver": "9dcedd9edfbe354af45a87c66a8ff5d8710d27314d3a32cfcc2e72faeb1ac735"
+  }
+}

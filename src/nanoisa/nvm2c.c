@@ -2080,10 +2080,22 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
-        case OP_ARR_POP:
+        case OP_ARR_POP: {
+            Nvm2cSimSlot array, value = {0};
+            if (!sim_pop(b, idx, stk, &sp, &array)) return 0;
+            if (!shape_type(b, array.shape, NVM_SHAPE_ARRAY)) return 0;
+            value.kind = NVM2C_VK_VALUE;
+            value.origin = -1;
+            value.shape = shape_variable(b, b->shape_current);
+            value.rec_k = array.rec_k;
+            if (!shape_type(b, value.shape, NVM_SHAPE_OPTIONAL) ||
+                !shape_equal(b, shape_child(b, value.shape, 0), shape_child(b, array.shape, 0)) ||
+                !sim_push_slot(b, idx, stk, &sp, value)) return 0;
+            break;
+        }
         case OP_ARR_GET: {
             Nvm2cSimSlot ix, arr;
-            if (ins.opcode == OP_ARR_GET && !sim_pop(b, idx, stk, &sp, &ix)) return 0;
+            if (!sim_pop(b, idx, stk, &sp, &ix)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
             (void)ix;
             if (arr.kind == NVM2C_VK_VALUE) {
@@ -2338,7 +2350,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_AGG_TAG: {
             Nvm2cSimSlot aggregate;
             if (!sim_pop(b, idx, stk, &sp, &aggregate)) return 0;
-            mark_origin(local_kind, nloc, aggregate.origin, NVM2C_VK_REC);
+            if (aggregate.kind == NVM2C_VK_VALUE) {
+                if (!shape_type(b, shape_child(b, aggregate.shape, 0), NVM_SHAPE_RECORD)) return 0;
+            } else mark_origin(local_kind, nloc, aggregate.origin, NVM2C_VK_REC);
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
@@ -2349,8 +2363,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &rec)) return 0;
             /* A nested projection can have no local origin. I constrain the
              * consumed shape itself, not only the flat local-kind vector. */
+            if (rec.kind == NVM2C_VK_VALUE) {
+                rec.shape = shape_child(b, rec.shape, 0);
+                rec.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
+                if (!rec.rec_k) return 0;
+            } else mark_origin(local_kind, nloc, rec.origin, NVM2C_VK_REC);
             if (!shape_type(b, rec.shape, NVM_SHAPE_RECORD)) return 0;
-            mark_origin(local_kind, nloc, rec.origin, NVM2C_VK_REC);
             if (fi >= b->record_width) {
                 nvm2c_fail(b, "function %u: AGG_GET field is out of range", idx);
                 return 0;
@@ -2487,6 +2505,14 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     fn->result_tag < 16 && !(v.scalar_tags & (1u << fn->result_tag))) {
                     nvm2c_fail(b, "I reject RET with a known incompatible variant scalar payload");
                     return 0;
+                }
+                if (aggregate_value_tag(fn->result_tag) && v.kind == NVM2C_VK_VALUE) {
+                    /* I check presence at RET without rewriting optional source storage. */
+                    v.shape = shape_child(b, v.shape, 0);
+                    v.kind = NVM2C_VK_REC;
+                    v.origin = -1;
+                    v.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
+                    if (!v.rec_k || !shape_type(b, v.shape, NVM_SHAPE_RECORD)) return 0;
                 }
                 if ((fn->result_tag == TAG_FUNCTION || fn->result_tag == TAG_CLOSURE)) {
                     if (v.kind != NVM2C_VK_FUNC && v.kind != NVM2C_VK_VALUE && v.kind != NVM2C_VK_UNK) {
@@ -2905,6 +2931,14 @@ static int stack_pop_expect(Nvm2cBuf *b, Nvm2cStack *st, uint8_t kind, const cha
     uint8_t got = NVM2C_VK_INT;
     int slot = stack_pop_kind(b, st, &got);
     if (b->failed) return -1;
+    if (got == NVM2C_VK_VALUE && kind == NVM2C_VK_REC) {
+        char expression[80];
+        snprintf(expression, sizeof expression, "nvalue_require_record(v[%d])", slot);
+        int result = stack_push_rec(b, st, expression);
+        if (result < 0 || b->failed) return -1;
+        memset(st->rec_k[result], NVM2C_VK_UNK, b->record_width);
+        return stack_pop_kind(b, st, NULL);
+    }
     if (got == NVM2C_VK_FUNC && kind == NVM2C_VK_VALUE) return slot;
     if (got == NVM2C_VK_VALUE && kind == NVM2C_VK_FUNC) {
         nvm2c_printf(b, "    if (v[%d].kind != 11 && v[%d].kind != 15) NVM2C_ABORT();\n", slot, slot);
@@ -4819,6 +4853,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                          "nvalue_array_pop((nmap_value){7, %u, (char *)%s[%d]})",
                          kind, kind == NVM2C_VK_SARR ? "sa" : "a", array);
                 stack_push_value(b, &st, expression);
+            } else if (kind == NVM2C_VK_RARR) {
+                snprintf(expression, sizeof expression, "nrecord_array_pop(ra[%d])", array);
+                stack_push_value(b, &st, expression);
             } else {
                 nvm2c_fail(b, "I cannot yet preserve optional aggregate results for ARR_POP");
                 goto done;
@@ -6731,7 +6768,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     /* The tagged map runtime also provides shared frame/aggregate root tracing.
      * Owned strings/aggregates need it even without map instructions. */
     if (b.has_owned_strings) b.has_maps = 1;
-    b.has_owned_aggregates = (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW)) ||
+    b.has_owned_aggregates = (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP)) ||
         module_has_opcode(mod, OP_ARR_NEW) || module_has_opcode(mod, OP_ARR_LITERAL) ||
         module_has_opcode(mod, OP_ARR_PUSH) || module_has_opcode(mod, OP_ARR_GET) ||
         module_has_opcode(mod, OP_ARR_SET) || module_has_opcode(mod, OP_ARR_LEN) || module_has_opcode(mod, OP_ARR_SLICE) || module_has_opcode(mod, OP_ARR_REMOVE) || module_has_opcode(mod, OP_ARR_POP) ||
@@ -7159,7 +7196,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "        if (op == 2) { if (a < 0) high -= ub; if (b < 0) high -= ua; }\n"
                 "    }\n"
                 "    return (ni64_pair){ni64_from_bits(low), ni64_from_bits(high)};\n}\n");
-        if ((module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW)) || module_has_opcode(mod, OP_AGG_GET))
+        if ((module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP)) || module_has_opcode(mod, OP_AGG_GET))
             nvm2c_puts(&b, "#include <string.h>\n");
         if (module_has_opcode(mod, OP_AGG_GET) || module_has_opcode(mod, OP_LOAD_UPVALUE)) nvm2c_puts(&b,
             "/* I retain binary64 bits in my existing 64-bit aggregate cells. */\n"
@@ -7323,7 +7360,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "    else printf(\"%g\", value);\n}\n");
         if (need_concat || need_cast || need_substr || need_trim || need_arr_lit || need_arr_get ||
             need_arr_push || need_iarr_new || need_sarr_new || need_agg_get ||
-            need_assert || need_rarr || b.has_maps || (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW)) ||
+            need_assert || need_rarr || b.has_maps || (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP)) ||
             module_has_opcode(mod, OP_CAST_INT) || module_has_opcode(mod, OP_CAST_FLOAT)) {
             nvm2c_puts(&b, "#include <stdlib.h>\n#include <string.h>\n");
         } else if (need_string) {
@@ -7484,7 +7521,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "           (at != 5 || (a->s[field] && b->s[field]));\n}\n");
         nvm2c_puts(&b,
             "struct nrarr_s { nrec_t *data; size_t len; struct nrarr_owner *owner; };\n\n");
-        if ((module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW))) nvm2c_puts(&b,
+        if ((module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP))) nvm2c_puts(&b,
             "typedef struct nrec_owned { nrec_t value; struct nrec_owned *next; } nrec_owned;\n"
             "static nrec_owned *nrec_owned_head;\n"
             "static inline const nrec_t *nrec_snapshot(nrec_t value) {\n"
@@ -7496,6 +7533,19 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "static void nrec_release_snapshots(void) {\n"
             "    while (nrec_owned_head) { nrec_owned *node = nrec_owned_head;\n"
             "        nrec_owned_head = node->next; nagg_drop(sizeof *node); free(node); }\n}\n");
+        if (b.has_maps) nvm2c_puts(&b,
+            "static inline nrec_t nvalue_require_record(nmap_value value) {\n"
+            "    if ((value.kind != 8 && value.kind != 10 && value.kind != 12) || !value.text) NVM2C_ABORT();\n"
+            "    return *(const nrec_t *)value.text;\n"
+            "}\n");
+        if (module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b,
+            "static inline nmap_value nrecord_array_pop(nrarr_t array) {\n"
+            "    if (!array) NVM2C_ABORT();\n"
+            "    if (!array->len) return (nmap_value){0, 0, NULL};\n"
+            "    const nrec_t *value = nrec_snapshot(array->data[array->len - 1]);\n"
+            "    --array->len;\n"
+            "    return (nmap_value){value->kind == 0 ? 8 : value->kind == 1 ? 10 : 12, 0, (char *)value};\n"
+            "}\n");
         if (need_rarr) emit_nrarr_helpers(&b, need_arr_slice || need_rarr_lit || module_has_opcode(mod, OP_ARR_NEW),
                                          need_rarr_lit || need_arr_push, need_arr_get);
         if (b.has_maps) {
@@ -7503,7 +7553,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
 #include "nvm2c_map_roots.inc"
             );
             if (b.has_owned_strings) emit_nstr_sweep(&b);
-            if (b.has_owned_aggregates) emit_nagg_sweep(&b, (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW)));
+            if (b.has_owned_aggregates) emit_nagg_sweep(&b, (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP)));
             nvm2c_puts(&b,
                 "static inline size_t nheap_bytes_sum(size_t a, size_t z) {\n"
                 "    if (z > SIZE_MAX - a) NVM2C_ABORT();\n"
@@ -7613,7 +7663,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
         if (module_has_opcode(mod, OP_ARR_SLICE)) nvm2c_puts(&b, "    (void)nvalue_array_slice;\n");
         if (module_has_opcode(mod, OP_ARR_REMOVE) || module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b, "    (void)nvalue_array_remove;\n");
-        if (module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b, "    (void)nvalue_array_pop;\n");
+        if (module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b, "    (void)nvalue_array_pop; (void)nrecord_array_pop; (void)nvalue_require_record;\n");
+        if (b.has_maps) nvm2c_puts(&b, "    (void)nvalue_require_record;\n");
         if (b.has_maps || module_has_opcode(mod, OP_CAST_FLOAT))
             nvm2c_puts(&b, "    (void)nparse_binary64;\n");
         if (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN) ||
@@ -7657,7 +7708,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             nvm2c_puts(&b, "    (void)nsarr_push;\n");
         if (module_has_opcode(mod, OP_ARR_PUSH) && b.has_integer_arrays)
             nvm2c_puts(&b, "    (void)narr_push;\n");
-        if ((module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW))) nvm2c_puts(&b, "    (void)nrec_snapshot;\n");
+        if ((module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP))) nvm2c_puts(&b, "    (void)nrec_snapshot;\n");
         if (module_has_opcode(mod, OP_ARR_SET)) nvm2c_puts(&b, "    (void)nrec_field_storage_matches;\n");
         if (b.has_owned_strings) nvm2c_puts(&b, "    (void)nstr_copy; (void)nstr_take; (void)nstr_copy_release;\n");
         if (module_has_opcode(mod, OP_CAST_STRING)) nvm2c_puts(&b, "    (void)nstr_from_i64; (void)nstr_from_f64;\n");
@@ -7686,7 +7737,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             }
         }
         nvm2c_printf(&b, "    int result = (int)%s();\n", ename);
-        if ((module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW))) nvm2c_puts(&b, "    nrec_release_snapshots();\n");
+        if ((module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP))) nvm2c_puts(&b, "    nrec_release_snapshots();\n");
         if (b.has_maps) nvm2c_puts(&b, "    nmap_release_owned();\n");
         if (b.has_record_array_allocations) nvm2c_puts(&b, "    nrarr_release_owned();\n");
         if (b.has_string_arrays) nvm2c_puts(&b, "    nsarr_release_owned();\n");

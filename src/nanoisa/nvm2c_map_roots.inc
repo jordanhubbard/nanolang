@@ -58,7 +58,7 @@
 "}\n"
 "static void nroot_value(nroot_list *work, nmap_value value) {\n"
 "    if (value.kind == 5) nroot_add(work, 1, value.text);\n"
-"    else if (value.kind == 15) nroot_add(work, 4, value.text);\n"
+"    else if (value.kind == 15 || value.kind == 8 || value.kind == 10 || value.kind == 12) nroot_add(work, 4, value.text);\n"
 "    else if (value.kind == 13) nroot_add(work, 7, value.text);\n"
 "    else if (value.kind == 7) nroot_add(work, (uint8_t)value.integer, value.text);\n"
 "}\n"
