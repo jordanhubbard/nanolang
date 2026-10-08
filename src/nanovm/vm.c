@@ -2124,8 +2124,23 @@ vm_dispatch_top:
             VM_NEXT();
         }
 
-        VM_CASE(OP_NOP)
+        VM_CASE(OP_NOP) {
+            /* I report a selected shadow only when execution reaches its marker.
+             * Advisory metadata never grants execution or ownership authority. */
+            if (getenv("NANO_SHADOW_TRACE")) {
+                char key[64];
+                snprintf(key, sizeof key, "nanolang.shadow.offset.%u", instr_start);
+                for (uint32_t i = 0; i < vm->module->metadata_count; ++i) {
+                    const NvmMetadataEntry *entry = &vm->module->metadata[i];
+                    const char *name = nvm_get_string(vm->module, entry->key_idx);
+                    if (name && strcmp(name, key) == 0) {
+                        const char *target = nvm_get_string(vm->module, entry->value_idx);
+                        if (target) fprintf(stderr, "I am testing shadow %s\n", target);
+                    }
+                }
+            }
             VM_NEXT();
+        }
 
         VM_CASE(OP_PUSH_I64)
             stack_push(vm, val_int(instr.operands[0].i64));

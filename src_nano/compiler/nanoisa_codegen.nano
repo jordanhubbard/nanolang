@@ -6028,6 +6028,7 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
                 (+ (+ " at merged line " (int_to_string selected.line)) (+ ": " nisa_err)))
             return ""
         }
+        set entry_body (+ entry_body (+ "  .shadow \"" (+ (nisa_escape_string selected.target_name) "\"\n")))
         set entry_body (+ entry_body (nisa_line_imm "CALL" name))
         set i (+ i 1)
     }

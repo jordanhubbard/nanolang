@@ -1787,6 +1787,7 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
         let mut i: int = first_shadow
         while (and (== nb_error "") (< i parser.shadows_count)) {
             let selected: ASTShadow = (list_ASTShadow_get parser.shadows i)
+            let _: int = (nb_emit (+ ".shadow \"" (+ (nb_escape_string selected.target_name) "\"")))
             let _: int = (nb_body parser selected.body true)
             set i (+ i 1)
         }
