@@ -1,6 +1,6 @@
 import "src_nano/parser.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
-import "src_nano/typecheck.nano"
+import "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano"
 
 fn check_legacy_global_declarations() -> void {
     let names: array<string> = ["module_aliases", "module_alias_targets", "func_aliases", "func_alias_targets"]
