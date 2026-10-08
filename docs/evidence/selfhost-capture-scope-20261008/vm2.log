@@ -1,0 +1,6 @@
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /private/tmp/nanolang-lexical-checker.nano:21:5
+I could not execute the module: Assertion failed
+  Assertion failed

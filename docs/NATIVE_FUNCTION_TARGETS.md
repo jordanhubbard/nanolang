@@ -135,7 +135,9 @@ record-owner collection and shutdown cleanup reclaim environments.
 My [native environment checkpoint](evidence/native-closure-environments-20261008/README.md)
 executes the unchanged C-seed-produced canonical returned chain and exercises
 managed captures across observed collection under ASan/UBSan/LSan. My self-hosted
-producer still lacks lexical capture lowering. My [array checkpoint](evidence/native-closure-arrays-20261008/README.md)
+producer still lacks lexical capture lowering. My [scope checkpoint](evidence/selfhost-capture-scope-20261008/README.md)
+checks anonymous bodies in their creation scope and preserves negative controls;
+the canonical source advances to an emitter refusal with prior output preserved. My [array checkpoint](evidence/native-closure-arrays-20261008/README.md)
 now tests mixed named and captured elements, aliases, growth and cycle collection. The complete captured-function and release rows stay open.
 
 ## Constraint validation

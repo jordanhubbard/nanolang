@@ -135,7 +135,8 @@
     "PNODE_EFFECT_DECL",
     "PNODE_HANDLE_EXPR",
     "PNODE_ASYNC_FN",
-    "PNODE_SERVICE_DECL"
+    "PNODE_SERVICE_DECL",
+    "PNODE_LAMBDA"
   ],
   "nano_enums": [
     {

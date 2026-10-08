@@ -138,8 +138,8 @@ preserve checked element tags, mutation aliases and missing values. My self-host
 producer now passes these named-function container cases, including recursive
 callback signatures and invalid-signature prior-output preservation. My native translator now also executes the canonical returned closure chain,
 with tagged environments, alias mutation and managed captures tested across
-collection. My self-hosted producer still rejects captured lexical names, and
-native function arrays now retain both named targets and owned closure
+collection. My self-hosted checker now checks anonymous bodies in their creation scope,
+but its emitter still lacks capture lowering. My native function arrays retain both named targets and owned closure
 environments through mutation, growth and collection, including unreachable cycles. Captured-closure parity remains
 a release requirement; the completed native environment cases do not close it.
 

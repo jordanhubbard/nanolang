@@ -3127,6 +3127,11 @@ fn parse_primary(p: Parser) -> Parser {
                                                     if (== tok_after.token_type (token_rparen)) {
                                                         /* Regular parenthesized expression */
                                                         let p3: Parser = (parser_expect p2 (token_rparen))
+                                                        if (== p2.last_expr_node_type ParseNodeType.PNODE_IDENTIFIER) {
+                                                            if (>= (parser_lambda_function p2 (parser_get_identifier p2 p2.last_expr_node_id)) 0) {
+                                                                return (parser_store_call p3 p2.last_expr_node_id p2.last_expr_node_type (list_ASTStmtRef_length p3.call_args) 0 tok.line tok.column)
+                                                            }
+                                                        }
                                                         return p3
                                                     } else {
                                                         /* The first expression is itself the callee. */
@@ -3207,7 +3212,7 @@ fn parse_primary(p: Parser) -> Parser {
                                                     /* Hoist lambda as a named function */
                                                     let p_stored: Parser = (parser_store_function p_body lambda_name param_start param_count return_type body_id tok.line tok.column)
                                                     /* Return identifier referencing the lambda */
-                                                    return (parser_store_identifier p_stored lambda_name tok.line tok.column)
+                                                    return (parser_store_identifier (parser_mark_lambda p_stored) lambda_name tok.line tok.column)
                                                 }
                                             }
                                         }
@@ -6189,6 +6194,46 @@ shadow parse_statement {
 /* ========== Definition Parsing ========== */
 
 /* Helper: Store function definition node */
+
+# I distinguish anonymous declarations without changing my shared record layout.
+fn parser_mark_lambda(p: Parser) -> Parser {
+    let index: int = (- p.functions_count 1)
+    let func: ASTFunction = (list_ASTFunction_get p.functions index)
+    (list_ASTFunction_set p.functions index (ASTFunction {
+        node_type: ParseNodeType.PNODE_LAMBDA, line: func.line, column: func.column,
+        name: func.name, param_start: func.param_start, param_count: func.param_count,
+        return_type: func.return_type, body: func.body, is_pure: func.is_pure
+    }))
+    return p
+}
+shadow parser_mark_lambda {
+    let tokens: List<LexerToken> = (list_LexerToken_new)
+    let parser: Parser = (parser_store_function (parser_new tokens 0 "lambda.nano") "__lambda_1_1" 0 0 "int" -1 1 1)
+    let marked: Parser = (parser_mark_lambda parser)
+    assert (== (parser_get_function marked 0).node_type ParseNodeType.PNODE_LAMBDA)
+    assert (== (parser_get_function marked 0).return_type "int")
+}
+
+# I resolve only the creation expression, not a user spelling of a hoisted name.
+pub fn parser_lambda_function(p: Parser, identifier: ASTIdentifier) -> int {
+    if (not (str_starts_with identifier.name "__lambda_")) { return -1 }
+    let mut index: int = 0
+    while (< index p.functions_count) {
+        let func: ASTFunction = (parser_get_function p index)
+        if (and (== func.node_type ParseNodeType.PNODE_LAMBDA) (and (== func.name identifier.name) (and (== func.line identifier.line) (== func.column identifier.column)))) { return index }
+        set index (+ index 1)
+    }
+    return -1
+}
+shadow parser_lambda_function {
+    let source: string = "fn outer(n:int)->fn()->int{return fn()->int{return n}}"
+    let tokens: List<LexerToken> = (tokenize_string source "lambda.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "lambda.nano")
+    assert (== (parser_get_function parser 0).node_type ParseNodeType.PNODE_LAMBDA)
+    assert (== (parser_get_function parser 1).node_type ParseNodeType.PNODE_FUNCTION)
+    assert (== (parser_lambda_function parser (parser_get_identifier parser 0)) -1)
+    assert (== (parser_lambda_function parser (parser_get_identifier parser 1)) 0)
+}
 
 # I retain a checked annotation; it cannot override the effect summary.
 fn parser_mark_pure(p: Parser) -> Parser {

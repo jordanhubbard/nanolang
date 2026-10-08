@@ -4547,6 +4547,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     if (== node_type ParseNodeType.PNODE_FLOAT) { return (type_float) } else { (print "") }
     if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
         let id_node: ASTIdentifier = (parser_get_identifier parser node_id)
+        (check_lambda_creation parser id_node symbols diags file_name)
         let lookup: OptionType = (env_get_type symbols (tc_bound_name id_node.name id_node.line symbols))
         if lookup.has_value { return lookup.value }
         let builtin: NSType = (check_builtin_function id_node.name)
@@ -4630,6 +4631,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         }
         /* Get function name from identifier node */
         let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
+        (check_lambda_creation parser fn_id_node symbols diags file_name)
         let fn_name: string = (tc_bound_name fn_id_node.name fn_id_node.line symbols)
         if (and (== fn_name "map_get") (and (== call_node.arg_count 2) (< (env_lookup symbols fn_name) 0))) {
             let receiver: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
@@ -5850,6 +5852,28 @@ shadow scalar_borrow_shape {
     assert (not (scalar_borrow_shape parser "&Unsupported"))
 }
 
+fn check_lambda_creation(parser: Parser, identifier: ASTIdentifier, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> void {
+    let index: int = (parser_lambda_function parser identifier)
+    if (< index 0) { return }
+    let func: ASTFunction = (parser_get_function parser index)
+    let before: int = (list_CompilerDiagnostic_length diags)
+    let valid: bool = (check_function parser func symbols diags file_name)
+    (resource_check_function parser func diags file_name)
+    if (and (not valid) (== before (list_CompilerDiagnostic_length diags))) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" "I cannot check this anonymous body in its lexical scope." (Diagnostics.diag_location file_name func.line func.column)))
+    }
+}
+shadow check_lambda_creation {
+    let parser: Parser = (resource_test_parser "fn outer(n:int)->fn()->int{return fn()->int{return n}}")
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let symbols: array<Symbol> = [(symbol_new "n" (type_int) false false 0 (empty_param_types) (type_void))]
+    (check_lambda_creation parser (parser_get_identifier parser 1) symbols diagnostics "lambda.nano")
+    assert (not (Diagnostics.diag_list_has_errors diagnostics))
+    let absent: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_lambda_creation parser (parser_get_identifier parser 1) [] absent "lambda.nano")
+    assert (Diagnostics.diag_list_has_errors absent)
+}
+
 fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
     if (or (== func.name "float_from_bits") (== func.name "float_to_bits")) {
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I reserve binary64 bit intrinsic names." (Diagnostics.diag_location file_name func.line func.column)))
@@ -6510,6 +6534,8 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
     set i 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
+        # I check anonymous bodies at their creation expression with lexical bindings.
+        if (== func.node_type ParseNodeType.PNODE_LAMBDA) { set i (+ i 1) continue }
         let valid: bool = (check_function parser func symbols env.diagnostics file_name)
         (resource_check_function parser func env.diagnostics file_name)
         if (and func.is_pure (>= func.body 0)) {
