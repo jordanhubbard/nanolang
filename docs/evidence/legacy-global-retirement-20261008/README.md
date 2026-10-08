@@ -37,3 +37,10 @@ the unchecked-match backstop fixture. Source-text tests also inspect lexical
 environments and array-slice helpers in the old emitter. I must migrate their
 behavioral coverage before removing that source; I do not delete acceptance
 coverage to make retirement pass.
+
+I also exercise the installed C-seed, Stage1 and Stage2 products after this
+bootstrap. Each rejects all four undeclared names without replacing prior
+output, accepts their real source declarations, and runs each resulting module
+in VM and sanitized native execution. All 72 commands meet their expected
+status; the 12 refusals are intentional. I retain the runner, command manifest,
+terminal output and tool hashes under `products/`.

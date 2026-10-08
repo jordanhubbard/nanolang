@@ -1,0 +1,854 @@
+[
+  {
+    "name": "nano_virt-module_aliases-refuse",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_virt",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_aliases.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_aliases.nvm"
+    ],
+    "exit_code": 1,
+    "seconds": 0.010846792021766305
+  },
+  {
+    "name": "nano_virt-module_aliases-emit",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_virt",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_aliases.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_aliases.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.025162875012028962
+  },
+  {
+    "name": "nano_virt-module_aliases-vm",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_vm",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_aliases.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.008545582997612655
+  },
+  {
+    "name": "nano_virt-module_aliases-translate",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nvm2c",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_aliases.nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_aliases.c"
+    ],
+    "exit_code": 0,
+    "seconds": 0.009785666014067829
+  },
+  {
+    "name": "nano_virt-module_aliases-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_aliases.c",
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_aliases"
+    ],
+    "exit_code": 0,
+    "seconds": 0.1670530840056017
+  },
+  {
+    "name": "nano_virt-module_aliases-native",
+    "command": [
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_aliases"
+    ],
+    "exit_code": 0,
+    "seconds": 0.22014700004365295
+  },
+  {
+    "name": "nano_virt-module_alias_targets-refuse",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_virt",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_alias_targets.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_alias_targets.nvm"
+    ],
+    "exit_code": 1,
+    "seconds": 0.012344624963589013
+  },
+  {
+    "name": "nano_virt-module_alias_targets-emit",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_virt",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_alias_targets.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_alias_targets.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.021445958002004772
+  },
+  {
+    "name": "nano_virt-module_alias_targets-vm",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_vm",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_alias_targets.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.007235458004288375
+  },
+  {
+    "name": "nano_virt-module_alias_targets-translate",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nvm2c",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_alias_targets.nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_alias_targets.c"
+    ],
+    "exit_code": 0,
+    "seconds": 0.008483249985147268
+  },
+  {
+    "name": "nano_virt-module_alias_targets-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_alias_targets.c",
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_alias_targets"
+    ],
+    "exit_code": 0,
+    "seconds": 0.1518482500105165
+  },
+  {
+    "name": "nano_virt-module_alias_targets-native",
+    "command": [
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_alias_targets"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16367583302780986
+  },
+  {
+    "name": "nano_virt-func_aliases-refuse",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_virt",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_aliases.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_aliases.nvm"
+    ],
+    "exit_code": 1,
+    "seconds": 0.013340374978724867
+  },
+  {
+    "name": "nano_virt-func_aliases-emit",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_virt",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_aliases.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_aliases.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.035237542004324496
+  },
+  {
+    "name": "nano_virt-func_aliases-vm",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_vm",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_aliases.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.008147167041897774
+  },
+  {
+    "name": "nano_virt-func_aliases-translate",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nvm2c",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_aliases.nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_aliases.c"
+    ],
+    "exit_code": 0,
+    "seconds": 0.012105500034522265
+  },
+  {
+    "name": "nano_virt-func_aliases-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_aliases.c",
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_aliases"
+    ],
+    "exit_code": 0,
+    "seconds": 0.15289729100186378
+  },
+  {
+    "name": "nano_virt-func_aliases-native",
+    "command": [
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_aliases"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16324387496570125
+  },
+  {
+    "name": "nano_virt-func_alias_targets-refuse",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_virt",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_alias_targets.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_alias_targets.nvm"
+    ],
+    "exit_code": 1,
+    "seconds": 0.01014920900342986
+  },
+  {
+    "name": "nano_virt-func_alias_targets-emit",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_virt",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_alias_targets.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_alias_targets.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.025513417029287666
+  },
+  {
+    "name": "nano_virt-func_alias_targets-vm",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_vm",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_alias_targets.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.007581916986964643
+  },
+  {
+    "name": "nano_virt-func_alias_targets-translate",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nvm2c",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_alias_targets.nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_alias_targets.c"
+    ],
+    "exit_code": 0,
+    "seconds": 0.009897708019707352
+  },
+  {
+    "name": "nano_virt-func_alias_targets-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_alias_targets.c",
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_alias_targets"
+    ],
+    "exit_code": 0,
+    "seconds": 0.15285358298569918
+  },
+  {
+    "name": "nano_virt-func_alias_targets-native",
+    "command": [
+      "/private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_alias_targets"
+    ],
+    "exit_code": 0,
+    "seconds": 0.15793508297065273
+  },
+  {
+    "name": "nanoc_stage1-module_aliases-refuse",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage1",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_aliases.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_aliases.nvm"
+    ],
+    "exit_code": 1,
+    "seconds": 0.01066429098136723
+  },
+  {
+    "name": "nanoc_stage1-module_aliases-emit",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage1",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_aliases.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_aliases.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03818412503460422
+  },
+  {
+    "name": "nanoc_stage1-module_aliases-vm",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_vm",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_aliases.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.009799541963730007
+  },
+  {
+    "name": "nanoc_stage1-module_aliases-translate",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nvm2c",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_aliases.nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_aliases.c"
+    ],
+    "exit_code": 0,
+    "seconds": 0.0076209999970160425
+  },
+  {
+    "name": "nanoc_stage1-module_aliases-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_aliases.c",
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_aliases"
+    ],
+    "exit_code": 0,
+    "seconds": 0.14935949997743592
+  },
+  {
+    "name": "nanoc_stage1-module_aliases-native",
+    "command": [
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_aliases"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16234470898052678
+  },
+  {
+    "name": "nanoc_stage1-module_alias_targets-refuse",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage1",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_alias_targets.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_alias_targets.nvm"
+    ],
+    "exit_code": 1,
+    "seconds": 0.015134125016629696
+  },
+  {
+    "name": "nanoc_stage1-module_alias_targets-emit",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage1",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_alias_targets.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_alias_targets.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04698145797010511
+  },
+  {
+    "name": "nanoc_stage1-module_alias_targets-vm",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_vm",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_alias_targets.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.007805250003002584
+  },
+  {
+    "name": "nanoc_stage1-module_alias_targets-translate",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nvm2c",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_alias_targets.nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_alias_targets.c"
+    ],
+    "exit_code": 0,
+    "seconds": 0.008132790972013026
+  },
+  {
+    "name": "nanoc_stage1-module_alias_targets-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_alias_targets.c",
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_alias_targets"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16190150001784787
+  },
+  {
+    "name": "nanoc_stage1-module_alias_targets-native",
+    "command": [
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_alias_targets"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16312429204117507
+  },
+  {
+    "name": "nanoc_stage1-func_aliases-refuse",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage1",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_aliases.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_aliases.nvm"
+    ],
+    "exit_code": 1,
+    "seconds": 0.013019000005442649
+  },
+  {
+    "name": "nanoc_stage1-func_aliases-emit",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage1",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_aliases.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_aliases.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04542999999830499
+  },
+  {
+    "name": "nanoc_stage1-func_aliases-vm",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_vm",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_aliases.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.008631000004243106
+  },
+  {
+    "name": "nanoc_stage1-func_aliases-translate",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nvm2c",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_aliases.nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_aliases.c"
+    ],
+    "exit_code": 0,
+    "seconds": 0.008988790970761329
+  },
+  {
+    "name": "nanoc_stage1-func_aliases-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_aliases.c",
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_aliases"
+    ],
+    "exit_code": 0,
+    "seconds": 0.1558205420151353
+  },
+  {
+    "name": "nanoc_stage1-func_aliases-native",
+    "command": [
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_aliases"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16087016701931134
+  },
+  {
+    "name": "nanoc_stage1-func_alias_targets-refuse",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage1",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_alias_targets.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_alias_targets.nvm"
+    ],
+    "exit_code": 1,
+    "seconds": 0.010279375012032688
+  },
+  {
+    "name": "nanoc_stage1-func_alias_targets-emit",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage1",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_alias_targets.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_alias_targets.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.041936916997656226
+  },
+  {
+    "name": "nanoc_stage1-func_alias_targets-vm",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_vm",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_alias_targets.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.008849249978084117
+  },
+  {
+    "name": "nanoc_stage1-func_alias_targets-translate",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nvm2c",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_alias_targets.nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_alias_targets.c"
+    ],
+    "exit_code": 0,
+    "seconds": 0.0068182090180926025
+  },
+  {
+    "name": "nanoc_stage1-func_alias_targets-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_alias_targets.c",
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_alias_targets"
+    ],
+    "exit_code": 0,
+    "seconds": 0.1548019590554759
+  },
+  {
+    "name": "nanoc_stage1-func_alias_targets-native",
+    "command": [
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_alias_targets"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16364466695813462
+  },
+  {
+    "name": "nanoc_stage2-module_aliases-refuse",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage2",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_aliases.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_aliases.nvm"
+    ],
+    "exit_code": 1,
+    "seconds": 0.014124291017651558
+  },
+  {
+    "name": "nanoc_stage2-module_aliases-emit",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage2",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_aliases.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_aliases.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04233412502799183
+  },
+  {
+    "name": "nanoc_stage2-module_aliases-vm",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_vm",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_aliases.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.010932707984466106
+  },
+  {
+    "name": "nanoc_stage2-module_aliases-translate",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nvm2c",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_aliases.nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_aliases.c"
+    ],
+    "exit_code": 0,
+    "seconds": 0.0068464590003713965
+  },
+  {
+    "name": "nanoc_stage2-module_aliases-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_aliases.c",
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_aliases"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16227145900484174
+  },
+  {
+    "name": "nanoc_stage2-module_aliases-native",
+    "command": [
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_aliases"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16998033301206306
+  },
+  {
+    "name": "nanoc_stage2-module_alias_targets-refuse",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage2",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_alias_targets.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_alias_targets.nvm"
+    ],
+    "exit_code": 1,
+    "seconds": 0.0097762499935925
+  },
+  {
+    "name": "nanoc_stage2-module_alias_targets-emit",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage2",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_alias_targets.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_alias_targets.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04208300000755116
+  },
+  {
+    "name": "nanoc_stage2-module_alias_targets-vm",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_vm",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_alias_targets.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.007917249982710928
+  },
+  {
+    "name": "nanoc_stage2-module_alias_targets-translate",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nvm2c",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_alias_targets.nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_alias_targets.c"
+    ],
+    "exit_code": 0,
+    "seconds": 0.010971250012516975
+  },
+  {
+    "name": "nanoc_stage2-module_alias_targets-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_alias_targets.c",
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_alias_targets"
+    ],
+    "exit_code": 0,
+    "seconds": 0.15906004095450044
+  },
+  {
+    "name": "nanoc_stage2-module_alias_targets-native",
+    "command": [
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_alias_targets"
+    ],
+    "exit_code": 0,
+    "seconds": 0.1620006249868311
+  },
+  {
+    "name": "nanoc_stage2-func_aliases-refuse",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage2",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_aliases.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_aliases.nvm"
+    ],
+    "exit_code": 1,
+    "seconds": 0.011947792023420334
+  },
+  {
+    "name": "nanoc_stage2-func_aliases-emit",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage2",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_aliases.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_aliases.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.045658874965738505
+  },
+  {
+    "name": "nanoc_stage2-func_aliases-vm",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_vm",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_aliases.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.013524417008738965
+  },
+  {
+    "name": "nanoc_stage2-func_aliases-translate",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nvm2c",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_aliases.nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_aliases.c"
+    ],
+    "exit_code": 0,
+    "seconds": 0.007399207970593125
+  },
+  {
+    "name": "nanoc_stage2-func_aliases-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_aliases.c",
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_aliases"
+    ],
+    "exit_code": 0,
+    "seconds": 0.14763374999165535
+  },
+  {
+    "name": "nanoc_stage2-func_aliases-native",
+    "command": [
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_aliases"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16646579199004918
+  },
+  {
+    "name": "nanoc_stage2-func_alias_targets-refuse",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage2",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_alias_targets.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_alias_targets.nvm"
+    ],
+    "exit_code": 1,
+    "seconds": 0.010988124995492399
+  },
+  {
+    "name": "nanoc_stage2-func_alias_targets-emit",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage2",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_alias_targets.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_alias_targets.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.03889979200903326
+  },
+  {
+    "name": "nanoc_stage2-func_alias_targets-vm",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_vm",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_alias_targets.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.01125666598090902
+  },
+  {
+    "name": "nanoc_stage2-func_alias_targets-translate",
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nvm2c",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_alias_targets.nvm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_alias_targets.c"
+    ],
+    "exit_code": 0,
+    "seconds": 0.007689625024795532
+  },
+  {
+    "name": "nanoc_stage2-func_alias_targets-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_alias_targets.c",
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_alias_targets"
+    ],
+    "exit_code": 0,
+    "seconds": 0.15157066698884591
+  },
+  {
+    "name": "nanoc_stage2-func_alias_targets-native",
+    "command": [
+      "/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_alias_targets"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16693475004285574
+  }
+]
