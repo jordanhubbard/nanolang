@@ -22,7 +22,7 @@ typedef enum {
     NVM_SHAPE_FUNCTION
 } NvmShapeKind;
 typedef struct NvmShapeNode NvmShapeNode;
-typedef struct { NvmShapeId source, target; } NvmShapeConversion;
+typedef struct { NvmShapeId source, target; int alias_view; } NvmShapeConversion;
 typedef struct { NvmShapeId element, result; int resolved; } NvmShapeArrayRead;
 typedef struct {
     NvmShapeNode *nodes;
@@ -58,6 +58,8 @@ int nvm_shape_convert(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target
 /* I separate optional scalar reads from exact element storage, even when
  * the element kind becomes known only through later record conversions. */
 int nvm_shape_array_read(NvmShapeGraph *graph, NvmShapeId element, NvmShapeId result);
+/* I propagate a shared handle back into an existing guarded storage view. */
+int nvm_shape_alias_view(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target);
 int nvm_shape_solve_conversions(NvmShapeGraph *graph);
 
 #endif

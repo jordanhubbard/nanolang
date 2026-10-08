@@ -1,0 +1,9 @@
+{
+  "Makefile.gnu": "cbeb8e9196805289364237e3b90361765ec75597fedfda5b44b98a13219df119",
+  "src/nanoisa/nvm2c.c": "71b7778025d3804499ca7836a288abc2071cd38e1297dfed162055ebf6c41f42",
+  "src/nanoisa/nvm2c_shape.c": "a545f5ec5290a75412ba64dfe505c26bee5bf9b3b884c93649152bea69952726",
+  "src/nanoisa/nvm2c_shape.h": "ad8b770becb8ecebe240382a7151e559be590dd706a476c153254185d9dc369f",
+  "tests/nanoisa/test_nvm2c_shape.c": "89b44f70845ebdb690f165f1fc5783cf4797ea8e4d0c7915dc96c6dcfc1b14ca",
+  "tests/test_one_ir_compiler.py": "ced4ddf59a2bd2b1fa6452a11426560a2a53166bf77212663d57ab97dad7bdf1",
+  "tests/test_native_mutable_record_arrays.py": "0f0c1f05878d3e6934ead4f581a53ecbe38f97b23f6eaf4f11960a0bdb8d8d53"
+}

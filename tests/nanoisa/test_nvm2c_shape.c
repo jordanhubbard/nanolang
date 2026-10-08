@@ -540,6 +540,49 @@ static void test_function_targets(void) {
     }
 }
 
+static void test_shared_array_views(void) {
+    for (int reverse = 0; reverse < 2; ++reverse) {
+        NvmShapeGraph g = {0};
+        NvmShapeId caller = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        NvmShapeId callee = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        NvmShapeId stored = nvm_shape_child(&g, caller, 0);
+        NvmShapeId written = nvm_shape_child(&g, callee, 0);
+        CHECK(nvm_shape_unify(&g, stored, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+        CHECK(nvm_shape_unify(&g, written, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+        if (reverse) CHECK(nvm_shape_alias_view(&g, callee, caller));
+        CHECK(nvm_shape_convert(&g, caller, callee));
+        if (!reverse) CHECK(nvm_shape_alias_view(&g, callee, caller));
+        CHECK(nvm_shape_solve_conversions(&g));
+        /* I add the nested write after the first solve to exercise late facts. */
+        NvmShapeId nested = nvm_shape_child(&g, written, 3);
+        CHECK(nvm_shape_unify(&g, nested, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, nested, 0),
+                              nvm_shape_new(&g, NVM_SHAPE_STRING)));
+        CHECK(nvm_shape_solve_conversions(&g));
+        NvmShapeId retained = nvm_shape_lookup(&g, stored, 3);
+        CHECK(nvm_shape_kind(&g, retained) == NVM_SHAPE_RECORD);
+        CHECK(nvm_shape_kind(&g, nvm_shape_lookup(&g, retained, 0)) == NVM_SHAPE_STRING);
+        nvm_shape_destroy(&g);
+    }
+    const NvmShapeKind scalars[] = {NVM_SHAPE_STRING, NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT};
+    for (size_t i = 0; i < sizeof scalars / sizeof scalars[0]; ++i) {
+        for (int wrong = 0; wrong < 2; ++wrong) {
+            NvmShapeGraph g = {0};
+            NvmShapeId exact = nvm_shape_new(&g, scalars[i]);
+            NvmShapeId tagged = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+            CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, tagged, 0),
+                                  nvm_shape_new(&g, wrong ? NVM_SHAPE_RECORD : scalars[i])));
+            CHECK(nvm_shape_alias_view(&g, tagged, exact));
+            CHECK(nvm_shape_solve_conversions(&g) == !wrong);
+            if (!wrong) {
+                CHECK(nvm_shape_kind(&g, exact) == scalars[i]);
+                CHECK(nvm_shape_kind(&g, tagged) == NVM_SHAPE_OPTIONAL);
+            }
+            nvm_shape_destroy(&g);
+        }
+    }
+}
+
 int main(void) {
     test_finite_variant_integer_array();
     test_explicit_variant_scalar_storage();
@@ -553,6 +596,7 @@ int main(void) {
         nvm_shape_destroy(&g);
     }
 
+    test_shared_array_views();
     test_directed_conversions();
     test_array_optional_conversion();
     {

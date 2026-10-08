@@ -1191,6 +1191,9 @@ static int classify_direct_call(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 !shape_type(b, parameter, NVM_SHAPE_ARRAY) ||
                 !shape_record_return(b, shape_child(b, arg.shape, 0),
                                      shape_child(b, parameter, 0), arg.rec_k, fields)) return 0;
+            /* The runtime passes one mutable handle. I also carry callee
+             * writes back into the caller's checked element-storage view. */
+            if (b->track_shapes && !nvm_shape_alias_view(&b->shapes, parameter, arg.shape)) return 0;
         } else if ((facts->parameters[at] == NVM2C_VK_STR || facts->parameters[at] == NVM2C_VK_INT ||
                     facts->parameters[at] == NVM2C_VK_BOOL || facts->parameters[at] == NVM2C_VK_FLOAT) &&
                    (arg.kind == facts->parameters[at] || arg.kind == NVM2C_VK_UNK)) {

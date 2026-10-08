@@ -241,7 +241,13 @@ int nvm_shape_convert(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
                                     g->conversion_count + 1, sizeof *next);
     if (!next) return 0;
     g->conversions = next;
-    g->conversions[g->conversion_count++] = (NvmShapeConversion){source, target};
+    g->conversions[g->conversion_count++] = (NvmShapeConversion){source, target, 0};
+    return 1;
+}
+
+int nvm_shape_alias_view(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
+    if (!nvm_shape_convert(g, source, target)) return 0;
+    g->conversions[g->conversion_count - 1].alias_view = 1;
     return 1;
 }
 
@@ -317,6 +323,20 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         if (to == NVM_SHAPE_UNKNOWN) {
             if (!flow_kind(g, target, from, changed)) break;
             to = from;
+        }
+        /* Shared record-array handles retain caller and callee views. A
+         * tagged field can flow back into an exact scalar view because native
+         * projection checks its tag before use; I retain the payload constraint
+         * rather than rewriting the caller's constructor as optional storage. */
+        if (conversion.alias_view && from == NVM_SHAPE_OPTIONAL &&
+            (to == NVM_SHAPE_STRING || to == NVM_SHAPE_INT || to == NVM_SHAPE_BOOL ||
+             to == NVM_SHAPE_FLOAT || to == NVM_SHAPE_ARRAY || to == NVM_SHAPE_MAP ||
+             to == NVM_SHAPE_FUNCTION)) {
+            NvmShapeId payload = nvm_shape_child(g, source, 0);
+            FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
+            if (!next || !payload) break;
+            queue = next; queue[count++] = (FlowPair){payload, target, 1};
+            continue;
         }
         if (!pair.exact && from == NVM_SHAPE_OPTIONAL &&
             (to == NVM_SHAPE_STRING || to == NVM_SHAPE_INT || to == NVM_SHAPE_BOOL)) {
