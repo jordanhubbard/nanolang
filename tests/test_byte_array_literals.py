@@ -8,18 +8,19 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 VM = Path(os.environ.get("NANO_VM", ROOT / "bin/nano_vm"))
 
+BYTE_CONTEXTS = {
+    "local": "fn main()->int { let bytes:array<u8> = [300] assert (== (at bytes 0) 44) return 0 }",
+    "assignment": "fn main()->int { let mut bytes:array<u8> = [] set bytes [300] assert (== (at bytes 0) 44) return 0 }",
+    "global": "let bytes:array<u8> = [300] fn main()->int { assert (== (at bytes 0) 44) return 0 }",
+    "return": "fn bytes()->array<u8> { return [300] } fn main()->int { assert (== (at (bytes) 0) 44) return 0 }",
+    "argument": "fn read(bytes:array<u8>)->int { return (at bytes 0) } fn main()->int { assert (== (read [300]) 44) return 0 }",
+    "field": "struct Bytes { data:array<u8> } fn main()->int { let b:Bytes = Bytes { data:[300] } assert (== (at b.data 0) 44) return 0 }",
+}
+
 class ByteArrayLiterals(unittest.TestCase):
     def test_contextual_byte_storage(self):
-        cases = {
-            "local": "fn main()->int { let bytes:array<u8> = [300] assert (== (at bytes 0) 44) return 0 }",
-            "assignment": "fn main()->int { let mut bytes:array<u8> = [] set bytes [300] assert (== (at bytes 0) 44) return 0 }",
-            "global": "let bytes:array<u8> = [300] fn main()->int { assert (== (at bytes 0) 44) return 0 }",
-            "return": "fn bytes()->array<u8> { return [300] } fn main()->int { assert (== (at (bytes) 0) 44) return 0 }",
-            "argument": "fn read(bytes:array<u8>)->int { return (at bytes 0) } fn main()->int { assert (== (read [300]) 44) return 0 }",
-            "field": "struct Bytes { data:array<u8> } fn main()->int { let b:Bytes = Bytes { data:[300] } assert (== (at b.data 0) 44) return 0 }",
-        }
         with tempfile.TemporaryDirectory(prefix="nano-byte-literal-") as tmp:
-            for name, source in cases.items():
+            for name, source in BYTE_CONTEXTS.items():
                 for backend in ("c", "vm"):
                     with self.subTest(name=name, backend=backend):
                         path = Path(tmp) / (name + ".nano")
