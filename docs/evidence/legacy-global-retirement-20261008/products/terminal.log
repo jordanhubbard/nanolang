@@ -1,0 +1,124 @@
+nano_virt-module_aliases-refuse exit=1
+-- E024 UNDEFINED VARIABLE --- /private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_aliases.nano
+I cannot find a variable named `module_aliases`.
+
+1| fn main()->int {return (array_length module_aliases)}
+                                        ^^^^^^^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+error: type check failed
+nano_virt-module_aliases-emit exit=0
+nano_virt-module_aliases-vm exit=0
+nano_virt-module_aliases-translate exit=0
+nano_virt-module_aliases-cc exit=0
+nano_virt-module_aliases-native exit=0
+nano_virt-module_alias_targets-refuse exit=1
+-- E024 UNDEFINED VARIABLE --- /private/tmp/nanolang-retired-global-products-20261008/nano_virt-module_alias_targets.nano
+I cannot find a variable named `module_alias_targets`.
+
+1| fn main()->int {return (array_length module_alias_targets)}
+                                        ^^^^^^^^^^^^^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+error: type check failed
+nano_virt-module_alias_targets-emit exit=0
+nano_virt-module_alias_targets-vm exit=0
+nano_virt-module_alias_targets-translate exit=0
+nano_virt-module_alias_targets-cc exit=0
+nano_virt-module_alias_targets-native exit=0
+nano_virt-func_aliases-refuse exit=1
+-- E024 UNDEFINED VARIABLE --- /private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_aliases.nano
+I cannot find a variable named `func_aliases`.
+
+1| fn main()->int {return (array_length func_aliases)}
+                                        ^^^^^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+error: type check failed
+nano_virt-func_aliases-emit exit=0
+nano_virt-func_aliases-vm exit=0
+nano_virt-func_aliases-translate exit=0
+nano_virt-func_aliases-cc exit=0
+nano_virt-func_aliases-native exit=0
+nano_virt-func_alias_targets-refuse exit=1
+-- E024 UNDEFINED VARIABLE --- /private/tmp/nanolang-retired-global-products-20261008/nano_virt-func_alias_targets.nano
+I cannot find a variable named `func_alias_targets`.
+
+1| fn main()->int {return (array_length func_alias_targets)}
+                                        ^^^^^^^^^^^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+error: type check failed
+nano_virt-func_alias_targets-emit exit=0
+nano_virt-func_alias_targets-vm exit=0
+nano_virt-func_alias_targets-translate exit=0
+nano_virt-func_alias_targets-cc exit=0
+nano_virt-func_alias_targets-native exit=0
+nanoc_stage1-module_aliases-refuse exit=1
+NSType checking failed
+Diagnostics:
+  [E0011] I cannot find this name in the current scope: module_aliases (/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_aliases.nano:1:38)
+nanoc_stage1-module_aliases-emit exit=0
+nanoc_stage1-module_aliases-vm exit=0
+nanoc_stage1-module_aliases-translate exit=0
+nanoc_stage1-module_aliases-cc exit=0
+nanoc_stage1-module_aliases-native exit=0
+nanoc_stage1-module_alias_targets-refuse exit=1
+NSType checking failed
+Diagnostics:
+  [E0011] I cannot find this name in the current scope: module_alias_targets (/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-module_alias_targets.nano:1:38)
+nanoc_stage1-module_alias_targets-emit exit=0
+nanoc_stage1-module_alias_targets-vm exit=0
+nanoc_stage1-module_alias_targets-translate exit=0
+nanoc_stage1-module_alias_targets-cc exit=0
+nanoc_stage1-module_alias_targets-native exit=0
+nanoc_stage1-func_aliases-refuse exit=1
+NSType checking failed
+Diagnostics:
+  [E0011] I cannot find this name in the current scope: func_aliases (/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_aliases.nano:1:38)
+nanoc_stage1-func_aliases-emit exit=0
+nanoc_stage1-func_aliases-vm exit=0
+nanoc_stage1-func_aliases-translate exit=0
+nanoc_stage1-func_aliases-cc exit=0
+nanoc_stage1-func_aliases-native exit=0
+nanoc_stage1-func_alias_targets-refuse exit=1
+NSType checking failed
+Diagnostics:
+  [E0011] I cannot find this name in the current scope: func_alias_targets (/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage1-func_alias_targets.nano:1:38)
+nanoc_stage1-func_alias_targets-emit exit=0
+nanoc_stage1-func_alias_targets-vm exit=0
+nanoc_stage1-func_alias_targets-translate exit=0
+nanoc_stage1-func_alias_targets-cc exit=0
+nanoc_stage1-func_alias_targets-native exit=0
+nanoc_stage2-module_aliases-refuse exit=1
+NSType checking failed
+Diagnostics:
+  [E0011] I cannot find this name in the current scope: module_aliases (/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_aliases.nano:1:38)
+nanoc_stage2-module_aliases-emit exit=0
+nanoc_stage2-module_aliases-vm exit=0
+nanoc_stage2-module_aliases-translate exit=0
+nanoc_stage2-module_aliases-cc exit=0
+nanoc_stage2-module_aliases-native exit=0
+nanoc_stage2-module_alias_targets-refuse exit=1
+NSType checking failed
+Diagnostics:
+  [E0011] I cannot find this name in the current scope: module_alias_targets (/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-module_alias_targets.nano:1:38)
+nanoc_stage2-module_alias_targets-emit exit=0
+nanoc_stage2-module_alias_targets-vm exit=0
+nanoc_stage2-module_alias_targets-translate exit=0
+nanoc_stage2-module_alias_targets-cc exit=0
+nanoc_stage2-module_alias_targets-native exit=0
+nanoc_stage2-func_aliases-refuse exit=1
+NSType checking failed
+Diagnostics:
+  [E0011] I cannot find this name in the current scope: func_aliases (/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_aliases.nano:1:38)
+nanoc_stage2-func_aliases-emit exit=0
+nanoc_stage2-func_aliases-vm exit=0
+nanoc_stage2-func_aliases-translate exit=0
+nanoc_stage2-func_aliases-cc exit=0
+nanoc_stage2-func_aliases-native exit=0
+nanoc_stage2-func_alias_targets-refuse exit=1
+NSType checking failed
+Diagnostics:
+  [E0011] I cannot find this name in the current scope: func_alias_targets (/private/tmp/nanolang-retired-global-products-20261008/nanoc_stage2-func_alias_targets.nano:1:38)
+nanoc_stage2-func_alias_targets-emit exit=0
+nanoc_stage2-func_alias_targets-vm exit=0
+nanoc_stage2-func_alias_targets-translate exit=0
+nanoc_stage2-func_alias_targets-cc exit=0
+nanoc_stage2-func_alias_targets-native exit=0
