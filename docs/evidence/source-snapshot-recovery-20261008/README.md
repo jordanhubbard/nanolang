@@ -31,6 +31,8 @@ modules `tests.test_link_response_query`, `tests.test_link_response_graph`,
 `test_uncaptured_linker_flags_stay_out_of_compile_jobs` and
 `test_split_assembler_search_order_phases_and_recovery`. I retain all logs.
 
-The remaining affected standalone/shared assembly cases and the full
-source-snapshot rerun remain open at this checkpoint. I preserve qualification
+My remaining affected standalone/shared assembly cases pass: four methods,
+16 subcases, 351.058 seconds. I retain `affected-cases.log` and its runner.
+My full 127-method source-snapshot rerun is running in the clean qualification
+checkout at `f0f6a0c62`; its terminal result remains open. I preserve qualification
 clones and their host-library paths; no source corpus assertion is weakened.

@@ -20,7 +20,11 @@ pass the ten-product diagnostic/alias mutation matrix under ASan/UBSan/LSan.
 The source check selects `/private/tmp/nanolang-nested-view-compiler` through
 NANOLANG_SELFHOST_COMPILER and `/private/tmp/nanolang-diag-tools/bin/nvm2c`
 through NANOLANG_TEST_NVM2C; it runs `tests.test_native_mutable_record_arrays`.
-I still require a fresh complete compiler-product gate at the corrected pin.
+My clean complete compiler-product gate at `763d786cf` now passes all 109
+methods in 828.725 seconds (Make exit 0, 830.232 seconds). Both generated
+compiler routes include the capture and mutable-record-array controls. My
+terminal receipt records unchanged HEAD and a clean tree before and after;
+I retain the runner, full log and receipt under `clean-763d786cf-*`.
 
 My additional `holder-regression.py` remains a failing reproducer: wrapping a
 shared array in a record before helper mutation loses the reverse write facts
