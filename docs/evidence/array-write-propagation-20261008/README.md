@@ -40,6 +40,10 @@ Homebrew LLVM, and `NANOLANG_SELFHOST_COMPILER` selecting the retained or new
 compiler. The sanitizer graph build uses Clang with address/undefined checking
 and `ASAN_OPTIONS=detect_leaks=1`.
 
-Fresh complete compiler-product qualification, integration, Linux acceptance,
+My complete compiler-product gate at `1321b8bdf` passes all 109 methods.
+The primary checkout retains unchanged HEAD, a clean tracked tree, and only
+the same user-owned untracked test, whose hash is unchanged. I archive the
+full log, runner and terminal receipt; this is not a claim of an entirely
+clean checkout. Integration, clean final-candidate gates, Linux acceptance,
 and the remaining release scope stay open. The separate full source-snapshot
 rerun remains pinned to `f0f6a0c62` in its own checkout.
