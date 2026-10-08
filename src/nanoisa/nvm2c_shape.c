@@ -58,6 +58,10 @@ void nvm_shape_destroy(NvmShapeGraph *g) {
     }
     free(g->nodes);
     free(g->conversions);
+    free(g->array_aliases);
+    free(g->array_writes);
+    free(g->alias_pairs.keys);
+    free(g->write_pairs.keys);
     free(g->array_reads);
     memset(g, 0, sizeof *g);
 }
@@ -251,6 +255,93 @@ int nvm_shape_alias_view(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target)
     return 1;
 }
 
+static size_t shape_pair_slot(uint64_t key, size_t capacity) {
+    key ^= key >> 30;
+    key *= UINT64_C(0xbf58476d1ce4e5b9);
+    key ^= key >> 27;
+    key *= UINT64_C(0x94d049bb133111eb);
+    key ^= key >> 31;
+    return (size_t)key & (capacity - 1);
+}
+
+/* I index immutable insertion IDs. Later exact joins may leave equivalent
+ * entries, but traversal resolves roots and never loses an alias or write. */
+static int shape_pair_insert(NvmShapeGraph *g, NvmShapePairSet *set,
+                             NvmShapeId source, NvmShapeId target) {
+    uint64_t key = ((uint64_t)source << 32) | target;
+    if (!set->capacity || set->count >= set->capacity / 2) {
+        size_t capacity = set->capacity ? set->capacity * 2 : 64;
+        if (capacity < set->capacity || capacity > SIZE_MAX / sizeof *set->keys) {
+            fail(g, "I cannot grow shared-array shape facts"); return -1;
+        }
+        uint64_t *keys = calloc(capacity, sizeof *keys);
+        if (!keys) { fail(g, "I cannot allocate shared-array shape facts"); return -1; }
+        for (size_t i = 0; i < set->capacity; ++i) if (set->keys[i]) {
+            size_t at = shape_pair_slot(set->keys[i], capacity);
+            while (keys[at]) at = (at + 1) & (capacity - 1);
+            keys[at] = set->keys[i];
+        }
+        free(set->keys); set->keys = keys; set->capacity = capacity;
+    }
+    size_t at = shape_pair_slot(key, set->capacity);
+    while (set->keys[at] && set->keys[at] != key) at = (at + 1) & (set->capacity - 1);
+    if (set->keys[at]) return 0;
+    set->keys[at] = key; ++set->count;
+    return 1;
+}
+
+int nvm_shape_array_alias(NvmShapeGraph *g, NvmShapeId caller, NvmShapeId callee) {
+    caller = nvm_shape_root(g, caller); callee = nvm_shape_root(g, callee);
+    if (!caller || !callee) return 0;
+    if (caller == callee) return 1;
+    int inserted = shape_pair_insert(g, &g->alias_pairs, caller, callee);
+    if (inserted <= 0) return inserted == 0;
+    NvmShapeConversion *next = grow(g, g->array_aliases, &g->array_alias_capacity,
+                                    g->array_alias_count + 1, sizeof *next);
+    if (!next) return 0;
+    g->array_aliases = next;
+    g->array_aliases[g->array_alias_count++] = (NvmShapeConversion){caller, callee, 0};
+    return 1;
+}
+
+int nvm_shape_array_write(NvmShapeGraph *g, NvmShapeId array, NvmShapeId value) {
+    array = nvm_shape_root(g, array); value = nvm_shape_root(g, value);
+    if (!array || !value) return 0;
+    int inserted = shape_pair_insert(g, &g->write_pairs, array, value);
+    if (inserted <= 0) return inserted == 0;
+    NvmShapeConversion *next = grow(g, g->array_writes, &g->array_write_capacity,
+                                    g->array_write_count + 1, sizeof *next);
+    if (!next) return 0;
+    g->array_writes = next;
+    g->array_writes[g->array_write_count++] = (NvmShapeConversion){array, value, 0};
+    return nvm_shape_alias_view(g, value, nvm_shape_child(g, array, 0));
+}
+
+static int propagate_array_writes(NvmShapeGraph *g) {
+    if (!g->array_write_count || !g->array_alias_count) return !g->error;
+    /* I rebuild adjacency after exact joins. Propagation visits only aliases
+     * of the written handle, including writes discovered during this pass. */
+    size_t *heads = calloc(g->count, sizeof *heads);
+    size_t *next = calloc(g->array_alias_count, sizeof *next);
+    if (!heads || !next) {
+        free(heads); free(next); return fail(g, "I cannot allocate shared-array write traversal");
+    }
+    for (size_t a = 0; a < g->array_alias_count && !g->error; ++a) {
+        NvmShapeId target = nvm_shape_root(g, g->array_aliases[a].target);
+        if (!target) break;
+        next[a] = heads[target - 1]; heads[target - 1] = a + 1;
+    }
+    for (size_t i = 0; i < g->array_write_count && !g->error; ++i) {
+        NvmShapeId array = nvm_shape_root(g, g->array_writes[i].source);
+        NvmShapeId value = g->array_writes[i].target;
+        if (!array) break;
+        for (size_t a = heads[array - 1]; a && !g->error; a = next[a - 1])
+            if (!nvm_shape_array_write(g, g->array_aliases[a - 1].source, value)) break;
+    }
+    free(heads); free(next);
+    return !g->error;
+}
+
 typedef struct { NvmShapeId source, target; int exact, alias_view; } FlowPair;
 
 int nvm_shape_array_read(NvmShapeGraph *g, NvmShapeId element, NvmShapeId result) {
@@ -391,6 +482,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
                      kind_name(from), kind_name(to), source, target);
             fail(g, g->error_detail); break;
         }
+        if (from == NVM_SHAPE_ARRAY && !nvm_shape_array_alias(g, source, target)) break;
         if (from == NVM_SHAPE_FUNCTION) {
             NvmShapeNode *producer = &g->nodes[source - 1], *storage = &g->nodes[target - 1];
             for (size_t i = 0; i < producer->function_count && !g->error; ++i)
@@ -439,9 +531,12 @@ int nvm_shape_solve_conversions(NvmShapeGraph *g) {
     int changed;
     do {
         changed = 0;
+        size_t prior_writes = g->array_write_count, prior_aliases = g->array_alias_count;
         if (!solve_array_reads(g, &changed)) return 0;
         for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
             if (!flow_one(g, g->conversions[i], &changed, 0)) return 0;
+        if (!propagate_array_writes(g)) return 0;
+        if (prior_writes != g->array_write_count || prior_aliases != g->array_alias_count) changed = 1;
     } while (changed && !g->error);
     /* Unknown sources may resolve on a later conversion pass. Only after
      * convergence do I require evidence for explicit scalar-set injection.

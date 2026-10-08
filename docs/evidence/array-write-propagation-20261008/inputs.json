@@ -1,0 +1,10 @@
+{
+  "src/nanoisa/nvm2c.c": "f759a59996e2305c3c11ee36e96954c83a4324e4656dcd04026b0e2d799fc201",
+  "src/nanoisa/nvm2c_shape.c": "8692e36ced97b954424a3f512f21b5e8f1104a8897b6b77a7c2fcc91142816ba",
+  "src/nanoisa/nvm2c_shape.h": "b738528b181bad775eed71a6633b3e6a3d1ad9900bcdbe25777402db3828c33f",
+  "tests/nanoisa/test_nvm2c_shape.c": "75a0f719d28e83fd25aaa6ca7dbef24bfd7f867cd4200141011035774f06ac05",
+  "tests/test_native_mutable_record_arrays.py": "eea4ccc5a22195342cb5610b0b89fc39ead682044d8037ec7c4bb5dc9b9a43a1",
+  "/private/tmp/nanolang-write-indexed-tools/bin/nvm2c": "80a5a48a723b26652da7238950a808e1a73d8f329957bda86d2aa5771af7b7ef",
+  "/private/tmp/nanolang-indexed-write-compiler": "599032ab1ef649c177a0d01064256bed0f0e130cbcc00f42927093de0bcc30d0",
+  "/private/tmp/nanolang-capture-ae92c0488-cow/bin/nanoc_seed.nvm": "695a24f7b1b45d1478bbfd37977bb1f358bb481f18edb948bfda1fab0aa6e708"
+}

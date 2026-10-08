@@ -412,6 +412,77 @@ static void check_function_targets(NvmShapeGraph *g, NvmShapeId shape,
     }
 }
 
+static void test_nested_array_write_facts(void) {
+    NvmShapeGraph g = {0};
+    NvmShapeId holders[2], arrays[2], fields[2], producers[2];
+    NvmShapeId callee = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+    for (size_t i = 0; i < 2; ++i) {
+        holders[i] = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+        arrays[i] = nvm_shape_child(&g, holders[i], 0);
+        CHECK(nvm_shape_unify(&g, arrays[i], nvm_shape_new(&g, NVM_SHAPE_ARRAY)));
+        NvmShapeId element = nvm_shape_child(&g, arrays[i], 0);
+        CHECK(nvm_shape_unify(&g, element, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+        fields[i] = nvm_shape_child(&g, element, 0);
+        producers[i] = nvm_shape_new(&g, NVM_SHAPE_FUNCTION);
+        CHECK(nvm_shape_function_add(&g, producers[i], (uint32_t)i + 2));
+        CHECK(nvm_shape_convert(&g, producers[i], fields[i]));
+        CHECK(nvm_shape_convert(&g, holders[i], callee));
+    }
+    CHECK(nvm_shape_solve_conversions(&g));
+    const uint32_t first[] = {2}, second[] = {3}, read_join[] = {2, 3};
+    check_function_targets(&g, fields[0], first, 1);
+    check_function_targets(&g, fields[1], second, 1);
+    NvmShapeId callee_array = nvm_shape_child(&g, callee, 0);
+    NvmShapeId read_field = nvm_shape_child(&g, nvm_shape_child(&g, callee_array, 0), 0);
+    check_function_targets(&g, read_field, read_join, 2);
+    /* I add a write after initial convergence, through another alias hop.
+     * Each caller gains that write but never the other caller's read facts. */
+    NvmShapeId forwarded = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+    CHECK(nvm_shape_array_alias(&g, callee_array, forwarded));
+    NvmShapeId written = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+    CHECK(nvm_shape_function_add(&g, nvm_shape_child(&g, written, 0), 9));
+    CHECK(nvm_shape_array_write(&g, forwarded, written));
+    CHECK(nvm_shape_solve_conversions(&g));
+    const uint32_t first_written[] = {2, 9}, second_written[] = {3, 9};
+    check_function_targets(&g, fields[0], first_written, 2);
+    check_function_targets(&g, fields[1], second_written, 2);
+    check_function_targets(&g, producers[0], first, 1);
+    check_function_targets(&g, producers[1], second, 1);
+    CHECK(nvm_shape_unify(&g, callee_array, forwarded));
+    CHECK(nvm_shape_solve_conversions(&g));
+    check_function_targets(&g, fields[0], first_written, 2);
+    check_function_targets(&g, fields[1], second_written, 2);
+    size_t count = g.count, conversions = g.conversion_count;
+    size_t aliases = g.array_alias_count, writes = g.array_write_count;
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(g.count == count && g.conversion_count == conversions);
+    CHECK(g.array_alias_count == aliases && g.array_write_count == writes);
+    nvm_shape_destroy(&g);
+    CHECK(!g.array_aliases && !g.array_writes);
+}
+
+static void test_array_write_alias_cycle(void) {
+    NvmShapeGraph g = {0};
+    NvmShapeId arrays[128];
+    for (size_t i = 0; i < 128; ++i) arrays[i] = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+    for (size_t i = 0; i < 128; ++i)
+        CHECK(nvm_shape_array_alias(&g, arrays[i], arrays[(i + 1) % 128]));
+    NvmShapeId written = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+    CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, written, 0), nvm_shape_new(&g, NVM_SHAPE_STRING)));
+    CHECK(nvm_shape_array_write(&g, arrays[0], written));
+    CHECK(nvm_shape_solve_conversions(&g));
+    for (size_t i = 0; i < 128; ++i) {
+        NvmShapeId element = nvm_shape_child(&g, arrays[i], 0);
+        CHECK(nvm_shape_kind(&g, element) == NVM_SHAPE_RECORD);
+        CHECK(nvm_shape_kind(&g, nvm_shape_child(&g, element, 0)) == NVM_SHAPE_STRING);
+    }
+    CHECK(g.array_write_count == 128);
+    size_t count = g.count, conversions = g.conversion_count;
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(g.count == count && g.conversion_count == conversions && g.array_write_count == 128);
+    nvm_shape_destroy(&g);
+}
+
 static void test_function_targets(void) {
     for (int reverse = 0; reverse < 2; ++reverse) {
         NvmShapeGraph g = {0};
@@ -670,6 +741,8 @@ int main(void) {
         CHECK(g.error != NULL);
         nvm_shape_destroy(&g);
     }
+    test_array_write_alias_cycle();
+    test_nested_array_write_facts();
     test_function_targets();
     test_deferred_array_reads();
     test_map_shapes();

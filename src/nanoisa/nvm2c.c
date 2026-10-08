@@ -1193,7 +1193,7 @@ static int classify_direct_call(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                      shape_child(b, parameter, 0), arg.rec_k, fields)) return 0;
             /* The runtime passes one mutable handle. I also carry callee
              * writes back into the caller's checked element-storage view. */
-            if (b->track_shapes && !nvm_shape_alias_view(&b->shapes, parameter, arg.shape)) return 0;
+            if (b->track_shapes && !nvm_shape_array_alias(&b->shapes, arg.shape, parameter)) return 0;
         } else if ((facts->parameters[at] == NVM2C_VK_STR || facts->parameters[at] == NVM2C_VK_INT ||
                     facts->parameters[at] == NVM2C_VK_BOOL || facts->parameters[at] == NVM2C_VK_FLOAT) &&
                    (arg.kind == facts->parameters[at] || arg.kind == NVM2C_VK_UNK)) {
@@ -2123,6 +2123,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
                 break;
             }
+            if (b->track_shapes && arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC &&
+                !nvm_shape_array_write(&b->shapes, arr.shape, val.shape)) return 0;
             int checked_record_fields = 0;
             if (arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC)
                 for (size_t f = 0; f < b->record_width; ++f)

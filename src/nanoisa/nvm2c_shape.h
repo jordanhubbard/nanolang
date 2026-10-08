@@ -24,6 +24,7 @@ typedef enum {
 typedef struct NvmShapeNode NvmShapeNode;
 typedef struct { NvmShapeId source, target; int alias_view; } NvmShapeConversion;
 typedef struct { NvmShapeId element, result; int resolved; } NvmShapeArrayRead;
+typedef struct { uint64_t *keys; size_t count, capacity; } NvmShapePairSet;
 typedef struct {
     NvmShapeNode *nodes;
     size_t count, capacity;
@@ -31,6 +32,10 @@ typedef struct {
     char error_detail[160];
     NvmShapeConversion *conversions;
     size_t conversion_count, conversion_capacity;
+    NvmShapeConversion *array_aliases, *array_writes;
+    NvmShapePairSet alias_pairs, write_pairs;
+    size_t array_alias_count, array_alias_capacity;
+    size_t array_write_count, array_write_capacity;
     NvmShapeArrayRead *array_reads;
     size_t array_read_count, array_read_capacity;
 } NvmShapeGraph;
@@ -60,6 +65,10 @@ int nvm_shape_convert(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target
 int nvm_shape_array_read(NvmShapeGraph *graph, NvmShapeId element, NvmShapeId result);
 /* I propagate a shared handle back into an existing guarded storage view. */
 int nvm_shape_alias_view(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target);
+/* I carry actual writes back through shared array handles, independently of
+ * callee read views that may join values from unrelated callers. */
+int nvm_shape_array_alias(NvmShapeGraph *graph, NvmShapeId caller, NvmShapeId callee);
+int nvm_shape_array_write(NvmShapeGraph *graph, NvmShapeId array, NvmShapeId value);
 int nvm_shape_solve_conversions(NvmShapeGraph *graph);
 
 #endif

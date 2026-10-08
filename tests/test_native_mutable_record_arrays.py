@@ -40,6 +40,7 @@ class MutableRecordArrays(unittest.TestCase):
     def test_nested_fields_after_direct_forwarded_and_indirect_mutation(self):
         source = """struct Location {file:string, line:int}
 struct Diagnostic {location:Location}
+struct Holder {items:array<Diagnostic>}
 struct Output {file:string, line:int}
 fn project(d:Diagnostic)->Output {
  return Output {file:d.location.file, line:d.location.line}
@@ -61,6 +62,12 @@ shadow forward {
  (forward a Diagnostic {location:Location {file:"abc",line:42}})
  assert (== (array_length a) 1)
 }
+fn wrapped(holder:Holder, d:Diagnostic)->void { (forward holder.items d) }
+shadow wrapped {
+ let a:array<Diagnostic> = []
+ (wrapped Holder {items:a} Diagnostic {location:Location {file:"abc",line:42}})
+ assert (== (array_length a) 1)
+}
 fn main()->int {
  let a:array<Diagnostic> = []
  let alias:array<Diagnostic> = a
@@ -74,13 +81,21 @@ fn main()->int {
 }
 shadow main { assert (== (main) 0) }
 """
-        for mutation in ['(array_push alias d)', '(add alias d)', '(forward alias d)',
-                         'let callback:fn(array<Diagnostic>, Diagnostic)->void = forward\n (callback alias d)']:
-            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory(prefix='nano-mutable-records-') as tmp:
-                work = Path(tmp)
-                path = work / 'input.nano'
-                path.write_text(source.replace('MUTATION', mutation))
-                self.execute(path, work)
+        for operation in ('push', 'set'):
+            fixture = source
+            if operation == 'set':
+                fixture = fixture.replace('let a:array<Diagnostic> = []',
+                    'let a:array<Diagnostic> = [Diagnostic {location:Location {file:"old",line:1}}]')
+                fixture = fixture.replace('(array_push a d)', '(array_set a 0 d)')
+            mutations = ['(array_push alias d)' if operation == 'push' else '(array_set alias 0 d)',
+                         '(add alias d)', '(forward alias d)', '(wrapped Holder {items:alias} d)',
+                         'let callback:fn(array<Diagnostic>, Diagnostic)->void = forward\n (callback alias d)']
+            for mutation in mutations:
+                with self.subTest(operation=operation, mutation=mutation), tempfile.TemporaryDirectory(prefix='nano-mutable-records-') as tmp:
+                    work = Path(tmp)
+                    path = work / 'input.nano'
+                    path.write_text(fixture.replace('MUTATION', mutation))
+                    self.execute(path, work)
 
     def test_existing_populated_diagnostic_formatter(self):
         with tempfile.TemporaryDirectory(prefix='nano-diagnostic-format-') as tmp:
