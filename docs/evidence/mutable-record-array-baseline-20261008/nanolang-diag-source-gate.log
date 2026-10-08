@@ -1,0 +1,7 @@
+test_existing_populated_diagnostic_formatter (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_existing_populated_diagnostic_formatter) ... ok
+test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 5.679s
+
+OK

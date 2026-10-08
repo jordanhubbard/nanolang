@@ -1,0 +1,16 @@
+{
+  "diag-direct-seed.nvm": "ea9f1254faedaa1ce3c4ff1d890634170bb34a6d8d982581579144def817c87a",
+  "regression.py": "011b8788ba66639c29ac00ba2df190b076c30a2ed9278a817dd2acccc8a19203",
+  "diag-direct.nano": "c9d7093adc5be52b7583ccbda4741ba6582b02874fe07784adf0d77061fe9407",
+  "nanolang-diag-native-gate.log": "e44ac8e3d7dda94eb60e2777534eda4d0daeb6ddb5da8df9625f0e27bb0880da",
+  "diag-helper-self.nvm": "16654570e84ad099c65c32cd13fefec676ac02e2adcccfbd76b3489d6556e5b1",
+  "README.md": "d24ef94dc578c12e9df6bf6fc8441cfa22f73112d024e3fbaf5d1bf4c8dbce70",
+  "nanolang-diag-tool-build.log": "f4a775a4433c499664e636b63e2b07499d4d56dff9e062014aaf6c92e70cb7bc",
+  "nanolang-diag-source-baseline.log": "67fc7849f67850fdccd2438ada6adf5a3ae85a22d53846f0946d6250908cc77a",
+  "diag-direct-self.nvm": "9cfee058b13a51f34022fc60c141031967dcb89b3a5d25c2d1a644ffab992c1a",
+  "rejected-equality.patch": "a416eb869a319c2cdb18dc19f99d13d4ef3d20af289c0dc371a014faa115d661",
+  "archived-reproduction.log": "47af50cf1e57f4eb4d0f1e30c809b8382ed7fb74247e1205fc7e72b3bfde2ad0",
+  "diag-helper-seed.nvm": "e972496b31a0d372ee3ac84331bb7dc3dc5675464aa763873e36208107286c42",
+  "nanolang-diag-source-gate.log": "f73077145eaf18dc4e2c066e29f8e84f8d20b4e0ae92eb63c0a9ffd77dda7876",
+  "diag-helper.nano": "07430b5e45a8689b7c90c202e7d8d7d62292370d2b1e19388ea90a88c2037442"
+}

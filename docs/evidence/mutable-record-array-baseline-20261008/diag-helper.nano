@@ -1,0 +1,16 @@
+struct Loc {file:string,line:int}
+struct Diag {loc:Loc}
+struct Out {file:string}
+fn pack(d:Diag)->Out { return Out {file:d.loc.file} }
+shadow pack {assert (== (pack Diag {loc:Loc {file:"abc",line:2}}).file "abc")}
+fn add(a:array<Diag>,d:Diag)->void {(array_push a d)}
+shadow add {let a:array<Diag> = []
+ (add a Diag {loc:Loc {file:"abc",line:2}})
+ assert (== (array_length a) 1)}
+fn main()->int {let a:array<Diag> = []
+ (add a Diag {loc:Loc {file:"abc",line:2}})
+ let d:Diag = (at a 0)
+ let o:Out = (pack d)
+ assert (== o.file "abc")
+return 0}
+shadow main {assert (== (main) 0)}
