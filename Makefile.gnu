@@ -2948,20 +2948,20 @@ test-dynamic-trace: $(INTERPRETER) $(COMPILER)
 userguide-export: build $(USERGUIDE_CHECK_TOOL)
 	@perl -e 'alarm $(TEST_TIMEOUT); exec @ARGV; die "I cannot execute the requested command: $$!\n"' $(USERGUIDE_CHECK_TOOL) --export tests/user_guide
 
-# Test with MAC task integration (requires the `mac` CLI to be installed)
+# Test with GitHub issue integration (requires the `gh` CLI to be installed)
 # Use this for local development when you want automatic task tracking
-test-with-mac: build
+test-with-github: build
 	@echo ""
-	@echo "🎯 Testing with C REFERENCE compiler (nanoc_c) + MAC task tracking"
+	@echo "🎯 Testing with C REFERENCE compiler (nanoc_c) + GitHub issue tracking"
 	@echo ""
 	@rm -f $(COMPILER)
 	@ln -sf nanoc_c $(COMPILER)
 	@echo ""
-	@# Auto-file mac tasks on failures.
-	@# Local default: per-failure tasks. CI default: summary task.
+	@# Auto-file GitHub issues on failures.
+	@# Local default: per-failure issues. CI default: summary issue.
 	@MODE=per; \
 	if [ -n "$$CI" ]; then MODE=summary; fi; \
-	$(TIMEOUT_CMD) python3 scripts/automac.py --tests --mode $$MODE --close-on-success --timeout-seconds $${NANOLANG_TEST_TIMEOUT_SECONDS:-480}
+	$(TIMEOUT_CMD) python3 scripts/autogithub.py --tests --mode $$MODE --close-on-success --timeout-seconds $${NANOLANG_TEST_TIMEOUT_SECONDS:-480}
 	@# Restore proper link based on bootstrap status
 	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ -f $(NANOC_STAGE2) ]; then \
 		rm -f $(COMPILER); \
@@ -4121,7 +4121,7 @@ help:
 	@echo "  make vm                 - Build NanoISA VM backend (nano_virt, nano_vm, nano_cop, nano_vmd, nanoisa, nvm2c)"
 	@echo "  make bootstrap          - TRUE 3-stage bootstrap (GCC-style)"
 	@echo "  make test               - Build + run all tests (auto-detect best compiler)"
-	@echo "  make test-mac           - Run tests; on failures, auto-create/update mac tasks"
+	@echo "  make test-github        - Run tests; on failures, auto-create/update GitHub issues"
 	@echo ""
 	@echo "Module Dependencies:"
 	@echo "  make modules            - Check what dependencies are needed (no sudo)"
@@ -4143,7 +4143,7 @@ help:
 	@echo "  make examples-stage2    - Explicitly build/use nanoc_stage1 for examples"
 	@echo "  make examples-stage3    - Explicitly build/use nanoc_stage2 for examples"
 	@echo "  make examples EXAMPLES_BACKEND=c|native|nanoisa|vm EXAMPLES_COMPILER_STAGE=c|stage2|stage3"
-	@echo "  make examples-mac       - Build examples; on failures, auto-create/update mac tasks"
+	@echo "  make examples-github    - Build examples; on failures, auto-create/update GitHub issues"
 	@echo "  make launcher           - Launch example browser"
 	@echo "  make clean              - Remove all artifacts"
 	@echo "  make rebuild            - Clean + build"
@@ -4283,18 +4283,18 @@ help:
 	@echo ""
 	@echo "After bootstrap: bin/nanoc → nanoc_stage2 (self-hosted compiler)"
 
-# Aliases for test-with-mac
-test-mac: test-with-mac
+# Aliases for test-with-github
+test-github: test-with-github
 
-examples-mac:
-	@$(TIMEOUT_CMD) python3 scripts/automac.py --examples
+examples-github:
+	@$(TIMEOUT_CMD) python3 scripts/autogithub.py --examples
 
-# CI-friendly: one summary task per run (per branch), auto-closed when green
-test-mac-ci:
-	@$(TIMEOUT_CMD) python3 scripts/automac.py --tests --mode summary --close-on-success
+# CI-friendly: one summary issue per run (per branch), auto-closed when green
+test-github-ci:
+	@$(TIMEOUT_CMD) python3 scripts/autogithub.py --tests --mode summary --close-on-success
 
-examples-mac-ci:
-	@$(TIMEOUT_CMD) python3 scripts/automac.py --examples --mode summary --close-on-success
+examples-github-ci:
+	@$(TIMEOUT_CMD) python3 scripts/autogithub.py --examples --mode summary --close-on-success
 	@echo ""
 	@echo "Sentinels:"
 	@echo "  .stage{1,2,3}.built - Component build"
@@ -5768,3 +5768,16 @@ test-record-array-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(R
 .PHONY: test-native-mutable-record-arrays
 test-native-mutable-record-arrays: nano_virt nano_vm nvm2c nvm2c-runtime
 	python3 -m unittest tests.test_native_mutable_record_arrays
+
+# I retain old entry points; all reporting uses GitHub Issues.
+.PHONY: test-with-github test-github examples-github test-github-ci examples-github-ci test-with-mac test-mac examples-mac test-mac-ci examples-mac-ci
+test-with-mac test-mac: test-with-github
+examples-mac: examples-github
+test-mac-ci: test-github-ci
+examples-mac-ci: examples-github-ci
+
+.PHONY: test-github-issues
+test-github-issues:
+	python3 -m unittest -v tests.test_github_issue_tracking
+
+test-quick test-units: test-github-issues
