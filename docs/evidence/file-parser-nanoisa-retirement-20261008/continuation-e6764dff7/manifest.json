@@ -1,0 +1,24 @@
+{
+  "bootstrap_evidence": "docs/evidence/file-parser-nanoisa-retirement-20261008/full-de98e6c5a/bootstrap.json",
+  "source_commit": "e6764dff70d77a3138cab409c8761d978bd8e618",
+  "initial_status": "?? tests/user_guide/refresh_language_pure_function.nano",
+  "user_sha256": "c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976",
+  "command": [
+    "make",
+    "-j2",
+    "-o",
+    "bootstrap3",
+    "test-file-service-parser",
+    "CC=/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "PATH": "/opt/homebrew/opt/llvm/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+  "initial_free_bytes": 68582682624,
+  "runner_pid": 74839,
+  "make_pid": 74874,
+  "exit_code": 2,
+  "elapsed_seconds": 34.959434624994174,
+  "final_commit": "e6764dff70d77a3138cab409c8761d978bd8e618",
+  "final_status": "?? tests/user_guide/refresh_language_pure_function.nano",
+  "final_user_sha256": "c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976",
+  "final_free_bytes": 68546088960
+}
