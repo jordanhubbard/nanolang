@@ -1,49 +1,58 @@
 # NanoLang worker coordination
 
 Updated 2026-10-08 by the Darwin release worker, Codex session
-01a118d7-e6a1-79d1-ba73-c1c266da7eb0. The user reports another worker on a
-separate machine and requests coordination through Git while MAC is unavailable
-there. This is an ownership announcement; the other worker has not acknowledged it.
+01a118d7-e6a1-79d1-ba73-c1c266da7eb0. I coordinate through Git at the user's
+request. The remote worker has not acknowledged this handoff.
 
-## Darwin ownership
+## Published checkpoints
 
-Branch: release/5.1-completion-20261007. PR: #974.
-Published source pin: ae92c0488ed44da0112f7eb51367a9976054b16a.
+My implementation branch is `release/5.1-completion-20261007`, PR #974.
+Its current pushed pin is `f761e48e8`. The full compiler-product gate at
+`1321b8bdf` passes all 109 methods. HEAD and tracked sources stay unchanged;
+only the user's untracked test remains, with an unchanged hash.
 
-The pushed checkpoint covers lexical closure capture emission, imported and
-immediately invoked anonymous functions, and checked conversion of tagged array
-values in native record-array fields. Owned files:
+My separate `fix/5.1-retire-legacy-globals-20261008` branch is at `35abdee6b`.
+The checker correction at `b76b33a53` passes a clean raw bootstrap: Stage1
+and Stage2 are byte-identical, 492,432 bytes, SHA256
+`a729c1d528ecd8dc29621583fa2da855df6a4ff0f3433817512c03657213642c`.
+I will integrate it into the release branch after my current tests finish.
 
-- src_nano/compiler/nanoisa_codegen.nano
-- src_nano/parser.nano
-- src/parser.c
-- src/typechecker.c
-- src/nanoisa/nvm2c.c
-- tests/test_selfhost_captures.py
-- tests/test_native_record_array_tagged_fields.py
-- related closure and native-array entries in docs/ROADMAP.md
+A full source-snapshot rerun remains live in an isolated checkout pinned to
+`f0f6a0c62`. Its prior disk-full failures are not closed until terminal results.
 
-The checkpoint passes 82 callable/capture/CLI/product/scope/signature methods,
-2,431 native checks, 2,553 shape constraints and 379 callable constraints.
-Evidence is in docs/evidence/selfhost-capture-lowering-20261008 on the implementation
-branch. A clean full compiler-product gate is running at the exact published pin;
-fresh raw bootstrap equality and complete release qualification remain open.
-I additionally changed Makefile.gnu and tests/test_one_ir_compiler.py to run the
-new controls in both compiler-product routes. Preserve tests/user_guide/refresh_language_pure_function.nano as user work.
+## Current ownership
 
-Only /Users/jordanh/Src/nanolang remains registered as a local worktree. Prior
-cleanup recovery data remains under .git/worktree-cleanup/20261007-171119.
-Temporary compiler qualification clones/artifacts are still needed.
+I retain the previously announced closure/parser/checker/native translator,
+shape solver, compiler-phase schema/generated callers, bootstrap component,
+Makefile and compiler-product test ownership. I also own `src/module_builder.c`
+and its source-snapshot/link-response tests for the Darwin linker correction.
+
+I am migrating `tests/selfhost_shadow_emitter.nano` and
+`tests/test_native_shadow_emitter.py` onto NanoISA emission and native/VM
+execution, with related edits in `src_nano/compiler/nanoisa_codegen.nano` and
+Make prerequisites. The first run exposes missing opaque-null lowering. My
+correction retains the original behavioral corpus and rejects nonzero or wrong
+opaque arguments; the full migrated suite passes 12 methods. Added forwarding
+and driver publication controls and the core codegen gate are running. These
+migration changes are not yet committed or accepted as full release coverage.
+
+The legacy emitter still has other live callers and tests requiring migration.
+I have not reduced the release scope or claimed release readiness.
+
+## Checkout preservation
+
+`/Users/jordanh/Src/nanolang` remains the primary checkout. Preserve
+`tests/user_guide/refresh_language_pure_function.nano` as user work. Cleanup
+recovery remains under `.git/worktree-cleanup/20261007-171119`.
+My temporary sparse worktree `/private/tmp/nanolang-retirement-20261008` retains
+bootstrap binaries and their absolute host-library paths. Do not remove it or
+other qualification artifacts while they are still referenced.
 
 ## Remote worker handoff
 
-Please fetch this coordination branch and reply with your machine/session,
-working branch, source pin, owned files/tasks, test status, and intended
-integration target. Reply on PR #974 or add your own handoff file to this branch
-using a normal fast-forward push. Do not force-push this shared branch.
-
-Keep implementation on separate branches. Coordinate overlapping files before
-editing or merging; the Darwin worker retains the files listed above pending an
-explicit handoff. Other workers can independently qualify a published exact pin
-on Linux and report that pin with their evidence, but this is a proposal until
-acknowledged, not an assignment of an unknown worker's existing task.
+Please reply on PR #974 or add your own handoff file here with machine/session,
+branch and source pin, task/file ownership, tests and intended integration
+target. Keep implementation on separate branches and coordinate overlapping
+files before integration. Use a normal fast-forward push on this shared branch.
+Linux qualification of a published exact pin would help, but this is a proposal
+until acknowledged, not an assignment of an unknown worker's task.
