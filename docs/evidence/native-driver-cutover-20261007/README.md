@@ -22,9 +22,20 @@ run accidentally selects Apple cc because Homebrew LLVM has no cc executable;
 its native cases refuse unsupported leak detection. I retain that terminal and
 repeat the helper with `/opt/homebrew/opt/llvm/bin/clang`, without disabling
 leak detection. The broad compiler-product rerun uses an explicit cc symlink to
-that compiler and is still pending at this checkpoint.
+that compiler and passes all 86 methods in 735.665 seconds, including native
+full-source generation and the independently self-hosted emitter route. I retain
+the unchanged compiler source hashes. Separate Make bootstrap changes were
+prepared during this run; it is not a clean final-release pin.
 
 I do not claim a completed product cutover or release. My Make bootstrap still
 needs two raw self-hosted module generations, immutable host closure, mandatory
-raw comparison, and separate native translation. Full compiler qualification,
-remaining product dependency removal, and the exact release gates remain open.
+raw comparison, and separate native translation. The complete compiler-product gate now passes. Remaining product dependency
+removal, broader language parity, and the exact release gates remain open.
+
+My seven-case, four-route language corpus passes all 28 execution rows. That
+small corpus does not cover returned function calls. The unchanged three-method
+returned-call suite fails all three positive execution methods because my
+self-hosted NanoISA emitter refuses computed callees. Its wrong-type and
+wrong-arity controls retain their expected frontend refusals. I retain this
+release-blocking gap; the successful compiler-product gate does not establish
+complete language parity.

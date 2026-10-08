@@ -15,12 +15,37 @@
     "product.log": "3ae6826654d55214bb039e87d20ac0c3085d6eca6f98500bd576220d8ef9b7ef",
     "publication.log": "4a0c927c7d2044ee076720e98f9195a2ce0928f43faac413889880218ff32538",
     "bootstrap-dependencies.log": "91a09c6e66b80dc2047af5eff3f384ea1ce108db2b1bbf401a75cdf4612ba47f",
-    "translator-and-apple-lsan.log": "51b98816672b39c2d628bf11c6760fbe71ffa67e7daf441c5b179c40ab55e87e"
+    "translator-and-apple-lsan.log": "51b98816672b39c2d628bf11c6760fbe71ffa67e7daf441c5b179c40ab55e87e",
+    "returned-calls.log": "7c8ac41eb130aa662d79a644eb6175fb581ba9c474b36db728f0c82ea6da68d1",
+    "language-contract.log": "9dfc5c48b8a7f3ae5af1fcb2a551994fce5b19e8b840250b79ad5960df01455c"
   },
   "driver_binary": {
     "path": "/private/tmp/nanolang-driver-cutover-current",
     "sha256": "3e081d8ea76c5190cc606b8a7c5220ee5155e0a33f9e1b647a6e7c49cddff559"
   },
   "publication_sanitizer_compiler": "/opt/homebrew/opt/llvm/bin/clang",
-  "qualification": "I qualify the driver from C-seed bytecode. I have not yet replaced the Make bootstrap or qualified the full cutover fixed point."
+  "qualification": "I qualify the driver from C-seed bytecode. I have not yet replaced the Make bootstrap or qualified the full cutover fixed point.",
+  "full_compiler_product": {
+    "source_product_commit": "48ce36fec",
+    "command": "make -j2 test-one-ir-compiler",
+    "cc_path": "/private/tmp/nanolang-cutover-llvm-tools/cc",
+    "cc_resolved": "/opt/homebrew/opt/llvm/bin/clang",
+    "cc_sha256": "570c488e53383b198796e706e91b5ce5ec45bb730683a5af5e822d56a2eb1888",
+    "tests": 86,
+    "seconds": 735.665,
+    "exit_code": 0,
+    "log_sha256": "c48baa0eca51d4c31c31184ee13078108cdfe74b1dc8dae4fb7f2de58b0296c5",
+    "boundary": "I ran against unchanged compiler source while preparing separate Make bootstrap changes. This is not a clean final-release pin."
+  },
+  "additional_language_checks": {
+    "language_contract": {
+      "rows": 28,
+      "failed": 0
+    },
+    "returned_calls": {
+      "methods": 3,
+      "failed": 3,
+      "diagnostic": "computed function calls are outside the NanoISA subset"
+    }
+  }
 }
