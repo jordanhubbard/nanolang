@@ -1,0 +1,18 @@
+{
+  "command": [
+    "make",
+    "-j2",
+    "-o",
+    "stage1",
+    "test-typechecker",
+    "test-env-scoping",
+    "CC=/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "source_sha256": {
+    "src/typechecker.c": "230ab301e4fcf369e605f934fa7ad49e001288a1a2f053021493352b1288d7f0",
+    "tests/test_genenv_scope.py": "71bf99a3cb4656fbc58f7421e365e3f845c47ff99499b260c3d9fd90120b9c75",
+    "tests/test_one_ir_compiler.py": "e300b429a6ebb8b32b4d7edbf9891caa2138b1101b257c4186fdd0b158017651"
+  },
+  "rebuilt_typechecker_object_sha256": "1b565f83e55fe066e336f5569f51b18daa38b0061143e9cdba00aa558a71122e",
+  "exit_code": 0
+}

@@ -32,3 +32,11 @@ test-typechecker test-env-scoping test-callee-snapshots gate is running and
 includes a fresh compiler bootstrap. Its source inputs remain unchanged;
 this development tree has pending documentation and test edits during the run.
 Canonical integration, Linux and final release qualification remain open.
+
+My direct C unit gate passes the typechecker and environment suites plus all
+ten Python lexical-boundary methods (19.380 seconds for the latter). Command:
+`make -j2 -o stage1 test-typechecker test-env-scoping
+CC=/opt/homebrew/opt/llvm/bin/clang`. I deliberately omit the stage1 prerequisite
+for this separate C-object check while the original full bootstrap remains
+live. I do not count this as bootstrap completion. The source hashes match
+my committed correction and I retain the rebuilt typechecker object hash.
