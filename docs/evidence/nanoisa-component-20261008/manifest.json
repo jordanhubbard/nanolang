@@ -1,0 +1,32 @@
+{
+  "base_commit": "4520b10a5",
+  "exit_codes": {
+    "qualified.log": 0,
+    "make-gate.log": 0,
+    "build.log": 0,
+    "vm.log": 0,
+    "translate.log": 0,
+    "cc.log": 0,
+    "native.log": 0,
+    "profile-build.log": 0,
+    "profile-run.log": 0,
+    "profile-entry.log": 0
+  },
+  "source_sha256": {
+    "Makefile.gnu": "88fdad4c4246e0de83045f4f839d25811137f1f7f5ff9f6c058b5108814fc932",
+    "src_nano/nanoisa_driver.nano": "38c4f95588e8a3c4a65d4b87107a0bbb0a273e3e82e6fe75be2183708cff1549",
+    "tests/test_bootstrap_components.py": "29d6013973091ccec089caf24118422b5a7433e032249a47b770a8541778b473"
+  },
+  "log_sha256": {
+    "profile-build.log": "62e69a3df5c1c369dd248e45d7193d2ed4a6d7a1608d9e1492074b615cd1b76f",
+    "cc.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "profile-run.log": "45313dc9011b610973fe47e4e0b2b63ba5ed1eef0b1c041d7476c0d12df888b5",
+    "native.log": "541addd4c74b881f03ea0b4fe7a4f88430eb8e1457c9c16b8eadb733f99bdedd",
+    "profile-entry.log": "541addd4c74b881f03ea0b4fe7a4f88430eb8e1457c9c16b8eadb733f99bdedd",
+    "translate.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "make-gate.log": "690cbc0b30d797ed902a4cbb0328a51aa3dffdc61fa6c9806809a9e6ddabad1c",
+    "vm.log": "541addd4c74b881f03ea0b4fe7a4f88430eb8e1457c9c16b8eadb733f99bdedd",
+    "qualified.log": "73ff0625d9dc77366352be5c7c6fa58fd37daf300b60a60d67f8e26f9975612b",
+    "build.log": "569951394b127d2897b37f8ba982fb6befeccf62cf785255e2f4bc5c144d31e4"
+  }
+}

@@ -24,3 +24,12 @@ pass; the Linux-only cache suite skips four methods on Darwin. Its still-running
 source-snapshot phase reports errors. I must inspect its final diagnostics and
 rerun the failed qualification after the resource condition is resolved; I do
 not attribute every failure to disk pressure without checking its evidence.
+
+My completed `9790d9a91` checkout now shares identical evidence-file storage
+with the real checkout through APFS clonefile. I compare tracked blob identities
+and verify source bytes before replacing each duplicate, then verify the old
+checkout remains clean. `dedup.json` records the completed operation and disk
+recovery; host libraries and their paths remain intact. My clean retry at
+`ae92c0488` now passes all 109 compiler-product methods; its terminal archive is
+`../compiler-product-ae92c0488`. The separate source-snapshot terminal remains
+pending and is not covered by that successful gate.

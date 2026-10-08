@@ -252,7 +252,7 @@ INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nano_main.
 SELFHOST_COMPONENTS = \
 	parser \
 	typecheck \
-	transpiler
+	nanoisa_emitter
 
 # Header dependencies
 SCHEMA_JSON = schema/compiler_schema.json
@@ -527,6 +527,10 @@ AOT_RUNTIME_OBJECTS = $(OBJ_DIR)/runtime/dyn_array.o $(OBJ_DIR)/runtime/gc.o $(O
 nvm2c-runtime: $(BIN_DIR)/nano_aot_runtime.o
 $(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
 	$(CC) -r -nostdlib -o $@ $(AOT_RUNTIME_OBJECTS)
+
+.PHONY: test-bootstrap-components
+test-bootstrap-components: nano_virt nano_vm nvm2c nvm2c-runtime
+	@python3 -m unittest tests.test_bootstrap_components
 
 .PHONY: test-one-ir-compiler
 test-one-ir-compiler: $(COMPILER_C) nano_virt nvm2c nanoisa_dump nano_vm nvm2c-runtime
@@ -3157,7 +3161,7 @@ test-build-toolchain:
 	@python3 -m unittest tests.test_make_toolchain
 
 .PHONY: test-bootstrap-dependencies
-test-bootstrap-dependencies:
+test-bootstrap-dependencies: test-bootstrap-components
 	@python3 -m unittest tests.test_bootstrap_source_dependencies tests.test_bootstrap_messages tests.test_bootstrap_nanoisa tests.test_bootstrap_tools
 
 .PHONY: test-make-header-dependencies
@@ -3611,7 +3615,7 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1) $(SELFHOST_SOURCES) Makefile.gnu
 		src="$$comp"; \
 		if [ "$$comp" = "parser" ]; then src="parser_driver"; fi; \
 		if [ "$$comp" = "typecheck" ]; then src="typecheck_driver"; fi; \
-		if [ "$$comp" = "transpiler" ]; then src="transpiler_driver"; fi; \
+		if [ "$$comp" = "nanoisa_emitter" ]; then src="nanoisa_driver"; fi; \
 		out="$(BIN_DIR)/$$comp"; \
 		log="$(BOOTSTRAP_TMPDIR)/nanolang_stage2_$$comp.log"; \
 		echo "  Building $$comp..."; \
@@ -3830,7 +3834,8 @@ bootstrap-status:
 # ================================================
 # Profiled Bootstrap (Self-Analysis)
 # ================================================
-# Build profiled versions of compiler components and analyze performance.
+# I use the C seed's diagnostic -pg instrumentation on the current compiler
+# components; my product backend remains NanoISA.
 # This creates _p suffixed binaries with profiling enabled, runs them on
 # real workloads, and outputs LLM-ready JSON for hotspot analysis.
 
@@ -3839,7 +3844,7 @@ bootstrap-status:
 # Profiled binaries
 PARSER_P = $(BIN_DIR)/parser_p
 TYPECHECK_P = $(BIN_DIR)/typecheck_p
-TRANSPILER_P = $(BIN_DIR)/transpiler_p
+NANOISA_P = $(BIN_DIR)/nanoisa_emitter_p
 
 bootstrap-profile: build
 	@echo ""
@@ -3850,16 +3855,16 @@ bootstrap-profile: build
 	@echo "Building profiled compiler components..."
 	@echo ""
 	@# Build profiled parser
-	@echo "  [1/4] Building parser_p..."
-	@$(TIMEOUT_CMD) $(COMPILER) $(SRC_NANO_DIR)/parser_driver.nano -o $(PARSER_P) -pg 2>&1 | tail -3
+	@echo "  [1/3] Building parser_p..."
+	@$(TIMEOUT_CMD) $(COMPILER_C) $(SRC_NANO_DIR)/parser_driver.nano -o $(PARSER_P) -pg
 	@echo ""
 	@# Build profiled typecheck
-	@echo "  [2/4] Building typecheck_p..."
-	@$(TIMEOUT_CMD) $(COMPILER) $(SRC_NANO_DIR)/typecheck_driver.nano -o $(TYPECHECK_P) -pg 2>&1 | tail -3
+	@echo "  [2/3] Building typecheck_p..."
+	@$(TIMEOUT_CMD) $(COMPILER_C) $(SRC_NANO_DIR)/typecheck_driver.nano -o $(TYPECHECK_P) -pg
 	@echo ""
-	@# Build profiled transpiler  
-	@echo "  [3/4] Building transpiler_p..."
-	@$(TIMEOUT_CMD) $(COMPILER) $(SRC_NANO_DIR)/transpiler_driver.nano -o $(TRANSPILER_P) -pg 2>&1 | tail -3
+	@# Build profiled NanoISA emitter
+	@echo "  [3/3] Building nanoisa_emitter_p..."
+	@$(TIMEOUT_CMD) $(COMPILER_C) $(SRC_NANO_DIR)/nanoisa_driver.nano -o $(NANOISA_P) -pg
 	@echo ""
 	@echo "=========================================="
 	@echo "Running profiled components..."
@@ -3868,17 +3873,17 @@ bootstrap-profile: build
 	@# Run profiled parser
 	@echo ">>> PROFILING: parser_p on self (parser.nano)"
 	@echo "-------------------------------------------"
-	@$(PARSER_P) 2>&1 || true
+	@$(PARSER_P) 2>&1
 	@echo ""
 	@# Run profiled typecheck
 	@echo ">>> PROFILING: typecheck_p on self (typecheck.nano)"
 	@echo "-------------------------------------------"
-	@$(TYPECHECK_P) 2>&1 || true
+	@$(TYPECHECK_P) 2>&1
 	@echo ""
-	@# Run profiled transpiler
-	@echo ">>> PROFILING: transpiler_p on self (transpiler.nano)"
+	@# Run profiled NanoISA emitter
+	@echo ">>> PROFILING: nanoisa_emitter_p on self (compiler/nanoisa_codegen.nano)"
 	@echo "-------------------------------------------"
-	@$(TRANSPILER_P) 2>&1 || true
+	@$(NANOISA_P) 2>&1
 	@echo ""
 	@echo "=========================================="
 	@echo "✅ Bootstrap Profile Complete"
