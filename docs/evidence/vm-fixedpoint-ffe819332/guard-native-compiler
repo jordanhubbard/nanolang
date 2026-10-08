@@ -1,0 +1,69 @@
+#!/usr/local/bin/python3
+config = {'compiler': ['cc'], 'native_sources': ['/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/modules/compiler_support/compiler_support.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/module_builder.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/runtime/module_build_dir.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/cJSON.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/utf8.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/modules/nanoisa/nanoisa.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/isa.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/retained_layouts.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/passive.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/affine_bytecode.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/affine_state.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/mixed_float_proof.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/ownership_contracts.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/reference_places.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/file_flow.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/service_file_nominal.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/service_file_nominal_plan.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/service_bindings.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/service_bindings_module.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nsi_file_plan.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/nvm_format.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/nvm_format_v2.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/nvm_v2_cursor.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/nvm_v2_constants.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/nvm_v2_signatures.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/nvm_v2_layouts.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/nvm_v2_functions.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/nvm_v2_imports.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/nvm_v2_module.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/nvm_v2_convert.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/local_bindings.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/assembler.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/disassembler.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/verifier.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/managed_array_shapes.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanoisa/verifier_types.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanovm/vm_decode.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanovm/vm_dispatch.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanovm/value.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanovm/heap.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/src/nanovm/heap_cycles.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/modules/std/fs.c', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/modules/std/process.c'], 'retained_host_inputs': '/private/tmp/nanolang-5.1-fixedpoint-ffe819332-evidence/retained-host-inputs.json', 'module_build_roots': ['/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/modules/compiler_support/.build', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/modules/nanoisa/.build', '/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/modules/std/.build'], 'native_marker': '/private/tmp/nanolang-5.1-fixedpoint-ffe819332-evidence/unexpected-native-compiler', 'probe_log': '/private/tmp/nanolang-5.1-fixedpoint-ffe819332-evidence/host-cache-probes.log'}
+"""I distinguish native host artifact work from NanoLang-generated C in bootstrap checks."""
+import json
+import os
+import sys
+from pathlib import Path
+
+
+def retained_input_names(name, metadata):
+    """I admit only declared source snapshots and the builder's host objects."""
+    names = [f'{name}.o']
+    for group, key in enumerate(('c_sources', 'shared_c_sources')):
+        count = len(metadata.get(key, []))
+        for index in range(count):
+            names.extend(f'__snapshot_{group}_{index}.{suffix}' for suffix in ('i', 's'))
+            names.append(f'__shared_{index}.o' if group else
+                         f'{name}.o' if count == 1 else f'{name}_{index}.o')
+    return sorted(set(names))
+
+
+def main(config):
+    args = sys.argv[1:]
+    probe = any(arg in ('-E', '-###', '-print-prog-name=as', '--version',
+                                  '-Wl,--version', '-Wl,-version_details') for arg in args)
+    active = os.environ.get('NANOLANG_BOOTSTRAP_NO_CC') == '1'
+
+    def host_input(value):
+        path = Path(value).resolve()
+        if str(path) in config['native_sources']:
+            return True
+        retained_file = config.get('retained_host_inputs')
+        if retained_file and Path(retained_file).exists():
+            retained = json.loads(Path(retained_file).read_text())
+            stage = path.parent
+            if (stage.name.startswith('.nano-build-') and
+                    path.name in retained.get(str(stage.parent), [])):
+                return True
+        if any(path.is_relative_to(Path(root)) for root in config['module_build_roots']):
+            return True
+        # The module builder compiles retained native-host inputs here while
+        # validating its cache. Product/shadow C uses a different staging area.
+        return any(part.startswith('nano-gcc-check-') for part in path.parts)
+
+    if active:
+        inputs = []
+        skip = False
+        for arg in args:
+            if skip:
+                skip = False
+                continue
+            if arg in ('-o', '-MF', '-MT', '-MQ'):
+                skip = True
+                continue
+            if not arg.startswith('-') and Path(arg).suffix in ('.c', '.i', '.s', '.S', '.o', '.a'):
+                inputs.append(arg)
+        primary = os.environ.get('NANO_AS_CAPTURE_PRIMARY')
+        if primary:
+            inputs.append(primary)
+        if not probe and (not inputs or not all(host_input(value) for value in inputs)):
+            with open(config['native_marker'], 'a') as log:
+                log.write(json.dumps({'message': 'I rejected unclassified compiler work.',
+                                      'inputs': inputs, 'options': [arg for arg in args if arg.startswith('-')]}) + '\n')
+            sys.exit(91)
+        with open(config['probe_log'], 'a') as log:
+            log.write('host-cache-probe\n' if probe else 'native-host-artifact\n')
+    os.execvp(config['compiler'][0], config['compiler'] + args)
+
+main(config)

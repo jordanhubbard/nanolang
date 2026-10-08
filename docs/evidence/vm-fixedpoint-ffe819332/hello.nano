@@ -1,0 +1,2 @@
+fn main() -> int { assert (== (+ 19 23) 42) return 0 }
+shadow main { assert (== (main) 0) }
