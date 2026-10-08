@@ -3486,8 +3486,12 @@ static bool module_link_response_safe(const ModuleBuildMetadata *meta, const Mod
     char word[4096];
     int status;
     while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0) {
-        if (!strchr(word, '@')) continue;
-        if (word[0] != '@') return false;
+        if (word[0] != '@') {
+            /* I distinguish literal path characters (openssl@3) from a
+             * response operand forwarded directly to the linker. */
+            if (!strncmp(word, "-Wl,", 4) && strstr(word, ",@")) return false;
+            continue;
+        }
         if (link_word[0] && !strcmp(word, link_word)) continue;
         bool found = false;
         for (size_t group = 0; group < 3 && !found; group++) {

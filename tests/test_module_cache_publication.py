@@ -116,6 +116,37 @@ class ModuleCachePublication(unittest.TestCase):
                 self.probe_path("build", module, env)
                 self.assertEqual(self.probe_path("directory", module, env), generation)
 
+    @unittest.skipUnless(sys.platform == "darwin", "I have integrated Darwin linker records")
+    def test_linker_at_sign_paths_reuse_and_invalidate(self):
+        with tempfile.TemporaryDirectory(prefix="nano-link-at-sign-") as tmp:
+            directory = Path(tmp).resolve()
+            module, _, env = self.support.foreign_build_fixture(directory)
+            dependency = directory / "dependency@3"
+            dependency.mkdir()
+            member, obj = dependency / "member.c", dependency / "member.o"
+            archive = dependency / "libselected.a"
+            (module / "answer.c").write_text("extern long long selected(void);\n"
+                "long long nano_build_answer(void) { return selected(); }\n")
+            (module / "module.json").write_text(json.dumps({"name": "answer_native",
+                "c_sources": ["answer.c"], "cflags": ["-I" + shlex.quote(str(dependency))],
+                "ldflags": ["-L" + shlex.quote(str(dependency)), "-lselected"]}))
+            previous = None
+            for answer in (42, 43):
+                member.write_text(f"long long selected(void) {{ return {answer}; }}\n")
+                for command in (["cc", "-fPIC", "-c", str(member), "-o", str(obj)],
+                                ["ar", "rcs", str(archive), str(obj)]):
+                    result = subprocess.run(command, capture_output=True, timeout=10)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                self.probe_path("build", module, env)
+                generation = self.probe_path("directory", module, env)
+                self.assertTrue((generation / "source_hashes.json").is_file())
+                self.assertEqual(self.library_answer(self.probe_path("library", module, env)), answer)
+                if previous:
+                    self.assertNotEqual(previous, generation)
+                self.probe_path("build", module, env)
+                self.assertEqual(self.probe_path("directory", module, env), generation)
+                previous = generation
+
     def test_private_cleanup_never_follows_symlinks(self):
         for kind in ("regular", "root-symlink", "entry-symlink", "directory", "fifo", "swap"):
             with self.subTest(kind=kind), tempfile.TemporaryDirectory(prefix="nano-cleanup-") as tmp:

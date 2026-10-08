@@ -2425,6 +2425,8 @@ done:
     return ok;
 }
 
+/* I pass internal records by address and copy inputs into invocation-owned
+ * locals. Caller-owned result slots avoid hidden C ABI copies at each call. */
 static void emit_prototype(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                            const uint8_t *kinds) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
@@ -2448,14 +2450,17 @@ static void emit_prototype(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     }
     char name[64];
     fn_c_name(mod, idx, name, sizeof name);
-    nvm2c_printf(b, "static %s %s(", rt, name);
-    if (fn->arity == 0) {
+    int record_result = fn->result_count == 1 && aggregate_value_tag(fn->result_tag);
+    nvm2c_printf(b, "static %s %s(", record_result ? "void" : rt, name);
+    if (record_result) nvm2c_puts(b, "nrec_t *nresult");
+    if (fn->arity == 0 && !record_result) {
         nvm2c_puts(b, "void");
     } else {
         uint16_t i;
         for (i = 0; i < fn->arity; i++) {
-            if (i) nvm2c_puts(b, ", ");
-            nvm2c_printf(b, "%s a%u", c_local_type(fn_local_kind(b, kinds, idx, i)), (unsigned)i);
+            if (i || record_result) nvm2c_puts(b, ", ");
+            uint8_t kind = fn_local_kind(b, kinds, idx, i);
+            nvm2c_printf(b, "%s a%u", kind == NVM2C_VK_REC ? "const nrec_t *" : c_local_type(kind), (unsigned)i);
         }
     }
     nvm2c_puts(b, ");\n");
@@ -2582,7 +2587,7 @@ static int stack_push_rec(Nvm2cBuf *b, Nvm2cStack *st, const char *rhs) {
         return -1;
     }
     int r = st->next_rec++;
-    nvm2c_printf(b, "    r[%d] = %s;\n", r, rhs);
+    if (rhs) nvm2c_printf(b, "    r[%d] = %s;\n", r, rhs);
     st->slots[st->sp] = r;
     st->kinds[st->sp] = NVM2C_VK_REC;
     st->sp++;
@@ -3070,22 +3075,28 @@ static int emit_self_tail_restart(Nvm2cBuf *b, Nvm2cStack *st, uint32_t idx,
         nvm2c_fail(b, "self TAIL_CALL leaves extra stack values");
         return 0;
     }
+    /* I snapshot record addresses in the operand pool, which is disjoint
+     * from local storage, before parallel parameter assignment and reset. */
     nvm2c_puts(b, "    {\n");
     for (uint16_t i = 0; i < fn->arity; ++i) {
         uint8_t kind = fn_local_kind(b, kinds, idx, i);
-        nvm2c_printf(b, "        %s tc%u = %s[%d];\n", c_local_type(kind),
-                     (unsigned)i, stack_array_name(kind), args[i]);
+        nvm2c_printf(b, "        %s tc%u = %s%s[%d];\n",
+                     kind == NVM2C_VK_REC ? "const nrec_t *" : c_local_type(kind),
+                     (unsigned)i, kind == NVM2C_VK_REC ? "&" : "", stack_array_name(kind), args[i]);
     }
     for (uint16_t i = 0; i < fn->arity; ++i) {
         char local[32];
         local_operand(local, b, kinds, idx, i);
-        nvm2c_printf(b, "        %s = tc%u;\n", local, (unsigned)i);
+        nvm2c_printf(b, "        %s = %stc%u;\n", local,
+                     fn_local_kind(b, kinds, idx, i) == NVM2C_VK_REC ? "*" : "", (unsigned)i);
     }
     for (uint16_t i = fn->arity; i < fn->local_count; ++i) {
         uint8_t kind = fn_local_kind(b, kinds, idx, i);
         char local[32];
         local_operand(local, b, kinds, idx, i);
-        if (kind == NVM2C_VK_STR)
+        if (kind == NVM2C_VK_REC)
+            nvm2c_printf(b, "        memset(&%s, 0, sizeof %s);\n", local, local);
+        else if (kind == NVM2C_VK_STR)
             nvm2c_printf(b, "        %s = \"\";\n", local);
         else
             nvm2c_printf(b, "        %s = (%s){0};\n", local, c_local_type(kind));
@@ -3096,7 +3107,7 @@ static int emit_self_tail_restart(Nvm2cBuf *b, Nvm2cStack *st, uint32_t idx,
 
 static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
                              uint32_t idx, uint32_t callee, const uint8_t *kinds,
-                             char *call, size_t call_sz) {
+                             char *call, size_t call_sz, int tail) {
     if (callee >= mod->function_count) {
         nvm2c_fail(b, "function %u: CALL target %u is out of range", idx, callee);
         return 0;
@@ -3118,14 +3129,25 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
     char cname[64];
     fn_c_name(mod, callee, cname, sizeof cname);
     size_t pos = 0;
-    int written = snprintf(call, call_sz, "%s(", cname);
+    int record_result = cf->result_count == 1 && aggregate_value_tag(cf->result_tag);
+    char output[40] = "";
+    if (record_result) {
+        if (tail) snprintf(output, sizeof output, "nresult");
+        else {
+            int result = stack_push_rec(b, st, NULL);
+            if (result < 0) return 0;
+            snprintf(output, sizeof output, "&r[%d]", result);
+        }
+    }
+    int written = snprintf(call, call_sz, "%s(%s", cname, output);
     if (written < 0 || (size_t)written >= call_sz) {
         nvm2c_fail(b, "I cannot fit the native call name"); return 0;
     }
     pos = (size_t)written;
     for (uint16_t a = 0; a < cf->arity; a++) {
-        written = snprintf(call + pos, call_sz - pos, "%s%s[%d]",
-                           a ? ", " : "", stack_array_name(argk[a]), args[a]);
+        written = snprintf(call + pos, call_sz - pos, "%s%s%s[%d]",
+                           a || record_result ? ", " : "", argk[a] == NVM2C_VK_REC ? "&" : "",
+                           stack_array_name(argk[a]), args[a]);
         if (written < 0 || (size_t)written >= call_sz - pos) {
             nvm2c_fail(b, "function %u: CALL argument list overflow", idx);
             return 0;
@@ -3187,13 +3209,16 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     char name[64];
     uint16_t i;
     fn_c_name(mod, idx, name, sizeof name);
-    nvm2c_printf(b, "static %s %s(", rt, name);
-    if (fn->arity == 0) {
+    int record_result = fn->result_count == 1 && aggregate_value_tag(fn->result_tag);
+    nvm2c_printf(b, "static %s %s(", record_result ? "void" : rt, name);
+    if (record_result) nvm2c_puts(b, "nrec_t *nresult");
+    if (fn->arity == 0 && !record_result) {
         nvm2c_puts(b, "void");
     } else {
         for (i = 0; i < fn->arity; i++) {
-            if (i) nvm2c_puts(b, ", ");
-            nvm2c_printf(b, "%s a%u", c_local_type(fn_local_kind(b, kinds, idx, i)), (unsigned)i);
+            if (i || record_result) nvm2c_puts(b, ", ");
+            uint8_t kind = fn_local_kind(b, kinds, idx, i);
+            nvm2c_printf(b, "%s a%u", kind == NVM2C_VK_REC ? "const nrec_t *" : c_local_type(kind), (unsigned)i);
         }
     }
     nvm2c_puts(b, ") {\n    (void)ni64_from_bits;\n");
@@ -3211,7 +3236,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (i < fn->arity) {
                 char local[32];
                 local_operand(local, b, kinds, idx, i);
-                nvm2c_printf(b, "    %s = a%u;\n", local, (unsigned)i);
+                nvm2c_printf(b, "    %s = *a%u;\n", local, (unsigned)i);
             }
             continue;
         }
@@ -4701,7 +4726,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (b->has_owned_strings || b->has_owned_aggregates)
                 nvm2c_puts(b, "    nmap_collect_if_needed();\n");
             char call[NVM2C_CALL_SIZE];
-            if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call)) {
+            if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call, 0)) {
                 goto done;
             }
             const NvmFunctionEntry *cf = &mod->functions[callee];
@@ -4725,9 +4750,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                            b->record_width);
                 }
             } else if (cf->result_count == 1 && aggregate_value_tag(cf->result_tag)) {
-                int result = stack_push_rec(b, &st, call);
-                if (result >= 0) memcpy(st.rec_k[result], result_fields + (size_t)callee * b->record_width,
-                                        b->record_width);
+                int result = st.slots[st.sp - 1];
+                nvm2c_printf(b, "    %s;\n", call);
+                memcpy(st.rec_k[result], result_fields + (size_t)callee * b->record_width,
+                       b->record_width);
             } else {
                 nvm2c_printf(b, "    %s;\n", call);
             }
@@ -4753,14 +4779,16 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 break;
             }
             char call[NVM2C_CALL_SIZE];
-            if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call)) {
+            if (!build_direct_call(b, &st, mod, idx, callee, kinds, call, sizeof call, 1)) {
                 goto done;
             }
             if (st.sp != 0) {
                 nvm2c_fail(b, "function %u: TAIL_CALL leaves extra stack values", idx);
                 goto done;
             }
-            if (fn->result_count == 1 &&
+            if (record_result) {
+                nvm2c_printf(b, "    %s;\n    goto L_return;\n", call);
+            } else if (fn->result_count == 1 &&
                 (result_is_i64(fn) || fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM || fn->result_tag == TAG_FLOAT || fn->result_tag == TAG_STRING ||
                  fn->result_tag == TAG_ARRAY || aggregate_value_tag(fn->result_tag) || fn->result_tag == TAG_HASHMAP)) {
                 nvm2c_printf(b, "    nresult = %s;\n    goto L_return;\n", call);
@@ -4834,7 +4862,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_fail(b, "I cannot return an aggregate with extra stack values");
                     goto done;
                 }
-                nvm2c_printf(b, "    if (r[%d].kind != %u) NVM2C_ABORT();\n    nresult = r[%d];\n    goto L_return;\n",
+                nvm2c_printf(b, "    if (r[%d].kind != %u) NVM2C_ABORT();\n    *nresult = r[%d];\n    goto L_return;\n",
                              record, aggregate_kind_for_tag(fn->result_tag), record);
             } else {
                 if (st.sp != 0) {
@@ -4939,7 +4967,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     if (b->has_maps) nvm2c_puts(b, "    nroot_head = nroots.prev; nroot_destroy(&nroots.live);\n");
     nvm2c_puts(b, "    free(r);\n");
     if (record_locals) nvm2c_puts(b, "    free(rl);\n");
-    nvm2c_puts(b, strcmp(rt, "void") ? "    return nresult;\n}\n\n" : "    return;\n}\n\n");
+    nvm2c_puts(b, !record_result && strcmp(rt, "void") ? "    return nresult;\n}\n\n" : "    return;\n}\n\n");
 
     if (b->failed) goto done;
     /* Prescan targets also include skipped jumps. Keep every join decision,
@@ -4974,7 +5002,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             nvm2c_fail(b, "I cannot format temporary declarations");
             goto done;
         }
-        if (strcmp(rt, "void")) {
+        if (!record_result && strcmp(rt, "void")) {
             int extra = snprintf(declarations + count, sizeof declarations - (size_t)count,
                                  "    %s nresult = {0};\n", rt);
             if (extra < 0 || (size_t)extra >= sizeof declarations - (size_t)count) {

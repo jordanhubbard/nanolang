@@ -1,0 +1,13 @@
+I checked build evidence: phase=publish-preprocessing expected=13552550392887978274 observed=13552550392887978274 accepted=1
+I checked build evidence: phase=publish-context expected=3208573106597625279 observed=3208573106597625279 accepted=1
+I checked build evidence: phase=record-dependencies expected=1 observed=1 accepted=1
+I checked build evidence: phase=record-link-inputs expected=1 observed=0 accepted=0
+I cannot establish complete dependency evidence; I will rebuild this module next time
+artifact=/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/modules/compiler_support/.build/.nano-gen-L9chCS/libcompiler_support.dylib
+I checked build evidence: phase=reuse-record expected=1 observed=0 accepted=0
+I checked build evidence: phase=publish-preprocessing expected=13552550392887978274 observed=13552550392887978274 accepted=1
+I checked build evidence: phase=publish-context expected=3208573106597625279 observed=3208573106597625279 accepted=1
+I checked build evidence: phase=record-dependencies expected=1 observed=1 accepted=1
+I checked build evidence: phase=record-link-inputs expected=1 observed=0 accepted=0
+I cannot establish complete dependency evidence; I will rebuild this module next time
+artifact=/private/tmp/nanolang-5.1-fixedpoint-7dc131e44/modules/compiler_support/.build/.nano-gen-1sRBhS/libcompiler_support.dylib
