@@ -8,9 +8,9 @@ there. This is an ownership announcement; the other worker has not acknowledged 
 ## Darwin ownership
 
 Branch: release/5.1-completion-20261007. PR: #974.
-Published source pin: 2388a9220faa9ef6fb828f9c18836618fb7ac062.
+Published source pin: ae92c0488ed44da0112f7eb51367a9976054b16a.
 
-Current uncommitted work covers lexical closure capture emission, imported and
+The pushed checkpoint covers lexical closure capture emission, imported and
 immediately invoked anonymous functions, and checked conversion of tagged array
 values in native record-array fields. Owned files:
 
@@ -23,10 +23,13 @@ values in native record-array fields. Owned files:
 - tests/test_native_record_array_tagged_fields.py
 - related closure and native-array entries in docs/ROADMAP.md
 
-The new focused tests are not yet fully passing. These uncommitted changes are
-not release-qualified or ready for another worker to integrate. The earlier
-published checkpoint has separate evidence; do not attribute it to this dirty
-source. Preserve tests/user_guide/refresh_language_pure_function.nano as user work.
+The checkpoint passes 82 callable/capture/CLI/product/scope/signature methods,
+2,431 native checks, 2,553 shape constraints and 379 callable constraints.
+Evidence is in docs/evidence/selfhost-capture-lowering-20261008 on the implementation
+branch. A clean full compiler-product gate is running at the exact published pin;
+fresh raw bootstrap equality and complete release qualification remain open.
+I additionally changed Makefile.gnu and tests/test_one_ir_compiler.py to run the
+new controls in both compiler-product routes. Preserve tests/user_guide/refresh_language_pure_function.nano as user work.
 
 Only /Users/jordanh/Src/nanolang remains registered as a local worktree. Prior
 cleanup recovery data remains under .git/worktree-cleanup/20261007-171119.
