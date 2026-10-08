@@ -51,3 +51,9 @@ the original tool handle and do not invent an outer Make exit status. I archive
 the receipt, each step log and the available terminal in `bootstrap`. Compiler
 source hashes match; documentation/test commits made this a development run,
 not a clean final-release checkout.
+
+My full compiler-product gate at `7b9d9ecb7` now exits zero. The manifest
+records unchanged HEAD and the preserved user's test hash. Both fresh compiler
+routes include the lexical acceptance suite. I retain the complete terminal,
+runner and manifest in `full-7b9d9ecb7`; this passes the integrated product gate,
+not the remaining File parser corpus, Linux or final release requirements.
