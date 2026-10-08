@@ -47,7 +47,9 @@ of the entire generated compiler.
   separately. The new no-VM assertion control also passes separately.
 - `make -j2 -o nvm2c test-nvm2c` passes 2,431 structured-C checks and its
   prerequisites, including 1,448 shape checks. `-o nvm2c` retains the just-built
-  translator during concurrent independent tests; it omits no test.
+  translator during concurrent independent tests; it omits no test. A separate
+  strict Clang build of the shape suite also passes all 1,448 checks under
+  ASan/UBSan/LSan.
 - The original C-seed native compiler-product method passes in 48.232 seconds.
   Its native compiler build uses the method's unchanged strict C11 flags and
   `-O0`; I do not describe that product method as a sanitizer run.
@@ -62,3 +64,19 @@ singular Make target; the corrected plural target and owning core gate pass.
 MAC task discovery and both filing attempts return `[Errno 1] Operation not
 permitted`. I retain product work in my roadmap and do not claim external task
 filing succeeded. GitHub API access is intermittent; Git fetch succeeds.
+
+## My remaining self-hosted failure
+
+The fresh original `test_selfhost_emitted_compiler_to_native_nanoisa_product`
+method fails in 356.166 seconds. It builds the seed compiler, then that seed
+refuses compiler-bytecode publication after selected shadow execution reaches
+the unchanged ten-second deadline. This reproduces the previous checkpoint's
+separate failure; it is not a translation or native-code-generation pass.
+I retain the exact terminal in `deferred-read-selfhost-product.log` and preserve
+the seed locally at `/tmp/nanolang-5.1-20261007/deferred-read-selfhost-seed` for
+further diagnosis. I have not disabled shadows or increased their deadline.
+
+My implementation and initial evidence are pushed as `89f3f2e1b` on draft
+[PR 974](https://github.com/jordanhubbard/nanolang/pull/974). Hosted checks for
+that source are still running. My local passing gates do not establish complete
+platform qualification or authorize a release claim.

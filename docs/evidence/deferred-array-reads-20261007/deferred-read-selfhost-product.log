@@ -1,0 +1,27 @@
+test_selfhost_emitted_compiler_to_native_nanoisa_product (tests.test_one_ir_compiler.OneIrCompiler.test_selfhost_emitted_compiler_to_native_nanoisa_product)
+I execute my canonical emitter before translating its compiler product. ... FAIL
+
+======================================================================
+FAIL: test_selfhost_emitted_compiler_to_native_nanoisa_product (tests.test_one_ir_compiler.OneIrCompiler.test_selfhost_emitted_compiler_to_native_nanoisa_product)
+I execute my canonical emitter before translating its compiler product.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_one_ir_compiler.py", line 373, in test_selfhost_emitted_compiler_to_native_nanoisa_product
+    self.run_checked([seed, ROOT / "src_nano/nanoc_v06.nano", "--emit-nvm",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "-o", module], timeout=600, extra_env=helper_env)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_one_ir_compiler.py", line 129, in run_checked
+    self.assertEqual(process.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+                     f"I failed {args[0]}\n" + (stdout + stderr).decode(errors="replace")[-6000:])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I failed /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-selfhost-native-product-0k5qdjp9/seed
+I will not publish bytecode after failed shadows
+I stopped shadow execution after 10 seconds
+
+
+----------------------------------------------------------------------
+Ran 1 test in 356.166s
+
+FAILED (failures=1)

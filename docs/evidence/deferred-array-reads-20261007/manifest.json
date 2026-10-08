@@ -13,7 +13,7 @@
   "translator_sha256": "5ad28de466e079c9ca16aae1cef6e76b063cee07867d0b4dff02a66ef44cf938",
   "host_cc": "Homebrew clang version 23.1.1\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /opt/homebrew/Cellar/llvm/23.1.1/bin\nConfiguration file: /opt/homebrew/Cellar/llvm/23.1.1/etc/clang/arm64-apple-darwin25.cfg\n",
   "files_sha256": {
-    "README.md": "6d21f3393dd9b40defd98e107b22e00d3d8adac2ed28545871d24eab37463a0d",
+    "README.md": "632c434a0f959b5b9255e09f79a27c8f8c8d5e7183e171eaacc95c88adab8b12",
     "deferred-read-1.nasm": "19be71663157a881e3b5792cc515d3dfb988386c2172ede954f5071acc6ca809",
     "deferred-read-2.nasm": "4aefb1b339b840cc82f109cd70e00da0252a6d0afd110aaceeb046503739b6ef",
     "deferred-read-3.nasm": "3fe42f7b486feab81dfe0eca8e990c65599e442e9676da243bcbe22d35db2f93",
@@ -28,10 +28,13 @@
     "deferred-read-final-core.log": "d8811cec39b4b22c4161949b45bf12637948d05b3ad72dedf1f4280f425f93fb",
     "deferred-read-focused.log": "0e2fa5f68a548b3257df16fe2aada107e186cab439076b3ab8a09e559c87cabd",
     "deferred-read-product-corrected.log": "bf9756e9a5daab7edbf438d4d65ee68fad4eaaa1aa6a803c801c0a4c6f26e4e9",
+    "deferred-read-selfhost-product.log": "f3e7c4efb4cf5163879145c1959dbcae1f3b500742a00ff316f4cd06a94dc1bc",
+    "deferred-read-shapes-sanitized.log": "2c3c7ff27f278834e3e3e492cf54c7e75ef177f9514fa88e70e20b04af49459f",
     "initial-shape-command.txt": "5514241fad331cb11c257423f7a9f6246cbea0fbc3ebf941e3f2a1d7dbc79882",
     "literal-assertion-failure.txt": "0d4bfab23c24ece61ff5b8f7ff7869670ba42bc6c01cdc857f605091f7e979c5",
     "no-vm-oracle.log": "144aea5b60c7b98ef1b4e0c5aac0bfd2cf75ddb2123f112713c584ebe5f0b401",
     "read-union-trace.log": "76c7d6f6035ca2b7ff0f924ee4f7bd169583059e7f6d75915171498525afa56b",
     "record-return-trace.log": "289314a1f1b30d68731b2dde7e05a28af48db1ecbb1ca176a3c63e5269df5fba"
-  }
+  },
+  "selfhost_seed_sha256": "822d68dcdc4cb1caa97d41b9ec6e908844d49e632f86ca079f5c210a3742f6aa"
 }
