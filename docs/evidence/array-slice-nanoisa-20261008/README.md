@@ -18,3 +18,17 @@ The emitted native path and fresh compiler parity are not yet qualified.
 
 I retain the old helper-extraction test until backend-appropriate coverage
 replaces every boundary, including null input behavior.
+
+## My first lowering candidate
+
+My C-seed-built emitter driver completes its build and shadows (exit zero).
+My new four-method component suite runs seven positive source cases through
+NanoVirt and the actual self-hosted emitter, then verifies and executes VM
+output before requesting sanitized native translation. It also checks four
+invalid-operand refusals. The component terminal has fourteen failed subcases:
+native translation rejects ARR_SLICE; self-hosted byte-array and nested-array
+cases refuse before translation. The invalid-operand method passes.
+
+I retain candidate source hashes and the complete terminal. This is an
+implementation checkpoint with demonstrated remaining gaps, not qualification.
+The original helper-extraction test remains intact.
