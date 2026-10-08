@@ -1,0 +1,33 @@
+{
+  "source_commit": "b76b33a534ad1a04beccfc45f9d8df6280a331d6",
+  "root": "/private/tmp/nanolang-retirement-20261008",
+  "command": [
+    "make",
+    "-j2",
+    "bootstrap",
+    "CC=/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "initial_status": "clean",
+  "sparse_checkout": "/*\n!/docs/evidence/",
+  "exit_code": 0,
+  "seconds": 670.0998922910076,
+  "final_status": "",
+  "head_unchanged": true,
+  "log_sha256": "ad4de59f81770b791902ad80ec201833e7074f9f1eac881b8bd25645f54a1138",
+  "nanoc_seed.nvm": {
+    "bytes": 518664,
+    "sha256": "c8cd68706a723cd79a63f7ff6931a223d64466436266f3428071fb7d1970edd0"
+  },
+  "nanoc_stage1.nvm": {
+    "bytes": 492432,
+    "sha256": "a729c1d528ecd8dc29621583fa2da855df6a4ff0f3433817512c03657213642c"
+  },
+  "nanoc_stage2.nvm": {
+    "bytes": 492432,
+    "sha256": "a729c1d528ecd8dc29621583fa2da855df6a4ff0f3433817512c03657213642c"
+  },
+  "nanoc_bootstrap.json": {
+    "bytes": 106946,
+    "sha256": "fb9f2464e37aa331f9ff04727cf8337d320f1d066b6ab294f7119cd2ccdba410"
+  }
+}

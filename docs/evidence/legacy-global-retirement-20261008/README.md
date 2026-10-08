@@ -23,7 +23,12 @@ the sparse worktree's exact checker source; other dependencies come from the
 unchanged `1321b8bdf` primary tree. My manifest records every command, status
 and duration; `inputs.json` records changed-source and tool hashes. This is
 component evidence, not a claim that the new product compiler bootstraps.
-Full raw bootstrap and integration remain open.
+My clean sparse-checkout raw bootstrap at `b76b33a53` now passes in
+670.100 seconds, with unchanged HEAD and clean tracked source. Stage1 and
+Stage2 are byte-identical: 492,432 bytes, SHA256
+`a729c1d528ecd8dc29621583fa2da855df6a4ff0f3433817512c03657213642c`.
+I retain the full gate, runner, terminal manifest and bootstrap receipt.
+Integration and final release-candidate qualification remain open.
 
 My broader retirement audit still finds direct legacy emitter imports in
 `compiler_modular.nano`, `driver.nano`, `transpiler_driver.nano`, the extern
