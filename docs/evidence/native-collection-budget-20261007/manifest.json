@@ -1,0 +1,17 @@
+{
+  "base_commit": "ffe819332687525b291cc234aea44782468b4bde",
+  "source_sha256": {
+    "src/nanoisa/nvm2c.c": "ed54f1c189a72d88a85807a9b6e2d1f48959d12cb9a542e0bc30b487197c8d4a",
+    "tests/test_native_map_byte_debt.py": "b2d6fde85026f0f4e1637ee738af5dd32d35f229f65f68fe7eecdda676402c76"
+  },
+  "full_sample_sha256": "424d863a15205ea14d40118fff0f4f5b469af7768cbf253ba09aab13b91dd268",
+  "translator_sha256": "d76a563fc51a790077b41dfb92f549fc3777800db3049d8fa753ad1f48505f30",
+  "evidence_sha256": {
+    "native-compiler-sample.txt": "07a0b82ead987dadac7d64e2b5391e17b465735a064fbcc3a95b4dadfd802c0c",
+    "scheduling.log": "404ce6c1cd67b7fd42c046083233afc60f02092278242f32322e71dda5b0cda6",
+    "adjacent.log": "e2dc99ffa1488f838ea8035b3c0a77ea12a5950eadfea0a23959b9a487bd8f97",
+    "README.md": "9322b45a736144d7b338423ed5d234fbbc7ff02230edeacba3ba27785838866b",
+    "mixed-baseline.log": "c4265438586c15b136b8cc44eb9dcbb1d6937699366dd3f8e2b958da5b2b7f19",
+    "focused.log": "7b2a9277b9925806beb5794611cc2fdf5b2df2938fee4e9fa1b4ddb4cc0c49e9"
+  }
+}

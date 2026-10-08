@@ -1,0 +1,13 @@
+test_accounting_rejects_wrap_and_underflow (tests.test_native_map_byte_debt.NativeMapByteDebt.test_accounting_rejects_wrap_and_underflow) ... ok
+test_combined_string_map_and_record_debt_preserves_aliases (tests.test_native_map_byte_debt.NativeMapByteDebt.test_combined_string_map_and_record_debt_preserves_aliases) ... ok
+test_copied_reads_batch_large_live_graph (tests.test_native_map_byte_debt.NativeMapByteDebt.test_copied_reads_batch_large_live_graph) ... ok
+test_map_storage_growth_replacement_and_forced_release (tests.test_native_map_byte_debt.NativeMapByteDebt.test_map_storage_growth_replacement_and_forced_release) ... ok
+test_small_map_debt_amortizes_over_retained_aggregates (tests.test_native_map_byte_debt.NativeMapByteDebt.test_small_map_debt_amortizes_over_retained_aggregates) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 2.219s
+
+OK
+all families scans=1 visits=10004 retained=2097484 allocated=4196113
+scans=0 visits=0 map_peak_bytes=230288
+mixed scans=2 visits=20008 retained=2097504 allocated=4195016 peak=2097796

@@ -5157,7 +5157,6 @@ static void emit_nstr_storage(Nvm2cBuf *b) {
         "typedef struct nstr_owned { struct nstr_owned *next; size_t bytes; char data[]; } nstr_owned;\n"
         "static nstr_owned *nstr_owners;\n"
         "static size_t nstr_live_bytes, nstr_peak_bytes, nstr_allocation_debt;\n"
-        "static size_t nstr_collection_budget = 65536;\n"
         "static char *nstr_try_allocate(size_t n) {\n"
         "    if (n > SIZE_MAX - sizeof(nstr_owned) - 1) return NULL;\n"
         "    size_t bytes = sizeof(nstr_owned) + n + 1;\n"
@@ -5186,7 +5185,7 @@ static void emit_nstr_storage(Nvm2cBuf *b) {
         "static void nstr_release_owned(void) {\n"
         "    while (nstr_owners) { nstr_owned *owner = nstr_owners;\n"
         "        nstr_owners = owner->next; free(owner); }\n"
-        "    nstr_live_bytes = 0; nstr_allocation_debt = 0; nstr_collection_budget = 65536;\n}\n");
+        "    nstr_live_bytes = 0; nstr_allocation_debt = 0;\n}\n");
 }
 
 static void emit_nstr_sweep(Nvm2cBuf *b) {
@@ -5200,7 +5199,6 @@ static void emit_nstr_sweep(Nvm2cBuf *b) {
         "        else { *link = owner->next; nstr_live_bytes -= owner->bytes; free(owner); }\n"
         "    }\n"
         "    nstr_allocation_debt = 0;\n"
-        "    nstr_collection_budget = nstr_live_bytes > 65536 ? nstr_live_bytes : 65536;\n"
         "}\n");
 }
 
@@ -5302,7 +5300,6 @@ static void emit_nstr_from_f64(Nvm2cBuf *b) {
 static void emit_nagg_accounting(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static size_t nagg_live_bytes, nagg_peak_bytes, nagg_allocation_debt;\n"
-        "static size_t nagg_collection_budget = 65536;\n"
         "static inline void nagg_add(size_t bytes) {\n"
         "    if (bytes > SIZE_MAX - nagg_live_bytes || bytes > SIZE_MAX - nagg_allocation_debt) NVM2C_ABORT();\n"
         "    nagg_live_bytes += bytes; nagg_allocation_debt += bytes;\n"
@@ -5341,8 +5338,7 @@ static void emit_nagg_sweep(Nvm2cBuf *b, int snapshots) {
         "        else { *strings = owner->next; nagg_drop(owner->bytes); free(owner->data); free(owner); }\n"
         "    }\n");
     nvm2c_puts(b,
-        "    nagg_allocation_debt = 0;\n"
-        "    nagg_collection_budget = nagg_live_bytes > 65536 ? nagg_live_bytes : 65536;\n}\n");
+        "    nagg_allocation_debt = 0;\n}\n");
 }
 
 static void emit_narr_storage(Nvm2cBuf *b) {
@@ -6796,7 +6792,11 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             );
             if (b.has_owned_strings) emit_nstr_sweep(&b);
             if (b.has_owned_aggregates) emit_nagg_sweep(&b, module_has_opcode(mod, OP_AGG_PACK));
-            nvm2c_puts(&b, "static void nmap_collect(void) {\n    nroot_list work = {0};\n"
+            nvm2c_puts(&b,
+                "static inline size_t nheap_bytes_sum(size_t a, size_t z) {\n"
+                "    if (z > SIZE_MAX - a) NVM2C_ABORT();\n"
+                "    return a + z;\n}\n"
+                "static void nmap_collect(void) {\n    nroot_list work = {0};\n"
                 "    for (nroot_frame *f = nroot_head; f; f = f->prev)\n"
                 "        for (size_t i = 0; i < f->live.count; ++i)\n"
                 "            nroot_add(&work, f->live.items[i].kind, f->live.items[i].ptr);\n");
@@ -6807,16 +6807,23 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (b.has_owned_aggregates) nvm2c_puts(&b, "    nagg_sweep(&work);\n");
             nvm2c_puts(&b, "    nroot_destroy(&work); nmap_sweep();\n"
                 "    nmap_allocation_debt = 0;\n"
-                "    nmap_collection_budget = nmap_live_bytes > 65536 ? nmap_live_bytes : 65536;\n}\n"
-                "/* I trace fresh mutable edges for map debt or an owned byte budget.\n"
+                "    size_t retained = nheap_bytes_sum(0, nmap_live_bytes);\n");
+            if (b.has_owned_strings)
+                nvm2c_puts(&b, "    retained = nheap_bytes_sum(retained, nstr_live_bytes);\n");
+            if (b.has_owned_aggregates)
+                nvm2c_puts(&b, "    retained = nheap_bytes_sum(retained, nagg_live_bytes);\n");
+            nvm2c_puts(&b,
+                "    nmap_collection_budget = retained > 65536 ? retained : 65536;\n}\n"
+                "/* I amortize a complete graph scan over all surviving owner storage.\n"
+                " * Small owner families cannot independently trigger repeated scans of large ones.\n"
                 " * Without allocation, dropped owners wait for the next allocating safepoint. */\n"
                 "static inline void nmap_collect_if_needed(void) {\n"
-                "    if (nmap_allocation_debt >= nmap_collection_budget");
+                "    size_t debt = nheap_bytes_sum(0, nmap_allocation_debt);\n");
             if (b.has_owned_strings)
-                nvm2c_puts(&b, " || nstr_allocation_debt >= nstr_collection_budget");
+                nvm2c_puts(&b, "    debt = nheap_bytes_sum(debt, nstr_allocation_debt);\n");
             if (b.has_owned_aggregates)
-                nvm2c_puts(&b, " || nagg_allocation_debt >= nagg_collection_budget");
-            nvm2c_puts(&b, ") nmap_collect();\n}\n");
+                nvm2c_puts(&b, "    debt = nheap_bytes_sum(debt, nagg_allocation_debt);\n");
+            nvm2c_puts(&b, "    if (debt >= nmap_collection_budget) nmap_collect();\n}\n");
         }
         if (need_concat) emit_nstr_concat(&b);
         if (need_substr) emit_nstr_substr(&b);
