@@ -40,3 +40,14 @@ CC=/opt/homebrew/opt/llvm/bin/clang`. I deliberately omit the stage1 prerequisit
 for this separate C-object check while the original full bootstrap remains
 live. I do not count this as bootstrap completion. The source hashes match
 my committed correction and I retain the rebuilt typechecker object hash.
+
+The original broad gate now completes all recorded bootstrap commands and the
+checker/environment/callee tests. Its receipt proves unchanged compiler sources
+and raw-identical Stage1/Stage2: 493,360 bytes, SHA256
+`7b14ba424f9f6724f9fc84cba68668e2ef7667d86edd9062b40ebb8f0b308eec`.
+All 17 receipt steps exit zero. The terminal records passing C checker and
+environment suites, two callee tests, and ten lexical-boundary methods. I lost
+the original tool handle and do not invent an outer Make exit status. I archive
+the receipt, each step log and the available terminal in `bootstrap`. Compiler
+source hashes match; documentation/test commits made this a development run,
+not a clean final-release checkout.
