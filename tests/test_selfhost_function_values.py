@@ -1,4 +1,4 @@
-"""I execute self-hosted function values in NanoVM; native parity has its own gate."""
+"""I execute the same self-hosted function-value assertions in VM and native products."""
 import os
 from pathlib import Path
 import shlex
@@ -13,6 +13,7 @@ VM = ROOT / 'bin/nano_vm'
 
 
 class VMReturnedCalls(returned_calls.ReturnedCalls):
+    product_options = ['--emit-nvm']
     # I reuse the original execution/ordering/refusal assertions with an explicit
     # VM launcher. This does not replace or skip the original native tests.
     def compile(self, source, directory):
@@ -107,7 +108,7 @@ shadow main { assert (== (main) 0) }
                                   'shadow identity { assert (== (identity 7) 7) }\n'
                                   'fn main()->int{' + statement + '}\nshadow main { assert true }\n')
                 output.write_bytes(b'prior module\x00')
-                result = subprocess.run([COMPILER, source, '--emit-nvm', '-o', output],
+                result = subprocess.run([COMPILER, source, *self.product_options, '-o', output],
                                         cwd=ROOT, capture_output=True, timeout=120)
                 self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
                 self.assertEqual(output.read_bytes(), b'prior module\x00')
@@ -127,6 +128,11 @@ shadow main { assert (== (main) 0) }
             result = subprocess.run([launcher], capture_output=True, timeout=15)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertEqual(result.stdout, b'42\n')
+
+
+class NativeReturnedCalls(VMReturnedCalls):
+    product_options = []
+    compile = returned_calls.ReturnedCalls.compile
 
 
 if __name__ == '__main__':

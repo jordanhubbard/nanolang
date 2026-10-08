@@ -2,8 +2,9 @@
 
 I must preserve function identity through NanoISA-to-C translation before I can
 execute the returned-call programs on my native product route. My source lowering
-already emits `FUNCREF` and `CALL_INDIRECT`. My native translator still lacks their
-classification and emission; this constraint layer does not close that gap.
+emits `FUNCREF` and `CALL_INDIRECT`. My native translator now classifies named
+function values and emits checked native dispatch for locals, globals, parameters
+and returned functions. Function-valued container storage remains open.
 
 ## Representation
 
@@ -47,22 +48,38 @@ indirect calls. Without a reference producer it adds no target evidence, and I
 retain the existing classifier refusal. I preserve analysis storage through
 classification/emission and release it on success or failure.
 
-This pass does not validate argument value tags, admit native storage types,
-resolve closures/imported callable handles, or emit calls. Other values begin as
-unknown target provenance; a target set does not authorize an integer to act as
-a function. My native classifier must consume the completed sets and retain all
-ordinary type, ownership and signature checks. Unresolved call sites remain
-unresolved, rather than gaining every function with the same arity.
+My target-analysis pass does not itself validate argument value tags, admit
+native storage types, resolve closures/imported callable handles, or emit calls.
+Other values begin as unknown target provenance; a target set does not authorize
+an integer to act as a function. Unresolved call sites remain unresolved, rather
+than gaining every function with the same arity.
 
-## Connection still required
+## Native storage and dispatch
 
-For each indirect call I must validate every retained target's arity, result count
-and argument/result representations; propagate arguments and returned values; and
-include referenced functions in required-function reachability. My native emission
-must evaluate the callee and arguments once, dispatch with a checked target ID,
-and preserve the same record pointer ABI, frame roots and cleanup as direct calls.
-A function-valued result must preserve its own targets for later calls. Unresolved
-or incompatible target evidence must fail translation with prior output intact.
+I use a distinct native function kind with a tagged `nmap_value` payload. Locals,
+arguments and results preserve tag 11 and the module-local function index. I
+check a dynamically tagged callable before dispatch and abort if its index is
+outside that call site's proved target set. Ordinary integers cannot become
+functions by sharing the same numeric payload. Non-owning function IDs do not
+enter heap-root registration; record, array, string and map arguments retain
+ordinary caller and callee roots.
+
+I classify every retained target through the shared direct-call classifier,
+require compatible result signatures, and retain function references in required
+function reachability. Emission reuses the direct-call builder and its record
+pointer ABI. Each switch arm has its own argument conversions and direct C call;
+I preserve the already evaluated callee and arguments and join results into one
+native temporary. Exclusive arms reuse temporary indices while retaining their
+maximum storage requirement. Returned records use the completed output shape
+for subsequent field operations.
+
+My native function-value cases now execute successfully, including void results,
+functions returned through other functions, contextual byte/array/record
+arguments, imported aliases and mutation of a global callee during argument
+evaluation. I still require function-valued record fields and array elements to
+pass the producer and native container paths. My C seed and VM accept the retained
+container fixture, but those two product paths currently refuse it. Closures and
+other open release requirements also remain necessary.
 
 My acceptance remains the unchanged three native returned-call methods, the eight
 VM methods, typed negative controls, VM/native aggregate and allocation parity,
@@ -74,7 +91,7 @@ and the complete compiler-product and release gates. Closures and the other open
 My `test-nvm2c-shapes` fixture covers both join orders, root-rank changes, duplicate
 and zero targets, node and target-set growth, late producers, conversion cycles,
 recursive record fields, array elements, source isolation and invalid conversions
-and projections. At this checkpoint it passes 2,527 checks, including an explicit
+and projections. At this checkpoint it passes 2,535 checks, including an explicit
 Homebrew LLVM run with address, undefined-behavior and leak sanitizers enabled.
 This establishes constraint behavior, not native indirect-call execution.
 
@@ -88,6 +105,12 @@ record/array/map aliases, zero-valued target IDs and malformed inputs. It also
 checks that the integrated translator rejects mismatched arity/result counts.
 Including my archived source-generated returned-function module raises this to
 300 checks and proves the expected four call-site target sets. The complete
-fixture passes with fresh ASan/UBSan objects and leak detection enabled; native
-indirect execution remains unimplemented. I retain the [analysis checkpoint](
+fixture passes with fresh ASan/UBSan objects and leak detection enabled; this measures target analysis. I retain the [analysis checkpoint](
 evidence/native-callable-analysis-20261007/README.md) and its initial failures.
+
+My [native execution checkpoint](evidence/native-callable-execution-20261007/README.md)
+passes all three original returned-call methods, sixteen VM/native parity methods
+and three native sanitizer methods. These check a sixty-target dispatch,
+non-callable tags, absent targets, target zero, and record/array arguments and
+results across observed collections. My broader native gate retains all 2,431
+checks. These results do not establish container-function or complete 5.1 parity.

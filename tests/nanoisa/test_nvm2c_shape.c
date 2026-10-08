@@ -497,6 +497,18 @@ static void test_function_targets(void) {
         check_function_targets(&g, element, targets, 128);
         nvm_shape_destroy(&g);
     }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId function = nvm_shape_new(&g, NVM_SHAPE_FUNCTION);
+        NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+        CHECK(nvm_shape_function_add(&g, function, 9));
+        CHECK(nvm_shape_convert(&g, function, optional));
+        CHECK(nvm_shape_solve_conversions(&g));
+        const uint32_t target[] = {9};
+        check_function_targets(&g, nvm_shape_lookup(&g, optional, 0), target, 1);
+        CHECK(nvm_shape_kind(&g, optional) == NVM_SHAPE_OPTIONAL);
+        nvm_shape_destroy(&g);
+    }
     for (int operation = 0; operation < 8; ++operation) {
         NvmShapeGraph g = {0};
         NvmShapeId function = nvm_shape_new(&g, NVM_SHAPE_FUNCTION);
