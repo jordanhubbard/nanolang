@@ -3391,7 +3391,8 @@ static ModuleLinkResponseGrammar module_link_response_grammar_command(const char
                 cJSON *vendor = cJSON_GetObjectItemCaseSensitive(tapi, "version_string");
                 /* I admit the installed Apple implementation covered by my
                  * identity/grammar corpus, not every JSON-speaking linker. */
-                if (cJSON_IsString(version) && !strcmp(version->valuestring, "1267") &&
+                if (cJSON_IsString(version) &&
+                    (!strcmp(version->valuestring, "1267") || !strcmp(version->valuestring, "27037.1")) &&
                     cJSON_IsArray(architectures) && cJSON_GetArraySize(architectures) > 0 &&
                     cJSON_IsString(vendor) && !strncmp(vendor->valuestring, "Apple TAPI version ", 19))
                     grammar = MODULE_LINK_RESPONSE_APPLE;
@@ -3569,8 +3570,10 @@ static bool module_append_source_fragment(const ModuleBuildMetadata *meta, const
         if (admitted || (phases & MODULE_FLAG_ASSEMBLER)) return ok;
         /* Unadmitted compatibility fragments retain their original handling. */
     }
-    if (!flags->linker_grammar || retained)
+    if (retained)
         return module_append_compiler_fragment(meta, flags, fragment, retained, output, capacity);
+    /* Compile-only fallback jobs still must not receive linker operands.
+     * Capturing linker provenance controls caching, not the driver's phase. */
     size_t length = strlen(fragment);
     if (length > (SIZE_MAX - 16) / 4) return false;
     size_t size = length * 4 + 16;
@@ -3582,8 +3585,14 @@ static bool module_append_source_fragment(const ModuleBuildMetadata *meta, const
     bool ok = true;
     while ((status = module_flag_word(&cursor, word, sizeof(word))) > 0 && ok) {
         if (!strcmp(word, "-Xlinker")) {
-            ok = module_flag_word(&cursor, word, sizeof(word)) == 1 && word[0] != '@';
-        } else ok = module_append_path_flag(filtered, size, "", word);
+            ok = module_flag_word(&cursor, word, sizeof(word)) == 1;
+        } else {
+            bool operand = module_flag_takes_operand(word);
+            ok = module_append_path_flag(filtered, size, "", word);
+            if (ok && operand)
+                ok = module_flag_word(&cursor, word, sizeof(word)) == 1 &&
+                    module_append_path_flag(filtered, size, "", word);
+        }
     }
     ok = ok && status == 0 &&
         module_append_compiler_fragment(meta, flags, filtered, false, output, capacity);
