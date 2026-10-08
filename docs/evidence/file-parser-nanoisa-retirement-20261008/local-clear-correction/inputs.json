@@ -1,0 +1,6 @@
+{
+  "src/nanoisa/nvm2c.c": "7b9d434efd55256a9b241157159548d359c9e5584d24042dfdda2e71e99b2b59",
+  "tests/test_native_local_clear.py": "844582ed5c7600d5b897c3123652cfe7d2c83ab381c70ae4bc93ecb10b15de3b",
+  "tests/test_nanoisa_list_insert.py": "91f9f25c8f1ef6579c9f2a1da97a97ae028d0058a0196af4ac73c128b6be2162",
+  "bin/nvm2c": "8965824579da597109a5a93373755f942706689d6cfe555ce881be5fdf8330a8"
+}
