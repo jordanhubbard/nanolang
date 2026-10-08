@@ -540,6 +540,40 @@ static void test_function_targets(void) {
     }
 }
 
+static void test_nested_record_array_views(void) {
+    for (int array = 0; array < 2; ++array) {
+        for (int wrong = 0; wrong < 2; ++wrong) {
+            NvmShapeGraph g = {0};
+            NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+            NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+            NvmShapeId from = source, to = target;
+            if (array) {
+                from = nvm_shape_child(&g, from, 7);
+                to = nvm_shape_child(&g, to, 7);
+                CHECK(nvm_shape_unify(&g, from, nvm_shape_new(&g, NVM_SHAPE_ARRAY)));
+                CHECK(nvm_shape_unify(&g, to, nvm_shape_new(&g, NVM_SHAPE_ARRAY)));
+                from = nvm_shape_child(&g, from, 0);
+                to = nvm_shape_child(&g, to, 0);
+                CHECK(nvm_shape_unify(&g, from, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+                CHECK(nvm_shape_unify(&g, to, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+            }
+            NvmShapeId boxed = nvm_shape_child(&g, from, 2);
+            NvmShapeId exact = nvm_shape_child(&g, to, 2);
+            CHECK(nvm_shape_unify(&g, boxed, nvm_shape_new(&g, NVM_SHAPE_OPTIONAL)));
+            CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, boxed, 0),
+                                  nvm_shape_new(&g, wrong ? NVM_SHAPE_INT : NVM_SHAPE_STRING)));
+            CHECK(nvm_shape_unify(&g, exact, nvm_shape_new(&g, NVM_SHAPE_STRING)));
+            CHECK(nvm_shape_convert(&g, source, target));
+            CHECK(nvm_shape_solve_conversions(&g) == (array && !wrong));
+            if (array && !wrong) {
+                CHECK(nvm_shape_kind(&g, exact) == NVM_SHAPE_STRING);
+                CHECK(nvm_shape_kind(&g, boxed) == NVM_SHAPE_OPTIONAL);
+            }
+            nvm_shape_destroy(&g);
+        }
+    }
+}
+
 static void test_shared_array_views(void) {
     for (int reverse = 0; reverse < 2; ++reverse) {
         NvmShapeGraph g = {0};
@@ -596,6 +630,7 @@ int main(void) {
         nvm_shape_destroy(&g);
     }
 
+    test_nested_record_array_views();
     test_shared_array_views();
     test_directed_conversions();
     test_array_optional_conversion();

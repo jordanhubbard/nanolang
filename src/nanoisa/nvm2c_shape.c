@@ -251,7 +251,7 @@ int nvm_shape_alias_view(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target)
     return 1;
 }
 
-typedef struct { NvmShapeId source, target; int exact; } FlowPair;
+typedef struct { NvmShapeId source, target; int exact, alias_view; } FlowPair;
 
 int nvm_shape_array_read(NvmShapeGraph *g, NvmShapeId element, NvmShapeId result) {
     if (!nvm_shape_root(g, element) || !nvm_shape_root(g, result)) return 0;
@@ -302,7 +302,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
     size_t count = 0, capacity = 0, cursor = 0;
     FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
     if (!queue) return 0;
-    queue[count++] = (FlowPair){conversion.source, conversion.target, 0};
+    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, conversion.alias_view};
     while (cursor < count && !g->error) {
         FlowPair pair = queue[cursor++];
         NvmShapeId source = nvm_shape_root(g, pair.source), target = nvm_shape_root(g, pair.target);
@@ -311,7 +311,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         int seen = 0;
         for (size_t i = 0; i + 1 < cursor; ++i)
             if (nvm_shape_root(g, queue[i].source) == source &&
-                nvm_shape_root(g, queue[i].target) == target && queue[i].exact == pair.exact) seen = 1;
+                nvm_shape_root(g, queue[i].target) == target && queue[i].exact == pair.exact && queue[i].alias_view == pair.alias_view) seen = 1;
         if (seen) continue;
         NvmShapeKind from = g->nodes[source - 1].kind, to = g->nodes[target - 1].kind;
         if (from == NVM_SHAPE_UNKNOWN) {
@@ -328,14 +328,14 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
          * tagged field can flow back into an exact scalar view because native
          * projection checks its tag before use; I retain the payload constraint
          * rather than rewriting the caller's constructor as optional storage. */
-        if (conversion.alias_view && from == NVM_SHAPE_OPTIONAL &&
+        if (pair.alias_view && from == NVM_SHAPE_OPTIONAL &&
             (to == NVM_SHAPE_STRING || to == NVM_SHAPE_INT || to == NVM_SHAPE_BOOL ||
              to == NVM_SHAPE_FLOAT || to == NVM_SHAPE_ARRAY || to == NVM_SHAPE_MAP ||
              to == NVM_SHAPE_FUNCTION)) {
             NvmShapeId payload = nvm_shape_child(g, source, 0);
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next || !payload) break;
-            queue = next; queue[count++] = (FlowPair){payload, target, 1};
+            queue = next; queue[count++] = (FlowPair){payload, target, 1, pair.alias_view};
             continue;
         }
         if (!pair.exact && from == NVM_SHAPE_OPTIONAL &&
@@ -359,7 +359,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             NvmShapeId payload = nvm_shape_child(g, target, 0);
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next || !payload) break;
-            queue = next; queue[count++] = (FlowPair){source, payload, 1};
+            queue = next; queue[count++] = (FlowPair){source, payload, 1, pair.alias_view};
             continue;
         }
         /* An explicitly declared union destination accepts either exact
@@ -423,8 +423,12 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next) break;
             queue = next;
+            /* Record arrays nested inside copied records still share their
+             * element handles. Their projections retain checked field views. */
             queue[count++] = (FlowPair){child_source, child_target,
-                pair.exact || from == NVM_SHAPE_OPTIONAL || from == NVM_SHAPE_MAP};
+                pair.exact || from == NVM_SHAPE_OPTIONAL || from == NVM_SHAPE_MAP,
+                pair.alias_view || (from == NVM_SHAPE_ARRAY &&
+                    nvm_shape_kind(g, child_source) == NVM_SHAPE_RECORD)};
         }
     }
     free(queue);
