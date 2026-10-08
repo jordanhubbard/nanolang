@@ -183,7 +183,7 @@ NANOC_STAGE2 = $(BIN_DIR)/nanoc_stage2
 VERIFY_SCRIPT = scripts/verify_no_nanoc_c.sh
 VERIFY_SMOKE_SOURCE = examples/language/nl_hello.nano
 
-# When enabled, make bootstrap stage artifacts deterministic (Mach-O LC_UUID + signature)
+# I always require raw module equality. This option only controls native metadata.
 BOOTSTRAP_DETERMINISTIC ?= 0
 # TMPDIR-aware temp directory for bootstrap test artifacts
 BOOTSTRAP_TMPDIR := $(or $(TMPDIR),/tmp)
@@ -600,7 +600,9 @@ $(NVM2C_MAIN_OBJECT): $(NANOISA_DIR)/nvm2c_main.c $(NANOISA_DIR)/nvm2c.h \
 check-binary64-parser:
 	python3 scripts/embed_binary64_parser.py --check
 
-nvm2c: check-binary64-parser $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) | $(BIN_DIR)
+nvm2c: check-binary64-parser $(BIN_DIR)/nvm2c
+
+$(BIN_DIR)/nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) | $(BIN_DIR)
 	$(CC) $(CFLAGS) -o $(BIN_DIR)/nvm2c $(NVM2C_MAIN_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS)
 
 .PHONY: nvm2hl test-scalar-reconstruction
@@ -673,7 +675,9 @@ test-nanoisa-src-nano: nanoisa_emit nano_virt nano_vm nvm2c nvm2c-runtime nanois
 	@rm -f tests/nanoisa/test_nanoisa_src_nano
 
 .PHONY: nanoisa_dump
-nanoisa_dump: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin
+nanoisa_dump: $(BIN_DIR)/nanoisa
+
+$(BIN_DIR)/nanoisa: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOISA_DUMP_OBJECT) | bin
 	$(CC) $(CFLAGS) -o bin/nanoisa $(NANOISA_DUMP_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 
 .PHONY: test-nanoisa-dump
@@ -927,8 +931,10 @@ test-units: test-wrapper-packaged-interpreter
 VMD_SOURCES = $(NANOVM_DIR)/vmd_protocol.c $(NANOVM_DIR)/vmd_client.c $(NANOVM_DIR)/vmd_server.c
 VMD_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(VMD_SOURCES))
 
-nano_vm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o $(OBJ_DIR)/nanovm/main.o $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) | bin
-	$(CC) $(CFLAGS) -o bin/$@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) \
+nano_vm: $(BIN_DIR)/nano_vm
+
+$(BIN_DIR)/nano_vm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o $(OBJ_DIR)/nanovm/main.o $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) | bin
+	$(CC) $(CFLAGS) -o $@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) \
 		$(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o \
 		$(OBJ_DIR)/nanovm/main.o $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS)
 
@@ -1096,8 +1102,10 @@ test-borrow-contract-allocation: $(OBJ_DIR)/nanovirt/codegen_contract_allocation
 
 test-units: test-borrow-contract-allocation
 
-nano_virt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o | bin
-	$(CC) $(CFLAGS) -o bin/$@ $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
+nano_virt: $(BIN_DIR)/nano_virt
+
+$(BIN_DIR)/nano_virt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o | bin
+	$(CC) $(CFLAGS) -o $@ $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
 		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o $(LDFLAGS)
 
 $(OBJ_DIR)/nanovirt/main.o: $(NANOVIRT_DIR)/main.c $(NANOVIRT_DIR)/codegen.h | $(OBJ_DIR)/nanovirt
@@ -3140,7 +3148,7 @@ test-build-toolchain:
 
 .PHONY: test-bootstrap-dependencies
 test-bootstrap-dependencies:
-	@python3 tests/test_bootstrap_source_dependencies.py
+	@python3 -m unittest tests.test_bootstrap_source_dependencies tests.test_bootstrap_messages tests.test_bootstrap_nanoisa tests.test_bootstrap_tools
 
 .PHONY: test-make-header-dependencies
 .PHONY: test-parser-parenthesized
@@ -3674,6 +3682,12 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 ifeq ($(wildcard $(NANOC_STAGE1)),)
 $(SENTINEL_BOOTSTRAP1): missing-bootstrap-artifact
 endif
+ifneq ($(words $(wildcard $(BIN_DIR)/nanoc_seed.nvm $(BIN_DIR)/nanoc_stage1.nvm $(BIN_DIR)/nanoc_bootstrap.json)),3)
+$(SENTINEL_BOOTSTRAP1): missing-bootstrap-artifact
+endif
+ifeq ($(wildcard $(BIN_DIR)/nanoc_stage2.nvm),)
+$(SENTINEL_BOOTSTRAP2): missing-bootstrap-artifact
+endif
 ifeq ($(wildcard $(NANOC_STAGE2)),)
 $(SENTINEL_BOOTSTRAP2): missing-bootstrap-artifact
 endif
@@ -3714,64 +3728,25 @@ $(SENTINEL_BOOTSTRAP0): $(COMPILER_C)
 	@echo "✓ Bootstrap Stage 0: C reference compiler ready"
 	@touch $(SENTINEL_BOOTSTRAP0)
 
-# Bootstrap Stage 1: Compile nanoc_v04.nano with C compiler
-bootstrap1:
-	@if [ -f $(SENTINEL_BOOTSTRAP1) ] && [ ! -f $(NANOC_STAGE1) ]; then \
-		echo "⚠️  Stale sentinel detected: removing $(SENTINEL_BOOTSTRAP1)"; \
-		rm -f $(SENTINEL_BOOTSTRAP1); \
-	fi
-	@$(MAKE) $(SENTINEL_BOOTSTRAP1)
+# I generate raw modules in NanoVM; native translation is a separate step.
+BOOTSTRAP_NANOISA_TIMEOUT ?= 1800
+BOOTSTRAP_NANOISA = python3 scripts/bootstrap_nanoisa.py
+BOOTSTRAP_NANOISA_INPUTS = scripts/bootstrap_nanoisa.py tests/bootstrap_native_guard.py
+BOOTSTRAP_TOOL_BINARIES = $(addprefix $(BIN_DIR)/,nano_virt nano_vm nanoisa nvm2c nano_aot_runtime.o) $(if $(filter Linux,$(UNAME_S)),$(BIN_DIR)/nano_as_capture.so)
 
+bootstrap1: $(SENTINEL_BOOTSTRAP1)
 
-$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu | nano_virt nano_vm nvm2c nvm2c-runtime
-	@echo ""
-	@echo "=========================================="
-	@echo "Bootstrap Stage 1: Self-Hosted Compiler"
-	@echo "=========================================="
-	@echo "Compiling nanoc_v06.nano with C compiler..."
-	@if [ -f $(NANOC_SOURCE) ]; then \
-		$(BOOTSTRAP_ENV) $(TIMEOUT_CMD) $(COMPILER_C) $(NANOC_SOURCE) -o $(NANOC_STAGE1) && \
-		echo "✓ Stage 1 compiler created: $(NANOC_STAGE1)" && \
-		echo "" && \
-		echo "Testing stage 1 compiler..." && \
-		if $(TIMEOUT_CMD) $(NANOC_STAGE1) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_test && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_test >/dev/null 2>&1; then \
-			echo "✓ Stage 1 compiler works!"; \
-			touch $(SENTINEL_BOOTSTRAP1); \
-		else \
-			echo "❌ Stage 1 compiler test failed"; \
-			exit 1; \
-		fi; \
-	else \
-		echo "❌ Error: $(NANOC_SOURCE) not found!"; \
-		exit 1; \
-	fi
+$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu $(BOOTSTRAP_NANOISA_INPUTS) $(BOOTSTRAP_TOOL_BINARIES) | nano_virt nano_vm nanoisa_dump nvm2c nvm2c-runtime
+	@rm -f $(SENTINEL_BOOTSTRAP1) $(SENTINEL_BOOTSTRAP2) $(SENTINEL_BOOTSTRAP3)
+	@$(BOOTSTRAP_ENV) $(BOOTSTRAP_NANOISA) stage1 --timeout $(BOOTSTRAP_NANOISA_TIMEOUT)
+	@touch $@
 
-# Bootstrap Stage 2: Recompile nanoc_v04.nano with stage 1 compiler
-bootstrap2:
-	@if [ -f $(SENTINEL_BOOTSTRAP2) ] && [ ! -f $(NANOC_STAGE2) ]; then \
-		echo "⚠️  Stale sentinel detected: removing $(SENTINEL_BOOTSTRAP2)"; \
-		rm -f $(SENTINEL_BOOTSTRAP2); \
-	fi
-	@$(MAKE) $(SENTINEL_BOOTSTRAP2)
-
+bootstrap2: $(SENTINEL_BOOTSTRAP2)
 
 $(SENTINEL_BOOTSTRAP2): $(SENTINEL_BOOTSTRAP1)
-	@echo ""
-	@echo "=========================================="
-	@echo "Bootstrap Stage 2: Recompilation"
-	@echo "=========================================="
-	@echo "Compiling nanoc_v06.nano with stage 1 compiler..."
-	@$(BOOTSTRAP_ENV) $(BOOTSTRAP2_TIMEOUT_CMD) $(NANOC_STAGE1) $(BOOTSTRAP_VERBOSE_FLAG) $(NANOC_SOURCE) -o $(NANOC_STAGE2)
-	@echo "✓ Stage 2 compiler created: $(NANOC_STAGE2)"
-	@echo ""
-	@echo "Testing stage 2 compiler..."
-	@if $(TIMEOUT_CMD) $(NANOC_STAGE2) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_test2 && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_test2 >/dev/null 2>&1; then \
-		echo "✓ Stage 2 compiler works!"; \
-		touch $(SENTINEL_BOOTSTRAP2); \
-	else \
-		echo "❌ Stage 2 compiler test failed"; \
-		exit 1; \
-	fi
+	@rm -f $(SENTINEL_BOOTSTRAP2) $(SENTINEL_BOOTSTRAP3)
+	@$(BOOTSTRAP_ENV) $(BOOTSTRAP_NANOISA) stage2 --timeout $(BOOTSTRAP_NANOISA_TIMEOUT)
+	@touch $@
 
 # Verify that each bootstrap stage produced stand-alone compilers that can compile and run a smoke test
 .PHONY: verify-bootstrap
@@ -3800,69 +3775,18 @@ verify-no-nanoc_c: $(SENTINEL_BOOTSTRAP3)
 verify-no-nanoc_c-check:
 	@$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE)
 
-# Bootstrap Stage 3: Compare native artifacts and check installed execution
-bootstrap3:
-	@if [ -f $(SENTINEL_BOOTSTRAP3) ] && [ ! -f $(NANOC_STAGE2) ]; then \
-		echo "⚠️  Stale sentinel detected: removing $(SENTINEL_BOOTSTRAP3)"; \
-		rm -f $(SENTINEL_BOOTSTRAP3); \
-	fi
-	@$(MAKE) $(SENTINEL_BOOTSTRAP3)
+# I install only after raw equality, immutable closure and native smoke checks.
+bootstrap3: $(SENTINEL_BOOTSTRAP3)
 
 $(SENTINEL_BOOTSTRAP3): $(SENTINEL_BOOTSTRAP2)
-	@echo ""
-	@echo "=========================================="
-	@echo "Bootstrap Stage 3: Verification"
-	@echo "=========================================="
-	@echo "Comparing stage 1 and stage 2 binaries..."
-	@echo ""
-	@ls -lh $(NANOC_STAGE1) $(NANOC_STAGE2)
-	@echo ""
-	@if cmp -s $(NANOC_STAGE1) $(NANOC_STAGE2); then \
-		echo "I compared the stage binaries: they are byte-identical in this build."; \
-		echo ""; \
-		echo "I have not established reproducibility across clean environments"; \
-		echo "or proved compiler semantic correctness."; \
-		echo ""; \
-	else \
-		if [ "$(BOOTSTRAP_DETERMINISTIC)" = "1" ]; then \
-			echo "❌ BOOTSTRAP FAILED: Expected identical binaries (BOOTSTRAP_DETERMINISTIC=1)"; \
-			exit 1; \
-		fi; \
-		echo "⚠️  Bootstrap verification: Binaries differ"; \
-		echo ""; \
-		echo "Stage 1 size: $$(stat -f%z $(NANOC_STAGE1) 2>/dev/null || stat -c%s $(NANOC_STAGE1))"; \
-		echo "Stage 2 size: $$(stat -f%z $(NANOC_STAGE2) 2>/dev/null || stat -c%s $(NANOC_STAGE2))"; \
-		echo ""; \
-		echo "I have not diagnosed the difference. These causes remain hypotheses:"; \
-		echo "  - Embedded timestamps or other native artifact metadata"; \
-		echo "  - Non-deterministic code generation"; \
-		echo "  - Different compiler optimizations"; \
-		echo ""; \
-		echo "Both stages passed the configured smoke test; that is not a correctness proof."; \
-		echo "Canonical NanoISA artifact equality remains a separate 5.0 gate."; \
-		echo ""; \
-	fi; \
-	echo "==========================================";\
-	echo "Installing Self-Hosted Compiler"; \
-	echo "==========================================";\
-	echo "Updating bin/nanoc to use self-hosted compiler...";\
-	rm -f $(COMPILER); \
+	@rm -f $(SENTINEL_BOOTSTRAP3)
+	@$(BOOTSTRAP_ENV) $(BOOTSTRAP_NANOISA) verify --timeout $(BOOTSTRAP_NANOISA_TIMEOUT)
+	@set -e; \
 	ln -sf nanoc_stage2 $(COMPILER); \
-	echo "✓ bin/nanoc now points to self-hosted compiler (nanoc_stage2)"; \
-	echo ""; \
-	echo "Smoke test: installed bin/nanoc compiles + runs nl_hello.nano..."; \
-	if $(TIMEOUT_CMD) $(COMPILER) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_installed_test && $(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_installed_test >/dev/null 2>&1; then \
-		echo "✓ installed compiler works"; \
-	else \
-		echo "❌ installed compiler smoke test failed"; \
-		exit 1; \
-	fi; \
-	echo ""; \
-	echo "Verifying bin/nanoc does not depend on bin/nanoc_c..."; \
+	echo "I installed bin/nanoc from the verified Stage 2 module."; \
+	$(TIMEOUT_CMD) $(COMPILER) examples/language/nl_hello.nano -o $(BOOTSTRAP_TMPDIR)/bootstrap_installed_test; \
+	$(TIMEOUT_CMD) $(BOOTSTRAP_TMPDIR)/bootstrap_installed_test >/dev/null; \
 	$(TIMEOUT_CMD) $(VERIFY_SCRIPT) $(COMPILER) $(COMPILER_C) $(VERIFY_SMOKE_SOURCE); \
-	echo ""; \
-	echo "All subsequent builds (test, examples) will use the self-hosted compiler!"; \
-	echo ""; \
 	touch $(SENTINEL_BOOTSTRAP3)
 
 # Show bootstrap status

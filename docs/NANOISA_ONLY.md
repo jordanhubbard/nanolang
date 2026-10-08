@@ -79,9 +79,22 @@ My canonical `--emit-nvm` driver executes verified bytecode shadows. At
 the same immutable host closure; see [my cutover evidence](evidence/canonical-vm-shadow-cutover.md).
 My product driver now emits a module by default and translates explicit native output
 through `nvm2c` and `cc`; see [my driver checkpoint](evidence/native-driver-cutover-20261007/README.md).
-My Make bootstrap migration and full post-cutover qualification remain open. Native execution of compiler
+My Make bootstrap now uses this sequence and records source, tool, host-library and
+artifact hashes in `bin/nanoc_bootstrap.json`. Full post-cutover qualification remains open. Native execution of compiler
 bytecode through `nvm2c` and `cc` is a separate route; my measured VM fixed
 point does not claim completion of native full-source bootstrap.
+
+I run `make bootstrap1` to emit the seed module, execute its first self-hosted
+VM generation, translate that generation with `nvm2c` and `cc`, and exercise
+the resulting native compiler. `make bootstrap2` executes the second VM
+generation over the same source and host closure, requires raw byte equality,
+and separately translates and exercises its native compiler. `make bootstrap3`
+rechecks module verification and the recorded hashes before installing Stage 2.
+A failed attempted stage clears its stamp and downstream stamps. Each command
+retains its logs under `obj/bootstrap-nanoisa/run-*`; a receipt is published
+only after the requested stage succeeds. `BOOTSTRAP_NANOISA_TIMEOUT` defaults
+to 1,800 seconds per command. `NANO_CFLAGS` and `NANO_LDFLAGS` configure the
+separate native translation; module equality is always required.
 
 The seed `nvm2c` stays C, the way `cc` stays C. I may later write
 `nvm2c` in myself and lower it through NanoISA. The seed translator

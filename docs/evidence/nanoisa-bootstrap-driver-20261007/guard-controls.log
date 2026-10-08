@@ -1,0 +1,22 @@
+test_actual_helper_edit_and_source_membership_changes (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_actual_helper_edit_and_source_membership_changes) ... ok
+test_artifacts_and_documentation_are_not_source_inputs (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_artifacts_and_documentation_are_not_source_inputs) ... ok
+test_cache_payload_changes_do_not_invalidate_bootstrap (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_cache_payload_changes_do_not_invalidate_bootstrap) ... ok
+test_missing_raw_modules_or_receipt_invalidate_bootstrap (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_missing_raw_modules_or_receipt_invalidate_bootstrap) ... ok
+test_missing_stage_one_invalidates_later_stages (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_missing_stage_one_invalidates_later_stages) ... ok
+test_missing_stage_two_invalidates_validation (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_missing_stage_two_invalidates_validation) ... ok
+test_runtime_inputs_invalidate_all_selfhost_stages (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_runtime_inputs_invalidate_all_selfhost_stages) ... ok
+test_unrelated_program_does_not_invalidate_bootstrap (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_unrelated_program_does_not_invalidate_bootstrap) ... ok
+test_up_to_date_and_source_invalidation (tests.test_bootstrap_source_dependencies.BootstrapDependencies.test_up_to_date_and_source_invalidation) ... ok
+test_different_raw_modules_always_refuse_installation (tests.test_bootstrap_messages.BootstrapMessages.test_different_raw_modules_always_refuse_installation) ... ok
+test_equal_modules_allow_different_native_bytes_without_correctness_claim (tests.test_bootstrap_messages.BootstrapMessages.test_equal_modules_allow_different_native_bytes_without_correctness_claim) ... ok
+test_failed_installed_dependency_check_does_not_stamp_success (tests.test_bootstrap_messages.BootstrapMessages.test_failed_installed_dependency_check_does_not_stamp_success) ... ok
+test_native_codegen_marker_and_changed_artifact_are_refused (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_native_codegen_marker_and_changed_artifact_are_refused) ... ok
+test_source_membership_changes_are_refused_but_host_cache_growth_is_allowed (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_source_membership_changes_are_refused_but_host_cache_growth_is_allowed) ... ok
+test_source_tool_and_host_mutation_are_refused (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_source_tool_and_host_mutation_are_refused) ... ok
+test_host_inputs_work_and_generated_product_is_refused (tests.test_bootstrap_native_guard.BootstrapNativeGuard.test_host_inputs_work_and_generated_product_is_refused) ... ok
+test_retained_inputs_require_exact_seed_cache_and_snapshot_names (tests.test_bootstrap_native_guard.BootstrapNativeGuard.test_retained_inputs_require_exact_seed_cache_and_snapshot_names) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 14.739s
+
+OK
