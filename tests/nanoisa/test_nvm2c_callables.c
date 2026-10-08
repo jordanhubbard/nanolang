@@ -168,6 +168,71 @@ static void map_aliases(void) {
     nvm_callable_destroy(&a); nvm_module_free(m);
 }
 
+/* I follow captures through returned closures and retain late writes without
+ * adding a destination's other targets to an independent FUNCREF producer. */
+static void captured_targets(void) {
+    NvmModule *m = assemble(
+        ".function main 0 1 0 void 0\nFUNCREF first\nCLOSURE_NEW middle 1\n"
+        "CALL_INDIRECT 0 1\nSTORE_LOCAL 0\nPUSH_I64 7\nLOAD_LOCAL 0\nCALL_INDIRECT 1 1\nPOP\n"
+        "PUSH_I64 8\nFUNCREF first\nCALL_INDIRECT 1 1\nPOP\nRET\n.end\n"
+        ".function middle 0 0 1 closure 1\nLOAD_UPVALUE 0 0\nCLOSURE_NEW inner 1\nRET\n.end\n"
+        ".function inner 1 1 1 int 1\nFUNCREF second\nSTORE_UPVALUE 0 0\n"
+        "LOAD_LOCAL 0\nLOAD_UPVALUE 0 0\nCALL_INDIRECT 1 1\nRET\n.end\n"
+        LEAVES, 1);
+    if (!m) return;
+    NvmCallableAnalysis a;
+    if (analyze(m, &a)) {
+        const uint32_t middle[] = {1}, inner[] = {2}, first[] = {3}, both[] = {3, 4};
+        targets(m, &a, 0, 0, middle, 1); targets(m, &a, 0, 1, inner, 1);
+        targets(m, &a, 0, 2, first, 1); targets(m, &a, 2, 0, both, 2);
+    }
+    nvm_callable_destroy(&a); nvm_module_free(m);
+}
+
+static void captured_array_aliases_and_instances(void) {
+    NvmModule *m = assemble(
+        ".function main 0 3 0 void 0\nFUNCREF first\nARR_LITERAL 11 1\nSTORE_LOCAL 0\n"
+        "LOAD_LOCAL 0\nCLOSURE_NEW apply 1\nSTORE_LOCAL 1\n"
+        "LOAD_LOCAL 0\nPUSH_I64 0\nFUNCREF second\nARR_SET\nPOP\n"
+        "PUSH_I64 5\nLOAD_LOCAL 1\nCALL_INDIRECT 1 1\nPOP\n"
+        "FUNCREF first\nCLOSURE_NEW relay 1\nCALL_INDIRECT 0 1\nPOP\n"
+        "FUNCREF second\nCLOSURE_NEW relay 1\nCALL_INDIRECT 0 1\nSTORE_LOCAL 2\n"
+        "PUSH_I64 6\nLOAD_LOCAL 2\nCALL_INDIRECT 1 1\nPOP\nRET\n.end\n"
+        ".function apply 1 1 1 int 1\nLOAD_LOCAL 0\nLOAD_UPVALUE 0 0\nPUSH_I64 0\n"
+        "ARR_GET\nCALL_INDIRECT 1 1\nRET\n.end\n"
+        ".function relay 0 0 1 function 1\nLOAD_UPVALUE 0 0\nRET\n.end\n"
+        LEAVES, 1);
+    if (!m) return;
+    NvmCallableAnalysis a;
+    if (analyze(m, &a)) {
+        const uint32_t apply[] = {1}, relay[] = {2}, both[] = {3, 4};
+        targets(m, &a, 0, 0, apply, 1); targets(m, &a, 1, 0, both, 2);
+        targets(m, &a, 0, 1, relay, 1); targets(m, &a, 0, 2, relay, 1);
+        targets(m, &a, 0, 3, both, 2);
+    }
+    nvm_callable_destroy(&a); nvm_module_free(m);
+}
+
+static void malformed_captures(void) {
+    const char *cases[] = {
+        ".function main 0 0 0 void 0\nCLOSURE_NEW 99 0\nPOP\nRET\n.end\n",
+        ".function main 0 0 0 void 0\nCLOSURE_NEW child 0\nPOP\nRET\n.end\n"
+        ".function child 0 0 1 void 0\nRET\n.end\n",
+        ".function main 0 0 0 void 0\nCLOSURE_NEW child 1\nPOP\nRET\n.end\n"
+        ".function child 0 0 1 void 0\nRET\n.end\n",
+        ".function main 0 0 1 void 0\nLOAD_UPVALUE 1 0\nPOP\nRET\n.end\n",
+        ".function main 0 0 1 void 0\nLOAD_UPVALUE 0 1\nPOP\nRET\n.end\n",
+        ".function main 0 0 1 void 0\nPUSH_I64 0\nSTORE_UPVALUE 0 1\nRET\n.end\n"
+    };
+    for (size_t i = 0; i < sizeof cases / sizeof *cases; ++i) {
+        NvmModule *m = assemble(cases[i], 0);
+        if (!m) continue;
+        NvmCallableAnalysis a;
+        CHECK(!nvm_callable_analyze(m, &a)); CHECK(a.error[0]);
+        nvm_callable_destroy(&a); nvm_module_free(m);
+    }
+}
+
 static void source_fixture(const char *path) {
     AsmResult result = {0};
     NvmModule *m = asm_assemble_file(path, &result);
@@ -186,6 +251,7 @@ int main(int argc, char **argv) {
     direct_results_and_joins(); indirect_arguments_and_results();
     globals_loops_and_separate_producers(); aggregate_and_array_aliases();
     unresolved_and_refused(); stack_loop_and_zero_target(); map_aliases();
+    captured_targets(); captured_array_aliases_and_instances(); malformed_captures();
     if (argc > 1) source_fixture(argv[1]);
     printf("Callable constraints: %d passed, %d failed\n", passed, failed);
     return failed != 0;

@@ -52,10 +52,20 @@ retain the existing classifier refusal. I preserve analysis storage through
 classification/emission and release it on success or failure.
 
 My target-analysis pass does not itself validate argument value tags, admit
-native storage types, resolve closures/imported callable handles, or emit calls.
+native storage types, allocate closure environments, resolve imported callable handles, or emit calls.
 Other values begin as unknown target provenance; a target set does not authorize
 an integer to act as a function. Unresolved call sites remain unresolved, rather
 than gaining every function with the same arity.
+
+I now collect `CLOSURE_NEW` target sets and pass capture producers to per-target
+upvalue slots. Loads read those slots; stores add later producers. Transitive
+closures therefore preserve callable provenance through intermediate environments.
+I reject unknown targets, mismatched capture counts, stack underflow and invalid
+flattened upvalue accesses. Captured arrays retain the ordinary alias constraints.
+I conservatively union instances of the same closure body, but keep unrelated
+function producers separate. These are target constraints, not the runtime
+representation: native closure allocation, environment identity, ownership and
+source capture lowering remain open.
 
 ## Native storage and dispatch
 

@@ -15,7 +15,9 @@ typedef struct {
 typedef struct {
     const NvmModule *module;
     NvmCallableAnalysis *out;
-    NvmShapeId **locals, *results, *globals;
+    /* I conservatively merge capture provenance across instances of one body.
+     * These analysis slots do not imply shared runtime environments. */
+    NvmShapeId **locals, **upvalues, *results, *globals;
     size_t global_count;
     uint32_t field_count;
     IndirectCall *calls;
@@ -97,6 +99,7 @@ static int collect_function(Analysis *a, uint32_t function) {
             pop = a->module->imports[target].param_count;
             push = a->module->imports[target].return_type != TAG_VOID; break;
         case OP_CALL_INDIRECT: pop = in->operands[0].u16 + 1; push = in->operands[1].u16; break;
+        case OP_CLOSURE_NEW: pop = in->operands[1].u16; push = 1; break;
         case OP_AGG_PACK: pop = in->operands[3].u16; push = 1; break;
         case OP_ARR_LITERAL: pop = in->operands[1].u16; push = 1; break;
         case OP_RET: pop = fn->result_count; push = 0; break;
@@ -124,6 +127,24 @@ static int collect_function(Analysis *a, uint32_t function) {
             if (target >= a->module->function_count) { fail(a, "I require a valid function reference"); goto done; }
             if (!nvm_shape_function_add(&a->out->shapes, output[0], target)) goto done;
             break;
+        case OP_CLOSURE_NEW:
+            if (target >= a->module->function_count ||
+                a->module->functions[target].upvalue_count != (uint16_t)pop) {
+                fail(a, "I require matching closure target and capture counts"); goto done;
+            }
+            if (!nvm_shape_function_add(&a->out->shapes, output[0], target)) goto done;
+            for (int i = 0; i < pop; ++i)
+                if (!flow(a, stack[base + (size_t)i], a->upvalues[target][i])) goto done;
+            break;
+        case OP_LOAD_UPVALUE: case OP_STORE_UPVALUE: {
+            uint16_t slot = in->operands[1].u16;
+            if (in->operands[0].u16 != 0 || slot >= fn->upvalue_count) {
+                fail(a, "I require a valid flattened callable capture"); goto done;
+            }
+            if (in->opcode == OP_LOAD_UPVALUE) output[0] = a->upvalues[function][slot];
+            else if (!flow(a, stack[base], a->upvalues[function][slot])) goto done;
+            break;
+        }
         case OP_LOAD_LOCAL: case OP_STORE_LOCAL: {
             uint16_t slot = in->operands[0].u16;
             if (slot >= fn->local_count) { fail(a, "I require a valid callable local"); goto done; }
@@ -293,8 +314,9 @@ int nvm_callable_analyze(const NvmModule *module, NvmCallableAnalysis *out) {
     out->callees = calloc(module->function_count, sizeof *out->callees);
     out->code_lengths = calloc(module->function_count, sizeof *out->code_lengths);
     a.locals = calloc(module->function_count, sizeof *a.locals);
+    a.upvalues = calloc(module->function_count, sizeof *a.upvalues);
     a.results = calloc(module->function_count, sizeof *a.results);
-    if (!out->callees || !out->code_lengths || !a.locals || !a.results) goto done;
+    if (!out->callees || !out->code_lengths || !a.locals || !a.upvalues || !a.results) goto done;
     /* I retain every global referenced by the module, including late stores. */
     for (uint32_t f = 0; f < module->function_count; ++f) {
         const NvmFunctionEntry *fn = &module->functions[f];
@@ -303,9 +325,11 @@ int nvm_callable_analyze(const NvmModule *module, NvmCallableAnalysis *out) {
         out->code_lengths[f] = fn->code_length;
         out->callees[f] = calloc(fn->code_length ? fn->code_length : 1, sizeof **out->callees);
         a.locals[f] = calloc(fn->local_count ? fn->local_count : 1, sizeof **a.locals);
-        if (!out->callees[f] || !a.locals[f]) goto done;
+        a.upvalues[f] = calloc(fn->upvalue_count ? fn->upvalue_count : 1, sizeof **a.upvalues);
+        if (!out->callees[f] || !a.locals[f] || !a.upvalues[f]) goto done;
         a.results[f] = fresh(&a);
         for (uint16_t l = 0; l < fn->local_count; ++l) a.locals[f][l] = fresh(&a);
+        for (uint16_t u = 0; u < fn->upvalue_count; ++u) a.upvalues[f][u] = fresh(&a);
         for (uint32_t pc = 0; pc < fn->code_length;) {
             DecodedInstruction in;
             uint32_t size = isa_decode(module->code + fn->code_offset + pc, fn->code_length - pc, &in);
@@ -354,7 +378,8 @@ int nvm_callable_analyze(const NvmModule *module, NvmCallableAnalysis *out) {
 done:
     if (!ok && !out->error[0]) fail(&a, out->shapes.error ? out->shapes.error : "I cannot construct callable constraints");
     if (a.locals) for (uint32_t f = 0; f < module->function_count; ++f) free(a.locals[f]);
+    if (a.upvalues) for (uint32_t f = 0; f < module->function_count; ++f) free(a.upvalues[f]);
     for (size_t i = 0; i < a.call_count; ++i) { free(a.calls[i].arguments); free(a.calls[i].linked); }
-    free(a.calls); free(a.locals); free(a.results); free(a.globals);
+    free(a.calls); free(a.upvalues); free(a.locals); free(a.results); free(a.globals);
     return ok;
 }
