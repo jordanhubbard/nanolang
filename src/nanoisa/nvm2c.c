@@ -2080,9 +2080,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
         }
+        case OP_ARR_POP:
         case OP_ARR_GET: {
             Nvm2cSimSlot ix, arr;
-            if (!sim_pop(b, idx, stk, &sp, &ix)) return 0;
+            if (ins.opcode == OP_ARR_GET && !sim_pop(b, idx, stk, &sp, &ix)) return 0;
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
             (void)ix;
             if (arr.kind == NVM2C_VK_VALUE) {
@@ -4808,6 +4809,22 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             break;
         }
+        case OP_ARR_POP: {
+            uint8_t kind;
+            int array = stack_pop_kind(b, &st, &kind);
+            if (b->failed) goto done;
+            char expression[128];
+            if (word_array_storage(kind) || kind == NVM2C_VK_SARR) {
+                snprintf(expression, sizeof expression,
+                         "nvalue_array_pop((nmap_value){7, %u, (char *)%s[%d]})",
+                         kind, kind == NVM2C_VK_SARR ? "sa" : "a", array);
+                stack_push_value(b, &st, expression);
+            } else {
+                nvm2c_fail(b, "I cannot yet preserve optional aggregate results for ARR_POP");
+                goto done;
+            }
+            break;
+        }
         case OP_ARR_GET: {
             uint8_t ak = NVM2C_VK_INT;
             int ix = stack_pop_expect(b, &st, NVM2C_VK_INT, "ARR_GET index");
@@ -6717,7 +6734,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.has_owned_aggregates = (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW)) ||
         module_has_opcode(mod, OP_ARR_NEW) || module_has_opcode(mod, OP_ARR_LITERAL) ||
         module_has_opcode(mod, OP_ARR_PUSH) || module_has_opcode(mod, OP_ARR_GET) ||
-        module_has_opcode(mod, OP_ARR_SET) || module_has_opcode(mod, OP_ARR_LEN) || module_has_opcode(mod, OP_ARR_SLICE) || module_has_opcode(mod, OP_ARR_REMOVE) ||
+        module_has_opcode(mod, OP_ARR_SET) || module_has_opcode(mod, OP_ARR_LEN) || module_has_opcode(mod, OP_ARR_SLICE) || module_has_opcode(mod, OP_ARR_REMOVE) || module_has_opcode(mod, OP_ARR_POP) ||
         module_uses_host(mod, "nhost_walk");
     for (uint32_t f = 0; f < mod->function_count; ++f) {
         if (mod->functions[f].result_tag == TAG_ARRAY) b.has_owned_aggregates = 1;
@@ -7536,7 +7553,16 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (b.has_maps) emit_tagged_array_helpers(&b, need_iarr_push, need_sarr_push,
                                                 need_iarr_get, need_sarr_get, need_print);
         if (need_arr_slice) emit_array_slices(&b, need_iarr, need_sarr, need_rarr);
-        if (module_has_opcode(mod, OP_ARR_REMOVE)) emit_array_removal(&b, need_iarr, need_sarr, need_rarr);
+        if (module_has_opcode(mod, OP_ARR_REMOVE) || module_has_opcode(mod, OP_ARR_POP))
+            emit_array_removal(&b, need_iarr, need_sarr, need_rarr);
+        if (module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b,
+            "static inline nmap_value nvalue_array_pop(nmap_value array) {\n"
+            "    int64_t length = nvalue_array_len(array);\n"
+            "    if (!length) return (nmap_value){0, 0, NULL};\n"
+            "    nmap_value value = nvalue_array_get(array, length - 1);\n"
+            "    nvalue_array_remove(array, length - 1);\n"
+            "    return value;\n"
+            "}\n");
     }
 
     {
@@ -7586,7 +7612,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         } else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
         if (module_has_opcode(mod, OP_ARR_SLICE)) nvm2c_puts(&b, "    (void)nvalue_array_slice;\n");
-        if (module_has_opcode(mod, OP_ARR_REMOVE)) nvm2c_puts(&b, "    (void)nvalue_array_remove;\n");
+        if (module_has_opcode(mod, OP_ARR_REMOVE) || module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b, "    (void)nvalue_array_remove;\n");
+        if (module_has_opcode(mod, OP_ARR_POP)) nvm2c_puts(&b, "    (void)nvalue_array_pop;\n");
         if (b.has_maps || module_has_opcode(mod, OP_CAST_FLOAT))
             nvm2c_puts(&b, "    (void)nparse_binary64;\n");
         if (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN) ||
