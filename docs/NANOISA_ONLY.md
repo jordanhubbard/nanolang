@@ -80,7 +80,10 @@ the same immutable host closure; see [my cutover evidence](evidence/canonical-vm
 My product driver now emits a module by default and translates explicit native output
 through `nvm2c` and `cc`; see [my driver checkpoint](evidence/native-driver-cutover-20261007/README.md).
 My Make bootstrap now uses this sequence and records source, tool, host-library and
-artifact hashes in `bin/nanoc_bootstrap.json`. Full post-cutover qualification remains open. Native execution of compiler
+artifact hashes in `bin/nanoc_bootstrap.json`. My [clean Darwin Make bootstrap](evidence/nanoisa-bootstrap-65895d5fb/README.md)
+passes both raw generations, native installation, and installed CLI/publication
+checks at `65895d5fb`. Exact final-release and complete language qualification
+remain open. Native execution of compiler
 bytecode through `nvm2c` and `cc` is a separate route; my measured VM fixed
 point does not claim completion of native full-source bootstrap.
 

@@ -123,12 +123,16 @@ shadow make_offset {
 This is tested bytecode behavior, not a claim that the C-native or tree-walking
 backends implement the same anonymous-capture semantics.
 
-My self-hosted native compiler also supports computed calls such as
-`((choose) value)` when `choose` returns a function. I test nested calls,
-nested function-parameter signatures, wrong argument types and counts, and
-callee-before-arguments evaluation exactly once from left to right. These
-tests use named function values; they do not establish captured-closure parity.
-My self-hosted NanoISA subset still rejects computed calls explicitly.
+My self-hosted NanoISA emitter lowers computed calls such as `((choose) value)`
+when `choose` returns a function. My VM execution checks cover nested calls,
+function parameters/results, imported aliases, void results, and callee-before-
+arguments evaluation exactly once from left to right, including an argument
+that changes the callee's binding. Wrong signatures, argument types/counts and
+non-callable values preserve prior output. These tests use named function
+values; they do not establish captured-closure parity. My former AST-to-C
+emitter supported native computed calls, but `nvm2c` does not yet implement
+`FUNCREF` and `CALL_INDIRECT`. The unchanged native returned-call tests remain
+release requirements and currently fail; VM success does not close that gap.
 
 My C-seed checker derives a mapped array's element type from the transform's
 declared result, including direct indexing and local-bound results. I check

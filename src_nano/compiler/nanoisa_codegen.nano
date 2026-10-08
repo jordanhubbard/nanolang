@@ -1,3 +1,4 @@
+from "src_nano/compiler/function_signature.nano" import function_type_parts
 from "src_nano/compiler/owner_selection.nano" import nanoisa_selected_ownership
 from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
 from "src_nano/compiler/nanoisa_borrows.nano" import nanoisa_has_borrows, nanoisa_borrow_emit, nanoisa_borrow_error
@@ -35,6 +36,7 @@ let mut nisa_err: string = ""
 let mut nisa_label: int = 0
 let mut nisa_param_count: int = 0
 let mut nisa_has_par: bool = false
+let mut nisa_has_callables: bool = false
 let mut nisa_void_return: bool = false
 let mut nisa_return_type: string = ""
 let mut nisa_loop_top: string = ""
@@ -255,6 +257,7 @@ shadow nisa_ordinary_publication {
 }
 
 fn nisa_reset() -> int {
+    set nisa_has_callables false
     set nisa_ordinary_ok true
     set nisa_ordinary_functions ""
     set nisa_ordinary_count 0
@@ -1631,7 +1634,45 @@ shadow nisa_tuple_type_ok {
     assert (not (nisa_tuple_type_ok parser "(int)"))
 }
 
+fn nisa_function_type_ok(parser: Parser, t: string) -> bool {
+    let parts: array<string> = (function_type_parts t)
+    let count: int = (array_length parts)
+    if (== count 0) { return false }
+    let mut i: int = 0
+    while (< i count) {
+        let part: string = (at parts i)
+        if (and (== part "void") (< i (- count 1))) { return false }
+        if (and (!= part "void") (not (nisa_type_ok parser part))) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow nisa_function_type_ok {
+    let parser: Parser = (parse_program (tokenize_string "" "signature.nano" (diag_list_new)) 0 "signature.nano")
+    assert (nisa_function_type_ok parser "fn(fn(int)->int,int)->int")
+    assert (nisa_function_type_ok parser "fn()->void")
+    assert (not (nisa_function_type_ok parser "fn(void)->int"))
+    assert (not (nisa_function_type_ok parser "fn(int)->Missing"))
+}
+
+fn nisa_function_type(parser: Parser, function: ASTFunction) -> string {
+    let mut result: string = "fn("
+    let mut i: int = 0
+    while (< i function.param_count) {
+        if (> i 0) { set result (+ result ",") }
+        set result (+ result (nisa_compact_type (parser_get_let parser (+ function.param_start i)).var_type))
+        set i (+ i 1)
+    }
+    return (+ result (+ ")->" (nisa_compact_type function.return_type)))
+}
+shadow nisa_function_type {
+    let tokens: List<LexerToken> = (tokenize_string "fn apply(f: fn(int)->int, n: int)->int{return (f n)}" "signature.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "signature.nano")
+    assert (== (nisa_function_type parser (parser_get_function parser 0)) "fn(fn(int)->int,int)->int")
+}
+
 fn nisa_type_ok(parser: Parser, t: string) -> bool {
+    if (str_starts_with (nisa_compact_type t) "fn(") { return (nisa_function_type_ok parser t) }
     if (nisa_tuple_type_ok parser t) { return true }
     if (nisa_union_supported parser t) { return true }
     if (>= (nisa_enum_index parser t) 0) { return true }
@@ -2344,6 +2385,42 @@ shadow nisa_get_call {
     assert (== call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)
 }
 
+fn nisa_indirect_call(parser: Parser, call: ASTCall) -> bool {
+    if (== call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) { return false }
+    if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) { return true }
+    let identifier: ASTIdentifier = (parser_get_identifier parser call.function)
+    return (or (>= (nisa_local_find identifier.name) 0) (>= (nisa_global_find identifier.name identifier.line) 0))
+}
+shadow nisa_indirect_call {
+    let _: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "fn main()->int{return (chosen 7)}" "indirect.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "indirect.nano")
+    let call: ASTCall = (parser_get_call parser 0)
+    assert (not (nisa_indirect_call parser call))
+    set nisa_names ["chosen"]
+    assert (nisa_indirect_call parser call)
+    let _: int = (nisa_reset)
+}
+
+fn nisa_identifier_function(parser: Parser, identifier: ASTIdentifier) -> int {
+    let name: string = (mb_resolve identifier.name identifier.line nisa_names)
+    let owner: int = (mb_target_owner (mb_owner identifier.line) identifier.name)
+    let mut i: int = 0
+    while (< i (parser_get_function_count parser)) {
+        let function: ASTFunction = (parser_get_function parser i)
+        if (and (== function.name name) (or (< owner 0) (== (mb_owner function.line) owner))) { return i }
+        set i (+ i 1)
+    }
+    return -1
+}
+shadow nisa_identifier_function {
+    let _: int = (nisa_reset)
+    (mb_reset [])
+    let tokens: List<LexerToken> = (tokenize_string "fn answer()->int{return 42} fn main()->fn()->int{return answer}" "reference.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "reference.nano")
+    assert (== (nisa_identifier_function parser (parser_get_identifier parser 0)) 0)
+}
+
 fn nisa_call_name(parser: Parser, call: ASTCall) -> string {
     if (== call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
         let qualified: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser call.function)
@@ -2352,12 +2429,13 @@ fn nisa_call_name(parser: Parser, call: ASTCall) -> string {
     if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) { return "" }
     let identifier: ASTIdentifier = (parser_get_identifier parser call.function)
     if (or (>= (nisa_local_find identifier.name) 0) (>= (nisa_global_find identifier.name identifier.line) 0)) {
-        return (nisa_fail "I cannot resolve an indirect call target in this emitter")
+        return ""
     }
     return (mb_resolve identifier.name identifier.line nisa_names)
 }
 # I resolve duplicate C-linkage spellings by the declaration's source owner.
 fn nisa_call_index(parser: Parser, call: ASTCall) -> int {
+    if (nisa_indirect_call parser call) { return -1 }
     let name: string = (nisa_call_name parser call)
     let mut original: string = ""
     if (== call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
@@ -2402,7 +2480,7 @@ shadow nisa_call_name {
     assert (== (nisa_call_name parser (parser_get_call parser 0)) "bound_answer")
     set nisa_names ["answer"]
     assert (== (nisa_call_name parser (parser_get_call parser 0)) "")
-    assert (not nisa_ok)
+    assert nisa_ok
     let _2: int = (nisa_reset)
     (mb_reset [])
 }
@@ -2593,7 +2671,11 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         let slot: int = (nisa_local_find identifier.name)
         if (< slot 0) {
             let global: int = (nisa_global_find identifier.name identifier.line)
-            if (< global 0) { return "" }
+            if (< global 0) {
+                let function: int = (nisa_identifier_function parser identifier)
+                if (< function 0) { return "" }
+                return (nisa_function_type parser (parser_get_function parser function))
+            }
             return (at nisa_global_types global)
         }
         if (>= slot (array_length nisa_types)) { return "" }
@@ -2620,6 +2702,11 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
     }
     if (or (== node_type ParseNodeType.PNODE_CALL) (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
         let call: ASTCall = (nisa_get_call parser node_id node_type)
+        if (nisa_indirect_call parser call) {
+            let parts: array<string> = (function_type_parts (nisa_expr_type parser call.function call.function_type))
+            if (== (array_length parts) 0) { return "" }
+            return (at parts (- (array_length parts) 1))
+        }
         let target_name: string = (nisa_call_name parser call)
         if (and (!= (nisa_string_binary_opcode target_name) "") (< (nisa_call_index parser call) 0)) {
             if (== target_name "str_concat") { return "string" }
@@ -2831,6 +2918,11 @@ shadow nisa_emit_tuple_literal {
 
 # I carry declared constructor context without changing the AST.
 fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expected: string) -> string {
+    if (str_starts_with (nisa_compact_type expected) "fn(") {
+        if (not (nisa_value_type_matches parser (nisa_expr_type parser node_id node_type) expected)) {
+            return (nisa_fail "I require the declared function value signature")
+        }
+    }
     if (== expected "u8") {
         if (== node_type ParseNodeType.PNODE_NUMBER) {
             let literal: int = (string_to_int (parser_get_number parser node_id).value)
@@ -3513,10 +3605,64 @@ shadow nisa_emit_functional_array {
     let reset: int = (nisa_reset)
 }
 
+# I snapshot the callee before evaluating arguments from left to right.
+fn nisa_emit_indirect_call(parser: Parser, call: ASTCall) -> string {
+    let signature: string = (nisa_expr_type parser call.function call.function_type)
+    if (not (nisa_function_type_ok parser signature)) { return (nisa_fail "I require a known function expression signature") }
+    let parts: array<string> = (function_type_parts signature)
+    if (!= (array_length parts) (+ call.arg_count 1)) { return (nisa_fail "I require the function expression argument count") }
+    let mut text: string = (nisa_emit_expr parser call.function call.function_type)
+    if (not nisa_ok) { return "" }
+    let saved: string = (nisa_temp_local signature)
+    set text (+ text (nisa_line_imm "STORE_LOCAL" saved))
+    let mut i: int = 0
+    while (< i call.arg_count) {
+        let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+        let expected: string = (at parts i)
+        let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
+        let mut contextual: bool = (and (== expected "u8") (== argument.node_type ParseNodeType.PNODE_NUMBER))
+        if (and (str_starts_with expected "array<") (== argument.node_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
+            set contextual (== (parser_get_array_literal parser argument.node_id).element_count 0)
+        }
+        if (and (not contextual) (not (nisa_value_type_matches parser actual expected))) {
+            return (nisa_fail "I require the function expression argument types")
+        }
+        set text (+ text (nisa_emit_expected_expr parser argument.node_id argument.node_type expected))
+        if (not nisa_ok) { return "" }
+        set i (+ i 1)
+    }
+    let mut results: string = "1"
+    if (== (at parts call.arg_count) "void") { set results "0" }
+    set nisa_has_callables true
+    set nisa_ordinary_ok false
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" saved))
+    return (+ text (nisa_line_imm "CALL_INDIRECT" (+ (int_to_string call.arg_count) (+ " " results))))
+}
+shadow nisa_emit_indirect_call {
+    let text: string = (nanoisa_emit_nasm "fn identity(n:int)->int{return n} fn choose()->fn(int)->int{return identity} fn main()->int{return ((choose) 42)}")
+    assert nisa_ok
+    assert (str_contains text "FUNCREF identity")
+    assert (str_contains text "CALL_INDIRECT 1 1")
+    assert (str_contains text ".parameters identity int")
+    assert (== (nanoisa_emit_nasm "fn f(n:int)->int{return n} fn main()->int{let g:fn(int)->int = f return (g true)}") "")
+    let _: int = (nisa_reset)
+}
+
+fn nisa_callable_publication() -> string {
+    if nisa_has_callables { return nisa_ordinary_parameters }
+    return ""
+}
+shadow nisa_callable_publication {
+    let _: int = (nisa_reset)
+    set nisa_ordinary_parameters ".parameters use function\n"
+    assert (== (nisa_callable_publication) "")
+    set nisa_has_callables true
+    assert (== (nisa_callable_publication) ".parameters use function\n")
+    let _: int = (nisa_reset)
+}
+
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
-    if (and (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
-        return (nisa_fail "computed function calls are outside the NanoISA subset")
-    } else { (print "") }
+    if (nisa_indirect_call parser call) { return (nisa_emit_indirect_call parser call) }
     let function_name: string = (nisa_call_name parser call)
     let declared_index: int = (nisa_call_index parser call)
     if (nisa_declared_push parser call) {
@@ -3884,7 +4030,16 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                 let slot: int = (nisa_local_find id.name)
                 if (< slot 0) {
                     let global: int = (nisa_global_find id.name id.line)
-                    if (< global 0) { return (nisa_fail (+ "undefined binding " id.name)) }
+                    if (< global 0) {
+                        let index: int = (nisa_identifier_function parser id)
+                        if (< index 0) { return (nisa_fail (+ "undefined binding " id.name)) }
+                        let function: ASTFunction = (parser_get_function parser index)
+                        if (< function.body 0) { return (nisa_fail "I require a NanoISA body for a function value") }
+                        (nisa_require_function index)
+                        set nisa_has_callables true
+                        set nisa_ordinary_ok false
+                        return (nisa_line_imm "FUNCREF" function.name)
+                    }
                     return (nisa_line_imm "LOAD_GLOBAL" (int_to_string global))
                 } else {
                     return (nisa_line_imm "LOAD_LOCAL" (int_to_string slot))
@@ -4288,6 +4443,11 @@ shadow nisa_emit_assert {
 
 # I describe the emitted stack effect; list push still needs its trailing POP.
 fn nisa_call_has_result(parser: Parser, call: ASTCall) -> bool {
+    if (nisa_indirect_call parser call) {
+        let parts: array<string> = (function_type_parts (nisa_expr_type parser call.function call.function_type))
+        if (== (array_length parts) 0) { return false }
+        return (!= (at parts (- (array_length parts) 1)) "void")
+    }
     let name: string = (nisa_call_name parser call)
     if (nisa_is_print_builtin name) { return false }
     if (nisa_is_set_call name) { return false }
@@ -4637,6 +4797,10 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         if (or (== r.value_type ParseNodeType.PNODE_CALL) (== r.value_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
             let result_call: ASTCall = (nisa_get_call parser r.value r.value_type)
             let result_type: string = (nisa_expr_type parser r.value r.value_type)
+            if (and (str_starts_with (nisa_compact_type nisa_return_type) "fn(")
+                    (not (nisa_value_type_matches parser result_type nisa_return_type))) {
+                return (nisa_fail "I require the declared function return signature")
+            }
             if (or (>= (nisa_union_index parser nisa_return_type) 0) (>= (nisa_union_index parser result_type) 0)) {
                 if (!= (nisa_compact_type result_type) (nisa_compact_type nisa_return_type)) {
                     return (nisa_fail "I require the exact declared union return instance")
@@ -4657,7 +4821,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         }
         if (or (== r.value_type ParseNodeType.PNODE_CALL) (== r.value_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
             let call: ASTCall = (nisa_get_call parser r.value r.value_type)
-            if (and (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+            if (nisa_indirect_call parser call) {
                 return (+ (nisa_emit_call parser call) (nisa_line "RET"))
             } else {
                 let function_name: string = (nisa_call_name parser call)
@@ -4866,6 +5030,7 @@ shadow nisa_emit_block {
 }
 
 fn nisa_result_tag(parser: Parser, t: string) -> string {
+    if (nisa_function_type_ok parser t) { return "function" }
     if (nisa_union_supported parser t) { return "union" }
     if (== t "float") { return "float" }
     if (== t "u8") { return "u8" }
@@ -4913,6 +5078,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_types []
     set nisa_named_slots []
     let result_tag: string = (nisa_result_tag parser func.return_type)
+    if (== result_tag "function") { set nisa_has_callables true set nisa_ordinary_ok false }
     set nisa_void_return (== func.return_type "void")
     set nisa_return_type func.return_type
     set nisa_loop_top ""
@@ -4924,6 +5090,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         let mut i: int = 0
         while (< i func.param_count) {
             let plet: ASTLet = (parser_get_let parser (+ func.param_start i))
+            if (nisa_function_type_ok parser plet.var_type) { set nisa_has_callables true set nisa_ordinary_ok false }
             if (not (nisa_type_ok parser plet.var_type)) {
                 return (nisa_fail (+ "unsupported param type " plet.var_type))
             } else {
@@ -5010,6 +5177,8 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
 }
 
 shadow nisa_emit_function {
+    let relay: string = (nanoisa_emit_nasm "fn relay(f:fn()->int)->fn()->int{return f} fn main()->int{return 0}")
+    assert (str_contains relay ".parameters relay function")
     let _: int = (nisa_reset)
     let diags: List<CompilerDiagnostic> = (diag_list_new)
     let src: string = (+ "f" "n add(a: int, b: int) -> int { return (+ a b) } shadow add { assert (== (add 2 3) 5) }")
@@ -5352,7 +5521,7 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
     set prelude (+ prelude (+ "\n.entry " (int_to_string entry_index)))
     set prelude (+ prelude (+ "\n\n" nisa_import_text))
     set prelude (+ prelude (nisa_str_prelude))
-    return (+ prelude (+ out (nisa_ordinary_publication parser)))
+    return (+ prelude (+ out (+ (nisa_ordinary_publication parser) (nisa_callable_publication))))
 }
 shadow nanoisa_emit_shadows_nasm {
     let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
@@ -5447,7 +5616,7 @@ fn nisa_emit_module_nasm(parser: Parser, program: bool) -> string {
                 } else {
                     (print "")
                 }
-                return (+ prelude (+ out (nisa_ordinary_publication parser)))
+                return (+ prelude (+ out (+ (nisa_ordinary_publication parser) (nisa_callable_publication))))
             }
         }
     }

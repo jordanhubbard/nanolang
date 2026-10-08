@@ -983,7 +983,7 @@ test-daemon-gate:
 
 .PHONY: test-selfhost-returned-calls
 test-selfhost-returned-calls: bootstrap3
-	@python3 -m unittest tests.test_selfhost_returned_calls
+	@python3 -m unittest tests.test_selfhost_returned_calls tests.test_selfhost_function_values
 
 .PHONY: test-selfhost-rejection-gate
 test-selfhost-rejection-gate:
