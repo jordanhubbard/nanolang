@@ -1068,6 +1068,45 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
 static int jump_target(Nvm2cBuf *b, uint32_t idx, size_t start, int32_t rel,
                        size_t remaining, size_t *out);
 
+/* I may clear typed roots without optional storage only when every later
+ * read is preceded by another store, including across branches and backedges. */
+static int local_clear_unobserved(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
+                                  size_t next_pc, uint16_t slot) {
+    const NvmFunctionEntry *fn = &mod->functions[idx];
+    size_t count = (size_t)fn->code_length + 1;
+    if (count > SIZE_MAX / sizeof(size_t)) return 0;
+    uint8_t *seen = calloc(count, 1);
+    size_t *queue = malloc(count * sizeof *queue);
+    if (!seen || !queue) { free(seen); free(queue); return 0; }
+    size_t head = 0, tail = 0;
+    queue[tail++] = next_pc; seen[next_pc] = 1;
+    int safe = 1;
+    while (head < tail && safe) {
+        size_t pc = queue[head++];
+        if (pc == fn->code_length) continue;
+        DecodedInstruction ins;
+        uint32_t n = isa_decode(mod->code + fn->code_offset + pc, fn->code_length - pc, &ins);
+        if (!n) { safe = 0; break; }
+        if ((ins.opcode == OP_LOAD_LOCAL || ins.opcode == OP_STORE_LOCAL) && ins.operands[0].u16 == slot) {
+            if (ins.opcode == OP_LOAD_LOCAL) safe = 0;
+            continue;
+        }
+        if (ins.opcode == OP_RET || ins.opcode == OP_HALT || ins.opcode == OP_TAIL_CALL) continue;
+        size_t successors[2] = {pc + n, 0}, size = 1;
+        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE || ins.opcode == OP_JMP_TRUE) {
+            size_t target;
+            if (!jump_target(b, idx, pc, ins.operands[0].i32, fn->code_length, &target)) { safe = 0; break; }
+            if (ins.opcode == OP_JMP) successors[0] = target;
+            else successors[size++] = target;
+        }
+        for (size_t i = 0; i < size; ++i) {
+            size_t at = successors[i];
+            if (!seen[at]) { seen[at] = 1; queue[tail++] = at; }
+        }
+    }
+    free(seen); free(queue); return safe;
+}
+
 /* I use tagged storage when a reachable read can precede the first store. */
 static int mark_uninitialized_locals(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx) {
     const NvmFunctionEntry *fn = &mod->functions[idx];
@@ -1315,6 +1354,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
     size_t pc = 0;
     int terminated = 0;
     int previous_false_push = 0;
+    int previous_void_push = 0;
 
     while (pc < remaining) {
         size_t start = pc;
@@ -1327,10 +1367,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         pc += n;
         if (terminated && !joins[start].set) {
             previous_false_push = 0;
+            previous_void_push = 0;
             continue;
         }
         if (targets[start]) {
             previous_false_push = 0;
+            previous_void_push = 0;
             if (!terminated && !sim_join(b, idx, start, &joins[start], stk, sp, facts)) return 0;
             sp = joins[start].sp;
             if (sp) memcpy(stk, joins[start].slots, (size_t)sp * sizeof *stk);
@@ -1550,6 +1592,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 return 0;
             }
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
+            if (previous_void_push && local_clear_unobserved(b, mod, idx, pc, slot)) break;
             size_t local_at = (size_t)idx * b->local_width + slot;
             uint16_t tags = b->local_scalar_tags[local_at] |
                 (v.kind == NVM2C_VK_UNK ? 0 : v.scalar_tags);
@@ -2523,6 +2566,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         if (ins.opcode == OP_JMP || ins.opcode == OP_RET ||
             ins.opcode == OP_HALT || ins.opcode == OP_TAIL_CALL) terminated = 1;
         previous_false_push = ins.opcode == OP_PUSH_BOOL && ins.operands[0].u8 == 0;
+        previous_void_push = ins.opcode == OP_PUSH_VOID;
         if (b->failed) return 0;
     }
 
@@ -3627,6 +3671,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     size_t pc = 0;
     int terminated = 0;
     int previous_false_push = 0;
+    int previous_void_push = 0;
     /* A decoded self-tail instruction may be unreachable. Keep its label
      * syntactically referenced without executing an extra jump. */
     nvm2c_puts(b, "    if (0) goto L_return;\n");
@@ -3646,11 +3691,13 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         if (terminated && !join_set[start]) {
             previous_false_push = 0;
+            previous_void_push = 0;
             pc += n;
             continue;
         }
         if (is_target[start]) {
             previous_false_push = 0;
+            previous_void_push = 0;
             if (terminated) {
                 if (!join_set[start]) {
                     nvm2c_fail(b, "function %u: label at %zu has no incoming stack",
@@ -3969,6 +4016,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (slot >= fn->local_count) {
                 nvm2c_fail(b, "function %u: STORE_LOCAL %u out of range", idx, slot);
                 goto done;
+            }
+            if (previous_void_push && local_clear_unobserved(b, mod, idx, pc, slot)) {
+                uint8_t ignored;
+                (void)stack_pop_kind(b, &st, &ignored);
+                if (b->failed) goto done;
+                char local[32];
+                local_operand(local, b, kinds, idx, slot);
+                nvm2c_printf(b, "    %s = (%s){0};\n", local, c_local_type(fn_local_kind(b, kinds, idx, slot)));
+                break;
             }
             {
                 uint8_t expect = fn_local_kind(b, kinds, idx, slot);
@@ -5367,6 +5423,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         if (b->failed) goto done;
         if (boolean_result(ins.opcode) && st.sp > 0) st.kinds[st.sp - 1] = NVM2C_VK_BOOL;
         previous_false_push = ins.opcode == OP_PUSH_BOOL && ins.operands[0].u8 == 0;
+        previous_void_push = ins.opcode == OP_PUSH_VOID;
     }
 
     if (is_target[remaining] && join_set[remaining]) {

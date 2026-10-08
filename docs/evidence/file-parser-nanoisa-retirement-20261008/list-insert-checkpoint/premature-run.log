@@ -1,0 +1,212 @@
+I retain list insertion evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-x6krdm6b
+test_evaluation_order_once (tests.test_nanoisa_list_insert.ListInsert.test_evaluation_order_once) ... 
+  test_evaluation_order_once (tests.test_nanoisa_list_insert.ListInsert.test_evaluation_order_once) (case='order', producer='selfhost') ... ERROR
+test_invalid_bounds_trap (tests.test_nanoisa_list_insert.ListInsert.test_invalid_bounds_trap) ... 
+  test_invalid_bounds_trap (tests.test_nanoisa_list_insert.ListInsert.test_invalid_bounds_trap) (case='bound--1', producer='selfhost') ... ERROR
+  test_invalid_bounds_trap (tests.test_nanoisa_list_insert.ListInsert.test_invalid_bounds_trap) (case='bound-1', producer='selfhost') ... ERROR
+  test_invalid_bounds_trap (tests.test_nanoisa_list_insert.ListInsert.test_invalid_bounds_trap) (case='bound-9223372036854775807', producer='selfhost') ... ERROR
+test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_insert.ListInsert.test_positions_aliases_and_record_payloads) ... 
+  test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_insert.ListInsert.test_positions_aliases_and_record_payloads) (case='int', producer='selfhost') ... ERROR
+  test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_insert.ListInsert.test_positions_aliases_and_record_payloads) (case='Item', producer='seed') ... FAIL
+  test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_insert.ListInsert.test_positions_aliases_and_record_payloads) (case='Item', producer='selfhost') ... ERROR
+test_unchecked_emitter_refuses_invalid_types (tests.test_nanoisa_list_insert.ListInsert.test_unchecked_emitter_refuses_invalid_types) ... ERROR
+
+======================================================================
+ERROR: test_evaluation_order_once (tests.test_nanoisa_list_insert.ListInsert.test_evaluation_order_once) (case='order', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 44, in qualify
+    assembly.write_text(self.command(self.driver, path, "program").stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 28, in command
+    p = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=900)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/nanolang-list-insert-driver'
+
+======================================================================
+ERROR: test_invalid_bounds_trap (tests.test_nanoisa_list_insert.ListInsert.test_invalid_bounds_trap) (case='bound--1', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 44, in qualify
+    assembly.write_text(self.command(self.driver, path, "program").stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 28, in command
+    p = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=900)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/nanolang-list-insert-driver'
+
+======================================================================
+ERROR: test_invalid_bounds_trap (tests.test_nanoisa_list_insert.ListInsert.test_invalid_bounds_trap) (case='bound-1', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 44, in qualify
+    assembly.write_text(self.command(self.driver, path, "program").stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 28, in command
+    p = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=900)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/nanolang-list-insert-driver'
+
+======================================================================
+ERROR: test_invalid_bounds_trap (tests.test_nanoisa_list_insert.ListInsert.test_invalid_bounds_trap) (case='bound-9223372036854775807', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 44, in qualify
+    assembly.write_text(self.command(self.driver, path, "program").stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 28, in command
+    p = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=900)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/nanolang-list-insert-driver'
+
+======================================================================
+ERROR: test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_insert.ListInsert.test_positions_aliases_and_record_payloads) (case='int', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 44, in qualify
+    assembly.write_text(self.command(self.driver, path, "program").stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 28, in command
+    p = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=900)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/nanolang-list-insert-driver'
+
+======================================================================
+ERROR: test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_insert.ListInsert.test_positions_aliases_and_record_payloads) (case='Item', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 44, in qualify
+    assembly.write_text(self.command(self.driver, path, "program").stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 28, in command
+    p = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=900)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/nanolang-list-insert-driver'
+
+======================================================================
+ERROR: test_unchecked_emitter_refuses_invalid_types (tests.test_nanoisa_list_insert.ListInsert.test_unchecked_emitter_refuses_invalid_types)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 123, in test_unchecked_emitter_refuses_invalid_types
+    result = self.command(self.driver, path, "program", success=False)
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 28, in command
+    p = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=900)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/nanolang-list-insert-driver'
+
+======================================================================
+FAIL: test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_insert.ListInsert.test_positions_aliases_and_record_payloads) (case='Item', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/Users/jordanh/Src/nanolang/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-x6krdm6b/Item-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-x6krdm6b/Item-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-x6krdm6b/Item-seed.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage record to optional at nodes 17/21
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.407s
+
+FAILED (failures=1, errors=7)

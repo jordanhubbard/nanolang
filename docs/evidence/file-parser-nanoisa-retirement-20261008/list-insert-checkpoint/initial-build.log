@@ -1,0 +1,24 @@
+Error at line 3621, column 5: Expected variable name
+Error at line 3621, column 14: Unexpected token in expression: COLON (type=14)
+Error at line 3621, column 16: Unexpected token in expression: TYPE_STRING (type=54)
+Error at line 3621, column 23: Unexpected token in expression: ASSIGN (type=17)
+Error at line 3622, column 51: Unexpected token in expression: ARRAY (type=42)
+Error at line 3622, column 51: Failed to parse function argument
+Error at line 3622, column 51: Unexpected token in expression: ARRAY (type=42)
+Error at line 3622, column 56: Unexpected token in expression: RPAREN (type=8)
+Error at line 3622, column 57: Unexpected token in expression: RPAREN (type=8)
+Error at line 3630, column 50: Unexpected token in expression: ARRAY (type=42)
+Error at line 3630, column 50: Failed to parse function argument
+Error at line 3630, column 50: Unexpected token in expression: ARRAY (type=42)
+Error at line 3630, column 55: Unexpected token in expression: RPAREN (type=8)
+Error at line 3630, column 56: Unexpected token in expression: RPAREN (type=8)
+Error at line 3641, column 50: Unexpected token in expression: ARRAY (type=42)
+Error at line 3641, column 50: Failed to parse function argument
+Error at line 3641, column 50: Unexpected token in expression: ARRAY (type=42)
+Error at line 3641, column 55: Unexpected token in expression: RPAREN (type=8)
+Error at line 3641, column 56: Unexpected token in expression: RPAREN (type=8)
+Error at line 3652, column 50: Unexpected token in expression: ARRAY (type=42)
+... stopping after 20 errors
+Error: Failed to parse module '/Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_codegen.nano'
+Error at line 1, column 1: Failed to load module '/Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_codegen.nano'
+Module loading failed

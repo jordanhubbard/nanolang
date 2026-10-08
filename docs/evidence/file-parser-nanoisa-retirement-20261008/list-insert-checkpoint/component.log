@@ -1,0 +1,25 @@
+I retain list insertion evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-z0rid8lg
+test_evaluation_order_once (tests.test_nanoisa_list_insert.ListInsert.test_evaluation_order_once) ... ok
+test_invalid_bounds_trap (tests.test_nanoisa_list_insert.ListInsert.test_invalid_bounds_trap) ... ok
+test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_insert.ListInsert.test_positions_aliases_and_record_payloads) ... 
+  test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_insert.ListInsert.test_positions_aliases_and_record_payloads) (case='Item', producer='seed') ... FAIL
+test_unchecked_emitter_refuses_invalid_types (tests.test_nanoisa_list_insert.ListInsert.test_unchecked_emitter_refuses_invalid_types) ... ok
+
+======================================================================
+FAIL: test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_insert.ListInsert.test_positions_aliases_and_record_payloads) (case='Item', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 49, in qualify
+    self.command(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_nanoisa_list_insert.py", line 31, in command
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/Users/jordanh/Src/nanolang/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-z0rid8lg/Item-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-z0rid8lg/Item-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-z0rid8lg/Item-seed.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage record to optional at nodes 17/21
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 3.195s
+
+FAILED (failures=1)
