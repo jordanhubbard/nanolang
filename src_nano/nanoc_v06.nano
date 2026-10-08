@@ -1253,8 +1253,8 @@ fn merge_with_imports(input_file: string) -> MergeResult {
             let imp: string = (parse_import_path_from_line line)
             let is_module_decl: bool = (nlc_str_starts_with line "module ")
             let is_unsafe_module_decl: bool = (nlc_str_starts_with line "unsafe module ")
-            let is_opaque_decl: bool = (nlc_str_starts_with line "opaque type ")
-            if (or (!= imp "") (and (not is_module_decl) (and (not is_unsafe_module_decl) (not is_opaque_decl)))) {
+            # I retain opaque declarations so merged uses keep their nominal type.
+            if (or (!= imp "") (and (not is_module_decl) (not is_unsafe_module_decl))) {
                 let resolved_line: string = (strip_pub_decl line)
                 set parts (array_push parts (+ resolved_line "\n"))
                 set merged_lines (+ merged_lines 1)

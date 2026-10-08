@@ -5325,6 +5325,10 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
         }
         let init_type_hint: NSType = (apply_value_type_hint parser let_node.value let_node.value_type init_type_raw declared_type)
         let mut init_type: NSType = (apply_return_type_hint init_type_hint declared_type)
+        # I accept only literal zero as a declared opaque null, as at call sites.
+        if (and (tc_is_opaque_name parser let_node.var_type) (== let_node.value_type ParseNodeType.PNODE_NUMBER)) {
+            if (== (parser_get_number parser let_node.value).value "0") { set init_type declared_type }
+        }
         if (and (== let_node.value_type ParseNodeType.PNODE_ARRAY_LITERAL) (and (== declared_type.kind TypeKind.TYPE_ARRAY) (== declared_type.element_type_kind TypeKind.TYPE_INT))) {
             let literal: ASTArrayLiteral = (parser_get_array_literal parser let_node.value)
             let mut has_enum: bool = false
@@ -6654,4 +6658,15 @@ fn typecheck() -> int {
 
 shadow typecheck {
     assert (== (typecheck) 0)
+}
+
+shadow check_let_statement {
+    let valid: Parser = (resource_test_parser "opaque type Handle fn main()->int { let handle:Handle = 0 return 0 }")
+    let accepted: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_let_statement valid (parser_get_let valid 0) 0 [] accepted "opaque.nano")
+    assert (== (list_CompilerDiagnostic_length accepted) 0)
+    let invalid: Parser = (resource_test_parser "opaque type Handle fn main()->int { let handle:Handle = 1 return 0 }")
+    let rejected: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_let_statement invalid (parser_get_let invalid 0) 0 [] rejected "opaque.nano")
+    assert (> (list_CompilerDiagnostic_length rejected) 0)
 }
