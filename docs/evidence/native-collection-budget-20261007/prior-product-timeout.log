@@ -1,0 +1,229 @@
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+OK
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -o obj/test_nvm2c_shape \
+		tests/nanoisa/test_nvm2c_shape.c src/nanoisa/nvm2c_shape.c
+.I verified fresh ASan/UBSan translator and shape objects.
+I verified fresh ASan/UBSan translator and shape objects.
+.I did not find ASan and UBSan instrumentation in nvm2c.o
+I did not find ASan and UBSan instrumentation in nvm2c.o
+I did not find ASan and UBSan instrumentation in nvm2c.o
+.
+----------------------------------------------------------------------
+Ran 3 tests in 0.005s
+
+OK
+python3 scripts/embed_binary64_parser.py --check
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -o bin/nvm2c obj/nanoisa/nvm2c_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -MMD -MP -c src/module_builder.c -o obj/module_builder.o
+Shape constraints: 1448 passed, 0 failed
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -o bin/nanoisa obj/nanoisa/dump_main.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+Running nvm2c structured-C tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -Isrc/nanoisa -Imodules/nanoisa -o tests/nanoisa/test_nvm2c \
+		tests/nanoisa/test_nvm2c.c obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -o bin/nano_virt obj/nanovirt/codegen.o obj/nanovirt/wrapper_gen.o obj/nanovirt/shadow_runner.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nanovirt/main.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+		obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+		obj/nanovm/main.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib 
+.I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_string at generated C line 646.
+I stopped at a native invariant in nvalue_require_bool at generated C line 627.
+I stopped at a native invariant in nvalue_require_bool at generated C line 627.
+I stopped at a native invariant in nvalue_require_string at generated C line 591.
+I stopped at a native invariant in nvalue_require_string at generated C line 591.
+I stopped at a native invariant in nvalue_require_string at generated C line 591.
+I stopped at a native invariant in nvalue_require_string at generated C line 591.
+I stopped at a native invariant in nvalue_require_string at generated C line 591.
+I stopped at a native invariant in nvalue_require_string at generated C line 591.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nvalue_require_int at generated C line 624.
+I stopped at a native invariant in nl___init__ at generated C line 103.
+I stopped at a native invariant in nl_main at generated C line 917.
+I stopped at a native invariant in nl_main at generated C line 917.
+I stopped at a native invariant in nl_main at generated C line 917.
+I stopped at a native invariant in nl_main at generated C line 941.
+I stopped at a native invariant in nl_main at generated C line 941.
+I stopped at a native invariant in nl_main at generated C line 941.
+I stopped at a native invariant in nl_main at generated C line 963.
+I stopped at a native invariant in nl_main at generated C line 963.
+I stopped at a native invariant in nl_main at generated C line 963.
+I stopped at a native invariant in nl_main at generated C line 949.
+I stopped at a native invariant in nvalue_require_int at generated C line 575.
+I stopped at a native invariant in nl_main at generated C line 846.
+I stopped at a native invariant in nl_main at generated C line 846.
+I stopped at a native invariant in nl_main at generated C line 846.
+I stopped at a native invariant in nl_main at generated C line 906.
+I stopped at a native invariant in nhost_walk_0 at generated C line 742.
+I stopped at a native invariant in nhost_walk_0 at generated C line 726.
+I stopped at a native invariant in nhost_walk_0 at generated C line 728.
+I stopped at a native invariant in nhost_walk_0 at generated C line 731.
+I stopped at a native invariant in nvalue_require_int at generated C line 623.
+I stopped at a native invariant in nvalue_require_int at generated C line 623.
+I stopped at a native invariant in nvalue_require_int at generated C line 623.
+I stopped at a native invariant in nl_update at generated C line 926.
+I stopped at a native invariant in nl_update at generated C line 926.
+I stopped at a native invariant in nvalue_array_len at generated C line 880.
+I stopped at a native invariant in nvalue_array_len at generated C line 880.
+I stopped at a native invariant in nvalue_array_len at generated C line 880.
+I stopped at a native invariant in nvalue_require_int at generated C line 675.
+I stopped at a native invariant in nl_prove at generated C line 59.
+I stopped at a native invariant in nvalue_array_len at generated C line 800.
+I stopped at a native invariant in nl_main at generated C line 898.
+I stopped at a native invariant in nvalue_require_int at generated C line 623.
+I stopped at a native invariant in nvalue_require_int at generated C line 623.
+I stopped at a native invariant in nvalue_require_int at generated C line 623.
+I stopped at a native invariant in nvalue_require_int at generated C line 623.
+I stopped at a native invariant in nvalue_require_int at generated C line 623.
+I stopped at a native invariant in nvalue_require_int at generated C line 623.
+I stopped at a native invariant in nvalue_require_int at generated C line 623.
+I stopped at a native invariant in nvalue_require_int at generated C line 623.
+I stopped at a native invariant in nvalue_require_int at generated C line 623.
+I stopped at a native invariant in nvalue_require_int at generated C line 638.
+I stopped at a native invariant in nvalue_require_int at generated C line 638.
+I stopped at a native invariant in nvalue_require_int at generated C line 638.
+I stopped at a native invariant in nvalue_require_int at generated C line 675.
+I stopped at a native invariant in nvalue_array_len at generated C line 800.
+I stopped at a native invariant in nvalue_array_len at generated C line 800.
+I stopped at a native invariant in nvalue_array_set at generated C line 877.
+I stopped at a native invariant in nvalue_array_set at generated C line 877.
+I stopped at a native invariant in nvalue_array_set at generated C line 877.
+I stopped at a native invariant in nvalue_array_set at generated C line 877.
+I stopped at a native invariant in nvalue_array_set at generated C line 877.
+I stopped at a native invariant in nvalue_array_set at generated C line 877.
+I stopped at a native invariant in nvalue_array_set at generated C line 877.
+I stopped at a native invariant in nvalue_array_set at generated C line 877.
+I stopped at a native invariant in nvalue_array_set at generated C line 877.
+I stopped at a native invariant in nvalue_array_set at generated C line 877.
+I stopped at a native invariant in nvalue_array_set at generated C line 877.
+I stopped at a native invariant in nvalue_array_set at generated C line 877.
+I stopped at a native invariant in nvalue_array_set at generated C line 901.
+I stopped at a native invariant in nvalue_array_set at generated C line 901.
+I stopped at a native invariant in nvalue_array_set at generated C line 901.
+I stopped at a native invariant in nvalue_array_set at generated C line 901.
+I stopped at a native invariant in nvalue_array_set at generated C line 901.
+I stopped at a native invariant in nvalue_array_set at generated C line 901.
+I stopped at a native invariant in nvalue_require_int at generated C line 575.
+I stopped at a native invariant in nvalue_require_bool at generated C line 579.
+I stopped at a native invariant in nvalue_require_string at generated C line 583.
+I stopped at a native invariant in nvalue_require_int at generated C line 575.
+I stopped at a native invariant in nvalue_require_int at generated C line 575.
+I stopped at a native invariant in nvalue_require_string at generated C line 583.
+I stopped at a native invariant in nvalue_require_string at generated C line 583.
+I stopped at a native invariant in nvalue_require_bool at generated C line 579.
+I stopped at a native invariant in nvalue_require_bool at generated C line 579.
+I stopped at a native invariant in nvalue_require_bool at generated C line 579.
+I stopped at a native invariant in nvalue_require_string at generated C line 599.
+I stopped at a native invariant in nvalue_require_string at generated C line 599.
+I stopped at a native invariant in nvalue_require_string at generated C line 599.
+I stopped at a native invariant in nvalue_require_string at generated C line 636.
+I stopped at a native invariant in nvalue_require_string at generated C line 599.
+I stopped at a native invariant in nl_main at generated C line 830.
+I stopped at a native invariant in nvalue_require_string at generated C line 583.
+I stopped at a native invariant in nvalue_require_bool at generated C line 579.
+I stopped at a native invariant in nvalue_require_bool at generated C line 579.
+I stopped at a native invariant in nvalue_require_bool at generated C line 579.
+I stopped at a native invariant in nvalue_require_int at generated C line 575.
+I stopped at a native invariant in nl_main at generated C line 865.
+
+[nvm2c] structured C11 from NanoISA...
+
+
+=== 2431 passed, 0 failed ===
+F.................................................................................
+======================================================================
+FAIL: test_compiler_bytecode_to_native_to_program (tests.test_one_ir_compiler.OneIrCompiler.test_compiler_bytecode_to_native_to_program)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_one_ir_compiler.py", line 121, in run_checked
+    stdout, stderr = process.communicate(timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1221, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 2154, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1268, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-one-ir-compiler-eagqj5au/compiler', '/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-one-ir-compiler-eagqj5au/rebuilt-compiler.nvm']' timed out after 900 seconds
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_one_ir_compiler.py", line 346, in test_compiler_bytecode_to_native_to_program
+    self.run_checked([compiler, ROOT / "src_nano/nanoc_v06.nano", "--emit-nvm",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "-o", rebuilt], timeout=900)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_one_ir_compiler.py", line 128, in run_checked
+    self.fail(f"I exceeded {timeout}s running {args[0]}")
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: I exceeded 900s running /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-one-ir-compiler-eagqj5au/compiler
+
+----------------------------------------------------------------------
+Ran 83 tests in 1370.971s
+
+FAILED (failures=1)
+roots=1024 comparisons=4432 seconds=0.000153
+roots=2048 comparisons=8736 seconds=0.000169
+roots=4096 comparisons=17670 seconds=0.000280
+scans=0 peak=3
+scans=3 visits=30012 map_peak_bytes=65838
+string_peak_bytes=65550
+string_peak_bytes=84222
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65632
+string_peak_bytes=65671
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=67016
+aggregate_peak_bytes=66064
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=66192
+aggregate_peak_bytes=66192
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=66056
+aggregate_peak_bytes=65928
+aggregate_peak_bytes=66184
+make: *** [test-one-ir-compiler] Error 1

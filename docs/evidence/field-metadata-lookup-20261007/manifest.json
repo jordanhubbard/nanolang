@@ -1,0 +1,17 @@
+{
+  "base_commit": "0a16bd8a4",
+  "source_sha256": {
+    "src_nano/typecheck.nano": "1282306b0cbcf0c14fc4147fdc538481e681a6ec842204f5a0525467aeaf2c7d",
+    "tests/test_field_metadata_lookup.py": "7533bc3235d6bce2214f1d3c0e8d578c24cfd022da8a5be1beafed7bd2c9a8ab",
+    "Makefile.gnu": "7b454e1d5142b99c5fc9426b34c8a3db5ba6aaab2b0bf7d59c5db481f85f9b3a"
+  },
+  "before_module_sha256": "775e5243c54050e158351ac64308ffc73b09c031e440675f8a202f744ab3bb56",
+  "after_module_sha256": "3e8b006ab51caae82c93aedc9cdf473120f05054dded039446e9984bfbdc1f16",
+  "evidence_sha256": {
+    "before-shadows.log": "fea2b57f681be32aeda6eac775a1f5fd189f8ceb8c41ec419fb581531a8adf0e",
+    "README.md": "51634ba6cabd48b8743cfff8d024dc466581cfb5e87b77ad505f7865b3fbf94d",
+    "before-native.log": "3175d7eee756d72b609e018a4b34010aa642ea3a025ca1d19086e7aeee5f1b51",
+    "after-shadows.log": "fea2b57f681be32aeda6eac775a1f5fd189f8ceb8c41ec419fb581531a8adf0e",
+    "focused.log": "4a0185316487f27a449124b63649af1c456509bcacc42dca04e3457273d6ea4c"
+  }
+}

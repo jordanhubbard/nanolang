@@ -33,8 +33,17 @@ My 36 adjacent methods pass, covering record locals, aggregate and string
 retention, map roots/lifetimes/keys, record growth and record-array globals.
 Three further root-scaling and collection-scheduling methods pass, including
 allocation-free loops, mutable edges and forced drops.
-My full native compiler generation, raw VM fixed point and complete product
-qualification remain pending at this checkpoint. I keep the
-native generation deadline at 900 seconds. I do not infer release readiness from
+My isolated collector-corrected native compiler now completes full-source
+generation in 580.537 seconds under the unchanged 900-second deadline; the
+result passes NanoVM verification. The preceding product run finishes 83 methods
+with one failure: its pre-correction full-source native generation exceeds that
+900-second deadline. All 2,431 structured-C checks pass in that run. The separate
+unbounded pre-correction diagnostic also eventually exits successfully and its
+module verifies; it does not satisfy the product deadline.
+
+My clean raw VM fixed point at `ffe819332` passes separately; see
+[that checkpoint](../vm-fixedpoint-ffe819332/README.md). I still require the full
+product suite with this collection correction. The next field-metadata change
+requires another full-source run; this successful generation predates it. I do not infer release readiness from
 these reduced tests. MAC task creation returns `Operation not permitted`; I retain
 the required follow-up in my roadmap while the hub is unavailable.

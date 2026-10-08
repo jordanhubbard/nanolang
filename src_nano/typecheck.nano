@@ -2234,27 +2234,41 @@ shadow lookup_field_type_kind {
 }
 
 fn lookup_field_type(metadata: array<FieldMetadata>, struct_name: string, field_name: string) -> NSType {
-    let idx: HashMap<string, string> = (build_field_metadata_index metadata)
-    let key: string = (field_metadata_key struct_name field_name)
-    if (map_has idx key) {
-        let type_str: string = (map_get idx key)
-        return (type_from_string type_str)
-    } else { (print "") }
-
-    let capitalized: string = (capitalize_first struct_name)
-    let cap_key: string = (field_metadata_key capitalized field_name)
-    if (map_has idx cap_key) {
-        let type_str: string = (map_get idx cap_key)
-        return (type_from_string type_str)
-    } else { (print "") }
-
+    # I search newest declarations first, matching map replacement precedence.
+    # Exact spelling wins before I try the legacy capitalization fallback.
+    let mut spelling: string = struct_name
+    let mut pass: int = 0
+    while (< pass 2) {
+        let mut i: int = (array_length metadata)
+        while (> i 0) {
+            set i (- i 1)
+            let entry: FieldMetadata = (at metadata i)
+            if (and (== entry.struct_name spelling) (== entry.field_name field_name)) {
+                return (type_from_string (field_metadata_type_string entry))
+            }
+        }
+        set spelling (capitalize_first struct_name)
+        set pass (+ pass 1)
+    }
     return (type_unknown_named "field_type")
 }
 
 shadow lookup_field_type {
     let m: array<FieldMetadata> = (init_struct_metadata)
-    let t: NSType = (lookup_field_type m "ASTPrint" "value")
-    assert (== t.kind TypeKind.TYPE_INT)
+    assert (== (lookup_field_type m "ASTPrint" "value").kind TypeKind.TYPE_INT)
+    assert (== (lookup_field_type m "parser" "position").kind TypeKind.TYPE_INT)
+    assert (== (lookup_field_type [] "Parser" "position").kind TypeKind.TYPE_UNKNOWN)
+    assert (== (lookup_field_type m "Parser" "absent").name "field_type")
+    let mut custom: array<FieldMetadata> = []
+    set custom (array_push custom FieldMetadata { struct_name: "parser", field_name: "value", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
+    set custom (array_push custom FieldMetadata { struct_name: "Parser", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set custom (array_push custom FieldMetadata { struct_name: "Parser", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    assert (== (lookup_field_type custom "Parser" "value").kind TypeKind.TYPE_STRING)
+    assert (== (lookup_field_type custom "parser" "value").kind TypeKind.TYPE_BOOL)
+    set custom (array_push custom FieldMetadata { struct_name: "Parser", field_name: "values", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false, field_type_name: "string" })
+    assert (== (type_to_string (lookup_field_type custom "parser" "values")) "array<string>")
+    set custom (array_push custom FieldMetadata { struct_name: "provider.Record", field_name: "items", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTPrint" })
+    assert (== (type_to_string (lookup_field_type custom "provider.Record" "items")) "List<ASTPrint>")
 }
 
 fn option_type_some(value: NSType) -> OptionType {
