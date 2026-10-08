@@ -7,7 +7,7 @@ request. The remote worker has not acknowledged this handoff.
 ## Published checkpoints
 
 My implementation branch is `release/5.1-completion-20261007`, PR #974.
-Its current pushed pin is `a055b57c1`. The full compiler-product gate at
+Its current pushed pin is `e50ea978b`. The full compiler-product gate at
 `1321b8bdf` passes all 109 methods. HEAD and tracked sources stay unchanged;
 only the user's untracked test remains, with an unchanged hash.
 
@@ -15,11 +15,17 @@ My separate `fix/5.1-retire-legacy-globals-20261008` branch is at `221c200d7`.
 The checker correction at `b76b33a53` passes a clean raw bootstrap: Stage1
 and Stage2 are byte-identical, 492,432 bytes, SHA256
 `a729c1d528ecd8dc29621583fa2da855df6a4ff0f3433817512c03657213642c`.
-All 72 installed C-seed/Stage1/Stage2 product checks also pass. I will integrate
-it into the release branch after my current core codegen test finishes.
+All 72 installed C-seed/Stage1/Stage2 product checks also pass. I integrated
+the three checker commits into the release branch through `e4bd644a2`.
+The temporary checkout remains because its binaries reference host-library paths.
 
-A full source-snapshot rerun remains live in an isolated checkout pinned to
-`f0f6a0c62`. Its prior disk-full failures are not closed until terminal results.
+The full source-snapshot rerun at clean `f0f6a0c62` terminated with exit 120
+and explicit OSError 28; HEAD, sources and probe stayed unchanged. I archived
+its complete available log and manifest. Other failed subcases remain
+unclassified because unittest could not finish printing diagnostics.
+I recovered capacity by excluding redundant historical evidence from completed
+temporary clones with Git sparse checkout, retaining their source and binaries.
+The receipt records 52.072 GiB free; a fresh full rerun at the same pin is live.
 
 ## Current ownership
 
@@ -35,8 +41,13 @@ Make prerequisites. The first run exposes missing opaque-null lowering. My
 correction retains the original behavioral corpus and rejects nonzero or wrong
 opaque arguments; the full migrated suite passes 12 methods. Added forwarding
 and driver publication controls also pass. These migration changes are pushed
-at `a055b57c1`; the core codegen gate remains live. This is not full release
-acceptance.
+at `a055b57c1`. The core gate terminated with 90 methods and two obsolete
+refusal expectations for callable globals and function arguments. I retain the
+original failures and replace those expectations with VM/native execution,
+including an additional global-call result. The affected method passes.
+This correction is pushed at `e50ea978b`, where the full corrected core gate
+is now running. I also own `tests/test_nanoisa_flat_records.py` for this change.
+This is not full release acceptance.
 
 The legacy emitter still has other live callers and tests requiring migration.
 I have not reduced the release scope or claimed release readiness.
