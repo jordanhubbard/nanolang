@@ -5391,6 +5391,10 @@ test-checked-owner-selection: bootstrap nanoisa_dump nano_vm nvm2c
 .PHONY: test-nanoisa-array-slice
 test-nanoisa-array-slice: stage1 nano_virt nano_vm nanoisa_dump nvm2c
 	CC="$(CC)" python3 -m unittest -v tests.test_nanoisa_array_slice
+.PHONY: test-nanoisa-list-remove
+test-nanoisa-list-remove: stage1 nano_virt nano_vm nanoisa_dump nvm2c
+	CC="$(CC)" python3 -m unittest -v tests.test_nanoisa_list_remove
+
 .PHONY: test-nanoisa-list-insert
 test-nanoisa-list-insert: stage1 nano_virt nano_vm nanoisa_dump nvm2c
 	CC="$(CC)" python3 -m unittest -v tests.test_nanoisa_list_insert

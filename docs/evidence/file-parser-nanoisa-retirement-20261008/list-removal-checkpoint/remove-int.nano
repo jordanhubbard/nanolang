@@ -1,0 +1,13 @@
+fn main()->int {
+ let xs:List<int> = (list_int_new)
+ let alias:List<int> = xs
+ (list_int_push xs 7) (list_int_push xs 9) (list_int_push xs 11)
+ assert (== (list_int_remove xs 1) 9)
+ assert (== (list_int_length alias) 2)
+ assert (== (list_int_get alias 1) 11)
+ assert (== (list_int_pop xs) 11)
+ assert (== (list_int_pop alias) 7)
+ assert (== (list_int_length xs) 0)
+ return 0
+}
+shadow main { assert (== (main) 0) }

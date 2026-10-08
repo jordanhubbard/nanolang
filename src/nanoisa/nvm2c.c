@@ -2038,6 +2038,14 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             break;
         }
+        case OP_ARR_REMOVE: {
+            Nvm2cSimSlot index, array;
+            if (!sim_pop(b, idx, stk, &sp, &index) || !sim_pop(b, idx, stk, &sp, &array)) return 0;
+            if (!shape_type(b, array.shape, NVM_SHAPE_ARRAY)) return 0;
+            array.origin = -1;
+            if (!sim_push_slot(b, idx, stk, &sp, array)) return 0;
+            break;
+        }
         case OP_ARR_SLICE: {
             Nvm2cSimSlot end, start_value, array;
             if (!sim_pop(b, idx, stk, &sp, &end) ||
@@ -4720,6 +4728,34 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_printf(b, "    ncall_array_set(a[%d], %d, v[%d]);\n", result, ei, elems[ei]);
             break;
         }
+        case OP_ARR_REMOVE: {
+            uint8_t index_kind, kind;
+            int index = stack_pop_kind(b, &st, &index_kind);
+            int array = stack_pop_kind(b, &st, &kind);
+            if (b->failed) goto done;
+            if (index_kind == NVM2C_VK_VALUE) {
+                nvm2c_printf(b, "    t[%d] = nvalue_require_int(v[%d]);\n", index, index);
+            } else if (index_kind != NVM2C_VK_INT) {
+                nvm2c_fail(b, "I require an exact integer removal index"); goto done;
+            }
+            char expression[128];
+            if (word_array_storage(kind)) {
+                snprintf(expression, sizeof expression, "narr_remove(a[%d], t[%d])", array, index);
+                stack_push_iarray(b, &st, expression, kind);
+            } else if (kind == NVM2C_VK_SARR) {
+                snprintf(expression, sizeof expression, "nsarr_remove(sa[%d], t[%d])", array, index);
+                stack_push_sarr(b, &st, expression);
+            } else if (kind == NVM2C_VK_RARR) {
+                snprintf(expression, sizeof expression, "nrarr_remove(ra[%d], t[%d])", array, index);
+                int result = stack_push_rarr(b, &st, expression);
+                if (result < 0 || b->failed) goto done;
+                memcpy(st.rarr_k[result], st.rarr_k[array], b->record_width);
+            } else if (kind == NVM2C_VK_VALUE) {
+                snprintf(expression, sizeof expression, "nvalue_array_remove(v[%d], t[%d])", array, index);
+                stack_push_value(b, &st, expression);
+            } else { nvm2c_fail(b, "I require an array for removal"); goto done; }
+            break;
+        }
         case OP_ARR_SLICE: {
             int end = stack_pop_expect(b, &st, NVM2C_VK_INT, "ARR_SLICE end");
             int begin = stack_pop_expect(b, &st, NVM2C_VK_INT, "ARR_SLICE start");
@@ -6058,6 +6094,52 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         "    }\n    fputc(']', stdout);\n}\n");
 }
 
+static void emit_array_removal(Nvm2cBuf *b, int integers, int strings, int records) {
+    if (integers) nvm2c_puts(b,
+        "static inline narr_t narr_remove(narr_t a, int64_t index) {\n"
+        "    if (!a) NVM2C_ABORT();\n"
+        "    size_t at = (uint32_t)index;\n"
+        "    if (at >= a->len) return a;\n"
+        "    size_t tail = a->len - at - 1;\n"
+        "    if (tail) memmove(a->data + at, a->data + at + 1, tail * sizeof *a->data);\n"
+        "    if (a->owner && a->owner->environments) {\n"
+        "        if (tail) memmove(a->owner->environments + at, a->owner->environments + at + 1, tail * sizeof *a->owner->environments);\n"
+        "        a->owner->environments[a->len - 1] = NULL;\n"
+        "    }\n"
+        "    --a->len; return a;\n"
+        "}\n");
+    if (strings) nvm2c_puts(b,
+        "static inline nsarr_t nsarr_remove(nsarr_t a, int64_t index) {\n"
+        "    if (!a) NVM2C_ABORT();\n"
+        "    size_t at = (uint32_t)index;\n"
+        "    if (at >= a->len) return a;\n"
+        "    size_t tail = a->len - at - 1;\n"
+        "    if (tail) memmove(a->data + at, a->data + at + 1, tail * sizeof *a->data);\n"
+        "    --a->len; return a;\n"
+        "}\n");
+    if (records) nvm2c_puts(b,
+        "static inline nrarr_t nrarr_remove(nrarr_t a, int64_t index) {\n"
+        "    if (!a) NVM2C_ABORT();\n"
+        "    size_t at = (uint32_t)index;\n"
+        "    if (at >= a->len) return a;\n"
+        "    size_t tail = a->len - at - 1;\n"
+        "    if (tail) memmove(a->data + at, a->data + at + 1, tail * sizeof *a->data);\n"
+        "    --a->len; return a;\n"
+        "}\n");
+    nvm2c_puts(b,
+        "static inline nmap_value nvalue_array_remove(nmap_value a, int64_t index) {\n"
+        "    if (a.kind != 7 || !a.text) NVM2C_ABORT();\n");
+    if (integers) nvm2c_puts(b,
+        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12 || a.integer == 14) { narr_remove((narr_t)a.text, index); return a; }\n");
+    if (strings) nvm2c_puts(b,
+        "    if (a.integer == 5) { nsarr_remove((nsarr_t)a.text, index); return a; }\n");
+    if (records) nvm2c_puts(b,
+        "    if (a.integer == 6) { nrarr_remove((nrarr_t)a.text, index); return a; }\n");
+    nvm2c_puts(b,
+        "    (void)index; NVM2C_ABORT();\n"
+        "}\n");
+}
+
 static void emit_array_slices(Nvm2cBuf *b, int integers, int strings, int records) {
     nvm2c_puts(b,
         "static inline void nslice_bounds(size_t length, int64_t begin, int64_t end, size_t *start, size_t *count) {\n"
@@ -6635,7 +6717,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.has_owned_aggregates = (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW)) ||
         module_has_opcode(mod, OP_ARR_NEW) || module_has_opcode(mod, OP_ARR_LITERAL) ||
         module_has_opcode(mod, OP_ARR_PUSH) || module_has_opcode(mod, OP_ARR_GET) ||
-        module_has_opcode(mod, OP_ARR_SET) || module_has_opcode(mod, OP_ARR_LEN) || module_has_opcode(mod, OP_ARR_SLICE) ||
+        module_has_opcode(mod, OP_ARR_SET) || module_has_opcode(mod, OP_ARR_LEN) || module_has_opcode(mod, OP_ARR_SLICE) || module_has_opcode(mod, OP_ARR_REMOVE) ||
         module_uses_host(mod, "nhost_walk");
     for (uint32_t f = 0; f < mod->function_count; ++f) {
         if (mod->functions[f].result_tag == TAG_ARRAY) b.has_owned_aggregates = 1;
@@ -7454,6 +7536,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (b.has_maps) emit_tagged_array_helpers(&b, need_iarr_push, need_sarr_push,
                                                 need_iarr_get, need_sarr_get, need_print);
         if (need_arr_slice) emit_array_slices(&b, need_iarr, need_sarr, need_rarr);
+        if (module_has_opcode(mod, OP_ARR_REMOVE)) emit_array_removal(&b, need_iarr, need_sarr, need_rarr);
     }
 
     {
@@ -7503,6 +7586,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         } else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
         if (module_has_opcode(mod, OP_ARR_SLICE)) nvm2c_puts(&b, "    (void)nvalue_array_slice;\n");
+        if (module_has_opcode(mod, OP_ARR_REMOVE)) nvm2c_puts(&b, "    (void)nvalue_array_remove;\n");
         if (b.has_maps || module_has_opcode(mod, OP_CAST_FLOAT))
             nvm2c_puts(&b, "    (void)nparse_binary64;\n");
         if (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN) ||
