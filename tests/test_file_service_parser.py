@@ -40,10 +40,12 @@ class FileServiceParser(unittest.TestCase):
             source=ROOT/'tests/file_service_parser_eval.c' if provider=='eval' else ROOT/'src'/(provider+'.c')
             obj=cls.work/(provider+'.o');cls.command(provider+'-build',[*cls.cc,*cls.flags,*observer,'-c',source,'-o',obj]);cls.selected.append(obj)
         # I build and invoke the actual installed-tool source recipe, not a copied golden renderer.
+        # I start an independent Make job pool: my subprocess does not inherit jobserver descriptors.
         cls.publisher=cls.work/'publisher-bin/nsi-file-binding'
         cls.command('publisher-make',[shutil.which('make'),'-f','Makefile.gnu','-j2','CC='+shlex.join(cls.cc),
             'CFLAGS='+shlex.join(cls.flags),'LDFLAGS='+shlex.join(cls.links),
-            'OBJ_DIR='+str(cls.work/'publisher-obj'),'BIN_DIR='+str(cls.publisher.parent),'nsi-file-binding'],timeout=300)
+            'OBJ_DIR='+str(cls.work/'publisher-obj'),'BIN_DIR='+str(cls.publisher.parent),'nsi-file-binding'],timeout=300,
+            extra={'MAKEFLAGS':'','MFLAGS':'','MAKELEVEL':'0'})
         cls.command('publish',[cls.publisher,ROOT/'tests/fixtures/nsi_file_plan.json','--file-binding-dir',cls.work/'published'])
         cls.binding=cls.work/'published/binding.nano'
         if cls.binding.read_bytes()!=(ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_bytes():
