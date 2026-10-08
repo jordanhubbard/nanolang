@@ -1,0 +1,11 @@
+{
+  "command": [
+    "make",
+    "-j2",
+    "test-one-ir-compiler"
+  ],
+  "status": 2,
+  "seconds": 458.602645499981,
+  "revision": "1bbae0bb051efb1c6b356a98d12be0494b9ff935",
+  "change": "installed OpenSSL discovery"
+}

@@ -19,7 +19,7 @@ class NativeMapByteDebt(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
-    def check_harness(self, body, refusals=()):
+    def check_harness(self, body, refusals=(), *, trace_scans=False, trace_visits=False):
         with tempfile.TemporaryDirectory(prefix='nano-map-byte-debt-') as tmp:
             work = Path(tmp)
             asm, module, source, binary = [work / x for x in ('input.nasm', 'input.nvm', 'input.c', 'program')]
@@ -27,10 +27,15 @@ class NativeMapByteDebt(unittest.TestCase):
             self.run_checked([ROOT / 'bin/nanoisa', 'asm', asm, '-o', module])
             self.run_checked([ROOT / 'bin/nano_vm', module])
             self.run_checked([ROOT / 'bin/nvm2c', module, '-o', source])
-            generated = source.read_text().replace('static void nroot_trace(nroot_list *work) {',
-                'static size_t scans, visits;\nstatic void nroot_trace(nroot_list *work) {\n++scans;')
-            generated = generated.replace('        nroot_ref root = work->items[cursor];',
-                                          '        ++visits;\n        nroot_ref root = work->items[cursor];')
+            generated = source.read_text()
+            if trace_scans:
+                generated = generated.replace('static void nroot_trace(nroot_list *work) {',
+                    'static size_t scans;\nstatic void nroot_trace(nroot_list *work) {\n++scans;')
+            if trace_visits:
+                generated = generated.replace('static void nroot_trace(nroot_list *work) {',
+                    'static size_t visits;\nstatic void nroot_trace(nroot_list *work) {')
+                generated = generated.replace('        nroot_ref root = work->items[cursor];',
+                    '        ++visits;\n        nroot_ref root = work->items[cursor];')
             source.write_text('#define main original_main\n' + generated + '\n#undef main\n#include <stdio.h>\n' + body)
             self.run_checked(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
@@ -67,7 +72,7 @@ int main(void) {
     nmap_release_owned(); nrarr_release_owned(); nrec_release_snapshots();
     return 0;
 }
-''')
+''', trace_scans=True, trace_visits=True)
 
     def test_accounting_rejects_wrap_and_underflow(self):
         self.check_harness(r'''
@@ -110,7 +115,7 @@ int main(void) {
     nmap_release_owned();
     return 0;
 }
-''')
+''', trace_scans=True)
 
 
 if __name__ == '__main__':

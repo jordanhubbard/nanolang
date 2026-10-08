@@ -113,6 +113,68 @@ class OneIrCompiler(unittest.TestCase):
                          f"I failed {args[0]}\n" + (stdout + stderr).decode(errors="replace")[-6000:])
         return stdout
 
+    def test_global_discovery_rebuilds_optional_boolean_join_facts(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc)
+        for present in (False, True):
+            with self.subTest(present=present), tempfile.TemporaryDirectory(prefix="nano-join-reset-") as tmp:
+                work = Path(tmp)
+                assembly, module, source, binary = (work / name for name in
+                                                    ("input.nasm", "input.nvm", "input.c", "program"))
+                values = "PUSH_BOOL 1\nARR_LITERAL 4 1\n" if present else "ARR_LITERAL 4 0\n"
+                assembly.write_text(
+                    '.types 1 0 0\n.entry main\n'
+                    '.function choose 1 1 0 int 1\nPUSH_BOOL 0\nDUP\nJMP_TRUE done\nPOP\n'
+                    'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\ndone:\n'
+                    f'TYPE_CHECK {4 if present else 0}\nASSERT\nPUSH_I64 0\nRET\n.end\n'
+                    '.function main 0 0 0 int 1\nPUSH_I64 7\nAGG_PACK 0 0 0 1\n'
+                    'ARR_LITERAL 8 1\nSTORE_GLOBAL 0\n' + values +
+                    'CALL choose\nRET\n.end\n.parameters 0 array\n')
+                self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                self.run_checked([ROOT / "bin/nano_vm", module])
+                self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+                                  "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                                  source, "-o", binary])
+                self.run_checked([binary])
+
+    def test_recursive_array_results_wait_for_tagged_element_storage(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc)
+        for tag, declared, value in ((5, "string", "PUSH_STR item"),
+                                     (4, "bool", "PUSH_BOOL 1"),
+                                     (1, "int", "PUSH_I64 42"),
+                                     (3, "float", "PUSH_F64 1.5")):
+            with self.subTest(element=declared), tempfile.TemporaryDirectory(prefix="nano-recursive-array-") as tmp:
+                work = Path(tmp)
+                assembly, module, source, binary = (work / name for name in
+                                                    ("input.nasm", "input.nvm", "input.c", "program"))
+                # I encounter the projected (tagged) argument before callers
+                # establish the recursive function's array element storage.
+                assembly.write_text(
+                    '.string item "kept"\n.entry main\n'
+                    '.function before 1 1 0 array 1\n' + value +
+                    f'\nARR_LITERAL {tag} 1\nPUSH_I64 0\nARR_GET\nLOAD_LOCAL 0\n'
+                    'PUSH_I64 1\nCALL collect\nRET\n.end\n'
+                    '.function collect 3 3 0 array 1\n'
+                    'LOAD_LOCAL 2\nPUSH_I64 0\nI64_GT_S\nJMP_FALSE append\n'
+                    'LOAD_LOCAL 0\nLOAD_LOCAL 1\nLOAD_LOCAL 2\nPUSH_I64 1\nI64_SUB\n'
+                    'CALL collect\nRET\nappend:\nLOAD_LOCAL 1\nLOAD_LOCAL 0\nARR_PUSH\nRET\n.end\n'
+                    '.function main 0 1 0 int 1\n'
+                    f'ARR_LITERAL {tag} 0\nCALL before\nSTORE_LOCAL 0\n' + value +
+                    '\nLOAD_LOCAL 0\nPUSH_I64 1\nCALL collect\nSTORE_LOCAL 0\n'
+                    'LOAD_LOCAL 0\nARR_LEN\nPUSH_I64 2\nI64_EQ\nASSERT\n'
+                    'LOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\n' + value +
+                    '\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n'
+                    f'.parameters 0 array\n.parameters 1 {declared} array int\n')
+                self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                self.run_checked([ROOT / "bin/nano_vm", module])
+                self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+                                  "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                                  source, "-o", binary])
+                self.run_checked([binary])
+
     def test_declared_empty_array_returns_reach_native(self):
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")
@@ -1021,6 +1083,14 @@ int main(int argc, char **argv) {
                 self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                 generated = source.read_text().replace("int main(", "int generated_main(")
+                # I count record-frame allocations in generated functions only.
+                # Runtime root tables also allocate through realloc; intercepting
+                # their frees with a calloc-only counter invents a double free.
+                function_start = "static int64_t nl_main(void) {"
+                self.assertEqual(generated.count(function_start), 1)
+                generated = generated.replace(
+                    function_start,
+                    "#define calloc tracked_calloc\n#define free tracked_free\n" + function_start)
                 source.write_text('''#include <stdlib.h>
 static size_t live, peak;
 static int fail_allocation;
@@ -1029,8 +1099,6 @@ static void *tracked_calloc(size_t n, size_t size) {
     void *p = calloc(n, size); if (p) { ++live; if (live > peak) peak = live; } return p;
 }
 static void tracked_free(void *p) { if (p) { if (!live) abort(); --live; } free(p); }
-#define calloc tracked_calloc
-#define free tracked_free
 ''' + generated + '''
 int main(int argc, char **argv) {
     (void)argv; fail_allocation = argc > 1;

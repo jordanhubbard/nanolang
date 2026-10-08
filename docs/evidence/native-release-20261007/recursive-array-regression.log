@@ -1,0 +1,6 @@
+test_recursive_array_results_wait_for_tagged_element_storage (tests.test_one_ir_compiler.OneIrCompiler.test_recursive_array_results_wait_for_tagged_element_storage) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.768s
+
+OK

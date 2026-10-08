@@ -1,0 +1,12 @@
+{
+  "tests_run": 74,
+  "failure_reports": 2,
+  "errors": 0,
+  "success": false,
+  "excluded_known_compiler_blockers": [
+    "test_compiler_bytecode_to_native_to_program",
+    "test_selfhost_emitted_compiler_to_native_nanoisa_product"
+  ],
+  "compiler": "/opt/homebrew/opt/llvm/bin/clang",
+  "seconds": 105.49623733299086
+}

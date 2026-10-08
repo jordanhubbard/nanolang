@@ -99,8 +99,19 @@ EXPORT_DYNAMIC_LDFLAGS = -Wl,-E
 override LDFLAGS += $(EXPORT_DYNAMIC_LDFLAGS)
 endif
 ifeq ($(UNAME_S),Darwin)
-# Homebrew OpenSSL is keg-only on macOS — add include/lib paths
-OPENSSL_PREFIX := $(shell brew --prefix openssl 2>/dev/null)
+# I prefer the installed pkg-config package over Homebrew's current formula,
+# whose reported prefix may name a version that has not been installed yet.
+OPENSSL_PREFIX := $(shell prefix=$$(pkg-config --variable=prefix openssl 2>/dev/null) || prefix=; \
+	if [ -n "$$prefix" ] && [ -f "$$prefix/include/openssl/sha.h" ]; then \
+		printf '%s' "$$prefix"; \
+	else \
+		for formula in openssl openssl@3; do \
+			prefix=$$(brew --prefix $$formula 2>/dev/null) || prefix=; \
+			if [ -n "$$prefix" ] && [ -f "$$prefix/include/openssl/sha.h" ]; then \
+				printf '%s' "$$prefix"; break; \
+			fi; \
+		done; \
+	fi)
 ifneq ($(OPENSSL_PREFIX),)
 ifneq ($(filter command line override,$(origin CFLAGS)),)
 override CFLAGS += -I$(OPENSSL_PREFIX)/include

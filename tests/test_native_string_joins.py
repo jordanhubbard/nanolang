@@ -10,6 +10,31 @@ class NativeStringJoins(unittest.TestCase):
     command = maps.NativeMapGlobals.command
     check = maps.NativeMapGlobals.check
 
+    def test_tagged_boolean_short_circuit_preserves_both_edges(self):
+        for operation in ("and", "or"):
+            for left in (False, True):
+                for right in (False, True):
+                    with self.subTest(operation=operation, left=left, right=right):
+                        jump = "JMP_FALSE" if operation == "and" else "JMP_TRUE"
+                        expected = (left and right) if operation == "and" else (left or right)
+                        self.check(
+                            f'PUSH_BOOL {int(left)}\nSTORE_GLOBAL 0\n'
+                            'PUSH_I64 42\nLOAD_GLOBAL 0\nDUP\n' + jump + ' join\nPOP\n'
+                            f'PUSH_BOOL {int(right)}\njoin:\nDUP\nTYPE_CHECK 4\nASSERT\n'
+                            f'PUSH_BOOL {int(expected)}\nEQ\nASSERT\nPUSH_I64 42\nEQ\nASSERT\n', '')
+
+    def test_direct_and_tagged_boolean_join_preserves_missing_tag(self):
+        for first_tagged in (False, True):
+            for condition in (False, True):
+                with self.subTest(first_tagged=first_tagged, condition=condition):
+                    tagged, direct = 'LOAD_GLOBAL 0\n', 'PUSH_BOOL 1\n'
+                    first, second = (tagged, direct) if first_tagged else (direct, tagged)
+                    expected_tag = 0 if condition == first_tagged else 4
+                    self.check(
+                        f'PUSH_I64 42\nPUSH_BOOL {int(condition)}\nJMP_FALSE other\n' +
+                        first + 'JMP join\nother:\n' + second + 'join:\n'
+                        f'TYPE_CHECK {expected_tag}\nASSERT\nPUSH_I64 42\nEQ\nASSERT\n', '')
+
     def test_string_and_missing_branches_preserve_tags_and_roots(self):
         for first_tagged in (False, True):
             for condition in (False, True):

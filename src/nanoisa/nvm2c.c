@@ -909,7 +909,7 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                 if (plan && plan->tags[i]) {
                     uint16_t tags = plan->tags[i] | stack[i].scalar_tags;
                     if (!optional_scalar_tags(tags) && !boxed_carrier_tags(tags)) {
-                        nvm2c_fail(b, "I require proved finite payload provenance at a boxed join");
+                        nvm2c_fail(b, "I require proved finite payload provenance at a boxed join (function %u, target %zu, slot %d)", idx, target, i);
                         return 0;
                     }
                     join->slots[i].kind = NVM2C_VK_VALUE;
@@ -955,7 +955,7 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         }
         int scalar_join = optional_scalar_tags(tags) || boxed_carrier_tags(tags);
         if (plan && plan->tags[i] && !scalar_join) {
-            nvm2c_fail(b, "I require proved finite payload provenance at a boxed join");
+            nvm2c_fail(b, "I require proved finite payload provenance at a boxed join (function %u, target %zu, slot %d)", idx, target, i);
             return 0;
         }
         if (scalar_join) {
@@ -977,11 +977,14 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
             join->slots[i].kind = NVM2C_VK_VALUE;
             b->has_maps = 1;
         }
-        int string_join = (join->slots[i].kind == NVM2C_VK_STR || join->slots[i].kind == NVM2C_VK_VALUE) &&
-                          (stack[i].kind == NVM2C_VK_STR || stack[i].kind == NVM2C_VK_VALUE);
-        if (!scalar_join && string_join && join->slots[i].kind != stack[i].kind) {
+        int optional_join =
+            ((join->slots[i].kind == NVM2C_VK_STR || join->slots[i].kind == NVM2C_VK_VALUE) &&
+             (stack[i].kind == NVM2C_VK_STR || stack[i].kind == NVM2C_VK_VALUE)) ||
+            ((join->slots[i].kind == NVM2C_VK_BOOL || join->slots[i].kind == NVM2C_VK_VALUE) &&
+             (stack[i].kind == NVM2C_VK_BOOL || stack[i].kind == NVM2C_VK_VALUE));
+        if (!scalar_join && optional_join && join->slots[i].kind != stack[i].kind) {
             if (target <= b->classify_offset) {
-                nvm2c_fail(b, "I cannot yet widen tagged string storage on a backward stack edge in function %u", idx);
+                nvm2c_fail(b, "I cannot yet widen tagged scalar storage on a backward stack edge in function %u", idx);
                 return 0;
             }
             join->slots[i].kind = NVM2C_VK_VALUE;
@@ -1004,7 +1007,7 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
                                      stack[i].rec_k, fields)) return 0;
             join->slots[i].rec_k = fields;
         }
-        if (b->track_shapes && !record_join && !((string_join || scalar_join)
+        if (b->track_shapes && !record_join && !((optional_join || scalar_join)
                 ? nvm_shape_convert(&b->shapes, stack[i].shape, join->slots[i].shape)
                 : nvm_shape_unify(&b->shapes, join->slots[i].shape, stack[i].shape))) {
             nvm2c_fail(b, "I found incompatible shapes at a join in function %u: %s", idx, b->shapes.error);
@@ -1019,7 +1022,7 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         }
         join->slots[i].origin = origin;
         if (stack[i].kind == NVM2C_VK_UNK) continue;
-        if (join->slots[i].kind != stack[i].kind && !string_join && !scalar_join) {
+        if (join->slots[i].kind != stack[i].kind && !optional_join && !scalar_join) {
             nvm2c_fail(b, "I found incompatible stack kinds at a join in function %u after offset %zu (slot %d: %u versus %u)",
                        idx, b->classify_offset, i, join->slots[i].kind, stack[i].kind);
             return 0;
@@ -1900,6 +1903,17 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         }
                     }
                 }
+            }
+            if (arr.kind == NVM2C_VK_UNK && val.kind == NVM2C_VK_VALUE) {
+                /* A tagged element does not determine the array's storage.
+                 * Recursive callers may supply that fact on a later pass;
+                 * defaulting to integer storage poisons the return contract. */
+                Nvm2cSimSlot pushed = arr;
+                pushed.origin = -1;
+                if (!sim_push_slot(b, idx, stk, &sp, pushed) ||
+                    !shape_type(b, arr.shape, NVM_SHAPE_ARRAY) ||
+                    !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
+                break;
             }
             if (val.kind == NVM2C_VK_UNK) {
                 /* Missing element facts cannot erase a constructor's known
@@ -6173,6 +6187,14 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         facts.discover_globals = 0;
         memset(inference, NVM2C_VK_UNK,
                (size_t)(facts.global_kinds - inference));
+        /* Join plans depend on the parameter and result facts just reset.
+         * I rebuild them with ordinary inference instead of requiring an
+         * intermediate unknown value to prove the discovery pass's mask. */
+        while (b.scalar_joins) {
+            Nvm2cScalarJoin *next = b.scalar_joins->next;
+            free(b.scalar_joins);
+            b.scalar_joins = next;
+        }
     }
     /* I add known facts and widen string parameters to optional storage when
      * needed. Payload and aggregate compatibility remain graph constraints. */

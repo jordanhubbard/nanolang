@@ -1,0 +1,12 @@
+[
+  {
+    "case": "clean",
+    "status": 0,
+    "stderr": ""
+  },
+  {
+    "case": "intentional-leak",
+    "status": 1,
+    "stderr": "\n=================================================================\n==44255==ERROR: LeakSanitizer: detected memory leaks\n\nDirect leak of 32 byte(s) in 1 object(s) allocated from:\n    #0 0x0001014bd40c in malloc+0x70 (libclang_rt.asan_osx_dynamic.dylib:arm64+0x5540c)\n    #1 0x000100db85ac in main lsan-probe.c:2\n    #2 0x0001828804e0 in start+0x1b4c (dyld:arm64e+0x204e0)\n\nSUMMARY: AddressSanitizer: 32 byte(s) leaked in 1 allocation(s).\n"
+  }
+]
