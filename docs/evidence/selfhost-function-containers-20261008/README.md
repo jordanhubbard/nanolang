@@ -26,3 +26,7 @@ The manifest binds commands, terminals, sources and prepared compiler artifacts.
 This is source/product parity for named functions, not captured-closure parity,
 a current raw bootstrap fixed point, complete platform qualification or release.
 The earlier clean compiler gate remains qualification of its own pinned source.
+
+I cancelled redundant hub execution of the linked MAC task after pushing the local
+implementation; the hub had automatically dispatched my bookkeeping record.
+The code and qualification evidence remain on my release branch.
