@@ -1,0 +1,41 @@
+{
+  "base_commit": "19a996709b7b83275d3f589dbbd29fe7f10fee86",
+  "source_sha256": {
+    "src/nanoisa/nvm2c.c": "d5017f8c457a4c32a94ec27ca7a3d8f5d801d5f4ac1e80b9f34954d6c481e7ec",
+    "src/nanoisa/nvm2c_shape.c": "a43a3eaff93f7451c7ab8758a0359875bc2b46dc96181b15bbd593273808df38",
+    "src/nanoisa/nvm2c_map_roots.inc": "785268e29531166da9c91d00cf99b949fc5406f01263c02024132c028e974726",
+    "tests/test_native_callables.py": "0f0860b846da4a001d8e537c970e8e44cb8692795f57ef39b0c5c4c105c9f856",
+    "tests/nanoisa/test_nvm2c_shape.c": "e1eb11f67925bf6e0a119eed4e31ba0725d5899dd32db2c5387e8ce0b1124b81"
+  },
+  "prepared_compiler": "/private/tmp/nanolang-computed-calls-final",
+  "prepared_compiler_sha256": "ee90babd2ae876b062573ccb1e2e416237fae11a80551b3fef53bfe215aca50d",
+  "checks": [
+    {
+      "command": "PATH=/private/tmp/nanolang-cutover-llvm-tools:/opt/homebrew/opt/llvm/bin:$PATH NANOLANG_SELFHOST_COMPILER=/private/tmp/nanolang-computed-calls-final NANOLANG_ROOT=/Users/jordanh/Src/nanolang python3 -m unittest -v tests.test_selfhost_returned_calls tests.test_selfhost_function_values tests.test_native_callables",
+      "exit_code": 0,
+      "methods": 28,
+      "log": "qualified.log"
+    },
+    {
+      "command": "make -j2 test-nvm2c",
+      "exit_code": 0,
+      "native_checks": 2431,
+      "shape_checks": 2553,
+      "callable_checks": 204,
+      "log": "native.log"
+    },
+    {
+      "command": "/opt/homebrew/opt/llvm/bin/clang -std=c11 -O1 -g -Wall -Wextra -Werror -fsanitize=address,undefined -fno-sanitize-recover=all -Isrc/nanoisa tests/nanoisa/test_nvm2c_shape.c src/nanoisa/nvm2c_shape.c -o /private/tmp/nanolang-function-arrays-shapes && ASAN_OPTIONS=detect_leaks=1 /private/tmp/nanolang-function-arrays-shapes",
+      "exit_code": 0,
+      "checks": 2553,
+      "log": "shape-sanitized.log"
+    }
+  ],
+  "log_sha256": {
+    "exact-identity-first.log": "9364b7123b0af4685fad766fb85d03fad4eba6c1ea8f1d86ed7dc6fe2303f7b5",
+    "identity-first.log": "62e8d2d1a1e80f851ba29323fd2b41b61ed22710a14f74f7b2fbd9ec222f9eb0",
+    "native.log": "c4d66d3875b511fda587b368983f7874be842a972d7f89f170a6d87423a08219",
+    "shape-sanitized.log": "a6f02a8538d271594c793b29c830127621adf9b99d4f2bcd86ce990325ed15e4",
+    "qualified.log": "d9e273a6d6b7a3d241e2a39799571ecbfec4eb7cd6069c9d499e994735b7736e"
+  }
+}

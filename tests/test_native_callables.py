@@ -15,18 +15,20 @@ class NativeCallables(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
-    def emit(self, work, text):
+    def emit(self, work, text, expected_stdout=None):
         assembly, module, source = (work / name for name in ('input.nasm', 'input.nvm', 'input.c'))
         assembly.write_text(text)
         self.checked([ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module])
-        self.checked([ROOT / 'bin/nano_vm', module])
+        result = self.checked([ROOT / 'bin/nano_vm', module])
+        if expected_stdout is not None:
+            self.assertEqual(result.stdout, expected_stdout)
         self.checked([ROOT / 'bin/nvm2c', module, '-o', source])
         return source
 
     def sanitized(self, source, binary):
         self.checked(['cc', '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                       '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
-        self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+        return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
 
     def test_many_targets_share_exclusive_dispatch_temporaries(self):
         branches = ''.join(f'LOAD_LOCAL 0\nPUSH_I64 {i}\nEQ\nJMP_FALSE next{i}\n'
@@ -43,6 +45,122 @@ class NativeCallables(unittest.TestCase):
             source = self.emit(work, text)
             self.sanitized(source, work / 'program')
 
+
+    def test_retained_source_function_containers(self):
+        module = ROOT / 'docs/evidence/native-callable-execution-20261007/function-containers.nvm'
+        with tempfile.TemporaryDirectory(prefix='nano-source-callable-containers-') as tmp:
+            work = Path(tmp)
+            self.checked([ROOT / 'bin/nano_vm', module])
+            source = work / 'source.c'
+            self.checked([ROOT / 'bin/nvm2c', module, '-o', source])
+            self.sanitized(source, work / 'program')
+
+    def test_function_array_aliases_globals_and_missing_elements(self):
+        churn = ('.string a "a"\n.string b "b"\n'
+                 '.function churn 0 1 0 void 0\nPUSH_I64 0\nSTORE_LOCAL 0\nloop:\n'
+                 'LOAD_LOCAL 0\nPUSH_I64 8000\nLT\nJMP_FALSE done\n'
+                 'PUSH_STR a\nPUSH_STR b\nSTR_CONCAT\nPOP\n'
+                 'LOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nSTORE_LOCAL 0\nJMP loop\ndone:\nRET\n.end\n')
+        for constructor in ('ARR_NEW 11', 'ARR_LITERAL 11 0'):
+            with self.subTest(constructor=constructor), tempfile.TemporaryDirectory(prefix='nano-callable-arrays-') as tmp:
+                work = Path(tmp)
+                text = ('.entry main\n'
+                        '.function first 1 1 0 int 1\nLOAD_LOCAL 0\nRET\n.end\n'
+                        '.function second 1 1 0 int 1\nLOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nRET\n.end\n'
+                        '.function relay 1 1 0 array 1\nLOAD_LOCAL 0\nRET\n.end\n'
+                        '.function pick 1 1 0 function 1\nLOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nRET\n.end\n'
+                        '.function main 0 2 0 int 1\n' + constructor + '\n'
+                        'FUNCREF first\nARR_PUSH\nCALL relay\nSTORE_LOCAL 0\n'
+                        'LOAD_LOCAL 0\nPUSH_I64 0\nFUNCREF first\nARR_SET\nPOP\n'
+                        'LOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nSTORE_LOCAL 1\n'
+                        'LOAD_LOCAL 1\nAGG_GET 0\nSTORE_GLOBAL 0\n'
+                        'LOAD_GLOBAL 0\nPUSH_I64 0\nFUNCREF second\nARR_SET\nPOP\nCALL churn\n'
+                        'PUSH_I64 41\nLOAD_LOCAL 0\nCALL pick\nCALL_INDIRECT 1 1\n'
+                        'PUSH_I64 42\nEQ\nASSERT\n'
+                        'LOAD_GLOBAL 0\nFUNCREF first\nARR_PUSH\nPOP\nCALL churn\n'
+                        'LOAD_LOCAL 1\nAGG_GET 0\nARR_LEN\nPUSH_I64 2\nEQ\nASSERT\n'
+                        'PUSH_I64 42\nLOAD_LOCAL 1\nAGG_GET 0\nPUSH_I64 1\nARR_GET\nCALL_INDIRECT 1 1\n'
+                        'PUSH_I64 42\nEQ\nASSERT\n'
+                        'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nLOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\nEQ\nNOT\nASSERT\n'
+                        'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nLOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\nGT\nASSERT\n'
+                        'LOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\nLOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\nEQ\nASSERT\n'
+                        'LOAD_LOCAL 0\nPUSH_I64 -1\nARR_GET\nTYPE_CHECK 0\nASSERT\n'
+                        'LOAD_GLOBAL 0\nPUSH_I64 2\nARR_GET\nTYPE_CHECK 0\nASSERT\n'
+                        'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nTYPE_CHECK 11\nASSERT\n'
+                        'LOAD_GLOBAL 0\nPRINTLN\n'
+                        'PUSH_I64 0\nRET\n.end\n' + churn)
+                source = self.emit(work, text, '[fn(1), fn(0)]\n')
+                marker = 'static void nmap_collect(void) {\n'
+                generated = source.read_text()
+                self.assertIn(marker, generated)
+                generated = generated.replace(marker,
+                    'static size_t array_collections;\n' + marker + '    ++array_collections;\n')
+                source.write_text('#define main fixture_main\n' + generated +
+                    '\n#undef main\nint main(void) {\n'
+                    '    int result = fixture_main();\n'
+                    '    if (array_collections < 2) abort();\n    return result;\n}\n')
+                result = self.sanitized(source, work / 'program')
+                self.assertEqual(result.stdout, '[fn(1), fn(0)]\n')
+
+    def test_function_identity_comparisons_preserve_tags(self):
+        body = ''
+        def operand(name, mode):
+            code = f'FUNCREF {name}\n'
+            if mode == 'global':
+                return code + 'STORE_GLOBAL 0\nLOAD_GLOBAL 0\n'
+            if mode == 'array':
+                return code + 'ARR_LITERAL 11 1\nPUSH_I64 0\nARR_GET\n'
+            return code
+        for left in ('exact', 'global', 'array'):
+            for right in ('exact', 'global', 'array'):
+                body += operand('first', left) + operand('first', right) + 'EQ\nASSERT\n'
+                body += operand('first', left) + operand('second', right) + 'NE\nASSERT\n'
+                body += operand('first', left) + operand('second', right) + 'LT\nASSERT\n'
+                body += operand('second', left) + operand('first', right) + 'GT\nASSERT\n'
+            body += operand('first', left) + 'PUSH_I64 0\nEQ\nNOT\nASSERT\n'
+        text = ('.entry main\n'
+                '.function first 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n'
+                '.function second 0 0 0 int 1\nPUSH_I64 1\nRET\n.end\n'
+                '.function main 0 0 0 int 1\n' + body + 'PUSH_I64 0\nRET\n.end\n')
+        with tempfile.TemporaryDirectory(prefix='nano-callable-identity-') as tmp:
+            work = Path(tmp)
+            source = self.emit(work, text)
+            self.sanitized(source, work / 'program')
+
+    def test_function_array_writes_check_payload_tags(self):
+        text = ('.entry main\n.function first 1 1 0 int 1\nLOAD_LOCAL 0\nRET\n.end\n'
+                '.function main 0 1 0 int 1\nARR_NEW 11\nFUNCREF first\nARR_PUSH\n'
+                'PUSH_I64 0\nFUNCREF first\nARR_SET\nSTORE_LOCAL 0\n'
+                'PUSH_I64 42\nLOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nCALL_INDIRECT 1 1\n'
+                'PUSH_I64 42\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n')
+        with tempfile.TemporaryDirectory(prefix='nano-callable-array-tags-') as tmp:
+            work = Path(tmp)
+            source = self.emit(work, text)
+            source.write_text('#define main fixture_main\n' + source.read_text() +
+                '\n#undef main\nint main(int argc, char **argv) {\n'
+                '    if (argc != 3) return 2;\n'
+                '    narr_t array = narr_new(); narr_push(array, 0);\n'
+                '    nmap_value boxed = {7, 14, (char *)array};\n'
+                '    nmap_value value = {(uint8_t)atoi(argv[1]), 0, NULL};\n'
+                '    if (atoi(argv[2])) nvalue_array_push(boxed, value);\n'
+                '    else nvalue_array_set(boxed, 0, value);\n'
+                '    nmap_value got = nvalue_array_get(boxed, 0);\n'
+                '    int result = got.kind == 11 && got.integer == 0 ? 0 : 3;\n'
+                '    narr_release_owned(); return result;\n}\n')
+            binary = work / 'program'
+            self.checked(['cc', '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
+                          '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
+            env = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}
+            for push in (0, 1):
+                self.checked([binary, 11, push], env=env)
+                for tag in (0, 1, 5):
+                    with self.subTest(push=push, tag=tag):
+                        result = subprocess.run([str(binary), str(tag), str(push)],
+                                                capture_output=True, text=True, timeout=10, env=env)
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertIn('native invariant', result.stderr)
+                        self.assertNotIn('ERROR: AddressSanitizer', result.stderr)
+                        self.assertNotIn('runtime error:', result.stderr)
 
     def test_function_fields_survive_nested_records_and_record_arrays(self):
         churn = ('.function churn 0 1 0 void 0\nPUSH_I64 0\nSTORE_LOCAL 0\nloop:\n'

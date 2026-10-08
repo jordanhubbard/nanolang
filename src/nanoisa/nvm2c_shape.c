@@ -271,7 +271,7 @@ static int solve_array_reads(NvmShapeGraph *g, int *changed) {
         }
         if (kind == NVM_SHAPE_UNKNOWN) continue;
         if (kind == NVM_SHAPE_INT || kind == NVM_SHAPE_BOOL ||
-            kind == NVM_SHAPE_FLOAT || kind == NVM_SHAPE_STRING) {
+            kind == NVM_SHAPE_FLOAT || kind == NVM_SHAPE_STRING || kind == NVM_SHAPE_FUNCTION) {
             NvmShapeId optional = nvm_shape_new(g, NVM_SHAPE_OPTIONAL);
             if (!optional ||
                 !nvm_shape_unify(g, nvm_shape_child(g, optional, 0), read->element) ||

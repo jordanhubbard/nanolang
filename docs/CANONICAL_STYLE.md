@@ -133,8 +133,9 @@ values; they do not establish captured-closure parity. My former AST-to-C
 emitter supported native computed calls. My `nvm2c` translator now implements
 named `FUNCREF` values and checked `CALL_INDIRECT` dispatch, and the unchanged
 native returned-call tests pass. My native record fields also retain function
-identity through nesting and record arrays. Self-hosted function-container
-admission, native arrays of functions and captured-closure parity remain release
+identity through nesting and record arrays. Native arrays of named functions
+preserve checked element tags, mutation aliases and missing values. Self-hosted
+function-container admission and captured-closure parity remain release
 requirements; these named-function tests do not close those gaps.
 
 My C-seed checker derives a mapped array's element type from the transform's

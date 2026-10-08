@@ -357,7 +357,7 @@ static void test_finite_variant_integer_array(void) {
 }
 
 static void test_deferred_array_reads(void) {
-    const NvmShapeKind kinds[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_STRING};
+    const NvmShapeKind kinds[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_STRING, NVM_SHAPE_FUNCTION};
     for (size_t i = 0; i < sizeof kinds / sizeof *kinds; ++i) {
         for (int exact = 0; exact < 2; ++exact) {
             NvmShapeGraph g = {0};

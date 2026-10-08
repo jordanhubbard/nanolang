@@ -5,8 +5,8 @@ execute the returned-call programs on my native product route. My source lowerin
 emits `FUNCREF` and `CALL_INDIRECT`. My native translator now classifies named
 function values and emits checked native dispatch for locals, globals, parameters
 and returned functions. I also preserve function fields in native records, nested
-records and record arrays. Arrays of functions and source-producer container
-admission remain open.
+records and record arrays, plus arrays of named functions. Self-hosted
+source-producer container admission remains open.
 
 ## Representation
 
@@ -85,10 +85,17 @@ remain non-owning; adjacent string fields retain their ordinary roots. I test
 nested records and record arrays across observed collections, plus malformed
 storage tags, payload tags and target indices.
 
-I still require function-valued record fields and array elements to pass the
-self-hosted producer, and arrays of functions to pass native storage. My retained
-container fixture now reaches the native function-array refusal after successful
-record classification. Closures and other open release requirements remain necessary.
+I store function arrays in the ordinary owned word-array allocation with a
+separate function-element storage kind. Reads restore the function tag, while
+missing indices retain the void tag. Writes check the function tag; aliases
+share mutations through locals, globals and record fields. The array allocation
+is traced, but its function IDs are not heap edges. My deferred array-read shape
+also preserves this optional result. Tagged function equality and ordering use
+target indices, and tagged array printing matches my VM's function notation.
+
+My retained C-seed container module now executes in both VM and native products.
+I still require its function-valued record fields and array elements to pass the
+self-hosted producer. Closures and other open release requirements remain necessary.
 
 My acceptance remains the unchanged three native returned-call methods, the eight
 VM methods, typed negative controls, VM/native aggregate and allocation parity,
@@ -100,7 +107,7 @@ and the complete compiler-product and release gates. Closures and the other open
 My `test-nvm2c-shapes` fixture covers both join orders, root-rank changes, duplicate
 and zero targets, node and target-set growth, late producers, conversion cycles,
 recursive record fields, array elements, source isolation and invalid conversions
-and projections. At this checkpoint it passes 2,535 checks, including an explicit
+and projections. At this checkpoint it passes 2,553 checks, including an explicit
 Homebrew LLVM run with address, undefined-behavior and leak sanitizers enabled.
 This establishes constraint behavior, not native indirect-call execution.
 
@@ -128,3 +135,10 @@ My [native function-field checkpoint](evidence/native-function-fields-20261007/R
 adds nested record/record-array execution and malformed-field controls. The
 combined callable suite passes 24 methods; function arrays and self-hosted
 container admission remain open.
+
+My [native function-array checkpoint](evidence/native-function-arrays-20261007/README.md)
+adds empty construction, checked writes, alias/global mutations, optional reads,
+identity comparisons, printing and observed collection. The combined callable
+suite passes 28 methods. My clean [compiler-product checkpoint at f701198ad](
+evidence/compiler-product-f701198ad/README.md) passes 89 methods; it predates the
+record-field and array storage repairs and does not qualify their revision.
