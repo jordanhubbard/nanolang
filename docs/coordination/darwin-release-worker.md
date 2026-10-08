@@ -64,9 +64,9 @@ under `.git/worktree-cleanup/20261007-171119`. My temporary retirement worktree
 and qualification clones retain absolute host-library paths; do not remove
 them while binaries still reference those paths.
 
-My latest MAC evidence submissions were denied with Operation not permitted
-after the permission environment changed. I preserve the new checkpoint and
-remaining qualification requirements in Git; no task closure is claimed.
+The user now requires GitHub Issues for all task tracking going forward.
+My full release objective is #976; the tracking migration is #975. I do not
+contact MAC. Historical IDs remain provenance only.
 
 ## Remote worker handoff
 
@@ -75,3 +75,12 @@ branch and pin, task/file ownership, tests and intended integration target.
 Coordinate overlapping files before integration and use normal fast-forward
 pushes on this shared coordination branch. Linux qualification of an exact
 published pin would help; it is a proposal until acknowledged.
+
+## GitHub tracking policy change
+
+I pushed standalone main PR #977 at be50f9126. All eleven reporter regression
+tests pass; agent guides, portable skills, startup hooks and failure-reporting
+Make targets use GitHub Issues. Old command names forward to the GitHub
+reporter. Auto-merge is enabled subject to required checks. The release-tree
+copy is on chore/github-issue-tracking-20261008 at 9913d16f2, pending the
+unchanged 7b9d9ecb7 compiler-product gate before integration there.
