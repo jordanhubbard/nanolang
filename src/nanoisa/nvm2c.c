@@ -2146,7 +2146,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     !word_array_storage(v.kind) && v.kind != NVM2C_VK_SARR &&
                     v.kind != NVM2C_VK_RARR && v.kind != NVM2C_VK_REC && v.kind != NVM2C_VK_VALUE &&
                     v.kind != NVM2C_VK_BOOL && v.kind != NVM2C_VK_FLOAT && v.kind != NVM2C_VK_MAP &&
-                    v.kind != NVM2C_VK_UNK) {
+                    v.kind != NVM2C_VK_FUNC && v.kind != NVM2C_VK_UNK) {
                     nvm2c_fail(b, "function %u at offset %zu: AGG_PACK field %u kind %u requires supported aggregate shape facts (final=%d)",
                                idx, start, (unsigned)(count - 1 - ai), v.kind, facts->final);
                     return 0;
@@ -4683,7 +4683,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (vk != NVM2C_VK_INT && vk != NVM2C_VK_STR &&
                     !word_array_storage(vk) && vk != NVM2C_VK_SARR &&
                     vk != NVM2C_VK_RARR && vk != NVM2C_VK_REC && vk != NVM2C_VK_VALUE &&
-                    vk != NVM2C_VK_BOOL && vk != NVM2C_VK_FLOAT && vk != NVM2C_VK_MAP) {
+                    vk != NVM2C_VK_BOOL && vk != NVM2C_VK_FLOAT && vk != NVM2C_VK_MAP &&
+                    vk != NVM2C_VK_FUNC) {
                     nvm2c_fail(b, "function %u: AGG_PACK field requires unsupported nested aggregate shape facts", idx);
                     goto done;
                 }
@@ -4718,7 +4719,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     } else if (fkind[ei] == NVM2C_VK_FLOAT) {
                         nvm2c_printf(b, "    memcpy(&r[%d].f[%d], &f[%d], sizeof f[%d]);\n",
                                      r, ei, elems[ei], elems[ei]);
-                    } else if (fkind[ei] == NVM2C_VK_VALUE) {
+                    } else if (fkind[ei] == NVM2C_VK_VALUE || fkind[ei] == NVM2C_VK_FUNC) {
+                        if (fkind[ei] == NVM2C_VK_FUNC)
+                            nvm2c_printf(b, "    if (v[%d].kind != %u) NVM2C_ABORT();\n", elems[ei], TAG_FUNCTION);
                         nvm2c_printf(b, "    r[%d].vk[%d] = v[%d].kind;\n"
                                          "    r[%d].f[%d] = v[%d].integer;\n"
                                          "    r[%d].s[%d] = v[%d].text;\n",
@@ -4826,6 +4829,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_FLOAT) {
                     snprintf(expr, sizeof expr, "nrec_f64(r[%d].f[%u])", rec, (unsigned)fi);
                     stack_push_float(b, &st, expr);
+                } else if (st.rec_k[rec][fi] == NVM2C_VK_FUNC) {
+                    nvm2c_printf(b, "    if (r[%d].vk[%u] != %u) NVM2C_ABORT();\n",
+                                 rec, (unsigned)fi, TAG_FUNCTION);
+                    snprintf(expr, sizeof expr, "(nmap_value){%u, r[%d].f[%u], NULL}",
+                             TAG_FUNCTION, rec, (unsigned)fi);
+                    stack_push_function(b, &st, expr);
                 } else if (st.rec_k[rec][fi] == NVM2C_VK_VALUE) {
                     snprintf(expr, sizeof expr,
                              "(nmap_value){r[%d].k[%u] == %u ? 5 : r[%d].k[%u] == %u ? 1 : r[%d].k[%u] == %u ? 4 : r[%d].vk[%u], r[%d].f[%u], (char *)r[%d].s[%u]}",

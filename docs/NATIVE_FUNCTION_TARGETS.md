@@ -4,7 +4,9 @@ I must preserve function identity through NanoISA-to-C translation before I can
 execute the returned-call programs on my native product route. My source lowering
 emits `FUNCREF` and `CALL_INDIRECT`. My native translator now classifies named
 function values and emits checked native dispatch for locals, globals, parameters
-and returned functions. Function-valued container storage remains open.
+and returned functions. I also preserve function fields in native records, nested
+records and record arrays. Arrays of functions and source-producer container
+admission remain open.
 
 ## Representation
 
@@ -76,10 +78,17 @@ for subsequent field operations.
 My native function-value cases now execute successfully, including void results,
 functions returned through other functions, contextual byte/array/record
 arguments, imported aliases and mutation of a global callee during argument
-evaluation. I still require function-valued record fields and array elements to
-pass the producer and native container paths. My C seed and VM accept the retained
-container fixture, but those two product paths currently refuse it. Closures and
-other open release requirements also remain necessary.
+evaluation. My native record fields preserve the distinct storage kind, function
+tag and target index through packing and projection. I check both storage and
+payload tags before extraction, then the target set before dispatch. Function IDs
+remain non-owning; adjacent string fields retain their ordinary roots. I test
+nested records and record arrays across observed collections, plus malformed
+storage tags, payload tags and target indices.
+
+I still require function-valued record fields and array elements to pass the
+self-hosted producer, and arrays of functions to pass native storage. My retained
+container fixture now reaches the native function-array refusal after successful
+record classification. Closures and other open release requirements remain necessary.
 
 My acceptance remains the unchanged three native returned-call methods, the eight
 VM methods, typed negative controls, VM/native aggregate and allocation parity,
@@ -114,3 +123,8 @@ and three native sanitizer methods. These check a sixty-target dispatch,
 non-callable tags, absent targets, target zero, and record/array arguments and
 results across observed collections. My broader native gate retains all 2,431
 checks. These results do not establish container-function or complete 5.1 parity.
+
+My [native function-field checkpoint](evidence/native-function-fields-20261007/README.md)
+adds nested record/record-array execution and malformed-field controls. The
+combined callable suite passes 24 methods; function arrays and self-hosted
+container admission remain open.
