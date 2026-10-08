@@ -528,6 +528,10 @@ nvm2c-runtime: $(BIN_DIR)/nano_aot_runtime.o
 $(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
 	$(CC) -r -nostdlib -o $@ $(AOT_RUNTIME_OBJECTS)
 
+test-compiler-phases: $(COMPILER_C) nano_virt nano_vm nvm2c
+	@python3 -m unittest tests.test_compiler_phases
+.PHONY: test-compiler-phases
+
 .PHONY: test-bootstrap-components
 test-bootstrap-components: nano_virt nano_vm nvm2c nvm2c-runtime
 	@python3 -m unittest tests.test_bootstrap_components

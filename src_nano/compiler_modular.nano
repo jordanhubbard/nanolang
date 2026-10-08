@@ -77,11 +77,19 @@ fn severity_to_string(severity: int) -> string {
 
 fn phase_to_string(phase: int) -> string {
     if (== phase CompilerPhase.PHASE_LEXER) { return "lexer" }
-    else { if (== phase CompilerPhase.PHASE_PARSER) { return "parser" }
-    else { if (== phase CompilerPhase.PHASE_TYPECHECK) { return "typecheck" }
-    else { if (== phase CompilerPhase.PHASE_TRANSPILER) { return "transpiler" }
-    else { if (== phase CompilerPhase.PHASE_RUNTIME) { return "runtime" }
-    else { return "unknown" } } } } }
+    if (== phase CompilerPhase.PHASE_PARSER) { return "parser" }
+    if (== phase CompilerPhase.PHASE_TYPECHECK) { return "typecheck" }
+    if (== phase CompilerPhase.PHASE_NANOISA) { return "nanoisa" }
+    if (== phase CompilerPhase.PHASE_BACKEND) { return "backend" }
+    if (== phase CompilerPhase.PHASE_RUNTIME) { return "runtime" }
+    return "unknown"
+}
+shadow phase_to_string {
+    assert (== (phase_to_string CompilerPhase.PHASE_LEXER) "lexer")
+    assert (== (phase_to_string CompilerPhase.PHASE_NANOISA) "nanoisa")
+    assert (== (phase_to_string CompilerPhase.PHASE_BACKEND) "backend")
+    assert (== (phase_to_string CompilerPhase.PHASE_RUNTIME) "runtime")
+    assert (== (phase_to_string -1) "unknown")
 }
 
 fn print_single_diagnostic(diag: CompilerDiagnostic) -> void {

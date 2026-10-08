@@ -1,0 +1,26 @@
+{
+  "artifacts": {
+    "nanoc_seed.nvm": {
+      "sha256": "695a24f7b1b45d1478bbfd37977bb1f358bb481f18edb948bfda1fab0aa6e708",
+      "bytes": 518588
+    },
+    "nanoc_stage1.nvm": {
+      "sha256": "40b6bdc7f3bb4397903bcae6aae1224c77ca2b2327454272d043e088a0c580cb",
+      "bytes": 492484
+    },
+    "nanoc_stage1": {
+      "sha256": "0c4d8705ca211640f22c05078463388bbb4921a76743b6dc5d04bc43994f6120",
+      "bytes": 13372712
+    },
+    "nanoc_stage2.nvm": {
+      "sha256": "40b6bdc7f3bb4397903bcae6aae1224c77ca2b2327454272d043e088a0c580cb",
+      "bytes": 492484
+    },
+    "nanoc_stage2": {
+      "sha256": "46d40c650938cae7986a65b04db1ed10ae9160875d06e05f4ed24bf7752e4a14",
+      "bytes": 13372712
+    }
+  },
+  "host_hashes_match": true,
+  "raw_bytes_equal": true
+}

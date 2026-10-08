@@ -168,8 +168,9 @@ typedef enum CompilerPhase {
     CompilerPhase_PHASE_LEXER,
     CompilerPhase_PHASE_PARSER,
     CompilerPhase_PHASE_TYPECHECK,
-    CompilerPhase_PHASE_TRANSPILER,
-    CompilerPhase_PHASE_RUNTIME
+    CompilerPhase_PHASE_NANOISA,
+    CompilerPhase_PHASE_RUNTIME,
+    CompilerPhase_PHASE_BACKEND
 } CompilerPhase;
 #endif
 
