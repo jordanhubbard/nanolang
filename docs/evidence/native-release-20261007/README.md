@@ -35,4 +35,4 @@ The current full module reaches a separate aggregate conversion refusal: an opti
 
 Self-hosted compiler emission separately stops after its original ten-second shadow deadline. I preserve the first failure in [the full gate log](one-ir-openssl-corrected.log); I have not increased the deadline or claimed a fixed point.
 
-GitHub access fails and MAC task creation returns `Operation not permitted` in this session. Hosted status, ledger reconciliation, integration, complete platform gates and publication remain unverified. This checkpoint does not release 5.1.
+GitHub API access initially fails, then recovers. I push commit `47b1cfeef` and open [draft PR974](https://github.com/jordanhubbard/nanolang/pull/974). MAC task creation and a subsequent ready-task query still return `Operation not permitted`. Hosted acceptance, ledger reconciliation, integration, complete platform gates and publication remain unverified. This checkpoint does not release 5.1.
