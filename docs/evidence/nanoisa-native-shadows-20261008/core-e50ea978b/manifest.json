@@ -1,0 +1,21 @@
+{
+  "before": {
+    "head": "e50ea978bbf8fac0c2a39f85ca24d232a1dc6da1",
+    "status": "?? tests/user_guide/refresh_language_pure_function.nano",
+    "user_sha": "c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976"
+  },
+  "command": [
+    "make",
+    "-j2",
+    "test-nanoisa-src-nano"
+  ],
+  "PATH": "/private/tmp/nanolang-cutover-llvm-tools:/opt/homebrew/opt/llvm/bin:/Users/jordanh/.codex/packages/app-server-daemon/releases/0.161.0-aarch64-apple-darwin/codex-path:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/opt/X11/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/VMware Fusion.app/Contents/Public:/opt/homebrew/bin:/Users/jordanh/.codex/tmp/arg0/codex-arg0SQQeXM:/Users/jordanh/.codex/packages/app-server-daemon/releases/0.161.0-aarch64-apple-darwin/codex-path:/Users/jordanh/.codex/tmp/arg0/codex-arg0FDhueq:/opt/homebrew/lib/node_modules/@openai/codex/node_modules/@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/codex-path:/Users/jordanh/Library/pnpm:/opt/homebrew/sbin:/Applications/Docker.app/Contents/Resources/bin:/Users/jordanh/.cargo/bin:/Users/jordanh/.local/bin:/Users/jordanh/Bin:.:/Users/jordanh/.docker/bin:/Users/jordanh/.docker/bin:/Users/jordanh/.docker/bin:/Users/jordanh/.docker/bin",
+  "CC": "/opt/homebrew/opt/llvm/bin/clang",
+  "exit_code": 2,
+  "seconds": 403.7273989999667,
+  "head": "e50ea978bbf8fac0c2a39f85ca24d232a1dc6da1",
+  "status": "?? tests/nanoisa/test_nanoisa_src_nano\n?? tests/user_guide/refresh_language_pure_function.nano",
+  "tracked_diff": "",
+  "user_sha": "c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976",
+  "log_sha": "854373387120bd4f24371e86c7d43809d688aa8b10dbd0b51504b1d43fd9d220"
+}

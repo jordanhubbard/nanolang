@@ -39,3 +39,11 @@ and an additional global-call result through verified VM and strict native C,
 retaining all genuine refusal controls. The affected method passes in 76.245
 seconds. Full corrected gate, compiler-product qualification and remaining
 legacy-emitter migrations stay open.
+
+My corrected full gate at `e50ea978b` exits 2 after 403.727 seconds. All 84
+executed methods pass; six shadow-emitter methods do not run because their
+class setup compiler reports its ten-second shadow execution deadline. I
+preserve the original terminal and manifest in `core-e50ea978b`. HEAD and
+tracked sources remain unchanged and the user's test retains its hash. I do
+not attribute the timeout to contention without evidence or relax the deadline.
+The complete gate remains unqualified.
