@@ -1,0 +1,8 @@
+test_alias_types_mutability_and_global_bindings_restore (tests.test_genenv_scope.GenEnvScopeTests.test_alias_types_mutability_and_global_bindings_restore) ... ok
+test_match_and_loop_binders_restore_outer_names (tests.test_genenv_scope.GenEnvScopeTests.test_match_and_loop_binders_restore_outer_names) ... ok
+test_out_of_scope_and_immutable_writes_preserve_output (tests.test_genenv_scope.GenEnvScopeTests.test_out_of_scope_and_immutable_writes_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.009s
+
+OK

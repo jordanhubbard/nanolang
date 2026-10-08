@@ -1,0 +1,7 @@
+-- E001 TYPE MISMATCH --- /private/tmp/nanolang-lexical-evidence-20261008/shadowed-function.nano
+I require a function value for a bound call.
+
+3| fn main() -> int { let selected: int = 2 return (selected) }
+                                                   ^
+Hint: Call the declared function or a function-typed binding.
+error: type check failed

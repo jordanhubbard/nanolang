@@ -341,7 +341,7 @@ static inline void tracked_free(void *p) {
             help_output = self.run_checked([compiler, "--help"], timeout=10)
             self.assertIn(b"Compiler", help_output)
             self.run_checked([sys.executable, "-m", "unittest", "tests.test_selfhost_captures",
-                              "tests.test_native_mutable_record_arrays"],
+                              "tests.test_native_mutable_record_arrays", "tests.test_genenv_scope"],
                              timeout=180, extra_env={"NANOLANG_SELFHOST_COMPILER": str(compiler)})
             # I require the native compiler to parse and lower its full source,
             # including recursive record calls that a hello product cannot cover.
@@ -388,7 +388,7 @@ static inline void tracked_free(void *p) {
                               source, "-o", compiler, *HOST_RUNTIME], timeout=240)
             self.assertIn(b"Compiler", self.run_checked([compiler, "--help"], timeout=10))
             self.run_checked([sys.executable, "-m", "unittest", "tests.test_selfhost_captures",
-                              "tests.test_native_mutable_record_arrays"],
+                              "tests.test_native_mutable_record_arrays", "tests.test_genenv_scope"],
                              timeout=180, extra_env={"NANOLANG_SELFHOST_COMPILER": str(compiler)})
             hello_module, hello_c, hello_native = (work / name for name in
                                                    ("hello.nvm", "hello.c", "hello"))
