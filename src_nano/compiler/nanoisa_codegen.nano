@@ -1066,6 +1066,24 @@ shadow nisa_is_int_record {
     assert (not (nisa_is_int_record p "Nope"))
 }
 
+fn nisa_opaque_index(parser: Parser, name: string) -> int {
+    let mut found: int = -1
+    for index in (range 0 parser.opaque_types_count) {
+        let declaration: ASTOpaqueType = (list_ASTOpaqueType_get parser.opaque_types index)
+        if (== declaration.type_name name) {
+            if (>= found 0) { return -1 }
+            set found index
+        }
+    }
+    return found
+}
+shadow nisa_opaque_index {
+    let tokens: List<LexerToken> = (tokenize_string "opaque type Handle" "opaque.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "opaque.nano")
+    assert (== (nisa_opaque_index parser "Handle") 0)
+    assert (== (nisa_opaque_index parser "Missing") -1)
+}
+
 fn nisa_enum_index(parser: Parser, name: string) -> int {
     let mut found: int = -1
     let mut i: int = 0
@@ -1859,6 +1877,7 @@ shadow nisa_function_type {
 }
 
 fn nisa_type_ok_seen(parser: Parser, t: string, signatures: array<string>) -> bool {
+    if (>= (nisa_opaque_index parser t) 0) { return true }
     if (str_starts_with (nisa_compact_type t) "fn(") { return (nisa_function_type_ok_seen parser t signatures) }
     if (nisa_tuple_type_ok parser t) { return true }
     if (nisa_union_supported parser t) { return true }
@@ -3128,6 +3147,19 @@ shadow nisa_emit_tuple_literal {
 
 # I carry declared constructor context without changing the AST.
 fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expected: string) -> string {
+    if (>= (nisa_opaque_index parser expected) 0) {
+        if (== node_type ParseNodeType.PNODE_NUMBER) {
+            let literal: string = (parser_get_number parser node_id).value
+            if (== literal "") { return (nisa_fail "I require literal zero for an opaque null") }
+            for digit in (range 0 (str_length literal)) {
+                if (!= (char_at literal digit) 48) { return (nisa_fail "I require literal zero for an opaque null") }
+            }
+            return (nisa_line_imm "PUSH_I64" "0")
+        }
+        if (!= (nisa_expr_type parser node_id node_type) expected) {
+            return (nisa_fail "I require the exact declared opaque type or literal zero")
+        }
+    }
     if (str_starts_with (nisa_compact_type expected) "fn(") {
         if (not (nisa_value_type_matches parser (nisa_expr_type parser node_id node_type) expected)) {
             return (nisa_fail "I require the declared function value signature")
@@ -5269,6 +5301,7 @@ shadow nisa_emit_block {
 }
 
 fn nisa_result_tag(parser: Parser, t: string) -> string {
+    if (>= (nisa_opaque_index parser t) 0) { return "opaque" }
     if (nisa_function_type_ok parser t) { return "function" }
     if (nisa_union_supported parser t) { return "union" }
     if (== t "float") { return "float" }
@@ -5353,7 +5386,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         let mut exact_parameters: bool = nisa_has_par
         let mut exact_parameter: int = 0
         while (< exact_parameter func.param_count) {
-            if (== (parser_get_let parser (+ func.param_start exact_parameter)).var_type "u8") {
+            if (or (== (parser_get_let parser (+ func.param_start exact_parameter)).var_type "u8") (>= (nisa_opaque_index parser (parser_get_let parser (+ func.param_start exact_parameter)).var_type) 0)) {
                 set exact_parameters true
             }
             set exact_parameter (+ exact_parameter 1)

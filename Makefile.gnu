@@ -2882,7 +2882,7 @@ test-bytecode-shadows: nano_virt nano_vm nanoisa_dump $(COMPILER_C) $(OBJ_DIR)/t
 	@python3 -m unittest tests.test_link_response_query
 
 .PHONY: test-native-shadow-emitter
-test-native-shadow-emitter:
+test-native-shadow-emitter: nanoisa_dump nano_vm nvm2c nvm2c-runtime
 	@python3 tests/test_native_shadow_emitter.py
 
 .PHONY: test-native-shadows
@@ -4272,7 +4272,7 @@ help:
 	@echo ""
 	@echo "Component Build Process:"
 	@echo "  Stage 1: C sources → nanoc + nano"
-	@echo "  Stage 2: nanoc compiles parser/typechecker/transpiler"
+	@echo "  Stage 2: nanoc compiles parser/typechecker/NanoISA emitter"
 	@echo "  Stage 3: Validate components work"
 	@echo ""
 	@echo "TRUE Bootstrap Process:"

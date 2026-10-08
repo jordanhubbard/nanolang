@@ -1,0 +1,6 @@
+{
+  "src_nano/compiler/nanoisa_codegen.nano": "bface322c555a6e24e353cd2ef9122f49c11830dd4ba4b6fc3689c12c4f34dcf",
+  "tests/selfhost_shadow_emitter.nano": "0540dbbddf2c22f444be65cd50140932e3b71ffbc0b212bb8eb0fc9aa3435f62",
+  "tests/test_native_shadow_emitter.py": "220565d5e09692817bb6e0c5346d857b26b9d56c38e7877cf466906d670c78d5",
+  "Makefile.gnu": "f568e492754086e02ef7d1202224b37ed55e79ac62dc1ae01ed3639a93a7d192"
+}
