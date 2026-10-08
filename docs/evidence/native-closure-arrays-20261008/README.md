@@ -1,7 +1,8 @@
 # My native closure-array checkpoint
 
 I retain the unchanged assembly baseline: assembly, NanoVM, translation and C
-compilation pass, but native execution aborts in `nvalue_require_function`.
+compilation pass, but native execution aborts in `nvalue_require_function`
+(`baseline-native.log`; `native.log` contains the later regression suite).
 After repair the same module passes strict C11, ASan/UBSan and leak detection.
 
 My array owner now holds optional per-element closure environments alongside
