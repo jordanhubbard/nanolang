@@ -1,0 +1,7 @@
+{
+  "src/nanolang.h": "1f5bf4cd17e6974b09060b4ef3eb6569dceabd5f4f7954ac798af23d11c232fa",
+  "src/typechecker.c": "ec7d24dbdfa96fb01c08bb8344a3d5411c54c7d26813a7e8969bc635c6ca1e4a",
+  "src/nanovirt/codegen.c": "56dc0fb7a9301eebc66993d9297049bdba22741152ecd29860f21b245e8cdf08",
+  "tests/test_byte_array_literals.py": "63625e7d23df07348797547a095aa5859d5358293bea6d443c8b865c2e0d67b6",
+  "Makefile.gnu": "49d23d8305862dea7521f080be07fd0a7f37759ff2bdbc82f417630cf65c8960"
+}
