@@ -93,18 +93,77 @@ fn main()->int {
 shadow main { assert (== (main) 0) }
 ''', b'42\n')
 
+    def test_retained_record_and_array_function_source(self):
+        source = ROOT / 'docs/evidence/native-callable-execution-20261007/function-containers.nano'
+        self.execute_source(source.read_text(), b'')
+
+    def test_function_containers_preserve_aliases_and_context(self):
+        self.execute_source('''
+struct Ops { op:fn(int)->int }
+struct Bundle { ops:array<fn(int)->int>, nested:Ops }
+fn inc(n:int)->int { return (+ n 1) }
+shadow inc { assert (== (inc 41) 42) }
+fn dec(n:int)->int { return (- n 1) }
+shadow dec { assert (== (dec 41) 40) }
+let mut callbacks:array<fn(int)->int> = [inc,dec]
+fn select(values:array<fn(int)->int>,index:int)->fn(int)->int { return (at values index) }
+shadow select { let f:fn(int)->int = (select [inc,dec] 1) assert (== (f 41) 40) }
+fn relay(bundle:Bundle)->Bundle { return bundle }
+shadow relay { let b:Bundle = (relay (Bundle {ops:[inc],nested:Ops {op:dec}})) assert (== (array_length b.ops) 1) }
+fn main()->int {
+    set callbacks [inc,dec]
+    (array_set callbacks 1 inc)
+    let global_choice:fn(int)->int = (select callbacks 1)
+    assert (== (global_choice 41) 42)
+    let mut values:array<fn(int)->int> = [inc,dec]
+    let bundle:Bundle = (relay (Bundle {ops:values,nested:Ops {op:inc}}))
+    (array_set values 0 dec)
+    let changed:fn(int)->int = (select bundle.ops 0)
+    assert (== (changed 41) 40)
+    let nested:Ops = bundle.nested
+    let original:fn(int)->int = nested.op
+    assert (== (original 41) 42)
+    let mut empty:array<fn(int)->int> = []
+    set empty (array_push empty inc)
+    let appended:fn(int)->int = (select empty 0)
+    assert (== (appended 41) 42)
+    let filled:array<fn(int)->int> = (array_new 2 inc)
+    let from_fill:fn(int)->int = (select filled 1)
+    assert (== (from_fill 41) 42)
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''', b'')
+
+    def test_recursive_record_callback_signature(self):
+        self.execute_source('''
+struct Node { apply:fn(Node)->int, value:int }
+fn read(node:Node)->int { return node.value }
+shadow read { assert (== (read (Node {apply:read,value:42})) 42) }
+fn main()->int {
+    let node:Node = Node {apply:read,value:42}
+    let f:fn(Node)->int = node.apply
+    assert (== (f node) 42)
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''', b'')
+
     def test_wrong_signature_or_non_callable_preserves_prior_module(self):
         cases = [
             'let f:fn(string)->int = identity return 0',
             'let f:int = 0 return (f 42)',
             'let f:fn(int)->int = identity return (f true)',
             'let f:fn(int)->int = identity return (f 1 2)',
+            'let f:array<fn(string)->int> = [identity] return 0',
+            'let f:Ops = Ops {op:identity} return 0',
+            'let fs:array<fn(int)->int> = [identity] let f:fn(string)->int = (at fs 0) return 0',
         ]
         for statement in cases:
             with self.subTest(statement=statement), tempfile.TemporaryDirectory(prefix='nano-function-refusal-') as tmp:
                 directory = Path(tmp)
                 source, output = directory / 'input.nano', directory / 'prior.nvm'
-                source.write_text('fn identity(n:int)->int{return n}\n'
+                source.write_text('struct Ops {op:fn(string)->int}\nfn identity(n:int)->int{return n}\n'
                                   'shadow identity { assert (== (identity 7) 7) }\n'
                                   'fn main()->int{' + statement + '}\nshadow main { assert true }\n')
                 output.write_bytes(b'prior module\x00')

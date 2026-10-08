@@ -134,9 +134,11 @@ emitter supported native computed calls. My `nvm2c` translator now implements
 named `FUNCREF` values and checked `CALL_INDIRECT` dispatch, and the unchanged
 native returned-call tests pass. My native record fields also retain function
 identity through nesting and record arrays. Native arrays of named functions
-preserve checked element tags, mutation aliases and missing values. Self-hosted
-function-container admission and captured-closure parity remain release
-requirements; these named-function tests do not close those gaps.
+preserve checked element tags, mutation aliases and missing values. My self-hosted
+producer now passes these named-function container cases, including recursive
+callback signatures and invalid-signature prior-output preservation. Captured-
+closure parity remains a release requirement; these named-function tests do not
+close that gap.
 
 My C-seed checker derives a mapped array's element type from the transform's
 declared result, including direct indexing and local-bound results. I check

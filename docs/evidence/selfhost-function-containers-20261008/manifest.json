@@ -1,0 +1,53 @@
+{
+  "base_commit": "c7ba27e8c29906aed9aa18cf0dc1bea3e30fcb3e",
+  "task": "task_b30c41ca616e4143aa0dd0edc333c190",
+  "source_sha256": {
+    "src_nano/compiler/nanoisa_codegen.nano": "76a8a7237237e9db4792322afe9c93cc3486856f8b729f5d8ade8ad7e4bf6bb6",
+    "tests/test_selfhost_function_values.py": "e4ac981ef54bd8a8b0c3f8d51b87f1aa628dd468e52c5b400013056363eb8dcd"
+  },
+  "artifacts": {
+    "/private/tmp/nanolang-function-container-producer.nvm": {
+      "bytes": 855820,
+      "sha256": "3ba905948bd5db267fee65e274f9fab5d2d83a256915ed34d6bb79b36da1d861"
+    },
+    "/private/tmp/nanolang-function-container-producer.c": {
+      "bytes": 11676958,
+      "sha256": "9f76ac37082eb11d1d1c9ad01e32f50b647e3512c4970a737e00776d46f3665b"
+    },
+    "/private/tmp/nanolang-function-container-producer": {
+      "bytes": 17734216,
+      "sha256": "f0e499204a6ba2335e73adafd5ff81d54a7013f39b7d92c134e4ef1587c77ba8"
+    }
+  },
+  "checks": [
+    {
+      "command": "bin/nano_virt src_nano/nanoc_v06.nano --emit-nvm -o /private/tmp/nanolang-function-container-producer.nvm",
+      "exit_code": 0,
+      "log": "seed-shadows.log"
+    },
+    {
+      "command": "bin/nvm2c /private/tmp/nanolang-function-container-producer.nvm -o /private/tmp/nanolang-function-container-producer.c",
+      "exit_code": 0,
+      "log": "native-translate.log"
+    },
+    {
+      "command": "/opt/homebrew/opt/llvm/bin/clang -std=c11 -O0 /private/tmp/nanolang-function-container-producer.c bin/nano_aot_runtime.o -lm -o /private/tmp/nanolang-function-container-producer",
+      "exit_code": 0,
+      "log": "native-cc.log"
+    },
+    {
+      "command": "PATH=/private/tmp/nanolang-cutover-llvm-tools:/opt/homebrew/opt/llvm/bin:$PATH NANOLANG_SELFHOST_COMPILER=/private/tmp/nanolang-function-container-producer NANOLANG_ROOT=/Users/jordanh/Src/nanolang python3 -m unittest -v tests.test_selfhost_returned_calls tests.test_selfhost_function_values tests.test_native_callables tests.test_selfhost_cli tests.test_selfhost_nanoisa_product",
+      "exit_code": 0,
+      "methods": 58,
+      "log": "qualified.log"
+    }
+  ],
+  "logs": {
+    "seed-shadows.log": "262dca6d6b94dc225242ed8fa8dcd726cb05f2cdaf9a154d1a9f6636a880e732",
+    "initial-element-shadow.log": "dacc304a4035a1b7cc2fa6495297b0ff4fa488d2a71cd238ee7480ff5287f63d",
+    "initial-parity.log": "7e10b245fb89d95493f46b04aefaa3d528b62926ed5d7950a5e728d5aa412ec5",
+    "native-cc.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "native-translate.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "qualified.log": "e9c5bea15fe86d1cf9ca2cd9a1cc9095d92dbaa4e48514238830d0c8beb063a6"
+  }
+}

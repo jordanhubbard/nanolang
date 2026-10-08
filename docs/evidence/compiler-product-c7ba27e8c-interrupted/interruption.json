@@ -1,0 +1,12 @@
+{
+  "source_commit": "c7ba27e8c29906aed9aa18cf0dc1bea3e30fcb3e",
+  "root": "/private/tmp/nanolang-function-arrays-c7ba27e8c",
+  "command": [
+    "make",
+    "-j2",
+    "test-one-ir-compiler"
+  ],
+  "initial_status": "clean",
+  "observation": "I found no retained process handle or matching runner/Make process on 2026-10-08. The log has no terminal test result. I do not infer an exit code or cause.",
+  "log_sha256": "a9c652c4d16e13e332384b627830c9255e8c67fbfd3cf9c5b6585efb40153bca"
+}

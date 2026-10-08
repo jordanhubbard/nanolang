@@ -5,8 +5,9 @@ execute the returned-call programs on my native product route. My source lowerin
 emits `FUNCREF` and `CALL_INDIRECT`. My native translator now classifies named
 function values and emits checked native dispatch for locals, globals, parameters
 and returned functions. I also preserve function fields in native records, nested
-records and record arrays, plus arrays of named functions. Self-hosted
-source-producer container admission remains open.
+records and record arrays, plus arrays of named functions. My self-hosted
+source producer also admits these named-function containers. Captured-function
+containers remain open.
 
 ## Representation
 
@@ -94,8 +95,7 @@ also preserves this optional result. Tagged function equality and ordering use
 target indices, and tagged array printing matches my VM's function notation.
 
 My retained C-seed container module now executes in both VM and native products.
-I still require its function-valued record fields and array elements to pass the
-self-hosted producer. Closures and other open release requirements remain necessary.
+My self-hosted producer now emits that same named-function source successfully. Closures and other open release requirements remain necessary.
 
 My acceptance remains the unchanged three native returned-call methods, the eight
 VM methods, typed negative controls, VM/native aggregate and allocation parity,
@@ -133,8 +133,8 @@ checks. These results do not establish container-function or complete 5.1 parity
 
 My [native function-field checkpoint](evidence/native-function-fields-20261007/README.md)
 adds nested record/record-array execution and malformed-field controls. The
-combined callable suite passes 24 methods; function arrays and self-hosted
-container admission remain open.
+combined callable suite passed 24 methods; function arrays and self-hosted
+container admission were still open at that checkpoint.
 
 My [native function-array checkpoint](evidence/native-function-arrays-20261007/README.md)
 adds empty construction, checked writes, alias/global mutations, optional reads,
@@ -142,3 +142,10 @@ identity comparisons, printing and observed collection. The combined callable
 suite passes 28 methods. My clean [compiler-product checkpoint at f701198ad](
 evidence/compiler-product-f701198ad/README.md) passes 89 methods; it predates the
 record-field and array storage repairs and does not qualify their revision.
+
+My [self-hosted container checkpoint](evidence/selfhost-function-containers-20261008/README.md)
+passes the retained source and additional named-function container cases through
+both products. Its 58 methods cover callable behavior and adjacent CLI/products.
+I track visited signatures separately from record storage paths, retaining both
+recursive callbacks and the existing record-cycle refusal. Captured closures,
+current raw bootstrap and full release qualification remain open.
