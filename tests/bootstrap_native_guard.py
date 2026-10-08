@@ -15,6 +15,13 @@ def main(config):
         path = Path(value).resolve()
         if str(path) in config['native_sources']:
             return True
+        retained_file = config.get('retained_host_inputs')
+        if retained_file and Path(retained_file).exists():
+            retained = json.loads(Path(retained_file).read_text())
+            stage = path.parent
+            if (stage.name.startswith('.nano-build-') and
+                    path.name in retained.get(str(stage.parent), [])):
+                return True
         if any(path.is_relative_to(Path(root)) for root in config['module_build_roots']):
             return True
         # The module builder compiles retained native-host inputs here while
