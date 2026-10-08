@@ -5811,3 +5811,8 @@ test-units: test-byte-array-literals
 test-nanoisa-byte-arrays: $(COMPILER_C) nano_vm nanoisa_dump
 	python3 -m unittest -v tests.test_nanoisa_byte_arrays
 test-units: test-nanoisa-byte-arrays
+
+.PHONY: test-selfhost-opaque-imports
+test-selfhost-opaque-imports: bootstrap3
+	python3 -m unittest -v tests.test_selfhost_opaque_imports
+test-units: test-selfhost-opaque-imports

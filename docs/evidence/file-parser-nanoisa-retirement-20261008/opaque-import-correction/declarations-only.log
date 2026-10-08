@@ -1,0 +1,42 @@
+I retain opaque import controls at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-opaque-imports-lgqwe0mg
+test_root_and_imported_declarations (tests.test_selfhost_opaque_imports.OpaqueImports.test_root_and_imported_declarations) ... 
+  test_root_and_imported_declarations (tests.test_selfhost_opaque_imports.OpaqueImports.test_root_and_imported_declarations) (imported=False, compiler='/private/tmp/nanolang-json-compiler') ... FAIL
+  test_root_and_imported_declarations (tests.test_selfhost_opaque_imports.OpaqueImports.test_root_and_imported_declarations) (imported=True, compiler='/private/tmp/nanolang-json-compiler') ... FAIL
+test_unknown_opaque_name_refused (tests.test_selfhost_opaque_imports.OpaqueImports.test_unknown_opaque_name_refused) ... ok
+
+======================================================================
+FAIL: test_root_and_imported_declarations (tests.test_selfhost_opaque_imports.OpaqueImports.test_root_and_imported_declarations) (imported=False, compiler='/private/tmp/nanolang-json-compiler')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_opaque_imports.py", line 39, in test_root_and_imported_declarations
+    self.command(compiler, source, "--emit-nvm", "-o", output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_opaque_imports.py", line 25, in command
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-json-compiler'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-opaque-imports-lgqwe0mg/main.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-opaque-imports-lgqwe0mg/main.nvm')): 1
+NSType checking failed
+Diagnostics:
+  [E0001] Variable handle: I expected a value of type `Handle`, but found `int`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-opaque-imports-lgqwe0mg/main.nano:2:18)
+
+
+
+======================================================================
+FAIL: test_root_and_imported_declarations (tests.test_selfhost_opaque_imports.OpaqueImports.test_root_and_imported_declarations) (imported=True, compiler='/private/tmp/nanolang-json-compiler')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_opaque_imports.py", line 39, in test_root_and_imported_declarations
+    self.command(compiler, source, "--emit-nvm", "-o", output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_selfhost_opaque_imports.py", line 25, in command
+    raise AssertionError(f"{args}: {result.returncode}\n{result.stdout}\n{result.stderr}")
+AssertionError: (PosixPath('/private/tmp/nanolang-json-compiler'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-opaque-imports-lgqwe0mg/main.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-opaque-imports-lgqwe0mg/main.nvm')): 1
+NSType checking failed
+Diagnostics:
+  [E0001] Variable handle: I expected a value of type `Handle`, but found `int`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-opaque-imports-lgqwe0mg/main.nano:2:18)
+
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.057s
+
+FAILED (failures=2)
