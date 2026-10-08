@@ -64,8 +64,8 @@ I reject unknown targets, mismatched capture counts, stack underflow and invalid
 flattened upvalue accesses. Captured arrays retain the ordinary alias constraints.
 I conservatively union instances of the same closure body, but keep unrelated
 function producers separate. These are target constraints, not the runtime
-representation: native closure allocation, environment identity, ownership and
-source capture lowering remain open.
+representation: native environment allocation and tracing are qualified below; source capture
+lowering and closure arrays remain open.
 
 ## Native storage and dispatch
 
@@ -73,9 +73,9 @@ I use a distinct native function kind with a tagged `nmap_value` payload. Locals
 arguments and results preserve tag 11 and the module-local function index. I
 check a dynamically tagged callable before dispatch and abort if its index is
 outside that call site's proved target set. Ordinary integers cannot become
-functions by sharing the same numeric payload. Non-owning function IDs do not
-enter heap-root registration; record, array, string and map arguments retain
-ordinary caller and callee roots.
+functions by sharing the same numeric payload. Callable slots enter tagged root registration: non-owning function IDs add no
+heap edges, while closures retain their environments. Record, array, string and
+map arguments retain ordinary caller and callee roots.
 
 I classify every retained target through the shared direct-call classifier,
 require compatible result signatures, and retain function references in required
@@ -92,7 +92,8 @@ arguments, imported aliases and mutation of a global callee during argument
 evaluation. My native record fields preserve the distinct storage kind, function
 tag and target index through packing and projection. I check both storage and
 payload tags before extraction, then the target set before dispatch. Function IDs
-remain non-owning; adjacent string fields retain their ordinary roots. I test
+remain non-owning; closure fields retain their environment pointers and adjacent
+string fields retain their ordinary roots. I test
 nested records and record arrays across observed collections, plus malformed
 storage tags, payload tags and target indices.
 
@@ -111,6 +112,28 @@ My acceptance remains the unchanged three native returned-call methods, the eigh
 VM methods, typed negative controls, VM/native aggregate and allocation parity,
 and the complete compiler-product and release gates. Closures and the other open
 5.1 language/backend requirements remain separate release obligations.
+
+## Captured environments
+
+I now lower `CLOSURE_NEW` to an owned record environment and pass that environment
+explicitly to the native target. Flattened upvalue reads and writes preserve
+scalar and aggregate representations. The capture fact slots follow bytecode
+locals internally; they do not become source-visible local bindings. Runtime
+environments remain distinct even when my analysis merges possible targets.
+
+I preserve tag 15, environment identity, alias mutation and nested callable
+captures. Native dispatch checks tag, target membership, environment presence,
+capture count and the environment's stored target identity. Implicit entry and
+initialization functions cannot receive captures and are refused before output.
+I root the active environment, callable locals and operands, callable fields and
+globals, including the indirect callee after popping it for dispatch. Existing
+record-owner collection and shutdown cleanup reclaim environments.
+
+My [native environment checkpoint](evidence/native-closure-environments-20261008/README.md)
+executes the unchanged C-seed-produced canonical returned chain and exercises
+managed captures across observed collection under ASan/UBSan/LSan. My self-hosted
+producer still lacks lexical capture lowering, and my function arrays still
+store named IDs only. The complete captured-function and release rows stay open.
 
 ## Constraint validation
 
