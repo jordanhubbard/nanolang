@@ -26,7 +26,9 @@ class VMBytecodeBootstrap(unittest.TestCase):
             self.assertEqual(list(evidence.iterdir()), [], 'I require a fresh evidence directory.')
         print(f'I retain my bootstrap evidence at {evidence}', flush=True)
         env = os.environ.copy()
-        env['NANO_AS_CAPTURE_HELPER'] = str(ROOT / 'bin/nano_as_capture.so')
+        capture_helper = ROOT / 'bin/nano_as_capture.so' if sys.platform.startswith('linux') else None
+        if capture_helper:
+            env['NANO_AS_CAPTURE_HELPER'] = str(capture_helper)
         native_marker = evidence / 'unexpected-native-compiler'
         guarded_cc = evidence / 'guard-native-compiler'
         probe_log = evidence / 'host-cache-probes.log'
@@ -91,7 +93,7 @@ class VMBytecodeBootstrap(unittest.TestCase):
 
         self.assertEqual(git('status', '--porcelain'), '', 'I require a clean pinned compiler source.')
         manifest['source_commit'] = git('rev-parse', 'HEAD')
-        manifest['helper_sha256'] = digest(env['NANO_AS_CAPTURE_HELPER'])
+        manifest['helper_sha256'] = digest(capture_helper) if capture_helper else None
         manifest['labels'] = {'seed': 'C-seed NanoVirt output, a different lowering implementation',
                               'stage1': 'VM execution of seed compiling the same source',
                               'stage2': 'VM execution of stage1 compiling the same source',
@@ -126,7 +128,8 @@ class VMBytecodeBootstrap(unittest.TestCase):
         run('hello-verify', [ROOT / 'bin/nano_vm', '--verify-only', product])
         run('hello-execute', [ROOT / 'bin/nano_vm', product])
         self.assertEqual({p: digest(p) for p in hosts}, hosts)
-        self.assertEqual(digest(env['NANO_AS_CAPTURE_HELPER']), manifest['helper_sha256'])
+        if capture_helper:
+            self.assertEqual(digest(capture_helper), manifest['helper_sha256'])
         self.assertEqual(git('rev-parse', 'HEAD'), manifest['source_commit'])
         self.assertEqual(git('status', '--porcelain'), '')
         self.assertFalse(native_marker.exists(), 'I invoked native code generation during VM generations.')

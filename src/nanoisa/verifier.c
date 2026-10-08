@@ -883,13 +883,12 @@ static NvmVerifyResult verify_function_body(const NvmModule *mod, uint32_t fn_id
     if(budget && proven_depth>256) {
         vm_decoded_function_free(&decoded);budget->limited=true;return fail("I reached my private stack bound.");
     }
-    if (out_max_stack) *out_max_stack = proven_depth;
-
     /* Types only once the shape is proven: the type pass indexes slots the
      * height walk guarantees exist. */
     if (stack_result.ok)
         stack_result = budget?nvm_verify_function_types_record_array(mod,fn_idx,&decoded,proven_depth,budget):
             nvm_verify_function_types(mod, fn_idx, &decoded,proven_depth,NULL,0);
+    if (stack_result.ok && out_max_stack) *out_max_stack = proven_depth;
     if(stack_result.ok && kept)*kept=decoded;
     else vm_decoded_function_free(&decoded);
     return stack_result;
@@ -1095,23 +1094,69 @@ NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
  * Public API
  * ======================================================================== */
 
+/* I share a completed structural proof only within this invocation. A caller
+ * can mutate a module between public calls, so I retain no cached admission. */
+static NvmVerifyResult verify_functions_with_structure(const NvmModule *mod,
+                                  const NvmModule *const *linked_modules,
+                                  uint32_t linked_count,
+                                  const uint16_t *declared_depths) {
+    bool owned_admitted = false;
+    NvmVerifyResult r = verify_structure(mod, false, &owned_admitted);
+    if (!r.ok) return r;
+    if (!owned_admitted && mod->function_count && mod->ownership_size)
+        owned_admitted = nvm_verify_owned_module(mod).ok;
+    if (owned_admitted && linked_count)
+        return fail("I refuse linked ownership execution contracts");
+    for (uint32_t i = 0; i < mod->function_count; ++i) {
+        if (declared_depths && !declared_depths[i]) continue;
+        uint16_t depth = NVM_AFFINE_MAX_STACK;
+        if (!owned_admitted) {
+            r = verify_function_body(mod, i, linked_modules, linked_count,
+                                     declared_depths ? &depth : NULL, NULL, NULL);
+            if (!r.ok) return r;
+        }
+        if (declared_depths && declared_depths[i] < depth)
+            return fail("function %u declares max_stack %u but reaches %u",
+                        i, (unsigned)declared_depths[i], (unsigned)depth);
+    }
+    return ok_result();
+}
+
+NvmVerifyResult nvm_verify_declared_max_stacks(const NvmModule *mod,
+                                              const uint16_t *declared_depths,
+                                              uint32_t count) {
+    if (!mod || count != mod->function_count || (count && !declared_depths))
+        return fail("I require one declared stack depth per function");
+    bool selected = false;
+    for (uint32_t i = 0; i < count; ++i) selected |= declared_depths[i] != 0;
+    /* A zero declaration retains the loader's existing absence of a depth
+     * obligation. Execution still requires the independent full verifier. */
+    if (!selected) return ok_result();
+    if (nvm_service_execution_pending(mod))
+        return fail("I refuse service contracts before mixed execution selection");
+    if (nvm_owned_array_route(mod) != NVM_OWNER_ARRAY_NOT_SELECTED ||
+        nvm_mixed_samples_candidate(mod)) {
+        /* I keep each private profile's existing complete admission path. */
+        for (uint32_t i = 0; i < count; ++i) {
+            if (!declared_depths[i]) continue;
+            uint16_t depth = 0;
+            NvmVerifyResult r = verify_function_impl(mod, i, NULL, 0, &depth);
+            if (!r.ok) return r;
+            if (declared_depths[i] < depth)
+                return fail("function %u declares max_stack %u but reaches %u",
+                            i, (unsigned)declared_depths[i], (unsigned)depth);
+        }
+        return ok_result();
+    }
+    return verify_functions_with_structure(mod, NULL, 0, declared_depths);
+}
+
 NvmVerifyResult nvm_verify(const NvmModule *mod) {
     if(nvm_service_execution_pending(mod))
         return fail("I refuse service contracts before mixed execution selection");
     if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED)return verify_owned_arrays(mod,0,NULL);
     if(nvm_mixed_samples_candidate(mod))return verify_mixed_samples(mod,0,NULL);
-    /* I reuse only this invocation's completed full owned-module proof. */
-    bool owned_admitted=false;
-    NvmVerifyResult r = verify_structure(mod, false, &owned_admitted);
-    if (!r.ok || owned_admitted) return r;
-
-    /* Phase 2: per-function bytecode validation */
-    for (uint32_t i = 0; i < mod->function_count; i++) {
-        r = verify_function_impl(mod, i, NULL, 0, NULL);
-        if (!r.ok) return r;
-    }
-
-    return ok_result();
+    return verify_functions_with_structure(mod, NULL, 0, NULL);
 }
 
 NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
@@ -1148,19 +1193,7 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
                 return fail("I refuse linked ownership execution contracts");
         }
     }
-    /* Zero linked modules retain the same invocation-local owned proof. */
-    bool owned_admitted=false;
-    NvmVerifyResult r = verify_structure(mod, false, &owned_admitted);
-    if (!r.ok || (!linked_count && owned_admitted)) return r;
-
-    /* Phase 2: per-function validation, resolving OP_CALL_MODULE against the
-     * supplied linked-module table so cross-module call operands are bounded. */
-    for (uint32_t i = 0; i < mod->function_count; i++) {
-        r = verify_function_impl(mod, i, linked_modules, linked_count, NULL);
-        if (!r.ok) return r;
-    }
-
-    return ok_result();
+    return verify_functions_with_structure(mod, linked_modules, linked_count, NULL);
 }
 
 /* I preserve the original scalar translator eligibility as one shared policy. */

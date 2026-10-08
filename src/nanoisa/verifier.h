@@ -101,6 +101,14 @@ NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
                                               uint32_t fn_idx,
                                               uint16_t *out_max_stack);
 
+/* I verify every nonzero declared maximum, sharing ordinary module structure
+ * within this invocation. Private profiles keep their complete admission paths.
+ * Zero retains the loader's unspecified-depth behavior; this query is not a
+ * substitute for full verification before execution. */
+NvmVerifyResult nvm_verify_declared_max_stacks(const NvmModule *mod,
+                                              const uint16_t *declared_depths,
+                                              uint32_t count);
+
 /* Validate a module together with the table of modules it is linked against.
  *
  * nvm_verify() checks each module in isolation: an OP_CALL_MODULE operand pair

@@ -3,6 +3,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../../src/nanoisa/isa.h"
+#include "../../src/nanoisa/ownership_contracts.h"
+
+static size_t structural_checks;
+static NvmV2Result counted_contracts(const NvmModule *mod, bool *needs) {
+    structural_checks++;
+    return nvm_ownership_contracts_validate(mod, needs);
+}
 
 static void *owned[16];
 static int outstanding, allocation, fail_at;
@@ -34,15 +41,47 @@ static void checked_free(void *pointer) {
     free(pointer);
 }
 
+#define nvm_ownership_contracts_validate counted_contracts
 #define malloc checked_malloc
 #define free checked_free
 #define isa_get_info checked_info
 #include "../../src/nanoisa/verifier.c"
+#undef nvm_ownership_contracts_validate
 #undef isa_get_info
 #undef malloc
 #undef free
 
+static void check_module_validation_scaling(void) {
+    size_t baseline[3] = {0};
+    for (unsigned count = 16; count <= 128; count *= 8) {
+        NvmModule *mod = nvm_module_new();
+        assert(mod);
+        uint32_t name = nvm_add_string(mod, "entry", 5);
+        uint8_t code[] = {OP_PUSH_I64, 1, 0, 0, 0, 0, 0, 0, 0, OP_RET};
+        uint16_t depths[128];
+        for (unsigned i = 0; i < count; ++i) {
+            uint32_t offset = nvm_append_code(mod, code, sizeof code);
+            NvmFunctionEntry fn = {.name_idx = name, .code_offset = offset,
+                .code_length = sizeof code, .result_count = 1, .result_tag = TAG_INT};
+            assert(nvm_add_function(mod, &fn) == i);
+            depths[i] = 1;
+        }
+        mod->header.flags = NVM_FLAG_HAS_MAIN;
+        for (unsigned route = 0; route < 3; ++route) {
+            structural_checks = 0;
+            NvmVerifyResult r = route == 0 ? nvm_verify(mod) : route == 1 ?
+                nvm_verify_linked(mod, NULL, 0) : nvm_verify_declared_max_stacks(mod, depths, count);
+            assert(r.ok && outstanding == 0);
+            assert(structural_checks > 0 && structural_checks < 8);
+            if (count == 16) baseline[route] = structural_checks;
+            else assert(structural_checks == baseline[route]);
+        }
+        nvm_module_free(mod);
+    }
+}
+
 int main(void) {
+    check_module_validation_scaling();
     NvmFunctionEntry function = {.result_count = 1};
     NvmModule module = {.functions = &function, .function_count = 1};
     VmDecodedInstruction instruction = {0};
