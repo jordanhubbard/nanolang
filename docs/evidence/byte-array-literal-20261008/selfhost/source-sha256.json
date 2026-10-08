@@ -1,0 +1,5 @@
+{
+  "src_nano/compiler/nanoisa_codegen.nano": "e2da74ec039ea57fcd8cf2229c2c4fce785f0aac9af1b0d3c738b71b60edd057",
+  "tests/test_nanoisa_byte_arrays.py": "8cef25c8f3e341b0e31360521289acb1d407553780a468e88adc57a85926b1fc",
+  "tests/test_byte_array_literals.py": "aec22b646899c5c2b617f0631cb7dfad3f32dcc867f166538c115b28fec3b131"
+}

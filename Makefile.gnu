@@ -5800,3 +5800,14 @@ test-github-issues:
 	python3 -m unittest -v tests.test_github_issue_tracking
 
 test-quick test-units: test-github-issues
+
+# I retain checked contextual byte-array storage through both C producers.
+.PHONY: test-byte-array-literals
+test-byte-array-literals: $(COMPILER_C) nano_virt nano_vm
+	python3 -m unittest -v tests.test_byte_array_literals
+test-units: test-byte-array-literals
+
+.PHONY: test-nanoisa-byte-arrays
+test-nanoisa-byte-arrays: $(COMPILER_C) nano_vm nanoisa_dump
+	python3 -m unittest -v tests.test_nanoisa_byte_arrays
+test-units: test-nanoisa-byte-arrays

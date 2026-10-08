@@ -603,6 +603,7 @@ static bool check_array_literal_annotation(TypeChecker *tc, ASTNode *literal, Ty
         return false;
     }
     literal->as.array_literal.element_type = expected;
+    literal->as.array_literal.has_element_annotation = true;
     return true;
 }
 
@@ -3270,10 +3271,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         check_concrete_union_arrays(env, func->params[i].type_info, arg, 0);
                         Type arg_type = check_expression(arg, env);
                         if (arg->type == AST_ARRAY_LITERAL &&
-                            arg->as.array_literal.element_count == 0 &&
                             func->params[i].type == TYPE_ARRAY &&
                             func->params[i].element_type != TYPE_UNKNOWN) {
-                            arg->as.array_literal.element_type = resolved_array_element(func->params[i].element_type, func->params[i].struct_type_name, env);
+                            TypeChecker context = {.env = env};
+                            if (!check_array_literal_annotation(&context, arg,
+                                    func->params[i].element_type, func->params[i].struct_type_name))
+                                return TYPE_UNKNOWN;
                         }
                         
                         /* Check for opaque type parameters. I accept only the
@@ -3667,8 +3670,17 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
             
-            /* Store the element type in the AST for later use */
-            expr->as.array_literal.element_type = first_type;
+            /* I recheck values without erasing checked contextual storage. */
+            if (expr->as.array_literal.has_element_annotation) {
+                if (!types_match(first_type, expr->as.array_literal.element_type)) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require elements matching the checked array annotation.",
+                        "Use elements compatible with the declared array type.");
+                    return TYPE_UNKNOWN;
+                }
+            } else {
+                expr->as.array_literal.element_type = first_type;
+            }
             
             return TYPE_ARRAY;
         }
@@ -3931,12 +3943,12 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 if (sdef->field_types[field_index] == TYPE_ARRAY &&
                     sdef->field_element_types &&
                     field_value->type == AST_ARRAY_LITERAL &&
-                    field_value->as.array_literal.element_count == 0) {
-                    /* An empty field has no element from which to infer its
-                     * runtime representation. Preserve its declaration. */
-                    field_value->as.array_literal.element_type = resolved_array_element(
-                        sdef->field_element_types[field_index],
-                        sdef->field_type_names ? sdef->field_type_names[field_index] : NULL, env);
+                    sdef->field_element_types[field_index] != TYPE_UNKNOWN) {
+                    TypeChecker context = {.env = env};
+                    if (!check_array_literal_annotation(&context, field_value,
+                            sdef->field_element_types[field_index],
+                            sdef->field_type_names ? sdef->field_type_names[field_index] : NULL))
+                        return TYPE_UNKNOWN;
                 }
                 if (!types_match(field_type, sdef->field_types[field_index])) {
                     char message[256];
@@ -5478,6 +5490,11 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 
                 check_concrete_union_arrays(tc->env, tc->current_function_return_info, stmt->as.return_stmt.value, 0);
                 Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
+                if (tc->current_function_return_type == TYPE_ARRAY &&
+                    tc->current_function_return_element_type != TYPE_UNKNOWN &&
+                    stmt->as.return_stmt.value->type == AST_ARRAY_LITERAL)
+                    check_array_literal_annotation(tc, stmt->as.return_stmt.value,
+                        tc->current_function_return_element_type, tc->current_function_return_struct_name);
                 if (!check_record_array_contract(tc->env, tc->current_function_return_type,
                         tc->current_function_return_element_type, tc->current_function_return_struct_name,
                         stmt->as.return_stmt.value)) tc->has_error = true;

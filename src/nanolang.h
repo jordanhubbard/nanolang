@@ -305,6 +305,7 @@ struct ASTNode {
             ASTNode **elements;
             int element_count;
             Type element_type;  /* Type of array elements */
+            bool has_element_annotation; /* I retain a checked contextual storage kind. */
         } array_literal;
         struct {
             char *name;

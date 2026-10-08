@@ -832,6 +832,10 @@ static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
  * still refuse. TYPE_UNKNOWN and the row-polymorphic record placeholder are
  * the checker's imprecise builtin results; the runtime cast is their check. */
 static void compile_expected_tag(CG *cg, ASTNode *node, uint8_t tag) {
+    if (tag == TAG_INT || tag == TAG_FLOAT) {
+        compile_numeric_expr(cg, node, check_expression(node, cg->env), tag == TAG_FLOAT);
+        return;
+    }
     if (tag == TAG_U8) {
         if (node && node->type == AST_NUMBER) {
             if (node->as.number < 0 || node->as.number > UINT8_MAX) {
