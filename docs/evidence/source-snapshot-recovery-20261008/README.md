@@ -33,6 +33,14 @@ modules `tests.test_link_response_query`, `tests.test_link_response_graph`,
 
 My remaining affected standalone/shared assembly cases pass: four methods,
 16 subcases, 351.058 seconds. I retain `affected-cases.log` and its runner.
-My full 127-method source-snapshot rerun is running in the clean qualification
-checkout at `f0f6a0c62`; its terminal result remains open. I preserve qualification
-clones and their host-library paths; no source corpus assertion is weakened.
+My full 127-method source-snapshot rerun at clean `f0f6a0c62` exits 120 after
+3335.272 seconds, with OSError 28 and incomplete unittest diagnostics. Its
+manifest confirms unchanged HEAD, tracked source and probe hashes. I retain
+that evidence in `full-f0f6a0c62`; earlier failed subcases remain unclassified.
+
+I exclude redundant historical `docs/evidence` payloads from completed temporary
+qualification clones using Git sparse checkout. Their Git history, sources,
+binaries and absolute host-library paths remain intact. The recovery receipt
+records seven clean checkouts and 52.072 GiB free afterward; a preceding eighth
+checkout received the same exclusion. No source assertion is weakened. A fresh
+full run at the same exact `f0f6a0c62` pin remains under qualification.

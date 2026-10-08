@@ -32,5 +32,10 @@ forwarded-null and failed-driver-publication controls, the two affected methods
 pass in 110.051 seconds. Commands are `python3 -m unittest -v
  tests.test_native_shadow_emitter` and its two affected method selectors. My
 Make target now requires the assembler, VM, native translator and host runtime.
-The broader `make -j2 test-nanoisa-src-nano` gate is running; its terminal result,
-compiler-product qualification and remaining legacy-emitter migrations stay open.
+The broader `make -j2 test-nanoisa-src-nano` gate runs 90 methods and fails two
+obsolete refusal expectations: global callable initialization and a callable
+argument now lower. I preserve the original log. I execute both accepted cases
+and an additional global-call result through verified VM and strict native C,
+retaining all genuine refusal controls. The affected method passes in 76.245
+seconds. Full corrected gate, compiler-product qualification and remaining
+legacy-emitter migrations stay open.

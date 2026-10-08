@@ -211,16 +211,35 @@ class FlatRecordEmitter(unittest.TestCase):
                                          text=True, timeout=120)
             self.assertEqual(wrong_owner.returncode, 1)
             self.assertEqual(wrong_owner.stdout, "")
+            # I retain callable initializer roots and indirect argument targets.
+            accepted = [
+                ('fn target() -> int { return 1 } let stored: fn() -> int = target '
+                 'fn main() -> int { return 0 }', 0),
+                ('fn target() -> int { return 37 } let stored: fn() -> int = target '
+                 'fn main() -> int { return (stored) }', 37),
+                ('fn target() -> int { return 1 } fn consume(f: fn() -> int) -> int { return (f) } '
+                 'fn main() -> int { return (consume target) }', 1),
+            ]
+            for program, expected in accepted:
+                with self.subTest(accepted=program):
+                    source.write_text(program + '\n')
+                    output = self.run_checked(tool, source, "program").stdout
+                    self.assertIn('.function target', output)
+                    assembly.write_text(output)
+                    self.run_checked(ROOT / "bin/nanoisa", "asm", assembly, "-o", module)
+                    self.run_checked(ROOT / "bin/nano_vm", "--verify-only", module)
+                    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+                    self.run_checked("cc", "-std=c11", "-Wall", "-Wextra", "-Werror", native_c, "-o", binary)
+                    for command in ([ROOT / "bin/nano_vm", module], [binary]):
+                        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=120)
+                        self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+                        self.assertEqual(result.stdout, "")
             refused = [
                 'let count: int = 1 fn main() -> int { set count 2 return count }',
                 'let count: int = 1 fn __init__() -> void {} fn main() -> int { return count }',
                 'let values: array<array<float>> = [[1.5]] fn main() -> int { return 0 }',
                 'extern fn unavailable_array_host(path: string) -> array<string> '
                 'fn main() -> array<string> { return (unavailable_array_host "live") }',
-                'fn target() -> int { return 1 } let stored: fn() -> int = target '
-                'fn main() -> int { return 0 }',
-                'fn target() -> int { return 1 } fn consume(f: fn() -> int) -> int { return (f) } '
-                'fn main() -> int { return (consume target) }',
                 'fn target() -> int { return 1 } fn main() -> int { let target: int = 0 return (target) }',
             ]
             for program in refused:
