@@ -7,7 +7,7 @@ request. I have received no remote-worker acknowledgment.
 ## Published checkpoint
 
 My primary branch `release/5.1-completion-20261007`, PR #974, is pushed at
-`7b9d9ecb7`. It includes the retired-global checker correction, native shadow
+`de98e6c5a`. It includes the retired-global checker correction, native shadow
 fixture migration, corrected callable-root execution tests, lexical call lookup
 correction and executable scope acceptance, and File parser fixture migration.
 
@@ -29,10 +29,10 @@ and ownership/fault controls, remains required.
 
 ## Running and unresolved gates
 
-A full compiler-product gate runs at exact `7b9d9ecb7` in the primary checkout,
-with clean tracked source and the user's sole untracked test preserved by hash.
-Both fresh compiler routes include the new lexical acceptance suite.
-Do not modify this input tree before the gate terminates.
+The full compiler-product gate at exact `7b9d9ecb7` passes all 109 methods
+(879.681 seconds; Make 889.235 seconds), with unchanged HEAD and the preserved
+user-file hash. Both fresh compiler routes include the lexical acceptance
+suite. Complete evidence is archived at `de98e6c5a`.
 
 The recovered full source-snapshot gate remains live at clean `f0f6a0c62` in
 its isolated clone. I verified its PID and advancing log after tool handles
@@ -84,3 +84,8 @@ Make targets use GitHub Issues. Old command names forward to the GitHub
 reporter. Auto-merge is enabled subject to required checks. The release-tree
 copy is on chore/github-issue-tracking-20261008 at 9913d16f2, pending the
 unchanged 7b9d9ecb7 compiler-product gate before integration there.
+
+The GitHub tracking migration is now applied in the primary checkout at
+`de98e6c5a`; its eleven focused tests also pass there. PR #977 remains queued
+for normal auto-merge into main after required checks. Issues #975 and #976
+are the migration and full-release authorities. No MAC tracking resumes.
