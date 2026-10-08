@@ -326,6 +326,10 @@ bytecode fixed point, Phase 20 translators and equivalence, service/platform
 audits, and final release gates all remain in this release contract until
 their individual acceptance evidence closes them.
 
+## GitHub task tracking migration
+
+- [x] I use GitHub Issues as my sole task ledger going forward: agent guides, startup hooks, failure reporting and Make targets use `gh`; historical MAC IDs remain references. I add regression coverage for issue creation, deduplication, reopening, closure and offline behavior. I track the migration in [#975](https://github.com/jordanhubbard/nanolang/issues/975) and the complete active release objective in [#976](https://github.com/jordanhubbard/nanolang/issues/976).
+
 ## Active Execution Queue
 
 - [x] I classify every unchecked Phase 20 row in `docs/RELEASE_5.1_SCOPE.md`
@@ -1033,12 +1037,12 @@ their individual acceptance evidence closes them.
       `docs/evidence/v5.1-release-readiness.md`. MAC
       `task_7bad6bb81bdc3eef2e9a8bf0ba52f2ff`.
 
-- [ ] **Reconcile completed v5.1.0 roadmap and MAC records.** I compare active
-      checkboxes with authoritative task states and merged commits, close only
+- [ ] **Reconcile completed v5.1.0 roadmap and GitHub issues.** I compare active
+      checkboxes with authoritative GitHub issue states and merged commits, close only
       work targeted to this session, and leave genuinely unfinished follow-ons
       explicit. I verify the Darwin parser portability gate before closing its
       stale task and correct release-tree restoration evidence after its owner
-      closes the ledger row. I have reconciled the native opaque-null duplicate
+      records verified closure in the linked GitHub issue. Historical MAC IDs remain provenance and do not require live MAC access. I have reconciled the native opaque-null duplicate
       and the completed compiler AOT bridge below. I also reconcile the raw-map
       declared-tag row against merged PR #633 and the Darwin shadow-deadline row
       against merged PR #509, retaining the unmerged 60-second proposal as

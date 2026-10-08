@@ -81,7 +81,7 @@ experiments. Line references point to the unchecked Phase 20 rows in
 
 ## Release closeout
 
-- **Required (1033):** Reconcile completed roadmap rows with merged commits and authoritative MAC task states.
+- **Required (1033):** Reconcile completed roadmap rows with merged commits and authoritative GitHub issue states.
 - **Required:** Keep main CI green and run the clean release/platform gates on the exact candidate revision.
 - **Required:** Draft `RELEASE_5.1.md` after the required implementation rows close, using `RELEASE_5.0.md` as the format.
 - **Deferred-to-later:** Tagging and publishing `v5.1.0` remain operator actions.
