@@ -11,6 +11,7 @@ import sys
 import tempfile
 import time
 import unittest
+from tests.bootstrap_native_guard import retained_input_names
 
 ROOT = Path(os.environ.get('NANOLANG_BOOTSTRAP_ROOT', Path(__file__).resolve().parents[1])).resolve()
 
@@ -116,14 +117,7 @@ class VMBytecodeBootstrap(unittest.TestCase):
             name = path.name.removeprefix('lib').split('.')[0]
             self.assertIn(name, host_metadata)
             metadata = host_metadata[name]
-            names = []
-            for group, key in enumerate(('c_sources', 'shared_c_sources')):
-                count = len(metadata.get(key, []))
-                for index in range(count):
-                    names.extend(f'__snapshot_{group}_{index}.{suffix}' for suffix in ('i', 's'))
-                    names.append(f'__shared_{index}.o' if group else
-                                 f'{name}.o' if count == 1 else f'{name}_{index}.o')
-            retained[str(path.parent.parent)] = names
+            retained[str(path.parent.parent)] = retained_input_names(name, metadata)
         retained_inputs.write_text(json.dumps(retained, indent=2) + '\n')
         manifest['retained_host_inputs'] = retained
         save()

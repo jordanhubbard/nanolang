@@ -5,6 +5,18 @@ import sys
 from pathlib import Path
 
 
+def retained_input_names(name, metadata):
+    """I admit only declared source snapshots and the builder's host objects."""
+    names = [f'{name}.o']
+    for group, key in enumerate(('c_sources', 'shared_c_sources')):
+        count = len(metadata.get(key, []))
+        for index in range(count):
+            names.extend(f'__snapshot_{group}_{index}.{suffix}' for suffix in ('i', 's'))
+            names.append(f'__shared_{index}.o' if group else
+                         f'{name}.o' if count == 1 else f'{name}_{index}.o')
+    return sorted(set(names))
+
+
 def main(config):
     args = sys.argv[1:]
     probe = any(arg in ('-E', '-###', '-print-prog-name=as', '--version',

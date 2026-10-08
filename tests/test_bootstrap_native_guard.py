@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from tests.bootstrap_native_guard import retained_input_names
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -23,7 +24,8 @@ class BootstrapNativeGuard(unittest.TestCase):
             subprocess.run(['cc', '-S', host, '-o', assembly], check=True,
                            capture_output=True, timeout=30)
             retained = work / 'retained.json'
-            retained.write_text(json.dumps({str(root): [assembly.name, obj.name]}))
+            retained.write_text(json.dumps({str(root): retained_input_names(
+                'host', {'c_sources': ['first.c', 'second.c'], 'shared_c_sources': []})}))
             marker, calls = work / 'rejected', work / 'calls'
             config = {'compiler': ['cc'], 'native_sources': [],
                       'module_build_roots': [], 'retained_host_inputs': str(retained),
@@ -43,7 +45,7 @@ class BootstrapNativeGuard(unittest.TestCase):
             wrong_root = work / 'unrelated-cache' / stage.name / assembly.name
             wrong_stage = root / 'product' / assembly.name
             generated = stage / 'program.c'
-            wrong_index = stage / '__snapshot_0_1.s'
+            wrong_index = stage / '__snapshot_0_2.s'
             for source in (wrong_root, wrong_stage, generated, wrong_index):
                 source.parent.mkdir(parents=True, exist_ok=True)
                 source.write_text(host.read_text() if source.suffix == '.c' else assembly.read_text())
