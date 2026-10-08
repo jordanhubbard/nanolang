@@ -122,6 +122,12 @@ static int word_array_storage(uint8_t kind) {
     return kind == NVM2C_VK_ARR || kind == NVM2C_VK_BARR || kind == NVM2C_VK_FARR || kind == NVM2C_VK_FNARR;
 }
 
+static int record_array_unboxes(uint8_t destination, uint8_t source) {
+    return source == NVM2C_VK_VALUE &&
+        (word_array_storage(destination) || destination == NVM2C_VK_SARR);
+}
+
+
 static int boolean_result(uint8_t opcode) {
     switch (opcode) {
     case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT:
@@ -2068,7 +2074,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (ins.opcode == OP_ARR_PUSH && arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC) {
                 for (size_t f = 0; f < b->record_width; ++f) {
                     if (arr.rec_k[f] != NVM2C_VK_UNK && val.rec_k[f] != NVM2C_VK_UNK &&
-                        arr.rec_k[f] != val.rec_k[f]) {
+                        arr.rec_k[f] != val.rec_k[f] &&
+                        !record_array_unboxes(arr.rec_k[f], val.rec_k[f])) {
                         nvm2c_fail(b, "ARR_PUSH record field representation mismatch "
                                       "(function %u, offset %zu, field %zu: %s versus %s)",
                                    idx, start, f, c_local_type(arr.rec_k[f]), c_local_type(val.rec_k[f]));
@@ -2093,7 +2100,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                          * later. The element graph is still unified below. */
                         if (arr.rec_k[f] != NVM2C_VK_UNK &&
                             val.rec_k[f] != NVM2C_VK_UNK &&
-                            arr.rec_k[f] != val.rec_k[f]) {
+                            arr.rec_k[f] != val.rec_k[f] &&
+                            !record_array_unboxes(arr.rec_k[f], val.rec_k[f])) {
                             nvm2c_fail(b, "ARR_SET record field representation mismatch (function %u, offset %zu, field %zu, kinds %u/%u, final=%d)",
                                        idx, start, f, arr.rec_k[f], val.rec_k[f], facts->final);
                             return 0;
@@ -2112,6 +2120,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
                 break;
             }
+            int checked_record_fields = 0;
+            if (arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC)
+                for (size_t f = 0; f < b->record_width; ++f)
+                    if (record_array_unboxes(arr.rec_k[f], val.rec_k[f])) checked_record_fields = 1;
             if (val.kind == NVM2C_VK_UNK) {
                 /* Missing element facts cannot erase a constructor's known
                  * array kind or invent an integer-array representation. */
@@ -2121,13 +2133,14 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             } else if (val.kind == NVM2C_VK_REC) {
                 Nvm2cSimSlot pushed = arr;
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
+                const uint8_t *fields = checked_record_fields ? arr.rec_k : val.rec_k;
                 if (arr.origin >= 0 && (uint16_t)arr.origin < nloc) {
                     memcpy(rec_fields + (size_t)arr.origin * b->record_width,
-                           val.rec_k, b->record_width);
+                           fields, b->record_width);
                 }
                 pushed.kind = NVM2C_VK_RARR;
                 pushed.origin = -1;
-                pushed.rec_k = val.rec_k;
+                pushed.rec_k = (uint8_t *)fields;
                 if (!sim_push_slot(b, idx, stk, &sp, pushed)) return 0;
             } else if (val.kind == NVM2C_VK_STR || arr.kind == NVM2C_VK_SARR) {
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_SARR);
@@ -2158,7 +2171,34 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 /* An already tagged value retains its known payload contract. */
                 if (val.kind == NVM2C_VK_VALUE &&
                     !shape_equal(b, shape_child(b, arr.shape, 0), shape_child(b, val.shape, 0))) return 0;
-            } else if (!shape_equal(b, shape_child(b, arr.shape, 0), val.shape)) return 0;
+            } else if (checked_record_fields && b->track_shapes) {
+                /* A tagged global may contain a checked array handle. Its
+                 * wrapper stays optional; only its payload constrains the
+                 * exact destination field. Emission checks both runtime tags. */
+                NvmShapeId element = shape_child(b, arr.shape, 0);
+                if (!shape_type(b, element, NVM_SHAPE_RECORD)) return 0;
+                for (size_t f = 0; f < b->record_width; ++f) {
+                    NvmShapeId source = nvm_shape_lookup(&b->shapes, val.shape, (uint32_t)f);
+                    NvmShapeId target = nvm_shape_lookup(&b->shapes, element, (uint32_t)f);
+                    if (!source && !target) continue;
+                    if (!source) source = shape_child(b, val.shape, (uint32_t)f);
+                    if (!target) target = shape_child(b, element, (uint32_t)f);
+                    if (record_array_unboxes(arr.rec_k[f], val.rec_k[f])) {
+                        if (!shape_type(b, source, NVM_SHAPE_OPTIONAL)) return 0;
+                        source = shape_child(b, source, 0);
+                        /* I require exactly the element storage checked by
+                         * the emitted guard, even for an empty constructor. */
+                        uint8_t storage = arr.rec_k[f];
+                        NvmShapeKind payload = storage == NVM2C_VK_SARR ? NVM_SHAPE_STRING :
+                            storage == NVM2C_VK_FNARR ? NVM_SHAPE_FUNCTION :
+                            storage == NVM2C_VK_FARR ? NVM_SHAPE_FLOAT :
+                            storage == NVM2C_VK_BARR ? NVM_SHAPE_BOOL : NVM_SHAPE_INT;
+                        if (!shape_type(b, target, NVM_SHAPE_ARRAY) ||
+                            !shape_type(b, shape_child(b, target, 0), payload)) return 0;
+                    }
+                    if (!shape_equal(b, source, target)) return 0;
+                }
+            } else if (!checked_record_fields && !shape_equal(b, shape_child(b, arr.shape, 0), val.shape)) return 0;
             if (!shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
             break;
         }
@@ -3392,6 +3432,30 @@ static int emit_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
         nvm2c_printf(b, "    %s;\n", call);
     }
     return !b->failed;
+}
+
+static int emit_record_array_value(Nvm2cBuf *b, Nvm2cStack *st, int array, int value) {
+    int normalized = -1;
+    for (size_t f = 0; f < b->record_width; ++f) {
+        uint8_t target = st->rarr_k[array][f];
+        if (!record_array_unboxes(target, st->rec_k[value][f])) continue;
+        if (normalized < 0) {
+            if ((size_t)st->next_rec >= st->rec_capacity) {
+                nvm2c_fail(b, "I cannot allocate a checked record-array write"); return value;
+            }
+            normalized = st->next_rec++;
+            nvm2c_printf(b, "    r[%d] = r[%d];\n", normalized, value);
+            memcpy(st->rec_k[normalized], st->rec_k[value], b->record_width);
+        }
+        nvm2c_printf(b,
+            "    if (r[%d].vk[%zu] != 7 || r[%d].f[%zu] != %u || !r[%d].s[%zu]) NVM2C_ABORT();\n",
+            normalized, f, normalized, f, target, normalized, f);
+        nvm2c_printf(b, "    r[%d].k[%zu] = %u; r[%d].%s[%zu] = (%s)r[%d].s[%zu];\n",
+            normalized, f, target, normalized, target == NVM2C_VK_SARR ? "sa" : "a", f,
+            target == NVM2C_VK_SARR ? "nsarr_t" : "narr_t", normalized, f);
+        st->rec_k[normalized][f] = target;
+    }
+    return normalized < 0 ? value : normalized;
 }
 
 static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
@@ -4659,6 +4723,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 "    if (!%s[%d] || t[%d] < 0 || (uint64_t)t[%d] >= %s[%d]->len) NVM2C_ABORT();\n",
                 array, arr, ix, ix, array, arr);
             if (ak == NVM2C_VK_RARR) {
+                val = emit_record_array_value(b, &st, arr, val);
+                if (b->failed) goto done;
                 nvm2c_printf(b, "    if (!ra[%d]->data) NVM2C_ABORT();\n", arr);
                 /* Classifier field kinds do not encode the runtime width. */
                 nvm2c_printf(b,
@@ -4724,6 +4790,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                          : "nsarr_push(sa[%d], s[%d])", arr, val);
                 stack_push_sarr(b, &st, expr);
             } else if (ak == NVM2C_VK_RARR && vk == NVM2C_VK_REC) {
+                val = emit_record_array_value(b, &st, arr, val);
+                if (b->failed) goto done;
                 char expr[80];
                 snprintf(expr, sizeof expr, "nrarr_push(ra[%d], r[%d])", arr, val);
                 int a = stack_push_rarr(b, &st, expr);

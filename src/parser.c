@@ -2109,7 +2109,13 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                  * If first_expr is an identifier, treat it as a function call with zero arguments.
                  * This ensures (main) calls main() instead of returning the function value.
                  */
-                if (first_expr->type == AST_IDENTIFIER) {
+                if (first_expr->type == AST_IDENTIFIER && first_expr->lambda_definition) {
+                    /* I preserve the anonymous declaration on its callee expression. */
+                    advance(p);
+                    ASTNode *call = create_node(AST_CALL, line, column);
+                    call->as.call.func_expr = first_expr;
+                    return call;
+                } else if (first_expr->type == AST_IDENTIFIER) {
                     /* Treat as function call with zero arguments */
                     advance(p);  /* consume ')' */
                     
@@ -2164,7 +2170,9 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 char *module_alias = NULL;
                 char *qualified_func_name = NULL;
                 
-                if (first_expr->type == AST_IDENTIFIER) {
+                if (first_expr->type == AST_IDENTIFIER && first_expr->lambda_definition) {
+                    func_expr = first_expr;
+                } else if (first_expr->type == AST_IDENTIFIER) {
                     /* Regular function call */
                     func_name = first_expr->as.identifier;
                 } else if (first_expr->type == AST_FIELD_ACCESS) {

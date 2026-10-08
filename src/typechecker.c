@@ -1537,6 +1537,26 @@ static FunctionSignature *function_result_signature(ASTNode *call, Environment *
     return sig ? sig->return_fn_sig : NULL;
 }
 
+/* I copy a callable expression's full signature for the caller to release. */
+static FunctionSignature *copy_callable_signature(ASTNode *value, Environment *env) {
+    if (!value) return NULL;
+    if (value->type == AST_IDENTIFIER) {
+        Symbol *symbol = env_get_var_visible_at(env, value->as.identifier,
+                                                value->line, value->column);
+        if (symbol) return symbol->type_info && symbol->type_info->fn_sig
+            ? copy_function_signature(symbol->type_info->fn_sig) : NULL;
+        Function *function = env_get_function(env, value->as.identifier);
+        return function ? function_signature_from_function(function) : NULL;
+    }
+    FunctionSignature *signature = NULL;
+    if (value->type == AST_CALL) signature = function_result_signature(value, env);
+    if (!signature) {
+        TypeInfo *info = try_get_expr_type_info(value, env);
+        signature = info ? info->fn_sig : NULL;
+    }
+    return signature ? copy_function_signature(signature) : NULL;
+}
+
 /* I retain explicit callable annotations with the AST in every let scope. */
 static bool retain_let_function_type(TypeChecker *tc, ASTNode *statement, Type declared) {
     if (statement->as.let.type_info || declared != TYPE_FUNCTION ||
@@ -1784,6 +1804,12 @@ static bool indirect_argument_matches(ASTNode *argument, Environment *env,
     Type actual = check_expression(argument, env);
     if (!types_match(actual, expected ? expected->base_type : fallback)) return false;
     if (!expected) return true;
+    if (expected->base_type == TYPE_FUNCTION) {
+        FunctionSignature *signature = copy_callable_signature(argument, env);
+        bool matches = signature && function_signatures_equal(expected->fn_sig, signature);
+        free_function_signature(signature);
+        return matches;
+    }
     if (expected->base_type == TYPE_ARRAY && expected->element_type &&
         argument->type == AST_ARRAY_LITERAL) {
         for (int i = 0; i < argument->as.array_literal.element_count; ++i) {
@@ -1924,6 +1950,23 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             return TYPE_BOOL;
 
         case AST_IDENTIFIER: {
+            if (expr->lambda_definition) {
+                /* I check captures where the anonymous value is created, including shadows. */
+                int first = env->symbol_count;
+                TypeChecker nested = {0};
+                if (active_statement_checker) nested = *active_statement_checker;
+                nested.env = env;
+                nested.has_error = false;
+                check_statement(&nested, expr->lambda_definition);
+                bound_scope_symbols(env, first, expr->lambda_definition->as.function.body);
+                check_function_ownership(env, expr->lambda_definition, &nested.has_error);
+                if (nested.has_error) {
+                    if (active_statement_checker) active_statement_checker->has_error = true;
+                    ++g_typecheck_error_count;
+                    return TYPE_UNKNOWN;
+                }
+                return TYPE_FUNCTION;
+            }
             Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
             if (!sym) {
                 /* Not a variable - check if it's a function name */
@@ -2350,7 +2393,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     return TYPE_UNKNOWN;
                 }
                 
-                return check_indirect_call(expr, env, function_result_signature(expr->as.call.func_expr, env));
+                FunctionSignature *signature = copy_callable_signature(expr->as.call.func_expr, env);
+                Type result = check_indirect_call(expr, env, signature);
+                free_function_signature(signature);
+                return result;
             }
             
             /* Representation copies never use implicit numeric promotion. */
@@ -3206,74 +3252,17 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                     /* Special handling for function-typed parameters */
                     if (func->params[i].type == TYPE_FUNCTION) {
-                        /* Argument must be an identifier (function name or function-typed variable) */
-                        if (arg->type != AST_IDENTIFIER) {
-                            emit_context_error(
-                                "E001 TYPE MISMATCH",
-                                arg->line,
-                                arg->column,
-                                1,
-                                "Function parameter expects a function name.",
-                                "Pass a function identifier or a function-typed variable."
-                            );
+                        Type actual_type = check_expression(arg, env);
+                        FunctionSignature *actual = actual_type == TYPE_FUNCTION
+                            ? copy_callable_signature(arg, env) : NULL;
+                        bool matches = actual && function_signatures_equal(func->params[i].fn_sig, actual);
+                        free_function_signature(actual);
+                        if (!matches) {
+                            emit_context_error("E001 TYPE MISMATCH", arg->line, arg->column, 1,
+                                "I require the complete declared function signature.",
+                                "Match the callback parameter and result annotations.");
                             return TYPE_UNKNOWN;
                         }
-                        
-                        /* First check if it's a function-typed variable */
-                        Symbol *sym = env_get_var_visible_at(env, arg->as.identifier, arg->line, arg->column);
-                        if (sym && sym->type == TYPE_FUNCTION) {
-                            /* It's a function-typed variable - mark as used and allow it */
-                            sym->is_used = true;
-                            FunctionSignature *actual = sym->type_info ? sym->type_info->fn_sig : NULL;
-                            if (!function_signatures_equal(func->params[i].fn_sig, actual)) {
-                                emit_context_error("E001 TYPE MISMATCH", arg->line, arg->column, 1,
-                                    "I require the complete declared function signature.",
-                                    "Match the callback parameter and result annotations.");
-                                return TYPE_UNKNOWN;
-                            }
-                            continue;
-                        }
-                        
-                        /* Look up the function */
-                        Function *passed_func = env_get_function(env, arg->as.identifier);
-                        if (!passed_func) {
-                            char message[256];
-                            snprintf(message, sizeof(message),
-                                    "I cannot find a function named `%s`.",
-                                    arg->as.identifier);
-                            emit_context_error(
-                                "E027 UNDEFINED FUNCTION",
-                                arg->line,
-                                arg->column,
-                                (int)safe_strlen(arg->as.identifier),
-                                message,
-                                "Check spelling or ensure the function is defined/imported."
-                            );
-                            return TYPE_UNKNOWN;
-                        }
-                        
-                        FunctionSignature *passed_sig = function_signature_from_function(passed_func);
-                        
-                        /* Compare signatures */
-                        if (!function_signatures_equal(func->params[i].fn_sig, passed_sig)) {
-                            char message[256];
-                            snprintf(message, sizeof(message),
-                                    "Argument %d expects a function with a different signature.",
-                                    i + 1);
-                            emit_context_error(
-                                "E001 TYPE MISMATCH",
-                                arg->line,
-                                arg->column,
-                                (int)safe_strlen(arg->as.identifier),
-                                message,
-                                "Match the parameter's expected function signature."
-                            );
-                            free_function_signature(passed_sig);
-                            return TYPE_UNKNOWN;
-                        }
-                        
-                        /* Clean up temporary signature */
-                        free_function_signature(passed_sig);
                     } else {
                         /* Handle anonymous struct literals: infer struct name from parameter type */
                         if (arg->type == AST_STRUCT_LITERAL && arg->as.struct_literal.struct_name == NULL) {
@@ -5934,7 +5923,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 func.body = stmt->as.function.body;
                 func.is_extern = false;
                 func.is_pub = false;
-                env_define_function(tc->env, func);
+                if (!stmt->as.function.is_anonymous || !env_get_function(tc->env, func.name))
+                    env_define_function(tc->env, func);
 
                 /* Type-check the function body */
                 if (stmt->as.function.body) {
@@ -8095,6 +8085,7 @@ register_function_pass1:;
             item->as.async_fn.function->type == AST_FUNCTION)
             item = item->as.async_fn.function;
         if (item->type == AST_FUNCTION) {
+            if (item->as.function.is_anonymous) continue;
             /* Skip extern functions - they have no body to check */
             if (item->as.function.is_extern) {
                 check_function_ownership(env, item, &tc.has_error);
@@ -8862,6 +8853,7 @@ register_function_pass2:;
             item = item->as.async_fn.function;
 
         if (item->type == AST_FUNCTION) {
+            if (item->as.function.is_anonymous) continue;
             /* Save current symbol count */
             int saved_symbol_count = env->symbol_count;
             

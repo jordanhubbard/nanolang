@@ -6220,7 +6220,7 @@ pub fn parser_lambda_function(p: Parser, identifier: ASTIdentifier) -> int {
     let mut index: int = 0
     while (< index p.functions_count) {
         let func: ASTFunction = (parser_get_function p index)
-        if (and (== func.node_type ParseNodeType.PNODE_LAMBDA) (and (== func.name identifier.name) (and (== func.line identifier.line) (== func.column identifier.column)))) { return index }
+        if (and (== func.node_type ParseNodeType.PNODE_LAMBDA) (and (== func.line identifier.line) (== func.column identifier.column))) { return index }
         set index (+ index 1)
     }
     return -1
@@ -6232,6 +6232,13 @@ shadow parser_lambda_function {
     assert (== (parser_get_function parser 0).node_type ParseNodeType.PNODE_LAMBDA)
     assert (== (parser_get_function parser 1).node_type ParseNodeType.PNODE_FUNCTION)
     assert (== (parser_lambda_function parser (parser_get_identifier parser 0)) -1)
+    assert (== (parser_lambda_function parser (parser_get_identifier parser 1)) 0)
+    let func: ASTFunction = (parser_get_function parser 0)
+    (list_ASTFunction_set parser.functions 0 (ASTFunction {
+        node_type: func.node_type, line: func.line, column: func.column,
+        name: "__nano_module_0_renamed", param_start: func.param_start, param_count: func.param_count,
+        return_type: func.return_type, body: func.body, is_pure: func.is_pure
+    }))
     assert (== (parser_lambda_function parser (parser_get_identifier parser 1)) 0)
 }
 

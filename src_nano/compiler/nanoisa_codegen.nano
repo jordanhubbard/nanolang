@@ -53,6 +53,23 @@ let mut nisa_global_types: array<string> = []
 let mut nisa_global_owners: array<int> = []
 let mut nisa_global_nodes: array<int> = []
 
+# I suspend lexical scopes while lowering anonymous bodies. Capture sources are
+# local slots (nonnegative) or enclosing upvalue slots encoded as -(slot + 1).
+struct NisaCaptureFrame {
+    parent: int,
+    names: array<string>,
+    types: array<string>,
+    captures: array<string>,
+    capture_types: array<string>,
+    sources: array<int>
+}
+let mut nisa_capture_frames: array<NisaCaptureFrame> = []
+let mut nisa_capture_frame: int = -1
+let mut nisa_capture_parent: int = -1
+let mut nisa_lambda_indices: array<int> = []
+let mut nisa_lambda_frames: array<int> = []
+let mut nisa_lambda_text: string = ""
+
 # I retain optional declaration authority independently from instruction flow.
 let mut nisa_ordinary_ok: bool = true
 let mut nisa_ordinary_functions: string = ""
@@ -257,6 +274,12 @@ shadow nisa_ordinary_publication {
 }
 
 fn nisa_reset() -> int {
+    set nisa_capture_frames []
+    set nisa_capture_frame -1
+    set nisa_capture_parent -1
+    set nisa_lambda_indices []
+    set nisa_lambda_frames []
+    set nisa_lambda_text ""
     set nisa_has_callables false
     set nisa_ordinary_ok true
     set nisa_ordinary_functions ""
@@ -328,6 +351,126 @@ shadow nanoisa_last_lowering_error {
     assert (== ignored "")
     assert (== (nanoisa_last_lowering_error) "precise refusal")
     let _2: int = (nisa_reset)
+}
+
+fn nisa_capture_find(frame_index: int, name: string) -> int {
+    if (< frame_index 0) { return -1 }
+    let frame: NisaCaptureFrame = (at nisa_capture_frames frame_index)
+    let mut index: int = 0
+    while (< index (array_length frame.captures)) {
+        if (== (at frame.captures index) name) { return index }
+        set index (+ index 1)
+    }
+    if (< frame.parent 0) { return -1 }
+    let parent: NisaCaptureFrame = (at nisa_capture_frames frame.parent)
+    let mut source: int = (- (array_length parent.names) 1)
+    while (>= source 0) {
+        if (== (at parent.names source) name) { break }
+        set source (- source 1)
+    }
+    let mut value_type: string = ""
+    if (>= source 0) { set value_type (at parent.types source) }
+    else {
+        let inherited: int = (nisa_capture_find frame.parent name)
+        if (< inherited 0) { return -1 }
+        let resolved: NisaCaptureFrame = (at nisa_capture_frames frame.parent)
+        set value_type (at resolved.capture_types inherited)
+        set source (- 0 (+ inherited 1))
+    }
+    if (>= index 65535) { let _: string = (nisa_fail "I cannot encode more than 65535 captures") return -1 }
+    (array_set nisa_capture_frames frame_index (NisaCaptureFrame {
+        parent: frame.parent, names: frame.names, types: frame.types,
+        captures: (array_push frame.captures name),
+        capture_types: (array_push frame.capture_types value_type),
+        sources: (array_push frame.sources source)
+    }))
+    return index
+}
+shadow nisa_capture_find {
+    let _: int = (nisa_reset)
+    set nisa_capture_frames [
+        NisaCaptureFrame {parent: -1, names: ["value", "value"], types: ["string", "int"], captures: [], capture_types: [], sources: []},
+        NisaCaptureFrame {parent: 0, names: [], types: [], captures: [], capture_types: [], sources: []},
+        NisaCaptureFrame {parent: 1, names: [], types: [], captures: [], capture_types: [], sources: []}
+    ]
+    assert (== (nisa_capture_find 2 "value") 0)
+    assert (== (at (at nisa_capture_frames 1).sources 0) 1)
+    assert (== (at (at nisa_capture_frames 2).sources 0) -1)
+    assert (== (at (at nisa_capture_frames 2).capture_types 0) "int")
+    assert (== (nisa_capture_find 2 "value") 0)
+    assert (== (array_length (at nisa_capture_frames 2).captures) 1)
+    assert (== (nisa_capture_find 2 "missing") -1)
+    let _: int = (nisa_reset)
+}
+
+fn nisa_emit_lambda(parser: Parser, index: int) -> string {
+    let function: ASTFunction = (parser_get_function parser index)
+    let mut child: int = -1
+    let mut cached: int = 0
+    while (< cached (array_length nisa_lambda_indices)) {
+        if (== (at nisa_lambda_indices cached) index) { set child (at nisa_lambda_frames cached) }
+        set cached (+ cached 1)
+    }
+    if (< child 0) {
+        let saved_frame: int = nisa_capture_frame
+        let saved_names: array<string> = nisa_names
+        let saved_types: array<string> = nisa_types
+        let saved_slots: array<int> = nisa_named_slots
+        let saved_params: int = nisa_param_count
+        let saved_par: bool = nisa_has_par
+        let saved_void: bool = nisa_void_return
+        let saved_return: string = nisa_return_type
+        let saved_top: string = nisa_loop_top
+        let saved_end: string = nisa_loop_end
+        let saved_index: string = nisa_loop_index
+        if (>= saved_frame 0) {
+            let frame: NisaCaptureFrame = (at nisa_capture_frames saved_frame)
+            (array_set nisa_capture_frames saved_frame (NisaCaptureFrame {
+                parent: frame.parent, names: saved_names, types: saved_types,
+                captures: frame.captures, capture_types: frame.capture_types, sources: frame.sources
+            }))
+        }
+        set child (array_length nisa_capture_frames)
+        set nisa_lambda_indices (array_push nisa_lambda_indices index)
+        set nisa_lambda_frames (array_push nisa_lambda_frames child)
+        set nisa_capture_parent saved_frame
+        let body: string = (nisa_emit_function parser function)
+        set nisa_lambda_text (+ nisa_lambda_text (+ body "\n"))
+        set nisa_capture_frame saved_frame
+        set nisa_capture_parent -1
+        set nisa_names saved_names
+        set nisa_types saved_types
+        set nisa_named_slots saved_slots
+        set nisa_param_count saved_params
+        set nisa_has_par saved_par
+        set nisa_void_return saved_void
+        set nisa_return_type saved_return
+        set nisa_loop_top saved_top
+        set nisa_loop_end saved_end
+        set nisa_loop_index saved_index
+        if (not nisa_ok) { return "" }
+    }
+    let frame: NisaCaptureFrame = (at nisa_capture_frames child)
+    if (!= frame.parent nisa_capture_frame) { return (nisa_fail "I require one lexical creation scope for an anonymous body") }
+    let mut text: string = ""
+    let mut capture: int = 0
+    while (< capture (array_length frame.sources)) {
+        let source: int = (at frame.sources capture)
+        if (>= source 0) { set text (+ text (nisa_line_imm "LOAD_LOCAL" (int_to_string source))) }
+        else { set text (+ text (nisa_line_imm "LOAD_UPVALUE" (+ "0 " (int_to_string (- (- 0 source) 1))))) }
+        set capture (+ capture 1)
+    }
+    set nisa_has_callables true
+    set nisa_ordinary_ok false
+    return (+ text (nisa_line_imm "CLOSURE_NEW" (+ function.name (+ " " (int_to_string capture)))))
+}
+shadow nisa_emit_lambda {
+    let text: string = (nanoisa_emit_nasm "fn make(n:int)->fn()->fn()->int{return fn()->fn()->int{return fn()->int{return n}}} fn main()->int{return 0}")
+    assert nisa_ok
+    assert (str_contains text "LOAD_UPVALUE 0 0")
+    assert (str_contains text "CLOSURE_NEW __lambda_")
+    assert (str_contains text " 0 0 1 int 1")
+    let _: int = (nisa_reset)
 }
 
 fn nisa_local_find(name: string) -> int {
@@ -2444,7 +2587,8 @@ fn nisa_indirect_call(parser: Parser, call: ASTCall) -> bool {
     if (== call.function_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) { return false }
     if (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) { return true }
     let identifier: ASTIdentifier = (parser_get_identifier parser call.function)
-    return (or (>= (nisa_local_find identifier.name) 0) (>= (nisa_global_find identifier.name identifier.line) 0))
+    if (>= (nisa_local_find identifier.name) 0) { return true }
+    return (or (>= (parser_lambda_function parser identifier) 0) (or (>= (nisa_capture_find nisa_capture_frame identifier.name) 0) (>= (nisa_global_find identifier.name identifier.line) 0)))
 }
 shadow nisa_indirect_call {
     let _: int = (nisa_reset)
@@ -2727,6 +2871,8 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         let identifier: ASTIdentifier = (parser_get_identifier parser node_id)
         let slot: int = (nisa_local_find identifier.name)
         if (< slot 0) {
+            let capture: int = (nisa_capture_find nisa_capture_frame identifier.name)
+            if (>= capture 0) { return (at (at nisa_capture_frames nisa_capture_frame).capture_types capture) }
             let global: int = (nisa_global_find identifier.name identifier.line)
             if (< global 0) {
                 let function: int = (nisa_identifier_function parser identifier)
@@ -4098,8 +4244,12 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
         } else {
             if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
                 let id: ASTIdentifier = (parser_get_identifier parser node_id)
+                let anonymous: int = (parser_lambda_function parser id)
+                if (>= anonymous 0) { return (nisa_emit_lambda parser anonymous) }
                 let slot: int = (nisa_local_find id.name)
                 if (< slot 0) {
+                    let capture: int = (nisa_capture_find nisa_capture_frame id.name)
+                    if (>= capture 0) { return (nisa_line_imm "LOAD_UPVALUE" (+ "0 " (int_to_string capture))) }
                     let global: int = (nisa_global_find id.name id.line)
                     if (< global 0) {
                         let index: int = (nisa_identifier_function parser id)
@@ -4138,6 +4288,19 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                         let left: string = (nisa_emit_expr parser binop.left binop.left_type)
                         let right: string = (nisa_emit_expr parser binop.right binop.right_type)
                         return (+ (+ left right) (nisa_line (nisa_array_arithmetic_mnemonic binop.op)))
+                    }
+                    if (or (nisa_function_type_ok parser left_type) (nisa_function_type_ok parser right_type)) {
+                        let mut opcode: string = ""
+                        if (== binop.op LexerTokenType.TOKEN_EQ) { set opcode "EQ" }
+                        if (== binop.op LexerTokenType.TOKEN_NE) { set opcode "NE" }
+                        if (== binop.op LexerTokenType.TOKEN_LT) { set opcode "LT" }
+                        if (== binop.op LexerTokenType.TOKEN_LE) { set opcode "LE" }
+                        if (== binop.op LexerTokenType.TOKEN_GT) { set opcode "GT" }
+                        if (== binop.op LexerTokenType.TOKEN_GE) { set opcode "GE" }
+                        if (== opcode "") { return (nisa_fail "I require a comparison for callable operands") }
+                        let left: string = (nisa_emit_expr parser binop.left binop.left_type)
+                        let right: string = (nisa_emit_expr parser binop.right binop.right_type)
+                        return (+ (+ left right) (nisa_line opcode))
                     }
                     if (or (== left_type "float") (== right_type "float")) {
                         return (nisa_emit_float_binary parser binop left_type right_type)
@@ -4948,6 +5111,11 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                 }
                 let slot: int = (nisa_local_find s.target)
                 if (< slot 0) {
+                    let capture: int = (nisa_capture_find nisa_capture_frame s.target)
+                    if (>= capture 0) {
+                        let value: string = (nisa_emit_expected_expr parser s.value s.value_type (at (at nisa_capture_frames nisa_capture_frame).capture_types capture))
+                        return (+ value (nisa_line_imm "STORE_UPVALUE" (+ "0 " (int_to_string capture))))
+                    }
                     let global: int = (nisa_global_find s.target s.line)
                     if (< global 0) { return (nisa_fail (+ "undefined binding " s.target)) }
                     let declaration: ASTLet = (parser_get_let parser (at nisa_global_nodes global))
@@ -5143,6 +5311,11 @@ shadow nisa_result_tag {
 
 fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     if (not nisa_ok) { return "" }
+    set nisa_capture_frame (array_length nisa_capture_frames)
+    set nisa_capture_frames (array_push nisa_capture_frames (NisaCaptureFrame {
+        parent: nisa_capture_parent, names: [], types: [], captures: [], capture_types: [], sources: []
+    }))
+    set nisa_capture_parent -1
     set nisa_param_count func.param_count
     set nisa_has_par false
     set nisa_names []
@@ -5216,7 +5389,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         set header (+ header (int_to_string func.param_count))
         set header (+ header " ")
         set header (+ header (int_to_string locals))
-        set header (+ header " 0 ")
+        set header (+ header (+ " " (+ (int_to_string (array_length (at nisa_capture_frames nisa_capture_frame).captures)) " ")))
         set header (+ header result_tag)
         if nisa_void_return {
             set header (+ header " 0\n")
@@ -5580,11 +5753,12 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
     set i 0
     while (and nisa_ok (< i (array_length nisa_function_queue))) {
         let function: ASTFunction = (parser_get_function parser (at nisa_function_queue i))
+        if (== function.node_type ParseNodeType.PNODE_LAMBDA) { set i (+ i 1) continue }
         if (< function.body 0) { let _: int = (nisa_register_extern parser function) }
         else { set out (+ out (nisa_emit_function parser function)) }
         set i (+ i 1)
     }
-    set out (+ out initializers)
+    set out (+ out (+ initializers nisa_lambda_text))
     if (not nisa_ok) { return "" }
     let mut prelude: string = (+ ".types " (int_to_string (parser_get_struct_def_count parser)))
     set prelude (+ prelude (+ " " (int_to_string (parser_get_enum_count parser))))
@@ -5651,6 +5825,7 @@ fn nisa_emit_module_nasm(parser: Parser, program: bool) -> string {
             let mut function_index: int = i
             if program { set function_index (at nisa_function_queue i) }
             let func: ASTFunction = (parser_get_function parser function_index)
+            if (== func.node_type ParseNodeType.PNODE_LAMBDA) { set i (+ i 1) continue }
             if (< func.body 0) {
                 if program { let _: int = (nisa_register_extern parser func) }
             } else {
@@ -5666,7 +5841,7 @@ fn nisa_emit_module_nasm(parser: Parser, program: bool) -> string {
             }
             set i (+ i 1)
         }
-        set out (+ out initializers)
+        set out (+ out (+ initializers nisa_lambda_text))
         if (< main_idx 0) {
             let missing: string = (nisa_fail "no main")
             return missing
