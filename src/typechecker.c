@@ -2419,14 +2419,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 return from ? TYPE_FLOAT : TYPE_INT;
             }
 
-            /* I resolve this permitted builtin shadow through its lexical signature. */
-            if (strcmp(expr->as.call.name, "array_push") == 0) {
-                Symbol *binding = env_get_var_visible_at(env, "array_push", expr->line, expr->column);
+            /* I resolve a lexical binding before a same-named declaration or builtin. */
+            {
+                Symbol *binding = env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column);
                 if (binding) {
                     binding->is_used = true;
                     if (binding->type != TYPE_FUNCTION) {
                         emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                            "I require a function value for a bound array_push call.",
+                            "I require a function value for a bound call.",
                             "Call the declared function or a function-typed binding.");
                         return TYPE_UNKNOWN;
                     }
@@ -2629,14 +2629,6 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 strcmp(expr->as.call.name, "map_keys") == 0 ||
                 strcmp(expr->as.call.name, "map_values") == 0);
             if (!func || (is_map_builtin && is_hashmap_generic_context)) {
-                Symbol *sym = env_get_var_visible_at(env, expr->as.call.name, expr->line, expr->column);
-                if (sym && sym->type == TYPE_FUNCTION) {
-                    /* Mark the variable as used */
-                    sym->is_used = true;
-                    
-                    return check_indirect_call(expr, env, sym->type_info ? sym->type_info->fn_sig : NULL);
-                }
-                
                 /* Special handling for dynamic array builtins */
                 if (strcmp(expr->as.call.name, "array_push") == 0) {
                     /* array_push(array, value) -> array */
