@@ -5384,6 +5384,10 @@ test-units: test-checked-owner-selection
 test-checked-owner-selection: bootstrap nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_checked_owner_selection.CheckedOwnerSelection
 
+.PHONY: test-nanoisa-list-insert
+test-nanoisa-list-insert: stage1 nano_virt nano_vm nanoisa_dump nvm2c
+	CC="$(CC)" python3 -m unittest -v tests.test_nanoisa_list_insert
+
 .PHONY: test-selfhost-native-array-slice
 test-selfhost-native-array-slice: bootstrap nano_virt nano_vm
 	python3 -m unittest -v tests.test_selfhost_native_array_slice

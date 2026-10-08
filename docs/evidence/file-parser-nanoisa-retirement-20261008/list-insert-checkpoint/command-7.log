@@ -1,0 +1,126 @@
+['/private/tmp/nanolang-list-insert-driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-z0rid8lg/order.nano', 'program']
+.types 0 0 0
+.entry 0
+
+.function main 0 5 0 int 1
+  ARR_NEW 1
+  STORE_LOCAL 0
+  PUSH_I64 0
+  STORE_GLOBAL 0
+  LOAD_LOCAL 0
+  CALL receiver
+  STORE_LOCAL 1
+  CALL index
+  STORE_LOCAL 2
+  LOAD_LOCAL 0
+  CALL value
+  STORE_LOCAL 3
+  LOAD_LOCAL 1
+  ARR_LEN
+  STORE_LOCAL 4
+  LOAD_LOCAL 2
+  PUSH_I64 0
+  I64_GE_S
+  ASSERT
+  LOAD_LOCAL 2
+  LOAD_LOCAL 4
+  I64_LE_S
+  ASSERT
+  LOAD_LOCAL 1
+  LOAD_LOCAL 3
+  ARR_PUSH
+  POP
+L0:
+  LOAD_LOCAL 4
+  LOAD_LOCAL 2
+  I64_GT_S
+  JMP_FALSE L1
+  LOAD_LOCAL 1
+  LOAD_LOCAL 4
+  LOAD_LOCAL 1
+  LOAD_LOCAL 4
+  PUSH_I64 1
+  I64_SUB
+  ARR_GET
+  ARR_SET
+  POP
+  LOAD_LOCAL 4
+  PUSH_I64 1
+  I64_SUB
+  STORE_LOCAL 4
+  JMP L0
+L1:
+  LOAD_LOCAL 1
+  LOAD_LOCAL 2
+  LOAD_LOCAL 3
+  ARR_SET
+  POP
+  LOAD_GLOBAL 0
+  PUSH_I64 123
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 0
+  ARR_LEN
+  PUSH_I64 2
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 0
+  PUSH_I64 0
+  ARR_GET
+  PUSH_I64 7
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 0
+  PUSH_I64 1
+  ARR_GET
+  PUSH_I64 9
+  I64_EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+.end
+
+.function receiver 1 1 0 array 1
+  LOAD_GLOBAL 0
+  PUSH_I64 10
+  I64_MUL
+  PUSH_I64 1
+  I64_ADD
+  STORE_GLOBAL 0
+  LOAD_LOCAL 0
+  RET
+.end
+
+.function index 0 0 0 int 1
+  LOAD_GLOBAL 0
+  PUSH_I64 10
+  I64_MUL
+  PUSH_I64 2
+  I64_ADD
+  STORE_GLOBAL 0
+  PUSH_I64 0
+  RET
+.end
+
+.function value 1 1 0 int 1
+  LOAD_GLOBAL 0
+  PUSH_I64 10
+  I64_MUL
+  PUSH_I64 3
+  I64_ADD
+  STORE_GLOBAL 0
+  LOAD_LOCAL 0
+  PUSH_I64 9
+  ARR_PUSH
+  POP
+  PUSH_I64 7
+  RET
+.end
+
+.function __init__ 0 0 0 void 0
+  PUSH_I64 0
+  STORE_GLOBAL 0
+  RET
+.end
+
+

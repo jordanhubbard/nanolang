@@ -865,7 +865,17 @@ shadow nisa_is_print_builtin {
     assert (not (nisa_is_print_builtin "add"))
 }
 
+fn nisa_is_list_insert(name: string) -> bool {
+    return (and (or (str_starts_with name "list_") (str_starts_with name "List_")) (str_ends_with name "_insert"))
+}
+shadow nisa_is_list_insert {
+    assert (nisa_is_list_insert "list_LexerToken_insert")
+    assert (not (nisa_is_list_insert "my_list_LexerToken_insert"))
+    assert (not (nisa_is_list_insert "list_int_get"))
+}
+
 fn nisa_is_list_call(name: string) -> bool {
+    if (nisa_is_list_insert name) { return true }
     return (and (or (str_starts_with name "list_") (str_starts_with name "List_"))
                 (or (str_ends_with name "_new")
                     (or (str_ends_with name "_length")
@@ -2952,6 +2962,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
             return ""
         }
         if (nisa_is_set_call target_name) { return "void" }
+        if (and (nisa_is_list_insert target_name) (< (nisa_call_index parser call) 0)) { return "void" }
         if (and (nisa_is_list_call target_name) (str_ends_with target_name "_new")) {
             let element: string = (str_substring target_name 5 (- (str_length target_name) 9))
             let container: string = (+ "List<" (+ element ">"))
@@ -3592,6 +3603,81 @@ shadow nisa_emit_filled_array {
     let final_reset: int = (nisa_reset)
 }
 
+# I stage all operands before bounds checks or mutation, preserving receiver aliases.
+fn nisa_emit_list_insert(parser: Parser, call: ASTCall, name: string) -> string {
+    if (!= call.arg_count 3) { return (nisa_fail "I require a list, integer index and insertion value") }
+    let object: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let position: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+    let value: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 2))
+    let container: string = (nisa_expr_type parser object.node_id object.node_type)
+    let element: string = (nisa_element_type parser container)
+    let declared: string = (str_substring name 5 (- (str_length name) 12))
+    if (or (== element "") (!= element declared)) { return (nisa_fail "I require matching list insertion element types") }
+    if (!= (nisa_expr_type parser position.node_id position.node_type) "int") { return (nisa_fail "I require an integer list insertion index") }
+    if (not (nisa_value_type_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
+        return (nisa_fail "I require an insertion value matching the list element type")
+    }
+    let mut text: string = (nisa_emit_expr parser object.node_id object.node_type)
+    let receiver_slot: string = (nisa_temp_local container)
+    set text (+ text (nisa_line_imm "STORE_LOCAL" receiver_slot))
+    set text (+ text (nisa_emit_expr parser position.node_id position.node_type))
+    let index: string = (nisa_temp_local "int")
+    set text (+ text (nisa_line_imm "STORE_LOCAL" index))
+    set text (+ text (nisa_emit_expected_expr parser value.node_id value.node_type element))
+    let inserted: string = (nisa_temp_local element)
+    set text (+ text (nisa_line_imm "STORE_LOCAL" inserted))
+    let length: string = (nisa_temp_local "int")
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" receiver_slot))
+    set text (+ text (nisa_line "ARR_LEN"))
+    set text (+ text (nisa_line_imm "STORE_LOCAL" length))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index))
+    set text (+ text (nisa_line_imm "PUSH_I64" "0"))
+    set text (+ text (nisa_line "I64_GE_S"))
+    set text (+ text (nisa_line "ASSERT"))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" length))
+    set text (+ text (nisa_line "I64_LE_S"))
+    set text (+ text (nisa_line "ASSERT"))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" receiver_slot))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" inserted))
+    set text (+ text (nisa_line "ARR_PUSH"))
+    set text (+ text (nisa_line "POP"))
+    let top: string = (nisa_fresh)
+    let done: string = (nisa_fresh)
+    set text (+ text (nisa_label_line top))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" length))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index))
+    set text (+ text (nisa_line "I64_GT_S"))
+    set text (+ text (nisa_line_imm "JMP_FALSE" done))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" receiver_slot))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" length))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" receiver_slot))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" length))
+    set text (+ text (nisa_line_imm "PUSH_I64" "1"))
+    set text (+ text (nisa_line "I64_SUB"))
+    set text (+ text (nisa_line "ARR_GET"))
+    set text (+ text (nisa_line "ARR_SET"))
+    set text (+ text (nisa_line "POP"))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" length))
+    set text (+ text (nisa_line_imm "PUSH_I64" "1"))
+    set text (+ text (nisa_line "I64_SUB"))
+    set text (+ text (nisa_line_imm "STORE_LOCAL" length))
+    set text (+ text (nisa_line_imm "JMP" top))
+    set text (+ text (nisa_label_line done))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" receiver_slot))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" index))
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" inserted))
+    set text (+ text (nisa_line "ARR_SET"))
+    return (+ text (nisa_line "POP"))
+}
+shadow nisa_emit_list_insert {
+    let text: string = (nanoisa_emit_nasm "fn main() -> int { let a: List<int> = (list_int_new) (list_int_insert a 0 7) return (list_int_get a 0) }")
+    assert (str_contains text "ARR_PUSH")
+    assert (str_contains text "I64_LE_S")
+    assert (== (nanoisa_emit_nasm "fn main() -> int { let a: List<int> = (list_int_new) (list_int_insert a true 7) return 0 }") "")
+    let reset: int = (nisa_reset)
+}
+
 fn nisa_emit_push_call(parser: Parser, call: ASTCall, name: string) -> string {
     if (!= call.arg_count 2) { return (nisa_fail "I require a container and append value") }
     let object: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
@@ -3925,6 +4011,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         return (nisa_fail "I cannot use a bound value as a binary64 bit intrinsic")
     }
     if (< declared_index 0) {
+        if (nisa_is_list_insert function_name) { return (nisa_emit_list_insert parser call function_name) }
         if (== function_name "abs") { return (nisa_emit_abs parser call) }
         if (nisa_functional_name function_name) { return (nisa_emit_functional_array parser call function_name) }
     }
@@ -4719,7 +4806,7 @@ fn nisa_call_has_result(parser: Parser, call: ASTCall) -> bool {
     if (nisa_is_set_call name) { return false }
     if (== (nisa_map_opcode name) "HM_SET") { return false }
     let index: int = (nisa_call_index parser call)
-    if (< index 0) { return true }
+    if (< index 0) { return (not (nisa_is_list_insert name)) }
     let function: ASTFunction = (parser_get_function parser index)
     return (!= function.return_type "void")
 }

@@ -1,0 +1,7 @@
+{
+  "src_nano/compiler/nanoisa_codegen.nano": "0f3f829603f85c6409d0d5c338246ccd8ccaba63d3a2b72fddeb771fc8d09eed",
+  "tests/test_nanoisa_list_insert.py": "91f9f25c8f1ef6579c9f2a1da97a97ae028d0058a0196af4ac73c128b6be2162",
+  "bin/nano_virt": "df53a307ddb094b87fb56d7d476a2a7f37f9a813d6599e8f285cd450816f456f",
+  "bin/nvm2c": "73dc6353ddec5e518dbdebf120a47cbae728124097a3bf4b38ce0bc4b3be370e",
+  "/private/tmp/nanolang-list-insert-driver": "49118cf152f05056f7d47ec04b0f1c8a6a6cd7959d6de39789f677e74d9d07a3"
+}
