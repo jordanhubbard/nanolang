@@ -77,7 +77,9 @@ not prove compiler semantic correctness.
 My canonical `--emit-nvm` driver executes verified bytecode shadows. At
 `e35d8f55`, two full compiler generations match raw 365,976-byte modules with
 the same immutable host closure; see [my cutover evidence](evidence/canonical-vm-shadow-cutover.md).
-My default native product remains a separate cutover. Native execution of compiler
+My product driver now emits a module by default and translates explicit native output
+through `nvm2c` and `cc`; see [my driver checkpoint](evidence/native-driver-cutover-20261007/README.md).
+My Make bootstrap migration and full post-cutover qualification remain open. Native execution of compiler
 bytecode through `nvm2c` and `cc` is a separate route; my measured VM fixed
 point does not claim completion of native full-source bootstrap.
 
@@ -95,8 +97,9 @@ CLI, generated AST/schema. Those do not care what the last pass emits.
 to be a compiler phase. Its dual with `src/transpiler.c` is the tax. The
 last pass becomes a dual of `nanovirt/codegen.c`: typed AST → `NvmModule`
 → `.nvm`. My `compiler/nanoisa_codegen.nano` emitter now lowers the full compiler
-program closure, and the VM bootstrap above exercises it. My driver still
-retains the legacy C native product route; the NanoISA-only product cutover remains open.
+program closure, and the VM bootstrap above exercises it. My driver now uses that emitter for every product and no longer imports the legacy
+C emitter. Remaining bootstrap and product dependency removal keep the complete
+NanoISA-only cutover open.
 
 **Driver.** `nanoc_v06.nano` stops emitting `.c` and invoking `cc` as a
 language backend. Default output is `.nvm`. `-o binary` is the tool

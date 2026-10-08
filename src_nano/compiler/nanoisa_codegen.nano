@@ -1977,7 +1977,7 @@ shadow nisa_emit_map_call {
 fn nisa_host_result(name: string) -> string {
     if (== name "atan") { return "float" }
     let strings: array<string> = ["vm_string_from_char", "get_argv", "nl_os_getenv", "file_read", "vm_file_read", "path_normalize", "nl_exec_capture", "vm_getenv", "vm_getcwd", "vm_tmp_dir", "vm_mktemp", "vm_mktemp_dir"]
-    let integers: array<string> = ["strlen", "get_argc", "file_write", "vm_file_write", "file_delete", "file_compare_identity", "file_compare_destinations", "nl_exec_shell", "vm_chdir", "vm_dir_create", "vm_setenv"]
+    let integers: array<string> = ["strlen", "get_argc", "file_write", "vm_file_write", "file_delete", "file_compare_identity", "file_compare_destinations", "nl_exec_shell", "vm_chdir", "vm_dir_create", "vm_setenv", "vm_str_index_of", "vm_str_last_index_of"]
     let booleans: array<string> = ["vm_is_alnum", "file_exists", "vm_file_exists", "vm_dir_exists"]
     let mut i: int = 0
     while (< i (array_length strings)) {
@@ -1997,6 +1997,8 @@ fn nisa_host_result(name: string) -> string {
     return ""
 }
 shadow nisa_host_result {
+    assert (== (nisa_host_result "vm_str_index_of") "int")
+    assert (== (nisa_host_result "vm_str_last_index_of") "int")
     assert (== (nisa_host_result "strlen") "int")
     assert (== (nisa_host_result "atan") "float")
     assert (== (nisa_host_result "vm_getenv") "string")
@@ -2010,11 +2012,14 @@ shadow nisa_host_result {
 fn nisa_host_arity(name: string) -> int {
     if (== (nisa_host_result name) "") { return -1 }
     if (or (== name "get_argc") (or (== name "vm_getcwd") (== name "vm_tmp_dir"))) { return 0 }
+    if (or (== name "vm_str_index_of") (== name "vm_str_last_index_of")) { return 2 }
     if (or (== name "file_write") (or (== name "vm_file_write")
             (or (== name "file_compare_identity") (or (== name "file_compare_destinations") (== name "vm_setenv"))))) { return 2 }
     return 1
 }
 shadow nisa_host_arity {
+    assert (== (nisa_host_arity "vm_str_index_of") 2)
+    assert (== (nisa_host_arity "vm_str_last_index_of") 2)
     assert (== (nisa_host_arity "get_argc") 0)
     assert (== (nisa_host_arity "vm_getenv") 1)
     assert (== (nisa_host_arity "file_write") 2)
@@ -2038,7 +2043,7 @@ shadow nisa_host_parameter {
 }
 
 fn nisa_builtin_host_symbol(name: string) -> string {
-    let names: array<string> = ["is_alnum", "string_from_char", "getenv", "getcwd", "chdir", "file_read", "file_write", "file_exists", "dir_exists", "dir_create", "tmp_dir", "mktemp", "mktemp_dir", "setenv"]
+    let names: array<string> = ["is_alnum", "string_from_char", "getenv", "getcwd", "chdir", "file_read", "file_write", "file_exists", "dir_exists", "dir_create", "tmp_dir", "mktemp", "mktemp_dir", "setenv", "str_index_of", "str_last_index_of"]
     let mut i: int = 0
     while (< i (array_length names)) {
         if (== name (at names i)) { return (+ "vm_" name) }
@@ -2047,6 +2052,8 @@ fn nisa_builtin_host_symbol(name: string) -> string {
     return ""
 }
 shadow nisa_builtin_host_symbol {
+    assert (== (nisa_builtin_host_symbol "str_index_of") "vm_str_index_of")
+    assert (== (nisa_builtin_host_symbol "str_last_index_of") "vm_str_last_index_of")
     assert (== (nisa_builtin_host_symbol "getenv") "vm_getenv")
     assert (== (nisa_builtin_host_symbol "is_alnum") "vm_is_alnum")
     assert (== (nisa_builtin_host_symbol "string_from_char") "vm_string_from_char")

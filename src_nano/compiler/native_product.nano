@@ -1,0 +1,128 @@
+# I publish a translated NanoISA module only after its requested tools succeed.
+extern fn nl_exec_shell(command: string) -> int
+extern fn nl_exec_capture(command: string) -> string
+module "std/fs.nano" as aot_fs
+
+fn aot_shell_quote(value: string) -> string {
+    let mut result: string = "'"
+    let mut i: int = 0
+    while (< i (str_length value)) {
+        let ch: string = (str_substring value i 1)
+        if (== ch "'") { set result (+ result "'\\''") }
+        else { set result (+ result ch) }
+        set i (+ i 1)
+    }
+    return (+ result "'")
+}
+shadow aot_shell_quote {
+    assert (== (aot_shell_quote "") "''")
+    assert (== (aot_shell_quote "a b'c") "'a b'\\''c'")
+}
+
+fn aot_parent(path: string) -> string {
+    let mut last: int = -1
+    let mut i: int = 0
+    while (< i (str_length path)) {
+        if (== (str_substring path i 1) "/") { set last i }
+        set i (+ i 1)
+    }
+    if (< last 0) { return "." }
+    if (== last 0) { return "/" }
+    return (str_substring path 0 last)
+}
+shadow aot_parent {
+    assert (== (aot_parent "program") ".")
+    assert (== (aot_parent "/program") "/")
+    assert (== (aot_parent "a b/program") "a b")
+}
+
+fn aot_stage_directory(output: string) -> string {
+    let mut parent: string = (aot_parent output)
+    if (!= (str_substring parent 0 1) "/") { set parent (+ (getcwd) (+ "/" parent)) }
+    let command: string = (+ "mktemp -d " (aot_shell_quote (+ parent "/.nano-native.XXXXXX")))
+    let captured: string = (nl_exec_capture command)
+    let size: int = (str_length captured)
+    if (and (> size 0) (== (str_substring captured (- size 1) 1) "\n")) {
+        return (str_substring captured 0 (- size 1))
+    }
+    return captured
+}
+shadow aot_stage_directory {
+    let directory: string = (aot_stage_directory "shadow-native-output")
+    assert (!= directory "")
+    if (!= directory "") { unsafe { assert (== (aot_fs.delete directory) 0) } }
+}
+
+fn aot_cleanup(directory: string, keep_c: bool) -> void {
+    if (== directory "") { return }
+    unsafe { (aot_fs.delete (+ directory "/program")) }
+    if keep_c { (println (+ "I kept generated C in " (+ directory "/program.c"))) }
+    else {
+        unsafe {
+            (aot_fs.delete (+ directory "/program.c"))
+            (aot_fs.delete directory)
+        }
+    }
+}
+shadow aot_cleanup { (aot_cleanup "" false) }
+
+fn aot_host_flags(platform: string) -> string {
+    if (== platform "Linux\n") { return " -rdynamic -ldl" }
+    if (== platform "FreeBSD\n") { return " -Wl,-E" }
+    if (== platform "Darwin\n") { return "" }
+    return "unsupported"
+}
+shadow aot_host_flags {
+    assert (== (aot_host_flags "Linux\n") " -rdynamic -ldl")
+    assert (== (aot_host_flags "Darwin\n") "")
+    assert (== (aot_host_flags "") "unsupported")
+}
+
+fn publish_native_module(module_path: string, output: string, repo_root: string, compiler: string, cflags: string, ldflags: string, emit_c: bool, keep_c: bool, show_code: bool, verbose: bool) -> int {
+    if (or (== module_path "") (== output "")) { return 1 }
+    let directory: string = (aot_stage_directory output)
+    if (== directory "") { (println "I could not create native output staging") return 1 }
+    let c_file: string = (+ directory "/program.c")
+    let mut translator: string = (getenv "NANO_NVM2C")
+    if (== translator "") { set translator (+ repo_root "/bin/nvm2c") }
+    let translate: string = (+ (aot_shell_quote translator) (+ " " (+ (aot_shell_quote module_path) (+ " -o " (aot_shell_quote c_file)))))
+    if verbose { (println translate) }
+    if (!= (nl_exec_shell translate) 0) {
+        (println "I could not translate the verified module to C")
+        (aot_cleanup directory false)
+        return 1
+    }
+    if show_code { unsafe { (print (aot_fs.read c_file)) } }
+    let mut product: string = c_file
+    if (not emit_c) {
+        set product (+ directory "/program")
+        let host_flags: string = (aot_host_flags (nl_exec_capture "uname -s"))
+        if (== host_flags "unsupported") {
+            (println "I do not support this native host")
+            (aot_cleanup directory keep_c)
+            return 1
+        }
+        let mut command: string = (+ compiler (+ " -std=c11 " (+ cflags " ")))
+        set command (+ command (aot_shell_quote c_file))
+        set command (+ command (+ " " (aot_shell_quote (+ repo_root "/bin/nano_aot_runtime.o"))))
+        set command (+ command (+ " -lm" (+ host_flags (+ " " ldflags))))
+        set command (+ command (+ " -o " (aot_shell_quote product)))
+        if verbose { (println command) }
+        if (!= (nl_exec_shell command) 0) {
+            (println "I could not compile translated C to native output")
+            (aot_cleanup directory keep_c)
+            return 1
+        }
+    }
+    # My staging directory shares the destination filesystem. I refuse directory
+    # destinations before mv can interpret one as a request to copy inside it.
+    let publish: string = (+ "test ! -d " (+ (aot_shell_quote output) (+ " && mv -f -- " (+ (aot_shell_quote product) (+ " " (aot_shell_quote output))))))
+    let status: int = (nl_exec_shell publish)
+    (aot_cleanup directory (and keep_c (not emit_c)))
+    if (!= status 0) { (println "I could not publish the translated output") return 1 }
+    return 0
+}
+shadow publish_native_module {
+    assert (== (publish_native_module "" "output" "." "cc" "" "" false false false false) 1)
+    assert (== (publish_native_module "module.nvm" "" "." "cc" "" "" false false false false) 1)
+}

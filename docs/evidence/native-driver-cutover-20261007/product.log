@@ -1,0 +1,9 @@
+test_default_output_is_verified_executable_module (tests.test_selfhost_nanoisa_product.SelfhostNanoisaProduct.test_default_output_is_verified_executable_module) ... ok
+test_failed_shadows_precede_translation_and_preserve_output (tests.test_selfhost_nanoisa_product.SelfhostNanoisaProduct.test_failed_shadows_precede_translation_and_preserve_output) ... ok
+test_installed_driver_discovers_tools_outside_checkout (tests.test_selfhost_nanoisa_product.SelfhostNanoisaProduct.test_installed_driver_discovers_tools_outside_checkout) ... ok
+test_source_only_translation_does_not_execute_shadows (tests.test_selfhost_nanoisa_product.SelfhostNanoisaProduct.test_source_only_translation_does_not_execute_shadows) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.252s
+
+OK

@@ -1,0 +1,26 @@
+{
+  "base_commit": "02a58079aac99e35450f4e08a9baeb5a7e51fed9",
+  "source_sha256": {
+    "src_nano/nanoc_v06.nano": "dc027cd58b648a6a64431cdc701ef63fe0a3a296bbd9d914bed60f301e4c6580",
+    "src_nano/compiler/native_product.nano": "779db649d4ac2985c1607505334d2cf1f0e91c16cafb32c4d71422f9c882eae6",
+    "src_nano/compiler/nanoisa_codegen.nano": "e95c3c6e55f07d0aaeb5abd7a79b885f0cc128f446f810b285666480b2774a55",
+    "src/nanoisa/nvm2c.c": "118ac9a94e174d90c544c59ccb39d7ec8ef264e3bdcf16cf0cf4d5f6db85998d",
+    "tests/test_native_product_pipeline.py": "180a10264361042101f48012cf10f8fe047a4bf1a82b4180678a17b475ebcf93",
+    "tests/test_selfhost_nanoisa_product.py": "19b2ef7a35fe7cc0907d9ca28979659bc832abe42258a3470df5a4091a1fbdf7",
+    "tests/test_selfhost_cli.py": "d151cb354ad61d4c42704eafd6c02150c64777aaacc11a01464d5c88c7e4f622"
+  },
+  "log_sha256": {
+    "cli-before.log": "d721bc4d86fb21eaacbe187553652659ee3fda183c3dd7fde97ec4015652cfb1",
+    "cli-after.log": "5c063f98d79bec7b8090b585a63c7a03f9577b5e4a2e252d068759318c145195",
+    "product.log": "3ae6826654d55214bb039e87d20ac0c3085d6eca6f98500bd576220d8ef9b7ef",
+    "publication.log": "4a0c927c7d2044ee076720e98f9195a2ce0928f43faac413889880218ff32538",
+    "bootstrap-dependencies.log": "91a09c6e66b80dc2047af5eff3f384ea1ce108db2b1bbf401a75cdf4612ba47f",
+    "translator-and-apple-lsan.log": "51b98816672b39c2d628bf11c6760fbe71ffa67e7daf441c5b179c40ab55e87e"
+  },
+  "driver_binary": {
+    "path": "/private/tmp/nanolang-driver-cutover-current",
+    "sha256": "3e081d8ea76c5190cc606b8a7c5220ee5155e0a33f9e1b647a6e7c49cddff559"
+  },
+  "publication_sanitizer_compiler": "/opt/homebrew/opt/llvm/bin/clang",
+  "qualification": "I qualify the driver from C-seed bytecode. I have not yet replaced the Make bootstrap or qualified the full cutover fixed point."
+}

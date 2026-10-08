@@ -35,7 +35,7 @@ class BootstrapDependencies(unittest.TestCase):
             self.file(name, 80)
         self.file("obj/build_bootstrap/schema.stamp", 90)
         os.utime(self.root / "Makefile.gnu", (100, 100))
-        for name, stamp in [("bin/nanoc_c", 110), ("bin/nano_vm", 110),
+        for name, stamp in [("bin/nanoc_c", 110), ("bin/nano_virt", 110), ("bin/nano_vm", 110),
                             ("bin/nvm2c", 110), ("bin/nano_aot_runtime.o", 110),
                             (".bootstrap0.built", 120),
                             (".bootstrap1.built", 130), ("bin/nanoc_stage1", 130),
@@ -61,7 +61,7 @@ class BootstrapDependencies(unittest.TestCase):
         command = [os.environ.get("MAKE_BIN", "make"), "-f", "Makefile.gnu",
                    "--no-print-directory", "-q", "-o", "bin/nanoc_c",
                    "-o", ".bootstrap0.built", "-o", ".stage1.built",
-                   "-o", "nano_vm", "-o", "nvm2c", "-o", "nvm2c-runtime",
+                   "-o", "nano_virt", "-o", "nano_vm", "-o", "nvm2c", "-o", "nvm2c-runtime",
                    "UNAME_S=Linux", target]
         if changed:
             command += ["-W", changed]

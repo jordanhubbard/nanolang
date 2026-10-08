@@ -532,6 +532,10 @@ $(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
 test-one-ir-compiler: $(COMPILER_C) nano_virt nvm2c nanoisa_dump nano_vm nvm2c-runtime
 	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_root_scaling tests.test_native_collection_debt tests.test_native_map_byte_debt tests.test_native_string_retention tests.test_native_host_strings tests.test_native_aggregate_retention tests.test_native_record_growth tests.test_native_record_locals tests.test_native_map_lifetimes tests.test_native_map_globals tests.test_native_record_array_globals tests.test_native_string_joins tests.test_nanovm_guest_args tests.test_field_metadata_lookup
 
+.PHONY: test-native-product-pipeline
+test-native-product-pipeline: nano_virt nano_vm nvm2c nvm2c-runtime
+	@python3 -m unittest -v tests.test_native_product_pipeline
+
 .PHONY: test-nvm2c-shapes
 test-nvm2c-shapes: | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_nvm2c_shape \
@@ -2794,7 +2798,7 @@ test-cross-backend-runner:
 
 .PHONY: test-selfhost-cli
 test-selfhost-cli: bootstrap3
-	@python3 tests/test_selfhost_cli.py
+	@python3 -m unittest tests.test_selfhost_cli tests.test_selfhost_nanoisa_product
 
 .PHONY: test-selfhost-module-bindings
 test-selfhost-module-bindings: bootstrap3
@@ -3719,7 +3723,7 @@ bootstrap1:
 	@$(MAKE) $(SENTINEL_BOOTSTRAP1)
 
 
-$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu
+$(SENTINEL_BOOTSTRAP1): $(SENTINEL_BOOTSTRAP0) $(SELFHOST_SOURCES) Makefile.gnu | nano_virt nano_vm nvm2c nvm2c-runtime
 	@echo ""
 	@echo "=========================================="
 	@echo "Bootstrap Stage 1: Self-Hosted Compiler"

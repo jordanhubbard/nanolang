@@ -363,6 +363,8 @@ typedef struct {
 /* I recognize my builtin namespace, not arbitrary libraries exporting a name. */
 static const Nvm2cHost host_adapters[] = {
     {"strlen", "nhost_strlen", 1, TAG_STRING, TAG_INT},
+    {"vm_str_index_of", "nhost_str_index_of", 2, TAG_STRING, TAG_INT},
+    {"vm_str_last_index_of", "nhost_str_last_index_of", 2, TAG_STRING, TAG_INT},
     {"atan", "atan", 1, TAG_FLOAT, TAG_FLOAT},
     {"vm_getcwd", "nhost_getcwd", 0, TAG_VOID, TAG_STRING},
     {"vm_getenv", "nhost_getenv", 1, TAG_STRING, TAG_STRING},
@@ -6507,6 +6509,22 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (module_uses_host(mod, "nhost_is_alpha")) nvm2c_puts(&b,
                 "static inline int64_t nhost_is_alpha(int64_t code) { int c = (int)code; return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'); }\n");
             if (module_uses_host(mod, "atan")) nvm2c_puts(&b, "#include <math.h>\n");
+            if (module_uses_host(mod, "nhost_str_index_of")) nvm2c_puts(&b,
+                "static inline int64_t nhost_str_index_of(const char *text, const char *needle) {\n"
+                "    if (!text || !needle) return -1;\n"
+                "    const char *match = strstr(text, needle);\n"
+                "    return match ? (int64_t)(match - text) : -1;\n}\n");
+            if (module_uses_host(mod, "nhost_str_last_index_of")) nvm2c_puts(&b,
+                "static inline int64_t nhost_str_last_index_of(const char *text, const char *needle) {\n"
+                "    if (!text || !needle) return -1;\n"
+                "    size_t length = strlen(text), wanted = strlen(needle);\n"
+                "    if (wanted > length || length > INT64_MAX) return -1;\n"
+                "    size_t position = length - wanted;\n"
+                "    for (;;) {\n"
+                "        if (memcmp(text + position, needle, wanted) == 0) return (int64_t)position;\n"
+                "        if (!position) return -1;\n"
+                "        --position;\n"
+                "    }\n}\n");
             if (module_uses_host(mod, "nhost_strlen")) nvm2c_puts(&b,
                 "#include <string.h>\nstatic inline int64_t nhost_strlen(const char *value) { return (int64_t)strlen(value ? value : \"\"); }\n");
             if (module_uses_host(mod, "nhost_is_alnum")) nvm2c_puts(&b,
