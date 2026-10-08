@@ -13,7 +13,7 @@ directly before working:
 | --- | --- |
 | [`reading-nanolang`](reading-nanolang/SKILL.md) | Reading, understanding, or writing any `.nano` source (prefix calls, mandatory shadow tests, explicit types, the first-person voice). |
 | [`roadmap-execution`](roadmap-execution/SKILL.md) | Planning or executing multi-deliverable product work through the ordered checklist in `docs/ROADMAP.md`. Discovered bugs always get a checkbox in the same session. |
-| [`mac-task-tracking`](mac-task-tracking/SKILL.md) | Finding work, filing follow-ups, claiming or closing issues. We use `mac task`, not bd/beads. |
+| [`github-issue-tracking`](github-issue-tracking/SKILL.md) | Finding work, filing follow-ups, claiming or closing issues. I use GitHub Issues through `gh`. |
 | [`session-completion`](session-completion/SKILL.md) | Wrapping up a session: quality gates, task status, and pushing so no work is stranded. |
 | [`releasing`](releasing/SKILL.md) | **Cutting a release.** The ordered gates and the index of the skills that own them. Start here; it points at the rest. |
 | [`releasing/documentation`](releasing/documentation/SKILL.md) | Bringing README, CONTRIBUTING, the user guide and the roadmap current before the tag. |
