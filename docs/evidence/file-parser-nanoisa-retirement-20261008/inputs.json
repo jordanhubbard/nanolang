@@ -1,0 +1,9 @@
+{
+  "template_sha": "d6b820a2d1faf9a7fc9e4241f5bb8a24b16b5dca130057bc13c1c04992a39965",
+  "source_sha": "eb4b6785cf398c8c4cdcdf10c169b4c7ce28bc587b12c11059798ec3335048d0",
+  "tools": {
+    "nanoc_c": "f9d127b98cbf55509750eb43d3073ca949b7294acd31cd9777f5f4474893ce94",
+    "nanoc_stage1": "f89b05209a2db0b1af1ee7f7474e625b20792faa47277ab7dcbc375f0d3ca72c",
+    "nanoc_stage2": "411737b8239f2105dfd4ef45dde650015e4be62e82812a6186bbfaf8535d4421"
+  }
+}

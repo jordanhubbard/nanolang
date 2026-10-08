@@ -47,3 +47,9 @@ preserve the original terminal and manifest in `core-e50ea978b`. HEAD and
 tracked sources remain unchanged and the user's test retains its hash. I do
 not attribute the timeout to contention without evidence or relax the deadline.
 The complete gate remains unqualified.
+
+A bounded retry of the unchanged shadow class passes all six methods in
+69.493 seconds with the same compiler deadline. I retain `shadow-class-retry.log`.
+This supplies execution evidence for the six methods omitted by the earlier
+class-setup failure; it does not change that full Make run into a passing run
+or establish the historical timeout's cause.
