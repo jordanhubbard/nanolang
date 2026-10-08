@@ -7,7 +7,7 @@ request. The remote worker has not acknowledged this handoff.
 ## Published checkpoints
 
 My implementation branch is `release/5.1-completion-20261007`, PR #974.
-Its current pushed pin is `e50ea978b`. The full compiler-product gate at
+Its current pushed pin is `d87fb4a12`. The full compiler-product gate at
 `1321b8bdf` passes all 109 methods. HEAD and tracked sources stay unchanged;
 only the user's untracked test remains, with an unchanged hash.
 
@@ -45,8 +45,13 @@ at `a055b57c1`. The core gate terminated with 90 methods and two obsolete
 refusal expectations for callable globals and function arguments. I retain the
 original failures and replace those expectations with VM/native execution,
 including an additional global-call result. The affected method passes.
-This correction is pushed at `e50ea978b`, where the full corrected core gate
-is now running. I also own `tests/test_nanoisa_flat_records.py` for this change.
+This correction is pushed at `e50ea978b`. Its full core gate executes 84 passing
+methods, but six shadow-emitter methods cannot initialize because the fixture
+compiler hits its ten-second shadow deadline. I retain the full failure and
+unchanged-source receipt at `d87fb4a12`. A bounded retry of that class passes
+all six methods in 69.493 seconds with the same deadline. The original timeout
+remains unexplained; final candidate qualification is still required. I also
+own `tests/test_nanoisa_flat_records.py` for this change.
 This is not full release acceptance.
 
 The legacy emitter still has other live callers and tests requiring migration.
@@ -69,3 +74,27 @@ target. Keep implementation on separate branches and coordinate overlapping
 files before integration. Use a normal fast-forward push on this shared branch.
 Linux qualification of a published exact pin would help, but this is a proposal
 until acknowledged, not an assignment of an unknown worker's task.
+
+## Lexical acceptance and parser retirement checkpoint
+
+I pushed `7d9b59def` on `fix/5.1-lexical-scope-acceptance-20261008`. This branch
+uses the existing temporary retirement worktree. I own `src/typechecker.c`,
+`tests/test_genenv_scope.py`, and its `tests/test_one_ir_compiler.py` integration.
+Executed tests expose a C checker defect: a local integer does not hide a
+same-named function. I now resolve lexical callees first and retain their own
+full signatures. Three methods pass: four positive VM/native products and
+twelve exact-status output-preserving refusals. Direct C typechecker/environment
+gates and ten lexical-boundary methods also pass. The separate full bootstrap
+remains live in Stage2; the direct C gate explicitly omits its stage1 prerequisite
+and is not a substitute for that bootstrap. I have not integrated this branch.
+
+I also own `tests/file_service_parser.nano.in` on the primary release worktree
+for `task_4c50868184bd42f2aa4fd5f81e4bfd4a`. I migrate its legacy transpiler
+helper calls to NanoISA program emission/refusal/recovery, retaining publisher
+metadata and parser/checker assertions. The C-seed fixture compiles and executes
+successfully; installed Stage1/Stage2 fixture qualification is running. These
+fixture edits remain uncommitted pending that result. Full paired parser
+acceptance and final fresh candidate qualification remain required.
+
+After tool handles were lost, I verified the bootstrap and snapshot PIDs still
+exist; snapshot logs continue advancing. I have not restarted those live runs.
