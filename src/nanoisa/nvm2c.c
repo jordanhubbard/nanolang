@@ -16,6 +16,7 @@
 #include "isa.h"
 #include "utf8.h"
 #include "nvm2c_shape.h"
+#include "nvm2c_callables.h"
 #include "ownership_contracts.h"
 #include "affine_state.h"
 #include "affine_bytecode.h"
@@ -207,6 +208,7 @@ typedef struct {
     Nvm2cFieldBlock *field_blocks;
     uint8_t *default_fields;
     NvmShapeGraph shapes;
+    NvmCallableAnalysis callables;
     NvmShapeId *shape_locals, *shape_results, *shape_globals, **shape_outputs;
     NvmShapeId *shape_current;
     Nvm2cJoinShape **join_shapes;
@@ -6182,6 +6184,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         for (uint16_t local = 0; local < mod->functions[f].local_count; ++local)
             b.local_scalar_tags[(size_t)f * b.local_width + local] =
                 local < mod->functions[f].arity ? 0 : 1u << TAG_VOID;
+    /* With no module-local reference producer, I have no target evidence to
+     * add. I retain the classifier's own instruction refusal in that case. */
+    if (module_has_opcode(mod, OP_FUNCREF) && module_has_opcode(mod, OP_CALL_INDIRECT) &&
+        !nvm_callable_analyze(mod, &b.callables)) {
+        nvm2c_fail(&b, "%s", b.callables.error);
+        goto fail;
+    }
     if (!mark_required_functions(&b, mod)) goto fail;
     for (uint32_t f = 0; f < mod->function_count; ++f)
         if (!mark_uninitialized_locals(&b, mod, f)) goto fail;
@@ -6997,6 +7006,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     free(inference);
     free(global_stored);
     nvm_shape_destroy(&b.shapes);
+    nvm_callable_destroy(&b.callables);
     free(b.shape_locals);
     free(b.shape_results);
     free(b.shape_globals);
@@ -7025,6 +7035,7 @@ fail:
     free(inference);
     free(global_stored);
     nvm_shape_destroy(&b.shapes);
+    nvm_callable_destroy(&b.callables);
     free(b.shape_locals);
     free(b.shape_results);
     free(b.shape_globals);

@@ -26,14 +26,35 @@ variant scalar, host import, or ownership admission merely by adding this kind.
 My graph retains its existing poison-on-error rule and frees target storage on
 root merges and destruction.
 
-## Connection still required
+## Bytecode target analysis
 
-My current native classifier collects ordinary shape constraints only during its
-final pass. Indirect calls need targets earlier, to discover parameter and result
-representations. I must connect target propagation to that fixed-point analysis,
-including locals, globals, direct call parameters/results, branches and aggregate
-storage, before using the completed shapes to emit calls. I cannot simply inspect
-final shapes from an earlier pass or treat an unresolved callee as an integer.
+My `nvm2c_callables` pass now collects target constraints before native
+representation inference. I retain stack-value nodes at control-flow joins,
+shared local/global storage nodes, and direct/indirect argument/result flows.
+Each newly discovered indirect target adds that callee's argument and return
+constraints; I solve again until no new call edge or mutable alias appears.
+I check target indices, arities and result counts when connecting a call.
+
+I retain function values inside records, arrays and maps. Array/map copies carry
+shared element storage, including handles nested inside copied records. Writes
+through either alias therefore reach calls through the other. Function scalar
+assignments still flow forward, so a destination's other targets do not rewrite
+an unrelated producer. My analysis is conservative and does not execute branch
+conditions or distinguish map keys and array indices.
+
+I run this pass in `nvm2c` when the module contains both function references and
+indirect calls. Without a reference producer it adds no target evidence, and I
+retain the existing classifier refusal. I preserve analysis storage through
+classification/emission and release it on success or failure.
+
+This pass does not validate argument value tags, admit native storage types,
+resolve closures/imported callable handles, or emit calls. Other values begin as
+unknown target provenance; a target set does not authorize an integer to act as
+a function. My native classifier must consume the completed sets and retain all
+ordinary type, ownership and signature checks. Unresolved call sites remain
+unresolved, rather than gaining every function with the same arity.
+
+## Connection still required
 
 For each indirect call I must validate every retained target's arity, result count
 and argument/result representations; propagate arguments and returned values; and
@@ -60,3 +81,13 @@ This establishes constraint behavior, not native indirect-call execution.
 My adjacent `make test-nvm2c` gate also passes all 2,431 structured-C checks and
 the opcode-coverage and sanitizer-driver controls. I reran the normal shape
 target after adding the final late-producer and target-set-growth controls.
+
+My `test-nvm2c-callables` fixture passes 204 checks for returned functions,
+indirect function-valued arguments/results, branch and loop joins, globals,
+record/array/map aliases, zero-valued target IDs and malformed inputs. It also
+checks that the integrated translator rejects mismatched arity/result counts.
+Including my archived source-generated returned-function module raises this to
+300 checks and proves the expected four call-site target sets. The complete
+fixture passes with fresh ASan/UBSan objects and leak detection enabled; native
+indirect execution remains unimplemented. I retain the [analysis checkpoint](
+evidence/native-callable-analysis-20261007/README.md) and its initial failures.

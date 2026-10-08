@@ -408,7 +408,7 @@ NANOISA_DIR = $(SRC_DIR)/nanoisa
 NANOISA_MODULE_DIR = modules/nanoisa
 NANOISA_SOURCES = $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/service_file_nominal.c $(NANOISA_DIR)/service_file_nominal_plan.c $(NANOISA_DIR)/service_bindings.c $(NANOISA_DIR)/service_bindings_module.c $(NANOISA_DIR)/mixed_float_proof.c $(NANOISA_DIR)/managed_array_shapes.c $(NANOISA_DIR)/local_bindings.c $(NANOISA_DIR)/affine_bytecode.c $(NANOISA_DIR)/affine_state.c $(NANOISA_DIR)/ownership_contracts.c $(NANOISA_DIR)/retained_layouts.c $(NANOISA_DIR)/reference_places.c $(NANOISA_DIR)/passive.c $(NANOISA_DIR)/isa.c $(NANOISA_DIR)/verifier_types.c $(NANOISA_DIR)/nvm_format.c $(NANOISA_DIR)/nvm_format_v2.c $(NANOISA_DIR)/nvm_v2_cursor.c $(NANOISA_DIR)/nvm_v2_constants.c $(NANOISA_DIR)/nvm_v2_signatures.c $(NANOISA_DIR)/nvm_v2_layouts.c $(NANOISA_DIR)/nvm_v2_functions.c $(NANOISA_DIR)/nvm_v2_imports.c $(NANOISA_DIR)/nvm_v2_module.c $(NANOISA_DIR)/nvm_v2_convert.c \
 	$(NANOISA_DIR)/assembler.c $(NANOISA_DIR)/disassembler.c \
-	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c $(NANOISA_DIR)/nvm2c_shape.c \
+	$(NANOISA_DIR)/verifier.c $(NANOISA_DIR)/nvm2c.c $(NANOISA_DIR)/nvm2c_shape.c $(NANOISA_DIR)/nvm2c_callables.c \
 	$(NANOISA_DIR)/frontend.c
 VM_DECODE_OBJECT = $(OBJ_DIR)/nanovm/vm_decode.o
 VM_DISPATCH_OBJECT = $(OBJ_DIR)/nanovm/vm_dispatch.o
@@ -536,6 +536,12 @@ test-one-ir-compiler: $(COMPILER_C) nano_virt nvm2c nanoisa_dump nano_vm nvm2c-r
 test-native-product-pipeline: nano_virt nano_vm nvm2c nvm2c-runtime
 	@python3 -m unittest -v tests.test_native_product_pipeline
 
+.PHONY: test-nvm2c-callables
+test-nvm2c-callables: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_nvm2c_callables \
+		tests/nanoisa/test_nvm2c_callables.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
+	@$(OBJ_DIR)/test_nvm2c_callables
+
 .PHONY: test-nvm2c-shapes
 test-nvm2c-shapes: | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o $(OBJ_DIR)/test_nvm2c_shape \
@@ -552,7 +558,7 @@ test-nvm2c-sanitizer-driver:
 test-nvm2c-opcode-coverage:
 	@python3 -m unittest tests.test_nvm2c_opcode_coverage
 
-test-nvm2c: test-nvm2c-opcode-coverage test-nvm2c-sanitizer-driver test-nvm2c-shapes nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+test-nvm2c: test-nvm2c-callables test-nvm2c-opcode-coverage test-nvm2c-sanitizer-driver test-nvm2c-shapes nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running nvm2c structured-C tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $(NVM2C_TEST_BINARY) \
 		tests/nanoisa/test_nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
