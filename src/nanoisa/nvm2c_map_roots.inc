@@ -69,6 +69,8 @@
 "        else if (root.kind == 3 || root.kind == 10 || root.kind == 12 || root.kind == 14) {\n"
 "            const narr_s *a = root.ptr;\n"
 "            nroot_add(work, 128, a->owner);\n"
+"            if (root.kind == 14) for (size_t i = 0; i < a->len; ++i)\n"
+"                nroot_add(work, 4, narr_environment((narr_t)a, i));\n"
 "        }\n"
 "        else if (root.kind == 5) {\n"
 "            const nsarr_s *a = root.ptr;\n"

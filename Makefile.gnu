@@ -530,11 +530,11 @@ $(BIN_DIR)/nano_aot_runtime.o: $(AOT_RUNTIME_OBJECTS) | $(BIN_DIR)
 
 .PHONY: test-one-ir-compiler
 test-one-ir-compiler: $(COMPILER_C) nano_virt nvm2c nanoisa_dump nano_vm nvm2c-runtime
-	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_root_scaling tests.test_native_collection_debt tests.test_native_map_byte_debt tests.test_native_string_retention tests.test_native_host_strings tests.test_native_aggregate_retention tests.test_native_record_growth tests.test_native_record_locals tests.test_native_map_lifetimes tests.test_native_map_globals tests.test_native_record_array_globals tests.test_native_string_joins tests.test_nanovm_guest_args tests.test_field_metadata_lookup tests.test_native_callables tests.test_native_closures
+	@python3 -m unittest tests.test_one_ir_compiler tests.test_native_root_scaling tests.test_native_collection_debt tests.test_native_map_byte_debt tests.test_native_string_retention tests.test_native_host_strings tests.test_native_aggregate_retention tests.test_native_record_growth tests.test_native_record_locals tests.test_native_map_lifetimes tests.test_native_map_globals tests.test_native_record_array_globals tests.test_native_string_joins tests.test_nanovm_guest_args tests.test_field_metadata_lookup tests.test_native_callables tests.test_native_closures tests.test_native_closure_arrays
 
 .PHONY: test-native-callables
 test-native-callables: nvm2c nanoisa_dump nano_vm
-	@python3 -m unittest -v tests.test_native_callables tests.test_native_closures
+	@python3 -m unittest -v tests.test_native_callables tests.test_native_closures tests.test_native_closure_arrays
 
 .PHONY: test-native-product-pipeline
 test-native-product-pipeline: nano_virt nano_vm nvm2c nvm2c-runtime

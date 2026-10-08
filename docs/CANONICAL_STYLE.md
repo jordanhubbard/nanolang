@@ -139,7 +139,8 @@ producer now passes these named-function container cases, including recursive
 callback signatures and invalid-signature prior-output preservation. My native translator now also executes the canonical returned closure chain,
 with tagged environments, alias mutation and managed captures tested across
 collection. My self-hosted producer still rejects captured lexical names, and
-native function arrays still hold named IDs only. Captured-closure parity remains
+native function arrays now retain both named targets and owned closure
+environments through mutation, growth and collection, including unreachable cycles. Captured-closure parity remains
 a release requirement; the completed native environment cases do not close it.
 
 My C-seed checker derives a mapped array's element type from the transform's

@@ -97,13 +97,16 @@ string fields retain their ordinary roots. I test
 nested records and record arrays across observed collections, plus malformed
 storage tags, payload tags and target indices.
 
-I store function arrays in the ordinary owned word-array allocation with a
-separate function-element storage kind. Reads restore the function tag, while
-missing indices retain the void tag. Writes check the function tag; aliases
-share mutations through locals, globals and record fields. The array allocation
-is traced, but its function IDs are not heap edges. My deferred array-read shape
-also preserves this optional result. Tagged function equality and ordering use
-target indices, and tagged array printing matches my VM's function notation.
+I store callable arrays in the ordinary owned word-array allocation with a
+separate function-element storage kind. The owner lazily allocates environment
+pointers for captured elements. Reads restore function or closure tags; missing
+indices retain the void tag. Writes validate callable tags and replace both
+target and environment. Aliases share mutations through locals, globals and
+record fields, including growth. My collector follows environment edges and
+reclaims unreachable array/environment cycles. Function IDs are not heap edges.
+My deferred array-read shape preserves the optional result. Named equality uses
+target indices; closure equality uses environment identity. Printing retains
+my VM's distinct `fn` and `closure` notation.
 
 My retained C-seed container module now executes in both VM and native products.
 My self-hosted producer now emits that same named-function source successfully. Closures and other open release requirements remain necessary.
@@ -132,8 +135,8 @@ record-owner collection and shutdown cleanup reclaim environments.
 My [native environment checkpoint](evidence/native-closure-environments-20261008/README.md)
 executes the unchanged C-seed-produced canonical returned chain and exercises
 managed captures across observed collection under ASan/UBSan/LSan. My self-hosted
-producer still lacks lexical capture lowering, and my function arrays still
-store named IDs only. The complete captured-function and release rows stay open.
+producer still lacks lexical capture lowering. My [array checkpoint](evidence/native-closure-arrays-20261008/README.md)
+now tests mixed named and captured elements, aliases, growth and cycle collection. The complete captured-function and release rows stay open.
 
 ## Constraint validation
 

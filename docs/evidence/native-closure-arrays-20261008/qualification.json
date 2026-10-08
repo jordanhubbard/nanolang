@@ -1,0 +1,41 @@
+{
+  "base_commit": "3f2defe23d2e52e0c31718dc8adc9397d29e8c0f",
+  "task": "task_f9059876cb0b463a8d51244f759e55c9",
+  "source_sha256": {
+    "src/nanoisa/nvm2c.c": "1ccb571c3f298b4b1188937d82856689b8860462d336951cab48b601cfceb264",
+    "src/nanoisa/nvm2c_map_roots.inc": "43deea1567f7322fbfe719001edcfbec2a5aa9529c8e951df63ec7e30a0d0ee6",
+    "tests/test_native_closure_arrays.py": "be7eb7c538a02656777834373e4429869b7248bdefc27bf77cbb25fce4becc7a",
+    "Makefile.gnu": "14d9809137be5bf1444f9773f0437d0064183449cae2a2752a220752c7ebfe12"
+  },
+  "artifacts_sha256": {
+    "first-tests.log": "d7419579a1a2af58d1dd8afba0efeaa464cdf773cba09e73e595a26081b75b48",
+    "final-parity.log": "e88d10bf3514b66b8489e202c4b2a26cf348c43f7f9ba2465412a9ef36bc7c56",
+    "build2.log": "b24a2754d8bac6a28cb2e88332dd8ac592451dd6f1d978f80e308bdcd69a7c23",
+    "repaired-native.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cc.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "adjacent.log": "3d8429e6e6906feb22cbb89f50f7187df2539515899f2228300aa8c3b8604247",
+    "README.md": "619718995e50c21364d96b67db30374c0d7309a43e0f25d6cbc759d9d4360266",
+    "final-build.log": "b24a2754d8bac6a28cb2e88332dd8ac592451dd6f1d978f80e308bdcd69a7c23",
+    "native.log": "f96f8ff4cb61aa03cc68aa711d0207fce074c3c292d34f97df565e9edb05581e",
+    "translate.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "manifest.json": "5cddb80a093c7655a6a5263d4b553216b0719ed6b130572f484fe2817a1203db",
+    "input.nasm": "d7acdd4a74d7e127a9572084f85fb98894752b4e7d98475636c549e9608648da",
+    "repaired-cc.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "assemble.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "vm.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "repaired-translate.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "parity.log": "059f939c3120523d564e18b84354f0dfa07b9103eae4df13389911bdcc9d5841",
+    "repaired-manifest.json": "e41b5c351e96cb600853c19af7fe7774646e477654500232206f0ba5f317b028",
+    "build.log": "bd0c01792f61048576e937c73d1efb8fa85d342bfefa44433537643854ff6ba1"
+  },
+  "terminals": {
+    "first_build": 2,
+    "corrected_build": 0,
+    "final_build": 0,
+    "first_tests": 0,
+    "adjacent": 0,
+    "parity": 0,
+    "final_parity": 0,
+    "native": 0
+  }
+}
