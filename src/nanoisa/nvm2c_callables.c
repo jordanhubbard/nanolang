@@ -174,6 +174,10 @@ static int collect_function(Analysis *a, uint32_t function) {
             for (int i = 0; i < pop; ++i)
                 if (!flow(a, stack[base + (size_t)i], field(a, output[0], 0))) goto done;
             break;
+        case OP_ARR_SLICE:
+            if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY)) ||
+                !flow(a, field(a, stack[base], 0), field(a, output[0], 0))) goto done;
+            break;
         case OP_ARR_GET: output[0] = field(a, stack[base], 0); break;
         case OP_ARR_SET: case OP_ARR_PUSH:
             output[0] = stack[base];

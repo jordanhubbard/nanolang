@@ -62,6 +62,32 @@ class NanoISASlice(unittest.TestCase):
     def test_bounds_bits_and_record_children(self):
         self.qualify("bits", (ROOT / "tests/nanoisa/fixtures/array_slice_bits.nano.txt").read_text())
 
+    def test_byte_slice(self):
+        self.qualify("bytes", """fn main() -> int {
+ let mut bytes: array<u8> = []
+ set bytes (array_push bytes 255)
+ assert (== (at (array_slice bytes 0 1) 0) 255)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+""")
+
+    def test_closure_environment_copy(self):
+        self.qualify("closures", """fn make(n:int)->fn()->int { return fn()->int { return n } }
+shadow make { let f:fn()->int = (make 7) assert (== (f) 7) }
+fn main()->int {
+ let values:array<fn()->int> = [(make 7), (make 9)]
+ let copy:array<fn()->int> = (array_slice values 0 2)
+ (array_set values 0 (make 1))
+ let first:fn()->int = (at copy 0)
+ let second:fn()->int = (at copy 1)
+ assert (== (first) 7)
+ assert (== (second) 9)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+""")
+
     def test_argument_order_once(self):
         self.qualify("order", """let mut trace: int = 0
 fn values() -> array<int> { set trace (+ (* trace 10) 1) return [7, 8, 9] }

@@ -1995,6 +1995,25 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             }
             break;
         }
+        case OP_ARR_SLICE: {
+            Nvm2cSimSlot end, start_value, array;
+            if (!sim_pop(b, idx, stk, &sp, &end) ||
+                !sim_pop(b, idx, stk, &sp, &start_value) ||
+                !sim_pop(b, idx, stk, &sp, &array)) return 0;
+            if (!shape_type(b, array.shape, NVM_SHAPE_ARRAY)) return 0;
+            if (array.kind != NVM2C_VK_UNK && array.kind != NVM2C_VK_VALUE &&
+                !word_array_storage(array.kind) && array.kind != NVM2C_VK_SARR &&
+                array.kind != NVM2C_VK_RARR) {
+                nvm2c_fail(b, "I require an array for ARR_SLICE"); return 0;
+            }
+            NvmShapeId original = array.shape;
+            array.shape = shape_variable(b, b->shape_current);
+            array.origin = -1;
+            if (!shape_type(b, array.shape, NVM_SHAPE_ARRAY) ||
+                !shape_equal(b, shape_child(b, array.shape, 0), shape_child(b, original, 0)) ||
+                !sim_push_slot(b, idx, stk, &sp, array)) return 0;
+            break;
+        }
         case OP_ARR_LEN: {
             Nvm2cSimSlot v;
             if (!sim_pop(b, idx, stk, &sp, &v)) return 0;
@@ -4645,6 +4664,32 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_printf(b, "    ncall_array_set(a[%d], %d, v[%d]);\n", result, ei, elems[ei]);
             break;
         }
+        case OP_ARR_SLICE: {
+            int end = stack_pop_expect(b, &st, NVM2C_VK_INT, "ARR_SLICE end");
+            int begin = stack_pop_expect(b, &st, NVM2C_VK_INT, "ARR_SLICE start");
+            uint8_t kind;
+            int array = stack_pop_kind(b, &st, &kind);
+            if (b->failed) goto done;
+            char expression[128];
+            if (word_array_storage(kind)) {
+                snprintf(expression, sizeof expression, "narr_slice(a[%d], t[%d], t[%d])", array, begin, end);
+                stack_push_iarray(b, &st, expression, kind);
+            } else if (kind == NVM2C_VK_SARR) {
+                snprintf(expression, sizeof expression, "nsarr_slice(sa[%d], t[%d], t[%d])", array, begin, end);
+                stack_push_sarr(b, &st, expression);
+            } else if (kind == NVM2C_VK_RARR) {
+                snprintf(expression, sizeof expression, "nrarr_slice(ra[%d], t[%d], t[%d])", array, begin, end);
+                int result = stack_push_rarr(b, &st, expression);
+                if (result < 0 || b->failed) goto done;
+                memcpy(st.rarr_k[result], st.rarr_k[array], b->record_width);
+            } else if (kind == NVM2C_VK_VALUE) {
+                snprintf(expression, sizeof expression, "nvalue_array_slice(v[%d], t[%d], t[%d])", array, begin, end);
+                stack_push_value(b, &st, expression);
+            } else {
+                nvm2c_fail(b, "I require an array representation for ARR_SLICE"); goto done;
+            }
+            break;
+        }
         case OP_ARR_LEN: {
             uint8_t ak = NVM2C_VK_INT;
             int arr = stack_pop_kind(b, &st, &ak);
@@ -5956,6 +6001,59 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         "    }\n    fputc(']', stdout);\n}\n");
 }
 
+static void emit_array_slices(Nvm2cBuf *b, int integers, int strings, int records) {
+    nvm2c_puts(b,
+        "static inline void nslice_bounds(size_t length, int64_t begin, int64_t end, size_t *start, size_t *count) {\n"
+        "    size_t lo = (uint32_t)begin, hi = (uint32_t)end;\n"
+        "    if (lo > length) lo = length;\n"
+        "    if (hi > length) hi = length;\n"
+        "    *start = lo; *count = hi > lo ? hi - lo : 0;\n"
+        "}\n");
+    if (integers) nvm2c_puts(b,
+        "static inline narr_t narr_slice(narr_t input, int64_t begin, int64_t end) {\n"
+        "    if (!input) NVM2C_ABORT();\n"
+        "    size_t start, count; nslice_bounds(input->len, begin, end, &start, &count);\n"
+        "    narr_t result = narr_new(); narr_reserve(result, count);\n"
+        "    if (count) memcpy(result->data, input->data + start, count * sizeof *result->data);\n"
+        "    result->len = count;\n"
+        "    for (size_t i = 0; i < count; ++i) {\n"
+        "        const void *environment = narr_environment(input, start + i);\n"
+        "        if (environment) ncall_array_set(result, i, (nmap_value){15, result->data[i], (char *)environment});\n"
+        "    }\n"
+        "    return result;\n"
+        "}\n");
+    if (strings) nvm2c_puts(b,
+        "static inline nsarr_t nsarr_slice(nsarr_t input, int64_t begin, int64_t end) {\n"
+        "    if (!input) NVM2C_ABORT();\n"
+        "    size_t start, count; nslice_bounds(input->len, begin, end, &start, &count);\n"
+        "    nsarr_t result = nsarr_new(); nsarr_reserve(result, count);\n"
+        "    if (count) memcpy(result->data, input->data + start, count * sizeof *result->data);\n"
+        "    result->len = count;\n"
+        "    return result;\n"
+        "}\n");
+    if (records) nvm2c_puts(b,
+        "static inline nrarr_t nrarr_slice(nrarr_t input, int64_t begin, int64_t end) {\n"
+        "    if (!input) NVM2C_ABORT();\n"
+        "    size_t start, count; nslice_bounds(input->len, begin, end, &start, &count);\n"
+        "    nrarr_t result = nrarr_new(); nrarr_reserve(result, count);\n"
+        "    if (count) memcpy(result->data, input->data + start, count * sizeof *result->data);\n"
+        "    result->len = count;\n"
+        "    return result;\n"
+        "}\n");
+    nvm2c_puts(b,
+        "static inline nmap_value nvalue_array_slice(nmap_value a, int64_t begin, int64_t end) {\n"
+        "    if (a.kind != 7 || !a.text) NVM2C_ABORT();\n");
+    if (integers) nvm2c_puts(b,
+        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12 || a.integer == 14) { a.text = (char *)narr_slice((narr_t)a.text, begin, end); return a; }\n");
+    if (strings) nvm2c_puts(b,
+        "    if (a.integer == 5) { a.text = (char *)nsarr_slice((nsarr_t)a.text, begin, end); return a; }\n");
+    if (records) nvm2c_puts(b,
+        "    if (a.integer == 6) { a.text = (char *)nrarr_slice((nrarr_t)a.text, begin, end); return a; }\n");
+    nvm2c_puts(b,
+        "    (void)begin; (void)end; NVM2C_ABORT();\n"
+        "}\n");
+}
+
 static void emit_host_normalize(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "static inline const char *nhost_normalize(const char *path) {\n"
@@ -6480,7 +6578,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.has_owned_aggregates = (module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW)) ||
         module_has_opcode(mod, OP_ARR_NEW) || module_has_opcode(mod, OP_ARR_LITERAL) ||
         module_has_opcode(mod, OP_ARR_PUSH) || module_has_opcode(mod, OP_ARR_GET) ||
-        module_has_opcode(mod, OP_ARR_SET) || module_has_opcode(mod, OP_ARR_LEN) ||
+        module_has_opcode(mod, OP_ARR_SET) || module_has_opcode(mod, OP_ARR_LEN) || module_has_opcode(mod, OP_ARR_SLICE) ||
         module_uses_host(mod, "nhost_walk");
     for (uint32_t f = 0; f < mod->function_count; ++f) {
         if (mod->functions[f].result_tag == TAG_ARRAY) b.has_owned_aggregates = 1;
@@ -6815,6 +6913,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             module_has_opcode(mod, OP_PUSH_STR) ||
             module_has_opcode(mod, OP_STR_LEN);
         int need_arr_lit = module_has_opcode(mod, OP_ARR_LITERAL);
+        int need_arr_slice = module_has_opcode(mod, OP_ARR_SLICE);
         int need_arr_get = module_has_opcode(mod, OP_ARR_GET);
         int need_arr_push = module_has_opcode(mod, OP_ARR_PUSH);
         int need_iarr_new = module_has_array_constructor(&b, mod, kinds, NVM2C_VK_ARR) ||
@@ -7241,7 +7340,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "static void nrec_release_snapshots(void) {\n"
             "    while (nrec_owned_head) { nrec_owned *node = nrec_owned_head;\n"
             "        nrec_owned_head = node->next; nagg_drop(sizeof *node); free(node); }\n}\n");
-        if (need_rarr) emit_nrarr_helpers(&b, need_rarr_lit || module_has_opcode(mod, OP_ARR_NEW),
+        if (need_rarr) emit_nrarr_helpers(&b, need_arr_slice || need_rarr_lit || module_has_opcode(mod, OP_ARR_NEW),
                                          need_rarr_lit || need_arr_push, need_arr_get);
         if (b.has_maps) {
             nvm2c_puts(&b,
@@ -7297,6 +7396,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (need_sarr_push) emit_nsarr_push(&b);
         if (b.has_maps) emit_tagged_array_helpers(&b, need_iarr_push, need_sarr_push,
                                                 need_iarr_get, need_sarr_get, need_print);
+        if (need_arr_slice) emit_array_slices(&b, need_iarr, need_sarr, need_rarr);
     }
 
     {
@@ -7345,6 +7445,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             else nvm2c_puts(&b, "    (void)argv;\n");
         } else nvm2c_puts(&b, "int main(void) {\n");
         nvm2c_puts(&b, "    (void)nf64_to_i64;\n");
+        if (module_has_opcode(mod, OP_ARR_SLICE)) nvm2c_puts(&b, "    (void)nvalue_array_slice;\n");
         if (b.has_maps || module_has_opcode(mod, OP_CAST_FLOAT))
             nvm2c_puts(&b, "    (void)nparse_binary64;\n");
         if (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN) ||

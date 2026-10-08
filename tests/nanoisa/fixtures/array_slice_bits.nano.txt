@@ -7,9 +7,6 @@ fn main() -> int {
     let child: array<int> = [10, 11, 12, 13]
     assert (== (array_length (array_slice child -9223372036854775808 -9223372036854775808)) 0)
     assert (== (array_length (array_slice child -9223372036854775808 9223372036854775807)) 4)
-    let mut bytes: array<u8> = []
-    set bytes (array_push bytes 255)
-    assert (== (at (array_slice bytes 0 1) 0) 255)
     let records: array<Pair> = [Pair { number: 42, child: child }]
     let copied: array<Pair> = (array_slice records 0 1)
     let retained: Pair = (at copied 0)
