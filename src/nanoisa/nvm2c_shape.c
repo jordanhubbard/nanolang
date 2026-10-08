@@ -11,11 +11,13 @@ struct NvmShapeNode {
     int conversion_kind;
     ShapeEdge *edges;
     size_t count, capacity;
+    uint32_t *functions;
+    size_t function_count, function_capacity;
 };
 typedef struct { NvmShapeId a, b; } ShapePair;
 
 static const char *kind_name(NvmShapeKind kind) {
-    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric", "variant-scalar", "variant-int-array"};
+    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric", "variant-scalar", "variant-int-array", "function"};
     return names[kind];
 }
 
@@ -50,7 +52,10 @@ static void *grow(NvmShapeGraph *g, void *data, size_t *capacity,
 }
 
 void nvm_shape_destroy(NvmShapeGraph *g) {
-    for (size_t i = 0; i < g->count; ++i) free(g->nodes[i].edges);
+    for (size_t i = 0; i < g->count; ++i) {
+        free(g->nodes[i].edges);
+        free(g->nodes[i].functions);
+    }
     free(g->nodes);
     free(g->conversions);
     free(g->array_reads);
@@ -59,7 +64,7 @@ void nvm_shape_destroy(NvmShapeGraph *g) {
 
 NvmShapeId nvm_shape_new(NvmShapeGraph *g, NvmShapeKind kind) {
     if (g->error) return 0;
-    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_VARIANT_INT_ARRAY)
+    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_FUNCTION)
         return fail(g, "I cannot create an invalid shape kind");
     if (g->count >= UINT32_MAX)
         return fail(g, "I cannot represent another shape ID");
@@ -87,6 +92,53 @@ NvmShapeId nvm_shape_root(NvmShapeGraph *g, NvmShapeId id) {
 NvmShapeKind nvm_shape_kind(NvmShapeGraph *g, NvmShapeId id) {
     NvmShapeId root = nvm_shape_root(g, id);
     return root ? g->nodes[root - 1].kind : NVM_SHAPE_UNKNOWN;
+}
+
+static int function_add(NvmShapeGraph *g, NvmShapeNode *node, uint32_t target,
+                        int *changed) {
+    size_t at = 0;
+    while (at < node->function_count && node->functions[at] < target) ++at;
+    if (at < node->function_count && node->functions[at] == target) return 1;
+    uint32_t *next = grow(g, node->functions, &node->function_capacity,
+                          node->function_count + 1, sizeof *next);
+    if (!next) return 0;
+    node->functions = next;
+    memmove(next + at + 1, next + at, (node->function_count - at) * sizeof *next);
+    next[at] = target;
+    ++node->function_count;
+    *changed = 1;
+    return 1;
+}
+
+int nvm_shape_function_add(NvmShapeGraph *g, NvmShapeId id, uint32_t target) {
+    NvmShapeId root = nvm_shape_root(g, id);
+    if (!root) return 0;
+    NvmShapeNode *node = &g->nodes[root - 1];
+    if ((node->kind != NVM_SHAPE_UNKNOWN && node->kind != NVM_SHAPE_FUNCTION) || node->count)
+        return fail(g, "I require an exact function shape for a callable target");
+    node->kind = NVM_SHAPE_FUNCTION;
+    int changed = 0;
+    return function_add(g, node, target, &changed);
+}
+
+size_t nvm_shape_function_count(NvmShapeGraph *g, NvmShapeId id) {
+    NvmShapeId root = nvm_shape_root(g, id);
+    if (!root) return 0;
+    if (g->nodes[root - 1].kind != NVM_SHAPE_FUNCTION) {
+        fail(g, "I require a function shape before inspecting callable targets");
+        return 0;
+    }
+    return g->nodes[root - 1].function_count;
+}
+
+int nvm_shape_function_target(NvmShapeGraph *g, NvmShapeId id,
+                             size_t index, uint32_t *target) {
+    size_t count = nvm_shape_function_count(g, id);
+    if (g->error) return 0;
+    if (!target || index >= count)
+        return fail(g, "I require an existing callable target and an output slot");
+    *target = g->nodes[nvm_shape_root(g, id) - 1].functions[index];
+    return 1;
 }
 
 static int allows_edge(NvmShapeKind kind, uint32_t index) {
@@ -153,6 +205,12 @@ int nvm_shape_unify(NvmShapeGraph *g, NvmShapeId a, NvmShapeId b) {
         y->parent = left;
         x->kind = kind;
         if (x->rank == y->rank) ++x->rank;
+        int changed = 0;
+        for (size_t i = 0; i < y->function_count && !g->error; ++i)
+            function_add(g, x, y->functions[i], &changed);
+        free(y->functions);
+        y->functions = NULL;
+        y->function_count = y->function_capacity = 0;
         for (size_t i = 0; i < y->count && !g->error; ++i) {
             ShapeEdge edge = y->edges[i];
             size_t at = 0;
@@ -312,6 +370,11 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
                      "I cannot convert aggregate storage %s to %s at nodes %u/%u",
                      kind_name(from), kind_name(to), source, target);
             fail(g, g->error_detail); break;
+        }
+        if (from == NVM_SHAPE_FUNCTION) {
+            NvmShapeNode *producer = &g->nodes[source - 1], *storage = &g->nodes[target - 1];
+            for (size_t i = 0; i < producer->function_count && !g->error; ++i)
+                function_add(g, storage, producer->functions[i], changed);
         }
         size_t edges = g->nodes[source - 1].count;
         for (size_t i = 0; i < edges && !g->error; ++i) {
