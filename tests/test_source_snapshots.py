@@ -2613,6 +2613,24 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                     self.assertEqual(list(generation.glob("__snapshot_*")), [])
                     self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
 
+    def test_unadmitted_expansion_preserves_original_argument_evaluation(self):
+        with tempfile.TemporaryDirectory(prefix="nano-unadmitted-expansion-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.support.foreign_build_fixture(directory)
+            (module / "answer.c").write_text("long long nano_build_answer(void) { return ANSWER; }\n")
+            for value, expected in ((None, 42), ("43", 43)):
+                with self.subTest(value=value):
+                    env.pop("NANO_SNAPSHOT_FALLBACK_ANSWER", None)
+                    if value is not None:
+                        env["NANO_SNAPSHOT_FALLBACK_ANSWER"] = value
+                    (module / "module.json").write_text(json.dumps({"name": "answer_native",
+                        "c_sources": ["answer.c"],
+                        "cflags": ["-Wall -DANSWER=${NANO_SNAPSHOT_FALLBACK_ANSWER:-42} -Werror"]}))
+                    self.support.probe_path("build", module, env)
+                    generation = self.support.probe_path("directory", module, env)
+                    self.assertEqual(list(generation.glob("__snapshot_*")), [])
+                    self.assertEqual(self.answer(self.support.probe_path("library", module, env)), expected)
+
     def test_response_file_restored_arguments(self):
         observed = measure(shutil.which("cc"), ("response",))
         require_consistent(observed)

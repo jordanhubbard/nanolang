@@ -1,0 +1,19 @@
+test_unknown_fragments_keep_original_compilation (tests.test_source_snapshots.SourceSnapshots.test_unknown_fragments_keep_original_compilation) ... 
+  test_unknown_fragments_keep_original_compilation (tests.test_source_snapshots.SourceSnapshots.test_unknown_fragments_keep_original_compilation) (flags=['-O${NANO_TEST_LEVEL:-2}']) ... FAIL
+
+======================================================================
+FAIL: test_unknown_fragments_keep_original_compilation (tests.test_source_snapshots.SourceSnapshots.test_unknown_fragments_keep_original_compilation) (flags=['-O${NANO_TEST_LEVEL:-2}'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-capture-ae92c0488-cow/tests/test_source_snapshots.py", line 2611, in test_unknown_fragments_keep_original_compilation
+    self.support.probe_path("build", module, env)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-capture-ae92c0488-cow/tests/test_module_cache_publication.py", line 46, in probe_path
+    self.assertEqual(result.returncode, 0, result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'Error: Failed to compile module answer_native\n'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.494s
+
+FAILED (failures=1)

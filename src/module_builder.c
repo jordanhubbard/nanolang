@@ -3572,7 +3572,15 @@ static bool module_append_source_fragment(const ModuleBuildMetadata *meta, const
     }
     if (retained)
         return module_append_compiler_fragment(meta, flags, fragment, retained, output, capacity);
-    /* Compile-only fallback jobs still must not receive linker operands.
+    /* I filter literal argument sequences only. An unadmitted shell fragment
+     * keeps its original compilation path and remains ineligible for capture. */
+    const char *literal_cursor = fragment;
+    char literal_word[4096];
+    int literal_status;
+    while ((literal_status = module_flag_word(&literal_cursor, literal_word, sizeof(literal_word))) > 0) {}
+    if (literal_status < 0)
+        return module_append_compiler_fragment(meta, flags, fragment, false, output, capacity);
+    /* Compile-only fallback jobs still must not receive literal linker operands.
      * Capturing linker provenance controls caching, not the driver's phase. */
     size_t length = strlen(fragment);
     if (length > (SIZE_MAX - 16) / 4) return false;
