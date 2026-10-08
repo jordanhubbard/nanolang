@@ -7,15 +7,16 @@ request. The remote worker has not acknowledged this handoff.
 ## Published checkpoints
 
 My implementation branch is `release/5.1-completion-20261007`, PR #974.
-Its current pushed pin is `f761e48e8`. The full compiler-product gate at
+Its current pushed pin is `a055b57c1`. The full compiler-product gate at
 `1321b8bdf` passes all 109 methods. HEAD and tracked sources stay unchanged;
 only the user's untracked test remains, with an unchanged hash.
 
-My separate `fix/5.1-retire-legacy-globals-20261008` branch is at `35abdee6b`.
+My separate `fix/5.1-retire-legacy-globals-20261008` branch is at `221c200d7`.
 The checker correction at `b76b33a53` passes a clean raw bootstrap: Stage1
 and Stage2 are byte-identical, 492,432 bytes, SHA256
 `a729c1d528ecd8dc29621583fa2da855df6a4ff0f3433817512c03657213642c`.
-I will integrate it into the release branch after my current tests finish.
+All 72 installed C-seed/Stage1/Stage2 product checks also pass. I will integrate
+it into the release branch after my current core codegen test finishes.
 
 A full source-snapshot rerun remains live in an isolated checkout pinned to
 `f0f6a0c62`. Its prior disk-full failures are not closed until terminal results.
@@ -33,8 +34,9 @@ execution, with related edits in `src_nano/compiler/nanoisa_codegen.nano` and
 Make prerequisites. The first run exposes missing opaque-null lowering. My
 correction retains the original behavioral corpus and rejects nonzero or wrong
 opaque arguments; the full migrated suite passes 12 methods. Added forwarding
-and driver publication controls and the core codegen gate are running. These
-migration changes are not yet committed or accepted as full release coverage.
+and driver publication controls also pass. These migration changes are pushed
+at `a055b57c1`; the core codegen gate remains live. This is not full release
+acceptance.
 
 The legacy emitter still has other live callers and tests requiring migration.
 I have not reduced the release scope or claimed release readiness.
