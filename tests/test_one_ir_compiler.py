@@ -1,5 +1,6 @@
 """I require a native compiler built from bytecode to compile a real program."""
 import os
+import re
 from pathlib import Path
 import shutil
 import signal
@@ -14,6 +15,22 @@ HOST_RUNTIME = [ROOT / "bin/nano_aot_runtime.o", "-lm",
 
 
 class OneIrCompiler(unittest.TestCase):
+    def assert_no_vm_wrapper(self, source):
+        # I inspect identifiers, preserving compiler literals such as the
+        # path used to run a separately emitted shadow-test module.
+        tokens = re.compile(r'''"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|/\*.*?\*/|//[^\n]*|(?P<identifier>[A-Za-z_][A-Za-z_0-9]*)''', re.DOTALL)
+        forbidden = [match['identifier'] for match in tokens.finditer(source)
+                     if match['identifier'] and
+                     ('nano_vm' in match['identifier'] or 'nvm_blob' in match['identifier'])]
+        self.assertEqual(forbidden, [], "I require native code without VM or bytecode-blob identifiers")
+
+    def test_no_vm_wrapper_assertion_checks_code_not_literals(self):
+        self.assert_no_vm_wrapper('const char *path = "bin/nano_vm"; /* nano_vm */ // nvm_blob\n')
+        for source in ('nano_vm_run(module);', 'const unsigned char nvm_blob[] = {0};',
+                       '"escaped \\" quote"; nano_vm_run(module);'):
+            with self.subTest(source=source), self.assertRaises(AssertionError):
+                self.assert_no_vm_wrapper(source)
+
     def test_void_locals_preserve_tags_through_calls_and_tail_restarts(self):
         fixtures = {}
         for name, tag, value, consume in (
@@ -318,7 +335,7 @@ static inline void tracked_free(void *p) {
                               "--emit-nvm", "--strip-debug", "-o", module], timeout=600)
             self.assertGreater(module.stat().st_size, 0)
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
-            self.assertNotIn("nano_vm", source.read_text())
+            self.assert_no_vm_wrapper(source.read_text())
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
                               source, "-o", compiler, *HOST_RUNTIME], timeout=240)
             help_output = self.run_checked([compiler, "--help"], timeout=10)
@@ -357,7 +374,7 @@ static inline void tracked_free(void *p) {
                               "-o", module], timeout=600, extra_env=helper_env)
             self.assertGreater(module.stat().st_size, 0)
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
-            self.assertNotIn("nano_vm", source.read_text())
+            self.assert_no_vm_wrapper(source.read_text())
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
                               source, "-o", compiler, *HOST_RUNTIME], timeout=240)
             self.assertIn(b"Compiler", self.run_checked([compiler, "--help"], timeout=10))

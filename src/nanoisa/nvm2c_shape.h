@@ -22,6 +22,7 @@ typedef enum {
 } NvmShapeKind;
 typedef struct NvmShapeNode NvmShapeNode;
 typedef struct { NvmShapeId source, target; } NvmShapeConversion;
+typedef struct { NvmShapeId element, result; int resolved; } NvmShapeArrayRead;
 typedef struct {
     NvmShapeNode *nodes;
     size_t count, capacity;
@@ -29,6 +30,8 @@ typedef struct {
     char error_detail[160];
     NvmShapeConversion *conversions;
     size_t conversion_count, conversion_capacity;
+    NvmShapeArrayRead *array_reads;
+    size_t array_read_count, array_read_capacity;
 } NvmShapeGraph;
 
 void nvm_shape_destroy(NvmShapeGraph *graph);
@@ -43,6 +46,9 @@ int nvm_shape_unify(NvmShapeGraph *graph, NvmShapeId a, NvmShapeId b);
 /* Storage conversion does not equate source and destination nodes. I solve
  * these directed constraints after collecting the module's exact shapes. */
 int nvm_shape_convert(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target);
+/* I separate optional scalar reads from exact element storage, even when
+ * the element kind becomes known only through later record conversions. */
+int nvm_shape_array_read(NvmShapeGraph *graph, NvmShapeId element, NvmShapeId result);
 int nvm_shape_solve_conversions(NvmShapeGraph *graph);
 
 #endif

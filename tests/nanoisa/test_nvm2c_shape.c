@@ -356,6 +356,51 @@ static void test_finite_variant_integer_array(void) {
     nvm_shape_destroy(&g);
 }
 
+static void test_deferred_array_reads(void) {
+    const NvmShapeKind kinds[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_STRING};
+    for (size_t i = 0; i < sizeof kinds / sizeof *kinds; ++i) {
+        for (int exact = 0; exact < 2; ++exact) {
+            NvmShapeGraph g = {0};
+            NvmShapeId element = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+            NvmShapeId result = nvm_shape_new(&g, exact ? kinds[i] : NVM_SHAPE_UNKNOWN);
+            CHECK(nvm_shape_array_read(&g, element, result));
+            CHECK(nvm_shape_solve_conversions(&g));
+            CHECK(nvm_shape_kind(&g, element) == NVM_SHAPE_UNKNOWN);
+            CHECK(nvm_shape_convert(&g, nvm_shape_new(&g, kinds[i]), element));
+            CHECK(nvm_shape_solve_conversions(&g) == !exact);
+            if (!exact) {
+                CHECK(nvm_shape_kind(&g, element) == kinds[i]);
+                CHECK(nvm_shape_kind(&g, result) == NVM_SHAPE_OPTIONAL);
+                CHECK(nvm_shape_kind(&g, nvm_shape_child(&g, result, 0)) == kinds[i]);
+                size_t count = g.count, conversions = g.conversion_count;
+                CHECK(nvm_shape_solve_conversions(&g));
+                CHECK(g.count == count && g.conversion_count == conversions);
+            } else CHECK(g.error != NULL);
+            nvm_shape_destroy(&g);
+            CHECK(!g.array_reads && !g.array_read_count);
+        }
+    }
+    NvmShapeGraph g = {0};
+    NvmShapeId element = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+    NvmShapeId result = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+    NvmShapeId field = nvm_shape_child(&g, result, 0);
+    CHECK(nvm_shape_convert(&g, nvm_shape_new(&g, NVM_SHAPE_INT), field));
+    CHECK(nvm_shape_array_read(&g, element, result));
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(nvm_shape_kind(&g, element) == NVM_SHAPE_RECORD);
+    NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+    NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+    CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, optional, 0),
+                         nvm_shape_new(&g, NVM_SHAPE_INT)));
+    CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, source, 0), optional));
+    CHECK(nvm_shape_convert(&g, source, element));
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(nvm_shape_kind(&g, field) == NVM_SHAPE_OPTIONAL);
+    CHECK(nvm_shape_kind(&g, nvm_shape_child(&g, field, 0)) == NVM_SHAPE_INT);
+    CHECK(nvm_shape_root(&g, element) != nvm_shape_root(&g, result));
+    nvm_shape_destroy(&g);
+}
+
 int main(void) {
     test_finite_variant_integer_array();
     test_explicit_variant_scalar_storage();
@@ -407,6 +452,7 @@ int main(void) {
         CHECK(g.error != NULL);
         nvm_shape_destroy(&g);
     }
+    test_deferred_array_reads();
     test_map_shapes();
     test_lookup_without_constraints();
     test_cycles_and_shared_children();

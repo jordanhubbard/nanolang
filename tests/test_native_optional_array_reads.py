@@ -23,6 +23,25 @@ class OptionalArrayReads(unittest.TestCase):
             self.checked([os.environ.get('CC','cc'),'-std=c11','-O1','-Wall','-Wextra','-Werror',
                           '-fsanitize=address,undefined','-fno-sanitize-recover=all',source,'-o',binary])
             self.checked([binary])
+    def test_deferred_read_does_not_change_returned_array_storage(self):
+        for tag,value in [(1,'PUSH_I64 73'),(4,'PUSH_BOOL 1'),
+                          (3,'PUSH_F64 1.5'),(5,'PUSH_STR text')]:
+            for missing in (0,1):
+                with self.subTest(tag=tag,missing=missing):
+                    # I read through nested records before flat inference knows
+                    # the array kind, then consume that same local twice.
+                    text = '.types 2 0 0\n.string text "kept"\n.entry main\n'
+                    text += '.function read 1 2 0 struct 1\nLOAD_LOCAL 0\nAGG_GET 0\nAGG_GET 0\n'
+                    text += f'PUSH_I64 {missing}\nARR_GET\nSTORE_LOCAL 1\n'
+                    text += 'LOAD_LOCAL 1\nCALL check\nASSERT\nLOAD_LOCAL 1\nCALL check\nASSERT\nLOAD_LOCAL 0\nRET\n.end\n'
+                    text += f'.function check 1 1 0 bool 1\nLOAD_LOCAL 0\nTYPE_CHECK {0 if missing else tag}\nRET\n.end\n'
+                    text += '.function main 0 0 0 int 1\n' + value
+                    text += f'\nARR_LITERAL {tag} 1\nAGG_PACK 0 0 0 1\nAGG_PACK 0 1 0 1\nCALL read\n'
+                    text += 'AGG_GET 0\nAGG_GET 0\n' + value + '\nARR_PUSH\n'
+                    text += 'ARR_LEN\nPUSH_I64 2\nI64_EQ\nASSERT\n' + value
+                    text += f'\nARR_LITERAL {tag} 1\nPUSH_I64 {missing}\nARR_GET\nCALL check\nASSERT\nPUSH_I64 0\nRET\n.end\n'
+                    self.paired(text)
+
     def test_tags_bounds_locals_and_calls(self):
         for tag,value in [(1,'PUSH_I64 73'),(4,'PUSH_BOOL 1'),(5,'PUSH_STR text')]:
             with self.subTest(tag=tag):

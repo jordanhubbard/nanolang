@@ -1823,6 +1823,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (optional_scalar) {
                 if (!shape_type(b, result_shape, NVM_SHAPE_OPTIONAL) ||
                     !shape_equal(b, shape_child(b, result_shape, 0), element_shape)) return 0;
+            } else if (arr.kind == NVM2C_VK_UNK) {
+                if (b->track_shapes &&
+                    !nvm_shape_array_read(&b->shapes, element_shape, result_shape)) return 0;
             } else if (!shape_equal(b, result_shape, element_shape)) return 0;
             if (arr.kind == NVM2C_VK_RARR) {
                 Nvm2cSimSlot rec;

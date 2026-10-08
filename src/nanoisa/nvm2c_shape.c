@@ -53,6 +53,7 @@ void nvm_shape_destroy(NvmShapeGraph *g) {
     for (size_t i = 0; i < g->count; ++i) free(g->nodes[i].edges);
     free(g->nodes);
     free(g->conversions);
+    free(g->array_reads);
     memset(g, 0, sizeof *g);
 }
 
@@ -188,6 +189,42 @@ int nvm_shape_convert(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
 
 typedef struct { NvmShapeId source, target; int exact; } FlowPair;
 
+int nvm_shape_array_read(NvmShapeGraph *g, NvmShapeId element, NvmShapeId result) {
+    if (!nvm_shape_root(g, element) || !nvm_shape_root(g, result)) return 0;
+    NvmShapeArrayRead *next = grow(g, g->array_reads, &g->array_read_capacity,
+                                  g->array_read_count + 1, sizeof *next);
+    if (!next) return 0;
+    g->array_reads = next;
+    g->array_reads[g->array_read_count++] = (NvmShapeArrayRead){element, result, 0};
+    return 1;
+}
+
+static int solve_array_reads(NvmShapeGraph *g, int *changed) {
+    for (size_t i = 0; i < g->array_read_count && !g->error; ++i) {
+        NvmShapeArrayRead *read = &g->array_reads[i];
+        if (read->resolved) continue;
+        NvmShapeKind kind = nvm_shape_kind(g, read->element);
+        if (kind == NVM_SHAPE_UNKNOWN &&
+            nvm_shape_kind(g, read->result) == NVM_SHAPE_RECORD) {
+            /* I retain a record consumer's container requirement without
+             * equating its inferred fields with the stored record fields. */
+            if (!nvm_shape_unify(g, read->element, nvm_shape_new(g, NVM_SHAPE_RECORD))) return 0;
+            kind = NVM_SHAPE_RECORD;
+        }
+        if (kind == NVM_SHAPE_UNKNOWN) continue;
+        if (kind == NVM_SHAPE_INT || kind == NVM_SHAPE_BOOL ||
+            kind == NVM_SHAPE_FLOAT || kind == NVM_SHAPE_STRING) {
+            NvmShapeId optional = nvm_shape_new(g, NVM_SHAPE_OPTIONAL);
+            if (!optional ||
+                !nvm_shape_unify(g, nvm_shape_child(g, optional, 0), read->element) ||
+                !nvm_shape_convert(g, optional, read->result)) return 0;
+        } else if (!nvm_shape_convert(g, read->element, read->result)) return 0;
+        read->resolved = 1;
+        *changed = 1;
+    }
+    return !g->error;
+}
+
 static int flow_kind(NvmShapeGraph *g, NvmShapeId target, NvmShapeKind kind, int *changed) {
     NvmShapeNode *node = &g->nodes[target - 1];
     for (size_t i = 0; i < node->count; ++i)
@@ -315,6 +352,7 @@ int nvm_shape_solve_conversions(NvmShapeGraph *g) {
     int changed;
     do {
         changed = 0;
+        if (!solve_array_reads(g, &changed)) return 0;
         for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
             if (!flow_one(g, g->conversions[i], &changed, 0)) return 0;
     } while (changed && !g->error);

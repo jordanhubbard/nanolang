@@ -1,0 +1,13 @@
+test_projected_array_reads_constrain_container (tests.test_one_ir_compiler.OneIrCompiler.test_projected_array_reads_constrain_container) ... ok
+test_deferred_read_does_not_change_returned_array_storage (tests.test_native_optional_array_reads.OptionalArrayReads.test_deferred_read_does_not_change_returned_array_storage) ... ok
+test_mixed_record_argument_storage (tests.test_native_optional_array_reads.OptionalArrayReads.test_mixed_record_argument_storage) ... ok
+test_nested_record_present_scalar_projection (tests.test_native_optional_array_reads.OptionalArrayReads.test_nested_record_present_scalar_projection) ... ok
+test_present_and_missing_branch_join (tests.test_native_optional_array_reads.OptionalArrayReads.test_present_and_missing_branch_join) ... ok
+test_present_values_feed_typed_writes_and_records (tests.test_native_optional_array_reads.OptionalArrayReads.test_present_values_feed_typed_writes_and_records) ... ok
+test_projected_scalar_locals_calls_and_returns (tests.test_native_optional_array_reads.OptionalArrayReads.test_projected_scalar_locals_calls_and_returns) ... ok
+test_tags_bounds_locals_and_calls (tests.test_native_optional_array_reads.OptionalArrayReads.test_tags_bounds_locals_and_calls) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 12.970s
+
+OK

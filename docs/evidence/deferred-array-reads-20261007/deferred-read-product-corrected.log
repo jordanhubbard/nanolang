@@ -1,0 +1,6 @@
+test_compiler_bytecode_to_native_to_program (tests.test_one_ir_compiler.OneIrCompiler.test_compiler_bytecode_to_native_to_program) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 48.232s
+
+OK
