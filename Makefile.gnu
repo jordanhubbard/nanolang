@@ -5850,3 +5850,8 @@ test-units: test-native-record-field-transport
 test-nanoisa-match-guards: $(BIN_DIR)/nanoc_c nano_virt nano_vm nanoisa_dump nvm2c
 	CC="$(CC)" python3 -m unittest -v tests.test_nanoisa_match_guards
 test-units: test-nanoisa-match-guards
+
+.PHONY: test-canonical-match-guards
+test-canonical-match-guards: bootstrap3 nano_virt nano_vm nanoisa_dump nvm2c
+	NANOLANG_GUARD_SAN_CC="$(CC)" python3 -m unittest -v tests.test_canonical_match_guards
+test-units: test-canonical-match-guards

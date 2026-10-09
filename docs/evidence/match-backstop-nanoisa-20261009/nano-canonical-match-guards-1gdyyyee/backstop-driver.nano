@@ -1,0 +1,33 @@
+from "modules/std/env.nano" import argc, argv
+import "src_nano/parser.nano"
+import "src_nano/compiler/nanoisa_codegen.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+fn render(statement: bool, miss: bool) -> string {
+ let reset: int = (nisa_reset)
+ let text: string = "fn value(x: int) -> int { return match x { 1 if true => 7 } } fn action(x: int) -> int { match x { 1 if true => { return 7 } } return 99 }"
+ let tokens: List<LexerToken> = (tokenize_string text "unchecked.nano" (list_CompilerDiagnostic_new))
+ let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "unchecked.nano")
+ set nisa_names ["x"]
+ set nisa_types ["int"]
+ set nisa_return_type "int"
+ let mut body: string = ""
+ if statement { set body (+ (nisa_emit_match_cases parsed 1 "") "  PUSH_I64 99\n  RET\n") }
+ else { set body (+ (nisa_emit_match_cases parsed 0 "int") "  RET\n") }
+ if (not nisa_ok) { return "" }
+ let input: string = (cond (miss "2") (else "1"))
+ return (+ ".types 0 0 0\n.entry 0\n.function main 0 0 0 int 1\n  PUSH_I64 " (+ input (+ "\n  CALL probe\n  PUSH_I64 7\n  I64_SUB\n  RET\n.end\n.function probe 1 1 0 int 1\n" (+ body ".end\n"))))
+}
+shadow render {
+ assert (str_contains (render false false) "PUSH_I64 7")
+ assert (str_contains (render true true) "PUSH_BOOL 0\n  ASSERT\n  HALT")
+ assert (str_contains (render false true) "PUSH_I64 2\n  CALL probe")
+ assert (== (nisa_reset) 0)
+}
+fn main() -> int {
+ if (!= (argc) 3) { return 2 }
+ let result: string = (render (== (argv 1) "statement") (== (argv 2) "miss"))
+ if (== result "") { return 1 }
+ (print result)
+ return 0
+}
+shadow main { assert (str_contains (render false false) ".entry 0") }

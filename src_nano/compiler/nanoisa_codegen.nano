@@ -1736,11 +1736,10 @@ shadow nisa_emit_match_value {
     assert (== (nisa_reset) 0)
 }
 
-fn nisa_emit_match_body_checked(parser: Parser, node_id: int, result_type: string) -> string {
+fn nisa_emit_match_cases(parser: Parser, node_id: int, result_type: string) -> string {
     if (not nisa_ok) { return "" }
     let node: ASTMatch = (parser_get_match parser node_id)
     let actual: string = (nisa_expr_type parser node.scrutinee node.scrutinee_type)
-    if (not (nisa_match_domain_covered parser node actual)) { return (nisa_fail "I require unconditional integer or named-union match coverage") }
     let mut out: string = (nisa_emit_expr parser node.scrutinee node.scrutinee_type)
     let end: string = (nisa_fresh)
     let mut i: int = 0
@@ -1816,6 +1815,28 @@ fn nisa_emit_match_body_checked(parser: Parser, node_id: int, result_type: strin
     set out (+ out (nisa_line "ASSERT"))
     set out (+ out (nisa_line "HALT"))
     return (+ out (nisa_label_line end))
+}
+shadow nisa_emit_match_cases {
+    let reset: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "fn f(x: int) -> int { return match x { 1 if true => 7 } }" "unchecked.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "unchecked.nano")
+    set nisa_names ["x"]
+    set nisa_types ["int"]
+    let text: string = (nisa_emit_match_cases parser 0 "int")
+    assert nisa_ok
+    assert (str_contains text "PUSH_I64 7")
+    assert (str_contains text "PUSH_BOOL 0\n  ASSERT\n  HALT")
+    assert (== (nisa_reset) 0)
+}
+
+# I check coverage at every normal entry; my unchecked fixture exercises the
+# defensive terminal path in the same case emitter.
+fn nisa_emit_match_body_checked(parser: Parser, node_id: int, result_type: string) -> string {
+    if (not nisa_ok) { return "" }
+    let node: ASTMatch = (parser_get_match parser node_id)
+    let actual: string = (nisa_expr_type parser node.scrutinee node.scrutinee_type)
+    if (not (nisa_match_domain_covered parser node actual)) { return (nisa_fail "I require unconditional integer or named-union match coverage") }
+    return (nisa_emit_match_cases parser node_id result_type)
 }
 shadow nisa_emit_match_body_checked {
     let _: int = (nisa_reset)
