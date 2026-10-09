@@ -2783,11 +2783,13 @@ static void compile_expr(CG *cg, ASTNode *node) {
          * entry in the function table is not a substitute for that value. */
         int16_t callable_slot = name ? local_find(cg, name) : -1;
         int16_t callable_upvalue = name && callable_slot < 0 ? upvalue_resolve(cg, name) : -1;
-        if (callable_slot >= 0 || callable_upvalue >= 0 || node->as.call.func_expr) {
+        int16_t callable_global = name && callable_slot < 0 && callable_upvalue < 0 ? global_find(cg, name) : -1;
+        if (callable_slot >= 0 || callable_upvalue >= 0 || callable_global >= 0 || node->as.call.func_expr) {
             /* I snapshot the callee before arguments can mutate its binding. */
             if (node->as.call.func_expr) compile_expr(cg, node->as.call.func_expr);
             else if (callable_slot >= 0) emit_op(cg, OP_LOAD_LOCAL, (int)callable_slot);
-            else emit_op(cg, OP_LOAD_UPVALUE, 0, (int)callable_upvalue);
+            else if (callable_upvalue >= 0) emit_op(cg, OP_LOAD_UPVALUE, 0, (int)callable_upvalue);
+            else emit_op(cg, OP_LOAD_GLOBAL, (uint32_t)callable_global);
             uint16_t saved_callee = local_add(cg, "", node->line);
             emit_op(cg, OP_STORE_LOCAL, (int)saved_callee);
             for (int i = 0; i < argc; i++) compile_expr(cg, node->as.call.args[i]);
@@ -2858,6 +2860,28 @@ static void compile_expr(CG *cg, ASTNode *node) {
         const char *mod_alias = node->as.module_qualified_call.module_alias;
         const char *func_name = node->as.module_qualified_call.function_name;
         int argc = node->as.module_qualified_call.arg_count;
+        size_t qualified_size = strlen(mod_alias) + strlen(func_name) + 2;
+        char *qualified = malloc(qualified_size);
+        if (!qualified) { cg_error(cg, node->line, "I could not allocate a qualified callable name"); break; }
+        snprintf(qualified, qualified_size, "%s.%s", mod_alias, func_name);
+        bool callable_global = local_find(cg, mod_alias) < 0 && upvalue_resolve(cg, mod_alias) < 0 &&
+            global_find(cg, mod_alias) < 0 && global_find(cg, qualified) >= 0;
+        if (callable_global) {
+            ASTNode call = {0};
+            call.type = AST_CALL;
+            call.line = node->line;
+            call.column = node->column;
+            call.as.call.name = qualified;
+            call.as.call.args = node->as.module_qualified_call.args;
+            call.as.call.arg_count = argc;
+            compile_expr(cg, &call);
+            free(call.as.call.return_struct_type_name);
+            free(call.as.call.concrete_func_name);
+            free_function_signature(call.as.call.checked_signature);
+            free(qualified);
+            break;
+        }
+        free(qualified);
 
         /* Emit arguments left-to-right */
         for (int i = 0; i < argc; i++) {

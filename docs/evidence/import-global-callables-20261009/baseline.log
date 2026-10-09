@@ -1,0 +1,19 @@
+bin/nano_virt array_qualified PASS
+bin/nano_virt array_selective PASS
+bin/nano_virt callable_qualified FAIL 1 != 0 : -- E027 UNDEFINED FUNCTION --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-74w0jf_r/main.nano
+I cannot find a function named `first.apply`.
+
+2| fn main()->int{assert (== (first.apply 4) 5) return 0}
+                             ^^^^^^^^^^^
+Hint: Check the module alias and exported functions.
+error: type check failed
+
+bin/nano_virt callable_selective FAIL 1 != 0 : I could not compile shadows at line 2: undefined function 'apply'
+
+bin/nano_virt diamond_init PASS
+bin/nano_vm /private/tmp/nanolang-qualified-write-corrected-compiler.nvm -- array_qualified PASS
+bin/nano_vm /private/tmp/nanolang-qualified-write-corrected-compiler.nvm -- array_selective PASS
+bin/nano_vm /private/tmp/nanolang-qualified-write-corrected-compiler.nvm -- callable_qualified FAIL 1 != 0 : I cannot lower this checked program: undefined function __nano_module_global_1
+
+bin/nano_vm /private/tmp/nanolang-qualified-write-corrected-compiler.nvm -- callable_selective PASS
+bin/nano_vm /private/tmp/nanolang-qualified-write-corrected-compiler.nvm -- diamond_init PASS

@@ -1,0 +1,9 @@
+# My imported callable-global checkpoint
+
+I retain the baseline for imported integer arrays, callable globals and diamond initialization. Arrays and exactly-once diamond initialization pass in both producer components. C-seed qualified checking and selective lowering fail for callable globals; self-hosted qualified lowering fails.
+
+I route checked callable globals through indirect invocation using their declaring storage. I snapshot the callee before arguments and preserve its signature for validation and result stack effects. The C checker reuses ordinary call checking; the self-hosted emitter reads the global's declared callable type. My helper shadows verify qualified storage/type lookup and local receiver precedence. The first helper build fails because parsed qualified calls retain the full spelling in function_name and leave module_name empty; I retain this failure and derive the receiver from the full spelling before testing precedence.
+
+The corrected full source compiler builds with all shadows. Seventeen shared methods pass through the rebuilt C seed in 5.812 seconds and the fresh self-hosted component in 11.802 seconds. Successful products execute dependency/root shadows, verified NanoVM and strict native C11 ASan/UBSan/LSan. New callable refusals check wrong arguments and both too few/too many arguments while preserving prior output. New array and diamond cases exercise qualified/selective integer arrays and one initializer execution across equivalent repeated dependency paths. Adjacent checks pass 52 environment assertions, ten lexical-scope methods, the C typechecker suite and 90 bytecode checks.
+
+The adjacent C checks use make -o stage1 after C-tool rebuilding. Installed stages, complete managed/callable ownership, broader initialization cases, Linux/Darwin and a new raw fixed point remain open under #986. This checkpoint does not establish complete imported-global or release acceptance.

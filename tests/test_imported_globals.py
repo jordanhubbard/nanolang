@@ -69,6 +69,27 @@ class ImportedGlobals(unittest.TestCase):
             with self.subTest(assignment=assignment):
                 self.check('module "a.nano" as first\nfn main()->int{'+assignment+' return 0}\nshadow main {assert true}\n',bad=True)
 
+    def test_imported_callable_globals(self):
+        for imports, call in [('module "a.nano" as first', 'first.apply'), ('from "a.nano" import apply', 'apply')]:
+            with self.subTest(imports=imports):
+                self.check(imports+'\nfn main()->int{assert (== ('+call+' 4) 5) return 0}\nshadow main {assert (== (main) 0)}\n',
+                           files={'a.nano':'pub let apply: fn(int)->int = fn(x:int)->int{return (+ x 1)}\n'})
+                for arguments in ['true', '', '1 2']:
+                    self.check(imports+'\nfn main()->int{return ('+call+' '+arguments+')}\nshadow main {assert true}\n',bad=True,
+                               files={'a.nano':'pub let apply: fn(int)->int = fn(x:int)->int{return (+ x 1)}\n'})
+
+    def test_imported_integer_arrays(self):
+        for imports, name in [('module "a.nano" as first', 'first.values'), ('from "a.nano" import values', 'values')]:
+            with self.subTest(imports=imports):
+                self.check(imports+'\nfn main()->int{assert (== (at '+name+' 1) 7) return 0}\nshadow main {assert (== (main) 0)}\n',
+                           files={'a.nano':'pub let values: array<int> = [3,7]\n'})
+
+    def test_diamond_initialization_runs_once(self):
+        self.check('module "left.nano" as left\nmodule "right.nano" as right\nmodule "a.nano" as first\nfn main()->int{assert (== (left.read) 1) assert (== (right.read) 1) assert (== first.count 1) return 0}\nshadow main {assert (== (main) 0)}\n',files={
+            'a.nano':'pub let mut count: int = 0\nfn next()->int{set count (+ count 1) return count}\nshadow next {let saved: int = count set count 0 assert (== (next) 1) set count saved}\npub let value: int = (next)\n',
+            'left.nano':'module "a.nano" as first\npub fn read()->int{return first.value}\nshadow read {assert (== (read) 1)}\n',
+            'right.nano':'module "./a.nano" as first\npub fn read()->int{return first.value}\nshadow read {assert (== (read) 1)}\n'})
+
     def test_immutable_public_value_in_pure_function(self):
         self.check('module "a.nano" as first\npure fn answer()->int{return first.answer}\nshadow answer {assert (== (answer) 41)}\nfn main()->int{assert (== (answer) 41) return 0}\nshadow main {assert (== (main) 0)}\n')
 

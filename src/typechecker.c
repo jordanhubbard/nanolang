@@ -3582,7 +3582,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
             /* Look up function in environment */
             Function *func = env_get_function(env, qualified_name);
-            if (!func) {
+            Symbol *callable = env_get_var_visible_at(env, module_alias, expr->line, expr->column)
+                ? NULL : env_global_import_symbol(env, qualified_name);
+            if (!func && (!callable || callable->type != TYPE_FUNCTION)) {
                 char message[256];
                 snprintf(message, sizeof(message),
                         "I cannot find a function named `%s`.",
@@ -3600,7 +3602,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
             
             /* Visibility check: private functions cannot be called from other modules */
-            if (func->module_name && !func->is_pub) {
+            if (func && func->module_name && !func->is_pub) {
                 bool same_module = env->current_module &&
                                    strcmp(func->module_name, env->current_module) == 0;
                 if (!same_module) {
@@ -3620,7 +3622,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
 
             /* Phase 3: Warn on calls to functions from unsafe modules if --warn-unsafe-calls is set */
-            if (env->warn_unsafe_calls && func->module_name) {
+            if (func && env->warn_unsafe_calls && func->module_name) {
                 /* Check if the function's module is unsafe */
                 ModuleInfo *mod = env_get_module(env, func->module_name);
                 if (mod && mod->is_unsafe) {
@@ -3631,7 +3633,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
 
             /* Phase 3: Warn on FFI calls if --warn-ffi is set */
-            if (func->is_extern && env->warn_ffi) {
+            if (func && func->is_extern && env->warn_ffi) {
                 fprintf(stderr, "Warning at line %d, column %d: FFI call to extern function '%s.%s'\n",
                         expr->line, expr->column, module_alias, function_name);
                 fprintf(stderr, "  Note: Extern functions perform arbitrary operations\n");
