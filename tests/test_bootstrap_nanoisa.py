@@ -73,7 +73,7 @@ class BootstrapBoundaries(unittest.TestCase):
         flags = '-fprofile-arcs -ftest-coverage'
         subprocess.run([*cc, *shlex.split(flags), '-c', str(runtime), '-o', str(covered)],
                        check=True, capture_output=True, text=True, timeout=30)
-        for module in ('compiler_support', 'nanoisa', 'std'):
+        for module in ('compiler_support', 'nanoisa', 'std', 'file_source_inputs'):
             metadata = self.root / 'modules' / module / 'module.json'
             metadata.parent.mkdir(parents=True, exist_ok=True)
             metadata.write_text(json.dumps({}))

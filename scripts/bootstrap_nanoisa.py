@@ -168,7 +168,7 @@ class Bootstrap:
                          'ldflags': shlex.split(self.env.get('NANO_LDFLAGS') or self.env.get('LDFLAGS') or ''),
                          'artifacts': {}, 'steps': [], 'stage_timeout_seconds': self.timeout}
         metadata, native_sources, module_roots = {}, [], []
-        for name in ('compiler_support', 'nanoisa', 'std'):
+        for name in ('compiler_support', 'nanoisa', 'std', 'file_source_inputs'):
             root = self.root / 'modules' / name
             metadata[name] = json.loads((root / 'module.json').read_text())
             native_sources.extend(str((root / source).resolve())
