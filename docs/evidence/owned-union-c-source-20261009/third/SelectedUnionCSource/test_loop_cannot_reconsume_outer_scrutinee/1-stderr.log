@@ -1,0 +1,7 @@
+I cannot verify affine ownership at line 7, column 2: loop changes ownership of an outer resource — value
+Warning at line 9, column 23: Unused variable 'label'
+Warning at line 9, column 72: Unused variable 'a'
+Warning at line 9, column 105: Unused variable 'b'
+Warning at line 8, column 3: Unused variable 'payload'
+Warning at line 8, column 3: Unused variable 'payload'
+error: type check failed

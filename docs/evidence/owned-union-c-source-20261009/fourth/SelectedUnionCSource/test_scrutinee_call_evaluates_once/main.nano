@@ -1,0 +1,9 @@
+resource struct Handle { fd: int }
+union Choice { Some { owner: Handle }, None {} }
+let mut calls: int = 0
+fn make_value() -> Choice { set calls (+ calls 1) return Choice.Some { owner: Handle { fd: 7 } } }
+shadow make_value { set calls 0 let value: Choice = (make_value) match value { Some(payload) => { let Choice.Some { owner } = payload let Handle { fd } = owner assert (== fd 7) } None(payload) => { assert false } } assert (== calls 1) }
+fn consume() -> int { match (make_value) { Some(payload) => { let Choice.Some { owner } = payload let Handle { fd } = owner return fd } None(payload) => { return 0 } } }
+shadow consume { set calls 0 assert (== (consume) 7) assert (== calls 1) }
+fn main() -> int { set calls 0 assert (== (consume) 7) assert (== calls 1) return 0 }
+shadow main { assert (== (main) 0) }
