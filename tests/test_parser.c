@@ -1097,7 +1097,25 @@ static void test_exclusive_field_place_retention(void) {
     free_ast(program);
 }
 
+void test_reexported_call_paths(void) {
+    ASTNode *program = parse_ok("fn main()->int { (api.files.temp) return (api.files.write_byte value 1) }");
+    ASSERT_NOT_NULL(program);
+    ASTNode *body = program->as.program.items[0]->as.function.body;
+    ASTNode *empty = body->as.block.statements[0];
+    ASTNode *args = body->as.block.statements[1]->as.return_stmt.value;
+    ASSERT_EQ(empty->type, AST_MODULE_QUALIFIED_CALL);
+    ASSERT_EQ(args->type, AST_MODULE_QUALIFIED_CALL);
+    ASSERT(strcmp(empty->as.module_qualified_call.module_alias, "api.files") == 0);
+    ASSERT(strcmp(empty->as.module_qualified_call.function_name, "temp") == 0);
+    ASSERT_EQ(empty->as.module_qualified_call.arg_count, 0);
+    ASSERT(strcmp(args->as.module_qualified_call.module_alias, "api.files") == 0);
+    ASSERT(strcmp(args->as.module_qualified_call.function_name, "write_byte") == 0);
+    ASSERT_EQ(args->as.module_qualified_call.arg_count, 2);
+    free_ast(program);
+}
+
 int main(void) {
+    TEST(reexported_call_paths);
     printf("=== Parser Tests ===\n");
 
     printf("\n--- Valid programs ---\n");

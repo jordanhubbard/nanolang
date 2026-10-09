@@ -61,6 +61,35 @@ static char *join_qualified_type_name(const char *owner, const char *name) {
     return qualified;
 }
 
+/* I retain every identifier in a re-exported call path. Zero means an
+ * expression rather than a name; negative means allocation/size failure. */
+static int qualified_call_path(const ASTNode *node, char **out) {
+    const ASTNode *base = node;
+    size_t length = 0;
+    while (base && base->type == AST_FIELD_ACCESS) {
+        size_t field = strlen(base->as.field_access.field_name);
+        if (field == SIZE_MAX || length > SIZE_MAX - field - 1) return -1;
+        length += field + 1;
+        base = base->as.field_access.object;
+    }
+    if (!base || base->type != AST_IDENTIFIER) return 0;
+    size_t prefix = strlen(base->as.identifier);
+    if (prefix == SIZE_MAX || length > SIZE_MAX - prefix - 1) return -1;
+    length += prefix;
+    char *name = malloc(length + 1);
+    if (!name) return -1;
+    name[length] = '\0';
+    for (const ASTNode *part = node; part != base; part = part->as.field_access.object) {
+        size_t field = strlen(part->as.field_access.field_name);
+        length -= field;
+        memcpy(name + length, part->as.field_access.field_name, field);
+        name[--length] = '.';
+    }
+    memcpy(name, base->as.identifier, prefix);
+    *out = name;
+    return 1;
+}
+
 static Token *current_token(Stage1Parser *p) {
     if (!p) {
         return NULL;
@@ -2113,14 +2142,20 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     return node;
                 } else if (first_expr->type == AST_FIELD_ACCESS) {
                     /* Module.function call with zero arguments - use AST_MODULE_QUALIFIED_CALL */
-                    if (first_expr->as.field_access.object->type == AST_IDENTIFIER) {
-                        char *module = first_expr->as.field_access.object->as.identifier;
+                    char *module = NULL;
+                    int path = qualified_call_path(first_expr->as.field_access.object, &module);
+                    if (path < 0) {
+                        parser_error(p, line, column, "I cannot allocate a qualified call path\n");
+                        free_ast(first_expr);
+                        return NULL;
+                    }
+                    if (path > 0) {
                         char *field = first_expr->as.field_access.field_name;
                         
                         advance(p);  /* consume ')' */
                         
                         ASTNode *node = create_node(AST_MODULE_QUALIFIED_CALL, line, column);
-                        node->as.module_qualified_call.module_alias = strdup(module);
+                        node->as.module_qualified_call.module_alias = module;
                         node->as.module_qualified_call.function_name = strdup(field);
                         node->as.module_qualified_call.args = NULL;
                         node->as.module_qualified_call.arg_count = 0;
@@ -2159,21 +2194,21 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     func_name = first_expr->as.identifier;
                 } else if (first_expr->type == AST_FIELD_ACCESS) {
                     /* Module.function call - use AST_MODULE_QUALIFIED_CALL */
-                    if (first_expr->as.field_access.object->type == AST_IDENTIFIER) {
-                        char *module = first_expr->as.field_access.object->as.identifier;
+                    int path = qualified_call_path(first_expr->as.field_access.object, &module_alias);
+                    if (path > 0) {
                         char *field = first_expr->as.field_access.field_name;
                         
                         /* Mark as module-qualified for later processing */
                         is_module_qualified = true;
-                        module_alias = strdup(module);
                         qualified_func_name = strdup(field);
                         
                         /* Free the field_access node */
                         free_ast(first_expr);
                         first_expr = NULL;
                     } else {
-                        parser_error(p, line, column, "Error at line %d, column %d: Complex field access not supported in function calls\n",
-                                line, column);
+                        parser_error(p, line, column, "%s\n", path < 0 ?
+                                "I cannot allocate a qualified call path" :
+                                "I require a named qualified call path");
                         free_ast(first_expr);
                         return NULL;
                     }

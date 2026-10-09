@@ -736,6 +736,14 @@ static int merge_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_
 /* I box primitive array and map handles at call boundaries. Record-field
  * storage keeps its separate, exact representation contract. */
 static int merge_call_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_t kind) {
+    /* I retain a record parameter's exact calling convention. Tagged
+     * producers cross it through the runtime's checked record projection. */
+    if (*dest == NVM2C_VK_REC && kind == NVM2C_VK_VALUE) return 1;
+    if (*dest == NVM2C_VK_VALUE && kind == NVM2C_VK_REC) {
+        *dest = NVM2C_VK_REC;
+        facts->changed = 1;
+        return 1;
+    }
     if (*dest == NVM2C_VK_VALUE && (word_array_storage(kind) || kind == NVM2C_VK_SARR || kind == NVM2C_VK_MAP)) return 1;
     if ((word_array_storage(*dest) || *dest == NVM2C_VK_SARR || *dest == NVM2C_VK_MAP) && kind == NVM2C_VK_VALUE) {
         *dest = NVM2C_VK_VALUE;
@@ -1335,6 +1343,13 @@ static int classify_direct_call(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             uint8_t *fields = facts->fields + at * b->record_width;
             if (!merge_record_results(b, facts, fields, arg.rec_k) ||
                 !shape_record_return(b, arg.shape, parameter, arg.rec_k, fields)) return 0;
+        } else if (arg.kind == NVM2C_VK_VALUE && facts->parameters[at] == NVM2C_VK_REC) {
+            /* I constrain the checked payload, never equate its tagged
+             * wrapper with the callee's record storage. */
+            if (!shape_type(b, arg.shape, NVM_SHAPE_OPTIONAL) ||
+                !shape_type(b, parameter, NVM_SHAPE_RECORD)) return 0;
+            if (b->track_shapes &&
+                !nvm_shape_convert(&b->shapes, shape_child(b, arg.shape, 0), parameter)) return 0;
         } else if (arg.kind == NVM2C_VK_RARR) {
             uint8_t *fields = facts->fields + at * b->record_width;
             if (!merge_record_results(b, facts, fields, arg.rec_k) ||

@@ -30,6 +30,7 @@ import "src_nano/compiler/service_origins.nano"
 import "src_nano/compiler/service_inputs.nano"
 import "src_nano/compiler/service_namespace.nano"
 import "src_nano/compiler/service_types.nano"
+import "src_nano/compiler/service_bodies.nano"
 import "modules/file_source_inputs/file_source_inputs.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 from "std/fs.nano" import canonical
@@ -1836,6 +1837,18 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
             let service_annotations: ServiceAnnotationFacts = (bind_service_annotations parser merged_files source_files service_namespace)
             if (not service_annotations.ok) {
                 (println "I cannot retain nominal File type annotations.")
+                return 1
+            }
+
+            let service_bodies: ServiceBodyCheck = (check_service_bodies parser merged_files source_files service_namespace)
+            if (or (== service_bodies.status 1) (== service_bodies.status 3)) {
+                (println (+ "I cannot type-check File service bodies: " service_bodies.diagnostic))
+                return 1
+            }
+            if (> parser.services_count 0) {
+                # I retain service calls in their own namespace until the
+                # independent ownership and lowering path can consume them.
+                (println "I have not resolved File service declarations for this consumer.")
                 return 1
             }
 
