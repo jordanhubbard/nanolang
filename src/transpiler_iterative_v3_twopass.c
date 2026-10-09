@@ -2809,6 +2809,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         }
         
         case AST_FIELD_ACCESS: {
+            ASTNode *literal = env_qualified_import_literal(env, expr);
+            if (literal) {
+                build_expr(list, literal, env);
+                break;
+            }
             /* Check if this is an enum variant (Enum.Variant) */
             if (expr->as.field_access.object->type == AST_IDENTIFIER) {
                 const char *object_name = expr->as.field_access.object->as.identifier;

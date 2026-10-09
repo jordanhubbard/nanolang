@@ -1,0 +1,14 @@
+COMMAND ['/Users/jordanh/Src/nanolang/bin/nanoc_c', '/Users/jordanh/Src/nanolang/examples/api_lessons/sdl_image_safe_api.nano', '-o', '/private/tmp/nanolang-native-qualified-20261009/sdl_image_safe_api']
+ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'
+ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'
+ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'
+EXIT 0
+COMMAND ['/Users/jordanh/Src/nanolang/bin/nanoc_c', '/Users/jordanh/Src/nanolang/examples/graphics/sdl_image_demo.nano', '-o', '/private/tmp/nanolang-native-qualified-20261009/sdl_image_demo']
+ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'
+EXIT 0
+COMMAND ['/Users/jordanh/Src/nanolang/bin/nanoc_c', '/Users/jordanh/Src/nanolang/examples/graphics/sdl_image_sprite_animation.nano', '-o', '/private/tmp/nanolang-native-qualified-20261009/sdl_image_sprite_animation']
+ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'
+EXIT 0
+COMMAND ['/Users/jordanh/Src/nanolang/bin/nanoc_c', '/Users/jordanh/Src/nanolang/examples/graphics/sdl_image_tiled_background.nano', '-o', '/private/tmp/nanolang-native-qualified-20261009/sdl_image_tiled_background']
+ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'
+EXIT 0

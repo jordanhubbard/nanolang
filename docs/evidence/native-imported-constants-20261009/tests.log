@@ -1,0 +1,8 @@
+test_call_argument_order (tests.test_native_imported_constants.NativeImportedConstants.test_call_argument_order) ... ok
+test_distinct_module_literals (tests.test_native_imported_constants.NativeImportedConstants.test_distinct_module_literals) ... ok
+test_local_record_receiver (tests.test_native_imported_constants.NativeImportedConstants.test_local_record_receiver) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 4.682s
+
+OK

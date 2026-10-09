@@ -5963,6 +5963,12 @@ test-cseed-imported-globals: nano_virt nano_vm nvm2c bin/nano_aot_runtime.o
 
 test-units: test-cseed-imported-globals
 
+.PHONY: test-native-imported-constants
+test-native-imported-constants: bin/nanoc_c
+	python3 -m unittest -v tests.test_native_imported_constants
+
+test-units: test-native-imported-constants
+
 .PHONY: test-native-record-globals test-selfhost-native-link-flags
 test-native-record-globals: nano_vm nanoisa_dump nvm2c
 	python3 -m unittest -v tests.test_native_record_globals

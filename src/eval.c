@@ -5325,6 +5325,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         }
 
         case AST_FIELD_ACCESS: {
+            ASTNode *literal = env_qualified_import_literal(env, expr);
+            if (literal) return eval_expression(literal, env);
             /* Check object is not NULL */
             if (!expr->as.field_access.object) {
                 fprintf(stderr, "Error: NULL object in field access\n");
