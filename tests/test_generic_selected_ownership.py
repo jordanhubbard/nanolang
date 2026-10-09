@@ -33,7 +33,7 @@ shadow main { assert (== (main) 0) }
 
 class GenericSelectedOwnership(unittest.TestCase):
     def check(self, source, accepted):
-        generic.GenericAffineIdentity().check(source, accepted)
+        generic.GenericAffineIdentity.check(self, source, accepted)
 
     def test_resource_and_ordinary_selected_arms(self):
         self.check(PREFIX + CONSUME + MAIN, True)

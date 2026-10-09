@@ -2982,6 +2982,7 @@ fn is_builtin_function(fn_name: string) -> bool {
     /* String operations */
     if (== fn_name "str_length") { return true } else { (print "") }
     if (== fn_name "str_concat") { return true } else { (print "") }
+    if (== fn_name "str_trim") { return true }
     if (== fn_name "str_substring") { return true } else { (print "") }
     if (== fn_name "str_contains") { return true } else { (print "") }
     if (== fn_name "str_equals") { return true } else { (print "") }
@@ -3108,6 +3109,7 @@ fn is_builtin_function(fn_name: string) -> bool {
 }
 
 shadow is_builtin_function {
+    assert (is_builtin_function "str_trim")
     assert (is_builtin_function "array_push")
     assert (is_builtin_function "at")
     assert (is_builtin_function "println")
@@ -3165,6 +3167,7 @@ fn check_builtin_function(fn_name: string) -> NSType {
     /* String operations */
     if (== fn_name "str_length") { return (type_int) } else { (print "") }
     if (== fn_name "str_concat") { return (type_string) } else { (print "") }
+    if (== fn_name "str_trim") { return (type_string) }
     if (== fn_name "str_substring") { return (type_string) } else { (print "") }
     if (== fn_name "str_contains") { return (type_bool) } else { (print "") }
     if (== fn_name "str_equals") { return (type_bool) } else { (print "") }
@@ -3324,6 +3327,7 @@ fn check_builtin_function(fn_name: string) -> NSType {
 }
 
 shadow check_builtin_function {
+    assert (== (check_builtin_function "str_trim").kind TypeKind.TYPE_STRING)
     assert (== (check_builtin_function "float_from_bits").kind TypeKind.TYPE_FLOAT)
     assert (== (check_builtin_function "float_to_bits").kind TypeKind.TYPE_INT)
     assert (== (check_builtin_function "string_to_float").kind TypeKind.TYPE_FLOAT)

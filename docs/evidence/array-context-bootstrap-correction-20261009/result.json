@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "make",
+    "-j1",
+    "test-selfhost-native-array-slice",
+    "test-selfhost-array-literal-context",
+    "test-native-array-identity",
+    "CC=/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "exit": 2,
+  "seconds": 94.39871545799542,
+  "sanitizers": {
+    "clang": "detect_leaks=1",
+    "gcc": "detect_leaks=0"
+  }
+}

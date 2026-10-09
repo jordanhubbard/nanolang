@@ -55,6 +55,9 @@ class CheckedArrayLiterals(unittest.TestCase):
     def test_complete_slice_kind_bit_and_identity_fixture(self):
         self.qualify('all-kinds', (ROOT / 'tests/nanoisa/fixtures/array_slice_all_kinds.nano.txt').read_text())
 
+    def test_string_builtin_literal_element(self):
+        self.qualify('trimmed-string', 'fn main()->int { let spelling:string = " Choice<int>" let values:array<string> = [(str_trim (str_substring spelling 0 7))] assert (== (at values 0) "Choice") return 0 }')
+
     def test_nested_literals_keep_context(self):
         self.qualify('nested', 'fn main()->int { let values:array<array<u8>> = [[300], []] assert (== (at (at values 0) 0) 44) assert (== (array_length (at values 1)) 0) return 0 }')
 
