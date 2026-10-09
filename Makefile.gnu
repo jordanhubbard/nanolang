@@ -3191,7 +3191,7 @@ test-bootstrap-dependencies: test-bootstrap-components
 .PHONY: test-parser-parenthesized
 .PHONY: test-transpiler-externs
 .PHONY: test-header-constant-functions
-test-header-constant-functions: nano_virt nano_vm $(COMPILER_C)
+test-header-constant-functions: nano_virt nano_vm nvm2c $(COMPILER_C)
 	python3 -m unittest -v tests.test_header_constant_functions
 test-units: test-header-constant-functions
 test-vm-examples: test-header-constant-functions

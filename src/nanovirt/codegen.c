@@ -2616,7 +2616,25 @@ static void compile_expr(CG *cg, ASTNode *node) {
                     if (uv >= 0) {
                         emit_op(cg, OP_LOAD_UPVALUE, 0, (int)uv);
                     } else {
-                        cg_error(cg, node->line, "undefined variable '%s'", id);
+                        /* I materialize checked header constants only after
+                         * lexical bindings and source declarations resolve. */
+                        Symbol *constant = NULL;
+                        /* My checker also retains locals from other functions;
+                         * they cannot hide this fallback after lexical lookup. */
+                        for (int i = cg->env->symbol_count - 1; i >= 0; --i) {
+                            Symbol *candidate = &cg->env->symbols[i];
+                            if (candidate->from_c_header && candidate->name &&
+                                strcmp(candidate->name, id) == 0) {
+                                constant = candidate;
+                                break;
+                            }
+                        }
+                        if (constant && constant->is_global && !constant->is_mut &&
+                            constant->type == TYPE_INT && constant->value.type == VAL_INT) {
+                            emit_op(cg, OP_PUSH_I64, constant->value.as.int_val);
+                        } else {
+                            cg_error(cg, node->line, "undefined variable '%s'", id);
+                        }
                     }
                 }
             }

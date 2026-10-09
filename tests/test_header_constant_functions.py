@@ -1,6 +1,8 @@
 """I preserve declaration priority and lexical bindings in checked bytecode."""
+import json
 import os
 from pathlib import Path
+import shlex
 import subprocess
 import tempfile
 import unittest
@@ -57,6 +59,15 @@ shadow main { assert (== (main) 0) }
 ''')
         self.execute(source, '')
 
+    def test_unrelated_sqlite_header_value(self):
+        source = self.source('''fn main()->int {
+ assert (== SQLITE_BUSY 5)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+        self.execute(source, '')
+
     def test_noncallable_local_refuses_without_replacing_prior_output(self):
         source = self.source('''fn main()->int {
  let SQLITE_OK: int = 7
@@ -73,6 +84,88 @@ shadow main { assert true }
                 self.assertIn('I require a function value for a bound call.', result.stderr)
                 self.assertIn(str(source), result.stderr)
                 self.assertEqual(output.read_bytes(), b'prior output\n')
+
+
+class HeaderConstantValues(unittest.TestCase):
+    def test_header_values_keep_lexical_bindings_in_shadows_vm_and_native(self):
+        with tempfile.TemporaryDirectory(prefix='nano-header-values-') as temporary:
+            work = Path(temporary).resolve()
+            header = work / 'constants.h'
+            header.write_text('#define HEADER_VALUE 41\n#define HEADER_NEGATIVE -7\n'
+                              '#define HEADER_HEX 0x1234\n#define declared 999\n')
+            # I reach my private header through an existing search directory;
+            # I neither install a system header nor depend on SQLite packaging.
+            include = next((p for p in (Path('/opt/homebrew/include'),
+                                       Path('/usr/local/include'), Path('/usr/include'))
+                            if p.is_dir()), None)
+            self.assertIsNotNone(include, 'I require one compiler header search directory.')
+            (work / 'module.json').write_text(json.dumps({
+                'name': 'header_values', 'headers': [os.path.relpath(header, include)]}))
+            dependency = work / 'values.nano'
+            dependency.write_text('pub fn declared()->int { return 17 }\n'
+                                  'shadow declared { assert (== (declared) 17) }\n')
+            source = work / 'main.nano'
+            source.write_text(f'module "{dependency}" as values\n' + '''
+let saved_header:int = HEADER_VALUE
+fn read_header()->int { return HEADER_VALUE }
+shadow read_header { assert (== (read_header) 41) }
+fn local_header()->int { let HEADER_VALUE:int = 83 return HEADER_VALUE }
+shadow local_header { assert (== (local_header) 83) }
+fn parameter_header(HEADER_VALUE:int)->int { return HEADER_VALUE }
+shadow parameter_header { assert (== (parameter_header 29) 29) }
+fn captured_header()->int {
+ let HEADER_VALUE:int = 61
+ let read:fn() -> int = fn()->int { return HEADER_VALUE }
+ return (read)
+}
+shadow captured_header { assert (== (captured_header) 61) }
+fn main()->int {
+ assert (== saved_header 41)
+ assert (== (read_header) 41)
+ assert (== (local_header) 83)
+ assert (== (parameter_header 29) 29)
+ assert (== (captured_header) 61)
+ assert (== HEADER_NEGATIVE -7)
+ assert (== HEADER_HEX 4660)
+ assert (== (values.declared) 17)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+''')
+            environment = {**os.environ, 'NANO_BUILD_CACHE': str(work / 'cache'),
+                           'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'}
+            module, generated, native = (work / name for name in ('out.nvm', 'out.c', 'out'))
+            cc = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC') or
+                            os.environ.get('CC') or 'cc')
+            commands = [
+                [ROOT / 'bin/nano_virt', source, '--emit-nvm', '-o', module],
+                [ROOT / 'bin/nano_vm', '--verify-only', module],
+                [ROOT / 'bin/nano_vm', module],
+                [ROOT / 'bin/nvm2c', module, '-o', generated],
+                [*cc, '-std=c11', '-Wall', '-Wextra', '-Werror',
+                 '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                 generated, '-ldl', '-lm', '-o', native],
+                [native],
+            ]
+            for command in commands:
+                result = subprocess.run(list(map(str, command)), cwd=ROOT,
+                                        env=environment, capture_output=True,
+                                        text=True, timeout=120)
+                self.assertEqual(result.returncode, 0,
+                                 repr(command) + '\n' + result.stdout + result.stderr)
+
+            for body in ('set HEADER_VALUE 0', 'let missing:int = HEADER_UNDEFINED'):
+                with self.subTest(refusal=body):
+                    source.write_text(f'module "{dependency}" as values\n'
+                                      + 'fn main()->int { ' + body + ' return 0 }\n'
+                                      + 'shadow main { assert true }\n')
+                    module.write_bytes(b'prior output\n')
+                    result = subprocess.run(
+                        [str(ROOT / 'bin/nano_virt'), str(source), '--emit-nvm', '-o', str(module)],
+                        cwd=ROOT, env=environment, capture_output=True, text=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertIn('type check failed', result.stderr)
+                    self.assertEqual(module.read_bytes(), b'prior output\n')
 
 
 if __name__ == '__main__':
