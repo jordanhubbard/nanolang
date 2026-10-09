@@ -964,7 +964,7 @@ translator fallback; recovered `if`/`while` is not this subset.
 | `compiler/lexer.nano` | Lexer implementation |
 | `parser.nano` | Parser implementation |
 | `typecheck.nano` | Type checker |
-| `transpiler.nano` | C code generator |
+| `compiler/nanoisa_codegen.nano` | NanoISA program and selected-shadow lowering |
 | `compiler/nanoisa_codegen.nano` | 5.0 Cut A: AST → `.nasm` (pinned i64 + string subset) |
 | `nanoisa_emit.nano` | Driver for that emitter |
 | `compiler/module_loader.nano` | Module loading/resolution |

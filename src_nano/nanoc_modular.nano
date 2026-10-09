@@ -13,7 +13,7 @@
  * - lexer_main.nano: tokenize(source) -> List<LexerToken>
  * - parser.nano: parse_program(tokens, count) -> Parser
  * - typecheck.nano: typecheck_parser(parser) -> int
- * - transpiler.nano: transpile_parser(parser) -> string
+ * - compiler/nanoisa_codegen.nano: nanoisa_emit_program_nasm(parser) -> string
  */
 
 /* CLI argument functions */
@@ -51,7 +51,7 @@ fn show_usage() -> void {
     (println "  - Lexer:       lexer_main.nano")
     (println "  - Parser:      parser.nano")
     (println "  - TypeChecker: typecheck.nano")
-    (println "  - Transpiler:  transpiler.nano")
+    (println "  - NanoISA:     compiler/nanoisa_codegen.nano")
     (println "")
 }
 

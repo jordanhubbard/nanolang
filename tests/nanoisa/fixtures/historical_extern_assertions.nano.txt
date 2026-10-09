@@ -1,5 +1,5 @@
 # I check declaration selection in an executed entry point.
-import "src_nano/transpiler.nano"
+# My test runner prepends historical_extern_helpers.nano.txt.
 import "src_nano/parser.nano"
 import "src_nano/compiler/lexer.nano"
 

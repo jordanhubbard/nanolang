@@ -3193,9 +3193,13 @@ test-module-introspection: $(COMPILER_C)
 	$(COMPILER_C) tests/module_introspection.nano -o $(BIN_DIR)/module_introspection_test
 	$(BIN_DIR)/module_introspection_test
 
-test-transpiler-externs: $(COMPILER_C)
-	$(COMPILER_C) tests/transpiler_externs.nano -o $(BIN_DIR)/transpiler_externs_test
-	$(BIN_DIR)/transpiler_externs_test
+.PHONY: test-nanoisa-extern-declarations
+test-nanoisa-extern-declarations: nano_virt nano_vm nvm2c bootstrap
+	python3 -m unittest -v tests.test_nanoisa_extern_declarations
+
+# I retain the historical target name for callers.
+test-transpiler-externs: test-nanoisa-extern-declarations
+test-units: test-nanoisa-extern-declarations
 
 test-parser-parenthesized: $(COMPILER_C)
 	$(COMPILER_C) tests/parser_parenthesized.nano -o $(BIN_DIR)/parser_parenthesized_test

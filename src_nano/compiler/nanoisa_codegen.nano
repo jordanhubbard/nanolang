@@ -16,8 +16,8 @@ from "src_nano/compiler/declaration_ownership.nano" import declaration_local_let
  * bool results (i64 0/1), bool literals (PUSH_BOOL), not (BOOL_NOT),
  * short-circuit and/or (DUP/JMP_FALSE/JMP_TRUE/POP), cond as an if-expression (JMP_FALSE/JMP),
  * print (PRINT), println (PRINTLN), and assert (ASSERT).
- * Anything else fails closed. I do not emit C. I do not delete
- * transpiler.nano.
+ * Unsupported forms fail closed. My native products translate verified
+ * NanoISA through nvm2c.
  */
 
 import "src_nano/parser.nano"
