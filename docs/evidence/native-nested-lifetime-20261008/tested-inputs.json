@@ -1,0 +1,18 @@
+{
+  "base": "54c8cb40a18c45c29001040f51fc114e56715b38",
+  "sha256": {
+    "src/nanoisa/nvm2c.c": "b00679133c73d181fbc242cba90d488ed3626c5e5f22fe669a8defc752750b58",
+    "src/nanoisa/nvm2c_map_roots.inc": "e75fa6b34a01ded3cde64810b8d991716b1f262f148a77534149e8542bea2506",
+    "src/nanoisa/nvm2c_shape.c": "a293094f73416e491f0694a57c52ed34ff01df247811517e821d752e18110651",
+    "src/nanoisa/nvm2c_shape.h": "c5ab36cf165100dc00f065810f7c5bd011d9e5383258194fa2a9a8f1a40af887",
+    "tests/nanoisa/test_nvm2c.c": "2533ad4acc342e29cf33f5861bfbf4fb0aefb1c30ce4be381b218691429e43a9",
+    "tests/test_native_byte_arrays.py": "fdae59841a04629b3b010e438b6845b0b1ad6e1aa89adccf60ba3c67200baca4",
+    "tests/test_native_nested_arrays.py": "b3f1791c1892d13e22dd3fd0911059d9708144169db30751423c29985225e877",
+    "tests/test_nanoisa_array_slice.py": "05c919eeabdb0d42b5de2a13057e74049b5df2888c74e7e9754b94f291ae98d2",
+    "bin/nvm2c": "b89a7cef04f9ef37cf075e467d6cb76f991a7f740d430afe946018e82e091c16",
+    "bin/nano_vm": "d52b7fd4b65b97382212df87895d524affd07a62f8e9470a94924e9a953bd820",
+    "bin/nanoisa": "514896cd93f7baa6114e9e745d75c88f0ff10e8386f60335e7cb36031cd27ab0",
+    "bin/nano_virt": "4333f7ddef7f3e93259c4cb41e832e21a1e8f2c4ecdd625a9d007bd5a6468bcf",
+    "/private/tmp/nanolang-nested-array-driver": "d6d3fd720233cc5108660a70a928546926e00c8b3ada95e1abd8a90cfaf31328"
+  }
+}

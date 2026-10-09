@@ -1,0 +1,7 @@
+I retain slice qualification at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-j3bvh1e2
+test_nested_element_refusals (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_element_refusals) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.070s
+
+OK

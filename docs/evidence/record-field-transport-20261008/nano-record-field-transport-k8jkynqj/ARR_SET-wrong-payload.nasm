@@ -1,0 +1,17 @@
+.entry main
+.string text "wrong"
+.function main 0 0 0 int 1
+PUSH_I64 1
+AGG_PACK 0 0 0 1
+ARR_LITERAL 8 1
+PUSH_I64 0
+PUSH_STR text
+ARR_LITERAL 5 1
+PUSH_I64 0
+ARR_GET
+AGG_PACK 0 0 0 1
+ARR_SET
+POP
+PUSH_I64 0
+RET
+.end

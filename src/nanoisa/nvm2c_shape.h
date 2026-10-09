@@ -19,7 +19,7 @@ typedef enum {
     NVM_SHAPE_UNKNOWN, NVM_SHAPE_INT, NVM_SHAPE_STRING,
     NVM_SHAPE_ARRAY, NVM_SHAPE_RECORD, NVM_SHAPE_MAP, NVM_SHAPE_OPTIONAL,
     NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_NUMERIC, NVM_SHAPE_VARIANT_SCALAR, NVM_SHAPE_VARIANT_INT_ARRAY,
-    NVM_SHAPE_FUNCTION
+    NVM_SHAPE_FUNCTION, NVM_SHAPE_U8
 } NvmShapeKind;
 typedef struct NvmShapeNode NvmShapeNode;
 typedef struct { NvmShapeId source, target; int alias_view; } NvmShapeConversion;

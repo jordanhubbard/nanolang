@@ -1,0 +1,7 @@
+I retain record-field transport evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-field-transport-8wvgdkmm
+test_absent_payload_cannot_become_an_exact_field (tests.test_native_record_field_transport.RecordFieldTransport.test_absent_payload_cannot_become_an_exact_field) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.227s
+
+OK

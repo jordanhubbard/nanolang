@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/usr/bin/make",
+    "-f",
+    "Makefile.gnu",
+    "-j2",
+    "CC=/opt/homebrew/opt/llvm/bin/clang",
+    "CFLAGS=-Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.4/include -std=c99 -D_GNU_SOURCE -D_DARWIN_C_SOURCE -Wall -Wextra -Werror -g -O1 -I /Users/jordanh/Src/nanolang/src",
+    "LDFLAGS=-lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.4/lib",
+    "OBJ_DIR=/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-8by_zhxq/publisher-obj",
+    "BIN_DIR=/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-8by_zhxq/publisher-bin",
+    "nsi-file-binding"
+  ],
+  "cwd": "/Users/jordanh/Src/nanolang",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

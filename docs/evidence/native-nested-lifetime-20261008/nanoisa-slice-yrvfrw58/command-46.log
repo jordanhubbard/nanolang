@@ -1,0 +1,105 @@
+['/private/tmp/nanolang-nested-array-driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-yrvfrw58/closures.nano', 'program']
+.types 0 0 0
+.entry 0
+
+.function main 0 10 0 int 1
+  PUSH_I64 7
+  CALL make
+  PUSH_I64 9
+  CALL make
+  ARR_LITERAL 11 2
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  STORE_LOCAL 1
+  PUSH_I64 0
+  STORE_LOCAL 2
+  PUSH_I64 2
+  STORE_LOCAL 3
+  LOAD_LOCAL 1
+  ARR_LEN
+  STORE_LOCAL 4
+  LOAD_LOCAL 2
+  PUSH_I64 0
+  I64_LT_S
+  JMP_FALSE L0
+  PUSH_I64 0
+  STORE_LOCAL 2
+L0:
+  LOAD_LOCAL 2
+  LOAD_LOCAL 4
+  I64_GT_S
+  JMP_FALSE L1
+  LOAD_LOCAL 4
+  STORE_LOCAL 2
+L1:
+  LOAD_LOCAL 4
+  LOAD_LOCAL 2
+  I64_SUB
+  STORE_LOCAL 4
+  LOAD_LOCAL 3
+  PUSH_I64 0
+  I64_LT_S
+  JMP_FALSE L2
+  PUSH_I64 0
+  STORE_LOCAL 3
+L2:
+  LOAD_LOCAL 3
+  LOAD_LOCAL 4
+  I64_GT_S
+  JMP_FALSE L3
+  LOAD_LOCAL 4
+  STORE_LOCAL 3
+L3:
+  LOAD_LOCAL 1
+  LOAD_LOCAL 2
+  LOAD_LOCAL 2
+  LOAD_LOCAL 3
+  I64_ADD
+  ARR_SLICE
+  STORE_LOCAL 5
+  LOAD_LOCAL 0
+  PUSH_I64 0
+  PUSH_I64 1
+  CALL make
+  ARR_SET
+  POP
+  LOAD_LOCAL 5
+  PUSH_I64 0
+  ARR_GET
+  STORE_LOCAL 6
+  LOAD_LOCAL 5
+  PUSH_I64 1
+  ARR_GET
+  STORE_LOCAL 7
+  LOAD_LOCAL 6
+  STORE_LOCAL 8
+  LOAD_LOCAL 8
+  CALL_INDIRECT 0 1
+  PUSH_I64 7
+  I64_EQ
+  ASSERT
+  LOAD_LOCAL 7
+  STORE_LOCAL 9
+  LOAD_LOCAL 9
+  CALL_INDIRECT 0 1
+  PUSH_I64 9
+  I64_EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+.end
+
+.function make 1 1 0 function 1
+.local_begin 0 "n"
+  LOAD_LOCAL 0
+  CLOSURE_NEW __lambda_1_36 1
+  RET
+.end
+
+.function __lambda_1_36 0 0 1 int 1
+  LOAD_UPVALUE 0 0
+  RET
+.end
+
+.parameters make int
+

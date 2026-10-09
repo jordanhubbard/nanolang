@@ -1,0 +1,22 @@
+.entry main
+.string retained "retained"
+.function main 0 3 0 int 1
+PUSH_STR retained
+AGG_PACK 0 0 0 1
+ARR_LITERAL 8 1
+STORE_GLOBAL 0
+LOAD_GLOBAL 0
+ARR_POP
+STORE_LOCAL 0
+LOAD_GLOBAL 0
+ARR_POP
+TYPE_CHECK 0
+ASSERT
+LOAD_LOCAL 0
+AGG_GET 0
+PUSH_STR retained
+STR_EQ
+ASSERT
+PUSH_I64 0
+RET
+.end

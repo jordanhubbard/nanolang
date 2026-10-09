@@ -1,0 +1,56 @@
+I retain parser field reduction at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-parser-field-reduction-jyg5bht_
+test_exact_into_tagged_record (__main__.ParserFields.test_exact_into_tagged_record) ... FAIL
+test_tagged_into_exact_record (__main__.ParserFields.test_tagged_into_exact_record) ... FAIL
+
+======================================================================
+FAIL: test_exact_into_tagged_record (__main__.ParserFields.test_exact_into_tagged_record)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-parser-field-reduction.py", line 14, in test_exact_into_tagged_record
+    self.paired('exact-into-tagged',
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        'PUSH_I64 1\nARR_LITERAL 1 1\nPUSH_I64 0\nARR_GET\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'AGG_PACK 0 0 0 1\nARR_LITERAL 8 1\nSTORE_LOCAL 0\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'LOAD_LOCAL 0\nPUSH_I64 0\nPUSH_I64 2\nAGG_PACK 0 0 0 1\nARR_SET\nPOP\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nAGG_GET 0\nPUSH_I64 2\nI64_EQ\nASSERT\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 38, in paired
+    self.command(ROOT / 'bin/nvm2c', module, '-o', native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 26, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-parser-field-reduction-jyg5bht_/exact-into-tagged.nvm': ARR_SET record field representation mismatch (function 0, offset 71, field 0, kinds 8/0, final=0)
+
+
+======================================================================
+FAIL: test_tagged_into_exact_record (__main__.ParserFields.test_tagged_into_exact_record)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-parser-field-reduction.py", line 20, in test_tagged_into_exact_record
+    self.paired('tagged-into-exact',
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+        'PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1\nSTORE_LOCAL 0\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'LOAD_LOCAL 0\nPUSH_I64 0\nPUSH_I64 2\nARR_LITERAL 1 1\nPUSH_I64 0\nARR_GET\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'AGG_PACK 0 0 0 1\nARR_SET\nPOP\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nAGG_GET 0\nPUSH_I64 2\nI64_EQ\nASSERT\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 38, in paired
+    self.command(ROOT / 'bin/nvm2c', module, '-o', native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 26, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-parser-field-reduction-jyg5bht_/tagged-into-exact.nvm': ARR_SET record field representation mismatch (function 0, offset 71, field 0, kinds 0/8, final=0)
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.071s
+
+FAILED (failures=2)

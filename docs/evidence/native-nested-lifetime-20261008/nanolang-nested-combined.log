@@ -1,0 +1,55 @@
+I retain nested array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-x4muam2c
+test_nested_record_child (tests.test_native_nested_arrays.NativeNestedArrays.test_nested_record_child) ... ok
+test_self_cycle_survives_collection_and_pop (tests.test_native_nested_arrays.NativeNestedArrays.test_self_cycle_survives_collection_and_pop) ... ok
+test_slice_retains_children_after_outer_release (tests.test_native_nested_arrays.NativeNestedArrays.test_slice_retains_children_after_outer_release) ... ok
+I retain byte-array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-byte-arrays-bzxe6yrr
+test_alias_mutation_slice_independence_and_empty (tests.test_native_byte_arrays.NativeByteArrays.test_alias_mutation_slice_independence_and_empty) ... ok
+test_byte_roots_survive_collection (tests.test_native_byte_arrays.NativeByteArrays.test_byte_roots_survive_collection) ... ok
+test_calls_globals_records_and_absent_reads (tests.test_native_byte_arrays.NativeByteArrays.test_calls_globals_records_and_absent_reads) ... ok
+test_literal_tags_and_integer_narrowing (tests.test_native_byte_arrays.NativeByteArrays.test_literal_tags_and_integer_narrowing) ... ok
+test_tagged_integer_pop_keeps_integer_identity (tests.test_native_byte_arrays.NativeByteArrays.test_tagged_integer_pop_keeps_integer_identity) ... ok
+test_tagged_record_pop_preserves_owned_child (tests.test_native_byte_arrays.NativeByteArrays.test_tagged_record_pop_preserves_owned_child) ... ok
+I retain slice qualification at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-yrvfrw58
+test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) ... ok
+test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) ... ok
+test_byte_slice (tests.test_nanoisa_array_slice.NanoISASlice.test_byte_slice) ... ok
+test_closure_environment_copy (tests.test_nanoisa_array_slice.NanoISASlice.test_closure_environment_copy) ... ok
+test_nested_contexts_and_mutation (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_contexts_and_mutation) ... 
+  test_nested_contexts_and_mutation (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_contexts_and_mutation) (case='nested-contexts', producer='seed') ... FAIL
+  test_nested_contexts_and_mutation (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_contexts_and_mutation) (case='nested-contexts', producer='selfhost') ... FAIL
+test_nested_element_refusals (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_element_refusals) ... ok
+test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) ... ok
+test_unchecked_emitter_refuses_invalid_operands (tests.test_nanoisa_array_slice.NanoISASlice.test_unchecked_emitter_refuses_invalid_operands) ... ok
+
+======================================================================
+FAIL: test_nested_contexts_and_mutation (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_contexts_and_mutation) (case='nested-contexts', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_array_slice.py", line 50, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-types-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-yrvfrw58/nested-contexts-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-yrvfrw58/nested-contexts-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-yrvfrw58/nested-contexts-seed.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to array at nodes 204/99
+
+
+======================================================================
+FAIL: test_nested_contexts_and_mutation (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_contexts_and_mutation) (case='nested-contexts', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_array_slice.py", line 50, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-types-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-yrvfrw58/nested-contexts-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-yrvfrw58/nested-contexts-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-yrvfrw58/nested-contexts-selfhost.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to array at nodes 204/97
+
+
+----------------------------------------------------------------------
+Ran 17 tests in 10.393s
+
+FAILED (failures=2)
