@@ -538,7 +538,8 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          lcov --capture --directory . --output-file coverage.info
+          # I exclude ephemeral native products before geninfo reads deleted sources.
+          lcov --capture --directory . --exclude '*/.nano-native.*/*' --output-file coverage.info
           lcov --remove coverage.info '/usr/*' --output-file coverage.info --ignore-errors unused
           lcov --remove coverage.info '*/cJSON.c' --output-file coverage.info --ignore-errors unused
           lcov --list coverage.info

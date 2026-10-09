@@ -778,10 +778,18 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
      * incorrectly shadow well-scoped locals in earlier functions.
      */
     Symbol *best_unknown = NULL;
+    /* I visit only this name's hash chain, in the original newest-first order.
+     * Locations and files remain live symbol facts, never cached decisions. */
+    struct EnvSymbolIndex *index = symbol_index_sync(env);
+    uint64_t hash = symbol_name_hash(name);
+    int head = index ? index->heads[hash & (index->bucket_count - 1)] : env->symbol_count;
 
     /* Pass 1: from most-recent to oldest, return first visible symbol WITH a source location. */
-    for (int i = env->symbol_count - 1; i >= 0; i--) {
-        Symbol *sym = &env->symbols[i];
+    for (int next = head; next;) {
+        int slot = next - 1;
+        Symbol *sym = &env->symbols[slot];
+        next = index ? index->links[slot].previous : slot;
+        if (index && index->links[slot].hash != hash) continue;
         if (!sym->name) continue;
         if (safe_strcmp(sym->name, name) != 0) continue;
 
@@ -818,8 +826,11 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
     if (imported) return imported;
 
     /* Pass 2: fall back to most-recent symbol without a source location. */
-    for (int i = env->symbol_count - 1; i >= 0; i--) {
-        Symbol *sym = &env->symbols[i];
+    for (int next = head; next;) {
+        int slot = next - 1;
+        Symbol *sym = &env->symbols[slot];
+        next = index ? index->links[slot].previous : slot;
+        if (index && index->links[slot].hash != hash) continue;
         if (!sym->name) continue;
         if (safe_strcmp(sym->name, name) != 0) continue;
 
