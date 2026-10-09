@@ -506,3 +506,22 @@ remain distinct; no fresh-bootstrap or File service execution claim follows.
 ## My integrated origin binding
 
 I now bind C service declarations in the real import loader to environment-owned canonical source paths before aliases are applied. My Nano driver binds the parser nodes from the existing exact per-line source map and retains original line/column locations alongside the merged positions. Both paths validate before changing origin indices. I qualify the C recursive loader, paired source helpers and a [fresh full Darwin bootstrap](evidence/service-origins-bootstrap-4bf302505/README.md). The companion reader is still not invoked by either frontend; complete namespace resolution and executable File source admission remain open.
+
+## My Nano companion-input ABI
+
+I expose the existing reader in `modules/file_source_inputs` through six exact
+artifact signatures. Each caller owns an explicit opaque snapshot context and
+frees it once; I use no global handle table. Acquisition checks full terminated
+string extents against declared counts before passing spans to the strict reader.
+Nonnegative results identify retained snapshots; negative results retain the
+reader's status. My text operation copies one counted view and the module
+manifest marks that result as an owned string. A copied view survives context
+destruction. NULL becomes the runtime's empty string, so a caller must reject an
+empty required view rather than treating allocation failure as valid input.
+
+The reader's 64 MiB bound covers its context and strict preparation storage.
+Returned copies belong to the caller and are additional storage; this bridge
+alone does not establish a whole-driver aggregate budget. Actual driver lifetime,
+complete namespace resolution and paired File lowering remain pending. I retain
+explicit nominal opaque typing for this compiler-input handle; it is not a File
+service type or an execution grant.

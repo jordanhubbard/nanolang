@@ -24,6 +24,7 @@ static int checked_close(int fd){closes++;int r=close(fd);if(io_fault==3){errno=
 #undef free
 #undef read
 #undef close
+#include "../modules/file_source_inputs/file_source_inputs.c"
 static void put(const char *path,const unsigned char *data,size_t n){FILE *f=fopen(path,"wb");assert(f);assert(fwrite(data,1,n,f)==n);assert(!fclose(f));}
 static NlFileBindingStatus acquire(NlFileSourceSnapshots *p,const char *origin,const char *name,size_t *i){return nl_file_source_snapshot_open(p,origin,strlen(origin),name,strlen(name),i);}
 int main(int argc,char **argv){
@@ -33,6 +34,22 @@ int main(int argc,char **argv){
  char path[512],origin[512],link[512],fifo[512],folder[512];
  snprintf(path,sizeof path,"%s/interface.json",directory);snprintf(origin,sizeof origin,"%s/binding.nano",directory);snprintf(link,sizeof link,"%s/link.json",directory);snprintf(fifo,sizeof fifo,"%s/pipe.json",directory);snprintf(folder,sizeof folder,"%s/folder",directory);
  put(path,bytes,(size_t)length);assert(!symlink(path,link));assert(!mkfifo(fifo,0600));assert(!mkdir(folder,0700));
+ /* I check the actual string-ABI bridge against the complete retained input. */
+ NlFileSourceSnapshots *bridge=nl_source_inputs_new(),*independent=nl_source_inputs_new();
+ assert(nl_source_inputs_valid(bridge) && nl_source_inputs_valid(independent));
+ assert(!nl_source_inputs_valid(NULL));
+ assert(nl_source_inputs_open(bridge,origin,strlen(origin),"interface.json",15)==-NL_FILE_BINDING_INVALID);
+ assert(nl_source_inputs_open(bridge,origin,-1,"interface.json",14)==-NL_FILE_BINDING_INVALID);
+ assert(nl_source_inputs_count(bridge)==0);
+ assert(nl_source_inputs_open(bridge,origin,strlen(origin),"interface.json",14)==0);
+ char *copied=nl_source_inputs_text(bridge,0,1);
+ assert(copied && strlen(copied)==(size_t)length && !memcmp(copied,bytes,(size_t)length));
+ assert(!nl_source_inputs_text(bridge,-1,1));assert(!nl_source_inputs_text(bridge,0,4));
+ assert(!nl_source_inputs_text(NULL,0,1));
+ nl_source_inputs_free(bridge);
+ assert(strlen(copied)==(size_t)length && !memcmp(copied,bytes,(size_t)length));free(copied);
+ assert(nl_source_inputs_count(independent)==0);nl_source_inputs_free(independent);
+ nl_source_inputs_free(NULL);assert(live==0);
  NlFileSourceSnapshots *p=NULL;assert(nl_file_source_snapshots_new(&p)==NL_FILE_BINDING_OK);
  size_t i=99;assert(acquire(p,origin,"interface.json",&i)==NL_FILE_BINDING_OK && i==0);
  size_t n=99;const unsigned char *raw=nl_file_source_snapshot_bytes(p,0,1,&n);assert(n==(size_t)length && !memcmp(raw,bytes,n));

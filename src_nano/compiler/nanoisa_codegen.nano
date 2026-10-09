@@ -2648,9 +2648,29 @@ shadow nisa_sqlite_signature {
     assert (== (array_length (nisa_sqlite_signature "nl_sqlite3_unknown")) 0)
 }
 
+# I carry an explicit data-only snapshot context through the ordinary artifact ABI.
+fn nisa_source_inputs_signature(name: string) -> array<string> {
+    if (== name "nl_source_inputs_new") { return ["NlFileSourceSnapshots"] }
+    if (or (== name "nl_source_inputs_valid") (== name "nl_source_inputs_count")) { return ["int", "NlFileSourceSnapshots"] }
+    if (== name "nl_source_inputs_open") { return ["int", "NlFileSourceSnapshots", "string", "int", "string", "int"] }
+    if (== name "nl_source_inputs_text") { return ["string", "NlFileSourceSnapshots", "int", "int"] }
+    if (== name "nl_source_inputs_free") { return ["void", "NlFileSourceSnapshots"] }
+    return []
+}
+shadow nisa_source_inputs_signature {
+    assert (== (at (nisa_source_inputs_signature "nl_source_inputs_new") 0) "NlFileSourceSnapshots")
+    assert (== (array_length (nisa_source_inputs_signature "nl_source_inputs_open")) 6)
+    assert (== (at (nisa_source_inputs_signature "nl_source_inputs_open") 4) "string")
+    assert (== (at (nisa_source_inputs_signature "nl_source_inputs_text") 0) "string")
+    assert (== (at (nisa_source_inputs_signature "nl_source_inputs_free") 0) "void")
+    assert (== (array_length (nisa_source_inputs_signature "nl_source_inputs_unknown")) 0)
+}
+
 fn nisa_typed_artifact_signature(name: string) -> array<string> {
     let json: array<string> = (nisa_json_signature name)
     if (> (array_length json) 0) { return json }
+    let inputs: array<string> = (nisa_source_inputs_signature name)
+    if (> (array_length inputs) 0) { return inputs }
     return (nisa_sqlite_signature name)
 }
 shadow nisa_typed_artifact_signature {
@@ -2787,6 +2807,10 @@ fn nisa_register_artifact(parser: Parser, function: ASTFunction) -> int {
         let rejected: string = (nisa_fail "I require the declared Json opaque type for its artifact ABI")
         return -1
     }
+    if (and (> (array_length (nisa_source_inputs_signature function.name)) 0) (< (nisa_opaque_index parser "NlFileSourceSnapshots") 0)) {
+        let rejected: string = (nisa_fail "I require the declared snapshot context type for its artifact ABI")
+        return -1
+    }
     let mut i: int = 0
     while (< i arity) {
         let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
@@ -2843,6 +2867,31 @@ shadow nisa_register_artifact {
     assert (== (nisa_register_artifact wrong_parser (parser_get_function wrong_parser 0)) -1)
     assert (== nisa_import_text "")
     let reset_wrong: int = (nisa_reset)
+    let inputs: array<string> = [
+        "opaque type NlFileSourceSnapshots\nextern fn nl_source_inputs_new() -> NlFileSourceSnapshots",
+        "extern fn nl_source_inputs_new() -> NlFileSourceSnapshots",
+        "opaque type NlFileSourceSnapshots\nextern fn nl_source_inputs_open(context: int, origin: string, count: int, path: string, size: int) -> int"
+    ]
+    let mut sample: int = 0
+    while (< sample (array_length inputs)) {
+        let _: int = (nisa_reset)
+        let ts: List<LexerToken> = (tokenize_string (at inputs sample) "input.nano" (diag_list_new))
+        let ps: Parser = (parse_program ts (list_LexerToken_length ts) "input.nano")
+        (mb_reset [1])
+        set nisa_artifact_owners [0]
+        set nisa_artifact_paths ["/retained/inputs.so"]
+        let imported: int = (nisa_register_artifact ps (parser_get_function ps 0))
+        if (== sample 0) {
+            assert (== imported 0)
+            assert (str_contains nisa_import_text "\"nl_source_inputs_new\" opaque")
+        } else {
+            assert (== imported -1)
+            assert (== nisa_import_text "")
+        }
+        set sample (+ sample 1)
+    }
+    (mb_reset [])
+    let _: int = (nisa_reset)
 }
 
 # I validate reserved metadata declarations even when reachability omits them.

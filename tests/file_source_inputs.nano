@@ -1,0 +1,39 @@
+import "modules/file_source_inputs/file_source_inputs.nano"
+extern fn get_argv(index: int) -> string
+
+fn main() -> int {
+    unsafe {
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        assert (== (nl_source_inputs_valid context) 1)
+        assert (== (nl_source_inputs_count context) 0)
+        let origin: string = (get_argv 1)
+        assert (== (nl_source_inputs_open context origin (str_length origin) "interface.nsi.json" 17) -1)
+        assert (== (nl_source_inputs_count context) 0)
+        assert (== (nl_source_inputs_open context origin (str_length origin) "interface.nsi.json" 18) 0)
+        let retained: string = (nl_source_inputs_text context 0 1)
+        let canonical: string = (nl_source_inputs_text context 0 2)
+        let generated: string = (nl_source_inputs_text context 0 3)
+        assert (> (str_length retained) 0)
+        assert (> (str_length generated) 0)
+        let other: NlFileSourceSnapshots = (nl_source_inputs_new)
+        assert (== (nl_source_inputs_valid other) 1)
+        assert (== (nl_source_inputs_count other) 0)
+        (nl_source_inputs_free context)
+        assert (> (str_length retained) 0)
+        assert (> (str_length canonical) 0)
+        assert (> (str_length generated) 0)
+        assert (== (nl_source_inputs_count other) 0)
+        (nl_source_inputs_free other)
+    }
+    (println "PASS source input bridge")
+    return 0
+}
+shadow main {
+    unsafe {
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        assert (== (nl_source_inputs_valid context) 1)
+        assert (== (nl_source_inputs_open context "relative" 8 "missing" 7) -1)
+        assert (== (nl_source_inputs_count context) 0)
+        (nl_source_inputs_free context)
+    }
+}

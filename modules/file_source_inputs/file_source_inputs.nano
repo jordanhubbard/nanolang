@@ -1,0 +1,11 @@
+module file_source_inputs
+
+# I own one bounded immutable snapshot context per compilation. My caller
+# destroys it once, after copying all views needed by checking and lowering.
+opaque type NlFileSourceSnapshots
+pub extern fn nl_source_inputs_new() -> NlFileSourceSnapshots
+pub extern fn nl_source_inputs_valid(context: NlFileSourceSnapshots) -> int
+pub extern fn nl_source_inputs_open(context: NlFileSourceSnapshots, origin: string, origin_size: int, relative: string, relative_size: int) -> int
+pub extern fn nl_source_inputs_count(context: NlFileSourceSnapshots) -> int
+pub extern fn nl_source_inputs_text(context: NlFileSourceSnapshots, index: int, kind: int) -> string
+pub extern fn nl_source_inputs_free(context: NlFileSourceSnapshots) -> void
