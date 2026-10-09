@@ -1,0 +1,23 @@
+{
+  "base": "4d38548d038e0bf307d1e8e16086d5263ed391c5",
+  "retired": {
+    "compiler_modular.nano": {
+      "bytes": 8284,
+      "sha256": "a348f27896fb6f8a42f66a777983b9757be440300fe9cda412dded6604c7139f"
+    },
+    "nanoc_integrated.nano": {
+      "bytes": 193882,
+      "sha256": "1393ab0b95f0e2728e0dcc27473b77ac7a52845a9227f8750fd857f0cc536e8b"
+    },
+    "driver.nano": {
+      "bytes": 25494,
+      "sha256": "df2559b828ab6246207a125a525bbd7f0df1993906cb4989e94306a296d96bec"
+    },
+    "transpiler_driver.nano": {
+      "bytes": 1147,
+      "sha256": "bb62116e039ae2d4eb4091f4f008d789819de26d57b33d674403139ef7524163"
+    }
+  },
+  "identical_historical_bodies": true,
+  "exact_body_preserved": true
+}

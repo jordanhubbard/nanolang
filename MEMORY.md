@@ -981,7 +981,7 @@ translator fallback; recovered `if`/`while` is not this subset.
 | `file_io.nano` | File I/O operations |
 | `parser_driver.nano` | Parser test driver |
 | `typecheck_driver.nano` | Type checker test driver |
-| `transpiler_driver.nano` | Transpiler test driver |
+| `nanoisa_driver.nano` | NanoISA program and selected-shadow test driver |
 
 ### 10.7 Schema Generation
 

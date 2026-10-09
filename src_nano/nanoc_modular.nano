@@ -175,10 +175,10 @@ fn compile_file(input: string, output: string, verbose: bool, keep_c: bool) -> i
     }
     let source: string = (file_read input)
     
-    /* Imports work — the full NanoLang pipeline is implemented in compiler_modular.nano.
+    /* Imports work — the full NanoLang pipeline is implemented in nanoc_v06.nano.
      * This file delegates to the C compiler for compatibility. */
     if verbose {
-        (println "[2/6] Using C implementation (see compiler_modular.nano for pure NanoLang pipeline)...")
+        (println "[2/6] Using C implementation (see nanoc_v06.nano for pure NanoLang pipeline)...")
     } else {
         (print "")
     }

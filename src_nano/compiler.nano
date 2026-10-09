@@ -154,11 +154,11 @@ fn compile(input: string, output: string, keep_c: bool, verbose: bool) -> int {
     }
     let source: string = (file_read input)
     
-    /* Import aliases now work — see compiler_modular.nano for the full NanoLang pipeline.
-     * This file delegates to the C compiler for simplicity; compiler_modular.nano is the
+    /* Import aliases now work — see nanoc_v06.nano for the full NanoLang pipeline.
+     * This file delegates to the C compiler for simplicity; nanoc_v06.nano is the
      * true self-hosted version using Lexer/Parser/TypeCheck/Transpile modules. */
     if verbose {
-        (println "Step 2-5: Using C compiler (see compiler_modular.nano for NanoLang pipeline)...")
+        (println "Step 2-5: Using C compiler (see nanoc_v06.nano for NanoLang pipeline)...")
     } else {
         (print "")
     }

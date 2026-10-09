@@ -62,13 +62,21 @@ shadow main { assert (== (main) 0) }
             self.checked([ROOT / 'bin/nvm2c', module, '-o', native])
             self.checked(['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', native, '-o', binary])
             self.checked([binary])
-            # I execute each formatter's exact source and adjacent shadow,
-            # without importing an obsolete whole compiler as a new product.
-            for name in ('compiler_modular.nano', 'nanoc_integrated.nano'):
-                text = (ROOT / 'src_nano' / name).read_text()
-                start = text.index('fn phase_to_string(')
-                end = text.index('fn print_single_diagnostic(', start)
-                self.execute(prefix + text[start:end] + 'fn main()->int{return 0}\n', work, name)
+            # I preserve the identical historical formatter and its shadow
+            # without retaining two obsolete whole compiler implementations.
+            text = (ROOT / 'tests/nanoisa/fixtures/historical_phase_formatter.nano.txt').read_text()
+            self.execute(prefix + text + """fn main()->int {
+ assert (== (phase_to_string CompilerPhase.PHASE_LEXER) "lexer")
+ assert (== (phase_to_string CompilerPhase.PHASE_PARSER) "parser")
+ assert (== (phase_to_string CompilerPhase.PHASE_TYPECHECK) "typecheck")
+ assert (== (phase_to_string CompilerPhase.PHASE_NANOISA) "nanoisa")
+ assert (== (phase_to_string CompilerPhase.PHASE_RUNTIME) "runtime")
+ assert (== (phase_to_string CompilerPhase.PHASE_BACKEND) "backend")
+ assert (== (phase_to_string -1) "unknown")
+ assert (== (phase_to_string 99) "unknown")
+ return 0
+}
+""", work, 'historical-formatter')
 
     def test_cseed_compiler_failure_reports_backend_phase(self):
         with tempfile.TemporaryDirectory(prefix='nano-phase-failure-') as tmp:
