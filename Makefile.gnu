@@ -189,6 +189,7 @@ VERIFY_SMOKE_SOURCE = examples/language/nl_hello.nano
 BOOTSTRAP_DETERMINISTIC ?= 0
 # TMPDIR-aware temp directory for bootstrap test artifacts
 BOOTSTRAP_TMPDIR := $(or $(TMPDIR),/tmp)
+COMPONENT_LOG_DIR := $(OBJ_DIR)/component-logs
 BOOTSTRAP_ENV := NANO_MODULE_PATH=modules NANO_BUILD_CACHE=$(NANO_BUILD_CACHE)
 # Absolute path to repo modules; passed to examples build so module resolution works from any cwd
 NANO_MODULES_ABS := $(abspath $(CURDIR)/modules)
@@ -3646,6 +3647,7 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1) $(SELFHOST_SOURCES) Makefile.gnu
 	@echo "=========================================="
 	@echo "Compiling components with $(COMPILER)..."
 	@echo ""
+	@mkdir -p "$(COMPONENT_LOG_DIR)"
 	@# Compile each self-hosted component (STRICT: must produce an executable binary)
 	@# If compiler is ASan-instrumented, disable leak detection during compilation.
 	@if nm obj/lexer.o 2>/dev/null | grep -q "__asan"; then \
@@ -3659,7 +3661,7 @@ $(SENTINEL_STAGE2): $(SENTINEL_STAGE1) $(SELFHOST_SOURCES) Makefile.gnu
 		if [ "$$comp" = "typecheck" ]; then src="typecheck_driver"; fi; \
 		if [ "$$comp" = "nanoisa_emitter" ]; then src="nanoisa_driver"; fi; \
 		out="$(BIN_DIR)/$$comp"; \
-		log="$(BOOTSTRAP_TMPDIR)/nanolang_stage2_$$comp.log"; \
+		log="$(COMPONENT_LOG_DIR)/stage2_$$comp.log"; \
 		echo "  Building $$comp..."; \
 		rm -f "$$out" "$$log"; \
 		if $(TIMEOUT_CMD) $(COMPILER) "$(SRC_NANO_DIR)/$$src.nano" -o "$$out" >"$$log" 2>&1; then \
@@ -3696,11 +3698,12 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 	@echo "=========================================="
 	@echo "Validating self-hosted components..."
 	@echo ""
+	@mkdir -p "$(COMPONENT_LOG_DIR)"
 	@# Each driver executes explicit entry assertions; imported shadows are separate.
 	@success=0; fail=0; missing=0; \
 	for comp in $(SELFHOST_COMPONENTS); do \
 		bin="$(BIN_DIR)/$$comp"; \
-		log="$(BOOTSTRAP_TMPDIR)/nanolang_stage3_$$comp.log"; \
+		log="$(COMPONENT_LOG_DIR)/stage3_$$comp.log"; \
 		if [ ! -x "$$bin" ]; then \
 			echo "  ❌ Missing component binary: $$bin"; \
 			missing=$$((missing + 1)); \
@@ -3722,7 +3725,7 @@ $(SENTINEL_STAGE3): $(SENTINEL_STAGE2)
 		touch $(SENTINEL_STAGE3); \
 	else \
 		echo "❌ Stage 3: FAILED - validated $$success/3 (missing: $$missing)"; \
-		echo "See $(BOOTSTRAP_TMPDIR)/nanolang_stage3_<component>.log for details."; \
+		echo "See $(COMPONENT_LOG_DIR)/stage3_<component>.log for details."; \
 		exit 1; \
 	fi
 
@@ -5968,6 +5971,12 @@ test-native-imported-constants: bin/nanoc_c
 	python3 -m unittest -v tests.test_native_imported_constants
 
 test-units: test-native-imported-constants
+
+.PHONY: test-cseed-shadow-trace
+test-cseed-shadow-trace: bin/nanoc_c
+	python3 -m unittest -v tests.test_cseed_shadow_trace
+
+test-units: test-cseed-shadow-trace
 
 .PHONY: test-native-record-globals test-selfhost-native-link-flags
 test-native-record-globals: nano_vm nanoisa_dump nvm2c

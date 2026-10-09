@@ -12,6 +12,7 @@ env:
   # Every bootstrap still runs shadows; slower and instrumented runners get a
   # larger finite deadline instead of disabling that gate.
   NANO_SHADOW_TIMEOUT_SECONDS: "60"
+  NANO_SHADOW_TRACE: "1"
 
 jobs:
   build-and-test:
@@ -158,6 +159,7 @@ jobs:
           name: verifier-corpus-${{ matrix.os }}-${{ matrix.arch }}
           path: |
             .test_output/verifier-corpus/
+            obj/component-logs/
             obj/bootstrap-nanoisa/**/*.log
             obj/bootstrap-nanoisa/**/manifest.json
           include-hidden-files: true
@@ -418,6 +420,7 @@ jobs:
           name: verifier-corpus-sanitizers
           path: |
             .test_output/verifier-corpus/
+            obj/component-logs/
             obj/bootstrap-nanoisa/**/*.log
             obj/bootstrap-nanoisa/**/manifest.json
           include-hidden-files: true
@@ -509,6 +512,7 @@ jobs:
           name: verifier-corpus-coverage
           path: |
             .test_output/verifier-corpus/
+            obj/component-logs/
             obj/bootstrap-nanoisa/**/*.log
             obj/bootstrap-nanoisa/**/manifest.json
           include-hidden-files: true
