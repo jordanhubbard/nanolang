@@ -378,10 +378,12 @@ static uint64_t hash_file_fnv1a(const char *path) {
     return failed ? 0 : h;
 }
 
+/* I preserve an explicit module driver (including C++) before the default CC.
+ * NANO_CC remains my deliberate override for every module. */
 static const char *module_selected_compiler(const ModuleBuildMetadata *meta) {
     const char *cc = getenv("NANO_CC");
-    if (!cc) cc = getenv("CC");
     if (!cc) cc = meta->c_compiler;
+    if (!cc) cc = getenv("CC");
     return cc ? cc : "cc";
 }
 

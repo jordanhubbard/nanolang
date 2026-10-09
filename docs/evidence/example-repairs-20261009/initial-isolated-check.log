@@ -1,0 +1,3 @@
+{"source": "examples/api_lessons/glut_helpers_api.nano", "exit": 0, "stdout": "", "stderr": "Warning at line 9, column 5: Unused variable 'text'\nglut helper calls: 4\n"}
+VERIFY glut_helpers_api.nano 0  
+{"source": "examples/api_lessons/sdl_image_safe_api.nano", "exit": 1, "stdout": "", "stderr": "ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'\nld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2main'\nI could not publish complete C-library artifacts for sdl_image\nI could not build foreign support for /private/tmp/nanolang-example-repairs-20261009/modules/sdl_image/sdl_image.nano\n"}

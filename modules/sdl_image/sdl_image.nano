@@ -131,13 +131,13 @@ pub extern fn IMG_SetError(_fmt: string) -> int
 # Constants - Initialization Flags
 # ============================================================================
 
-let IMG_INIT_JPG: int = 1    # JPEG support via libjpeg
+pub let IMG_INIT_JPG: int = 1    # JPEG support via libjpeg
 pub let IMG_INIT_PNG: int = 2    # PNG support via libpng
-let IMG_INIT_TIF: int = 4    # TIFF support via libtiff
-let IMG_INIT_WEBP: int = 8   # WEBP support via libwebp
-let IMG_INIT_JXL: int = 16   # JPEG XL support (SDL_image 2.6+)
-let IMG_INIT_AVIF: int = 32  # AVIF support (SDL_image 2.6+)
-let IMG_INIT_ALL: int = 63   # All supported formats
+pub let IMG_INIT_TIF: int = 4    # TIFF support via libtiff
+pub let IMG_INIT_WEBP: int = 8   # WEBP support via libwebp
+pub let IMG_INIT_JXL: int = 16   # JPEG XL support (SDL_image 2.6+)
+pub let IMG_INIT_AVIF: int = 32  # AVIF support (SDL_image 2.6+)
+pub let IMG_INIT_ALL: int = 63   # All supported formats
 
 # ============================================================================
 # NanoLang Helper Functions
@@ -228,16 +228,16 @@ pub extern fn nl_img_get_supported_formats() -> array<string>
 # SDL Blend Mode Constants (for nl_img_set_texture_blend_mode)
 # ============================================================================
 
-let SDL_BLENDMODE_NONE: int = 0   # No blending
-let SDL_BLENDMODE_BLEND: int = 1  # Alpha blending (default)
-let SDL_BLENDMODE_ADD: int = 2    # Additive blending
-let SDL_BLENDMODE_MOD: int = 4    # Color modulation
+pub let SDL_BLENDMODE_NONE: int = 0   # No blending
+pub let SDL_BLENDMODE_BLEND: int = 1  # Alpha blending (default)
+pub let SDL_BLENDMODE_ADD: int = 2    # Additive blending
+pub let SDL_BLENDMODE_MOD: int = 4    # Color modulation
 
 # ============================================================================
 # SDL Flip Constants (for nl_img_render_texture_ex)
 # ============================================================================
 
-let SDL_FLIP_NONE: int = 0        # No flipping
-let SDL_FLIP_HORIZONTAL: int = 1  # Flip horizontally
-let SDL_FLIP_VERTICAL: int = 2    # Flip vertically
-let SDL_FLIP_BOTH: int = 3        # Flip both directions
+pub let SDL_FLIP_NONE: int = 0        # No flipping
+pub let SDL_FLIP_HORIZONTAL: int = 1  # Flip horizontally
+pub let SDL_FLIP_VERTICAL: int = 2    # Flip vertically
+pub let SDL_FLIP_BOTH: int = 3        # Flip both directions

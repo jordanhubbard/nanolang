@@ -1,0 +1,29 @@
+==========================================
+NanoVM example coverage
+==========================================
+
+Examples on disk: 248   eligible: 244   excluded: 4
+
+Test 1: VM build covers the whole example tree
+  ✓ every example is either built or explicitly declared
+
+Test 2: every eligible example compiles to NanoISA bytecode
+  ✓ all 244 eligible examples lowered to bytecode
+
+Test 3: every exclusion is still genuinely ineligible
+  ✓ all 4 exclusions still fail to compile
+
+Test 4: exclusions are broken sources, not NanoVirt gaps
+  ✓ no exclusion compiles natively
+
+Test 5: deeply nested statements compile without crashing
+  ✓ 400 levels of nesting compiled
+  ✓ and executes correctly (acc = 400)
+
+Test 6: VM builtins that examples depend on
+  ✓ tmp_dir, mktemp and the GPU geometry intrinsics compile
+  ✓ and return the documented host-target values
+
+==========================================
+✅ NanoVM example coverage: all checks passed
+   244 examples build for the VM.

@@ -1,0 +1,7 @@
+test_cpp_driver_retains_language_and_header_invalidation (candidate_cache.ModuleCachePublication.test_cpp_driver_retains_language_and_header_invalidation) ... ok
+test_nano_cc_overrides_explicit_module_driver (candidate_cache.ModuleCachePublication.test_nano_cc_overrides_explicit_module_driver) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.002s
+
+OK

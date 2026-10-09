@@ -607,6 +607,7 @@ int64_t nano_build_answer(void) {
             manifest = module / "module.json"
             metadata = json.loads(manifest.read_text())
             metadata["c_compiler"] = "c++"
+            env["CC"] = shutil.which("cc")
             version = subprocess.run(["c++", "--version"], capture_output=True, check=True)
             if b"clang" in version.stdout:
                 # Clang warns about .c input to a C++ driver. Diagnostics
@@ -631,6 +632,18 @@ int64_t nano_build_answer(void) {
             self.probe_path("build", module, env, timeout=30)
             self.assertNotEqual(self.probe_path("directory", module, env), generation)
             self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 43)
+
+    def test_nano_cc_overrides_explicit_module_driver(self):
+        with tempfile.TemporaryDirectory(prefix="nano-driver-override-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.foreign_build_fixture(directory)
+            metadata = json.loads((module / "module.json").read_text())
+            metadata["c_compiler"] = str(directory / "missing-module-compiler")
+            (module / "module.json").write_text(json.dumps(metadata))
+            env["CC"] = str(directory / "missing-default-compiler")
+            env["NANO_CC"] = shutil.which("cc")
+            self.probe_path("build", module, env, timeout=30)
+            self.assertEqual(self.library_answer(self.probe_path("library", module, env)), 42)
 
     def test_transitive_system_header_invalidates_cache(self):
         with tempfile.TemporaryDirectory(prefix="nano-system-deps-") as tmp:
