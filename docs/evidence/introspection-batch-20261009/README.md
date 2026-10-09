@@ -1,0 +1,7 @@
+# I integrate metadata callables and owned direct calls
+
+I integrate the prepared C and self-hosted metadata fixes, declared source identity, and permanent callable/owned fixtures. All eight shared methods pass in my rebuilt C producer and a freshly compiled self-hosted component. The component build executes compiler shadows. My owned fixture keeps a resource live across all eight operations, checks single evaluation with a mutable scalar global beside an imported ordinary record, and consumes the resource once. Leak, moved-value and malformed-signature controls preserve prior output. Both producers execute VM and translated native products with LLVM address, undefined-behavior and leak sanitizers.
+
+My initial C test expected the self-hosted E0036 code; C reports the same ownership failures without that code. I check the semantic diagnostic text and retain both results. My self-hosted ownership admission now distinguishes array-bearing ordinary layouts from scalar ordinary layouts, matching the C producer; bytecode verification remains unchanged.
+
+The prior aa0b13713 broad gate terminates with exit 2 after 11 of 244 eligible examples fail. Its language and metadata checks pass. The example failures are GLUT/SDL constant visibility, SDL import collisions, and Bullet C++ compilation under the gate's CC override. I retain the complete terminal without excluding examples. Fresh bootstrap, installed-stage checks, owned function values, Linux and full release qualification remain open.

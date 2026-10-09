@@ -691,6 +691,9 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
             return NULL;
         }
     }
+    /* I retain the same physical source under its declared introspection name. */
+    if (identity && strcmp(identity, module_name) != 0)
+        env_register_module(env, identity, module_path, false);
     free(identity);
     /* Register module for introspection BEFORE type checking so functions can be tracked */
     env_register_module(env, module_name, module_path, false);  /* is_unsafe will be updated later */

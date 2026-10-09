@@ -11,6 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 COMPILER = Path(os.environ.get("NANOLANG_INTROSPECTION_COMPILER", ROOT / "bin/nano_virt")).resolve()
 
 
+CALLABLE_FIXTURE = ROOT / "tests/fixtures/module_introspection_callables.nano.txt"
+
+
 class NanoisaIntrospection(unittest.TestCase):
     def checked(self, args):
         result = subprocess.run([str(x) for x in args], cwd=ROOT,
@@ -56,22 +59,70 @@ class NanoisaIntrospection(unittest.TestCase):
                 'assert (== (___module_struct_name_reflection_probe -1) "")\n'
                 'assert (== (___module_struct_name_reflection_probe 99) "")\n'
                 '} assert (== evaluations 1) return 0 }\nshadow main { assert true }\n')
-            module, c_file, binary = (work / name for name in ('program.nvm', 'program.c', 'program'))
-            self.checked([COMPILER, source, '--emit-nvm', '-o', module])
-            self.checked([ROOT / 'bin/nano_vm', '--verify-only', module])
-            self.checked([ROOT / 'bin/nano_vm', module])
-            self.checked([ROOT / 'bin/nvm2c', module, '-o', c_file])
-            flags = ['-rdynamic', '-ldl'] if sys.platform.startswith('linux') else []
-            self.checked([os.environ.get('NANO_NATIVE_TEST_CC', 'cc'), '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
-                          '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
-                          c_file, ROOT / 'bin/nano_aot_runtime.o', '-lm', *flags, '-o', binary])
-            self.checked([binary])
+            self.exercise_product(source, work)
+
+    def exercise_product(self, source, work):
+        module, c_file, binary = (work / name for name in ('program.nvm', 'program.c', 'program'))
+        self.checked([COMPILER, source, '--emit-nvm', '-o', module])
+        self.checked([ROOT / 'bin/nano_vm', '--verify-only', module])
+        self.checked([ROOT / 'bin/nano_vm', module])
+        self.checked([ROOT / 'bin/nvm2c', module, '-o', c_file])
+        flags = ['-rdynamic', '-ldl'] if sys.platform.startswith('linux') else []
+        self.checked([os.environ.get('NANO_NATIVE_TEST_CC', 'cc'), '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+                      '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                      c_file, ROOT / 'bin/nano_aot_runtime.o', '-lm', *flags, '-o', binary])
+        self.checked([binary])
+
+    def test_owned_operations_and_refusals(self):
+        with tempfile.TemporaryDirectory(prefix='nano-owned-facts-') as directory:
+            work = Path(directory).resolve()
+            dependency = work / 'different_filename.nano'
+            dependency.write_text('module callable_probe\npub struct Visible { value: int }\n'
+                                  'pub fn answer() -> int { return 7 }\n'
+                                  'shadow answer { assert (== (answer) 7) }\n')
+            fixture = (ROOT / 'tests/fixtures/module_introspection_owned.nano.txt').read_text()
+            fixture = fixture.replace('@MODULE_PATH@', json.dumps(str(dependency)))
+            source = work / 'main.nano'
+            source.write_text(fixture)
+            self.exercise_product(source, work)
+            controls = {
+                'leak': fixture.replace('assert (== (consume h) 7)', ''),
+                'moved': fixture.replace('assert (== (consume h) 7)',
+                                         'assert (== (consume h) 7) assert (== (consume h) 7)'),
+                'signature': fixture + '\nextern fn ___module_name_unused() -> int\n',
+            }
+            for name, text in controls.items():
+                with self.subTest(refusal=name):
+                    source.write_text(text)
+                    module = work / 'previous.nvm'
+                    module.write_bytes(b'previous module')
+                    result = subprocess.run([COMPILER, source, '--emit-nvm', '-o', module],
+                                            cwd=ROOT, capture_output=True, timeout=120)
+                    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+                    self.assertEqual(module.read_bytes(), b'previous module')
+                    diagnostic = result.stdout + result.stderr
+                    if name == 'signature':
+                        self.assertIn(b'module introspection signature', diagnostic)
+                    else:
+                        self.assertIn(b'resource remains live' if name == 'leak' else b'moved value', diagnostic)
 
     def test_all_operations_and_single_index_evaluation(self):
         self.exercise(False)
 
     def test_empty_export_sets(self):
         self.exercise(True)
+
+    def test_function_values_and_declared_module_path(self):
+        with tempfile.TemporaryDirectory(prefix='nano-module-callables-') as directory:
+            work = Path(directory).resolve()
+            dependency = work / 'different_filename.nano'
+            dependency.write_text('module callable_probe\n'
+                'pub struct Visible { value: int }\n'
+                'pub fn answer() -> int { return 7 }\n'
+                'shadow answer { assert (== (answer) 7) }\n')
+            source = work / 'main.nano'
+            source.write_text(CALLABLE_FIXTURE.read_text().replace('@MODULE_PATH@', json.dumps(str(dependency))))
+            self.exercise_product(source, work)
 
     def test_repository_metadata_programs(self):
         with tempfile.TemporaryDirectory(prefix='nano-module-regressions-') as directory:

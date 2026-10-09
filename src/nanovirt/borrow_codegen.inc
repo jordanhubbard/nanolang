@@ -764,6 +764,21 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         }
         emit_op(cg,!strcmp(n->as.call.name,"println")?OP_PRINTLN:OP_PRINT);return TAG_VOID;
     }
+    if(n->type==AST_CALL && !n->as.call.func_expr && !n->as.call.borrow_mode &&
+       n->as.call.name && !borrow_value_bound(b,n->as.call.name)) {
+        uint16_t arity=0;
+        uint8_t result=module_introspection_result(n->as.call.name,&arity);
+        Function *declaration=env_get_function(b->env,n->as.call.name);
+        if(result!=TAG_VOID && declaration && declaration->is_extern) {
+            if(n->as.call.arg_count!=arity || (arity && borrow_expr(b,n->as.call.args[0])!=TAG_INT)) {
+                borrow_error(b,n,"the exact module introspection arguments");return TAG_VOID;
+            }
+            if(!compile_module_introspection(cg,n->as.call.name)) {
+                borrow_error(b,n,"a known module introspection operation");return TAG_VOID;
+            }
+            return result;
+        }
+    }
     if(n->type==AST_CALL && b->value_graph) {
         int target=n->as.call.func_expr?-1:borrow_function_index(b,n->as.call.name);
         if(target<=0 || n->as.call.borrow_mode || borrow_value_bound(b,n->as.call.name)) {
@@ -1594,7 +1609,7 @@ static bool borrow_source_uses_owner(ASTNode *n,Environment *env) {
 static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,ModuleList *modules,bool shadows) {
     CodegenResult out={0};CG *cg=calloc(1,sizeof(*cg));BorrowCG *b=calloc(1,sizeof(*b));
     if(!cg || !b){free(cg);free(b);snprintf(out.error_msg,sizeof(out.error_msg),"I cannot allocate my source borrow compiler");return out;}
-    b->cg=cg;b->env=env;cg->module=nvm_module_new();cg->code=malloc(CODE_INITIAL);cg->code_cap=CODE_INITIAL;
+    b->cg=cg;b->env=env;cg->env=env;cg->module=nvm_module_new();cg->code=malloc(CODE_INITIAL);cg->code_cap=CODE_INITIAL;
     ASTNode *entry=NULL,*declared[8];unsigned declared_count=0;bool has_borrow=false;
     if(!cg->module || !cg->code)borrow_error(b,NULL,"available module storage");
     unsigned module_count=modules && modules->count>0?(unsigned)modules->count:0;
@@ -1651,6 +1666,13 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
         } else if(n->type==AST_UNION_DEF) {
             if(n->as.union_def.is_extern || !env_get_union(env,n->as.union_def.name))
                 borrow_error(b,n,"defined local scalar union declarations");
+        } else if(n->type==AST_FUNCTION && n->as.function.is_extern) {
+            uint16_t arity=0;
+            uint8_t result=module_introspection_result(n->as.function.name,&arity);
+            if(result==TAG_VOID || n->as.function.param_count!=arity ||
+               type_to_tag(n->as.function.return_type,n->as.function.return_struct_type_name,env)!=result ||
+               (arity && n->as.function.params[0].type!=TYPE_INT))
+                borrow_error(b,n,"the declared module introspection signature");
         } else if(n->type==AST_FUNCTION && !n->as.function.is_extern) {
             if(!strcmp(n->as.function.name,"main")){if(entry)borrow_error(b,n,"one main entry");entry=n;}
             else b->helper=n;
