@@ -1,0 +1,10 @@
+{
+  "base_source": "5dc3a17fb345b925e9cbe7dd06aaf1d2a62652a4",
+  "files": {
+    "src_nano/compiler/nanoisa_borrows.nano": "09e15c616b79d5b0ab4e5dc4142f4b7b1b5a5d65ff7bcb1b956366e53d3128cb",
+    "/private/tmp/nanolang-mixed-record-candidate/nanoisa_borrows.nano": "0cb1904a5dae3b76de2bfc72275fe3858a8fc2e6925af04e2f4d5c237a26b113",
+    "/private/tmp/nanolang-mixed-record-candidate/nanoisa_codegen.nano": "4db2c0e1a75ae9b676d8c6cc051379109fe9291ec73c2ebd95316774ed863b68",
+    "/private/tmp/nanolang-mixed-record-candidate/nanoc_v06.nano": "249f29761944331436755e77dbb292095cf96074394e9e6c64a3fecb5ec2b05b",
+    "/private/tmp/nanolang-mixed-record-candidate/compiler.nvm": "8b1581b7b48d806f7640766eb54b64f68b20e2018dda91c4c2e79e804338158f"
+  }
+}
