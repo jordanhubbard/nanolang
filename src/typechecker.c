@@ -4792,6 +4792,57 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 }
 
 /* I apply the same declared map context to local and global initializers. */
+/* Global annotations use the same nominal union category as local bindings.
+ * I check every value arm, not just the first name found in a branch expression. */
+static bool global_union_value_matches(Environment *env,const char *name,
+        const TypeInfo *expected,ASTNode *value,unsigned depth) {
+    if(!value || depth>128)return false;
+    if(value->type==AST_IF)
+        return global_union_value_matches(env,name,expected,value->as.if_stmt.then_branch,depth+1) &&
+               global_union_value_matches(env,name,expected,value->as.if_stmt.else_branch,depth+1);
+    if(value->type==AST_COND) {
+        for(int i=0;i<value->as.cond_expr.clause_count;i++)
+            if(!global_union_value_matches(env,name,expected,value->as.cond_expr.values[i],depth+1))return false;
+        return global_union_value_matches(env,name,expected,value->as.cond_expr.else_value,depth+1);
+    }
+    if(value->type==AST_MATCH) {
+        if(!value->as.match_expr.arm_count)return false;
+        for(int i=0;i<value->as.match_expr.arm_count;i++)
+            if(!global_union_value_matches(env,name,expected,value->as.match_expr.arm_bodies[i],depth+1))return false;
+        return true;
+    }
+    if(value->type==AST_BLOCK)
+        return value->as.block.count && global_union_value_matches(env,name,expected,
+            value->as.block.statements[value->as.block.count-1],depth+1);
+    if(value->type==AST_RETURN)
+        return global_union_value_matches(env,name,expected,value->as.return_stmt.value,depth+1);
+    TypeInfo *actual=try_get_expr_type_info(value,env);
+    const char *actual_name=actual && actual->generic_name?actual->generic_name:get_struct_type_name(value,env);
+    UnionDef *declared=name?env_get_union(env,name):NULL;
+    if(!declared || !actual_name || env_get_union(env,actual_name)!=declared)return false;
+    int wanted=expected?expected->type_param_count:0;
+    if(wanted!=(actual?actual->type_param_count:0) || wanted!=declared->generic_param_count)return false;
+    for(int i=0;i<wanted;i++)
+        if(!expected->type_params || !actual->type_params ||
+           !type_infos_equal(expected->type_params[i],actual->type_params[i]))return false;
+    return true;
+}
+static bool check_global_union_value(Environment *env,const char *name,
+        const TypeInfo *expected,ASTNode *value) {
+    if(global_union_value_matches(env,name,expected,value,0))return true;
+    emit_context_error("E001 TYPE MISMATCH",value?value->line:0,value?value->column:0,1,
+        "I require the exact declared global union and concrete type arguments.",
+        "Preserve the global union identity in every value arm.");
+    return false;
+}
+static void resolve_global_union_annotation(Environment *env,ASTNode *item) {
+    if(item->as.let.var_type==TYPE_STRUCT && item->as.let.type_name &&
+       env_get_union(env,item->as.let.type_name)) {
+        item->as.let.var_type=TYPE_UNION;
+        if(item->as.let.type_info)item->as.let.type_info->base_type=TYPE_UNION;
+    }
+}
+
 static void prepare_map_initializer(TypeChecker *tc, ASTNode *stmt) {
     /* Handle HashMap<K,V> (register instantiation for code generation) */
     if (stmt->as.let.var_type == TYPE_HASHMAP && stmt->as.let.type_info) {
@@ -5359,6 +5410,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
             check_concrete_union_arrays(tc->env, sym->type_info, stmt->as.set.value, 0);
             Type value_type = check_expression(stmt->as.set.value, tc->env);
+            if(sym->is_global && sym->type==TYPE_UNION &&
+               !check_global_union_value(tc->env,sym->struct_type_name,sym->type_info,stmt->as.set.value))
+                tc->has_error=true;
             if (!check_record_array_contract(tc->env, sym->type, sym->element_type,
                     sym->struct_type_name, stmt->as.set.value)) tc->has_error = true;
 
@@ -8065,9 +8119,13 @@ register_function_pass1:;
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
             /* I provide declared constructor context before checking the initializer. */
+            resolve_global_union_annotation(env,item);
             prepare_map_initializer(&tc, item);
             check_concrete_union_arrays(env, item->as.let.type_info, item->as.let.value, 0);
             Type value_type = check_expression(item->as.let.value, env);
+            if(item->as.let.var_type==TYPE_UNION &&
+               !check_global_union_value(env,item->as.let.type_name,item->as.let.type_info,item->as.let.value))
+                tc.has_error=true;
             check_global_ownership(env, item, &tc.has_error);
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
                     item->as.let.type_name, item->as.let.value)) tc.has_error = true;
@@ -8821,9 +8879,13 @@ register_function_pass2:;
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
             /* I provide declared constructor context before checking the initializer. */
+            resolve_global_union_annotation(env,item);
             prepare_map_initializer(&tc, item);
             check_concrete_union_arrays(env, item->as.let.type_info, item->as.let.value, 0);
             Type value_type = check_expression(item->as.let.value, env);
+            if(item->as.let.var_type==TYPE_UNION &&
+               !check_global_union_value(env,item->as.let.type_name,item->as.let.type_info,item->as.let.value))
+                tc.has_error=true;
             check_global_ownership(env, item, &tc.has_error);
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
                     item->as.let.type_name, item->as.let.value)) tc.has_error = true;

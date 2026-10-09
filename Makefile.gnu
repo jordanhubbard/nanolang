@@ -5888,3 +5888,8 @@ test-owned-global-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_global_runtime_alloc tests/nanoisa/test_owned_global_runtime_alloc.c obj/test_owned_global_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	./obj/test_owned_global_runtime_alloc
 	python3 -m unittest -v tests.test_owned_global_runtime
+
+.PHONY: test-owned-global-source
+test-units: test-owned-global-source
+test-owned-global-source: nano_virt nano_vm nvm2c
+	python3 -m unittest -v tests.test_owned_global_source

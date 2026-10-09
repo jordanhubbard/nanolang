@@ -1,0 +1,7 @@
+-- E001 TYPE MISMATCH --- /private/tmp/nanolang-owned-global-source-expanded/OwnedGlobalSource/test_same_shape_wrong_union_initializer_refused/main.nano
+I require the exact declared global union and concrete type arguments.
+
+5| let selected: First = Second.Some { value: 7 }
+                         ^
+Hint: Preserve the global union identity in every value arm.
+error: type check failed

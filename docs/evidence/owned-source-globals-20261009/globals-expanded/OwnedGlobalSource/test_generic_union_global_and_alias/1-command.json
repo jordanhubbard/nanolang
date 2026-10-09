@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nano_virt",
+    "/private/tmp/nanolang-owned-global-source-expanded/OwnedGlobalSource/test_generic_union_global_and_alias/main.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-owned-global-source-expanded/OwnedGlobalSource/test_generic_union_global_and_alias/main.nvm"
+  ],
+  "exit": 0
+}

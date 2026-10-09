@@ -380,6 +380,13 @@ contract retain their existing global behavior.
 My four public VM entry routes use that same scope. I refuse host entry into a
 helper, indirect captured entry and low-level resumption without an active
 scoped proof. A failed native entry preserves its caller's result storage.
-Private array/mixed profiles still refuse this extension. Record/resource
-global transfers, both source producers and final platform qualification remain
-open under #981; I do not infer their completion from copyable global execution.
+Private array/mixed profiles still refuse this extension. My C source ownership
+route emits exact global declarations and source-ordered initializers once at
+normal or shadow entry. Helpers share those slots; local/parameter bindings
+shadow global names. Named and generic union annotations retain exact identity
+through the C checker and lowering. The unchanged selected-owner corpus and
+additional global source cases execute through VM and sanitized native C.
+
+Record/resource global transfers, the self-hosted source producer and final
+platform qualification remain open under #981. Copyable global execution and
+C-source acceptance do not establish those remaining requirements.

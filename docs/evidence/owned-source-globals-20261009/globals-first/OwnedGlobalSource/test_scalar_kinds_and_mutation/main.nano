@@ -1,0 +1,24 @@
+
+resource struct Handle { fd: int }
+let mut counter: int = 3
+let mut enabled: bool = false
+let mut ratio: float = 1.25
+let mut label: string = "first"
+
+
+fn main() -> int {
+    let handle: Handle = Handle { fd: 7 }
+    let Handle { fd } = handle
+    assert (== fd 7)
+    assert (== counter 3)
+set counter (+ counter 1)
+set enabled (not enabled)
+set ratio (+ ratio 0.75)
+set label "second"
+assert (== counter 4)
+assert enabled
+assert (== ratio 2.0)
+assert (== label "second")
+    return 0
+}
+shadow main { assert (== (main) 0) }
