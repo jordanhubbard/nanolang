@@ -1,0 +1,6 @@
+{
+  "platform": "Linux-7.0.14-linuxkit-aarch64-with-glibc2.36",
+  "machine": "aarch64",
+  "compiler": "gcc (Debian 12.2.0-14+deb12u1) 12.2.0",
+  "sqlite": "3.40.1"
+}

@@ -1,0 +1,10 @@
+unsafe module "modules/sqlite/sqlite.nano" as sqlite
+fn replacement()->int { return 37 }
+shadow replacement { assert (== (replacement) 37) }
+fn main()->int {
+ assert (== (sqlite.SQLITE_OK) 0)
+ let SQLITE_OK: fn() -> int = replacement
+ assert (== (SQLITE_OK) 37)
+ return 0
+}
+shadow main { assert (== (main) 0) }
