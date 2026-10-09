@@ -2435,7 +2435,48 @@ shadow nisa_import_add {
     let _2: int = (nisa_reset)
 }
 
+# I retain the exact Json artifact ABI; the module owns its opaque handles.
+fn nisa_json_signature(name: string) -> array<string> {
+    if (or (== name "nl_json_parse") (== name "nl_json_new_string")) { return ["Json", "string"] }
+    if (== name "nl_json_free") { return ["void", "Json"] }
+    if (or (== name "nl_json_stringify") (== name "nl_json_as_string")) { return ["string", "Json"] }
+    if (or (== name "nl_json_is_null") (or (== name "nl_json_is_bool") (or (== name "nl_json_is_number") (or (== name "nl_json_is_string") (or (== name "nl_json_is_array") (or (== name "nl_json_is_object") (or (== name "nl_json_as_int") (or (== name "nl_json_as_bool") (== name "nl_json_array_size"))))))))) { return ["int", "Json"] }
+    if (== name "nl_json_as_float") { return ["float", "Json"] }
+    if (== name "nl_json_object_has") { return ["int", "Json", "string"] }
+    if (== name "nl_json_get") { return ["Json", "Json", "string"] }
+    if (== name "nl_json_object_keys") { return ["array<string>", "Json"] }
+    if (== name "nl_json_get_index") { return ["Json", "Json", "int"] }
+    if (or (== name "nl_json_new_object") (or (== name "nl_json_new_array") (== name "nl_json_new_null"))) { return ["Json"] }
+    if (or (== name "nl_json_new_int") (== name "nl_json_new_bool")) { return ["Json", "int"] }
+    if (== name "nl_json_object_set") { return ["int", "Json", "string", "Json"] }
+    if (== name "nl_json_array_push") { return ["int", "Json", "Json"] }
+    return []
+}
+shadow nisa_json_signature {
+    assert (== (array_length (nisa_json_signature "nl_json_object_set")) 4)
+    assert (== (at (nisa_json_signature "nl_json_object_set") 2) "string")
+    assert (== (at (nisa_json_signature "nl_json_parse") 0) "Json")
+    assert (== (array_length (nisa_json_signature "nl_json_unknown")) 0)
+}
+
+fn nisa_artifact_parameter(name: string, index: int) -> string {
+    let signature: array<string> = (nisa_json_signature name)
+    if (> (array_length signature) 0) {
+        if (or (< index 0) (>= (+ index 1) (array_length signature))) { return "" }
+        return (at signature (+ index 1))
+    }
+    return "string"
+}
+shadow nisa_artifact_parameter {
+    assert (== (nisa_artifact_parameter "nl_json_get_index" 0) "Json")
+    assert (== (nisa_artifact_parameter "nl_json_get_index" 1) "int")
+    assert (== (nisa_artifact_parameter "nl_json_get_index" 2) "")
+    assert (== (nisa_artifact_parameter "path_basename" 0) "string")
+}
+
 fn nisa_artifact_arity(name: string) -> int {
+    let json: array<string> = (nisa_json_signature name)
+    if (> (array_length json) 0) { return (- (array_length json) 1) }
     if (or (== name "nl_fs_list_files") (or (== name "nl_fs_list_files_ci") (== name "nl_fs_join_path"))) { return 2 }
     if (or (== name "nl_fs_list_dirs") (or (== name "nl_fs_parent_dir") (or (== name "nl_fs_is_directory") (or (== name "nl_fs_file_exists") (== name "nl_fs_file_size"))))) { return 1 }
     if (== name "nl_nanoisa_assemble_save") { return 2 }
@@ -2476,6 +2517,8 @@ shadow nisa_artifact_arity {
 }
 
 fn nisa_artifact_result(name: string) -> string {
+    let json: array<string> = (nisa_json_signature name)
+    if (> (array_length json) 0) { return (at json 0) }
     if (or (== name "nl_fs_list_files") (or (== name "nl_fs_list_files_ci") (== name "nl_fs_list_dirs"))) { return "array<string>" }
     if (or (== name "nl_fs_is_directory") (or (== name "nl_fs_file_exists") (== name "nl_fs_file_size"))) { return "int" }
     if (== name "nl_nanoisa_assemble_save") { return "int" }
@@ -2539,10 +2582,14 @@ fn nisa_register_artifact(parser: Parser, function: ASTFunction) -> int {
         let rejected: string = (nisa_fail "I require the exact artifact result and arity")
         return -1
     }
+    if (and (> (array_length (nisa_json_signature function.name)) 0) (< (nisa_opaque_index parser "Json") 0)) {
+        let rejected: string = (nisa_fail "I require the declared Json opaque type for its artifact ABI")
+        return -1
+    }
     let mut i: int = 0
     while (< i arity) {
         let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
-        if (!= parameter.var_type "string") {
+        if (!= parameter.var_type (nisa_artifact_parameter function.name i)) {
             let rejected: string = (nisa_fail "I require the exact artifact parameter types")
             return -1
         }
@@ -2558,7 +2605,10 @@ fn nisa_register_artifact(parser: Parser, function: ASTFunction) -> int {
     set nisa_import_names (array_push nisa_import_names key)
     set nisa_import_text (+ nisa_import_text (+ ".import \"" (+ (nisa_escape_string path) (+ "\" \"" (+ function.name (+ "\" " (nisa_result_tag parser result)))))))
     set i 0
-    while (< i arity) { set nisa_import_text (+ nisa_import_text " string") set i (+ i 1) }
+    while (< i arity) {
+        set nisa_import_text (+ nisa_import_text (+ " " (nisa_result_tag parser (nisa_artifact_parameter function.name i))))
+        set i (+ i 1)
+    }
     set nisa_import_text (+ nisa_import_text (+ "\n.import_kind " (+ (int_to_string index) " artifact\n")))
     return index
 }
@@ -2575,6 +2625,23 @@ shadow nisa_register_artifact {
     assert (== (array_length nisa_import_names) 1)
     (mb_reset [])
     let reset_again: int = (nisa_reset)
+    let json_source: string = "opaque type Json\nextern fn nl_json_object_set(obj: Json, key: string, value: Json) -> int"
+    let json_tokens: List<LexerToken> = (tokenize_string json_source "json.nano" (diag_list_new))
+    let json_parser: Parser = (parse_program json_tokens (list_LexerToken_length json_tokens) "json.nano")
+    (mb_reset [1])
+    set nisa_artifact_owners [0]
+    set nisa_artifact_paths ["/retained/json.so"]
+    assert (== (nisa_register_artifact json_parser (parser_get_function json_parser 0)) 0)
+    assert (str_contains nisa_import_text "\"nl_json_object_set\" int opaque string opaque")
+    assert (str_contains nisa_import_text ".import_kind 0 artifact")
+    (mb_reset [])
+    let reset_json: int = (nisa_reset)
+    let wrong: string = "opaque type Json\nextern fn nl_json_object_set(obj: int, key: string, value: Json) -> int"
+    let wrong_tokens: List<LexerToken> = (tokenize_string wrong "wrong.nano" (diag_list_new))
+    let wrong_parser: Parser = (parse_program wrong_tokens (list_LexerToken_length wrong_tokens) "wrong.nano")
+    assert (== (nisa_register_artifact wrong_parser (parser_get_function wrong_parser 0)) -1)
+    assert (== nisa_import_text "")
+    let reset_wrong: int = (nisa_reset)
 }
 
 fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
@@ -4252,8 +4319,11 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
             let mut i: int = 0
             while (< i call.arg_count) {
                 let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
-                if (!= (nisa_expr_type parser argument.node_id argument.node_type) "string") {
-                    return (nisa_fail "I require string operands for this artifact call")
+                let expected: string = (nisa_artifact_parameter function_name i)
+                # My expected-expression emitter checks opaque identity and
+                # permits only literal zero at the nullable pointer boundary.
+                if (and (!= expected "Json") (!= (nisa_expr_type parser argument.node_id argument.node_type) expected)) {
+                    return (nisa_fail "I require exact operands for this artifact call")
                 }
                 set i (+ i 1)
             }
@@ -4625,6 +4695,17 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                     if (or (== binop.op LexerTokenType.TOKEN_AND) (== binop.op LexerTokenType.TOKEN_OR)) {
                         return (nisa_emit_logical_binary parser binop left_type right_type)
                     }
+                    if (or (>= (nisa_opaque_index parser left_type) 0) (>= (nisa_opaque_index parser right_type) 0)) {
+                        let mut opcode: string = ""
+                        if (== binop.op LexerTokenType.TOKEN_EQ) { set opcode "EQ" }
+                        if (== binop.op LexerTokenType.TOKEN_NE) { set opcode "NE" }
+                        if (== opcode "") { return (nisa_fail "I require equality for opaque operands") }
+                        let mut expected: string = left_type
+                        if (< (nisa_opaque_index parser expected) 0) { set expected right_type }
+                        let left: string = (nisa_emit_expected_expr parser binop.left binop.left_type expected)
+                        let right: string = (nisa_emit_expected_expr parser binop.right binop.right_type expected)
+                        return (+ (+ left right) (nisa_line opcode))
+                    }
                     let array_operand: bool = (or (str_starts_with left_type "array<") (str_starts_with right_type "array<"))
                     let arithmetic: bool = (or (!= (nisa_array_arithmetic_mnemonic binop.op) "") (== binop.op LexerTokenType.TOKEN_PERCENT))
                     if (and array_operand arithmetic) {
@@ -4770,6 +4851,12 @@ shadow nisa_emit_expr {
     let text: string = (nisa_emit_expr p 0 ParseNodeType.PNODE_NUMBER)
     assert (str_contains text "PUSH_I64 7")
     assert (== num.value "7")
+    let comparison: string = (nanoisa_emit_nasm "opaque type Handle\nfn present(value: Handle)->bool { return (!= value 0) }")
+    assert (str_contains comparison "\n  NE\n")
+    assert (not (str_contains comparison "I64_NE"))
+    assert (== (nanoisa_emit_nasm "opaque type Handle\nfn invalid(value: Handle)->bool { return (< value 0) }") "")
+    assert (== (nanoisa_emit_nasm "opaque type Handle\nfn invalid(value: Handle)->bool { return (== value 7) }") "")
+    let reset_comparison: int = (nisa_reset)
 }
 
 fn nisa_statements_fall_through(parser: Parser, statements: List<ASTStmtRef>) -> bool {
