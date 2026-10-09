@@ -70,6 +70,80 @@ class ServiceDrivers(unittest.TestCase):
                 self.run_command([driver,self.source,'--allow-temporary-files'])
                 self.run_command([self.work/'a.out','--allow-temporary-files'],7)
 
+    def test_cyclic_owners_helpers_and_selected_shadows(self):
+        generated=(ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()
+        self.source.write_text(generated+"""
+fn write_checked(file:&mut File,octet:int)->int {
+ match (write_byte &mut file octet) {Ok(n)=>{return n} Error(e)=>{return -1}}
+}
+shadow write_checked {
+ match (temp) {Error(e)=>{assert false} Ok(f)=>{
+  let mut file:File=f
+  assert (== (write_checked &mut file 23) 1)
+  let c:CloseResult=(close file)
+  match c {Ok()=>{} Error(e)=>{assert false}}
+ }}
+}
+fn cycle()->int {
+ let mut total:int=0
+ let mut round:int=0
+ while (< round 3) {
+  match (temp) {Error(e)=>{return -1} Ok(f)=>{
+   let mut file:File=f
+   let mut index:int=0
+   while (< index 2) {
+    assert (== (write_checked &mut file (+ 20 index)) 1)
+    set index (+ index 1)
+   }
+   match (rewind &mut file) {Ok()=>{} Error(e)=>{assert false}}
+   match (read_byte &mut file) {
+    Error(e)=>{let c:CloseResult=(close file) return -2}
+    Ok(octet)=>{set total (+ total octet.value)}
+   }
+   match (close file) {Ok()=>{} Error(e)=>{return -3}}
+  }}
+  set round (+ round 1)
+ }
+ return total
+}
+shadow cycle {assert (== (cycle) 60)}
+fn main()->int {return (cycle)}
+""")
+        modules=[]
+        for driver in self.drivers:
+            bytecode=self.work/(driver.name+'.cycle.nvm')
+            run=self.run_command([driver,self.source,'--allow-temporary-files','--emit-nvm','-o',bytecode])
+            records=run.stderr.splitlines()
+            selected=[x[7:] for x in records if x.startswith('SELECT ')]
+            self.assertEqual(len(selected),7)
+            self.assertEqual(selected,[x[6:] for x in records if x.startswith('START ')])
+            self.assertEqual(selected,[x[5:] for x in records if x.startswith('DONE ')])
+            modules.append(bytecode.read_bytes())
+            self.run_command([ROOT/'bin/nano_vm','--allow-temporary-files','--file-cyclic',
+                              '--file-instruction-limit','1000000',bytecode],60)
+            native=self.work/(driver.name+'.cycle')
+            self.run_command([driver,self.source,'--allow-temporary-files','-o',native])
+            self.run_command([native,'--allow-temporary-files'],60)
+        self.assertEqual(modules[0],modules[1])
+
+    def test_cyclic_and_overlapping_owner_refusals_preserve_output(self):
+        cases=[
+            'fn consume(file:File)->void {let mut i:int=0 while (< i 2) {'
+            'let c:CloseResult=(close file) set i (+ i 1)}} fn main()->int{return 0}',
+            'fn pair(a:&mut File,b:&mut File)->int{return 0} fn main()->int {'
+            'match (temp) {Error(e)=>{return -1} Ok(f)=>{let mut file:File=f '
+            'let n:int=(pair &mut file &mut file) let c:CloseResult=(close file) return n}}}',
+        ]
+        for body in cases:
+            self.source.write_text(DECL+body)
+            for driver in self.drivers:
+                with self.subTest(driver=driver.name,body=body):
+                    output=self.work/'prior.nvm';output.write_bytes(b'prior')
+                    run=self.run_command([driver,self.source,'--allow-temporary-files','--emit-nvm','-o',output],1)
+                    self.assertEqual(output.read_bytes(),b'prior')
+                    self.assertNotIn('START ',run.stderr)
+                    self.assertIn('ownership',run.stdout+run.stderr)
+
     def test_required_import_shadows_and_root_only_selection(self):
         (self.work/'binding.nano').write_text(DECL+'''pub fn broken()->void {}
 shadow broken {assert false}

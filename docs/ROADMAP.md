@@ -14602,3 +14602,11 @@ I retain the actual C publication batch and its remaining Nano/release boundarie
 - [x] Under #989/#982 I size native typed-artifact argument scratch for every declared host parameter. Inspection of the new publication adapter finds a three-slot local array while existing catalog and snapshot hosts declare four and five parameters. I require bounds tied to the signature table and instrumented translation of those calls before claiming native bridge qualification.
 
 I retain both producer builds, VM/native CLI gates and the exact instrumentation boundaries in [my Nano File publication evidence](evidence/nano-file-driver-publication-20261009/README.md). Full 5.1 acceptance remains open.
+
+- [x] Under #989 I qualify cyclic File source publication through both frontends and Nano VM/native compiler products. I exercise nested loops, repeated owner acquisition/consumption, borrowed helper calls and early-return cleanup with the unchanged generated binding and all selected shadows; I retain paired negative ownership controls and fix any demonstrated lowering defect. These checks do not close multi-borrow or indirect execution.
+
+- [x] Under #989 I resolve the paired cyclic source publication failure exposed by repeated File acquisition in an outer loop with an inner borrowed-write loop. Both C and Nano source checks pass, but cyclic validation refuses the emitted module before publication. I retain both first failures and require the original seven-shadow source and VM/native result assertions before closing this defect.
+
+- [x] Under #989 I compact retained cyclic validator states without increasing the 16 MiB budget or dropping logical facts. The new source reaches 493 states at 30,848 bytes each and exhausts that budget. I retain exact locals, live stack, reference extent and regions in one checked allocation per state, preserve zero-valued absent reference getters, and qualify allocation failures, cyclic/indirect neighbors and the original source.
+
+I retain the cyclic source failure, compact storage change, paired CLI results and allocation/dispatch neighbors in [my cyclic source storage evidence](evidence/cyclic-source-state-storage-20261009/README.md). Multi-borrow/indirect source, installed Linux/Darwin and exact release qualification remain open.

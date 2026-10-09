@@ -7,7 +7,14 @@ typedef struct {
     uint64_t regions[NVM_FILE_FLOW_REFERENCES];
 } FileCyclicState;
 typedef struct {
-    FileCyclicState state;
+    NvmFileCyclicStateInfo info;
+    NvmFileFlowValue *locals, *stack;
+    NvmFileFlowReference *references;
+    uint64_t *regions;
+    uint16_t reference_extent;
+} FileCyclicStoredState;
+typedef struct {
+    FileCyclicStoredState state;
     NvmFileCyclicVariant fact;
     bool processed;
 } FileCyclicNode;
@@ -59,6 +66,16 @@ static bool file_cyclic_equal(const FileCyclicState *a,const FileCyclicState *b)
     for(uint16_t i=0;i<a->info.stack;i++)if(!file_cyclic_value_equal(a->stack[i],b->stack[i]))return false;
     for(uint16_t i=0;i<a->info.regions;i++)if(a->regions[i]!=b->regions[i])return false;
     for(uint16_t i=0;i<NVM_FILE_FLOW_REFERENCES;i++)if(!reference_same(a->references[i],b->references[i]))return false;
+    return true;
+}
+static bool file_cyclic_stored_equal(const FileCyclicStoredState *a,const FileCyclicState *b) {
+    if(a->info.locals!=b->info.locals || a->info.stack!=b->info.stack ||
+       a->info.regions!=b->info.regions || a->info.owners!=b->info.owners ||
+       a->info.references!=b->info.references)return false;
+    for(uint16_t i=0;i<a->info.locals;i++)if(!file_cyclic_value_equal(a->locals[i],b->locals[i]))return false;
+    for(uint16_t i=0;i<a->info.stack;i++)if(!file_cyclic_value_equal(a->stack[i],b->stack[i]))return false;
+    for(uint16_t i=0;i<a->info.regions;i++)if(a->regions[i]!=b->regions[i])return false;
+    for(uint16_t i=0;i<NVM_FILE_FLOW_REFERENCES;i++)if(!reference_same(i<a->reference_extent?a->references[i]:(NvmFileFlowReference){0},b->references[i]))return false;
     return true;
 }
 static NvmFileFlowStatus file_cyclic_value(FileCyclicWorkspace *w,NvmFileFlowValue v,
@@ -146,14 +163,32 @@ static void file_cyclic_scratch(FileCyclicWorkspace *w,NvmFileFlowDeclarations *
 static NvmFileFlowStatus file_cyclic_intern(NvmFileCyclicReport *r,FileCyclicWorkspace *w,
     uint32_t function,uint16_t instruction,uint8_t *ordinal) {
     FileCyclicSite *site=&r->sites[r->plan->starts[function]+instruction];
-    for(uint8_t i=0;i<site->count;i++)if(file_cyclic_equal(&site->nodes[i]->state,&w->canonical)) {
+    for(uint8_t i=0;i<site->count;i++)if(file_cyclic_stored_equal(&site->nodes[i]->state,&w->canonical)) {
         *ordinal=i;return NVM_FILE_FLOW_OK;
     }
+    /* Canonical counts are bounded before interning. I retain all declared
+     * locals and occupied stack/region slots; absent references stay zero.
+     * Each segment has uint64_t alignment through its element type/size. */
+    uint16_t extent=0;
+    for(uint16_t i=0;i<NVM_FILE_FLOW_REFERENCES;i++)if(w->canonical.references[i].live)extent=i+1;
+    size_t bytes=sizeof(FileCyclicNode)+
+        ((size_t)w->canonical.info.locals+w->canonical.info.stack)*sizeof(NvmFileFlowValue)+
+        (size_t)extent*sizeof(NvmFileFlowReference)+
+        (size_t)w->canonical.info.regions*sizeof(uint64_t);
     if(site->count==NVM_FILE_CYCLIC_ALTERNATIVES || w->tail==NVM_FILE_CYCLIC_FUNCTION_PAIRS ||
-       r->summary.variants==NVM_FILE_CYCLIC_PAIRS || !file_cyclic_room(r,1,sizeof(FileCyclicNode)))
+       r->summary.variants==NVM_FILE_CYCLIC_PAIRS || !file_cyclic_room(r,1,bytes))
         return NVM_FILE_FLOW_LIMIT;
-    FileCyclicNode *node=calloc(1,sizeof *node);if(!node)return NVM_FILE_FLOW_MEMORY;
-    node->state=w->canonical;node->fact.input=w->canonical.info;
+    FileCyclicNode *node=calloc(1,bytes);if(!node)return NVM_FILE_FLOW_MEMORY;
+    node->state.info=w->canonical.info;node->state.reference_extent=extent;
+    node->state.locals=(NvmFileFlowValue *)(node+1);
+    node->state.stack=node->state.locals+w->canonical.info.locals;
+    node->state.references=(NvmFileFlowReference *)(node->state.stack+w->canonical.info.stack);
+    node->state.regions=(uint64_t *)(node->state.references+extent);
+    memcpy(node->state.locals,w->canonical.locals,(size_t)w->canonical.info.locals*sizeof(NvmFileFlowValue));
+    memcpy(node->state.stack,w->canonical.stack,(size_t)w->canonical.info.stack*sizeof(NvmFileFlowValue));
+    memcpy(node->state.references,w->canonical.references,(size_t)extent*sizeof(NvmFileFlowReference));
+    memcpy(node->state.regions,w->canonical.regions,(size_t)w->canonical.info.regions*sizeof(uint64_t));
+    node->fact.input=w->canonical.info;
     node->fact.edge_variants[0]=node->fact.edge_variants[1]=NVM_FILE_CYCLIC_NO_VARIANT;
     uint8_t v=site->count;site->nodes[v]=node;site->count++;r->summary.variants++;
     w->queue[w->tail++]=(FileCyclicWork){instruction,v};*ordinal=v;
@@ -208,7 +243,13 @@ static NvmFileFlowStatus file_cyclic_function_analyze(NvmFileCyclicReport *r,Fil
         FileCyclicNode *node=site->nodes[item.variant];
         if(node->processed || r->summary.transfers==NVM_FILE_CYCLIC_PAIRS)return NVM_FILE_FLOW_LIMIT;
         r->summary.transfers++;
-        file_cyclic_scratch(w,scratch,f,&node->state);
+        memset(&w->canonical,0,sizeof w->canonical);
+        w->canonical.info=node->state.info;
+        memcpy(w->canonical.locals,node->state.locals,(size_t)node->state.info.locals*sizeof(NvmFileFlowValue));
+        memcpy(w->canonical.stack,node->state.stack,(size_t)node->state.info.stack*sizeof(NvmFileFlowValue));
+        memcpy(w->canonical.references,node->state.references,(size_t)node->state.reference_extent*sizeof(NvmFileFlowReference));
+        memcpy(w->canonical.regions,node->state.regions,(size_t)node->state.info.regions*sizeof(uint64_t));
+        file_cyclic_scratch(w,scratch,f,&w->canonical);
         const NvmFileCodeInstruction *in=&r->plan->instructions[r->plan->starts[f]+item.instruction];
         NvmFileBodyInstruction *fact=&node->fact.body;
         fact->reachable=true;fact->input_stack=w->transfer.stack_count;
@@ -374,7 +415,7 @@ bool nvm_file_cyclic_input_stack(const NvmFileCyclicReport *r,uint32_t f,uint16_
 }
 bool nvm_file_cyclic_input_reference(const NvmFileCyclicReport *r,uint32_t f,uint16_t i,uint8_t v,uint16_t ref,NvmFileFlowReference *out) {
     const FileCyclicNode *node=file_cyclic_node(r,f,i,v);if(!node || !out || ref>=NVM_FILE_FLOW_REFERENCES)return false;
-    *out=node->state.references[ref];return true;
+    *out=ref<node->state.reference_extent?node->state.references[ref]:(NvmFileFlowReference){0};return true;
 }
 bool nvm_file_cyclic_input_region(const NvmFileCyclicReport *r,uint32_t f,uint16_t i,uint8_t v,uint16_t region,uint64_t *out) {
     const FileCyclicNode *node=file_cyclic_node(r,f,i,v);if(!node || !out || region>=node->state.info.regions)return false;
