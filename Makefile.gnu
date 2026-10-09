@@ -5413,7 +5413,7 @@ test-nanoisa-list-insert: stage1 nano_virt nano_vm nanoisa_dump nvm2c
 	CC="$(CC)" python3 -m unittest -v tests.test_nanoisa_list_insert
 
 .PHONY: test-selfhost-native-array-slice
-test-selfhost-native-array-slice: bootstrap nano_virt nano_vm
+test-selfhost-native-array-slice: bootstrap nano_virt nano_vm nvm2c
 	python3 -m unittest -v tests.test_selfhost_native_array_slice
 
 .PHONY: test-owned-binary64
@@ -5845,3 +5845,13 @@ test-units: test-native-nested-arrays
 test-native-record-field-transport: nano_vm nanoisa_dump nvm2c
 	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_native_record_field_transport
 test-units: test-native-record-field-transport
+
+.PHONY: test-native-array-identity
+test-native-array-identity: nano_vm nanoisa_dump nvm2c
+	CC="$(CC)" python3 -m unittest -v tests.test_native_array_identity
+test-units: test-native-array-identity
+
+.PHONY: test-selfhost-array-literal-context
+test-selfhost-array-literal-context: $(BIN_DIR)/nanoc_c nano_vm nanoisa_dump nvm2c
+	CC="$(CC)" python3 -m unittest -v tests.test_selfhost_array_literal_context
+test-units: test-selfhost-array-literal-context

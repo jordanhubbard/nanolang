@@ -1,0 +1,14 @@
+[
+  {
+    "ASAN_OPTIONS": "detect_leaks=0",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "ASAN_OPTIONS": null,
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

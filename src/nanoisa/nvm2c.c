@@ -4444,7 +4444,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 ins.opcode == OP_NE ? "!=" : ins.opcode == OP_LT ? "<" :
                 ins.opcode == OP_LE ? "<=" : ins.opcode == OP_GT ? ">" : ">=";
             if ((lk == NVM2C_VK_VALUE || rk == NVM2C_VK_VALUE ||
-                 lk == NVM2C_VK_FUNC || rk == NVM2C_VK_FUNC) &&
+                 lk == NVM2C_VK_FUNC || rk == NVM2C_VK_FUNC ||
+                 word_array_storage(lk) || word_array_storage(rk) ||
+                 lk == NVM2C_VK_SARR || rk == NVM2C_VK_SARR ||
+                 lk == NVM2C_VK_RARR || rk == NVM2C_VK_RARR) &&
                 (ins.opcode == OP_EQ || ins.opcode == OP_NE)) {
                 char left[96], right[96], expression[256];
                 uint8_t kinds_pair[2] = {lk, rk};

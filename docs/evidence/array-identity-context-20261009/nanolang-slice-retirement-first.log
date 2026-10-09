@@ -1,0 +1,69 @@
+I retain source, logs and generated artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-eoinyl3x
+test_arguments_are_evaluated_once (tests.test_selfhost_native_array_slice.NativeArraySlice.test_arguments_are_evaluated_once) ... ok
+test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) ... 
+  test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) (producer='nano_virt') ... FAIL
+  test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) (producer='nanoc_stage1') ... FAIL
+  test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) (producer='nanoc_stage2') ... FAIL
+test_generated_native_null_boundary (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_native_null_boundary) ... 
+  test_generated_native_null_boundary (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_native_null_boundary) (native='gcc') ... FAIL
+test_source_and_normal_shadows (tests.test_selfhost_native_array_slice.NativeArraySlice.test_source_and_normal_shadows) ... ok
+
+======================================================================
+FAIL: test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) (producer='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_native_array_slice.py", line 132, in test_generated_helper_all_kinds_and_bits
+    self.command(BIN/'nvm2c', module, '-o', generated)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_native_array_slice.py", line 70, in command
+    raise AssertionError(f'{args}: {p.returncode}\n{p.stdout}\n{p.stderr}')
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nvm2c'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-eoinyl3x/all-kinds-nano_virt.nvm'), '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-eoinyl3x/all-kinds-nano_virt.c')): 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-eoinyl3x/all-kinds-nano_virt.nvm': function 0: EQ has incompatible operand types
+
+
+======================================================================
+FAIL: test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) (producer='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_native_array_slice.py", line 128, in test_generated_helper_all_kinds_and_bits
+    self.command(BIN/compiler, program, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_native_array_slice.py", line 70, in command
+    raise AssertionError(f'{args}: {p.returncode}\n{p.stdout}\n{p.stderr}')
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nanoc_stage1'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-eoinyl3x/all-kinds.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-eoinyl3x/all-kinds-nanoc_stage1.nvm')): 1
+NSType checking failed
+Diagnostics:
+  [E0001] Variable bytes: I expected a value of type `array<u8>`, but found `array<int>`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-eoinyl3x/all-kinds.nano:16:5)
+
+
+
+======================================================================
+FAIL: test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) (producer='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_native_array_slice.py", line 128, in test_generated_helper_all_kinds_and_bits
+    self.command(BIN/compiler, program, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_native_array_slice.py", line 70, in command
+    raise AssertionError(f'{args}: {p.returncode}\n{p.stdout}\n{p.stderr}')
+AssertionError: (PosixPath('/private/tmp/nanolang-array-types-20261008/bin/nanoc_stage2'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-eoinyl3x/all-kinds.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-eoinyl3x/all-kinds-nanoc_stage2.nvm')): 1
+NSType checking failed
+Diagnostics:
+  [E0001] Variable bytes: I expected a value of type `array<u8>`, but found `array<int>`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-eoinyl3x/all-kinds.nano:16:5)
+
+
+
+======================================================================
+FAIL: test_generated_native_null_boundary (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_native_null_boundary) (native='gcc')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_native_array_slice.py", line 162, in test_generated_native_null_boundary
+    self.assertIn('I stopped at a native invariant', result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'I stopped at a native invariant' not found in '==80621==AddressSanitizer: detect_leaks is not supported on this platform.\n'
+
+----------------------------------------------------------------------
+Ran 4 tests in 15.484s
+
+FAILED (failures=4)

@@ -1,0 +1,2 @@
+struct Bytes { data:array<u8> } fn main()->int { let b:Bytes = Bytes { data:[300] } assert (== (at b.data 0) 44) return 0 }
+shadow main { assert true }

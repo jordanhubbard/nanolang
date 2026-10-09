@@ -1,0 +1,7 @@
+I retain source, logs and generated artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-armzt_2_
+test_generated_native_null_boundary (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_native_null_boundary) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.358s
+
+OK

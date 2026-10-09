@@ -2805,7 +2805,7 @@ static void test_diff_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
-static void test_eq_array_is_refused(void) {
+static void test_eq_array_preserves_identity(void) {
     const char *src =
         ".entry 0\n"
         ".function main 0 0 0 int 1\n"
@@ -2822,8 +2822,12 @@ static void test_eq_array_is_refused(void) {
     if (!m) return;
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "EQ of arrays stays outside the closed subset");
-    CHECK(strstr(err, "EQ") != NULL, "error names EQ");
+    CHECK(c != NULL, "EQ of exact arrays retains pointer identity");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0, "array identity C compiles and runs");
+        CHECK(status == 0, "independent arrays with equal elements compare unequal");
+    }
     free(c);
     nvm_module_free(m);
 }
@@ -6744,7 +6748,7 @@ int main(int argc, char **argv) {
     test_same_then_runs_without_nano_vm();
     test_same_else_runs_without_nano_vm();
     test_diff_runs_without_nano_vm();
-    test_eq_array_is_refused();
+    test_eq_array_preserves_identity();
     test_via_at_runs_without_nano_vm();
     test_slen_runs_without_nano_vm();
     test_slice_runs_without_nano_vm();
