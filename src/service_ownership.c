@@ -147,6 +147,14 @@ static void so_impl(SoCheck *c, SoState *s, const ASTNode *node, bool move) {
     case AST_MODULE_QUALIFIED_CALL:
         so_call(c,s,node,node->as.module_qualified_call.args,node->as.module_qualified_call.arg_count,move); return;
     case AST_PREFIX_OP:
+        if(node->as.prefix_op.op==TOKEN_AND || node->as.prefix_op.op==TOKEN_OR) {
+            so_expr(c,s,node->as.prefix_op.args[0],false);
+            if(!s->next || c->out->status)return;
+            SoState right={0};if(!so_clone(c,node,s,&right))return;
+            so_expr(c,&right,node->as.prefix_op.args[1],false);
+            if(right.next)so_same(c,node,s,&right);
+            free(right.locals);return;
+        }
         for(int i=0;i<node->as.prefix_op.arg_count;++i) so_expr(c,s,node->as.prefix_op.args[i],false);
         return;
     case AST_FIELD_ACCESS: so_expr(c,s,node->as.field_access.object,false); return;

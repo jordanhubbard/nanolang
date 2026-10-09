@@ -222,6 +222,15 @@ NvmFileFlowStatus nvm_file_flow_store(NvmFileFlowState *s,uint16_t local) {
     if(s && !s->reachable)return NVM_FILE_FLOW_UNRESOLVED;
     if(!local_valid(s,local) || !s->stack_count)return NVM_FILE_FLOW_INVALID;
     NvmFileFlowValue value=s->stack[s->stack_count-1];
+    /* I use PUSH_VOID/STORE_LOCAL to end a copy local's lifetime. This
+     * cannot erase an affine owner or a formal loan. */
+    if(value.initialized && !value.owner && value.type.tag==TAG_VOID &&
+       !value.type.mode && value.type.global_index==NVM_V2_NO_INDEX &&
+       s->locals[local].type.tag!=TAG_VOID) {
+        NvmFileFlowStatus status=nvm_file_flow_clear_copy(s,local);
+        if(status==NVM_FILE_FLOW_OK)pop(s);
+        return status;
+    }
     if(!value.initialized || value.owner || s->locals[local].type.mode || owned(s->locals[local].type) ||
        !same(value.type,s->locals[local].type))return NVM_FILE_FLOW_INVALID;
     s->locals[local]=value;pop(s);return NVM_FILE_FLOW_OK;

@@ -63,6 +63,7 @@ static BodyValue remember(BodyCheck *c, const ASTNode *node, BodyValue v, uint32
 }
 static BodyValue expression(BodyCheck *, const ASTNode *);
 static BodyValue require(BodyCheck *c, const ASTNode *node, BodyValue actual, BodyValue expected) {
+    if(actual.returns)return actual; /* No value reaches this requirement. */
     if (actual.type.base_type != TYPE_UNKNOWN && expected.type.base_type != TYPE_UNKNOWN && !equal(actual,expected))
         return fail(c,node,1,"I require the exact nominal type and borrow mode.");
     return actual;
@@ -173,8 +174,12 @@ static BodyValue expression_impl(BodyCheck *c, const ASTNode *node) {
         Type expected=logical?TYPE_BOOL:TYPE_INT;
         if ((op==TOKEN_EQ || op==TOKEN_NE) && first.type.base_type==TYPE_BOOL) expected=TYPE_BOOL;
         require(c,node,first,value(expected));
-        for(int i=1;i<n;++i) require(c,node,expression(c,node->as.prefix_op.args[i]),value(expected));
-        return value(logical||compare?TYPE_BOOL:TYPE_INT);
+        bool returns=first.returns;
+        for(int i=1;i<n;++i) {
+            BodyValue operand=require(c,node,expression(c,node->as.prefix_op.args[i]),value(expected));
+            if(op!=TOKEN_AND && op!=TOKEN_OR)returns |= operand.returns;
+        }
+        BodyValue result=value(logical||compare?TYPE_BOOL:TYPE_INT);result.returns=returns;return result;
     }
     case AST_FIELD_ACCESS: {
         BodyValue object=expression(c,node->as.field_access.object); TypeInfo field;

@@ -10,6 +10,7 @@ from tests.test_service_bodies import DECL, POSITIVE, ROOT
 
 VALID = {
     'lifecycle': POSITIVE,
+    'terminal-operator': 'fn exercise(file:File)->int {(+ 5 (match (close file) {Ok()=>{return 7} Error(e)=>{return 8}}))}',
     'branch-close': 'fn exercise(file:File,yes:bool)->void { if yes { let a:CloseResult=(close file) } else { let b:CloseResult=(close file) } }',
     'early-return': 'fn exercise(file:File,yes:bool)->int { if yes { let a:CloseResult=(close file) return 1 } let b:CloseResult=(close file) return 0 }',
     'loop-borrow': 'fn exercise(file:File)->void { let mut owned:File=file let mut i:int=0 while (< i 2) { let a:WriteResult=(write_byte &mut owned i) set i (+ i 1) } let b:CloseResult=(close owned) }',
@@ -31,6 +32,8 @@ fn exercise(file:File)->int {
 }
 CLOSE_BOOL = 'fn consumed(file:File)->bool { let c:CloseResult=(close file) return true } '
 INVALID = {
+    'short-circuit-and': CLOSE_BOOL+'fn exercise(file:File)->void {let skipped:bool=(and false (consumed file))}',
+    'short-circuit-or': CLOSE_BOOL+'fn exercise(file:File)->void {let skipped:bool=(or true (consumed file))}',
     'double-close': 'fn exercise(file:File)->void { let a:CloseResult=(close file) let b:CloseResult=(close file) }',
     'use-after-move': 'fn exercise(file:File)->File { let owned:File=file let a:CloseResult=(close file) return owned }',
     'parameter-leak': 'fn unused(file:File)->void { return }',

@@ -251,6 +251,12 @@ fn so_impl(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, ki
     if (== kind ParseNodeType.PNODE_BINARY_OP) {
         let node: ASTBinaryOp = (parser_get_binary_op parser id)
         if (not node.is_unary) { set flow (so_expr parser space bodies node.left_type node.left flow false) }
+        if (or (== node.op LexerTokenType.TOKEN_AND) (== node.op LexerTokenType.TOKEN_OR)) {
+            if (or (not flow.next) (!= so_status 0)) { return flow }
+            let right: ServiceOwnershipState = (so_expr parser space bodies node.right_type node.right (so_copy flow (array_length flow.locals)) false)
+            if right.next { (so_same flow right) }
+            return flow
+        }
         return (so_expr parser space bodies node.right_type node.right flow false)
     }
     if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {

@@ -168,13 +168,32 @@ static void allocations_test(NvmModule *m,NvmFileFlowDeclarations *d,NvmFileNomi
  (void)m;(void)d;(void)b;
 #endif
 }
+static void copy_local_lifetimes(NvmFileFlowDeclarations *d,NvmFileNominalBindings b) {
+ NvmFileFlowState *s=state(d,0);
+ OK(nvm_file_flow_push_scalar(s,TAG_INT));OK(nvm_file_flow_store(s,4));
+ CHECK(local(s,4).initialized);
+ OK(nvm_file_flow_push_scalar(s,TAG_VOID));OK(nvm_file_flow_store(s,4));
+ CHECK(!local(s,4).initialized && !counts(s).stack);
+ CHECK(nvm_file_flow_load(s,4)==NVM_FILE_FLOW_INVALID);
+ OK(nvm_file_flow_push_scalar(s,TAG_VOID));OK(nvm_file_flow_store(s,4));
+ finish(s);nvm_file_flow_state_free(s);
+ s=opened(d,b);uint64_t owner=local(s,0).owner;
+ OK(nvm_file_flow_push_scalar(s,TAG_VOID));
+ CHECK(nvm_file_flow_store(s,0)==NVM_FILE_FLOW_INVALID);
+ CHECK(local(s,0).owner==owner && counts(s).stack==1);
+ OK(nvm_file_flow_pop(s));OK(nvm_file_flow_drop_local(s,0));finish(s);nvm_file_flow_state_free(s);
+ s=state(d,2);OK(nvm_file_flow_push_scalar(s,TAG_VOID));
+ CHECK(nvm_file_flow_store(s,0)==NVM_FILE_FLOW_INVALID);
+ CHECK(local(s,0).initialized && counts(s).references==1 && counts(s).stack==1);
+ nvm_file_flow_state_free(s);
+}
 int main(void){
  for(unsigned permutation=0;permutation<2;permutation++){
   NvmFileNominalBindings b;NvmModule *m=module(&b,permutation!=0);NvmFileFlowDeclarations *d=NULL;OK(nvm_file_flow_declarations(m,&d));
   NvmFileFlowFunction f;CHECK(nvm_file_flow_function(d,2,&f) && f.parameters==2 && f.result.catalog_ordinal==4);
   NvmFileFlowDeclaration item;CHECK(nvm_file_flow_declaration(d,2,0,&item) && item.mode==2 && item.global_index==b.layouts[0]);
   bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK);CHECK(!nvm_verify(m).ok);char error[256];CHECK(nvm2c_emit(m,error,sizeof error)==NULL);
-  allocations_test(m,d,b);lifecycle(d,b);branches(d,b);limits(d,b);
+  allocations_test(m,d,b);lifecycle(d,b);branches(d,b);limits(d,b);copy_local_lifetimes(d,b);
   NvmFileFlowDeclarations *out=d;uint16_t save=m->functions[0].local_count;m->functions[0].local_count=257;CHECK(nvm_file_flow_declarations(m,&out)==NVM_FILE_FLOW_LIMIT && out==d);m->functions[0].local_count=save;
   m->functions[0].upvalue_count=1;CHECK(nvm_file_flow_declarations(m,&out)==NVM_FILE_FLOW_UNRESOLVED && out==d);m->functions[0].upvalue_count=0;
   /* The copied declarations/state survive all source and caller-plan lifetimes. */

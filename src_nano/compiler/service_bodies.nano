@@ -49,6 +49,7 @@ fn sb_equal(a: ServiceBodyValue, b: ServiceBodyValue) -> bool {
 }
 shadow sb_equal { assert (sb_equal (sb_value 1) (sb_value 1)) assert (not (sb_equal (sb_value 0) (sb_value 0))) }
 fn sb_require(actual: ServiceBodyValue, expected: ServiceBodyValue) -> ServiceBodyValue {
+    if actual.returns { return actual }
     if (and (!= actual.type.kind 0) (and (!= expected.type.kind 0) (not (sb_equal actual expected)))) {
         return (sb_fail 1 "I require the exact nominal type and borrow mode.")
     }
@@ -57,6 +58,8 @@ fn sb_require(actual: ServiceBodyValue, expected: ServiceBodyValue) -> ServiceBo
 shadow sb_require {
     set sb_status 0 let _: ServiceBodyValue = (sb_require (sb_value 1) (sb_value 2)) assert (== sb_status 1)
     set sb_status 0 set sb_diagnostic ""
+    let terminal: ServiceBodyValue = (sb_require (sb_returned (sb_value 3) true) (sb_value 1))
+    assert terminal.returns assert (== sb_status 0)
 }
 fn sb_annotation(space: ServiceNamespace, owner: int, spelling: string) -> ServiceBodyValue {
     if (or (== spelling "") (== spelling "unknown")) { return (sb_value 0) }
@@ -253,15 +256,19 @@ fn sb_expression_impl(parser: Parser, space: ServiceNamespace, kind: int, id: in
         let arithmetic: bool = (or (== op.op LexerTokenType.TOKEN_PLUS) (or (== op.op LexerTokenType.TOKEN_MINUS) (or (== op.op LexerTokenType.TOKEN_STAR) (or (== op.op LexerTokenType.TOKEN_SLASH) (== op.op LexerTokenType.TOKEN_PERCENT)))))
         if (not (or logical (or compare arithmetic))) { return (sb_fail 2 "I have not checked this service body operator.") }
         let mut expected: int = 1 if logical { set expected 2 }
+        let mut returned: bool = false
         if (or op.is_unary (== op.op LexerTokenType.TOKEN_NOT)) {
-            let _: ServiceBodyValue = (sb_require (sb_expression parser space op.right_type op.right) (sb_value expected))
+            let operand: ServiceBodyValue = (sb_require (sb_expression parser space op.right_type op.right) (sb_value expected))
+            set returned operand.returns
         } else {
             let first: ServiceBodyValue = (sb_expression parser space op.left_type op.left)
             if (and (or (== op.op LexerTokenType.TOKEN_EQ) (== op.op LexerTokenType.TOKEN_NE)) (== first.type.kind 2)) { set expected 2 }
             let _: ServiceBodyValue = (sb_require first (sb_value expected))
-            let _: ServiceBodyValue = (sb_require (sb_expression parser space op.right_type op.right) (sb_value expected))
+            let second: ServiceBodyValue = (sb_require (sb_expression parser space op.right_type op.right) (sb_value expected))
+            set returned first.returns
+            if (not (or (== op.op LexerTokenType.TOKEN_AND) (== op.op LexerTokenType.TOKEN_OR))) { set returned (or returned second.returns) }
         }
-        if (or logical compare) { return (sb_value 2) } return (sb_value 1)
+        if (or logical compare) { return (sb_returned (sb_value 2) returned) } return (sb_returned (sb_value 1) returned)
     }
     if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
         let node: ASTFieldAccess = (parser_get_field_access parser id)

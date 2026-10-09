@@ -125,6 +125,14 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_store(NvmFileRuntime *c) {
        !frf_stack(c,f,&fn,f->stack_count) || !fr_local(c,f->function,local,&expected))return frf_bad(c);
     uint32_t src=f->stack_base+f->stack_count-1,dst=f->locals_base+local;
     NvmFileRuntimeView v=c->values[src].view;
+    if(!owner && v.initialized && !v.owning && !v.formal &&
+       v.type.tag==TAG_VOID && !v.type.mode && v.type.global_index==NVM_V2_NO_INDEX &&
+       expected.tag!=TAG_VOID && !expected.mode &&
+       expected.category!=NVM_FILE_CATEGORY_FILE && expected.category!=NVM_FILE_CATEGORY_OPEN_RESULT) {
+        if(fr_live(c,dst) && !frf_matches(c->values[dst].view,expected))
+            return fr_error(c,NVM_FILE_RUNTIME_TYPE,NL_FILE_VALUE_TYPE);
+        fr_clear(c,dst);fr_clear(c,src);return NVM_FILE_RUNTIME_OK;
+    }
     if(expected.mode || !frf_matches(v,expected) || v.owning!=owner ||
        (owner?(!fr_empty(c,dst) || frf_held(c,src)):
         (fr_live(c,dst) && !frf_matches(c->values[dst].view,expected))))
