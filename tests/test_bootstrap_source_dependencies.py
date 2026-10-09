@@ -34,6 +34,10 @@ class BootstrapDependencies(unittest.TestCase):
                      "scripts/gen_compiler_schema.nano", "scripts/bootstrap_nanoisa.py",
                      "tests/bootstrap_native_guard.py"]:
             self.file(name, 80)
+        for name in ("tools/generate_module_index.c", "src/runtime/dyn_array.c", "src/runtime/gc_struct.c"):
+            self.file(name, 80)
+        self.file("bin/generate_module_index", 110)
+        self.file("modules/index.json", 110)
         self.file("obj/build_bootstrap/schema.stamp", 90)
         os.utime(self.root / "Makefile.gnu", (100, 100))
         for name, stamp in [("bin/nanoc_c", 110), ("bin/nano_virt", 110), ("bin/nano_vm", 110),
@@ -56,12 +60,12 @@ class BootstrapDependencies(unittest.TestCase):
         path.touch()
         os.utime(path, (stamp, stamp))
 
-    def query(self, target, changed=None):
+    def query(self, target, changed=None, dry_run=False):
         # These phony wrappers are already satisfied in this built fixture.
         # Ignoring the wrappers keeps make -q focused on bootstrap invalidation;
         # their concrete outputs above still make the fixture truthful.
         command = [os.environ.get("MAKE_BIN", "make"), "-f", "Makefile.gnu",
-                   "--no-print-directory", "-q", "-o", "bin/nanoc_c",
+                   "--no-print-directory", "-n" if dry_run else "-q", "-o", "bin/nanoc_c", "-o", "bin/generate_module_index",
                    "-o", ".bootstrap0.built", "-o", ".stage1.built",
                    "-o", "bin/nano_virt", "-o", "bin/nano_vm", "-o", "bin/nanoisa",
                    "-o", "bin/nvm2c", "-o", "bin/nano_aot_runtime.o",
@@ -72,7 +76,15 @@ class BootstrapDependencies(unittest.TestCase):
             command += ["-W", changed]
         result = subprocess.run(command, cwd=self.root, capture_output=True, text=True)
         self.assertIn(result.returncode, (0, 1), result.stdout + result.stderr)
-        return result.returncode
+        return result.stdout if dry_run else result.returncode
+
+    def test_missing_index_is_generated_before_bootstrap_snapshot(self):
+        (self.root / "modules/index.json").unlink()
+        os.utime(self.root / "modules", (100, 100))
+        self.assertEqual(self.query(".bootstrap1.built"), 1)
+        commands = self.query(".bootstrap1.built", dry_run=True)
+        self.assertLess(commands.index("./bin/generate_module_index"),
+                        commands.index("scripts/bootstrap_nanoisa.py stage1"))
 
     def test_up_to_date_and_source_invalidation(self):
         targets = [".bootstrap1.built", ".bootstrap2.built", ".bootstrap3.built",
