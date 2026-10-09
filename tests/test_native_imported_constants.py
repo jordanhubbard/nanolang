@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class NativeImportedConstants(unittest.TestCase):
-    def check(self, source):
+    def check(self, source, files=None):
         with tempfile.TemporaryDirectory(prefix="nano-native-imported-constants-") as tmp:
             work = Path(tmp)
             (work / "a.nano").write_text('''pub let answer: int = 41
@@ -24,6 +24,8 @@ pub let enabled: bool = false
 pub let fraction: float = 2.5
 ''')
             source = 'module "a.nano" as first\nmodule "b.nano" as second\n' + source
+            for name, content in (files or {}).items():
+                (work / name).write_text(content)
             (work / "main.nano").write_text(source)
             environment = {**os.environ, "NANO_BUILD_CACHE": str(work / "cache")}
             for command in ([ROOT / "bin/nanoc_c", work / "main.nano", "-o", work / "main"],
@@ -59,6 +61,24 @@ fn main() -> int {
 }
 shadow main { assert (== (main) 0) }
 ''')
+
+    def test_transitive_import_retains_callee_source(self):
+        self.check('''module "b.nano" as source
+module "bridge.nano" as bridge
+from "bridge.nano" import read as imported_read
+fn main() -> int {
+    assert (== source.answer 17)
+    assert (== (bridge.read) 41)
+    let read: fn() -> int = imported_read
+    assert (== (read) 41)
+    assert (== source.answer 17)
+    return 0
+}
+shadow main { assert (== (main) 0) }
+''', files={"bridge.nano": '''module "a.nano" as source
+pub fn read() -> int { return source.answer }
+shadow read { assert (== (read) 41) }
+'''})
 
     def test_call_argument_order(self):
         self.check('''let mut visits: int = 0

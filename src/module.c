@@ -1286,7 +1286,10 @@ bool compile_module_to_object(const char *module_path,
         if (item->type == AST_MODULE_DECL && item->as.module_decl.name)
             module_env->current_module = item->as.module_decl.name;
     }
+    const char *saved_source_file = env_current_file(module_env);
+    env_set_current_file(module_env, module_path);
     char *c_code = transpile_to_c(module_ast, module_env, module_path);
+    env_set_current_file(module_env, saved_source_file);
     module_env->current_module = saved_module_context;
 
     if (saved_main) {
