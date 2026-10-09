@@ -80,6 +80,19 @@ class ServiceLowering(unittest.TestCase):
         for name in ('temp','write_byte','rewind','read_byte','close'):
             with self.subTest(shadow=name):
                 self.check(generated+'\nfn main()->int{return 0}\n',name,complete=True)
+        # I execute the actual complete generated selection under one deadline.
+        source=self.work/'suite.nano'
+        source.write_text(generated+'\nfn main()->int{return 0}\n')
+        log=self.work/'suite.log'
+        report=self.command([os.environ.get('NANO_SERVICE_LOWERING_RUNNER',ROOT/'obj/test_service_lowering'),source,'all',log])
+        self.assertIn('SHADOWS 5',report)
+        lines=log.read_text().splitlines()
+        selected=[line.removeprefix('SELECT ') for line in lines if line.startswith('SELECT ')]
+        started=[line.removeprefix('START ') for line in lines if line.startswith('START ')]
+        done=[line.removeprefix('DONE ') for line in lines if line.startswith('DONE ')]
+        self.assertEqual(len(selected),5)
+        self.assertEqual(selected,started)
+        self.assertEqual(selected,done)
 
     def test_helpers_loops_fields_and_result_values(self):
         self.check('''
@@ -191,6 +204,17 @@ fn exercise(file:File)->int {
   return 1
  }}
 }''',status=9)
+
+    def test_failed_selected_shadow_drains_live_file(self):
+        self.check('''fn broken()->void {}
+shadow broken {
+ match (temp) {Error(error)=>{assert false} Ok(file)=>{
+  assert false
+  let closed:CloseResult=(close file)
+ }}
+}
+fn main()->int {return 0}
+''',selection='broken',status=9)
 
     def test_qualified_reexported_helper(self):
         (self.work/'binding.nano').write_text(DECL+'pub fn pass(file:File)->File{return file}\n')

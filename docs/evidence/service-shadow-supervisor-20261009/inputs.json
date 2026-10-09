@@ -1,0 +1,15 @@
+{
+  "parent": "79d325f6f8cd4bd094c29363d3763c7c315b4ea2",
+  "sha256": {
+    "src/runtime/service_shadows.c": "5cb4d865742d1c9578d66715db87ab988fde3f1a54836180168a678ccabd59f4",
+    "src/runtime/service_shadows.h": "d712282f218b9c5223ab8ff5bf27385bbd06006680745fd1662b5a609f1e9c61",
+    "tests/test_service_shadows.c": "dfcfe0ffec46ac6023d6b8fe1df176fffe3e58591aefe8bc883858d82c73ccd4",
+    "tests/test_service_lowering.c": "5096960fde61524cf1fd28f1e50bf8c0ea6b0bafe341e0db48fedf2c2790df62",
+    "tests/test_service_lowering.py": "80edaa3b20b38bf4f6fc493b3f4899c33a092faa459a6eba97ca564a1f9021c2",
+    "Makefile.gnu": "ef9fcfdbee4f7fb97f9a3cb0847d7fd14446b623db680bf88a9ef82adc5d825a"
+  },
+  "development_driver": {
+    "path": "/private/tmp/nanolang-service-lowering-driver-final.nvm",
+    "sha256": "f01ed7f86151e2b65b2d735e2b2ce33af9ca023d8bf2b7984663053f6b7ab32b"
+  }
+}

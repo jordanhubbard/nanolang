@@ -1,0 +1,10 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o obj/test_service_shadows tests/test_service_shadows.c src/runtime/service_shadows.c
+tests/test_service_shadows.c:54:12: error: call to undeclared function 'mkdtemp'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   54 |     assert(mkdtemp(directory));
+      |            ^
+1 error generated.
+src/runtime/service_shadows.c:71:67: error: use of undeclared identifier 'O_NOFOLLOW'
+   71 |     int fd = open(path, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC | O_NOFOLLOW, 0600);
+      |                                                                   ^~~~~~~~~~
+1 error generated.
+make: *** [obj/test_service_shadows] Error 1

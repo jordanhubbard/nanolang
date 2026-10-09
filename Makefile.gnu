@@ -6073,15 +6073,15 @@ test-service-ownership-sanitize: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(COMPILER
 	ASAN_OPTIONS=detect_leaks=1 NANO_SERVICE_OWNERSHIP_C_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_ownership_sanitize" python3 -m unittest -v tests.test_service_ownership
 test-units: test-service-ownership
 
-$(OBJ_DIR)/test_service_lowering: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY)
-	$(CC) $(CFLAGS) -o $@ tests/test_service_lowering.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS)
+$(OBJ_DIR)/test_service_lowering: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h src/runtime/service_shadows.c src/runtime/service_shadows.h $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY)
+	$(CC) $(CFLAGS) -o $@ tests/test_service_lowering.c src/runtime/service_shadows.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS)
 .PHONY: test-service-lowering
 test-service-lowering: $(OBJ_DIR)/test_service_lowering
 	python3 -m unittest -v tests.test_service_lowering
 
 .PHONY: test-service-lowering-sanitize
-$(OBJ_DIR)/test_service_lowering_sanitize: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY)
-	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -DNVM_FILE_PUBLIC_ENGINE -o $(OBJ_DIR)/test_service_lowering_sanitize tests/test_service_lowering.c $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS)
+$(OBJ_DIR)/test_service_lowering_sanitize: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h src/runtime/service_shadows.c src/runtime/service_shadows.h $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY)
+	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -DNVM_FILE_PUBLIC_ENGINE -o $(OBJ_DIR)/test_service_lowering_sanitize tests/test_service_lowering.c src/runtime/service_shadows.c $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS)
 test-service-lowering-sanitize: $(OBJ_DIR)/test_service_lowering_sanitize
 	ASAN_OPTIONS=detect_leaks=1 NANO_SERVICE_LOWERING_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_lowering_sanitize" python3 -m unittest -v tests.test_service_lowering
 
@@ -6093,4 +6093,10 @@ test-service-wire: $(BIN_DIR)/nano_virt $(BIN_DIR)/nano_vm $(BIN_DIR)/nvm2c $(FI
 test-service-lowering-nano: $(OBJ_DIR)/test_service_lowering $(BIN_DIR)/nano_virt $(BIN_DIR)/nano_vm $(BIN_DIR)/nvm2c $(FILE_PUBLIC_LIBRARY)
 	NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_service_lowering_nano
 
-test-units: test-service-wire test-service-lowering-nano
+test-units: test-service-wire test-service-lowering-nano test-service-shadows
+
+.PHONY: test-service-shadows
+$(OBJ_DIR)/test_service_shadows: tests/test_service_shadows.c src/runtime/service_shadows.c src/runtime/service_shadows.h
+	$(CC) $(CFLAGS) -o $@ tests/test_service_shadows.c src/runtime/service_shadows.c
+test-service-shadows: $(OBJ_DIR)/test_service_shadows
+	./$(OBJ_DIR)/test_service_shadows

@@ -1,11 +1,14 @@
 #include "nanolang.h"
 #include "service_lowering.h"
 #include "nanoisa/file_cyclic_public.h"
+#include "runtime/service_shadows.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
 static long fail_after=-1;
 static void *lower_malloc(size_t size) {
     if(fail_after==0)return NULL;
@@ -40,6 +43,27 @@ int main(int argc,char **argv) {
     assert(!process_imports(root,env,modules,argv[1]));
     assert(env->service_bodies && env->service_bodies->status==0);
     assert(env->service_ownership && env->service_ownership->status==0);
+    if (!strcmp(argv[2],"all")) {
+        NlServiceShadow shadows[64];size_t selected=0;
+        for(uint32_t owner=0;nl_service_namespace_program(env->service_namespace,owner);owner++) {
+            const ASTNode *program=nl_service_namespace_program(env->service_namespace,owner);
+            for(int i=0;i<program->as.program.count;i++) {
+                const ASTNode *node=program->as.program.items[i];
+                if(node->type!=AST_SHADOW)continue;
+                assert(selected<64);NvmModule *lowered=NULL;uint8_t *wire=NULL;size_t wire_size=0;
+                assert(!nl_service_lower(env->service_namespace,env->service_bodies,
+                    env->service_ownership,node,&lowered).status);
+                assert(!nl_service_serialize(lowered,&wire,&wire_size).status);
+                nvm_module_free(lowered);
+                shadows[selected++]=(NlServiceShadow){wire,wire_size,
+                    nl_service_namespace_module(env->service_namespace,owner),node->as.shadow.function_name};
+            }
+        }
+        NlServiceShadowReport tested=nl_service_run_shadows(shadows,selected,true,argv[3]);
+        assert(tested.status==NL_SERVICE_SHADOW_OK && tested.completed==selected);
+        for(size_t i=0;i<selected;i++)free((void *)shadows[i].bytes);
+        printf("SHADOWS %zu\n",selected);goto done;
+    }
     const ASTNode *selection=NULL;
     if(strcmp(argv[2],"main"))for(int i=0;i<root->as.program.count;i++) {
         const ASTNode *node=root->as.program.items[i];
@@ -88,6 +112,18 @@ int main(int argc,char **argv) {
     printf("EXEC %u VALUE %lld FUNCTIONS %u BYTES %zu\n",report.runtime.status,(long long)scalar.value,module->function_count,length);fflush(stdout);
     assert(report.runtime.status==expected);
     assert(!report.runtime.cleanup.cleanup_failures);
+    if (selection) {
+        char log_path[4096];
+        assert(snprintf(log_path,sizeof log_path,"%s.shadows",argv[3]) < (int)sizeof log_path);
+        assert(unlink(log_path)==0 || errno==ENOENT);
+        NlServiceShadow shadow={bytes,length,argv[1],argv[2]};
+        NlServiceShadowReport tested=nl_service_run_shadows(&shadow,1,false,log_path);
+        assert(tested.status==NL_SERVICE_SHADOW_DENIED && access(log_path,F_OK)!=0);
+        tested=nl_service_run_shadows(&shadow,1,true,log_path);
+        assert(tested.status==(expected?NL_SERVICE_SHADOW_FAILED:NL_SERVICE_SHADOW_OK));
+        assert(tested.completed==(expected?0u:1u));
+        assert(unlink(log_path)==0);
+    }
     char diagnostic[256],*native=NULL;
     assert(nvm2c_emit_file_cyclic_bytes(bytes,length,"source",&native,diagnostic,sizeof diagnostic)==NVM_FILE_RUNTIME_OK);
     file=fopen(argv[3],"wb");assert(file);assert(fwrite(native,1,strlen(native),file)==strlen(native));assert(!fclose(file));
