@@ -2679,7 +2679,7 @@ fn nisa_artifact_arity(name: string) -> int {
     if (or (== name "nl_nanoisa_assemble_text_save") (or (== name "file_append") (or (== name "file_copy") (== name "dir_copy")))) { return 2 }
     if (== name "nl_nanoisa_last_error") { return 0 }
     if (or (== name "path_join") (== name "path_relpath")) { return 2 }
-    let names: array<string> = ["path_basename", "path_dirname", "path_normalize", "path_canonical", "nlc_module_artifact", "fs_walkdir", "fs_mkdir_p", "nl_nanoisa_load_print", "nl_nanoisa_load_pretty"]
+    let names: array<string> = ["path_basename", "path_dirname", "path_normalize", "path_canonical", "nlc_module_artifact", "nlc_module_header_constants", "fs_walkdir", "fs_mkdir_p", "nl_nanoisa_load_print", "nl_nanoisa_load_pretty"]
     let mut i: int = 0
     while (< i (array_length names)) {
         if (== name (at names i)) { return 1 }
@@ -2707,6 +2707,7 @@ shadow nisa_artifact_arity {
     assert (== (nisa_artifact_arity "path_basename") 1)
     assert (== (nisa_artifact_arity "path_join") 2)
     assert (== (nisa_artifact_arity "nlc_module_artifact") 1)
+    assert (== (nisa_artifact_arity "nlc_module_header_constants") 1)
     assert (== (nisa_artifact_arity "nl_nanoisa_assemble_text_save") 2)
     assert (== (nisa_artifact_arity "nl_nanoisa_last_error") 0)
     assert (== (nisa_artifact_arity "arbitrary") -1)
@@ -3217,7 +3218,10 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
             let global: int = (nisa_global_find identifier.name identifier.line)
             if (< global 0) {
                 let function: int = (nisa_identifier_function parser identifier)
-                if (< function 0) { return "" }
+                if (< function 0) {
+                    if (!= (mb_header_value identifier.name) "") { return "int" }
+                    return ""
+                }
                 return (nisa_function_type parser (parser_get_function parser function))
             }
             return (at nisa_global_types global)
@@ -4875,7 +4879,11 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
                     let global: int = (nisa_global_find id.name id.line)
                     if (< global 0) {
                         let index: int = (nisa_identifier_function parser id)
-                        if (< index 0) { return (nisa_fail (+ "undefined binding " id.name)) }
+                        if (< index 0) {
+                            let header: string = (mb_header_value id.name)
+                            if (!= header "") { return (nisa_line_imm "PUSH_I64" header) }
+                            return (nisa_fail (+ "undefined binding " id.name))
+                        }
                         let function: ASTFunction = (parser_get_function parser index)
                         if (< function.body 0) { return (nisa_fail "I require a NanoISA body for a function value") }
                         (nisa_require_function index)
@@ -5058,6 +5066,14 @@ fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
 
 shadow nisa_emit_expr {
     let _: int = (nisa_reset)
+    (mb_reset [1])
+    (mb_header_add 0 "HEADER_VALUE" "41")
+    let header_diags: List<CompilerDiagnostic> = (diag_list_new)
+    let header_tokens: List<LexerToken> = (tokenize_string "fn main()->int { return HEADER_VALUE }" "header.nano" header_diags)
+    let header_parser: Parser = (parse_program header_tokens (list_LexerToken_length header_tokens) "header.nano")
+    assert (== (nisa_expr_type header_parser 0 ParseNodeType.PNODE_IDENTIFIER) "int")
+    assert (== (nisa_emit_expr header_parser 0 ParseNodeType.PNODE_IDENTIFIER) "  PUSH_I64 41\n")
+    (mb_reset [])
     let diags: List<CompilerDiagnostic> = (diag_list_new)
     let src: string = (+ "f" "n main() -> int { return 7 } shadow main { assert (== (main) 7) }")
     let toks: List<LexerToken> = (tokenize_string src "t.nano" diags)

@@ -1,0 +1,13 @@
+test_callable_local_still_shadows_declared_function (tests.test_header_constant_functions.HeaderConstantFunctions.test_callable_local_still_shadows_declared_function) ... skipped 'I require SQLite headers in the module constant search paths.'
+test_noncallable_local_refuses_without_replacing_prior_output (tests.test_header_constant_functions.HeaderConstantFunctions.test_noncallable_local_refuses_without_replacing_prior_output) ... skipped 'I require SQLite headers in the module constant search paths.'
+test_original_sqlite_example_and_dependency_shadows (tests.test_header_constant_functions.HeaderConstantFunctions.test_original_sqlite_example_and_dependency_shadows) ... skipped 'I require SQLite headers in the module constant search paths.'
+test_unrelated_sqlite_header_value (tests.test_header_constant_functions.HeaderConstantFunctions.test_unrelated_sqlite_header_value) ... skipped 'I require SQLite headers in the module constant search paths.'
+test_compiler_support_query_preserves_snapshot_and_literal_contract (tests.test_header_constant_functions.HeaderConstantValues.test_compiler_support_query_preserves_snapshot_and_literal_contract) ... ok
+test_header_values_keep_lexical_bindings_in_shadows_vm_and_native (tests.test_header_constant_functions.HeaderConstantValues.test_header_values_keep_lexical_bindings_in_shadows_vm_and_native) ... ok
+test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) ... ok
+test_real_sqlite_header_value (tests.test_header_constant_functions.HeaderConstantValues.test_real_sqlite_header_value) ... skipped 'I require SQLite headers.'
+
+----------------------------------------------------------------------
+Ran 8 tests in 3.058s
+
+OK (skipped=5)

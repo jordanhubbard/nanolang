@@ -736,31 +736,11 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     if (meta && meta->headers_count > 0) {
         /* Try to find and parse C headers for constants */
         for (size_t i = 0; i < meta->headers_count; i++) {
-            /* Try to locate the header - check system include paths */
-            char header_path[1024];
-            
-            /* Try common locations */
-            const char *search_paths[] = {
-                "/opt/homebrew/include",  /* macOS homebrew */
-                "/usr/local/include",      /* Linux/macOS local */
-                "/usr/include",            /* Linux system */
-                NULL
-            };
-            
-            bool found = false;
-            for (int j = 0; search_paths[j] != NULL; j++) {
-                snprintf(header_path, sizeof(header_path), "%s/%s", search_paths[j], meta->headers[i]);
-                FILE *test = fopen(header_path, "r");
-                if (test) {
-                    fclose(test);
-                    found = true;
-                    break;
-                }
-            }
-            
-            if (found) {
+            char *header_path = module_find_header(meta->headers[i]);
+            if (header_path) {
                 int const_count = 0;
                 ConstantDef *constants = parse_c_header_constants(header_path, &const_count);
+                free(header_path);
                 
                 if (constants && const_count > 0) {
                     /* Add constants to environment as immutable symbols */

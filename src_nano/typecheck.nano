@@ -4600,6 +4600,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         (check_lambda_creation parser id_node symbols diags file_name)
         let lookup: OptionType = (env_get_type symbols (tc_bound_name id_node.name id_node.line symbols))
         if lookup.has_value { return lookup.value }
+        if (!= (mb_header_value id_node.name) "") { return (type_int) }
         let builtin: NSType = (check_builtin_function id_node.name)
         let named_type: bool = (or (is_enum_name parser id_node.name) (is_union_name parser id_node.name))
         if (and (not named_type) (== builtin.kind TypeKind.TYPE_UNKNOWN)) {
@@ -4683,6 +4684,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
         (check_lambda_creation parser fn_id_node symbols diags file_name)
         let fn_name: string = (tc_bound_name fn_id_node.name fn_id_node.line symbols)
+        if (and (< (env_lookup symbols fn_name) 0) (!= (mb_header_value fn_id_node.name) "")) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a function value for a bound call." (Diagnostics.diag_location file_name call_node.line call_node.column)))
+            return (type_unknown_named fn_name)
+        }
         if (and (== fn_name "map_get") (and (== call_node.arg_count 2) (< (env_lookup symbols fn_name) 0))) {
             let receiver: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
             let receiver_type: NSType = (check_expr_node parser receiver.node_id receiver.node_type symbols diags file_name)
@@ -5126,6 +5131,19 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 }
 
 shadow check_expr_node {
+    (mb_reset [1])
+    (mb_header_add 0 "HEADER_VALUE" "41")
+    let header_parser: Parser = (resource_test_parser "fn main()->int { return HEADER_VALUE }")
+    let header_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let header_type: NSType = (check_expr_node header_parser 0 ParseNodeType.PNODE_IDENTIFIER [] header_diags "header.nano")
+    assert (== header_type.kind TypeKind.TYPE_INT)
+    let header_locals: array<Symbol> = [(symbol_new "HEADER_VALUE" (type_string) false false 0 (empty_param_types) (type_void))]
+    let local_type: NSType = (check_expr_node header_parser 0 ParseNodeType.PNODE_IDENTIFIER header_locals header_diags "header.nano")
+    assert (== local_type.kind TypeKind.TYPE_STRING)
+    let header_call: Parser = (resource_test_parser "fn main()->int { return (HEADER_VALUE) }")
+    let refused: NSType = (check_expr_node header_call 0 ParseNodeType.PNODE_CALL [] header_diags "header.nano")
+    assert (> (list_CompilerDiagnostic_length header_diags) 0)
+    (mb_reset [])
     let source: string = "fn message(var_name: string) -> string { return (+ \"Error: \" (+ var_name \"not found\")) }"
     let tokens: List<LexerToken> = (tokenize_string source "test.nano" (list_CompilerDiagnostic_new))
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "test.nano")

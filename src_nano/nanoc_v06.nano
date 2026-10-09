@@ -20,6 +20,7 @@ import "src_nano/typecheck.nano"
 from "src_nano/compiler/native_product.nano" import publish_native_module
 import "src_nano/compiler/nanoisa_codegen.nano"
 module "modules/nanoisa/nanoisa.nano" as Nanoisa
+module "modules/compiler_support/compiler_support.nano" as DriverSupport
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 import "src_nano/compiler/module_loader.nano"
 import "src_nano/compiler/module_bindings.nano"
@@ -1058,6 +1059,38 @@ shadow merged_qualified_calls_valid {
     (mb_reset [])
 }
 
+fn bind_header_lines(owner: int, text: string, originals: array<string>, owners: array<int>) -> void {
+    let lines: array<string> = (split_lines text)
+    let mut i: int = 0
+    while (< i (array_length lines)) {
+        let line: string = (at lines i)
+        let separator: int = (nlc_str_index_of line "=")
+        if (> separator 0) {
+            let name: string = (str_substring line 0 separator)
+            let mut declared: bool = false
+            let mut f: int = 0
+            while (< f (array_length originals)) {
+                if (and (== (at owners f) owner) (== (at originals f) name)) { set declared true }
+                set f (+ f 1)
+            }
+            if (not declared) {
+                let value: string = (str_substring line (+ separator 1) (- (str_length line) (+ separator 1)))
+                (mb_header_add owner name value)
+            }
+        }
+        set i (+ i 1)
+    }
+}
+shadow bind_header_lines {
+    (mb_reset [1, 3])
+    (bind_header_lines 0 "VALUE=41\ndeclared=999\n" ["declared"] [0])
+    assert (== (mb_header_value "VALUE") "41")
+    assert (== (mb_header_value "declared") "")
+    (bind_header_lines 1 "VALUE=99\n" [] [])
+    assert (== (mb_header_value "VALUE") "41")
+    (mb_reset [])
+}
+
 fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
     (mb_reset merge.file_starts)
     (mb_set_sources merge.files)
@@ -1080,6 +1113,11 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
         }
         (mb_add owner func.name name)
         (list_ASTFunction_set parser.functions i (ASTFunction { node_type: func.node_type, line: func.line, column: func.column, name: name, param_start: func.param_start, param_count: func.param_count, return_type: func.return_type, body: func.body, is_pure: func.is_pure }))
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i root_owner) {
+        (bind_header_lines i (DriverSupport.module_header_constants (at merge.files i)) originals owners)
         set i (+ i 1)
     }
     set i 0

@@ -3196,6 +3196,11 @@ test-header-constant-functions: nano_virt nano_vm nvm2c $(COMPILER_C)
 test-units: test-header-constant-functions
 test-vm-examples: test-header-constant-functions
 
+.PHONY: test-selfhost-header-constants
+test-selfhost-header-constants: bootstrap nano_vm nvm2c
+	python3 -m unittest -v tests.test_selfhost_header_constants
+test-units: test-selfhost-header-constants
+
 .PHONY: test-module-introspection
 test-module-introspection: $(COMPILER_C)
 	$(COMPILER_C) tests/module_introspection.nano -o $(BIN_DIR)/module_introspection_test

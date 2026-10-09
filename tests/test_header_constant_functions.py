@@ -101,6 +101,52 @@ shadow main { assert true }
 
 
 class HeaderConstantValues(unittest.TestCase):
+    compiler = 'nano_virt'
+
+    def paired(self, source, work):
+        module, generated, native = (work / name for name in ('out.nvm', 'out.c', 'out'))
+        cc = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC') or os.environ.get('CC') or 'cc')
+        environment = {**os.environ, 'NANO_BUILD_CACHE': str(work / 'cache'),
+                       'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'}
+        commands = [
+            [ROOT / 'bin' / self.compiler, source, '--emit-nvm', '-o', module],
+            [ROOT / 'bin/nano_vm', '--verify-only', module],
+            [ROOT / 'bin/nano_vm', module],
+            [ROOT / 'bin/nvm2c', module, '-o', generated],
+            [*cc, '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined',
+             '-fno-sanitize-recover=all', generated, '-ldl', '-lm', '-o', native],
+            [native],
+        ]
+        for command in commands:
+            result = subprocess.run(list(map(str, command)), cwd=ROOT, env=environment,
+                                    capture_output=True, text=True, timeout=180)
+            self.assertEqual(result.returncode, 0, repr(command) + '\n' + result.stdout + result.stderr)
+
+    @unittest.skipUnless(any(p.is_file() for p in HEADERS), 'I require SQLite headers.')
+    def test_real_sqlite_header_value(self):
+        with tempfile.TemporaryDirectory(prefix='nano-sqlite-header-') as temporary:
+            work = Path(temporary).resolve()
+            source = work / 'sqlite.nano'
+            source.write_text('unsafe module "modules/sqlite/sqlite.nano" as sqlite\n'
+                              'fn main()->int { assert (== SQLITE_BUSY 5) return 0 }\n'
+                              'shadow main { assert (== (main) 0) }\n')
+            self.paired(source, work)
+
+    def test_compiler_support_query_preserves_snapshot_and_literal_contract(self):
+        with tempfile.TemporaryDirectory(prefix='nano-header-query-') as temporary:
+            work = Path(temporary).resolve()
+            dependency = private_header(work, '#define HEADER_VALUE 012\n#define INVALID_VALUE 1 + 2\n')
+            source = work / 'query.nano'
+            source.write_text('module "modules/compiler_support/compiler_support.nano" as support\n'
+                              'fn main()->int {\n'
+                              f' let snapshot:string = (support.module_header_constants "{dependency}")\n'
+                              ' assert (== snapshot "HEADER_VALUE=10\\n")\n'
+                              ' assert (== (support.module_header_constants "") "")\n'
+                              f' assert (== (support.module_header_constants "{work}") "")\n'
+                              ' assert (== snapshot "HEADER_VALUE=10\\n")\n return 0\n}\n'
+                              'shadow main { assert (== (main) 0) }\n')
+            self.paired(source, work)
+
     def test_header_values_keep_lexical_bindings_in_shadows_vm_and_native(self):
         with tempfile.TemporaryDirectory(prefix='nano-header-values-') as temporary:
             work = Path(temporary).resolve()
@@ -151,37 +197,20 @@ shadow main { assert (== (main) 0) }
 ''')
             environment = {**os.environ, 'NANO_BUILD_CACHE': str(work / 'cache'),
                            'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'}
-            module, generated, native = (work / name for name in ('out.nvm', 'out.c', 'out'))
-            cc = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC') or
-                            os.environ.get('CC') or 'cc')
-            commands = [
-                [ROOT / 'bin/nano_virt', source, '--emit-nvm', '-o', module],
-                [ROOT / 'bin/nano_vm', '--verify-only', module],
-                [ROOT / 'bin/nano_vm', module],
-                [ROOT / 'bin/nvm2c', module, '-o', generated],
-                [*cc, '-std=c11', '-Wall', '-Wextra', '-Werror',
-                 '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
-                 generated, '-ldl', '-lm', '-o', native],
-                [native],
-            ]
-            for command in commands:
-                result = subprocess.run(list(map(str, command)), cwd=ROOT,
-                                        env=environment, capture_output=True,
-                                        text=True, timeout=120)
-                self.assertEqual(result.returncode, 0,
-                                 repr(command) + '\n' + result.stdout + result.stderr)
+            module = work / 'out.nvm'
+            self.paired(source, work)
 
-            for body in ('set HEADER_VALUE 0', 'let missing:int = HEADER_UNDEFINED'):
+            for body in ('set HEADER_VALUE 0', 'let missing:int = HEADER_UNDEFINED', 'let invalid:int = (HEADER_VALUE)'):
                 with self.subTest(refusal=body):
                     source.write_text(f'module "{dependency}" as values\n'
                                       + 'fn main()->int { ' + body + ' return 0 }\n'
                                       + 'shadow main { assert true }\n')
                     module.write_bytes(b'prior output\n')
                     result = subprocess.run(
-                        [str(ROOT / 'bin/nano_virt'), str(source), '--emit-nvm', '-o', str(module)],
+                        [str(ROOT / 'bin' / self.compiler), str(source), '--emit-nvm', '-o', str(module)],
                         cwd=ROOT, env=environment, capture_output=True, text=True, timeout=120)
                     self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
-                    self.assertIn('type check failed', result.stderr)
+                    self.assertIn('type check failed' if self.compiler == 'nano_virt' else 'NSType checking failed', result.stdout + result.stderr)
                     self.assertEqual(module.read_bytes(), b'prior output\n')
 
     def test_noninteger_or_out_of_range_header_values_are_not_imported(self):
@@ -201,11 +230,11 @@ shadow main { assert (== (main) 0) }
                 output = work / 'prior.nvm'
                 output.write_bytes(b'prior output\n')
                 result = subprocess.run(
-                    [str(ROOT / 'bin/nano_virt'), str(source), '--emit-nvm', '-o', str(output)],
+                    [str(ROOT / 'bin' / self.compiler), str(source), '--emit-nvm', '-o', str(output)],
                     cwd=ROOT, capture_output=True, text=True, timeout=120,
                     env={**os.environ, 'NANO_BUILD_CACHE': str(work / 'cache')})
                 self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
-                self.assertIn('type check failed', result.stderr)
+                self.assertIn('type check failed' if self.compiler == 'nano_virt' else 'NSType checking failed', result.stdout + result.stderr)
                 self.assertEqual(output.read_bytes(), b'prior output\n')
 
 

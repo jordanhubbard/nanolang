@@ -176,4 +176,7 @@ extern bool module_builder_verbose;
 // Note: ConstantDef is defined in nanolang.h
 ConstantDef* parse_c_header_constants(const char *header_path, int *count_out);
 
+/* I return an allocated readable path in my header search directories, or NULL. */
+char *module_find_header(const char *header_name);
+
 #endif // MODULE_BUILDER_H

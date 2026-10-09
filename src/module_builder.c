@@ -1695,6 +1695,25 @@ failed:
 // Note: This is a basic parser - it handles simple integer #define patterns only
 #include "nanolang.h"
 
+char *module_find_header(const char *header_name) {
+    const char *directories[] = {"/opt/homebrew/include", "/usr/local/include", "/usr/include"};
+    if (!header_name || !header_name[0]) return NULL;
+    for (size_t i = 0; i < sizeof(directories) / sizeof(directories[0]); ++i) {
+        int length = snprintf(NULL, 0, "%s/%s", directories[i], header_name);
+        if (length < 0) return NULL;
+        char *path = malloc((size_t)length + 1);
+        if (!path) return NULL;
+        snprintf(path, (size_t)length + 1, "%s/%s", directories[i], header_name);
+        FILE *header = fopen(path, "r");
+        if (header) {
+            fclose(header);
+            return path;
+        }
+        free(path);
+    }
+    return NULL;
+}
+
 /* I import only complete integer literals representable by my signed int.
  * I do not evaluate C expressions or silently import their numeric prefixes. */
 static bool header_integer_literal(const char *line, char name[256], int64_t *value) {

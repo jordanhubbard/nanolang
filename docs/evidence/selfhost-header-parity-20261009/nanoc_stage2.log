@@ -1,0 +1,6 @@
+['/private/tmp/nanolang-match-guards-20261009/bin/nanoc_stage2', '/private/tmp/nanolang-selfhost-header-parity-20261009/main.nano', '--emit-nvm', '-o', '/private/tmp/nanolang-selfhost-header-parity-20261009/nanoc_stage2.nvm']
+NSType checking failed
+Diagnostics:
+  [E0011] I cannot find this name in the current scope: HEADER_VALUE (/private/tmp/nanolang-selfhost-header-parity-20261009/main.nano:2:29)
+
+exit=1
