@@ -1,0 +1,15 @@
+{
+  "timed-emitter": {
+    "completed": 661,
+    "seconds": 44.955121
+  },
+  "field-hint-emitter": {
+    "completed": 661,
+    "seconds": 41.548579
+  },
+  "baseline-repeat-emitter": {
+    "completed": 661,
+    "seconds": 42.010236
+  },
+  "decision": "I discard the bounded field-slot hint: the repeat baseline and candidate differ by about one percent, too little to justify retained complexity."
+}

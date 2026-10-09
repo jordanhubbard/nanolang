@@ -118,6 +118,19 @@ static void shadow_json_escape(FILE *out, const char *s) {
     }
 }
 
+/* I flush each boundary so a killed shadow still identifies its source.
+ * Timing is diagnostic only; the outer supervisor owns the deadline. */
+static void shadow_trace_event(const char *event, const char *name, const char *file,
+                               int line, double elapsed, int failures) {
+    fprintf(stderr, "{\"event\":\"%s\",\"name\":\"", event);
+    shadow_json_escape(stderr, name);
+    fputs("\",\"source\":\"", stderr);
+    shadow_json_escape(stderr, file);
+    fprintf(stderr, "\",\"line\":%d,\"elapsed_seconds\":%.6f,\"failures\":%d}\n",
+            line, elapsed, failures);
+    fflush(stderr);
+}
+
 static bool shadow_write_json_file(const char *path, const ShadowFailure *fails, int fail_len, bool success, int test_count) {
     if (!path || path[0] == '\0') return true;
     FILE *f = fopen(path, "w");
@@ -6304,6 +6317,7 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
     int failure_cap = 0;
     int test_count = 0;
     const char *shadow_json_path = getenv("NANO_LLM_SHADOW_JSON");
+    bool trace_shadows = getenv("NANO_SHADOW_TRACE") != NULL;
     ASTNode *root_program = program;
     char *root_owner = env->current_module;
     const char *root_file = env_current_file(env);
@@ -6380,7 +6394,19 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
                     }
                 }
 
+                struct timespec trace_start = {0}, trace_end = {0};
+                bool trace_clock = trace_shadows && clock_gettime(CLOCK_MONOTONIC, &trace_start) == 0;
+                if (trace_shadows)
+                    shadow_trace_event("shadow-start", func_name, file, item->line, 0, 0);
                 eval_statement(item->as.shadow.body, env);
+                if (trace_shadows) {
+                    double elapsed = -1;
+                    if (trace_clock && clock_gettime(CLOCK_MONOTONIC, &trace_end) == 0)
+                        elapsed = (double)(trace_end.tv_sec - trace_start.tv_sec) +
+                                  (double)(trace_end.tv_nsec - trace_start.tv_nsec) / 1e9;
+                    shadow_trace_event("shadow-complete", func_name, file, item->line,
+                                       elapsed, g_shadow_current_fail_count);
+                }
 
                 if (!verbose && saved_stdout_fd >= 0) {
                     fflush(stdout);

@@ -1,0 +1,202 @@
+{
+  "ci_job": "113922857890",
+  "darwin_completed": 661,
+  "darwin_seconds": 44.955121,
+  "matched": [
+    {
+      "name": "nb_module_signature",
+      "darwin": 0.034779,
+      "linux": 0.069985,
+      "ratio": 2.012277523793094
+    },
+    {
+      "name": "nb_module_external",
+      "darwin": 0.037828,
+      "linux": 0.076107,
+      "ratio": 2.0119223855345245
+    },
+    {
+      "name": "nb_defined_count",
+      "darwin": 0.036399,
+      "linux": 0.074189,
+      "ratio": 2.0382153355861425
+    },
+    {
+      "name": "nb_module_call",
+      "darwin": 0.032823,
+      "linux": 0.067236,
+      "ratio": 2.048441641531853
+    },
+    {
+      "name": "nb_ordinary_receiver",
+      "darwin": 0.097625,
+      "linux": 0.197116,
+      "ratio": 2.0191139564660694
+    },
+    {
+      "name": "nb_ordinary",
+      "darwin": 1.170294,
+      "linux": 2.383683,
+      "ratio": 2.0368240801029485
+    },
+    {
+      "name": "nb_union_type_identity",
+      "darwin": 0.106163,
+      "linux": 0.214446,
+      "ratio": 2.019969292503038
+    },
+    {
+      "name": "nb_register_union_depth",
+      "darwin": 0.165346,
+      "linux": 0.330915,
+      "ratio": 2.0013486869957546
+    },
+    {
+      "name": "nb_register_union",
+      "darwin": 0.056172,
+      "linux": 0.107782,
+      "ratio": 1.9187851598661256
+    },
+    {
+      "name": "nb_union_fact_bytes",
+      "darwin": 0.055959,
+      "linux": 0.105839,
+      "ratio": 1.8913668936185422
+    },
+    {
+      "name": "nb_record_has_owner",
+      "darwin": 0.294841,
+      "linux": 0.593721,
+      "ratio": 2.013698908903443
+    },
+    {
+      "name": "nb_fixture",
+      "darwin": 0.30776,
+      "linux": 0.635097,
+      "ratio": 2.063611255523785
+    },
+    {
+      "name": "nb_record",
+      "darwin": 0.292327,
+      "linux": 0.63549,
+      "ratio": 2.1739011449506886
+    },
+    {
+      "name": "nb_consuming_fixture",
+      "darwin": 0.648278,
+      "linux": 1.313849,
+      "ratio": 2.0266752843687432
+    },
+    {
+      "name": "nanoisa_has_borrows",
+      "darwin": 0.57007,
+      "linux": 1.192242,
+      "ratio": 2.091395793499044
+    },
+    {
+      "name": "nb_field",
+      "darwin": 0.30323,
+      "linux": 0.632079,
+      "ratio": 2.0844870230518087
+    },
+    {
+      "name": "nb_cleanup",
+      "darwin": 0.311245,
+      "linux": 0.635294,
+      "ratio": 2.0411380102491608
+    },
+    {
+      "name": "nb_expr",
+      "darwin": 0.312025,
+      "linux": 0.664093,
+      "ratio": 2.128332665651791
+    },
+    {
+      "name": "nb_binding",
+      "darwin": 0.311666,
+      "linux": 0.637762,
+      "ratio": 2.046299564277143
+    },
+    {
+      "name": "nb_body",
+      "darwin": 0.331572,
+      "linux": 0.671107,
+      "ratio": 2.024015900015683
+    },
+    {
+      "name": "nb_function",
+      "darwin": 0.326096,
+      "linux": 0.670164,
+      "ratio": 2.0551126048770914
+    },
+    {
+      "name": "nanoisa_borrow_emit",
+      "darwin": 0.36682,
+      "linux": 0.746054,
+      "ratio": 2.033842211438853
+    },
+    {
+      "name": "nb_function_index",
+      "darwin": 0.315113,
+      "linux": 0.630657,
+      "ratio": 2.001367763310305
+    },
+    {
+      "name": "nb_result_tag",
+      "darwin": 0.311984,
+      "linux": 0.634236,
+      "ratio": 2.032911944202267
+    },
+    {
+      "name": "nb_owner",
+      "darwin": 0.407366,
+      "linux": 0.837984,
+      "ratio": 2.0570788922001344
+    },
+    {
+      "name": "nb_mixed_fixture",
+      "darwin": 0.65531,
+      "linux": 1.360291,
+      "ratio": 2.075797714058995
+    },
+    {
+      "name": "nb_owner_array_fixture",
+      "darwin": 1.145354,
+      "linux": 2.449431,
+      "ratio": 2.1385798626450865
+    },
+    {
+      "name": "nb_owner_array_mutation_fixture",
+      "darwin": 2.495008,
+      "linux": 5.325265,
+      "ratio": 2.1343679058343703
+    },
+    {
+      "name": "nb_value_call",
+      "darwin": 0.303742,
+      "linux": 0.663665,
+      "ratio": 2.1849628961421206
+    },
+    {
+      "name": "nb_union_owner_fixture",
+      "darwin": 0.077141,
+      "linux": 0.16406,
+      "ratio": 2.1267549033587847
+    },
+    {
+      "name": "nb_union_supported",
+      "darwin": 0.183968,
+      "linux": 0.386758,
+      "ratio": 2.102311271525483
+    }
+  ],
+  "median_ratio": 2.0411380102491608,
+  "last_ci_event": {
+    "event": "shadow-start",
+    "name": "nb_union_layout_bytes",
+    "source": "/home/runner/work/nanolang/nanolang/src_nano/compiler/nanoisa_borrows.nano",
+    "line": 3364,
+    "elapsed_seconds": 0.0,
+    "failures": 0
+  }
+}
