@@ -1,4 +1,8 @@
 module "../test_modules/introspection_collision/a.nano" as first
 module "../test_modules/introspection_collision/b.nano" as second
-fn main() -> int { return 0 }
+extern fn ___module_path_duplicate_identity() -> string
+fn main() -> int {
+    unsafe { (println (___module_path_duplicate_identity)) }
+    return 0
+}
 shadow main { assert (== (main) 0) }

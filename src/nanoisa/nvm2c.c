@@ -481,6 +481,8 @@ static const Nvm2cHost artifact_adapters[] = {
 /* I keep exact heterogeneous artifact signatures separate from string-only hosts. */
 typedef struct { Nvm2cHost host; uint8_t parameters[5]; } Nvm2cTypedHost;
 static const Nvm2cTypedHost typed_artifact_adapters[] = {
+    {{"nl_file_source_catalog_string", "nhost_file_catalog", 4, TAG_VOID, TAG_STRING}, {TAG_INT, TAG_INT, TAG_INT, TAG_INT}},
+    {{"nl_file_source_catalog_number", "nhost_file_catalog", 4, TAG_VOID, TAG_INT}, {TAG_INT, TAG_INT, TAG_INT, TAG_INT}},
     {{"nl_source_inputs_new", "nhost_source_inputs", 0, TAG_VOID, TAG_OPAQUE}, {TAG_VOID}},
     {{"nl_source_inputs_valid", "nhost_source_inputs", 1, TAG_VOID, TAG_INT}, {TAG_OPAQUE}},
     {{"nl_source_inputs_count", "nhost_source_inputs", 1, TAG_VOID, TAG_INT}, {TAG_OPAQUE}},
@@ -547,7 +549,8 @@ static bool context_artifact_adapter(const Nvm2cHost *host) {
 }
 static bool typed_artifact_adapter(const Nvm2cHost *host) {
     return json_artifact_adapter(host) || (host &&
-        (!strcmp(host->c_name, "nhost_sqlite") || !strcmp(host->c_name, "nhost_source_inputs")));
+        (!strcmp(host->c_name, "nhost_sqlite") || !strcmp(host->c_name, "nhost_source_inputs") ||
+         !strcmp(host->c_name, "nhost_file_catalog")));
 }
 static uint8_t host_parameter(const Nvm2cHost *host, uint8_t index) {
     if (typed_artifact_adapter(host)) {

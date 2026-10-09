@@ -204,11 +204,7 @@ pub fn mi_capture(source: string, path: string) -> bool {
     let mut i: int = 0
     while (< i (array_length mi_facts)) {
         let previous: ModuleIntrospection = (at mi_facts i)
-        if (== previous.name info.name) {
-            if (== previous.path path) { return true }
-            (println (+ "I reject ambiguous module introspection identity: " info.name))
-            return false
-        }
+        if (== previous.path path) { return true }
         set i (+ i 1)
     }
     set mi_facts (array_push mi_facts info)
@@ -220,18 +216,28 @@ shadow mi_capture {
     assert (mi_capture "module probe" "/probe.nano")
     assert (== (array_length mi_facts) 1)
     assert (== (array_length (at mi_facts 0).functions) 1)
-    assert (not (mi_capture "module probe" "/other.nano"))
+    assert (mi_capture "module probe" "/other.nano")
+    assert (== (array_length mi_facts) 2)
+    assert (not (mi_fact "probe").ok)
     set mi_facts []
 }
 
 pub fn mi_fact(name: string) -> ModuleIntrospection {
+    let mut result: ModuleIntrospection = (mi_scan "" "" name)
+    let mut found: bool = false
     let mut i: int = 0
     while (< i (array_length mi_facts)) {
         let info: ModuleIntrospection = (at mi_facts i)
-        if (== info.name name) { return info }
+        if (== info.name name) {
+            if found {
+                return ModuleIntrospection { name: name, path: "", functions: [], structs: [],
+                    unsafe_imports: [], is_unsafe: false, has_ffi: false, ok: false }
+            }
+            set result info set found true
+        }
         set i (+ i 1)
     }
-    return (mi_scan "" "" name)
+    return result
 }
 shadow mi_fact {
     set mi_facts []
@@ -240,6 +246,8 @@ shadow mi_fact {
     assert (mi_fact "probe").has_ffi
     assert (== (array_length (mi_fact "probe").structs) 1)
     assert (== (mi_fact "missing").path "")
+    assert (mi_capture "module probe" "/second/probe.nano")
+    assert (not (mi_fact "probe").ok)
     set mi_facts []
 }
 

@@ -13,7 +13,7 @@ struct ServiceOrigins {
     locations: array<ServiceOrigin>
 }
 
-fn service_origin_file(files: array<string>, path: string) -> int {
+pub fn service_origin_file(files: array<string>, path: string) -> int {
     if (== path "") { return -1 }
     if (> (str_length path) 4096) { return -1 }
     if (!= (str_substring path 0 1) "/") { return -1 }

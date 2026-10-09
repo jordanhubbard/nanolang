@@ -1416,6 +1416,7 @@ fn nb_module_call(parser: Parser, call: ASTCall, name: string) -> int {
     let prefix: string = (at (nb_module_prefixes) kind)
     let suffix: string = (str_substring name (str_length prefix) (- (str_length name) (str_length prefix)))
     let info: ModuleIntrospection = (mi_fact suffix)
+    if (not info.ok) { return (nb_fail (+ "I reject ambiguous module introspection identity: " suffix)) }
     if (>= kind 6) {
         if (!= call.arg_count 1) { return (nb_fail "the exact module introspection arguments") }
         let arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
@@ -1442,6 +1443,13 @@ shadow nb_module_call {
     set nb_error "" set nb_code ""
     assert (== (nb_module_call parser (parser_get_call parser 0) "___module_function_count_missing") 1)
     assert (str_contains nb_code "PUSH_I64 0")
+    (mi_reset)
+    assert (mi_capture "module ambiguous" "/one.nano")
+    assert (mi_capture "module ambiguous" "/two.nano")
+    let _: int = (nb_module_call parser (parser_get_call parser 0) "___module_function_count_ambiguous")
+    assert (!= nb_error "")
+    (mi_reset)
+    set nb_error ""
     set nb_code ""
 }
 

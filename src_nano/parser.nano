@@ -7992,47 +7992,23 @@ shadow parse_union_definition {
 /* Parse import statement: import "path" as name */
 /* Parse import statement: import "path" [as alias] */
 fn parse_import(p: Parser) -> Parser {
-    let tok: LexerToken = (parser_current p)
-    let p1: Parser = (parser_advance p)  /* consume 'import' */
-    
-    if (parser_is_at_end p1) {
-        return (parser_with_error p1 true)
-    } else {
-        let tok2: LexerToken = (parser_current p1)
-        if (== tok2.token_type (token_string)) {
-            let module_path: string = tok2.value
-            let p2: Parser = (parser_advance p1)
-            
-            /* Optional 'as alias' clause */
-            if (and (not (parser_is_at_end p2)) (== (parser_current p2).token_type (token_as))) {
-                let p3: Parser = (parser_advance p2)
-                
-                if (parser_is_at_end p3) {
-                    return (parser_with_error p3 true)
-                } else {
-                    let tok4: LexerToken = (parser_current p3)
-                    if (== tok4.token_type (token_identifier)) {
-                        let module_name: string = tok4.value
-                        let p4: Parser = (parser_advance p3)
-                        return (parser_store_import p4 module_path module_name false false false [] [] 0 tok.line tok.column)
-                    } else {
-                        return (parser_with_error p3 true)
-                    }
-                }
-            } else {
-                /* No 'as' clause - store with empty module_name */
-                return (parser_store_import p2 module_path "" false false false [] [] 0 tok.line tok.column)
-            }
-        } else {
-            if (== tok2.token_type (token_identifier)) {
-                let module_path: string = tok2.value
-                let p2: Parser = (parser_advance p1)
-                return (parser_store_import p2 module_path "" false false false [] [] 0 tok.line tok.column)
-            } else {
-                return (parser_with_error p1 true)
-            }
-        }
+    let start: LexerToken = (parser_current p)
+    let p1: Parser = (parser_advance p)
+    if (parser_is_at_end p1) { return (parser_with_error p1 true) }
+    let path: LexerToken = (parser_current p1)
+    let mut module_path: string = path.value
+    if (== path.token_type (token_identifier)) {
+        set module_path (+ "modules/" (+ path.value (+ "/" (+ path.value ".nano"))))
+    } else if (!= path.token_type (token_string)) { return (parser_with_error p1 true) }
+    let mut next: Parser = (parser_advance p1)
+    let mut alias: string = ""
+    if (and (not (parser_is_at_end next)) (== (parser_current next).token_type (token_as))) {
+        set next (parser_advance next)
+        if (or (parser_is_at_end next) (!= (parser_current next).token_type (token_identifier))) { return (parser_with_error next true) }
+        set alias (parser_current next).value
+        set next (parser_advance next)
     }
+    return (parser_store_import next module_path alias false false false [] [] 0 start.line start.column)
 }
 
 /* Parse module import: module "path" [as alias] */
@@ -8080,7 +8056,11 @@ shadow parse_module_import {
 }
 
 shadow parse_import {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "import bare as selected" "/a" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_import (parser_new tokens (list_LexerToken_length tokens) "/a"))
+    assert (not parser.has_error)
+    assert (== (parser_get_import parser 0).module_path "modules/bare/bare.nano")
+    assert (== (parser_get_import parser 0).module_name "selected")
 }
 
 /* Parse from import: from "path" import sym1, sym2, ... */
@@ -8092,10 +8072,11 @@ fn parse_from_import(p: Parser) -> Parser {
         return (parser_with_error p1 true)
     } else {
         let tok2: LexerToken = (parser_current p1)
-        if (!= tok2.token_type (token_string)) {
+        if (and (!= tok2.token_type (token_string)) (!= tok2.token_type (token_identifier))) {
             return (parser_with_error p1 true)
         } else {
-            let module_path: string = tok2.value
+            let mut module_path: string = tok2.value
+            if (== tok2.token_type (token_identifier)) { set module_path (+ "modules/" (+ tok2.value (+ "/" (+ tok2.value ".nano")))) }
             let p2: Parser = (parser_advance p1)
             
             /* Expect 'import' keyword */
@@ -8161,6 +8142,7 @@ fn parse_from_import(p: Parser) -> Parser {
                     }
                 }
                 
+                if (and (not is_wildcard) (== symbol_count 0)) { return (parser_with_error p_work true) }
                 /* Store selective import */
                 return (parser_store_import p_work module_path "" false true is_wildcard symbols aliases symbol_count tok.line tok.column)
             }
@@ -8169,7 +8151,12 @@ fn parse_from_import(p: Parser) -> Parser {
 }
 
 shadow parse_from_import {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "from bare import File as Handle" "/a" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_from_import (parser_new tokens (list_LexerToken_length tokens) "/a"))
+    assert (not parser.has_error)
+    let imp: ASTImport = (parser_get_import parser 0)
+    assert (== imp.module_path "modules/bare/bare.nano")
+    assert (== (at imp.import_aliases 0) "Handle")
 }
 
 /* Parse opaque type: opaque type TypeName */
@@ -8335,6 +8322,29 @@ shadow parser_public_let {
     assert (parser_get_let parsed 0).is_mut
 }
 
+fn parser_public_use(p: Parser) -> Parser {
+    let parsed: Parser = (parse_import p)
+    if (or parsed.has_error (!= parsed.imports_count (+ p.imports_count 1))) { return (parser_with_error parsed true) }
+    let i: int = p.imports_count
+    let node: ASTImport = (parser_get_import parsed i)
+    (list_ASTImport_set parsed.imports i ASTImport {
+        node_type: node.node_type, line: node.line, column: node.column,
+        module_path: node.module_path, module_name: node.module_name,
+        is_unsafe: node.is_unsafe, is_selective: node.is_selective,
+        is_wildcard: node.is_wildcard, is_pub_use: true,
+        import_symbols: node.import_symbols, import_aliases: node.import_aliases,
+        import_symbol_count: node.import_symbol_count
+    })
+    return parsed
+}
+shadow parser_public_use {
+    let tokens: List<LexerToken> = (tokenize_string "use \"dep.nano\" as exported" "/a" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parser_public_use (parser_new tokens (list_LexerToken_length tokens) "/a"))
+    assert (not parsed.has_error)
+    assert (parser_get_import parsed 0).is_pub_use
+    assert (== (parser_get_import parsed 0).module_name "exported")
+}
+
 fn parse_definition(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
@@ -8358,6 +8368,14 @@ fn parse_definition(p: Parser) -> Parser {
             (print "")
         }
         
+        if (and is_pub (== tok.token_type LexerTokenType.TOKEN_USE)) {
+            return (parser_public_use p_work)
+        }
+        # I retain the declarations following an unsafe module header.
+        if (and (== tok.token_type (token_unsafe)) (and (== (parser_peek p_work 1) LexerTokenType.TOKEN_MODULE) (== (parser_peek p_work 2) (token_identifier)))) {
+            return (parser_with_position p_work (+ p_work.position 3))
+        }
+
         /* Module imports: module "path" ... */
         if (== tok.token_type LexerTokenType.TOKEN_MODULE) {
             if (== (parser_peek p_work 1) (token_string)) {
@@ -8479,6 +8497,13 @@ shadow parse_definition {
     assert (not p.has_error)
     assert (parser_get_let p 0).is_pub
     assert (not (parser_get_let p 1).is_pub)
+    let graph_tokens: List<LexerToken> = (tokenize_string "unsafe module local pub use \"dep.nano\" as bridge pub fn answer() -> int { return 42 }" "graph.nano" (list_CompilerDiagnostic_new))
+    let graph: Parser = (parse_program graph_tokens (list_LexerToken_length graph_tokens) "graph.nano")
+    assert (not graph.has_error)
+    assert (== graph.imports_count 1)
+    assert (parser_get_import graph 0).is_pub_use
+    assert (== graph.functions_count 1)
+
 }
 
 /* =============================================================================

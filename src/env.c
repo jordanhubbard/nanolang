@@ -1,5 +1,6 @@
 #include "nanolang.h"
 #include "nanoisa/file_source_snapshot.h"
+#include "service_namespace.h"
 #include "builtins_registry.h"
 #include "runtime/gc.h"
 #include <string.h>
@@ -400,6 +401,7 @@ void env_reclaim_static_arrays(Environment *env) {
 
 /* Free environment */
 void free_environment(Environment *env) {
+    nl_service_namespace_free(env->service_namespace);
     nl_file_source_snapshots_free(env->service_inputs);
     for (int i = 0; i < env->service_origin_count; ++i) free(env->service_origins[i]);
     env_symbol_index_invalidate(env);

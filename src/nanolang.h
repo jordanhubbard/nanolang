@@ -877,6 +877,8 @@ typedef struct {
     char *service_origins[16];
     int service_origin_count;
     struct NlFileSourceSnapshots *service_inputs;
+    struct NlServiceNamespace *service_namespace;
+    int service_import_depth;
     size_t service_snapshot_indices[16];
     bool service_snapshot_bound[16];
 } Environment;

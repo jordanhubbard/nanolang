@@ -5,6 +5,7 @@
 #include "stdlib_runtime.h"
 #include "utf8.h"
 #include "nanoisa/file_source_snapshot.h"
+#include "service_namespace.h"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -671,6 +672,17 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         return NULL;
     }
     
+    /* I retain the whole service graph before checking any service identities.
+     * Ordinary modules loaded before its first service keep their existing path. */
+    if (env->service_origin_count > 0) {
+        env->current_module = saved_current_module;
+        free(module_name);
+        free_tokens(tokens, token_count);
+        free(source);
+        if (use_cache) cache_module_with_ast(module_path, module_ast);
+        return module_ast;
+    }
+
     /* Type check module (without requiring main) */
     /* I must not merge distinct files into one public introspection identity.
      * Imports are resolved first so this also catches a parent/child clash. */
@@ -976,16 +988,16 @@ bool acquire_service_input(ASTNode *program, Environment *env) {
 /* I apply an explicit module declaration before registering its import aliases. */
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
     if (!program || program->type != AST_PROGRAM || !env) return false;
+    if (env->service_import_depth == 0) {
+        nl_service_namespace_free(env->service_namespace);
+        env->service_namespace = NULL;
+    }
     if (!bind_service_origin(program, env, current_file)) {
         fprintf(stderr, "I cannot retain the original source of this File service declaration.\n");
         return false;
     }
     if (!acquire_service_input(program, env)) {
         fprintf(stderr, "I cannot acquire the immutable companion of this File service declaration.\n");
-        return false;
-    }
-    if (ast_has_service_declaration(program)) {
-        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
         return false;
     }
     char *saved_owner = env->current_module;
@@ -996,8 +1008,25 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
             break;
         }
     }
+    bool root = env->service_import_depth++ == 0;
+    bool own_modules = root && !modules;
+    if (own_modules) modules = create_module_list();
     bool ok = process_imports_owned(program, env, modules, current_file);
+    --env->service_import_depth;
     env->current_module = saved_owner;
+    if (root && ok && env->service_origin_count > 0) {
+        NlServiceNamespace *space = NULL;
+        NlFileSourceStatus status = nl_service_namespace_build(program, env, modules, current_file, &space);
+        if (status != NL_FILE_SOURCE_OK) {
+            fprintf(stderr, "I cannot resolve the complete File service namespace (status %d).\n", status);
+        } else {
+            nl_service_namespace_free(env->service_namespace);
+            env->service_namespace = space;
+            fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+        }
+        ok = false; /* I still require nominal checking and independent lowering. */
+    }
+    if (own_modules) free_module_list(modules);
     return ok;
 }
 
@@ -1101,6 +1130,11 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
             /* Add to module list (even if already cached) */
             if (modules) {
                 module_list_add(modules, module_path);
+            }
+
+            if (env->service_origin_count > 0) {
+                free(module_path);
+                continue;
             }
 
             /* If module was already cached and returned NULL, try to grab cached AST for alias handling */

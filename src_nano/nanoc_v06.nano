@@ -28,6 +28,7 @@ import "src_nano/compiler/module_introspection.nano"
 import "src_nano/compiler/nominal_bindings.nano"
 import "src_nano/compiler/service_origins.nano"
 import "src_nano/compiler/service_inputs.nano"
+import "src_nano/compiler/service_namespace.nano"
 import "modules/file_source_inputs/file_source_inputs.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 from "std/fs.nano" import canonical
@@ -842,7 +843,15 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
     }
 
     if (nlc_hashset_has_string visited_set norm_path) {
-        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: true, lines_scanned: lines_scanned }
+        # I distinguish a finished dependency from an edge into the active stack.
+        let mut finished: bool = false
+        let mut seen: int = 0
+        while (< seen (array_length order)) {
+            if (== (at order seen) norm_path) { set finished true }
+            set seen (+ seen 1)
+        }
+        if (not finished) { (println (+ "I cannot load a cyclic import graph at " norm_path)) }
+        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: finished, lines_scanned: lines_scanned }
     } else {
         let mut visited2: array<string> = (array_push visited norm_path)
         let mut visited_set2: HashMap<string, int> = visited_set
@@ -874,7 +883,7 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
                 (println norm_path)
                 return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: false, lines_scanned: lines_scanned2 }
             } else { (print "") }
-            if (> i max_lines_per_file) {
+            if (>= i max_lines_per_file) {
                 (print "Error: import scan exceeded max lines per file (")
                 (print max_lines_per_file)
                 (print ") while scanning: ")
@@ -885,13 +894,15 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
                 (print "[import] scanned lines: ")
                 (println lines_scanned2)
             } else { (print "") }
-            let imp: string = (parse_import_path_from_line (at lines i))
-            let import_line: string = (at lines i)
-            let quoted_import: bool = (or (or (nlc_str_starts_with import_line "module \"") (nlc_str_starts_with import_line "unsafe module \"")) (or (nlc_str_starts_with import_line "import \"") (nlc_str_starts_with import_line "from \"")))
-            if (and quoted_import (== imp "")) {
-                (println "I cannot use an empty, unterminated or NUL-containing import path.")
-                return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: false, lines_scanned: lines_scanned2 }
-            }
+            set i (+ i 1)
+        }
+        let tokens: List<LexerToken> = (tokenize_string src norm_path (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) norm_path)
+        # I retain a malformed source for the merged parser's diagnostic path,
+        # which protects already declared companion files before publication.
+        set i 0
+        while (and ok2 (< i parsed.imports_count)) {
+            let imp: string = (parser_get_import parsed i).module_path
             if (!= imp "") {
                 let dep: string = (resolve_import_path norm_path imp repo_root)
                 if (== dep "") {
@@ -936,7 +947,19 @@ shadow collect_files_dfs {
         let again: CollectResult = (collect_files_dfs (+ directory "/./fixture.nano") "" result.visited result.visited_set result.order true 10 100 100 0 false)
         assert again.ok
         assert (== (array_length again.order) 1)
-        unsafe { assert (== (file_delete path) 0) assert (== (file_delete directory) 0) }
+        let dependency: string = (+ directory "/dep.nano")
+        unsafe {
+            assert (== (file_write dependency "module dependency pub fn dep() -> int { return 1 }") 0)
+            assert (== (file_write path "  module\n \"dep.nano\" as dep\nfn value() -> int { return 1 }") 0)
+        }
+        let graph: CollectResult = (collect_files_dfs path "" [] (nlc_hashset_new_string) [] true 10 100 100 0 false)
+        assert graph.ok
+        assert (== (array_length graph.order) 2)
+        assert (== (at graph.order 0) (canonical dependency))
+        unsafe { assert (== (file_write dependency "module \"fixture.nano\" as cycle") 0) }
+        let cycle: CollectResult = (collect_files_dfs path "" [] (nlc_hashset_new_string) [] true 10 100 100 0 false)
+        assert (not cycle.ok)
+        unsafe { assert (== (file_delete dependency) 0) assert (== (file_delete path) 0) assert (== (file_delete directory) 0) }
     }
 }
 
@@ -1341,19 +1364,11 @@ fn merge_with_imports(input_file: string) -> MergeResult {
         let mut j: int = 0
         while (< j (array_length lines)) {
             let line: string = (at lines j)
-            let imp: string = (parse_import_path_from_line line)
-            let is_module_decl: bool = (nlc_str_starts_with line "module ")
-            let is_unsafe_module_decl: bool = (nlc_str_starts_with line "unsafe module ")
-            # I retain opaque declarations so merged uses keep their nominal type.
-            if (or (!= imp "") (and (not is_module_decl) (not is_unsafe_module_decl))) {
-                let resolved_line: string = (strip_pub_decl line)
-                set parts (array_push parts (+ resolved_line "\n"))
-                set merged_lines (+ merged_lines 1)
-                set source_files (array_push source_files (at files i))
-                set source_lines (array_push source_lines (+ j 1))
-            } else {
-                (print "")
-            }
+            # I retain headers, exports and adjacent declarations exactly as parsed.
+            set parts (array_push parts (+ line "\n"))
+            set merged_lines (+ merged_lines 1)
+            set source_files (array_push source_files (at files i))
+            set source_lines (array_push source_lines (+ j 1))
             set j (+ j 1)
         }
         set i (+ i 1)
@@ -1796,6 +1811,24 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                     (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "M0001" "I require unique function declarations within each module" (Diagnostics.diag_location input_file 0 0)))
                     (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
                 }
+                return 1
+            }
+
+            let mut service_targets: array<int> = []
+            if (> parser.services_count 0) {
+                let mut i: int = 0
+                while (< i parser.imports_count) {
+                    let imp: ASTImport = (parser_get_import parser i)
+                    let owner: int = (sn_owner merged_files source_files imp.line)
+                    if (< owner 0) { return 1 }
+                    let path: string = (canonical (resolve_import_path (at merged_files owner) imp.module_path merge_result.repo_root))
+                    set service_targets (array_push service_targets (service_origin_file merged_files path))
+                    set i (+ i 1)
+                }
+            }
+            let service_namespace: ServiceNamespace = (resolve_service_namespace parser merged_files source_files service_targets service_origins service_inputs service_context)
+            if (!= service_namespace.status 0) {
+                (println "I cannot resolve the complete File service namespace.")
                 return 1
             }
 

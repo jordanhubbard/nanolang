@@ -1,0 +1,16 @@
+test_actual_driver_acquisition_and_companion_output_protection (tests.test_service_inputs.ServiceInputs.test_actual_driver_acquisition_and_companion_output_protection) ... 
+  test_actual_driver_acquisition_and_companion_output_protection (tests.test_service_inputs.ServiceInputs.test_actual_driver_acquisition_and_companion_output_protection) (driver='/Users/jordanh/Src/nanolang/bin/nano_vm', mode='parse-error-alias') ... FAIL
+
+======================================================================
+FAIL: test_actual_driver_acquisition_and_companion_output_protection (tests.test_service_inputs.ServiceInputs.test_actual_driver_acquisition_and_companion_output_protection) (driver='/Users/jordanh/Src/nanolang/bin/nano_vm', mode='parse-error-alias')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_inputs.py", line 102, in test_actual_driver_acquisition_and_companion_output_protection
+    self.assertIn("I will not overwrite a source file", text)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'I will not overwrite a source file' not found in 'I cannot parse the source import graph at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-input-drivers-b7nxgzyw/library/binding.nano\nError: import resolution failed\n'
+
+----------------------------------------------------------------------
+Ran 1 test in 2.239s
+
+FAILED (failures=1)

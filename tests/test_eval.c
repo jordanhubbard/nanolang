@@ -69,13 +69,20 @@ const char *get_project_root(void) { return g_project_root; }
 
 /* Suppress stderr for expected-error paths */
 static FILE *s_orig_stderr = NULL;
+static unsigned stderr_suppression_depth;
 static void suppress_stderr(void) {
+    if (stderr_suppression_depth++ != 0) return;
+    ASSERT(stderr != NULL);
     fflush(stderr);
+    FILE *quiet = fopen("/dev/null", "w");
+    ASSERT(quiet != NULL);
     s_orig_stderr = stderr;
-    stderr = fopen("/dev/null", "w");
+    stderr = quiet;
 }
 static void restore_stderr(void) {
-    if (stderr && stderr != s_orig_stderr) fclose(stderr);
+    ASSERT(stderr_suppression_depth != 0);
+    if (--stderr_suppression_depth != 0) return;
+    fclose(stderr);
     stderr = s_orig_stderr;
     s_orig_stderr = NULL;
 }
@@ -2339,7 +2346,8 @@ void test_eval_for_over_float_array(void) {
 /* Coroutine spawn + scheduler_run (lines 48-56, 2841-2870, 4391-4401) */
 void test_eval_coroutine_spawn_and_run(void) {
     RunCtx ctx;
-    suppress_stderr();  /* coroutine messages may go to stderr */
+    FILE *original_stderr = stderr;
+    suppress_stderr();  /* run_ctx_init nests the same suppression. */
     bool ok = run_ctx_init(&ctx,
         "async fn worker(x: int) -> int { return (* x 2) }\n"
         "fn main() -> int {\n"
@@ -2349,6 +2357,7 @@ void test_eval_coroutine_spawn_and_run(void) {
         "}\n"
     );
     restore_stderr();
+    ASSERT(stderr == original_stderr && stderr_suppression_depth == 0);
     /* Coroutines may or may not succeed depending on scheduler support,
      * but must not crash. */
     (void)ok;

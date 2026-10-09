@@ -76,7 +76,7 @@ shadow file_source_catalog_view {
     assert (str_contains view "file-source-catalog1;")
     assert (str_contains view "nsi.local-file.v1.close")
 }
-fn fsp_text_ok(value: FileSourceText, maximum: int, name: bool) -> bool {
+pub fn fsp_text_ok(value: FileSourceText, maximum: int, name: bool) -> bool {
     let count: int = value.size
     if (or (<= count 0) (or (> count maximum) (> count (str_length value.data)))) { return false }
     let mut i: int = 0

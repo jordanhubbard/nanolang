@@ -2667,6 +2667,8 @@ shadow nisa_source_inputs_signature {
 }
 
 fn nisa_typed_artifact_signature(name: string) -> array<string> {
+    if (== name "nl_file_source_catalog_string") { return ["string", "int", "int", "int", "int"] }
+    if (== name "nl_file_source_catalog_number") { return ["int", "int", "int", "int", "int"] }
     let json: array<string> = (nisa_json_signature name)
     if (> (array_length json) 0) { return json }
     let inputs: array<string> = (nisa_source_inputs_signature name)
@@ -2674,6 +2676,8 @@ fn nisa_typed_artifact_signature(name: string) -> array<string> {
     return (nisa_sqlite_signature name)
 }
 shadow nisa_typed_artifact_signature {
+    assert (== (array_length (nisa_typed_artifact_signature "nl_file_source_catalog_string")) 5)
+    assert (== (at (nisa_typed_artifact_signature "nl_file_source_catalog_number") 4) "int")
     assert (== (at (nisa_typed_artifact_signature "nl_json_get") 0) "Json")
     assert (== (at (nisa_typed_artifact_signature "nl_sqlite3_column_double") 0) "float")
     assert (== (array_length (nisa_typed_artifact_signature "unknown")) 0)
@@ -4722,6 +4726,7 @@ fn nisa_module_value(name: string, evaluated: string) -> string {
         if (str_starts_with name prefix) {
             let suffix: string = (str_substring name (str_length prefix) (- (str_length name) (str_length prefix)))
             let info: ModuleIntrospection = (mi_fact suffix)
+            if (not info.ok) { return (nisa_fail (+ "I reject ambiguous module introspection identity: " suffix)) }
             if (== kind 6) { return (+ evaluated (nisa_module_names info.functions)) }
             if (== kind 7) { return (+ evaluated (nisa_module_names info.structs)) }
             if (< kind 2) {
@@ -4743,6 +4748,12 @@ shadow nisa_module_value {
     let _: int = (nisa_reset)
     (mi_reset)
     assert (str_contains (nisa_module_value "___module_name_probe" "") "PUSH_STR")
+    assert (mi_capture "module ambiguous" "/one.nano")
+    assert (mi_capture "module ambiguous" "/two.nano")
+    let _: string = (nisa_module_value "___module_name_ambiguous" "")
+    assert (not nisa_ok)
+    (mi_reset)
+    let _: int = (nisa_reset)
     assert (str_starts_with (nisa_module_value "___module_function_name_missing" "  LOAD_LOCAL 0\n") "  LOAD_LOCAL 0\n")
     let _: int = (nisa_reset)
 }
