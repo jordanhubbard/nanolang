@@ -9,7 +9,9 @@
 #define NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS 1u
 #define NVM_OWNERSHIP_EXTENSION_ARRAY_FIELDS 2u
 #define NVM_OWNERSHIP_EXTENSION_REVISION_1 1u
-#define NVM_OWNERSHIP_MAX_EXTENSIONS 2u
+#define NVM_OWNERSHIP_EXTENSION_GLOBALS 3u
+#define NVM_OWNERSHIP_MAX_GLOBALS 256u
+#define NVM_OWNERSHIP_MAX_EXTENSIONS 3u
 #define NVM_OWNED_MAX_FUNCTIONS 8u
 #define NVM_OWNERSHIP_MAX_PATHS 256u
 #define NVM_OWNERSHIP_MAX_PATH_DEPTH 32u
@@ -24,6 +26,20 @@ typedef struct {
     uint16_t field_offset;
     uint16_t field_count;
 } NvmUnionVariantFact;
+
+typedef struct {
+    uint8_t tag;
+    bool mutable;
+    uint32_t layout;
+} NvmOwnershipGlobal;
+
+/* I validate the entire contract before publishing global declarations. Slots
+ * are dense and indexed by their row number. NULL/zero requests only the count;
+ * otherwise capacity must fit every row. All outputs remain unchanged on error.
+ * Missing metadata or a missing GLOBALS extension describes zero global slots.
+ * Declarations grant neither initialization nor executable storage authority. */
+NvmV2Result nvm_ownership_globals(const NvmModule *, NvmOwnershipGlobal *,
+                                  uint32_t capacity, uint32_t *count);
 
 /* I validate declarations, not instruction lifetimes. Resource/reference
  * declarations set requires_verifier; executable consumers must refuse them

@@ -143,6 +143,7 @@ typedef struct {
 typedef struct {
     NvmOwnershipExtensionView union_variants;
     NvmOwnershipExtensionView array_fields;
+    NvmOwnershipExtensionView globals;
 } NvmOwnershipExtensions;
 
 /* I frame all version-3 extensions before a feature query may inspect one.
@@ -167,6 +168,8 @@ static NvmV2Result extensions_read(NvmV2Cursor *cursor,NvmOwnershipExtensions *o
             found.union_variants=view;
         else if (kind==NVM_OWNERSHIP_EXTENSION_ARRAY_FIELDS)
             found.array_fields=view;
+        else if (kind==NVM_OWNERSHIP_EXTENSION_GLOBALS)
+            found.globals=view;
         else return NVM_V2_ERR_FORMAT_VERSION;
         prior=kind;
     }
@@ -323,6 +326,34 @@ static NvmV2Result union_facts_read(NvmV2Cursor *cursor,const NvmModule *module,
     return NVM_V2_OK;
 }
 
+/* GLOBALS revision 1: u32 count followed by dense eight-byte slots:
+ * u8 tag, u8 mutable (0/1), u16 reserved (0), u32 exact layout or NO_INDEX.
+ * These declarations deliberately carry no assumed initial value. */
+static NvmV2Result globals_read(NvmOwnershipExtensionView view,
+        const NvmV2Layouts *layouts,const uint8_t *flags) {
+    NvmV2Cursor cursor;nvm_v2_cursor_init(&cursor,view.data,view.size);
+    uint32_t count;NvmV2Result result;
+    if ((result=nvm_v2_u32(&cursor,&count))!=NVM_V2_OK) return result;
+    if (!count || count>NVM_OWNERSHIP_MAX_GLOBALS) return NVM_V2_ERR_INDEX_RANGE;
+    for (uint32_t i=0;i<count;i++) {
+        uint8_t tag,mutable;uint16_t reserved;uint32_t layout;
+        if ((result=nvm_v2_u8(&cursor,&tag))!=NVM_V2_OK ||
+            (result=nvm_v2_u8(&cursor,&mutable))!=NVM_V2_OK ||
+            (result=nvm_v2_u16(&cursor,&reserved))!=NVM_V2_OK ||
+            (result=nvm_v2_u32(&cursor,&layout))!=NVM_V2_OK) return result;
+        if (reserved || mutable>1) return NVM_V2_ERR_RESERVED_FLAGS;
+        if (scalar(tag) || tag==TAG_STRING) {
+            if (layout!=NVM_V2_NO_INDEX) return NVM_V2_ERR_SECTION_TYPE;
+        } else if (tag==TAG_STRUCT || tag==TAG_UNION) {
+            if (layout>=layouts->count) return NVM_V2_ERR_INDEX_RANGE;
+            uint16_t kind=tag==TAG_STRUCT?NVM_V2_LAYOUT_STRUCT:NVM_V2_LAYOUT_UNION;
+            if (layouts->items[layout].kind!=kind || !(flags[layout]&NVM_LAYOUT_COMPLETE))
+                return NVM_V2_ERR_SECTION_TYPE;
+        } else return NVM_V2_ERR_SECTION_TYPE;
+    }
+    return cursor.pos==cursor.size?NVM_V2_OK:NVM_V2_ERR_SECTION_RANGE;
+}
+
 #include "ownership_array_fields.inc"
 static NvmV2Result ownership_validate_owned(const NvmModule *module,
         const NvmV2Layouts *layouts,bool *requires_verifier,
@@ -391,6 +422,13 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
             if (projection) projection->view=extensions.union_variants;
             needs=true;
         }
+        if (extensions.globals.data) {
+            /* Private array/mixed projections have no global declaration
+             * contract. An unrelated extension must not confer authority. */
+            if (private_plan) { result=NVM_V2_ERR_FORMAT_VERSION;goto done; }
+            if ((result=globals_read(extensions.globals,layouts,flags))!=NVM_V2_OK) goto done;
+            needs=true;
+        }
         if (extensions.array_fields.data) {
             if (!private_plan) { result=NVM_V2_ERR_FORMAT_VERSION;goto done; }
             if ((result=oaa_array_fields(extensions.array_fields,private_plan))!=NVM_V2_OK) goto done;
@@ -418,6 +456,49 @@ NvmV2Result nvm_ownership_contracts_validate(const NvmModule *module,
     result=ownership_validate_owned(module,&layouts,requires_verifier,NULL,NULL);
     nvm_v2_layouts_free(&layouts);
     return result;
+}
+
+NvmV2Result nvm_ownership_globals(const NvmModule *module,NvmOwnershipGlobal *out,
+                                  uint32_t capacity,uint32_t *count) {
+    if (!module || !count || (!out && capacity)) return NVM_V2_ERR_INDEX_RANGE;
+    bool needs=false;
+    NvmV2Result result=nvm_ownership_contracts_validate(module,&needs);
+    if (result!=NVM_V2_OK) return result;
+    if (!module->ownership_size) { *count=0;return NVM_V2_OK; }
+    NvmV2Cursor cursor;
+    nvm_v2_cursor_init(&cursor,module->ownership_data,module->ownership_size);
+    uint32_t version,n;const uint8_t *ignored;
+    if ((result=nvm_v2_u32(&cursor,&version))!=NVM_V2_OK) return result;
+    if (version!=NVM_OWNERSHIP_EXTENSION_VERSION) { *count=0;return NVM_V2_OK; }
+    if ((result=nvm_v2_u32(&cursor,&n))!=NVM_V2_OK ||
+        (result=nvm_v2_take(&cursor,n,&ignored))!=NVM_V2_OK ||
+        (result=nvm_v2_align4(&cursor))!=NVM_V2_OK ||
+        (result=nvm_v2_u32(&cursor,&n))!=NVM_V2_OK) return result;
+    for (uint32_t i=0;i<n;i++) {
+        uint16_t locals,params;
+        if ((result=nvm_v2_u16(&cursor,&locals))!=NVM_V2_OK ||
+            (result=nvm_v2_u16(&cursor,&params))!=NVM_V2_OK ||
+            (result=nvm_v2_take(&cursor,((size_t)locals+1)*8,&ignored))!=NVM_V2_OK)
+            return result;
+    }
+    NvmOwnershipExtensions extensions={0};
+    if ((result=extension_suffix_read(&cursor,NVM_V2_NO_INDEX,NULL,0,NULL,&extensions))
+        !=NVM_V2_OK) return result;
+    if (!extensions.globals.data) { *count=0;return NVM_V2_OK; }
+    nvm_v2_cursor_init(&cursor,extensions.globals.data,extensions.globals.size);
+    if ((result=nvm_v2_u32(&cursor,&n))!=NVM_V2_OK) return result;
+    if (out && capacity<n) return NVM_V2_ERR_INDEX_RANGE;
+    NvmOwnershipGlobal rows[NVM_OWNERSHIP_MAX_GLOBALS];
+    for (uint32_t i=0;i<n;i++) {
+        uint8_t mutable;uint16_t reserved;
+        if ((result=nvm_v2_u8(&cursor,&rows[i].tag))!=NVM_V2_OK ||
+            (result=nvm_v2_u8(&cursor,&mutable))!=NVM_V2_OK ||
+            (result=nvm_v2_u16(&cursor,&reserved))!=NVM_V2_OK ||
+            (result=nvm_v2_u32(&cursor,&rows[i].layout))!=NVM_V2_OK) return result;
+        rows[i].mutable=mutable!=0;
+    }
+    if (out) for (uint32_t i=0;i<n;i++) out[i]=rows[i];
+    *count=n;return NVM_V2_OK;
 }
 
 NvmV2Result nvm_ownership_union_variant(const NvmModule *module,

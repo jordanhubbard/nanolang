@@ -328,3 +328,32 @@ I require sanitizer-backed cleanup tests and unchanged prior outputs for
 excluded modules before enabling this subset. Caller alias substitution,
 shared/exclusive references, owned call/results and source producer admission
 remain separate acceptance obligations.
+
+
+## Typed global declarations
+
+My version-3 ownership envelope reserves extension kind 3, `GLOBALS`, revision 1
+for exact global declarations. Its payload is a little-endian `u32` count from
+1 through 256 followed by that many eight-byte rows. A row contains `u8` value
+tag, `u8` mutability (0 immutable, 1 mutable), zero `u16` reserved bits, and a
+`u32` retained layout index. Row order is the global slot index. I omit the
+extension when there are no declared globals.
+
+I require `NO_INDEX` for int, u8, float, bool and string slots. Record and union
+slots require their exact complete retained layout and matching kind; resource
+identity remains part of that layout. I refuse untyped aggregates, void,
+reference modes, arrays and other undeclared representations. These are value
+storage declarations, not permission to copy or discard an owner.
+
+`nvm_ownership_globals` validates the complete ownership payload before copying
+rows or publishing the count. It preserves every output on failure. A NULL row
+buffer with zero capacity requests only the count; a supplied buffer must fit
+all rows. Older envelopes and absent metadata report zero declared globals.
+Binary and non-executing text reconstruction retain the declarations.
+
+I have not connected these declarations to initialization, interprocedural
+stores or runtime state lifetime. The affine execution profile and private
+array/mixed profiles therefore refuse modules carrying this extension. I do
+not assume zero initialization or infer a global's type from its first store.
+Both source producers and VM/native repeated-call semantics remain required
+before executable admission under #981.
