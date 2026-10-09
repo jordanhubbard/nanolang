@@ -1,5 +1,28 @@
 # My Roadmap
 
+My current compiler integration is `8c1e113ec` on
+`release/5.1-completion-20261007` and `fix/5.1-match-guards-20261009`.
+I use GitHub Issues for task state and worker coordination. I retain older
+investigation entries below as checkpoint history; their statements about
+pending integration describe those earlier pins, not the current tree.
+
+My [completed af2b25da6 Darwin bootstrap](evidence/mixed-record-bootstrap-af2b25da6/README.md)
+passes all 17 steps, exact host closure, raw Stage1/Stage2 equality, installed
+operation without the C seed, four-producer module identity, and both-stage
+import/linker tests. That includes the managed/imported-global and mixed-record
+fixes under [#986](https://github.com/jordanhubbard/nanolang/issues/986) and
+[#987](https://github.com/jordanhubbard/nanolang/issues/987). Their Linux and
+full-release qualification remains open.
+
+The subsequent [indexed module-binding implementation](evidence/module-binding-profile-20261009/README.md)
+is integrated at `8c1e113ec` under
+[#982](https://github.com/jordanhubbard/nanolang/issues/982). Its fresh bootstrap
+and both-stage regression gate are running with frozen inputs. Earlier isolated
+performance measurements do not establish its raw fixed point. My
+[full 5.1 scope](RELEASE_5.1_SCOPE.md), including services, metadata, translators,
+legacy retirement and exact release/platform gates, remains binding; this
+compiler checkpoint does not replace that scope.
+
 - [ ] I qualify the [integrated managed-global and product-linker fixes](evidence/import-global-managed-20261009/integrated) under #986/#982/#976 after the 915b85284 baseline bootstrap. Both current producer components pass all twenty-eight shared import methods, with the resource refusals in a separate invocation; two native retention/refusal methods, the five-configuration linker regression, full-source shadows and adjacent scope/typechecker/90-bytecode checks pass. The identical native implementation passes 2,438 structured-C checks. Fresh installed stages, raw fixed point, hosted coverage and cross-host acceptance remain open.
 
 - [x] I qualify the committed imported-global baseline at 915b85284 with a fresh Darwin bootstrap: all seventeen steps, raw Stage1/Stage2 equality, unchanged sources, installed operation without the C seed and seventeen shared methods through both installed stages pass. My [receipt](evidence/imported-global-bootstrap-915b85284) preserves exact logs and hashes. Prepared later fixes, Linux and full imported-global acceptance remain open.

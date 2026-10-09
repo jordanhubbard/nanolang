@@ -1,8 +1,11 @@
 # 5.1 Scope - One IR
 
 I use this punch list to distinguish my release requirements from follow-on
-experiments. Line references point to the unchecked Phase 20 rows in
-`ROADMAP.md`; that roadmap remains the detailed contract and evidence ledger.
+experiments. Parenthesized line numbers identify the roadmap snapshot used
+when I fixed this scope; subsequent edits have moved those rows. I locate each
+requirement by its text under Phase 20 in [my roadmap](ROADMAP.md), which remains
+the detailed contract and evidence index. GitHub Issues is my task ledger.
+None of these historical numbers narrows the requirement it identifies.
 
 ## Ownership and services
 
