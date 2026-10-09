@@ -1,0 +1,17 @@
+{
+  "base": "22cd143af",
+  "system": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "sha256": {
+    "src_nano/compiler/service_lowering.nano": "7844d9f54f098cd113442440ab942c72e35848fa89e0e461da559573f9c853d9",
+    "src_nano/compiler/service_wire.nano": "63dceb8d71822204f9f6a9daacd85c42ef67bfa11e054c960ba0be78bc752763",
+    "src/nanoisa/file_cyclic_native_emit.inc": "fbd83d59d06f15a848791a8047ffebf898cafa64566261e564041dc98605f7c2",
+    "src/nanoisa/nvm2c.c": "87c775e39050449805d3885cdb97e725c5795b31c23a4fecdceb9d0e8bebb8cf",
+    "tests/service_lowering.nano": "75b69722fa413d705fc6988371a1f6d71cfa27a4acb7e9322ab34d8ef0ab934a",
+    "tests/service_wire.nano": "4b0ce1bc9bcca04947aa807b242f6b7643e374d8796b071ff03292ce56994749",
+    "tests/test_service_lowering.py": "803d771dccb4ea2239efb5ac07fdc291986e1d21fb0cb9e101470bbf75ee09c3",
+    "tests/test_service_lowering_nano.py": "65123025f599e9c4d5984f90b0d2e7c9cb258899718d31563249d85e3f5fd5dc",
+    "tests/test_service_wire.py": "6abc224956d010cceec9343db83662a17bd2d951fccb171172fcd4a6190cdb4b",
+    "tests/fixtures/nsi_file_binding_expected.nano.txt": "90f88e5249c3f3b38787fb493005df3b16b46f8715d6fae476a40ef7c00ac46c",
+    "/private/tmp/nanolang-service-lowering-driver-final.nvm": "f01ed7f86151e2b65b2d735e2b2ce33af9ca023d8bf2b7984663053f6b7ab32b"
+  }
+}

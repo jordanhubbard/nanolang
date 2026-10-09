@@ -108,13 +108,52 @@ static void fn_variant(Fne *b,const NvmFileCyclicHostedPlan *p,uint32_t f,uint16
         fn_text(b,"if(!nvm_file_cyclic_hosted_input_region(p,%u,%u,%u,%u,&region) || region!=UINT64_C(%" PRIu64 "))return false;\n",f,i,v,n,region);
     }
 }
+static void fn_instruction_agreement(Fne *b,const NvmFileCyclicHostedPlan *p,uint32_t index,uint16_t j) {
+    fn_text(b,"static bool nf_agrees_%u_%u(const NvmFileCyclicHostedPlan *p){\n"
+        "NvmFileCodeInstruction in;NvmFileCyclicVariant variant;\n"
+        "NvmFileFlowValue value;NvmFileFlowReference reference;\n"
+        "uint32_t ordinal;uint16_t component;uint8_t count;uint64_t region;\n"
+        "(void)variant;(void)value;(void)reference;(void)ordinal;(void)region;\n",index,j);
+    NvmFileCodeInstruction in;uint8_t count;uint16_t component;
+    if(!nvm_file_cyclic_hosted_instruction(p,index,j,&in) ||
+       !nvm_file_cyclic_hosted_variant_count(p,index,j,&count) ||
+       !nvm_file_cyclic_hosted_component(p,index,j,&component)) {b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
+    fn_text(b,"if(!nvm_file_cyclic_hosted_instruction(p,%u,%u,&in) || !nvm_file_cyclic_hosted_variant_count(p,%u,%u,&count) || count!=%u || !nvm_file_cyclic_hosted_component(p,%u,%u,&component) || component!=%u)return false;\n",index,j,index,j,count,index,j,component);
+#define IN(m) FN_FIELD(b,"in.",in,m)
+    IN(byte_offset);IN(decoded.opcode);IN(decoded.operand_count);IN(decoded.byte_length);
+    IN(successor_count);IN(catalog_ordinal);
+#undef IN
+    for(uint8_t k=0;k<in.successor_count;k++)fn_text(b,"if(in.successors[%u]!=%u)return false;\n",k,in.successors[k]);
+    for(uint8_t k=0;k<in.decoded.operand_count;k++) {
+        const char *member=NULL;uint64_t value=0;
+        switch(in.decoded.operand_types[k]) {
+        case OPERAND_U8:member="u8";value=in.decoded.operands[k].u8;break;
+        case OPERAND_U16:member="u16";value=in.decoded.operands[k].u16;break;
+        case OPERAND_U32:member="u32";value=in.decoded.operands[k].u32;break;
+        case OPERAND_I32:member="i32";value=(uint64_t)(int64_t)in.decoded.operands[k].i32;break;
+        case OPERAND_I64:member="i64";value=(uint64_t)in.decoded.operands[k].i64;break;
+        default:b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;
+        }
+        fn_text(b,"if(in.decoded.operand_types[%u]!=%u || (uint64_t)in.decoded.operands[%u].%s!=UINT64_C(%" PRIu64 "))return false;\n",k,in.decoded.operand_types[k],k,member,value);
+    }
+    for(uint8_t v=0;v<count;v++)fn_variant(b,p,index,j,v);
+    if(in.decoded.opcode==OP_FILE_SERVICE) {
+        uint32_t original;
+        if(!nvm_file_cyclic_hosted_import(p,in.catalog_ordinal,&original)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
+        fn_text(b,"if(!nvm_file_cyclic_hosted_import(p,%u,&ordinal) || ordinal!=%u)return false;\n",in.catalog_ordinal,original);
+    }
+    fn_text(b,"return true;}\n");
+}
 static void fn_agreement(Fne *b,const NvmFileCyclicHostedPlan *p,NvmFileCyclicHostedStartup start) {
+    for(uint32_t f=0;f<start.functions;f++) {
+        NvmFileCyclicHostedFunction function;
+        if(!nvm_file_cyclic_hosted_function(p,f,&function)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
+        for(uint16_t i=0;i<function.code.instruction_count;i++)fn_instruction_agreement(b,p,f,i);
+    }
     fn_text(b,"static bool nf_agrees(const NvmFileCyclicHostedPlan *p){\n"
         "NvmFileCyclicHostedStartup s;NvmFileCyclicHostedFunction f;NvmFileFlowDeclaration l;\n"
-        "NvmFileCodeInstruction in;NvmFileNominalLayout t;NvmFileCyclicVariant variant;\n"
-        "NvmFileFlowValue value;NvmFileFlowReference reference;\n"
-        "uint32_t ordinal;uint16_t component;uint8_t count,byte;uint64_t region;\n"
-        "(void)l;(void)value;(void)reference;(void)region;(void)variant;\n"
+        "NvmFileNominalLayout t;uint32_t ordinal;uint8_t byte;\n"
+        "(void)l;\n"
         "if(!nvm_file_cyclic_hosted_startup(p,&s))return false;\n");
 #define START(m) FN_FIELD(b,"s.",start,m)
     START(revision);START(entry);START(initializer);START(functions);START(features);
@@ -156,36 +195,8 @@ static void fn_agreement(Fne *b,const NvmFileCyclicHostedPlan *p,NvmFileCyclicHo
             fn_text(b,"if(!nvm_file_cyclic_hosted_local(p,%u,%u,&l))return false;\n",index,j);
             fn_declaration(b,"l.",l);
         }
-        for(uint16_t j=0;j<f.code.instruction_count;j++) {
-            NvmFileCodeInstruction in;uint8_t count;uint16_t component;
-            if(!nvm_file_cyclic_hosted_instruction(p,index,j,&in) ||
-               !nvm_file_cyclic_hosted_variant_count(p,index,j,&count) ||
-               !nvm_file_cyclic_hosted_component(p,index,j,&component)) {b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
-            fn_text(b,"if(!nvm_file_cyclic_hosted_instruction(p,%u,%u,&in) || !nvm_file_cyclic_hosted_variant_count(p,%u,%u,&count) || count!=%u || !nvm_file_cyclic_hosted_component(p,%u,%u,&component) || component!=%u)return false;\n",index,j,index,j,count,index,j,component);
-#define IN(m) FN_FIELD(b,"in.",in,m)
-            IN(byte_offset);IN(decoded.opcode);IN(decoded.operand_count);IN(decoded.byte_length);
-            IN(successor_count);IN(catalog_ordinal);
-#undef IN
-            for(uint8_t k=0;k<in.successor_count;k++)fn_text(b,"if(in.successors[%u]!=%u)return false;\n",k,in.successors[k]);
-            for(uint8_t k=0;k<in.decoded.operand_count;k++) {
-                const char *member=NULL;uint64_t value=0;
-                switch(in.decoded.operand_types[k]) {
-                case OPERAND_U8:member="u8";value=in.decoded.operands[k].u8;break;
-                case OPERAND_U16:member="u16";value=in.decoded.operands[k].u16;break;
-                case OPERAND_U32:member="u32";value=in.decoded.operands[k].u32;break;
-                case OPERAND_I32:member="i32";value=(uint64_t)(int64_t)in.decoded.operands[k].i32;break;
-                case OPERAND_I64:member="i64";value=(uint64_t)in.decoded.operands[k].i64;break;
-                default:b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;
-                }
-                fn_text(b,"if(in.decoded.operand_types[%u]!=%u || (uint64_t)in.decoded.operands[%u].%s!=UINT64_C(%" PRIu64 "))return false;\n",k,in.decoded.operand_types[k],k,member,value);
-            }
-            for(uint8_t v=0;v<count;v++)fn_variant(b,p,index,j,v);
-            if(in.decoded.opcode==OP_FILE_SERVICE) {
-                uint32_t original;
-                if(!nvm_file_cyclic_hosted_import(p,in.catalog_ordinal,&original)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
-                fn_text(b,"if(!nvm_file_cyclic_hosted_import(p,%u,&ordinal) || ordinal!=%u)return false;\n",in.catalog_ordinal,original);
-            }
-        }
+        for(uint16_t j=0;j<f.code.instruction_count;j++)
+            fn_text(b,"if(!nf_agrees_%u_%u(p))return false;\n",index,j);
     }
     fn_text(b,"return true;}\n");
 }

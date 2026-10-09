@@ -2468,7 +2468,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     }
                     if (!shape_equal(b, source, target)) return 0;
                 }
-            } else if (!checked_record_fields && !shape_equal(b, shape_child(b, arr.shape, 0), val.shape)) return 0;
+            } else if (!checked_record_fields &&
+                       !(arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC) &&
+                       !shape_equal(b, shape_child(b, arr.shape, 0), val.shape)) return 0;
+            /* Record writes already carry a checked, directed array-write
+             * constraint. Equating them here would constrain an unresolved
+             * getter's return fields to a caller's exact constructor storage. */
             if (!shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
             break;
         }

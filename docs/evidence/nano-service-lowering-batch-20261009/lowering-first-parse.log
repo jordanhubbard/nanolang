@@ -1,0 +1,11 @@
+Error at line 630, column 13: Expected variable name
+Error at line 630, column 23: Unexpected token in expression: COLON (type=14)
+Error at line 630, column 35: Unexpected token in expression: ASSIGN (type=17)
+Error at line 631, column 22: Unexpected token in expression: SHADOW (type=38)
+Error at line 631, column 28: Unexpected token in expression: DOT (type=18)
+Error at line 631, column 43: Unexpected token in expression: SHADOW (type=38)
+Error at line 631, column 49: Unexpected token in expression: DOT (type=18)
+Error at line 631, column 77: Unexpected token in expression: SHADOW (type=38)
+Error at line 631, column 83: Unexpected token in expression: DOT (type=18)
+Error at line 631, column 95: Unexpected token in expression: RPAREN (type=8)
+error: parser failed

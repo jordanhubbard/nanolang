@@ -1,0 +1,81 @@
+import "src_nano/compiler/service_lowering.nano"
+import "src_nano/compiler/service_wire.nano"
+import "src_nano/compiler/service_ownership.nano"
+import "src_nano/compiler/service_bodies.nano"
+import "src_nano/compiler/service_namespace.nano"
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+import "src_nano/compiler/service_origins.nano"
+import "src_nano/compiler/service_inputs.nano"
+import "modules/file_source_inputs/file_source_inputs.nano"
+extern fn file_read(path: string) -> string
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+# I accept an explicit dependency order from my fixture, retaining real files
+# and line origins. Product import discovery remains the driver's responsibility.
+fn lower_probe(files: array<string>, selection: string, expected: int) -> int {
+    let mut source: string = "" let mut sources: array<string> = [] let mut lines: array<int> = []
+    let mut i: int = 0
+    while (< i (array_length files)) {
+        let path: string = (at files i)
+        let mut text: string = "" unsafe { set text (+ (file_read path) "\n") }
+        set source (+ source text) let mut j: int = 0 let mut line: int = 1
+        while (< j (str_length text)) {
+            if (== (char_at text j) 10) { set sources (array_push sources path) set lines (array_push lines line) set line (+ line 1) }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    let root: string = (at files (- (array_length files) 1))
+    let tokens: List<LexerToken> = (tokenize_string source root (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) root)
+    assert (not parser.has_error)
+    let mut targets: array<int> = [] set i 0
+    while (< i parser.imports_count) {
+        let item: ASTImport = (parser_get_import parser i)
+        let owner: int = (sn_owner files sources item.line)
+        let path: string = (at files owner)
+        let resolved: string = (+ (str_substring path 0 (+ (str_last_index_of path "/") 1)) item.module_path)
+        let mut found: int = -1 let mut j: int = 0
+        while (< j (array_length files)) { if (== (at files j) resolved) { set found j } set j (+ j 1) }
+        assert (>= found 0) set targets (array_push targets found) set i (+ i 1)
+    }
+    let origins: ServiceOrigins = (bind_service_origins parser files sources lines) assert origins.ok
+    unsafe {
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        let inputs: ServiceInputs = (acquire_service_inputs parser files origins context) assert inputs.ok
+        let space: ServiceNamespace = (resolve_service_namespace parser files sources targets origins inputs context) assert (== space.status 0)
+        let bodies: ServiceBodyCheck = (check_service_bodies parser files sources space) assert (== bodies.status 0)
+        let owners: ServiceOwnershipCheck = (check_service_ownership parser files sources space bodies) assert (== owners.status 0)
+        let mut selected: int = -1 set i 0
+        while (< i parser.shadows_count) {
+            if (== (list_ASTShadow_get parser.shadows i).target_name selection) { set selected i }
+            set i (+ i 1)
+        }
+        assert (or (== selection "main") (>= selected 0))
+        let lowered: ServiceLowering = (lower_service_source parser files sources space bodies owners selected)
+        (println (+ "LOWER " (+ (int_to_string lowered.status) (+ " " lowered.diagnostic))))
+        assert (== lowered.status expected)
+        if (!= expected 0) { assert (== (array_length lowered.bytes) 0) }
+        set i 0
+        while (< i (array_length lowered.bytes)) {
+            (println (+ "BYTE " (int_to_string (at lowered.bytes i)))) set i (+ i 1)
+        }
+        (nl_source_inputs_free context)
+    }
+    return 0
+}
+shadow lower_probe {
+    assert (== (str_substring "/one/source.nano" 0 (+ (str_last_index_of "/one/source.nano" "/") 1)) "/one/")
+}
+fn main() -> int {
+    unsafe {
+        if (< (get_argc) 4) { return 2 }
+        let mut files: array<string> = [] let mut i: int = 4
+        while (< i (get_argc)) { set files (array_push files (get_argv i)) set i (+ i 1) }
+        set files (array_push files (get_argv 1))
+        return (lower_probe files (get_argv 2) (string_to_int (get_argv 3)))
+    }
+}
+shadow main { assert (== (array_length (service_wire_serialize [] 0)) 0) }

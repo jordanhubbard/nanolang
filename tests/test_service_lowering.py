@@ -6,6 +6,7 @@ import shlex
 import signal
 import subprocess
 import tempfile
+import time
 import unittest
 from tests.test_service_bodies import DECL, ROOT
 
@@ -47,6 +48,7 @@ class ServiceLowering(unittest.TestCase):
 
     @staticmethod
     def command(args):
+        started=time.monotonic()
         process=subprocess.Popen(list(map(str,args)),cwd=ROOT,stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE,text=True,start_new_session=True)
         try:
@@ -57,13 +59,15 @@ class ServiceLowering(unittest.TestCase):
             process.communicate(timeout=10)
             raise
         if process.returncode:raise AssertionError(f'{args}\n{process.returncode}\n{stdout}\n{stderr}')
+        if '-std=c11' in args and any(str(arg).endswith('source.c') for arg in args):
+            print(f'I finish native compilation in {time.monotonic()-started:.3f}s',flush=True)
         return stdout
 
     def check(self,body,selection='main',expected=0,status=0,complete=False):
         path=self.work/'source.nano';path.write_text(body if complete else DECL+body)
         native_c=self.work/'source.c';native=self.work/'source.native'
         vm=self.command([os.environ.get('NANO_SERVICE_LOWERING_RUNNER',ROOT/'obj/test_service_lowering'),path,selection,native_c,status])
-        self.command([*self.compiler,'-std=c11','-g','-O0','-fsanitize=address,undefined','-fno-sanitize-recover=all',
+        self.command([*self.compiler,'-std=c11','-g',os.environ.get('NANO_NATIVE_TEST_OPT','-O2'),'-fsanitize=address,undefined','-fno-sanitize-recover=all',
                       '-I'+str(self.work),'-Isrc',native_c,self.work/'wrapper.c',ROOT/'lib/libnano_file_runtime.a','-o',native,'-lm'])
         actual=self.command([native])
         pattern=r'EXEC (\d+) VALUE (-?\d+)'
@@ -104,6 +108,30 @@ fn main()->int {
  }
 }
 ''',expected=10)
+
+    def test_nested_argument_borrows_keep_branch_state(self):
+        self.check("""
+fn pick(file:&mut File,condition:bool)->int {assert condition return 7}
+fn main()->int {
+ match (temp) {
+  Error(e)=>{return -1}
+  Ok(a)=>{
+   let mut first:File=a
+   match (temp) {
+    Error(e)=>{let c:CloseResult=(close first) return -2}
+    Ok(b)=>{
+     let mut second:File=b
+     let value:int=(pick &mut first (or false
+      (match (write_byte &mut second 9) {Ok(n)=>{(== n 1)} Error(e)=>{false}})))
+     let c:CloseResult=(close first)
+     let d:CloseResult=(close second)
+     return value
+    }
+   }
+  }
+ }
+}
+""",expected=7)
 
     def test_short_circuit_skips_effects(self):
         self.check('fn fail()->bool {assert false return true}\nfn main()->int {assert (not (and false (fail))) assert (or true (fail)) return 31}\n',expected=31)

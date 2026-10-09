@@ -5693,7 +5693,7 @@ test-file-indirect-targets: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 test-file-cyclic-dispatch: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
 	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_CYCLIC_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_dispatch
 test-file-cyclic-dispatch-sanitize: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
-	LSAN_OPTIONS= NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_CYCLIC_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_dispatch
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_CYCLIC_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_dispatch
 
 # I prepare strict immutable File binding bytes without publishing or executing.
 .PHONY: file-binding-plan
@@ -6086,3 +6086,11 @@ test-service-lowering-sanitize: $(OBJ_DIR)/test_service_lowering_sanitize
 	ASAN_OPTIONS=detect_leaks=1 NANO_SERVICE_LOWERING_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_lowering_sanitize" python3 -m unittest -v tests.test_service_lowering
 
 test-units: test-service-lowering
+
+.PHONY: test-service-wire test-service-lowering-nano
+test-service-wire: $(BIN_DIR)/nano_virt $(BIN_DIR)/nano_vm $(BIN_DIR)/nvm2c $(FILE_PUBLIC_LIBRARY)
+	NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_service_wire
+test-service-lowering-nano: $(OBJ_DIR)/test_service_lowering $(BIN_DIR)/nano_virt $(BIN_DIR)/nano_vm $(BIN_DIR)/nvm2c $(FILE_PUBLIC_LIBRARY)
+	NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_service_lowering_nano
+
+test-units: test-service-wire test-service-lowering-nano

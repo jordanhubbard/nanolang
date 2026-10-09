@@ -1,0 +1,397 @@
+# I serialize checked File lowering records without an assembler or C serializer.
+module "modules/file_source_catalog/file_source_catalog.nano" as WireCatalog
+
+struct ServiceWireType { tag: int, mode: int, layout: int }
+struct ServiceWireFunction {
+    name: string, arity: int, result: ServiceWireType,
+    locals: array<ServiceWireType>, code: array<int>, max_stack: int
+}
+struct ServiceWireSignature { parameters: array<int>, result: int }
+struct ServiceWireSection { kind: int, bytes: array<int> }
+let mut sw_bytes: array<int> = []
+let mut sw_strings: array<string> = []
+let mut sw_signatures: array<ServiceWireSignature> = []
+
+pub fn service_wire_scalar(tag: int) -> ServiceWireType {
+    return ServiceWireType { tag: tag, mode: 0, layout: 4294967295 }
+}
+shadow service_wire_scalar {
+    assert (== (service_wire_scalar 1).layout 4294967295)
+    assert (== (service_wire_scalar 4).tag 4)
+}
+
+fn sw_integer(value: int, width: int) -> void {
+    let mut remaining: int = value
+    let mut i: int = 0
+    while (< i width) {
+        let mut octet: int = (% remaining 256)
+        if (< octet 0) { set octet (+ octet 256) }
+        set sw_bytes (array_push sw_bytes octet)
+        set remaining (/ (- remaining octet) 256)
+        set i (+ i 1)
+    }
+}
+shadow sw_integer {
+    set sw_bytes [] (sw_integer -257 4)
+    assert (== (at sw_bytes 0) 255)
+    assert (== (at sw_bytes 1) 254)
+    assert (== (at sw_bytes 3) 255)
+    set sw_bytes [] (sw_integer (- -9223372036854775807 1) 8)
+    assert (== (at sw_bytes 7) 128)
+    set sw_bytes []
+}
+
+fn sw_append(bytes: array<int>) -> void {
+    let mut i: int = 0
+    while (< i (array_length bytes)) {
+        set sw_bytes (array_push sw_bytes (at bytes i))
+        set i (+ i 1)
+    }
+}
+shadow sw_append {
+    set sw_bytes [1] (sw_append [2, 3])
+    assert (== (array_length sw_bytes) 3)
+    assert (== (at sw_bytes 2) 3) set sw_bytes []
+}
+
+fn sw_pad() -> void {
+    while (!= (% (array_length sw_bytes) 4) 0) { (sw_integer 0 1) }
+}
+shadow sw_pad {
+    set sw_bytes [9] (sw_pad)
+    assert (== (array_length sw_bytes) 4)
+    assert (== (at sw_bytes 3) 0) set sw_bytes []
+}
+
+fn sw_string(value: string) -> int {
+    let mut i: int = 0
+    while (< i (array_length sw_strings)) {
+        if (== (at sw_strings i) value) { return i }
+        set i (+ i 1)
+    }
+    set sw_strings (array_push sw_strings value)
+    return i
+}
+shadow sw_string {
+    set sw_strings []
+    assert (== (sw_string "name") 0)
+    assert (== (sw_string "second") 1)
+    assert (== (sw_string "name") 0) set sw_strings []
+}
+
+fn sw_signature(parameters: array<int>, result: int) -> int {
+    let mut i: int = 0
+    while (< i (array_length sw_signatures)) {
+        let prior: ServiceWireSignature = (at sw_signatures i)
+        let mut same: bool = (and (== result prior.result) (== (array_length parameters) (array_length prior.parameters)))
+        let mut j: int = 0
+        while (and same (< j (array_length parameters))) {
+            set same (== (at parameters j) (at prior.parameters j))
+            set j (+ j 1)
+        }
+        if same { return i }
+        set i (+ i 1)
+    }
+    set sw_signatures (array_push sw_signatures ServiceWireSignature { parameters: parameters, result: result })
+    return i
+}
+shadow sw_signature {
+    set sw_signatures []
+    assert (== (sw_signature [8, 1] 10) 0)
+    assert (== (sw_signature [8] 10) 1)
+    assert (== (sw_signature [8, 1] 10) 0)
+    assert (== (sw_signature [8, 1] 0) 2) set sw_signatures []
+}
+
+fn sw_xor(left: int, right: int) -> int {
+    let mut a: int = left let mut b: int = right
+    let mut place: int = 1 let mut result: int = 0
+    while (or (> a 0) (> b 0)) {
+        if (!= (% a 2) (% b 2)) { set result (+ result place) }
+        set a (/ a 2) set b (/ b 2) set place (* place 2)
+    }
+    return result
+}
+shadow sw_xor {
+    assert (== (sw_xor 4294967295 3988292384) 306674911)
+    assert (== (sw_xor 53 53) 0)
+}
+
+fn sw_crc32(bytes: array<int>, start: int) -> int {
+    let mut table: array<int> = []
+    let mut i: int = 0
+    while (< i 256) {
+        let mut item: int = i let mut bit: int = 0
+        while (< bit 8) {
+            if (== (% item 2) 1) { set item (sw_xor (/ item 2) 3988292384) }
+            else { set item (/ item 2) }
+            set bit (+ bit 1)
+        }
+        set table (array_push table item) set i (+ i 1)
+    }
+    let mut crc: int = 4294967295 set i start
+    while (< i (array_length bytes)) {
+        let index: int = (sw_xor (% crc 256) (at bytes i))
+        set crc (sw_xor (/ crc 256) (at table index))
+        set i (+ i 1)
+    }
+    return (- 4294967295 crc)
+}
+shadow sw_crc32 {
+    assert (== (sw_crc32 [] 0) 0)
+    assert (== (sw_crc32 [49, 50, 51, 52, 53, 54, 55, 56, 57] 0) 3421780262)
+}
+
+fn sw_descriptor(value: ServiceWireType) -> void {
+    (sw_integer value.tag 1) (sw_integer value.mode 1)
+    (sw_integer 0 2) (sw_integer value.layout 4)
+}
+shadow sw_descriptor {
+    set sw_bytes [] (sw_descriptor (service_wire_scalar 1))
+    assert (== (array_length sw_bytes) 8)
+    assert (== (at sw_bytes 4) 255) set sw_bytes []
+}
+
+fn sw_catalog_value(id: string) -> ServiceWireType {
+    if (== id "nsi:core/int") { return (service_wire_scalar 1) }
+    if (== id "nsi:core/bool") { return (service_wire_scalar 4) }
+    let mut i: int = 0
+    while (< i 8) {
+        if (== id (WireCatalog.text 1 i 0 0)) {
+            let mut tag: int = 10 if (< i 3) { set tag 8 }
+            return ServiceWireType { tag: tag, mode: 0, layout: i }
+        }
+        set i (+ i 1)
+    }
+    assert (== id "")
+    return (service_wire_scalar 0)
+}
+shadow sw_catalog_value {
+    assert (== (sw_catalog_value "nsi:core/int").tag 1)
+    assert (== (sw_catalog_value (WireCatalog.text 1 3 0 0)).layout 3)
+    assert (== (sw_catalog_value "").tag 0)
+}
+
+fn sw_layouts() -> array<int> {
+    set sw_bytes [] (sw_integer 8 4)
+    let mut i: int = 0
+    while (< i 8) {
+        let count: int = (WireCatalog.number 1 i 1 0)
+        let mut kind: int = 2 if (< i 3) { set kind 0 }
+        (sw_integer kind 1) (sw_integer 0 1) (sw_integer count 2)
+        (sw_integer (sw_string (WireCatalog.text 1 i 0 0)) 4)
+        let mut j: int = 0
+        while (< j count) {
+            let typ: ServiceWireType = (sw_catalog_value (WireCatalog.text 1 i 4 j))
+            (sw_integer typ.tag 1) (sw_integer 0 3) (sw_integer typ.layout 4)
+            (sw_integer (sw_string (WireCatalog.text 1 i 2 j)) 4)
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    return sw_bytes
+}
+shadow sw_layouts {
+    set sw_strings [] let bytes: array<int> = (sw_layouts)
+    assert (== (at bytes 0) 8)
+    assert (> (array_length bytes) 68) set sw_bytes [] set sw_strings []
+}
+
+fn sw_imports() -> array<int> {
+    set sw_bytes [] (sw_integer 5 4)
+    let interface: int = (sw_string (WireCatalog.text 0 0 0 0))
+    let mut i: int = 0
+    while (< i 5) {
+        let mut params: array<int> = []
+        if (> i 0) { set params [8] }
+        if (== i 1) { set params [8, 1] }
+        (sw_integer interface 4) (sw_integer (sw_string (WireCatalog.text 2 i 0 0)) 4)
+        (sw_integer (sw_signature params 10) 4) (sw_integer 3 1) (sw_integer 0 3)
+        set i (+ i 1)
+    }
+    return sw_bytes
+}
+shadow sw_imports {
+    set sw_strings [] set sw_signatures [] let bytes: array<int> = (sw_imports)
+    assert (== (array_length bytes) 84)
+    assert (== (at bytes 16) 3) set sw_bytes [] set sw_strings [] set sw_signatures []
+}
+
+fn sw_constants() -> array<int> {
+    set sw_bytes [] (sw_integer (array_length sw_strings) 4)
+    let mut i: int = 0
+    while (< i (array_length sw_strings)) {
+        let value: string = (at sw_strings i)
+        (sw_integer 5 1) (sw_integer 0 3) (sw_integer (str_length value) 4)
+        let mut j: int = 0
+        while (< j (str_length value)) { (sw_integer (char_at value j) 1) set j (+ j 1) }
+        (sw_pad) set i (+ i 1)
+    }
+    return sw_bytes
+}
+shadow sw_constants {
+    set sw_strings ["abc"] let bytes: array<int> = (sw_constants)
+    assert (== (array_length bytes) 16)
+    assert (== (at bytes 12) 97) assert (== (at bytes 15) 0)
+    set sw_strings [] set sw_bytes []
+}
+
+fn sw_signature_bytes() -> array<int> {
+    set sw_bytes [] (sw_integer (array_length sw_signatures) 4)
+    let mut i: int = 0
+    while (< i (array_length sw_signatures)) {
+        let sig: ServiceWireSignature = (at sw_signatures i)
+        (sw_integer (array_length sig.parameters) 2)
+        let mut count: int = 0 if (!= sig.result 0) { set count 1 }
+        (sw_integer count 2) (sw_append sig.parameters) (sw_pad)
+        if (!= count 0) { (sw_integer sig.result 1) (sw_pad) }
+        set i (+ i 1)
+    }
+    return sw_bytes
+}
+shadow sw_signature_bytes {
+    set sw_signatures [ServiceWireSignature { parameters: [8, 1], result: 10 }]
+    let bytes: array<int> = (sw_signature_bytes)
+    assert (== (array_length bytes) 16)
+    assert (== (at bytes 8) 8) assert (== (at bytes 12) 10)
+    set sw_bytes [] set sw_signatures []
+}
+
+fn sw_functions(functions: array<ServiceWireFunction>) -> array<int> {
+    set sw_bytes [] (sw_integer (array_length functions) 4)
+    let mut offset: int = 0 let mut i: int = 0
+    while (< i (array_length functions)) {
+        let fnc: ServiceWireFunction = (at functions i)
+        let mut params: array<int> = [] let mut j: int = 0
+        while (< j fnc.arity) { set params (array_push params (at fnc.locals j).tag) set j (+ j 1) }
+        (sw_integer (sw_string fnc.name) 4) (sw_integer (sw_signature params fnc.result.tag) 4)
+        (sw_integer offset 8) (sw_integer (array_length fnc.code) 8)
+        (sw_integer (array_length fnc.locals) 2) (sw_integer 0 2)
+        (sw_integer fnc.max_stack 2) (sw_integer 0 2)
+        set offset (+ offset (array_length fnc.code)) set i (+ i 1)
+    }
+    return sw_bytes
+}
+shadow sw_functions {
+    let bytes: array<int> = (sw_functions [])
+    assert (== (array_length bytes) 4) assert (== (at bytes 0) 0) set sw_bytes []
+}
+
+fn sw_ownership(functions: array<ServiceWireFunction>) -> array<int> {
+    set sw_bytes [] (sw_integer 1 4) (sw_integer 8 4)
+    (sw_append [3, 1, 1, 3, 1, 1, 1, 1]) (sw_integer (array_length functions) 4)
+    let mut i: int = 0
+    while (< i (array_length functions)) {
+        let fnc: ServiceWireFunction = (at functions i)
+        (sw_integer (array_length fnc.locals) 2) (sw_integer fnc.arity 2)
+        (sw_descriptor fnc.result) let mut j: int = 0
+        while (< j (array_length fnc.locals)) { (sw_descriptor (at fnc.locals j)) set j (+ j 1) }
+        set i (+ i 1)
+    }
+    return sw_bytes
+}
+shadow sw_ownership {
+    let bytes: array<int> = (sw_ownership [])
+    assert (== (array_length bytes) 20)
+    assert (== (at bytes 8) 3) assert (== (at bytes 11) 3) set sw_bytes []
+}
+
+fn sw_services() -> array<int> {
+    set sw_bytes [] (sw_integer 2 2) (sw_integer 1 2)
+    (sw_integer 5 4) (sw_integer 8 4) (sw_integer 0 4)
+    let mut i: int = 0
+    while (< i 5) { (sw_integer i 4) (sw_integer i 4) set i (+ i 1) }
+    set i 0
+    while (< i 8) { (sw_integer i 4) (sw_integer i 4) set i (+ i 1) }
+    return sw_bytes
+}
+shadow sw_services {
+    let bytes: array<int> = (sw_services)
+    assert (== (array_length bytes) 120)
+    assert (== (at bytes 116) 7) set sw_bytes []
+}
+
+fn sw_container(sections: array<ServiceWireSection>, entry: int) -> array<int> {
+    let mut offset: int = (+ 40 (* 24 (array_length sections)))
+    let mut i: int = 0
+    while (< i (array_length sections)) {
+        set offset (+ offset (array_length (at sections i).bytes))
+        while (!= (% offset 4) 0) { set offset (+ offset 1) }
+        set i (+ i 1)
+    }
+    set sw_bytes [78, 86, 77, 2] (sw_integer 1 2) (sw_integer 2 2)
+    (sw_integer 898 4) (sw_integer offset 8) (sw_integer 40 4)
+    (sw_integer (array_length sections) 4) (sw_integer entry 4) (sw_integer 0 8)
+    set offset (+ 40 (* 24 (array_length sections))) set i 0
+    while (< i (array_length sections)) {
+        let section: ServiceWireSection = (at sections i)
+        (sw_integer section.kind 4) (sw_integer 0 4)
+        (sw_integer offset 8) (sw_integer (array_length section.bytes) 8)
+        set offset (+ offset (array_length section.bytes))
+        while (!= (% offset 4) 0) { set offset (+ offset 1) }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length sections)) { (sw_append (at sections i).bytes) (sw_pad) set i (+ i 1) }
+    let mut crc: int = (sw_crc32 sw_bytes 40) set i 36
+    while (< i 40) { (array_set sw_bytes i (% crc 256)) set crc (/ crc 256) set i (+ i 1) }
+    return sw_bytes
+}
+shadow sw_container {
+    let bytes: array<int> = (sw_container [ServiceWireSection { kind: 6, bytes: [61] }] 0)
+    assert (== (array_length bytes) 68)
+    assert (== (at bytes 48) 64) assert (== (at bytes 64) 61) set sw_bytes []
+}
+
+# I require checked lowering records; my consumers separately verify the wire.
+# An empty result refuses malformed records before any output publication.
+pub fn service_wire_serialize(functions: array<ServiceWireFunction>, entry: int) -> array<int> {
+    if (or (< entry 0) (>= entry (array_length functions))) { return [] }
+    if (> (array_length functions) 64) { return [] }
+    let mut code: array<int> = [] let mut i: int = 0
+    while (< i (array_length functions)) {
+        let fnc: ServiceWireFunction = (at functions i)
+        if (or (< fnc.arity 0) (> fnc.arity (array_length fnc.locals))) { return [] }
+        if (or (> (array_length fnc.locals) 256) (or (< fnc.max_stack 0) (> fnc.max_stack 256))) { return [] }
+        if (or (== (array_length fnc.code) 0) (> (+ (array_length code) (array_length fnc.code)) 65536)) { return [] }
+        let mut j: int = 0
+        while (< j (array_length fnc.code)) {
+            let octet: int = (at fnc.code j)
+            if (or (< octet 0) (> octet 255)) { return [] }
+            set code (array_push code octet) set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    set sw_strings [] set sw_signatures []
+    let layouts: array<int> = (sw_layouts)
+    let imports: array<int> = (sw_imports)
+    let function_bytes: array<int> = (sw_functions functions)
+    let constants: array<int> = (sw_constants)
+    let signatures: array<int> = (sw_signature_bytes)
+    let ownership: array<int> = (sw_ownership functions)
+    let services: array<int> = (sw_services)
+    return (sw_container [
+        ServiceWireSection { kind: 1, bytes: [0, 0, 0, 0] },
+        ServiceWireSection { kind: 2, bytes: constants },
+        ServiceWireSection { kind: 3, bytes: signatures },
+        ServiceWireSection { kind: 4, bytes: layouts },
+        ServiceWireSection { kind: 5, bytes: function_bytes },
+        ServiceWireSection { kind: 6, bytes: code },
+        ServiceWireSection { kind: 7, bytes: [0, 0, 0, 0] },
+        ServiceWireSection { kind: 8, bytes: imports },
+        ServiceWireSection { kind: 9, bytes: [0, 0, 0, 0] },
+        ServiceWireSection { kind: 13, bytes: ownership },
+        ServiceWireSection { kind: 14, bytes: services }
+    ] entry)
+}
+shadow service_wire_serialize {
+    assert (== (array_length (service_wire_serialize [] 0)) 0)
+    let fnc: ServiceWireFunction = ServiceWireFunction {
+        name: "main", arity: 0, result: (service_wire_scalar 1), locals: [],
+        code: [1, 42, 0, 0, 0, 0, 0, 0, 0, 61], max_stack: 1
+    }
+    let bytes: array<int> = (service_wire_serialize [fnc] 0)
+    assert (> (array_length bytes) 304)
+    assert (== (at bytes 3) 2) assert (== (at bytes 24) 11)
+    assert (== (array_length (service_wire_serialize [fnc] 1)) 0)
+}
