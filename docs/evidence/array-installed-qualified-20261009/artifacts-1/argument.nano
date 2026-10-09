@@ -1,0 +1,2 @@
+fn read(bytes:array<u8>)->int { return (at bytes 0) } fn main()->int { assert (== (read [300]) 44) return 0 }
+shadow main { assert true }

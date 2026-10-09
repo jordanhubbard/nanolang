@@ -1,0 +1,2 @@
+fn main()->int { let values:array<array<u8>> = [[300], []] assert (== (at (at values 0) 0) 44) assert (== (array_length (at values 1)) 0) return 0 }
+shadow main { assert true }

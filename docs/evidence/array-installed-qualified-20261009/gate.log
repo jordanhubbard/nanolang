@@ -1,0 +1,75 @@
+python3 scripts/embed_binary64_parser.py --check
+I run seed; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/00-seed.log.
+I run seed-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/01-seed-verify.log.
+I run stage1; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/02-stage1.log.
+I run stage1-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/03-stage1-verify.log.
+I run stage1-translate; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/04-stage1-translate.log.
+I run stage1-native; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/05-stage1-native.log.
+I run stage1-hello-compile; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/06-stage1-hello-compile.log.
+I run stage1-hello-execute; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/07-stage1-hello-execute.log.
+I run stage2; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/08-stage2.log.
+I run stage2-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/09-stage2-verify.log.
+I run stage2-translate; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/10-stage2-translate.log.
+I run stage2-native; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/11-stage2-native.log.
+I run stage2-hello-compile; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/12-stage2-hello-compile.log.
+I run stage2-hello-execute; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/13-stage2-hello-execute.log.
+I run seed-final-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/14-seed-final-verify.log.
+I run stage1-final-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/15-stage1-final-verify.log.
+I run stage2-final-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-5l65oz96/16-stage2-final-verify.log.
+I compared raw Stage 1 and Stage 2 modules: they are byte-identical in this build.
+I have not established reproducibility across clean environments or proved compiler semantic correctness.
+I installed bin/nanoc from the verified Stage 2 module.
+Hello from NanoLang!
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+
+==========================================
+✅ TRUE BOOTSTRAP COMPLETE!
+==========================================
+Bootstrap Status:
+
+  ✅ Stage 0: C reference compiler (bin/nanoc)
+  ✅ Stage 1: Self-hosted compiler (bin/nanoc_stage1)
+  ✅ Stage 2: Recompiled compiler (bin/nanoc_stage2)
+  Stage 3: recorded comparison and installed-compiler smoke checks passed.
+
+  I do not infer compiler correctness or release readiness from this stamp.
+
+
+✓ Self-hosted compiler installed as bin/nanoc
+✓ Stage binaries preserved in bin/ for verification
+✓ All future builds will use the self-hosted compiler
+
+python3 -m unittest -v tests.test_selfhost_native_array_slice
+I retain source, logs and generated artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-0638nqmu
+test_arguments_are_evaluated_once (tests.test_selfhost_native_array_slice.NativeArraySlice.test_arguments_are_evaluated_once) ... ok
+test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) ... ok
+test_generated_native_null_boundary (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_native_null_boundary) ... ok
+test_source_and_normal_shadows (tests.test_selfhost_native_array_slice.NativeArraySlice.test_source_and_normal_shadows) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 26.255s
+
+OK
+CC="/opt/homebrew/opt/llvm/bin/clang" python3 -m unittest -v tests.test_selfhost_array_literal_context
+I retain checked array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/checked-array-literals-azflm55j
+test_all_byte_destinations (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_all_byte_destinations) ... ok
+test_complete_slice_kind_bit_and_identity_fixture (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_complete_slice_kind_bit_and_identity_fixture) ... ok
+test_invalid_elements_and_existing_storage_preserve_output (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_invalid_elements_and_existing_storage_preserve_output) ... ok
+test_nested_literals_keep_context (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_nested_literals_keep_context) ... ok
+test_string_builtin_literal_element (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_string_builtin_literal_element) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 110.256s
+
+OK
+CC="/opt/homebrew/opt/llvm/bin/clang" python3 -m unittest -v tests.test_native_array_identity
+I retain array identity evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-array-identity-9zin102t
+test_alias_and_independent_slice_all_storage_kinds (tests.test_native_array_identity.NativeArrayIdentity.test_alias_and_independent_slice_all_storage_kinds) ... ok
+test_record_projection_retains_child_handle (tests.test_native_array_identity.NativeArrayIdentity.test_record_projection_retains_child_handle) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.305s
+
+OK

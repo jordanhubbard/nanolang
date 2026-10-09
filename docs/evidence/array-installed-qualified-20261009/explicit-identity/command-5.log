@@ -1,0 +1,3 @@
+('/Users/jordanh/Src/nanolang/bin/nanoc_stage2', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-t67_fpa9/once.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-t67_fpa9/once-nanoc_stage2')
+{'ASAN_OPTIONS': 'detect_leaks=1'}
+

@@ -1,0 +1,2 @@
+fn main() -> int { let values:array<int> = [1] let copy:array<int> = (array_slice values 0 1) return (- (at copy 0) 1) }
+shadow main { assert (== (main) 0) }
