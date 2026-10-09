@@ -95,6 +95,11 @@ NvmAffineState *nvm_affine_state_create(const NvmModule *m, uint32_t function,
     f->flags=malloc(count ? count : 1);
     if (!f->flags) goto fail;
     memcpy(f->flags,flags,count);
+    /* I retain complete unions as transport facts until this analysis
+     * implements selected-payload ownership transfers. Scalar unions retain
+     * their existing zero-flag executable contract. */
+    for (uint32_t i=0;i<count;i++)
+        if (f->layouts.items[i].kind==NVM_V2_LAYOUT_UNION && flags[i]) goto fail;
     if (nvm_v2_align4(&c)!=NVM_V2_OK || nvm_v2_u32(&c,&ignored)!=NVM_V2_OK) goto fail;
     uint16_t params=0;
     for (uint32_t i=0;i<=function;i++) {

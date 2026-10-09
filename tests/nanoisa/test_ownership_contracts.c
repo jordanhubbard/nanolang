@@ -9,6 +9,7 @@
 #include "verifier.h"
 #include "isa.h"
 #include "nvm2c.h"
+#include "affine_state.h"
 
 static unsigned checks;
 #define CHECK(c) do { checks++; assert(c); } while (0)
@@ -173,6 +174,75 @@ static void check_union_transport(void) {
     nvm_module_free(module);
 }
 
+static void check_owned_union_transport(void) {
+    AsmResult error;
+    NvmModule *m=asm_assemble(".function main 0 1 0 int 1\nPUSH_I64 0\nRET\n.end\n",&error);
+    CHECK(m);
+    uint32_t handle=nvm_add_string(m,"Handle",6), box=nvm_add_string(m,"Box<Handle>",11);
+    uint32_t outer=nvm_add_string(m,"Box<Box<Handle>>",16);
+    uint32_t some=nvm_add_string(m,"Some",4), none=nvm_add_string(m,"None",4);
+    uint32_t field=nvm_add_string(m,"value",5);
+    NvmV2LayoutField fields[]={{TAG_INT,NVM_V2_NO_INDEX,field},
+                              {TAG_STRUCT,0,field},{TAG_UNION,1,field}};
+    NvmV2Layout items[]={{NVM_V2_LAYOUT_STRUCT,1,handle,&fields[0]},
+                         {NVM_V2_LAYOUT_UNION,1,box,&fields[1]},
+                         {NVM_V2_LAYOUT_UNION,1,outer,&fields[2]}};
+    NvmV2Layouts layouts={items,3};m->struct_count=1;m->union_count=2;
+    CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    m->ownership_size=108;m->ownership_data=calloc(108,1);CHECK(m->ownership_data);
+    uint8_t *data=m->ownership_data;
+    word(data,0,3);word(data,4,3);data[8]=data[9]=data[10]=3;
+    word(data,12,1);half(data,16,1);
+    slot(data,20,TAG_INT,0,NVM_V2_NO_INDEX);slot(data,28,TAG_UNION,0,2);
+    word(data,36,4);word(data,44,1);
+    half(data,48,NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS);half(data,50,1);word(data,52,52);
+    word(data,56,2);
+    word(data,60,1);half(data,64,2);
+    word(data,68,some);half(data,74,1);word(data,76,none);half(data,80,1);
+    word(data,84,2);half(data,88,2);
+    word(data,92,some);half(data,98,1);word(data,100,none);half(data,104,1);
+    check_status(m,true,true);
+    NvmLayoutAuthority authority=NVM_LAYOUT_AUTHORITY_UNKNOWN;
+    CHECK(nvm_ownership_layout_authority(m,2,&authority)==NVM_V2_OK &&
+          authority==NVM_LAYOUT_AUTHORITY_RESOURCE);
+    NvmUnionVariantFact fact={99,99,99,99};
+    CHECK(nvm_ownership_union_variant(m,1,1,&fact)==NVM_V2_OK &&
+          fact.layout==2 && fact.field_offset==1 && fact.field_count==0);
+    /* Metadata round trips do not grant unimplemented instruction authority. */
+    CHECK(nvm_affine_state_create(m,0,0)==NULL);
+    CHECK(!nvm_verify(m).ok);
+    char diagnostic[256];CHECK(nvm2c_emit(m,diagnostic,sizeof diagnostic)==NULL);
+    size_t size;uint8_t *bytes=wire(m,&size,NULL);NvmV2Module decoded;
+    CHECK(nvm_v2_module_deserialize(bytes,size,&decoded)==NVM_V2_OK);
+    NvmModule *copy=NULL;CHECK(nvm_v2_to_nvm_module(&decoded,&copy)==NVM_V2_OK);
+    CHECK(copy->ownership_size==108 && !memcmp(copy->ownership_data,data,108));
+    CHECK(copy->layout_size==m->layout_size && !memcmp(copy->layout_data,m->layout_data,m->layout_size));
+    check_status(copy,true,true);CHECK(!nvm_verify(copy).ok);
+    nvm_module_free(copy);nvm_v2_module_free(&decoded);free(bytes);
+    char *text=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(text);
+    copy=asm_assemble(text,&error);CHECK(!copy && error.error==ASM_ERR_VERIFY);
+    copy=asm_assemble_unverified(text,&error);CHECK(copy);check_status(copy,true,true);
+    CHECK(!nvm_verify(copy).ok);
+    CHECK(copy->ownership_size==108 && !memcmp(copy->ownership_data,data,108));
+    CHECK(copy->layout_size==m->layout_size && !memcmp(copy->layout_data,m->layout_data,m->layout_size));
+    nvm_module_free(copy);free(text);
+    data[29]=NVM_REFERENCE_SHARED;check_status(m,false,false);data[29]=0;
+    data[9]=1;check_status(m,false,false);data[9]=3;
+    data[8]=0;check_status(m,false,false);data[8]=3;
+    data[10]=0;check_status(m,false,false);data[10]=3;
+    data[10]=2;check_status(m,false,false);data[10]=3;
+    half(data,104,0);check_status(m,false,false);half(data,104,1);
+    fields[2].type_tag=TAG_STRUCT;CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    check_status(m,false,false);fields[2].type_tag=TAG_UNION;
+    CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    word(data,0,2);check_status(m,false,false);word(data,0,3);
+    data[9]=0;fact=(NvmUnionVariantFact){99,99,99,99};
+    CHECK(nvm_ownership_union_variant(m,0,0,&fact)!=NVM_V2_OK && fact.layout==99 &&
+          fact.name_idx==99 && fact.field_offset==99 && fact.field_count==99);
+    data[9]=3;check_status(m,true,true);
+    nvm_module_free(m);
+}
+
 static void check_concrete_union_instances(void) {
     NvmModule *module=nvm_module_new();CHECK(module!=NULL);
     uint32_t first=nvm_add_string(module,"Choice<int,string>",18);
@@ -210,6 +280,7 @@ static void check_concrete_union_instances(void) {
 int main(int argc, char **argv) {
     check_union_transport();
     check_concrete_union_instances();
+    check_owned_union_transport();
     AsmResult result;
     NvmModule *module = asm_assemble(
         ".types 1 0 0\n.entry 1\n.function read 1 1 0 int 1\n"

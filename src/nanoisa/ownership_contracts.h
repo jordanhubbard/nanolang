@@ -51,7 +51,10 @@ NvmV2Result nvm_ownership_layout_authorities(const NvmModule *, uint32_t, NvmLay
 NvmV2Result nvm_ownership_path(const NvmModule *module, uint32_t index,
                                uint16_t *fields, uint16_t capacity, uint16_t *count);
 /* I return one exact concrete-union variant slice from the version-3
- * UNION_VARIANTS extension.
+ * UNION_VARIANTS extension. Zero-flag unions retain scalar-only payloads.
+ * COMPLETE unions may carry exact earlier complete record/union layouts;
+ * RESOURCE propagates through every owned child. These declarations require
+ * executable verification; selected-payload transfers remain a separate gate.
  * Union ordinals follow retained UNION layout order. Failure leaves *out
  * unchanged. This declaration query alone grants no executable authority. */
 NvmV2Result nvm_ownership_union_variant(const NvmModule *module,
