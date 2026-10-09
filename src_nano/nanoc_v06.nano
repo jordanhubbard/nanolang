@@ -1159,14 +1159,20 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
                             if (< selected (array_length imp.import_aliases)) {
                                 if (!= (at imp.import_aliases selected) "") { set alias (at imp.import_aliases selected) }
                             }
-                            (mb_add_target owner alias target target_owner)
+                            if (not (mb_import_global owner alias target target_owner)) {
+                                (println "I cannot bind a conflicting public global import.")
+                                return false
+                            }
                         }
                         set selected (+ selected 1)
                     }
                 } else {
                     let mut name: string = declaration.name
                     if (!= imp.module_name "") { set name (+ imp.module_name (+ "." declaration.name)) }
-                    (mb_add_target owner name target target_owner)
+                    if (not (mb_import_global owner name target target_owner)) {
+                        (println "I cannot bind a conflicting public global import.")
+                        return false
+                    }
                 }
             }
             set global (+ global 1)

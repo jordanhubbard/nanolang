@@ -1,5 +1,9 @@
 # I share one invocation's function bindings between checking and C emission.
 # Like the bootstrap compiler's other phase state, this is sequential, not reentrant.
+let mut mb_global_import_owners: array<int> = []
+let mut mb_global_import_names: array<string> = []
+let mut mb_global_import_targets: array<string> = []
+let mut mb_global_import_definitions: array<int> = []
 let mut mb_enabled: bool = false
 let mut mb_file_starts: array<int> = []
 let mut mb_owners: array<int> = []
@@ -59,6 +63,10 @@ shadow mb_active {
 }
 
 pub fn mb_reset(starts: array<int>) -> void {
+    set mb_global_import_owners []
+    set mb_global_import_names []
+    set mb_global_import_targets []
+    set mb_global_import_definitions []
     set mb_file_starts starts
     set mb_owners []
     set mb_names []
@@ -116,6 +124,40 @@ shadow mb_add_target {
     (mb_add_target 1 "external" "other" 1)
     assert (== (at mb_definition_owners 0) 0)
     (mb_reset [])
+}
+
+# I validate imported aliases independently of local declaration precedence.
+pub fn mb_import_global(owner: int, name: string, target: string, definition_owner: int) -> bool {
+    if (not (mb_active)) { return false }
+    let mut i: int = 0
+    while (< i (array_length mb_global_import_names)) {
+        if (and (== (at mb_global_import_owners i) owner) (== (at mb_global_import_names i) name)) {
+            return (and (== (at mb_global_import_targets i) target) (== (at mb_global_import_definitions i) definition_owner))
+        }
+        set i (+ i 1)
+    }
+    set mb_global_import_owners (array_push mb_global_import_owners owner)
+    set mb_global_import_names (array_push mb_global_import_names name)
+    set mb_global_import_targets (array_push mb_global_import_targets target)
+    set mb_global_import_definitions (array_push mb_global_import_definitions definition_owner)
+    (mb_add_target owner name target definition_owner)
+    return true
+}
+shadow mb_import_global {
+    (mb_reset [1, 8, 16])
+    (mb_add 2 "value" "local")
+    assert (mb_import_global 2 "value" "first" 0)
+    assert (mb_import_global 2 "value" "first" 0)
+    assert (not (mb_import_global 2 "value" "second" 1))
+    assert (not (mb_import_global 2 "value" "first" 1))
+    assert (== (mb_lookup 2 "value") "local")
+    assert (mb_import_global 1 "value" "second" 0)
+    assert (== (mb_lookup 1 "value") "second")
+    (mb_reset [1])
+    assert (mb_import_global 0 "value" "fresh" 0)
+    assert (== (mb_lookup 0 "value") "fresh")
+    (mb_reset [])
+    assert (not (mb_import_global 0 "value" "disabled" 0))
 }
 
 pub fn mb_add(owner: int, name: string, target: string) -> void {

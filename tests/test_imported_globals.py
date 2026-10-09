@@ -51,6 +51,16 @@ class ImportedGlobals(unittest.TestCase):
     def test_relative_spellings_share_canonical_storage(self):
         self.check('from "a.nano" import count as first\nfrom "./a.nano" import count as second\nfn main()->int{set first 7 assert (== second 7) set second 0 assert (== first 0) return 0}\nshadow main {assert (== (main) 0)}\n')
 
+    def test_repeated_alias_keeps_identity(self):
+        self.check('from "a.nano" import answer as value\nfrom "./a.nano" import answer as value\nfn main()->int{return (- value 41)}\nshadow main {assert (== (main) 0)}\n')
+
+    def test_conflicting_aliases_preserve_output(self):
+        for imports in ['from "a.nano" import answer as value\nfrom "b.nano" import answer as value',
+                        'from "a.nano" import *\nfrom "b.nano" import *',
+                        'module "a.nano" as same\nmodule "b.nano" as same']:
+            with self.subTest(imports=imports):
+                self.check(imports+'\nfn main()->int{return 0}\nshadow main {assert true}\n',bad=True)
+
     def test_immutable_public_value_in_pure_function(self):
         self.check('module "a.nano" as first\npure fn answer()->int{return first.answer}\nshadow answer {assert (== (answer) 41)}\nfn main()->int{assert (== (answer) 41) return 0}\nshadow main {assert (== (main) 0)}\n')
 
