@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/private/tmp/nanolang-bootstrap-profile-20261009/nano_vm",
+    "--profile-isa",
+    "/private/tmp/nanolang-bootstrap-profile-20261009/full-profile.json",
+    "/private/tmp/nanolang-bootstrap-profile-20261009/compiler-indexed.nvm",
+    "--",
+    "src_nano/nanoc_v06.nano",
+    "--verbose",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-bootstrap-profile-20261009/full-generation.nvm"
+  ],
+  "source_commit": "af2b25da64679048f99c6d07b122eda132a54bc0",
+  "compiler_sha256": "15f52b36853f2a95aaaf45c018b010248831c7497ce92c05d3e075869a4ceea4",
+  "timeout_seconds": 1800,
+  "pid": 96269,
+  "exit_code": 1,
+  "elapsed_seconds": 64.81145654100692,
+  "unexpected_native": true
+}
