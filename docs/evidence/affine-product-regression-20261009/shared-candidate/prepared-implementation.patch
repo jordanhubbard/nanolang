@@ -1,0 +1,454 @@
+--- a/src/nanoisa/affine_state.c
++++ b/src/nanoisa/affine_state.c
+@@ -180,7 +180,7 @@
+         Slot slot=a->facts->locals[i];
+         if (meet_scalars && !slot.mode &&
+             (scalar(slot.tag) || slot.tag==TAG_STRING ||
+-             (slot.tag==TAG_UNION && !resource(a->facts,slot)))) continue;
++             ((slot.tag==TAG_UNION || slot.tag==TAG_STRUCT) && !resource(a->facts,slot)))) continue;
+         if (a->live[i]!=b->live[i]) return false;
+         if (!meet_scalars && slot.tag==TAG_UNION && a->live[i] &&
+             a->variants[i]!=b->variants[i]) return false;
+@@ -213,7 +213,7 @@
+     for (uint16_t i=0;i<destination->facts->count;i++) {
+         Slot slot=destination->facts->locals[i];
+         if (!slot.mode && (scalar(slot.tag) || slot.tag==TAG_STRING ||
+-            (slot.tag==TAG_UNION && !resource(destination->facts,slot))) && destination->live[i] && !incoming->live[i]) {
++            ((slot.tag==TAG_UNION || slot.tag==TAG_STRUCT) && !resource(destination->facts,slot))) && destination->live[i] && !incoming->live[i]) {
+             destination->live[i]=false;
+             if (slot.tag==TAG_UNION) destination->variants[i]=NVM_AFFINE_UNKNOWN_VARIANT;
+             *changed=true;
+@@ -517,9 +517,19 @@
+     if (!s || type.layout>=s->facts->layouts.count ||
+         !(s->facts->flags[type.layout]&NVM_LAYOUT_COMPLETE)) return false;
+     uint8_t kind=s->facts->layouts.items[type.layout].kind;
+-    return (type.tag==TAG_STRUCT && kind==NVM_V2_LAYOUT_STRUCT) ||
+-        (type.tag==TAG_UNION && kind==NVM_V2_LAYOUT_UNION &&
+-         resource(s->facts,(Slot){type.tag,0,type.layout}));
++    return ((type.tag==TAG_STRUCT && kind==NVM_V2_LAYOUT_STRUCT) ||
++            (type.tag==TAG_UNION && kind==NVM_V2_LAYOUT_UNION)) &&
++         resource(s->facts,(Slot){type.tag,0,type.layout});
++}
++bool nvm_affine_record_is_copyable(const NvmAffineState *s,uint32_t layout) {
++    return s && layout<s->facts->layouts.count &&
++        s->facts->layouts.items[layout].kind==NVM_V2_LAYOUT_STRUCT &&
++        (s->facts->flags[layout]&(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE))==NVM_LAYOUT_COMPLETE;
++}
++bool nvm_affine_record_define(NvmAffineState *s,uint16_t local,uint32_t layout) {
++    if (!nvm_affine_record_is_copyable(s,layout) || !destination(s,local) ||
++        s->facts->locals[local].tag!=TAG_STRUCT || s->facts->locals[local].layout!=layout) return false;
++    s->live[local]=true;return true;
+ }
+ bool nvm_affine_owned_local_fields(const NvmAffineState *s,uint16_t local,
+     NvmAffineType *fields,uint16_t capacity,uint16_t *count) {
+@@ -642,12 +652,13 @@
+     uint8_t *depth=calloc((size_t)root+1,sizeof(*depth));
+     if (!depth) return false;
+     depth[root]=1;
++    bool owned=(facts->flags[root]&NVM_LAYOUT_RESOURCE)!=0;
+     for (uint32_t next=root+1;next>0;) {
+         uint32_t index=--next;
+         if (!depth[index]) continue;
+         const NvmV2Layout *layout=&facts->layouts.items[index];
+-        if ((facts->flags[index]&(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE))!=
+-                (NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE) ||
++        if (!(facts->flags[index]&NVM_LAYOUT_COMPLETE) ||
++            ((facts->flags[index]&NVM_LAYOUT_RESOURCE)!=0)!=owned ||
+             (layout->kind!=NVM_V2_LAYOUT_STRUCT && layout->kind!=NVM_V2_LAYOUT_UNION) ||
+             layout->field_count>NVM_AFFINE_MAX_RESULT_FIELDS) goto refused;
+         for (uint16_t f=0;f<layout->field_count;f++) {
+@@ -677,8 +688,7 @@
+     uint16_t fields=0;
+     if (result.tag==TAG_STRUCT) {
+         if (result.layout>=s->facts->layouts.count ||
+-            (s->facts->flags[result.layout]&(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE))!=
+-                (NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE)) return false;
++            !(s->facts->flags[result.layout]&NVM_LAYOUT_COMPLETE)) return false;
+         const NvmV2Layout *layout=&s->facts->layouts.items[result.layout];
+         if (layout->kind!=NVM_V2_LAYOUT_STRUCT) return false;
+         bool nested=false;
+@@ -708,7 +718,8 @@
+         Slot parameter=s->facts->locals[p];
+         if (parameter.mode) return false;
+         if (parameter.tag==TAG_STRUCT) {
+-            if (!resource(s->facts,parameter) ||
++            if (parameter.layout>=s->facts->layouts.count ||
++                s->facts->layouts.items[parameter.layout].kind!=NVM_V2_LAYOUT_STRUCT ||
+                 !(s->facts->flags[parameter.layout]&NVM_LAYOUT_COMPLETE)) return false;
+         } else if (parameter.tag==TAG_STRING) {
+             if (parameter.layout!=NVM_V2_NO_INDEX) return false;
+--- a/src/nanoisa/affine_state.h
++++ b/src/nanoisa/affine_state.h
+@@ -59,8 +59,11 @@
+ #define NVM_AFFINE_UNKNOWN_VARIANT UINT16_MAX
+ /* These transfer APIs exchange an exact record token with the bytecode stack.
+  * The stack analysis must prohibit duplication, loss and incompatible joins. */
+-/* Records use explicit transfer tokens; resource unions do so transitively. */
++/* I require explicit transfer tokens for resource records and resource unions.
++ * Complete ordinary records retain exact layout identity while copying. */
+ bool nvm_affine_type_is_owned(const NvmAffineState *state,NvmAffineType type);
++bool nvm_affine_record_is_copyable(const NvmAffineState *state,uint32_t layout);
++bool nvm_affine_record_define(NvmAffineState *state,uint16_t local,uint32_t layout);
+ bool nvm_affine_owned_local_fields(const NvmAffineState *state,uint16_t local,
+     NvmAffineType *fields,uint16_t capacity,uint16_t *count);
+ bool nvm_affine_take_local(NvmAffineState *state, uint16_t local, NvmAffineType *type);
+@@ -97,14 +100,15 @@
+                                NvmAffineType *type,NvmReferenceMode *mode);
+ #define NVM_AFFINE_MAX_RESULT_DEPTH 32u
+ #define NVM_AFFINE_MAX_RESULT_FIELDS 256u
+-/* I inspect an exact mode-zero scalar, void, or owned result.
+- * Nested results contain bounded complete owned trees with INT/BOOL/U8/STRING leaves; FLOAT fields stay refused;
++/* I inspect an exact mode-zero scalar, void, or record/union result.
++ * Nested record results contain bounded complete trees with consistent resource
++ * authority and INT/BOOL/U8/STRING leaves; FLOAT fields stay refused;
+  * scalar/VOID and existing scalar-leaf queries add no allocations.
+  * I require matching function count/tag and leave both outputs unchanged on refusal.
+  * This declaration query alone grants no executable return authority. */
+ bool nvm_affine_value_result(const NvmAffineState *state,NvmAffineType *type,
+                               uint16_t *field_count);
+-/* I inspect zero through eight mode-zero scalar/resource parameters.
++/* I inspect zero through eight mode-zero scalar/record/resource parameters.
+  * Executable graph and result eligibility are separate checks. */
+ bool nvm_affine_value_parameters(const NvmAffineState *state,
+                                   NvmAffineType *types,uint16_t capacity,uint16_t *count);
+--- a/src/nanoisa/affine_bytecode.c
++++ b/src/nanoisa/affine_bytecode.c
+@@ -50,7 +50,7 @@
+     for (uint16_t i=0;i<destination->count;i++) {
+         Value x=destination->stack[i],y=incoming->stack[i];
+         if (x.tag!=y.tag || x.observation!=y.observation || x.owned!=y.owned ||
+-            (x.owned && x.layout!=y.layout) ||
++            ((x.owned || x.tag==TAG_STRUCT) && x.layout!=y.layout) ||
+             (x.observation && x.root!=y.root)) return false;
+         if (x.tag==TAG_UNION) {
+             if (x.layout!=y.layout) return false;
+@@ -224,7 +224,7 @@
+             NvmAffineType parameter=parameters[p];
+             if (argument.observation || argument.tag!=parameter.tag ||
+                 argument.owned!=nvm_affine_type_is_owned(f->locals,parameter) ||
+-                ((argument.owned || argument.tag==TAG_UNION) &&
++                ((argument.owned || argument.tag==TAG_UNION || argument.tag==TAG_STRUCT) &&
+                  argument.layout!=parameter.layout))
+                 return "I require exact positional consuming argument types";
+         }
+@@ -322,7 +322,8 @@
+     case OP_OWN_PACK: {
+         NvmAffineType fields[NVM_AFFINE_MAX_STACK];uint16_t count;
+         uint32_t layout=in->operands[0].u32;
+-        if (!nvm_affine_record_fields(f->locals,layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
++        if (!nvm_affine_type_is_owned(f->locals,(NvmAffineType){TAG_STRUCT,layout}) ||
++            !nvm_affine_record_fields(f->locals,layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
+             count>f->count) return "I require every declared field for owned construction";
+         for (uint16_t i=0;i<count;i++) {
+             Value value=f->stack[f->count-count+i];NvmAffineType field=fields[i];
+@@ -352,6 +353,23 @@
+         return NULL;
+     }
+     case OP_AGG_PACK: {
++        if (in->operands[0].u8==AGG_RECORD) {
++            uint32_t layout=in->operands[1].u32;
++            NvmAffineType fields[NVM_AFFINE_MAX_STACK];uint16_t count=0;
++            if (!calls->value_graph || in->operands[2].u16 ||
++                !nvm_affine_record_is_copyable(f->locals,layout) ||
++                !nvm_affine_record_fields(f->locals,layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
++                count!=in->operands[3].u16 || count>f->count)
++                return "I require an exact complete copyable record constructor";
++            for (uint16_t i=0;i<count;i++) {
++                Value value=f->stack[f->count-count+i];
++                if (value.observation || value.owned || value.tag!=fields[i].tag || value.layout!=fields[i].layout)
++                    return "I require exact copyable record fields without owned authority";
++            }
++            f->count-=count;
++            return push(f,(Value){.tag=TAG_STRUCT,.root=UINT16_MAX,.layout=layout,
++                .variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:"I cannot retain a copyable record";
++        }
+         if (in->operands[0].u8!=AGG_VARIANT)
+             return "I require explicit owned construction for records";
+         NvmUnionVariantFact fact;
+@@ -403,6 +421,13 @@
+         if (!nvm_affine_local_info(f->locals,local,&tag,&mode))
+             return "I require a live checked local";
+         uint32_t layout=NVM_V2_NO_INDEX;uint16_t variant=NVM_AFFINE_UNKNOWN_VARIANT;
++        bool observation=tag==TAG_STRUCT;
++        if (tag==TAG_STRUCT && !mode) {
++            NvmAffineType type;
++            if (!nvm_affine_local_type(f->locals,local,&type)) return "I require an exact record local";
++            layout=type.layout;
++            if (nvm_affine_record_is_copyable(f->locals,layout)) observation=false;
++        }
+         if (tag==TAG_UNION) {
+             NvmAffineType type;
+             if (!nvm_affine_local_type(f->locals,local,&type))
+@@ -412,7 +437,7 @@
+             layout=type.layout;
+             (void)nvm_affine_union_variant(f->locals,local,&variant);
+         }
+-        if (!push(f,(Value){.tag=tag,.observation=tag==TAG_STRUCT,.root=local,
++        if (!push(f,(Value){.tag=tag,.observation=observation,.root=local,
+                             .layout=layout,.variant=variant}))
+             return "I cannot extend my analysis stack";
+         return NULL;
+@@ -427,7 +452,9 @@
+         bool defined=scalar(value.tag) ? nvm_affine_scalar_define(f->locals,local) :
+             calls->value_graph && value.tag==TAG_STRING ? nvm_affine_string_define(f->locals,local) :
+             calls->value_graph && value.tag==TAG_UNION ?
+-                nvm_affine_union_define(f->locals,local,value.layout,value.variant) : false;
++                nvm_affine_union_define(f->locals,local,value.layout,value.variant) :
++            calls->value_graph && value.tag==TAG_STRUCT ?
++                nvm_affine_record_define(f->locals,local,value.layout) : false;
+         if (!defined ||
+             !nvm_affine_local_info(f->locals,local,&tag,&mode) || tag!=value.tag)
+             return "I require the exact scalar local type";
+@@ -450,6 +477,19 @@
+             return "I require an exact scalar-union tag source";
+         f->count--;tag=TAG_INT;break;
+     case OP_AGG_GET:
++        if (f->count && f->stack[f->count-1].tag==TAG_STRUCT &&
++            !f->stack[f->count-1].observation && !f->stack[f->count-1].owned) {
++            Value value=f->stack[f->count-1];
++            NvmAffineType fields[NVM_AFFINE_MAX_STACK];uint16_t count=0;
++            if (!nvm_affine_record_is_copyable(f->locals,value.layout) ||
++                !nvm_affine_record_fields(f->locals,value.layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
++                in->operands[0].u16>=count) return "I require an exact ordinary record projection";
++            NvmAffineType field=fields[in->operands[0].u16];
++            if (nvm_affine_type_is_owned(f->locals,field)) return "I refuse an owned ordinary projection";
++            f->count--;
++            return push(f,(Value){.tag=field.tag,.root=UINT16_MAX,.layout=field.layout,
++                .variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:"I cannot retain an ordinary projection";
++        }
+         if (f->count && f->stack[f->count-1].tag==TAG_UNION &&
+             !f->stack[f->count-1].observation && !f->stack[f->count-1].owned) {
+             Value value=f->stack[f->count-1];
+@@ -681,7 +721,7 @@
+             if (current->count==1 && !current->stack[0].observation) tag=current->stack[0].tag;
+             else if (current->count) {error="I refuse an observation escape or extra return operands";goto done;}
+             bool exact_value=current->count==1 &&
+-                (current->stack[0].owned || current->stack[0].tag==TAG_UNION);
++                (current->stack[0].owned || current->stack[0].tag==TAG_UNION || current->stack[0].tag==TAG_STRUCT);
+             bool exit_ok=exact_value
+                 ? nvm_affine_can_exit_type(current->locals,(NvmAffineType){tag,current->stack[0].layout})
+                 : nvm_affine_can_exit_scalar(current->locals,tag);
+--- a/src/nanoisa/nvm2c_owned.h
++++ b/src/nanoisa/nvm2c_owned.h
+@@ -318,6 +318,16 @@
+             nvm2c_puts(&b," nown_release(a); a=(nown_value){0};\n");break;
+         }
+         case OP_AGG_PACK: {
++            if(in->operands[0].u8==AGG_RECORD && !shared) {
++                uint32_t layout=in->operands[1].u32;
++                if(!nvm_affine_record_is_copyable(state,layout) ||
++                   layouts.items[layout].field_count!=in->operands[3].u16)goto fail;
++                unsigned count=layouts.items[layout].field_count;int base=n-(int)count;
++                nvm2c_printf(&b," a.record=NOWN_ALLOC(1,sizeof(nown_record)+%u*sizeof(nown_value));\n if(!a.record){status=1;goto cleanup;} a.record->refs=1; a.record->count=%u; a.record->layout=%u;\n",count,count,layout);
++                for(unsigned f=0;f<count;f++)
++                    nvm2c_printf(&b," a.record->fields[%u]=t[%d]; t[%d]=(nown_value){0};\n",f,base+(int)f,base+(int)f);
++                nvm2c_printf(&b," a.tag=%u; t[%d]=a; a=(nown_value){0};\n",TAG_STRUCT,base);break;
++            }
+             if(in->operands[0].u8==AGG_VARIANT && !shared) {
+                 NvmUnionVariantFact fact;
+                 uint16_t variant=in->operands[2].u16;
+--- a/src_nano/compiler/nanoisa_borrows.nano
++++ b/src_nano/compiler/nanoisa_borrows.nano
+@@ -1332,14 +1332,15 @@
+         if (>= union_layout 0) {
+             if (!= (nb_union_expr parser argument.node_id argument.node_type parameter.var_type) 10) { return 0 }
+         } else { if (>= layout 0) {
+-            if (== argument.node_type ParseNodeType.PNODE_IDENTIFIER) {
++            if (nb_ordinary_layout layout) { let _: int = (nb_ordinary parser argument.node_id argument.node_type layout) }
++            else { if (== argument.node_type ParseNodeType.PNODE_IDENTIFIER) {
+                 let local: int = (nb_local (parser_get_identifier parser argument.node_id).name)
+                 if (< local 0) { return (nb_fail "an existing owner argument") }
+                 if (or (not (at nb_live local)) (or (!= (at nb_modes local) 0) (or (at nb_disposal_pending local) (or (!= (at nb_tags local) 8) (!= (at nb_layouts local) layout))))) { return (nb_fail "a named live exact whole owner argument") }
+                 let _: int = (nb_op1 "OWN_MOVE_LOCAL" local)
+                 (array_set nb_live local false)
+                 set nb_any_transfer true
+-            } else { let _: int = (nb_owner parser argument.node_id argument.node_type layout) }
++            } else { let _: int = (nb_owner parser argument.node_id argument.node_type layout) } }
+         } else {
+             if (!= (nb_expr parser argument.node_id argument.node_type) (nb_parameter_tag parameter.var_type)) { return (nb_fail "the exact positional scalar argument") }
+         } }
+@@ -1353,6 +1354,44 @@
+     let union_result: int = (nb_union_instance parser function.return_type)
+     if (>= union_result 0) { set nb_expression_layout union_result set nb_expression_identity (at nb_union_identities union_result) }
+     return (nb_result_tag parser function.return_type)
++}
++
++fn nb_ordinary_receiver(parser: Parser, id: int, kind: int) -> int {
++    if (== kind ParseNodeType.PNODE_IDENTIFIER) {
++        let local: int = (nb_local (parser_get_identifier parser id).name)
++        if (nb_ordinary_local local) { return (at nb_layouts local) }
++        return -1
++    }
++    if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
++        let field: ASTFieldAccess = (parser_get_field_access parser id)
++        let parent: int = (nb_ordinary_receiver parser field.object field.object_type)
++        if (< parent 0) { return -1 }
++        let record: ASTStruct = (parser_get_struct_def parser parent)
++        let mut index: int = 0
++        while (< index record.field_count) {
++            if (== (at record.field_names index) field.field_name) {
++                let child: int = (nb_record parser (at record.field_types index))
++                if (nb_ordinary_layout child) { return child }
++                return -1
++            }
++            set index (+ index 1)
++        }
++    }
++    return -1
++}
++shadow nb_ordinary_receiver {
++    let tokens: List<LexerToken> = (tokenize_string "struct Leaf { value: int } struct Box { child: Leaf } fn main() -> int { let box: Box = Box { child: Leaf { value: 3 } } return box.child.value }" "ordinary-receiver.nano" (list_CompilerDiagnostic_new))
++    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "ordinary-receiver.nano")
++    let saved: array<bool> = nb_ordinary_layouts
++    set nb_ordinary_layouts [true, true]
++    let _: int = (nb_reset_locals)
++    let _: int = (nb_slot "box" 8 1 0 false)
++    let field: ASTFieldAccess = (parser_get_field_access parser 1)
++    assert (== (nb_ordinary_receiver parser field.object field.object_type) 0)
++    set nb_ordinary_layouts [false, false]
++    assert (== (nb_ordinary_receiver parser field.object field.object_type) -1)
++    set nb_ordinary_layouts saved
++    let _: int = (nb_reset_locals)
+ }
+ 
+ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
+@@ -1403,6 +1442,19 @@
+     }
+     if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
+         let field: ASTFieldAccess = (parser_get_field_access parser id)
++        let ordinary: int = (nb_ordinary_receiver parser field.object field.object_type)
++        if (>= ordinary 0) {
++            let index: int = (nb_layout_field parser ordinary field.field_name)
++            if (< index 0) { return 0 }
++            if (!= (nb_expr parser field.object field.object_type) 8) { return (nb_fail "an exact ordinary receiver") }
++            let spelling: string = (at (parser_get_struct_def parser ordinary).field_types index)
++            set nb_expression_layout (nb_record parser spelling)
++            let mut tag: int = (nb_tag spelling)
++            if (nb_ordinary_layout nb_expression_layout) { set tag 8 }
++            if (== spelling "array<float>") { set tag 7 }
++            let _: int = (nb_op1 "AGG_GET" index)
++            return tag
++        }
+         if (== field.object_type ParseNodeType.PNODE_IDENTIFIER) {
+             let object_name: string = (parser_get_identifier parser field.object).name
+             let local: int = (nb_local object_name)
+@@ -1681,7 +1733,7 @@
+             let _: int = (nb_op1 "OWN_MOVE_LOCAL" old)
+             (array_set nb_live old false) (array_set nb_disposal_pending old false)
+         } else {
+-            if (and (== kind ParseNodeType.PNODE_CALL) nb_value_graph) {
++            if (and (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) nb_value_graph) {
+                 if (!= (nb_expr parser id kind) 8) { return (nb_fail "an owned call result") }
+                 if (!= nb_expression_layout layout) { return (nb_fail "the exact nominal owned call result") }
+             } else { return (nb_fail "a resource constructor, exact owner move or destructive pattern") }
+@@ -1697,6 +1749,11 @@
+         if (not (nb_ordinary_local local)) { return (nb_fail "an exact ordinary record alias") }
+         if (or (not (at nb_live local)) (!= (at nb_layouts local) layout)) { return (nb_fail "an exact live ordinary record alias") }
+         return (nb_op1 "LOAD_LOCAL" local)
++    }
++    if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
++        if (!= (nb_expr parser id kind) 8) { return (nb_fail "an ordinary record call result") }
++        if (!= nb_expression_layout layout) { return (nb_fail "the exact ordinary call result layout") }
++        return 0
+     }
+     if (!= kind ParseNodeType.PNODE_STRUCT_LITERAL) { return (nb_fail "an exact complete ordinary constructor") }
+     let value: ASTStructLiteral = (parser_get_struct_literal parser id)
+@@ -1710,14 +1767,20 @@
+         if (< field 0) { return 0 }
+         if (>= (at slots field) 0) { return (nb_fail "distinct ordinary constructor fields") }
+         let spelling: string = (at record.field_types field)
++        let child: int = (nb_record parser spelling)
+         let mut tag: int = 0 let mut expected: int = (nb_tag spelling)
+         if (== spelling "array<float>") {
+             set expected 7
+             set tag (nb_float_array parser (at value.field_value_ids i) (at value.field_value_types i) true)
+-        } else { set tag (nb_expr parser (at value.field_value_ids i) (at value.field_value_types i)) }
++        } else { if (nb_ordinary_layout child) {
++            let _: int = (nb_ordinary parser (at value.field_value_ids i) (at value.field_value_types i) child)
++            set tag 8 set expected 8
++        } else { set tag (nb_expr parser (at value.field_value_ids i) (at value.field_value_types i)) } }
+         if (!= tag expected) { return (nb_fail "exact ordinary field types") }
+         if (!= nb_error "") { return 0 }
+-        let slot: int = (nb_slot "" tag 4294967295 0 false)
++        let mut retained: int = 4294967295
++        if (== tag 8) { set retained child }
++        let slot: int = (nb_slot "" tag retained 0 false)
+         if (!= nb_error "") { return 0 }
+         (array_set slots field slot) let _: int = (nb_op1 "STORE_LOCAL" slot)
+         set i (+ i 1)
+@@ -1730,6 +1793,16 @@
+     set nb_error "" set nb_mixed false
+     let _: int = (nb_ordinary (nb_fixture) 0 ParseNodeType.PNODE_NUMBER 0)
+     assert (!= nb_error "") set nb_error ""
++    let tokens: List<LexerToken> = (tokenize_string "struct Plain { value: int } struct Box { child: Plain } resource struct Handle { fd: int } fn copy(value: Plain) -> Plain { return value } shadow copy { let plain: Plain = Plain { value: 7 } let copied: Plain = (copy plain) assert (== copied.value plain.value) } fn close(value: Handle) -> int { let Handle { fd } = value return fd } shadow close { assert (== (close Handle { fd: 3 }) 3) } fn main() -> int { let plain: Plain = Plain { value: 7 } let boxed: Box = Box { child: plain } let copied: Plain = (copy plain) assert (== boxed.child.value copied.value) return (- (close Handle { fd: 3 }) 3) } shadow main { assert (== (main) 0) }" "copyable-record.nano" (list_CompilerDiagnostic_new))
++    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "copyable-record.nano")
++    assert (not (parser_has_error parser))
++    let output: string = (nanoisa_borrow_emit parser true 0)
++    assert (!= output "")
++    assert (str_contains output "AGG_PACK 0 0 0 1")
++    assert (str_contains output "AGG_PACK 0 1 0 1")
++    assert (str_contains output "OWN_PACK 2")
++    assert (str_contains output "AGG_GET 0")
++    let _: string = (nanoisa_borrow_emit (nb_fixture) false 0)
+ }
+ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
+     if (and binding.is_destructure (== binding.value_type ParseNodeType.PNODE_IDENTIFIER)) {
+@@ -2019,7 +2092,10 @@
+                 } else {
+                     if (and (== stmt.node_type ParseNodeType.PNODE_RETURN) (not is_shadow)) {
+                         let result: ASTReturn = (parser_get_return parser stmt.node_id)
+-                        if (== nb_result 8) { let _: int = (nb_owner parser result.value result.value_type nb_result_layout) }
++                        if (== nb_result 8) {
++                            if (nb_ordinary_layout nb_result_layout) { let _: int = (nb_ordinary parser result.value result.value_type nb_result_layout) }
++                            else { let _: int = (nb_owner parser result.value result.value_type nb_result_layout) }
++                        }
+                         else { if (== nb_result 10) {
+                             if (!= (nb_union_expr parser result.value result.value_type (at nb_union_spellings nb_result_layout)) 10) { return 0 }
+                         }
+@@ -2749,7 +2825,7 @@
+         let result_layout: int = (nb_record parser function.return_type)
+         if nb_value_graph {
+             if (and (== (nb_tag function.return_type) 0) (!= function.return_type "void")) {
+-                if (and (not (nb_record_has_owner parser result_layout)) (< (nb_union_instance parser function.return_type) 0)) { let _: int = (nb_fail "an exact declared owner or scalar union result") return "" }
++                if (and (< result_layout 0) (< (nb_union_instance parser function.return_type) 0)) { let _: int = (nb_fail "an exact declared owner or scalar union result") return "" }
+             }
+         } else {
+             if (or (< function.param_count 1) (== (nb_tag function.return_type) 0)) { let _: int = (nb_fail "a scalar-result borrowed helper") return "" }
+@@ -2767,7 +2843,7 @@
+             let layout: int = (nb_record parser nominal)
+             if (< layout 0) {
+                 if (or (not nb_value_graph) (and (== (nb_parameter_tag nominal) 0) (< (nb_union_instance parser nominal) 0))) { let _: int = (nb_fail "an exact positional parameter") return "" }
+-            } else { if (not (nb_record_has_owner parser layout)) { let _: int = (nb_fail "owner-only record parameters") return "" } if (not nb_value_graph) { if (not (nb_leaf parser layout)) { let _: int = (nb_fail "a scalar-leaf borrowed formal") return "" } } }
++            } else { if (not nb_value_graph) { if (or (not (nb_record_has_owner parser layout)) (not (nb_leaf parser layout))) { let _: int = (nb_fail "a scalar-leaf borrowed owner formal") return "" } } }
+             let mut prior: int = 0
+             while (< prior j) { if (== parameter.name (parser_get_let parser (+ function.param_start prior)).name) { let _: int = (nb_fail "distinct parameter names") return "" } set prior (+ prior 1) }
+             set j (+ j 1)
+@@ -2794,12 +2870,12 @@
+             if (== tag 0) {
+                 set child (nb_record parser (at record.field_types field))
+                 if (or (< child 0) (>= child i)) { let _: int = (nb_fail "earlier resource child declarations") return "" }
+-                if (nb_ordinary_layout child) { let _: int = (nb_fail "owner children without ordinary record fields") return "" }
++                if (and owned (nb_ordinary_layout child)) { let _: int = (nb_fail "owner children without ordinary record fields") return "" }
+                 let nested_depth: int = (+ (at nb_depths child) 1)
+                 if (> nested_depth 32) { let _: int = (nb_fail "resource depth at most 32") return "" }
+                 if (> nested_depth depth) { set depth nested_depth }
+                 set tag 8
+-                set owned true
++                if (not (nb_ordinary_layout child)) { set owned true }
+             }
+             let mut prior: int = 0
+             while (< prior field) { if (== (at record.field_names prior) (at record.field_names field)) { let _: int = (nb_fail "distinct field declarations") return "" } set prior (+ prior 1) }
+@@ -2809,11 +2885,11 @@
+         }
+         if (and owned array_field) { set nb_owner_arrays true }
+         if (not owned) {
+-            if (or (not array_field) (not nb_value_graph)) { let _: int = (nb_fail "a closed ordinary record with a FLOAT array field in a value graph") return "" }
++            if (not nb_value_graph) { let _: int = (nb_fail "an ordinary record in a value graph") return "" }
+             set field 0
+             while (< field record.field_count) {
+                 let spelling: string = (at record.field_types field)
+-                if (and (!= spelling "array<float>") (== (nb_tag spelling) 0)) { let _: int = (nb_fail "ordinary int/bool or flat FLOAT array fields") return "" }
++                if (and (!= spelling "array<float>") (and (== (nb_tag spelling) 0) (not (nb_ordinary_layout (nb_record parser spelling))))) { let _: int = (nb_fail "ordinary scalar, record or flat FLOAT array fields") return "" }
+                 set field (+ field 1)
+             }
+             set nb_mixed true

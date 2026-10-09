@@ -1,0 +1,7 @@
+test_malformed_authority_and_identity (__main__.Records.test_malformed_authority_and_identity) ... ok
+test_vm_native_alias_nested_calls_and_cleanup (__main__.Records.test_vm_native_alias_nested_calls_and_cleanup) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.688s
+
+OK

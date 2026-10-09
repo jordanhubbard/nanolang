@@ -1,0 +1,105 @@
+test_foreign_record_collision_is_rejected (tests.test_affine_module_identity.AffineModuleIdentity.test_foreign_record_collision_is_rejected) ... ok
+test_generic_annotation_metadata (tests.test_affine_module_identity.AffineModuleIdentity.test_generic_annotation_metadata) ... ok
+test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) ... 
+  test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='candidate', reverse=False, nested=False) ... FAIL
+  test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='candidate', reverse=True, nested=False) ... FAIL
+test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) ... 
+  test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='candidate', reverse=False, nested=True) ... FAIL
+  test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='candidate', reverse=True, nested=True) ... FAIL
+test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) ... 
+  test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='candidate', reverse=False, nested=False) ... FAIL
+  test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='candidate', reverse=True, nested=False) ... FAIL
+test_qualified_public_record_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_qualified_public_record_identity) ... 
+  test_qualified_public_record_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_qualified_public_record_identity) (compiler='candidate') ... FAIL
+test_resource_use_after_move (tests.test_affine_module_identity.AffineModuleIdentity.test_resource_use_after_move) ... ok
+test_same_module_duplicate_is_rejected (tests.test_affine_module_identity.AffineModuleIdentity.test_same_module_duplicate_is_rejected) ... ok
+test_unresolved_resource (tests.test_affine_module_identity.AffineModuleIdentity.test_unresolved_resource) ... ok
+
+======================================================================
+FAIL: test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='candidate', reverse=False, nested=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_bytecode_product_0xuBpp/program.nvm': I cannot lower this verified owned-transfer function
+
+
+======================================================================
+FAIL: test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='candidate', reverse=True, nested=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_bytecode_product_WyoT1V/program.nvm': I cannot lower this verified owned-transfer function
+
+
+======================================================================
+FAIL: test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='candidate', reverse=False, nested=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_bytecode_product_RtFtRP/program.nvm': I cannot lower this verified owned-transfer function
+
+
+======================================================================
+FAIL: test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='candidate', reverse=True, nested=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_bytecode_product_0K5RgS/program.nvm': I cannot lower this verified owned-transfer function
+
+
+======================================================================
+FAIL: test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='candidate', reverse=False, nested=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_bytecode_product_O3DIdY/program.nvm': I cannot lower this verified owned-transfer function
+
+
+======================================================================
+FAIL: test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='candidate', reverse=True, nested=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_bytecode_product_t3l8vo/program.nvm': I cannot lower this verified owned-transfer function
+
+
+======================================================================
+FAIL: test_qualified_public_record_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_qualified_public_record_identity) (compiler='candidate')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 100, in test_qualified_public_record_identity
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_bytecode_product_w3KB8M/program.nvm': I cannot lower this verified owned-transfer function
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 4.093s
+
+FAILED (failures=7)
