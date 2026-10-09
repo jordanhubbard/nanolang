@@ -1148,7 +1148,8 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
         set global 0
         while (< global (parser_get_let_count parser)) {
             let declaration: ASTLet = (parser_get_let parser global)
-            if (and (not (at local_lets global)) (and declaration.is_pub (== (mb_owner declaration.line) target_owner))) {
+            let legacy_constant: bool = (and (== imp.module_name "") (and (not imp.is_selective) (not declaration.is_mut)))
+            if (and (not (at local_lets global)) (and (or declaration.is_pub legacy_constant) (== (mb_owner declaration.line) target_owner))) {
                 let target: string = (mb_lookup target_owner declaration.name)
                 if (and imp.is_selective (not imp.is_wildcard)) {
                     let mut selected: int = 0

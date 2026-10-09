@@ -1072,6 +1072,43 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                 free(inferred_name);
             }
 
+            /* I retain public imports and the legacy plain-import immutable constant contract. */
+            for (int g = 0; g < module_ast->as.program.count; ++g) {
+                ASTNode *global = module_ast->as.program.items[g];
+                if (global->type != AST_LET) continue;
+                bool legacy_constant = !module_alias && !item->as.import_stmt.is_selective && !global->as.let.is_mut;
+                if (!global->as.let.is_pub && !legacy_constant) continue;
+                const char *name = global->as.let.name;
+                if (item->as.import_stmt.is_selective && !item->as.import_stmt.is_wildcard) {
+                    for (int selected = 0; selected < item->as.import_stmt.import_symbol_count; ++selected) {
+                        if (strcmp(item->as.import_stmt.import_symbols[selected], name)) continue;
+                        const char *alias = item->as.import_stmt.import_aliases ? item->as.import_stmt.import_aliases[selected] : NULL;
+                        if (!env_import_global(env, current_file, alias && *alias ? alias : name, global)) {
+                            fprintf(stderr, "I cannot bind a conflicting public global import.\n");
+                            free(module_path);
+                            return false;
+                        }
+                    }
+                } else {
+                    size_t length = (module_alias ? strlen(module_alias) + 1 : 0) + strlen(name) + 1;
+                    char *qualified = malloc(length);
+                    if (!qualified) { free(module_path); return false; }
+                    snprintf(qualified, length, "%s%s%s", module_alias ? module_alias : "", module_alias ? "." : "", name);
+                    bool bound = env_import_global(env, current_file, qualified, global);
+                    /* I preserve legacy literal folding without copying the binding into another scope. */
+                    Symbol *constant = bound && legacy_constant ? env_global_import_symbol_at(env, current_file, qualified) : NULL;
+                    ASTNode *value = global->as.let.value;
+                    if (constant && constant->value.type == VAL_VOID && value) {
+                        if (value->type == AST_NUMBER) constant->value = create_int(value->as.number);
+                        else if (value->type == AST_FLOAT) constant->value = create_float(value->as.float_val);
+                        else if (value->type == AST_BOOL) constant->value = create_bool(value->as.bool_val);
+                        else if (value->type == AST_STRING) constant->value = create_string(value->as.string_val);
+                    }
+                    free(qualified);
+                    if (!bound) { fprintf(stderr, "I cannot bind a conflicting public global import.\n"); free(module_path); return false; }
+                }
+            }
+
             /* Apply import aliases for selective imports: from "module" import foo as bar */
             if (item->as.import_stmt.is_selective &&
                 item->as.import_stmt.import_symbols &&
@@ -1106,6 +1143,7 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                     }
                     
                     Function *func = find_module_function(env, module_name_for_alias, symbol);
+                    if (!func && env_lookup_global_import_at(env, current_file, alias)) continue;
                     if (!func) {
                         fprintf(stderr, "Error at line %d, column %d: Symbol '%s' not found in module for alias '%s'\n",
                                 item->line, item->column, symbol, alias);
@@ -1134,33 +1172,6 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
             /* This makes module symbols available in the current environment */
             for (int j = 0; j < module_ast->as.program.count; j++) {
                 ASTNode *module_item = module_ast->as.program.items[j];
-                
-                /* Export top-level constants (immutable let statements) from modules */
-                if (module_item->type == AST_LET && !module_item->as.let.is_mut) {
-                    /* This is a constant - evaluate it and make it available in importing module */
-                    Value val = create_void();
-                    
-                    /* Try to evaluate constant expressions (literals and simple expressions) */
-                    if (module_item->as.let.value) {
-                        ASTNode *value_node = module_item->as.let.value;
-                        if (value_node->type == AST_NUMBER) {
-                            val = create_int(value_node->as.number);
-                        } else if (value_node->type == AST_FLOAT) {
-                            val = create_float(value_node->as.float_val);
-                        } else if (value_node->type == AST_BOOL) {
-                            val = create_bool(value_node->as.bool_val);
-                        } else if (value_node->type == AST_STRING) {
-                            val = create_string(value_node->as.string_val);
-                        }
-                        /* For complex expressions, keep as void - transpiler will use variable name */
-                    }
-                    
-                    env_define_var(env, module_item->as.let.name, 
-                                   module_item->as.let.var_type, 
-                                   false, val);
-                    env->symbols[env->symbol_count - 1].is_global = true;
-                    continue;
-                }
                 
                 /* Skip imports, shadows, and executable statements in modules */
                 if (module_item->type == AST_IMPORT || 

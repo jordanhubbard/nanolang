@@ -1,0 +1,32 @@
+test_captured_local_shadows_imported_alias (tests.test_imported_globals.ImportedGlobals.test_captured_local_shadows_imported_alias) ... 
+  test_captured_local_shadows_imported_alias (tests.test_imported_globals.ImportedGlobals.test_captured_local_shadows_imported_alias) (compiler=['bin/nano_virt']) ... FAIL
+test_immutable_public_value_in_pure_function (tests.test_imported_globals.ImportedGlobals.test_immutable_public_value_in_pure_function) ... ok
+test_mutable_aliases_share_storage (tests.test_imported_globals.ImportedGlobals.test_mutable_aliases_share_storage) ... ok
+test_private_missing_wrong_type_and_immutable_write_preserve_output (tests.test_imported_globals.ImportedGlobals.test_private_missing_wrong_type_and_immutable_write_preserve_output) ... ok
+test_qualified_distinct_types_and_dependency_shadows (tests.test_imported_globals.ImportedGlobals.test_qualified_distinct_types_and_dependency_shadows) ... ok
+test_selective_aliases_and_lexical_shadowing (tests.test_imported_globals.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) ... ok
+test_transitive_selective_import_keeps_declaring_context (tests.test_imported_globals.ImportedGlobals.test_transitive_selective_import_keeps_declaring_context) ... ok
+
+======================================================================
+FAIL: test_captured_local_shadows_imported_alias (tests.test_imported_globals.ImportedGlobals.test_captured_local_shadows_imported_alias) (compiler=['bin/nano_virt'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_imported_globals.py", line 31, in check
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   $shadow_1_make  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-27_xr5qg/main.nano:3:45
+  #1   $shadow_entry  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-27_xr5qg/main.nano:?
+I failed a shadow: Assertion failed
+Stack trace (most recent call first):
+  #0   $shadow_1_make  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-27_xr5qg/main.nano:3:45
+  #1   $shadow_entry  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-27_xr5qg/main.nano:?
+I will not publish output after failed shadow execution
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.938s
+
+FAILED (failures=1)

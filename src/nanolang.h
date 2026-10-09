@@ -608,6 +608,7 @@ typedef struct {
     bool is_mut;
     Value value;
     bool is_global;     /* Top-level binding, not a retained function local */
+    ASTNode *global_declaration; /* Borrowed checked declaration; aliases share this identity. */
     bool is_used;        /* Track if variable is ever used (for warnings) */
     bool is_resource;    /* True if this variable's type is a resource type */
     ResourceUseState resource_state;  /* For resource types: track usage state */
@@ -799,9 +800,17 @@ typedef struct {
     int import_capacity;
 } ImportTracker;
 
+typedef struct GlobalImport {
+    const char *owner_file;
+    const char *name;
+    ASTNode *declaration;
+    struct GlobalImport *next;
+} GlobalImport;
+
 /* Environment for variable and function storage */
 typedef struct {
     Symbol *symbols;
+    GlobalImport *global_imports;
     int symbol_count;
     int symbol_capacity;
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
@@ -939,6 +948,11 @@ void free_environment(Environment *env);
 /* Transfer one newly allocated checker-only block; NULL is a no-op.
  * Borrowed AST/signature blocks and runtime values must never enter this registry. */
 void *env_own_checker_allocation(Environment *env, void *allocation);
+bool env_import_global(Environment *env, const char *owner_file, const char *name, ASTNode *declaration);
+const GlobalImport *env_lookup_global_import(Environment *env, const char *name);
+const GlobalImport *env_lookup_global_import_at(Environment *env, const char *owner_file, const char *name);
+Symbol *env_global_import_symbol(Environment *env, const char *name);
+Symbol *env_global_import_symbol_at(Environment *env, const char *owner_file, const char *name);
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value);
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value);

@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ImportedGlobals(unittest.TestCase):
-    def check(self, source, bad=False):
+    def check(self, source, bad=False, files=None):
         override = os.environ.get('NANO_IMPORTED_GLOBAL_COMPILER')
         compilers = [shlex.split(override)] if override else [[str(ROOT/'bin'/stage)] for stage in ('nanoc_stage1', 'nanoc_stage2')]
         for compiler in compilers:
@@ -18,6 +18,7 @@ class ImportedGlobals(unittest.TestCase):
                 work = Path(tmp)
                 (work/'a.nano').write_text('pub let answer: int = 41\nlet hidden: int = 99\npub let mut count: int = 0\npub fn read_answer()->int{return answer}\nshadow read_answer {assert (== (read_answer) 41)}\n')
                 (work/'b.nano').write_text('pub let answer: string = "second"\npub fn read_answer()->string{return answer}\nshadow read_answer {assert (== (read_answer) "second")}\n')
+                for name, text in (files or {}).items(): (work/name).write_text(text)
                 path, module, native_source, binary = [work/name for name in ('main.nano','main.nvm','main.c','main')]
                 path.write_text(source)
                 module.write_bytes(b'prior-output')
@@ -47,12 +48,23 @@ class ImportedGlobals(unittest.TestCase):
     def test_immutable_public_value_in_pure_function(self):
         self.check('module "a.nano" as first\npure fn answer()->int{return first.answer}\nshadow answer {assert (== (answer) 41)}\nfn main()->int{assert (== (answer) 41) return 0}\nshadow main {assert (== (main) 0)}\n')
 
+    def test_legacy_plain_import_keeps_immutable_constants(self):
+        self.check('import "a.nano"\nfn main()->int{assert (== hidden 99) return 0}\nshadow main {assert (== (main) 0)}\n')
+
+    def test_transitive_selective_import_keeps_declaring_context(self):
+        self.check('module "bridge.nano" as bridge\nfn main()->int{assert (== (bridge.read) 41) return 0}\nshadow main {assert (== (main) 0)}\n',files={
+            'bridge.nano':'from "a.nano" import answer as selected\npub fn read()->int{return selected}\nshadow read {assert (== (read) 41)}\n'})
+
+    def test_captured_local_shadows_imported_alias(self):
+        self.check('from "a.nano" import answer as value\nfn make(value: int)->fn()->int{return fn()->int{return value}}\nshadow make {let read: fn()->int = (make 7) assert (== (read) 7)}\nfn main()->int{let read: fn()->int = (make 13) assert (== (read) 13) return 0}\nshadow main {assert (== (main) 0)}\n')
+
     def test_private_missing_wrong_type_and_immutable_write_preserve_output(self):
         for source in ['module "a.nano" as first\nfn main()->int{return first.hidden}',
                        'from "a.nano" import hidden as value\nfn main()->int{return value}',
                        'from "a.nano" import absent as value\nfn main()->int{return value}',
                        'from "a.nano" import answer\nfn main()->int{let value: string = answer return 0}',
-                       'from "a.nano" import answer\nfn main()->int{set answer 3 return 0}']:
+                       'from "a.nano" import answer\nfn main()->int{set answer 3 return 0}',
+                       'module "a.nano" as first\npure fn read()->int{return first.count}\nshadow read {assert true}\nfn main()->int{return 0}']:
             with self.subTest(source=source):
                 self.check(source+'\nshadow main {assert true}\n',bad=True)
 

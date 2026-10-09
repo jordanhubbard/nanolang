@@ -514,10 +514,18 @@ static int16_t union_variant_index(CgUnionDef *ud, const char *variant) {
 }
 
 static int16_t global_find(CG *cg, const char *name) {
+    /* I keep enclosing lexical bindings ahead of module globals without creating captures. */
+    for (CG *scope = cg->parent; scope; scope = scope->parent)
+        if (local_find(scope, name) >= 0 || upvalue_find(scope, name) >= 0) return -1;
     for (int i = 0; i < cg->global_count; i++) {
         if (cg->globals[i].owner == cg->current_program &&
             strcmp(cg->globals[i].name, name) == 0)
             return (int16_t)cg->globals[i].slot;
+    }
+    const GlobalImport *import = env_lookup_global_import(cg->env, name);
+    if (import) {
+        for (int i = 0; i < cg->global_count; ++i)
+            if (cg->globals[i].declaration == import->declaration) return (int16_t)cg->globals[i].slot;
     }
     return -1;
 }
@@ -3036,6 +3044,17 @@ static void compile_expr(CG *cg, ASTNode *node) {
     case AST_FIELD_ACCESS: {
         ASTNode *obj = node->as.field_access.object;
         const char *field = node->as.field_access.field_name;
+
+        if (obj->type == AST_IDENTIFIER && local_find(cg, obj->as.identifier) < 0 &&
+            upvalue_resolve(cg, obj->as.identifier) < 0 && global_find(cg, obj->as.identifier) < 0) {
+            size_t length = strlen(obj->as.identifier) + strlen(field) + 2;
+            char *qualified = malloc(length);
+            if (!qualified) { cg_error(cg, node->line, "I could not allocate a qualified global name"); break; }
+            snprintf(qualified, length, "%s.%s", obj->as.identifier, field);
+            int16_t global = global_find(cg, qualified);
+            free(qualified);
+            if (global >= 0) { emit_op(cg, OP_LOAD_GLOBAL, (uint32_t)global); break; }
+        }
 
         /* Check if this is EnumType.Variant (obj is an identifier naming an enum) */
         if (obj->type == AST_IDENTIFIER) {

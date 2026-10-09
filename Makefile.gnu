@@ -5950,3 +5950,9 @@ test-cseed-global-identity: nano_virt nano_vm nvm2c bin/nano_aot_runtime.o
 	python3 -m unittest -v tests.test_cseed_global_identity
 
 test-units: test-cseed-global-identity
+
+.PHONY: test-cseed-imported-globals
+test-cseed-imported-globals: nano_virt nano_vm nvm2c bin/nano_aot_runtime.o
+	NANO_IMPORTED_GLOBAL_COMPILER=$(CURDIR)/bin/nano_virt python3 -m unittest -v tests.test_imported_globals
+
+test-units: test-cseed-imported-globals

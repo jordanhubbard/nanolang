@@ -617,6 +617,7 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.is_mut = is_mut;
     sym.value = value;
     sym.is_global = false;
+    sym.global_declaration = NULL;
     sym.is_used = false;  /* Initialize as unused */
     sym.is_resource = false;  /* Will be set by type checker if type is a resource struct */
     sym.resource_state = RESOURCE_UNUSED;  /* Initialize resource state */
@@ -681,6 +682,52 @@ const char *env_current_file(Environment *env) {
     return env ? env->current_file : NULL;
 }
 
+/* I retain import spellings separately from the declaration and runtime storage. */
+bool env_import_global(Environment *env, const char *owner_file, const char *name, ASTNode *declaration) {
+    if (!env || !owner_file || !name || !declaration) return false;
+    for (GlobalImport *item = env->global_imports; item; item = item->next) {
+        if (!strcmp(item->owner_file, owner_file) && !strcmp(item->name, name))
+            return item->declaration == declaration;
+    }
+    size_t owner_size = strlen(owner_file) + 1, name_size = strlen(name) + 1;
+    GlobalImport *item = calloc(1, sizeof *item + owner_size + name_size);
+    if (!item) return false;
+    char *strings = (char *)(item + 1);
+    memcpy(strings, owner_file, owner_size);
+    memcpy(strings + owner_size, name, name_size);
+    item->owner_file = strings;
+    item->name = strings + owner_size;
+    item->declaration = declaration;
+    item->next = env->global_imports;
+    env->global_imports = env_own_checker_allocation(env, item);
+    return true;
+}
+
+const GlobalImport *env_lookup_global_import_at(Environment *env, const char *owner_file, const char *name) {
+    if (!env || !owner_file || !name) return NULL;
+    for (GlobalImport *item = env->global_imports; item; item = item->next) {
+        if (!strcmp(item->name, name) && !strcmp(item->owner_file, owner_file)) return item;
+    }
+    return NULL;
+}
+
+Symbol *env_global_import_symbol_at(Environment *env, const char *owner_file, const char *name) {
+    const GlobalImport *import = env_lookup_global_import_at(env, owner_file, name);
+    if (!import) return NULL;
+    for (int i = env->symbol_count - 1; i >= 0; --i) {
+        if (env->symbols[i].global_declaration == import->declaration) return &env->symbols[i];
+    }
+    return NULL;
+}
+
+const GlobalImport *env_lookup_global_import(Environment *env, const char *name) {
+    return env_lookup_global_import_at(env, env_current_file(env), name);
+}
+
+Symbol *env_global_import_symbol(Environment *env, const char *name) {
+    return env_global_import_symbol_at(env, env_current_file(env), name);
+}
+
 Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column) {
     if (!env || !name) return NULL;
     if (line <= 0) return env_get_var(env, name);
@@ -730,6 +777,9 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 
         return sym;
     }
+
+    Symbol *imported = env_global_import_symbol(env, name);
+    if (imported) return imported;
 
     /* Pass 2: fall back to most-recent symbol without a source location. */
     for (int i = env->symbol_count - 1; i >= 0; i--) {

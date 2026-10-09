@@ -3996,6 +3996,18 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_FIELD_ACCESS: {
+            ASTNode *receiver = expr->as.field_access.object;
+            if (receiver && receiver->type == AST_IDENTIFIER &&
+                !env_get_var_visible_at(env, receiver->as.identifier, receiver->line, receiver->column)) {
+                const char *field = expr->as.field_access.field_name;
+                size_t length = strlen(receiver->as.identifier) + strlen(field) + 2;
+                char *qualified = malloc(length);
+                if (!qualified) return TYPE_UNKNOWN;
+                snprintf(qualified, length, "%s.%s", receiver->as.identifier, field);
+                Symbol *imported = env_global_import_symbol(env, qualified);
+                free(qualified);
+                if (imported) return imported->type;
+            }
             /* Check object is not NULL */
             assert(expr->as.field_access.object != NULL);
             if (!expr->as.field_access.object) {
@@ -8165,6 +8177,7 @@ register_function_pass1:;
             Symbol *sym = env_get_var(env, item->as.let.name);
             if (sym) {
                 sym->is_global = true;
+                sym->global_declaration = item;
                 sym->def_line = item->line;
                 sym->def_column = item->column;
             }
@@ -8925,6 +8938,7 @@ register_function_pass2:;
             Symbol *sym = env_get_var(env, item->as.let.name);
             if (sym) {
                 sym->is_global = true;
+                sym->global_declaration = item;
                 sym->def_line = item->line;
                 sym->def_column = item->column;
             }

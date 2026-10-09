@@ -1,0 +1,51 @@
+test_immutable_public_value_in_pure_function (tests.test_imported_globals.ImportedGlobals.test_immutable_public_value_in_pure_function) ... 
+  test_immutable_public_value_in_pure_function (tests.test_imported_globals.ImportedGlobals.test_immutable_public_value_in_pure_function) (compiler=['bin/nano_virt']) ... FAIL
+test_mutable_aliases_share_storage (tests.test_imported_globals.ImportedGlobals.test_mutable_aliases_share_storage) ... 
+  test_mutable_aliases_share_storage (tests.test_imported_globals.ImportedGlobals.test_mutable_aliases_share_storage) (compiler=['bin/nano_virt']) ... FAIL
+test_private_missing_wrong_type_and_immutable_write_preserve_output (tests.test_imported_globals.ImportedGlobals.test_private_missing_wrong_type_and_immutable_write_preserve_output) ... ok
+test_qualified_distinct_types_and_dependency_shadows (tests.test_imported_globals.ImportedGlobals.test_qualified_distinct_types_and_dependency_shadows) ... ok
+test_selective_aliases_and_lexical_shadowing (tests.test_imported_globals.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) ... 
+  test_selective_aliases_and_lexical_shadowing (tests.test_imported_globals.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) (compiler=['bin/nano_virt']) ... FAIL
+
+======================================================================
+FAIL: test_immutable_public_value_in_pure_function (tests.test_imported_globals.ImportedGlobals.test_immutable_public_value_in_pure_function) (compiler=['bin/nano_virt'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_imported_globals.py", line 30, in check
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E002 PURITY VIOLATION --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-ouk0w56b/main.nano
+I cannot prove a closed empty effect summary for this pure fn
+
+2| pure fn answer()->int{return first.answer}
+                        ^
+Hint: I reject observable state, mutation, resources and unknown calls or constructs
+error: type check failed
+
+
+======================================================================
+FAIL: test_mutable_aliases_share_storage (tests.test_imported_globals.ImportedGlobals.test_mutable_aliases_share_storage) (compiler=['bin/nano_virt'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_imported_globals.py", line 30, in check
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 1, column 1: Symbol 'count' not found in module for alias 'first'
+error: module loading failed
+
+
+======================================================================
+FAIL: test_selective_aliases_and_lexical_shadowing (tests.test_imported_globals.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) (compiler=['bin/nano_virt'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_imported_globals.py", line 30, in check
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 1, column 1: Symbol 'answer' not found in module for alias 'one'
+error: module loading failed
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.955s
+
+FAILED (failures=3)
