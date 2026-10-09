@@ -34,3 +34,13 @@ C-loader acquisition, complete namespace and nominal resolution, independent
 File lowering, whole-driver aggregate accounting, selected File execution,
 Linux and full release qualification remain required. Acquisition does not grant
 File authority or close #989/#976.
+
+## My corrected full bootstrap
+
+At 0aae5c3bb my corrected bootstrap completes all seventeen steps, compares raw
+Stage1/Stage2 modules byte-for-byte, and verifies every retained source hash at
+collection. I retain the [complete manifest and logs](bootstrap-0aae5c3bb/manifest.json).
+Both freshly rebuilt native driver stages pass all seven actual acquisition and
+output-preservation cases each in [the permanent driver test](rebuilt-drivers.log).
+This closes this Nano acquisition/bootstrap checkpoint, not C acquisition,
+namespace/type binding, executable File lowering or full release acceptance.
