@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/local/bin/python3",
+    "-c",
+    "import ctypes,sys; lib=ctypes.CDLL(sys.argv[1]); lib.nano_build_answer.restype=ctypes.c_int64; print(lib.nano_build_answer())",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-as-search-y1mjwm6n/direct.dylib"
+  ],
+  "timeout": 10,
+  "seconds": 0.04588462499668822,
+  "exit": 0,
+  "error": null
+}

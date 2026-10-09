@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/usr/local/bin/python3",
+    "-c",
+    "import ctypes,sys; lib=ctypes.CDLL(sys.argv[1]); lib.nano_build_answer.restype=ctypes.c_int64; print(lib.nano_build_answer())",
+    "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-as-search-hu30k638/cache/v2-a82159bd1d888d0f7cdb13d683ead2d1779717364cbfaa4854b2583d3333257a/.nano-gen-pw0i9r/libanswer_native.dylib"
+  ],
+  "timeout": 10,
+  "seconds": 0.02296662499429658,
+  "exit": 0,
+  "error": null
+}
