@@ -5944,3 +5944,9 @@ test-selfhost-imported-globals: bootstrap nano_vm nvm2c bin/nano_aot_runtime.o
 	python3 -m unittest -v tests.test_imported_globals
 
 test-units: test-selfhost-imported-globals
+
+.PHONY: test-cseed-global-identity
+test-cseed-global-identity: nano_virt nano_vm nvm2c bin/nano_aot_runtime.o
+	python3 -m unittest -v tests.test_cseed_global_identity
+
+test-units: test-cseed-global-identity

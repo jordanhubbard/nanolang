@@ -323,11 +323,15 @@ static void fn_c_name(const NvmModule *mod, uint32_t idx, char *out, size_t n) {
         uint32_t ni = mod->functions[idx].name_idx;
         if (ni < mod->string_count) name = mod->strings[ni];
     }
-    if (ident_ok(name)) {
-        snprintf(out, n, "nl_%s", name);
-    } else {
-        snprintf(out, n, "nl_fn_%u", idx);
+    /* I preserve index identity when debug names cannot uniquely name C functions. */
+    int unique = ident_ok(name) && strncmp(name, "fn_", 3) != 0 && strlen(name) + 4 <= n;
+    for (uint32_t i = 0; unique && i < mod->function_count; ++i) {
+        uint32_t ni = mod->functions[i].name_idx;
+        if (i != idx && ni < mod->string_count && strcmp(name, mod->strings[ni]) == 0)
+            unique = 0;
     }
+    if (unique) snprintf(out, n, "nl_%s", name);
+    else snprintf(out, n, "nl_fn_%u", idx);
 }
 
 static int aggregate_value_tag(uint8_t tag) {

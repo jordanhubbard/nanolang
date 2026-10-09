@@ -1,0 +1,9 @@
+
+Runtime error: Type error
+  Function 0 returned string, expected int
+Stack trace (most recent call first):
+  #0   read_answer  /private/tmp/nanolang-cseed-global-identity-20261009/main.nano:2:27
+  #1   $shadow_0_read_answer  /private/tmp/nanolang-cseed-global-identity-20261009/main.nano:3:21
+  #2   $shadow_entry  /private/tmp/nanolang-cseed-global-identity-20261009/main.nano:?
+I failed a shadow: Function 0 returned string, expected int
+I will not publish output after failed shadow execution

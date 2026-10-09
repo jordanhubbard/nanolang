@@ -108,6 +108,8 @@ typedef struct {
 typedef struct {
     char *name;
     uint16_t slot;
+    ASTNode *owner;
+    ASTNode *declaration;
 } GlobalVar;
 
 typedef struct {
@@ -136,6 +138,7 @@ struct CG {
     NvmModule *module;
     Environment *env;
     ASTNode *root_program; /* Borrowed original top-level declarations. */
+    ASTNode *current_program; /* I resolve global storage in its declaring module. */
     CgPassive *passive;
     CgLocalName **local_names;
     CgAuthoritySlot **authority_slots;
@@ -512,10 +515,27 @@ static int16_t union_variant_index(CgUnionDef *ud, const char *variant) {
 
 static int16_t global_find(CG *cg, const char *name) {
     for (int i = 0; i < cg->global_count; i++) {
-        if (strcmp(cg->globals[i].name, name) == 0)
+        if (cg->globals[i].owner == cg->current_program &&
+            strcmp(cg->globals[i].name, name) == 0)
             return (int16_t)cg->globals[i].slot;
     }
     return -1;
+}
+
+/* I register each cached declaration once, independently of import aliases. */
+static void global_register(CG *cg, ASTNode *owner, ASTNode *declaration) {
+    for (int i = 0; i < cg->global_count; ++i) {
+        if (cg->globals[i].owner == owner && cg->globals[i].declaration == declaration) return;
+    }
+    if (cg->global_count >= MAX_GLOBALS) {
+        cg_error(cg, declaration->line, "I exceeded my global storage limit");
+        return;
+    }
+    GlobalVar *global = &cg->globals[cg->global_count];
+    global->name = declaration->as.let.name;
+    global->slot = cg->global_count++;
+    global->owner = owner;
+    global->declaration = declaration;
 }
 
 /* ── Extern function lookup ────────────────────────────────────── */
@@ -4422,6 +4442,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     cg.module = nvm_module_new();
     cg.env = env;
     cg.root_program = program;
+    cg.current_program = program;
     cg.code = malloc(CODE_INITIAL);
     cg.code_cap = CODE_INITIAL;
 
@@ -4694,21 +4715,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         }
                     }
 
-                    /* Register module-level let bindings as globals */
-                    if (mitem->type == AST_LET && cg.global_count < MAX_GLOBALS) {
-                        bool dup = false;
-                        for (int g = 0; g < cg.global_count; g++) {
-                            if (strcmp(cg.globals[g].name, mitem->as.let.name) == 0) {
-                                dup = true;
-                                break;
-                            }
-                        }
-                        if (!dup) {
-                            cg.globals[cg.global_count].name = mitem->as.let.name;
-                            cg.globals[cg.global_count].slot = cg.global_count;
-                            cg.global_count++;
-                        }
-                    }
+                    if (mitem->type == AST_LET) global_register(&cg, mod_ast, mitem);
                 }
             } else {
                 /* Module AST not available - fall back to registering as externs */
@@ -4758,12 +4765,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             if (resolved_path) free((char *)resolved_path);
         }
 
-        /* Register top-level let bindings as globals */
-        if (item->type == AST_LET && cg.global_count < MAX_GLOBALS) {
-            cg.globals[cg.global_count].name = item->as.let.name;
-            cg.globals[cg.global_count].slot = cg.global_count;
-            cg.global_count++;
-        }
+        if (item->type == AST_LET) global_register(&cg, program, item);
     }
 
     /* ── Pass 1b: Register transitive module dependencies ──────── */
@@ -4874,19 +4876,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                     }
                 }
 
-                if (mitem->type == AST_LET && cg.global_count < MAX_GLOBALS) {
-                    bool dup = false;
-                    for (int g = 0; g < cg.global_count; g++) {
-                        if (strcmp(cg.globals[g].name, mitem->as.let.name) == 0) {
-                            dup = true; break;
-                        }
-                    }
-                    if (!dup) {
-                        cg.globals[cg.global_count].name = mitem->as.let.name;
-                        cg.globals[cg.global_count].slot = cg.global_count;
-                        cg.global_count++;
-                    }
-                }
+                if (mitem->type == AST_LET) global_register(&cg, mod_ast, mitem);
             }
         }
 
@@ -4935,11 +4925,17 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         cg.local_binding_count = 0;
         cg.loop_depth = 0;
 
+        const char *initializer_file = env_current_file(env);
+        char *initializer_module = env->current_module;
         /* Initialize module globals first (they may be referenced by module functions) */
         if (modules) {
             for (int mi = 0; mi < modules->count; mi++) {
                 ASTNode *mod_ast = get_cached_module_ast(modules->module_paths[mi]);
                 if (!mod_ast || mod_ast->type != AST_PROGRAM) continue;
+                cg.current_program = mod_ast;
+                env_set_current_file(env, modules->module_paths[mi]);
+                char *owner = module_program_name(mod_ast, modules->module_paths[mi]);
+                env->current_module = owner;
                 for (int m = 0; m < mod_ast->as.program.count; m++) {
                     ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
                     if (mitem->type == AST_LET) {
@@ -4950,8 +4946,12 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         }
                     }
                 }
+                env->current_module = initializer_module;
+                free(owner);
             }
         }
+        cg.current_program = program;
+        env_set_current_file(env, input_file);
         /* Then initialize program globals */
         for (int i = 0; i < program->as.program.count; i++) {
             ASTNode *item = bytecode_declaration(program->as.program.items[i]);
@@ -4963,6 +4963,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                 }
             }
         }
+        env_set_current_file(env, initializer_file);
         emit_op(&cg, OP_RET);
 
         if (!cg.had_error) {
@@ -4998,6 +4999,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             if (!mod_ast || mod_ast->type != AST_PROGRAM) continue;
 
             env_set_current_file(env, modules->module_paths[mi]);
+            cg.current_program = mod_ast;
             for (int m = 0; m < mod_ast->as.program.count; m++) {
                 ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
                 if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous) {
@@ -5009,6 +5011,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         }
     }
     env_set_current_file(env, outer_file);   /* leave the environment as found */
+    cg.current_program = program;
 
     if (shadows && !cg.had_error) {
         uint32_t shadow_functions[MAX_FUNCTIONS];
@@ -5026,6 +5029,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
               break;
           }
           env_set_current_file(env, file);
+          cg.current_program = selected;
           env->current_module = imported ? owner : outer_module;
           for (int i = 0; i < selected->as.program.count; i++) {
             ASTNode *shadow = selected->as.program.items[i];
