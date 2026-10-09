@@ -16,9 +16,10 @@ full-release qualification remains open.
 
 The subsequent [indexed module-binding implementation](evidence/module-binding-profile-20261009/README.md)
 is integrated at `8c1e113ec` under
-[#982](https://github.com/jordanhubbard/nanolang/issues/982). Its fresh bootstrap
-and both-stage regression gate are running with frozen inputs. Earlier isolated
-performance measurements do not establish its raw fixed point. My
+[#982](https://github.com/jordanhubbard/nanolang/issues/982). Its [fresh Darwin bootstrap and both-stage regression gate](evidence/indexed-bindings-bootstrap-8c1e113ec/README.md)
+pass with unchanged inputs and byte-identical Stage1/Stage2 modules. Earlier
+isolated performance measurements remain separately scoped. Linux and broader
+release qualification are still open. My
 [full 5.1 scope](RELEASE_5.1_SCOPE.md), including services, metadata, translators,
 legacy retirement and exact release/platform gates, remains binding; this
 compiler checkpoint does not replace that scope.
@@ -14422,3 +14423,5 @@ locally without redundant extraction under the current Linux capacity limit.
 - [ ] Under #987/#986 I extend [af2b25da6 Darwin qualification](evidence/mixed-record-bootstrap-af2b25da6/README.md) to Linux and the full release gates. All 17 bootstrap steps, exact host closure/raw Stage1-Stage2 equality, four-producer identity and both-stage import/linker suites pass locally. The module-binding index is a subsequent change requiring its own fresh fixed point.
 
 - [ ] Under #982 I complete fresh installed-stage and hosted qualification for my integrated owner/name binding index. The permanent linear-reference fixture and ten-method binding suite pass through the fresh component; I wire that suite into test-units for both installed stages. My [full-source measurements and integration checks](evidence/module-binding-profile-20261009/README.md) retain all earlier host-environment mismatches; none replaces the new raw fixed-point gate.
+
+- [x] I qualify the indexed binding implementation at 8c1e113ec locally on Darwin: all 17 bootstrap steps, exact host closure/raw equality, installed no-C-seed operation, four-producer identity and both-stage import/linker/binding tests pass. Raw stages take 187.118/188.499 seconds. My [retained fixed-point evidence](evidence/indexed-bindings-bootstrap-8c1e113ec/README.md) does not close #982 or the Linux/full-release gates.
