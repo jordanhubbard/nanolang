@@ -319,7 +319,7 @@ static bool build_obj_list(char **buf, const char *obj_dir, bool daemon) {
     static const char *common_objs[] = {
         "lexer.o", "parser.o", "typechecker.o", "transpiler.o",
         "stdlib_runtime.o", "env.o", "builtins_registry.o",
-        "module.o", "module_metadata.o", "utf8.o", "service_namespace.o", "service_bodies.o",
+        "module.o", "module_metadata.o", "utf8.o", "service_namespace.o", "service_bodies.o", "service_ownership.o",
         /* I include the same immutable input objects as the compiler archive. */
         "nanoisa/file_source_snapshot.o", "nanoisa/file_source_plan.o", "nanoisa/file_source_catalog.o",
         "nsi_file_binding.o", "nsi.o", "nsi_file_plan.o",

@@ -31,6 +31,7 @@ import "src_nano/compiler/service_inputs.nano"
 import "src_nano/compiler/service_namespace.nano"
 import "src_nano/compiler/service_types.nano"
 import "src_nano/compiler/service_bodies.nano"
+import "src_nano/compiler/service_ownership.nano"
 import "modules/file_source_inputs/file_source_inputs.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 from "std/fs.nano" import canonical
@@ -1846,6 +1847,11 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                 return 1
             }
             if (> parser.services_count 0) {
+                let ownership: ServiceOwnershipCheck = (check_service_ownership parser merged_files source_files service_namespace service_bodies)
+                if (or (== ownership.status 1) (== ownership.status 3)) {
+                    (println (+ "I cannot verify File service ownership: " ownership.diagnostic))
+                    return 1
+                }
                 # I retain service calls in their own namespace until the
                 # independent ownership and lowering path can consume them.
                 (println "I have not resolved File service declarations for this consumer.")

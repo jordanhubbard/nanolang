@@ -881,6 +881,7 @@ typedef struct {
     int service_origin_count;
     struct NlFileSourceSnapshots *service_inputs;
     struct NlServiceBodyCheck *service_bodies; /* Owned nominal body facts; not execution authority. */
+    struct NlServiceOwnershipCheck *service_ownership; /* Owned lexical transfer facts. */
     struct NlServiceNamespace *service_namespace;
     int service_import_depth;
     size_t service_snapshot_indices[16];

@@ -7,6 +7,7 @@
 #include "nanoisa/file_source_snapshot.h"
 #include "service_namespace.h"
 #include "service_bodies.h"
+#include "service_ownership.h"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -990,6 +991,8 @@ bool acquire_service_input(ASTNode *program, Environment *env) {
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
     if (!program || program->type != AST_PROGRAM || !env) return false;
     if (env->service_import_depth == 0) {
+        nl_service_ownership_free(env->service_ownership);
+        env->service_ownership = NULL;
         nl_service_body_check_free(env->service_bodies);
         env->service_bodies = NULL;
         nl_service_namespace_free(env->service_namespace);
@@ -1041,6 +1044,12 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                 if (!env->service_bodies || env->service_bodies->status == 1 || env->service_bodies->status == 3)
                     fprintf(stderr, "I cannot type-check File service bodies: %s\n",
                             env->service_bodies ? env->service_bodies->diagnostic : "I cannot allocate body facts.");
+                if (env->service_bodies && env->service_bodies->status == 0) {
+                    env->service_ownership = nl_service_check_ownership(space, env->service_bodies);
+                    if (!env->service_ownership || env->service_ownership->status == 1 || env->service_ownership->status == 3)
+                        fprintf(stderr, "I cannot verify File service ownership: %s\n",
+                                env->service_ownership ? env->service_ownership->diagnostic : "I cannot allocate ownership facts.");
+                }
             }
             fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
         }

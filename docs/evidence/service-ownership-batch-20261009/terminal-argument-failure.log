@@ -1,0 +1,14 @@
+['obj/test_service_ownership'] -6 STATUS 1 FUNCTIONS 2 SHADOWS 0 FACTS 8
+I cannot overlap an exclusive borrow or borrow a moved File.
+ I cannot verify File service ownership: I cannot overlap an exclusive borrow or borrow a moved File.
+I have not resolved File service declarations for this consumer.
+Assertion failed: (check->status==(unsigned)atoi(argv[2])), function main, file test_service_ownership.c, line 32.
+
+['bin/nano_vm', '/private/tmp/nanolang-service-ownership-probe.nvm', '--'] 1 STATUS 1 FUNCTIONS 2 SHADOWS 0
+I cannot overlap an exclusive borrow or borrow a moved File.
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  tests/service_ownership.nano:39:9
+I could not execute the module: Assertion failed
+  Assertion failed
