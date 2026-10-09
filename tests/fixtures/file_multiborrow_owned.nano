@@ -1,0 +1,44 @@
+# I forward and reorder three independent File borrows around a scalar argument.
+fn write_three(a:&mut File,octet:int,b:&mut File,c:&mut File)->int {
+ match (write_byte &mut a octet) {Ok(n)=>{assert (== n 1)} Error(e)=>{assert false}}
+ match (write_byte &mut b (+ octet 1)) {Ok(n)=>{assert (== n 1)} Error(e)=>{assert false}}
+ match (write_byte &mut c (+ octet 2)) {Ok(n)=>{assert (== n 1)} Error(e)=>{assert false}}
+ return octet
+}
+shadow write_three {assert (== (exercise) 129)}
+fn forward(a:&mut File,b:&mut File,c:&mut File)->int {
+ return (write_three &mut c 42 &mut a &mut b)
+}
+shadow forward {assert (== (exercise) 129)}
+fn transfer(a:&mut File,owned:File,b:&mut File)->File {
+ match (write_byte &mut a 9) {Ok(n)=>{assert (== n 1)} Error(e)=>{assert false}}
+ match (write_byte &mut b 10) {Ok(n)=>{assert (== n 1)} Error(e)=>{assert false}}
+ return owned
+}
+shadow transfer {assert (== (exercise) 129)}
+fn exercise()->int {
+ match (temp) {Error(e)=>{return -1} Ok(first)=>{
+  let mut a:File=first
+  match (temp) {Error(e)=>{let x:CloseResult=(close a) return -2} Ok(second)=>{
+   let mut b:File=second
+   match (temp) {Error(e)=>{let x:CloseResult=(close a) let y:CloseResult=(close b) return -3} Ok(third)=>{
+    let mut c:File=third
+    let mut i:int=0
+    while (< i 2) {assert (== (forward &mut a &mut b &mut c) 42) set i (+ i 1)}
+    let mut kept:File=(transfer &mut a c &mut b)
+    match (rewind &mut a) {Ok()=>{} Error(e)=>{assert false}}
+    match (rewind &mut b) {Ok()=>{} Error(e)=>{assert false}}
+    match (rewind &mut kept) {Ok()=>{} Error(e)=>{assert false}}
+    let av:int=(match (read_byte &mut a) {Ok(octet)=>{octet.value} Error(e)=>{0}})
+    let bv:int=(match (read_byte &mut b) {Ok(octet)=>{octet.value} Error(e)=>{0}})
+    let cv:int=(match (read_byte &mut kept) {Ok(octet)=>{octet.value} Error(e)=>{0}})
+    match (close a) {Ok()=>{} Error(e)=>{assert false}}
+    match (close b) {Ok()=>{} Error(e)=>{assert false}}
+    match (close kept) {Ok()=>{} Error(e)=>{assert false}}
+    return (+ (+ av bv) cv)
+   }}
+  }}
+ }}
+}
+shadow exercise {assert (== (exercise) 129)}
+fn main()->int {return (exercise)}

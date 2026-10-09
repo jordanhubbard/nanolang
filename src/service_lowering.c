@@ -185,14 +185,15 @@ static void sl_call(Sl *c,const ASTNode *node,ASTNode **args,int count,bool want
         if(row->id==fact->declaration && row->id==row->target){target=row;break;}
     }
     if(!target){sl_fail(c,node,1,"I require an original callable identity.");return;}
-    uint16_t reference=UINT16_MAX,loans=c->loan_count;
+    uint16_t reference=UINT16_MAX,loans=c->loan_count,borrowed=0,references[SL_LOCALS];
     uint16_t pending=c->pending_count,staged[SL_LOCALS],staged_count=0;
     bool stage=sl_terminal_operand(node,0);
     if(count<0 || count>(int)SL_LOCALS){sl_fail(c,node,3,"I exceeded my call operand bound.");return;}
     for(int i=0;i<count && c->next && !c->result.status;i++) {
         const NlServiceBodyFact *arg=sl_fact(c,args[i]);if(!arg)break;
+        references[i]=UINT16_MAX;
         if(arg->borrow_mode) {
-            if(arg->borrow_mode!=2 || reference!=UINT16_MAX) {sl_fail(c,node,2,"I have not lowered this multi-reference call.");break;}
+            if(arg->borrow_mode!=2) {sl_fail(c,node,2,"I have not lowered this multi-reference call.");break;}
             const ASTNode *root=args[i];
             if(root->type==AST_CALL && root->as.call.borrow_mode)root=root->as.call.args[0];
             if(root->type!=AST_IDENTIFIER){sl_fail(c,root,2,"I require a named File reference root.");break;}
@@ -204,6 +205,7 @@ static void sl_call(Sl *c,const ASTNode *node,ASTNode **args,int count,bool want
                 sl_local_op(c,OP_BORROW_LOCAL_EXCLUSIVE,reference);sl_u16(c,slot);
                 c->loans[c->loan_count++]=reference;
             }
+            references[i]=reference;borrowed++;
         } else {
             sl_expr(c,args[i],true);
             if(c->next && stage)staged[staged_count++]=sl_stage(c,sl_type(c,arg->type.base_type,&arg->type));
@@ -217,8 +219,16 @@ static void sl_call(Sl *c,const ASTNode *node,ASTNode **args,int count,bool want
     } else {
         uint32_t callee=0;while(callee<c->count && c->functions[callee].declaration!=target->id)callee++;
         if(callee==c->count){sl_fail(c,node,1,"I require a retained helper body.");return;}
-        sl_op(c,reference==UINT16_MAX?OP_CALL:OP_CALL_REF);sl_u32(c,callee);
-        if(reference!=UINT16_MAX)sl_u16(c,reference);
+        if(borrowed>1) {
+            uint8_t map[SL_LOCALS*2];
+            for(int i=0;i<count;i++){map[2*i]=(uint8_t)references[i];map[2*i+1]=(uint8_t)(references[i]>>8);}
+            uint32_t index=nvm_add_string(c->module,(const char *)map,(uint32_t)count*2u);
+            if(index==UINT32_MAX){sl_fail(c,node,4,"I cannot retain a File call reference map.");return;}
+            sl_op(c,OP_FILE_CALL_REFS);sl_u32(c,callee);sl_u32(c,index);
+        } else {
+            sl_op(c,reference==UINT16_MAX?OP_CALL:OP_CALL_REF);sl_u32(c,callee);
+            if(reference!=UINT16_MAX)sl_u16(c,reference);
+        }
     }
     sl_end_loans(c,loans);
     bool value=fact->type.base_type!=TYPE_VOID;

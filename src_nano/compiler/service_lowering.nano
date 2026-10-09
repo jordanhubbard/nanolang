@@ -28,6 +28,7 @@ let mut sl_depth: int = 0
 let mut sl_result: ServiceWireType = ServiceWireType { tag: 0, mode: 0, layout: 4294967295 }
 let mut sl_functions: array<ServiceLowerFunction> = []
 let mut sl_facts: array<ServiceBodyFact> = []
+let mut sl_maps: array<ServiceWireSection> = []
 
 fn sl_fail(status: int, diagnostic: string) -> void {
     if (== sl_status 0) { set sl_status status set sl_diagnostic diagnostic }
@@ -368,6 +369,33 @@ shadow sl_operator {
     assert (== (sl_operator LexerTokenType.TOKEN_MINUS false) 33)
 }
 
+fn sl_reference_map(references: array<int>) -> int {
+    let mut bytes: array<int> = [] let mut i: int = 0
+    while (< i (array_length references)) {
+        let value: int = (at references i)
+        set bytes (array_push bytes (% value 256)) set bytes (array_push bytes (/ value 256))
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length sl_maps)) {
+        let prior: array<int> = (at sl_maps i).bytes
+        let mut same: bool = (== (array_length prior) (array_length bytes)) let mut j: int = 0
+        while (and same (< j (array_length bytes))) {
+            set same (== (at prior j) (at bytes j)) set j (+ j 1)
+        }
+        if same { return i }
+        set i (+ i 1)
+    }
+    set sl_maps (array_push sl_maps ServiceWireSection { kind: 0, bytes: bytes }) return i
+}
+shadow sl_reference_map {
+    set sl_maps []
+    assert (== (sl_reference_map [3, 65535, 1]) 0)
+    assert (== (sl_reference_map [3, 65535, 1]) 0)
+    assert (== (sl_reference_map [1, 65535, 3]) 1)
+    assert (== (at (at sl_maps 0).bytes 2) 255) set sl_maps []
+}
+
 fn sl_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bool) -> void {
     let fact: ServiceBodyFact = (sl_fact kind id)
     let args: array<ASTStmtRef> = (sl_children parser kind id)
@@ -391,6 +419,7 @@ fn sl_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bo
     if (< target 0) { (sl_fail 1 "I require an original callable identity.") return }
     let row: ServiceName = (at space.names target)
     let mut reference: int = 65535 let mut values: int = 0
+    let mut references: array<int> = [] let mut borrowed: int = 0
     let loans: int = (array_length sl_loans) let pending: int = (array_length sl_pending)
     let stage: bool = (sl_terminal parser kind id 0) let mut staged: array<int> = []
     if (> (array_length args) 256) { (sl_fail 3 "I exceeded my call operand bound.") return }
@@ -398,7 +427,7 @@ fn sl_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bo
     while (and sl_next (and (== sl_status 0) (< i (array_length args)))) {
         let arg: ASTStmtRef = (at args i) let checked: ServiceBodyFact = (sl_fact arg.node_type arg.node_id)
         if (!= checked.borrow_mode 0) {
-            if (or (!= checked.borrow_mode 2) (!= reference 65535)) { (sl_fail 2 "I have not lowered this multi-reference call.") return }
+            if (!= checked.borrow_mode 2) { (sl_fail 2 "I have not lowered this multi-reference call.") return }
             let mut root: ASTStmtRef = arg
             if (== root.node_type ParseNodeType.PNODE_CALL) {
                 let borrow: ASTCall = (parser_get_call parser root.node_id)
@@ -413,7 +442,9 @@ fn sl_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bo
                 (sl_op 22 0 0) (sl_local_op 25 reference 0 0) (sl_integer slot 2)
                 set sl_loans (array_push sl_loans reference)
             }
+            set references (array_push references reference) set borrowed (+ borrowed 1)
         } else {
+            set references (array_push references 65535)
             (sl_expr parser space arg.node_type arg.node_id true) set values (+ values 1)
             if (and sl_next stage) { set staged (array_push staged (sl_stage (sl_wire_type checked.type checked.borrow_mode))) }
         }
@@ -429,9 +460,13 @@ fn sl_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bo
         let mut callee: int = -1 set i 0
         while (< i (array_length sl_functions)) { if (== (at sl_functions i).declaration row.id) { set callee i } set i (+ i 1) }
         if (< callee 0) { (sl_fail 1 "I require a retained helper body.") return }
-        let mut op: int = 59 if (!= reference 65535) { set op 15 }
-        (sl_op op values produces) (sl_integer callee 4)
-        if (!= reference 65535) { (sl_integer reference 2) }
+        if (> borrowed 1) {
+            (sl_op 151 values produces) (sl_integer callee 4) (sl_integer (sl_reference_map references) 4)
+        } else {
+            let mut op: int = 59 if (!= reference 65535) { set op 15 }
+            (sl_op op values produces) (sl_integer callee 4)
+            if (!= reference 65535) { (sl_integer reference 2) }
+        }
     }
     (sl_end_loans loans)
     if (and (!= produces 0) (not want)) { (sl_op 8 1 0) }
@@ -614,7 +649,7 @@ shadow sl_expr {
 
 pub fn lower_service_source(parser: Parser, files: array<string>, sources: array<string>, space: ServiceNamespace,
     bodies: ServiceBodyCheck, owners: ServiceOwnershipCheck, selection: int) -> ServiceLowering {
-    set sl_status 0 set sl_diagnostic "" set sl_functions [] set sl_facts bodies.facts
+    set sl_status 0 set sl_diagnostic "" set sl_functions [] set sl_facts bodies.facts set sl_maps []
     let mut result: array<ServiceWireFunction> = []
     if (or (!= space.status 0) (or (!= bodies.status 0) (!= owners.status 0))) { (sl_fail 1 "I require complete nominal and ownership checks before lowering.") }
     let count: int = (+ parser.functions_count parser.shadows_count)
@@ -679,7 +714,7 @@ pub fn lower_service_source(parser: Parser, files: array<string>, sources: array
     }
     let mut bytes: array<int> = []
     if (== sl_status 0) {
-        set bytes (service_wire_serialize result selected)
+        set bytes (service_wire_serialize_refs result selected sl_maps)
         if (== (array_length bytes) 0) { (sl_fail 3 "I cannot serialize these bounded File lowering records.") }
     }
     return ServiceLowering { status: sl_status, diagnostic: sl_diagnostic, bytes: bytes }

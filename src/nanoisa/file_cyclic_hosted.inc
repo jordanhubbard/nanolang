@@ -32,11 +32,11 @@ static bool file_ch_fact(const NvmFileCyclicReport *r,const NvmFileCodeInstructi
     case OP_FILE_DROP_STACK:cleanup=NVM_FILE_BODY_CLEANUP_DROP_STACK;break;
     case OP_ASSERT:cleanup=NVM_FILE_BODY_CLEANUP_ASSERT;break;
     case OP_RET:cleanup=NVM_FILE_BODY_CLEANUP_RETURN;break;
-    case OP_CALL:case OP_CALL_REF:cleanup=NVM_FILE_BODY_CLEANUP_CALL;break;
+    case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:cleanup=NVM_FILE_BODY_CLEANUP_CALL;break;
     case OP_FILE_SERVICE:cleanup=NVM_FILE_BODY_CLEANUP_SERVICE;break;
     default:break;
     }
-    bool call=op==OP_CALL || op==OP_CALL_REF,service=op==OP_FILE_SERVICE;
+    bool call=op==OP_CALL || (op==OP_CALL_REF || op==OP_FILE_CALL_REFS),service=op==OP_FILE_SERVICE;
     if(!fact->reachable || fact->cleanup!=cleanup || fact->cleanup_local!=cleanup_local ||
        fact->refinement!=(op==OP_FILE_RESULT_BRANCH) || fact->exit_checked!=(op==OP_RET) ||
        fact->input_stack!=variant->input.stack || fact->output_stack!=variant->output.stack ||

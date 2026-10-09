@@ -107,14 +107,14 @@ static NvmFileFlowStatus file_body_transfer(NvmFileBodyReport *r,NvmFileFlowStat
     case OP_FILE_SERVICE:
         fact->cleanup=NVM_FILE_BODY_CLEANUP_SERVICE;
         status=nvm_file_flow_service(s,in->byte_offset,d->operands[0].u32,d->operands[1].u16);break;
-    case OP_CALL: case OP_CALL_REF: {
+    case OP_CALL: case OP_CALL_REF:case OP_FILE_CALL_REFS: {
         uint32_t target=d->operands[0].u32;
         if(target>=r->plan->count || !r->checked[target])return NVM_FILE_FLOW_UNRESOLVED;
         const NvmFileFlowFunction *callee=&r->plan->functions[target].declaration;
         uint16_t references[NVM_FILE_FLOW_LOCALS];
         for(uint16_t i=0;i<callee->parameters;i++) {
             NvmFileFlowDeclaration type=s->declarations->locals[s->declarations->offsets[target]+i];
-            references[i]=type.mode?d->operands[1].u16:NVM_FILE_FLOW_NO_REFERENCE;
+            references[i]=type.mode?in->call_references[i]:NVM_FILE_FLOW_NO_REFERENCE;
         }
         fact->cleanup=NVM_FILE_BODY_CLEANUP_CALL;
         status=nvm_file_flow_call(s,in->byte_offset,target,references,callee->parameters);

@@ -190,7 +190,7 @@ static NvmFileFlowStatus fi_transfer(const NvmFileCodePlan *p,uint32_t f,FileInd
         return fi_scalar(s,TAG_INT,TAG_BOOL,2,false);
     case OP_AND:case OP_OR:return fi_scalar(s,TAG_BOOL,TAG_BOOL,2,false);
     case OP_NOT:return fi_scalar(s,TAG_BOOL,TAG_BOOL,1,false);
-    case OP_CALL:case OP_CALL_REF:return fi_call(p,s,d->operands[0].u32);
+    case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:return fi_call(p,s,d->operands[0].u32);
     case OP_CALL_INDIRECT: {
         uint64_t bits;uint32_t first;
         status=fi_candidates(p,s,d,&bits,&first);if(status!=NVM_FILE_FLOW_OK)return status;

@@ -126,6 +126,41 @@ fn main()->int {return (cycle)}
             self.run_command([native,'--allow-temporary-files'],60)
         self.assertEqual(modules[0],modules[1])
 
+    def test_multiple_forwarded_reordered_file_borrows(self):
+        self.check_multiple_borrows('file_multiborrow.nano',8)
+
+    def test_multiple_borrows_with_owned_operand(self):
+        self.check_multiple_borrows('file_multiborrow_owned.nano',9)
+
+    def test_multiple_borrow_shadow_failure_preserves_output(self):
+        body=(ROOT/'tests/fixtures/file_multiborrow.nano').read_text().replace('assert (== n 1)','assert false',1)
+        self.source.write_text((ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()+body)
+        for driver in self.drivers:
+            output=self.work/'prior.nvm';output.write_bytes(b'prior')
+            run=self.run_command([driver,self.source,'--allow-temporary-files','--emit-nvm','-o',output],1)
+            self.assertIn('File shadow failure',run.stderr)
+            self.assertEqual(output.read_bytes(),b'prior')
+
+    def check_multiple_borrows(self,fixture,shadows):
+        self.source.write_text((ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()+
+                               (ROOT/'tests/fixtures'/fixture).read_text())
+        modules=[]
+        for driver in self.drivers:
+            bytecode=self.work/(driver.name+'.borrows.nvm')
+            run=self.run_command([driver,self.source,'--allow-temporary-files','--emit-nvm','-o',bytecode])
+            records=run.stderr.splitlines()
+            selected=[x[7:] for x in records if x.startswith('SELECT ')]
+            self.assertEqual(len(selected),shadows)
+            self.assertEqual(selected,[x[6:] for x in records if x.startswith('START ')])
+            self.assertEqual(selected,[x[5:] for x in records if x.startswith('DONE ')])
+            modules.append(bytecode.read_bytes())
+            self.run_command([ROOT/'bin/nano_vm','--allow-temporary-files','--file-cyclic',
+                              '--file-instruction-limit','1000000',bytecode],129)
+            native=self.work/(driver.name+'.borrows')
+            self.run_command([driver,self.source,'--allow-temporary-files','-o',native])
+            self.run_command([native,'--allow-temporary-files'],129)
+        self.assertEqual(modules[0],modules[1])
+
     def test_cyclic_and_overlapping_owner_refusals_preserve_output(self):
         cases=[
             'fn consume(file:File)->void {let mut i:int=0 while (< i 2) {'

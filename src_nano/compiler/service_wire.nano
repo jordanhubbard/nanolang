@@ -10,6 +10,7 @@ struct ServiceWireSignature { parameters: array<int>, result: int }
 struct ServiceWireSection { kind: int, bytes: array<int> }
 let mut sw_bytes: array<int> = []
 let mut sw_strings: array<string> = []
+let mut sw_maps: array<ServiceWireSection> = []
 let mut sw_signatures: array<ServiceWireSignature> = []
 
 pub fn service_wire_scalar(tag: int) -> ServiceWireType {
@@ -66,11 +67,11 @@ shadow sw_pad {
 fn sw_string(value: string) -> int {
     let mut i: int = 0
     while (< i (array_length sw_strings)) {
-        if (== (at sw_strings i) value) { return i }
+        if (== (at sw_strings i) value) { return (+ i (array_length sw_maps)) }
         set i (+ i 1)
     }
     set sw_strings (array_push sw_strings value)
-    return i
+    return (+ i (array_length sw_maps))
 }
 shadow sw_string {
     set sw_strings []
@@ -218,8 +219,14 @@ shadow sw_imports {
 }
 
 fn sw_constants() -> array<int> {
-    set sw_bytes [] (sw_integer (array_length sw_strings) 4)
+    set sw_bytes [] (sw_integer (+ (array_length sw_maps) (array_length sw_strings)) 4)
     let mut i: int = 0
+    while (< i (array_length sw_maps)) {
+        let bytes: array<int> = (at sw_maps i).bytes
+        (sw_integer 5 1) (sw_integer 0 3) (sw_integer (array_length bytes) 4)
+        (sw_append bytes) (sw_pad) set i (+ i 1)
+    }
+    set i 0
     while (< i (array_length sw_strings)) {
         let value: string = (at sw_strings i)
         (sw_integer 5 1) (sw_integer 0 3) (sw_integer (str_length value) 4)
@@ -345,7 +352,7 @@ shadow sw_container {
 
 # I require checked lowering records; my consumers separately verify the wire.
 # An empty result refuses malformed records before any output publication.
-pub fn service_wire_serialize(functions: array<ServiceWireFunction>, entry: int) -> array<int> {
+pub fn service_wire_serialize_refs(functions: array<ServiceWireFunction>, entry: int, maps: array<ServiceWireSection>) -> array<int> {
     if (or (< entry 0) (>= entry (array_length functions))) { return [] }
     if (> (array_length functions) 64) { return [] }
     let mut code: array<int> = [] let mut i: int = 0
@@ -362,7 +369,19 @@ pub fn service_wire_serialize(functions: array<ServiceWireFunction>, entry: int)
         }
         set i (+ i 1)
     }
-    set sw_strings [] set sw_signatures []
+    if (> (array_length maps) 4096) { return [] }
+    set i 0
+    while (< i (array_length maps)) {
+        let bytes: array<int> = (at maps i).bytes
+        if (or (== (array_length bytes) 0) (or (> (array_length bytes) 512) (!= (% (array_length bytes) 2) 0))) { return [] }
+        let mut j: int = 0
+        while (< j (array_length bytes)) {
+            if (or (< (at bytes j) 0) (> (at bytes j) 255)) { return [] }
+            set j (+ j 1)
+        }
+        set i (+ i 1)
+    }
+    set sw_maps maps set sw_strings [] set sw_signatures []
     let layouts: array<int> = (sw_layouts)
     let imports: array<int> = (sw_imports)
     let function_bytes: array<int> = (sw_functions functions)
@@ -370,7 +389,7 @@ pub fn service_wire_serialize(functions: array<ServiceWireFunction>, entry: int)
     let signatures: array<int> = (sw_signature_bytes)
     let ownership: array<int> = (sw_ownership functions)
     let services: array<int> = (sw_services)
-    return (sw_container [
+    let result: array<int> = (sw_container [
         ServiceWireSection { kind: 1, bytes: [0, 0, 0, 0] },
         ServiceWireSection { kind: 2, bytes: constants },
         ServiceWireSection { kind: 3, bytes: signatures },
@@ -383,6 +402,13 @@ pub fn service_wire_serialize(functions: array<ServiceWireFunction>, entry: int)
         ServiceWireSection { kind: 13, bytes: ownership },
         ServiceWireSection { kind: 14, bytes: services }
     ] entry)
+    set sw_maps [] return result
+}
+shadow service_wire_serialize_refs {
+    assert (== (array_length (service_wire_serialize_refs [] 0 [])) 0)
+}
+pub fn service_wire_serialize(functions: array<ServiceWireFunction>, entry: int) -> array<int> {
+    return (service_wire_serialize_refs functions entry [])
 }
 shadow service_wire_serialize {
     assert (== (array_length (service_wire_serialize [] 0)) 0)

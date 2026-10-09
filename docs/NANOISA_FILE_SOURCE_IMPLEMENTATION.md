@@ -578,3 +578,5 @@ links. Archive selection retains one provider definition when both consumer sets
 participate; cJSON and UTF-8 stay in their existing consumer closures. My C loader
 still refuses service execution before ordinary checking/lowering. Successful
 input retention is not a nominal type binding or a File grant.
+
+I specify exclusive multi-borrow helper encoding and transfer in [my counted reference-map contract](NANOISA_FILE_MULTI_BORROW.md). Shared and indirect source requirements remain open.

@@ -319,7 +319,7 @@ const InstructionInfo *isa_get_extended_info(uint8_t ext_opcode) {
 }
 
 bool isa_is_file_opcode(uint8_t opcode) {
-    return opcode >= OP_FILE_SERVICE && opcode <= OP_FILE_END_BORROW;
+    return opcode >= OP_FILE_SERVICE && opcode <= OP_FILE_CALL_REFS;
 }
 
 bool isa_code_has_file_instructions(const uint8_t *code,size_t size) {

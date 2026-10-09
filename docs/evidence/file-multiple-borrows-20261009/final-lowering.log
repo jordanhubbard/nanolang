@@ -1,0 +1,36 @@
+test_assertion_drains_live_file (tests.test_service_lowering.ServiceLowering.test_assertion_drains_live_file) ... I finish native compilation in 0.873s
+ok
+test_failed_selected_shadow_drains_live_file (tests.test_service_lowering.ServiceLowering.test_failed_selected_shadow_drains_live_file) ... I finish native compilation in 1.017s
+ok
+test_helpers_loops_fields_and_result_values (tests.test_service_lowering.ServiceLowering.test_helpers_loops_fields_and_result_values) ... I finish native compilation in 5.118s
+ok
+test_limits_and_unimplemented_reference_calls_preserve_outputs (tests.test_service_lowering.ServiceLowering.test_limits_and_unimplemented_reference_calls_preserve_outputs) ... ok
+test_multiple_borrow_assertion_drains_owners (tests.test_service_lowering.ServiceLowering.test_multiple_borrow_assertion_drains_owners) ... I finish native compilation in 30.522s
+I finish native compilation in 38.523s
+ok
+test_multiple_forwarded_reference_maps (tests.test_service_lowering.ServiceLowering.test_multiple_forwarded_reference_maps) ... I finish native compilation in 42.102s
+REFERENCE MAPS 2: malformed lengths, slots, value sentinels, overlap and owned copies checked
+EXEC 0 VALUE 129 FUNCTIONS 12 BYTES 7936
+
+ok
+test_nested_argument_borrows_keep_branch_state (tests.test_service_lowering.ServiceLowering.test_nested_argument_borrows_keep_branch_state) ... I finish native compilation in 3.660s
+ok
+test_qualified_reexported_helper (tests.test_service_lowering.ServiceLowering.test_qualified_reexported_helper) ... I finish native compilation in 3.577s
+ok
+test_short_circuit_skips_effects (tests.test_service_lowering.ServiceLowering.test_short_circuit_skips_effects) ... I finish native compilation in 1.960s
+ok
+test_terminal_operands_release_pending_values (tests.test_service_lowering.ServiceLowering.test_terminal_operands_release_pending_values) ... I finish native compilation in 2.505s
+I finish native compilation in 2.060s
+I finish native compilation in 1.335s
+ok
+test_unchanged_generated_binding_and_all_shadows (tests.test_service_lowering.ServiceLowering.test_unchanged_generated_binding_and_all_shadows) ... I finish native compilation in 18.642s
+I finish native compilation in 22.877s
+I finish native compilation in 19.348s
+I finish native compilation in 16.274s
+I finish native compilation in 17.124s
+ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 238.538s
+
+OK

@@ -14,7 +14,7 @@ static bool fvm_supported(uint8_t op) {
     case OP_REGION_BEGIN: case OP_REGION_END: case OP_BORROW_LOCAL_EXCLUSIVE:
     case OP_FILE_SERVICE: case OP_FILE_RESULT_BRANCH: case OP_FILE_RESULT_TAKE:
     case OP_FILE_DROP_LOCAL: case OP_FILE_DROP_STACK: case OP_FILE_END_BORROW:
-    case OP_CALL: case OP_CALL_REF: case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE:
+    case OP_CALL: case OP_CALL_REF:case OP_FILE_CALL_REFS: case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE:
     case OP_RET: case OP_ASSERT:
     case OP_ADD: case OP_SUB: case OP_MUL: case OP_DIV: case OP_MOD: case OP_NEG:
     case OP_I64_ADD: case OP_I64_SUB: case OP_I64_MUL: case OP_I64_DIV_S:
@@ -38,14 +38,14 @@ static bool fvm_fact(const NvmFileHostedPlan *p,const NvmFileCodeInstruction *in
     case OP_FILE_DROP_STACK:cleanup=NVM_FILE_BODY_CLEANUP_DROP_STACK;break;
     case OP_ASSERT:cleanup=NVM_FILE_BODY_CLEANUP_ASSERT;break;
     case OP_RET:cleanup=NVM_FILE_BODY_CLEANUP_RETURN;break;
-    case OP_CALL:case OP_CALL_REF:cleanup=NVM_FILE_BODY_CLEANUP_CALL;break;
+    case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:cleanup=NVM_FILE_BODY_CLEANUP_CALL;break;
     case OP_FILE_SERVICE:cleanup=NVM_FILE_BODY_CLEANUP_SERVICE;break;
     default:break;
     }
     if(fact->cleanup!=cleanup || fact->refinement!=(op==OP_FILE_RESULT_BRANCH) ||
        fact->exit_checked!=(op==OP_RET))return false;
     uint32_t checks=NVM_FILE_FLOW_CHECK_CLEANUP,discharged=0;
-    bool service=op==OP_FILE_SERVICE,call=op==OP_CALL || op==OP_CALL_REF;
+    bool service=op==OP_FILE_SERVICE,call=op==OP_CALL || (op==OP_CALL_REF || op==OP_FILE_CALL_REFS);
     if(fact->has_obligation!=(service || call))return false;
     if(service || call) {
         const NvmFileFlowObligation *o=&fact->obligation;
@@ -210,7 +210,7 @@ static NvmFileRuntimeStatus fvm_step(NvmFileRuntime *c,NvmFileRuntimeFrameView f
             FVM_TRY(nvm_file_runtime_result_arm(c,src,&arm));FVM_TRY(nvm_file_runtime_drop(c,src));
             FVM_TRY(nvm_file_runtime_scalar(c,src,TAG_INT,arm==NVM_FILE_FLOW_ARM_ERROR));
         }break;
-    case OP_CALL:case OP_CALL_REF:return nvm_file_runtime_frame_call(c);
+    case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:return nvm_file_runtime_frame_call(c);
     case OP_RET:return nvm_file_runtime_frame_return(c);
     default:return fvm_numeric(c,&f,op);
     }

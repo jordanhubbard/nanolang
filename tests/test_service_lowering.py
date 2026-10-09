@@ -73,6 +73,7 @@ class ServiceLowering(unittest.TestCase):
         pattern=r'EXEC (\d+) VALUE (-?\d+)'
         self.assertEqual(re.search(pattern,vm).groups(),re.search(pattern,actual).groups())
         self.assertEqual(re.search(pattern,actual).groups(),(str(status),str(expected)))
+        return vm
 
     def test_unchanged_generated_binding_and_all_shadows(self):
         generated=(ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()
@@ -145,6 +146,20 @@ fn main()->int {
  }
 }
 """,expected=7)
+
+    def test_multiple_forwarded_reference_maps(self):
+        source=(ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()+\
+               (ROOT/'tests/fixtures/file_multiborrow.nano').read_text()
+        report=self.check(source,expected=129,complete=True)
+        self.assertIn("REFERENCE MAPS 2:",report)
+        print(report,flush=True)
+
+    def test_multiple_borrow_assertion_drains_owners(self):
+        source=(ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()+\
+               (ROOT/'tests/fixtures/file_multiborrow.nano').read_text().replace('assert (== n 1)','assert false',1)
+        for selection in ('main','write_three'):
+            with self.subTest(selection=selection):
+                self.check(source,selection=selection,status=9,complete=True)
 
     def test_short_circuit_skips_effects(self):
         self.check('fn fail()->bool {assert false return true}\nfn main()->int {assert (not (and false (fail))) assert (or true (fail)) return 31}\n',expected=31)

@@ -21,7 +21,7 @@ static bool file_code_supported_mode(uint8_t op,bool indirect) {
     case OP_REGION_BEGIN: case OP_REGION_END: case OP_BORROW_LOCAL_EXCLUSIVE:
     case OP_FILE_SERVICE: case OP_FILE_RESULT_BRANCH: case OP_FILE_RESULT_TAKE:
     case OP_FILE_DROP_LOCAL: case OP_FILE_DROP_STACK: case OP_FILE_END_BORROW:
-    case OP_CALL: case OP_CALL_REF: case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE:
+    case OP_CALL: case OP_CALL_REF: case OP_FILE_CALL_REFS: case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE:
     case OP_RET: case OP_ASSERT:
     case OP_ADD: case OP_SUB: case OP_MUL: case OP_DIV: case OP_MOD: case OP_NEG:
     case OP_I64_ADD: case OP_I64_SUB: case OP_I64_MUL: case OP_I64_DIV_S:
@@ -88,7 +88,7 @@ static NvmFileFlowStatus file_code_preflight(const NvmModule *m,uint32_t *instru
     *instructions=total;*budget=bytes;return NVM_FILE_FLOW_OK;
 }
 static NvmFileFlowStatus file_code_operands(NvmFileCodePlan *p,uint32_t function,
-                                            NvmFileCodeInstruction *in,bool indirect) {
+                                            NvmFileCodeInstruction *in,bool indirect,const NvmModule *module) {
     const DecodedInstruction *d=&in->decoded;
     const NvmFileFlowFunction *fn=&p->functions[function].declaration;
     if(!file_code_supported_mode(d->opcode,indirect))return NVM_FILE_FLOW_UNRESOLVED;
@@ -112,20 +112,34 @@ static NvmFileFlowStatus file_code_operands(NvmFileCodePlan *p,uint32_t function
     case OP_FILE_END_BORROW:
         if(d->operands[0].u16>=NVM_FILE_FLOW_REFERENCES)return NVM_FILE_FLOW_INVALID;
         break;
-    case OP_CALL: case OP_CALL_REF: {
+    case OP_CALL: case OP_CALL_REF: case OP_FILE_CALL_REFS: {
         uint32_t target=d->operands[0].u32;
         if(target>=p->count)return NVM_FILE_FLOW_INVALID;
         NvmFileFlowFunction callee;
         if(!nvm_file_flow_function(p->declarations,target,&callee))return NVM_FILE_FLOW_INVALID;
+        const char *map=NULL;
+        if(d->opcode==OP_FILE_CALL_REFS) {
+            map=nvm_get_string(module,d->operands[1].u32);
+            if(!map || nvm_get_string_len(module,d->operands[1].u32)!=2u*callee.parameters)
+                return NVM_FILE_FLOW_INVALID;
+        }
         uint32_t borrowed=0;
         for(uint16_t i=0;i<callee.parameters;i++) {
             NvmFileFlowDeclaration type;
             if(!nvm_file_flow_declaration(p->declarations,target,i,&type))return NVM_FILE_FLOW_INVALID;
             borrowed+=type.mode!=0;
+            uint16_t reference=NVM_FILE_FLOW_NO_REFERENCE;
+            if(map)reference=(uint16_t)(uint8_t)map[2u*i]|((uint16_t)(uint8_t)map[2u*i+1u]<<8);
+            else if(type.mode && d->opcode==OP_CALL_REF)reference=d->operands[1].u16;
+            if(type.mode ? reference>=NVM_FILE_FLOW_REFERENCES : reference!=NVM_FILE_FLOW_NO_REFERENCE)
+                return NVM_FILE_FLOW_INVALID;
+            in->call_references[i]=reference;
         }
         if(d->opcode==OP_CALL_REF) {
             if(d->operands[1].u16>=NVM_FILE_FLOW_REFERENCES)return NVM_FILE_FLOW_INVALID;
             if(borrowed!=1)return NVM_FILE_FLOW_UNRESOLVED;
+        } else if(d->opcode==OP_FILE_CALL_REFS) {
+            if(!borrowed)return NVM_FILE_FLOW_INVALID;
         } else if(borrowed)return NVM_FILE_FLOW_INVALID;
         p->calls[function]|=UINT64_C(1)<<target;
         break;
@@ -247,7 +261,7 @@ static NvmFileFlowStatus file_code_prepare_profile(const NvmModule *m,NvmFileCod
             in->successors[0]=in->successors[1]=NVM_FILE_CODE_NO_SUCCESSOR;
             uint32_t width=isa_decode(p->code+fn->code_offset+pc,fn->code_length-pc,&in->decoded);
             if(!width){status=NVM_FILE_FLOW_INVALID;goto fail;}
-            status=file_code_operands(p,f,in,indirect);if(status!=NVM_FILE_FLOW_OK)goto fail;
+            status=file_code_operands(p,f,in,indirect,m);if(status!=NVM_FILE_FLOW_OK)goto fail;
             pc+=width;fn->instruction_count++;
         }
         status=file_code_cfg(p,f,acyclic);if(status!=NVM_FILE_FLOW_OK)goto fail;

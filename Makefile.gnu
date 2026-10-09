@@ -5563,7 +5563,7 @@ test-owned-array-public-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_O
 
 .PHONY: test-file-opcodes
 test-file-opcodes: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/wrapper_gen.o nvm2llvm nvm2hl nvm2c
-	FILE_OPCODE_OBJECTS="$(OBJ_DIR)/nanovirt/wrapper_gen.o $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_OPCODE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_opcodes
+	NANO_FILE_OPCODE_TEST_CC="$(CC)" NANO_FILE_OPCODE_TEST_CFLAGS="$(CFLAGS)" FILE_OPCODE_OBJECTS="$(OBJ_DIR)/nanovirt/wrapper_gen.o $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_OPCODE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_opcodes
 
 .PHONY: test-file-code test-file-code-sanitizers
 test-units: test-file-code

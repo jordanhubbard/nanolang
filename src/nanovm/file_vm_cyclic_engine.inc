@@ -132,7 +132,7 @@ static NvmFileRuntimeStatus fvm_step(NvmFileRuntime *c,NvmFileRuntimeFrameView f
             FVM_TRY(nvm_file_runtime_result_arm(c,src,&arm));FVM_TRY(nvm_file_runtime_drop(c,src));
             FVM_TRY(nvm_file_runtime_scalar(c,src,TAG_INT,arm==NVM_FILE_FLOW_ARM_ERROR));
         }break;
-    case OP_CALL:case OP_CALL_REF:return nvm_file_runtime_frame_call(c);
+    case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:return nvm_file_runtime_frame_call(c);
     case OP_RET:return nvm_file_runtime_frame_return(c);
     default:return fvm_numeric(c,&f,op);
     }

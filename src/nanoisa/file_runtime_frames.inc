@@ -145,7 +145,7 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_next(NvmFileRuntime *c,uint8_t succe
     NvmFileRuntimeStatus status=frf_ready(c,&fn,&in,&fact);if(status!=NVM_FILE_RUNTIME_OK)return status;
     FileRuntimeFrame *f=&c->frames[c->frame_count-1];
     uint8_t next;
-    if(!frc_edge(c,f,successor,&next) || in.decoded.opcode==OP_CALL || in.decoded.opcode==OP_CALL_REF || in.decoded.opcode==OP_RET ||
+    if(!frc_edge(c,f,successor,&next) || in.decoded.opcode==OP_CALL || (in.decoded.opcode==OP_CALL_REF || in.decoded.opcode==OP_FILE_CALL_REFS) || in.decoded.opcode==OP_RET ||
        successor>=in.successor_count || !frf_stack(c,f,&fn,fact.output_stack) ||
        !frf_next_fact(c,f->function,in.successors[successor],next,fact.output_stack))return frf_bad(c);
     FileRuntimeFrame completed=*f;completed.stack_count=fact.output_stack;
@@ -159,25 +159,38 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_call(NvmFileRuntime *c) {
     NvmFileRuntimeStatus status=frf_ready(c,&fn,&in,&fact);if(status!=NVM_FILE_RUNTIME_OK)return status;
     FileRuntimeFrame *f=&c->frames[c->frame_count-1],child;
     uint32_t target=in.decoded.operands[0].u32;
-    if((in.decoded.opcode!=OP_CALL && in.decoded.opcode!=OP_CALL_REF) || in.successor_count!=1 ||
+    if((in.decoded.opcode!=OP_CALL && (in.decoded.opcode!=OP_CALL_REF && in.decoded.opcode!=OP_FILE_CALL_REFS)) || in.successor_count!=1 ||
        !fact.has_obligation || fact.obligation.kind!=NVM_FILE_FLOW_CALL || fact.obligation.target!=target ||
        fact.obligation.site!=in.byte_offset || !(fact.discharged_checks&NVM_FILE_FLOW_CHECK_CALLEE) ||
        !frf_stack(c,f,&fn,f->stack_count) || !fr_function(c,target,&callee))return frf_bad(c);
     uint16_t parameters=callee.code.declaration.parameters,borrowed=0,values=0;
-    uint32_t reference=NVM_FILE_RUNTIME_NO_SLOT;
+    uint32_t references[NVM_FILE_FLOW_LOCALS]={0};
     for(uint16_t i=0;i<parameters;i++) {
         NvmFileFlowDeclaration type;
         if(!fr_local(c,target,i,&type))return frf_bad(c);
         if(type.mode) {
-            if(type.mode!=2 || ++borrowed>1 || in.decoded.opcode!=OP_CALL_REF ||
-               in.decoded.operands[1].u16>=NVM_FILE_FLOW_REFERENCES)return frf_bad(c);
-            reference=f->reference_base+in.decoded.operands[1].u16;
+            if(type.mode!=2 || ++borrowed>NVM_FILE_FLOW_REFERENCES || (in.decoded.opcode!=OP_CALL_REF && in.decoded.opcode!=OP_FILE_CALL_REFS) ||
+               in.call_references[i]>=NVM_FILE_FLOW_REFERENCES ||
+               (in.decoded.opcode==OP_CALL_REF && in.call_references[i]!=in.decoded.operands[1].u16))return frf_bad(c);
+            uint32_t reference=f->reference_base+in.call_references[i];
+            references[i]=reference;
             NvmFileFlowDeclaration wanted=c->types[0];wanted.mode=2;
             if(!fr_same(type,wanted) || !fr_reference(c,reference))
                 return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
-        } else values++;
+            for(uint16_t j=0;j<i;j++) {
+                NvmFileFlowDeclaration prior;
+                if(!fr_local(c,target,j,&prior))return frf_bad(c);
+                if(prior.mode && c->references[references[j]].owner_root==c->references[reference].owner_root)
+                    return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
+            }
+        } else {
+            if(in.call_references[i]!=NVM_FILE_FLOW_NO_REFERENCE)return frf_bad(c);
+            values++;
+        }
     }
-    if(parameters!=fact.obligation.parameters || borrowed!=fact.obligation.borrowed_inputs ||
+    if((in.decoded.opcode==OP_CALL_REF && borrowed!=1) ||
+       (in.decoded.opcode==OP_FILE_CALL_REFS && !borrowed) ||
+       parameters!=fact.obligation.parameters || borrowed!=fact.obligation.borrowed_inputs ||
        values>f->stack_count || fn.staging_slots<parameters+1u ||
        callee.code.declaration.result_count!=fact.obligation.result_count ||
        (callee.code.declaration.result_count && !fr_same(callee.code.declaration.result,fact.obligation.result)))return frf_bad(c);
@@ -217,7 +230,7 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_call(NvmFileRuntime *c) {
     for(uint16_t i=0;i<parameters;i++) {
         NvmFileFlowDeclaration type;
         if(!fr_local(c,target,i,&type))return frf_bad(c);
-        if(type.mode)status=nvm_file_runtime_bind_formal(c,reference,child.locals_base+i,child.reference_base+i);
+        if(type.mode)status=nvm_file_runtime_bind_formal(c,references[i],child.locals_base+i,child.reference_base+i);
         else status=nvm_file_runtime_move(c,f->staging_base+i,child.locals_base+i);
         if(status!=NVM_FILE_RUNTIME_OK)return status;
     }
@@ -259,7 +272,7 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_return(NvmFileRuntime *c) {
         parent=&c->frames[c->frame_count-2];
         if(!parent->waiting || !fr_function(c,parent->function,&caller) ||
            !fr_instruction(c,parent->function,(uint16_t)parent->instruction,parent->variant,&call,&call_fact) ||
-           (call.decoded.opcode!=OP_CALL && call.decoded.opcode!=OP_CALL_REF) || call.successor_count!=1 ||
+           (call.decoded.opcode!=OP_CALL && (call.decoded.opcode!=OP_CALL_REF && call.decoded.opcode!=OP_FILE_CALL_REFS)) || call.successor_count!=1 ||
            call.decoded.operands[0].u32!=f->function || !call_fact.has_obligation ||
            !frf_empty_range(c,parent->staging_base,caller.staging_slots) ||
            call_fact.output_stack!=parent->stack_count+results ||

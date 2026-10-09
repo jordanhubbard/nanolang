@@ -29,6 +29,50 @@ int g_argc;char **g_argv;
 static unsigned descriptor_count(void) {
     unsigned count=0;for(int i=0;i<1024;i++)count+=fcntl(i,F_GETFD)!=-1;return count;
 }
+static void reject_reference_map(NvmModule *module) {
+    NvmFileCyclicReport *sentinel=(NvmFileCyclicReport *)(uintptr_t)1;
+    assert(nvm_file_cyclic_analyze(module,&sentinel)!=NVM_FILE_FLOW_OK);
+    assert(sentinel==(NvmFileCyclicReport *)(uintptr_t)1);
+}
+static void check_reference_maps(NvmModule *module) {
+    unsigned checked=0;
+    for(uint32_t f=0;f<module->function_count;f++) {
+        NvmFunctionEntry fn=module->functions[f];uint32_t pc=0;uint16_t instruction=0;
+        while(pc<fn.code_length) {
+            uint8_t *code=module->code+fn.code_offset+pc;DecodedInstruction decoded;
+            uint32_t width=isa_decode(code,fn.code_length-pc,&decoded);assert(width);
+            if(decoded.opcode==OP_FILE_CALL_REFS) {
+                uint32_t index=decoded.operands[1].u32,size=module->string_lengths[index];
+                uint8_t *map=(uint8_t *)module->strings[index],saved[SL_LOCALS*2];
+                assert(size && size<=sizeof saved);memcpy(saved,map,size);
+                NvmFileCyclicReport *query=NULL;assert(nvm_file_cyclic_analyze(module,&query)==NVM_FILE_FLOW_OK);
+                NvmFileCodeInstruction retained;assert(nvm_file_cyclic_instruction(query,f,instruction,&retained));
+                module->string_lengths[index]=size-1;reject_reference_map(module);module->string_lengths[index]=size;
+                int first=-1;
+                for(uint32_t i=0;i<size/2;i++) {
+                    uint16_t value=(uint16_t)saved[2*i]|((uint16_t)saved[2*i+1]<<8);
+                    if(value==UINT16_MAX) {map[2*i]=0;map[2*i+1]=0;reject_reference_map(module);}
+                    else {
+                        map[2*i]=0;map[2*i+1]=1;reject_reference_map(module);
+                        map[2*i]=255;map[2*i+1]=255;reject_reference_map(module);
+                        if(first>=0){map[2*i]=saved[2*first];map[2*i+1]=saved[2*first+1];reject_reference_map(module);}
+                        else first=(int)i;
+                    }
+                    memcpy(map,saved,size);
+                }
+                assert(first>=0);
+                map[2*first]^=1;
+                NvmFileCodeInstruction copy;assert(nvm_file_cyclic_instruction(query,f,instruction,&copy));
+                assert(!memcmp(copy.call_references,retained.call_references,sizeof copy.call_references));
+                memcpy(map,saved,size);nvm_file_cyclic_free(query);
+                sl_wr32(code+5,module->string_count);reject_reference_map(module);sl_wr32(code+5,index);
+                checked++;
+            }
+            pc+=width;instruction++;
+        }
+    }
+    if(checked)printf("REFERENCE MAPS %u: malformed lengths, slots, value sentinels, overlap and owned copies checked\n",checked);
+}
 int main(int argc,char **argv) {
     assert(argc==4 || argc==5);
     bool refusal=argc==5 && !strncmp(argv[4],"lower:",6);
@@ -94,6 +138,7 @@ int main(int argc,char **argv) {
         assert(attempt.status==4 && sentinel==module);
     }
     assert(recovered);
+    check_reference_maps(module);
     uint8_t *bytes=NULL;size_t length=0;result=nl_service_serialize(module,&bytes,&length);
     if(result.status)fprintf(stderr,"SERIALIZE %u %s\n",result.status,result.diagnostic);
     assert(!result.status);

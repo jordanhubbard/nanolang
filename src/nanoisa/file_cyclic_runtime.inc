@@ -89,7 +89,7 @@ static bool frc_frame(NvmFileRuntime *c,const FileRuntimeFrame *f,uint32_t regio
     if(f->waiting) {
         NvmFileCodeInstruction in;
         if(!nvm_file_cyclic_hosted_instruction(c->cyclic_plan,f->function,(uint16_t)f->instruction,&in) ||
-           (in.decoded.opcode!=OP_CALL && in.decoded.opcode!=OP_CALL_REF) || !fact.body.has_obligation ||
+           (in.decoded.opcode!=OP_CALL && (in.decoded.opcode!=OP_CALL_REF && in.decoded.opcode!=OP_FILE_CALL_REFS)) || !fact.body.has_obligation ||
            (uint32_t)f->stack_count+fact.body.obligation.parameters-fact.body.obligation.borrowed_inputs!=fact.input.stack)
             return false;
     }
