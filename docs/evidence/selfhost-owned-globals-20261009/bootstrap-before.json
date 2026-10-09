@@ -1,0 +1,9 @@
+{
+  "started_unix": 1791526371.3850188,
+  "sources": {
+    "src_nano/compiler/nanoisa_borrows.nano": "bccfdb84cb48b14e7a6b5fa95ecaf8f52674c0315076fdd752cf611142777f58",
+    "tests/test_owned_global_producer.py": "38329f94ac912cea5407092df37135847c794ec2ae4763c8133b1611957f41de",
+    "Makefile.gnu": "d63bc3294a632e66ec5d113013803df4a20e5a12032d913ab20d5cbc72edc4ff"
+  },
+  "command": "make bootstrap CC=/opt/homebrew/opt/llvm/bin/clang"
+}

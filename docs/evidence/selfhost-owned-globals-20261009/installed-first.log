@@ -1,0 +1,156 @@
+test_copyable_union_global (__main__.Global_nanoc_stage1.test_copyable_union_global) ... ok
+test_generic_union_global_and_alias (__main__.Global_nanoc_stage1.test_generic_union_global_and_alias) ... ok
+test_immutable_assignment_refused (__main__.Global_nanoc_stage1.test_immutable_assignment_refused) ... ok
+test_initializer_order_and_once_only_helper_effects (__main__.Global_nanoc_stage1.test_initializer_order_and_once_only_helper_effects) ... ok
+test_local_and_parameter_shadowing (__main__.Global_nanoc_stage1.test_local_and_parameter_shadowing) ... ok
+test_resource_global_remains_refused (__main__.Global_nanoc_stage1.test_resource_global_remains_refused) ... ok
+test_same_shape_wrong_union_assignment_refused (__main__.Global_nanoc_stage1.test_same_shape_wrong_union_assignment_refused) ... FAIL
+test_same_shape_wrong_union_initializer_refused (__main__.Global_nanoc_stage1.test_same_shape_wrong_union_initializer_refused) ... FAIL
+test_scalar_kinds_and_mutation (__main__.Global_nanoc_stage1.test_scalar_kinds_and_mutation) ... ok
+test_uninitialized_global_read_in_initializer_refused (__main__.Global_nanoc_stage1.test_uninitialized_global_read_in_initializer_refused) ... ok
+test_wrong_generic_union_global_alias_refused (__main__.Global_nanoc_stage1.test_wrong_generic_union_global_alias_refused) ... ok
+test_wrong_global_assignment_type_refused (__main__.Global_nanoc_stage1.test_wrong_global_assignment_type_refused) ... FAIL
+
+======================================================================
+FAIL: test_same_shape_wrong_union_assignment_refused (__main__.Global_nanoc_stage1.test_same_shape_wrong_union_assignment_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 98, in test_same_shape_wrong_union_assignment_refused
+            self.source('''union First { Some { value: int } }
+            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Second { Some { value: int } }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let mut selected: First = First.Some { value: 7 }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''', 'set selected Second.Some { value: 7 }', accepted=False,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        diagnostic='exact declared global union')
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 21, in source
+    self.source_route(program, accepted, {"nanoc_c": diagnostic} if diagnostic else None)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 40, in source_route
+    self.assertRegex(messages, diagnostics['nanoc_c'] if diagnostics else '(?i)(ownership|resource|moved)')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: 'exact declared global union' not found in 'NSType checking failed\nDiagnostics:\n  [E0001] Assignment to selected: I expected a value of type `First`, but found `Second`. (/private/tmp/nanolang-selfhost-globals-installed-first/Global_nanoc_stage1/test_same_shape_wrong_union_assignment_refused/main.nano:12:5)\n'
+
+======================================================================
+FAIL: test_same_shape_wrong_union_initializer_refused (__main__.Global_nanoc_stage1.test_same_shape_wrong_union_initializer_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 92, in test_same_shape_wrong_union_initializer_refused
+            self.source('''union First { Some { value: int } }
+            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Second { Some { value: int } }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let selected: First = Second.Some { value: 7 }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''', '', accepted=False, diagnostic='exact declared global union')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 21, in source
+    self.source_route(program, accepted, {"nanoc_c": diagnostic} if diagnostic else None)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 40, in source_route
+    self.assertRegex(messages, diagnostics['nanoc_c'] if diagnostics else '(?i)(ownership|resource|moved)')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: 'exact declared global union' not found in 'I cannot lower this checked program: I require the exact union constructor declaration in my source borrow profile\n'
+
+======================================================================
+FAIL: test_wrong_global_assignment_type_refused (__main__.Global_nanoc_stage1.test_wrong_global_assignment_type_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 81, in test_wrong_global_assignment_type_refused
+    self.source('let mut counter: int = 0', 'set counter true', accepted=False,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                diagnostic='Assignment expects int but got bool')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 21, in source
+    self.source_route(program, accepted, {"nanoc_c": diagnostic} if diagnostic else None)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 40, in source_route
+    self.assertRegex(messages, diagnostics['nanoc_c'] if diagnostics else '(?i)(ownership|resource|moved)')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: 'Assignment expects int but got bool' not found in 'NSType checking failed\nDiagnostics:\n  [E0001] Assignment to counter: I expected a value of type `int`, but found `bool`. (/private/tmp/nanolang-selfhost-globals-installed-first/Global_nanoc_stage1/test_wrong_global_assignment_type_refused/main.nano:9:5)\n'
+
+----------------------------------------------------------------------
+Ran 12 tests in 1.979s
+
+FAILED (failures=3)
+test_copyable_union_global (__main__.Global_nanoc_stage2.test_copyable_union_global) ... ok
+test_generic_union_global_and_alias (__main__.Global_nanoc_stage2.test_generic_union_global_and_alias) ... ok
+test_immutable_assignment_refused (__main__.Global_nanoc_stage2.test_immutable_assignment_refused) ... ok
+test_initializer_order_and_once_only_helper_effects (__main__.Global_nanoc_stage2.test_initializer_order_and_once_only_helper_effects) ... ok
+test_local_and_parameter_shadowing (__main__.Global_nanoc_stage2.test_local_and_parameter_shadowing) ... ok
+test_resource_global_remains_refused (__main__.Global_nanoc_stage2.test_resource_global_remains_refused) ... ok
+test_same_shape_wrong_union_assignment_refused (__main__.Global_nanoc_stage2.test_same_shape_wrong_union_assignment_refused) ... FAIL
+test_same_shape_wrong_union_initializer_refused (__main__.Global_nanoc_stage2.test_same_shape_wrong_union_initializer_refused) ... FAIL
+test_scalar_kinds_and_mutation (__main__.Global_nanoc_stage2.test_scalar_kinds_and_mutation) ... ok
+test_uninitialized_global_read_in_initializer_refused (__main__.Global_nanoc_stage2.test_uninitialized_global_read_in_initializer_refused) ... ok
+test_wrong_generic_union_global_alias_refused (__main__.Global_nanoc_stage2.test_wrong_generic_union_global_alias_refused) ... ok
+test_wrong_global_assignment_type_refused (__main__.Global_nanoc_stage2.test_wrong_global_assignment_type_refused) ... FAIL
+
+======================================================================
+FAIL: test_same_shape_wrong_union_assignment_refused (__main__.Global_nanoc_stage2.test_same_shape_wrong_union_assignment_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 98, in test_same_shape_wrong_union_assignment_refused
+            self.source('''union First { Some { value: int } }
+            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Second { Some { value: int } }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let mut selected: First = First.Some { value: 7 }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''', 'set selected Second.Some { value: 7 }', accepted=False,
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        diagnostic='exact declared global union')
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 21, in source
+    self.source_route(program, accepted, {"nanoc_c": diagnostic} if diagnostic else None)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 40, in source_route
+    self.assertRegex(messages, diagnostics['nanoc_c'] if diagnostics else '(?i)(ownership|resource|moved)')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: 'exact declared global union' not found in 'NSType checking failed\nDiagnostics:\n  [E0001] Assignment to selected: I expected a value of type `First`, but found `Second`. (/private/tmp/nanolang-selfhost-globals-installed-first/Global_nanoc_stage2/test_same_shape_wrong_union_assignment_refused/main.nano:12:5)\n'
+
+======================================================================
+FAIL: test_same_shape_wrong_union_initializer_refused (__main__.Global_nanoc_stage2.test_same_shape_wrong_union_initializer_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 92, in test_same_shape_wrong_union_initializer_refused
+            self.source('''union First { Some { value: int } }
+            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Second { Some { value: int } }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let selected: First = Second.Some { value: 7 }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''', '', accepted=False, diagnostic='exact declared global union')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 21, in source
+    self.source_route(program, accepted, {"nanoc_c": diagnostic} if diagnostic else None)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 40, in source_route
+    self.assertRegex(messages, diagnostics['nanoc_c'] if diagnostics else '(?i)(ownership|resource|moved)')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: 'exact declared global union' not found in 'I cannot lower this checked program: I require the exact union constructor declaration in my source borrow profile\n'
+
+======================================================================
+FAIL: test_wrong_global_assignment_type_refused (__main__.Global_nanoc_stage2.test_wrong_global_assignment_type_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 81, in test_wrong_global_assignment_type_refused
+    self.source('let mut counter: int = 0', 'set counter true', accepted=False,
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                diagnostic='Assignment expects int but got bool')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 21, in source
+    self.source_route(program, accepted, {"nanoc_c": diagnostic} if diagnostic else None)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 40, in source_route
+    self.assertRegex(messages, diagnostics['nanoc_c'] if diagnostics else '(?i)(ownership|resource|moved)')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: 'Assignment expects int but got bool' not found in 'NSType checking failed\nDiagnostics:\n  [E0001] Assignment to counter: I expected a value of type `int`, but found `bool`. (/private/tmp/nanolang-selfhost-globals-installed-first/Global_nanoc_stage2/test_wrong_global_assignment_type_refused/main.nano:9:5)\n'
+
+----------------------------------------------------------------------
+Ran 12 tests in 1.939s
+
+FAILED (failures=3)

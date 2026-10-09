@@ -1,0 +1,7 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nano_vm",
+    "/private/tmp/nanolang-selfhost-globals-final/raw/test_generic_union_global_and_alias/shadows.nvm"
+  ],
+  "exit": 0
+}

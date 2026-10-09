@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-g",
+    "/private/tmp/nanolang-selfhost-globals-final/installed/OwnedGlobalsStage2/test_generic_union_global_and_alias/main.c",
+    "-o",
+    "/private/tmp/nanolang-selfhost-globals-final/installed/OwnedGlobalsStage2/test_generic_union_global_and_alias/native"
+  ],
+  "exit": 0
+}

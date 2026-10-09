@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nano_virt",
+    "/private/tmp/nanolang-selfhost-globals-c-adapter/SelectedUnionCSource/test_wildcard_cannot_hide_owned_payload/main.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-selfhost-globals-c-adapter/SelectedUnionCSource/test_wildcard_cannot_hide_owned_payload/main.nvm"
+  ],
+  "exit": 1
+}

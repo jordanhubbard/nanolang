@@ -1,0 +1,43 @@
+test_copyable_union_global (tests.test_owned_global_producer.OwnedGlobalProducer.test_copyable_union_global) ... ok
+test_generic_union_global_and_alias (tests.test_owned_global_producer.OwnedGlobalProducer.test_generic_union_global_and_alias) ... ok
+test_immutable_assignment_refused (tests.test_owned_global_producer.OwnedGlobalProducer.test_immutable_assignment_refused) ... ok
+test_initializer_order_and_once_only_helper_effects (tests.test_owned_global_producer.OwnedGlobalProducer.test_initializer_order_and_once_only_helper_effects) ... ok
+test_local_and_parameter_shadowing (tests.test_owned_global_producer.OwnedGlobalProducer.test_local_and_parameter_shadowing) ... ok
+test_resource_global_remains_refused (tests.test_owned_global_producer.OwnedGlobalProducer.test_resource_global_remains_refused) ... ok
+test_same_shape_wrong_union_assignment_refused (tests.test_owned_global_producer.OwnedGlobalProducer.test_same_shape_wrong_union_assignment_refused) ... ok
+test_same_shape_wrong_union_initializer_refused (tests.test_owned_global_producer.OwnedGlobalProducer.test_same_shape_wrong_union_initializer_refused) ... ok
+test_scalar_kinds_and_mutation (tests.test_owned_global_producer.OwnedGlobalProducer.test_scalar_kinds_and_mutation) ... ok
+test_uninitialized_global_read_in_initializer_refused (tests.test_owned_global_producer.OwnedGlobalProducer.test_uninitialized_global_read_in_initializer_refused) ... ok
+test_wrong_generic_union_global_alias_refused (tests.test_owned_global_producer.OwnedGlobalProducer.test_wrong_generic_union_global_alias_refused) ... ok
+test_wrong_global_assignment_type_refused (tests.test_owned_global_producer.OwnedGlobalProducer.test_wrong_global_assignment_type_refused) ... ok
+test_copyable_union_global (tests.test_owned_global_installed.OwnedGlobalsStage1.test_copyable_union_global) ... ok
+test_failed_global_shadow_preserves_output (tests.test_owned_global_installed.OwnedGlobalsStage1.test_failed_global_shadow_preserves_output) ... ok
+test_generic_union_global_and_alias (tests.test_owned_global_installed.OwnedGlobalsStage1.test_generic_union_global_and_alias) ... ok
+test_immutable_assignment_refused (tests.test_owned_global_installed.OwnedGlobalsStage1.test_immutable_assignment_refused) ... ok
+test_initializer_order_and_once_only_helper_effects (tests.test_owned_global_installed.OwnedGlobalsStage1.test_initializer_order_and_once_only_helper_effects) ... ok
+test_local_and_parameter_shadowing (tests.test_owned_global_installed.OwnedGlobalsStage1.test_local_and_parameter_shadowing) ... ok
+test_resource_global_remains_refused (tests.test_owned_global_installed.OwnedGlobalsStage1.test_resource_global_remains_refused) ... ok
+test_same_shape_wrong_union_assignment_refused (tests.test_owned_global_installed.OwnedGlobalsStage1.test_same_shape_wrong_union_assignment_refused) ... ok
+test_same_shape_wrong_union_initializer_refused (tests.test_owned_global_installed.OwnedGlobalsStage1.test_same_shape_wrong_union_initializer_refused) ... ok
+test_scalar_kinds_and_mutation (tests.test_owned_global_installed.OwnedGlobalsStage1.test_scalar_kinds_and_mutation) ... ok
+test_uninitialized_global_read_in_initializer_refused (tests.test_owned_global_installed.OwnedGlobalsStage1.test_uninitialized_global_read_in_initializer_refused) ... ok
+test_wrong_generic_union_global_alias_refused (tests.test_owned_global_installed.OwnedGlobalsStage1.test_wrong_generic_union_global_alias_refused) ... ok
+test_wrong_global_assignment_type_refused (tests.test_owned_global_installed.OwnedGlobalsStage1.test_wrong_global_assignment_type_refused) ... ok
+test_copyable_union_global (tests.test_owned_global_installed.OwnedGlobalsStage2.test_copyable_union_global) ... ok
+test_failed_global_shadow_preserves_output (tests.test_owned_global_installed.OwnedGlobalsStage2.test_failed_global_shadow_preserves_output) ... ok
+test_generic_union_global_and_alias (tests.test_owned_global_installed.OwnedGlobalsStage2.test_generic_union_global_and_alias) ... ok
+test_immutable_assignment_refused (tests.test_owned_global_installed.OwnedGlobalsStage2.test_immutable_assignment_refused) ... ok
+test_initializer_order_and_once_only_helper_effects (tests.test_owned_global_installed.OwnedGlobalsStage2.test_initializer_order_and_once_only_helper_effects) ... ok
+test_local_and_parameter_shadowing (tests.test_owned_global_installed.OwnedGlobalsStage2.test_local_and_parameter_shadowing) ... ok
+test_resource_global_remains_refused (tests.test_owned_global_installed.OwnedGlobalsStage2.test_resource_global_remains_refused) ... ok
+test_same_shape_wrong_union_assignment_refused (tests.test_owned_global_installed.OwnedGlobalsStage2.test_same_shape_wrong_union_assignment_refused) ... ok
+test_same_shape_wrong_union_initializer_refused (tests.test_owned_global_installed.OwnedGlobalsStage2.test_same_shape_wrong_union_initializer_refused) ... ok
+test_scalar_kinds_and_mutation (tests.test_owned_global_installed.OwnedGlobalsStage2.test_scalar_kinds_and_mutation) ... ok
+test_uninitialized_global_read_in_initializer_refused (tests.test_owned_global_installed.OwnedGlobalsStage2.test_uninitialized_global_read_in_initializer_refused) ... ok
+test_wrong_generic_union_global_alias_refused (tests.test_owned_global_installed.OwnedGlobalsStage2.test_wrong_generic_union_global_alias_refused) ... ok
+test_wrong_global_assignment_type_refused (tests.test_owned_global_installed.OwnedGlobalsStage2.test_wrong_global_assignment_type_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 38 tests in 96.149s
+
+OK

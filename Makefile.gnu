@@ -5893,3 +5893,13 @@ test-owned-global-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS
 test-units: test-owned-global-source
 test-owned-global-source: nano_virt nano_vm nvm2c
 	python3 -m unittest -v tests.test_owned_global_source
+
+.PHONY: test-owned-global-producer
+test-owned-global-producer: nanoisa_emit nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_owned_global_producer
+test-units: test-owned-global-producer
+
+.PHONY: test-owned-global-installed
+test-owned-global-installed: bootstrap nano_vm nvm2c
+	python3 -m unittest -v tests.test_owned_global_installed
+test-units: test-owned-global-installed

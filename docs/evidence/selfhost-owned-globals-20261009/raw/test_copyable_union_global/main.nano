@@ -1,0 +1,22 @@
+
+resource struct Handle { fd: int }
+union Choice { Some { value: int }, None {} }
+let mut selected: Choice = Choice.Some { value: 7 }
+
+
+fn main() -> int {
+    let local_owner: Handle = Handle { fd: 7 }
+    let Handle { fd } = local_owner
+    assert (== fd 7)
+    match selected {
+    Some(payload) => { assert (== payload.value 7) }
+    None(payload) => { assert false }
+}
+set selected Choice.None {}
+match selected {
+    Some(payload) => { assert false }
+    None(payload) => { assert true }
+}
+    return 0
+}
+shadow main { assert (== (main) 0) }

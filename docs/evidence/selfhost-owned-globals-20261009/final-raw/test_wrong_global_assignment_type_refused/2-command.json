@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-selfhost-globals-final/raw/shadow-driver",
+    "/private/tmp/nanolang-selfhost-globals-final/raw/test_wrong_global_assignment_type_refused/main.nano",
+    "0",
+    "raw"
+  ],
+  "exit": 1
+}

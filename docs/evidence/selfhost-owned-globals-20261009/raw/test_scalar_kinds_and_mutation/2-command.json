@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nanoisa",
+    "asm",
+    "/private/tmp/nanolang-selfhost-globals-gate/test_scalar_kinds_and_mutation/main.nasm",
+    "-o",
+    "/private/tmp/nanolang-selfhost-globals-gate/test_scalar_kinds_and_mutation/main.nvm"
+  ],
+  "exit": 0
+}

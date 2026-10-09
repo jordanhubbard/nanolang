@@ -387,6 +387,17 @@ shadow global names. Named and generic union annotations retain exact identity
 through the C checker and lowering. The unchanged selected-owner corpus and
 additional global source cases execute through VM and sanitized native C.
 
-Record/resource global transfers, the self-hosted source producer and final
-platform qualification remain open under #981. Copyable global execution and
-C-source acceptance do not establish those remaining requirements.
+My self-hosted ownership producer emits that same GLOBALS contract for declared
+int/bool/float/string globals and exact scalar-payload unions. It initializes each slot once
+at normal or selected-shadow entry; helper calls share it, and local bindings
+retain precedence. I preserve the mandatory empty path-count subpayload when
+GLOBALS is the only v3 extension. The unchanged twelve global sources pass in
+raw program and selected-shadow modes through VM and sanitized native C. Fresh
+Stage1 and Stage2 pass those same sources and failed-shadow publication controls
+(26 methods), after a byte-identical module bootstrap. I retain independent
+checker/lowerer diagnostic expectations for each frontend.
+
+Record/resource global transfers, self-hosted resource-union lowering and final
+platform qualification remain open under #981. These copyable-global gates do
+not establish those remaining requirements. My checkpoint evidence is in
+[evidence/selfhost-owned-globals-20261009](evidence/selfhost-owned-globals-20261009).
