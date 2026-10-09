@@ -876,6 +876,9 @@ typedef struct {
      * from their declared names and import aliases. Indices remain stable. */
     char *service_origins[16];
     int service_origin_count;
+    struct NlFileSourceSnapshots *service_inputs;
+    size_t service_snapshot_indices[16];
+    bool service_snapshot_bound[16];
 } Environment;
 
 /* Function declarations */
@@ -906,6 +909,7 @@ typedef struct {
 ASTNode *parse_program(Token *tokens, int token_count);
 bool ast_has_service_declaration(const ASTNode *program);
 bool bind_service_origin(ASTNode *program, Environment *env, const char *source_file);
+bool acquire_service_input(ASTNode *program, Environment *env);
 bool ast_is_value_expression(ASTNodeType type);
 bool ast_always_returns(const ASTNode *node);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */

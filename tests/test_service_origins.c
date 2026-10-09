@@ -1,5 +1,6 @@
 /* I bind service declarations to physical files before aliases or lowering. */
 #include "nanolang.h"
+#include "nanoisa/file_source_snapshot.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,6 +49,39 @@ int main(int argc, char **argv) {
     assert(bind_service_origin(second, env, path));
     assert(second->as.program.items[0]->as.service_decl.origin_index == 1);
     assert(strcmp(env->service_origins[0], env->service_origins[1]));
+    assert(env->service_inputs == NULL);
+    assert(acquire_service_input(first, env));
+    assert(acquire_service_input(second, env));
+    assert(nl_file_source_snapshot_count(env->service_inputs) == 2);
+    assert(env->service_snapshot_bound[0] && env->service_snapshot_bound[1]);
+    size_t bytes = 0;
+    const unsigned char *retained = nl_file_source_snapshot_bytes(env->service_inputs,
+        env->service_snapshot_indices[0], 1, &bytes);
+    assert(retained && bytes > 0);
+    unsigned char *copy = malloc(bytes);
+    assert(copy); memcpy(copy, retained, bytes);
+    snprintf(path, sizeof path, "%s/one/interface.nsi.json", argv[1]);
+    FILE *changed = fopen(path, "wb"); assert(changed);
+    assert(fwrite("{}", 1, 2, changed) == 2); assert(!fclose(changed));
+    assert(acquire_service_input(first, env));
+    assert(nl_file_source_snapshot_count(env->service_inputs) == 2);
+    assert(!memcmp(copy, retained, bytes));
+    ASTNode *node = first->as.program.items[0];
+    char *original_path = node->as.service_decl.document_path;
+    int64_t original_size = node->as.service_decl.path_bytes;
+    node->as.service_decl.document_path = "other.json";
+    node->as.service_decl.path_bytes = 10;
+    assert(!acquire_service_input(first, env));
+    node->as.service_decl.document_path = original_path;
+    node->as.service_decl.path_bytes = -1;
+    assert(!acquire_service_input(first, env));
+    node->as.service_decl.path_bytes = original_size;
+    node->as.service_decl.origin_index = INT64_C(4294967296);
+    assert(!acquire_service_input(first, env));
+    node->as.service_decl.origin_index = 0;
+    assert(acquire_service_input(first, env));
+    changed = fopen(path, "wb"); assert(changed);
+    assert(fwrite(copy, 1, bytes, changed) == bytes); assert(!fclose(changed)); free(copy);
     for (int i = 2; i < 16; ++i) {
         snprintf(path, sizeof path, "%s/%d.nano", argv[1], i);
         ASTNode *next = parse(declaration);
@@ -85,10 +119,21 @@ int main(int argc, char **argv) {
     snprintf(path, sizeof path, "%s/main.nano", argv[1]);
     assert(!process_imports(root, env, NULL, path));
     assert(env->service_origin_count == 1);
+    assert(nl_file_source_snapshot_count(env->service_inputs) == 1);
+    assert(env->service_snapshot_bound[0]);
     snprintf(path, sizeof path, "%s/one/binding.nano", argv[1]);
     canonical = realpath(path, NULL);
     assert(canonical && !strcmp(canonical, env->service_origins[0]));
     free(canonical);
+    ASTNode *unavailable = parse(declaration);
+    snprintf(path, sizeof path, "%s/two/binding.nano", argv[1]);
+    assert(bind_service_origin(unavailable, env, path));
+    snprintf(path, sizeof path, "%s/two/interface.nsi.json", argv[1]);
+    assert(!remove(path));
+    assert(!acquire_service_input(unavailable, env));
+    assert(nl_file_source_snapshot_count(env->service_inputs) == 1);
+    assert(!env->service_snapshot_bound[1]);
+    free_ast(unavailable);
     free_ast(root);
     free_environment(env);
     clear_module_cache();

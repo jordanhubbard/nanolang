@@ -120,8 +120,9 @@ Its owning context retains exact input bytes and strict-preparer interface/sourc
 views, with sixteen-entry and aggregate 64 MiB project-heap bounds. My
 [Darwin reader tests](evidence/file-source-snapshots-20261009/README.md) cover
 acquisition, mutation isolation and cleanup. My Nano driver now acquires retained
-companions through the typed input bridge. C-loader acquisition, namespace
-resolution, independent lowering and full source acceptance remain open.
+companions through the typed input bridge, and my C loader retains them in its
+environment. Namespace resolution, independent lowering and full source acceptance
+remain open.
 
 ## My two independent checking and lowering paths
 
@@ -506,7 +507,7 @@ remain distinct; no fresh-bootstrap or File service execution claim follows.
 
 ## My integrated origin binding
 
-I now bind C service declarations in the real import loader to environment-owned canonical source paths before aliases are applied. My Nano driver binds the parser nodes from the existing exact per-line source map and retains original line/column locations alongside the merged positions. Both paths validate before changing origin indices. I qualify the C recursive loader, paired source helpers and a [fresh full Darwin bootstrap](evidence/service-origins-bootstrap-4bf302505/README.md). My Nano driver now invokes the companion reader after origin binding. C-loader acquisition, complete namespace resolution and executable File source admission remain open.
+I now bind C service declarations in the real import loader to environment-owned canonical source paths before aliases are applied. My Nano driver binds the parser nodes from the existing exact per-line source map and retains original line/column locations alongside the merged positions. Both paths validate before changing origin indices. I qualify the C recursive loader, paired source helpers and a [fresh full Darwin bootstrap](evidence/service-origins-bootstrap-4bf302505/README.md). My Nano driver now invokes the companion reader after origin binding. My C loader also retains companions under environment-owned canonical origins. Complete namespace resolution and executable File source admission remain open.
 
 ## My Nano companion-input ABI
 
@@ -550,3 +551,19 @@ This is compiler input I/O. Strict valid catalogs still reach my explicit
 unresolved-service checker refusal until complete namespace and independent
 lowering are implemented. I do not run generated File behavior shadows through
 an ordinary foreign-call path or grant File authority at acquisition.
+
+## My C loader acquisition
+
+I retain a lazy environment-owned snapshot context and a bounded map from each
+canonical service origin to its immutable snapshot. I validate counted strings,
+catalog version and the full-width origin index before acquisition. Repeated
+imports reuse the retained snapshot only when their companion spelling matches;
+I do not reopen the input after mutation or silently rebind that origin to a new
+companion. Environment destruction releases every acquired prefix.
+
+I place the strict reader, binding preparer, NSI parser and catalog plan in a
+single compiler-input archive shared by common compiler and standalone NanoISA
+links. Archive selection retains one provider definition when both consumer sets
+participate; cJSON and UTF-8 stay in their existing consumer closures. My C loader
+still refuses service execution before ordinary checking/lowering. Successful
+input retention is not a nominal type binding or a File grant.

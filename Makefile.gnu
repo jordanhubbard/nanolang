@@ -220,7 +220,9 @@ EXAMPLES_EFFECTIVE_BIN_SUFFIX = $(if $(EXAMPLES_BIN_SUFFIX),$(EXAMPLES_BIN_SUFFI
 # Source files
 COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/opencl_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c $(SRC_DIR)/fmt.c $(SRC_DIR)/channel.c $(SRC_DIR)/bcp47.c $(SRC_DIR)/locale.c $(SRC_DIR)/utf8.c $(SRC_DIR)/diag_id.c $(SRC_DIR)/catalog.c
 COMMON_SOURCES += $(SRC_DIR)/resource_flow.c $(SRC_DIR)/nominal_types.c
-COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES))
+COMPILER_INPUT_OBJECTS = $(OBJ_DIR)/nanoisa/file_source_snapshot.o $(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi.o $(OBJ_DIR)/nsi_file_plan.o
+COMPILER_INPUT_ARCHIVE = lib/libnano_compiler_inputs.a
+COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES)) $(COMPILER_INPUT_ARCHIVE)
 RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_bool.c $(RUNTIME_DIR)/list_string.c \
 	$(RUNTIME_DIR)/list_LexerToken.c $(RUNTIME_DIR)/list_token.c \
 	$(RUNTIME_DIR)/list_CompilerDiagnostic.c $(RUNTIME_DIR)/list_CompilerSourceLocation.c \
@@ -247,7 +249,7 @@ RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_bool.c $(RUNTIME
 	$(RUNTIME_DIR)/module_build_dir.c \
 	$(RUNTIME_DIR)/cli.c $(RUNTIME_DIR)/regex.c
 RUNTIME_OBJECTS = $(patsubst $(RUNTIME_DIR)/%.c,$(OBJ_DIR)/runtime/%.o,$(RUNTIME_SOURCES))
-COMPILER_OBJECTS = $(sort $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS))
+COMPILER_OBJECTS = $(filter-out $(COMPILER_INPUT_ARCHIVE),$(sort $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/main.o $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS))) $(COMPILER_INPUT_ARCHIVE)
 INTERPRETER = $(BIN_DIR)/nano
 INTERPRETER_OBJECTS = $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nano_main.o $(OBJ_DIR)/proptest.o
 
@@ -417,7 +419,7 @@ VM_DECODE_OBJECT = $(OBJ_DIR)/nanovm/vm_decode.o
 VM_DISPATCH_OBJECT = $(OBJ_DIR)/nanovm/vm_dispatch.o
 NANOISA_FACADE_OBJECT = $(OBJ_DIR)/nanoisa/nanoisa_facade.o
 NANOISA_OBJECTS = $(patsubst $(NANOISA_DIR)/%.c,$(OBJ_DIR)/nanoisa/%.o,$(NANOISA_SOURCES)) \
-	$(NANOISA_FACADE_OBJECT) $(VM_DECODE_OBJECT) $(VM_DISPATCH_OBJECT) $(OBJ_DIR)/nsi_file_plan.o
+	$(NANOISA_FACADE_OBJECT) $(VM_DECODE_OBJECT) $(VM_DISPATCH_OBJECT) $(COMPILER_INPUT_ARCHIVE)
 NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
 
 # I link exactly one explicit File runtime owner; generic consumers still refuse.
@@ -5480,8 +5482,8 @@ test-mixed-samples: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 .PHONY: test-service-module
 # I exercise real container/consumer objects; only the allocation-prefix variant
 # replaces three translation units with named malloc/calloc/realloc hooks.
-test-service-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o nvm2llvm nvm2hl nvm2c
-	SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_service_bindings_module
+test-service-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nvm2llvm nvm2hl nvm2c
+	SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_service_bindings_module
 .PHONY: mixed-samples-runtime-fixture
 mixed-samples-runtime-fixture: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_mixed_samples_runtime tests/nanoisa/test_mixed_samples_runtime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
@@ -5530,8 +5532,8 @@ test-owned-array-origins: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	OWNED_ARRAY_ORIGIN_LINK_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/retained_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_layouts.o $(OBJ_DIR)/nanoisa/nvm_v2_cursor.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" python3 -m unittest -v tests.test_owned_array_origins
 
 .PHONY: test-file-nominal-module
-test-file-nominal-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o nvm2llvm nvm2hl nvm2c
-	SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_nominal_module
+test-file-nominal-module: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nvm2llvm nvm2hl nvm2c
+	SERVICE_MODULE_OBJECTS="$(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_nominal_module
 
 .PHONY: test-owned-array-authority
 test-units: test-owned-array-authority
@@ -5557,8 +5559,8 @@ test-owned-array-public-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_O
 	NANO_OWNER_ARRAY_PUBLIC_TEST=1 PRIVATE_OWNER_ARRAY_OBJECTS="$(filter-out obj/nanovm/vm.o obj/nanovm/heap.o obj/nanoisa/nvm2c.o,$(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS))" PRIVATE_OWNER_ARRAY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -fv tests.test_private_owned_array_runtime
 
 .PHONY: test-file-opcodes
-test-file-opcodes: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(OBJ_DIR)/nanovirt/wrapper_gen.o nvm2llvm nvm2hl nvm2c
-	FILE_OPCODE_OBJECTS="$(OBJ_DIR)/nanovirt/wrapper_gen.o $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_OPCODE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_opcodes
+test-file-opcodes: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/wrapper_gen.o nvm2llvm nvm2hl nvm2c
+	FILE_OPCODE_OBJECTS="$(OBJ_DIR)/nanovirt/wrapper_gen.o $(OBJ_DIR)/nanoisa/nvm2llvm.o $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_OPCODE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_opcodes
 
 .PHONY: test-file-code test-file-code-sanitizers
 test-units: test-file-code
@@ -5600,10 +5602,10 @@ test-nvm-v2-code-publication: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 
 # I keep private carrier execution explicit until its full fixture review.
 .PHONY: test-file-runtime test-file-runtime-sanitizers
-test-file-runtime: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
-	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime
-test-file-runtime-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
-	FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime
+test-file-runtime: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime
+test-file-runtime-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime
 
 .PHONY: test-owned-array-overwrite
 test-owned-array-overwrite: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
@@ -5615,22 +5617,22 @@ test-union-metadata-ownership: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(OBJ_DIR)/test_union_metadata_ownership
 
 .PHONY: test-file-runtime-frames test-file-runtime-frames-sanitizers
-test-file-runtime-frames: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
-	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime_frames
-test-file-runtime-frames-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
-	FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime_frames
+test-file-runtime-frames: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime_frames
+test-file-runtime-frames-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_runtime_frames
 
 .PHONY: test-file-cyclic-runtime test-file-cyclic-runtime-sanitizers
-test-file-cyclic-runtime: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
-	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_runtime
-test-file-cyclic-runtime-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
-	LSAN_OPTIONS= FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_runtime
+test-file-cyclic-runtime: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_runtime
+test-file-cyclic-runtime-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	LSAN_OPTIONS= FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_runtime
 
 .PHONY: test-file-private-vm test-file-private-vm-sanitizers
-test-file-private-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
-	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_private_vm
-test-file-private-vm-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
-	FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_private_vm
+test-file-private-vm: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_private_vm
+test-file-private-vm-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_private_vm
 
 # I keep the preparatory grant outside default providers until joint admission.
 FILE_HOST_GRANT_OBJECT = $(OBJ_DIR)/nanoisa/file_host_grant.o
@@ -5643,10 +5645,10 @@ test-file-host-grant: file-host-grant
 
 
 .PHONY: test-file-public test-file-public-sanitizers
-test-file-public: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
-	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_public
-test-file-public-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o
-	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_public
+test-file-public: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_public
+test-file-public-sanitizers: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_public
 # I inspect cyclic proof facts only; no pending File module executes.
 .PHONY: test-file-cyclic
 test-file-cyclic: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
@@ -5688,10 +5690,10 @@ test-file-indirect-targets: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 
 # My matched cyclic dispatch remains source-private and opt-in.
 .PHONY: test-file-cyclic-dispatch test-file-cyclic-dispatch-sanitize
-test-file-cyclic-dispatch: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
-	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_CYCLIC_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_dispatch
-test-file-cyclic-dispatch-sanitize: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
-	LSAN_OPTIONS= NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_CYCLIC_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_dispatch
+test-file-cyclic-dispatch: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_CYCLIC_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_dispatch
+test-file-cyclic-dispatch-sanitize: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_CYCLIC_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_dispatch
 
 # I prepare strict immutable File binding bytes without publishing or executing.
 .PHONY: file-binding-plan
@@ -5709,10 +5711,10 @@ $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_flow.h $(NANOISA_DI
 
 
 .PHONY: test-file-cyclic-public test-file-cyclic-public-sanitize
-test-file-cyclic-public: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
-	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_public
-test-file-cyclic-public-sanitize: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
-	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nsi.o" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_public
+test-file-cyclic-public: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_public
+test-file-cyclic-public-sanitize: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_cyclic_public
 # I publish only through this explicit tool; default/install lists stay separate.
 FILE_BINDING_PUBLISH_DIR = $(OBJ_DIR)/file-binding-publisher
 FILE_BINDING_PUBLISH_NAMES = nsi_file_binding_main nsi_file_publish nsi_file_binding nsi_file_plan nsi cJSON utf8
@@ -6020,3 +6022,19 @@ test-service-inputs: nano_virt nano_vm nanoisa nvm2c bootstrap
 	python3 -m unittest -v tests.test_service_inputs
 
 test-units: test-service-inputs
+
+# I retain one strict companion provider closure for common and standalone users.
+$(COMPILER_INPUT_ARCHIVE): $(COMPILER_INPUT_OBJECTS)
+	@mkdir -p $(@D)
+	$(AR) rcs $@ $(COMPILER_INPUT_OBJECTS)
+
+.PHONY: test-c-service-inputs
+test-c-service-inputs: bin/nanoc_c nano_virt $(OBJ_DIR)/test_service_origins
+	python3 -m unittest -v tests.test_service_origins.ServiceOrigins.test_c_loader_canonical_origin_lifetime tests.test_c_service_inputs
+
+test-units: test-c-service-inputs
+
+.PHONY: test-c-service-inputs-sanitize
+test-c-service-inputs-sanitize: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $(OBJ_DIR)/test_service_inputs_sanitize tests/test_service_origins.c src/module.c src/env.c src/nanoisa/file_source_snapshot.c src/nsi_file_binding.c src/nsi.c src/nsi_file_plan.c src/cJSON.c src/utf8.c $(filter-out $(COMPILER_INPUT_ARCHIVE) $(OBJ_DIR)/module.o $(OBJ_DIR)/env.o $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	ASAN_OPTIONS=detect_leaks=1 NANO_C_SERVICE_ORIGIN_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_inputs_sanitize" python3 -m unittest -v tests.test_service_origins.ServiceOrigins.test_c_loader_canonical_origin_lifetime

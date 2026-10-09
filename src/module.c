@@ -4,6 +4,7 @@
 #include "shell_path.h"
 #include "stdlib_runtime.h"
 #include "utf8.h"
+#include "nanoisa/file_source_snapshot.h"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -930,11 +931,57 @@ bool bind_service_origin(ASTNode *program, Environment *env, const char *source_
     return true;
 }
 
+/* I acquire data under the original source identity. Repeated import aliases
+ * retain the first immutable bytes rather than reopening a changed document. */
+bool acquire_service_input(ASTNode *program, Environment *env) {
+    if (!program || program->type != AST_PROGRAM || !env) return false;
+    ASTNode *service = NULL;
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *node = program->as.program.items[i];
+        if (node->type != AST_SERVICE_DECL) continue;
+        if (service) return false;
+        service = node;
+    }
+    if (!service) return true;
+    int64_t owner = service->as.service_decl.origin_index;
+    const char *interface_id = service->as.service_decl.interface_id;
+    const char *relative = service->as.service_decl.document_path;
+    if (owner < 0 || owner >= env->service_origin_count || owner >= 16 ||
+        service->as.service_decl.catalog_version != 1 || !interface_id || !relative ||
+        strcmp(interface_id, "nsi:nanolang/filesystem") ||
+        service->as.service_decl.interface_bytes != (int64_t)sizeof("nsi:nanolang/filesystem") - 1 ||
+        service->as.service_decl.path_bytes <= 0 ||
+        service->as.service_decl.path_bytes > NL_FILE_BINDING_MAX_BYTES ||
+        (uint64_t)service->as.service_decl.path_bytes != strlen(relative)) return false;
+    const char *origin = env->service_origins[owner];
+    if (!origin) return false;
+    if (env->service_snapshot_bound[owner]) {
+        size_t size = 0, parent = strlen(origin), count = strlen(relative);
+        const unsigned char *path = nl_file_source_snapshot_bytes(env->service_inputs,
+            env->service_snapshot_indices[owner], 0, &size);
+        while (parent && origin[parent - 1] != '/') --parent;
+        return path && parent <= size && count == size - parent &&
+            !memcmp(path, origin, parent) && !memcmp(path + parent, relative, count);
+    }
+    if (!env->service_inputs &&
+        nl_file_source_snapshots_new(&env->service_inputs) != NL_FILE_BINDING_OK) return false;
+    size_t index;
+    if (nl_file_source_snapshot_open(env->service_inputs, origin, strlen(origin),
+            relative, service->as.service_decl.path_bytes, &index) != NL_FILE_BINDING_OK) return false;
+    env->service_snapshot_indices[owner] = index;
+    env->service_snapshot_bound[owner] = true;
+    return true;
+}
+
 /* I apply an explicit module declaration before registering its import aliases. */
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
     if (!program || program->type != AST_PROGRAM || !env) return false;
     if (!bind_service_origin(program, env, current_file)) {
         fprintf(stderr, "I cannot retain the original source of this File service declaration.\n");
+        return false;
+    }
+    if (!acquire_service_input(program, env)) {
+        fprintf(stderr, "I cannot acquire the immutable companion of this File service declaration.\n");
         return false;
     }
     if (ast_has_service_declaration(program)) {
