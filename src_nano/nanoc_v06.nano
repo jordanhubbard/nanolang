@@ -29,6 +29,7 @@ import "src_nano/compiler/nominal_bindings.nano"
 import "src_nano/compiler/service_origins.nano"
 import "src_nano/compiler/service_inputs.nano"
 import "src_nano/compiler/service_namespace.nano"
+import "src_nano/compiler/service_types.nano"
 import "modules/file_source_inputs/file_source_inputs.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 from "std/fs.nano" import canonical
@@ -1829,6 +1830,12 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
             let service_namespace: ServiceNamespace = (resolve_service_namespace parser merged_files source_files service_targets service_origins service_inputs service_context)
             if (!= service_namespace.status 0) {
                 (println "I cannot resolve the complete File service namespace.")
+                return 1
+            }
+
+            let service_annotations: ServiceAnnotationFacts = (bind_service_annotations parser merged_files source_files service_namespace)
+            if (not service_annotations.ok) {
+                (println "I cannot retain nominal File type annotations.")
                 return 1
             }
 

@@ -115,6 +115,9 @@ typedef enum {
 /* Extended type information for arrays and generics */
 typedef struct TypeInfo {
     Type base_type;
+    /* I retain service origin separately from visible spelling and opaque tags.
+     * Zero declaration is the ordinary-type sentinel. These fields own no heap. */
+    uint32_t service_declaration, service_module, service_ordinal, service_category;
     struct TypeInfo *element_type;  /* For arrays: array<int> has element_type = int */
     
     /* For generic types: List<int> */
@@ -986,6 +989,7 @@ void env_define_struct(Environment *env, StructDef struct_def);
 StructDef *env_get_struct(Environment *env, const char *name);
 StructDef *env_get_struct_owned(Environment *env, const char *name, const char *owner);
 bool bind_nominal_records(ASTNode *program, Environment *env);
+bool bind_service_annotations(ASTNode *program, Environment *env, const char *source);
 void env_register_namespace(Environment *env, const char *alias, const char *module_name,
                             char **function_names, int function_count,
                             char **struct_names, int struct_count,

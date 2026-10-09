@@ -1046,7 +1046,7 @@ static void collect_tuple_types_from_expr(ASTNode *expr, TupleTypeRegistry *reg)
             if (expr->as.tuple_literal.element_count > 0) {
                 if (expr->as.tuple_literal.element_types) {
                     /* Element types are set - register directly */
-                    TypeInfo *temp_info = malloc(sizeof(TypeInfo));
+                    TypeInfo *temp_info = calloc(1, sizeof(TypeInfo));
                     if (!temp_info) {
                         fprintf(stderr, "Error: Out of memory allocating tuple TypeInfo\n");
                         exit(1);
@@ -1065,7 +1065,7 @@ static void collect_tuple_types_from_expr(ASTNode *expr, TupleTypeRegistry *reg)
                     register_tuple_type(reg, temp_info);
                 } else {
                     /* Element types not set - infer from elements */
-                    TypeInfo *temp_info = malloc(sizeof(TypeInfo));
+                    TypeInfo *temp_info = calloc(1, sizeof(TypeInfo));
                     if (!temp_info) {
                         fprintf(stderr, "Error: Out of memory allocating tuple TypeInfo\n");
                         exit(1);

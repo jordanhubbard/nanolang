@@ -271,3 +271,82 @@ const NlServiceName *nl_service_namespace_lookup(const NlServiceNamespace *space
     }
     return NULL;
 }
+
+
+static bool catalog_type(const NlServiceNamespace *space, uint32_t module,
+                         uint32_t ordinal, TypeInfo *out) {
+    if (!space || !out || module >= space->module_count || ordinal >= 8) return false;
+    const char *name = nl_file_source_catalog_string(1, ordinal, 1, 0);
+    const NlServiceName *row = local_name(space, module, name, strlen(name));
+    if (!row || row->kind != NL_SERVICE_TYPE || row->id != row->target ||
+        row->ordinal != ordinal || row->target_module != module) return false;
+    TypeInfo result = {0};
+    result.base_type = ordinal == 0 ? TYPE_OPAQUE : ordinal < 3 ? TYPE_STRUCT : TYPE_UNION;
+    result.service_declaration = row->target;
+    result.service_module = module;
+    result.service_ordinal = ordinal;
+    result.service_category = ordinal == 0 ? 1 : ordinal == 3 ? 2 : ordinal < 3 ? 3 : 4;
+    *out = result;
+    return true;
+}
+bool nl_service_type(const NlServiceNamespace *space, const char *module,
+                     const char *name, TypeInfo *out) {
+    if (!out) return false;
+    const NlServiceName *row = nl_service_namespace_lookup(space, module, name);
+    if (!row || row->kind != NL_SERVICE_TYPE) return false;
+    return catalog_type(space, row->target_module, row->ordinal, out);
+}
+static bool catalog_value_type(const NlServiceNamespace *space, uint32_t module,
+                               const char *id, TypeInfo *out) {
+    if (!id || !out) return false;
+    TypeInfo scalar = {0};
+    if (!*id) scalar.base_type = TYPE_VOID;
+    else if (!strcmp(id, "nsi:core/int")) scalar.base_type = TYPE_INT;
+    else if (!strcmp(id, "nsi:core/bool")) scalar.base_type = TYPE_BOOL;
+    else {
+        for (uint32_t ordinal = 0; ordinal < 8; ++ordinal)
+            if (!strcmp(id, nl_file_source_catalog_string(1, ordinal, 0, 0)))
+                return catalog_type(space, module, ordinal, out);
+        return false;
+    }
+    *out = scalar;
+    return true;
+}
+bool nl_service_member_type(const NlServiceNamespace *space, const TypeInfo *owner,
+                            const char *member, TypeInfo *out) {
+    if (!owner || !member || !out || !owner->service_declaration) return false;
+    TypeInfo expected;
+    if (!catalog_type(space, owner->service_module, owner->service_ordinal, &expected) ||
+        !type_infos_equal(owner, &expected)) return false;
+    int64_t count = nl_file_source_catalog_number(1, owner->service_ordinal, 1, 0);
+    for (int64_t i = 0; i < count; ++i)
+        if (!strcmp(member, nl_file_source_catalog_string(1, owner->service_ordinal, 3, i)))
+            return catalog_value_type(space, owner->service_module,
+                nl_file_source_catalog_string(1, owner->service_ordinal, 4, i), out);
+    return false;
+}
+bool nl_service_method_type(const NlServiceNamespace *space, const char *module,
+                            const char *name, NlServiceSignature *out) {
+    if (!out) return false;
+    const NlServiceName *row = nl_service_namespace_lookup(space, module, name);
+    if (!row || row->kind != NL_SERVICE_METHOD || row->ordinal >= 5) return false;
+    NlServiceSignature result = {0};
+    result.declaration = row->target; result.module = row->target_module;
+    result.ordinal = row->ordinal;
+    result.input_mode = (uint32_t)nl_file_source_catalog_number(2, row->ordinal, 3, 0);
+    int64_t count = nl_file_source_catalog_number(2, row->ordinal, 4, 0);
+    /* My catalog places the result after its zero, one or two inputs. */
+    if (count < 1 || count > 3) return false;
+    result.parameter_count = (uint32_t)count - 1;
+    for (int64_t i = 0; i < count; ++i) {
+        TypeInfo *target = i == count - 1 ? &result.result : &result.parameters[i];
+        if (!catalog_value_type(space, row->target_module,
+                nl_file_source_catalog_string(2, row->ordinal, 6, i), target)) return false;
+    }
+    *out = result;
+    return true;
+}
+
+ASTNode *nl_service_namespace_program(const NlServiceNamespace *space, uint32_t module) {
+    return space && module < space->module_count ? space->modules[module].program : NULL;
+}

@@ -2047,6 +2047,13 @@ static bool annotation_names_equal(const char *left, const char *right) {
 static bool signatures_equal_depth(const FunctionSignature *, const FunctionSignature *, unsigned);
 static bool annotations_equal(const TypeInfo *a, const TypeInfo *b, unsigned depth) {
     if (a == b) return true;
+    if (a && b && (a->service_declaration || b->service_declaration)) {
+        return a->base_type == b->base_type &&
+            a->service_declaration == b->service_declaration &&
+            a->service_module == b->service_module &&
+            a->service_ordinal == b->service_ordinal &&
+            a->service_category == b->service_category;
+    }
     if (!a || !b || depth > 128 || a->base_type != b->base_type ||
         a->type_param_count != b->type_param_count ||
         a->tuple_element_count != b->tuple_element_count ||

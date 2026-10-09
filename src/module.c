@@ -1022,6 +1022,17 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
         } else {
             nl_service_namespace_free(env->service_namespace);
             env->service_namespace = space;
+            uint32_t module = 0;
+            while (nl_service_namespace_program(space, module)) {
+                if (!bind_service_annotations(nl_service_namespace_program(space, module), env,
+                        nl_service_namespace_module(space, module))) {
+                    fprintf(stderr, "I cannot retain nominal File type annotations.\n");
+                    nl_service_namespace_free(space);
+                    env->service_namespace = NULL;
+                    break;
+                }
+                ++module;
+            }
             fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
         }
         ok = false; /* I still require nominal checking and independent lowering. */

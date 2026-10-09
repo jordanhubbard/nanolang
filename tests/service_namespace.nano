@@ -1,5 +1,6 @@
 # I compare original service identity after aliases and re-exports.
 import "src_nano/compiler/service_namespace.nano"
+import "src_nano/compiler/service_types.nano"
 import "src_nano/parser.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/compiler/service_origins.nano"
@@ -10,13 +11,13 @@ extern fn get_argv(index: int) -> string
 
 fn check_namespace(one: string, two: string, bridge: string, root: string) -> int {
     let declaration: string = "service \"nsi:nanolang/filesystem\" catalog 1 from \"interface.nsi.json\"\n"
-    let source: string = (+ (+ declaration declaration) "pub use \"one/binding.nano\" as files\nfrom \"one/binding.nano\" import File as Handle\nmodule \"bridge.nano\" as bridge\nmodule \"two/binding.nano\" as other\nfn ordinary() -> int { return 0 }\n")
+    let source: string = (+ (+ declaration declaration) "pub use \"one/binding.nano\" as files\nfrom \"one/binding.nano\" import File as Handle\nmodule \"bridge.nano\" as bridge\nmodule \"two/binding.nano\" as other\nfn ordinary() -> int { return 0 }\nfn retain(value: bridge.files.File) -> Handle { let local: Handle = value return local }\nstruct Wrapper { handles: array<Handle>, callback: fn(Handle)->Handle }\nunion Generic<Handle> { Value { payload: Handle } }\nfn observe(value: &mut Handle) -> void { return }\n")
     let tokens: List<LexerToken> = (tokenize_string source root (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) root)
     assert (not parser.has_error)
     let files: array<string> = [one, two, bridge, root]
-    let sources: array<string> = [one, two, bridge, root, root, root, root, root]
-    let origins: ServiceOrigins = (bind_service_origins parser files sources [1, 1, 1, 1, 2, 3, 4, 5])
+    let sources: array<string> = [one, two, bridge, root, root, root, root, root, root, root, root, root]
+    let origins: ServiceOrigins = (bind_service_origins parser files sources [1, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9])
     assert origins.ok
     unsafe {
         let context: NlFileSourceSnapshots = (nl_source_inputs_new)
@@ -42,6 +43,64 @@ fn check_namespace(one: string, two: string, bridge: string, root: string) -> in
         assert (== (resolve_service_namespace parser files sources [0, 0, 2, 1] origins swapped context).status 1)
         let missing_paths: ServiceInputs = ServiceInputs { ok: true, paths: [], snapshots: inputs.snapshots }
         assert (== (resolve_service_namespace parser files sources [0, 0, 2, 1] origins missing_paths context).status 1)
+        let annotations: ServiceAnnotationFacts = (bind_service_annotations parser files sources space)
+        assert annotations.ok
+        assert (== (array_length annotations.annotations) 6)
+        let mut annotation: int = 0
+        let mut leaf_count: int = 0
+        while (< annotation (array_length annotations.annotations)) {
+            let retained: ServiceAnnotation = (at annotations.annotations annotation)
+            assert (!= retained.node_kind 4)
+            let mut leaf: int = 0
+            while (< leaf (array_length retained.leaves)) {
+                assert (== (at retained.leaves leaf).type.ordinal 0)
+                assert (== (at retained.leaves leaf).type.owner 0)
+                set leaf_count (+ leaf_count 1)
+                set leaf (+ leaf 1)
+            }
+            set annotation (+ annotation 1)
+        }
+        assert (== leaf_count 7)
+        let file: ServiceType = (service_named_type space 3 "Handle")
+        assert (service_types_equal file (service_named_type space 3 "bridge.files.File"))
+        assert (not (service_types_equal file (service_named_type space 3 "other.File")))
+        let error: ServiceType = (service_named_type space 0 "FileError")
+        assert (== (service_member_type space error "status").kind 1)
+        assert (== (service_member_type space error "host_errno").kind 1)
+        assert (== (service_member_type space error "cleanup_errno").kind 1)
+        assert (== (service_member_type space error "bytes").kind 1)
+        assert (== (service_member_type space error "eof").kind 2)
+        assert (== (service_member_type space error "consumed").kind 2)
+        assert (== (service_member_type space error "cleanup_failed").kind 2)
+        let forged: ServiceType = ServiceType { kind: error.kind, declaration: file.declaration,
+            owner: error.owner, ordinal: error.ordinal, category: error.category }
+        assert (== (service_member_type space forged "status").kind 0)
+        let read: ServiceType = (service_named_type space 0 "ReadByte")
+        assert (== (service_member_type space read "value").kind 1)
+        assert (== (service_member_type space read "eof").kind 2)
+        let open: ServiceType = (service_named_type space 0 "OpenResult")
+        assert (service_types_equal (service_member_type space open "Ok") file)
+        assert (service_types_equal (service_member_type space open "Error") error)
+        assert (== (service_member_type space (service_named_type space 0 "PositionResult") "Ok").kind 3)
+        assert (== (service_member_type space (service_named_type space 0 "CloseResult") "Ok").kind 3)
+        let names: array<string> = ["temp", "write_byte", "rewind", "read_byte", "close"]
+        let counts: array<int> = [0, 2, 1, 1, 1]
+        let modes: array<int> = [0, 1, 1, 1, 2]
+        let results: array<int> = [3, 4, 5, 6, 7]
+        let mut method: int = 0
+        while (< method 5) {
+            let signature: ServiceMethodType = (service_method_type space 0 (at names method))
+            assert signature.ok
+            assert (== (array_length signature.parameters) (at counts method))
+            assert (== signature.input_mode (at modes method))
+            assert (== signature.result.ordinal (at results method))
+            assert (== signature.result.owner 0)
+            if (> (array_length signature.parameters) 0) {
+                assert (service_types_equal (at signature.parameters 0) file)
+            }
+            set method (+ method 1)
+        }
+        assert (not (service_method_type space 3 "ordinary").ok)
         (nl_source_inputs_free context)
     }
     (println "PASS independent Nano namespace identities")

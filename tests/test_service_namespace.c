@@ -52,6 +52,101 @@ int main(int argc, char **argv) {
             printf("NAME %s %u %s %s\n", argv[i], name->kind,
                 nl_service_namespace_module(space, origin->module), origin->name);
         }
+        for (size_t i = 0; i < nl_service_namespace_count(space); ++i) {
+            const NlServiceName *row = nl_service_namespace_name(space, i);
+            const char *source = nl_service_namespace_module(space, row->module);
+            if (row->kind == NL_SERVICE_TYPE) {
+                TypeInfo type;
+                assert(nl_service_type(space, source, row->name, &type));
+                assert(type.service_declaration == row->target);
+                TypeInfo *copy = copy_payload_type_info(&type);
+                assert(type_infos_equal(&type, copy));
+                copy->generic_name = strdup("visible_alias");
+                assert(type_infos_equal(&type, copy));
+                ++copy->service_declaration;
+                assert(!type_infos_equal(&type, copy));
+                free_payload_type_info(copy);
+                TypeInfo ordinary = {.base_type = type.base_type};
+                assert(!type_infos_equal(&type, &ordinary));
+                int64_t members = nl_file_source_catalog_number(1, row->ordinal, 1, 0);
+                for (int64_t member = 0; member < members; ++member) {
+                    TypeInfo payload;
+                    const char *name = nl_file_source_catalog_string(1, row->ordinal, 3, member);
+                    assert(nl_service_member_type(space, &type, name, &payload));
+                    const char *id = nl_file_source_catalog_string(1, row->ordinal, 4, member);
+                    if (!*id) assert(payload.base_type == TYPE_VOID && !payload.service_declaration);
+                    else if (!strcmp(id, "nsi:core/int")) assert(payload.base_type == TYPE_INT);
+                    else if (!strcmp(id, "nsi:core/bool")) assert(payload.base_type == TYPE_BOOL);
+                    else assert(payload.service_declaration && payload.service_module == type.service_module);
+                    TypeInfo forged = type;
+                    ++forged.service_declaration;
+                    TypeInfo unchanged = payload;
+                    assert(!nl_service_member_type(space, &forged, name, &payload));
+                    assert(type_infos_equal(&unchanged, &payload));
+                }
+                TypeInfo array = {.base_type = TYPE_ARRAY, .element_type = &type};
+                TypeInfo *nested = copy_payload_type_info(&array);
+                assert(type_infos_equal(&array, nested));
+                ++nested->element_type->service_module;
+                assert(!type_infos_equal(&array, nested));
+                free_payload_type_info(nested);
+            } else if (row->kind == NL_SERVICE_METHOD) {
+                NlServiceSignature signature;
+                assert(nl_service_method_type(space, source, row->name, &signature));
+                assert(signature.declaration == row->target);
+                assert(signature.result.service_module == row->target_module);
+                assert(signature.parameter_count == (row->ordinal == 0 ? 0u : row->ordinal == 1 ? 2u : 1u));
+                assert(signature.input_mode == (row->ordinal == 0 ? 0u : row->ordinal == 4 ? 2u : 1u));
+                if (signature.parameter_count) assert(signature.parameters[0].service_ordinal == 0);
+            } else {
+                if (row->kind == NL_SERVICE_FUNCTION && !strcmp(row->name, "preserve")) {
+                    ASTNode *function = row->declaration;
+                    TypeInfo *parameter = function->as.function.params[0].type_info;
+                    assert(parameter && parameter->service_declaration);
+                    assert(type_infos_equal(parameter, function->as.function.return_type_info));
+                    ASTNode *local = function->as.function.body->as.block.statements[0];
+                    assert(local->type == AST_LET);
+                    assert(type_infos_equal(parameter, local->as.let.type_info));
+                }
+                if (row->kind == NL_SERVICE_FUNCTION && !strcmp(row->name, "factory")) {
+                    FunctionSignature *signature = row->declaration->as.function.return_fn_sig;
+                    assert(signature && signature->param_type_info && signature->param_type_info[0] && signature->param_type_info[0]->service_declaration);
+                    assert(type_infos_equal(signature->param_type_info[0], signature->return_type_info));
+                    FunctionSignature other = *signature;
+                    TypeInfo changed = *signature->return_type_info;
+                    other.return_type_info = &changed;
+                    assert(function_signatures_equal(signature, &other));
+                    ++changed.service_declaration;
+                    assert(!function_signatures_equal(signature, &other));
+                }
+                if (row->kind == NL_SERVICE_FUNCTION && !strcmp(row->name, "observe")) {
+                    Parameter *parameter = &row->declaration->as.function.params[0];
+                    assert(parameter->type == TYPE_BORROW_MUT);
+                    assert(parameter->type_info->element_type->service_declaration);
+                }
+                if (row->kind == NL_SERVICE_UNION && !strcmp(row->name, "Envelope")) {
+                    ASTNode *node = row->declaration;
+                    for (int arm = 0; arm < 2; ++arm) {
+                        TypeInfo *payload = node->as.union_def.variant_field_type_info[arm][0];
+                        assert(payload && payload->service_declaration);
+                        assert(payload->service_ordinal == (arm == 0 ? 0u : 3u));
+                        assert(node->as.union_def.variant_field_types[arm][0] == payload->base_type);
+                    }
+                }
+                if (row->kind == NL_SERVICE_UNION && !strcmp(row->name, "Generic")) {
+                    TypeInfo *formal = row->declaration->as.union_def.variant_field_type_info[0][0];
+                    assert(formal && !formal->service_declaration && !strcmp(formal->generic_name, "Handle"));
+                }
+                if (row->kind == NL_SERVICE_RECORD && !strcmp(row->name, "Wrapper")) {
+                    TypeInfo **fields = row->declaration->as.struct_def.field_type_info;
+                    assert(fields[0]->element_type->service_declaration);
+                    assert(fields[1]->fn_sig->param_type_info[0]->service_declaration);
+                }
+                TypeInfo sentinel = {.base_type = TYPE_INT};
+                assert(!nl_service_type(space, source, row->name, &sentinel));
+                assert(sentinel.base_type == TYPE_INT);
+            }
+        }
         /* Failed construction must preserve the caller's published pointer. */
         NlServiceNamespace *prior = space;
         assert(nl_service_namespace_build(root, env, NULL, argv[1], &prior) != NL_FILE_SOURCE_OK);

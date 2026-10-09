@@ -26,5 +26,19 @@ const NlServiceName *nl_service_namespace_name(const NlServiceNamespace *, size_
 const NlServiceName *nl_service_namespace_lookup(const NlServiceNamespace *,
                                                 const char *module, const char *name);
 const char *nl_service_namespace_module(const NlServiceNamespace *, uint32_t);
+ASTNode *nl_service_namespace_program(const NlServiceNamespace *, uint32_t);
 const NlFileSourcePlan *nl_service_namespace_plan(const NlServiceNamespace *);
+/* I return scalar or exact catalog types, never authority from spelling alone.
+ * Returned TypeInfo values contain no owning pointers. Failure preserves out. */
+typedef struct {
+    uint32_t declaration, module, ordinal, parameter_count;
+    TypeInfo parameters[2], result;
+    uint32_t input_mode;
+} NlServiceSignature;
+bool nl_service_type(const NlServiceNamespace *, const char *module,
+                     const char *name, TypeInfo *out);
+bool nl_service_member_type(const NlServiceNamespace *, const TypeInfo *,
+                            const char *member, TypeInfo *out);
+bool nl_service_method_type(const NlServiceNamespace *, const char *module,
+                            const char *name, NlServiceSignature *out);
 #endif

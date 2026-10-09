@@ -20,6 +20,10 @@ class ServiceNamespace(unittest.TestCase):
         cases = {
             "bare-import": ('import bare as files\n', '', '', True),
             "bare-selection": ('from bare import File as Handle\n', '', '', True),
+            "annotations": ('module "one/binding.nano" as files\nfn preserve(value: files.File) -> files.File { let local: files.File = value return local }\nstruct Wrapper { values: array<files.File>, callback: fn(files.File)->files.File }\nfn factory() -> fn(files.File)->files.File { return preserve }\n', '', '', True),
+            "reexported-annotations": ('module "bridge.nano" as bridge\nfn preserve(value: bridge.files.File) -> bridge.files.File { let local: bridge.files.File = value return local }\n', 'pub use "one/binding.nano" as files\n', '', True),
+            "union-annotations": ('from "one/binding.nano" import File as Handle\nmodule "one/binding.nano" as files\nunion Envelope { HandleArm { value: Handle }, OpenArm { value: files.OpenResult } }\nunion Generic<Handle> { Value { payload: Handle } }\n', '', '', True),
+            "borrowed-annotation": ('module "one/binding.nano" as files\nfn observe(value: &mut files.File) -> void { return }\n', '', '', True),
             "qualified": ('module "bridge.nano" as bridge\n', 'pub use "one/binding.nano" as files\n', '', True),
             "selective": ('from "one/binding.nano" import File as Handle\nmodule "one/binding.nano" as files\n', '', '', True),
             "late-collision": ('from "one/binding.nano" import File\nstruct File { value: int }\n', '', '', False),

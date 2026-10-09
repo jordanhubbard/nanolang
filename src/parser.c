@@ -373,6 +373,14 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             if (sig) {
                 if (fn_sig_out) {
                     *fn_sig_out = sig;
+                } else if (type_info_out) {
+                    TypeInfo *info = calloc(1, sizeof *info);
+                    if (!info) { free_function_signature(sig); return TYPE_UNKNOWN; }
+                    info->base_type = TYPE_FUNCTION;
+                    info->fn_sig = sig;
+                    *type_info_out = info;
+                } else {
+                    free_function_signature(sig);
                 }
                 return TYPE_FUNCTION;
             }
@@ -399,8 +407,8 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                 char *type_name = strdup(tok->value);
                 advance(p);  /* consume type name */
 
-                /* Check for Module.Type pattern */
-                if (current_token(p)->token_type == TOKEN_DOT) {
+                /* I retain every qualifier through re-exported type paths. */
+                while (current_token(p)->token_type == TOKEN_DOT) {
                     advance(p);  /* consume '.' */
                     Token *type_tok = current_token(p);
                     if (type_tok->token_type != TOKEN_IDENTIFIER) {
@@ -971,25 +979,6 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
                 if (match(p, TOKEN_MUT)) { advance(p); borrow_type = TYPE_BORROW_MUT; }
             }
 
-            /* Type - check if it's a struct type (identifier) */
-            Token *type_token = current_token(p);
-            char *struct_name = NULL;
-            if (type_token->token_type == TOKEN_IDENTIFIER) {
-                /* I retain the declaring-module qualifier. */
-                Token *dot = peek_token(p, 1);
-                Token *rhs = peek_token(p, 2);
-                if (dot && rhs && dot->token_type == TOKEN_DOT && rhs->token_type == TOKEN_IDENTIFIER) {
-                    struct_name = join_qualified_type_name(type_token->value, rhs->value);
-                    if (!struct_name) {
-                        free(param_list);
-                        parser_error(p, type_token->line, type_token->column, "I cannot allocate a qualified parameter type\n");
-                        return false;
-                    }
-                } else {
-                    struct_name = strdup(type_token->value);
-                }
-            }
-            
             /* Parse type with element_type support for arrays and generics */
             Type element_type = TYPE_UNKNOWN;
             char *type_param_name = NULL;
@@ -1024,13 +1013,6 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
                 type_info->fn_sig = fn_sig;
             }
             param_list[count].type_info = type_info;  /* Retain the borrow and referent separately. */
-            
-            /* If it's a struct type, save the struct name */
-            if (param_list[count].type == TYPE_STRUCT && struct_name) {
-                param_list[count].struct_type_name = struct_name;
-            } else if (struct_name) {
-                free(struct_name);
-            }
             
             count++;
 

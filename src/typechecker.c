@@ -5305,7 +5305,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             if (!type_info && declared_type == TYPE_TUPLE && stmt->as.let.value->type == AST_TUPLE_LITERAL) {
                 /* Create TypeInfo from tuple literal */
                 ASTNode *tuple_lit = stmt->as.let.value;
-                type_info = malloc(sizeof(TypeInfo));
+                type_info = calloc(1, sizeof(TypeInfo));
                 type_info->base_type = TYPE_TUPLE;
                 type_info->element_type = NULL;
                 type_info->generic_name = NULL;
@@ -8347,7 +8347,7 @@ register_function_pass1:;
                 }
                 /* For function parameters, create TypeInfo with signature */
                 else if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
-                    TypeInfo *type_info = env_own_checker_allocation(env, malloc(sizeof(TypeInfo)));
+                    TypeInfo *type_info = env_own_checker_allocation(env, calloc(1, sizeof(TypeInfo)));
                     memset(type_info, 0, sizeof(TypeInfo));
                     type_info->base_type = TYPE_FUNCTION;
                     type_info->fn_sig = item->as.function.params[j].fn_sig;
@@ -9124,7 +9124,7 @@ register_function_pass2:;
                 }
                 /* For function parameters, create TypeInfo with signature */
                 else if (param_type == TYPE_FUNCTION && item->as.function.params[j].fn_sig) {
-                    TypeInfo *type_info = env_own_checker_allocation(env, malloc(sizeof(TypeInfo)));
+                    TypeInfo *type_info = env_own_checker_allocation(env, calloc(1, sizeof(TypeInfo)));
                     memset(type_info, 0, sizeof(TypeInfo));
                     type_info->base_type = TYPE_FUNCTION;
                     type_info->fn_sig = item->as.function.params[j].fn_sig;

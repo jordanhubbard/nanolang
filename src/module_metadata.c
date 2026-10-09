@@ -231,6 +231,15 @@ static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capa
     snprintf(temp, sizeof(temp), "    _type_infos[%d].base_type = %d;\n", info_idx, type_info->base_type);
     APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
     
+    snprintf(temp, sizeof(temp),
+             "    _type_infos[%d].service_declaration = %u;\n"
+             "    _type_infos[%d].service_module = %u;\n"
+             "    _type_infos[%d].service_ordinal = %u;\n"
+             "    _type_infos[%d].service_category = %u;\n",
+             info_idx, type_info->service_declaration, info_idx, type_info->service_module,
+             info_idx, type_info->service_ordinal, info_idx, type_info->service_category);
+    APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+
     if (type_info->element_type) {
         snprintf(temp, sizeof(temp), "    _type_infos[%d].element_type = &_type_infos[%d];\n",
                  info_idx, metadata_index(&graph->types, type_info->element_type));
