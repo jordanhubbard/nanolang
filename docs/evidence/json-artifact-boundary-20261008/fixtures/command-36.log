@@ -1,0 +1,4 @@
+['/private/tmp/nanolang-json-compiler-null-return', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-scwvxybx/bad-return.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-scwvxybx/bad-return.nvm']
+NSType checking failed
+Diagnostics:
+  [E0001] Return value of invalid: I expected a value of type `Handle`, but found `int`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-scwvxybx/bad-return.nano:2:24)

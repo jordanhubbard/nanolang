@@ -9,8 +9,10 @@
 void* nl_json_parse(const char* text);
 void nl_json_free(void* json);
 
-/* Returns a newly allocated string (caller may leak; nanolang strings are char*). */
+/* I return owned text; my same-artifact companions release the allocation. */
 const char* nl_json_stringify(void* json);
+void nl_json_stringify__nano_string_release_v1(const char *result);
+void nl_json_as_string__nano_string_release_v1(const char *result);
 
 /* Type predicates */
 int64_t nl_json_is_null(void* json);
@@ -30,6 +32,8 @@ const char* nl_json_as_string(void* json);
 int64_t nl_json_object_has(void* obj, const char* key);
 void* nl_json_get(void* obj, const char* key); /* returns duplicated item (owns) or NULL */
 DynArray* nl_json_object_keys(void* obj);
+/* I consume a unique owned key-array result, including its copied strings. */
+bool nl_json_object_keys_release(DynArray *result);
 
 /* Array access */
 int64_t nl_json_array_size(void* arr);

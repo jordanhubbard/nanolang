@@ -1,0 +1,9 @@
+['/private/tmp/nanolang-array-types-20261008/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-scwvxybx/bad-return.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-scwvxybx/bad-return.nvm']
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-scwvxybx/bad-return.nano
+Return type mismatch: got int, expected struct.
+
+2| fn invalid()->Handle { return 7 }
+                          ^
+Hint: Ensure the returned value matches the function's declared return type.
+Warning at line 4, column 18: Unused variable 'value'
+error: type check failed

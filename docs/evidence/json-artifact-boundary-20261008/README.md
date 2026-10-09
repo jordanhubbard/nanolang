@@ -1,0 +1,5 @@
+I qualify my real Json artifact through C-seed and the canonical compiler built from this source. My six paired methods pass with LLVM clang, ASan/UBSan and ASAN_OPTIONS=detect_leaks=1:halt_on_error=1. I execute the actual schema generator in separate output directories and compare all four generated files across both VM and native routes. I retain ownership, null, nonzero integer and wrong-ABI controls.
+
+I retain the initial leak, return-boundary and fixture failures. The raw-return fixture initially used an opaque entry result; I corrected it to call an opaque-returning helper from an integer main without changing the zero/nonzero acceptance checks.
+
+My full backend log records 274642 VM checks, 2431 native execution checks, 3092 shape checks and 379 callable checks before the final native null-return shape correction. A new native regression is running against that correction; this evidence does not claim it passed yet. Fresh installed-stage bootstrap and the complete parser corpus remain required under #978.
