@@ -1,0 +1,11 @@
+{
+  "bin/nanoc_stage1.nvm": "8734e7b32ad067e44b4c604d0f0beb541e6dca4e6a9916dff027dc22bfccf0ea",
+  "bin/nanoc_stage2": "2ad230efa0510cd249ba15c1714992766a157776308556b0d30a1c2d19239ebb",
+  "bin/nanoc_stage2.nvm": "8734e7b32ad067e44b4c604d0f0beb541e6dca4e6a9916dff027dc22bfccf0ea",
+  "bin/nanoc-ffi": "e49106764755ee254419f625388a1f3f47af5390de18fa65562ad993a358f642",
+  "bin/nanoc_bootstrap.json": "17838a790aad0940b29ef0ba6a410b59ede3c17d50afae1aa557cfa18a3e558e",
+  "bin/nanoc_stage1": "915461e3ce6ac86ccfdf3555d6592675350e37adb38cc0bdfd50645066f9fd7e",
+  "bin/nanoc_c": "2a37dbfffcf6b601f1385d6d6df3a1a5c3e25fee30e34d24e814e27c9e8e90b6",
+  "bin/nanoc": "2ad230efa0510cd249ba15c1714992766a157776308556b0d30a1c2d19239ebb",
+  "bin/nanoc_seed.nvm": "d82ab48d40ae42d5ac7ca9ff77ad33ee819cf550297c138830654b44a0da9671"
+}

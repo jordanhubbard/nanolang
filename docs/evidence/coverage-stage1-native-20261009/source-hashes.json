@@ -1,0 +1,4 @@
+{
+  "scripts/bootstrap_nanoisa.py": "7a5850adefe8e034881931eb7e5221afe4a6e3cff19cd696f6d0823a384584bb",
+  "tests/test_bootstrap_nanoisa.py": "957da429b3b1388b13856b40a19921307bd650d3d8a737afcaf617fa135341b6"
+}

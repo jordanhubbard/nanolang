@@ -165,7 +165,7 @@ class Bootstrap:
                          'root': str(self.root), 'sources': source_inputs(self.root),
                          'tools': self.tool_inputs(), 'compiler': compiler,
                          'cflags': shlex.split(self.env.get('NANO_CFLAGS') or '-O1'),
-                         'ldflags': shlex.split(self.env.get('NANO_LDFLAGS') or ''),
+                         'ldflags': shlex.split(self.env.get('NANO_LDFLAGS') or self.env.get('LDFLAGS') or ''),
                          'artifacts': {}, 'steps': [], 'stage_timeout_seconds': self.timeout}
         metadata, native_sources, module_roots = {}, [], []
         for name in ('compiler_support', 'nanoisa', 'std'):
