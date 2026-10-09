@@ -115,6 +115,13 @@ The production checkpoint inventories every type copy/equality/signature path;
 old ordinary type behavior is unchanged. Declared variables/parameters/returns,
 record fields and shadow targets retain these facts through resolution.
 
+My companion reader now exists in `src/nanoisa/file_source_snapshot.{c,h}`.
+Its owning context retains exact input bytes and strict-preparer interface/source
+views, with sixteen-entry and aggregate 64 MiB project-heap bounds. My
+[Darwin reader tests](evidence/file-source-snapshots-20261009/README.md) cover
+acquisition, mutation isolation and cleanup. Neither frontend calls it yet;
+namespace resolution, independent lowering and full source acceptance remain open.
+
 ## My two independent checking and lowering paths
 
 I extend the real C checker and `src/nanovirt/codegen.c` with a dedicated File

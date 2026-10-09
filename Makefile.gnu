@@ -5977,3 +5977,10 @@ test-affine-ordinary-records: nano_vm nvm2c nanoisa_dump
 	python3 -m unittest -v tests.test_affine_ordinary_records
 
 test-units: test-affine-ordinary-records
+
+.PHONY: test-file-source-snapshots test-file-source-snapshots-sanitize
+test-file-source-snapshots:
+	python3 -m unittest -v tests.test_file_source_snapshot
+test-file-source-snapshots-sanitize:
+	NANO_FILE_SNAPSHOT_SANITIZERS=1 python3 -m unittest -v tests.test_file_source_snapshot
+test-units: test-file-source-snapshots
