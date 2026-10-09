@@ -5724,6 +5724,13 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                     /* Assume it's a pub extern fn declarations */
                     parsed = parse_function(&parser, true, true);  /* is_extern=true, is_pub=true */
                 }
+            } else if (match(&parser, TOKEN_LET)) {
+                parsed = parse_statement(&parser);
+                if (parsed && parsed->type == AST_LET && !parsed->as.let.is_destructure) {
+                    parsed->as.let.is_pub = true;
+                } else {
+                    parser_error(&parser, 0, 0, "I require one named binding after pub let.\n");
+                }
             } else if (match(&parser, TOKEN_FN)) {
                 /* pub fn declarations */
                 parsed = parse_function(&parser, false, true);  /* is_extern=false, is_pub=true */
@@ -5762,7 +5769,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             } else {
                 Token *err_tok = current_token(&parser);
                 if (err_tok) {
-                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'pub' keyword must be followed by fn, pure, struct, enum, union, use, opaque, or effect\n",
+                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'pub' keyword must be followed by let, fn, pure, struct, enum, union, use, opaque, or effect\n",
                             err_tok->line, err_tok->column);
                 }
                 continue;

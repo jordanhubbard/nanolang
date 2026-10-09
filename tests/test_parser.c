@@ -355,6 +355,29 @@ void test_parse_constants(void) {
     free_ast(prog);
 }
 
+void test_parse_public_globals(void) {
+    ASTNode *prog = parse_ok(
+        "pub let answer: int = 41\n"
+        "pub let mut counter: int = 0\n"
+        "let hidden: int = 9\n");
+    ASSERT_NOT_NULL(prog);
+    ASSERT_EQ(prog->as.program.count, 3);
+    for (int i = 0; i < 3; ++i) {
+        ASSERT_EQ(prog->as.program.items[i]->type, AST_LET);
+        ASSERT_EQ(prog->as.program.items[i]->as.let.is_pub, i < 2);
+        ASSERT_EQ(prog->as.program.items[i]->as.let.is_mut, i == 1);
+    }
+    free_ast(prog);
+    suppress_stderr();
+    prog = parse_ok("fn main() -> int { pub let local: int = 1 return local }");
+    restore_stderr();
+    ASSERT_NULL(prog);
+    suppress_stderr();
+    prog = parse_ok("pub let (left, right) = (1, 2)");
+    restore_stderr();
+    ASSERT_NULL(prog);
+}
+
 void test_parse_pub_functions(void) {
     ASTNode *prog = parse_ok(
         "pub fn add(a: int, b: int) -> int { return (+ a b) }\n"
@@ -1104,6 +1127,7 @@ int main(void) {
     TEST(parse_let_mut);
     TEST(parse_constants);
     TEST(parse_pub_functions);
+    TEST(parse_public_globals);
     TEST(parse_extern_fn);
     TEST(parse_pure_fn);
     TEST(parse_pub_pure_fn);

@@ -252,7 +252,7 @@ pub fn nb_rewrite(parser: Parser) -> void {
     let mut lets_index: int = 0
     while (< lets_index parser.lets_count) {
         let item: ASTLet = (list_ASTLet_get parser.lets lets_index)
-        (list_ASTLet_set parser.lets lets_index (ASTLet { node_type: item.node_type, line: item.line, column: item.column, name: item.name, var_type: (nb_type item.var_type item.line), value: item.value, value_type: item.value_type, is_mut: item.is_mut, is_destructure: item.is_destructure, is_destructure_projection: item.is_destructure_projection, destructure_names: item.destructure_names }))
+        (list_ASTLet_set parser.lets lets_index (ASTLet { node_type: item.node_type, line: item.line, column: item.column, name: item.name, var_type: (nb_type item.var_type item.line), value: item.value, value_type: item.value_type, is_mut: item.is_mut, is_pub: item.is_pub, is_destructure: item.is_destructure, is_destructure_projection: item.is_destructure_projection, destructure_names: item.destructure_names }))
         set lets_index (+ lets_index 1)
     }
     let mut functions_index: int = 0

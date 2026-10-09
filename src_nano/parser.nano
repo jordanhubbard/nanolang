@@ -3553,6 +3553,7 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         value: value_id,
         value_type: value_type,
         is_mut: is_mut,
+        is_pub: false,
         is_destructure: false,
         is_destructure_projection: false,
         destructure_names: []
@@ -5165,7 +5166,7 @@ fn parser_mark_owned(p: Parser, idx: int, whole: bool, projection: bool, names: 
     let old: ASTLet = (parser_get_let p idx)
     let marked: ASTLet = ASTLet { node_type: old.node_type, line: old.line, column: old.column,
         name: old.name, var_type: old.var_type, value: old.value, value_type: old.value_type,
-        is_mut: old.is_mut, is_destructure: whole, is_destructure_projection: projection,
+        is_mut: old.is_mut, is_pub: old.is_pub, is_destructure: whole, is_destructure_projection: projection,
         destructure_names: names }
     (list_ASTLet_set p.lets idx marked)
     return p
@@ -8305,12 +8306,38 @@ fn parse_service_declaration(p: Parser) -> Parser {
     return (parser_store_service next interface_id interface_size document_path path_size start.line start.column)
 }
 
+fn parser_public_let(p: Parser) -> Parser {
+    let mut offset: int = 1
+    if (== (parser_peek p offset) (token_mut)) { set offset 2 }
+    if (!= (parser_peek p offset) (token_identifier)) { return (parser_with_error p true) }
+    let parsed: Parser = (parse_let_statement p)
+    if (or parsed.has_error (!= parsed.last_expr_node_type ParseNodeType.PNODE_LET)) { return (parser_with_error parsed true) }
+    let index: int = parsed.last_expr_node_id
+    let old: ASTLet = (parser_get_let parsed index)
+    if old.is_destructure { return (parser_with_error parsed true) }
+    (list_ASTLet_set parsed.lets index (ASTLet {
+        node_type: old.node_type, line: old.line, column: old.column,
+        name: old.name, var_type: old.var_type, value: old.value, value_type: old.value_type,
+        is_mut: old.is_mut, is_pub: true, is_destructure: old.is_destructure,
+        is_destructure_projection: old.is_destructure_projection, destructure_names: old.destructure_names
+    }))
+    return parsed
+}
+shadow parser_public_let {
+    let tokens: List<LexerToken> = (tokenize_string "let mut value: int = 7" "public.nano" (list_CompilerDiagnostic_new))
+    let parsed: Parser = (parser_public_let (parser_new tokens (list_LexerToken_length tokens) "public.nano"))
+    assert (not parsed.has_error)
+    assert (parser_get_let parsed 0).is_pub
+    assert (parser_get_let parsed 0).is_mut
+}
+
 fn parse_definition(p: Parser) -> Parser {
     if (parser_is_at_end p) {
         return (parser_with_error p true)
     } else {
         let mut tok: LexerToken = (parser_current p)
         let mut p_work: Parser = p
+        let is_pub: bool = (== tok.token_type (token_pub))
         
         if (and (== tok.token_type (token_identifier)) (== tok.value "service")) {
             return (parse_service_declaration p)
@@ -8424,6 +8451,7 @@ fn parse_definition(p: Parser) -> Parser {
                                     return (parse_shadow p_work)
                                 } else {
                                     if (== tok.token_type (token_let)) {
+                                        if is_pub { return (parser_public_let p_work) }
                                         return (parse_let_statement p_work)
                                     } else {
                                         return (parser_with_error p_work true)
@@ -8442,7 +8470,11 @@ fn parse_definition(p: Parser) -> Parser {
 }
 
 shadow parse_definition {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "pub let answer: int = 41\nlet hidden: int = 9" "visibility.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "visibility.nano")
+    assert (not p.has_error)
+    assert (parser_get_let p 0).is_pub
+    assert (not (parser_get_let p 1).is_pub)
 }
 
 /* =============================================================================
@@ -8590,6 +8622,7 @@ pub fn parser_set_let_var_type(p: Parser, idx: int, var_type: string) -> Parser 
         value: old.value,
         value_type: old.value_type,
         is_mut: old.is_mut,
+        is_pub: old.is_pub,
         is_destructure: old.is_destructure,
         is_destructure_projection: old.is_destructure_projection,
         destructure_names: old.destructure_names

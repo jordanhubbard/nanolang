@@ -315,6 +315,7 @@ struct ASTNode {
             FunctionSignature *fn_sig;  /* For TYPE_FUNCTION: function signature */
             TypeInfo *type_info;     /* For generic types: Result<int, string>, List<Point>, etc. */
             bool is_mut;
+            bool is_pub;
             ASTNode *value;
             bool is_destructure;
             bool is_destructure_projection;

@@ -103,6 +103,7 @@ extern struct ASTLet {
     value: int,
     value_type: int,
     is_mut: bool,
+    is_pub: bool,
     is_destructure: bool,
     is_destructure_projection: bool,
     destructure_names: array<string>
