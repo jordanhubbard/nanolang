@@ -76,12 +76,16 @@ extern void json_diagnostics_enable(void);
 extern void json_diagnostics_output(void);
 extern void json_diagnostics_cleanup(void);
 
+#include "service_driver.h"
+
 /* Compilation options */
 typedef struct {
     bool verbose;
     bool keep_c;
     bool show_intermediate_code;
     bool test_imports;
+    bool allow_temporary_files;
+    bool emit_nvm;
     bool save_asm;            /* -S flag: save generated C to .genC file */
     bool json_errors;         /* Output errors in JSON format for tooling */
     bool profile_gprof;       /* -pg flag: enable gprof profiling support */
@@ -669,7 +673,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
     env->profile_output_path = opts->profile_output_path;
     
     ModuleList *modules = create_module_list();
-    if (!process_imports(program, env, modules, input_file)) {
+    if (!process_imports_for_service(program, env, modules, input_file)) {
         human_diag(NL_DIAG_IMPORT_FAILED);
         diags_push_id(diags, CompilerPhase_PHASE_PARSER, DiagnosticSeverity_DIAG_ERROR, NL_DIAG_IMPORT_FAILED);
         free_ast(program);
@@ -682,6 +686,26 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         llm_emit_diags_toon(opts->llm_diags_toon_path, input_file, output_file, 1, diags);
         nl_list_CompilerDiagnostic_free(diags);
         return 1;
+    }
+    if(env->service_namespace || opts->emit_nvm) {
+        int result=1;
+        const char *cc=getenv("NANO_CC");if(!cc || !*cc)cc=getenv("CC");
+        char *product_root=nl_service_product_root(g_argv[0]);
+        NlServiceProductOptions product={output_file,product_root,cc,getenv("NANO_CFLAGS"),getenv("NANO_LDFLAGS"),
+            opts->emit_nvm,opts->allow_temporary_files,false};
+        bool unsupported=opts->target && strcmp(opts->target,"native");
+        unsupported=unsupported || opts->keep_c || opts->show_intermediate_code || opts->save_asm ||
+            opts->profile || opts->trace || opts->coverage || opts->profile_gprof || opts->profile_runtime ||
+            opts->reflect_output_path || opts->emit_typed_ast || opts->reference_eval || opts->doc_md ||
+            opts->llm_diags_json_path || opts->llm_diags_toon_path || opts->llm_shadow_json_path ||
+            opts->include_count || opts->library_path_count || opts->library_count || opts->bench || opts->pgo_profile ||
+            opts->debug || opts->tco || opts->trust_report || opts->json_errors;
+        if(!env->service_namespace)fputs("I currently accept C-seed --emit-nvm only for checked File graphs.\n",stderr);
+        else if(unsupported)fputs("I do not support these output options for File source.\n",stderr);
+        else result=nl_service_compile(program,env,opts->test_imports,&product);
+        free(product_root);free_environment(env);free_ast(program);free_tokens(tokens,token_count);
+        free_module_list(modules);clear_module_cache();free(source);
+        nl_list_CompilerDiagnostic_free(diags);return result;
     }
     if (opts->verbose && modules->count > 0) {
         printf("✓ Loaded %d module(s)\n", modules->count);
@@ -1806,6 +1830,8 @@ int main(int argc, char *argv[]) {
         printf("  --verbose      Show detailed compilation steps and commands\n");
         printf("                 (also enabled by NANO_VERBOSE_BUILD=1 env var)\n");
         printf("  --keep-c       Keep generated C file (saves to output dir instead of /tmp)\n");
+        printf("  --emit-nvm     I emit checked File bytecode instead of a native executable\n");
+        printf("  --allow-temporary-files I grant selected File shadows temporary-file access\n");
         printf("  -fshow-intermediate-code  Print generated C to stdout\n");
         printf("  -S             Save generated C to <input>.genC (for inspection)\n");
         printf("  --json-errors  Output errors in JSON format for tool integration\n");
@@ -2027,6 +2053,10 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--profile") == 0) {
             opts.profile = true;
 
+        } else if (strcmp(argv[i], "--allow-temporary-files") == 0) {
+            opts.allow_temporary_files = true;
+        } else if (strcmp(argv[i], "--emit-nvm") == 0) {
+            opts.emit_nvm = true;
         } else if (strcmp(argv[i], "--trace") == 0) {
             opts.trace = true;
 

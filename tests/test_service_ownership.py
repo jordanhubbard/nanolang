@@ -72,7 +72,7 @@ class ServiceOwnership(unittest.TestCase):
         (cls.work/'interface.nsi.json').write_bytes((ROOT/'tests/fixtures/nsi_file_plan.json').read_bytes())
         driver=os.environ.get('NANO_SERVICE_OWNERSHIP_DRIVER_MODULE')
         producers=[[ROOT/'bin/nano_virt']]
-        cls.drivers=[[ROOT/'bin/nanoc_c'],[ROOT/'bin/nano_virt','--emit-nvm']]
+        cls.drivers=[[ROOT/'bin/nanoc_c','--emit-nvm'],[ROOT/'bin/nano_virt','--emit-nvm']]
         if driver:
             producers.append([ROOT/'bin/nano_vm',driver,'--'])
             cls.drivers.append([ROOT/'bin/nano_vm',driver,'--','--emit-nvm'])
@@ -101,11 +101,14 @@ class ServiceOwnership(unittest.TestCase):
             output=self.work/'prior.nvm';output.write_bytes(b'prior-output')
             run=subprocess.run(list(map(str,[*command,path,'-o',output])),cwd=ROOT,capture_output=True,text=True,timeout=90)
             message=run.stdout+run.stderr
-            self.assertNotEqual(run.returncode,0,message)
+            if run.returncode==0:
+                self.assertEqual(status,0)
+                self.assertTrue(output.read_bytes().startswith(b'NVM'))
+                continue
             self.assertNotIn('I cannot type-check File service bodies:',message)
             if status==1: self.assertIn('I cannot verify File service ownership:',message)
             else:
-                self.assertIn('I have not resolved File service declarations',message)
+                self.assertRegex(message,r'I have not resolved File service declarations|I require --allow-temporary-files|I cannot lower File source')
                 self.assertNotIn('I cannot verify File service ownership:',message)
             self.assertEqual(output.read_bytes(),b'prior-output')
 

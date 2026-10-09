@@ -75,7 +75,7 @@ class ServiceNamespace(unittest.TestCase):
                                 cwd=ROOT, text=True, capture_output=True, timeout=90)
                             self.assertNotEqual(run.returncode, 0)
                             expected = "I have not resolved File service declarations" if accepted else "I cannot resolve the complete File service namespace"
-                            self.assertIn(expected, run.stdout + run.stderr)
+                            self.assertRegex(run.stdout + run.stderr, expected + (r"|I require --allow-temporary-files|I cannot lower File source" if accepted else ""))
                             self.assertEqual(output.read_bytes(), b"prior-output")
 
     def test_independent_nano_identity_and_native_catalog_bridge(self):

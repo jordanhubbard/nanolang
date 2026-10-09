@@ -1,0 +1,21 @@
+{
+  "parent": "523ff2c4dc9b679c2bfb6d7c6cc1e635f87f6ebc",
+  "sha256": {
+    "src/service_driver.c": "4f7021aefe0e5162d5af5a72245e80260de1e88ff503c1b698dafef3352745e6",
+    "src/service_driver.h": "dcb01aacdc6c9b7034973717571ce0068f3ec04cc7cb361f46fecc668ff8f696",
+    "src/runtime/service_product.c": "6deb470f91254d240f19ed992fd87c720b19afa15ee984d6e87d171a88a399f4",
+    "src/runtime/service_product.h": "42f03e40e3243005b054fd0376a3f02fa3e0cde5f576a6f9aaedfb462487c7cc",
+    "src/runtime/service_shadows.c": "5cb4d865742d1c9578d66715db87ab988fde3f1a54836180168a678ccabd59f4",
+    "src/module.c": "4fe10743b9257d05667f3194d6bef197c3068b5868033eb4ee48de90559d2790",
+    "src/nanolang.h": "82c0f19722e05a87c4b9a5e230179f3e9af098d425d5a50abd36b5764e4ddd01",
+    "src/main.c": "3dbdbe2244f872760eebba7e5bbc473294bf95c3278000ba7f642495c078acfd",
+    "src/nanovirt/main.c": "3af3930af3922a741bfbfb9d986cac21e72338ffd9349f0c889844d6e5962348",
+    "tests/test_service_drivers.py": "ce7dc8a08e96b642d08b1d4d432bfc7ae370f4b6e0bcf5a98eaba3c036fae6f1",
+    "tests/test_service_bodies.py": "62ac177b84a5fe04ddbfe5a66d4d9630d9e19897931296a469a7fe1a0e6e28ce",
+    "tests/test_service_ownership.py": "f3314aa40fa94ec4f32be2d06dc0c79dd4fbdafad041256e5bc5008c13f4978c",
+    "tests/test_service_namespace.py": "c4eef6a965359ebd5025bb4803e5b27cd260e83b61fdc2acd82e9da8415d9aa2",
+    "tests/test_c_service_inputs.py": "87c5059034ea1c4a439e2692918d5ac120ef5464170636d2f38dd86bcea8431c",
+    "tests/test_wrapper_packaged_interpreter.py": "8bd4440a521cc2ae55f9dd4aff50f6ce8eb6b483a88943d0df177286ef3fcd11",
+    "Makefile.gnu": "4a71ffba60c690523115acc78970808a3157e6a2df2d2e3b33e86dab9c3ac16f"
+  }
+}

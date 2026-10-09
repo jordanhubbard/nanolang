@@ -162,6 +162,15 @@ mixed execution remains mandatory later work, not silently accepted.
 
 ## My driver and authority contract
 
+My C seed and `nano_virt` now select the checked File source path described below.
+They share byte-only staging/publication after C lowering and a whole-suite shadow
+supervisor. `nano_virt` without `-o` checks and runs selected shadows without
+publishing a file; `--run` additionally executes the main module. Native products
+require a separate runtime grant argument. The independent Nano driver still
+requires connection to this transaction after its own lowering. This C integration
+does not close full source/profile coverage or the Linux/Darwin release gates.
+
+
 I propose `--allow-temporary-files` in actual C seed, nano_virt and Nano driver
 options. For a service-bearing source graph, default native compilation selects
 the qualified File native emitter, not ordinary C transpilation. `--emit-nvm`

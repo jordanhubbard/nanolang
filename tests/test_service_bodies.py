@@ -55,7 +55,7 @@ class ServiceBodies(unittest.TestCase):
                 '-fsanitize=address,undefined','-fno-sanitize-recover=all',source,'-o',native,'-lm',
                 *(['-ldl'] if sys.platform.startswith('linux') else [])],timeout=300)
             cls.probes.append([native])
-        cls.drivers = [[ROOT/'bin/nanoc_c'], [ROOT/'bin/nano_virt', '--emit-nvm']]
+        cls.drivers = [[ROOT/'bin/nanoc_c','--emit-nvm'], [ROOT/'bin/nano_virt', '--emit-nvm']]
         if driver:
             cls.drivers.append([ROOT/'bin/nano_vm', driver, '--', '--emit-nvm'])
 
@@ -80,11 +80,14 @@ class ServiceBodies(unittest.TestCase):
         for command in self.drivers:
             output=self.work/'prior.nvm';output.write_bytes(b'prior')
             run=subprocess.run(list(map(str,[*command,path,'-o',output])),cwd=ROOT,text=True,capture_output=True,timeout=60)
-            self.assertNotEqual(run.returncode,0)
+            if run.returncode==0:
+                self.assertEqual(status,0)
+                self.assertTrue(output.read_bytes().startswith(b'NVM'))
+                continue
             message=run.stdout+run.stderr
             if status in (1,3):self.assertIn('I cannot type-check File service bodies:',message)
             else:
-                self.assertIn('I have not resolved File service declarations',message)
+                self.assertRegex(message,r'I have not resolved File service declarations|I require --allow-temporary-files|I cannot lower File source')
                 self.assertNotIn('I cannot type-check File service bodies:',message)
             self.assertEqual(output.read_bytes(),b'prior')
 

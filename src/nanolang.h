@@ -1087,6 +1087,8 @@ int64_t module_get_import_count(const char *module_path);
 const char *module_get_import_path(const char *module_path, int64_t index);
 const char *module_generate_forward_declarations(const char *module_path);
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
+/* Only independently lowering File consumers may opt into retained facts. */
+bool process_imports_for_service(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
 void clear_module_cache(void);
 bool compile_module_to_object(const char *module_path,
                               const char *output_obj,

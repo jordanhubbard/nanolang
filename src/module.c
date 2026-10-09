@@ -988,7 +988,7 @@ bool acquire_service_input(ASTNode *program, Environment *env) {
 }
 
 /* I apply an explicit module declaration before registering its import aliases. */
-bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
+static bool process_imports_consumer(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file, bool service_consumer) {
     if (!program || program->type != AST_PROGRAM || !env) return false;
     if (env->service_import_depth == 0) {
         nl_service_ownership_free(env->service_ownership);
@@ -1051,12 +1051,24 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
                                 env->service_ownership ? env->service_ownership->diagnostic : "I cannot allocate ownership facts.");
                 }
             }
-            fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
         }
-        ok = false; /* I still require nominal checking and independent lowering. */
+        ok = service_consumer && env->service_namespace && env->service_bodies &&
+            env->service_bodies->status == 0 && env->service_ownership &&
+            env->service_ownership->status == 0;
+        if(!ok)fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
     }
     if (own_modules) free_module_list(modules);
     return ok;
+}
+
+bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
+    return process_imports_consumer(program,env,modules,current_file,false);
+}
+
+bool process_imports_for_service(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
+    /* I retain the complete graph through lowering; the caller owns modules. */
+    if(!modules)return false;
+    return process_imports_consumer(program,env,modules,current_file,true);
 }
 
 /* Process imports in a program */

@@ -43,8 +43,10 @@ class CServiceInputs(unittest.TestCase):
                         text = result.stdout + result.stderr
                         if mode in ("invalid", "missing", "symlink"):
                             self.assertIn("I cannot acquire the immutable companion", text)
+                        elif mode == "output-alias":
+                            self.assertIn("I will not replace a File companion input", text)
                         else:
-                            self.assertIn("I have not resolved File service declarations", text)
+                            self.assertIn("I require --allow-temporary-files", text)
                         self.assertEqual(output.read_bytes(), b"prior-output")
                         if before is not None: self.assertEqual(companion.read_bytes(), before)
 

@@ -39,7 +39,8 @@ class WrapperPackagedInterpreter(unittest.TestCase):
         self.assertIn("Packaged interpreter", text)
         self.assertIn("wrapper_gen", text)
         self.assertIn("nvm2c", text)
-        self.assertNotIn("native executable", text.lower())
+        self.assertIn("Packaged interpreter for ordinary graphs", text)
+        self.assertIn("File graphs as native executables", text)
 
     def test_default_output_is_a_packaged_interpreter(self):
         output = self.directory / "program"

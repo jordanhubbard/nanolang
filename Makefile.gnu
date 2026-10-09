@@ -424,6 +424,9 @@ NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
 
 # I link exactly one explicit File runtime owner; generic consumers still refuse.
 FILE_PUBLIC_LIBRARY = lib/libnano_file_runtime.a
+SERVICE_DRIVER_OBJECTS = $(OBJ_DIR)/service_driver.o $(OBJ_DIR)/service_lowering.o $(OBJ_DIR)/runtime/service_product.o $(OBJ_DIR)/runtime/service_shadows.o
+COMPILER_OBJECTS += $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY)
+$(SERVICE_DRIVER_OBJECTS): src/service_driver.h src/service_lowering.h src/runtime/service_product.h src/runtime/service_shadows.h
 FILE_PUBLIC_QUERY_STEMS = nanoisa/affine_bytecode nanoisa/affine_state nanoisa/file_flow nanoisa/isa \
 	nanoisa/managed_array_shapes nanoisa/mixed_float_proof nanoisa/nvm_format \
 	nanoisa/nvm_format_v2 nanoisa/nvm_v2_constants nanoisa/nvm_v2_convert \
@@ -1144,9 +1147,9 @@ test-units: test-borrow-contract-allocation
 
 nano_virt: $(BIN_DIR)/nano_virt
 
-$(BIN_DIR)/nano_virt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o | bin
+$(BIN_DIR)/nano_virt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY) | bin
 	$(CC) $(CFLAGS) -o $@ $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
-		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o $(LDFLAGS)
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS)
 
 $(OBJ_DIR)/nanovirt/main.o: $(NANOVIRT_DIR)/main.c $(NANOVIRT_DIR)/codegen.h | $(OBJ_DIR)/nanovirt
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -6100,3 +6103,14 @@ $(OBJ_DIR)/test_service_shadows: tests/test_service_shadows.c src/runtime/servic
 	$(CC) $(CFLAGS) -o $@ tests/test_service_shadows.c src/runtime/service_shadows.c
 test-service-shadows: $(OBJ_DIR)/test_service_shadows
 	./$(OBJ_DIR)/test_service_shadows
+
+.PHONY: test-service-drivers
+test-service-drivers: $(COMPILER_C) $(BIN_DIR)/nano_virt $(BIN_DIR)/nano_vm
+	NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_service_drivers
+test-units: test-service-drivers
+
+.PHONY: test-service-drivers-sanitize
+$(OBJ_DIR)/nano_virt_file_sanitize: src/nanovirt/main.c src/module.c src/service_driver.c src/service_lowering.c src/runtime/service_product.c src/runtime/service_shadows.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY)
+	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $@ src/nanovirt/main.c src/module.c src/service_driver.c src/service_lowering.c src/runtime/service_product.c src/runtime/service_shadows.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(filter-out $(OBJ_DIR)/module.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS)
+test-service-drivers-sanitize: $(OBJ_DIR)/nano_virt_file_sanitize $(COMPILER_C) $(BIN_DIR)/nano_vm
+	NANO_SERVICE_DRIVER_VIRT="$(CURDIR)/$(OBJ_DIR)/nano_virt_file_sanitize" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_service_drivers
