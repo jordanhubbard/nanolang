@@ -1,0 +1,28 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2570, column 9: Unused variable 'rejected'
+Warning at line 2782, column 9: Unused variable 'rejected'
+Warning at line 2786, column 9: Unused variable 'rejected'
+Warning at line 2793, column 13: Unused variable 'rejected'
+Warning at line 2851, column 9: Unused variable 'rejected'
+Warning at line 2855, column 9: Unused variable 'rejected'
+Warning at line 2862, column 13: Unused variable 'rejected'
+Warning at line 6544, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+
+Runtime error: Type error
+  Function 237 returned void, expected struct
+Stack trace (most recent call first):
+  #0   parser_get_set  src_nano/nanoc_v06.nano:8779:5
+  #1   $shadow_511_check_set_statement  src_nano/nanoc_v06.nano:5594:5
+  #2   $shadow_entry  src_nano/nanoc_v06.nano:?
+I failed a shadow: Function 237 returned void, expected struct
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+I will not publish output after failed shadow execution

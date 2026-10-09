@@ -61,6 +61,14 @@ class ImportedGlobals(unittest.TestCase):
             with self.subTest(imports=imports):
                 self.check(imports+'\nfn main()->int{return 0}\nshadow main {assert true}\n',bad=True)
 
+    def test_qualified_writes_share_alias_storage(self):
+        self.check('module "a.nano" as first\nfrom "a.nano" import count as value\nfn main()->int{set first.count 7 assert (== value 7) set value 3 assert (== first.count 3) set first.count 0 return 0}\nshadow main {assert (== (main) 0)}\n')
+
+    def test_qualified_write_refusals_preserve_output(self):
+        for assignment in ['set first.answer 3', 'set first.hidden 3', 'set first.absent 3', 'set first.count "wrong"']:
+            with self.subTest(assignment=assignment):
+                self.check('module "a.nano" as first\nfn main()->int{'+assignment+' return 0}\nshadow main {assert true}\n',bad=True)
+
     def test_immutable_public_value_in_pure_function(self):
         self.check('module "a.nano" as first\npure fn answer()->int{return first.answer}\nshadow answer {assert (== (answer) 41)}\nfn main()->int{assert (== (answer) 41) return 0}\nshadow main {assert (== (main) 0)}\n')
 

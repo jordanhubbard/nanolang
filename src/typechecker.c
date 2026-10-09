@@ -5378,6 +5378,17 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
         case AST_SET: {
             Symbol *sym = env_get_var_visible_at(tc->env, stmt->as.set.name, stmt->line, stmt->column);
+            bool qualified_global = false;
+            if (!sym && stmt->as.set.field_name) {
+                size_t length = strlen(stmt->as.set.name) + strlen(stmt->as.set.field_name) + 2;
+                char *name = malloc(length);
+                if (name) {
+                    snprintf(name, length, "%s.%s", stmt->as.set.name, stmt->as.set.field_name);
+                    sym = env_global_import_symbol(tc->env, name);
+                    free(name);
+                    qualified_global = sym != NULL;
+                }
+            }
             if (!sym) {
                 char message[256];
                 snprintf(message, sizeof(message), "I cannot find a variable named `%s`.", stmt->as.set.name);
@@ -5393,7 +5404,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 return TYPE_VOID;
             }
 
-            if (stmt->as.set.field_name) {
+            if (stmt->as.set.field_name && !qualified_global) {
                 StructDef *record = sym->struct_type_name ? env_get_struct(tc->env, sym->struct_type_name) : NULL;
                 if (sym->type != TYPE_BORROW_MUT || !record) {
                     fprintf(stderr, "I require an exclusive borrowed owner for field mutation\n");

@@ -3879,6 +3879,20 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
     case AST_SET: {
         if (node->as.set.field_name) {
+            if (local_find(cg, node->as.set.name) < 0 && upvalue_resolve(cg, node->as.set.name) < 0 &&
+                global_find(cg, node->as.set.name) < 0) {
+                size_t length = strlen(node->as.set.name) + strlen(node->as.set.field_name) + 2;
+                char *name = malloc(length);
+                if (!name) { cg_error(cg, node->line, "I could not allocate a qualified global name"); break; }
+                snprintf(name, length, "%s.%s", node->as.set.name, node->as.set.field_name);
+                int16_t global = global_find(cg, name);
+                free(name);
+                if (global >= 0) {
+                    compile_stored_expr(cg, node->as.set.value);
+                    emit_op(cg, OP_STORE_GLOBAL, (uint32_t)global);
+                    break;
+                }
+            }
             cg_error(cg, node->line, "I require reference IR before lowering field-place assignment");
             break;
         }

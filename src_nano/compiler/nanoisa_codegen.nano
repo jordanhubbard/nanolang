@@ -5813,20 +5813,24 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
         } else {
             if (== stmt.node_type ParseNodeType.PNODE_SET) {
                 let s: ASTSet = (parser_get_set parser stmt.node_id)
+                let mut target: string = s.target
                 if (!= s.field_name "") {
-                    return (nisa_fail "I require reference IR before lowering field-place assignment")
+                    if (or (>= (nisa_local_find s.target) 0) (or (>= (nisa_capture_find nisa_capture_frame s.target) 0) (>= (nisa_global_find s.target s.line) 0))) {
+                        return (nisa_fail "I require reference IR before lowering field-place assignment")
+                    }
+                    set target (+ s.target (+ "." s.field_name))
                 }
-                let slot: int = (nisa_local_find s.target)
+                let slot: int = (nisa_local_find target)
                 if (< slot 0) {
-                    let capture: int = (nisa_capture_find nisa_capture_frame s.target)
+                    let capture: int = (nisa_capture_find nisa_capture_frame target)
                     if (>= capture 0) {
                         let value: string = (nisa_emit_expected_expr parser s.value s.value_type (at (at nisa_capture_frames nisa_capture_frame).capture_types capture))
                         return (+ value (nisa_line_imm "STORE_UPVALUE" (+ "0 " (int_to_string capture))))
                     }
-                    let global: int = (nisa_global_find s.target s.line)
-                    if (< global 0) { return (nisa_fail (+ "undefined binding " s.target)) }
+                    let global: int = (nisa_global_find target s.line)
+                    if (< global 0) { return (nisa_fail (+ "undefined binding " target)) }
                     let declaration: ASTLet = (parser_get_let parser (at nisa_global_nodes global))
-                    if (not declaration.is_mut) { return (nisa_fail (+ "I cannot assign this immutable global: " s.target)) }
+                    if (not declaration.is_mut) { return (nisa_fail (+ "I cannot assign this immutable global: " target)) }
                     let value: string = (nisa_emit_expected_expr parser s.value s.value_type (at nisa_global_types global))
                     return (+ value (nisa_line_imm "STORE_GLOBAL" (int_to_string global)))
                 } else {

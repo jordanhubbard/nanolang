@@ -5519,7 +5519,13 @@ shadow check_return_statement {
 }
 
 fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
-    let idx: int = (env_lookup symbols (tc_bound_name set_node.target set_node.line symbols))
+    let mut idx: int = (env_lookup symbols (tc_bound_name set_node.target set_node.line symbols))
+    let mut qualified_global: bool = false
+    if (and (< idx 0) (!= set_node.field_name "")) {
+        let name: string = (+ set_node.target (+ "." set_node.field_name))
+        set idx (env_lookup symbols (tc_bound_name name set_node.line symbols))
+        set qualified_global (>= idx 0)
+    }
     if (< idx 0) {
         let msg: string = (encode_undefined_name_message set_node.target)
         let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name set_node.line set_node.column))
@@ -5527,7 +5533,7 @@ fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>,
         return false
     } else {
         let sym: Symbol = (at symbols idx)
-        if (!= set_node.field_name "") {
+        if (and (!= set_node.field_name "") (not qualified_global)) {
             let mut i: int = 0
             while (< i (parser_get_struct_def_count parser)) {
                 let record: ASTStruct = (parser_get_struct_def parser i)
@@ -5580,6 +5586,16 @@ shadow check_set_statement {
     assert (== (list_CompilerDiagnostic_length diags) 0)
     assert (not (check_set_statement parser (parser_get_set parser 1) symbols diags "bytes.nano"))
     assert (> (list_CompilerDiagnostic_length diags) 0)
+    (mb_reset [1])
+    (mb_add_target 0 "first.count" "imported_count" 0)
+    let qualified: Parser = (resource_test_parser "fn f()->int{set first.count 7 return 0}")
+    let imported: array<Symbol> = [(symbol_new "imported_count" (type_from_string "int") true false 0 (empty_param_types) (type_void))]
+    let qualified_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (check_set_statement qualified (parser_get_set qualified 0) imported qualified_diags "qualified.nano")
+    assert (== (list_CompilerDiagnostic_length qualified_diags) 0)
+    let local: array<Symbol> = (array_push imported (symbol_new "first" (type_from_string "int") true false 0 (empty_param_types) (type_void)))
+    assert (not (check_set_statement qualified (parser_get_set qualified 0) local qualified_diags "qualified.nano"))
+    (mb_reset [])
 }
 
 fn expr_kind_from_pnode(pnode_type: int) -> int {
