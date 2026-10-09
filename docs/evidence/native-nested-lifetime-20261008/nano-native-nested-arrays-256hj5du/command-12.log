@@ -1,0 +1,2 @@
+['/private/tmp/nanolang-array-types-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-256hj5du/retained.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-256hj5du/retained.c']
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-256hj5du/retained.nvm': I found invalid aggregate shape constraints during ARR_SLICE in function 1 at offset 57: I found conflicting aggregate shape kinds optional/array at nodes 41/48

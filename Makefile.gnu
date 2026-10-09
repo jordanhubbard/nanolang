@@ -5835,3 +5835,8 @@ test-units: test-selfhost-json-artifacts
 test-native-byte-arrays: nano_vm nanoisa_dump nvm2c
 	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_native_byte_arrays
 test-units: test-native-byte-arrays
+
+.PHONY: test-native-nested-arrays
+test-native-nested-arrays: nano_vm nanoisa_dump nvm2c
+	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_native_nested_arrays
+test-units: test-native-nested-arrays
