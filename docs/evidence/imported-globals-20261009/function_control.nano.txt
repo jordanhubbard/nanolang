@@ -1,0 +1,3 @@
+module "values.nano" as values
+fn main() -> int { assert (== (values.read_answer) 41) return 0 }
+shadow main { assert (== (main) 0) }

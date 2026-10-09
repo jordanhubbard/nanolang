@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0011] I cannot find this name in the current scope: selected (/private/tmp/nanolang-imported-globals-20261009/selective.nano:2:31)

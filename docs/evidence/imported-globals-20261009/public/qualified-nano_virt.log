@@ -1,0 +1,4 @@
+Error at line 1, column 5: 'pub' keyword must be followed by fn, pure, struct, enum, union, use, opaque, or effect
+Error: Failed to parse module '/private/tmp/nanolang-imported-globals-20261009/public/values.nano'
+Error at line 1, column 1: Failed to load module '/private/tmp/nanolang-imported-globals-20261009/public/values.nano'
+error: module loading failed

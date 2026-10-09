@@ -1,5 +1,11 @@
 # My Roadmap
 
+- [ ] I complete explicit public imported-global binding under [#986](https://github.com/jordanhubbard/nanolang/issues/986), parent #976 and historical task_2713a842846b417fbfd6aa4b8059d0dd. My [baseline](evidence/imported-globals-20261009) separates successful module-private function access from rejected direct imports. Explicit `pub let` is rejected by my C parser and accepted without working imported-value binding by both self-hosted stages.
+  - [ ] I preserve public visibility and mutability in both frontend ASTs and reject private imports.
+  - [ ] I bind qualified/selective/renamed/wildcard globals by canonical declaring-module identity, retaining lexical precedence, one storage location and ordered exactly-once initialization.
+  - [ ] I preserve scalar/callable/managed type and ownership facts across reads, permitted writes and aliases; invalid imports/assignments preserve prior output.
+  - [ ] I qualify dependency/root shadows and VM/sanitizer-native execution through all three producers on Linux/Darwin, then a fresh raw fixed point.
+
 - [ ] I retain and diagnose dependency setup deadlines under #982/#976. Coverage job113780446789 at `54024f19e` never reaches compilation: all three apt-install attempts run into their 180-second limits and exit137 while package downloads continue. I retain the complete log, keep all required packages, and distinguish this setup failure from the repaired coverage linker path. I have not established why those downloads exceed the configured deadline. I give coverage two 420-second attempts inside a 15-minute setup limit, retaining all packages and 35 minutes of remaining job budget. Workflow budget assertions and existing helper retry/exhaustion controls must pass; fresh hosted coverage remains required.
 
 - [ ] I complete self-hosted imported-header integer parity under [#985](https://github.com/jordanhubbard/nanolang/issues/985), parent #976 and related #982. My private-header baseline at the `e1fa92e03` compiler artifacts succeeds through the C-seed bytecode route but both self-hosted stages report E0011 for `HEADER_VALUE` and preserve prior output. I retain that baseline in [the parity checkpoint](evidence/selfhost-header-parity-20261009).
