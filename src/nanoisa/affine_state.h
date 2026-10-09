@@ -59,6 +59,10 @@ typedef struct { uint8_t tag; uint32_t layout; } NvmAffineType;
 #define NVM_AFFINE_UNKNOWN_VARIANT UINT16_MAX
 /* These transfer APIs exchange an exact record token with the bytecode stack.
  * The stack analysis must prohibit duplication, loss and incompatible joins. */
+/* Records use explicit transfer tokens; resource unions do so transitively. */
+bool nvm_affine_type_is_owned(const NvmAffineState *state,NvmAffineType type);
+bool nvm_affine_owned_local_fields(const NvmAffineState *state,uint16_t local,
+    NvmAffineType *fields,uint16_t capacity,uint16_t *count);
 bool nvm_affine_take_local(NvmAffineState *state, uint16_t local, NvmAffineType *type);
 bool nvm_affine_put_local(NvmAffineState *state, uint16_t local, NvmAffineType type);
 bool nvm_affine_local_type(const NvmAffineState *state, uint16_t local, NvmAffineType *type);

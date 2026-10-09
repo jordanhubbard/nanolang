@@ -10,7 +10,7 @@ typedef struct {
     bool ok;
     uint32_t byte_offset; /* Function-relative refusal position. */
     uint32_t reachable; /* Distinct processed instructions. */
-    uint32_t visits; /* Includes rechecks after scalar initialization decreases. */
+    uint32_t visits; /* Includes rechecks after initialization or selected-arm facts weaken. */
     char message[192];
 } NvmAffineAnalysis;
 
@@ -32,7 +32,7 @@ NvmAffineAnalysis nvm_affine_analyze_instructions(const NvmModule *module,
  * including unreachable code. This graph check alone grants no execution. */
 bool nvm_affine_value_call_graph(const NvmModule *module);
 
-/* I analyze the documented scalar/record-observation/owned-transfer subset without changing
+/* I analyze the documented scalar/record-observation/selected-union/owned-transfer subset without changing
  * the module. Success is NOT executable verification. Caller alias binding,
  * reference opcodes and standalone runtime eligibility remain separate. */
 NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *module,
