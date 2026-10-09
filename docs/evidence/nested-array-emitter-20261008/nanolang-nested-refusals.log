@@ -1,0 +1,18 @@
+I retain slice qualification at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-73jyx9eg
+test_nested_element_refusals (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_element_refusals) ... 
+  test_nested_element_refusals (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_element_refusals) (body='let child:array<int> = [1] let xs:array<array<u8>> = [child]') ... FAIL
+
+======================================================================
+FAIL: test_nested_element_refusals (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_element_refusals) (body='let child:array<int> = [1] let xs:array<array<u8>> = [child]')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_array_slice.py", line 115, in test_nested_element_refusals
+    self.assertNotEqual(seed.returncode, 0, seed.stdout + seed.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : Warning at line 1, column 45: Unused variable 'xs'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.051s
+
+FAILED (failures=1)

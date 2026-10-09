@@ -72,6 +72,49 @@ class NanoISASlice(unittest.TestCase):
 shadow main { assert (== (main) 0) }
 """)
 
+    def test_nested_contexts_and_mutation(self):
+        self.qualify("nested-contexts", """fn identity(values:array<array<int>>)->array<array<int>> { return values }
+shadow identity { let xs:array<array<int>> = [] assert (== (array_length (identity xs)) 0) }
+fn main()->int {
+ let values:array<array<int>> = [[7, 8], []]
+ let cube:array<array<array<int>>> = [values]
+ let projected:array<array<int>> = (at cube 0)
+ let copy:array<array<int>> = (array_slice (identity projected) 0 2)
+ let child:array<int> = (at values 0)
+ (array_set child 0 42)
+ let retained:array<int> = (at copy 0)
+ assert (== (at retained 0) 42)
+ (array_set values 0 [99])
+ assert (== (at retained 0) 42)
+ assert (== (array_length (at copy 1)) 0)
+ let floats:array<array<float>> = [[], [1.5]]
+ assert (== (at (at floats 1) 0) 1.5)
+ let bytes:array<array<u8>> = [[], [300]]
+ assert (== (at (at bytes 1) 0) 44)
+ return 0
+}
+shadow main { assert (== (main) 0) }
+""")
+
+    def test_nested_element_refusals(self):
+        for body in ('let xs:array<array<int>> = [[true]]',
+                     'let xs:array<array<float>> = [[1]]',
+                     'let child:array<int> = [1] let xs:array<array<u8>> = [child]'):
+            with self.subTest(body=body):
+                source = self.work / "wrong-nested.nano"
+                source.write_text('fn main()->int { ' + body + ' return 0 }\n')
+                result = subprocess.run([str(self.driver), str(source), 'program'],
+                                        cwd=ROOT, capture_output=True, text=True, timeout=120)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertEqual(result.stdout, '')
+                output = self.work / 'wrong-nested.nvm'
+                output.write_bytes(b'prior output')
+                seed = subprocess.run([str(ROOT / 'bin/nano_virt'), str(source),
+                                       '--emit-nvm', '-o', str(output)], cwd=ROOT,
+                                      capture_output=True, text=True, timeout=120)
+                self.assertNotEqual(seed.returncode, 0, seed.stdout + seed.stderr)
+                self.assertEqual(output.read_bytes(), b'prior output')
+
     def test_closure_environment_copy(self):
         self.qualify("closures", """fn make(n:int)->fn()->int { return fn()->int { return n } }
 shadow make { let f:fn()->int = (make 7) assert (== (f) 7) }

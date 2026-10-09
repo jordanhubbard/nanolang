@@ -828,11 +828,41 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
     }
     if (expected->base_type == TYPE_ARRAY && expected->element_type) {
         const TypeInfo *element = expected->element_type;
+        if (value->type != AST_ARRAY_LITERAL &&
+            (element->base_type == TYPE_INT || element->base_type == TYPE_U8 ||
+             element->base_type == TYPE_BOOL || element->base_type == TYPE_FLOAT ||
+             element->base_type == TYPE_STRING)) {
+            const TypeInfo *actual = try_get_expr_type_info(value, env);
+            if (actual && actual->base_type == TYPE_ARRAY && actual->element_type &&
+                actual->element_type->base_type != element->base_type) {
+                emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                    "I require the declared array element storage for this child.",
+                    "Pass a child array with the exact element type.");
+                return;
+            }
+        }
         if (element->base_type == TYPE_STRUCT)
             check_record_array_contract(env, TYPE_ARRAY, TYPE_STRUCT, element->generic_name, value);
         else if (value->type == AST_ARRAY_LITERAL) {
             for (int i = 0; i < value->as.array_literal.element_count; ++i)
                 check_concrete_union_arrays(env, element, value->as.array_literal.elements[i], depth + 1);
+            /* I retain each nested literal's checked scalar storage, rather
+             * than annotating only the outer array at its declaration. */
+            Type declared = element->base_type;
+            if (declared == TYPE_INT || declared == TYPE_U8 || declared == TYPE_BOOL ||
+                declared == TYPE_FLOAT || declared == TYPE_STRING || declared == TYPE_ARRAY) {
+                Type actual = check_expression(value, env);
+                if (actual == TYPE_UNKNOWN) return;
+                if (value->as.array_literal.element_count > 0 &&
+                    !types_match(value->as.array_literal.element_type, declared)) {
+                    emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                        "I require elements matching the nested array annotation.",
+                        "Use elements compatible with the declared array type.");
+                    return;
+                }
+                value->as.array_literal.element_type = declared;
+                value->as.array_literal.has_element_annotation = true;
+            }
         } else if (element->base_type == TYPE_ARRAY) {
             const TypeInfo *wanted = expected;
             const TypeInfo *actual = try_get_expr_type_info(value, env);

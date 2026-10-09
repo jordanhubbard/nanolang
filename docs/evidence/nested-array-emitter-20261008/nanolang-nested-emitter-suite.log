@@ -1,0 +1,85 @@
+I retain slice qualification at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5
+test_argument_order_once (tests.test_nanoisa_array_slice.NanoISASlice.test_argument_order_once) ... ok
+test_bounds_bits_and_record_children (tests.test_nanoisa_array_slice.NanoISASlice.test_bounds_bits_and_record_children) ... ok
+test_byte_slice (tests.test_nanoisa_array_slice.NanoISASlice.test_byte_slice) ... ok
+test_closure_environment_copy (tests.test_nanoisa_array_slice.NanoISASlice.test_closure_environment_copy) ... ok
+test_nested_contexts_and_mutation (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_contexts_and_mutation) ... 
+  test_nested_contexts_and_mutation (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_contexts_and_mutation) (case='nested-contexts', producer='seed') ... FAIL
+  test_nested_contexts_and_mutation (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_contexts_and_mutation) (case='nested-contexts', producer='selfhost') ... FAIL
+test_nested_element_refusals (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_element_refusals) ... ok
+test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) ... 
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='seed') ... FAIL
+  test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='selfhost') ... FAIL
+test_unchecked_emitter_refuses_invalid_operands (tests.test_nanoisa_array_slice.NanoISASlice.test_unchecked_emitter_refuses_invalid_operands) ... ok
+
+======================================================================
+FAIL: test_nested_contexts_and_mutation (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_contexts_and_mutation) (case='nested-contexts', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_array_slice.py", line 42, in qualify
+    self.run_checked(ROOT / "bin/nano_virt", source, "--emit-nvm", "-o", module)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-types-20261008/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-contexts.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-contexts-seed.nvm']: 1
+
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-contexts.nano:18:2
+  #1   $shadow_1_main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-contexts.nano:21:15
+  #2   $shadow_entry  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-contexts.nano:?
+I failed a shadow: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-contexts.nano:18:2
+  #1   $shadow_1_main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-contexts.nano:21:15
+  #2   $shadow_entry  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-contexts.nano:?
+I will not publish output after failed shadow execution
+
+
+======================================================================
+FAIL: test_nested_contexts_and_mutation (tests.test_nanoisa_array_slice.NanoISASlice.test_nested_contexts_and_mutation) (case='nested-contexts', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_array_slice.py", line 50, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-types-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-contexts-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-contexts-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-contexts-selfhost.nvm': I require the matching scalar shape at this array write
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_array_slice.py", line 50, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-types-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-seed.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-seed.nvm': function 0: I support int, bool, float, string, function or record elements in ARR_LITERAL
+
+
+======================================================================
+FAIL: test_source_shapes (tests.test_nanoisa_array_slice.NanoISASlice.test_source_shapes) (case='nested', producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_array_slice.py", line 50, in qualify
+    self.run_checked(ROOT / "bin/nvm2c", module, "-o", native_c)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_array_slice.py", line 32, in run_checked
+    raise AssertionError(f"{command}: {p.returncode}\n{p.stdout}\n{p.stderr}")
+AssertionError: ['/private/tmp/nanolang-array-types-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-selfhost.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-selfhost.c']: 1
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-0ulo01h5/nested-selfhost.nvm': function 0: I support int, bool, float, string, function or record elements in ARR_LITERAL
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 6.446s
+
+FAILED (failures=4)
