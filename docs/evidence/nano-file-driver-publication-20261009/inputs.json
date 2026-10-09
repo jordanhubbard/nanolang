@@ -1,0 +1,24 @@
+{
+  "parent": "a44a5423f1d40ebc73ad9d56194e160fc2307197",
+  "sources": {
+    "modules/file_product/file_product.c": "0bb1c4b237242565099aa7cbbc4cbdb113b0998bf9b11118b6e9dbb6591f0e82",
+    "modules/file_product/file_product.h": "41adcf850acf10828d2c88493d890170808de133992b11eed844bd7d88ff35c1",
+    "modules/file_product/file_product.nano": "b61c37ee50cd937848541aa31f4fb79c624806e1fd3e60ebf107518fea50e9fa",
+    "modules/file_product/module.json": "f2ed113282313dc12b377c4a7893b68e66f26ef4f90aba1c09dc84ccb0c1ad71",
+    "src_nano/compiler/service_product.nano": "76e69af012e67de74f0e4cb8e76bd56c7dcea746e34c0f181d777073ceccd459",
+    "src_nano/compiler/nanoisa_codegen.nano": "2f1c4258fcf2d9f237d78e67a946e90982592632847c7c570221fd12f22d2011",
+    "src_nano/nanoc_v06.nano": "76e37fa1415a0985364eb28efa52bb5a33c89635b9d869ab6cd29f706ea6a9fd",
+    "src/nanoisa/nvm2c.c": "993f0046885e8fee4483c9112e9e8681b2dbef00cf4bce8f50067b99cca8873f",
+    "tests/test_file_product_bridge.c": "624b0c36e4c6a5e910c0fc02076a8ae5e7e34c9668a6e3ad6274506bb17b4f70",
+    "tests/test_service_drivers.py": "2e47dfec17585c78059a081e77c6e03c8b01541ecd0f1bfde820ce091026220d",
+    "tests/test_nano_service_driver.py": "14e4366a737cee5b8fc711d3c459efc317e37d19b497dbe52e84ecb1b1d114be",
+    "Makefile.gnu": "4c3617f387c61c5cd36de60d84640bdfec6a468115c7b90d66079617ca0ac2fa"
+  },
+  "artifacts": {
+    "/private/tmp/nanolang-nano-publication-final.nvm": "a871a74018c554f55d163cd29689a99c0ff88c63b0cfd26bdae5b432e8b5dd40",
+    "/private/tmp/nanolang-nano-publication-final.native": "bb2e909fe8b7fb548c269b502582497497f91fba811b4b4442d8249ff9c1da0d",
+    "/private/tmp/nanolang-nano-publication-self.nvm": "e354718050df383afcadf07e134caf67817a75afdadfa80dfb7bef989f02e1ce",
+    "/private/tmp/nanolang-nano-publication-self.native": "ca06bbab6bb40cf60ba0b8e2d9f19522f81926221644b0ba410c2408bdabe4b4",
+    "bin/nano_aot_runtime.o": "b47ae461424a59c6c8101005b6ed840a5aa5d54e71006ddf6980061114b769ad"
+  }
+}

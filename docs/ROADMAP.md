@@ -14596,3 +14596,9 @@ locally without redundant extraction under the current Linux capacity limit.
 - [x] Under #989 I resolve compiler executables found through PATH before locating the File runtime archive and headers. My new publication path cannot use the invoking working directory as the installation root; I require both C compiler entry points to publish correctly by basename from an unrelated directory, as well as by absolute path.
 
 I retain the actual C publication batch and its remaining Nano/release boundaries in [my C File driver evidence](evidence/c-file-driver-publication-20261009/README.md).
+
+- [x] Under #989 I connect independent Nano File lowering to the byte-only publication transaction through an owned staging context. I keep source resolution and lowering in Nano, transfer bounded emitted bytes and selected names/origins only, add compiler grant options, qualify both producer builds and actual driver VM/native publication, and preserve source/companion aliases and failed-output cleanup.
+
+- [x] Under #989/#982 I size native typed-artifact argument scratch for every declared host parameter. Inspection of the new publication adapter finds a three-slot local array while existing catalog and snapshot hosts declare four and five parameters. I require bounds tied to the signature table and instrumented translation of those calls before claiming native bridge qualification.
+
+I retain both producer builds, VM/native CLI gates and the exact instrumentation boundaries in [my Nano File publication evidence](evidence/nano-file-driver-publication-20261009/README.md). Full 5.1 acceptance remains open.

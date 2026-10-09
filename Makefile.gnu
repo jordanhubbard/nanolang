@@ -6114,3 +6114,17 @@ $(OBJ_DIR)/nano_virt_file_sanitize: src/nanovirt/main.c src/module.c src/service
 	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $@ src/nanovirt/main.c src/module.c src/service_driver.c src/service_lowering.c src/runtime/service_product.c src/runtime/service_shadows.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(filter-out $(OBJ_DIR)/module.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS)
 test-service-drivers-sanitize: $(OBJ_DIR)/nano_virt_file_sanitize $(COMPILER_C) $(BIN_DIR)/nano_vm
 	NANO_SERVICE_DRIVER_VIRT="$(CURDIR)/$(OBJ_DIR)/nano_virt_file_sanitize" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_service_drivers
+
+.PHONY: test-file-product-bridge
+$(OBJ_DIR)/test_file_product_bridge: tests/test_file_product_bridge.c modules/file_product/file_product.c modules/file_product/file_product.h src/runtime/service_product.h
+	$(CC) $(CFLAGS) -o $@ tests/test_file_product_bridge.c
+test-file-product-bridge: $(OBJ_DIR)/test_file_product_bridge
+	./$(OBJ_DIR)/test_file_product_bridge
+test-units: test-file-product-bridge
+
+.PHONY: test-nano-service-driver
+test-nano-service-driver: bootstrap3 $(FILE_PUBLIC_LIBRARY)
+	NANO_FILE_DRIVER_MODULE="$(CURDIR)/$(BIN_DIR)/nanoc_stage1.nvm" NANO_FILE_DRIVER_NATIVE="$(CURDIR)/$(BIN_DIR)/nanoc_stage1" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_nano_service_driver.NanoServiceDriver
+
+$(OBJ_DIR)/nvm2c_artifact_sanitize: $(NANOISA_DIR)/nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY)
+	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $@ $(NANOISA_DIR)/nvm2c.c $(filter-out $(OBJ_DIR)/nanoisa/nvm2c.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS)

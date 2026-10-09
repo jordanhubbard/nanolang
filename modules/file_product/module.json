@@ -1,0 +1,63 @@
+{
+  "name": "file_product",
+  "version": "0.1.0",
+  "description": "I publish independently emitted File bytes after supervised shadows",
+  "headers": [
+    "file_product.h"
+  ],
+  "include_dirs": [
+    "src",
+    "modules/file_product"
+  ],
+  "c_sources": [
+    "file_product.c",
+    "../../src/nanoisa/affine_bytecode.c",
+    "../../src/nanoisa/affine_state.c",
+    "../../src/nanoisa/file_flow.c",
+    "../../src/nanoisa/isa.c",
+    "../../src/nanoisa/managed_array_shapes.c",
+    "../../src/nanoisa/mixed_float_proof.c",
+    "../../src/nanoisa/nvm_format.c",
+    "../../src/nanoisa/nvm_format_v2.c",
+    "../../src/nanoisa/nvm_v2_constants.c",
+    "../../src/nanoisa/nvm_v2_convert.c",
+    "../../src/nanoisa/nvm_v2_cursor.c",
+    "../../src/nanoisa/nvm_v2_functions.c",
+    "../../src/nanoisa/nvm_v2_imports.c",
+    "../../src/nanoisa/nvm_v2_layouts.c",
+    "../../src/nanoisa/nvm_v2_module.c",
+    "../../src/nanoisa/nvm_v2_signatures.c",
+    "../../src/nanoisa/ownership_contracts.c",
+    "../../src/nanoisa/passive.c",
+    "../../src/nanoisa/reference_places.c",
+    "../../src/nanoisa/retained_layouts.c",
+    "../../src/nanoisa/service_bindings.c",
+    "../../src/nanoisa/service_bindings_module.c",
+    "../../src/nanoisa/service_file_nominal.c",
+    "../../src/nanoisa/service_file_nominal_plan.c",
+    "../../src/nanoisa/verifier.c",
+    "../../src/nanoisa/verifier_types.c",
+    "../../src/nanovm/vm_decode.c",
+    "../../src/nsi_file_plan.c",
+    "../../src/nanoisa/file_host_grant.c",
+    "../../src/nanoisa/file_runtime.c",
+    "../../src/nanoisa/file_public_native.c",
+    "../../src/nanovm/file_public_vm.c",
+    "../../src/nanoisa/file_cyclic_public_native.c",
+    "../../src/nanovm/file_cyclic_public_vm.c",
+    "../../src/nanoisa/file_cyclic_public_abi.c",
+    "../../src/nsi_cap.c",
+    "../../src/nsi_file.c",
+    "../../src/nsi_file_values.c",
+    "../../src/runtime/service_product.c",
+    "../../src/runtime/service_shadows.c"
+  ],
+  "cflags": [
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE",
+    "-DNVM_FILE_PUBLIC_ENGINE"
+  ],
+  "system_libs": [
+    "m"
+  ]
+}

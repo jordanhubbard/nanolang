@@ -2666,6 +2666,23 @@ shadow nisa_source_inputs_signature {
     assert (== (array_length (nisa_source_inputs_signature "nl_source_inputs_unknown")) 0)
 }
 
+fn nisa_file_product_signature(name: string) -> array<string> {
+    if (== name "nl_file_product_new") { return ["NlFileProduct", "string", "string", "int"] }
+    if (or (== name "nl_file_product_valid") (== name "nl_file_product_publish")) { return ["int", "NlFileProduct"] }
+    if (== name "nl_file_product_append") { return ["int", "NlFileProduct", "string"] }
+    if (== name "nl_file_product_seal") { return ["int", "NlFileProduct", "string", "string"] }
+    if (== name "nl_file_product_free") { return ["void", "NlFileProduct"] }
+    return []
+}
+shadow nisa_file_product_signature {
+    assert (== (at (nisa_file_product_signature "nl_file_product_new") 0) "NlFileProduct")
+    assert (== (at (nisa_file_product_signature "nl_file_product_new") 3) "int")
+    assert (== (array_length (nisa_file_product_signature "nl_file_product_seal")) 4)
+    assert (== (at (nisa_file_product_signature "nl_file_product_append") 1) "NlFileProduct")
+    assert (== (at (nisa_file_product_signature "nl_file_product_free") 0) "void")
+    assert (== (array_length (nisa_file_product_signature "nl_file_product_unknown")) 0)
+}
+
 fn nisa_typed_artifact_signature(name: string) -> array<string> {
     if (== name "nl_file_source_catalog_string") { return ["string", "int", "int", "int", "int"] }
     if (== name "nl_file_source_catalog_number") { return ["int", "int", "int", "int", "int"] }
@@ -2673,6 +2690,8 @@ fn nisa_typed_artifact_signature(name: string) -> array<string> {
     if (> (array_length json) 0) { return json }
     let inputs: array<string> = (nisa_source_inputs_signature name)
     if (> (array_length inputs) 0) { return inputs }
+    let product: array<string> = (nisa_file_product_signature name)
+    if (> (array_length product) 0) { return product }
     return (nisa_sqlite_signature name)
 }
 shadow nisa_typed_artifact_signature {
@@ -2680,6 +2699,7 @@ shadow nisa_typed_artifact_signature {
     assert (== (at (nisa_typed_artifact_signature "nl_file_source_catalog_number") 4) "int")
     assert (== (at (nisa_typed_artifact_signature "nl_json_get") 0) "Json")
     assert (== (at (nisa_typed_artifact_signature "nl_sqlite3_column_double") 0) "float")
+    assert (== (at (nisa_typed_artifact_signature "nl_file_product_publish") 1) "NlFileProduct")
     assert (== (array_length (nisa_typed_artifact_signature "unknown")) 0)
 }
 
@@ -2815,6 +2835,10 @@ fn nisa_register_artifact(parser: Parser, function: ASTFunction) -> int {
         let rejected: string = (nisa_fail "I require the declared snapshot context type for its artifact ABI")
         return -1
     }
+    if (and (> (array_length (nisa_file_product_signature function.name)) 0) (< (nisa_opaque_index parser "NlFileProduct") 0)) {
+        let rejected: string = (nisa_fail "I require the declared File product context type for its artifact ABI")
+        return -1
+    }
     let mut i: int = 0
     while (< i arity) {
         let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
@@ -2874,7 +2898,10 @@ shadow nisa_register_artifact {
     let inputs: array<string> = [
         "opaque type NlFileSourceSnapshots\nextern fn nl_source_inputs_new() -> NlFileSourceSnapshots",
         "extern fn nl_source_inputs_new() -> NlFileSourceSnapshots",
-        "opaque type NlFileSourceSnapshots\nextern fn nl_source_inputs_open(context: int, origin: string, count: int, path: string, size: int) -> int"
+        "opaque type NlFileSourceSnapshots\nextern fn nl_source_inputs_open(context: int, origin: string, count: int, path: string, size: int) -> int",
+        "opaque type NlFileProduct\nextern fn nl_file_product_new(output: string, root: string, flags: int) -> NlFileProduct",
+        "extern fn nl_file_product_new(output: string, root: string, flags: int) -> NlFileProduct",
+        "opaque type NlFileProduct\nextern fn nl_file_product_seal(context: int, origin: string, name: string) -> int"
     ]
     let mut sample: int = 0
     while (< sample (array_length inputs)) {
@@ -2885,9 +2912,10 @@ shadow nisa_register_artifact {
         set nisa_artifact_owners [0]
         set nisa_artifact_paths ["/retained/inputs.so"]
         let imported: int = (nisa_register_artifact ps (parser_get_function ps 0))
-        if (== sample 0) {
+        if (or (== sample 0) (== sample 3)) {
             assert (== imported 0)
-            assert (str_contains nisa_import_text "\"nl_source_inputs_new\" opaque")
+            if (== sample 0) { assert (str_contains nisa_import_text "\"nl_source_inputs_new\" opaque") }
+            else { assert (str_contains nisa_import_text "\"nl_file_product_new\" opaque string string int") }
         } else {
             assert (== imported -1)
             assert (== nisa_import_text "")

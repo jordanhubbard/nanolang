@@ -481,6 +481,12 @@ static const Nvm2cHost artifact_adapters[] = {
 /* I keep exact heterogeneous artifact signatures separate from string-only hosts. */
 typedef struct { Nvm2cHost host; uint8_t parameters[5]; } Nvm2cTypedHost;
 static const Nvm2cTypedHost typed_artifact_adapters[] = {
+    {{"nl_file_product_new", "nhost_file_product", 3, TAG_VOID, TAG_OPAQUE}, {TAG_STRING, TAG_STRING, TAG_INT}},
+    {{"nl_file_product_valid", "nhost_file_product", 1, TAG_VOID, TAG_INT}, {TAG_OPAQUE}},
+    {{"nl_file_product_append", "nhost_file_product", 2, TAG_VOID, TAG_INT}, {TAG_OPAQUE, TAG_STRING}},
+    {{"nl_file_product_seal", "nhost_file_product", 3, TAG_VOID, TAG_INT}, {TAG_OPAQUE, TAG_STRING, TAG_STRING}},
+    {{"nl_file_product_publish", "nhost_file_product", 1, TAG_VOID, TAG_INT}, {TAG_OPAQUE}},
+    {{"nl_file_product_free", "nhost_file_product", 1, TAG_VOID, TAG_VOID}, {TAG_OPAQUE}},
     {{"nl_file_source_catalog_string", "nhost_file_catalog", 4, TAG_VOID, TAG_STRING}, {TAG_INT, TAG_INT, TAG_INT, TAG_INT}},
     {{"nl_file_source_catalog_number", "nhost_file_catalog", 4, TAG_VOID, TAG_INT}, {TAG_INT, TAG_INT, TAG_INT, TAG_INT}},
     {{"nl_source_inputs_new", "nhost_source_inputs", 0, TAG_VOID, TAG_OPAQUE}, {TAG_VOID}},
@@ -545,12 +551,13 @@ static int json_artifact_adapter(const Nvm2cHost *host) {
     return host && !strcmp(host->c_name, "nhost_json");
 }
 static bool context_artifact_adapter(const Nvm2cHost *host) {
-    return json_artifact_adapter(host) || (host && !strcmp(host->c_name, "nhost_source_inputs"));
+    return json_artifact_adapter(host) || (host && (!strcmp(host->c_name, "nhost_source_inputs") ||
+        !strcmp(host->c_name, "nhost_file_product")));
 }
 static bool typed_artifact_adapter(const Nvm2cHost *host) {
     return json_artifact_adapter(host) || (host &&
         (!strcmp(host->c_name, "nhost_sqlite") || !strcmp(host->c_name, "nhost_source_inputs") ||
-         !strcmp(host->c_name, "nhost_file_catalog")));
+         !strcmp(host->c_name, "nhost_file_catalog") || !strcmp(host->c_name, "nhost_file_product")));
 }
 static uint8_t host_parameter(const Nvm2cHost *host, uint8_t index) {
     if (typed_artifact_adapter(host)) {
@@ -5722,7 +5729,11 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             char expression[256];
             if (typed_artifact_adapter(host)) {
                 char arguments[160] = "";
-                int slots[3] = {0};
+                int slots[sizeof typed_artifact_adapters[0].parameters] = {0};
+                if (host->argc > sizeof slots / sizeof slots[0]) {
+                    nvm2c_fail(b, "I exceeded the declared typed artifact parameter bound");
+                    goto done;
+                }
                 for (uint8_t p = host->argc; p > 0; --p) {
                     uint8_t tag = host_parameter(host, p - 1);
                     slots[p - 1] = stack_pop_expect(b, &st, tag == TAG_OPAQUE ? NVM2C_VK_VALUE :

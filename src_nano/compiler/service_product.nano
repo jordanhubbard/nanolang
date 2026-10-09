@@ -1,0 +1,110 @@
+# I lower my own AST and transfer only bytes to the publication boundary.
+import "src_nano/compiler/service_lowering.nano"
+import "src_nano/compiler/service_namespace.nano"
+import "src_nano/compiler/service_bodies.nano"
+import "src_nano/compiler/service_ownership.nano"
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+import "modules/file_product/file_product.nano"
+
+fn product_hex(bytes: array<int>, start: int, end: int) -> string {
+    if (or (< start 0) (or (< end start) (> end (array_length bytes)))) { return "" }
+    let digits: string = "0123456789abcdef"
+    let mut result: string = ""
+    let mut i: int = start
+    while (< i end) {
+        let octet: int = (at bytes i)
+        if (or (< octet 0) (> octet 255)) { return "" }
+        set result (+ result (str_substring digits (/ octet 16) 1))
+        set result (+ result (str_substring digits (% octet 16) 1))
+        set i (+ i 1)
+    }
+    return result
+}
+shadow product_hex {
+    assert (== (product_hex [0, 1, 15, 16, 255] 0 5) "00010f10ff")
+    assert (== (product_hex [7, 8, 9] 1 2) "08")
+    assert (== (product_hex [256] 0 1) "")
+    assert (== (product_hex [] 0 1) "")
+}
+
+fn product_stage(context: NlFileProduct, bytes: array<int>, origin: string, name: string) -> bool {
+    if (== (array_length bytes) 0) { return false }
+    let mut i: int = 0
+    while (< i (array_length bytes)) {
+        let mut end: int = (+ i 256)
+        if (> end (array_length bytes)) { set end (array_length bytes) }
+        let hex: string = (product_hex bytes i end)
+        if (== hex "") { return false }
+        unsafe { if (!= (nl_file_product_append context hex) 0) { return false } }
+        set i end
+    }
+    unsafe { return (== (nl_file_product_seal context origin name) 0) }
+}
+shadow product_stage {
+    unsafe {
+        let context: NlFileProduct = (nl_file_product_new "unused-product" "." 1)
+        assert (== (nl_file_product_valid context) 1)
+        assert (not (product_stage context [] "source.nano" ""))
+        assert (product_stage context [0, 1, 255] "source.nano" "")
+        assert (product_stage context [2, 3] "import.nano" "shadow")
+        (nl_file_product_free context)
+    }
+}
+
+fn product_lower(context: NlFileProduct, parser: Parser, files: array<string>, sources: array<string>,
+    space: ServiceNamespace, bodies: ServiceBodyCheck, owners: ServiceOwnershipCheck, first_shadow: int) -> bool {
+    if (or (== (array_length files) 0) (or (< first_shadow 0) (> first_shadow parser.shadows_count))) { return false }
+    let main: ServiceLowering = (lower_service_source parser files sources space bodies owners -1)
+    if (!= main.status 0) { (println (+ "I cannot lower File source: " main.diagnostic)) return false }
+    if (not (product_stage context main.bytes (at files (- (array_length files) 1)) "")) { return false }
+    let mut i: int = first_shadow
+    while (< i parser.shadows_count) {
+        let item: ASTShadow = (list_ASTShadow_get parser.shadows i)
+        let owner: int = (sn_owner files sources item.line)
+        if (< owner 0) { return false }
+        let lowered: ServiceLowering = (lower_service_source parser files sources space bodies owners i)
+        if (!= lowered.status 0) { (println (+ "I cannot lower File shadow: " lowered.diagnostic)) return false }
+        if (not (product_stage context lowered.bytes (at files owner) item.target_name)) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow product_lower {
+    let tokens: List<LexerToken> = (tokenize_string "" "test" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    let space: ServiceNamespace = ServiceNamespace { status: 1, names: [], plan: FileSourcePlan { status: 0, rows: [], logical_bytes: 0 }, text_bytes: 0, ordinary_count: 0, alias_count: 0 }
+    let bodies: ServiceBodyCheck = ServiceBodyCheck { status: 0, diagnostic: "", facts: [], functions: 0, shadows: 0 }
+    let owners: ServiceOwnershipCheck = ServiceOwnershipCheck { status: 0, diagnostic: "", facts: [], functions: 0, shadows: 0 }
+    unsafe {
+        let context: NlFileProduct = (nl_file_product_new "unused-product" "." 1)
+        assert (not (product_lower context parser [] [] space bodies owners 0))
+        (nl_file_product_free context)
+    }
+}
+
+pub fn publish_service_source(parser: Parser, files: array<string>, sources: array<string>,
+    space: ServiceNamespace, bodies: ServiceBodyCheck, owners: ServiceOwnershipCheck,
+    first_shadow: int, output: string, root: string, emit_nvm: bool, allow: bool) -> int {
+    let mut flags: int = 0
+    if emit_nvm { set flags 1 }
+    if allow { set flags (+ flags 2) }
+    unsafe {
+        let context: NlFileProduct = (nl_file_product_new output root flags)
+        if (== (nl_file_product_valid context) 0) { (println "I cannot allocate File publication staging.") return 1 }
+        let mut status: int = 1
+        if (product_lower context parser files sources space bodies owners first_shadow) {
+            set status (nl_file_product_publish context)
+        }
+        (nl_file_product_free context)
+        return status
+    }
+}
+shadow publish_service_source {
+    let tokens: List<LexerToken> = (tokenize_string "" "test" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    let space: ServiceNamespace = ServiceNamespace { status: 1, names: [], plan: FileSourcePlan { status: 0, rows: [], logical_bytes: 0 }, text_bytes: 0, ordinary_count: 0, alias_count: 0 }
+    let bodies: ServiceBodyCheck = ServiceBodyCheck { status: 0, diagnostic: "", facts: [], functions: 0, shadows: 0 }
+    let owners: ServiceOwnershipCheck = ServiceOwnershipCheck { status: 0, diagnostic: "", facts: [], functions: 0, shadows: 0 }
+    assert (== (publish_service_source parser [] [] space bodies owners 0 "" "." false false) 1)
+}

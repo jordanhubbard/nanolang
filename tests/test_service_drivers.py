@@ -60,10 +60,15 @@ class ServiceDrivers(unittest.TestCase):
             self.assertNotIn('vm_execute',symbols)
             self.assertNotIn('nvm_file_execute_cyclic_bytes',symbols)
         self.assertEqual(modules[0],modules[1])
-        self.run_command([self.drivers[1],self.source,'--allow-temporary-files','--run'],7)
-        self.run_command([self.drivers[1],self.source,'--allow-temporary-files'])
-        env=self.env.copy();env['PATH']=str(self.drivers[1].parent)+os.pathsep+env.get('PATH','')
-        self.run_command([self.drivers[1].name,self.source,'--allow-temporary-files','--run'],7,env)
+        if self.drivers[1].name.startswith('nano_virt'):
+            self.run_command([self.drivers[1],self.source,'--allow-temporary-files','--run'],7)
+            self.run_command([self.drivers[1],self.source,'--allow-temporary-files'])
+            env=self.env.copy();env['PATH']=str(self.drivers[1].parent)+os.pathsep+env.get('PATH','')
+            self.run_command([self.drivers[1].name,self.source,'--allow-temporary-files','--run'],7,env)
+        else:
+            for driver in self.drivers:
+                self.run_command([driver,self.source,'--allow-temporary-files'])
+                self.run_command([self.work/'a.out','--allow-temporary-files'],7)
 
     def test_required_import_shadows_and_root_only_selection(self):
         (self.work/'binding.nano').write_text(DECL+'''pub fn broken()->void {}
@@ -123,7 +128,7 @@ shadow broken {assert false}
         for driver in self.drivers:
             output=self.work/'prior.nvm';output.write_bytes(b'prior')
             run=self.run_command([driver,self.source,'--allow-temporary-files','--emit-nvm','-o',output],1)
-            self.assertIn('type-check File service bodies',run.stderr)
+            self.assertIn('type-check File service bodies',run.stdout+run.stderr)
             self.assertEqual(output.read_bytes(),b'prior')
 
 if __name__=='__main__':unittest.main()

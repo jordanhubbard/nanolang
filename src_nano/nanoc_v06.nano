@@ -32,6 +32,7 @@ import "src_nano/compiler/service_namespace.nano"
 import "src_nano/compiler/service_types.nano"
 import "src_nano/compiler/service_bodies.nano"
 import "src_nano/compiler/service_ownership.nano"
+from "src_nano/compiler/service_product.nano" import publish_service_source
 import "modules/file_source_inputs/file_source_inputs.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 from "std/fs.nano" import canonical
@@ -68,6 +69,8 @@ struct CompileOptions {
     emit_c: bool,
     emit_nvm: bool,
     test_imports: bool,
+    allow_temporary_files: bool,
+    implicit_module: bool,
     error: string
 }
 
@@ -130,6 +133,7 @@ fn parse_options(args: array<string>) -> CompileOptions {
     let mut native_target: bool = false
     let mut emit_nvm: bool = false
     let mut test_imports: bool = true
+    let mut allow_temporary_files: bool = false
     let mut error: string = ""
     let mut positional_only: bool = false
     let count: int = (array_length args)
@@ -146,6 +150,8 @@ fn parse_options(args: array<string>) -> CompileOptions {
             set keep_c true
         } else if (and (not positional_only) (== arg "--emit-nvm")) {
             set emit_nvm true
+        } else if (and (not positional_only) (== arg "--allow-temporary-files")) {
+            set allow_temporary_files true
         } else if (and (not positional_only) (== arg "--test-imports")) {
             set test_imports true
         } else if (and (not positional_only) (== arg "--root-shadows-only")) {
@@ -190,6 +196,7 @@ fn parse_options(args: array<string>) -> CompileOptions {
     if (and emit_nvm (not output_set)) { set error "I require -o for --emit-nvm" }
     if (and emit_c (not output_set)) { set output (c_source_output_path input) }
     if (and emit_nvm native_target) { set error "I cannot combine --emit-nvm with --target native" }
+    let implicit_module: bool = (and (not output_set) (and (not emit_nvm) (and (not emit_c) (not native_target))))
     if (and (not output_set) (and (not emit_c) (not native_target))) {
         set emit_nvm true
         set output (nvm_source_output_path input)
@@ -198,13 +205,17 @@ fn parse_options(args: array<string>) -> CompileOptions {
     return CompileOptions {
         input_file: input, output_file: output, verbose: verbose,
         keep_c: keep_c, show_intermediate_code: show_code,
-        llm_diags_json_path: diags, show_help: help, emit_c: emit_c, emit_nvm: emit_nvm, test_imports: test_imports, error: error
+        llm_diags_json_path: diags, show_help: help, emit_c: emit_c, emit_nvm: emit_nvm, test_imports: test_imports, allow_temporary_files: allow_temporary_files, implicit_module: implicit_module, error: error
     }
 }
 
 shadow parse_options {
     let implicit: CompileOptions = (parse_options ["file.nano"])
     assert implicit.emit_nvm
+    assert implicit.implicit_module
+    assert (not implicit.allow_temporary_files)
+    assert (parse_options ["file.nano", "--allow-temporary-files"]).allow_temporary_files
+    assert (not (parse_options ["file.nano", "--emit-nvm", "-o", "out.nvm"]).implicit_module)
     assert (== implicit.output_file "file.nvm")
     assert (== implicit.error "")
     assert (not (parse_options ["file.nano", "-o", "program"]).emit_nvm)
@@ -1659,7 +1670,7 @@ shadow outputs_preserve_sources {
     }
 }
 
-fn compile_program_inputs(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, service_context: NlFileSourceSnapshots) -> int {
+fn compile_program_inputs(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, allow_temporary_files: bool, implicit_module: bool, service_context: NlFileSourceSnapshots) -> int {
     if (== input_file "") { return 1 }
     if verbose {
         (println "")
@@ -1852,10 +1863,22 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                     (println (+ "I cannot verify File service ownership: " ownership.diagnostic))
                     return 1
                 }
-                # I retain service calls in their own namespace until the
-                # independent ownership and lowering path can consume them.
-                (println "I have not resolved File service declarations for this consumer.")
-                return 1
+                if (or (!= service_bodies.status 0) (!= ownership.status 0)) {
+                    (println "I have not resolved File service declarations for this consumer.")
+                    return 1
+                }
+                if (or emit_c (or keep_c (or show_intermediate_code (!= llm_diags_json_path "")))) {
+                    (println "I do not support these output options for File source.")
+                    return 1
+                }
+                let mut product_output: string = output_file
+                if implicit_module { set product_output "a.out" }
+                if (not (outputs_preserve_sources merged_files product_output "")) { return 1 }
+                if (not (outputs_preserve_sources service_inputs.paths product_output "")) { return 1 }
+                let mut first_service_shadow: int = 0
+                if (not test_imports) { set first_service_shadow (native_shadow_start parser merge_result.root_line) }
+                return (publish_service_source parser merged_files source_files service_namespace service_bodies ownership
+                    first_service_shadow product_output merge_result.repo_root (and emit_nvm (not implicit_module)) allow_temporary_files)
             }
 
             if (not (bind_merged_functions parser merge_result)) {
@@ -2010,14 +2033,14 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
  * MAIN ENTRY POINT
  * ============================================================================= */
 
-fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool) -> int {
+fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, allow_temporary_files: bool, implicit_module: bool) -> int {
     unsafe {
         let context: NlFileSourceSnapshots = (nl_source_inputs_new)
         if (== (nl_source_inputs_valid context) 0) {
             (println "I cannot allocate my compiler-input snapshot context.")
             return 1
         }
-        let status: int = (compile_program_inputs input_file output_file verbose keep_c show_intermediate_code llm_diags_json_path emit_c emit_nvm test_imports context)
+        let status: int = (compile_program_inputs input_file output_file verbose keep_c show_intermediate_code llm_diags_json_path emit_c emit_nvm test_imports allow_temporary_files implicit_module context)
         (nl_source_inputs_free context)
         return status
     }
@@ -2027,14 +2050,14 @@ shadow compile_program_inputs {
     unsafe {
         let context: NlFileSourceSnapshots = (nl_source_inputs_new)
         assert (== (nl_source_inputs_valid context) 1)
-        assert (== (compile_program_inputs "" "" false false false "" false false true context) 1)
+        assert (== (compile_program_inputs "" "" false false false "" false false true false false context) 1)
         assert (== (nl_source_inputs_count context) 0)
         (nl_source_inputs_free context)
     }
 }
 
 shadow compile_program {
-    assert (== (compile_program "" "" false false false "" false false true) 1)
+    assert (== (compile_program "" "" false false false "" false false true false false) 1)
 }
 
 fn show_usage() -> int {
@@ -2053,6 +2076,8 @@ fn show_usage() -> int {
     (println "  --emit-nvm     I publish verified NanoISA after VM shadow checks; requires -o")
     (println "  --test-imports  I run dependency shadows before root shadows (default)")
     (println "  --root-shadows-only  I run only root-file shadows")
+    (println "  --allow-temporary-files  I grant selected File shadows temporary-file access")
+    (println "  File graphs default to native output (a.out without -o); runtime grants are separate")
     (println "  --              End options; the remaining argument is my input path")
     (println "  -fshow-intermediate-code  Print generated C to stdout")
     (println "  -h, --help       Show this help")
@@ -2108,7 +2133,7 @@ fn main() -> int {
         (print "")
     }
     
-    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path opts.emit_c opts.emit_nvm opts.test_imports)
+    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path opts.emit_c opts.emit_nvm opts.test_imports opts.allow_temporary_files opts.implicit_module)
 }
 
 shadow main {
