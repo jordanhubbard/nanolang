@@ -89,6 +89,12 @@ class NanoisaIntrospection(unittest.TestCase):
                 'extern fn ___module_function_name_probe(index: string) -> string',
                 'extern fn ___module_struct_name_probe() -> string',
                 'extern fn ___module_name_probe() -> int',
+                'extern fn ___module_path_probe() -> bool',
+                'extern fn ___module_is_unsafe_probe() -> int',
+                'extern fn ___module_has_ffi_probe(index: int) -> bool',
+                'extern fn ___module_function_count_probe() -> string',
+                'extern fn ___module_struct_count_probe(index: int) -> int',
+                'extern fn ___module_struct_name_probe(index: bool) -> string',
             ):
                 with self.subTest(declaration=declaration):
                     source.write_text(declaration + '\nfn main() -> int { return 0 }\nshadow main { assert true }\n')

@@ -1,0 +1,9 @@
+test_all_operations_and_single_index_evaluation (__main__.NanoisaIntrospection.test_all_operations_and_single_index_evaluation) ... ok
+test_empty_export_sets (__main__.NanoisaIntrospection.test_empty_export_sets) ... ok
+test_intrinsic_signature_is_required_before_publication (__main__.NanoisaIntrospection.test_intrinsic_signature_is_required_before_publication) ... ok
+test_ordinary_function_with_similar_name_keeps_its_body (__main__.NanoisaIntrospection.test_ordinary_function_with_similar_name_keeps_its_body) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.997s
+
+OK

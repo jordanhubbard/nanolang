@@ -2844,6 +2844,64 @@ shadow nisa_register_artifact {
     let reset_wrong: int = (nisa_reset)
 }
 
+# I validate reserved metadata declarations even when reachability omits them.
+fn nisa_module_result(name: string) -> string {
+    if (or (str_starts_with name "___module_is_unsafe_") (str_starts_with name "___module_has_ffi_")) { return "bool" }
+    if (or (str_starts_with name "___module_function_count_") (str_starts_with name "___module_struct_count_")) { return "int" }
+    if (or (str_starts_with name "___module_name_") (str_starts_with name "___module_path_")) { return "string" }
+    if (or (str_starts_with name "___module_function_name_") (str_starts_with name "___module_struct_name_")) { return "string" }
+    return ""
+}
+shadow nisa_module_result {
+    assert (== (nisa_module_result "___module_is_unsafe_probe") "bool")
+    assert (== (nisa_module_result "___module_struct_count_probe") "int")
+    assert (== (nisa_module_result "___module_function_name_probe") "string")
+    assert (== (nisa_module_result "___module_unrelated_probe") "")
+}
+
+fn nisa_module_declarations_valid(parser: Parser) -> bool {
+    let mut i: int = 0
+    while (< i (parser_get_function_count parser)) {
+        let function: ASTFunction = (parser_get_function parser i)
+        let result: string = (nisa_module_result function.name)
+        if (and (< function.body 0) (!= result "")) {
+            let mut arity: int = 0
+            if (or (str_starts_with function.name "___module_function_name_") (str_starts_with function.name "___module_struct_name_")) { set arity 1 }
+            let mut valid: bool = (and (== function.param_count arity) (== function.return_type result))
+            if (and valid (== arity 1)) {
+                set valid (== (parser_get_let parser function.param_start).var_type "int")
+            }
+            if (not valid) {
+                let _: string = (nisa_fail "I require the declared module introspection signature")
+                return false
+            }
+        }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow nisa_module_declarations_valid {
+    let sources: array<string> = [
+        "extern fn ___module_name_probe() -> string",
+        "extern fn ___module_function_name_probe(index: int) -> string",
+        "fn ___module_name_probe() -> int { return 7 }",
+        "extern fn unrelated() -> int",
+        "extern fn ___module_name_probe() -> int",
+        "extern fn ___module_struct_name_probe() -> string",
+        "extern fn ___module_function_name_probe(index: string) -> string"
+    ]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let _: int = (nisa_reset)
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "metadata.nano" (diag_list_new))
+        let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "metadata.nano")
+        assert (== (nisa_module_declarations_valid parser) (< i 4))
+        if (>= i 4) { assert (str_contains nisa_err "module introspection signature") }
+        set i (+ i 1)
+    }
+    let _: int = (nisa_reset)
+}
+
 fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
     if (>= (nisa_artifact_arity function.name) 0) { return (nisa_register_artifact parser function) }
     let result: string = (nisa_host_result function.name)
@@ -6474,6 +6532,7 @@ shadow nisa_shadow_name {
 pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
     if (> parser.services_count 0) { return (nisa_fail "I have not resolved File service declarations for this consumer.") }
     let _: int = (nisa_reset)
+    if (not (nisa_module_declarations_valid parser)) { return "" }
     set nisa_program_mode true
     let count: int = parser.shadows_count
     if (or (< first_shadow 0) (> first_shadow count)) {
@@ -6572,6 +6631,7 @@ shadow nanoisa_emit_shadows_nasm {
 fn nisa_emit_module_nasm(parser: Parser, program: bool) -> string {
     if (> parser.services_count 0) { return (nisa_fail "I have not resolved File service declarations for this consumer.") }
     let _: int = (nisa_reset)
+    if (not (nisa_module_declarations_valid parser)) { return "" }
     set nisa_program_mode program
     let mut selected_owned: bool = (nanoisa_has_borrows parser)
     if program { if selected_owned { if (== (nanoisa_selected_ownership parser false 0) 1) { set selected_owned false } } }
