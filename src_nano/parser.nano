@@ -3642,7 +3642,11 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
     }
 }
 shadow parser_store_let {
-    assert (== 1 1)
+    let p: Parser = (parser_store_let (parser_init_ast_lists) "hidden" "int" -1 -1 true 1 1)
+    let binding: ASTLet = (parser_get_let p 0)
+    assert (== binding.name "hidden")
+    assert binding.is_mut
+    assert (not binding.is_pub)
 }
 
 /* Helper: Store set statement node */
@@ -8632,7 +8636,13 @@ pub fn parser_set_let_var_type(p: Parser, idx: int, var_type: string) -> Parser 
 }
 
 shadow parser_set_let_var_type {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "pub let mut value: int = 7" "backfill.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "backfill.nano")
+    let changed: Parser = (parser_set_let_var_type p 0 "float")
+    let binding: ASTLet = (parser_get_let changed 0)
+    assert (== binding.var_type "float")
+    assert binding.is_pub
+    assert binding.is_mut
 }
 
 /* Get number of identifiers */

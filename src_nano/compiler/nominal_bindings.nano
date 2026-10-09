@@ -281,6 +281,14 @@ pub fn nb_rewrite(parser: Parser) -> void {
     }
 }
 shadow nb_rewrite {
+    let public_tokens: List<LexerToken> = (tokenize_string "struct PublicRecord { value: int }\npub let exported: PublicRecord = PublicRecord { value: 7 }" "public-record.nano" (list_CompilerDiagnostic_new))
+    let public_parser: Parser = (parse_program public_tokens (list_LexerToken_length public_tokens) "public-record.nano")
+    (mb_reset [1])
+    assert (nb_register public_parser "__visibility_")
+    (nb_rewrite public_parser)
+    assert (parser_get_let public_parser 0).is_pub
+    assert (== (parser_get_let public_parser 0).var_type (parser_get_struct_def public_parser 0).name)
+    (mb_reset [])
     let tokens: List<LexerToken> = (tokenize_string "struct Handle { plain: int }\nresource struct Handle { fd: int }\nfn take(value: Handle) -> Handle { return value }" "nominal.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "nominal.nano")
     (mb_reset [1, 2])

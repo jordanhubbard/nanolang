@@ -5932,3 +5932,9 @@ test-owned-union-producer: nanoisa_emit nanoisa_dump nano_vm nvm2c
 test-owned-union-installed: bootstrap nano_vm nvm2c
 	python3 -m unittest -v tests.test_owned_union_installed tests.test_owned_union_boundaries.UnionBoundaryStage1 tests.test_owned_union_boundaries.UnionBoundaryStage2
 test-units: test-owned-union-producer test-owned-union-installed
+
+.PHONY: test-public-global-declarations
+test-public-global-declarations: nano_virt nano_vm nvm2c bin/nano_aot_runtime.o
+	python3 -m unittest -v tests.test_public_global_declarations
+
+test-units: test-public-global-declarations
