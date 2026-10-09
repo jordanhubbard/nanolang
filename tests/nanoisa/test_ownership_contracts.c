@@ -209,7 +209,8 @@ static void check_owned_union_transport(void) {
     CHECK(nvm_ownership_union_variant(m,1,1,&fact)==NVM_V2_OK &&
           fact.layout==2 && fact.field_offset==1 && fact.field_count==0);
     /* Metadata round trips do not grant unimplemented instruction authority. */
-    CHECK(nvm_affine_state_create(m,0,0)==NULL);
+    NvmAffineState *state=nvm_affine_state_create(m,0,0);CHECK(state);
+    CHECK(nvm_affine_has_complete_unions(state));nvm_affine_state_free(state);
     CHECK(!nvm_verify(m).ok);
     char diagnostic[256];CHECK(nvm2c_emit(m,diagnostic,sizeof diagnostic)==NULL);
     size_t size;uint8_t *bytes=wire(m,&size,NULL);NvmV2Module decoded;

@@ -7,16 +7,18 @@
  * My opaque state owns its facts; failed transitions leave it unchanged.
  * Reference slots are verifier identities, not runtime pointers. Entry
  * reference parameters occupy their corresponding local-numbered slots.
- * I accept only scalar/complete-record declarations. Joins compare clones
+ * I retain scalar, complete-record and exact union declarations. Joins compare clones
  * of one analysis; symbolic invocation 1 does not prove caller alias facts. */
 typedef struct NvmAffineState NvmAffineState;
 NvmAffineState *nvm_affine_state_create(const NvmModule *module,
                                        uint32_t function, uint32_t references);
 NvmAffineState *nvm_affine_state_clone(const NvmAffineState *state);
 void nvm_affine_state_free(NvmAffineState *state);
+/* I expose the declaration boundary for consumers lacking union transfers. */
+bool nvm_affine_has_complete_unions(const NvmAffineState *state);
 bool nvm_affine_state_equal(const NvmAffineState *a, const NvmAffineState *b);
-/* I intersect initialized facts only for declared mode-zero scalar slots.
- * All other facts remain exact; refusal leaves destination unchanged. */
+/* I intersect copyable initialization and merge selected variants. Live
+ * resource obligations remain exact; refusal leaves destination unchanged. */
 bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
                                           const NvmAffineState *incoming,bool *changed);
 bool nvm_affine_scalar_define(NvmAffineState *state, uint16_t local);
@@ -62,9 +64,17 @@ bool nvm_affine_put_local(NvmAffineState *state, uint16_t local, NvmAffineType t
 bool nvm_affine_local_type(const NvmAffineState *state, uint16_t local, NvmAffineType *type);
 bool nvm_affine_record_fields(const NvmAffineState *state, uint32_t layout,
                                NvmAffineType *fields, uint16_t capacity, uint16_t *count);
-/* I keep concrete union identity separate from its path-local selected arm. */
+/* I keep concrete union identity separate from its path-local selected arm.
+ * Define is copyable-only; resource construction uses union_pack. */
 bool nvm_affine_union_define(NvmAffineState *state,uint16_t local,
                               uint32_t layout,uint16_t variant);
+/* I transfer a complete selected payload atomically. Unpack requires a
+ * proven variant; owned children move, scalar children copy. The general
+ * record pack/unpack APIs never flatten a union's concatenated variants. */
+bool nvm_affine_union_pack(NvmAffineState *state,uint16_t destination,uint16_t variant,
+                            const uint16_t *fields,uint16_t count);
+bool nvm_affine_union_unpack(NvmAffineState *state,uint16_t source,uint16_t variant,
+                              const uint16_t *fields,uint16_t count);
 bool nvm_affine_union_refine(NvmAffineState *state,uint16_t local,uint16_t variant);
 bool nvm_affine_union_variant(const NvmAffineState *state,uint16_t local,
                                uint16_t *variant);
