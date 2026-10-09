@@ -1,0 +1,1 @@
+union Choice { None {}, Some { value: int } } fn main() -> int { match Choice.None {} { Missing() => { return 7 } Some(v) => { return v.value } } }

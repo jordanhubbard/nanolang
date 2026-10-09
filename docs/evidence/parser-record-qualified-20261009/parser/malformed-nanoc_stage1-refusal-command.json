@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/usr/local/bin/python3",
+    "-c",
+    "import subprocess,sys,json,pathlib; p=subprocess.run(sys.argv[2:],timeout=120); pathlib.Path(sys.argv[1]).write_text(json.dumps({'returncode':p.returncode})); sys.exit(0 if p.returncode>0 else 1)",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/malformed-nanoc_stage1-refusal.json",
+    "/private/tmp/nanolang-array-types-20261008/bin/nanoc_stage1",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/ordinary-malformed.nano",
+    "-o",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/ordinary-malformed-nanoc_stage1",
+    "--keep-c"
+  ],
+  "cwd": "/private/tmp/nanolang-array-types-20261008",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}
