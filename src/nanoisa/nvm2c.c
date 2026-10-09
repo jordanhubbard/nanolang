@@ -130,6 +130,14 @@ static int record_array_unboxes(uint8_t destination, uint8_t source) {
 }
 
 
+/* I check payload identity when a record-array write changes its carrier. */
+static int record_field_converts(uint8_t destination, uint8_t source) {
+    return record_array_unboxes(destination, source) ||
+        (destination == NVM2C_VK_VALUE && variant_scalar_kind(source)) ||
+        (source == NVM2C_VK_VALUE && variant_scalar_kind(destination));
+}
+
+
 static int boolean_result(uint8_t opcode) {
     switch (opcode) {
     case OP_CAST_BOOL: case OP_AND: case OP_OR: case OP_NOT:
@@ -2263,7 +2271,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 for (size_t f = 0; f < b->record_width; ++f) {
                     if (arr.rec_k[f] != NVM2C_VK_UNK && val.rec_k[f] != NVM2C_VK_UNK &&
                         arr.rec_k[f] != val.rec_k[f] &&
-                        !record_array_unboxes(arr.rec_k[f], val.rec_k[f])) {
+                        !record_field_converts(arr.rec_k[f], val.rec_k[f])) {
                         nvm2c_fail(b, "ARR_PUSH record field representation mismatch "
                                       "(function %u, offset %zu, field %zu: %s versus %s)",
                                    idx, start, f, c_local_type(arr.rec_k[f]), c_local_type(val.rec_k[f]));
@@ -2289,7 +2297,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                         if (arr.rec_k[f] != NVM2C_VK_UNK &&
                             val.rec_k[f] != NVM2C_VK_UNK &&
                             arr.rec_k[f] != val.rec_k[f] &&
-                            !record_array_unboxes(arr.rec_k[f], val.rec_k[f])) {
+                            !record_field_converts(arr.rec_k[f], val.rec_k[f])) {
                             nvm2c_fail(b, "ARR_SET record field representation mismatch (function %u, offset %zu, field %zu, kinds %u/%u, final=%d)",
                                        idx, start, f, arr.rec_k[f], val.rec_k[f], facts->final);
                             return 0;
@@ -2313,7 +2321,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             int checked_record_fields = 0;
             if (arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC)
                 for (size_t f = 0; f < b->record_width; ++f)
-                    if (record_array_unboxes(arr.rec_k[f], val.rec_k[f])) checked_record_fields = 1;
+                    if (record_field_converts(arr.rec_k[f], val.rec_k[f])) checked_record_fields = 1;
             if (val.kind == NVM2C_VK_UNK) {
                 /* Missing element facts cannot erase a constructor's known
                  * array kind or invent an integer-array representation. */
@@ -2380,12 +2388,22 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                          * the emitted guard, even for an empty constructor. */
                         uint8_t storage = arr.rec_k[f];
                         NvmShapeKind payload = storage == NVM2C_VK_SARR ? NVM_SHAPE_STRING :
+                            storage == NVM2C_VK_NARR ? NVM_SHAPE_ARRAY :
                             storage == NVM2C_VK_U8ARR ? NVM_SHAPE_U8 :
                             storage == NVM2C_VK_FNARR ? NVM_SHAPE_FUNCTION :
                             storage == NVM2C_VK_FARR ? NVM_SHAPE_FLOAT :
                             storage == NVM2C_VK_BARR ? NVM_SHAPE_BOOL : NVM_SHAPE_INT;
                         if (!shape_type(b, target, NVM_SHAPE_ARRAY) ||
                             !shape_type(b, shape_child(b, target, 0), payload)) return 0;
+                    }
+                    if (val.rec_k[f] == NVM2C_VK_VALUE && variant_scalar_kind(arr.rec_k[f])) {
+                        if (!shape_type(b, source, NVM_SHAPE_OPTIONAL)) return 0;
+                        source = shape_child(b, source, 0);
+                        if (!shape_kind(b, target, arr.rec_k[f])) return 0;
+                    } else if (arr.rec_k[f] == NVM2C_VK_VALUE && variant_scalar_kind(val.rec_k[f])) {
+                        if (!shape_type(b, target, NVM_SHAPE_OPTIONAL)) return 0;
+                        target = shape_child(b, target, 0);
+                        if (!shape_kind(b, source, val.rec_k[f])) return 0;
                     }
                     if (!shape_equal(b, source, target)) return 0;
                 }
@@ -3683,7 +3701,8 @@ static int emit_record_array_value(Nvm2cBuf *b, Nvm2cStack *st, int array, int v
     int normalized = -1;
     for (size_t f = 0; f < b->record_width; ++f) {
         uint8_t target = st->rarr_k[array][f];
-        if (!record_array_unboxes(target, st->rec_k[value][f])) continue;
+        uint8_t source = st->rec_k[value][f];
+        if (!record_field_converts(target, source)) continue;
         if (normalized < 0) {
             if ((size_t)st->next_rec >= st->rec_capacity) {
                 nvm2c_fail(b, "I cannot allocate a checked record-array write"); return value;
@@ -3691,6 +3710,19 @@ static int emit_record_array_value(Nvm2cBuf *b, Nvm2cStack *st, int array, int v
             normalized = st->next_rec++;
             nvm2c_printf(b, "    r[%d] = r[%d];\n", normalized, value);
             memcpy(st->rec_k[normalized], st->rec_k[value], b->record_width);
+        }
+        if (variant_scalar_kind(target) || target == NVM2C_VK_VALUE) {
+            uint8_t scalar = target == NVM2C_VK_VALUE ? source : target;
+            unsigned tag = scalar == NVM2C_VK_INT ? TAG_INT :
+                scalar == NVM2C_VK_BOOL ? TAG_BOOL : scalar == NVM2C_VK_FLOAT ? TAG_FLOAT : TAG_STRING;
+            if (source == NVM2C_VK_VALUE)
+                nvm2c_printf(b, "    if (r[%d].vk[%zu] != %u) NVM2C_ABORT();\n", normalized, f, tag);
+            if (scalar == NVM2C_VK_STR)
+                nvm2c_printf(b, "    if (!r[%d].s[%zu]) NVM2C_ABORT();\n", normalized, f);
+            nvm2c_printf(b, "    r[%d].k[%zu] = %u; r[%d].vk[%zu] = %u;\n",
+                         normalized, f, target, normalized, f, tag);
+            st->rec_k[normalized][f] = target;
+            continue;
         }
         nvm2c_printf(b,
             "    if (r[%d].vk[%zu] != 7 || r[%d].f[%zu] != %u || !r[%d].s[%zu]) NVM2C_ABORT();\n",
@@ -7788,9 +7820,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "static inline int nrec_field_storage_matches(const nrec_t *a, const nrec_t *b, size_t field) {\n"
             "    unsigned ak = a->k[field], bk = b->k[field];\n"
             "    if (ak == bk) return 1;\n"
-            "    unsigned at = ak == 0 ? 1 : ak == 9 ? 4 : ak == 1 ? 5 : ak == 8 ? a->vk[field] : 255;\n"
-            "    unsigned bt = bk == 0 ? 1 : bk == 9 ? 4 : bk == 1 ? 5 : bk == 8 ? b->vk[field] : 255;\n"
-            "    return at == bt && (at == 1 || at == 4 || at == 5) &&\n"
+            "    unsigned at = ak == 0 ? 1 : ak == 9 ? 4 : ak == 1 ? 5 : ak == 11 ? 3 : ak == 8 ? a->vk[field] : 255;\n"
+            "    unsigned bt = bk == 0 ? 1 : bk == 9 ? 4 : bk == 1 ? 5 : bk == 11 ? 3 : bk == 8 ? b->vk[field] : 255;\n"
+            "    return at == bt && (at == 1 || at == 3 || at == 4 || at == 5) &&\n"
             "           (at != 5 || (a->s[field] && b->s[field]));\n}\n");
         nvm2c_puts(&b,
             "struct nrarr_s { nrec_t *data; size_t len; struct nrarr_owner *owner; };\n\n");

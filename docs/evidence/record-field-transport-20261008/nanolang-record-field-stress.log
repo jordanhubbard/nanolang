@@ -1,0 +1,8 @@
+I retain record-field transport evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-field-transport-k8jkynqj
+test_incompatible_boxed_payload_preserves_output (tests.test_native_record_field_transport.RecordFieldTransport.test_incompatible_boxed_payload_preserves_output) ... ok
+test_scalar_write_matrix (tests.test_native_record_field_transport.RecordFieldTransport.test_scalar_write_matrix) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 6.905s
+
+OK

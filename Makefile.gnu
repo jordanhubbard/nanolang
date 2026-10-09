@@ -5840,3 +5840,8 @@ test-units: test-native-byte-arrays
 test-native-nested-arrays: nano_vm nanoisa_dump nvm2c
 	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_native_nested_arrays
 test-units: test-native-nested-arrays
+
+.PHONY: test-native-record-field-transport
+test-native-record-field-transport: nano_vm nanoisa_dump nvm2c
+	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_native_record_field_transport
+test-units: test-native-record-field-transport
