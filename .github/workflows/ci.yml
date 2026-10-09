@@ -11,7 +11,7 @@ env:
   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
   # Every bootstrap still runs shadows; slower and instrumented runners get a
   # larger finite deadline instead of disabling that gate.
-  NANO_SHADOW_TIMEOUT_SECONDS: "60"
+  NANO_SHADOW_TIMEOUT_SECONDS: "120"
   NANO_SHADOW_TRACE: "1"
 
 jobs:
@@ -347,6 +347,8 @@ jobs:
 
   sanitizers:
     name: Memory Sanitizers
+    env:
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
     runs-on: ubuntu-latest
     timeout-minutes: 150
     permissions:
@@ -442,6 +444,8 @@ jobs:
 
   coverage:
     name: Code Coverage
+    env:
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
     runs-on: ubuntu-latest
     timeout-minutes: 50
     permissions:
