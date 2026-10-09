@@ -5879,3 +5879,12 @@ test-owned-union-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS)
 test-units: test-owned-union-c-source
 test-owned-union-c-source: nano_virt nano_vm nvm2c
 	python3 -m unittest -v tests.test_owned_union_c_source
+
+.PHONY: test-owned-global-runtime
+test-units: test-owned-global-runtime
+test-owned-global-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_global_runtime tests/nanoisa/test_owned_global_runtime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=owned_heap_malloc -Dcalloc=owned_heap_calloc -Drealloc=owned_heap_realloc -c src/nanovm/heap.c -o obj/test_owned_global_heap_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_global_runtime_alloc tests/nanoisa/test_owned_global_runtime_alloc.c obj/test_owned_global_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_global_runtime_alloc
+	python3 -m unittest -v tests.test_owned_global_runtime

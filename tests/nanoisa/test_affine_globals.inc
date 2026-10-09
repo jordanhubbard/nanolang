@@ -1,31 +1,6 @@
 /* I exercise global flow in the ordinary and allocation-fault bytecode runs. */
 #include "../../src/nanovm/vm_decode.h"
-static NvmModule *global_fixture(const char *body,const char *helper,const char *nested,
-                                 uint8_t tag,bool mutable) {
-    char source[8192];
-    int length=snprintf(source,sizeof(source),
-        ".types 1 0 0\n.entry 0\n.string \"value\"\n"
-        ".function main 0 0 0 int 1\n%s.end\n%s%s%s%s%s%s",
-        body,helper?".function helper 0 0 0 int 1\n":"",helper?helper:"",helper?".end\n":"",
-        nested?".function nested 0 0 0 int 1\n":"",nested?nested:"",nested?".end\n":"");
-    CHECK(length>0 && (size_t)length<sizeof(source));
-    AsmResult error;NvmModule *m=asm_assemble_unverified(source,&error);
-    if (!m) fprintf(stderr,"global fixture: %s\n",error.message);
-    CHECK(m);
-    NvmV2LayoutField field={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
-    NvmV2Layout record={NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field};
-    NvmV2Layouts layouts={&record,1};CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
-    m->ownership_size=40+12*m->function_count+16;
-    m->ownership_data=calloc(m->ownership_size,1);CHECK(m->ownership_data);
-    uint8_t *p=m->ownership_data;word(p,3);word(p+4,1);p[8]=3;
-    word(p+12,m->function_count);unsigned at=16;
-    for (uint32_t f=0;f<m->function_count;f++,at+=12) slot(p+at+4,TAG_INT,0);
-    word(p+at,4);word(p+at+8,1);p[at+12]=NVM_OWNERSHIP_EXTENSION_GLOBALS;
-    p[at+14]=1;word(p+at+16,20);word(p+at+20,2);
-    slot(p+at+24,tag,mutable);slot(p+at+32,TAG_INT,1);
-    bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);
-    return m;
-}
+#include "owned_global_fixture.h"
 static void global_case(const char *body,const char *helper,const char *nested,
                         uint8_t tag,bool mutable,bool accepted,const char *reason) {
     NvmModule *m=global_fixture(body,helper,nested,tag,mutable);
@@ -35,8 +10,8 @@ static void global_case(const char *body,const char *helper,const char *nested,
     if (got.ok!=accepted) fprintf(stderr,"global flow: %s at %u\n%s",got.message,got.byte_offset,body);
     CHECK(got.ok==accepted);if (reason) CHECK(strstr(got.message,reason));
     CHECK(!memcmp(before,m->ownership_data,m->ownership_size));free(before);
-    /* Analysis must not enable runtime before the VM/native lifetime contract. */
-    CHECK(!nvm_verify(m).ok);char diagnostic[256];CHECK(!nvm2c_emit(m,diagnostic,sizeof(diagnostic)));
+    CHECK(nvm_verify(m).ok==accepted);char diagnostic[256];
+    char *native=nvm2c_emit(m,diagnostic,sizeof(diagnostic));CHECK((native!=NULL)==accepted);free(native);
     VmDecodedFunction decoded={0};char detail[VM_DECODE_ERROR_SIZE];
     CHECK(vm_decode_function(m,0,&decoded,detail));
     size_t size=decoded.instruction_count*sizeof(NvmAffineInstructionFact);
@@ -121,7 +96,7 @@ static void check_global_flow(void) {
         if (result.ok!=(wrong==0)) fprintf(stderr,"global union: %s\n",result.message);
         CHECK(result.ok==(wrong==0));
         if (wrong) CHECK(strstr(result.message,"exact global type"));
-        CHECK(!nvm_verify(u).ok);nvm_module_free(u);
+        CHECK(nvm_verify(u).ok==(wrong==0));nvm_module_free(u);
     }
 #ifdef AFFINE_BYTECODE_ALLOCATION_TEST
     NvmModule *m=global_fixture("PUSH_I64 0\nSTORE_GLOBAL 0\nCALL 1\nRET\n",increment,NULL,TAG_INT,true);

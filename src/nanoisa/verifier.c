@@ -974,6 +974,7 @@ static bool owned_runtime_opcode(uint8_t op,bool value_graph) {
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
     case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+    case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
         return value_graph;
     default: return false;
     }
@@ -985,9 +986,13 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     if (!mod->ownership_size || (!mod->function_count || mod->function_count>NVM_OWNED_MAX_FUNCTIONS) || mod->header.entry_point != 0 ||
         mod->import_count || mod->module_ref_count || mod->callback_contract_count || mod->passive_size)
         return fail("I require standalone ownership instruction execution semantics without linked contracts");
-    uint32_t globals;
-    if (nvm_ownership_globals(mod,NULL,0,&globals)!=NVM_V2_OK || globals)
-        return fail("I require connected global runtime lifetime before owned execution");
+    uint32_t globals;NvmOwnershipGlobal global_types[NVM_OWNERSHIP_MAX_GLOBALS];
+    if (nvm_ownership_globals(mod,global_types,NVM_OWNERSHIP_MAX_GLOBALS,&globals)!=NVM_V2_OK)
+        return fail("I require exact global declarations before owned execution");
+    for (uint32_t g=0;g<globals;g++)
+        if (global_types[g].tag==TAG_STRUCT || (global_types[g].tag==TAG_UNION &&
+            (mod->ownership_data[8+global_types[g].layout]&NVM_LAYOUT_RESOURCE)))
+            return fail("I require explicit record/resource global transfers and lifetime");
     bool value_graph=nvm_affine_value_call_graph(mod);
     if (!value_graph && mod->function_count>2)
         return fail("I require a bounded acyclic value graph or my separate borrowed helper");
@@ -1048,7 +1053,7 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     }
     nvm_v2_layouts_free(&layouts);
     if (!supported) return fail("I require exact scalar, retained STRING or owned-child record fields before execution");
-    bool transfer=false;
+    bool transfer=globals!=0;
     for(uint32_t function=0;function<mod->function_count;function++) {
         VmDecodedFunction decoded;char error[VM_DECODE_ERROR_SIZE];
         if(!vm_decode_function(mod,function,&decoded,error)) return fail("%s",error);

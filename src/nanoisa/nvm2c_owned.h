@@ -24,6 +24,8 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
     NvmAffineState *state=NULL; NvmV2Layouts layouts={0};
     int *depth=NULL; uint32_t *queue=NULL;
     NvmAffineInstructionFact *facts=NULL;
+    uint32_t global_count=0;
+    if (!shared && nvm_ownership_globals(mod,NULL,0,&global_count)!=NVM_V2_OK) goto fail;
     const NvmFunctionEntry *fn=&mod->functions[function];
     if (!vm_decode_function(mod,function,&code,decode_error) ||
         nvm_v2_layouts_decode(mod->layout_data,mod->layout_size,&layouts)!=NVM_V2_OK ||
@@ -164,7 +166,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
     }
     if (!function) {
         if (value_graph) for (uint32_t f=1;f<mod->function_count;f++)
-            nvm2c_printf(&b,"static int nown_function_%u(nown_value *argument,uint64_t *next_generation,uint64_t generation,nown_value *result%s);\n",f,shared?",NmsRuntime *managed":"");
+            nvm2c_printf(&b,"static int nown_function_%u(nown_value *argument,uint64_t *next_generation,uint64_t generation,nown_value *result%s%s);\n",f,shared?",NmsRuntime *managed":"",global_count?",nown_value *globals":"");
         for (uint32_t f=1;f<mod->function_count;f++) {
             char *helper=emit_owned_function(mod,f,mixed,owner_arrays,err,err_len);
             if(!helper) goto fail;
@@ -172,7 +174,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         }
     }
     if (consuming)
-        nvm2c_printf(&b,"static int nown_function_%u(nown_value *argument,uint64_t *next_generation,uint64_t generation,nown_value *result%s) {\n",function,shared?",NmsRuntime *managed":"");
+        nvm2c_printf(&b,"static int nown_function_%u(nown_value *argument,uint64_t *next_generation,uint64_t generation,nown_value *result%s%s) {\n",function,shared?",NmsRuntime *managed":"",global_count?",nown_value *globals":"");
     else nvm2c_puts(&b,function?
         "static int nown_helper(nown_value *origin,const nown_reference *borrowed,uint64_t caller_generation,uint64_t generation,int64_t *result) {\n":
         "int nvm_owned_entry(int64_t *result) {\n");
@@ -180,6 +182,10 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         " nown_value t[256]={{0}}, l[256]={{0}}, a={0}, c={0}, pending={0};\n"
         " nown_reference refs[256]={{0}}; unsigned region=0;\n"
         " int status=0; (void)result; (void)a; (void)c; (void)nown_retain; (void)nown_string_new; (void)nown_string_equal; (void)refs; (void)region; (void)nown_referent;\n");
+    if (global_count) {
+        if (!function) nvm2c_printf(&b," nown_value globals[%u]={{0}};\n",global_count);
+        else nvm2c_puts(&b," (void)globals;\n");
+    }
     if(shared) {
         nvm2c_puts(&b," (void)nown_to_managed;(void)nown_from_managed;(void)nown_status;(void)nown_i64_bits;\n");
         if(!function && owner_arrays) {
@@ -233,6 +239,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             if (mod->functions[target].result_count) nvm2c_printf(&b,"&t[%d]",first);
             else nvm2c_puts(&b,"NULL");
             if(shared)nvm2c_puts(&b,",managed");
+            if(global_count)nvm2c_puts(&b,",globals");
             nvm2c_puts(&b,"); if(status)goto cleanup;\n");
             break;
         }
@@ -284,6 +291,10 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             nvm2c_printf(&b,",%u); if(!a.string){status=1;goto cleanup;} a.tag=%u; t[%d]=a; a=(nown_value){0};\n",mod->string_lengths[index],TAG_STRING,n);
             break;
         }
+        case OP_LOAD_GLOBAL:
+            nvm2c_printf(&b," if(!nown_retain(globals[%u])){status=1;goto cleanup;} t[%d]=globals[%u];\n",in->operands[0].u32,n,in->operands[0].u32);break;
+        case OP_STORE_GLOBAL:
+            nvm2c_printf(&b," nown_release(globals[%u]); globals[%u]=t[%d]; t[%d]=(nown_value){0};\n",in->operands[0].u32,in->operands[0].u32,n-1,n-1);break;
         case OP_LOAD_LOCAL:
             nvm2c_printf(&b," if(!nown_retain(l[%u])){status=1;goto cleanup;} t[%d]=l[%u];\n",local,n,local);break;
         case OP_STORE_LOCAL: case OP_OWN_STORE_LOCAL:
@@ -465,6 +476,8 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         else nvm2c_printf(&b," goto L%u;\n",d->next_byte_offset);
     }
     nvm2c_puts(&b,"cleanup:;\n for(size_t i=0;i<256;i++){nown_release(t[i]);nown_release(l[i]);}\n");
+    if (global_count && !function)
+        nvm2c_printf(&b," for(size_t i=0;i<%u;i++)nown_release(globals[i]);\n",global_count);
     if(shared)nvm2c_puts(&b," nown_release(a);nown_release(c);a=c=(nown_value){0};\n");
     if(shared && !function)nvm2c_puts(&b," if(managed->live_objects || managed->live_bytes)status=3;\n if(managed->active)(void)nms_finish(managed,status?NMS_STATE:NMS_OK,0);\n if(nms_dispose(managed)!=NMS_OK)status=3;\n");
     if(result_type.tag!=TAG_VOID) nvm2c_puts(&b,consuming?

@@ -368,8 +368,18 @@ conditional on its input requirements. I validate global indices even in
 unreachable instructions. Cached summaries avoid repeated expansion of the
 acyclic graph, and the worklist bound includes global relation changes.
 
-This analysis does not grant runtime authority. The execution verifier and
-private array/mixed profiles still refuse modules carrying this extension.
-I have not connected VM/native state lifetime, repeated calls or either source
-producer. I do not assume zero initialization or infer a global's type from
-its first store. These remain required before executable admission under #981.
+The standalone owned verifier now admits scalar, string and copyable-union
+globals after entry-zero analysis. Each entry invocation owns one initially
+uninitialized global table. Direct helpers share it. Native helpers receive the
+table explicitly; I use no process-global storage. Entry success or failure
+releases its roots. The VM also collects deferred cycle suspects after global
+overwrite and invocation cleanup, so repeated entries do not accumulate union
+shells. Repeated entries start fresh; ordinary modules without this declaration
+contract retain their existing global behavior.
+
+My four public VM entry routes use that same scope. I refuse host entry into a
+helper, indirect captured entry and low-level resumption without an active
+scoped proof. A failed native entry preserves its caller's result storage.
+Private array/mixed profiles still refuse this extension. Record/resource
+global transfers, both source producers and final platform qualification remain
+open under #981; I do not infer their completion from copyable global execution.
