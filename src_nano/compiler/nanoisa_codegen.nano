@@ -907,7 +907,17 @@ shadow nisa_is_list_insert {
     assert (not (nisa_is_list_insert "list_int_get"))
 }
 
+fn nisa_is_list_free(name: string) -> bool {
+    return (and (or (str_starts_with name "list_") (str_starts_with name "List_")) (str_ends_with name "_free"))
+}
+shadow nisa_is_list_free {
+    assert (nisa_is_list_free "list_string_free")
+    assert (not (nisa_is_list_free "other_list_string_free"))
+    assert (not (nisa_is_list_free "list_string_get"))
+}
+
 fn nisa_is_list_call(name: string) -> bool {
+    if (nisa_is_list_free name) { return true }
     if (> (nisa_list_removal name) 0) { return true }
     if (nisa_is_list_insert name) { return true }
     return (and (or (str_starts_with name "list_") (str_starts_with name "List_"))
@@ -3006,6 +3016,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         }
         if (nisa_is_set_call target_name) { return "void" }
         if (and (nisa_is_list_insert target_name) (< (nisa_call_index parser call) 0)) { return "void" }
+        if (and (nisa_is_list_free target_name) (< (nisa_call_index parser call) 0)) { return "void" }
         if (and (> (nisa_list_removal target_name) 0) (< (nisa_call_index parser call) 0)) { return (nisa_list_removal_result parser call target_name) }
         if (and (nisa_is_list_call target_name) (str_ends_with target_name "_new")) {
             let element: string = (str_substring target_name 5 (- (str_length target_name) 9))
@@ -4181,6 +4192,34 @@ shadow nisa_callable_publication {
     let _: int = (nisa_reset)
 }
 
+# I release the evaluated reference and clear a named compiler-held root.
+# Other owners retain their managed references; I do not force-free aliases.
+fn nisa_emit_list_free(parser: Parser, call: ASTCall, name: string) -> string {
+    if (!= call.arg_count 1) { return (nisa_fail "I require one list reference for release") }
+    let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let element: string = (nisa_element_type parser (nisa_expr_type parser argument.node_id argument.node_type))
+    let declared: string = (str_substring name 5 (- (str_length name) 10))
+    if (or (== element "") (!= element declared)) { return (nisa_fail "I require release to match the list element type") }
+    let mut output: string = (+ (nisa_emit_expr parser argument.node_id argument.node_type) (nisa_line "POP"))
+    if (== argument.node_type ParseNodeType.PNODE_IDENTIFIER) {
+        let identifier: string = (parser_get_identifier parser argument.node_id).name
+        let local: int = (nisa_local_find identifier)
+        if (>= local 0) { return (+ output (+ (nisa_line "PUSH_VOID") (nisa_line_imm "STORE_LOCAL" (int_to_string local)))) }
+        let capture: int = (nisa_capture_find nisa_capture_frame identifier)
+        if (>= capture 0) { return (+ output (+ (nisa_line "PUSH_VOID") (nisa_line_imm "STORE_UPVALUE" (+ "0 " (int_to_string capture))))) }
+        let global: int = (nisa_global_find identifier call.line)
+        if (>= global 0) { return (+ output (+ (nisa_line "PUSH_VOID") (nisa_line_imm "STORE_GLOBAL" (int_to_string global)))) }
+        return (nisa_fail "I require the named list root before release")
+    }
+    return output
+}
+shadow nisa_emit_list_free {
+    let text: string = (nanoisa_emit_nasm "fn main()->int { let xs:List<string> = (list_string_new) (list_string_free xs) return 0 }")
+    assert (str_contains text "PUSH_VOID\n  STORE_LOCAL")
+    assert (== (nanoisa_emit_nasm "fn main()->int { let xs:List<int> = (list_int_new) (list_string_free xs) return 0 }") "")
+    let _: int = (nisa_reset)
+}
+
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     if (nisa_indirect_call parser call) { return (nisa_emit_indirect_call parser call) }
     let function_name: string = (nisa_call_name parser call)
@@ -4196,6 +4235,7 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
         return (nisa_fail "I cannot use a bound value as a binary64 bit intrinsic")
     }
     if (< declared_index 0) {
+        if (nisa_is_list_free function_name) { return (nisa_emit_list_free parser call function_name) }
         if (== function_name "array_slice") { return (nisa_emit_array_slice parser call) }
         if (nisa_is_list_insert function_name) { return (nisa_emit_list_insert parser call function_name) }
         if (> (nisa_list_removal function_name) 0) { return (nisa_emit_list_removal parser call function_name) }
@@ -4994,7 +5034,7 @@ fn nisa_call_has_result(parser: Parser, call: ASTCall) -> bool {
     if (== (nisa_map_opcode name) "HM_SET") { return false }
     let index: int = (nisa_call_index parser call)
     if (and (< index 0) (> (nisa_list_removal name) 0)) { return (!= (nisa_list_removal_result parser call name) "void") }
-    if (< index 0) { return (not (nisa_is_list_insert name)) }
+    if (< index 0) { return (not (or (nisa_is_list_insert name) (nisa_is_list_free name))) }
     let function: ASTFunction = (parser_get_function parser index)
     return (!= function.return_type "void")
 }

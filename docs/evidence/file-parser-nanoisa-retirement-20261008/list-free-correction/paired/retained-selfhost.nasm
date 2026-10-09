@@ -1,0 +1,28 @@
+.types 0 0 0
+.entry 0
+
+.function main 0 2 0 int 1
+  PUSH_I64 0
+  PRINT
+  ARR_NEW 1
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  PUSH_I64 42
+  ARR_PUSH
+  POP
+  PUSH_I64 1
+  PRINT
+  LOAD_LOCAL 0
+  STORE_LOCAL 1
+  LOAD_LOCAL 0
+  POP
+  PUSH_VOID
+  STORE_LOCAL 0
+  PUSH_I64 2
+  PRINT
+  PUSH_I64 3
+  PRINT
+  PUSH_I64 0
+  RET
+.end
+

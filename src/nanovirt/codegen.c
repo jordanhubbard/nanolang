@@ -2043,6 +2043,63 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         /* Find the operation suffix */
         const char *suffix = strrchr(name, '_');
         if (suffix) {
+            if (strcmp(suffix, "_free") == 0) {
+                if (extern_find(cg, name) >= 0) return false;
+                if (argc != 1) {
+                    cg_error(cg, node->line, "I require one list release receiver");
+                    return true;
+                }
+                Type type = check_expression(args[0], cg->env);
+                const char *element = type == TYPE_LIST_INT ? "int" :
+                    type == TYPE_LIST_STRING ? "string" :
+                    type == TYPE_LIST_TOKEN ? "Token" : NULL;
+                char *owned_element = NULL;
+                if (type == TYPE_LIST_GENERIC) {
+                    TypeInfo *info = NULL;
+                    if (args[0]->type == AST_IDENTIFIER) {
+                        Symbol *symbol = env_get_var_visible_at(cg->env,
+                            args[0]->as.identifier, args[0]->line, args[0]->column);
+                        if (symbol) {
+                            info = symbol->type_info;
+                            element = symbol->struct_type_name;
+                        }
+                    } else if (args[0]->type == AST_CALL && args[0]->as.call.name) {
+                        Function *function = env_get_function(cg->env, args[0]->as.call.name);
+                        if (function) {
+                            info = function->return_type_info;
+                            element = function->return_struct_type_name;
+                        }
+                    }
+                    if (info && info->type_param_count == 1) {
+                        owned_element = typeinfo_to_generic_arg_name(info->type_params[0]);
+                        element = owned_element;
+                    }
+                }
+                size_t length = (size_t)(suffix - (name + 5));
+                bool matches = element && strlen(element) == length &&
+                    strncmp(element, name + 5, length) == 0;
+                free(owned_element);
+                if (!matches) {
+                    cg_error(cg, node->line, "I require a matching list release receiver");
+                    return true;
+                }
+                /* I evaluate once, release that temporary reference, then
+                 * relinquish the named owner. Other aliases keep their roots. */
+                compile_expr(cg, args[0]);
+                emit_op(cg, OP_POP);
+                if (args[0]->type == AST_IDENTIFIER) {
+                    const char *id = args[0]->as.identifier;
+                    int16_t local = local_find(cg, id);
+                    int16_t global = local < 0 ? global_find(cg, id) : -1;
+                    int16_t capture = local < 0 && global < 0 ? upvalue_resolve(cg, id) : -1;
+                    emit_op(cg, OP_PUSH_VOID);
+                    if (local >= 0) emit_op(cg, OP_STORE_LOCAL, (int)local);
+                    else if (global >= 0) emit_op(cg, OP_STORE_GLOBAL, (uint32_t)global);
+                    else if (capture >= 0) emit_op(cg, OP_STORE_UPVALUE, 0, (int)capture);
+                    else cg_error(cg, node->line, "I cannot resolve this list release owner");
+                }
+                return true;
+            }
             if ((strcmp(suffix, "_insert") == 0 && argc == 3) ||
                 (strcmp(suffix, "_remove") == 0 && argc == 2) ||
                 (strcmp(suffix, "_pop") == 0 && argc == 1)) {
