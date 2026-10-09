@@ -46,3 +46,7 @@ char *nl_source_inputs_text(NlFileSourceSnapshots *context, int64_t index, int64
 void nl_source_inputs_free(NlFileSourceSnapshots *context) {
     nl_file_source_snapshots_free(context);
 }
+/* I release through the producing artifact after the consumer copies my view. */
+void nl_source_inputs_text__nano_string_release_v1(const char *result) {
+    free((void *)result);
+}

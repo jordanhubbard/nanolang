@@ -523,9 +523,12 @@ static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
                 supported = supported && desc->param_types && desc->param_types[i] == TAG_STRING;
             supported = supported || (desc->param_count == 1 && desc->param_types &&
                                        desc->param_types[0] == TAG_OPAQUE);
+            supported = supported || (desc->param_count == 3 && desc->param_types &&
+                desc->param_types[0] == TAG_OPAQUE && desc->param_types[1] == TAG_INT &&
+                desc->param_types[2] == TAG_INT);
             if (!supported) {
                 desc->state = NVM_CALL_FAILED;
-                snprintf(error_msg, error_msg_size, "I require up to two strings or one opaque parameter for provider string cleanup");
+                snprintf(error_msg, error_msg_size, "I require strings or an opaque context with zero or two integer indices for provider string cleanup");
                 return NULL;
             }
         }
@@ -872,14 +875,21 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
 
     if (desc->string_release) {
         const char *text = NULL;
-        bool opaque_input = arg_count == 1 && param_types && param_types[0] == TAG_OPAQUE;
+        bool opaque_input = (arg_count == 1 || arg_count == 3) && param_types && param_types[0] == TAG_OPAQUE;
         if (opaque_input) {
             bool null = args[0].tag == TAG_INT && args[0].as.i64 == 0;
             if (args[0].tag != TAG_OPAQUE && !null) {
                 snprintf(error_msg, error_msg_size, "I require an opaque value or zero null for provider string cleanup");
                 return false;
             }
-            text = ((const char *(*)(void *))func_ptr)(null ? NULL : args[0].as.obj);
+            void *context = null ? NULL : args[0].as.obj;
+            if (arg_count == 3) {
+                if (args[1].tag != TAG_INT || args[2].tag != TAG_INT) {
+                    snprintf(error_msg, error_msg_size, "I require integer indices for provider string cleanup");
+                    return false;
+                }
+                text = ((const char *(*)(void *, int64_t, int64_t))func_ptr)(context, args[1].as.i64, args[2].as.i64);
+            } else text = ((const char *(*)(void *))func_ptr)(context);
         } else {
             const char *arguments[2] = {NULL, NULL};
             for (int i = 0; i < arg_count; ++i) {

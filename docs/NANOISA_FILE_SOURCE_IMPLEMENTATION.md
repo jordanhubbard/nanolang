@@ -516,8 +516,9 @@ string extents against declared counts before passing spans to the strict reader
 Nonnegative results identify retained snapshots; negative results retain the
 reader's status. My text operation copies one counted view and the module
 manifest marks that result as an owned string. A copied view survives context
-destruction. NULL becomes the runtime's empty string, so a caller must reject an
-empty required view rather than treating allocation failure as valid input.
+destruction. A failed copy returns NULL: my VM refuses it, while native callers must reject
+an empty required view. The provider exports its own versioned release companion
+so consumers copy and release exactly once, including a failed managed copy.
 
 The reader's 64 MiB bound covers its context and strict preparation storage.
 Returned copies belong to the caller and are additional storage; this bridge

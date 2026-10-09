@@ -14512,3 +14512,13 @@ locally without redundant extraction under the current Linux capacity limit.
 - [ ] Under #989 I expose my immutable companion reader through an owning Nano FFI context with counted acquisition, copied string views and explicit destruction. I require actual native and VM module consumers, retained views after destruction, independent contexts and refusal without partial acquisition before wiring driver lifetime and complete namespace resolution.
 
 - [ ] Under #989/#982 I qualify the exact six-function snapshot-context artifact ABI in my Nano emitter. My first bridge probe is rejected by Stage1/Stage2 because the new symbols have no retained artifact signatures. I add explicit result/parameter signatures and require the declared opaque context, without granting arbitrary foreign symbols or File service authority.
+
+- [ ] Under #989/#982 I admit the same six exact companion-context signatures in C AOT. My first actual nano_virt module runs in NanoVM but nvm2c refuses its unregistered artifact adapter. I require VM/native equivalence, sanitizer execution and wrong-signature refusal before claiming compiler-input ABI parity.
+
+- [ ] Under #989 I qualify copied snapshot strings across the artifact release ABI. The first native candidate refuses because the manifest's owned-string declaration does not itself export the required release companion. I add the provider-owned release symbol and retain the refusing terminal; VM/native consumers must copy and release through the same lifetime contract.
+
+- [ ] Under #989/#982 I extend retained provider-string cleanup to the exact opaque/int/int signature needed by snapshot views. Exporting the cleanup companion exposed NanoVM's existing restriction to zero/two strings or one opaque argument. I require typed argument checks and exactly-once release on copy failure, retaining existing neighbor controls and VM/native parity.
+
+- [ ] Under #982 I repair two measured artifact-string fixture prerequisites: hardcoded `cc` ignores the selected leak-capable compiler on Darwin, and the allocation-failure VM link omits its current File CLI/runtime closure. I retain the first terminal and all assertions; I honor the explicit compiler selection and link the real required providers before rerunning the neighbor suite.
+
+- [x] Under #989/#982 I qualify my typed companion-input bridge through the C seed, nano_virt, Stage1, Stage2, NanoVM and sanitized native AOT. All thirteen paired/cleanup methods and the final reader sanitizer fixture pass. I retain the [bootstrap pin, first failures, corrected results and instrumentation scope](evidence/file-source-inputs-20261009/README.md). Driver acquisition, complete namespace, File source execution and Linux qualification remain open.

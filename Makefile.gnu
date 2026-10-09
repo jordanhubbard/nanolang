@@ -6010,7 +6010,7 @@ test-service-origins: $(OBJ_DIR)/test_service_origins nano_virt nano_vm bootstra
 test-units: test-service-origins
 
 .PHONY: test-file-source-inputs
-test-file-source-inputs: bin/nanoc_c nano_virt nano_vm bootstrap
+test-file-source-inputs: bin/nanoc_c nano_virt nano_vm nvm2c nanoisa bootstrap
 	python3 -m unittest -v tests.test_file_source_inputs
 
 test-units: test-file-source-inputs

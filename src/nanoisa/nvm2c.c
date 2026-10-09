@@ -479,8 +479,14 @@ static const Nvm2cHost artifact_adapters[] = {
 };
 
 /* I keep exact heterogeneous artifact signatures separate from string-only hosts. */
-typedef struct { Nvm2cHost host; uint8_t parameters[3]; } Nvm2cTypedHost;
+typedef struct { Nvm2cHost host; uint8_t parameters[5]; } Nvm2cTypedHost;
 static const Nvm2cTypedHost typed_artifact_adapters[] = {
+    {{"nl_source_inputs_new", "nhost_source_inputs", 0, TAG_VOID, TAG_OPAQUE}, {TAG_VOID}},
+    {{"nl_source_inputs_valid", "nhost_source_inputs", 1, TAG_VOID, TAG_INT}, {TAG_OPAQUE}},
+    {{"nl_source_inputs_count", "nhost_source_inputs", 1, TAG_VOID, TAG_INT}, {TAG_OPAQUE}},
+    {{"nl_source_inputs_open", "nhost_source_inputs", 5, TAG_VOID, TAG_INT}, {TAG_OPAQUE, TAG_STRING, TAG_INT, TAG_STRING, TAG_INT}},
+    {{"nl_source_inputs_text", "nhost_source_inputs", 3, TAG_VOID, TAG_STRING}, {TAG_OPAQUE, TAG_INT, TAG_INT}},
+    {{"nl_source_inputs_free", "nhost_source_inputs", 1, TAG_VOID, TAG_VOID}, {TAG_OPAQUE}},
     {{"nl_json_parse", "nhost_json", 1, TAG_VOID, TAG_OPAQUE}, {TAG_STRING}},
     {{"nl_json_free", "nhost_json", 1, TAG_VOID, TAG_VOID}, {TAG_OPAQUE}},
     {{"nl_json_stringify", "nhost_json", 1, TAG_VOID, TAG_STRING}, {TAG_OPAQUE}},
@@ -536,8 +542,12 @@ static const Nvm2cTypedHost typed_artifact_adapters[] = {
 static int json_artifact_adapter(const Nvm2cHost *host) {
     return host && !strcmp(host->c_name, "nhost_json");
 }
+static bool context_artifact_adapter(const Nvm2cHost *host) {
+    return json_artifact_adapter(host) || (host && !strcmp(host->c_name, "nhost_source_inputs"));
+}
 static bool typed_artifact_adapter(const Nvm2cHost *host) {
-    return json_artifact_adapter(host) || (host && !strcmp(host->c_name, "nhost_sqlite"));
+    return json_artifact_adapter(host) || (host &&
+        (!strcmp(host->c_name, "nhost_sqlite") || !strcmp(host->c_name, "nhost_source_inputs")));
 }
 static uint8_t host_parameter(const Nvm2cHost *host, uint8_t index) {
     if (typed_artifact_adapter(host)) {
@@ -2614,7 +2624,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 nvm2c_fail(b, "function %u: CALL_EXTERN has no exact builtin host ABI", idx);
                 return 0;
             }
-            if (json_artifact_adapter(host)) b->has_maps = 1;
+            if (context_artifact_adapter(host)) b->has_maps = 1;
             for (uint8_t p = 0; p < host->argc; ++p) {
                 Nvm2cSimSlot arg;
                 if (!sim_pop(b, idx, stk, &sp, &arg)) return 0;
@@ -6707,14 +6717,14 @@ static void emit_typed_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
             artifact_native_type(host->result, 1), host->c_name, i, host->argc ? parameters : "void");
         nvm2c_printf(b, "    static void *library;\n    static %s (*function)(%s);\n",
             result, host->argc ? types : "void");
-        if (host->result == TAG_STRING && json_artifact_adapter(host)) nvm2c_puts(b, "    static void (*release)(const char *);\n");
+        if (host->result == TAG_STRING && context_artifact_adapter(host)) nvm2c_puts(b, "    static void (*release)(const char *);\n");
         nvm2c_puts(b, "    if (!library) {\n        library = dlopen(");
         const NvmImportEntry *imp = &mod->imports[i];
         emit_c_string_lit(b, mod->strings[imp->module_name_idx], mod->string_lengths[imp->module_name_idx]);
         nvm2c_puts(b, ", RTLD_NOW | RTLD_LOCAL);\n        if (!library) NVM2C_ABORT();\n");
         nvm2c_printf(b, "        function = (%s (*)(%s))dlsym(library, \"%s\");\n        if (!function) NVM2C_ABORT();\n",
             result, host->argc ? types : "void", host->name);
-        if (host->result == TAG_STRING && json_artifact_adapter(host)) {
+        if (host->result == TAG_STRING && context_artifact_adapter(host)) {
             nvm2c_printf(b, "        release = (void (*)(const char *))dlsym(library, \"%s__nano_string_release_v1\");\n", host->name);
             nvm2c_puts(b, "        Dl_info producer, companion;\n"
                 "        if (!release || !dladdr((void *)function, &producer) || !dladdr((void *)release, &companion) ||\n"
@@ -6725,7 +6735,7 @@ static void emit_typed_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
         else {
             nvm2c_printf(b, "    %s value = function(%s);\n", result, arguments);
             if (host->result == TAG_OPAQUE) nvm2c_puts(b, "    return (nmap_value){14, 0, (char *)value};\n");
-            else if (host->result == TAG_STRING) nvm2c_puts(b, json_artifact_adapter(host) ?
+            else if (host->result == TAG_STRING) nvm2c_puts(b, context_artifact_adapter(host) ?
                 "    return nstr_copy_release(value, release);\n" : "    return nstr_copy(value);\n");
             else nvm2c_puts(b, "    return value;\n");
         }
@@ -7092,7 +7102,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         const Nvm2cHost *host = import_host(mod, i);
         if (host && host->result == TAG_STRING)
             b.has_owned_strings = 1;
-        if (json_artifact_adapter(host)) b.has_maps = 1;
+        if (context_artifact_adapter(host)) b.has_maps = 1;
     }
     int has_global_store = 0, has_record_array_constructor = 0;
     /* The tagged map runtime also provides shared frame/aggregate root tracing.

@@ -47,7 +47,7 @@ int main(int argc,char **argv){
  assert(!nl_source_inputs_text(bridge,-1,1));assert(!nl_source_inputs_text(bridge,0,4));
  assert(!nl_source_inputs_text(NULL,0,1));
  nl_source_inputs_free(bridge);
- assert(strlen(copied)==(size_t)length && !memcmp(copied,bytes,(size_t)length));free(copied);
+ assert(strlen(copied)==(size_t)length && !memcmp(copied,bytes,(size_t)length));nl_source_inputs_text__nano_string_release_v1(copied);
  assert(nl_source_inputs_count(independent)==0);nl_source_inputs_free(independent);
  nl_source_inputs_free(NULL);assert(live==0);
  NlFileSourceSnapshots *p=NULL;assert(nl_file_source_snapshots_new(&p)==NL_FILE_BINDING_OK);

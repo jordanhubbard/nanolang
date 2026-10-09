@@ -9,4 +9,5 @@ int64_t nl_source_inputs_open(NlFileSourceSnapshots *, const char *, int64_t,
 int64_t nl_source_inputs_count(NlFileSourceSnapshots *);
 char *nl_source_inputs_text(NlFileSourceSnapshots *, int64_t, int64_t);
 void nl_source_inputs_free(NlFileSourceSnapshots *);
+void nl_source_inputs_text__nano_string_release_v1(const char *);
 #endif

@@ -1,6 +1,7 @@
 """I copy artifact strings before provider cleanup and preserve borrowed results."""
 import json
 import os
+import shlex
 from pathlib import Path
 import subprocess
 import sys
@@ -8,6 +9,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+CC = shlex.split(os.environ.get("NANO_NATIVE_TEST_CC", os.environ.get("CC", "cc")))
 
 
 class ArtifactStringRelease(unittest.TestCase):
@@ -27,7 +29,7 @@ class ArtifactStringRelease(unittest.TestCase):
     def library(self, name, source, extra=()):
         c, library = self.work/(name+'.c'), self.work/(name+('.dylib' if sys.platform == 'darwin' else '.so'))
         c.write_text(source)
-        self.command(['cc', '-std=c11', '-D_GNU_SOURCE', '-shared', '-fPIC', c, *extra, '-o', library])
+        self.command([*CC, '-std=c11', '-D_GNU_SOURCE', '-shared', '-fPIC', c, *extra, '-o', library])
         return library
 
     def provider(self, name):
@@ -80,7 +82,7 @@ int64_t file_delete(const char *key) {
         self.command([ROOT/'bin/nvm2c', module, '-o', source])
         if transform:
             source.write_text(transform(source.read_text()))
-        self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+        self.command([*CC, '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                       '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
                       '-o', binary, '-lm', *(['-ldl'] if sys.platform.startswith('linux') else [])])
         return binary
@@ -267,12 +269,12 @@ const char *path_basename(const char *input) {
         binary = self.work/'vm-copy-failure'
         makefile = self.work/'failure.mk'
         # I use the existing build closure without rebuilding or replacing shared tools.
-        makefile.write_text('.PHONY: artifact-copy-failure\nartifact-copy-failure:\n'
+        makefile.write_text('.PHONY: artifact-copy-failure\nartifact-copy-failure: $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY)\n'
             '\t$(CC) $(CFLAGS) -D_GNU_SOURCE '+str(shim)+' '
             '$(filter-out $(OBJ_DIR)/nanovm/vm_ffi.o,$(NANOVM_OBJECTS)) '
             '$(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) '
             '$(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o '
-            '$(OBJ_DIR)/nanovm/main.o $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS) -o '+str(binary)+'\n')
+            '$(OBJ_DIR)/nanovm/main.o $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS) -o '+str(binary)+'\n')
         self.command(['make','-s','-f','Makefile.gnu','-f',makefile,'artifact-copy-failure'], cwd=ROOT)
         marker = self.work/'vm-copy-release'
         result = self.command([binary,module], success=False,
@@ -306,6 +308,47 @@ const char *path_basename(const char *input) {
         self.command([binary], success=False, env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1',
                                                    'NANO_ARTIFACT_RELEASE_MARKER':str(marker)})
         self.assertEqual(marker.read_text(), '1 1\n')
+
+
+    def test_opaque_indices_copy_and_release(self):
+        provider = self.library('indexed', r'''
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+const char *nl_source_inputs_text(void *context, int64_t index, int64_t kind) {
+    if (context || index != -7 || kind != INT64_MAX) abort();
+    char *result = malloc(8);
+    if (!result) abort();
+    memcpy(result, "indexed", 8);
+    return result;
+}
+void nl_source_inputs_text__nano_string_release_v1(const char *value) {
+    free((void *)value);
+    const char *path = getenv("NANO_ARTIFACT_RELEASE_MARKER");
+    if (path) { FILE *f = fopen(path, "a"); if (!f) abort(); fputs("released\n", f); fclose(f); }
+}
+''')
+        text = self.imports([(provider, 'nl_source_inputs_text', 'string opaque int int')])
+        text += ('.string expected "indexed"\n.entry main\n.function main 0 0 0 int 1\n'
+                 'PUSH_I64 0\nPUSH_I64 -7\nPUSH_I64 9223372036854775807\nCALL_EXTERN 0\n'
+                 'PUSH_STR expected\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n')
+        module = self.module(text)
+        marker = self.work/'indexed-release'
+        environment = {**os.environ, 'NANO_ARTIFACT_RELEASE_MARKER': str(marker),
+                       'ASAN_OPTIONS': 'detect_leaks=1'}
+        for command in ([ROOT/'bin/nano_vm', module], [self.native(module)]):
+            marker.unlink(missing_ok=True)
+            self.command(command, env=environment)
+            self.assertEqual(marker.read_text(), 'released\n')
+        def fail_copy(source):
+            needle = 'nstr_owned *owner = malloc(bytes);'
+            self.assertEqual(source.count(needle), 1)
+            return source.replace(needle, 'nstr_owned *owner = NULL;')
+        binary = self.native(module, fail_copy)
+        marker.unlink(missing_ok=True)
+        self.command([binary], success=False, env=environment)
+        self.assertEqual(marker.read_text(), 'released\n')
 
 
 if __name__ == '__main__':
