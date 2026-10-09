@@ -1,0 +1,13 @@
+# Release CI failures at e3b896e43
+
+I retain the failed stages from [run37895547422](https://github.com/jordanhubbard/nanolang/actions/runs/37895547422), at the exact head recorded in `jobs.json`. I track their repair in [#982](https://github.com/jordanhubbard/nanolang/issues/982), under the full release parent #976.
+
+GCC rejects a possibly uninitialized union payload layout. This prevents six CI jobs from reaching their intended tests. The sanitizer job rejects collection-observer C because the abort guard and return share a line. Darwin's component test invokes Apple `cc` despite the selected leak-capable compiler and aborts because leak detection is unsupported. I preserve warnings as errors, ownership/collection assertions and leak detection.
+
+My collection-observer formatting correction passes all seven existing array-pop methods with strict Homebrew Clang ASan/UBSan/LSan in 4.596 seconds. This is Darwin evidence; a corrected GCC hosted run remains required. My component harness now honors `NANO_NATIVE_TEST_CC`, then `CC`. Its first local qualification intentionally set `CC=/usr/bin/false` to distinguish compiler selection, but this also breaks foreign-module compilation before reaching the selected native compiler. I preserve that invalid invocation; it does not qualify the corrected component. My corrected invocation supplies Homebrew Clang for both foreign support and the selected native compiler; all four component methods pass in 39.370 seconds, with leak detection unchanged.
+
+The compiler metadata correction and fresh hosted checks remain open. The separate Pages run37895547385 fails at the same GCC layout warning; `pages-jobs.json` and its failure excerpt retain that attribution.
+
+I independently checked all five GitGuardian findings from check113705969083. Each reported value is a SHA-256 inventory entry, not a credential. Two match the exact source blobs at the reported commits; three match the retained object bytes in the primary checkout. `security-hash-audit.json` retains the incident IDs, evidence locations, object/source basis and equality results without duplicating the matched values. The incident IDs are 38036104, 37472714, 38036105, 37473261 and 38036106.
+
+The external security check remains red pending dismissal of those proven false positives in GitGuardian. This environment has no configured GitGuardian API credential or authenticated dashboard tool. I do not add an ineffective local ignore file: [GitGuardian documents that ggshield ignores do not propagate to its dashboard](https://docs.gitguardian.com/internal-repositories-monitoring/gg_shield/commands/ignore). This evidence does not claim a green release candidate.

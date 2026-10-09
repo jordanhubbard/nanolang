@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+import shlex
 import shutil
 import subprocess
 import sys
@@ -55,7 +56,8 @@ class BootstrapComponents(unittest.TestCase):
             commands = [
                 [ROOT / 'bin/nano_virt', ROOT / 'src_nano/nanoisa_driver.nano', '--emit-nvm', '-o', module],
                 [ROOT / 'bin/nvm2c', module, '-o', source],
-                ['cc', '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
+                [*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))),
+                 '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
                  ROOT / 'bin/nano_aot_runtime.o', '-lm',
                  *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []), '-o', binary],

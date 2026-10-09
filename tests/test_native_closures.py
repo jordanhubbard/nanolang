@@ -30,7 +30,8 @@ class NativeClosures(unittest.TestCase):
                 generated = generated.replace(marker, 'static size_t collections;\n' + marker + '    ++collections;\n')
                 source.write_text('#define main fixture_main\n' + generated +
                     '\n#undef main\nint main(void) { int result = fixture_main();\n'
-                    '    if (collections < 2) abort(); return result; }\n')
+                    '    if (collections < 2) { abort(); }\n'
+                    '    return result;\n}\n')
             result = self.sanitized(source, work / 'program')
             if stdout is not None:
                 self.assertEqual(result.stdout, stdout)
