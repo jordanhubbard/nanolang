@@ -11,3 +11,5 @@ My corrected C-seed suite passes eight methods in 2.578 seconds. A freshly seed-
 I run the adjacent C checks with `make -o stage1 test-env-scoping test-typechecker` after rebuilding `nano_virt` and `bin/nanoc_c`. This does not establish a fresh bootstrap. I retain exact logs and changed-source hashes.
 
 I still require broader canonical-path, wildcard/conflict, initialization, callable/managed ownership and qualified-write checks; freshly installed Stage 1/2; Linux/Darwin acceptance; and a new full raw fixed point. #986 remains open. GitHub API and SSH DNS access fail during this checkpoint, so my issue update and push remain pending until remote access returns.
+
+My subsequent broader baseline passes wildcard imports in both producers but finds three open failures: qualified writes fail in both; importer-relative `./a.nano` resolution fails in the C seed; and conflicting aliases silently succeed in the self-hosted component. I retain the diagnostics in `broader-baseline.log` and track all three under #986. My development-branch push and issue comment later succeed; remote access is intermittent.
