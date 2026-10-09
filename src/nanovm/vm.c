@@ -1975,8 +1975,9 @@ vm_dispatch_top:
                     vm_release(&vm->heap,previous);
                 } else {
                     NanoValue value=vm->stack[index];
-                    if (value.tag!=TAG_STRUCT || !value.as.sval)
-                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a live owned record");
+                    if ((value.tag!=TAG_STRUCT || !value.as.sval) &&
+                        (value.tag!=TAG_UNION || !value.as.uval))
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a live owned aggregate");
                     if (op==OP_OWN_MOVE_LOCAL) {
                         /* I preserve the owner even if this handler is later
                          * separated from the common instruction preflight. */
@@ -1985,15 +1986,16 @@ vm_dispatch_top:
                         vm->stack[index]=val_void();
                         stack_push(vm,value);
                     } else {
-                        VmStruct *record=value.as.sval;
-                        if (stack_reserve(vm,(uint64_t)vm->stack_size+record->field_count)!=VM_OK)
+                        uint32_t count=value.tag==TAG_STRUCT?value.as.sval->field_count:value.as.uval->field_count;
+                        NanoValue *fields=value.tag==TAG_STRUCT?value.as.sval->fields:value.as.uval->fields;
+                        bool buffered=value.tag==TAG_STRUCT?value.as.sval->header.buffered:value.as.uval->header.buffered;
+                        if (stack_reserve(vm,(uint64_t)vm->stack_size+count)!=VM_OK)
                             return trap_error(vm,VM_ERR_MEMORY,"I cannot reserve every unpacked field");
                         vm->stack[index]=val_void();
-                        for (uint32_t i=0;i<record->field_count;i++) {
-                            stack_push(vm,record->fields[i]);
-                            record->fields[i]=val_void();
+                        for (uint32_t i=0;i<count;i++) {
+                            stack_push(vm,fields[i]);
+                            fields[i]=val_void();
                         }
-                        bool buffered=record->header.buffered;
                         vm_release(&vm->heap,value);
                         if (buffered) vm_gc_collect_cycles(&vm->heap);
                     }
@@ -2965,6 +2967,13 @@ dynamic_div:
                         (argument.tag==TAG_STRUCT && (!argument.as.sval ||
                          argument.as.sval->def_idx!=parameters[p].layout)))
                         return trap_error(vm,VM_ERR_TYPE_ERROR,"I require exact positional consuming argument types");
+                    if (argument.tag==TAG_UNION) {
+                        NvmUnionVariantFact fact;
+                        if (!argument.as.uval || nvm_ownership_union_variant(vm->module,
+                            argument.as.uval->def_idx,argument.as.uval->variant,&fact)!=NVM_V2_OK ||
+                            fact.layout!=parameters[p].layout || fact.field_count!=argument.as.uval->field_count)
+                            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require exact consuming union argument identity");
+                    }
                 }
             }
 
@@ -3308,6 +3317,17 @@ vm_return_values: ;
                     if (!valid || type.tag!=TAG_STRUCT || !results[0].as.sval ||
                         results[0].as.sval->def_idx!=type.layout || results[0].as.sval->field_count!=fields)
                         return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact declared owned result");
+                }
+                if (returning->result_tag==TAG_UNION) {
+                    NvmAffineState *contract=nvm_affine_state_create(vm->module,frame->fn_idx,returning->local_count);
+                    NvmAffineType type;uint16_t fields=0;NvmUnionVariantFact fact;
+                    bool valid=nvm_affine_value_result(contract,&type,&fields);
+                    nvm_affine_state_free(contract);
+                    VmUnion *value=results[0].as.uval;
+                    if (!valid || type.tag!=TAG_UNION || !value ||
+                        nvm_ownership_union_variant(vm->module,value->def_idx,value->variant,&fact)!=NVM_V2_OK ||
+                        fact.layout!=type.layout || fact.field_count!=value->field_count)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact declared union result");
                 }
                 /* The returned operand already fits this stack. I establish
                  * publication capacity before removing any callee roots. */

@@ -223,6 +223,30 @@ success alone does not satisfy `nvm_verify` or install runtime semantics.
 Executable eligibility additionally requires the standalone contract below.
 Source borrow producers remain disabled.
 
+### Selected resource-union transfers
+
+I execute complete resource-union declarations in the standalone owned
+profile. `AGG_PACK AGG_VARIANT` consumes the selected variant's exact payload
+owners. `OWN_MOVE_LOCAL` and `OWN_STORE_LOCAL` preserve a known arm;
+`LOAD_LOCAL`, `DUP`, `POP`, `AGG_TAG` and ordinary projections cannot copy or
+silently discard a resource-union token.
+
+`MATCH_TAG` refines the tested operand on its true edge. Its false edge excludes
+that arm; joins retain only exclusions established on every incoming path.
+I can therefore prove the final arm of an exhaustive match, including after
+an outer union or record unpack yields an inner union with unknown selection.
+`OWN_UNPACK_LOCAL` consumes only a proven selected variant and pushes its
+payload in declaration order. Empty variants still carry and discharge the
+union's ownership obligation. I retain prior-layout nominal identities at
+constructors, consuming parameters and returned aggregates.
+
+My native emitter uses converged analysis facts for reachability, stack depth,
+receiver tag and exact unpack count. VM and native allocation failure preserve
+or release every owner. [Runtime evidence](evidence/owned-union-runtime-20261009)
+covers direct, nested and record-wrapped variants, calls, joins, loops and
+refusals. This does not establish either source frontend's complete union
+lowering, linked-module admission, Linux qualification or the 5.1 release.
+
 ### Concrete transfer connection
 
 My transfer instructions are `OWN_MOVE_LOCAL U16` (invalidate the named
@@ -257,8 +281,9 @@ My four transfer operands use existing little-endian codecs: `OWN_MOVE_LOCAL`
 (0x0b, u16 source), `OWN_STORE_LOCAL` (0x0c, u16 destination), `OWN_PACK`
 (0x0d, u32 retained-layout index), and `OWN_UNPACK_LOCAL` (0x0e, u16 source).
 Pack consumes exactly the layout's ordered fields, with the last field on top;
-unpack pushes fields in declaration order. Only checked complete record
-layouts can carry ownership. A resource field must arrive as an owned token,
+unpack pushes fields in declaration order. Checked complete records and
+resource unions can carry ownership. Union construction uses the selected
+`AGG_PACK AGG_VARIANT` descriptor; union unpack requires an exact proven arm. A resource field must arrive as an owned token,
 not an observation; scalar fields must have exact tags. Whole-record unpack
 invalidates the source and creates every field obligation atomically.
 

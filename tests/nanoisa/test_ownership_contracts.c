@@ -208,7 +208,7 @@ static void check_owned_union_transport(void) {
     NvmUnionVariantFact fact={99,99,99,99};
     CHECK(nvm_ownership_union_variant(m,1,1,&fact)==NVM_V2_OK &&
           fact.layout==2 && fact.field_offset==1 && fact.field_count==0);
-    /* Metadata round trips do not grant unimplemented instruction authority. */
+    /* Metadata round trips do not establish the required explicit transfer. */
     NvmAffineState *state=nvm_affine_state_create(m,0,0);CHECK(state);
     CHECK(nvm_affine_has_complete_unions(state));nvm_affine_state_free(state);
     CHECK(!nvm_verify(m).ok);

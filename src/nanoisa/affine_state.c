@@ -511,18 +511,35 @@ bool nvm_affine_local_type(const NvmAffineState *s,uint16_t local,NvmAffineType 
     if (slot.mode) return false;
     *type=(NvmAffineType){slot.tag,slot.layout}; return true;
 }
+bool nvm_affine_type_is_owned(const NvmAffineState *s,NvmAffineType type) {
+    if (!s || type.layout>=s->facts->layouts.count ||
+        !(s->facts->flags[type.layout]&NVM_LAYOUT_COMPLETE)) return false;
+    uint8_t kind=s->facts->layouts.items[type.layout].kind;
+    return (type.tag==TAG_STRUCT && kind==NVM_V2_LAYOUT_STRUCT) ||
+        (type.tag==TAG_UNION && kind==NVM_V2_LAYOUT_UNION &&
+         resource(s->facts,(Slot){type.tag,0,type.layout}));
+}
+bool nvm_affine_owned_local_fields(const NvmAffineState *s,uint16_t local,
+    NvmAffineType *fields,uint16_t capacity,uint16_t *count) {
+    NvmAffineType type;uint16_t variant;
+    if (!nvm_affine_local_type(s,local,&type) || !nvm_affine_type_is_owned(s,type)) return false;
+    if (type.tag==TAG_UNION)
+        return nvm_affine_union_variant(s,local,&variant) &&
+            nvm_affine_union_fields(s,type.layout,variant,fields,capacity,count);
+    return nvm_affine_record_fields(s,type.layout,fields,capacity,count);
+}
 bool nvm_affine_take_local(NvmAffineState *s,uint16_t local,NvmAffineType *type) {
     NvmAffineType found;
-    if (!type || !nvm_affine_local_type(s,local,&found) || found.tag!=TAG_STRUCT ||
+    if (!type || !nvm_affine_local_type(s,local,&found) || !nvm_affine_type_is_owned(s,found) ||
         found.layout==NVM_V2_NO_INDEX || !nvm_affine_owner_access(s,local,NULL,0,true)) return false;
-    s->live[local]=false; *type=found; return true;
+    s->live[local]=false;s->variants[local]=NVM_AFFINE_UNKNOWN_VARIANT; *type=found; return true;
 }
 bool nvm_affine_put_local(NvmAffineState *s,uint16_t local,NvmAffineType type) {
     NvmAffineType wanted;
-    if (!nvm_affine_local_type(s,local,&wanted) || type.tag!=TAG_STRUCT ||
+    if (!nvm_affine_local_type(s,local,&wanted) || !nvm_affine_type_is_owned(s,type) ||
         type.layout==NVM_V2_NO_INDEX || wanted.tag!=type.tag || wanted.layout!=type.layout ||
         !destination(s,local)) return false;
-    s->live[local]=true; return true;
+    s->live[local]=true;s->variants[local]=NVM_AFFINE_UNKNOWN_VARIANT; return true;
 }
 bool nvm_affine_record_fields(const NvmAffineState *s,uint32_t layout,
                                NvmAffineType *fields,uint16_t capacity,uint16_t *count) {
@@ -629,11 +646,11 @@ static bool nested_result_tree(const Facts *facts,uint32_t root) {
         const NvmV2Layout *layout=&facts->layouts.items[index];
         if ((facts->flags[index]&(NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE))!=
                 (NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE) ||
-            layout->kind!=NVM_V2_LAYOUT_STRUCT ||
+            (layout->kind!=NVM_V2_LAYOUT_STRUCT && layout->kind!=NVM_V2_LAYOUT_UNION) ||
             layout->field_count>NVM_AFFINE_MAX_RESULT_FIELDS) goto refused;
         for (uint16_t f=0;f<layout->field_count;f++) {
             const NvmV2LayoutField *field=&layout->fields[f];
-            if (field->type_tag==TAG_STRUCT) {
+            if (field->type_tag==TAG_STRUCT || field->type_tag==TAG_UNION) {
                 uint32_t child=field->nested_idx;
                 if (child>=index || depth[index]>=NVM_AFFINE_MAX_RESULT_DEPTH)
                     goto refused;
@@ -665,7 +682,7 @@ bool nvm_affine_value_result(const NvmAffineState *s,NvmAffineType *type,
         bool nested=false;
         for (uint16_t i=0;i<layout->field_count;i++) {
             const NvmV2LayoutField *field=&layout->fields[i];
-            if (field->type_tag==TAG_STRUCT) nested=true;
+            if (field->type_tag==TAG_STRUCT || field->type_tag==TAG_UNION) nested=true;
             else if ((field->type_tag!=TAG_INT && field->type_tag!=TAG_BOOL && field->type_tag!=TAG_U8 && field->type_tag!=TAG_STRING) ||
                      field->nested_idx!=NVM_V2_NO_INDEX) return false;
         }
@@ -709,7 +726,7 @@ bool nvm_affine_consuming_parameters(const NvmAffineState *s,NvmAffineType *type
     if (!types || !count || !nvm_affine_value_parameters(s,checked,NVM_AFFINE_MAX_PARAMETERS,&length) ||
         length>capacity) return false;
     bool owned=false;
-    for (uint16_t p=0;p<length;p++) if (checked[p].tag==TAG_STRUCT) owned=true;
+    for (uint16_t p=0;p<length;p++) if (nvm_affine_type_is_owned(s,checked[p])) owned=true;
     if (!owned) return false;
     memcpy(types,checked,length*sizeof(*types));*count=length;return true;
 }

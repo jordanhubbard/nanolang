@@ -1024,7 +1024,8 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
         const NvmV2Layout *layout = &layouts.items[i];
         if (layout->kind==NVM_V2_LAYOUT_UNION) {
             NvmUnionVariantFact fact;
-            if (mod->ownership_data[8+i] ||
+            if ((mod->ownership_data[8+i] &&
+                 !(mod->ownership_data[8+i]&NVM_LAYOUT_COMPLETE)) ||
                 nvm_ownership_union_variant(mod,union_ordinal,0,&fact)!=NVM_V2_OK ||
                 fact.layout!=i) supported=false;
             union_ordinal++;
@@ -1038,7 +1039,7 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
             /* My owned execution profile retains its prior-only graph. */
             uint32_t child=layout->fields[f].nested_idx;
             if(child!=NVM_V2_NO_INDEX && child>=i) supported=false;
-            if (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_STRUCT &&
+            if (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_STRUCT && tag!=TAG_UNION &&
                 !(value_graph && tag==TAG_STRING && child==NVM_V2_NO_INDEX)) supported=false;
         }
     }

@@ -5865,3 +5865,12 @@ test-units: test-nanoisa-match-guards
 test-canonical-match-guards: bootstrap3 nano_virt nano_vm nanoisa_dump nvm2c
 	NANOLANG_GUARD_SAN_CC="$(CC)" python3 -m unittest -v tests.test_canonical_match_guards
 test-units: test-canonical-match-guards
+
+.PHONY: test-owned-union-runtime
+test-units: test-owned-union-runtime
+test-owned-union-runtime: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_union_runtime tests/nanoisa/test_owned_union_runtime.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) -Dmalloc=owned_heap_malloc -Dcalloc=owned_heap_calloc -Drealloc=owned_heap_realloc -c src/nanovm/heap.c -o obj/test_owned_union_heap_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_owned_union_runtime_alloc tests/nanoisa/test_owned_union_runtime_alloc.c obj/test_owned_union_heap_alloc.o $(filter-out obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	./obj/test_owned_union_runtime_alloc
+	python3 -m unittest -v tests.test_owned_union_runtime
