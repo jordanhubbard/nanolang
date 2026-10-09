@@ -14431,3 +14431,9 @@ locally without redundant extraction under the current Linux capacity limit.
 - [x] Under #982 I integrate the explicit module-index prerequisite before bootstrap Stage1. My ten dependency regressions pass, including missing-index generation before the snapshot and existing invalidation controls. I retain [integrated results](evidence/bootstrap-index-order-20261009/integrated.log); fresh end-to-end qualification remains open.
 
 - [ ] Under #982/#976 I implement module-introspection behavior through my self-hosted NanoISA product path. My broad 8c1e113ec Darwin gate fails `nl_functions_module_metadata.nano` and `nl_functions_module_introspection_flags.nano` because generated metadata extern symbols are unsupported. I require the existing assertions, producer parity, and a passing broad gate; I retain the [failed terminal](evidence/test-quick-8c1e113ec/README.md).
+
+- [ ] Under #982/#976 I run the shared NanoISA introspection contract against both installed self-hosted stages as well as nano_virt. I retain per-producer baselines for export counts/names, source identity, empty inventories, single index evaluation, ordinary lookalike functions, signature refusal and prior-output preservation before implementing parity.
+
+- [ ] Under #982 I correct my introspection fixture to compare canonical physical paths: Darwin temporary paths can use a /var symlink while module metadata preserves /private/var. I retain the original assertion failure and rerun the unchanged metadata contracts with canonical fixture paths. My self-hosted baseline also accepts unused malformed introspection declarations; I require signature rejection even when no call reaches lowering.
+
+- [ ] Under #982 I honor NANO_NATIVE_TEST_CC in the introspection native sanitizer check. My Darwin system compiler rejects detect_leaks=1; I retain that terminal and use the installed LLVM sanitizer toolchain without disabling leak detection.

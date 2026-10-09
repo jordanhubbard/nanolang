@@ -8,6 +8,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+COMPILER = Path(os.environ.get("NANOLANG_INTROSPECTION_COMPILER", ROOT / "bin/nano_virt")).resolve()
 
 
 class NanoisaIntrospection(unittest.TestCase):
@@ -20,7 +21,7 @@ class NanoisaIntrospection(unittest.TestCase):
 
     def exercise(self, empty):
         with tempfile.TemporaryDirectory(prefix='nano-module-facts-') as directory:
-            work = Path(directory)
+            work = Path(directory).resolve()
             dependency = work / 'reflection_probe.nano'
             dependency.write_text('module reflection_probe\n' + ('' if empty else
                 'pub struct Visible { value: int }\nstruct Hidden { value: int }\n'
@@ -53,12 +54,12 @@ class NanoisaIntrospection(unittest.TestCase):
                 'assert (== (___module_struct_name_reflection_probe 99) "")\n'
                 '} assert (== evaluations 1) return 0 }\nshadow main { assert true }\n')
             module, c_file, binary = (work / name for name in ('program.nvm', 'program.c', 'program'))
-            self.checked([ROOT / 'bin/nano_virt', source, '--emit-nvm', '-o', module])
+            self.checked([COMPILER, source, '--emit-nvm', '-o', module])
             self.checked([ROOT / 'bin/nano_vm', '--verify-only', module])
             self.checked([ROOT / 'bin/nano_vm', module])
             self.checked([ROOT / 'bin/nvm2c', module, '-o', c_file])
             flags = ['-rdynamic', '-ldl'] if sys.platform.startswith('linux') else []
-            self.checked(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
+            self.checked([os.environ.get('NANO_NATIVE_TEST_CC', 'cc'), '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                           c_file, ROOT / 'bin/nano_aot_runtime.o', '-lm', *flags, '-o', binary])
             self.checked([binary])
@@ -71,18 +72,18 @@ class NanoisaIntrospection(unittest.TestCase):
 
     def test_ordinary_function_with_similar_name_keeps_its_body(self):
         with tempfile.TemporaryDirectory(prefix='nano-module-function-') as directory:
-            work = Path(directory)
+            work = Path(directory).resolve()
             source, module = work / 'main.nano', work / 'main.nvm'
             source.write_text('fn ___module_name_local() -> string { return "ordinary" }\n'
                               'shadow ___module_name_local { assert true }\n'
                               'fn main() -> int { assert (== (___module_name_local) "ordinary") return 0 }\n'
                               'shadow main { assert true }\n')
-            self.checked([ROOT / 'bin/nano_virt', source, '--emit-nvm', '-o', module])
+            self.checked([COMPILER, source, '--emit-nvm', '-o', module])
             self.checked([ROOT / 'bin/nano_vm', module])
 
     def test_intrinsic_signature_is_required_before_publication(self):
         with tempfile.TemporaryDirectory(prefix='nano-module-signature-') as directory:
-            work = Path(directory)
+            work = Path(directory).resolve()
             source, module = work / 'main.nano', work / 'previous.nvm'
             for declaration in (
                 'extern fn ___module_function_name_probe(index: string) -> string',
@@ -92,7 +93,7 @@ class NanoisaIntrospection(unittest.TestCase):
                 with self.subTest(declaration=declaration):
                     source.write_text(declaration + '\nfn main() -> int { return 0 }\nshadow main { assert true }\n')
                     module.write_bytes(b'previous module')
-                    result = subprocess.run([ROOT / 'bin/nano_virt', source, '--emit-nvm', '-o', module],
+                    result = subprocess.run([COMPILER, source, '--emit-nvm', '-o', module],
                                             cwd=ROOT, capture_output=True, timeout=120)
                     self.assertNotEqual(result.returncode, 0)
                     self.assertIn(b'I require the declared module introspection signature', result.stdout + result.stderr)
