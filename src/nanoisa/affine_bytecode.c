@@ -84,6 +84,8 @@ static bool pop_scalar(Frame *f,uint8_t tag) {
 }
 typedef struct {
     bool value_graph;
+    uint32_t fact_function, fact_capacity;
+    NvmAffineInstructionFact *facts;
     uint8_t status[NVM_OWNED_MAX_FUNCTIONS];
     NvmAffineAnalysis results[NVM_OWNED_MAX_FUNCTIONS];
 } AnalysisCalls;
@@ -540,6 +542,9 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                 : "I require a connected affine instruction contract";
         goto done;
     }
+    if (calls->facts && !caller && function==calls->fact_function && count!=calls->fact_capacity) {
+        nvm_affine_state_free(initial);error="I require exact instruction fact capacity";goto done;
+    }
     frames=calloc(count,sizeof(*frames));work.capacity=count;
     work.items=malloc(count*sizeof(*work.items));work.queued=calloc(count,sizeof(*work.queued));
     if (!frames || !work.items || !work.queued) {nvm_affine_state_free(initial);error="I cannot allocate analysis state";goto done;}
@@ -615,6 +620,27 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
         }
         frame_free(current);current=NULL;
     }
+    if (calls->facts && !caller && function==calls->fact_function) {
+        NvmAffineInstructionFact *facts=calloc(count,sizeof(*facts));
+        if (!facts) {error="I cannot allocate converged instruction facts";goto done;}
+        for (uint32_t i=0;i<count;i++) {
+            facts[i].byte_offset=decoded.instructions[i].byte_offset;
+            if (!frames[i] || !frames[i]->visited) continue;
+            facts[i].reachable=true;facts[i].stack_depth=frames[i]->count;
+            facts[i].top_tag=frames[i]->count?frames[i]->stack[frames[i]->count-1].tag:TAG_VOID;
+            if (decoded.instructions[i].instruction.opcode==OP_OWN_UNPACK_LOCAL) {
+                NvmAffineType type,fields[NVM_AFFINE_MAX_STACK];uint16_t fields_count=0;
+                uint16_t local=decoded.instructions[i].instruction.operands[0].u16;
+                if (!nvm_affine_local_type(frames[i]->locals,local,&type) ||
+                    !nvm_affine_record_fields(frames[i]->locals,type.layout,fields,
+                                             NVM_AFFINE_MAX_STACK,&fields_count)) {
+                    free(facts);error="I require exact destructive-unpack facts";goto done;
+                }
+                facts[i].unpack_count=fields_count;
+            }
+        }
+        memcpy(calls->facts,facts,count*sizeof(*facts));free(facts);
+    }
     result.ok=true;result.byte_offset=0;error=NULL;
 done:
     frame_free(current);
@@ -629,5 +655,17 @@ done:
 
 NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t function) {
     AnalysisCalls calls={0};calls.value_graph=nvm_affine_value_call_graph(m);
+    return analyze(m,function,NULL,0,&calls);
+}
+
+NvmAffineAnalysis nvm_affine_analyze_instructions(const NvmModule *m,
+    uint32_t function,NvmAffineInstructionFact *facts,uint32_t capacity) {
+    if (!facts || !capacity || capacity>NVM_AFFINE_MAX_INSTRUCTIONS) {
+        NvmAffineAnalysis result={0};
+        snprintf(result.message,sizeof(result.message),"I require a bounded instruction fact buffer");
+        return result;
+    }
+    AnalysisCalls calls={0};calls.value_graph=nvm_affine_value_call_graph(m);
+    calls.fact_function=function;calls.fact_capacity=capacity;calls.facts=facts;
     return analyze(m,function,NULL,0,&calls);
 }

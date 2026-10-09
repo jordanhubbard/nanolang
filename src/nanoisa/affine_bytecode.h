@@ -14,6 +14,20 @@ typedef struct {
     char message[192];
 } NvmAffineAnalysis;
 
+typedef struct {
+    bool reachable;
+    uint8_t top_tag; /* TAG_VOID when the entry stack is empty. */
+    uint16_t stack_depth;
+    uint16_t unpack_count; /* Zero except at destructive local unpack. */
+    uint32_t byte_offset;
+} NvmAffineInstructionFact;
+
+/* I publish one fact per decoded instruction only after convergence succeeds.
+ * Capacity must equal the decoded instruction count. Failure leaves the entire
+ * caller buffer unchanged. These facts do not grant executable admission. */
+NvmAffineAnalysis nvm_affine_analyze_instructions(const NvmModule *module,
+    uint32_t function, NvmAffineInstructionFact *facts, uint32_t capacity);
+
 /* I check every function's bounded value signature and all direct-call edges,
  * including unreachable code. This graph check alone grants no execution. */
 bool nvm_affine_value_call_graph(const NvmModule *module);
