@@ -1,0 +1,8 @@
+['/private/tmp/nanolang-array-types-20261008/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-5nbxyiz7/domain.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-5nbxyiz7/domain.nvm']
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-5nbxyiz7/domain.nano
+I require a match to inspect an int or a known union.
+
+2| fn main() -> int { return match "text" { _ => 1 } } shadow main { assert true }
+                             ^^^^^
+Hint: Give the scrutinee an exact supported type before matching it.
+error: type check failed

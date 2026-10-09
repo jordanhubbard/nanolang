@@ -5845,3 +5845,8 @@ test-units: test-native-nested-arrays
 test-native-record-field-transport: nano_vm nanoisa_dump nvm2c
 	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_native_record_field_transport
 test-units: test-native-record-field-transport
+
+.PHONY: test-nanoisa-match-guards
+test-nanoisa-match-guards: $(BIN_DIR)/nanoc_c nano_virt nano_vm nanoisa_dump nvm2c
+	CC="$(CC)" python3 -m unittest -v tests.test_nanoisa_match_guards
+test-units: test-nanoisa-match-guards
