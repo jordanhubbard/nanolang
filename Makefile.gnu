@@ -5830,3 +5830,8 @@ test-units: test-selfhost-opaque-imports
 test-selfhost-json-artifacts: bootstrap3 nano_virt nano_vm nanoisa_dump nvm2c nvm2c-runtime
 	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_selfhost_json_artifacts
 test-units: test-selfhost-json-artifacts
+
+.PHONY: test-native-byte-arrays
+test-native-byte-arrays: nano_vm nanoisa_dump nvm2c
+	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_native_byte_arrays
+test-units: test-native-byte-arrays

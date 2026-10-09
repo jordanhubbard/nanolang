@@ -73,6 +73,7 @@ static bool contains_vm_wrapper_code(const char *source) {
 #define NVM2C_VK_FARR 12
 #define NVM2C_VK_FUNC 13
 #define NVM2C_VK_FNARR 14
+#define NVM2C_VK_U8ARR 15
 
 /* Classifier-only field facts: low bits retain observed finite payload members.
  * These codes never appear in generated runtime record tags. */
@@ -119,7 +120,7 @@ static int variant_scalar_kind(uint8_t kind) {
  * Callable slots retain target IDs; their owner holds optional environments.
  * Reads recover the function or closure tag from that owned side storage. */
 static int word_array_storage(uint8_t kind) {
-    return kind == NVM2C_VK_ARR || kind == NVM2C_VK_BARR || kind == NVM2C_VK_FARR || kind == NVM2C_VK_FNARR;
+    return kind == NVM2C_VK_ARR || kind == NVM2C_VK_BARR || kind == NVM2C_VK_FARR || kind == NVM2C_VK_FNARR || kind == NVM2C_VK_U8ARR;
 }
 
 static int record_array_unboxes(uint8_t destination, uint8_t source) {
@@ -793,6 +794,7 @@ static int shape_kind(Nvm2cBuf *b, NvmShapeId id, uint8_t kind) {
     NvmShapeId element = nvm_shape_child(&b->shapes, id, 0);
     return shape_type(b, element, kind == NVM2C_VK_RARR ? NVM_SHAPE_RECORD :
                                 kind == NVM2C_VK_SARR ? NVM_SHAPE_STRING :
+                                kind == NVM2C_VK_U8ARR ? NVM_SHAPE_U8 :
                                 kind == NVM2C_VK_FNARR ? NVM_SHAPE_FUNCTION :
                                 kind == NVM2C_VK_FARR ? NVM_SHAPE_FLOAT :
                                 kind == NVM2C_VK_BARR ? NVM_SHAPE_BOOL : NVM_SHAPE_INT);
@@ -889,6 +891,7 @@ static uint8_t resolved_shape_kind(Nvm2cBuf *b, NvmShapeId id) {
         NvmShapeId element = nvm_shape_lookup(&b->shapes, id, 0);
         if (!element) return NVM2C_VK_UNK;
         switch (nvm_shape_kind(&b->shapes, element)) {
+        case NVM_SHAPE_U8: return NVM2C_VK_U8ARR;
         case NVM_SHAPE_INT: return NVM2C_VK_ARR;
         case NVM_SHAPE_BOOL: return NVM2C_VK_BARR;
         case NVM_SHAPE_FLOAT: return NVM2C_VK_FARR;
@@ -2065,7 +2068,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (tag == TAG_STRING) {
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, -1)) return 0;
             } else {
-                if (!sim_push(b, idx, stk, &sp, (tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? NVM2C_VK_FNARR : tag == TAG_FLOAT ? NVM2C_VK_FARR : tag == TAG_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR, -1)) return 0;
+                if (!sim_push(b, idx, stk, &sp, tag == TAG_U8 ? NVM2C_VK_U8ARR : (tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? NVM2C_VK_FNARR : tag == TAG_FLOAT ? NVM2C_VK_FARR : tag == TAG_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR, -1)) return 0;
             }
             break;
         }
@@ -2073,8 +2076,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             uint8_t tag = ins.operands[0].u8;
             if (tag == TAG_STRING) {
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, -1)) return 0;
-            } else if (tag == TAG_INT || tag == TAG_BOOL || tag == TAG_FLOAT || (tag == TAG_FUNCTION || tag == TAG_CLOSURE)) {
-                if (!sim_push(b, idx, stk, &sp, (tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? NVM2C_VK_FNARR : tag == TAG_FLOAT ? NVM2C_VK_FARR : tag == TAG_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR, -1)) return 0;
+            } else if (tag == TAG_INT || tag == TAG_U8 || tag == TAG_BOOL || tag == TAG_FLOAT || (tag == TAG_FUNCTION || tag == TAG_CLOSURE)) {
+                if (!sim_push(b, idx, stk, &sp, tag == TAG_U8 ? NVM2C_VK_U8ARR : (tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? NVM2C_VK_FNARR : tag == TAG_FLOAT ? NVM2C_VK_FARR : tag == TAG_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR, -1)) return 0;
             } else if (tag == TAG_STRUCT) {
                 Nvm2cSimSlot array;
                 memset(&array, 0, sizeof array);
@@ -2126,7 +2129,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             } else if (v.kind == NVM2C_VK_SARR) {
                 mark_origin(local_kind, nloc, v.origin, NVM2C_VK_SARR);
             } else if (v.kind != NVM2C_VK_UNK && v.kind != NVM2C_VK_VALUE) {
-                mark_origin(local_kind, nloc, v.origin, v.kind == NVM2C_VK_FNARR ? NVM2C_VK_FNARR : v.kind == NVM2C_VK_FARR ? NVM2C_VK_FARR : v.kind == NVM2C_VK_BARR ? NVM2C_VK_BARR : NVM2C_VK_ARR);
+                mark_origin(local_kind, nloc, v.origin, v.kind == NVM2C_VK_U8ARR ? NVM2C_VK_U8ARR : v.kind == NVM2C_VK_FNARR ? NVM2C_VK_FNARR : v.kind == NVM2C_VK_FARR ? NVM2C_VK_FARR : v.kind == NVM2C_VK_BARR ? NVM2C_VK_BARR : NVM2C_VK_ARR);
             }
             if (!sim_push(b, idx, stk, &sp, NVM2C_VK_INT, -1)) return 0;
             break;
@@ -2134,6 +2137,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_ARR_POP: {
             Nvm2cSimSlot array, value = {0};
             if (!sim_pop(b, idx, stk, &sp, &array)) return 0;
+            if (array.kind == NVM2C_VK_VALUE)
+                array.shape = shape_child(b, array.shape, 0);
             if (!shape_type(b, array.shape, NVM_SHAPE_ARRAY)) return 0;
             value.kind = NVM2C_VK_VALUE;
             value.origin = -1;
@@ -2182,10 +2187,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 value.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
                 if (!value.rec_k || !sim_push_slot(b, idx, stk, &sp, value)) return 0;
             } else {
-                mark_origin(local_kind, nloc, arr.origin, arr.kind == NVM2C_VK_FNARR ? NVM2C_VK_FNARR : arr.kind == NVM2C_VK_FARR ? NVM2C_VK_FARR : arr.kind == NVM2C_VK_BARR ? NVM2C_VK_BARR : NVM2C_VK_ARR);
+                mark_origin(local_kind, nloc, arr.origin, arr.kind == NVM2C_VK_U8ARR ? NVM2C_VK_U8ARR : arr.kind == NVM2C_VK_FNARR ? NVM2C_VK_FNARR : arr.kind == NVM2C_VK_FARR ? NVM2C_VK_FARR : arr.kind == NVM2C_VK_BARR ? NVM2C_VK_BARR : NVM2C_VK_ARR);
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
                 stk[sp - 1].scalar_tags = (1u << TAG_VOID) |
-                    (1u << (arr.kind == NVM2C_VK_FNARR ? TAG_FUNCTION : arr.kind == NVM2C_VK_FARR ? TAG_FLOAT : arr.kind == NVM2C_VK_BARR ? TAG_BOOL : TAG_INT));
+                    (1u << (arr.kind == NVM2C_VK_U8ARR ? TAG_U8 : arr.kind == NVM2C_VK_FNARR ? TAG_FUNCTION : arr.kind == NVM2C_VK_FARR ? TAG_FLOAT : arr.kind == NVM2C_VK_BARR ? TAG_BOOL : TAG_INT));
             }
             break;
         }
@@ -2206,6 +2211,14 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
             if (arr.kind == NVM2C_VK_VALUE) {
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+                break;
+            }
+            if (arr.kind == NVM2C_VK_U8ARR) {
+                if (val.kind != NVM2C_VK_INT && val.kind != NVM2C_VK_VALUE && val.kind != NVM2C_VK_UNK) {
+                    nvm2c_fail(b, "I require an integer or byte at a byte-array write"); return 0;
+                }
+                arr.origin = -1;
+                if (!sim_push_slot(b, idx, stk, &sp, arr)) return 0;
                 break;
             }
             if (ins.opcode == OP_ARR_PUSH && arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC) {
@@ -2329,6 +2342,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                          * the emitted guard, even for an empty constructor. */
                         uint8_t storage = arr.rec_k[f];
                         NvmShapeKind payload = storage == NVM2C_VK_SARR ? NVM_SHAPE_STRING :
+                            storage == NVM2C_VK_U8ARR ? NVM_SHAPE_U8 :
                             storage == NVM2C_VK_FNARR ? NVM_SHAPE_FUNCTION :
                             storage == NVM2C_VK_FARR ? NVM_SHAPE_FLOAT :
                             storage == NVM2C_VK_BARR ? NVM_SHAPE_BOOL : NVM_SHAPE_INT;
@@ -3247,7 +3261,7 @@ static const char *stack_array_name(uint8_t kind) {
     switch (kind) {
     case NVM2C_VK_STR: return "s";
     case NVM2C_VK_ARR: return "a";
-    case NVM2C_VK_BARR: case NVM2C_VK_FARR: case NVM2C_VK_FNARR: return "a";
+    case NVM2C_VK_U8ARR: case NVM2C_VK_BARR: case NVM2C_VK_FARR: case NVM2C_VK_FNARR: return "a";
     case NVM2C_VK_SARR: return "sa";
     case NVM2C_VK_REC: return "r";
     case NVM2C_VK_RARR: return "ra";
@@ -4739,7 +4753,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 }
                 break;
             }
-            if (tag != TAG_INT && tag != TAG_BOOL && tag != TAG_FLOAT && tag != TAG_STRING && tag != TAG_FUNCTION && tag != TAG_CLOSURE) {
+            if (tag != TAG_INT && tag != TAG_U8 && tag != TAG_BOOL && tag != TAG_FLOAT && tag != TAG_STRING && tag != TAG_FUNCTION && tag != TAG_CLOSURE) {
                 nvm2c_fail(b, "function %u: I support int, bool, float, string, function or struct elements in ARR_NEW", idx);
                 goto done;
             }
@@ -4763,7 +4777,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             if (as_sarr) {
                 stack_push_sarr(b, &st, "nsarr_new()");
             } else {
-                stack_push_iarray(b, &st, "narr_new()", (tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? NVM2C_VK_FNARR : tag == TAG_FLOAT ? NVM2C_VK_FARR : tag == TAG_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR);
+                stack_push_iarray(b, &st, "narr_new()", tag == TAG_U8 ? NVM2C_VK_U8ARR : (tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? NVM2C_VK_FNARR : tag == TAG_FLOAT ? NVM2C_VK_FARR : tag == TAG_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR);
             }
             break;
         }
@@ -4773,7 +4787,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int *elems = literal_elems;
             int ei;
             uint8_t ekind = NVM2C_VK_INT;
-            if (tag == TAG_INT) {
+            if (tag == TAG_U8) {
+                ekind = NVM2C_VK_VALUE;
+            } else if (tag == TAG_INT) {
                 ekind = NVM2C_VK_INT;
             } else if (tag == TAG_BOOL) {
                 ekind = NVM2C_VK_BOOL;
@@ -4810,14 +4826,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 break;
             }
             int result = tag == TAG_STRING ? stack_push_sarr(b, &st, "0")
-                                           : stack_push_iarray(b, &st, "0", (tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? NVM2C_VK_FNARR : tag == TAG_FLOAT ? NVM2C_VK_FARR : tag == TAG_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR);
+                                           : stack_push_iarray(b, &st, "0", tag == TAG_U8 ? NVM2C_VK_U8ARR : (tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? NVM2C_VK_FNARR : tag == TAG_FLOAT ? NVM2C_VK_FARR : tag == TAG_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR);
             if (b->failed) goto done;
             nvm2c_printf(b, "    %s[%d] = %s(", tag == TAG_STRING ? "sa" : "a",
                          result, tag == TAG_STRING ? "nsarr_lit" : "narr_lit");
             if (count) {
                 nvm2c_puts(b, tag == TAG_STRING ? "(const char *[]){" : "(int64_t[]){");
                 for (ei = 0; ei < (int)count; ++ei) {
-                    if (tag == TAG_FUNCTION || tag == TAG_CLOSURE) nvm2c_printf(b, "%sv[%d].integer", ei ? ", " : "", elems[ei]);
+                    if (tag == TAG_U8) nvm2c_printf(b, "%snvalue_require_byte(v[%d])", ei ? ", " : "", elems[ei]);
+                    else if (tag == TAG_FUNCTION || tag == TAG_CLOSURE) nvm2c_printf(b, "%sv[%d].integer", ei ? ", " : "", elems[ei]);
                     else if (tag == TAG_FLOAT) nvm2c_printf(b, "%snvalue_from_float(f[%d]).integer", ei ? ", " : "", elems[ei]);
                     else nvm2c_printf(b, "%s%s[%d]", ei ? ", " : "",
                                  tag == TAG_STRING ? "s" : "t", elems[ei]);
@@ -4915,7 +4932,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int array = stack_pop_kind(b, &st, &kind);
             if (b->failed) goto done;
             char expression[128];
-            if (word_array_storage(kind) || kind == NVM2C_VK_SARR) {
+            if (kind == NVM2C_VK_VALUE) {
+                snprintf(expression, sizeof expression, "nvalue_array_pop(v[%d])", array);
+                stack_push_value(b, &st, expression);
+            } else if (word_array_storage(kind) || kind == NVM2C_VK_SARR) {
                 snprintf(expression, sizeof expression,
                          "nvalue_array_pop((nmap_value){7, %u, (char *)%s[%d]})",
                          kind, kind == NVM2C_VK_SARR ? "sa" : "a", array);
@@ -4963,6 +4983,14 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int ix = stack_pop_expect(b, &st, NVM2C_VK_INT, "ARR_SET index");
             int arr = stack_pop_kind(b, &st, &ak);
             if (b->failed) goto done;
+            if (ak == NVM2C_VK_U8ARR) {
+                char boxed[96];
+                scalar_value_expression(b, boxed, sizeof boxed, vk, val);
+                if (b->failed) goto done;
+                nvm2c_printf(b, "    (void)nvalue_array_set((nmap_value){7, 15, (char *)a[%d]}, t[%d], %s);\n", arr, ix, boxed);
+                st.slots[st.sp] = arr; st.kinds[st.sp++] = ak;
+                break;
+            }
             if (ak == NVM2C_VK_VALUE) {
                 char boxed[96], expr[192];
                 scalar_value_expression(b, boxed, sizeof boxed, vk, val);
@@ -5020,6 +5048,15 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             int val = stack_pop_kind(b, &st, &vk);
             int arr = stack_pop_kind(b, &st, &ak);
             if (b->failed) goto done;
+            if (ak == NVM2C_VK_U8ARR) {
+                char boxed[96];
+                scalar_value_expression(b, boxed, sizeof boxed, vk, val);
+                if (b->failed) goto done;
+                char expr[192];
+                snprintf(expr, sizeof expr, "narr_push(a[%d], nvalue_require_byte(%s))", arr, boxed);
+                stack_push_iarray(b, &st, expr, ak);
+                break;
+            }
             if (ak == NVM2C_VK_VALUE) {
                 char boxed[96], expr[192];
                 scalar_value_expression(b, boxed, sizeof boxed, vk, val);
@@ -5210,8 +5247,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 /* I retain the record's runtime array storage tag instead of
                  * defaulting an unresolved element shape to integer storage. */
                 nvm2c_printf(b, "    if (%u >= r[%d].n) NVM2C_ABORT();\n", (unsigned)fi, rec);
-                nvm2c_printf(b, "    if (r[%d].k[%u] != 3 && r[%d].k[%u] != 10 && r[%d].k[%u] != 12 && r[%d].k[%u] != 14 && r[%d].k[%u] != 5 && r[%d].k[%u] != 6) NVM2C_ABORT();\n",
-                             rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi);
+                nvm2c_printf(b, "    if (r[%d].k[%u] != 3 && r[%d].k[%u] != 10 && r[%d].k[%u] != 12 && r[%d].k[%u] != 14 && r[%d].k[%u] != 15 && r[%d].k[%u] != 5 && r[%d].k[%u] != 6) NVM2C_ABORT();\n",
+                             rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi, rec, (unsigned)fi);
                 char expr[384];
                 snprintf(expr, sizeof expr,
                          "(nmap_value){7, r[%d].k[%u], (char *)(r[%d].k[%u] == 5 ? (void *)r[%d].sa[%u] : r[%d].k[%u] == 6 ? (void *)r[%d].ra[%u] : (void *)r[%d].a[%u])}",
@@ -5736,6 +5773,7 @@ static int module_has_array_constructor(const Nvm2cBuf *b, const NvmModule *mod,
             pc += n;
             if (ins.opcode != OP_ARR_NEW) continue;
             uint8_t kind = ins.operands[0].u8 == TAG_STRING ? NVM2C_VK_SARR :
+                           ins.operands[0].u8 == TAG_U8 ? NVM2C_VK_U8ARR :
                            ins.operands[0].u8 == TAG_STRUCT ? NVM2C_VK_RARR :
                            (ins.operands[0].u8 == TAG_FUNCTION || ins.operands[0].u8 == TAG_CLOSURE) ? NVM2C_VK_FNARR :
                            ins.operands[0].u8 == TAG_FLOAT ? NVM2C_VK_FARR : ins.operands[0].u8 == TAG_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR;
@@ -6177,7 +6215,7 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         "    return (narr_t)a.text;\n}\n"
         "static inline int64_t nvalue_array_len(nmap_value a) {\n"
         "    if (a.kind != 7 || !a.text) NVM2C_ABORT();\n"
-        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12 || a.integer == 14) return (int64_t)((narr_t)a.text)->len;\n"
+        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12 || a.integer == 14 || a.integer == 15) return (int64_t)((narr_t)a.text)->len;\n"
         "    if (a.integer == 5) return (int64_t)((nsarr_t)a.text)->len;\n"
         "    if (a.integer == 6) return (int64_t)((nrarr_t)a.text)->len;\n"
         "    NVM2C_ABORT();\n}\n"
@@ -6191,7 +6229,7 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         "        return (nmap_value){environment ? 15 : 11, array->data[at], (char *)environment};\n"
         "    }\n");
     nvm2c_printf(b,
-        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12) return (nmap_value){a.integer == 12 ? 3 : a.integer == 10 ? 4 : 1, %s, NULL};\n"
+        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12 || a.integer == 15) return (nmap_value){a.integer == 15 ? 2 : a.integer == 12 ? 3 : a.integer == 10 ? 4 : 1, %s, NULL};\n"
         "    return (nmap_value){5, 0, (char *)%s};\n}\n",
         int_get ? "narr_get((narr_t)a.text, at)" : "((narr_t)a.text)->data[at]",
         string_get ? "nsarr_get((nsarr_t)a.text, at)" : "((nsarr_t)a.text)->data[at]");
@@ -6205,6 +6243,7 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
     nvm2c_puts(b, b->has_integer_arrays ? "        ncall_array_set((narr_t)a.text, at, value);\n" : "        NVM2C_ABORT();\n");
     nvm2c_puts(b,
         "    }\n"
+        "    else if (a.integer == 15) ((narr_t)a.text)->data[at] = nvalue_require_byte(value);\n"
         "    else if (a.integer == 10) ((narr_t)a.text)->data[at] = nvalue_require_bool(value);\n"
         "    else if (a.integer == 12) ((narr_t)a.text)->data[at] = nvalue_from_float(nvalue_require_float(value)).integer;\n"
         "    else ((nsarr_t)a.text)->data[at] = nvalue_require_string(value);\n"
@@ -6213,6 +6252,7 @@ static void emit_tagged_array_helpers(Nvm2cBuf *b, int int_push, int string_push
         "    (void)nvalue_array_len(a); (void)value;\n");
     if (int_push) nvm2c_puts(b,
         "    if (a.integer == 3) { narr_push((narr_t)a.text, nvalue_require_int(value)); return a; }\n"
+        "    if (a.integer == 15) { narr_push((narr_t)a.text, nvalue_require_byte(value)); return a; }\n"
         "    if (a.integer == 14) { ncall_array_push((narr_t)a.text, value); return a; }\n"
         "    if (a.integer == 10) { narr_push((narr_t)a.text, nvalue_require_bool(value)); return a; }\n"
         "    if (a.integer == 12) { narr_push((narr_t)a.text, nvalue_from_float(nvalue_require_float(value)).integer); return a; }\n");
@@ -6270,7 +6310,7 @@ static void emit_array_removal(Nvm2cBuf *b, int integers, int strings, int recor
         "static inline nmap_value nvalue_array_remove(nmap_value a, int64_t index) {\n"
         "    if (a.kind != 7 || !a.text) NVM2C_ABORT();\n");
     if (integers) nvm2c_puts(b,
-        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12 || a.integer == 14) { narr_remove((narr_t)a.text, index); return a; }\n");
+        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12 || a.integer == 14 || a.integer == 15) { narr_remove((narr_t)a.text, index); return a; }\n");
     if (strings) nvm2c_puts(b,
         "    if (a.integer == 5) { nsarr_remove((nsarr_t)a.text, index); return a; }\n");
     if (records) nvm2c_puts(b,
@@ -6323,7 +6363,7 @@ static void emit_array_slices(Nvm2cBuf *b, int integers, int strings, int record
         "static inline nmap_value nvalue_array_slice(nmap_value a, int64_t begin, int64_t end) {\n"
         "    if (a.kind != 7 || !a.text) NVM2C_ABORT();\n");
     if (integers) nvm2c_puts(b,
-        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12 || a.integer == 14) { a.text = (char *)narr_slice((narr_t)a.text, begin, end); return a; }\n");
+        "    if (a.integer == 3 || a.integer == 10 || a.integer == 12 || a.integer == 14 || a.integer == 15) { a.text = (char *)narr_slice((narr_t)a.text, begin, end); return a; }\n");
     if (strings) nvm2c_puts(b,
         "    if (a.integer == 5) { a.text = (char *)nsarr_slice((nsarr_t)a.text, begin, end); return a; }\n");
     if (records) nvm2c_puts(b,
@@ -7255,20 +7295,23 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         int need_iarr_new = module_has_array_constructor(&b, mod, kinds, NVM2C_VK_ARR) ||
             module_has_array_constructor(&b, mod, kinds, NVM2C_VK_BARR) ||
             module_has_array_constructor(&b, mod, kinds, NVM2C_VK_FARR) ||
-            module_has_array_constructor(&b, mod, kinds, NVM2C_VK_FNARR);
+            module_has_array_constructor(&b, mod, kinds, NVM2C_VK_FNARR) ||
+            module_has_array_constructor(&b, mod, kinds, NVM2C_VK_U8ARR);
         int need_sarr_new = module_has_array_constructor(&b, mod, kinds, NVM2C_VK_SARR);
         int need_iarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_INT) ||
+            module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_U8) ||
             module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_BOOL) ||
             module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_FLOAT) ||
             module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_FUNCTION) ||
             module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_CLOSURE);
         int need_sarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRING);
         int need_iarr = need_iarr_new || need_iarr_lit ||
-            (b.array_shape_kinds & ((1u << NVM2C_VK_ARR) | (1u << NVM2C_VK_BARR) | (1u << NVM2C_VK_FARR) | (1u << NVM2C_VK_FNARR))) ||
+            (b.array_shape_kinds & ((1u << NVM2C_VK_ARR) | (1u << NVM2C_VK_BARR) | (1u << NVM2C_VK_FARR) | (1u << NVM2C_VK_FNARR) | (1u << NVM2C_VK_U8ARR))) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_ARR) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_BARR) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_FARR) ||
-            module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_FNARR);
+            module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_FNARR) ||
+            module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_U8ARR);
         int need_sarr = need_sarr_new || need_sarr_lit || module_uses_host(mod, "nhost_walk") ||
             (b.array_shape_kinds & (1u << NVM2C_VK_SARR)) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_SARR);
@@ -7606,6 +7649,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "static inline int64_t nvalue_cast_int(nmap_value value) {\n"
                 "    if (value.kind == 3) return nf64_to_i64(nvalue_require_float(value));\n"
                 "    return value.kind == 1 || value.kind == 2 || value.kind == 4 || value.kind == 9 ? value.integer : value.kind == 5 ? (int64_t)strtoll(value.text, NULL, 10) : 0;\n}\n"
+                "static inline int64_t nvalue_require_byte(nmap_value value) {\n"
+                "    if (value.kind != 1 && value.kind != 2) NVM2C_ABORT();\n"
+                "    return (uint8_t)value.integer;\n}\n"
                 "static inline void *nvalue_require_opaque(nmap_value value) {\n"
                 "    if (value.kind == 14) return (void *)value.text;\n"
                 "    if (value.kind == 1 && value.integer == 0) return NULL;\n"
@@ -7760,6 +7806,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "static inline nmap_value nvalue_array_pop(nmap_value array) {\n"
             "    int64_t length = nvalue_array_len(array);\n"
             "    if (!length) return (nmap_value){0, 0, NULL};\n"
+            "    if (array.integer == 6) return nrecord_array_pop((nrarr_t)array.text);\n"
             "    nmap_value value = nvalue_array_get(array, length - 1);\n"
             "    nvalue_array_remove(array, length - 1);\n"
             "    return value;\n"
@@ -7839,7 +7886,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         }
         if (b.has_maps) nvm2c_puts(&b,
             "    (void)nmap_owned_new; (void)nmap_set; (void)nmap_get; (void)nmap_owned_get;\n"
-            "    (void)nvalue_numeric; (void)nvalue_from_float; (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_function; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_cast_u8; (void)nvalue_cast_float; (void)nvalue_equal; (void)nvalue_require_opaque;\n"
+            "    (void)nvalue_numeric; (void)nvalue_from_float; (void)nvalue_require_int; (void)nvalue_require_bool; (void)nvalue_require_function; (void)nvalue_require_string; (void)nvalue_require_map; (void)nvalue_cast_int; (void)nvalue_cast_u8; (void)nvalue_cast_float; (void)nvalue_equal; (void)nvalue_require_byte; (void)nvalue_require_opaque;\n"
             "    (void)nvalue_compare;\n"
             "    (void)nvalue_require_int_array; (void)nvalue_array_len; (void)nvalue_array_get; (void)nvalue_array_set; (void)nvalue_array_push;\n"
             "    (void)nmap_has; (void)nmap_len; (void)nmap_delete; (void)nmap_collect;\n"

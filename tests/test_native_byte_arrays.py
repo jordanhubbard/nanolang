@@ -25,9 +25,9 @@ class NativeByteArrays(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result
 
-    def paired(self, name, body):
+    def paired(self, name, body, helpers=''):
         assembly = self.work / (name + ".nasm")
-        assembly.write_text('.entry main\n.function main 0 3 0 int 1\n' + body +
+        assembly.write_text('.entry main\n' + helpers + '.function main 0 3 0 int 1\n' + body +
                             'PUSH_I64 0\nRET\n.end\n')
         module = assembly.with_suffix('.nvm')
         self.command(ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module)
@@ -63,3 +63,33 @@ class NativeByteArrays(unittest.TestCase):
         body += ('LOAD_LOCAL 0\nPUSH_I64 1\nPUSH_I64 0\nARR_SLICE\n'
                  'ARR_LEN\nPUSH_I64 0\nI64_EQ\nASSERT\n')
         self.paired('slice', body)
+
+    def test_calls_globals_records_and_absent_reads(self):
+        helpers = ('.function identity 1 1 0 array 1\n.parameters identity array\n'
+                   'LOAD_LOCAL 0\nRET\n.end\n')
+        body = ('PUSH_U8 9\nARR_LITERAL 2 1\nCALL identity\nSTORE_GLOBAL 0\n'
+                'LOAD_GLOBAL 0\nAGG_PACK 0 0 0 1\nSTORE_LOCAL 0\n'
+                'LOAD_LOCAL 0\nAGG_GET 0\nSTORE_LOCAL 1\n')
+        body += self.read(1, 0, 9)
+        body += ('LOAD_LOCAL 1\nPUSH_I64 0\nPUSH_I64 300\nARR_SET\nPOP\n'
+                 'LOAD_GLOBAL 0\nSTORE_LOCAL 2\n')
+        body += self.read(2, 0, 44)
+        body += ('LOAD_LOCAL 2\nPUSH_I64 2\nARR_GET\nTYPE_CHECK 0\nASSERT\n'
+                 'LOAD_LOCAL 2\nARR_POP\nDUP\nTYPE_CHECK 2\nASSERT\n'
+                 'CAST_INT\nPUSH_I64 44\nI64_EQ\nASSERT\n'
+                 'LOAD_LOCAL 2\nARR_POP\nTYPE_CHECK 0\nASSERT\n')
+        self.paired('transport', body, helpers)
+
+    def test_tagged_integer_pop_keeps_integer_identity(self):
+        body = ('PUSH_I64 300\nARR_LITERAL 1 1\nSTORE_GLOBAL 0\n'
+                'LOAD_GLOBAL 0\nARR_POP\nDUP\nTYPE_CHECK 1\nASSERT\n'
+                'PUSH_I64 300\nI64_EQ\nASSERT\n'
+                'LOAD_GLOBAL 0\nARR_POP\nTYPE_CHECK 0\nASSERT\n')
+        self.paired('integer-pop', body)
+
+    def test_tagged_record_pop_preserves_owned_child(self):
+        body = ('PUSH_STR retained\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1\n'
+                'STORE_GLOBAL 0\nLOAD_GLOBAL 0\nARR_POP\nSTORE_LOCAL 0\n'
+                'LOAD_GLOBAL 0\nARR_POP\nTYPE_CHECK 0\nASSERT\n'
+                'LOAD_LOCAL 0\nAGG_GET 0\nPUSH_STR retained\nSTR_EQ\nASSERT\n')
+        self.paired('record-pop', body, '.string retained "retained"\n')

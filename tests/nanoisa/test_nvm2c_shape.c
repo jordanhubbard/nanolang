@@ -689,6 +689,18 @@ static void test_shared_array_views(void) {
 }
 
 int main(void) {
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId byte = nvm_shape_new(&g, NVM_SHAPE_U8);
+        NvmShapeId read = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        CHECK(nvm_shape_array_read(&g, byte, read));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, read) == NVM_SHAPE_OPTIONAL);
+        CHECK(nvm_shape_kind(&g, nvm_shape_lookup(&g, read, 0)) == NVM_SHAPE_U8);
+        CHECK(!nvm_shape_unify(&g, byte, nvm_shape_new(&g, NVM_SHAPE_INT)));
+        CHECK(g.error != NULL);
+        nvm_shape_destroy(&g);
+    }
     test_finite_variant_integer_array();
     test_explicit_variant_scalar_storage();
     test_numeric_union_payload();
