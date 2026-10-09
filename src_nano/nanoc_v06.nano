@@ -1908,7 +1908,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                     if (== status 0) {
                         set status (publish_native_module module_file output_file repo_root
                             (resolve_cc_binary) (native_product_cflags (getenv "NANO_CFLAGS"))
-                            (getenv "NANO_LDFLAGS") emit_c keep_c show_intermediate_code verbose)
+                            (native_product_ldflags (getenv "NANO_LDFLAGS") (getenv "LDFLAGS")) emit_c keep_c show_intermediate_code verbose)
                     }
                     unsafe { (file_delete module_file) (file_delete directory) }
                 }
@@ -1961,6 +1961,16 @@ fn show_usage() -> int {
 shadow show_usage {
     let result: int = (show_usage)
     assert (== result 0)  /* show_usage always returns 0 */
+}
+
+fn native_product_ldflags(configured: string, fallback: string) -> string {
+    if (!= configured "") { return configured }
+    return fallback
+}
+shadow native_product_ldflags {
+    assert (== (native_product_ldflags "" "--coverage") "--coverage")
+    assert (== (native_product_ldflags "-lchosen" "-lignored") "-lchosen")
+    assert (== (native_product_ldflags "" "") "")
 }
 
 fn main() -> int {

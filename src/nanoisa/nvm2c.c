@@ -1656,7 +1656,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 value.kind != NVM2C_VK_STR && value.kind != NVM2C_VK_FLOAT && value.kind != NVM2C_VK_FUNC && value.kind != NVM2C_VK_VALUE &&
                 !word_array_storage(value.kind) && value.kind != NVM2C_VK_SARR &&
                 value.kind != NVM2C_VK_RARR && value.kind != NVM2C_VK_MAP &&
-                value.kind != NVM2C_VK_UNK) {
+                value.kind != NVM2C_VK_REC && value.kind != NVM2C_VK_UNK) {
                 nvm2c_fail(b, "I cannot yet store an aggregate or unresolved global in function %u at offset %zu", idx, start);
                 return 0;
             }
@@ -4194,6 +4194,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             unsigned slot = ins.operands[0].u32;
             if (kind == NVM2C_VK_VALUE || kind == NVM2C_VK_FUNC)
                 nvm2c_printf(b, "    nglobal[%u] = v[%d];\n", slot, value);
+            else if (kind == NVM2C_VK_REC) {
+                nvm2c_printf(b, "    { const nrec_t *saved = nrec_snapshot(r[%d]);\n", value);
+                nvm2c_printf(b, "      nglobal[%u] = (nmap_value){saved->kind == 0 ? 8 : saved->kind == 1 ? 10 : 12, 0, (char *)saved}; }\n", slot);
+            }
             else if (kind == NVM2C_VK_FLOAT)
                 nvm2c_printf(b, "    nglobal[%u] = nvalue_from_float(f[%d]);\n", slot, value);
             else if (kind == NVM2C_VK_MAP)

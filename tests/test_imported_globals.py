@@ -31,7 +31,7 @@ class ImportedGlobals(unittest.TestCase):
                 self.assertEqual(result.returncode,0,result.stdout+result.stderr)
                 cc=shlex.split(os.environ.get('NANO_NATIVE_TEST_CC',os.environ.get('CC','cc')))
                 for command in ([ROOT/'bin/nano_vm','--verify-only',module], [ROOT/'bin/nano_vm',module],
-                                [ROOT/'bin/nvm2c',module,'-o',native_source],
+                                [os.environ.get('NANO_IMPORTED_GLOBAL_TRANSLATOR', str(ROOT/'bin/nvm2c')),module,'-o',native_source],
                                 cc+['-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',native_source,ROOT/'bin/nano_aot_runtime.o','-lm','-o',binary], [binary]):
                     result=subprocess.run(list(map(str,command)),cwd=ROOT,env=env,capture_output=True,text=True,timeout=120)
                     self.assertEqual(result.returncode,0,result.stdout+result.stderr)
@@ -89,6 +89,47 @@ class ImportedGlobals(unittest.TestCase):
             'a.nano':'pub let mut count: int = 0\nfn next()->int{set count (+ count 1) return count}\nshadow next {let saved: int = count set count 0 assert (== (next) 1) set count saved}\npub let value: int = (next)\n',
             'left.nano':'module "a.nano" as first\npub fn read()->int{return first.value}\nshadow read {assert (== (read) 1)}\n',
             'right.nano':'module "./a.nano" as first\npub fn read()->int{return first.value}\nshadow read {assert (== (read) 1)}\n'})
+
+    def test_imported_qualified_string_array(self):
+        self.check('module "a.nano" as first\nfn main()->int{set first.values (array_push first.values "kept") assert (== (at first.values 0) "kept") set first.values [] return 0}\nshadow main {assert (== (main) 0)}', files={'a.nano': 'pub let mut values: array<string> = []\n'})
+
+    def test_imported_selective_string_array(self):
+        self.check('from "a.nano" import values\nfn main()->int{set values (array_push values "kept") assert (== (at values 0) "kept") set values [] return 0}\nshadow main {assert (== (main) 0)}', files={'a.nano': 'pub let mut values: array<string> = []\n'})
+
+    def test_imported_qualified_map(self):
+        self.check('module "a.nano" as first\nfn main()->int{(map_put first.values "key" "kept") assert (== (map_get first.values "key") "kept") return 0}\nshadow main {assert (== (main) 0)}', files={'a.nano': 'pub let values: HashMap<string,string> = (map_new)\n'})
+
+    def test_imported_selective_map(self):
+        self.check('from "a.nano" import values\nfn main()->int{(map_put values "key" "kept") assert (== (map_get values "key") "kept") return 0}\nshadow main {assert (== (main) 0)}', files={'a.nano': 'pub let values: HashMap<string,string> = (map_new)\n'})
+
+    def test_imported_qualified_record(self):
+        self.check('module "a.nano" as first\nfn main()->int{assert (== first.value.text "kept") return 0}\nshadow main {assert (== (main) 0)}', files={'a.nano': 'struct Record { text: string }\npub let value: Record = Record { text: "kept" }\n'})
+
+    def test_imported_selective_record(self):
+        self.check('from "a.nano" import value\nfn main()->int{assert (== value.text "kept") return 0}\nshadow main {assert (== (main) 0)}', files={'a.nano': 'struct Record { text: string }\npub let value: Record = Record { text: "kept" }\n'})
+
+    def test_imported_record_module_identity(self):
+        self.check('module "a.nano" as first\nmodule "b.nano" as second\nfn main()->int{assert (== first.box.value 41) assert (== second.box.value "second") return 0}\nshadow main {assert (== (main) 0)}', files={'a.nano': 'struct Box { value: int }\npub let box: Box = Box { value: 41 }\n', 'b.nano': 'struct Box { value: string }\npub let box: Box = Box { value: "second" }\n'})
+
+    def test_imported_closure_global_capture(self):
+        self.check('module "a.nano" as first\nfn main()->int{assert (== (first.apply 4) 11) return 0}\nshadow main {assert (== (main) 0)}', files={'a.nano': 'fn make(base:int)->fn(int)->int{return fn(value:int)->int{return (+ base value)}}\nshadow make {let f:fn(int)->int=(make 3) assert (== (f 4) 7)}\npub let apply:fn(int)->int=(make 7)\n'})
+
+    def test_imported_call_snapshot_before_argument(self):
+        self.check('module "a.nano" as first\nfn main()->int{let result:int=(first.apply (first.swap)) assert (== result 2) assert (== (first.apply 1) 101) (first.reset) return 0}\nshadow main {assert (== (main) 0)}', files={'a.nano': 'pub let mut apply:fn(int)->int=fn(x:int)->int{return (+ x 1)}\npub fn swap()->int{set apply fn(x:int)->int{return (+ x 100)} return 1}\nshadow swap {let saved:fn(int)->int=apply assert (== (swap) 1) assert (== (apply 1) 101) set apply saved}\npub fn reset()->void{set apply fn(x:int)->int{return (+ x 1)}}\nshadow reset {(reset) assert (== (apply 1) 2)}\n'})
+
+    def test_qualified_map_type_refusals(self):
+        for body in ['(map_put first.values 7 "kept")', '(map_put first.values "key" 7)', 'let first: int = 1 (map_put first.values "key" "kept")']:
+            with self.subTest(body=body):
+                self.check('module "a.nano" as first\nfn main()->int{'+body+' return 0}\nshadow main {assert true}', bad=True,
+                           files={'a.nano':'pub let values: HashMap<string,string> = (map_new)\n'})
+
+    def test_resource_bearing_globals_preserve_output(self):
+        for payload in ['Handle', 'array<Handle>']:
+            with self.subTest(payload=payload):
+                module = ('resource struct Handle { fd: int }\nunion Box<T> { Some { value: T }, None {} }\n'
+                          'struct Outer { boxed: Box<'+payload+'> }\npub let owner: Outer = Outer { boxed: Box.None {} }\n')
+                self.check('module "a.nano" as first\nfn main()->int{return 0}\nshadow main {assert true}\n',
+                           bad=True, files={'a.nano':module})
 
     def test_immutable_public_value_in_pure_function(self):
         self.check('module "a.nano" as first\npure fn answer()->int{return first.answer}\nshadow answer {assert (== (answer) 41)}\nfn main()->int{assert (== (answer) 41) return 0}\nshadow main {assert (== (main) 0)}\n')

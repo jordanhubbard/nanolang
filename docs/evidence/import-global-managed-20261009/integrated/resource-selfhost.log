@@ -1,0 +1,6 @@
+test_resource_bearing_globals_preserve_output (tests.test_imported_globals.ImportedGlobals.test_resource_bearing_globals_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.300s
+
+OK

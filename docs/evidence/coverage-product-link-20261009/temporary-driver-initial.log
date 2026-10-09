@@ -1,0 +1,17 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2570, column 9: Unused variable 'rejected'
+Warning at line 2782, column 9: Unused variable 'rejected'
+Warning at line 2786, column 9: Unused variable 'rejected'
+Warning at line 2793, column 13: Unused variable 'rejected'
+Warning at line 2851, column 9: Unused variable 'rejected'
+Warning at line 2855, column 9: Unused variable 'rejected'
+Warning at line 2862, column 13: Unused variable 'rejected'
+Warning at line 6597, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+-- E027 UNDEFINED FUNCTION --- /private/tmp/nanolang-link-flags-driver.nano
+I cannot find a function named `native_product_ldflags`.
+
+1911|                 if emit_nvm {
+                                  ^^^^^^^^^^^^^^^^^^^^^^
+Hint: Check spelling or ensure the function is defined/imported.
+error: type check failed
