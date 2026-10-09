@@ -84,4 +84,4 @@ experiments. Line references point to the unchecked Phase 20 rows in
 - **Required (1033):** Reconcile completed roadmap rows with merged commits and authoritative GitHub issue states.
 - **Required:** Keep main CI green and run the clean release/platform gates on the exact candidate revision.
 - **Required:** Draft `RELEASE_5.1.md` after the required implementation rows close, using `RELEASE_5.0.md` as the format.
-- **Deferred-to-later:** Tagging and publishing `v5.1.0` remain operator actions.
+- **Required:** Tag and publish `v5.1.0` after the complete scope and exact-candidate release gates pass. My user's instruction to finish and release 5.1 includes publication; an implementation checkpoint alone does not complete that instruction.

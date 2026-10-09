@@ -23,6 +23,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
+#include <ctype.h>
+#include <limits.h>
 #include <time.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -1693,71 +1695,99 @@ failed:
 // Note: This is a basic parser - it handles simple integer #define patterns only
 #include "nanolang.h"
 
+/* I import only complete integer literals representable by my signed int.
+ * I do not evaluate C expressions or silently import their numeric prefixes. */
+static bool header_integer_literal(const char *line, char name[256], int64_t *value) {
+    const char *p = line;
+    while (isspace((unsigned char)*p)) ++p;
+    if (*p++ != '#') return false;
+    while (isspace((unsigned char)*p)) ++p;
+    if (strncmp(p, "define", 6) || !isspace((unsigned char)p[6])) return false;
+    p += 6;
+    while (isspace((unsigned char)*p)) ++p;
+    if (!(isalpha((unsigned char)*p) || *p == '_')) return false;
+    const char *start = p++;
+    while (isalnum((unsigned char)*p) || *p == '_') ++p;
+    size_t length = (size_t)(p - start);
+    if (length >= 256 || !isspace((unsigned char)*p)) return false;
+    memcpy(name, start, length);
+    name[length] = '\0';
+    while (isspace((unsigned char)*p)) ++p;
+    bool negative = *p == '-';
+    const char *digits = p + (*p == '+' || *p == '-');
+    if (!isdigit((unsigned char)*digits)) return false;
+    int base = *digits != '0' ? 10 :
+        (digits[1] == 'x' || digits[1] == 'X') ? 16 : 8;
+    errno = 0;
+    char *end = NULL;
+    long long parsed = strtoll(p, &end, base);
+    if (end == p || errno == ERANGE || parsed < INT64_MIN || parsed > INT64_MAX)
+        return false;
+    p = end;
+    bool is_unsigned = *p == 'u' || *p == 'U';
+    if (is_unsigned) ++p;
+    if (*p == 'l' || *p == 'L') {
+        char long_case = *p++;
+        if (*p == long_case) ++p;
+    }
+    if (!is_unsigned && (*p == 'u' || *p == 'U')) {
+        is_unsigned = true;
+        ++p;
+    }
+    /* A negative unsigned C constant does not carry this signed value. */
+    if (negative && is_unsigned) return false;
+    for (;;) {
+        while (isspace((unsigned char)*p)) ++p;
+        if (!*p || (p[0] == '/' && p[1] == '/')) break;
+        if (p[0] != '/' || p[1] != '*') return false;
+        const char *close = strstr(p + 2, "*/");
+        if (!close) return false;
+        p = close + 2;
+    }
+    *value = (int64_t)parsed;
+    return true;
+}
+
 ConstantDef* parse_c_header_constants(const char *header_path, int *count_out) {
     *count_out = 0;
-    
     FILE *fp = fopen(header_path, "r");
-    if (!fp) {
-        return NULL;  /* Header not found - not an error, just skip */
-    }
-    
-    /* First pass: count #define integer constants */
-    char line[1024];
-    int const_count = 0;
-    while (fgets(line, sizeof(line), fp)) {
-        /* Look for #define NAME VALUE patterns */
+    if (!fp) return NULL;
+    ConstantDef *constants = NULL;
+    int count = 0, capacity = 0;
+    char *line = NULL;
+    size_t line_capacity = 0;
+    /* I read complete physical lines, so a long expression cannot be accepted
+     * merely because its operator lies beyond a fixed-size buffer. */
+    while (getline(&line, &line_capacity, fp) >= 0) {
         char name[256];
-        long long value;
-        char *trimmed = line;
-        while (*trimmed == ' ' || *trimmed == '\t') trimmed++;
-        
-        /* Try hex format: #define NAME 0x1234 */
-        if (sscanf(trimmed, "#define %255s 0x%llx", name, (unsigned long long *)&value) == 2) {
-            const_count++;
+        int64_t value;
+        if (!header_integer_literal(line, name, &value)) continue;
+        if (count == capacity) {
+            if (capacity > INT_MAX / 2) goto failed;
+            int next = capacity ? capacity * 2 : 16;
+            ConstantDef *grown = realloc(constants, sizeof(*constants) * (size_t)next);
+            if (!grown) goto failed;
+            constants = grown;
+            capacity = next;
         }
-        /* Try decimal format: #define NAME 1234 */
-        else if (sscanf(trimmed, "#define %255s %lld", name, &value) == 2) {
-            const_count++;
-        }
+        constants[count].name = strdup(name);
+        if (!constants[count].name) goto failed;
+        constants[count].value = value;
+        constants[count].type = TYPE_INT;
+        ++count;
     }
-    
-    if (const_count == 0) {
-        fclose(fp);
-        return NULL;
-    }
-    
-    /* Second pass: extract constants */
-    ConstantDef *constants = malloc(sizeof(ConstantDef) * const_count);
-    rewind(fp);
-    
-    int idx = 0;
-    while (fgets(line, sizeof(line), fp) && idx < const_count) {
-        char name[256];
-        long long value;
-        char *trimmed = line;
-        while (*trimmed == ' ' || *trimmed == '\t') trimmed++;
-        
-        bool parsed = false;
-        /* Try hex format */
-        if (sscanf(trimmed, "#define %255s 0x%llx", name, (unsigned long long *)&value) == 2) {
-            parsed = true;
-        }
-        /* Try decimal format */
-        else if (sscanf(trimmed, "#define %255s %lld", name, &value) == 2) {
-            parsed = true;
-        }
-        
-        if (parsed) {
-            constants[idx].name = strdup(name);
-            constants[idx].value = value;
-            constants[idx].type = TYPE_INT;
-            idx++;
-        }
-    }
-    
+    if (ferror(fp)) goto failed;
+    free(line);
     fclose(fp);
-    *count_out = idx;
+    *count_out = count;
     return constants;
+
+failed:
+    for (int i = 0; i < count; ++i) free(constants[i].name);
+    free(constants);
+    free(line);
+    fclose(fp);
+    return NULL;
 }
 
 // Module metadata functions

@@ -169,7 +169,9 @@ bool module_ensure_build_dir(const char *module_dir);
 // Verbose build output (controlled by NANO_VERBOSE_BUILD env var)
 extern bool module_builder_verbose;
 
-// Parse C header to extract #define constants
+// I extract complete signed-int-range decimal, octal and hexadecimal literals,
+// with C integer suffixes and trailing comments. I skip expressions and
+// unsupported values; I do not evaluate conditional preprocessing directives.
 // Returns array of ConstantDef, caller must free
 // Note: ConstantDef is defined in nanolang.h
 ConstantDef* parse_c_header_constants(const char *header_path, int *count_out);
