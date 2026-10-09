@@ -312,8 +312,8 @@ char *unpack_module_package(const char *package_path, char *temp_dir_out, size_t
 const char *resolve_module_path(const char *module_path, const char *current_file) {
     if (!module_path) return NULL;
     
-    /* If module_path is absolute or starts with ./, use as-is */
-    if (module_path[0] == '/' || (module_path[0] == '.' && module_path[1] == '/')) {
+    /* I resolve explicit relative paths from the importing file, like bare paths. */
+    if (module_path[0] == '/') {
         return strdup(module_path);
     }
     
