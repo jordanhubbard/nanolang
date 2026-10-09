@@ -8237,7 +8237,7 @@ shadow parse_shadow {
 }
 
 # I validate RFC3629 bytes independently, after exact decoded extent checks.
-fn parser_service_utf8(text: string) -> bool {
+pub fn parser_service_utf8(text: string) -> bool {
     let size: int = (str_length text)
     let mut i: int = 0
     while (< i size) {

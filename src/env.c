@@ -399,6 +399,7 @@ void env_reclaim_static_arrays(Environment *env) {
 
 /* Free environment */
 void free_environment(Environment *env) {
+    for (int i = 0; i < env->service_origin_count; ++i) free(env->service_origins[i]);
     env_symbol_index_invalidate(env);
     /* I reclaim every static array exactly once before the string/record
      * teardown below, so shared containers and their elements do not leak. */

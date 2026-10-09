@@ -26,6 +26,7 @@ import "src_nano/compiler/module_loader.nano"
 import "src_nano/compiler/module_bindings.nano"
 import "src_nano/compiler/module_introspection.nano"
 import "src_nano/compiler/nominal_bindings.nano"
+import "src_nano/compiler/service_origins.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 from "std/fs.nano" import canonical
 module "std/fs.nano" as compiler_fs
@@ -1765,6 +1766,12 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
+            let service_origins: ServiceOrigins = (bind_service_origins parser merged_files source_files source_lines)
+            if (not service_origins.ok) {
+                (println "I cannot retain the original sources of my File service declarations.")
+                return 1
+            }
+
             let func_count: int = (parser_get_function_count parser)
             if verbose {
                 (print "  ✓ Parsed ")

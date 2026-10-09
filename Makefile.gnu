@@ -5990,3 +5990,12 @@ test-file-source-snapshots:
 test-file-source-snapshots-sanitize:
 	NANO_FILE_SNAPSHOT_SANITIZERS=1 python3 -m unittest -v tests.test_file_source_snapshot
 test-units: test-file-source-snapshots
+
+.PHONY: test-service-origins
+$(OBJ_DIR)/test_service_origins: tests/test_service_origins.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $< $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+
+test-service-origins: $(OBJ_DIR)/test_service_origins nano_virt nano_vm bootstrap
+	python3 -m unittest -v tests.test_service_origins
+
+test-units: test-service-origins

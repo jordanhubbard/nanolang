@@ -872,6 +872,10 @@ typedef struct {
     /* File whose code is being processed; stamped onto definitions and used to
      * keep source-position lookups inside one file. Borrowed, not owned. */
     const char *current_file;
+    /* I own canonical origins for service-bearing source modules separately
+     * from their declared names and import aliases. Indices remain stable. */
+    char *service_origins[16];
+    int service_origin_count;
 } Environment;
 
 /* Function declarations */
@@ -901,6 +905,7 @@ typedef struct {
 
 ASTNode *parse_program(Token *tokens, int token_count);
 bool ast_has_service_declaration(const ASTNode *program);
+bool bind_service_origin(ASTNode *program, Environment *env, const char *source_file);
 bool ast_is_value_expression(ASTNodeType type);
 bool ast_always_returns(const ASTNode *node);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */

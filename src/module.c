@@ -3,6 +3,7 @@
 #include "module_builder.h"
 #include "shell_path.h"
 #include "stdlib_runtime.h"
+#include "utf8.h"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -892,9 +893,50 @@ ASTNode *load_module_from_package(const char *package_path, Environment *env, ch
 
 static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
 
+/* I bind the parser's own source before import aliases or module declarations
+ * can change visible names. Failure leaves both the AST and origin table intact. */
+bool bind_service_origin(ASTNode *program, Environment *env, const char *source_file) {
+    if (!program || program->type != AST_PROGRAM || !env) return false;
+    if (!ast_has_service_declaration(program)) return true;
+    int declarations = 0;
+    for (int i = 0; i < program->as.program.count; ++i)
+        if (program->as.program.items[i]->type == AST_SERVICE_DECL) ++declarations;
+    if (declarations != 1) return false;
+    if (!source_file || !source_file[0]) return false;
+    char *canonical = realpath(source_file, NULL);
+    if (!canonical) return false;
+    size_t size = strlen(canonical);
+    if (!size || size > 4096 || canonical[0] != '/' || !nl_utf8_validate(canonical, size, NULL)) {
+        free(canonical);
+        return false;
+    }
+    int index = 0;
+    while (index < env->service_origin_count &&
+           strcmp(env->service_origins[index], canonical)) ++index;
+    if (index == 16) { free(canonical); return false; }
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *node = program->as.program.items[i];
+        if (node->type != AST_SERVICE_DECL) continue;
+        if (node->as.service_decl.origin_index != -1 &&
+            node->as.service_decl.origin_index != index) { free(canonical); return false; }
+    }
+    if (index == env->service_origin_count) {
+        env->service_origins[env->service_origin_count++] = canonical;
+    } else free(canonical);
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *node = program->as.program.items[i];
+        if (node->type == AST_SERVICE_DECL) node->as.service_decl.origin_index = index;
+    }
+    return true;
+}
+
 /* I apply an explicit module declaration before registering its import aliases. */
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
     if (!program || program->type != AST_PROGRAM || !env) return false;
+    if (!bind_service_origin(program, env, current_file)) {
+        fprintf(stderr, "I cannot retain the original source of this File service declaration.\n");
+        return false;
+    }
     if (ast_has_service_declaration(program)) {
         fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
         return false;
