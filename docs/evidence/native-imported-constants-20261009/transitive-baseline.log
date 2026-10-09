@@ -1,0 +1,10 @@
+Error: Failed to compile module '/private/tmp/nanolang-native-qualified-20261009/transitive/bridge.nano' to object file
+Compilation errors:
+/private/tmp/nanolang-native-qualified-20261009/transitive/bridge.nano:2:12: error: use of undeclared identifier 'source'
+    2 |     return source.answer;
+      |            ^~~~~~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-JQoVNE/source.c
+Error: Failed to compile module '/private/tmp/nanolang-native-qualified-20261009/transitive/bridge.nano'
+Error: Failed to compile modules

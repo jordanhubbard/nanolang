@@ -728,6 +728,39 @@ Symbol *env_global_import_symbol(Environment *env, const char *name) {
     return env_global_import_symbol_at(env, env_current_file(env), name);
 }
 
+/* I resolve immutable literals by declaration identity, never by a module's
+ * unqualified symbol name. A visible receiver still denotes an ordinary value. */
+ASTNode *env_qualified_import_literal(Environment *env, ASTNode *expr) {
+    if (!expr || expr->type != AST_FIELD_ACCESS) return NULL;
+    ASTNode *receiver = expr->as.field_access.object;
+    const char *field = expr->as.field_access.field_name;
+    if (!receiver || receiver->type != AST_IDENTIFIER || !field ||
+        env_get_var_visible_at(env, receiver->as.identifier, receiver->line, receiver->column)) return NULL;
+    const char *owner = env_current_file(env);
+    if (!owner) return NULL;
+    size_t prefix_length = strlen(receiver->as.identifier);
+    for (const GlobalImport *item = env->global_imports; item; item = item->next) {
+        if (strcmp(item->owner_file, owner) ||
+            strncmp(item->name, receiver->as.identifier, prefix_length) ||
+            item->name[prefix_length] != '.' ||
+            strcmp(item->name + prefix_length + 1, field)) continue;
+        ASTNode *declaration = item->declaration;
+        if (!declaration || declaration->type != AST_LET || declaration->as.let.is_mut) return NULL;
+        ASTNode *value = declaration->as.let.value;
+        if (!value) return NULL;
+        switch (value->type) {
+            case AST_NUMBER:
+            case AST_FLOAT:
+            case AST_BOOL:
+            case AST_STRING:
+                return value;
+            default:
+                return NULL;
+        }
+    }
+    return NULL;
+}
+
 Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column) {
     if (!env || !name) return NULL;
     if (line <= 0) return env_get_var(env, name);

@@ -1232,7 +1232,7 @@ test-binary64-bits-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_in
 	@./tests/test_binary64_bits_eval
 	@rm -f tests/test_binary64_bits_eval
 
-test-eval: stage1 $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
+test-eval: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/test_interpreter_ffi_native.so $(OBJ_DIR)/eval_io_faults.o $(OBJ_DIR)/eval_clock_test.o
 	@echo "Running interpreter (eval.c) unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_eval tests/test_eval.c $(filter-out $(OBJ_DIR)/eval.o $(OBJ_DIR)/eval/eval_io.o,$(COMMON_OBJECTS)) $(OBJ_DIR)/eval_clock_test.o $(OBJ_DIR)/eval_io_faults.o $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_eval
@@ -1457,7 +1457,7 @@ test-resource-flow-allocations: | $(OBJ_DIR)
 
 test-units: test-resource-flow-allocations
 
-test-env-scoping: stage1
+test-env-scoping: $(COMPILER_C) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running environment scoping unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_env_scoping tests/test_env_scoping.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	@./tests/test_env_scoping
@@ -1465,7 +1465,7 @@ test-env-scoping: stage1
 	@rm -f tests/test_env_scoping
 
 .PHONY: test-transpiler
-test-transpiler: stage1
+test-transpiler: $(COMPILER_C) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running transpiler unit tests..."
 	$(CC) $(CFLAGS) -o tests/test_transpiler tests/test_transpiler.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS) -lm
 	@./tests/test_transpiler
@@ -5962,6 +5962,12 @@ test-cseed-imported-globals: nano_virt nano_vm nvm2c bin/nano_aot_runtime.o
 	NANO_IMPORTED_GLOBAL_COMPILER=$(CURDIR)/bin/nano_virt python3 -m unittest -v tests.test_imported_globals
 
 test-units: test-cseed-imported-globals
+
+.PHONY: test-native-imported-constants
+test-native-imported-constants: bin/nanoc_c
+	python3 -m unittest -v tests.test_native_imported_constants
+
+test-units: test-native-imported-constants
 
 .PHONY: test-native-record-globals test-selfhost-native-link-flags
 test-native-record-globals: nano_vm nanoisa_dump nvm2c

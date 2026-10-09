@@ -952,6 +952,7 @@ bool env_import_global(Environment *env, const char *owner_file, const char *nam
 const GlobalImport *env_lookup_global_import(Environment *env, const char *name);
 const GlobalImport *env_lookup_global_import_at(Environment *env, const char *owner_file, const char *name);
 Symbol *env_global_import_symbol(Environment *env, const char *name);
+ASTNode *env_qualified_import_literal(Environment *env, ASTNode *expr);
 Symbol *env_global_import_symbol_at(Environment *env, const char *owner_file, const char *name);
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value);
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);

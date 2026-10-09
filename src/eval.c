@@ -4836,6 +4836,8 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     g_eval_return_target = &return_boundary;
     char *saved_module_context = env->current_module;
     env->current_module = func->module_name;
+    const char *saved_source_file = env_current_file(env);
+    env_set_current_file(env, func->source_file);
     Value result = create_void();
     for (int i = 0; i < func->body->as.block.count; i++) {
         ASTNode *stmt = func->body->as.block.statements[i];
@@ -4855,6 +4857,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     /* Pop call stack */
     g_eval_return_target = saved_return_target;
     env->current_module = saved_module_context;
+    env_set_current_file(env, saved_source_file);
     tracing_pop_call();
 
     /*
@@ -5325,6 +5328,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         }
 
         case AST_FIELD_ACCESS: {
+            ASTNode *literal = env_qualified_import_literal(env, expr);
+            if (literal) return eval_expression(literal, env);
             /* Check object is not NULL */
             if (!expr->as.field_access.object) {
                 fprintf(stderr, "Error: NULL object in field access\n");
@@ -6603,9 +6608,12 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     g_eval_return_target = &return_boundary;
     char *saved_module_context = env->current_module;
     env->current_module = func->module_name;
+    const char *saved_source_file = env_current_file(env);
+    env_set_current_file(env, func->source_file);
     Value result = eval_statement(func->body, env);
     g_eval_return_target = saved_return_target;
     env->current_module = saved_module_context;
+    env_set_current_file(env, saved_source_file);
 
     /* Make a copy of the result if it's a string BEFORE cleaning up parameters */
     Value return_value = result;
