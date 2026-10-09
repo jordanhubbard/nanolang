@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-snapshot-failed-cases-20261009.py", line 7, in <module>
+    before=state();(out/'before.json').write_text(json.dumps(before,indent=2));assert not before['status']
+  File "/private/tmp/nanolang-snapshot-failed-cases-20261009.py", line 6, in state
+    return {'head':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(), 'status':subprocess.check_output(['git','status','--porcelain'],text=True), 'sha256':{p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in ['src/module_builder.c','tests/test_source_snapshots.py','tests/test_module_cache_publication.py','obj/test_module_generation_probe','bin/nano_as_capture.so']}}
+                                                                                                                                                                                                 ~~~~~~~~~~~~~~~~~~~^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 777, in read_bytes
+    with self.open(mode='rb', buffering=0) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/nanolang-retirement-20261008/bin/nano_as_capture.so'
