@@ -1,0 +1,9 @@
+test_long_link_closure_keeps_every_foreign_object (tests.test_native_module_generation_selection.NativeModuleGenerationSelection.test_long_link_closure_keeps_every_foreign_object) ... ok
+test_multiple_sources_share_one_uncacheable_foreign_build (tests.test_native_module_generation_selection.NativeModuleGenerationSelection.test_multiple_sources_share_one_uncacheable_foreign_build) ... ok
+test_oversized_compile_flags_fail_without_silent_truncation (tests.test_native_module_generation_selection.NativeModuleGenerationSelection.test_oversized_compile_flags_fail_without_silent_truncation) ... ok
+test_transitive_dependency_header_paths_reach_module_compilation (tests.test_native_module_generation_selection.NativeModuleGenerationSelection.test_transitive_dependency_header_paths_reach_module_compilation) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 10.161s
+
+OK

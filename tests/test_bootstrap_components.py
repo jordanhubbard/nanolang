@@ -60,7 +60,8 @@ class BootstrapComponents(unittest.TestCase):
                  '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
                  ROOT / 'bin/nano_aot_runtime.o', '-lm',
-                 *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []), '-o', binary],
+                 *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
+                 *shlex.split(os.environ.get('LDFLAGS', '')), '-o', binary],
             ]
             for command in commands:
                 result = subprocess.run(list(map(str, command)), cwd=ROOT, capture_output=True,

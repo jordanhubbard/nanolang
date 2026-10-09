@@ -1,0 +1,69 @@
+[
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "--coverage",
+      "-fsanitize=address,undefined",
+      "-std=c99",
+      "-g",
+      "-O0",
+      "-fPIC",
+      "-D_GNU_SOURCE",
+      "-Isrc",
+      "-c",
+      "src/runtime/dyn_array.c",
+      "-o",
+      "/private/tmp/nanolang-coverage-harness-probe/dyn_array.o"
+    ],
+    "exit": 0
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "--coverage",
+      "-fsanitize=address,undefined",
+      "-std=c99",
+      "-g",
+      "-O0",
+      "-fPIC",
+      "-D_GNU_SOURCE",
+      "-Isrc",
+      "-c",
+      "src/runtime/gc.c",
+      "-o",
+      "/private/tmp/nanolang-coverage-harness-probe/gc.o"
+    ],
+    "exit": 0
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "--coverage",
+      "-fsanitize=address,undefined",
+      "-std=c99",
+      "-g",
+      "-O0",
+      "-fPIC",
+      "-D_GNU_SOURCE",
+      "-Isrc",
+      "-c",
+      "src/runtime/gc_struct.c",
+      "-o",
+      "/private/tmp/nanolang-coverage-harness-probe/gc_struct.o"
+    ],
+    "exit": 0
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-r",
+      "-nostdlib",
+      "-o",
+      "/private/tmp/nanolang-coverage-harness-probe/runtime.o",
+      "/private/tmp/nanolang-coverage-harness-probe/dyn_array.o",
+      "/private/tmp/nanolang-coverage-harness-probe/gc.o",
+      "/private/tmp/nanolang-coverage-harness-probe/gc_struct.o"
+    ],
+    "exit": 0
+  }
+]

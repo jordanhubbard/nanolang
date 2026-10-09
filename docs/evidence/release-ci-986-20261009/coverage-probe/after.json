@@ -1,0 +1,63 @@
+{
+  "success": true,
+  "runtime_object_substitutions": 1,
+  "commands": [
+    {
+      "argv": [
+        "/private/tmp/nanolang-match-guards-20261009/bin/nano_virt",
+        "/private/tmp/nanolang-match-guards-20261009/src_nano/nanoisa_driver.nano",
+        "--emit-nvm",
+        "-o",
+        "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-emitter-component-b2sp5d6m/emitter.nvm"
+      ],
+      "exit": 0,
+      "seconds": 3.390268087387085
+    },
+    {
+      "argv": [
+        "/private/tmp/nanolang-match-guards-20261009/bin/nvm2c",
+        "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-emitter-component-b2sp5d6m/emitter.nvm",
+        "-o",
+        "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-emitter-component-b2sp5d6m/emitter.c"
+      ],
+      "exit": 0,
+      "seconds": 11.12587285041809
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-O0",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined",
+        "-fno-sanitize-recover=all",
+        "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-emitter-component-b2sp5d6m/emitter.c",
+        "/private/tmp/nanolang-coverage-harness-probe/runtime.o",
+        "-lm",
+        "--coverage",
+        "-o",
+        "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-emitter-component-b2sp5d6m/emitter"
+      ],
+      "exit": 0,
+      "seconds": 31.163525104522705
+    },
+    {
+      "argv": [
+        "/private/tmp/nanolang-match-guards-20261009/bin/nano_vm",
+        "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-emitter-component-b2sp5d6m/emitter.nvm"
+      ],
+      "exit": 0,
+      "seconds": 0.06300902366638184
+    },
+    {
+      "argv": [
+        "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-emitter-component-b2sp5d6m/emitter"
+      ],
+      "exit": 0,
+      "seconds": 0.22769713401794434
+    }
+  ]
+}
