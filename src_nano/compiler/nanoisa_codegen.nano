@@ -4851,11 +4851,11 @@ shadow nisa_emit_expr {
     let text: string = (nisa_emit_expr p 0 ParseNodeType.PNODE_NUMBER)
     assert (str_contains text "PUSH_I64 7")
     assert (== num.value "7")
-    let comparison: string = (nanoisa_emit_nasm "opaque type Handle\nfn present(value: Handle)->bool { return (!= value 0) }")
+    let comparison: string = (nanoisa_emit_nasm "opaque type Handle\nfn present(value: Handle)->bool { return (!= value 0) }\nfn main()->int { return 0 }")
     assert (str_contains comparison "\n  NE\n")
     assert (not (str_contains comparison "I64_NE"))
-    assert (== (nanoisa_emit_nasm "opaque type Handle\nfn invalid(value: Handle)->bool { return (< value 0) }") "")
-    assert (== (nanoisa_emit_nasm "opaque type Handle\nfn invalid(value: Handle)->bool { return (== value 7) }") "")
+    assert (== (nanoisa_emit_nasm "opaque type Handle\nfn invalid(value: Handle)->bool { return (< value 0) }\nfn main()->int { return 0 }") "")
+    assert (== (nanoisa_emit_nasm "opaque type Handle\nfn invalid(value: Handle)->bool { return (== value 7) }\nfn main()->int { return 0 }") "")
     let reset_comparison: int = (nisa_reset)
 }
 
