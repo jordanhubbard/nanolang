@@ -1,0 +1,8 @@
+{
+  "src_nano/compiler/nanoisa_codegen.nano": "d8d58e4bda1abf751844ff2c58d638ac6c0c022c2246a40d31e9fc277169e5b6",
+  "tests/test_nanoisa_flat_records.py": "71fbf8b4f475a3acb013a967f47c5b58cdd4dcaf14e4cc53c7e7c123af52ebd0",
+  "tests/test_nanoisa_shadow_emitter.py": "f16c6195639d0fff48522b3a1f5da2c9d16609f03a734fc4f8058a8bbf6e2698",
+  "tests/nanoisa/fixtures/nested_array_contexts.nano": "ebc35fceec4dab1d9c609a05142f23b480afa6648713d7677d58602b91e817a0",
+  "tests/test_bootstrap_components.py": "d74575af3b2a7d39280b261bd7b80cfc4c229bbd9b0581089908980030c57745",
+  ".github/workflows/userguide_pages.yml": "e71b28f0b34a18649e3fea645251bb2ba1633cb767a08ee36fb9cd1e22fd29a8"
+}

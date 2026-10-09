@@ -1,0 +1,12 @@
+['bin/nanoisa_emit', 'tests/nanoisa/fixtures/nested_array_contexts.nano', '-o', '/private/tmp/nanolang-nested-context-probe/self.nasm'] 0  
+['bin/nanoisa', 'asm', '/private/tmp/nanolang-nested-context-probe/self.nasm', '-o', '/private/tmp/nanolang-nested-context-probe/self.nvm'] 0  
+['bin/nano_vm', '--verify-only', '/private/tmp/nanolang-nested-context-probe/seed.nvm'] 0  
+['bin/nano_vm', '/private/tmp/nanolang-nested-context-probe/seed.nvm'] 0  
+['bin/nvm2c', '/private/tmp/nanolang-nested-context-probe/seed.nvm', '-o', '/private/tmp/nanolang-nested-context-probe/seed.c'] 0  
+['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/private/tmp/nanolang-nested-context-probe/seed.c', 'bin/nano_aot_runtime.o', '-lm', '-o', '/private/tmp/nanolang-nested-context-probe/seed.native'] 0  
+['/private/tmp/nanolang-nested-context-probe/seed.native'] 0  
+['bin/nano_vm', '--verify-only', '/private/tmp/nanolang-nested-context-probe/self.nvm'] 0  
+['bin/nano_vm', '/private/tmp/nanolang-nested-context-probe/self.nvm'] 0  
+['bin/nvm2c', '/private/tmp/nanolang-nested-context-probe/self.nvm', '-o', '/private/tmp/nanolang-nested-context-probe/self.c'] 0  
+['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/private/tmp/nanolang-nested-context-probe/self.c', 'bin/nano_aot_runtime.o', '-lm', '-o', '/private/tmp/nanolang-nested-context-probe/self.native'] 0  
+['/private/tmp/nanolang-nested-context-probe/self.native'] 0  

@@ -6388,6 +6388,9 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
     }
     let initializers: string = (nisa_emit_globals parser)
     if (not nisa_ok) { return "" }
+    # I retain the first selected shadow that enqueues each dependency.
+    # Initializer dependencies have no shadow owner.
+    let mut queue_shadows: array<int> = (array_new (array_length nisa_function_queue) -1)
     let entry_name: string = (nisa_shadow_name parser "__nanoisa_shadow_entry")
     let mut entry_body: string = ""
     let mut out: string = ""
@@ -6406,6 +6409,9 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
                 (+ (+ " at merged line " (int_to_string selected.line)) (+ ": " nisa_err)))
             return ""
         }
+        while (< (array_length queue_shadows) (array_length nisa_function_queue)) {
+            set queue_shadows (array_push queue_shadows i)
+        }
         set entry_body (+ entry_body (+ "  .shadow \"" (+ (nisa_escape_string selected.target_name) "\"\n")))
         set entry_body (+ entry_body (nisa_line_imm "CALL" name))
         set i (+ i 1)
@@ -6419,8 +6425,20 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
     while (and nisa_ok (< i (array_length nisa_function_queue))) {
         let function: ASTFunction = (parser_get_function parser (at nisa_function_queue i))
         if (== function.node_type ParseNodeType.PNODE_LAMBDA) { set i (+ i 1) continue }
+        let origin: int = (at queue_shadows i)
         if (< function.body 0) { let _: int = (nisa_register_extern parser function) }
         else { set out (+ out (nisa_emit_function parser function)) }
+        while (< (array_length queue_shadows) (array_length nisa_function_queue)) {
+            set queue_shadows (array_push queue_shadows origin)
+        }
+        if (not nisa_ok) {
+            if (>= origin 0) {
+                let selected: ASTShadow = (list_ASTShadow_get parser.shadows origin)
+                set nisa_err (+ (+ "I cannot lower shadow " selected.target_name)
+                    (+ (+ " at merged line " (int_to_string selected.line)) (+ ": " nisa_err)))
+            }
+            return ""
+        }
         set i (+ i 1)
     }
     set out (+ out (+ initializers nisa_lambda_text))

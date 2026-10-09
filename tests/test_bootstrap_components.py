@@ -75,14 +75,17 @@ class BootstrapComponents(unittest.TestCase):
     def test_real_emitter_driver_executes_in_vm_and_sanitized_native(self):
         with tempfile.TemporaryDirectory(prefix='nano-emitter-component-') as tmp:
             root = Path(tmp)
-            module, source, binary = [root / name for name in ('emitter.nvm', 'emitter.c', 'emitter')]
+            module, source, obj, binary = [root / name for name in
+                                           ('emitter.nvm', 'emitter.c', 'emitter.o', 'emitter')]
+            compiler = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc')))
             commands = [
                 [ROOT / 'bin/nano_virt', ROOT / 'src_nano/nanoisa_driver.nano', '--emit-nvm', '-o', module],
                 [ROOT / 'bin/nvm2c', module, '-o', source],
-                [*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))),
-                 '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
-                 '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source,
-                 ROOT / 'bin/nano_aot_runtime.o', '-lm',
+                [*compiler, '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
+                 '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                 '-c', source, '-o', obj],
+                [*compiler, '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
+                 obj, ROOT / 'bin/nano_aot_runtime.o', '-lm',
                  *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
                  *shlex.split(os.environ.get('LDFLAGS', '')), '-o', binary],
             ]

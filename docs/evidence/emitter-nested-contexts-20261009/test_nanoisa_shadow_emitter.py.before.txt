@@ -129,21 +129,6 @@ shadow unused { let values: array<array<float>> = (unused) }
         self.assertIn("I cannot lower shadow unused at merged line", refusal.stdout)
         self.execute(self.emit(source, 1).stdout)
 
-    def test_transitive_refusal_retains_its_selected_shadow_origin(self):
-        source = '''extern fn unsupported() -> array<array<float>>
-fn leaf() -> array<array<float>> { return (unsupported) }
-fn unused() -> array<array<float>> { return (leaf) }
-fn good() -> int { return 7 }
-shadow good { assert (== (good) 7) }
-shadow unused { let values: array<array<float>> = (unused) }
-'''
-        for first in (0, 1):
-            refusal = self.emit(source, first, expected=1)
-            self.assertIn("I cannot lower shadow unused at merged line 6", refusal.stdout)
-            self.assertIn("unsupported extern result or symbol unsupported", refusal.stdout)
-            self.assertNotIn(".entry", refusal.stdout)
-        self.execute(self.emit(source, 2).stdout)
-
     def test_trace_reports_only_reached_selected_shadows(self):
         source = '''fn first() -> int { return 1 }
 fn second() -> int { return 2 }
