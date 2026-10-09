@@ -42,6 +42,19 @@ class CIWorkflowTests(unittest.TestCase):
             )
             self.assertIn("libsqlite3-dev", commands, job_name)
 
+    def test_coverage_dependency_retries_fit_setup_budget(self):
+        job = self.jobs["coverage"]
+        setup = next(step for step in job["steps"] if step["name"] == "Install dependencies")
+        env = setup["env"]
+        attempts = int(env["CI_APT_ATTEMPTS"])
+        timeout = int(env["CI_APT_TIMEOUT_SECS"])
+        backoff = int(env["CI_APT_BACKOFF_SECS"])
+        retry_budget = attempts * timeout + backoff * attempts * (attempts - 1) // 2
+        self.assertGreaterEqual(attempts, 2)
+        self.assertGreater(timeout, 180)
+        self.assertLess(retry_budget, setup["timeout-minutes"] * 60)
+        self.assertGreaterEqual(job["timeout-minutes"] - setup["timeout-minutes"], 35)
+
     def test_coverage_threshold_is_reported_consistently(self):
         self.assertIn("THRESHOLD=${COVERAGE_THRESHOLD:-40.0}", self.text)
         self.assertIn("Coverage threshold (40%) met", self.text)
