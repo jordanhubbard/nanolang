@@ -1,6 +1,7 @@
 """I check native callable dispatch, tagged refusal and aggregate lifetimes."""
 import os
 from pathlib import Path
+import shlex
 import subprocess
 import tempfile
 import unittest
@@ -26,7 +27,8 @@ class NativeCallables(unittest.TestCase):
         return source
 
     def sanitized(self, source, binary):
-        self.checked(['cc', '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
+        self.checked([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))),
+                      '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                       '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
         return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
 
@@ -148,7 +150,7 @@ class NativeCallables(unittest.TestCase):
                 '    int result = got.kind == 11 && got.integer == 0 ? 0 : 3;\n'
                 '    narr_release_owned(); return result;\n}\n')
             binary = work / 'program'
-            self.checked(['cc', '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
+            self.checked([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))), '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
             env = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}
             for push in (0, 1):
@@ -213,7 +215,7 @@ class NativeCallables(unittest.TestCase):
                 '    r.f[0] = strtoll(argv[3], NULL, 10);\n'
                 '    return nl_apply(&r) == 42 ? 0 : 3;\n}\n')
             binary = work / 'program'
-            self.checked(['cc', '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
+            self.checked([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))), '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
             env = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}
             self.checked([binary, 13, 11, 0], env=env)
@@ -242,7 +244,7 @@ class NativeCallables(unittest.TestCase):
                 '    nmap_value f = {(uint8_t)atoi(argv[1]), strtoll(argv[2], NULL, 10), NULL};\n'
                 '    return nl_apply(f, 42) == 42 ? 0 : 3;\n}\n')
             binary = work / 'program'
-            self.checked(['cc', '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
+            self.checked([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))), '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
             env = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}
             self.checked([binary, 11, 0], env=env)

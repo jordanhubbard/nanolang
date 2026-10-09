@@ -1,5 +1,6 @@
 """I check tagged array fields before writing exact record-array storage."""
 import os
+import shlex
 import subprocess
 from pathlib import Path
 import re
@@ -78,7 +79,7 @@ class TaggedRecordArrayFields(unittest.TestCase):
                 with self.subTest(fault=name):
                     source.write_text(original[:match.start()] + '    ' + expression + '\n' + original[match.start():])
                     binary = work / name
-                    self.checked(['cc', '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
+                    self.checked([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))), '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                                   '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                                   source, '-o', binary])
                     result = subprocess.run([binary], capture_output=True, text=True, timeout=30,

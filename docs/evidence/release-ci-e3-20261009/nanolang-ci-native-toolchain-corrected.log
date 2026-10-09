@@ -1,0 +1,140 @@
+test_callable_tags_and_target_membership_are_checked (tests.test_native_callables.NativeCallables.test_callable_tags_and_target_membership_are_checked) ... FAIL
+test_function_array_aliases_globals_and_missing_elements (tests.test_native_callables.NativeCallables.test_function_array_aliases_globals_and_missing_elements) ... ok
+test_function_array_writes_check_payload_tags (tests.test_native_callables.NativeCallables.test_function_array_writes_check_payload_tags) ... FAIL
+test_function_field_tags_and_targets_are_checked (tests.test_native_callables.NativeCallables.test_function_field_tags_and_targets_are_checked) ... FAIL
+test_function_fields_survive_nested_records_and_record_arrays (tests.test_native_callables.NativeCallables.test_function_fields_survive_nested_records_and_record_arrays) ... ok
+test_function_identity_comparisons_preserve_tags (tests.test_native_callables.NativeCallables.test_function_identity_comparisons_preserve_tags) ... ok
+test_indirect_record_and_array_results_retain_roots (tests.test_native_callables.NativeCallables.test_indirect_record_and_array_results_retain_roots) ... ok
+test_many_targets_share_exclusive_dispatch_temporaries (tests.test_native_callables.NativeCallables.test_many_targets_share_exclusive_dispatch_temporaries) ... ok
+test_retained_source_function_containers (tests.test_native_callables.NativeCallables.test_retained_source_function_containers) ... FAIL
+test_captured_call_checks_tag_target_and_environment (tests.test_native_closures.NativeClosures.test_captured_call_checks_tag_target_and_environment) ... FAIL
+test_implicit_roots_cannot_supply_captures (tests.test_native_closures.NativeClosures.test_implicit_roots_cannot_supply_captures) ... ok
+test_instances_aliases_mutation_and_record_global_roots (tests.test_native_closures.NativeClosures.test_instances_aliases_mutation_and_record_global_roots) ... ok
+test_managed_captures_and_active_environment_roots (tests.test_native_closures.NativeClosures.test_managed_captures_and_active_environment_roots) ... ok
+test_nested_callable_and_scalar_capture_tags (tests.test_native_closures.NativeClosures.test_nested_callable_and_scalar_capture_tags) ... ok
+test_retained_canonical_returned_chain (tests.test_native_closures.NativeClosures.test_retained_canonical_returned_chain) ... FAIL
+test_zero_capture_instances_and_exact_tags (tests.test_native_closures.NativeClosures.test_zero_capture_instances_and_exact_tags) ... ok
+test_mixed_arrays_preserve_growth_aliases_tags_and_roots (tests.test_native_closure_arrays.NativeClosureArrays.test_mixed_arrays_preserve_growth_aliases_tags_and_roots) ... ok
+test_source_closures_through_returned_function_arrays (tests.test_native_closure_arrays.NativeClosureArrays.test_source_closures_through_returned_function_arrays) ... ok
+test_unreachable_closure_array_cycles_are_collected (tests.test_native_closure_arrays.NativeClosureArrays.test_unreachable_closure_array_cycles_are_collected) ... ok
+test_all_word_and_string_arrays_survive_checked_writes (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_all_word_and_string_arrays_survive_checked_writes) ... ok
+test_incompatible_concrete_field_preserves_prior_output (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_incompatible_concrete_field_preserves_prior_output) ... ok
+test_wrong_runtime_tag_element_kind_and_null_are_refused (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_wrong_runtime_tag_element_kind_and_null_are_refused) ... 
+  test_wrong_runtime_tag_element_kind_and_null_are_refused (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_wrong_runtime_tag_element_kind_and_null_are_refused) (fault='tag') ... FAIL
+  test_wrong_runtime_tag_element_kind_and_null_are_refused (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_wrong_runtime_tag_element_kind_and_null_are_refused) (fault='element') ... FAIL
+  test_wrong_runtime_tag_element_kind_and_null_are_refused (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_wrong_runtime_tag_element_kind_and_null_are_refused) (fault='null') ... FAIL
+test_coverage_threshold_is_reported_consistently (tests.test_ci_workflow.CIWorkflowTests.test_coverage_threshold_is_reported_consistently) ... ok
+test_required_test_jobs_use_bounded_suite (tests.test_ci_workflow.CIWorkflowTests.test_required_test_jobs_use_bounded_suite) ... ok
+test_sanitizers_have_instrumented_runtime_budget (tests.test_ci_workflow.CIWorkflowTests.test_sanitizers_have_instrumented_runtime_budget) ... ok
+test_sqlite_headers_are_installed_for_test_jobs (tests.test_ci_workflow.CIWorkflowTests.test_sqlite_headers_are_installed_for_test_jobs) ... ok
+test_workflow_sets_global_finite_shadow_deadline (tests.test_ci_shadow_timeout.CiShadowTimeout.test_workflow_sets_global_finite_shadow_deadline) ... ok
+
+======================================================================
+FAIL: test_callable_tags_and_target_membership_are_checked (tests.test_native_callables.NativeCallables.test_callable_tags_and_target_membership_are_checked)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 250, in test_callable_tags_and_target_membership_are_checked
+    self.checked([binary, 11, 0], env=env)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==45551==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_function_array_writes_check_payload_tags (tests.test_native_callables.NativeCallables.test_function_array_writes_check_payload_tags)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 157, in test_function_array_writes_check_payload_tags
+    self.checked([binary, 11, push], env=env)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==45576==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_function_field_tags_and_targets_are_checked (tests.test_native_callables.NativeCallables.test_function_field_tags_and_targets_are_checked)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 221, in test_function_field_tags_and_targets_are_checked
+    self.checked([binary, 13, 11, 0], env=env)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==45584==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_retained_source_function_containers (tests.test_native_callables.NativeCallables.test_retained_source_function_containers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 55, in test_retained_source_function_containers
+    self.checked([ROOT / 'bin/nano_vm', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to load '/private/tmp/nanolang-match-guards-20261009/docs/evidence/native-callable-execution-20261007/function-containers.nvm': Cannot open '/private/tmp/nanolang-match-guards-20261009/docs/evidence/native-callable-execution-20261007/function-containers.nvm'
+
+
+======================================================================
+FAIL: test_captured_call_checks_tag_target_and_environment (tests.test_native_closures.NativeClosures.test_captured_call_checks_tag_target_and_environment)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 124, in test_captured_call_checks_tag_target_and_environment
+    self.checked([binary, 0], env=env)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==45641==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_retained_canonical_returned_chain (tests.test_native_closures.NativeClosures.test_retained_canonical_returned_chain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 43, in test_retained_canonical_returned_chain
+    self.assertEqual(self.checked([ROOT / 'bin/nano_vm', module]).stdout, '42\n')
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to load '/private/tmp/nanolang-match-guards-20261009/docs/evidence/captured-closure-baseline-20261008/capture.nvm': Cannot open '/private/tmp/nanolang-match-guards-20261009/docs/evidence/captured-closure-baseline-20261008/capture.nvm'
+
+
+======================================================================
+FAIL: test_wrong_runtime_tag_element_kind_and_null_are_refused (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_wrong_runtime_tag_element_kind_and_null_are_refused) (fault='tag')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_record_array_tagged_fields.py", line 87, in test_wrong_runtime_tag_element_kind_and_null_are_refused
+    self.assertIn('native invariant', result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'native invariant' not found in '==45853==AddressSanitizer: detect_leaks is not supported on this platform.\n'
+
+======================================================================
+FAIL: test_wrong_runtime_tag_element_kind_and_null_are_refused (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_wrong_runtime_tag_element_kind_and_null_are_refused) (fault='element')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_record_array_tagged_fields.py", line 87, in test_wrong_runtime_tag_element_kind_and_null_are_refused
+    self.assertIn('native invariant', result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'native invariant' not found in '==45858==AddressSanitizer: detect_leaks is not supported on this platform.\n'
+
+======================================================================
+FAIL: test_wrong_runtime_tag_element_kind_and_null_are_refused (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_wrong_runtime_tag_element_kind_and_null_are_refused) (fault='null')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_record_array_tagged_fields.py", line 87, in test_wrong_runtime_tag_element_kind_and_null_are_refused
+    self.assertIn('native invariant', result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'native invariant' not found in '==45863==AddressSanitizer: detect_leaks is not supported on this platform.\n'
+
+----------------------------------------------------------------------
+Ran 27 tests in 14.757s
+
+FAILED (failures=9)

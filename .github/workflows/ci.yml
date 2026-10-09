@@ -91,6 +91,7 @@ jobs:
           "$llvm_prefix/bin/clang" --version
           "$llvm_prefix/bin/opt" --version
           {
+            printf 'CC=%s/bin/clang\n' "$llvm_prefix"
             printf 'NANO_NATIVE_TEST_CC=%s/bin/clang\n' "$llvm_prefix"
             printf 'NANOLANG_GUARD_SAN_CC=%s/bin/clang\n' "$llvm_prefix"
             printf 'NMS_RUNTIME_CLANG=%s/bin/clang\n' "$llvm_prefix"

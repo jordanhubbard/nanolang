@@ -1,6 +1,7 @@
 """I check native capture identity, mutations and managed environment lifetimes."""
 from pathlib import Path
 import os
+import shlex
 import subprocess
 import tempfile
 import unittest
@@ -118,7 +119,7 @@ class NativeClosures(unittest.TestCase):
                 '    if (nl_apply(value) != 42) return 3;\n'
                 '    return fixture_main();\n}\n')
             binary = work / 'program'
-            self.checked(['cc', '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
+            self.checked([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))), '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
             env = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}
             self.checked([binary, 0], env=env)
