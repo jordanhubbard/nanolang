@@ -473,9 +473,9 @@ static const Nvm2cHost artifact_adapters[] = {
     {"file_compare_destinations", "nhost_artifact", 2, TAG_STRING, TAG_INT},
 };
 
-/* I keep exact heterogeneous Json signatures separate from string-only hosts. */
-typedef struct { Nvm2cHost host; uint8_t parameters[3]; } Nvm2cJsonHost;
-static const Nvm2cJsonHost json_artifact_adapters[] = {
+/* I keep exact heterogeneous artifact signatures separate from string-only hosts. */
+typedef struct { Nvm2cHost host; uint8_t parameters[3]; } Nvm2cTypedHost;
+static const Nvm2cTypedHost typed_artifact_adapters[] = {
     {{"nl_json_parse", "nhost_json", 1, TAG_VOID, TAG_OPAQUE}, {TAG_STRING}},
     {{"nl_json_free", "nhost_json", 1, TAG_VOID, TAG_VOID}, {TAG_OPAQUE}},
     {{"nl_json_stringify", "nhost_json", 1, TAG_VOID, TAG_STRING}, {TAG_OPAQUE}},
@@ -502,15 +502,43 @@ static const Nvm2cJsonHost json_artifact_adapters[] = {
     {{"nl_json_new_null", "nhost_json", 0, TAG_VOID, TAG_OPAQUE}, {TAG_VOID}},
     {{"nl_json_object_set", "nhost_json", 3, TAG_VOID, TAG_INT}, {TAG_OPAQUE, TAG_STRING, TAG_OPAQUE}},
     {{"nl_json_array_push", "nhost_json", 2, TAG_VOID, TAG_INT}, {TAG_OPAQUE, TAG_OPAQUE}},
+    {{"nl_sqlite3_version", "nhost_sqlite", 0, TAG_VOID, TAG_STRING}, {TAG_VOID}},
+    {{"nl_sqlite3_version_number", "nhost_sqlite", 0, TAG_VOID, TAG_INT}, {TAG_VOID}},
+    {{"nl_sqlite3_open", "nhost_sqlite", 1, TAG_VOID, TAG_INT}, {TAG_STRING}},
+    {{"nl_sqlite3_close", "nhost_sqlite", 1, TAG_VOID, TAG_INT}, {TAG_INT}},
+    {{"nl_sqlite3_errmsg", "nhost_sqlite", 1, TAG_VOID, TAG_STRING}, {TAG_INT}},
+    {{"nl_sqlite3_exec", "nhost_sqlite", 2, TAG_VOID, TAG_INT}, {TAG_INT, TAG_STRING}},
+    {{"nl_sqlite3_prepare", "nhost_sqlite", 2, TAG_VOID, TAG_INT}, {TAG_INT, TAG_STRING}},
+    {{"nl_sqlite3_finalize", "nhost_sqlite", 1, TAG_VOID, TAG_INT}, {TAG_INT}},
+    {{"nl_sqlite3_step", "nhost_sqlite", 1, TAG_VOID, TAG_INT}, {TAG_INT}},
+    {{"nl_sqlite3_reset", "nhost_sqlite", 1, TAG_VOID, TAG_INT}, {TAG_INT}},
+    {{"nl_sqlite3_bind_int", "nhost_sqlite", 3, TAG_VOID, TAG_INT}, {TAG_INT, TAG_INT, TAG_INT}},
+    {{"nl_sqlite3_bind_double", "nhost_sqlite", 3, TAG_VOID, TAG_INT}, {TAG_INT, TAG_INT, TAG_FLOAT}},
+    {{"nl_sqlite3_bind_text", "nhost_sqlite", 3, TAG_VOID, TAG_INT}, {TAG_INT, TAG_INT, TAG_STRING}},
+    {{"nl_sqlite3_bind_null", "nhost_sqlite", 2, TAG_VOID, TAG_INT}, {TAG_INT, TAG_INT}},
+    {{"nl_sqlite3_column_count", "nhost_sqlite", 1, TAG_VOID, TAG_INT}, {TAG_INT}},
+    {{"nl_sqlite3_column_name", "nhost_sqlite", 2, TAG_VOID, TAG_STRING}, {TAG_INT, TAG_INT}},
+    {{"nl_sqlite3_column_int", "nhost_sqlite", 2, TAG_VOID, TAG_INT}, {TAG_INT, TAG_INT}},
+    {{"nl_sqlite3_column_double", "nhost_sqlite", 2, TAG_VOID, TAG_FLOAT}, {TAG_INT, TAG_INT}},
+    {{"nl_sqlite3_column_text", "nhost_sqlite", 2, TAG_VOID, TAG_STRING}, {TAG_INT, TAG_INT}},
+    {{"nl_sqlite3_column_type", "nhost_sqlite", 2, TAG_VOID, TAG_INT}, {TAG_INT, TAG_INT}},
+    {{"nl_sqlite3_last_insert_rowid", "nhost_sqlite", 1, TAG_VOID, TAG_INT}, {TAG_INT}},
+    {{"nl_sqlite3_changes", "nhost_sqlite", 1, TAG_VOID, TAG_INT}, {TAG_INT}},
+    {{"nl_sqlite3_begin_transaction", "nhost_sqlite", 1, TAG_VOID, TAG_INT}, {TAG_INT}},
+    {{"nl_sqlite3_commit", "nhost_sqlite", 1, TAG_VOID, TAG_INT}, {TAG_INT}},
+    {{"nl_sqlite3_rollback", "nhost_sqlite", 1, TAG_VOID, TAG_INT}, {TAG_INT}},
 };
 static int json_artifact_adapter(const Nvm2cHost *host) {
     return host && !strcmp(host->c_name, "nhost_json");
 }
+static bool typed_artifact_adapter(const Nvm2cHost *host) {
+    return json_artifact_adapter(host) || (host && !strcmp(host->c_name, "nhost_sqlite"));
+}
 static uint8_t host_parameter(const Nvm2cHost *host, uint8_t index) {
-    if (json_artifact_adapter(host)) {
-        for (size_t i = 0; i < sizeof json_artifact_adapters / sizeof json_artifact_adapters[0]; ++i)
-            if (host == &json_artifact_adapters[i].host)
-                return index < host->argc ? json_artifact_adapters[i].parameters[index] : TAG_VOID;
+    if (typed_artifact_adapter(host)) {
+        for (size_t i = 0; i < sizeof typed_artifact_adapters / sizeof typed_artifact_adapters[0]; ++i)
+            if (host == &typed_artifact_adapters[i].host)
+                return index < host->argc ? typed_artifact_adapters[i].parameters[index] : TAG_VOID;
     }
     return host->parameter;
 }
@@ -529,8 +557,8 @@ static const Nvm2cHost *import_host(const NvmModule *mod, uint32_t index) {
         imp->kind == NVM_IMPORT_ARTIFACT && module[0] == '/' &&
         mod->string_lengths[imp->module_name_idx] == strlen(module) &&
         mod->string_lengths[imp->function_name_idx] == strlen(name)) {
-        for (size_t i = 0; i < sizeof json_artifact_adapters / sizeof json_artifact_adapters[0]; ++i) {
-            const Nvm2cHost *host = &json_artifact_adapters[i].host;
+        for (size_t i = 0; i < sizeof typed_artifact_adapters / sizeof typed_artifact_adapters[0]; ++i) {
+            const Nvm2cHost *host = &typed_artifact_adapters[i].host;
             if (strcmp(name, host->name)) continue;
             if (imp->param_count != host->argc || imp->return_type != host->result ||
                 (host->argc && (!mod->import_param_types || !mod->import_param_types[index]))) return NULL;
@@ -5650,13 +5678,13 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 goto done;
             }
             char expression[256];
-            if (json_artifact_adapter(host)) {
+            if (typed_artifact_adapter(host)) {
                 char arguments[160] = "";
                 int slots[3] = {0};
                 for (uint8_t p = host->argc; p > 0; --p) {
                     uint8_t tag = host_parameter(host, p - 1);
                     slots[p - 1] = stack_pop_expect(b, &st, tag == TAG_OPAQUE ? NVM2C_VK_VALUE :
-                        tag == TAG_STRING ? NVM2C_VK_STR : tag == TAG_FLOAT ? NVM2C_VK_FLOAT : NVM2C_VK_INT, "Json artifact");
+                        tag == TAG_STRING ? NVM2C_VK_STR : tag == TAG_FLOAT ? NVM2C_VK_FLOAT : NVM2C_VK_INT, "typed artifact");
                 }
                 if (b->failed) goto done;
                 for (uint8_t p = 0; p < host->argc; ++p) {
@@ -5665,8 +5693,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     snprintf(arguments + used, sizeof arguments - used, "%s%c[%d]", p ? ", " : "",
                         tag == TAG_OPAQUE ? 'v' : tag == TAG_STRING ? 's' : tag == TAG_FLOAT ? 'f' : 't', slots[p]);
                 }
-                snprintf(expression, sizeof expression, "nhost_%s_%u(%s)",
-                    host->result == TAG_ARRAY ? "walk" : "json", ins.operands[0].u32, arguments);
+                snprintf(expression, sizeof expression, "%s_%u(%s)",
+                    host->result == TAG_ARRAY ? "nhost_walk" : host->c_name, ins.operands[0].u32, arguments);
             } else if (scalar_artifact_adapter(host)) {
                 int args[2] = {0};
                 for (uint8_t p = host->argc; p > 0; --p)
@@ -6638,7 +6666,7 @@ static void emit_scalar_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
     }
 }
 
-static const char *json_native_type(uint8_t tag, int carrier) {
+static const char *artifact_native_type(uint8_t tag, int carrier) {
     if (tag == TAG_VOID) return "void";
     if (tag == TAG_OPAQUE) return carrier ? "nmap_value" : "void *";
     if (tag == TAG_STRING) return "const char *";
@@ -6649,35 +6677,35 @@ static const char *json_native_type(uint8_t tag, int carrier) {
 /* I call the selected artifact through its exact C signature. Opaque values
  * retain pointer identity and explicit source ownership; I do not trace or
  * implicitly destroy them as managed strings. */
-static void emit_json_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
+static void emit_typed_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
     for (uint32_t i = 0; i < mod->import_count; ++i) {
         const Nvm2cHost *host = import_host(mod, i);
-        if (!json_artifact_adapter(host) || host->result == TAG_ARRAY) continue;
+        if (!typed_artifact_adapter(host) || host->result == TAG_ARRAY) continue;
         char parameters[192] = "", types[128] = "", arguments[192] = "";
         for (uint8_t p = 0; p < host->argc; ++p) {
             uint8_t tag = host_parameter(host, p);
             size_t used = strlen(parameters);
             snprintf(parameters + used, sizeof parameters - used, "%s%s a%u",
-                p ? ", " : "", json_native_type(tag, 1), p);
+                p ? ", " : "", artifact_native_type(tag, 1), p);
             used = strlen(types);
-            snprintf(types + used, sizeof types - used, "%s%s", p ? ", " : "", json_native_type(tag, 0));
+            snprintf(types + used, sizeof types - used, "%s%s", p ? ", " : "", artifact_native_type(tag, 0));
             used = strlen(arguments);
             snprintf(arguments + used, sizeof arguments - used, tag == TAG_OPAQUE ? "%snvalue_require_opaque(a%u)" : "%sa%u", p ? ", " : "", p);
         }
-        const char *result = json_native_type(host->result, 0);
+        const char *result = artifact_native_type(host->result, 0);
         nvm2c_puts(b, "#include <dlfcn.h>\n");
-        nvm2c_printf(b, "static inline %s nhost_json_%u(%s) {\n",
-            json_native_type(host->result, 1), i, host->argc ? parameters : "void");
+        nvm2c_printf(b, "static inline %s %s_%u(%s) {\n",
+            artifact_native_type(host->result, 1), host->c_name, i, host->argc ? parameters : "void");
         nvm2c_printf(b, "    static void *library;\n    static %s (*function)(%s);\n",
             result, host->argc ? types : "void");
-        if (host->result == TAG_STRING) nvm2c_puts(b, "    static void (*release)(const char *);\n");
+        if (host->result == TAG_STRING && json_artifact_adapter(host)) nvm2c_puts(b, "    static void (*release)(const char *);\n");
         nvm2c_puts(b, "    if (!library) {\n        library = dlopen(");
         const NvmImportEntry *imp = &mod->imports[i];
         emit_c_string_lit(b, mod->strings[imp->module_name_idx], mod->string_lengths[imp->module_name_idx]);
         nvm2c_puts(b, ", RTLD_NOW | RTLD_LOCAL);\n        if (!library) NVM2C_ABORT();\n");
         nvm2c_printf(b, "        function = (%s (*)(%s))dlsym(library, \"%s\");\n        if (!function) NVM2C_ABORT();\n",
             result, host->argc ? types : "void", host->name);
-        if (host->result == TAG_STRING) {
+        if (host->result == TAG_STRING && json_artifact_adapter(host)) {
             nvm2c_printf(b, "        release = (void (*)(const char *))dlsym(library, \"%s__nano_string_release_v1\");\n", host->name);
             nvm2c_puts(b, "        Dl_info producer, companion;\n"
                 "        if (!release || !dladdr((void *)function, &producer) || !dladdr((void *)release, &companion) ||\n"
@@ -6688,7 +6716,8 @@ static void emit_json_artifact_adapters(Nvm2cBuf *b, const NvmModule *mod) {
         else {
             nvm2c_printf(b, "    %s value = function(%s);\n", result, arguments);
             if (host->result == TAG_OPAQUE) nvm2c_puts(b, "    return (nmap_value){14, 0, (char *)value};\n");
-            else if (host->result == TAG_STRING) nvm2c_puts(b, "    return nstr_copy_release(value, release);\n");
+            else if (host->result == TAG_STRING) nvm2c_puts(b, json_artifact_adapter(host) ?
+                "    return nstr_copy_release(value, release);\n" : "    return nstr_copy(value);\n");
             else nvm2c_puts(b, "    return value;\n");
         }
         nvm2c_puts(b, "}\n");
@@ -7054,6 +7083,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         const Nvm2cHost *host = import_host(mod, i);
         if (host && host->result == TAG_STRING)
             b.has_owned_strings = 1;
+        if (json_artifact_adapter(host)) b.has_maps = 1;
     }
     int has_global_store = 0, has_record_array_constructor = 0;
     /* The tagged map runtime also provides shared frame/aggregate root tracing.
@@ -7811,7 +7841,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (b.global_count) nvm2c_printf(&b, "static nmap_value nglobal[%zu];\n", b.global_count);
         emit_walk_adapters(&b, mod);
         emit_scalar_artifact_adapters(&b, mod);
-        emit_json_artifact_adapters(&b, mod);
+        emit_typed_artifact_adapters(&b, mod);
         nvm2c_puts(&b, "typedef struct nrarr_s nrarr_s;\ntypedef nrarr_s *nrarr_t;\n");
         nvm2c_puts(&b, "typedef struct nrec_s nrec_t;\n");
         nvm2c_printf(&b,
@@ -8030,6 +8060,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 nvm2c_printf(&b, "    (void)nhost_walk_%u;\n", i);
             if (scalar_artifact_adapter(host))
                 nvm2c_printf(&b, "    (void)nhost_artifact_%u;\n", i);
+            if (typed_artifact_adapter(host) && host->result != TAG_ARRAY)
+                nvm2c_printf(&b, "    (void)%s_%u;\n", host->c_name, i);
         }
         /* I mirror vm_execute: the first named initializer runs before entry,
          * even when that same function is also the entry point. */

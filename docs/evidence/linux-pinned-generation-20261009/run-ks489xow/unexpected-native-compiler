@@ -1,0 +1,1 @@
+{"message": "I rejected unclassified compiler work.", "inputs": ["/work/linux-bootstrap-cache/v2-79baad6e89e9f7ded137e9d22837ed1fbd10d8b2530da30a03176ec6c1b0f865/.nano-gen-gEnhcd/nanoisa.o"], "options": ["-shared", "-fPIC", "-Wl,--allow-shlib-undefined", "-o"]}

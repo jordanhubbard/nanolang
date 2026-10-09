@@ -1,0 +1,10 @@
+I retain SQLite artifact evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-c3qfngwd
+test_seed_real_sqlite_and_borrowed_strings (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_seed_real_sqlite_and_borrowed_strings) ... ok
+test_native_refuses_wrong_signature_kind_path_and_symbol (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_native_refuses_wrong_signature_kind_path_and_symbol) ... ok
+test_verifier_refuses_relative_artifact_path (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_verifier_refuses_relative_artifact_path) ... ok
+test_same_symbol_retains_artifact_owner (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_same_symbol_retains_artifact_owner) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.864s
+
+OK

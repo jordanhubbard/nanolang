@@ -195,7 +195,9 @@ class Bootstrap:
             name = path.name.removeprefix('lib').split('.')[0]
             if not path.parent.name.startswith('.nano-gen-') or name not in metadata:
                 raise RuntimeError(f'I cannot pin this host artifact: {library}.')
-            retained[str(path.parent.parent)] = retained_input_names(name, metadata[name])
+            inputs = retained_input_names(name, metadata[name])
+            retained[str(path.parent.parent)] = inputs
+            retained[str(path.parent)] = [value for value in inputs if value.endswith(".o")]
         retained_file.write_text(json.dumps(retained, indent=2) + '\n')
         seed = self.record_artifact(seed, 'nanoc_seed.nvm')
         first = self.generation('stage1', seed)

@@ -62,6 +62,8 @@ DEPFLAGS ?= -MMD -MP
 # Enable with: make CFLAGS="$(CFLAGS) $(VECTORIZE_FLAGS)" to inspect missed vectorizations
 VECTORIZE_FLAGS = -fopt-info-vec-missed
 LDFLAGS = -lm -lcrypto
+# I pass effective link flags to native harnesses after my override additions.
+export LDFLAGS
 # I need libcrypto for cache namespace identity, including sanitizer overrides.
 ifneq ($(filter command line override,$(origin LDFLAGS)),)
 override LDFLAGS += -lcrypto
@@ -5835,6 +5837,11 @@ test-units: test-nanoisa-byte-arrays
 test-selfhost-opaque-imports: bootstrap3
 	python3 -m unittest -v tests.test_selfhost_opaque_imports
 test-units: test-selfhost-opaque-imports
+
+.PHONY: test-selfhost-sqlite-artifacts
+test-selfhost-sqlite-artifacts: bootstrap3 nano_virt nano_vm nanoisa_dump nvm2c nvm2c-runtime
+	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_selfhost_sqlite_artifacts
+test-units: test-selfhost-sqlite-artifacts
 
 .PHONY: test-selfhost-json-artifacts
 test-selfhost-json-artifacts: bootstrap3 nano_virt nano_vm nanoisa_dump nvm2c nvm2c-runtime

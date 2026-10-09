@@ -151,12 +151,15 @@ jobs:
       - name: Validate user guide snippets
         run: make userguide-check
 
-      - name: Retain verifier-corpus diagnostics
+      - name: Retain verifier and bootstrap diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: verifier-corpus-${{ matrix.os }}-${{ matrix.arch }}
-          path: .test_output/verifier-corpus/
+          path: |
+            .test_output/verifier-corpus/
+            obj/bootstrap-nanoisa/**/*.log
+            obj/bootstrap-nanoisa/**/manifest.json
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7
@@ -408,12 +411,15 @@ jobs:
           export ASAN_OPTIONS=detect_leaks=0
           bash tests/run_negative_tests.sh
 
-      - name: Retain verifier-corpus diagnostics
+      - name: Retain verifier and bootstrap diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: verifier-corpus-sanitizers
-          path: .test_output/verifier-corpus/
+          path: |
+            .test_output/verifier-corpus/
+            obj/bootstrap-nanoisa/**/*.log
+            obj/bootstrap-nanoisa/**/manifest.json
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7
@@ -491,12 +497,15 @@ jobs:
           NANOLANG_COMPILER: ./bin/nanoc_c
         run: bash tests/run_negative_tests.sh
 
-      - name: Retain verifier-corpus diagnostics
+      - name: Retain verifier and bootstrap diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: verifier-corpus-coverage
-          path: .test_output/verifier-corpus/
+          path: |
+            .test_output/verifier-corpus/
+            obj/bootstrap-nanoisa/**/*.log
+            obj/bootstrap-nanoisa/**/manifest.json
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7

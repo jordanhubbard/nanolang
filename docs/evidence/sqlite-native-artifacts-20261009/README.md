@@ -1,0 +1,11 @@
+# My SQLite artifact checkpoint
+
+I admit the 25 declared SQLite wrapper signatures through an exact heterogeneous artifact table and my self-hosted signature registry. I select each absolute owning library and snapshot borrowed strings before later SQLite operations. Database and statement handles remain the existing explicit unsafe integers; I do not claim automatic resource cleanup.
+
+My regression executes prepared CRUD, all wrapper signatures, integer/float/text/null bindings, transactions, reset/finalize/close, close-busy recovery, invalid SQL and saved strings after statement/database destruction. It compares checked NanoVM and sanitizer-instrumented native execution. It also checks wrong ABI/kind/name/path refusals and previous-output preservation, distinct owners exporting the same symbol, missing-library refusal and unused imports without library loading.
+
+My initial Darwin and Linux ARM64 seed/native runs pass. The initial relative-path test expected translation to reject a module that the assembler already rejects; I retain that test failure and require the earlier verifier refusal explicitly. The adjacent real Json ownership control passes, and the initial broader native suite passes 2,435 execution checks.
+
+My private-cache Darwin bootstrap completes all 17 steps with raw byte-identical Stage 1/Stage 2 modules, immutable host closure and both native smoke tests. Both resulting self-hosted compilers execute SQLite CRUD and lifetime controls in VM/native routes. The initial Make invocation exits 2 only because the invalid-parameter refusal says “exact operands for this artifact call” rather than the test's expected substring; I retain the whole terminal. That diagnostic expectation is corrected without changing the compiler refusal or prior-output assertion.
+
+A further strict-Clang probe finds unused typed adapter warnings and a missing tagged carrier for an unused Json import. I retain the failing probe and add harmless adapter references plus the required Json carrier selection. The final focused tests qualify these changes; the earlier bootstrap receipt pins the prior translator and Make inputs and is not relabeled as a final-candidate receipt. Exact release-revision platform/fixed-point qualification remains open under #976/#982/#984.

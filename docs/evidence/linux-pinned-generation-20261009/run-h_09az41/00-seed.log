@@ -1,0 +1,39 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2567, column 9: Unused variable 'rejected'
+Warning at line 2731, column 9: Unused variable 'rejected'
+Warning at line 2735, column 9: Unused variable 'rejected'
+Warning at line 2742, column 13: Unused variable 'rejected'
+Warning at line 2800, column 9: Unused variable 'rejected'
+Warning at line 2804, column 9: Unused variable 'rejected'
+Warning at line 2811, column 13: Unused variable 'rejected'
+Warning at line 6431, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   $shadow_872_resolve_import_path  src_nano/nanoc_v06.nano:815:5
+  #1   $shadow_entry  src_nano/nanoc_v06.nano:?
+I failed a shadow: Assertion failed
+Stack trace (most recent call first):
+  #0   $shadow_872_resolve_import_path  src_nano/nanoc_v06.nano:815:5
+  #1   $shadow_entry  src_nano/nanoc_v06.nano:?
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I cannot define a record twice in one module: Handle
+I will not publish output after failed shadow execution

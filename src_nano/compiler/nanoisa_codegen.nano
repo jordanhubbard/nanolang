@@ -2608,8 +2608,55 @@ shadow nisa_json_signature {
     assert (== (array_length (nisa_json_signature "nl_json_unknown")) 0)
 }
 
+# I snapshot SQLite borrowed strings in the native adapter; handles remain explicit unsafe integers.
+fn nisa_sqlite_signature(name: string) -> array<string> {
+    if (== name "nl_sqlite3_version") { return ["string"] }
+    if (== name "nl_sqlite3_version_number") { return ["int"] }
+    if (== name "nl_sqlite3_open") { return ["int", "string"] }
+    if (== name "nl_sqlite3_close") { return ["int", "int"] }
+    if (== name "nl_sqlite3_errmsg") { return ["string", "int"] }
+    if (== name "nl_sqlite3_exec") { return ["int", "int", "string"] }
+    if (== name "nl_sqlite3_prepare") { return ["int", "int", "string"] }
+    if (== name "nl_sqlite3_finalize") { return ["int", "int"] }
+    if (== name "nl_sqlite3_step") { return ["int", "int"] }
+    if (== name "nl_sqlite3_reset") { return ["int", "int"] }
+    if (== name "nl_sqlite3_bind_int") { return ["int", "int", "int", "int"] }
+    if (== name "nl_sqlite3_bind_double") { return ["int", "int", "int", "float"] }
+    if (== name "nl_sqlite3_bind_text") { return ["int", "int", "int", "string"] }
+    if (== name "nl_sqlite3_bind_null") { return ["int", "int", "int"] }
+    if (== name "nl_sqlite3_column_count") { return ["int", "int"] }
+    if (== name "nl_sqlite3_column_name") { return ["string", "int", "int"] }
+    if (== name "nl_sqlite3_column_int") { return ["int", "int", "int"] }
+    if (== name "nl_sqlite3_column_double") { return ["float", "int", "int"] }
+    if (== name "nl_sqlite3_column_text") { return ["string", "int", "int"] }
+    if (== name "nl_sqlite3_column_type") { return ["int", "int", "int"] }
+    if (== name "nl_sqlite3_last_insert_rowid") { return ["int", "int"] }
+    if (== name "nl_sqlite3_changes") { return ["int", "int"] }
+    if (== name "nl_sqlite3_begin_transaction") { return ["int", "int"] }
+    if (== name "nl_sqlite3_commit") { return ["int", "int"] }
+    if (== name "nl_sqlite3_rollback") { return ["int", "int"] }
+    return []
+}
+shadow nisa_sqlite_signature {
+    assert (== (at (nisa_sqlite_signature "nl_sqlite3_bind_double") 3) "float")
+    assert (== (array_length (nisa_sqlite_signature "nl_sqlite3_version")) 1)
+    assert (== (at (nisa_sqlite_signature "nl_sqlite3_column_text") 0) "string")
+    assert (== (array_length (nisa_sqlite_signature "nl_sqlite3_unknown")) 0)
+}
+
+fn nisa_typed_artifact_signature(name: string) -> array<string> {
+    let json: array<string> = (nisa_json_signature name)
+    if (> (array_length json) 0) { return json }
+    return (nisa_sqlite_signature name)
+}
+shadow nisa_typed_artifact_signature {
+    assert (== (at (nisa_typed_artifact_signature "nl_json_get") 0) "Json")
+    assert (== (at (nisa_typed_artifact_signature "nl_sqlite3_column_double") 0) "float")
+    assert (== (array_length (nisa_typed_artifact_signature "unknown")) 0)
+}
+
 fn nisa_artifact_parameter(name: string, index: int) -> string {
-    let signature: array<string> = (nisa_json_signature name)
+    let signature: array<string> = (nisa_typed_artifact_signature name)
     if (> (array_length signature) 0) {
         if (or (< index 0) (>= (+ index 1) (array_length signature))) { return "" }
         return (at signature (+ index 1))
@@ -2624,7 +2671,7 @@ shadow nisa_artifact_parameter {
 }
 
 fn nisa_artifact_arity(name: string) -> int {
-    let json: array<string> = (nisa_json_signature name)
+    let json: array<string> = (nisa_typed_artifact_signature name)
     if (> (array_length json) 0) { return (- (array_length json) 1) }
     if (or (== name "nl_fs_list_files") (or (== name "nl_fs_list_files_ci") (== name "nl_fs_join_path"))) { return 2 }
     if (or (== name "nl_fs_list_dirs") (or (== name "nl_fs_parent_dir") (or (== name "nl_fs_is_directory") (or (== name "nl_fs_file_exists") (== name "nl_fs_file_size"))))) { return 1 }
@@ -2666,7 +2713,7 @@ shadow nisa_artifact_arity {
 }
 
 fn nisa_artifact_result(name: string) -> string {
-    let json: array<string> = (nisa_json_signature name)
+    let json: array<string> = (nisa_typed_artifact_signature name)
     if (> (array_length json) 0) { return (at json 0) }
     if (or (== name "nl_fs_list_files") (or (== name "nl_fs_list_files_ci") (== name "nl_fs_list_dirs"))) { return "array<string>" }
     if (or (== name "nl_fs_is_directory") (or (== name "nl_fs_file_exists") (== name "nl_fs_file_size"))) { return "int" }

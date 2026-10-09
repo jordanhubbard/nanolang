@@ -49,6 +49,29 @@ class BootstrapComponents(unittest.TestCase):
             return result, [json.loads(line) for line in calls.read_text().splitlines()], (
                 (root / '.stage2.built').exists(), (root / '.stage3.built').exists())
 
+    def test_nested_make_exports_flags_needed_by_instrumented_native_link(self):
+        with tempfile.TemporaryDirectory(prefix='nano-make-link-flags-') as tmp:
+            root = Path(tmp)
+            shutil.copyfile(ROOT / 'Makefile.gnu', root / 'Makefile.gnu')
+            cc = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC') or
+                            os.environ.get('CC') or 'cc')
+            (root / 'main.c').write_text('int main(void) { return 0; }\n')
+            (root / 'probe.py').write_text(
+                'import os, shlex, subprocess\n'
+                f'cc = {cc!r}\n'
+                'subprocess.run(cc + ["--coverage", "-c", "main.c", "-o", "main.o"], check=True)\n'
+                'subprocess.run(cc + ["main.o", "-o", "native"] + '
+                'shlex.split(os.environ.get("LDFLAGS", "")), check=True)\n'
+                'subprocess.run(["./native"], check=True)\n')
+            (root / 'probe.mk').write_text(
+                'probe-leaf:\n\t@python3 probe.py\n'
+                'probe-nested:\n\t@$(MAKE) --no-print-directory -f Makefile.gnu -f probe.mk probe-leaf\n')
+            result = subprocess.run([os.environ.get('MAKE_BIN', 'make'), '-s',
+                                     '-f', 'Makefile.gnu', '-f', 'probe.mk',
+                                     'probe-nested', 'LDFLAGS=--coverage'], cwd=root,
+                                    capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
     def test_real_emitter_driver_executes_in_vm_and_sanitized_native(self):
         with tempfile.TemporaryDirectory(prefix='nano-emitter-component-') as tmp:
             root = Path(tmp)

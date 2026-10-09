@@ -34,6 +34,10 @@ def main(config):
             if (stage.name.startswith('.nano-build-') and
                     path.name in retained.get(str(stage.parent), [])):
                 return True
+            # I allow cached relinks only from the seed's exact published generation.
+            if (stage.name.startswith('.nano-gen-') and
+                    path.name in retained.get(str(stage), [])):
+                return True
         if any(path.is_relative_to(Path(root)) for root in config['module_build_roots']):
             return True
         # The module builder compiles retained native-host inputs here while
