@@ -24,3 +24,7 @@ This is annotation/type transport, not executable File support. Both compiler ro
 The component driver is a development artifact, not a fresh Stage1/Stage2 qualification. An accidental `make stage1` dependency started a bootstrap during the build; I deliberately interrupted that run after recognizing it, rather than use an intermediate annotation batch as a release gate. I claim no bootstrap result from that interrupted run.
 
 My user's untracked guide file remains unchanged (SHA256 `c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976`).
+
+## My CI wrapper integration correction
+
+CI run 37978631193 at c1d97baa6 advances past the repaired evaluator and VM FFI gates, then fails two of five wrapper generation tests. The wrapper's manually retained link list omits service namespace and immutable compiler-input objects. I reproduce the same undefined-symbol failure locally at fd46d3acb, add the compiler's complete immutable-input object closure, and retain the corrected `make test-wrapper-gen` result: all five C tests and nine Python publication tests pass. The positive C test links and executes a real wrapper, checking exit status 7. Linux sanitizer/platform qualification remains pending; the local correction does not establish a green full CI run.
