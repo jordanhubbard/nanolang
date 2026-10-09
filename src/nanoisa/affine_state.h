@@ -59,8 +59,11 @@ typedef struct { uint8_t tag; uint32_t layout; } NvmAffineType;
 #define NVM_AFFINE_UNKNOWN_VARIANT UINT16_MAX
 /* These transfer APIs exchange an exact record token with the bytecode stack.
  * The stack analysis must prohibit duplication, loss and incompatible joins. */
-/* Records use explicit transfer tokens; resource unions do so transitively. */
+/* I require explicit transfer tokens for resource records and resource unions.
+ * Complete ordinary records retain exact layout identity while copying. */
 bool nvm_affine_type_is_owned(const NvmAffineState *state,NvmAffineType type);
+bool nvm_affine_record_is_copyable(const NvmAffineState *state,uint32_t layout);
+bool nvm_affine_record_define(NvmAffineState *state,uint16_t local,uint32_t layout);
 bool nvm_affine_owned_local_fields(const NvmAffineState *state,uint16_t local,
     NvmAffineType *fields,uint16_t capacity,uint16_t *count);
 bool nvm_affine_take_local(NvmAffineState *state, uint16_t local, NvmAffineType *type);
@@ -97,14 +100,15 @@ bool nvm_affine_parameter_at(const NvmAffineState *state,uint16_t parameter,
                                NvmAffineType *type,NvmReferenceMode *mode);
 #define NVM_AFFINE_MAX_RESULT_DEPTH 32u
 #define NVM_AFFINE_MAX_RESULT_FIELDS 256u
-/* I inspect an exact mode-zero scalar, void, or owned result.
- * Nested results contain bounded complete owned trees with INT/BOOL/U8/STRING leaves; FLOAT fields stay refused;
+/* I inspect an exact mode-zero scalar, void, or record/union result.
+ * Nested record results contain bounded complete trees with consistent resource
+ * authority and INT/BOOL/U8/STRING leaves; FLOAT fields stay refused;
  * scalar/VOID and existing scalar-leaf queries add no allocations.
  * I require matching function count/tag and leave both outputs unchanged on refusal.
  * This declaration query alone grants no executable return authority. */
 bool nvm_affine_value_result(const NvmAffineState *state,NvmAffineType *type,
                               uint16_t *field_count);
-/* I inspect zero through eight mode-zero scalar/resource parameters.
+/* I inspect zero through eight mode-zero scalar/record/resource parameters.
  * Executable graph and result eligibility are separate checks. */
 bool nvm_affine_value_parameters(const NvmAffineState *state,
                                   NvmAffineType *types,uint16_t capacity,uint16_t *count);

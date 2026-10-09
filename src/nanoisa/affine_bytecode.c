@@ -50,7 +50,7 @@ static bool stack_meet(Frame *destination,const Frame *incoming,bool *changed) {
     for (uint16_t i=0;i<destination->count;i++) {
         Value x=destination->stack[i],y=incoming->stack[i];
         if (x.tag!=y.tag || x.observation!=y.observation || x.owned!=y.owned ||
-            (x.owned && x.layout!=y.layout) ||
+            ((x.owned || x.tag==TAG_STRUCT) && x.layout!=y.layout) ||
             (x.observation && x.root!=y.root)) return false;
         if (x.tag==TAG_UNION) {
             if (x.layout!=y.layout) return false;
@@ -224,7 +224,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             NvmAffineType parameter=parameters[p];
             if (argument.observation || argument.tag!=parameter.tag ||
                 argument.owned!=nvm_affine_type_is_owned(f->locals,parameter) ||
-                ((argument.owned || argument.tag==TAG_UNION) &&
+                ((argument.owned || argument.tag==TAG_UNION || argument.tag==TAG_STRUCT) &&
                  argument.layout!=parameter.layout))
                 return "I require exact positional consuming argument types";
         }
@@ -322,7 +322,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     case OP_OWN_PACK: {
         NvmAffineType fields[NVM_AFFINE_MAX_STACK];uint16_t count;
         uint32_t layout=in->operands[0].u32;
-        if (!nvm_affine_record_fields(f->locals,layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
+        if (!nvm_affine_type_is_owned(f->locals,(NvmAffineType){TAG_STRUCT,layout}) ||
+            !nvm_affine_record_fields(f->locals,layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
             count>f->count) return "I require every declared field for owned construction";
         for (uint16_t i=0;i<count;i++) {
             Value value=f->stack[f->count-count+i];NvmAffineType field=fields[i];
@@ -352,6 +353,23 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         return NULL;
     }
     case OP_AGG_PACK: {
+        if (in->operands[0].u8==AGG_RECORD) {
+            uint32_t layout=in->operands[1].u32;
+            NvmAffineType fields[NVM_AFFINE_MAX_STACK];uint16_t count=0;
+            if (!calls->value_graph || in->operands[2].u16 ||
+                !nvm_affine_record_is_copyable(f->locals,layout) ||
+                !nvm_affine_record_fields(f->locals,layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
+                count!=in->operands[3].u16 || count>f->count)
+                return "I require an exact complete copyable record constructor";
+            for (uint16_t i=0;i<count;i++) {
+                Value value=f->stack[f->count-count+i];
+                if (value.observation || value.owned || value.tag!=fields[i].tag || value.layout!=fields[i].layout)
+                    return "I require exact copyable record fields without owned authority";
+            }
+            f->count-=count;
+            return push(f,(Value){.tag=TAG_STRUCT,.root=UINT16_MAX,.layout=layout,
+                .variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:"I cannot retain a copyable record";
+        }
         if (in->operands[0].u8!=AGG_VARIANT)
             return "I require explicit owned construction for records";
         NvmUnionVariantFact fact;
@@ -403,6 +421,13 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         if (!nvm_affine_local_info(f->locals,local,&tag,&mode))
             return "I require a live checked local";
         uint32_t layout=NVM_V2_NO_INDEX;uint16_t variant=NVM_AFFINE_UNKNOWN_VARIANT;
+        bool observation=tag==TAG_STRUCT;
+        if (tag==TAG_STRUCT && !mode) {
+            NvmAffineType type;
+            if (!nvm_affine_local_type(f->locals,local,&type)) return "I require an exact record local";
+            layout=type.layout;
+            if (nvm_affine_record_is_copyable(f->locals,layout)) observation=false;
+        }
         if (tag==TAG_UNION) {
             NvmAffineType type;
             if (!nvm_affine_local_type(f->locals,local,&type))
@@ -412,7 +437,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             layout=type.layout;
             (void)nvm_affine_union_variant(f->locals,local,&variant);
         }
-        if (!push(f,(Value){.tag=tag,.observation=tag==TAG_STRUCT,.root=local,
+        if (!push(f,(Value){.tag=tag,.observation=observation,.root=local,
                             .layout=layout,.variant=variant}))
             return "I cannot extend my analysis stack";
         return NULL;
@@ -427,7 +452,9 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         bool defined=scalar(value.tag) ? nvm_affine_scalar_define(f->locals,local) :
             calls->value_graph && value.tag==TAG_STRING ? nvm_affine_string_define(f->locals,local) :
             calls->value_graph && value.tag==TAG_UNION ?
-                nvm_affine_union_define(f->locals,local,value.layout,value.variant) : false;
+                nvm_affine_union_define(f->locals,local,value.layout,value.variant) :
+            calls->value_graph && value.tag==TAG_STRUCT ?
+                nvm_affine_record_define(f->locals,local,value.layout) : false;
         if (!defined ||
             !nvm_affine_local_info(f->locals,local,&tag,&mode) || tag!=value.tag)
             return "I require the exact scalar local type";
@@ -450,6 +477,19 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             return "I require an exact scalar-union tag source";
         f->count--;tag=TAG_INT;break;
     case OP_AGG_GET:
+        if (f->count && f->stack[f->count-1].tag==TAG_STRUCT &&
+            !f->stack[f->count-1].observation && !f->stack[f->count-1].owned) {
+            Value value=f->stack[f->count-1];
+            NvmAffineType fields[NVM_AFFINE_MAX_STACK];uint16_t count=0;
+            if (!nvm_affine_record_is_copyable(f->locals,value.layout) ||
+                !nvm_affine_record_fields(f->locals,value.layout,fields,NVM_AFFINE_MAX_STACK,&count) ||
+                in->operands[0].u16>=count) return "I require an exact ordinary record projection";
+            NvmAffineType field=fields[in->operands[0].u16];
+            if (nvm_affine_type_is_owned(f->locals,field)) return "I refuse an owned ordinary projection";
+            f->count--;
+            return push(f,(Value){.tag=field.tag,.root=UINT16_MAX,.layout=field.layout,
+                .variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:"I cannot retain an ordinary projection";
+        }
         if (f->count && f->stack[f->count-1].tag==TAG_UNION &&
             !f->stack[f->count-1].observation && !f->stack[f->count-1].owned) {
             Value value=f->stack[f->count-1];
@@ -681,7 +721,7 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
             if (current->count==1 && !current->stack[0].observation) tag=current->stack[0].tag;
             else if (current->count) {error="I refuse an observation escape or extra return operands";goto done;}
             bool exact_value=current->count==1 &&
-                (current->stack[0].owned || current->stack[0].tag==TAG_UNION);
+                (current->stack[0].owned || current->stack[0].tag==TAG_UNION || current->stack[0].tag==TAG_STRUCT);
             bool exit_ok=exact_value
                 ? nvm_affine_can_exit_type(current->locals,(NvmAffineType){tag,current->stack[0].layout})
                 : nvm_affine_can_exit_scalar(current->locals,tag);

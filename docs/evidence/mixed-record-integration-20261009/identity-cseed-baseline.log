@@ -1,0 +1,147 @@
+test_foreign_record_collision_is_rejected (tests.test_affine_module_identity.AffineModuleIdentity.test_foreign_record_collision_is_rejected) ... ok
+test_generic_annotation_metadata (tests.test_affine_module_identity.AffineModuleIdentity.test_generic_annotation_metadata) ... ok
+test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) ... 
+  test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='cseed', reverse=False, nested=False) ... FAIL
+  test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='cseed', reverse=True, nested=False) ... FAIL
+test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) ... 
+  test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='cseed', reverse=False, nested=True) ... FAIL
+  test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='cseed', reverse=True, nested=True) ... FAIL
+test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) ... 
+  test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='cseed', reverse=False, nested=False) ... FAIL
+  test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='cseed', reverse=True, nested=False) ... FAIL
+test_qualified_public_record_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_qualified_public_record_identity) ... 
+  test_qualified_public_record_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_qualified_public_record_identity) (compiler='cseed') ... FAIL
+test_resource_use_after_move (tests.test_affine_module_identity.AffineModuleIdentity.test_resource_use_after_move) ... ok
+test_same_module_duplicate_is_rejected (tests.test_affine_module_identity.AffineModuleIdentity.test_same_module_duplicate_is_rejected) ... ok
+test_unresolved_resource (tests.test_affine_module_identity.AffineModuleIdentity.test_unresolved_resource) ... ok
+
+======================================================================
+FAIL: test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='cseed', reverse=False, nested=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 1: I require a closed ordinary record with a FLOAT array field in my source borrow profile
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-affine-5dc-tools/cseed", line 7, in <module>
+    subprocess.run([str(root/'nano_virt'),args[0],'--emit-nvm','-o',str(work/'program.nvm')],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/private/tmp/nanolang-mixed-record-candidate/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-affine-modules-u02dpl5s/main.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/affine-cseed-nvm-nycxbah8/program.nvm']' returned non-zero exit status 1.
+
+
+======================================================================
+FAIL: test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='cseed', reverse=True, nested=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 1: I require a closed ordinary record with a FLOAT array field in my source borrow profile
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-affine-5dc-tools/cseed", line 7, in <module>
+    subprocess.run([str(root/'nano_virt'),args[0],'--emit-nvm','-o',str(work/'program.nvm')],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/private/tmp/nanolang-mixed-record-candidate/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-affine-modules-o05ljz2w/main.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/affine-cseed-nvm-6saqn266/program.nvm']' returned non-zero exit status 1.
+
+
+======================================================================
+FAIL: test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='cseed', reverse=False, nested=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 1: I require a closed ordinary record with a FLOAT array field in my source borrow profile
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-affine-5dc-tools/cseed", line 7, in <module>
+    subprocess.run([str(root/'nano_virt'),args[0],'--emit-nvm','-o',str(work/'program.nvm')],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/private/tmp/nanolang-mixed-record-candidate/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-affine-modules-m2euymyu/main.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/affine-cseed-nvm-34sc06bj/program.nvm']' returned non-zero exit status 1.
+
+
+======================================================================
+FAIL: test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='cseed', reverse=True, nested=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 1: I require a closed ordinary record with a FLOAT array field in my source borrow profile
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-affine-5dc-tools/cseed", line 7, in <module>
+    subprocess.run([str(root/'nano_virt'),args[0],'--emit-nvm','-o',str(work/'program.nvm')],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/private/tmp/nanolang-mixed-record-candidate/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-affine-modules-0qqlyv7u/main.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/affine-cseed-nvm-9abf78j6/program.nvm']' returned non-zero exit status 1.
+
+
+======================================================================
+FAIL: test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='cseed', reverse=False, nested=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 1: I require a closed ordinary record with a FLOAT array field in my source borrow profile
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-affine-5dc-tools/cseed", line 7, in <module>
+    subprocess.run([str(root/'nano_virt'),args[0],'--emit-nvm','-o',str(work/'program.nvm')],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/private/tmp/nanolang-mixed-record-candidate/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-affine-modules-lu7z_vy4/main.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/affine-cseed-nvm-xpal7cmq/program.nvm']' returned non-zero exit status 1.
+
+
+======================================================================
+FAIL: test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='cseed', reverse=True, nested=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 1: I require a closed ordinary record with a FLOAT array field in my source borrow profile
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-affine-5dc-tools/cseed", line 7, in <module>
+    subprocess.run([str(root/'nano_virt'),args[0],'--emit-nvm','-o',str(work/'program.nvm')],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/private/tmp/nanolang-mixed-record-candidate/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-affine-modules-j28kosh8/main.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/affine-cseed-nvm-35fhvemz/program.nvm']' returned non-zero exit status 1.
+
+
+======================================================================
+FAIL: test_qualified_public_record_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_qualified_public_record_identity) (compiler='cseed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 100, in test_qualified_public_record_identity
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 1: I require a closed ordinary record with a FLOAT array field in my source borrow profile
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-affine-5dc-tools/cseed", line 7, in <module>
+    subprocess.run([str(root/'nano_virt'),args[0],'--emit-nvm','-o',str(work/'program.nvm')],check=True)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['/private/tmp/nanolang-mixed-record-candidate/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-affine-qualified-0eugfzxy/main.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/affine-cseed-nvm-vnqb0kkm/program.nvm']' returned non-zero exit status 1.
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 1.194s
+
+FAILED (failures=7)

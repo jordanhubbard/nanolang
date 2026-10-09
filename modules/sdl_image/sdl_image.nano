@@ -132,7 +132,7 @@ pub extern fn IMG_SetError(_fmt: string) -> int
 # ============================================================================
 
 let IMG_INIT_JPG: int = 1    # JPEG support via libjpeg
-let IMG_INIT_PNG: int = 2    # PNG support via libpng
+pub let IMG_INIT_PNG: int = 2    # PNG support via libpng
 let IMG_INIT_TIF: int = 4    # TIFF support via libtiff
 let IMG_INIT_WEBP: int = 8   # WEBP support via libwebp
 let IMG_INIT_JXL: int = 16   # JPEG XL support (SDL_image 2.6+)

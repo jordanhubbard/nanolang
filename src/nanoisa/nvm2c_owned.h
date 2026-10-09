@@ -318,6 +318,16 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             nvm2c_puts(&b," nown_release(a); a=(nown_value){0};\n");break;
         }
         case OP_AGG_PACK: {
+            if(in->operands[0].u8==AGG_RECORD && !shared) {
+                uint32_t layout=in->operands[1].u32;
+                if(!nvm_affine_record_is_copyable(state,layout) ||
+                   layouts.items[layout].field_count!=in->operands[3].u16)goto fail;
+                unsigned count=layouts.items[layout].field_count;int base=n-(int)count;
+                nvm2c_printf(&b," a.record=NOWN_ALLOC(1,sizeof(nown_record)+%u*sizeof(nown_value));\n if(!a.record){status=1;goto cleanup;} a.record->refs=1; a.record->count=%u; a.record->layout=%u;\n",count,count,layout);
+                for(unsigned f=0;f<count;f++)
+                    nvm2c_printf(&b," a.record->fields[%u]=t[%d]; t[%d]=(nown_value){0};\n",f,base+(int)f,base+(int)f);
+                nvm2c_printf(&b," a.tag=%u; t[%d]=a; a=(nown_value){0};\n",TAG_STRUCT,base);break;
+            }
             if(in->operands[0].u8==AGG_VARIANT && !shared) {
                 NvmUnionVariantFact fact;
                 uint16_t variant=in->operands[2].u16;

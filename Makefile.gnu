@@ -5965,3 +5965,9 @@ test-selfhost-native-link-flags: bootstrap nano_vm nvm2c
 	python3 -m unittest -v tests.test_selfhost_native_link_flags
 
 test-units: test-native-record-globals test-selfhost-native-link-flags
+
+.PHONY: test-affine-ordinary-records
+test-affine-ordinary-records: nano_vm nvm2c nanoisa_dump
+	python3 -m unittest -v tests.test_affine_ordinary_records
+
+test-units: test-affine-ordinary-records

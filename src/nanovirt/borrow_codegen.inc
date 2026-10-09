@@ -36,7 +36,7 @@ typedef struct {
     uint32_t global_layouts[256];
     unsigned global_count;
     unsigned function_count, current_function;
-    bool value_graph, mixed, owner_arrays;
+    bool value_graph, mixed, mixed_arrays, owner_arrays;
     bool ordinary[MAX_STRUCT_DEFS];
     uint32_t result_layout, expression_layout;
     unsigned record_count, union_count, count, control_depth;
@@ -124,7 +124,7 @@ static bool borrow_float_array_field(ASTNode *record,int field) {
            record->as.struct_def.field_element_types[field]==TYPE_FLOAT;
 }
 /* I share exact ARRAY expression support, not ordinary record authority. */
-static bool borrow_arrays(BorrowCG *b) { return b->mixed || b->owner_arrays; }
+static bool borrow_arrays(BorrowCG *b) { return b->mixed_arrays || b->owner_arrays; }
 static uint8_t borrow_owner_field_tag(BorrowCG *b,unsigned layout,int field) {
     ASTNode *record=b->records[layout];
     if(b->owner_arrays && !b->ordinary[layout] && borrow_float_array_field(record,field))return TAG_ARRAY;
@@ -549,6 +549,25 @@ static uint8_t borrow_float_array(BorrowCG *b,ASTNode *n,bool expected) {
     if(b->cg->had_error)return TAG_VOID;
     emit_op(b->cg,OP_ARR_LITERAL,TAG_FLOAT,n->as.array_literal.element_count);return TAG_ARRAY;
 }
+/* I classify only ordinary receiver paths before emitting any value or move. */
+static int borrow_ordinary_receiver(BorrowCG *b,ASTNode *n) {
+    if(!n)return -1;
+    if(n->type==AST_IDENTIFIER) {
+        int local=borrow_local(b,n->as.identifier);
+        return local>=0 && borrow_ordinary_local(b,(unsigned)local)?(int)b->layouts[local]:-1;
+    }
+    if(n->type==AST_FIELD_ACCESS) {
+        int parent=borrow_ordinary_receiver(b,n->as.field_access.object);
+        if(parent<0)return -1;
+        ASTNode *record=b->records[parent];
+        for(int f=0;f<record->as.struct_def.field_count;f++)
+            if(!strcmp(record->as.struct_def.field_names[f],n->as.field_access.field_name)) {
+                int child=borrow_child(b,(unsigned)parent,f);
+                return child>=0 && b->ordinary[child]?child:-1;
+            }
+    }
+    return -1;
+}
 static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
     CG *cg=b->cg;if(cg->had_error || !n)return TAG_VOID;
     ASTNode normalized;char owner[4096];
@@ -617,13 +636,16 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
             if(!b->live[local]){borrow_error(b,n,"a live selected payload");return TAG_VOID;}
             emit_op(cg,OP_LOAD_LOCAL,local);emit_op(cg,OP_AGG_GET,field);return tag;
         }
-        if(local>=0 && borrow_ordinary_local(b,(unsigned)local)) {
-            if(!b->live[local]){borrow_error(b,n,"a live ordinary receiver");return TAG_VOID;}
-            int field=borrow_layout_field(b,b->layouts[local],n->as.field_access.field_name,n);
+        int ordinary=borrow_ordinary_receiver(b,object);
+        if(ordinary>=0) {
+            int field=borrow_layout_field(b,(unsigned)ordinary,n->as.field_access.field_name,n);
             if(field<0)return TAG_VOID;
-            ASTNode *record=b->records[b->layouts[local]];
-            uint8_t tag=borrow_float_array_field(record,field)?TAG_ARRAY:borrow_tag(record->as.struct_def.field_types[field]);
-            emit_op(cg,OP_LOAD_LOCAL,local);emit_op(cg,OP_AGG_GET,field);return tag;
+            if(borrow_expr(b,object)!=TAG_STRUCT){borrow_error(b,n,"an exact ordinary receiver");return TAG_VOID;}
+            ASTNode *record=b->records[ordinary];
+            int child=borrow_child(b,(unsigned)ordinary,field);
+            b->expression_layout=child>=0?(uint32_t)child:NVM_V2_NO_INDEX;
+            uint8_t tag=borrow_float_array_field(record,field)?TAG_ARRAY:child>=0?TAG_STRUCT:borrow_tag(record->as.struct_def.field_types[field]);
+            emit_op(cg,OP_AGG_GET,field);return tag;
         }
         BorrowPlace place;
         if(!borrow_place(b,n->as.field_access.object,&place))return TAG_VOID;
@@ -759,7 +781,9 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
             } else if(p->type==TYPE_STRUCT) {
                 int layout=borrow_record(b,p->struct_type_name);
                 if(layout<0) {borrow_error(b,argument,"an exact declared owner parameter");return TAG_VOID;}
-                if(argument->type==AST_IDENTIFIER) {
+                if(b->ordinary[layout]) {
+                    if(!borrow_ordinary(b,argument,(unsigned)layout))return TAG_VOID;
+                } else if(argument->type==AST_IDENTIFIER) {
                     int local=borrow_local(b,argument->as.identifier);
                     if(local<0 || !b->live[local] || b->modes[local] || b->disposal_pending[local] ||
                        b->tags[local]!=TAG_STRUCT || b->layouts[local]!=(uint32_t)layout) {
@@ -865,7 +889,7 @@ static bool borrow_owner(BorrowCG *b,ASTNode *value,unsigned layout) {
         emit_op(cg,OP_OWN_MOVE_LOCAL,old);b->live[old]=false;b->disposal_pending[old]=false;
     } else if(value->type==AST_MATCH) {
         if(borrow_match_expr(b,value,TAG_STRUCT,layout)!=TAG_STRUCT)return false;
-    } else if(value->type==AST_CALL && b->value_graph) {
+    } else if((value->type==AST_CALL || value->type==AST_MODULE_QUALIFIED_CALL) && b->value_graph) {
         if(borrow_expr(b,value)!=TAG_STRUCT || b->expression_layout!=layout) {
             borrow_error(b,value,"an exact owned call result");return false;
         }
@@ -881,6 +905,12 @@ static bool borrow_ordinary(BorrowCG *b,ASTNode *value,unsigned layout) {
         }
         emit_op(b->cg,OP_LOAD_LOCAL,local);return true;
     }
+    if(value->type==AST_CALL || value->type==AST_MODULE_QUALIFIED_CALL) {
+        if(borrow_expr(b,value)!=TAG_STRUCT || b->expression_layout!=layout) {
+            borrow_error(b,value,"an exact ordinary record call result");return false;
+        }
+        return !b->cg->had_error;
+    }
     ASTNode *record=b->records[layout];int slots[256];
     if(value->type!=AST_STRUCT_LITERAL || value->as.struct_literal.spread_source ||
        strcmp(value->as.struct_literal.struct_name,record->as.struct_def.name) ||
@@ -894,11 +924,13 @@ static bool borrow_ordinary(BorrowCG *b,ASTNode *value,unsigned layout) {
         if(slots[f]>=0){borrow_error(b,value,"distinct ordinary constructor fields");return false;}
         bool array=borrow_float_array_field(record,f);
         ASTNode *field=value->as.struct_literal.field_values[i];
-        uint8_t tag=array?borrow_float_array(b,field,true):borrow_expr(b,field);
-        if(tag!=(array?TAG_ARRAY:borrow_tag(record->as.struct_def.field_types[f]))) {
+        int child=borrow_child(b,layout,f);
+        uint8_t tag=array?borrow_float_array(b,field,true):child>=0?
+            (borrow_ordinary(b,field,(unsigned)child)?TAG_STRUCT:TAG_VOID):borrow_expr(b,field);
+        if(tag!=(array?TAG_ARRAY:child>=0?TAG_STRUCT:borrow_tag(record->as.struct_def.field_types[f]))) {
             borrow_error(b,value,"exact ordinary field types");return false;
         }
-        slots[f]=borrow_slot(b,NULL,tag,NVM_V2_NO_INDEX,0,false);
+        slots[f]=borrow_slot(b,NULL,tag,child>=0?(uint32_t)child:NVM_V2_NO_INDEX,0,false);
         if(b->cg->had_error)return false;
         emit_op(b->cg,OP_STORE_LOCAL,slots[f]);
     }
@@ -1315,7 +1347,9 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
             }
         } else if(n->type==AST_RETURN && !shadow) {
             if(b->result==TAG_STRUCT) {
-                if(!borrow_owner(b,n->as.return_stmt.value,b->result_layout))break;
+                if(b->ordinary[b->result_layout]) {
+                    if(!borrow_ordinary(b,n->as.return_stmt.value,b->result_layout))break;
+                } else if(!borrow_owner(b,n->as.return_stmt.value,b->result_layout))break;
             } else if(b->result==TAG_UNION) {
                 if(borrow_union_expr(b,n->as.return_stmt.value,(int)b->result_layout)!=TAG_UNION)break;
             } else if(b->result==TAG_VOID) {
@@ -1588,9 +1622,9 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
                 else if(!borrow_field_tag(n->as.struct_def.field_types[f])) {
                     int child=n->as.struct_def.field_types[f]==TYPE_STRUCT
                         ?borrow_record(b,n->as.struct_def.field_type_names[f]):-1;
-                    if(child<0 || b->ordinary[child] || b->depths[child]>=32)borrow_error(b,n,"earlier resource child declarations and depth at most 32");
+                    if(child<0 || (owned && b->ordinary[child]) || b->depths[child]>=32)borrow_error(b,n,"earlier resource child declarations and depth at most 32");
                     else {
-                        owned=true;
+                        if(!b->ordinary[child])owned=true;
                         if(b->depths[b->record_count]<b->depths[child]+1)b->depths[b->record_count]=b->depths[child]+1;
                     }
                 }
@@ -1600,10 +1634,13 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
             }
             if(owned && array)b->owner_arrays=true;
             if(!owned) {
-                if(!array){borrow_error(b,n,"a closed ordinary record with a FLOAT array field");break;}
-                for(int f=0;f<n->as.struct_def.field_count;f++)
-                    if(!borrow_float_array_field(n,f) && !borrow_tag(n->as.struct_def.field_types[f]))borrow_error(b,n,"ordinary int/bool or flat FLOAT array fields");
-                b->ordinary[b->record_count]=true;b->mixed=true;
+                for(int f=0;f<n->as.struct_def.field_count;f++) {
+                    int child=n->as.struct_def.field_types[f]==TYPE_STRUCT
+                        ?borrow_record(b,n->as.struct_def.field_type_names[f]):-1;
+                    if(!borrow_float_array_field(n,f) && !borrow_tag(n->as.struct_def.field_types[f]) &&
+                       (child<0 || !b->ordinary[child]))borrow_error(b,n,"ordinary scalar, record or flat FLOAT array fields");
+                }
+                b->ordinary[b->record_count]=true;b->mixed=true;if(array)b->mixed_arrays=true;
             }
             b->records[b->record_count++]=n;
         } else if(n->type==AST_LET) {
@@ -1655,14 +1692,14 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
         if(h->as.function.param_count>8 || (h->as.function.param_count && !p))borrow_error(b,h,"at most eight exact parameters");
         if(b->value_graph) {
             if(!borrow_result_tag(b,h) && h->as.function.return_type!=TYPE_VOID &&
-               !(h->as.function.return_type==TYPE_STRUCT && result_layout>=0 && !b->ordinary[result_layout]))
+               !(h->as.function.return_type==TYPE_STRUCT && result_layout>=0))
                 borrow_error(b,h,"an int/bool/float/string, void, exact declared owner or scalar union result");
         } else if(h->as.function.param_count<1 || !borrow_tag(h->as.function.return_type))borrow_error(b,h,"a scalar-result borrowed helper");
         for(int i=0;i<h->as.function.param_count && !cg->had_error;i++) {
             int layout=borrow_record(b,p[i].struct_type_name);
             bool valid=b->value_graph?(borrow_parameter_tag(p[i].type) || borrow_named_union_instance(b,p[i].type_info,p[i].struct_type_name)>=0 ||
-                (p[i].type==TYPE_STRUCT && layout>=0 && !b->ordinary[layout])):
-                ((p[i].type==TYPE_BORROW_SHARED || p[i].type==TYPE_BORROW_MUT) && layout>=0 && borrow_leaf(b,(unsigned)layout));
+                (p[i].type==TYPE_STRUCT && layout>=0)):
+                ((p[i].type==TYPE_BORROW_SHARED || p[i].type==TYPE_BORROW_MUT) && layout>=0 && !b->ordinary[layout] && borrow_leaf(b,(unsigned)layout));
             if(!valid)borrow_error(b,h,"exact mode-zero scalar/owner or separate borrowed parameters");
             for(int j=0;j<i;j++)if(!strcmp(p[i].name,p[j].name))borrow_error(b,h,"distinct parameter names");
         }
@@ -1805,7 +1842,7 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
                 }
                 nvm_owned_array_plan_free(plan);
             }
-            if(verified.ok && b->mixed && !nvm_mixed_samples_candidate(cg->module)) {
+            if(verified.ok && b->mixed_arrays && !nvm_mixed_samples_candidate(cg->module)) {
                 borrow_error(b,NULL,"a positive complete mixed execution candidate");verified.ok=false;
             }
             if(verified.ok && !borrow_arrays(b))verified=nvm_verify_owned_module(cg->module);
