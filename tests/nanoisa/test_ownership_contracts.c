@@ -212,7 +212,8 @@ static void check_owned_union_transport(void) {
     NvmOwnershipGlobal global;uint32_t globals=0;
     CHECK(nvm_ownership_globals(m,&global,1,&globals)==NVM_V2_OK && globals==1);
     CHECK(global.tag==TAG_UNION && global.mutable && global.layout==2);
-    CHECK(!nvm_affine_state_create(m,0,0) && !nvm_verify(m).ok);
+    NvmAffineState *global_state=nvm_affine_state_create(m,0,0);CHECK(global_state);
+    nvm_affine_state_free(global_state);CHECK(!nvm_verify(m).ok);
     slot(data,120,TAG_STRUCT,1,2);check_status(m,false,false);
     slot(data,120,TAG_UNION,1,0);check_status(m,false,false);
     m->ownership_size=108;word(data,44,1);
@@ -323,7 +324,8 @@ static void check_global_transport(void) {
         CHECK(rows[i].layout==(i<5?NVM_V2_NO_INDEX:i-5));
     }
     CHECK(nvm_ownership_globals(m,NULL,0,&count)==NVM_V2_OK && count==slots);
-    CHECK(!nvm_affine_state_create(m,0,0));
+    NvmAffineState *global_state=nvm_affine_state_create(m,0,0);CHECK(global_state);
+    nvm_affine_state_free(global_state);
     CHECK(!nvm_verify(m).ok);
     char diagnostic[256];CHECK(!nvm2c_emit(m,diagnostic,sizeof(diagnostic)));
     data[9]=NVM_LAYOUT_COMPLETE;check_status(m,true,true);

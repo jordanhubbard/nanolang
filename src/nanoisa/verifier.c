@@ -985,6 +985,9 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     if (!mod->ownership_size || (!mod->function_count || mod->function_count>NVM_OWNED_MAX_FUNCTIONS) || mod->header.entry_point != 0 ||
         mod->import_count || mod->module_ref_count || mod->callback_contract_count || mod->passive_size)
         return fail("I require standalone ownership instruction execution semantics without linked contracts");
+    uint32_t globals;
+    if (nvm_ownership_globals(mod,NULL,0,&globals)!=NVM_V2_OK || globals)
+        return fail("I require connected global runtime lifetime before owned execution");
     bool value_graph=nvm_affine_value_call_graph(mod);
     if (!value_graph && mod->function_count>2)
         return fail("I require a bounded acyclic value graph or my separate borrowed helper");

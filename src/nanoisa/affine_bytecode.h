@@ -34,7 +34,11 @@ bool nvm_affine_value_call_graph(const NvmModule *module);
 
 /* I analyze the documented scalar/record-observation/selected-union/owned-transfer subset without changing
  * the module. Success is NOT executable verification. Caller alias binding,
- * reference opcodes and standalone runtime eligibility remain separate. */
+ * reference opcodes and standalone runtime eligibility remain separate.
+ * With globals, helper success is conditional on its inferred initialization
+ * preconditions. Entry-zero analysis composes all called helper requirements
+ * and checks them against initially uninitialized slots. Only that entry proof
+ * establishes global read/write ordering for the reachable call graph. */
 NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *module,
                                               uint32_t function);
 #endif

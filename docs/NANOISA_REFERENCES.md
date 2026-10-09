@@ -351,9 +351,25 @@ buffer with zero capacity requests only the count; a supplied buffer must fit
 all rows. Older envelopes and absent metadata report zero declared globals.
 Binary and non-executing text reconstruction retain the declarations.
 
-I have not connected these declarations to initialization, interprocedural
-stores or runtime state lifetime. The affine execution profile and private
-array/mixed profiles therefore refuse modules carrying this extension. I do
-not assume zero initialization or infer a global's type from its first store.
-Both source producers and VM/native repeated-call semantics remain required
-before executable admission under #981.
+My affine bytecode analysis carries global initialization through branches,
+loops and the bounded acyclic value-call graph. Each global has a four-bit
+relation between its initialization state at function entry and at the current
+instruction. Joins union those possibilities. Reads require initialized input;
+immutable stores require unwritten input. Stores preserve exact declared types
+and never accept an owner or observation escape. Scalar, string and copyable
+union flow is analyzed; record/resource storage still requires an explicit
+global transfer and lifetime contract.
+
+Each helper retains its input requirements and returning relations. A call
+composes them into the caller; I do not assume a helper's globals are already
+initialized. Entry-zero analysis requires the complete graph to be valid from
+uninitialized slots. A successful standalone helper analysis remains
+conditional on its input requirements. I validate global indices even in
+unreachable instructions. Cached summaries avoid repeated expansion of the
+acyclic graph, and the worklist bound includes global relation changes.
+
+This analysis does not grant runtime authority. The execution verifier and
+private array/mixed profiles still refuse modules carrying this extension.
+I have not connected VM/native state lifetime, repeated calls or either source
+producer. I do not assume zero initialization or infer a global's type from
+its first store. These remain required before executable admission under #981.

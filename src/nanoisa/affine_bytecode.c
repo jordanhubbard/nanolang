@@ -19,6 +19,10 @@ typedef struct {
     Value *stack;
     uint16_t count;
     bool visited;
+    uint16_t global_count;
+    /* Four-bit relation: bit (2*input + current) describes initialization.
+     * Input is the state at function entry; current is the state here. */
+    uint8_t globals[NVM_OWNERSHIP_MAX_GLOBALS];
 } Frame;
 static void frame_free(Frame *frame) {
     if (!frame) return;
@@ -30,6 +34,8 @@ static Frame *frame_clone(const Frame *from) {
     out->locals=nvm_affine_state_clone(from->locals);
     if (!out->locals) {frame_free(out);return NULL;}
     out->count=from->count;
+    out->global_count=from->global_count;
+    memcpy(out->globals,from->globals,from->global_count);
     if (out->count) {
         out->stack=malloc(out->count*sizeof(*out->stack));
         if (!out->stack) {frame_free(out);return NULL;}
@@ -96,7 +102,13 @@ static bool pop_scalar(Frame *f,uint8_t tag) {
     f->count--;return true;
 }
 typedef struct {
-    bool value_graph;
+    bool value_graph, globals_valid;
+    uint32_t global_count;
+    NvmOwnershipGlobal globals[NVM_OWNERSHIP_MAX_GLOBALS];
+    /* Allowed input states and returning state relations, one summary per
+     * acyclic helper. Summaries compose without assuming initialized entry. */
+    uint8_t global_allowed[NVM_OWNED_MAX_FUNCTIONS][NVM_OWNERSHIP_MAX_GLOBALS];
+    uint8_t global_returns[NVM_OWNED_MAX_FUNCTIONS][NVM_OWNERSHIP_MAX_GLOBALS];
     uint32_t fact_function, fact_capacity;
     NvmAffineInstructionFact *facts;
     uint8_t status[NVM_OWNED_MAX_FUNCTIONS];
@@ -142,6 +154,29 @@ bool nvm_affine_value_call_graph(const NvmModule *m) {
     for (uint32_t i=0;i<m->function_count;i++) if (edges[i][i]) return false;
     return true;
 }
+static void analysis_calls_init(AnalysisCalls *calls,const NvmModule *module) {
+    calls->globals_valid=nvm_ownership_globals(module,calls->globals,
+        NVM_OWNERSHIP_MAX_GLOBALS,&calls->global_count)==NVM_V2_OK;
+    calls->value_graph=calls->globals_valid && nvm_affine_value_call_graph(module);
+}
+/* I collect a precondition for each possible function-entry state. Joins only
+ * add relation bits, so requirements can only become stricter during rechecks. */
+static void global_require(Frame *frame,AnalysisCalls *calls,uint32_t function,
+                           uint32_t slot,uint8_t permitted) {
+    uint8_t relation=frame->globals[slot];
+    for (unsigned input=0;input<2;input++)
+        if (((relation>>(input*2))&3u)&~permitted)
+            calls->global_allowed[function][slot]&=(uint8_t)~(1u<<input);
+}
+static uint8_t global_compose(uint8_t before,uint8_t after) {
+    uint8_t result=0;
+    for (unsigned input=0;input<2;input++)
+        for (unsigned middle=0;middle<2;middle++)
+            if (before&(1u<<(input*2+middle)))
+                result|=(uint8_t)(((after>>(middle*2))&3u)<<(input*2));
+    return result;
+}
+
 static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                                    const NvmAffineState *caller,uint32_t reference,AnalysisCalls *calls);
 static bool supported(uint8_t op,bool value_graph) {
@@ -163,6 +198,7 @@ static bool supported(uint8_t op,bool value_graph) {
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
     case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+    case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
         return value_graph;
     default:return false;
     }
@@ -194,6 +230,10 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         }
         NvmAffineAnalysis call=analyze(module,target,NULL,0,calls);
         if (!call.ok) return "I require complete consuming-helper owner resolution";
+        for (uint32_t g=0;g<calls->global_count;g++) {
+            global_require(f,calls,function,g,calls->global_allowed[target][g]);
+            f->globals[g]=global_compose(f->globals[g],calls->global_returns[target][g]);
+        }
         f->count-=count;
         if (result.tag==TAG_VOID) return NULL;
         return push(f,(Value){.tag=result.tag,.root=UINT16_MAX,
@@ -335,6 +375,28 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
                               .owned=nvm_affine_type_is_owned(f->locals,(NvmAffineType){TAG_UNION,fact.layout}),
                               .variant=variant})?NULL:
             "I cannot retain a checked scalar-union value";
+    }
+    case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL: {
+        uint32_t index=in->operands[0].u32;
+        if (!calls->value_graph || index>=calls->global_count)
+            return "I require an exact declared global slot";
+        NvmOwnershipGlobal declaration=calls->globals[index];
+        NvmAffineType type={declaration.tag,declaration.layout};
+        if (nvm_affine_type_is_owned(f->locals,type))
+            return "I require explicit global owner transfers and lifetime before resource storage";
+        if (op==OP_LOAD_GLOBAL) {
+            global_require(f,calls,function,index,2u);
+            return push(f,(Value){.tag=type.tag,.root=UINT16_MAX,.layout=type.layout,
+                                  .variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:
+                "I cannot retain a checked global load";
+        }
+        if (!f->count) return "I require a value for a global store";
+        Value value=f->stack[f->count-1];
+        if (value.observation || value.owned || value.tag!=type.tag || value.layout!=type.layout)
+            return "I require the exact global type without an owner or observation escape";
+        if (!declaration.mutable) global_require(f,calls,function,index,1u);
+        f->globals[index]=global_compose(f->globals[index],10u);
+        f->count--;return NULL;
     }
     case OP_LOAD_LOCAL: {
         local=in->operands[0].u16;
@@ -498,6 +560,13 @@ static bool propagate(Frame **frames,uint32_t target,const Frame *state,Worklist
             *error="I require exact ownership and stack provenance at every join";return false;
         }
         changed=stack_changed || locals_changed;
+        if (frames[target]->global_count!=state->global_count) {
+            *error="I require one global declaration domain at every join";return false;
+        }
+        for (uint16_t g=0;g<state->global_count;g++) {
+            uint8_t joined=frames[target]->globals[g]|state->globals[g];
+            if (joined!=frames[target]->globals[g]) {frames[target]->globals[g]=joined;changed=true;}
+        }
     } else {
         frames[target]=frame_clone(state);
         if (!frames[target]) {*error="I cannot allocate an analysis branch";return false;}
@@ -528,11 +597,15 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
     const char *error="I require checked ownership declarations";
     VmDecodedFunction decoded={0};Frame **frames=NULL;Worklist work={0};
     Frame *current=NULL;
-    if (!m || !m->functions || function>=m->function_count) goto done;
+    if (!m || !m->functions || function>=m->function_count || !calls->globals_valid) goto done;
+    if (calls->global_count && !calls->value_graph) {
+        error="I require a bounded acyclic value graph for global flow";goto done;
+    }
     if (calls->value_graph && !caller) {
         if (calls->status[function]==2) return calls->results[function];
         if (calls->status[function]==1) {error="I refuse recursive owned value analysis";goto done;}
         calls->status[function]=1;
+        memset(calls->global_allowed[function],3,calls->global_count);
     }
     const NvmFunctionEntry *entry=&m->functions[function];
     if (entry->local_count>NVM_AFFINE_MAX_LOCALS ||
@@ -564,6 +637,14 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                 : "I require a connected affine instruction contract";
         goto done;
     }
+    for (uint32_t i=0;i<count;i++) {
+        const DecodedInstruction *in=&decoded.instructions[i].instruction;
+        if ((in->opcode==OP_LOAD_GLOBAL || in->opcode==OP_STORE_GLOBAL) &&
+            in->operands[0].u32>=calls->global_count) {
+            result.byte_offset=decoded.instructions[i].byte_offset;
+            nvm_affine_state_free(initial);error="I require an exact declared global slot";goto done;
+        }
+    }
     if (calls->facts && !caller && function==calls->fact_function && count!=calls->fact_capacity) {
         nvm_affine_state_free(initial);error="I require exact instruction fact capacity";goto done;
     }
@@ -573,9 +654,11 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
     frames[0]=calloc(1,sizeof(*frames[0]));
     if (!frames[0]) {nvm_affine_state_free(initial);error="I cannot allocate entry state";goto done;}
     frames[0]->locals=initial;
+    frames[0]->global_count=(uint16_t)calls->global_count;
+    memset(frames[0]->globals,9,calls->global_count);
     /* Joins only lose initialized-local, exact-arm/root and excluded-arm
      * facts. I bound those decreases for every local and stack slot. */
-    uint32_t visit_limit=count*(2u*(uint32_t)entry->local_count+1u+
+    uint32_t visit_limit=count*(2u*(uint32_t)entry->local_count+4u*calls->global_count+1u+
         NVM_AFFINE_MAX_STACK*(NVM_OWNERSHIP_MAX_VARIANTS+1u));
 #ifdef NVM_AFFINE_TEST_VISIT_LIMIT
     visit_limit=NVM_AFFINE_TEST_VISIT_LIMIT(visit_limit);
@@ -605,6 +688,8 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
             if (!exit_ok) {
                 error="I require an exact declared result and no live owned obligations";goto done;
             }
+            for (uint32_t g=0;g<calls->global_count;g++)
+                calls->global_returns[function][g]|=current->globals[g];
         } else if (op==OP_HALT) {
             if (current->count) {error="I require an empty stack at my terminal invariant";goto done;}
         } else {
@@ -656,6 +741,12 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
         }
         frame_free(current);current=NULL;
     }
+    for (uint32_t g=0;g<calls->global_count;g++) {
+        uint8_t allowed=calls->global_allowed[function][g];
+        if (!allowed || (!function && !(allowed&1u))) {
+            error="I require global initialization before reads and no repeated immutable store";goto done;
+        }
+    }
     if (calls->facts && !caller && function==calls->fact_function) {
         NvmAffineInstructionFact *facts=calloc(count,sizeof(*facts));
         if (!facts) {error="I cannot allocate converged instruction facts";goto done;}
@@ -690,7 +781,7 @@ done:
 }
 
 NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t function) {
-    AnalysisCalls calls={0};calls.value_graph=nvm_affine_value_call_graph(m);
+    AnalysisCalls calls={0};analysis_calls_init(&calls,m);
     return analyze(m,function,NULL,0,&calls);
 }
 
@@ -701,7 +792,7 @@ NvmAffineAnalysis nvm_affine_analyze_instructions(const NvmModule *m,
         snprintf(result.message,sizeof(result.message),"I require a bounded instruction fact buffer");
         return result;
     }
-    AnalysisCalls calls={0};calls.value_graph=nvm_affine_value_call_graph(m);
+    AnalysisCalls calls={0};analysis_calls_init(&calls,m);
     calls.fact_function=function;calls.fact_capacity=capacity;calls.facts=facts;
     return analyze(m,function,NULL,0,&calls);
 }

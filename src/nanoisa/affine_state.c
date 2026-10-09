@@ -85,11 +85,11 @@ void nvm_affine_state_free(NvmAffineState *s) {
 }
 NvmAffineState *nvm_affine_state_create(const NvmModule *m, uint32_t function,
                                        uint32_t references) {
-    uint32_t globals;
-    /* Global declarations remain non-executable until initialization and
-     * interprocedural stores are part of the shared state analysis. */
+    bool needs;
+    /* Local facts do not grant global storage authority. The bytecode analysis
+     * separately checks global flow, and the verifier gates execution. */
     if (!m || !m->ownership_size || function >= m->function_count ||
-        nvm_ownership_globals(m,NULL,0,&globals)!=NVM_V2_OK || globals) return NULL;
+        nvm_ownership_contracts_validate(m,&needs)!=NVM_V2_OK) return NULL;
     NvmAffineState *s=calloc(1,sizeof(*s));
     if (!s) return NULL;
     s->facts=calloc(1,sizeof(*s->facts));

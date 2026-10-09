@@ -217,7 +217,10 @@ static void instruction_facts(void) {
     CHECK(!memcmp(facts,before,sizeof(facts)));
     nvm_module_free(m);
 }
+#include "test_affine_globals.inc"
+
 int main(int argc,char **argv) {
+    check_global_flow();
     if(argc==3){native_output=argv[1];module_output=argv[2];}
     else CHECK(argc==1);
     instruction_facts();
