@@ -1,0 +1,91 @@
+test_foreign_record_collision_is_rejected (tests.test_affine_module_identity.AffineModuleIdentity.test_foreign_record_collision_is_rejected) ... ok
+test_generic_annotation_metadata (tests.test_affine_module_identity.AffineModuleIdentity.test_generic_annotation_metadata) ... ok
+test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) ... 
+  test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='component', reverse=False, nested=False) ... FAIL
+  test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='component', reverse=True, nested=False) ... FAIL
+test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) ... 
+  test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='component', reverse=False, nested=True) ... FAIL
+  test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='component', reverse=True, nested=True) ... FAIL
+test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) ... 
+  test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='component', reverse=False, nested=False) ... FAIL
+  test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='component', reverse=True, nested=False) ... FAIL
+test_qualified_public_record_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_qualified_public_record_identity) ... 
+  test_qualified_public_record_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_qualified_public_record_identity) (compiler='component') ... FAIL
+test_resource_use_after_move (tests.test_affine_module_identity.AffineModuleIdentity.test_resource_use_after_move) ... ok
+test_same_module_duplicate_is_rejected (tests.test_affine_module_identity.AffineModuleIdentity.test_same_module_duplicate_is_rejected) ... ok
+test_unresolved_resource (tests.test_affine_module_identity.AffineModuleIdentity.test_unresolved_resource) ... ok
+
+======================================================================
+FAIL: test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='component', reverse=False, nested=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+
+
+======================================================================
+FAIL: test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='component', reverse=True, nested=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+
+
+======================================================================
+FAIL: test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='component', reverse=False, nested=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+
+
+======================================================================
+FAIL: test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='component', reverse=True, nested=True)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+
+
+======================================================================
+FAIL: test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='component', reverse=False, nested=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+
+
+======================================================================
+FAIL: test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='component', reverse=True, nested=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 57, in check_modules
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+
+
+======================================================================
+FAIL: test_qualified_public_record_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_qualified_public_record_identity) (compiler='component')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_module_identity.py", line 100, in test_qualified_public_record_identity
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require an exact declared owner or scalar union result in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 3.355s
+
+FAILED (failures=7)
