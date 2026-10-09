@@ -1,0 +1,14 @@
+{
+  "fixture_sha256": "fb0fa7bc7bd2adcad65cbbb3a33e6c2c11beff609114e00b98718d77f39f4379",
+  "insertions": 2048,
+  "epochs": 4,
+  "checks": [
+    "C-seed source shadows and VM execution",
+    "indexed self-hosted source shadows and VM execution",
+    "generated strict C11 ASan/UBSan/LSan execution"
+  ],
+  "native_compiler_suite_methods": 37,
+  "native_compiler_suite_seconds": 13.041,
+  "baseline_stage1_seconds": 879.1044737920165,
+  "bootstrap_phase": "Stage2 running; sources/tools/hosts checked unchanged"
+}

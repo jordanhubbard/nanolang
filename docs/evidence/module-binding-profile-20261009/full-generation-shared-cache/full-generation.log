@@ -1,0 +1,552 @@
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I cannot define a record twice in one module: Handle
+I cannot define a function twice in one module: answer
+I cannot resolve a qualified function in this module: lib.answer
+I require separate artifact and diagnostic destinations
+I require separate artifact and diagnostic destinations
+I will not overwrite a source file: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_YuFtz4/source.nano
+I will not overwrite a source file: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_YuFtz4/source.nano
+I cannot check source/output file identity: /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_source_guard_YuFtz4/missing
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Usage: nanoc <input.nano> [-o output] [options]
+
+Options:
+  -o <file>        Explicit native output; --emit-nvm selects module output
+  -v, --verbose    Verbose compilation output
+  -k, --keep-c     Keep generated C file
+  --target <t>    native or c; unqualified compilation publishes input.nvm
+  --emit-nvm     I publish verified NanoISA after VM shadow checks; requires -o
+  --test-imports  I run dependency shadows before root shadows (default)
+  --root-shadows-only  I run only root-file shadows
+  --              End options; the remaining argument is my input path
+  -fshow-intermediate-code  Print generated C to stdout
+  -h, --help       Show this help
+  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)
+
+This compiler is 100% written in NanoLang!
+Pipeline: Lex → Parse → Typecheck → NanoISA → optional native translation
+
+FNCOUNT	27730470	is_identifier_start
+FNCOUNT	5683594	is_identifier_char
+FNCOUNT	10453482	is_whitespace_char
+FNCOUNT	2221806	is_digit_char
+FNCOUNT	3110642	keyword_group1
+FNCOUNT	11817646	keyword_group2
+FNCOUNT	2612900	keyword_group3
+FNCOUNT	1173002	keyword_group4
+FNCOUNT	492930	keyword_group5
+FNCOUNT	3712636	keyword_or_identifier
+FNCOUNT	5035289	push_tok
+FNCOUNT	3486297	process_string
+FNCOUNT	495823	process_number
+FNCOUNT	18357333	process_identifier
+FNCOUNT	85344357	tokenize_string
+FNCOUNT	153	parser_init_ast_lists
+FNCOUNT	117	parser_new
+FNCOUNT	36349944	parser_is_at_end
+FNCOUNT	47777355	parser_with_position
+FNCOUNT	3082410	parser_advance
+FNCOUNT	8459631	parser_current
+FNCOUNT	323675	parser_match
+FNCOUNT	176550	parser_expect
+FNCOUNT	1287270	parser_peek
+FNCOUNT	1093977	parser_has_error
+FNCOUNT	175168	token_number
+FNCOUNT	586302	token_identifier
+FNCOUNT	141620	token_string
+FNCOUNT	125406	token_true
+FNCOUNT	119494	token_false
+FNCOUNT	250880	token_lparen
+FNCOUNT	135480	token_rparen
+FNCOUNT	397808	token_plus
+FNCOUNT	549570	token_minus
+FNCOUNT	392338	token_star
+FNCOUNT	392194	token_slash
+FNCOUNT	392140	token_eq
+FNCOUNT	383206	token_ne
+FNCOUNT	409214	token_lt
+FNCOUNT	380036	token_le
+FNCOUNT	382572	token_gt
+FNCOUNT	379530	token_ge
+FNCOUNT	378980	token_and
+FNCOUNT	377808	token_or
+FNCOUNT	81080	token_comma
+FNCOUNT	174352	token_lbrace
+FNCOUNT	82710	token_rbrace
+FNCOUNT	211328	token_let
+FNCOUNT	36838	token_if
+FNCOUNT	8208	token_else
+FNCOUNT	18792	token_while
+FNCOUNT	23758	token_return
+FNCOUNT	29206	token_colon
+FNCOUNT	43652	token_mut
+FNCOUNT	27072	token_assign
+FNCOUNT	1898	token_arrow
+FNCOUNT	42590	token_fn
+FNCOUNT	4316	token_extern
+FNCOUNT	32230	token_set
+FNCOUNT	2474	token_struct
+FNCOUNT	2228	token_enum
+FNCOUNT	2208	token_union
+FNCOUNT	16136	token_for
+FNCOUNT	8	token_in
+FNCOUNT	8482	token_assert
+FNCOUNT	1826	token_requires
+FNCOUNT	1826	token_ensures
+FNCOUNT	7052	token_unsafe
+FNCOUNT	2044	token_shadow
+FNCOUNT	156894	token_match
+FNCOUNT	2274	token_import
+FNCOUNT	230	token_as
+FNCOUNT	8508	token_pub
+FNCOUNT	4078	token_pure
+FNCOUNT	2044	token_opaque
+FNCOUNT	156886	token_lbracket
+FNCOUNT	3344	token_rbracket
+FNCOUNT	305272	token_dot
+FNCOUNT	134974	token_double_colon
+FNCOUNT	392168	token_percent
+FNCOUNT	189022	token_not
+FNCOUNT	156894	token_pipe
+FNCOUNT	121442	token_grammar
+FNCOUNT	156894	token_question
+FNCOUNT	13606	token_array
+FNCOUNT	12202	token_type_int
+FNCOUNT	6014	token_type_u8
+FNCOUNT	6014	token_type_float
+FNCOUNT	6014	token_type_bool
+FNCOUNT	5040	token_type_string
+FNCOUNT	50	token_type_bstring
+FNCOUNT	50	token_type_void
+FNCOUNT	1242938	parse_qualified_name
+FNCOUNT	1209330	parse_call_name
+FNCOUNT	256314	is_type_start_token_type
+FNCOUNT	1106900	parse_type_string
+FNCOUNT	1148100	parser_store_number
+FNCOUNT	1719484	parser_store_string
+FNCOUNT	340904	parser_store_bool
+FNCOUNT	8118228	parser_store_identifier
+FNCOUNT	1900272	parser_store_binary_op
+FNCOUNT	2778864	parser_store_call
+FNCOUNT	44625	parser_store_module_qualified_call
+FNCOUNT	3743958	name_contains_dot
+FNCOUNT	4633530	parser_store_call_arg
+FNCOUNT	102630	parser_store_array_element
+FNCOUNT	6588	parse_named_literal
+FNCOUNT	439200	parse_struct_literal
+FNCOUNT	148	parse_cond_expression
+FNCOUNT	640	parse_cond_clauses
+FNCOUNT	13257291	parse_primary
+FNCOUNT	920	parse_parenthesized_head
+FNCOUNT	547860	parenthesized_call_start
+FNCOUNT	14705688	is_binary_op
+FNCOUNT	6443500	parse_expression_recursive
+FNCOUNT	235341	parse_expression
+FNCOUNT	1562760	parser_store_let
+FNCOUNT	579250	parser_store_set
+FNCOUNT	717500	parser_store_if
+FNCOUNT	115884	parser_store_while
+FNCOUNT	700	parser_store_for
+FNCOUNT	33868	parser_finish_array_literal
+FNCOUNT	182700	parser_store_array_literal
+FNCOUNT	36608	parser_is_value_expression
+FNCOUNT	225540	parser_decode_import_path
+FNCOUNT	16269	parser_store_import
+FNCOUNT	156911	parser_store_shadow
+FNCOUNT	1749744	parser_store_field_access
+FNCOUNT	660687	parser_store_return
+FNCOUNT	497202	parser_store_assert
+FNCOUNT	1411488	parser_store_block
+FNCOUNT	315	parser_wrap_if_in_block
+FNCOUNT	433182	parser_starts_owned_pattern
+FNCOUNT	1541887	parse_block_recursive
+FNCOUNT	185909	parse_block
+FNCOUNT	6364	parser_store_unsafe_block
+FNCOUNT	2619	parse_unsafe_block_recursive
+FNCOUNT	1369	parse_unsafe_block
+FNCOUNT	508212	parse_let_body
+FNCOUNT	218058	parse_let_statement
+FNCOUNT	267599	parse_if_statement
+FNCOUNT	29304	parse_while_statement
+FNCOUNT	190695	parse_return_statement
+FNCOUNT	83346	parse_assert_statement
+FNCOUNT	304	parse_for_statement
+FNCOUNT	4312	parser_with_node
+FNCOUNT	112	parser_with_statement
+FNCOUNT	1300076	parse_statement
+FNCOUNT	2851728	parser_lambda_function
+FNCOUNT	450	parser_mark_pure
+FNCOUNT	167973	parser_store_function
+FNCOUNT	11392	parser_store_struct
+FNCOUNT	875	parser_store_enum
+FNCOUNT	96624	parser_store_struct_literal
+FNCOUNT	25935	parse_parameter_type
+FNCOUNT	207129	parse_function_params
+FNCOUNT	3312	parse_extern_function_definition
+FNCOUNT	119603	parse_function_definition
+FNCOUNT	38065	parse_struct_fields
+FNCOUNT	4224	parse_struct_definition
+FNCOUNT	15257	parse_enum_variants
+FNCOUNT	245	parse_enum_definition
+FNCOUNT	2461	parse_import
+FNCOUNT	345	parse_module_import
+FNCOUNT	6824	parse_from_import
+FNCOUNT	36280	parse_shadow
+FNCOUNT	185178	parse_definition
+FNCOUNT	51061	parse_program
+FNCOUNT	373614560	parser_get_function_count
+FNCOUNT	948404780	parser_get_function
+FNCOUNT	3264812	parser_get_let_count
+FNCOUNT	4303040	parser_get_let
+FNCOUNT	5756655	parser_get_identifier
+FNCOUNT	52565	parser_get_number
+FNCOUNT	251240	parser_get_binary_op
+FNCOUNT	56090	parser_get_return
+FNCOUNT	280710	parser_get_block
+FNCOUNT	175080	parser_get_if
+FNCOUNT	9715	parser_get_while
+FNCOUNT	55	parser_get_for
+FNCOUNT	960	parser_get_unsafe_block
+FNCOUNT	489855	parser_get_call
+FNCOUNT	70930	parser_get_module_qualified_call
+FNCOUNT	573265	parser_get_call_arg
+FNCOUNT	47345	parser_get_set
+FNCOUNT	76010	parser_get_string
+FNCOUNT	17350	parser_get_bool
+FNCOUNT	28740	parser_get_assert
+FNCOUNT	472240	parser_get_field_access
+FNCOUNT	26700	parser_get_array_literal
+FNCOUNT	28704	parser_set_array_literal_element_type
+FNCOUNT	14765	parser_get_array_element
+FNCOUNT	7276908	parser_get_struct_def_count
+FNCOUNT	44639640	parser_get_struct_def
+FNCOUNT	4400	parser_get_struct_literal_count
+FNCOUNT	21015	parser_get_struct_literal
+FNCOUNT	31526116	parser_get_enum_count
+FNCOUNT	33030410	parser_get_enum
+FNCOUNT	1377504	parser_get_union_count
+FNCOUNT	64	parser_get_match_count
+FNCOUNT	352	parser_get_import_count
+FNCOUNT	435	parser_get_import
+FNCOUNT	568086	resource_name_in
+FNCOUNT	969739	resource_type_identity
+FNCOUNT	9638	resource_concrete_identity
+FNCOUNT	205626	resource_classify
+FNCOUNT	148	resource_type_is_declared
+FNCOUNT	3910	resource_value_type
+FNCOUNT	26395	tc_generic_arguments
+FNCOUNT	13390	resource_instantiated_classify
+FNCOUNT	1380	resource_generic_contains
+FNCOUNT	4715	resource_check_global
+FNCOUNT	1044849	resource_check_function
+FNCOUNT	156822	type_int
+FNCOUNT	122538	type_bool
+FNCOUNT	141042	type_string
+FNCOUNT	112074	type_void
+FNCOUNT	75540	type_unknown_named
+FNCOUNT	17397622	init_struct_metadata
+FNCOUNT	121921173	extract_user_struct_metadata
+FNCOUNT	56035584	merge_struct_metadata
+FNCOUNT	235550	field_metadata_type_string
+FNCOUNT	46346021	lookup_field_type
+FNCOUNT	165792	option_type_some
+FNCOUNT	42691462	type_kind_from_string
+FNCOUNT	24702	type_array
+FNCOUNT	59687	type_array_of
+FNCOUNT	10428	type_list_generic
+FNCOUNT	175597	strip_spaces
+FNCOUNT	2734965	types_equal
+FNCOUNT	1020064	type_from_string
+FNCOUNT	69383	split_tuple_type_names
+FNCOUNT	68178	base_type_name
+FNCOUNT	75984	is_union_name
+FNCOUNT	585618	is_enum_name
+FNCOUNT	4633050	tc_is_opaque_name
+FNCOUNT	501040	type_from_string_with_parser
+FNCOUNT	2431346	tc_str_index_of
+FNCOUNT	43875	extract_list_element_type
+FNCOUNT	2370128	tc_str_starts_with
+FNCOUNT	130904	tc_str_last_index_of
+FNCOUNT	21755	check_list_function_call
+FNCOUNT	10916641	check_builtin_function
+FNCOUNT	22722	extract_list_type_from_function
+FNCOUNT	4764	type_from_element_name
+FNCOUNT	1415592	type_to_string
+FNCOUNT	373496	type_kind_to_string
+FNCOUNT	5	env_new
+FNCOUNT	96430	symbol_new
+FNCOUNT	34776	empty_param_types
+FNCOUNT	38572	env_add_symbol
+FNCOUNT	172406982	env_copy_symbols
+FNCOUNT	4	typecheck_local_lets
+FNCOUNT	936730470	env_lookup
+FNCOUNT	1806	module_qualified_suffix
+FNCOUNT	215298	tc_str_ends_with
+FNCOUNT	828960	env_get_type
+FNCOUNT	86128	array_arithmetic_element
+FNCOUNT	562408	array_arithmetic_selected
+FNCOUNT	600418	check_binary_op
+FNCOUNT	279312	op_token_to_string
+FNCOUNT	211426	check_array_literal_context
+FNCOUNT	287182	check_constructor_argument
+FNCOUNT	1177074	tc_bound_name
+FNCOUNT	12721992	check_expr_node
+FNCOUNT	103974	array_elem_type_from_array_decl
+FNCOUNT	808009	check_let_statement
+FNCOUNT	205512	check_return_statement
+FNCOUNT	271420	check_set_statement
+FNCOUNT	105352	check_block_value
+FNCOUNT	1738574	check_statement_list
+FNCOUNT	97248	check_block
+FNCOUNT	530487	check_lambda_creation
+FNCOUNT	230719	check_function
+FNCOUNT	10	typecheck_output
+FNCOUNT	781644	apply_return_type_hint
+FNCOUNT	307773	apply_value_type_hint
+FNCOUNT	99932	purity_join
+FNCOUNT	12730	purity_local
+FNCOUNT	357	purity_add
+FNCOUNT	7101	purity_type
+FNCOUNT	444	purity_input_value
+FNCOUNT	2298744	purity_identifier
+FNCOUNT	8778	purity_call
+FNCOUNT	72140	purity_node
+FNCOUNT	2363280	purity_function
+FNCOUNT	133050	purity_summary
+FNCOUNT	16795557	typecheck_phase_with_shadows
+FNCOUNT	863865	nisa_ordinary_hex
+FNCOUNT	2823985	nisa_ordinary_tag
+FNCOUNT	325045	nisa_ordinary_contract
+FNCOUNT	34	nisa_ordinary_publication
+FNCOUNT	152	nisa_reset
+FNCOUNT	6248870	nisa_capture_find
+FNCOUNT	261353117	nisa_local_find
+FNCOUNT	185622674	nisa_intern
+FNCOUNT	4714174	nisa_decode_string
+FNCOUNT	10728936	nisa_escape_string
+FNCOUNT	163262	nisa_str_prelude
+FNCOUNT	333560	nisa_array_arithmetic_mnemonic
+FNCOUNT	464534	nisa_array_arithmetic_type
+FNCOUNT	236910	nisa_binop_mnemonic
+FNCOUNT	237600	nisa_line
+FNCOUNT	1537790	nisa_line_imm
+FNCOUNT	13620388	nisa_map_value_type
+FNCOUNT	758631	nisa_local_type_ok
+FNCOUNT	74848774	nisa_compact_type
+FNCOUNT	1985154	nisa_tuple_elements
+FNCOUNT	94162	nisa_is_arr_builtin
+FNCOUNT	218838	nisa_is_print_builtin
+FNCOUNT	4898919	nisa_list_removal
+FNCOUNT	4450980	nisa_is_list_insert
+FNCOUNT	4450980	nisa_is_list_free
+FNCOUNT	7262173	nisa_is_list_call
+FNCOUNT	891855	nisa_is_set_call
+FNCOUNT	14558	nisa_list_element_tag
+FNCOUNT	1106970	nisa_string_binary_opcode
+FNCOUNT	237981	nisa_is_inline_call
+FNCOUNT	131693974	nisa_struct_index
+FNCOUNT	4041388	nisa_opaque_index
+FNCOUNT	139169272	nisa_enum_index
+FNCOUNT	1667353	nisa_enum_receiver
+FNCOUNT	232912	nisa_value_type_matches
+FNCOUNT	1862980	nisa_union_index
+FNCOUNT	229510	nisa_union_supported
+FNCOUNT	616005	nisa_union_payload_owner
+FNCOUNT	220360	nisa_union_field
+FNCOUNT	737870	nisa_union_field_type
+FNCOUNT	49874240	nisa_field_shape_supported_seen
+FNCOUNT	31054486	nisa_record_shape_supported_seen
+FNCOUNT	64940	nisa_record_shape_supported
+FNCOUNT	51952	nisa_is_pin_record
+FNCOUNT	1215710	nisa_tuple_type_ok
+FNCOUNT	2223984	nisa_function_type_ok_seen
+FNCOUNT	218168	nisa_function_type_ok
+FNCOUNT	790610	nisa_type_ok_seen
+FNCOUNT	66460	nisa_type_ok
+FNCOUNT	154781	nisa_fresh
+FNCOUNT	56284	nisa_label_line
+FNCOUNT	1901284791	nisa_fn_index
+FNCOUNT	89357866	nisa_require_function
+FNCOUNT	312576	nisa_global_let_flags
+FNCOUNT	1222379852	nisa_global_find
+FNCOUNT	263254	nisa_emit_globals
+FNCOUNT	4093590	nisa_map_opcode
+FNCOUNT	1236701	nisa_map_result
+FNCOUNT	5170	nisa_emit_map_call
+FNCOUNT	270591	nisa_host_result
+FNCOUNT	27271	nisa_host_arity
+FNCOUNT	5914	nisa_host_parameter
+FNCOUNT	5310560	nisa_builtin_host_symbol
+FNCOUNT	1427558	nisa_call_host_symbol
+FNCOUNT	42188	nisa_import_find
+FNCOUNT	2012	nisa_import_add
+FNCOUNT	3428700	nisa_json_signature
+FNCOUNT	2647104	nisa_sqlite_signature
+FNCOUNT	259520	nisa_typed_artifact_signature
+FNCOUNT	870	nisa_artifact_parameter
+FNCOUNT	7044296	nisa_artifact_arity
+FNCOUNT	1735	nisa_artifact_result
+FNCOUNT	753	nisa_artifact_path
+FNCOUNT	3829	nisa_register_artifact
+FNCOUNT	1336	nisa_register_extern
+FNCOUNT	9299	nisa_emit_host_call
+FNCOUNT	442437	nisa_get_call
+FNCOUNT	1317908	nisa_qualified_callable_global
+FNCOUNT	11249306	nisa_indirect_call
+FNCOUNT	10363545	nisa_call_name
+FNCOUNT	1964814846	nisa_call_index
+FNCOUNT	228824	nisa_declared_push
+FNCOUNT	666826	nisa_element_type
+FNCOUNT	321238	nisa_access_result
+FNCOUNT	92065	nisa_push_container_type
+FNCOUNT	60377212	nisa_expr_type
+FNCOUNT	228802	nisa_expr_is_string
+FNCOUNT	1368	nisa_is_map_constructor
+FNCOUNT	21480	nisa_array_value_matches
+FNCOUNT	11047710	nisa_emit_expected_expr
+FNCOUNT	2468913	nisa_emit_call_args
+FNCOUNT	5164021	nisa_emit_struct_literal
+FNCOUNT	2075478	nisa_qualified_global
+FNCOUNT	7406808	nisa_emit_field_access
+FNCOUNT	812	nisa_temp_local
+FNCOUNT	294	nisa_increment_local
+FNCOUNT	1274	nisa_emit_range
+FNCOUNT	1008	nisa_emit_filled_array
+FNCOUNT	76491	nisa_emit_push_call
+FNCOUNT	15472	nisa_emit_set_call
+FNCOUNT	460688	nisa_functional_name
+FNCOUNT	8	nisa_callable_publication
+FNCOUNT	5178186	nisa_emit_call
+FNCOUNT	166352	nisa_emit_logical_binary
+FNCOUNT	10234840	nisa_emit_expr
+FNCOUNT	1190179	nisa_statements_fall_through
+FNCOUNT	397788	nisa_block_falls_through
+FNCOUNT	3855667	nisa_stmt_terminates
+FNCOUNT	352229	nisa_emit_if
+FNCOUNT	97024	nisa_emit_while
+FNCOUNT	1456	nisa_emit_for
+FNCOUNT	34488	nisa_emit_assert
+FNCOUNT	159483	nisa_call_has_result
+FNCOUNT	531684	nisa_named_scalar
+FNCOUNT	251096	nisa_local_name_begin
+FNCOUNT	619632	nisa_emit_typed_let
+FNCOUNT	3039384	nisa_emit_stmt
+FNCOUNT	7412536	nisa_emit_statements
+FNCOUNT	175632	nisa_emit_block
+FNCOUNT	397182	nisa_result_tag
+FNCOUNT	976561	nisa_emit_function
+FNCOUNT	3	nanoisa_emit_program_nasm
+FNCOUNT	9080	nisa_shadow_name
+FNCOUNT	114391	nanoisa_emit_shadows_nasm
+FNCOUNT	55826	nisa_emit_module_nasm
+FNCOUNT	8	assemble_text_save
+FNCOUNT	135	module_header_constants
+FNCOUNT	30	module_artifact
+FNCOUNT	2	diag_list_new
+FNCOUNT	6	diag_list_count
+FNCOUNT	11	diag_list_has_errors
+FNCOUNT	21	module_cache_new
+FNCOUNT	42246	mb_header_value
+FNCOUNT	5727276	mb_active
+FNCOUNT	34	mb_reset
+FNCOUNT	602405466	mb_owner
+FNCOUNT	11669322	mb_binding_key
+FNCOUNT	18783118	mb_binding_index
+FNCOUNT	160802	mb_add_target
+FNCOUNT	8232	mb_add
+FNCOUNT	12956702	mb_lookup
+FNCOUNT	77343911	mb_resolve
+FNCOUNT	10751831	mb_target_owner
+FNCOUNT	3	mb_set_sources
+FNCOUNT	90	mb_source
+FNCOUNT	50376	nb_key
+FNCOUNT	108560	nb_register
+FNCOUNT	120065	nb_import
+FNCOUNT	2133230	nb_name_char
+FNCOUNT	2178209	nb_scoped_type
+FNCOUNT	45176	nb_type
+FNCOUNT	8893	nb_scoped_types
+FNCOUNT	256	nb_types
+FNCOUNT	519412	nb_rewrite
+FNCOUNT	528	canonical
+FNCOUNT	513	parse_options
+FNCOUNT	82	parse_args
+FNCOUNT	24885234	nlc_str_starts_with
+FNCOUNT	16256	nlc_str_ends_with
+FNCOUNT	55764	nlc_str_index_of
+FNCOUNT	119736	nlc_str_last_index_of
+FNCOUNT	4	nlc_hashset_new_string
+FNCOUNT	352	nlc_hashset_has_string
+FNCOUNT	364	nlc_hashset_add_string
+FNCOUNT	4814	nl_path_dirname
+FNCOUNT	6840	nl_path_join
+FNCOUNT	27	parse_env_int
+FNCOUNT	81	find_repo_root
+FNCOUNT	9	compiler_tool_root
+FNCOUNT	60127807	split_lines
+FNCOUNT	2302012	parse_import_path_from_line
+FNCOUNT	611948	strip_pub_decl
+FNCOUNT	6318	resolve_import_path
+FNCOUNT	2492187	collect_files_dfs
+FNCOUNT	452313	merged_file_owner
+FNCOUNT	11164963	merged_function_names_valid
+FNCOUNT	15805446	merged_binding_prefix
+FNCOUNT	14585	merged_path_owner
+FNCOUNT	6385	merged_qualified_calls_valid
+FNCOUNT	891	bind_header_lines
+FNCOUNT	28586755	bind_merged_functions
+FNCOUNT	8	remap_diagnostics
+FNCOUNT	1021702	merge_source_parts
+FNCOUNT	2213311	merge_with_imports
+FNCOUNT	3220	native_shell_quote
+FNCOUNT	13	bytecode_shadow_cleanup
+FNCOUNT	2001	outputs_preserve_sources
+FNCOUNT	6	output_destinations_distinct
+FNCOUNT	308	compile_program
+FNCOUNT	45	main
+FNCOUNT	2731947	token_literal_value_bytes
+FNCOUNT	5340318	declaration_local_lets
+FNCOUNT	74448039	function_type_parts
+FNCOUNT	22377042	nb_record
+FNCOUNT	8081818	nb_record_has_owner
+FNCOUNT	564394	nanoisa_has_borrows
+FNCOUNT	233	__init__
+
+╔══════════════════════════════════════════════════════════════╗
+║  NanoLang v0.6 - Self-Hosted Compiler                       ║
+╚══════════════════════════════════════════════════════════════╝
+
+Input:  src_nano/nanoc_v06.nano
+Output: /private/tmp/nanolang-bootstrap-profile-20261009/full-generation.nvm
+
+[0/5] Resolving imports...
+  ✓ Merged source: 1646635 bytes
+[1/5] Lexing...
+  ✓ Tokenized 263423 tokens
+[2/5] Parsing...
+  ✓ Parsed 949 functions
+[2.5/5] Processing imports...
+  ✓ Loaded 0 type symbols from imports
+[3/5] NSType checking...
+  ✓ NSType checking passed

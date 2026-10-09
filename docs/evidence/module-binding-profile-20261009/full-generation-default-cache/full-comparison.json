@@ -1,0 +1,70 @@
+{
+  "stage1_sha256": "ea68cde8a4897e9d7c43b0cc3ea40ca09e6fe838986b68b3d035a2ce12a89495",
+  "candidate_sha256": "abf923f6264e937534ffe7a8ffb402192b15ec7d5c06811216033acf0fc786f0",
+  "raw_equal": false,
+  "stage1_seconds": 879.1044737920165,
+  "candidate_seconds": 230.90882420900743,
+  "candidate_instructions": 10613576530,
+  "top_functions": [
+    [
+      1964814846,
+      "nisa_call_index"
+    ],
+    [
+      1901284791,
+      "nisa_fn_index"
+    ],
+    [
+      1222379852,
+      "nisa_global_find"
+    ],
+    [
+      948404780,
+      "parser_get_function"
+    ],
+    [
+      936730470,
+      "env_lookup"
+    ],
+    [
+      602405466,
+      "mb_owner"
+    ],
+    [
+      373614560,
+      "parser_get_function_count"
+    ],
+    [
+      261353117,
+      "nisa_local_find"
+    ],
+    [
+      185622674,
+      "nisa_intern"
+    ],
+    [
+      172406982,
+      "env_copy_symbols"
+    ],
+    [
+      139169272,
+      "nisa_enum_index"
+    ],
+    [
+      131693974,
+      "nisa_struct_index"
+    ],
+    [
+      121921173,
+      "extract_user_struct_metadata"
+    ],
+    [
+      89357866,
+      "nisa_require_function"
+    ],
+    [
+      85344357,
+      "tokenize_string"
+    ]
+  ]
+}

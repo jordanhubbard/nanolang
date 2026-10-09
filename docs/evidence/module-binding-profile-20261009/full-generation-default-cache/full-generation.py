@@ -10,7 +10,7 @@ command=[str(work/'nano_vm'),'--profile-isa',str(work/'full-profile.json'),str(w
 report={'command':command,'source_commit':'af2b25da64679048f99c6d07b122eda132a54bc0','compiler_sha256':hashlib.sha256((work/'compiler-indexed.nvm').read_bytes()).hexdigest(),'timeout_seconds':1800}
 start=time.monotonic()
 with (work/'full-generation.log').open('w') as log:
- process=subprocess.Popen(command,cwd=root,stdout=log,stderr=subprocess.STDOUT,start_new_session=True,env={**os.environ,'CC':str(guard),'NANO_CC':str(guard),'NANOLANG_ROOT':str(root),'NANO_MODULE_PATH':str(root/'modules'),'NANO_BUILD_CACHE':str(root/'obj/module_cache'),'NANO_VM':str(root/'bin/nano_vm'),'NANOLANG_BOOTSTRAP_NO_CC':'1'})
+ process=subprocess.Popen(command,cwd=root,stdout=log,stderr=subprocess.STDOUT,start_new_session=True,env={**os.environ,'CC':str(guard),'NANO_CC':str(guard),'NANOLANG_ROOT':str(root),'NANO_VM':str(root/'bin/nano_vm'),'NANOLANG_BOOTSTRAP_NO_CC':'1'})
  report['pid']=process.pid;(work/'full-generation.json').write_text(json.dumps(report,indent=2)+'\n')
  try:report['exit_code']=process.wait(timeout=1800)
  except subprocess.TimeoutExpired:
