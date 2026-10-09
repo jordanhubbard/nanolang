@@ -1,5 +1,9 @@
 # My Roadmap
 
+- [x] I preserve explicit module functions over implicit C header constants under #982. My [declaration-priority checkpoint](evidence/sqlite-declaration-priority-20261009) passes the original SQLite CRUD/dependency shadows, callable local binding and noncallable refusal/output-preservation controls on Linux ARM64 with GCC. Darwin builds successfully and honestly skips the absent-header condition; hosted candidate qualification and the separate native/header-value gaps remain open.
+
+- [ ] I complete SQLite artifact adapters for the One IR native path under [#984](https://github.com/jordanhubbard/nanolang/issues/984), parent #976. The corrected Linux source compiles and executes in NanoVM, but `nvm2c` refuses artifact import `nl_sqlite3_version` for lack of an exact typed adapter. I require the declared SQLite signatures and owning artifact, borrowed-string snapshots, real prepared CRUD, refusal/cleanup controls and paired self-hosted/native coverage; a legacy AST-to-C result does not satisfy this gate.
+
 - [ ] I distinguish a Linux C-seed native macro-name collision from the repaired VM function binding under #982/#976. An additional `let SQLITE_OK: fn() -> int` control executes in NanoVM but legacy C generation exposes the local name to sqlite3.h macro expansion. I preserve this counterexample; the final One IR native regression must use `nvm2c`, and I do not conflate the legacy AST-to-C route with that required product path.
 
 - [ ] I investigate retained header-constant values in VM shadow lowering under #982/#976. While qualifying the Linux SQLite declaration-collision repair, a separate positive control using the unrelated `SQLITE_BUSY` constant passes type checking but shadow compilation reports it undefined. I retain this additional failure and keep it separate from function-name precedence; I do not infer full header-value support from the repaired SQLite example.

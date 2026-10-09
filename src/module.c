@@ -765,8 +765,17 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
                 if (constants && const_count > 0) {
                     /* Add constants to environment as immutable symbols */
                     for (int j = 0; j < const_count; j++) {
-                        /* Check if symbol already exists (from manual declarations) */
+                        /* I keep this module's explicit functions authoritative
+                         * over constants discovered implicitly in its headers. */
                         bool exists = false;
+                        for (int k = 0; k < module_ast->as.program.count; k++) {
+                            ASTNode *declaration = module_ast->as.program.items[k];
+                            if (declaration->type == AST_FUNCTION &&
+                                strcmp(declaration->as.function.name, constants[j].name) == 0) {
+                                exists = true;
+                                break;
+                            }
+                        }
                         for (int k = 0; k < env->symbol_count; k++) {
                             if (strcmp(env->symbols[k].name, constants[j].name) == 0) {
                                 exists = true;

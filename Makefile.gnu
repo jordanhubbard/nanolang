@@ -3188,6 +3188,12 @@ test-bootstrap-dependencies: test-bootstrap-components
 .PHONY: test-make-header-dependencies
 .PHONY: test-parser-parenthesized
 .PHONY: test-transpiler-externs
+.PHONY: test-header-constant-functions
+test-header-constant-functions: nano_virt nano_vm $(COMPILER_C)
+	python3 -m unittest -v tests.test_header_constant_functions
+test-units: test-header-constant-functions
+test-vm-examples: test-header-constant-functions
+
 .PHONY: test-module-introspection
 test-module-introspection: $(COMPILER_C)
 	$(COMPILER_C) tests/module_introspection.nano -o $(BIN_DIR)/module_introspection_test
