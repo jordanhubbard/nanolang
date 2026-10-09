@@ -1,0 +1,196 @@
+--- a/src_nano/compiler/module_bindings.nano
++++ b/src_nano/compiler/module_bindings.nano
+@@ -4,6 +4,7 @@
+ let mut mb_global_import_names: array<string> = []
+ let mut mb_global_import_targets: array<string> = []
+ let mut mb_global_import_definitions: array<int> = []
++let mut mb_binding_indices: HashMap<string, int> = (map_new)
+ let mut mb_enabled: bool = false
+ let mut mb_file_starts: array<int> = []
+ let mut mb_owners: array<int> = []
+@@ -63,6 +64,7 @@
+ }
+ 
+ pub fn mb_reset(starts: array<int>) -> void {
++    set mb_binding_indices (map_new)
+     set mb_global_import_owners []
+     set mb_global_import_names []
+     set mb_global_import_targets []
+@@ -104,14 +106,43 @@
+     assert (== (mb_owner 1) (- 0 1))
+ }
+ 
++fn mb_binding_key(owner: int, name: string) -> string {
++    return (+ (int_to_string owner) (+ ":" name))
++}
++shadow mb_binding_key {
++    assert (!= (mb_binding_key 1 "2:x") (mb_binding_key 12 "x"))
++    assert (!= (mb_binding_key -1 "x") (mb_binding_key 1 "x"))
++    assert (== (mb_binding_key 0 "") "0:")
++}
++
++fn mb_binding_index(owner: int, name: string) -> int {
++    let key: string = (mb_binding_key owner name)
++    if (map_has mb_binding_indices key) { return (map_get mb_binding_indices key) }
++    return -1
++}
++shadow mb_binding_index {
++    (mb_reset [1, 8])
++    assert (== (mb_binding_index 0 "answer") -1)
++    (mb_add_target 0 "answer" "first" 1)
++    (mb_add_target 1 "answer" "second" 0)
++    assert (== (mb_binding_index 0 "answer") 0)
++    assert (== (mb_binding_index 1 "answer") 1)
++    (mb_add_target 0 "answer" "ignored" 0)
++    assert (== (mb_lookup 0 "answer") "first")
++    assert (== (mb_target_owner 0 "answer") 1)
++    (mb_reset [1])
++    assert (== (mb_binding_index 0 "answer") -1)
++    (mb_add_target 0 "answer" "fresh" 0)
++    assert (== (mb_lookup 0 "answer") "fresh")
++    assert (== (mb_target_owner 0 "answer") 0)
++    (mb_reset [])
++}
++
+ pub fn mb_add_target(owner: int, name: string, target: string, definition_owner: int) -> void {
+     if (not (mb_active)) { return }
+     # I install local declarations before imports, so local definitions win.
+-    let mut i: int = 0
+-    while (< i (array_length mb_names)) {
+-        if (and (== (at mb_owners i) owner) (== (at mb_names i) name)) { return }
+-        set i (+ i 1)
+-    }
++    if (>= (mb_binding_index owner name) 0) { return }
++    (map_put mb_binding_indices (mb_binding_key owner name) (array_length mb_names))
+     set mb_owners (array_push mb_owners owner)
+     set mb_names (array_push mb_names name)
+     set mb_targets (array_push mb_targets target)
+@@ -174,13 +205,8 @@
+ 
+ pub fn mb_lookup(owner: int, name: string) -> string {
+     if (not (mb_active)) { return name }
+-    let mut i: int = 0
+-    while (< i (array_length mb_names)) {
+-        if (and (== (at mb_owners i) owner) (== (at mb_names i) name)) {
+-            return (at mb_targets i)
+-        }
+-        set i (+ i 1)
+-    }
++    let index: int = (mb_binding_index owner name)
++    if (>= index 0) { return (at mb_targets index) }
+     return name
+ }
+ shadow mb_lookup {
+@@ -213,13 +239,8 @@
+ # I retain import provenance separately from the C-linkage spelling.
+ pub fn mb_target_owner(owner: int, name: string) -> int {
+     if (not (mb_active)) { return -1 }
+-    let mut i: int = 0
+-    while (< i (array_length mb_names)) {
+-        if (and (== (at mb_owners i) owner) (== (at mb_names i) name)) {
+-            return (at mb_definition_owners i)
+-        }
+-        set i (+ i 1)
+-    }
++    let index: int = (mb_binding_index owner name)
++    if (>= index 0) { return (at mb_definition_owners index) }
+     return owner
+ }
+ shadow mb_target_owner {
+--- a/tests/test_selfhost_module_bindings.py
++++ b/tests/test_selfhost_module_bindings.py
+@@ -11,6 +11,10 @@
+ 
+ 
+ class ModuleBindings(unittest.TestCase):
++    def test_binding_table_matches_linear_reference(self):
++        source = (ROOT / "tests/fixtures/module_binding_reference.nano.txt").read_text()
++        self.check({}, source.replace("@MODULE_BINDINGS@", str(ROOT / "src_nano/compiler/module_bindings.nano")))
++
+     def check(self, modules, source):
+         with tempfile.TemporaryDirectory(prefix="nano-bindings-") as tmp:
+             directory = Path(tmp)
+--- /dev/null
++++ b/tests/fixtures/module_binding_reference.nano.txt
+@@ -0,0 +1,66 @@
++module "@MODULE_BINDINGS@" as bindings
++fn check_bindings() -> int {
++    let mut seed: int = 17
++    let mut iteration: int = 0
++    while (< iteration 4) {
++        (bindings.mb_reset [1, 8, 16])
++        let mut owners: array<int> = []
++        let mut names: array<string> = []
++        let mut targets: array<string> = []
++        let mut definitions: array<int> = []
++        let mut n: int = 0
++        while (< n 512) {
++            set seed (% (+ (* seed 251) 11) 32749)
++            let owner: int = (- (% seed 7) 2)
++            let name: string = (+ "key:" (int_to_string (% seed 47)))
++            let target: string = (+ "target:" (int_to_string n))
++            let definition: int = (% seed 3)
++            let mut found: int = -1
++            let mut i: int = 0
++            while (< i (array_length names)) {
++                if (and (== (at owners i) owner) (== (at names i) name)) { set found i }
++                set i (+ i 1)
++            }
++            if (< found 0) {
++                set found (array_length names)
++                set owners (array_push owners owner)
++                set names (array_push names name)
++                set targets (array_push targets target)
++                set definitions (array_push definitions definition)
++            }
++            (bindings.mb_add_target owner name target definition)
++            assert (== (bindings.mb_lookup owner name) (at targets found))
++            assert (== (bindings.mb_target_owner owner name) (at definitions found))
++            assert (== (bindings.mb_lookup owner "missing") "missing")
++            assert (== (bindings.mb_target_owner owner "missing") owner)
++            set n (+ n 1)
++        }
++        let mut j: int = 0
++        while (< j (array_length names)) {
++            assert (== (bindings.mb_lookup (at owners j) (at names j)) (at targets j))
++            assert (== (bindings.mb_target_owner (at owners j) (at names j)) (at definitions j))
++            set j (+ j 1)
++        }
++        set iteration (+ iteration 1)
++    }
++    (bindings.mb_reset [1, 8])
++    (bindings.mb_add_target 1 "2:x" "first" 0)
++    (bindings.mb_add_target 12 "x" "second" 1)
++    assert (== (bindings.mb_lookup 1 "2:x") "first")
++    assert (== (bindings.mb_lookup 12 "x") "second")
++    (bindings.mb_add_target 0 "value" "local" 0)
++    assert (bindings.mb_import_global 0 "value" "imported" 1)
++    assert (bindings.mb_import_global 0 "value" "imported" 1)
++    assert (not (bindings.mb_import_global 0 "value" "other" 1))
++    assert (not (bindings.mb_import_global 0 "value" "imported" 0))
++    assert (== (bindings.mb_lookup 0 "value") "local")
++    assert (== (bindings.mb_target_owner 0 "value") 0)
++    (bindings.mb_reset [])
++    (bindings.mb_add_target 0 "value" "ignored" 0)
++    assert (== (bindings.mb_lookup 0 "value") "value")
++    assert (== (bindings.mb_target_owner 0 "value") -1)
++    return 0
++}
++shadow check_bindings { assert (== (check_bindings) 0) }
++fn main() -> int { return (check_bindings) }
++shadow main { assert (== (main) 0) }
+--- a/Makefile.gnu
++++ b/Makefile.gnu
+@@ -2847,7 +2847,11 @@
+ 
+ .PHONY: test-selfhost-module-bindings
+ test-selfhost-module-bindings: bootstrap3
+-	@python3 -m unittest tests.test_selfhost_module_bindings
++	@for compiler in $(NANOC_STAGE1) $(NANOC_STAGE2); do \
++		NANOLANG_SELFHOST_COMPILER="$$compiler" python3 -m unittest -v tests.test_selfhost_module_bindings || exit $$?; \
++	done
++
++test-units: test-selfhost-module-bindings
+ 
+ # I keep tool builds ordered until compiler-private generic-list generation is verified.
+ .PHONY: test-language-contract test-language-contract-runner

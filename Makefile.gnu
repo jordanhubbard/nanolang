@@ -2847,7 +2847,11 @@ test-selfhost-cli: bootstrap3
 
 .PHONY: test-selfhost-module-bindings
 test-selfhost-module-bindings: bootstrap3
-	@python3 -m unittest tests.test_selfhost_module_bindings
+	@for compiler in $(NANOC_STAGE1) $(NANOC_STAGE2); do \
+		NANOLANG_SELFHOST_COMPILER="$$compiler" python3 -m unittest -v tests.test_selfhost_module_bindings || exit $$?; \
+	done
+
+test-units: test-selfhost-module-bindings
 
 # I keep tool builds ordered until compiler-private generic-list generation is verified.
 .PHONY: test-language-contract test-language-contract-runner

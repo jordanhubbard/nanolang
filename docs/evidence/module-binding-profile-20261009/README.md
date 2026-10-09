@@ -19,3 +19,7 @@ My corrected guarded full-source generation passes in 230.909s, versus 879.104s 
 A second diagnostic uses the shared cache and passes in 232.726s. Verification passes and the guard records no forbidden native compiler work. Textual assembly again differs only at the three host-library references, but the library bytes differ too. I did not copy Make's exported linker flags into the diagnostic environment. I retain the raw inequality, full diff, library hashes and environment difference under full-generation-shared-cache. I do not normalize this into a raw-equality claim. The optimization still needs integration and its own consistently configured fixed-point/platform gates.
 
 The af2b25da6 bootstrap passed Stage 1 verification, native linking and smoke execution and remains live in Stage 2. Diagnostic work can publish additional immutable cache generations; I leave its actual terminal authoritative and do not change source, tools or cache pointers to manufacture equality.
+
+## My integration
+
+After the af2b25da6 bootstrap completed, I applied the prepared binding index. I add the linear-reference fixture to tests/fixtures and its regression to tests/test_selfhost_module_bindings.py. The Make target now runs the full binding suite through each installed stage and participates in test-units. The prepared ten-method suite passes; after integration, full compiler shadows and all ten methods pass again through the freshly compiled component (8.678s). The indexed implementation still requires its own fresh bootstrap and hosted qualification.

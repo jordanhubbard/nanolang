@@ -1,0 +1,15 @@
+test_binding_table_matches_linear_reference (tests.test_selfhost_module_bindings.ModuleBindings.test_binding_table_matches_linear_reference) ... ok
+test_distinct_signatures_and_aggregate_calls (tests.test_selfhost_module_bindings.ModuleBindings.test_distinct_signatures_and_aggregate_calls) ... ok
+test_function_value_alias_and_callable_parameter (tests.test_selfhost_module_bindings.ModuleBindings.test_function_value_alias_and_callable_parameter) ... ok
+test_generated_name_does_not_capture_user_names (tests.test_selfhost_module_bindings.ModuleBindings.test_generated_name_does_not_capture_user_names) ... ok
+test_lexer_positions_after_physical_and_escaped_newlines (tests.test_selfhost_module_bindings.ModuleBindings.test_lexer_positions_after_physical_and_escaped_newlines) ... ok
+test_loop_and_match_binders_do_not_escape (tests.test_selfhost_module_bindings.ModuleBindings.test_loop_and_match_binders_do_not_escape) ... ok
+test_multiline_literal_preserves_next_module_owner (tests.test_selfhost_module_bindings.ModuleBindings.test_multiline_literal_preserves_next_module_owner) ... ok
+test_reused_aliases_and_same_basename (tests.test_selfhost_module_bindings.ModuleBindings.test_reused_aliases_and_same_basename) ... ok
+test_selective_alias_preserves_local_string_and_field (tests.test_selfhost_module_bindings.ModuleBindings.test_selective_alias_preserves_local_string_and_field) ... ok
+test_unknown_qualified_name_preserves_output (tests.test_selfhost_module_bindings.ModuleBindings.test_unknown_qualified_name_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 8.678s
+
+OK
