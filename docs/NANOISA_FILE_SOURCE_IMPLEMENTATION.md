@@ -502,3 +502,7 @@ correction. I may therefore reuse exact18334 bootstrap products after full
 source/product identity proof, while always freshly building this changed
 publisher and its fixture/module outputs. Original bootstrap and sanitizer pins
 remain distinct; no fresh-bootstrap or File service execution claim follows.
+
+## My integrated origin binding
+
+I now bind C service declarations in the real import loader to environment-owned canonical source paths before aliases are applied. My Nano driver binds the parser nodes from the existing exact per-line source map and retains original line/column locations alongside the merged positions. Both paths validate before changing origin indices. I qualify the C recursive loader, paired source helpers and a [fresh full Darwin bootstrap](evidence/service-origins-bootstrap-4bf302505/README.md). The companion reader is still not invoked by either frontend; complete namespace resolution and executable File source admission remain open.

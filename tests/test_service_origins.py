@@ -39,6 +39,25 @@ class ServiceOrigins(unittest.TestCase):
                     self.run_checked([ROOT / "bin/nano_vm", "--verify-only", module])
                     self.assertIn("PASS merged service origins", self.run_checked([ROOT / "bin/nano_vm", module]))
 
+    def test_actual_drivers_reject_duplicate_service_origins_before_lowering(self):
+        with tempfile.TemporaryDirectory(prefix="nano-service-origin-drivers-") as tmp:
+            work = Path(tmp)
+            source = work / "binding.nano"
+            declaration = 'service "nsi:nanolang/filesystem" catalog 1 from "interface.nsi.json"\n'
+            source.write_text(declaration * 2)
+            for compiler in ("nanoc_c", "nano_virt", "nanoc_stage1", "nanoc_stage2"):
+                with self.subTest(compiler=compiler):
+                    output = work / (compiler + ".out")
+                    output.write_bytes(b"prior-output")
+                    command = [ROOT / "bin" / compiler, source, "-o", output]
+                    if compiler != "nanoc_c":
+                        command.append("--emit-nvm")
+                    result = subprocess.run(list(map(str, command)), cwd=ROOT,
+                                            capture_output=True, text=True, timeout=60)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertIn("I cannot retain the original source", result.stdout + result.stderr)
+                    self.assertEqual(output.read_bytes(), b"prior-output")
+
 
 if __name__ == "__main__":
     unittest.main()
