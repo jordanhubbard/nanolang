@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0036] I cannot verify ownership: I cannot use a moved value: value (/private/tmp/nanolang-selfhost-union-final/installed/GenericSelectedUnionStage1/test_duplicate_consume_rejected/main.nano:22:63)

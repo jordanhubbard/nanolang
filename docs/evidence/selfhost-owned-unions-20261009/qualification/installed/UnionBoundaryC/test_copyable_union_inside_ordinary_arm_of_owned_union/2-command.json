@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nano_vm",
+    "--verify-only",
+    "/private/tmp/nanolang-selfhost-union-final/installed/UnionBoundaryC/test_copyable_union_inside_ordinary_arm_of_owned_union/main.nvm"
+  ],
+  "exit": 0
+}

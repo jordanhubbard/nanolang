@@ -1,0 +1,5 @@
+NSType checking failed
+Diagnostics:
+  [E035] I require unconditional coverage of every match value (/private/tmp/nanolang-selfhost-union-fresh-installed/installed/GenericSelectedUnionStage2/test_incomplete_match_rejected/main.nano:6:51)
+  [E0036] I cannot verify ownership: I require an exhaustive unguarded owned match with supported concrete payloads (/private/tmp/nanolang-selfhost-union-fresh-installed/installed/GenericSelectedUnionStage2/test_incomplete_match_rejected/main.nano:6:51)
+  [E0036] I cannot verify ownership: resource remains live at scope exit: value (/private/tmp/nanolang-selfhost-union-fresh-installed/installed/GenericSelectedUnionStage2/test_incomplete_match_rejected/main.nano:6:12)

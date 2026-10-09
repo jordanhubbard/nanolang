@@ -14,10 +14,12 @@ from tests.test_owned_global_source import OwnedGlobalSource as _GlobalSources
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class OwnedGlobalProducer(_GlobalSources):
+class _ProducerRoute:
     @classmethod
     def setUpClass(cls):
         retained = os.environ.get('NANO_GLOBAL_PRODUCER_ARTIFACTS')
+        if retained:
+            retained = str(Path(retained) / cls.__name__)
         cls.temporary = None if retained else tempfile.TemporaryDirectory(prefix='nano-global-producer-')
         cls.work = Path(retained or cls.temporary.name)
         cls.work.mkdir(parents=True, exist_ok=True)
@@ -35,6 +37,9 @@ class OwnedGlobalProducer(_GlobalSources):
         if cls.temporary:
             cls.temporary.cleanup()
 
+    def program(self, source, accepted, diagnostics=None):
+        self.source_route(source, accepted, diagnostics)
+
     def source_route(self, source, accepted, diagnostics=None):
         work = self.work / self._testMethodName
         work.mkdir(exist_ok=True)
@@ -50,6 +55,7 @@ class OwnedGlobalProducer(_GlobalSources):
             'test_wrong_generic_union_global_alias_refused': 'exact declared global union identity',
             'test_resource_global_remains_refused': 'explicit copyable scalar or union global types',
         }
+        refusal.update(getattr(self, 'producer_refusals', {}))
         sequence = 0
 
         def run(argv, timeout=60, env=None):
@@ -97,6 +103,10 @@ class OwnedGlobalProducer(_GlobalSources):
                 success(run([native], timeout=10, env={**os.environ,
                     'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1',
                     'UBSAN_OPTIONS': 'halt_on_error=1'}))
+
+
+class OwnedGlobalProducer(_ProducerRoute, _GlobalSources):
+    pass
 
 
 del _GlobalSources

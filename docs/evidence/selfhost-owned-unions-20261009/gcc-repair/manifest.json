@@ -1,0 +1,38 @@
+[
+  {
+    "method": "test_popped_closure_survives_owner_reuse_and_collection",
+    "command": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-O0",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-c",
+      "/private/tmp/nanolang-ci-gcc-observers/test_popped_closure_survives_owner_reuse_and_collection.c",
+      "-o",
+      "/private/tmp/nanolang-ci-gcc-observers/test_popped_closure_survives_owner_reuse_and_collection.o"
+    ],
+    "exit": 0,
+    "source_sha256": "7d32521b58ea6c73132b15e320ec7d711807bd916431ee7f117b67ad2e77467a"
+  },
+  {
+    "method": "test_record_children_survive_owner_reuse_and_collection",
+    "command": [
+      "/opt/homebrew/bin/gcc-16",
+      "-std=c11",
+      "-O0",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-c",
+      "/private/tmp/nanolang-ci-gcc-observers/test_record_children_survive_owner_reuse_and_collection.c",
+      "-o",
+      "/private/tmp/nanolang-ci-gcc-observers/test_record_children_survive_owner_reuse_and_collection.o"
+    ],
+    "exit": 0,
+    "source_sha256": "b63fe44ead58fa4464f831fb47f61d14c6f9228c1588be3a35b014ebeb6338e6"
+  }
+]

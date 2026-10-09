@@ -1,0 +1,11 @@
+In file included from src/nanovirt/codegen.c:4361:
+In function 'borrow_slot',
+    inlined from 'borrow_union_unpack' at src/nanovirt/borrow_codegen.inc:463:18:
+src/nanovirt/borrow_codegen.inc:274:173: error: 'layout' may be used uninitialized [-Werror=maybe-uninitialized]
+  274 |     unsigned i=b->count++;b->projection_parent[i]=-1;b->projection_field[i]=-1;b->advisory_names[i]=NULL;b->name_open[i]=false;b->names[i]=name;b->tags[i]=tag;b->layouts[i]=layout;
+      |                                                                                                                                                                ~~~~~~~~~~~~~^~~~~~~
+src/nanovirt/borrow_codegen.inc: In function 'borrow_union_unpack':
+src/nanovirt/borrow_codegen.inc:462:18: note: 'layout' was declared here
+  462 |         uint32_t layout;uint8_t tag=borrow_union_payload_type(b,instance,variant,f,NULL,&layout);
+      |                  ^~~~~~
+cc1: all warnings being treated as errors

@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nvm2c",
+    "/private/tmp/nanolang-selfhost-union-fresh-installed/installed/SelectedUnionStage1/test_ordinary_call_match_expression_and_statement/main.nvm",
+    "-o",
+    "/private/tmp/nanolang-selfhost-union-fresh-installed/installed/SelectedUnionStage1/test_ordinary_call_match_expression_and_statement/main.c"
+  ],
+  "exit": 0
+}

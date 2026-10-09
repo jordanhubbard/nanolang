@@ -1,0 +1,4 @@
+NSType checking failed
+Diagnostics:
+  [E0001] match arms must return same type (expected int, got void) (/private/tmp/nanolang-selfhost-union-final/installed/GenericSelectedUnionStage1/test_join_mismatch_rejected/main.nano:6:66)
+  [E0036] I cannot verify ownership: branches disagree on resource ownership: other (/private/tmp/nanolang-selfhost-union-final/installed/GenericSelectedUnionStage1/test_join_mismatch_rejected/main.nano:6:41)

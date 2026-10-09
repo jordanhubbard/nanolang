@@ -245,6 +245,7 @@ static bool borrow_register_union_depth(BorrowCG *b,const TypeInfo *info,ASTNode
             free_payload_type_info(payload);
             if(!tag){borrow_error(b,at,"exact concrete union payload fields");return false;}
             if(tag==TAG_STRUCT || tag==TAG_UNION)complete=true;
+            if(tag==TAG_UNION)b->unions[layout].complete=true;
             if(borrow_owned_type(b,tag,layout))owned=true;
         }
         fields+=(unsigned)definition->variant_field_counts[variant];
@@ -433,6 +434,7 @@ static bool borrow_declares_match_binding(ASTNode *n,const char *name) {
     }
 }
 static uint8_t borrow_union_payload_type(BorrowCG *b,unsigned instance,int variant,int field,ASTNode *at,uint32_t *layout) {
+    *layout=NVM_V2_NO_INDEX;
     if(instance>=b->union_count){borrow_error(b,at,"a registered concrete scalar union");return TAG_VOID;}
     UnionDef *definition=b->unions[instance].definition;
     if(variant<0 || variant>=definition->variant_count || field<0 ||

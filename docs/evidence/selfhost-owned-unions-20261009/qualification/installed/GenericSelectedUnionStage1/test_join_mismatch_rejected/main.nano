@@ -1,0 +1,11 @@
+resource struct Handle { fd: int }
+union Result<T, E> { Ok { value: T }, Err { error: E } }
+union Box<T> { Some { value: T }, None {} }
+fn close_handle(owner: Handle) -> int { let Handle { fd } = owner return fd }
+shadow close_handle { assert (== (close_handle Handle { fd: 7 }) 7) }
+fn joined(value: Result<Handle,string>, other: Handle) -> void { match value {
+ Ok(payload) => { let Result.Ok { value } = payload (close_handle value) (close_handle other) }
+ Err(payload) => { let Result.Err { error } = payload assert (== error "empty") }
+} }
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }

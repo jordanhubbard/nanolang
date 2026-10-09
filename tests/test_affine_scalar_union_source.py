@@ -104,7 +104,8 @@ shadow main { assert (== (main) 0) }
     return wrong
 }
 shadow main { assert (== (main) 17) }
-''', ('TYPE MISMATCH', 'matching scalar value-match result type', 'match arm')),
+''', ('TYPE MISMATCH', 'matching scalar value-match result type',
+      'matching exact value-match result type', 'match arm')),
     'incomplete_match': (REFUSAL_PREFIX + '''
     let choice: Choice<int,string> = Choice.Left { value: 17 }
     return match choice {
@@ -113,7 +114,8 @@ shadow main { assert (== (main) 17) }
     }
 }
 shadow main { assert (== (main) 17) }
-''', ('NON-EXHAUSTIVE MATCH', 'complete named scalar union match coverage', 'not total',
+''', ('NON-EXHAUSTIVE MATCH', 'complete named scalar union match coverage',
+      'complete named union match coverage', 'not total',
       'unconditional coverage of every match value')),
     'escaped_payload': (REFUSAL_PREFIX + '''
     let choice: Choice<int,string> = Choice.Left { value: 17 }

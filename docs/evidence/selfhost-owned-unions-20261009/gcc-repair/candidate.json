@@ -1,0 +1,25 @@
+{
+  "original_main_sha256": "14266fe7c4d021fcf7b00f06b0af6a283000d57f9a4c27f167bb3fe5caf09db8",
+  "original_include_sha256": "b205e4b4f7c1d7dfa26f4d069360c5c2952cf1529a0c6a2353018e0fb6091cee",
+  "candidate_include_sha256": "09af0147d2963895fbce5810ccf011e29662f8ec956281332dc9e9099ed2b46b",
+  "change": "I initialize the payload layout to NVM_V2_NO_INDEX before any refusal path.",
+  "scope": "I inline the corrected include in a temporary translation unit; repository compiler sources stay unchanged.",
+  "compiler": "/opt/homebrew/bin/gcc-16",
+  "compiler_version": "Homebrew GCC 16.2.0",
+  "baseline_compile_exit": 1,
+  "candidate_compile_exit": 0,
+  "flags": [
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-std=c99",
+    "-g",
+    "-O3",
+    "-ftree-vectorize",
+    "-fPIC",
+    "-Isrc",
+    "-Isrc/nanovirt",
+    "-D_GNU_SOURCE",
+    "-c"
+  ]
+}

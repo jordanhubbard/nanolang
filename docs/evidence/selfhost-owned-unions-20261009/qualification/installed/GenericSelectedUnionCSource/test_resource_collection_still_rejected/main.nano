@@ -1,0 +1,8 @@
+resource struct Handle { fd: int }
+union Result<T, E> { Ok { value: T }, Err { error: E } }
+union Box<T> { Some { value: T }, None {} }
+fn close_handle(owner: Handle) -> int { let Handle { fd } = owner return fd }
+shadow close_handle { assert (== (close_handle Handle { fd: 7 }) 7) }
+fn abandon(value: Box<array<Handle>>) -> void { }
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }

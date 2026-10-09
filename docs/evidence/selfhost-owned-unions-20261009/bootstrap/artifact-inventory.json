@@ -1,0 +1,152 @@
+[
+  {
+    "path": "00-seed.log",
+    "sha256": "cb29cfbbdec925f49396880a6231d57d386f4e57595dd74bcf2f6d5865f6ce91",
+    "bytes": 3009,
+    "text_archived": true
+  },
+  {
+    "path": "01-seed-verify.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "02-stage1.log",
+    "sha256": "79c0336e0fd9d0f417c0e5983bb5187a29ad7b9c9de7f7f9edc19147293d3f84",
+    "bytes": 2423,
+    "text_archived": true
+  },
+  {
+    "path": "03-stage1-verify.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "04-stage1-translate.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "05-stage1-native.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "06-stage1-hello-compile.log",
+    "sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55",
+    "bytes": 21,
+    "text_archived": true
+  },
+  {
+    "path": "07-stage1-hello-execute.log",
+    "sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55",
+    "bytes": 21,
+    "text_archived": true
+  },
+  {
+    "path": "08-stage2.log",
+    "sha256": "bb2ec8ad1449a60058213cf2a4e34eaf9a55e849a7a73440b982fd76e1963b22",
+    "bytes": 2423,
+    "text_archived": true
+  },
+  {
+    "path": "09-stage2-verify.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "10-stage2-translate.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "11-stage2-native.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "12-stage2-hello-compile.log",
+    "sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55",
+    "bytes": 21,
+    "text_archived": true
+  },
+  {
+    "path": "13-stage2-hello-execute.log",
+    "sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55",
+    "bytes": 21,
+    "text_archived": true
+  },
+  {
+    "path": "14-seed-final-verify.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "15-stage1-final-verify.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "16-stage2-final-verify.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "guard-native-compiler",
+    "sha256": "5ab97a04db32a1a0c389f04d44766042a4420d21b8e0a2a092a69e7d27e8947e",
+    "bytes": 6857,
+    "text_archived": false
+  },
+  {
+    "path": "host-cache-probes.log",
+    "sha256": "3653c82875f77041f2164ff1b0f688c4d7a9e7b4664940641fff0fa484ef4427",
+    "bytes": 3884,
+    "text_archived": true
+  },
+  {
+    "path": "manifest.json",
+    "sha256": "ba86f90f517823352b6b1350376bf69c886ce6861d387fa787c07d6dcd518838",
+    "bytes": 107072,
+    "text_archived": true
+  },
+  {
+    "path": "retained-host-inputs.json",
+    "sha256": "c44149a2678b000922b576a63c10308ad6352aeb53aeb57b3843cf605ef6e4de",
+    "bytes": 3467,
+    "text_archived": true
+  },
+  {
+    "path": "stage1-hello",
+    "sha256": "99776831bdbb486c4052e7f48931db3100195e4a6f4248003616a9be972a3e7f",
+    "bytes": 8514264,
+    "text_archived": false
+  },
+  {
+    "path": "stage1.c",
+    "sha256": "b921c3c4715d7fdc15224ff58302d67fc78adc58e8dee2db6832bdd458730540",
+    "bytes": 12231019,
+    "text_archived": true
+  },
+  {
+    "path": "stage2-hello",
+    "sha256": "99776831bdbb486c4052e7f48931db3100195e4a6f4248003616a9be972a3e7f",
+    "bytes": 8514264,
+    "text_archived": false
+  },
+  {
+    "path": "stage2.c",
+    "sha256": "b921c3c4715d7fdc15224ff58302d67fc78adc58e8dee2db6832bdd458730540",
+    "bytes": 12231019,
+    "text_archived": true
+  }
+]

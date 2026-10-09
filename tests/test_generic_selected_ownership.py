@@ -35,6 +35,10 @@ class GenericSelectedOwnership(unittest.TestCase):
     def check(self, source, accepted):
         generic.GenericAffineIdentity.check(self, source, accepted)
 
+    def program(self, source, accepted, diagnostics=None):
+        from tests import test_selected_variant_ownership as selected
+        selected.SelectedVariantOwnership.program(self, source, accepted, diagnostics)
+
     def test_resource_and_ordinary_selected_arms(self):
         self.check(PREFIX + CONSUME + MAIN, True)
 
@@ -133,9 +137,8 @@ shadow joined { let empty: Result<Handle,string> = Result.Err { error: "empty" }
 ''' + ENDING, False)
 
     def test_guarded_generic_match_remains_rejected(self):
-        from tests import test_selected_variant_ownership as selected
         source = PREFIX + CONSUME.replace('Ok(payload) =>', 'Ok(payload) if true =>') + MAIN
-        selected.SelectedVariantOwnership().program(source, False, {
+        self.program(source, False, {
             'nanoc_c': 'exhaustive unguarded owned match',
             'nanoc_stage1': 'exhaustive unguarded owned match',
             'nanoc_stage2': 'exhaustive unguarded owned match',

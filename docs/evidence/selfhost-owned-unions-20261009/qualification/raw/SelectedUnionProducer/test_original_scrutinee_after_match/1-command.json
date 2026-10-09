@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nanoisa_emit",
+    "/private/tmp/nanolang-selfhost-union-final/raw/SelectedUnionProducer/test_original_scrutinee_after_match/main.nano",
+    "-o",
+    "/private/tmp/nanolang-selfhost-union-final/raw/SelectedUnionProducer/test_original_scrutinee_after_match/main.nasm"
+  ],
+  "exit": 1
+}

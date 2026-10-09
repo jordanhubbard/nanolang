@@ -1,0 +1,5 @@
+NSType checking failed
+Diagnostics:
+  [E0036] I cannot verify ownership: I cannot partially move a resource field (/private/tmp/nanolang-selfhost-union-fresh-installed/installed/SelectedUnionStage1/test_partial_resource_field_move/main.nano:6:51)
+  [E0036] I cannot verify ownership: I cannot partially move a resource field (/private/tmp/nanolang-selfhost-union-fresh-installed/installed/SelectedUnionStage1/test_partial_resource_field_move/main.nano:6:79)
+  [E0036] I cannot verify ownership: resource remains live at scope exit: payload (/private/tmp/nanolang-selfhost-union-fresh-installed/installed/SelectedUnionStage1/test_partial_resource_field_move/main.nano:5:36)

@@ -1,0 +1,2 @@
+Warning at line 11, column 13: Unused variable 'empty'
+I could not compile shadows at line 0: I require I found invalid ownership declarations in my source borrow profile
