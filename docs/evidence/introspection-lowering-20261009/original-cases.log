@@ -1,0 +1,29 @@
+nl_functions_module_metadata compile 0  === Module Metadata Embedding Test ===
+Exported functions: 2
+Exported structs: 1
+✓ Module metadata embedded and extracted without crashing
+
+execute 0 === Module Metadata Embedding Test ===
+Exported functions: 2
+Exported structs: 1
+✓ Module metadata embedded and extracted without crashing
+ 
+nl_functions_module_introspection_flags compile 0  I passed unsafe and FFI module-introspection checks.
+
+execute 0 I passed unsafe and FFI module-introspection checks.
+ 
+test_module_introspection_exports compile 0  
+execute 0  
+test_module_introspection_import compile 0  
+execute 0 === Module Introspection Import Test ===
+Math.add(5, 3) = 8
+Module is unsafe: false
+Module has FFI: false
+Exported functions count: 4
+Expected: 4 functions (add, subtract, multiply, double)
+Exported structs count: 2
+Expected: 2 structs (Point, Rectangle)
+✓ All module introspection import tests passed!
+ 
+identity refusal 0 I rejected ambiguous module introspection identity.
+ 

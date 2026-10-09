@@ -4724,8 +4724,10 @@ test-units: test-nested-borrows
 test-nested-borrows: bootstrap nano_virt
 	python3 -m unittest -v tests.test_nested_borrows
 .PHONY: test-nanoisa-introspection
-test-nanoisa-introspection: nano_virt nano_vm nvm2c nvm2c-runtime
-	python3 -m unittest -v tests.test_nanoisa_introspection
+test-nanoisa-introspection: bootstrap3 nano_virt nano_vm nvm2c nvm2c-runtime
+	@for compiler in $(BIN_DIR)/nano_virt $(BIN_DIR)/nanoc_stage1 $(BIN_DIR)/nanoc_stage2; do \
+		NANOLANG_INTROSPECTION_COMPILER=$$compiler python3 -m unittest -v tests.test_nanoisa_introspection || exit $$?; \
+	done
 test-units: test-nanoisa-introspection
 
 .PHONY: test-canonical-vm-shadows

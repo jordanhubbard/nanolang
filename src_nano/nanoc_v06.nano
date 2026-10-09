@@ -24,6 +24,7 @@ module "modules/compiler_support/compiler_support.nano" as DriverSupport
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 import "src_nano/compiler/module_loader.nano"
 import "src_nano/compiler/module_bindings.nano"
+import "src_nano/compiler/module_introspection.nano"
 import "src_nano/compiler/nominal_bindings.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 from "std/fs.nano" import canonical
@@ -1291,6 +1292,7 @@ shadow merge_source_parts {
 }
 
 fn merge_with_imports(input_file: string) -> MergeResult {
+    (mi_reset)
     let start: string = (canonical input_file)
     if (== start "") { return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: "", root_line: 0 } }
     let mut repo_root: string = (find_repo_root (nl_path_dirname start))
@@ -1327,6 +1329,11 @@ fn merge_with_imports(input_file: string) -> MergeResult {
         set file_starts (array_push file_starts (+ merged_lines 1))
         if (== i (- (array_length files) 1)) { set root_line (+ merged_lines 1) }
         let src: string = (file_read (at files i))
+        if (< i (- (array_length files) 1)) {
+            if (not (mi_capture src (at files i))) {
+                return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: repo_root, root_line: 0 }
+            }
+        }
         let lines: array<string> = (split_lines src)
         let mut j: int = 0
         while (< j (array_length lines)) {

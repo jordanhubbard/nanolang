@@ -23,6 +23,7 @@ from "src_nano/compiler/declaration_ownership.nano" import declaration_local_let
 import "src_nano/parser.nano"
 import "src_nano/compiler/lexer.nano"
 import "src_nano/compiler/module_bindings.nano"
+import "src_nano/compiler/module_introspection.nano"
 module "modules/compiler_support/compiler_support.nano" as CompilerSupport
 from "src_nano/compiler/diagnostics.nano" import diag_list_new
 
@@ -2903,6 +2904,7 @@ shadow nisa_module_declarations_valid {
 }
 
 fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
+    if (!= (nisa_module_result function.name) "") { return 0 }
     if (>= (nisa_artifact_arity function.name) 0) { return (nisa_register_artifact parser function) }
     let result: string = (nisa_host_result function.name)
     if (or (== result "") (!= result function.return_type)) {
@@ -4636,10 +4638,86 @@ shadow nisa_emit_list_free {
     let _: int = (nisa_reset)
 }
 
+fn nisa_module_names(values: array<string>) -> string {
+    let done: string = (nisa_fresh)
+    let mut output: string = ""
+    let mut i: int = 0
+    while (< i (array_length values)) {
+        let next: string = (nisa_fresh)
+        set output (+ output (nisa_line "DUP"))
+        set output (+ output (nisa_line_imm "PUSH_I64" (int_to_string i)))
+        set output (+ output (nisa_line "I64_EQ"))
+        set output (+ output (nisa_line_imm "JMP_FALSE" next))
+        set output (+ output (nisa_line "POP"))
+        set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern (at values i))))
+        set output (+ output (nisa_line_imm "JMP" done))
+        set output (+ output (nisa_label_line next))
+        set i (+ i 1)
+    }
+    set output (+ output (nisa_line "POP"))
+    set output (+ output (nisa_line_imm "PUSH_STR" (nisa_intern "")))
+    return (+ output (nisa_label_line done))
+}
+shadow nisa_module_names {
+    let _: int = (nisa_reset)
+    assert (str_contains (nisa_module_names []) "POP\n  PUSH_STR")
+    assert (str_contains (nisa_module_names ["first", "second"]) "PUSH_I64 1")
+    let _: int = (nisa_reset)
+}
+
+fn nisa_emit_module_fact(parser: Parser, call: ASTCall, name: string) -> string {
+    let prefixes: array<string> = ["___module_is_unsafe_", "___module_has_ffi_", "___module_name_", "___module_path_", "___module_function_count_", "___module_struct_count_", "___module_function_name_", "___module_struct_name_"]
+    let mut kind: int = 0
+    while (< kind (array_length prefixes)) {
+        let prefix: string = (at prefixes kind)
+        if (str_starts_with name prefix) {
+            let suffix: string = (str_substring name (str_length prefix) (- (str_length name) (str_length prefix)))
+            let info: ModuleIntrospection = (mi_fact suffix)
+            if (< kind 6) {
+                if (!= call.arg_count 0) { return (nisa_fail "I require the declared module introspection signature") }
+            } else {
+                if (!= call.arg_count 1) { return (nisa_fail "I require the declared module introspection signature") }
+                let arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+                if (!= (nisa_expr_type parser arg.node_id arg.node_type) "int") { return (nisa_fail "I require an integer module introspection index") }
+                let evaluated: string = (nisa_emit_expr parser arg.node_id arg.node_type)
+                if (== kind 6) { return (+ evaluated (nisa_module_names info.functions)) }
+                return (+ evaluated (nisa_module_names info.structs))
+            }
+            if (< kind 2) {
+                let mut value: bool = info.is_unsafe
+                if (== kind 1) { set value info.has_ffi }
+                if value { return (nisa_line_imm "PUSH_BOOL" "1") }
+                return (nisa_line_imm "PUSH_BOOL" "0")
+            }
+            if (== kind 2) { return (nisa_line_imm "PUSH_STR" (nisa_intern suffix)) }
+            if (== kind 3) { return (nisa_line_imm "PUSH_STR" (nisa_intern info.path)) }
+            if (== kind 4) { return (nisa_line_imm "PUSH_I64" (int_to_string (array_length info.functions))) }
+            return (nisa_line_imm "PUSH_I64" (int_to_string (array_length info.structs)))
+        }
+        set kind (+ kind 1)
+    }
+    return (nisa_fail "I require a known module introspection operation")
+}
+shadow nisa_emit_module_fact {
+    let _: int = (nisa_reset)
+    (mi_reset)
+    assert (mi_capture "module probe pub fn visible() -> int { return 1 }" "/probe.nano")
+    let text: string = (nanoisa_emit_nasm "extern fn ___module_function_count_probe() -> int fn main() -> int { return (___module_function_count_probe) }")
+    assert (str_contains text "PUSH_I64 1")
+    assert (not (str_contains text "CALL_EXTERN"))
+    (mi_reset)
+    let _: int = (nisa_reset)
+}
+
 fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
     if (nisa_indirect_call parser call) { return (nisa_emit_indirect_call parser call) }
     let function_name: string = (nisa_call_name parser call)
     let declared_index: int = (nisa_call_index parser call)
+    if (and (>= declared_index 0) (!= (nisa_module_result function_name) "")) {
+        if (< (parser_get_function parser declared_index).body 0) {
+            return (nisa_emit_module_fact parser call function_name)
+        }
+    }
     if (nisa_declared_push parser call) {
         let declaration: ASTFunction = (parser_get_function parser declared_index)
         if (!= call.arg_count declaration.param_count) { return (nisa_fail "I require the declared push function arity") }
@@ -5878,7 +5956,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
             } else {
                 let function_name: string = (nisa_call_name parser call)
                 let call_index: int = (nisa_call_index parser call)
-                if (and (>= call_index 0) (>= (nisa_artifact_arity function_name) 0)) {
+                if (and (>= call_index 0) (or (>= (nisa_artifact_arity function_name) 0) (!= (nisa_module_result function_name) ""))) {
                     if (< (parser_get_function parser call_index).body 0) {
                         return (+ (nisa_emit_call parser call) (nisa_line "RET"))
                     }

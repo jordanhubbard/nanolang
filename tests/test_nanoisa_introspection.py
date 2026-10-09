@@ -37,6 +37,8 @@ class NanoisaIntrospection(unittest.TestCase):
             expected_function, expected_struct = ('', '') if empty else ('answer', 'Visible')
             source = work / 'main.nano'
             source.write_text(f'module {json.dumps(str(dependency))} as probe\n' + ''.join(declarations) +
+                'fn count() -> int { return (___module_function_count_reflection_probe) }\n'
+                'shadow count { assert true }\n'
                 'let mut evaluations: int = 0\n'
                 'fn index() -> int { set evaluations (+ evaluations 1) return 0 }\n'
                 'shadow index { assert true }\nfn main() -> int { unsafe {\n'
@@ -45,6 +47,7 @@ class NanoisaIntrospection(unittest.TestCase):
                 'assert (== (___module_name_reflection_probe) "reflection_probe")\n'
                 f'assert (== (___module_path_reflection_probe) {json.dumps(str(dependency))})\n'
                 f'assert (== (___module_function_count_reflection_probe) {0 if empty else 1})\n'
+                f'assert (== (count) {0 if empty else 1})\n'
                 f'assert (== (___module_struct_count_reflection_probe) {0 if empty else 1})\n'
                 f'assert (== (___module_function_name_reflection_probe (index)) {json.dumps(expected_function)})\n'
                 f'assert (== (___module_struct_name_reflection_probe 0) {json.dumps(expected_struct)})\n'
@@ -69,6 +72,27 @@ class NanoisaIntrospection(unittest.TestCase):
 
     def test_empty_export_sets(self):
         self.exercise(True)
+
+    def test_repository_metadata_programs(self):
+        with tempfile.TemporaryDirectory(prefix='nano-module-regressions-') as directory:
+            module = Path(directory).resolve() / 'program.nvm'
+            for name in ('nl_functions_module_metadata', 'nl_functions_module_introspection_flags',
+                         'test_module_introspection_exports', 'test_module_introspection_import'):
+                with self.subTest(name=name):
+                    self.checked([COMPILER, ROOT / 'tests' / (name + '.nano'), '--emit-nvm', '-o', module])
+                    self.checked([ROOT / 'bin/nano_vm', '--verify-only', module])
+                    self.checked([ROOT / 'bin/nano_vm', module])
+
+    def test_ambiguous_module_identity_preserves_output(self):
+        with tempfile.TemporaryDirectory(prefix='nano-module-collision-') as directory:
+            module = Path(directory).resolve() / 'previous.nvm'
+            module.write_bytes(b'previous module')
+            result = subprocess.run([str(COMPILER), str(ROOT / 'tests/negative/neg_module_introspection_identity.nano'),
+                                     '--emit-nvm', '-o', str(module)], cwd=ROOT, capture_output=True, timeout=120)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(b'I reject ambiguous module introspection identity: duplicate_identity',
+                          result.stdout + result.stderr)
+            self.assertEqual(module.read_bytes(), b'previous module')
 
     def test_ordinary_function_with_similar_name_keeps_its_body(self):
         with tempfile.TemporaryDirectory(prefix='nano-module-function-') as directory:
