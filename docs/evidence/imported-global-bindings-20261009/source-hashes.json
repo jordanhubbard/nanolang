@@ -1,0 +1,6 @@
+{
+  "src_nano/nanoc_v06.nano": "a8a78d4145155253fc7e335e047d6745dd27f1662562fbcaec5d5eb8c807f3e7",
+  "src_nano/typecheck.nano": "05e1dcec40c366a93bc0acefd2f84094fad19f8043a8fab99b38569aceda7e04",
+  "src_nano/compiler/nanoisa_codegen.nano": "856349da9745ea090ee52972dc33ee197f0afc1055a50b2dd626bc48ed3c1a24",
+  "tests/test_imported_globals.py": "937a054e87f0fda39026c105d19ddcdb643c3e03cab4c3dc3eda857564c71ebe"
+}

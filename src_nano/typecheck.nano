@@ -3591,7 +3591,7 @@ shadow env_copy_symbols {
 }
 
 # I classify locals from every statement list, including nested expression blocks.
-fn typecheck_local_lets(parser: Parser) -> array<bool> {
+pub fn typecheck_local_lets(parser: Parser) -> array<bool> {
     return (declaration_local_lets parser)
 }
 
@@ -4939,6 +4939,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         if (== fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
             let receiver: ASTIdentifier = (parser_get_identifier parser fa.object)
             if (< (env_lookup symbols (tc_bound_name receiver.name receiver.line symbols)) 0) {
+                let qualified: string = (+ receiver.name (+ "." fa.field_name))
+                let resolved: string = (mb_lookup (mb_owner fa.line) qualified)
+                if (!= resolved qualified) {
+                    let value: OptionType = (env_get_type symbols resolved)
+                    if value.has_value { return value.value }
+                }
                 let mut enum_index: int = 0
                 while (< enum_index (parser_get_enum_count parser)) {
                     let definition: ASTEnum = (parser_get_enum parser enum_index)
@@ -5513,7 +5519,7 @@ shadow check_return_statement {
 }
 
 fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
-    let idx: int = (env_lookup symbols set_node.target)
+    let idx: int = (env_lookup symbols (tc_bound_name set_node.target set_node.line symbols))
     if (< idx 0) {
         let msg: string = (encode_undefined_name_message set_node.target)
         let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name set_node.line set_node.column))
@@ -6306,7 +6312,12 @@ shadow purity_call {
 fn purity_node(parser: Parser, id: int, kind: int, context: PurityContext, count: int) -> int {
     if (< id 0) { return 0 }
     if (or (or (== kind ParseNodeType.PNODE_NUMBER) (== kind ParseNodeType.PNODE_FLOAT)) (or (== kind ParseNodeType.PNODE_STRING) (== kind ParseNodeType.PNODE_BOOL))) { return 0 }
-    if (== kind ParseNodeType.PNODE_IDENTIFIER) { return (purity_identifier parser context (parser_get_identifier parser id).name count) }
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) {
+        let identifier: ASTIdentifier = (parser_get_identifier parser id)
+        let mut name: string = identifier.name
+        if (< (purity_local context name count) 0) { set name (mb_lookup (mb_owner identifier.line) name) }
+        return (purity_identifier parser context name count)
+    }
     if (== kind ParseNodeType.PNODE_BINARY_OP) {
         let n: ASTBinaryOp = (parser_get_binary_op parser id)
         return (purity_join (purity_node parser n.left n.left_type context count) (purity_node parser n.right n.right_type context count))
@@ -6404,6 +6415,14 @@ fn purity_node(parser: Parser, id: int, kind: int, context: PurityContext, count
     }
     if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
         let n: ASTFieldAccess = (parser_get_field_access parser id)
+        if (== n.object_type ParseNodeType.PNODE_IDENTIFIER) {
+            let receiver: ASTIdentifier = (parser_get_identifier parser n.object)
+            if (< (purity_local context receiver.name count) 0) {
+                let qualified: string = (+ receiver.name (+ "." n.field_name))
+                let resolved: string = (mb_lookup (mb_owner n.line) qualified)
+                if (!= resolved qualified) { return (purity_identifier parser context resolved count) }
+            }
+        }
         return (purity_node parser n.object n.object_type context count)
     }
     if (== kind ParseNodeType.PNODE_ARRAY_LITERAL) {
@@ -6587,7 +6606,7 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
             (resource_check_global parser gl env.diagnostics file_name)
             let gl_type: NSType = (type_from_string_with_parser parser gl.var_type)
             if (!= gl_type.kind TypeKind.TYPE_UNKNOWN) {
-                let gl_sym: Symbol = (symbol_new gl.name gl_type gl.is_mut false 0 (empty_param_types) (type_void))
+                let gl_sym: Symbol = (symbol_new (mb_lookup (mb_owner gl.line) gl.name) gl_type gl.is_mut false 0 (empty_param_types) (type_void))
                 set symbols (env_add_symbol symbols gl_sym)
             } else { (print "") }
         } else { (print "") }
