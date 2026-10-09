@@ -2,4 +2,4 @@ I qualify my real Json artifact through C-seed and the canonical compiler built 
 
 I retain the initial leak, return-boundary and fixture failures. The raw-return fixture initially used an opaque entry result; I corrected it to call an opaque-returning helper from an integer main without changing the zero/nonzero acceptance checks.
 
-My full backend log records 274642 VM checks, 2431 native execution checks, 3092 shape checks and 379 callable checks before the final native null-return shape correction. A new native regression is running against that correction; this evidence does not claim it passed yet. Fresh installed-stage bootstrap and the complete parser corpus remain required under #978.
+My full backend log records 274642 VM checks, 2431 native execution checks, 3092 shape checks and 379 callable checks before the final native null-return shape correction. My final native regression against the null-return shape correction also exits zero with 2431 execution, 3092 shape and 379 callable checks; I retain its complete terminal in `final-native-regression.log`. Fresh installed-stage bootstrap and the complete parser corpus remain required under #978.
