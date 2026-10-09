@@ -6014,3 +6014,9 @@ test-file-source-inputs: bin/nanoc_c nano_virt nano_vm nvm2c nanoisa bootstrap
 	python3 -m unittest -v tests.test_file_source_inputs
 
 test-units: test-file-source-inputs
+
+.PHONY: test-service-inputs
+test-service-inputs: nano_virt nano_vm nanoisa nvm2c bootstrap
+	python3 -m unittest -v tests.test_service_inputs
+
+test-units: test-service-inputs

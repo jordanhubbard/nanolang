@@ -27,6 +27,8 @@ import "src_nano/compiler/module_bindings.nano"
 import "src_nano/compiler/module_introspection.nano"
 import "src_nano/compiler/nominal_bindings.nano"
 import "src_nano/compiler/service_origins.nano"
+import "src_nano/compiler/service_inputs.nano"
+import "modules/file_source_inputs/file_source_inputs.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 from "std/fs.nano" import canonical
 module "std/fs.nano" as compiler_fs
@@ -1639,7 +1641,7 @@ shadow outputs_preserve_sources {
     }
 }
 
-fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool) -> int {
+fn compile_program_inputs(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, service_context: NlFileSourceSnapshots) -> int {
     if (== input_file "") { return 1 }
     if verbose {
         (println "")
@@ -1737,6 +1739,20 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             }
             
             let parser: Parser = (parse_program tokens token_count input_file)
+            # I protect retained companion declarations before publishing parse-error diagnostics.
+            let service_origins: ServiceOrigins = (bind_service_origins parser merged_files source_files source_lines)
+            if (not service_origins.ok) {
+                (println "I cannot retain the original sources of my File service declarations.")
+                return 1
+            }
+
+            let service_inputs: ServiceInputs = (acquire_service_inputs parser merged_files service_origins service_context)
+            if (not service_inputs.ok) {
+                (println "I cannot acquire the immutable companions of my File service declarations.")
+                return 1
+            }
+            if (not (outputs_preserve_sources service_inputs.paths output_file llm_diags_json_path)) { return 1 }
+
             if (parser_has_error parser) {
                 let tok: LexerToken = (parser_current parser)
                 let parse_loc: CompilerSourceLocation = (source_location_for_line source_files source_lines tok.line tok.column)
@@ -1766,12 +1782,6 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 (print "")
             }
             
-            let service_origins: ServiceOrigins = (bind_service_origins parser merged_files source_files source_lines)
-            if (not service_origins.ok) {
-                (println "I cannot retain the original sources of my File service declarations.")
-                return 1
-            }
-
             let func_count: int = (parser_get_function_count parser)
             if verbose {
                 (print "  ✓ Parsed ")
@@ -1940,6 +1950,29 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
 /* =============================================================================
  * MAIN ENTRY POINT
  * ============================================================================= */
+
+fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool) -> int {
+    unsafe {
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        if (== (nl_source_inputs_valid context) 0) {
+            (println "I cannot allocate my compiler-input snapshot context.")
+            return 1
+        }
+        let status: int = (compile_program_inputs input_file output_file verbose keep_c show_intermediate_code llm_diags_json_path emit_c emit_nvm test_imports context)
+        (nl_source_inputs_free context)
+        return status
+    }
+}
+
+shadow compile_program_inputs {
+    unsafe {
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        assert (== (nl_source_inputs_valid context) 1)
+        assert (== (compile_program_inputs "" "" false false false "" false false true context) 1)
+        assert (== (nl_source_inputs_count context) 0)
+        (nl_source_inputs_free context)
+    }
+}
 
 shadow compile_program {
     assert (== (compile_program "" "" false false false "" false false true) 1)

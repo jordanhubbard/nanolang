@@ -1,0 +1,75 @@
+# I acquire immutable compiler input under an explicit caller-owned lifetime.
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+import "src_nano/compiler/service_origins.nano"
+import "modules/file_source_inputs/file_source_inputs.nano"
+
+struct ServiceInputs {
+    ok: bool,
+    paths: array<string>,
+    snapshots: array<int>
+}
+
+pub fn acquire_service_inputs(parser: Parser, files: array<string>, origins: ServiceOrigins, context: NlFileSourceSnapshots) -> ServiceInputs {
+    let failed: ServiceInputs = ServiceInputs { ok: false, paths: [], snapshots: [] }
+    if (or (not origins.ok) (!= parser.services_count (array_length origins.locations))) { return failed }
+    if (or (< parser.services_count 0) (> parser.services_count 16)) { return failed }
+    if (== parser.services_count 0) { return ServiceInputs { ok: true, paths: [], snapshots: [] } }
+    unsafe {
+        if (or (== (nl_source_inputs_valid context) 0) (!= (nl_source_inputs_count context) 0)) { return failed }
+    }
+    let mut index: int = 0
+    while (< index parser.services_count) {
+        let node: ASTServiceDecl = (list_ASTServiceDecl_get parser.services index)
+        let origin: ServiceOrigin = (at origins.locations index)
+        if (or (< origin.file_index 0) (>= origin.file_index (array_length files))) { return failed }
+        if (!= node.origin_index origin.file_index) { return failed }
+        if (or (< origin.line 1) (< origin.column 1)) { return failed }
+        if (or (!= node.catalog_version 1) (!= node.interface_id "nsi:nanolang/filesystem")) { return failed }
+        if (!= node.interface_bytes (str_length node.interface_id)) { return failed }
+        if (or (<= node.path_bytes 0) (!= node.path_bytes (str_length node.document_path))) { return failed }
+        let mut prior: int = 0
+        while (< prior index) {
+            if (== (at origins.locations prior).file_index origin.file_index) { return failed }
+            set prior (+ prior 1)
+        }
+        set index (+ index 1)
+    }
+    let mut paths: array<string> = []
+    let mut snapshots: array<int> = []
+    let mut path_bytes: int = 0
+    set index 0
+    while (< index parser.services_count) {
+        let node: ASTServiceDecl = (list_ASTServiceDecl_get parser.services index)
+        let origin: ServiceOrigin = (at origins.locations index)
+        let source: string = (at files origin.file_index)
+        unsafe {
+            let snapshot: int = (nl_source_inputs_open context source (str_length source) node.document_path node.path_bytes)
+            if (< snapshot 0) { return failed }
+            let path: string = (nl_source_inputs_text context snapshot 0)
+            if (== path "") { return failed }
+            set path_bytes (+ path_bytes (+ (str_length path) 1))
+            if (> path_bytes 1048576) { return failed }
+            set paths (array_push paths path)
+            set snapshots (array_push snapshots snapshot)
+        }
+        set index (+ index 1)
+    }
+    return ServiceInputs { ok: true, paths: paths, snapshots: snapshots }
+}
+
+shadow acquire_service_inputs {
+    let tokens: List<LexerToken> = (tokenize_string "" "empty.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "empty.nano")
+    unsafe {
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        assert (== (nl_source_inputs_valid context) 1)
+        let result: ServiceInputs = (acquire_service_inputs parser [] ServiceOrigins { ok: true, locations: [] } context)
+        assert result.ok
+        assert (== (array_length result.paths) 0)
+        assert (== (nl_source_inputs_count context) 0)
+        let failure: ServiceInputs = (acquire_service_inputs parser [] ServiceOrigins { ok: false, locations: [] } context)
+        assert (not failure.ok)
+        (nl_source_inputs_free context)
+    }
+}

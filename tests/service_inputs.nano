@@ -1,0 +1,57 @@
+import "src_nano/compiler/service_inputs.nano"
+import "src_nano/compiler/service_origins.nano"
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+import "modules/file_source_inputs/file_source_inputs.nano"
+extern fn get_argv(index: int) -> string
+extern fn file_write(path: string, content: string) -> int
+
+fn main() -> int {
+    unsafe {
+        let one: string = (get_argv 1)
+        let two: string = (get_argv 2)
+        let expect: string = (get_argv 3)
+        let declaration: string = "service \"nsi:nanolang/filesystem\" catalog 1 from \"interface.nsi.json\"\n"
+        let tokens: List<LexerToken> = (tokenize_string (+ declaration declaration) "merged.nano" (list_CompilerDiagnostic_new))
+        let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "merged.nano")
+        assert (not parser.has_error)
+        let origins: ServiceOrigins = (bind_service_origins parser [one, two] [one, two] [7, 9])
+        assert origins.ok
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        assert (== (nl_source_inputs_valid context) 1)
+        let invalid: ServiceInputs = (acquire_service_inputs parser [one, two] ServiceOrigins { ok: true, locations: [] } context)
+        assert (not invalid.ok)
+        assert (== (nl_source_inputs_count context) 0)
+        let result: ServiceInputs = (acquire_service_inputs parser [one, two] origins context)
+        if (== expect "ok") {
+            assert result.ok
+            assert (== (array_length result.paths) 2)
+            assert (== (array_length result.snapshots) 2)
+            assert (!= (at result.paths 0) (at result.paths 1))
+            assert (== (nl_source_inputs_count context) 2)
+            let original: string = (nl_source_inputs_text context 0 1)
+            assert (> (str_length original) 0)
+            assert (== (file_write (at result.paths 0) "{}") 0)
+            assert (== (nl_source_inputs_text context 0 1) original)
+            let repeated: ServiceInputs = (acquire_service_inputs parser [one, two] origins context)
+            assert (not repeated.ok)
+            assert (== (nl_source_inputs_count context) 2)
+        } else {
+            assert (not result.ok)
+            assert (== (array_length result.paths) 0)
+            assert (== (array_length result.snapshots) 0)
+            assert (== (nl_source_inputs_count context) 1)
+        }
+        (nl_source_inputs_free context)
+    }
+    (println "PASS actual source companion acquisition")
+    return 0
+}
+shadow main {
+    unsafe {
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        assert (== (nl_source_inputs_valid context) 1)
+        assert (== (nl_source_inputs_count context) 0)
+        (nl_source_inputs_free context)
+    }
+}
