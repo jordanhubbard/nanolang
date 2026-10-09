@@ -1,0 +1,16 @@
+fn main()->int {
+ let mut total:int = 0
+ for i in (range 0 3000) {
+  let names:List<string> = (list_string_new)
+  (list_string_push names (str_concat "allocated-" (int_to_string i)))
+  set total (+ total (list_string_length names))
+  (list_string_free names)
+  let numbers:List<int> = (list_int_new)
+  (list_int_push numbers i)
+  set total (+ total (list_int_get numbers 0))
+  (list_int_free numbers)
+ }
+ assert (== total 4501500)
+ return 0
+}
+shadow main { assert true }

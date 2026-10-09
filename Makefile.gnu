@@ -1106,6 +1106,15 @@ test-vm-effect-ownership: nano_virt
 test-units: test-vm-effect-ownership
 
 .PHONY: test-nanovirt
+$(OBJ_DIR)/list_free_observer: tests/nanovm/list_free_observer.c $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+.PHONY: test-nanoisa-list-free
+test-nanoisa-list-free: nano_virt nano_vm nanoisa_dump nvm2c $(BIN_DIR)/nanoc_c $(OBJ_DIR)/list_free_observer
+	python3 -m unittest -v tests.test_nanoisa_list_free
+
+test-units: test-nanoisa-list-free
+
 test-nanovirt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	@echo "Running NanoVirt codegen tests..."
 	@$(CC) $(CFLAGS) -o tests/nanovirt/test_codegen \
