@@ -1,0 +1,15 @@
+test_actual_assembly_publication_and_diagnostic_vm_native (tests.test_nanoisa_artifact_imports.ArtifactImports.test_actual_assembly_publication_and_diagnostic_vm_native) ... ok
+test_actual_file_assembly_and_disassembly_preserve_results (tests.test_nanoisa_artifact_imports.ArtifactImports.test_actual_file_assembly_and_disassembly_preserve_results) ... ok
+test_bad_artifact_signatures_operands_and_missing_owner_refuse (tests.test_nanoisa_artifact_imports.ArtifactImports.test_bad_artifact_signatures_operands_and_missing_owner_refuse) ... ok
+test_cseed_and_selfhost_preserve_exact_artifact_abi_and_code (tests.test_nanoisa_artifact_imports.ArtifactImports.test_cseed_and_selfhost_preserve_exact_artifact_abi_and_code) ... ok
+test_duplicate_symbols_keep_owner_and_raw_api_clears_bindings (tests.test_nanoisa_artifact_imports.ArtifactImports.test_duplicate_symbols_keep_owner_and_raw_api_clears_bindings) ... ok
+test_file_facade_signature_mismatches_refuse (tests.test_nanoisa_artifact_imports.ArtifactImports.test_file_facade_signature_mismatches_refuse) ... ok
+test_filesystem_array_and_scalar_artifacts_execute_in_both_backends (tests.test_nanoisa_artifact_imports.ArtifactImports.test_filesystem_array_and_scalar_artifacts_execute_in_both_backends) ... ok
+test_filesystem_array_signature_mismatch_is_rejected (tests.test_nanoisa_artifact_imports.ArtifactImports.test_filesystem_array_signature_mismatch_is_rejected) ... ok
+test_integer_status_and_zero_argument_diagnostic_match_cseed (tests.test_nanoisa_artifact_imports.ArtifactImports.test_integer_status_and_zero_argument_diagnostic_match_cseed) ... ok
+test_publication_contract_refuses_wrong_result_and_zero_arg_shapes (tests.test_nanoisa_artifact_imports.ArtifactImports.test_publication_contract_refuses_wrong_result_and_zero_arg_shapes) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 154.018s
+
+OK

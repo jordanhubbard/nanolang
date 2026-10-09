@@ -199,6 +199,7 @@ pub fn decode_int_array(arr: Json) -> array<int> {
         let elem: Json = (get_index arr i)
         set result (array_push result (as_int elem))
         set i (+ i 1)
+        (free elem)
     }
     return result
 }
@@ -221,6 +222,7 @@ pub fn decode_string_array(arr: Json) -> array<string> {
         let elem: Json = (get_index arr i)
         set result (array_push result (as_string elem))
         set i (+ i 1)
+        (free elem)
     }
     return result
 }
@@ -249,6 +251,7 @@ shadow get {
     let v: Json = (get j "y")
     assert (!= v 0)
     (free j)
+    (free v)
 }
 
 pub fn keys(obj: Json) -> array<string> { return (nl_json_object_keys obj) }
@@ -265,19 +268,24 @@ pub fn array_size(arr: Json) -> int { return (nl_json_array_size arr) }
 shadow array_size {
     let a: Json = (new_array)
     assert (== (array_size a) 0)
-    (json_array_push a (new_int 1))
+    let inserted_1: Json = (new_int 1)
+    (json_array_push a inserted_1)
     assert (== (array_size a) 1)
     (free a)
+    (free inserted_1)
 }
 
 pub fn get_index(arr: Json, idx: int) -> Json { return (nl_json_get_index arr idx) }
 
 shadow get_index {
     let a: Json = (new_array)
-    (json_array_push a (new_int 99))
+    let inserted_2: Json = (new_int 99)
+    (json_array_push a inserted_2)
     let v: Json = (get_index a 0)
     assert (!= v 0)
     (free a)
+    (free v)
+    (free inserted_2)
 }
 
 pub fn new_object() -> Json { return (nl_json_new_object) }
@@ -339,8 +347,10 @@ pub fn object_set(obj: Json, key: string, val: Json) -> bool {
 
 shadow object_set {
     let o: Json = (new_object)
-    assert (object_set o "k" (new_int 3))
+    let inserted_3: Json = (new_int 3)
+    assert (object_set o "k" inserted_3)
     (free o)
+    (free inserted_3)
 }
 
 pub fn json_array_push(arr: Json, val: Json) -> bool {
@@ -349,9 +359,11 @@ pub fn json_array_push(arr: Json, val: Json) -> bool {
 
 shadow json_array_push {
     let a: Json = (new_array)
-    assert (json_array_push a (new_int 1))
+    let inserted_4: Json = (new_int 1)
+    assert (json_array_push a inserted_4)
     assert (== (array_size a) 1)
     (free a)
+    (free inserted_4)
 }
 
 pub fn get_string(obj: Json, key: string) -> string {

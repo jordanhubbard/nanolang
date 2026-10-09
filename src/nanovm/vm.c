@@ -3273,6 +3273,12 @@ vm_return_values: ;
             NanoValue results[UINT8_MAX];
             for (uint8_t i = 0; i < returning->result_count; i++) {
                 results[i] = vm->stack[vm->stack_size - returning->result_count + i];
+                /* I admit only zero as the integer spelling of opaque null. */
+                if (returning->result_tag == TAG_OPAQUE &&
+                    results[i].tag == TAG_INT && results[i].as.i64 == 0) {
+                    results[i] = (NanoValue){0};
+                    results[i].tag = TAG_OPAQUE;
+                }
                 if (!result_tag_matches(returning->result_tag, results[i].tag)) {
                     return trap_error(vm, VM_ERR_TYPE_ERROR,
                                       "Function %u returned %s, expected %s",

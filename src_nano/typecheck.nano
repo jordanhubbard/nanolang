@@ -5416,7 +5416,10 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
     } else {
         let expr_t_raw: NSType = (check_expr_node parser ret_node.value ret_node.value_type symbols diags file_name)
         let expr_t_hint: NSType = (apply_value_type_hint parser ret_node.value ret_node.value_type expr_t_raw expected_type)
-        let expr_t: NSType = (apply_return_type_hint expr_t_hint expected_type)
+        let mut expr_t: NSType = (apply_return_type_hint expr_t_hint expected_type)
+        if (and (tc_is_opaque_name parser (type_to_string expected_type)) (== ret_node.value_type ParseNodeType.PNODE_NUMBER)) {
+            if (== (parser_get_number parser ret_node.value).value "0") { set expr_t expected_type }
+        }
         if (not (types_equal expr_t expected_type)) {
             let detail: string = (+ "Return value of " current_function)
             let msg: string = (encode_type_mismatch_message "return" (type_to_string expected_type) (type_to_string expr_t) detail)
@@ -5429,7 +5432,16 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
     }
 }
 
-shadow check_return_statement { assert true }
+shadow check_return_statement {
+    let valid: Parser = (resource_test_parser "opaque type Handle fn empty()->Handle { return 0 }")
+    let accepted: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (check_return_statement valid (parser_get_return valid 0) (type_from_string_with_parser valid "Handle") [] accepted "opaque.nano" "empty")
+    assert (== (list_CompilerDiagnostic_length accepted) 0)
+    let invalid: Parser = (resource_test_parser "opaque type Handle fn forged()->Handle { return 7 }")
+    let rejected: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (not (check_return_statement invalid (parser_get_return invalid 0) (type_from_string_with_parser invalid "Handle") [] rejected "opaque.nano" "forged"))
+    assert (> (list_CompilerDiagnostic_length rejected) 0)
+}
 
 fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
     let idx: int = (env_lookup symbols set_node.target)

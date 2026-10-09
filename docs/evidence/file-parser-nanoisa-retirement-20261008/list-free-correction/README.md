@@ -9,3 +9,5 @@ My observer stops at real print boundaries while the guest frame remains alive a
 The initial declaration-precedence fixture incorrectly redefined a reserved builtin. I use a nonreserved `list_Custom_free` declaration for the corrected control. The initial observer also used the v1-only loader and statement-form print; the corrected observer uses the production module loader and both frontends' call-form print. The initial generic record receiver refused because its checked nominal element is stored as `struct_type_name`; I preserve that identity alongside complete TypeInfo metadata.
 
 This component gate is not fresh installed-stage or full parser qualification. Actual Json host imports, remaining generic receiver forms, and the unchanged complete parser corpus remain required under #978.
+
+My canonical compiler component rebuilt successfully from `src_nano/nanoc_v06.nano`. Compiling the actual `scripts/gen_compiler_schema.nano --emit-nvm` now advances beyond list cleanup and refuses `unsupported extern result or symbol nl_json_free` (exit 1). This establishes the next actual blocker; it does not qualify Json host ownership or ABI.

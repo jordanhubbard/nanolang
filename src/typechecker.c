@@ -5490,6 +5490,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 
                 check_concrete_union_arrays(tc->env, tc->current_function_return_info, stmt->as.return_stmt.value, 0);
                 Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
+                /* I use the same literal-null rule at return as at opaque
+                 * initialization and calls; arbitrary integers stay invalid. */
+                if (tc->current_function_return_type == TYPE_STRUCT &&
+                    tc->current_function_return_struct_name &&
+                    env_get_opaque_type(tc->env, tc->current_function_return_struct_name) &&
+                    stmt->as.return_stmt.value->type == AST_NUMBER &&
+                    stmt->as.return_stmt.value->as.number == 0)
+                    return_type = tc->current_function_return_type;
                 if (tc->current_function_return_type == TYPE_ARRAY &&
                     tc->current_function_return_element_type != TYPE_UNKNOWN &&
                     stmt->as.return_stmt.value->type == AST_ARRAY_LITERAL)
