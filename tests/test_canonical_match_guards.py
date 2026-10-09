@@ -1,4 +1,4 @@
-"""I retain canonical guard effects and check explicit profile refusals."""
+"""I retain canonical guard effects, refusals and NanoISA terminal backstops."""
 import hashlib
 import json
 import os
@@ -180,21 +180,27 @@ class CanonicalMatchGuards(unittest.TestCase):
         self.native("named-order", TRACE)
         self.native("wildcard-order", WILDCARDS)
 
-    def test_named_union_vm_and_sanitized_native(self):
-        path = self.source("named-module", TRACE)
+    def bytecode(self, name, text):
+        path = self.source(name + "-module", text)
         for compiler in ("nano_virt", "nanoc_stage1", "nanoc_stage2"):
-            module = self.work / f"named-{compiler}.nvm"
+            module = self.work / f"{name}-{compiler}.nvm"
             self.command([BIN / compiler, path, "--emit-nvm", "-o", module])
             self.command([BIN / "nano_vm", "--verify-only", module])
             vm = self.command([BIN / "nano_vm", module])
-            source = self.work / f"named-{compiler}.c"
-            output = self.work / f"named-{compiler}-native"
+            source = self.work / f"{name}-{compiler}.c"
+            output = self.work / f"{name}-{compiler}-native"
             self.command([BIN / "nvm2c", module, "-o", source])
             self.command([*self.cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
                           "-fno-omit-frame-pointer", source, "-lm", "-o", output])
             native = self.command([output])
             self.assertEqual(vm.stdout, "")
             self.assertEqual(native.stdout, vm.stdout)
+
+    def test_named_union_vm_and_sanitized_native(self):
+        self.bytecode("named", TRACE)
+
+    def test_wildcard_vm_and_sanitized_native(self):
+        self.bytecode("wildcard", WILDCARDS)
 
     def test_checked_negatives_preserve_output(self):
         cases = {
@@ -215,24 +221,34 @@ class CanonicalMatchGuards(unittest.TestCase):
         bad = TRACE.replace('shadow gate { set trace 0 assert (not (gate 2 false)) assert (== trace 2) set trace 0 }', 'shadow gate { assert false }')
         self.refuse("shadow-native", bad, r"(?is)(shadow|assert)")
         self.refuse("shadow-bytecode", bad, r"(?is)(shadow|assert)", ("nanoc_stage1", "nanoc_stage2"), True)
-        self.refuse("wildcard-bytecode", WILDCARDS, r"(?is)(match|union)", ("nanoc_stage1", "nanoc_stage2"), True)
 
     def test_unchecked_generated_terminal_backstops(self):
         source = self.source("backstop-driver", (ROOT / "tests/nanoisa/fixtures/match_guard_backstop_driver.nano.txt").read_text())
         driver = self.work / "backstop-driver"
         self.command([BIN / "nanoc_c", source, "-o", driver, "--keep-c"], timeout=600)
         for mode in ("expression", "statement"):
-            text = self.command([driver, mode]).stdout
-            generated = self.work / f"backstop-{mode}.c"
-            generated.write_text(text)
-            output = self.work / f"backstop-{mode}"
-            self.command([*self.cc, "-std=gnu11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
-                          "-fno-omit-frame-pointer", generated, "-o", output])
-            self.command([output])
-            missed = self.command([output, "miss"], expected=-signal.SIGABRT)
-            self.assertIn("I reached no successful checked match arm", missed.stderr)
-            self.assertNotIn("runtime error:", missed.stderr)
-            self.assertNotIn("ERROR: AddressSanitizer", missed.stderr)
+            for outcome in ("match", "miss"):
+                text = self.command([driver, mode, outcome]).stdout
+                self.assertIn("PUSH_BOOL 0\n  ASSERT\n  HALT", text)
+                assembly = self.work / f"backstop-{mode}-{outcome}.nasm"
+                assembly.write_text(text)
+                module = assembly.with_suffix(".nvm")
+                self.command([BIN / "nanoisa", "asm", assembly, "-o", module])
+                self.command([BIN / "nano_vm", "--verify-only", module])
+                vm = self.command([BIN / "nano_vm", module], expected=1 if outcome == "miss" else 0)
+                generated = assembly.with_suffix(".c")
+                self.command([BIN / "nvm2c", module, "-o", generated])
+                output = assembly.with_suffix(".native")
+                self.command([*self.cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-fsanitize=address,undefined",
+                              "-fno-omit-frame-pointer", "-fno-sanitize-recover=all", generated, "-lm", "-o", output])
+                native = self.command([output], expected=-signal.SIGABRT if outcome == "miss" else 0)
+                if outcome == "miss":
+                    self.assertIn("Assertion failed", vm.stderr)
+                    self.assertIn("I stopped at a native invariant", native.stderr)
+                for result in (vm, native):
+                    self.assertEqual(result.stdout, "")
+                    self.assertNotIn("runtime error:", result.stderr)
+                    self.assertNotIn("ERROR: AddressSanitizer", result.stderr)
 
     def test_parser877_unchanged(self):
         for compiler in ("nanoc_c", "nanoc_stage1", "nanoc_stage2"):
