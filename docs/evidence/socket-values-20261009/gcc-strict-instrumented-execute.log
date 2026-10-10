@@ -1,0 +1,3 @@
+PASS IPv4 affine TCP Result/borrow/move/NUL/byte/EOF/cleanup
+PASS IPv6 affine TCP Result/borrow/move/NUL/byte/EOF/cleanup
+PASS 3629 Socket value checks; tracked real opens=81 closes=81; harness recovery closes=1

@@ -39,6 +39,8 @@ typedef struct {
  * Receive refuses byte-output overlap with the input token before host I/O.
  * Valid output storage must not discard unrelated live owners. */
 NlSocketResult nl_socket_service_create(NlSocketService **out);
+/* I report context plus capability storage without allocating; failure preserves *out. */
+bool nl_socket_service_storage_bound(size_t *out);
 NlSocketResult nl_socket_acquire_pair(NlSocketService *, uint32_t left_rights,
                                      uint32_t right_rights, NlSocketPair *out);
 /* My trusted host caller supplies network authority. OK publishes one owner;

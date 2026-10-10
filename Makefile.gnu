@@ -1639,6 +1639,16 @@ test-nsi-socket:
 
 test-units: test-nsi-socket
 
+.PHONY: test-nsi-socket-values
+test-nsi-socket-values:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket_values.c -o $(OBJ_DIR)/test_nsi_socket_values_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_socket_values_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket_values_linked.c src/nsi_socket_values.c src/nsi_socket.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_socket_values_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_socket_values_linked
+
+test-units: test-nsi-socket-values
+
 .PHONY: test-nsi-shm
 test-nsi-shm:
 	@echo "Running NSI shared-memory tests..."

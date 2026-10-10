@@ -37,6 +37,14 @@ struct NlSocketService {
 };
 static uint64_t socket_context_counter;
 
+bool nl_socket_service_storage_bound(size_t *out) {
+    size_t caps;
+    if (!out || !nl_cap_private_storage_bound(&caps) ||
+        caps > SIZE_MAX - sizeof(NlSocketService)) return false;
+    *out = sizeof(NlSocketService) + caps;
+    return true;
+}
+
 static NlSocketResult socket_result(NlSocketStatus status) {
     NlSocketResult result = {0};
     result.status = status;

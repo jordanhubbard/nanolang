@@ -1,0 +1,226 @@
+{
+  "host": "macOS-26.7.1-arm64-arm-64bit-Mach-O",
+  "runs": [
+    {
+      "name": "llvm-sanitizers",
+      "linkage": "instrumented",
+      "phase": "compile",
+      "args": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-D_DEFAULT_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-sanitize-recover=all",
+        "tests/test_nsi_socket_values.c",
+        "-o",
+        "/private/tmp/nanolang-socket-values-llvm-sanitizers/instrumented"
+      ],
+      "returncode": 0,
+      "seconds": 0.7065668330178596,
+      "log": "llvm-sanitizers-instrumented-compile.log",
+      "binary_sha256": "6c8fba21b6d53169bd7ae3beec1cad9b112321254681b34d7d07172f2046dd45"
+    },
+    {
+      "name": "llvm-sanitizers",
+      "linkage": "instrumented",
+      "phase": "execute",
+      "args": [
+        "/private/tmp/nanolang-socket-values-llvm-sanitizers/instrumented"
+      ],
+      "returncode": 0,
+      "seconds": 0.18007537501398474,
+      "log": "llvm-sanitizers-instrumented-execute.log",
+      "binary_sha256": "6c8fba21b6d53169bd7ae3beec1cad9b112321254681b34d7d07172f2046dd45"
+    },
+    {
+      "name": "llvm-sanitizers",
+      "linkage": "linked",
+      "phase": "compile",
+      "args": [
+        "/opt/homebrew/opt/llvm/bin/clang",
+        "-std=c11",
+        "-D_DEFAULT_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O1",
+        "-g",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-fno-sanitize-recover=all",
+        "tests/test_nsi_socket_values_linked.c",
+        "src/nsi_socket_values.c",
+        "src/nsi_socket.c",
+        "src/nsi_cap.c",
+        "-o",
+        "/private/tmp/nanolang-socket-values-llvm-sanitizers/linked"
+      ],
+      "returncode": 0,
+      "seconds": 0.5069360829656944,
+      "log": "llvm-sanitizers-linked-compile.log",
+      "binary_sha256": "61b7a53eff36d47c47a5116bc7696663512986412e4fb619c29d47154a35fd7c"
+    },
+    {
+      "name": "llvm-sanitizers",
+      "linkage": "linked",
+      "phase": "execute",
+      "args": [
+        "/private/tmp/nanolang-socket-values-llvm-sanitizers/linked"
+      ],
+      "returncode": 0,
+      "seconds": 0.18471845798194408,
+      "log": "llvm-sanitizers-linked-execute.log",
+      "binary_sha256": "61b7a53eff36d47c47a5116bc7696663512986412e4fb619c29d47154a35fd7c"
+    },
+    {
+      "name": "apple-strict",
+      "linkage": "instrumented",
+      "phase": "compile",
+      "args": [
+        "/usr/bin/clang",
+        "-std=c11",
+        "-D_DEFAULT_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "tests/test_nsi_socket_values.c",
+        "-o",
+        "/private/tmp/nanolang-socket-values-apple-strict/instrumented"
+      ],
+      "returncode": 0,
+      "seconds": 0.5506048329989426,
+      "log": "apple-strict-instrumented-compile.log",
+      "binary_sha256": "9f2ad6b4d75c6000b5048fb93c76af757c43969d25b117af91acd598f83a2ed0"
+    },
+    {
+      "name": "apple-strict",
+      "linkage": "instrumented",
+      "phase": "execute",
+      "args": [
+        "/private/tmp/nanolang-socket-values-apple-strict/instrumented"
+      ],
+      "returncode": 0,
+      "seconds": 0.019732125045266002,
+      "log": "apple-strict-instrumented-execute.log",
+      "binary_sha256": "9f2ad6b4d75c6000b5048fb93c76af757c43969d25b117af91acd598f83a2ed0"
+    },
+    {
+      "name": "apple-strict",
+      "linkage": "linked",
+      "phase": "compile",
+      "args": [
+        "/usr/bin/clang",
+        "-std=c11",
+        "-D_DEFAULT_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "tests/test_nsi_socket_values_linked.c",
+        "src/nsi_socket_values.c",
+        "src/nsi_socket.c",
+        "src/nsi_cap.c",
+        "-o",
+        "/private/tmp/nanolang-socket-values-apple-strict/linked"
+      ],
+      "returncode": 0,
+      "seconds": 0.2781712919822894,
+      "log": "apple-strict-linked-compile.log",
+      "binary_sha256": "8abda0b42e1f34a152b970a37b2d3f8e535f4cfb3a5086e8279b3d3df5e8ea64"
+    },
+    {
+      "name": "apple-strict",
+      "linkage": "linked",
+      "phase": "execute",
+      "args": [
+        "/private/tmp/nanolang-socket-values-apple-strict/linked"
+      ],
+      "returncode": 0,
+      "seconds": 0.019858082989230752,
+      "log": "apple-strict-linked-execute.log",
+      "binary_sha256": "8abda0b42e1f34a152b970a37b2d3f8e535f4cfb3a5086e8279b3d3df5e8ea64"
+    },
+    {
+      "name": "gcc-strict",
+      "linkage": "instrumented",
+      "phase": "compile",
+      "args": [
+        "/opt/homebrew/bin/gcc-16",
+        "-std=c11",
+        "-D_DEFAULT_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "tests/test_nsi_socket_values.c",
+        "-o",
+        "/private/tmp/nanolang-socket-values-gcc-strict/instrumented"
+      ],
+      "returncode": 0,
+      "seconds": 1.2397878330084495,
+      "log": "gcc-strict-instrumented-compile.log",
+      "binary_sha256": "a5c383ad3c129a7992cd18fe36658fa223f2944eb5b16047af0b79a12321d54e"
+    },
+    {
+      "name": "gcc-strict",
+      "linkage": "instrumented",
+      "phase": "execute",
+      "args": [
+        "/private/tmp/nanolang-socket-values-gcc-strict/instrumented"
+      ],
+      "returncode": 0,
+      "seconds": 0.01925308402860537,
+      "log": "gcc-strict-instrumented-execute.log",
+      "binary_sha256": "a5c383ad3c129a7992cd18fe36658fa223f2944eb5b16047af0b79a12321d54e"
+    },
+    {
+      "name": "gcc-strict",
+      "linkage": "linked",
+      "phase": "compile",
+      "args": [
+        "/opt/homebrew/bin/gcc-16",
+        "-std=c11",
+        "-D_DEFAULT_SOURCE",
+        "-D_DARWIN_C_SOURCE",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O2",
+        "tests/test_nsi_socket_values_linked.c",
+        "src/nsi_socket_values.c",
+        "src/nsi_socket.c",
+        "src/nsi_cap.c",
+        "-o",
+        "/private/tmp/nanolang-socket-values-gcc-strict/linked"
+      ],
+      "returncode": 0,
+      "seconds": 0.8728842920390889,
+      "log": "gcc-strict-linked-compile.log",
+      "binary_sha256": "3d2d495014fe2722063df32ebc506c1afda1617624a7aef1a83ca6255a20177c"
+    },
+    {
+      "name": "gcc-strict",
+      "linkage": "linked",
+      "phase": "execute",
+      "args": [
+        "/private/tmp/nanolang-socket-values-gcc-strict/linked"
+      ],
+      "returncode": 0,
+      "seconds": 0.020123124995734543,
+      "log": "gcc-strict-linked-execute.log",
+      "binary_sha256": "3d2d495014fe2722063df32ebc506c1afda1617624a7aef1a83ca6255a20177c"
+    }
+  ]
+}
