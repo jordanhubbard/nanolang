@@ -9,3 +9,5 @@ pub extern fn nl_source_inputs_open(context: NlFileSourceSnapshots, origin: stri
 pub extern fn nl_source_inputs_count(context: NlFileSourceSnapshots) -> int
 pub extern fn nl_source_inputs_text(context: NlFileSourceSnapshots, index: int, kind: int) -> string
 pub extern fn nl_source_inputs_free(context: NlFileSourceSnapshots) -> void
+pub extern fn nl_source_inputs_open_catalog(context: NlFileSourceSnapshots, catalog: int, origin: string, origin_size: int, relative: string, relative_size: int) -> int
+pub extern fn nl_source_inputs_catalog(context: NlFileSourceSnapshots, index: int) -> int

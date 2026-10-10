@@ -12,7 +12,7 @@ NlFileSourceSnapshots *nl_source_inputs_new(void) {
 int64_t nl_source_inputs_valid(NlFileSourceSnapshots *context) {
     return context != NULL;
 }
-int64_t nl_source_inputs_open(NlFileSourceSnapshots *context,
+int64_t nl_source_inputs_open_catalog(NlFileSourceSnapshots *context,int64_t catalog,
                             const char *origin, int64_t origin_size,
                             const char *relative, int64_t relative_size) {
     /* My string ABI supplies terminated strings; counts must describe all
@@ -23,7 +23,7 @@ int64_t nl_source_inputs_open(NlFileSourceSnapshots *context,
         strlen(relative) != (size_t)relative_size)
         return -(int64_t)NL_FILE_BINDING_INVALID;
     size_t index = 0;
-    NlFileBindingStatus status = nl_file_source_snapshot_open(context,
+    NlFileBindingStatus status = nl_service_source_snapshot_open(context,catalog,
         origin, (size_t)origin_size, relative, (size_t)relative_size, &index);
     return status == NL_FILE_BINDING_OK ? (int64_t)index : -(int64_t)status;
 }
@@ -49,4 +49,15 @@ void nl_source_inputs_free(NlFileSourceSnapshots *context) {
 /* I release through the producing artifact after the consumer copies my view. */
 void nl_source_inputs_text__nano_string_release_v1(const char *result) {
     free((void *)result);
+}
+
+int64_t nl_source_inputs_open(NlFileSourceSnapshots *context,
+                            const char *origin,int64_t origin_size,
+                            const char *relative,int64_t relative_size) {
+    return nl_source_inputs_open_catalog(context,NL_SOURCE_CATALOG_FILE,
+                                        origin,origin_size,relative,relative_size);
+}
+int64_t nl_source_inputs_catalog(NlFileSourceSnapshots *context,int64_t index) {
+    if(index<0 || index>=NL_FILE_SOURCE_SNAPSHOT_LIMIT)return NL_SOURCE_CATALOG_NONE;
+    return nl_service_source_snapshot_catalog(context,(size_t)index);
 }

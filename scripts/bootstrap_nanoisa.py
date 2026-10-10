@@ -31,7 +31,7 @@ def source_inputs(root):
         base = root / directory
         if base.exists():
             names.extend(str(p.relative_to(root)) for p in base.rglob('*')
-                         if p.is_file() and p.suffix in ('.nano', '.c', '.h', '.json')
+                         if p.is_file() and p.suffix in ('.nano', '.c', '.h', '.inc', '.json')
                          and not any(part.startswith('.') for part in p.relative_to(base).parts))
     return {name: digest(root / name) for name in sorted(names)}
 

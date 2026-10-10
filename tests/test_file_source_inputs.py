@@ -26,6 +26,14 @@ class FileSourceInputs(unittest.TestCase):
             origin = work / "binding.nano"
             origin.write_text("# original source identity\n")
             shutil.copyfile(ROOT / "tests/fixtures/nsi_file_plan.json", work / "interface.nsi.json")
+            shutil.copyfile(ROOT / "tests/fixtures/nsi_socket_plan.json", work / "tcp.nsi.json")
+            cc = shlex.split(os.environ.get("NANO_NATIVE_TEST_CC", "cc"))
+            catalog = work / "catalog"
+            self.checked([*cc,"-std=c99","-Wall","-Wextra","-Werror","-Isrc",
+                "tests/test_service_source_catalog.c","src/nanoisa/file_source_catalog.c",
+                "src/nsi_file_plan.c","src/nsi_socket_plan.c","-o",catalog])
+            expected = self.checked([catalog])
+            self.assertEqual(expected.splitlines()[0],"CAT1:"+(ROOT/"tests/fixtures/file_source_catalog_expected.txt").read_text().strip())
             for compiler in os.environ.get("NANO_INPUT_COMPILERS", "nanoc_c,nano_virt,nanoc_stage1,nanoc_stage2").split(","):
                 with self.subTest(compiler=compiler):
                     native = compiler == "nanoc_c"
@@ -49,16 +57,20 @@ class FileSourceInputs(unittest.TestCase):
                                       source, "-o", binary, "-lm", *libraries])
                         self.assertEqual(self.checked([binary, origin]), output)
                     self.assertIn("PASS source input bridge", output)
+                    self.assertEqual("".join(line+"\n" for line in output.splitlines() if line.startswith("CAT")),expected)
 
 
     def test_aot_refuses_wrong_context_signatures(self):
         with tempfile.TemporaryDirectory(prefix="nano-input-abi-") as directory:
             work = Path(directory)
-            for name in ("new", "valid", "count", "open", "text", "free"):
+            symbols=["nl_source_inputs_"+name for name in
+                     ("new", "valid", "count", "open", "open_catalog", "catalog", "text", "free")]
+            symbols += ["nl_service_source_catalog_"+name for name in ("id","count","string","number")]
+            for name in symbols:
                 with self.subTest(function=name):
                     assembly, module, output = (work / item for item in ("bad.nasm", "bad.nvm", "bad.c"))
                     assembly.write_text(
-                        f'.import "/missing/never-opened.so" "nl_source_inputs_{name}" bool\n'
+                        f'.import "/missing/never-opened.so" "{name}" bool\n'
                         '.import_kind 0 artifact\n.entry main\n.function main 0 0 0 int 1\n'
                         'CALL_EXTERN 0\nPOP\nPUSH_I64 0\nRET\n.end\n')
                     self.checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])

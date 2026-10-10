@@ -1,4 +1,5 @@
 #include "file_source_snapshot.h"
+#include "nsi_socket_binding.h"
 #include "utf8.h"
 #include <errno.h>
 #include <fcntl.h>
@@ -11,7 +12,8 @@ typedef struct {
  char *path;
  unsigned char *bytes;
  size_t path_size,size;
- NlFileBindingPlan *plan;
+ int64_t catalog;
+ union { NlFileBindingPlan *file; NlSocketBindingPlan *socket; } plan;
 } SourceSnapshot;
 struct NlFileSourceSnapshots {
  size_t count,storage,peak;
@@ -27,23 +29,28 @@ NlFileBindingStatus nl_file_source_snapshots_new(NlFileSourceSnapshots **out) {
  p->storage=p->peak=sizeof(*p);*out=p;return NL_FILE_BINDING_OK;
 }
 static void snapshot_dispose(SourceSnapshot *p) {
- nl_file_binding_free(p->plan);free(p->bytes);free(p->path);
+ if(p->catalog==NL_SOURCE_CATALOG_FILE)nl_file_binding_free(p->plan.file);
+ else if(p->catalog==NL_SOURCE_CATALOG_SOCKET)nl_socket_binding_free(p->plan.socket);
+ free(p->bytes);free(p->path);
 }
 void nl_file_source_snapshots_free(NlFileSourceSnapshots *p) {
  if(!p)return;
  for(size_t i=0;i<p->count;i++)snapshot_dispose(&p->entries[i]);
  free(p);
 }
-NlFileBindingStatus nl_file_source_snapshot_open(NlFileSourceSnapshots *p,
+NlBindingStatus nl_service_source_snapshot_open(NlFileSourceSnapshots *p,int64_t catalog,
  const char *origin,size_t no,const char *relative,size_t nr,size_t *index) {
- if(!p || !index || !snapshot_span(origin,no) || !snapshot_span(relative,nr) ||
+ if((catalog!=NL_SOURCE_CATALOG_FILE && catalog!=NL_SOURCE_CATALOG_SOCKET) ||
+    !p || !index || !snapshot_span(origin,no) || !snapshot_span(relative,nr) ||
     origin[0]!='/' || relative[0]=='/' || origin[no-1]=='/')return NL_FILE_BINDING_INVALID;
  if(p->count==NL_FILE_SOURCE_SNAPSHOT_LIMIT)return NL_FILE_BINDING_LIMIT;
  size_t parent=no;
  while(parent && origin[parent-1]!='/')parent--;
  if(nr>NL_FILE_BINDING_MAX_BYTES-parent)return NL_FILE_BINDING_LIMIT;
  size_t path_size=parent+nr,prepare_bound;
- if(!nl_file_binding_allocation_bound(&prepare_bound))return NL_FILE_BINDING_LIMIT;
+ bool bounded=catalog==NL_SOURCE_CATALOG_FILE?nl_file_binding_allocation_bound(&prepare_bound):
+              nl_socket_binding_allocation_bound(&prepare_bound);
+ if(!bounded)return NL_FILE_BINDING_LIMIT;
  /* I count the retained context, new path/read allocation and the complete
   * nested preparation bound once. Its final plan is already in that bound. */
  size_t extra=path_size+1u+NL_FILE_BINDING_MAX_BYTES+1u;
@@ -51,7 +58,7 @@ NlFileBindingStatus nl_file_source_snapshot_open(NlFileSourceSnapshots *p,
     p->storage>NL_FILE_SOURCE_SNAPSHOT_BUDGET-extra-prepare_bound)return NL_FILE_BINDING_LIMIT;
  size_t peak=p->storage+extra+prepare_bound;
  if(peak>p->peak)p->peak=peak;
- SourceSnapshot next={0};next.path_size=path_size;
+ SourceSnapshot next={0};next.catalog=catalog;next.path_size=path_size;
  next.path=malloc(path_size+1u);
  if(!next.path)return NL_FILE_BINDING_MEMORY;
  memcpy(next.path,origin,parent);memcpy(next.path+parent,relative,nr);next.path[path_size]=0;
@@ -80,9 +87,10 @@ close_input:
  /* I never retry close: an error does not preserve ownership of its number. */
  if(close(fd) && status==NL_FILE_BINDING_OK)status=NL_FILE_BINDING_IO;
  if(status!=NL_FILE_BINDING_OK)goto done;
- status=nl_file_binding_prepare(next.bytes,next.size,&next.plan);
+ status=catalog==NL_SOURCE_CATALOG_FILE?nl_file_binding_prepare(next.bytes,next.size,&next.plan.file):
+        nl_socket_binding_prepare(next.bytes,next.size,&next.plan.socket);
  if(status!=NL_FILE_BINDING_OK)goto done;
- p->storage+=path_size+1u+next.size+1u+nl_file_binding_storage_size(next.plan);
+ p->storage+=path_size+1u+next.size+1u+(catalog==NL_SOURCE_CATALOG_FILE?nl_file_binding_storage_size(next.plan.file):nl_socket_binding_storage_size(next.plan.socket));
  p->entries[p->count]=next;*index=p->count++;return NL_FILE_BINDING_OK;
 done:
  snapshot_dispose(&next);return status;
@@ -95,7 +103,15 @@ const unsigned char *nl_file_source_snapshot_bytes(const NlFileSourceSnapshots *
  const SourceSnapshot *s=&p->entries[i];
  if(kind==0){*size=s->path_size;return (const unsigned char *)s->path;}
  if(kind==1){*size=s->size;return s->bytes;}
- if(kind==2)return nl_file_binding_interface_bytes(s->plan,size);
- if(kind==3)return nl_file_binding_source_bytes(s->plan,size);
+ if(kind==2)return s->catalog==NL_SOURCE_CATALOG_FILE?nl_file_binding_interface_bytes(s->plan.file,size):nl_socket_binding_interface_bytes(s->plan.socket,size);
+ if(kind==3)return s->catalog==NL_SOURCE_CATALOG_FILE?nl_file_binding_source_bytes(s->plan.file,size):nl_socket_binding_source_bytes(s->plan.socket,size);
  return NULL;
+}
+
+NlFileBindingStatus nl_file_source_snapshot_open(NlFileSourceSnapshots *p,
+ const char *origin,size_t no,const char *relative,size_t nr,size_t *index) {
+ return nl_service_source_snapshot_open(p,NL_SOURCE_CATALOG_FILE,origin,no,relative,nr,index);
+}
+int64_t nl_service_source_snapshot_catalog(const NlFileSourceSnapshots *p,size_t index) {
+ return p && index<p->count?p->entries[index].catalog:NL_SOURCE_CATALOG_NONE;
 }

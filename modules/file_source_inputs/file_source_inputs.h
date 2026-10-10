@@ -6,6 +6,9 @@ NlFileSourceSnapshots *nl_source_inputs_new(void);
 int64_t nl_source_inputs_valid(NlFileSourceSnapshots *);
 int64_t nl_source_inputs_open(NlFileSourceSnapshots *, const char *, int64_t,
                             const char *, int64_t);
+int64_t nl_source_inputs_open_catalog(NlFileSourceSnapshots *,int64_t,const char *,int64_t,
+                                    const char *,int64_t);
+int64_t nl_source_inputs_catalog(NlFileSourceSnapshots *,int64_t);
 int64_t nl_source_inputs_count(NlFileSourceSnapshots *);
 char *nl_source_inputs_text(NlFileSourceSnapshots *, int64_t, int64_t);
 void nl_source_inputs_free(NlFileSourceSnapshots *);

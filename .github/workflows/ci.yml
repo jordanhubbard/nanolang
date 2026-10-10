@@ -371,6 +371,8 @@ jobs:
     name: Memory Sanitizers
     env:
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
+      CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
+      LDFLAGS: "-lm -lcrypto -fsanitize=address,undefined"
     runs-on: ubuntu-latest
     timeout-minutes: 150
     permissions:
@@ -411,12 +413,12 @@ jobs:
           # Disable leak detection for exit-time leaks in short-lived compiler process
           # AddressSanitizer still catches real memory issues (use-after-free, buffer overflow, etc.)
           export ASAN_OPTIONS=detect_leaks=0
-          make sanitize
+          make sanitize CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
-      - name: Complete 3-stage bootstrap with sanitizers
+      - name: Compile and verify both compiler generations with sanitizers
         run: |
           export ASAN_OPTIONS=detect_leaks=0
-          make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
+          make bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Run tests with sanitizers
         # Sanitizer instrumentation is substantially slower, and the full
@@ -428,7 +430,7 @@ jobs:
         timeout-minutes: 120
         run: |
           export ASAN_OPTIONS=detect_leaks=0
-          make test-units CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer" LDFLAGS="-lm -lcrypto -fsanitize=address,undefined"
+          make test-units CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Run negative tests with sanitizers
         env:

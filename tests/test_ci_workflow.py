@@ -30,6 +30,20 @@ class CIWorkflowTests(unittest.TestCase):
         )
         self.assertGreaterEqual(test_step["timeout-minutes"], 120)
 
+    def test_sanitizers_bootstrap_real_generations_before_tests(self):
+        job=self.jobs["sanitizers"]
+        env=job["env"]
+        self.assertIn("-O3",env["CFLAGS"].split())
+        for flags in ("CFLAGS","LDFLAGS"):
+            self.assertIn("-fsanitize=address,undefined",env[flags].split())
+        commands=[str(step.get("run","")) for step in job["steps"]]
+        bootstrap=next(i for i,c in enumerate(commands) if "make bootstrap3 " in c)
+        tests=next(i for i,c in enumerate(commands) if "make test-units " in c)
+        self.assertLess(bootstrap,tests)
+        for command in commands:
+            if any(target in command for target in ("make sanitize ","make bootstrap3 ","make test-units ")):
+                self.assertIn('CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"',command)
+
     def test_sqlite_headers_are_installed_for_test_jobs(self):
         build_commands = "\n".join(
             str(step.get("run", "")) for step in self.jobs["build-and-test"]["steps"]

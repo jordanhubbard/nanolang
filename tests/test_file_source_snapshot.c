@@ -26,9 +26,14 @@ static int checked_close(int fd){closes++;int r=close(fd);if(io_fault==3){errno=
 #undef close
 #include "../modules/file_source_inputs/file_source_inputs.c"
 static void put(const char *path,const unsigned char *data,size_t n){FILE *f=fopen(path,"wb");assert(f);assert(fwrite(data,1,n,f)==n);assert(!fclose(f));}
-static NlFileBindingStatus acquire(NlFileSourceSnapshots *p,const char *origin,const char *name,size_t *i){return nl_file_source_snapshot_open(p,origin,strlen(origin),name,strlen(name),i);}
+static int64_t selected_catalog;
+static NlFileBindingStatus acquire(NlFileSourceSnapshots *p,const char *origin,const char *name,size_t *i){return nl_service_source_snapshot_open(p,selected_catalog,origin,strlen(origin),name,strlen(name),i);}
+static int64_t bridge_open(NlFileSourceSnapshots *p,const char *origin,int64_t no,const char *relative,int64_t nr) {
+ return selected_catalog==NL_SOURCE_CATALOG_FILE?nl_source_inputs_open(p,origin,no,relative,nr):
+        nl_source_inputs_open_catalog(p,selected_catalog,origin,no,relative,nr);
+}
 int main(int argc,char **argv){
- assert(argc==2);FILE *f=fopen(argv[1],"rb");assert(f);assert(!fseek(f,0,SEEK_END));long length=ftell(f);assert(length>0);rewind(f);unsigned char *bytes=malloc((size_t)length);assert(bytes);assert(fread(bytes,1,(size_t)length,f)==(size_t)length);assert(!fclose(f));
+ assert(argc==4);selected_catalog=atoi(argv[3]);assert(selected_catalog==1 || selected_catalog==2);FILE *f=fopen(argv[selected_catalog],"rb");assert(f);assert(!fseek(f,0,SEEK_END));long length=ftell(f);assert(length>0);rewind(f);unsigned char *bytes=malloc((size_t)length);assert(bytes);assert(fread(bytes,1,(size_t)length,f)==(size_t)length);assert(!fclose(f));
  char temporary[]="/tmp/nano-file-companion-XXXXXX";assert(mkdtemp(temporary));
  char *directory=realpath(temporary,NULL);assert(directory);
  char path[512],origin[512],link[512],fifo[512],folder[512];
@@ -38,10 +43,30 @@ int main(int argc,char **argv){
  NlFileSourceSnapshots *bridge=nl_source_inputs_new(),*independent=nl_source_inputs_new();
  assert(nl_source_inputs_valid(bridge) && nl_source_inputs_valid(independent));
  assert(!nl_source_inputs_valid(NULL));
- assert(nl_source_inputs_open(bridge,origin,strlen(origin),"interface.json",15)==-NL_FILE_BINDING_INVALID);
- assert(nl_source_inputs_open(bridge,origin,-1,"interface.json",14)==-NL_FILE_BINDING_INVALID);
+ assert(bridge_open(bridge,origin,strlen(origin),"interface.json",15)==-NL_FILE_BINDING_INVALID);
+ assert(bridge_open(bridge,origin,-1,"interface.json",14)==-NL_FILE_BINDING_INVALID);
  assert(nl_source_inputs_count(bridge)==0);
- assert(nl_source_inputs_open(bridge,origin,strlen(origin),"interface.json",14)==0);
+ assert(bridge_open(bridge,origin,strlen(origin),"interface.json",14)==0);
+ assert(nl_source_inputs_catalog(bridge,0)==selected_catalog);
+ assert(nl_source_inputs_catalog(bridge,-1)==0 && nl_source_inputs_catalog(bridge,1)==0);
+ assert(nl_source_inputs_catalog(NULL,0)==0);
+ size_t before_alloc=alloc_calls,before_close=closes;
+ int64_t invalid_catalogs[]={INT64_MIN,-1,0,3,INT64_MAX};
+ for(size_t j=0;j<sizeof invalid_catalogs/sizeof invalid_catalogs[0];j++) {
+  assert(nl_source_inputs_open_catalog(bridge,invalid_catalogs[j],origin,strlen(origin),"interface.json",14)==-NL_FILE_BINDING_INVALID);
+ }
+ assert(alloc_calls==before_alloc && closes==before_close && nl_source_inputs_count(bridge)==1);
+ assert(nl_source_inputs_open_catalog(bridge,3-selected_catalog,origin,strlen(origin),"interface.json",14)==-NL_FILE_BINDING_INVALID);
+ assert(nl_source_inputs_count(bridge)==1 && nl_source_inputs_catalog(bridge,0)==selected_catalog);
+ FILE *foreign=fopen(argv[3-selected_catalog],"rb");assert(foreign);assert(!fseek(foreign,0,SEEK_END));
+ long foreign_size=ftell(foreign);assert(foreign_size>0);rewind(foreign);
+ unsigned char *foreign_bytes=malloc((size_t)foreign_size);assert(foreign_bytes);
+ assert(fread(foreign_bytes,1,(size_t)foreign_size,foreign)==(size_t)foreign_size);assert(!fclose(foreign));
+ put(path,foreign_bytes,(size_t)foreign_size);free(foreign_bytes);
+ assert(nl_source_inputs_open_catalog(bridge,3-selected_catalog,origin,strlen(origin),"interface.json",14)==1);
+ assert(nl_source_inputs_catalog(bridge,0)==selected_catalog && nl_source_inputs_catalog(bridge,1)==3-selected_catalog);
+ assert(nl_source_inputs_count(bridge)==2);
+ put(path,bytes,(size_t)length);
  char *copied=nl_source_inputs_text(bridge,0,1);
  assert(copied && strlen(copied)==(size_t)length && !memcmp(copied,bytes,(size_t)length));
  assert(!nl_source_inputs_text(bridge,-1,1));assert(!nl_source_inputs_text(bridge,0,4));
@@ -52,7 +77,7 @@ int main(int argc,char **argv){
  nl_source_inputs_free(NULL);assert(live==0);
  NlFileSourceSnapshots *p=NULL;assert(nl_file_source_snapshots_new(&p)==NL_FILE_BINDING_OK);
  size_t i=99;assert(acquire(p,origin,"interface.json",&i)==NL_FILE_BINDING_OK && i==0);
- size_t n=99;const unsigned char *raw=nl_file_source_snapshot_bytes(p,0,1,&n);assert(n==(size_t)length && !memcmp(raw,bytes,n));
+ size_t n=99;const unsigned char *raw=nl_file_source_snapshot_bytes(p,0,1,&n);assert(n==(size_t)length && !memcmp(raw,bytes,n));assert(nl_service_source_snapshot_catalog(p,0)==selected_catalog);
  put(path,(const unsigned char *)"{}",2);assert(!memcmp(raw,bytes,n));
  size_t prior=nl_file_source_snapshot_storage(p),unchanged=99;assert(acquire(p,origin,"interface.json",&unchanged)!=NL_FILE_BINDING_OK && unchanged==99);assert(nl_file_source_snapshot_storage(p)==prior && nl_file_source_snapshot_count(p)==1);
  put(path,bytes,(size_t)length);
@@ -66,8 +91,8 @@ int main(int argc,char **argv){
  assert(acquire(p,origin,"interface.json",&i)==NL_FILE_BINDING_OK);size_t full_size=0;assert(nl_file_source_snapshot_bytes(p,i,1,&full_size) && full_size==NL_FILE_BINDING_MAX_BYTES);put(path,bytes,(size_t)length);
  assert(acquire(p,"relative.nano","interface.json",&i)==NL_FILE_BINDING_INVALID);
  assert(acquire(p,origin,path,&i)==NL_FILE_BINDING_INVALID);
- char nul[]="interface.json\0suffix";assert(nl_file_source_snapshot_open(p,origin,strlen(origin),nul,sizeof nul-1,&i)==NL_FILE_BINDING_INVALID);
- const char invalid[]={ (char)0xff };assert(nl_file_source_snapshot_open(p,origin,strlen(origin),invalid,1,&i)==NL_FILE_BINDING_INVALID);
+ char nul[]="interface.json\0suffix";assert(nl_service_source_snapshot_open(p,selected_catalog,origin,strlen(origin),nul,sizeof nul-1,&i)==NL_FILE_BINDING_INVALID);
+ const char invalid[]={ (char)0xff };assert(nl_service_source_snapshot_open(p,selected_catalog,origin,strlen(origin),invalid,1,&i)==NL_FILE_BINDING_INVALID);
  for(int mode=1;mode<=3;mode++){
   io_fault=mode;size_t before=closes,index=99;NlFileBindingStatus result=acquire(p,origin,"interface.json",&index);assert(closes==before+1);
   if(mode==2)assert(result==NL_FILE_BINDING_OK);else assert(result==NL_FILE_BINDING_IO && index==99);
@@ -85,5 +110,5 @@ int main(int argc,char **argv){
   nl_file_source_snapshots_free(p);assert(!live);
  }fail_at=0;
  assert(!unlink(path));assert(!unlink(link));assert(!unlink(fifo));assert(!rmdir(folder));assert(!rmdir(directory));free(directory);free(bytes);
- puts("PASS immutable companion, counted paths, strict catalog, I/O/allocator failures, capacity and bounds");return 0;
+ printf("CATALOG %lld\n",(long long)selected_catalog);puts("PASS immutable companion, counted paths, strict catalog, I/O/allocator failures, capacity and bounds");return 0;
 }

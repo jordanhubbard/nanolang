@@ -479,7 +479,7 @@ static const Nvm2cHost artifact_adapters[] = {
 };
 
 /* I keep exact heterogeneous artifact signatures separate from string-only hosts. */
-typedef struct { Nvm2cHost host; uint8_t parameters[5]; } Nvm2cTypedHost;
+typedef struct { Nvm2cHost host; uint8_t parameters[6]; } Nvm2cTypedHost;
 static const Nvm2cTypedHost typed_artifact_adapters[] = {
     {{"nl_file_product_new", "nhost_file_product", 3, TAG_VOID, TAG_OPAQUE}, {TAG_STRING, TAG_STRING, TAG_INT}},
     {{"nl_file_product_valid", "nhost_file_product", 1, TAG_VOID, TAG_INT}, {TAG_OPAQUE}},
@@ -489,6 +489,12 @@ static const Nvm2cTypedHost typed_artifact_adapters[] = {
     {{"nl_file_product_free", "nhost_file_product", 1, TAG_VOID, TAG_VOID}, {TAG_OPAQUE}},
     {{"nl_file_source_catalog_string", "nhost_file_catalog", 4, TAG_VOID, TAG_STRING}, {TAG_INT, TAG_INT, TAG_INT, TAG_INT}},
     {{"nl_file_source_catalog_number", "nhost_file_catalog", 4, TAG_VOID, TAG_INT}, {TAG_INT, TAG_INT, TAG_INT, TAG_INT}},
+    {{"nl_service_source_catalog_id", "nhost_file_catalog", 1, TAG_VOID, TAG_INT}, {TAG_STRING}},
+    {{"nl_service_source_catalog_count", "nhost_file_catalog", 2, TAG_VOID, TAG_INT}, {TAG_INT, TAG_INT}},
+    {{"nl_service_source_catalog_string", "nhost_file_catalog", 5, TAG_VOID, TAG_STRING}, {TAG_INT, TAG_INT, TAG_INT, TAG_INT, TAG_INT}},
+    {{"nl_service_source_catalog_number", "nhost_file_catalog", 5, TAG_VOID, TAG_INT}, {TAG_INT, TAG_INT, TAG_INT, TAG_INT, TAG_INT}},
+    {{"nl_source_inputs_open_catalog", "nhost_source_inputs", 6, TAG_VOID, TAG_INT}, {TAG_OPAQUE, TAG_INT, TAG_STRING, TAG_INT, TAG_STRING, TAG_INT}},
+    {{"nl_source_inputs_catalog", "nhost_source_inputs", 2, TAG_VOID, TAG_INT}, {TAG_OPAQUE, TAG_INT}},
     {{"nl_source_inputs_new", "nhost_source_inputs", 0, TAG_VOID, TAG_OPAQUE}, {TAG_VOID}},
     {{"nl_source_inputs_valid", "nhost_source_inputs", 1, TAG_VOID, TAG_INT}, {TAG_OPAQUE}},
     {{"nl_source_inputs_count", "nhost_source_inputs", 1, TAG_VOID, TAG_INT}, {TAG_OPAQUE}},
@@ -8072,6 +8078,13 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (module_has_opcode(mod, OP_AGG_GET) || module_has_opcode(mod, OP_LOAD_UPVALUE))
             nvm2c_puts(&b, "    (void)nrec_f64;\n");
         /* Standard C references keep strict unused-function warnings clean. */
+        if (module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_INT) ||
+            module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_U8) ||
+            module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_BOOL) ||
+            module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_FLOAT) ||
+            module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_FUNCTION) ||
+            module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_CLOSURE))
+            nvm2c_puts(&b, "    (void)narr_lit;\n");
         for (uint32_t i = 0; i < mod->function_count; ++i) {
             if (!b.emitted_functions[i]) continue;
             char name[64];

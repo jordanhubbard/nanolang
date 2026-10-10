@@ -962,8 +962,8 @@ bool acquire_service_input(ASTNode *program, Environment *env) {
     const char *relative = service->as.service_decl.document_path;
     if (owner < 0 || owner >= env->service_origin_count || owner >= 16 ||
         service->as.service_decl.catalog_version != 1 || !interface_id || !relative ||
-        strcmp(interface_id, "nsi:nanolang/filesystem") ||
-        service->as.service_decl.interface_bytes != (int64_t)sizeof("nsi:nanolang/filesystem") - 1 ||
+        !nl_service_source_catalog_id(interface_id) ||
+        service->as.service_decl.interface_bytes != (int64_t)strlen(interface_id) ||
         service->as.service_decl.path_bytes <= 0 ||
         service->as.service_decl.path_bytes > NL_FILE_BINDING_MAX_BYTES ||
         (uint64_t)service->as.service_decl.path_bytes != strlen(relative)) return false;
@@ -974,13 +974,14 @@ bool acquire_service_input(ASTNode *program, Environment *env) {
         const unsigned char *path = nl_file_source_snapshot_bytes(env->service_inputs,
             env->service_snapshot_indices[owner], 0, &size);
         while (parent && origin[parent - 1] != '/') --parent;
-        return path && parent <= size && count == size - parent &&
+        return nl_service_source_snapshot_catalog(env->service_inputs, env->service_snapshot_indices[owner]) ==
+            nl_service_source_catalog_id(interface_id) && path && parent <= size && count == size - parent &&
             !memcmp(path, origin, parent) && !memcmp(path + parent, relative, count);
     }
     if (!env->service_inputs &&
         nl_file_source_snapshots_new(&env->service_inputs) != NL_FILE_BINDING_OK) return false;
     size_t index;
-    if (nl_file_source_snapshot_open(env->service_inputs, origin, strlen(origin),
+    if (nl_service_source_snapshot_open(env->service_inputs, nl_service_source_catalog_id(interface_id), origin, strlen(origin),
             relative, service->as.service_decl.path_bytes, &index) != NL_FILE_BINDING_OK) return false;
     env->service_snapshot_indices[owner] = index;
     env->service_snapshot_bound[owner] = true;

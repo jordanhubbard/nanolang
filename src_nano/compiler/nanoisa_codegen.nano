@@ -2653,6 +2653,8 @@ fn nisa_source_inputs_signature(name: string) -> array<string> {
     if (== name "nl_source_inputs_new") { return ["NlFileSourceSnapshots"] }
     if (or (== name "nl_source_inputs_valid") (== name "nl_source_inputs_count")) { return ["int", "NlFileSourceSnapshots"] }
     if (== name "nl_source_inputs_open") { return ["int", "NlFileSourceSnapshots", "string", "int", "string", "int"] }
+    if (== name "nl_source_inputs_open_catalog") { return ["int", "NlFileSourceSnapshots", "int", "string", "int", "string", "int"] }
+    if (== name "nl_source_inputs_catalog") { return ["int", "NlFileSourceSnapshots", "int"] }
     if (== name "nl_source_inputs_text") { return ["string", "NlFileSourceSnapshots", "int", "int"] }
     if (== name "nl_source_inputs_free") { return ["void", "NlFileSourceSnapshots"] }
     return []
@@ -2661,6 +2663,9 @@ shadow nisa_source_inputs_signature {
     assert (== (at (nisa_source_inputs_signature "nl_source_inputs_new") 0) "NlFileSourceSnapshots")
     assert (== (array_length (nisa_source_inputs_signature "nl_source_inputs_open")) 6)
     assert (== (at (nisa_source_inputs_signature "nl_source_inputs_open") 4) "string")
+    assert (== (array_length (nisa_source_inputs_signature "nl_source_inputs_open_catalog")) 7)
+    assert (== (at (nisa_source_inputs_signature "nl_source_inputs_open_catalog") 5) "string")
+    assert (== (array_length (nisa_source_inputs_signature "nl_source_inputs_catalog")) 3)
     assert (== (at (nisa_source_inputs_signature "nl_source_inputs_text") 0) "string")
     assert (== (at (nisa_source_inputs_signature "nl_source_inputs_free") 0) "void")
     assert (== (array_length (nisa_source_inputs_signature "nl_source_inputs_unknown")) 0)
@@ -2686,6 +2691,10 @@ shadow nisa_file_product_signature {
 fn nisa_typed_artifact_signature(name: string) -> array<string> {
     if (== name "nl_file_source_catalog_string") { return ["string", "int", "int", "int", "int"] }
     if (== name "nl_file_source_catalog_number") { return ["int", "int", "int", "int", "int"] }
+    if (== name "nl_service_source_catalog_id") { return ["int", "string"] }
+    if (== name "nl_service_source_catalog_count") { return ["int", "int", "int"] }
+    if (== name "nl_service_source_catalog_string") { return ["string", "int", "int", "int", "int", "int"] }
+    if (== name "nl_service_source_catalog_number") { return ["int", "int", "int", "int", "int", "int"] }
     let json: array<string> = (nisa_json_signature name)
     if (> (array_length json) 0) { return json }
     let inputs: array<string> = (nisa_source_inputs_signature name)
@@ -2697,6 +2706,8 @@ fn nisa_typed_artifact_signature(name: string) -> array<string> {
 shadow nisa_typed_artifact_signature {
     assert (== (array_length (nisa_typed_artifact_signature "nl_file_source_catalog_string")) 5)
     assert (== (at (nisa_typed_artifact_signature "nl_file_source_catalog_number") 4) "int")
+    assert (== (array_length (nisa_typed_artifact_signature "nl_service_source_catalog_string")) 6)
+    assert (== (at (nisa_typed_artifact_signature "nl_service_source_catalog_id") 1) "string")
     assert (== (at (nisa_typed_artifact_signature "nl_json_get") 0) "Json")
     assert (== (at (nisa_typed_artifact_signature "nl_sqlite3_column_double") 0) "float")
     assert (== (at (nisa_typed_artifact_signature "nl_file_product_publish") 1) "NlFileProduct")

@@ -1,6 +1,7 @@
 #ifndef NL_FILE_SOURCE_SNAPSHOT_H
 #define NL_FILE_SOURCE_SNAPSHOT_H
 #include "nsi_file_binding.h"
+#include "service_source_catalog.h"
 #define NL_FILE_SOURCE_SNAPSHOT_LIMIT 16u
 #define NL_FILE_SOURCE_SNAPSHOT_BUDGET (64u * 1024u * 1024u)
 typedef struct NlFileSourceSnapshots NlFileSourceSnapshots;
@@ -12,6 +13,12 @@ NlFileBindingStatus nl_file_source_snapshots_new(NlFileSourceSnapshots **out);
 void nl_file_source_snapshots_free(NlFileSourceSnapshots *);
 NlFileBindingStatus nl_file_source_snapshot_open(NlFileSourceSnapshots *,
  const char *origin,size_t origin_size,const char *relative,size_t relative_size,size_t *index);
+/* I select an exact expected catalog before I/O and retain it on success.
+ * The legacy open entry remains File-only. Unknown selectors refuse before I/O. */
+NlBindingStatus nl_service_source_snapshot_open(NlFileSourceSnapshots *,int64_t catalog,
+ const char *origin,size_t origin_size,const char *relative,size_t relative_size,size_t *index);
+/* Invalid context/index returns NONE; identity does not grant execution. */
+int64_t nl_service_source_snapshot_catalog(const NlFileSourceSnapshots *,size_t index);
 size_t nl_file_source_snapshot_count(const NlFileSourceSnapshots *);
 size_t nl_file_source_snapshot_storage(const NlFileSourceSnapshots *);
 /* I bound project-requested heap, including failed admitted attempts. Stack,

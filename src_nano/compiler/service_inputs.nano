@@ -3,6 +3,7 @@ import "src_nano/parser.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/compiler/service_origins.nano"
 import "modules/file_source_inputs/file_source_inputs.nano"
+module "modules/file_source_catalog/file_source_catalog.nano" as InputCatalog
 
 struct ServiceInputs {
     ok: bool,
@@ -25,7 +26,7 @@ pub fn acquire_service_inputs(parser: Parser, files: array<string>, origins: Ser
         if (or (< origin.file_index 0) (>= origin.file_index (array_length files))) { return failed }
         if (!= node.origin_index origin.file_index) { return failed }
         if (or (< origin.line 1) (< origin.column 1)) { return failed }
-        if (or (!= node.catalog_version 1) (!= node.interface_id "nsi:nanolang/filesystem")) { return failed }
+        if (or (!= node.catalog_version 1) (== (InputCatalog.catalog_id node.interface_id) 0)) { return failed }
         if (!= node.interface_bytes (str_length node.interface_id)) { return failed }
         if (or (<= node.path_bytes 0) (!= node.path_bytes (str_length node.document_path))) { return failed }
         let mut prior: int = 0
@@ -44,7 +45,7 @@ pub fn acquire_service_inputs(parser: Parser, files: array<string>, origins: Ser
         let origin: ServiceOrigin = (at origins.locations index)
         let source: string = (at files origin.file_index)
         unsafe {
-            let snapshot: int = (nl_source_inputs_open context source (str_length source) node.document_path node.path_bytes)
+            let snapshot: int = (nl_source_inputs_open_catalog context (InputCatalog.catalog_id node.interface_id) source (str_length source) node.document_path node.path_bytes)
             if (< snapshot 0) { return failed }
             let path: string = (nl_source_inputs_text context snapshot 0)
             if (== path "") { return failed }

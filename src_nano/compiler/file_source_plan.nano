@@ -24,52 +24,68 @@ fn fsp_number(value: int) -> string { return (+ "#" (+ (int_to_string value) ";"
 shadow fsp_number { assert (== (fsp_number 1) "#1;") }
 
 # This independently formats every catalog fact; C exposes only immutable getters.
-pub fn file_source_catalog_view() -> string {
-    let mut out: string = (+ "file-source-catalog1;" (fsp_string (FileCatalog.text 0 0 0 0)))
-    set out (+ out (+ (fsp_number 8) (fsp_number 5)))
+pub fn service_source_catalog_view(catalog: int) -> string {
+    let types: int = (FileCatalog.count catalog 1)
+    let methods: int = (FileCatalog.count catalog 2)
+    if (or (or (< types 1) (> types 64)) (or (< methods 1) (> methods 64))) { return "" }
+    let mut prefix: string = "file-source-catalog1;"
+    if (== catalog 2) { set prefix "socket-source-catalog1;" }
+    let mut out: string = (+ prefix (fsp_string (FileCatalog.catalog_text catalog 0 0 0 0)))
+    set out (+ out (+ (fsp_number types) (fsp_number methods)))
     let mut i: int = 0
-    while (< i 8) {
+    while (< i types) {
         let mut f: int = 0
-        while (< f 2) { set out (+ out (fsp_string (FileCatalog.text 1 i f 0))) set f (+ f 1) }
+        while (< f 2) { set out (+ out (fsp_string (FileCatalog.catalog_text catalog 1 i f 0))) set f (+ f 1) }
         set f 0
-        while (< f 2) { set out (+ out (fsp_number (FileCatalog.number 1 i f 0))) set f (+ f 1) }
-        let count: int = (FileCatalog.number 1 i 1 0)
-        if (or (< count 0) (> count 8)) { return "" }
+        while (< f 2) { set out (+ out (fsp_number (FileCatalog.catalog_number catalog 1 i f 0))) set f (+ f 1) }
+        let count: int = (FileCatalog.catalog_number catalog 1 i 1 0)
+        if (or (< count 0) (> count 64)) { return "" }
         let mut j: int = 0
         while (< j count) {
             set f 2
-            while (< f 5) { set out (+ out (fsp_string (FileCatalog.text 1 i f j))) set f (+ f 1) }
-            set out (+ out (fsp_number (FileCatalog.number 1 i 2 j)))
+            while (< f 5) { set out (+ out (fsp_string (FileCatalog.catalog_text catalog 1 i f j))) set f (+ f 1) }
+            set out (+ out (fsp_number (FileCatalog.catalog_number catalog 1 i 2 j)))
             set j (+ j 1)
         }
         set i (+ i 1)
     }
     set i 0
-    while (< i 5) {
+    while (< i methods) {
         let mut f: int = 0
-        while (< f 4) { set out (+ out (fsp_string (FileCatalog.text 2 i f 0))) set f (+ f 1) }
+        while (< f 4) { set out (+ out (fsp_string (FileCatalog.catalog_text catalog 2 i f 0))) set f (+ f 1) }
         set f 0
-        while (< f 5) { set out (+ out (fsp_number (FileCatalog.number 2 i f 0))) set f (+ f 1) }
-        let count: int = (FileCatalog.number 2 i 4 0)
-        if (or (< count 0) (> count 8)) { return "" }
+        while (< f 5) { set out (+ out (fsp_number (FileCatalog.catalog_number catalog 2 i f 0))) set f (+ f 1) }
+        let count: int = (FileCatalog.catalog_number catalog 2 i 4 0)
+        if (or (< count 0) (> count 64)) { return "" }
         let mut j: int = 0
         while (< j count) {
             set f 4
-            while (< f 7) { set out (+ out (fsp_string (FileCatalog.text 2 i f j))) set f (+ f 1) }
+            while (< f 7) { set out (+ out (fsp_string (FileCatalog.catalog_text catalog 2 i f j))) set f (+ f 1) }
             set f 5
-            while (< f 10) { set out (+ out (fsp_number (FileCatalog.number 2 i f j))) set f (+ f 1) }
+            while (< f 10) { set out (+ out (fsp_number (FileCatalog.catalog_number catalog 2 i f j))) set f (+ f 1) }
             set j (+ j 1)
         }
         set j 0
         while (< j 2) {
-            set out (+ out (fsp_number (FileCatalog.number 2 i 10 j)))
-            set out (+ out (fsp_string (FileCatalog.text 2 i 7 j)))
+            set out (+ out (fsp_number (FileCatalog.catalog_number catalog 2 i 10 j)))
+            set out (+ out (fsp_string (FileCatalog.catalog_text catalog 2 i 7 j)))
             set j (+ j 1)
         }
         set i (+ i 1)
     }
     if (>= (str_length out) 32768) { return "" }
     return out
+}
+shadow service_source_catalog_view {
+    let view: string = (service_source_catalog_view 2)
+    assert (str_contains view "socket-source-catalog1;")
+    assert (str_contains view "nsi.tcp.v1.begin_connect")
+    assert (str_contains view "connect_pending")
+    assert (str_contains view "Endpoint")
+    assert (== (service_source_catalog_view 0) "")
+}
+pub fn file_source_catalog_view() -> string {
+    return (service_source_catalog_view 1)
 }
 shadow file_source_catalog_view {
     let view: string = (file_source_catalog_view)

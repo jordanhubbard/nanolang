@@ -51,5 +51,24 @@ class CServiceInputs(unittest.TestCase):
                         if before is not None: self.assertEqual(companion.read_bytes(), before)
 
 
+    def test_tcp_inputs_do_not_grant_source_execution(self):
+        with tempfile.TemporaryDirectory(prefix="nano-tcp-admission-") as directory:
+            work=Path(directory)
+            source=work/'binding.nano'
+            source.write_text('service "nsi:nanolang/net" catalog 1 from "interface.nsi.json"\nfn main() -> int { return 0 }\nshadow main { assert true }\n')
+            companion=work/'interface.nsi.json'
+            catalog=(ROOT/'tests/fixtures/nsi_socket_plan.json').read_bytes()
+            companion.write_bytes(catalog)
+            for compiler in ("nanoc_c","nano_virt","nanoc_stage1","nanoc_stage2"):
+                with self.subTest(compiler=compiler):
+                    output=work/(compiler+'.out');output.write_bytes(b'prior-output')
+                    args=[ROOT/'bin'/compiler,source,'-o',output,'--allow-temporary-files']
+                    if compiler!='nanoc_c':args.append('--emit-nvm')
+                    result=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=60)
+                    self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+                    self.assertEqual(output.read_bytes(),b'prior-output')
+                    self.assertEqual(companion.read_bytes(),catalog)
+
+
 if __name__ == "__main__":
     unittest.main()

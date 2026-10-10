@@ -20,7 +20,7 @@ class BootstrapBoundaries(unittest.TestCase):
         self.bootstrap.work = self.root / 'work'
         self.bootstrap.work.mkdir()
         for name in ('Makefile.gnu', 'scripts/bootstrap_nanoisa.py', 'tests/bootstrap_native_guard.py',
-                     'src_nano/compiler.nano', 'modules/std/module.json', 'modules/std/host.c',
+                     'src_nano/compiler.nano', 'src/engine.inc', 'modules/std/module.json', 'modules/std/host.c',
                      'bin/nano_virt', 'bin/nano_vm', 'bin/nanoisa', 'bin/nvm2c',
                      'bin/nano_aot_runtime.o', 'bin/nano_as_capture.so', 'host-library', 'bin/stage.nvm'):
             path = self.root / name
@@ -34,7 +34,7 @@ class BootstrapBoundaries(unittest.TestCase):
 
     def test_source_tool_and_host_mutation_are_refused(self):
         self.bootstrap.check_inputs()
-        for name in ('src_nano/compiler.nano', 'modules/std/host.c', 'bin/nano_vm', 'host-library'):
+        for name in ('src_nano/compiler.nano', 'src/engine.inc', 'modules/std/host.c', 'bin/nano_vm', 'host-library'):
             path = self.root / name
             with self.subTest(input=name):
                 path.write_text('changed bytes')

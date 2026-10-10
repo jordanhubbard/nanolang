@@ -25,7 +25,7 @@ class ServiceOrigins(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(declaration)
             for folder in ("one", "two"):
-                shutil.copyfile(ROOT / "tests/fixtures/nsi_file_plan.json", work / folder / "interface.nsi.json")
+                shutil.copyfile(ROOT / ("tests/fixtures/nsi_file_plan.json" if folder=="one" else "tests/fixtures/nsi_socket_plan.json"), work / folder / "interface.nsi.json")
             (work / "alias.nano").symlink_to(work / "one/binding.nano")
             (work / "bridge.nano").write_text('module "alias.nano" as files\n')
             (work / "main.nano").write_text('module "bridge.nano" as wrapper\n')

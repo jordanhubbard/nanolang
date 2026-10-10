@@ -33,7 +33,7 @@ class ServiceInputs(unittest.TestCase):
                 self.checked([*cc, "-std=c11", "-O1", "-g", "-Wall", "-Wextra", "-Werror",
                               "-fsanitize=address,undefined", "-fno-sanitize-recover=all", source,
                               "-o", native, "-lm", *(["-ldl"] if sys.platform.startswith("linux") else [])])
-                for mode in ("ok", "invalid", "missing", "symlink"):
+                for mode in ("ok", "invalid", "missing", "symlink", "crossed"):
                     for engine in ("vm", "native"):
                         with self.subTest(compiler=stage, mode=mode, engine=engine):
                             roots = [work / "one", work / "two"]
@@ -42,9 +42,11 @@ class ServiceInputs(unittest.TestCase):
                                 (root / "binding.nano").write_text("# retained origin\n")
                                 companion = root / "interface.nsi.json"
                                 companion.unlink(missing_ok=True)
-                                companion.write_bytes(catalog)
+                                companion.write_bytes(catalog if root==roots[0] else (ROOT/"tests/fixtures/nsi_socket_plan.json").read_bytes())
                             second = roots[1] / "interface.nsi.json"
-                            if mode == "invalid":
+                            if mode == "crossed":
+                                second.write_bytes(catalog)
+                            elif mode == "invalid":
                                 second.write_text("{}")
                             elif mode == "missing":
                                 second.unlink()
@@ -101,7 +103,7 @@ class ServiceInputs(unittest.TestCase):
                         elif mode.endswith("alias"):
                             self.assertIn("I will not overwrite a source file", text)
                         else:
-                            self.assertIn("I have not resolved File service declarations", text)
+                            self.assertIn("I require --allow-temporary-files for selected File shadows or execution", text)
                         self.assertEqual(output.read_bytes(), b"prior-output")
                         if before is not None: self.assertEqual(companion.read_bytes(), before)
 

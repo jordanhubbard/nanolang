@@ -1,7 +1,7 @@
 """I retain fresh C ownership and paired C-seed/Stage1/Stage2 plan reports.
 
 My orchestrator prepares a fresh bootstrap before this gate. I do not rebuild
-or select another compiler silently. C sanitizers cover these three small
+or select another compiler silently. C sanitizers cover these four small
 providers and C fixtures; I do not advertise Nano recoverable allocation parity.
 """
 from pathlib import Path
@@ -18,7 +18,7 @@ from tests.file_source_plan_corpus import corpus, expected, generate_c, generate
 
 ROOT = Path(__file__).resolve().parents[1]
 PROVIDERS = ['src/nanoisa/file_source_plan.c', 'src/nanoisa/file_source_catalog.c',
-             'src/nsi_file_plan.c']
+             'src/nsi_file_plan.c', 'src/nsi_socket_plan.c']
 
 class FileSourcePlan(unittest.TestCase):
     @classmethod
@@ -130,14 +130,15 @@ class FileSourcePlan(unittest.TestCase):
         self.command('corpus-c-build',[*self.cc,*self.flags,c,*self.objects,'-o',executable])
         baseline,_=self.command('corpus-c-run',[executable])
         catalog,separator,body=baseline.partition(b'\n')
-        self.assertEqual(separator,b'\n');self.assertTrue(catalog.startswith(b'CAT:file-source-catalog1;'))
+        self.assertEqual(separator,b'\n');self.assertEqual(catalog,b'CAT:'+(ROOT/'tests/fixtures/file_source_catalog_expected.txt').read_bytes().rstrip(b'\n'))
         self.assertEqual(body,expected(cases))
         (self.work/'expected-rows.txt').write_bytes(expected(cases))
         expected_names={f'case_{i}' for i in range(len(cases))}
         expected_names.update({'emit','nano_extent_case','nano_budget_case',
             'fsp_string','fsp_number','file_source_catalog_view','fsp_text_ok',
             'fsp_value','fsp_equal','fsp_literal','fsp_id_ok','fsp_add',
-            'fsp_failure','fsp_category','file_source_plan','text','number'})
+            'fsp_failure','fsp_category','file_source_plan','text','number',
+            'service_source_catalog_view','catalog_id','count','catalog_text','catalog_number'})
         # I invoke actual native drivers with dependency shadows selected by default.
         for compiler in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
             output=self.work/compiler
@@ -145,7 +146,7 @@ class FileSourcePlan(unittest.TestCase):
             shadow=self.work/(compiler+'-shadows.json')
             if compiler=='nanoc_c':args.extend(['--llm-shadow-json',shadow,'--verbose'])
             build_out,trace=self.command(compiler+'-build',args,timeout=900,
-                                 extra={'NANO_SHADOW_TRACE':'1'})
+                                 extra={'NANO_SHADOW_TRACE':'1', 'NANO_SHADOW_TIMEOUT_SECONDS':'30'})
             if compiler=='nanoc_c':
                 report=json.loads(shadow.read_text())
                 self.assertTrue(report['completed']);self.assertTrue(report['success'])

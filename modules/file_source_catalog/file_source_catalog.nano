@@ -17,3 +17,46 @@ shadow number {
     assert (== (number 2 0 0 0) 1)
     assert (== (number 2 5 0 0) -1)
 }
+
+extern fn nl_service_source_catalog_id(interface_id: string) -> int
+extern fn nl_service_source_catalog_count(catalog: int, kind: int) -> int
+extern fn nl_service_source_catalog_string(catalog: int, kind: int, ordinal: int, field: int, member: int) -> string
+extern fn nl_service_source_catalog_number(catalog: int, kind: int, ordinal: int, field: int, member: int) -> int
+
+pub fn catalog_id(interface_id: string) -> int {
+    unsafe { return (nl_service_source_catalog_id interface_id) }
+}
+shadow catalog_id {
+    assert (== (catalog_id "nsi:nanolang/filesystem") 1)
+    assert (== (catalog_id "nsi:nanolang/net") 2)
+    assert (== (catalog_id "nsi:nanolang/net#Socket") 0)
+}
+pub fn count(catalog: int, kind: int) -> int {
+    unsafe { return (nl_service_source_catalog_count catalog kind) }
+}
+shadow count {
+    assert (== (count 1 1) 8)
+    assert (== (count 2 1) 9)
+    assert (== (count 2 2) 5)
+    assert (== (count 2 0) -1)
+    assert (== (count -1 1) -1)
+}
+pub fn catalog_text(catalog: int, kind: int, ordinal: int, field: int, member: int) -> string {
+    unsafe { return (nl_service_source_catalog_string catalog kind ordinal field member) }
+}
+shadow catalog_text {
+    assert (== (catalog_text 2 1 0 1 0) "Conn")
+    assert (== (catalog_text 2 1 8 1 0) "Endpoint")
+    assert (== (catalog_text 1 1 8 1 0) "")
+    assert (== (catalog_text 3 0 0 0 0) "")
+}
+pub fn catalog_number(catalog: int, kind: int, ordinal: int, field: int, member: int) -> int {
+    unsafe { return (nl_service_source_catalog_number catalog kind ordinal field member) }
+}
+shadow catalog_number {
+    assert (== (catalog_number 2 1 1 1 0) 11)
+    assert (== (catalog_number 2 1 8 1 0) 7)
+    assert (== (catalog_number 2 1 8 2 0) 4)
+    assert (== (catalog_number 2 2 4 3 0) 2)
+    assert (== (catalog_number 3 1 0 1 0) -1)
+}

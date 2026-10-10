@@ -1,18 +1,32 @@
 {
   "name": "file_source_inputs",
   "version": "0.1.0",
-  "description": "I retain bounded immutable compiler companions without File authority",
-  "headers": ["file_source_inputs.h"],
-  "include_dirs": ["src", "modules/file_source_inputs"],
+  "description": "I expose checked File and TCP source data without execution authority",
+  "headers": [
+    "file_source_inputs.h"
+  ],
+  "include_dirs": [
+    "src",
+    "modules/file_source_inputs"
+  ],
   "c_sources": [
     "file_source_inputs.c",
     "../../src/nanoisa/file_source_snapshot.c",
     "../../src/nsi_file_binding.c",
-    "../../src/nsi_file_plan.c",
     "../../src/nsi.c",
-    "../../src/cJSON.c"
+    "../../src/cJSON.c",
+    "../../src/nsi_socket_binding.c",
+    "../../src/nsi_file_plan.c",
+    "../../src/nsi_socket_plan.c"
   ],
-  "shared_c_sources": ["../../src/utf8.c"],
-  "cflags": ["-D_GNU_SOURCE", "-D_DARWIN_C_SOURCE"],
-  "owned_string_returns": ["nl_source_inputs_text"]
+  "shared_c_sources": [
+    "../../src/utf8.c"
+  ],
+  "cflags": [
+    "-D_GNU_SOURCE",
+    "-D_DARWIN_C_SOURCE"
+  ],
+  "owned_string_returns": [
+    "nl_source_inputs_text"
+  ]
 }

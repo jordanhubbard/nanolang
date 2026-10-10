@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
     assert(!bind_service_origin(first, env, path));
     assert(first->as.program.items[0]->as.service_decl.origin_index == 0);
     assert(env->service_origin_count == 1);
-    ASTNode *second = parse(declaration);
+    ASTNode *second = parse("service \"nsi:nanolang/net\" catalog 1 from \"interface.nsi.json\"\n");
     assert(bind_service_origin(second, env, path));
     assert(second->as.program.items[0]->as.service_decl.origin_index == 1);
     assert(strcmp(env->service_origins[0], env->service_origins[1]));
@@ -53,6 +53,8 @@ int main(int argc, char **argv) {
     assert(acquire_service_input(first, env));
     assert(acquire_service_input(second, env));
     assert(nl_file_source_snapshot_count(env->service_inputs) == 2);
+    assert(nl_service_source_snapshot_catalog(env->service_inputs, 0) == 1);
+    assert(nl_service_source_snapshot_catalog(env->service_inputs, 1) == 2);
     assert(env->service_snapshot_bound[0] && env->service_snapshot_bound[1]);
     size_t bytes = 0;
     const unsigned char *retained = nl_file_source_snapshot_bytes(env->service_inputs,
@@ -67,6 +69,13 @@ int main(int argc, char **argv) {
     assert(nl_file_source_snapshot_count(env->service_inputs) == 2);
     assert(!memcmp(copy, retained, bytes));
     ASTNode *node = first->as.program.items[0];
+    char *original_interface = node->as.service_decl.interface_id;
+    int64_t original_interface_bytes = node->as.service_decl.interface_bytes;
+    node->as.service_decl.interface_id = "nsi:nanolang/net";
+    node->as.service_decl.interface_bytes = (int64_t)strlen(node->as.service_decl.interface_id);
+    assert(!acquire_service_input(first, env));
+    node->as.service_decl.interface_id = original_interface;
+    node->as.service_decl.interface_bytes = original_interface_bytes;
     char *original_path = node->as.service_decl.document_path;
     int64_t original_size = node->as.service_decl.path_bytes;
     node->as.service_decl.document_path = "other.json";

@@ -5564,7 +5564,8 @@ static ASTNode *parse_service_declaration(Stage1Parser *p) {
         if (strlen(decoded[i]) != (size_t)texts[i]->value_bytes ||
             !nl_utf8_validate(decoded[i], (size_t)texts[i]->value_bytes, NULL)) goto invalid;
     }
-    if (strcmp(decoded[0], "nsi:nanolang/filesystem") || decoded[1][0] == '/') goto invalid;
+    if ((strcmp(decoded[0], "nsi:nanolang/filesystem") && strcmp(decoded[0], "nsi:nanolang/net")) ||
+        decoded[1][0] == '/') goto invalid;
     ASTNode *node = calloc(1, sizeof(*node));
     if (!node) goto invalid;
     node->type = AST_SERVICE_DECL;
