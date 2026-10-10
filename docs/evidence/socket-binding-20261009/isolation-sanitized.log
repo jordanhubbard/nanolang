@@ -1,0 +1,7 @@
+I retain strict binding artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-socket-binding-0dr4hj_0
+PASS simultaneous File/Socket plans, cross-catalog refusal and independent lifetimes
+.
+----------------------------------------------------------------------
+Ran 1 test in 3.791s
+
+OK

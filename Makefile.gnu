@@ -5737,7 +5737,7 @@ test-file-indirect-dispatch-sanitize: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COM
 # I prepare strict immutable File binding bytes without publishing or executing.
 .PHONY: file-binding-plan
 file-binding-plan: $(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi_file_plan.o $(OBJ_DIR)/nsi.o $(OBJ_DIR)/utf8.o $(OBJ_DIR)/cJSON.o
-$(OBJ_DIR)/nsi_file_binding.o: $(SRC_DIR)/nsi_file_binding.h $(SRC_DIR)/nsi_internal.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi.h $(SRC_DIR)/cJSON.h $(SRC_DIR)/utf8.h
+$(OBJ_DIR)/nsi_file_binding.o: $(SRC_DIR)/nsi_binding.h $(SRC_DIR)/nsi_binding_impl.inc $(SRC_DIR)/nsi_file_binding.h $(SRC_DIR)/nsi_internal.h $(SRC_DIR)/nsi_file_plan.h $(SRC_DIR)/nsi.h $(SRC_DIR)/cJSON.h $(SRC_DIR)/utf8.h
 $(OBJ_DIR)/nsi.o: $(SRC_DIR)/nsi_internal.h
 
 .PHONY: test-file-binding-plan test-file-binding-plan-sanitizers
@@ -5765,7 +5765,7 @@ test-file-cyclic-public-sanitize: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_
 FILE_BINDING_PUBLISH_DIR = $(OBJ_DIR)/file-binding-publisher
 FILE_BINDING_PUBLISH_NAMES = nsi_file_binding_main nsi_file_publish nsi_file_binding nsi_file_plan nsi cJSON utf8
 FILE_BINDING_PUBLISH_OBJECTS = $(addprefix $(FILE_BINDING_PUBLISH_DIR)/,$(addsuffix .o,$(FILE_BINDING_PUBLISH_NAMES)))
-FILE_BINDING_PUBLISH_HEADERS = $(addprefix $(SRC_DIR)/,nsi_file_publish.h nsi_file_binding.h nsi_file_plan.h nsi_file_catalog.h nsi_cap.h nsi_internal.h nsi.h cJSON.h utf8.h)
+FILE_BINDING_PUBLISH_HEADERS = $(addprefix $(SRC_DIR)/,nsi_file_publish.h nsi_file_binding.h nsi_binding.h nsi_binding_impl.inc nsi_file_plan.h nsi_service_catalog.h nsi_service_catalog_internal.h nsi_file_catalog.h nsi_cap.h nsi_internal.h nsi.h cJSON.h utf8.h)
 .PHONY: nsi-file-binding
 nsi-file-binding: $(BIN_DIR)/nsi-file-binding
 $(BIN_DIR)/nsi-file-binding: $(FILE_BINDING_PUBLISH_OBJECTS) | $(BIN_DIR)
@@ -6189,3 +6189,9 @@ test-file-indirect-public: $(BIN_DIR)/nano_vm $(BIN_DIR)/nvm2c $(FILE_PUBLIC_LIB
 	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(FILE_RUNTIME_TEST_OBJECTS)" FILE_INDIRECT_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_public
 test-file-indirect-public-sanitize: $(BIN_DIR)/nano_vm $(BIN_DIR)/nvm2c $(FILE_PUBLIC_LIBRARY) $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
 	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(FILE_RUNTIME_TEST_OBJECTS)" FILE_INDIRECT_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_public
+
+.PHONY: test-nsi-socket-binding
+test-nsi-socket-binding:
+	NANO_FILE_BINDING_CC="$(CC)" NANO_FILE_BINDING_CFLAGS="$(CFLAGS)" NANO_FILE_BINDING_LDFLAGS="$(LDFLAGS)" python3 -m unittest tests.test_nsi_socket_binding
+
+test-units: test-nsi-socket-binding

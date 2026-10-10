@@ -3,25 +3,30 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#define NL_FILE_BINDING_MAX_BYTES 1048576u
-#define NL_FILE_BINDING_MAX_TOKENS 8192u
-#define NL_FILE_BINDING_MAX_DEPTH 64u
-#define NL_FILE_BINDING_MAX_OBJECTS 256u
-#define NL_FILE_BINDING_MAX_MEMBERS 64u
-#define NL_FILE_BINDING_MAX_ELEMENTS 256u
-#define NL_FILE_BINDING_MAX_LEXEME 4096u
-#define NL_FILE_BINDING_MAX_ALLOCATION 16777216u
+#include "nsi_binding.h"
 
 typedef struct NlFileBindingPlan NlFileBindingPlan;
-typedef enum {
-    NL_FILE_BINDING_OK, NL_FILE_BINDING_INVALID, NL_FILE_BINDING_LIMIT,
-    NL_FILE_BINDING_MEMORY, NL_FILE_BINDING_UNRESOLVED,
-    NL_FILE_BINDING_IO, NL_FILE_BINDING_EXISTS, NL_FILE_BINDING_UNSUPPORTED
-} NlFileBindingStatus;
+typedef NlBindingStatus NlFileBindingStatus;
+#define NL_FILE_BINDING_MAX_BYTES NL_BINDING_MAX_BYTES
+#define NL_FILE_BINDING_MAX_TOKENS NL_BINDING_MAX_TOKENS
+#define NL_FILE_BINDING_MAX_DEPTH NL_BINDING_MAX_DEPTH
+#define NL_FILE_BINDING_MAX_OBJECTS NL_BINDING_MAX_OBJECTS
+#define NL_FILE_BINDING_MAX_MEMBERS NL_BINDING_MAX_MEMBERS
+#define NL_FILE_BINDING_MAX_ELEMENTS NL_BINDING_MAX_ELEMENTS
+#define NL_FILE_BINDING_MAX_LEXEME NL_BINDING_MAX_LEXEME
+#define NL_FILE_BINDING_MAX_ALLOCATION NL_BINDING_MAX_ALLOCATION
+#define NL_FILE_BINDING_OK NL_BINDING_OK
+#define NL_FILE_BINDING_INVALID NL_BINDING_INVALID
+#define NL_FILE_BINDING_LIMIT NL_BINDING_LIMIT
+#define NL_FILE_BINDING_MEMORY NL_BINDING_MEMORY
+#define NL_FILE_BINDING_UNRESOLVED NL_BINDING_UNRESOLVED
+#define NL_FILE_BINDING_IO NL_BINDING_IO
+#define NL_FILE_BINDING_EXISTS NL_BINDING_EXISTS
+#define NL_FILE_BINDING_UNSUPPORTED NL_BINDING_UNSUPPORTED
 
 /* I validate one complete immutable byte span and render two owned outputs.
  * No path, publication, compiler or File service operation occurs. The source
- * uses the proposed service declaration; existing compilers still refuse it.
+ * uses my service declaration; preparation alone grants no execution rights.
  * Input and output storage are disjoint and readable/writable for the call.
  * Failure preserves *out. Success owns a plan independent of input lifetime.
  * cJSON hooks must remain stable; no cJSON thread-safety claim follows. */
