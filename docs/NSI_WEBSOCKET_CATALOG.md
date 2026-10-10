@@ -301,10 +301,10 @@ indirect mixed queries; Message and owner identities remain instance-specific.
 My hosted query owns counted string bytes, including embedded NUL, independently
 of its input module and wire buffers. A checked query grants no host authority.
 
-Checked mixed runtime creation, native emission and host authorization still refuse
-WebSocket until per-instance policy and value dispatch are implemented. Product
-policy parsing also refuses it instead of treating TCP permission as WebSocket
-permission. Standalone WebSocket continues through its explicit version-2
+Checked mixed runtime creation and native emission still refuse WebSocket until
+value dispatch and policy installation are implemented. Explicit mixed host
+grants can now authorize its checked instance table, but product policy parsing
+still refuses it instead of treating TCP permission as WebSocket permission. Standalone WebSocket continues through its explicit version-2
 catalog-3 provider. Mixed source lowering and VM/native execution remain open.
 
 ## Mixed value ownership
@@ -324,3 +324,26 @@ My [value evidence](evidence/mixed-websocket-values-20261010/README.md) covers
 controlled transport lifetimes, allocation/cleanup faults, real denial and
 relocated installation. The required real-peer gate still fails at listener
 bind with EPERM. This carrier does not yet enable checked mixed execution.
+
+## Mixed host policy
+
+I accept explicit `NvmServicesHostConfig` entries through
+`nvm_services_host_grant_create_config`. Revision 1 supplies each catalog and
+its connection permission. WebSocket additionally supplies separate lookup
+permission, a 0..60000 millisecond deadline ceiling and an optional absolute
+resolver path of at most 4095 bytes. Lookup requires the path; File/TCP entries
+require zero WebSocket-specific fields. I copy paths into the grant and perform
+no network or resolver work during creation.
+
+My old `NvmServicesHostPolicy` constructor remains File/TCP-only. Checked-table
+authorization requires exact catalog positions/count and every declared
+instance's connection permission, including unused declarations. Revoking one
+instance denies authorization without revoking the other instances. Revoking
+the whole grant refuses subsequent policy queries. Public operations share the
+File/TCP/WebSocket BUSY gate; internal policy views borrow paths only while their
+caller holds that gate.
+
+My [grant evidence](evidence/mixed-websocket-grants-20261010/README.md) covers
+copied paths, repeated-instance policies, malformed and denied grants, shared
+gating, allocation failure and a relocated C99 consumer. Checked VM/native
+policy installation and service dispatch remain required before execution.

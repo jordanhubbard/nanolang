@@ -9,9 +9,18 @@
 #define NVM_SERVICES_HOST_INSTANCES 64u
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 /* I bind each policy to its zero-based position in the checked instance table. */
-typedef enum { NVM_SERVICES_HOST_FILE=1, NVM_SERVICES_HOST_TCP=2 } NvmServicesHostCatalog;
+typedef enum { NVM_SERVICES_HOST_FILE=1, NVM_SERVICES_HOST_TCP=2, NVM_SERVICES_HOST_WEBSOCKET=3 } NvmServicesHostCatalog;
 typedef struct { NvmServicesHostCatalog catalog; bool allowed; } NvmServicesHostPolicy;
+#define NVM_SERVICES_HOST_POLICY_REVISION 1u
+typedef struct {
+    uint32_t revision;
+    NvmServicesHostCatalog catalog;
+    bool allowed, allow_lookup;
+    uint32_t max_timeout_ms;
+    const char *resolver_helper;
+} NvmServicesHostConfig;
 
 typedef struct NvmServicesHostGrant NvmServicesHostGrant;
 typedef enum {
@@ -33,6 +42,13 @@ extern "C" {
  * files; TCP permits outbound IPv4/IPv6 connections. A false policy denies that
  * instance. Every declared instance must be allowed before execution begins. */
 NvmServicesHostStatus nvm_services_host_grant_create(const NvmServicesHostPolicy *,size_t,NvmServicesHostGrant **out);
+/* I copy explicit WebSocket connection/lookup authority, a 0..60000 millisecond
+ * deadline ceiling and an optional absolute resolver path of at most 4095 bytes.
+ * Lookup requires a resolver path. File/TCP entries require zero lookup,
+ * deadline and path fields. My older constructor remains File/TCP-only.
+ * Each declared instance must be allowed before execution; lookup can remain
+ * denied independently. Creation performs no resource or resolver operations. */
+NvmServicesHostStatus nvm_services_host_grant_create_config(const NvmServicesHostConfig *,size_t,NvmServicesHostGrant **out);
 NvmServicesHostStatus nvm_services_host_grant_revoke_instance(NvmServicesHostGrant *,size_t);
 /* I grant neither listeners nor arbitrary foreign calls. Catalog positions
  * must match the exact checked table; another table shape confers no authority. */

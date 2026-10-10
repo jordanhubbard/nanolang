@@ -4,6 +4,7 @@
 #undef SERVICES_FLOW_MAIN
 #include "../../src/nanoisa/services_indirect_public.h"
 #include "../../src/nanoisa/services_host_grant_internal.h"
+#include "../../src/nanoisa/file_host_grant_internal.h"
 #include "../../src/nanoisa/services_indirect_runtime.h"
 #include "../../src/runtime/service_policy.h"
 
@@ -151,6 +152,128 @@ static void ws_runtime_refusal(const uint8_t *bytes,size_t size,NvmServicesIndir
  CHECK(report.runtime.status!=NVM_SERVICES_RUNTIME_OK && !report.runtime.acquired && scalar.tag==TAG_INT && scalar.value==123);
  CHECK(nvm_services_host_grant_destroy(&grant)==NVM_SERVICES_HOST_OK && !grant);
 }
+static NvmServicesHostConfig ws_policy(unsigned catalog,unsigned index) {
+ return (NvmServicesHostConfig){.revision=NVM_SERVICES_HOST_POLICY_REVISION,
+  .catalog=(NvmServicesHostCatalog)catalog,.allowed=true,.max_timeout_ms=catalog==3?17+index:0};
+}
+static void ws_grant_boundaries(void){
+ NvmServicesHostGrant *g=NULL;NvmServicesHostConfig p=ws_policy(3,0);
+ CHECK(nvm_services_host_grant_create_config(NULL,1,&g)==NVM_SERVICES_HOST_INVALID && !g);
+ CHECK(nvm_services_host_grant_create_config(&p,0,&g)==NVM_SERVICES_HOST_INVALID && !g);
+ CHECK(nvm_services_host_grant_create_config(&p,65,&g)==NVM_SERVICES_HOST_INVALID && !g);
+ CHECK(nvm_services_host_grant_create_config(&p,1,NULL)==NVM_SERVICES_HOST_INVALID);
+ g=(void *)&checks;CHECK(nvm_services_host_grant_create_config(&p,1,&g)==NVM_SERVICES_HOST_INVALID && g==(void *)&checks);g=NULL;
+ NvmServicesHostPolicy legacy={NVM_SERVICES_HOST_WEBSOCKET,true};
+ CHECK(nvm_services_host_grant_create(&legacy,1,&g)==NVM_SERVICES_HOST_INVALID && !g);
+ char long_path[4097];memset(long_path,'x',sizeof long_path);long_path[0]='/';long_path[4096]=0;
+ for(unsigned bad=0;bad<10;bad++){
+  p=ws_policy(3,0);
+  switch(bad){
+   case 0:p.revision=0;break;case 1:p.catalog=99;break;case 2:p.max_timeout_ms=60001;break;
+   case 3:p.allow_lookup=true;break;case 4:p.resolver_helper="";break;
+   case 5:p.resolver_helper="relative";break;case 6:p.resolver_helper=long_path;break;
+   case 7:p=ws_policy(1,0);p.allow_lookup=true;break;
+   case 8:p=ws_policy(2,0);p.resolver_helper="/resolver";break;
+   case 9:p=ws_policy(1,0);p.max_timeout_ms=1;break;
+  }
+  CHECK(nvm_services_host_grant_create_config(&p,1,&g)==NVM_SERVICES_HOST_INVALID && !g);
+ }
+ long_path[4095]=0;NvmServicesHostConfig all[64];
+ for(unsigned i=0;i<64;i++){all[i]=ws_policy(3,i);all[i].allow_lookup=i%2;all[i].resolver_helper=long_path;}
+ all[63].max_timeout_ms=60000;
+#ifdef SERVICE_ALLOC_TEST
+ budget=0;CHECK(nvm_services_host_grant_create_config(all,64,&g)==NVM_SERVICES_HOST_MEMORY && !g);budget=-1;
+ budget=1;CHECK(nvm_services_host_grant_create_config(all,64,&g)==NVM_SERVICES_HOST_OK && g);budget=-1;
+#else
+ CHECK(nvm_services_host_grant_create_config(all,64,&g)==NVM_SERVICES_HOST_OK && g);
+#endif
+ memset(long_path,0,sizeof long_path);memset(all,0,sizeof all);
+ CHECK(nvm_services_host_enter(g,NVM_SERVICES_HOST_ABI,NVM_SERVICES_HOST_CATALOG)==NVM_SERVICES_HOST_OK);
+ CHECK(nvm_file_host_enter_query()==NVM_FILE_HOST_BUSY);
+ CHECK(nvm_services_host_grant_create_config((void *)1,65,(void *)1)==NVM_SERVICES_HOST_BUSY);
+ CHECK(nvm_services_host_grant_create((void *)1,65,(void *)1)==NVM_SERVICES_HOST_BUSY);
+ CHECK(nvm_services_host_grant_revoke_instance((void *)1,99)==NVM_SERVICES_HOST_BUSY);
+ CHECK(nvm_services_host_grant_revoke((void *)1)==NVM_SERVICES_HOST_BUSY);
+ CHECK(nvm_services_host_grant_destroy((void *)1)==NVM_SERVICES_HOST_BUSY);
+ for(unsigned i=0;i<64;i++){
+  NlWsTransportPolicy actual={0};CHECK(nvm_services_host_websocket_policy(g,i,&actual)==NVM_SERVICES_HOST_OK);
+  CHECK(actual.allow_network && actual.allow_lookup==(bool)(i%2));
+  CHECK(actual.max_timeout_ms==(i==63?60000:17+i));
+  CHECK(actual.resolver_helper && actual.resolver_helper[0]=='/' && strlen(actual.resolver_helper)==4095);
+ }
+ NlWsTransportPolicy out={.allow_network=true,.max_timeout_ms=123},saved=out;
+ CHECK(nvm_services_host_websocket_policy(g,64,&out)==NVM_SERVICES_HOST_INVALID && !memcmp(&out,&saved,sizeof out));
+ CHECK(nvm_services_host_websocket_policy(g,0,NULL)==NVM_SERVICES_HOST_INVALID);
+ nvm_services_host_leave();
+ CHECK(nvm_services_host_grant_revoke_instance(g,63)==NVM_SERVICES_HOST_OK);
+ CHECK(nvm_services_host_grant_revoke_instance(g,63)==NVM_SERVICES_HOST_OK);
+ CHECK(nvm_services_host_grant_revoke_instance(g,64)==NVM_SERVICES_HOST_INVALID);
+ CHECK(nvm_services_host_enter(g,NVM_SERVICES_HOST_ABI,NVM_SERVICES_HOST_CATALOG)==NVM_SERVICES_HOST_OK);
+ CHECK(nvm_services_host_websocket_policy(g,63,&out)==NVM_SERVICES_HOST_OK && !out.allow_network);
+ CHECK(nvm_services_host_websocket_policy(g,62,&out)==NVM_SERVICES_HOST_OK && out.allow_network);
+ nvm_services_host_leave();
+ CHECK(nvm_services_host_grant_revoke(g)==NVM_SERVICES_HOST_OK);
+ CHECK(nvm_services_host_grant_revoke(g)==NVM_SERVICES_HOST_OK);
+ out=saved;CHECK(nvm_services_host_enter_query()==NVM_SERVICES_HOST_OK);
+ CHECK(nvm_services_host_websocket_policy(g,0,&out)==NVM_SERVICES_HOST_STATE && !memcmp(&out,&saved,sizeof out));
+ nvm_services_host_leave();CHECK(nvm_services_host_enter(g,1,3)==NVM_SERVICES_HOST_STATE);
+ CHECK(nvm_services_host_grant_destroy(&g)==NVM_SERVICES_HOST_OK && !g);
+ CHECK(nvm_services_host_grant_destroy(&g)==NVM_SERVICES_HOST_OK && !g);
+ /* I retain separate connections and lookup, including an all-denied policy. */
+ p=ws_policy(3,0);p.allowed=false;p.max_timeout_ms=0;
+ CHECK(nvm_services_host_grant_create_config(&p,1,&g)==NVM_SERVICES_HOST_OK);
+ CHECK(nvm_services_host_enter(g,1,3)==NVM_SERVICES_HOST_OK);
+ CHECK(nvm_services_host_websocket_policy(g,0,&out)==NVM_SERVICES_HOST_OK && !out.allow_network && !out.allow_lookup && !out.resolver_helper && !out.max_timeout_ms);
+ nvm_services_host_leave();CHECK(nvm_services_host_grant_destroy(&g)==NVM_SERVICES_HOST_OK);
+}
+static void ws_grant_plan(NvmServicesIndirectHostedPlan *plan,const NvmMultiNominalBindings *b){
+ NvmServicesHostConfig configs[6]={0};char paths[5][32];NvmServicesHostGrant *g=NULL;
+ for(unsigned i=0;i<b->count;i++){
+  configs[i]=ws_policy(b->instances[i].catalog,i);
+  if(configs[i].catalog==NVM_SERVICES_HOST_WEBSOCKET){
+   snprintf(paths[i],sizeof paths[i],"/resolver/%u",i);configs[i].resolver_helper=paths[i];configs[i].allow_lookup=i%2;
+  }
+ }
+ CHECK(nvm_services_host_grant_create_config(configs,b->count,&g)==NVM_SERVICES_HOST_OK);
+ memset(paths,'?',sizeof paths);
+ CHECK(nvm_services_host_enter(g,1,3)==NVM_SERVICES_HOST_OK);
+ CHECK(nvm_services_host_authorize(g,plan)==NVM_SERVICES_HOST_OK);
+ CHECK(nvm_services_host_authorize(g,NULL)==NVM_SERVICES_HOST_INVALID);
+ for(unsigned i=0;i<b->count;i++){
+  NlWsTransportPolicy out={.max_timeout_ms=123},saved=out;
+  if(configs[i].catalog==NVM_SERVICES_HOST_WEBSOCKET){
+   char expected[32];snprintf(expected,sizeof expected,"/resolver/%u",i);
+   CHECK(nvm_services_host_websocket_policy(g,i,&out)==NVM_SERVICES_HOST_OK);
+   CHECK(out.allow_network && out.allow_lookup==(bool)(i%2) && out.max_timeout_ms==17+i && !strcmp(out.resolver_helper,expected));
+  }else CHECK(nvm_services_host_websocket_policy(g,i,&out)==NVM_SERVICES_HOST_UNRESOLVED && !memcmp(&out,&saved,sizeof out));
+ }
+ nvm_services_host_leave();
+ for(unsigned i=0;i<b->count;i++){
+  CHECK(nvm_services_host_grant_revoke_instance(g,i)==NVM_SERVICES_HOST_OK);
+  CHECK(nvm_services_host_enter(g,1,3)==NVM_SERVICES_HOST_OK);
+  CHECK(nvm_services_host_authorize(g,plan)==NVM_SERVICES_HOST_STATE);nvm_services_host_leave();
+ }
+ CHECK(nvm_services_host_grant_destroy(&g)==NVM_SERVICES_HOST_OK);
+ for(unsigned i=0;i<b->count;i++){configs[i].resolver_helper=NULL;configs[i].allow_lookup=false;}
+ for(unsigned i=0;i<b->count;i++){
+  configs[i].allowed=false;
+  CHECK(nvm_services_host_grant_create_config(configs,b->count,&g)==NVM_SERVICES_HOST_OK);
+  CHECK(nvm_services_host_enter(g,1,3)==NVM_SERVICES_HOST_OK);
+  CHECK(nvm_services_host_authorize(g,plan)==NVM_SERVICES_HOST_STATE);nvm_services_host_leave();
+  CHECK(nvm_services_host_grant_destroy(&g)==NVM_SERVICES_HOST_OK);configs[i].allowed=true;
+ }
+ /* I refuse a missing instance, an extra instance and each wrong catalog. */
+ for(unsigned bad=0;bad<b->count+2;bad++){
+  if(!bad && b->count==1)continue;
+  NvmServicesHostConfig altered[6];memcpy(altered,configs,sizeof altered);unsigned count=b->count;
+  if(!bad)count--;else if(bad==1){altered[count]=ws_policy(3,count);count++;}
+  else{unsigned i=bad-2;altered[i]=ws_policy(configs[i].catalog==NVM_SERVICES_HOST_FILE?3:1,i);}
+  CHECK(nvm_services_host_grant_create_config(altered,count,&g)==NVM_SERVICES_HOST_OK);
+  CHECK(nvm_services_host_enter(g,1,3)==NVM_SERVICES_HOST_OK);
+  CHECK(nvm_services_host_authorize(g,plan)==NVM_SERVICES_HOST_UNRESOLVED);nvm_services_host_leave();
+  CHECK(nvm_services_host_grant_destroy(&g)==NVM_SERVICES_HOST_OK);
+ }
+}
 static void ws_checked(const uint32_t *catalogs,unsigned count,bool indirect,bool loop,bool reverse){
  NvmMultiNominalBindings b;NvmModule *m=ws_program(catalogs,count,indirect,loop,reverse,0,&b);
  NvmServicesIndirectFlow *r=NULL;NvmServicesFlowStatus status=nvm_services_indirect_flow_analyze(m,&r);
@@ -162,7 +285,7 @@ static void ws_checked(const uint32_t *catalogs,unsigned count,bool indirect,boo
  NvmServicesIndirectHostedStartup startup;CHECK(nvm_services_indirect_hosted_startup(p,&startup) && !startup.runtime_admitted);
  if(!indirect){NvmServicesCyclicHostedPlan *cyclic=NULL;OK(nvm_services_cyclic_hosted_prepare(bytes,size,&cyclic));nvm_services_cyclic_hosted_free(cyclic);
   if(!loop){NvmServicesHostedPlan *hosted=NULL;OK(nvm_services_hosted_prepare(bytes,size,&hosted));nvm_services_hosted_free(hosted);}}
- ws_runtime_refusal(bytes,size,p,&b);
+ ws_runtime_refusal(bytes,size,p,&b);ws_grant_plan(p,&b);
  uint32_t literal=UINT32_MAX;
  for(uint32_t i=0;i<m->string_count;i++)if(m->string_lengths[i]==3 && !memcmp(m->strings[i],"a\0b",3)){literal=i;break;}
  CHECK(literal!=UINT32_MAX);
@@ -184,7 +307,7 @@ static void ws_unused(void){
  wr32(m->ownership_data+16,1);descriptor(m->ownership_data+24,TAG_INT,0,NVM_V2_NO_INDEX);
  size_t size=0;uint8_t *bytes=ws_wire(m,&size);NvmServicesIndirectHostedPlan *p=NULL;OK(nvm_services_indirect_hosted_prepare(bytes,size,&p));
  /* No service instruction can hide an unsupported declared runtime catalog. */
- ws_runtime_refusal(bytes,size,p,&b);nvm_services_indirect_hosted_free(p);free(bytes);nvm_module_free(m);
+ ws_runtime_refusal(bytes,size,p,&b);ws_grant_plan(p,&b);nvm_services_indirect_hosted_free(p);free(bytes);nvm_module_free(m);
 }
 #ifdef SERVICE_ALLOC_TEST
 static void ws_allocations(void){
@@ -205,7 +328,7 @@ static void ws_allocations(void){
 }
 #endif
 int main(void){
- ws_unused();
+ ws_grant_boundaries();ws_unused();
  const uint32_t one[]={3},mixed[]={1,2,3,3},five[]={3,3,3,3,3};
  for(unsigned reverse=0;reverse<2;reverse++)for(unsigned indirect=0;indirect<2;indirect++)for(unsigned loop=0;loop<2;loop++){
   ws_checked(one,1,indirect,loop,reverse);ws_checked(mixed,4,indirect,loop,reverse);ws_checked(five,5,indirect,loop,reverse);
