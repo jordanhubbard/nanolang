@@ -36,7 +36,7 @@
 #include "mixed_samples_internal.h"
 #include "owned_array_admission.h"
 
-/* Service v2 preserves exact private declaration bytes without admission.
+/* Nominal service transport preserves exact declaration bytes without admission.
  * Mixed and owner ARRAY transport require their full checked profiles; other paths
  * retains the old shared ownership validator. */
 static NvmV2Result conversion_ownership(const NvmModule *module,bool *needs,uint16_t *checked_depths,NvmOwnerSignature *owner_signatures) {
@@ -45,8 +45,10 @@ static NvmV2Result conversion_ownership(const NvmModule *module,bool *needs,uint
         if(service!=NVM_V2_OK)return service;
         NvmFileNominalBindings nominal;
         NvmSocketNominalBindings tcp;
+        NvmMultiNominalBindings multi;
         if(nvm_file_nominal_decode(module->service_data,module->service_size,&nominal)==NVM_SERVICE_OK ||
-           nvm_socket_nominal_decode(module->service_data,module->service_size,&tcp)==NVM_SERVICE_OK) {
+           nvm_socket_nominal_decode(module->service_data,module->service_size,&tcp)==NVM_SERVICE_OK ||
+           nvm_multi_nominal_decode(module->service_data,module->service_size,&multi)==NVM_SERVICE_OK) {
             *needs=true;return NVM_V2_OK; /* Exact private transport, never shared authority. */
         }
         return nvm_ownership_contracts_validate(module,needs); /* Unchanged v1. */

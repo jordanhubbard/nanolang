@@ -18,6 +18,8 @@
     "../../src/nanoisa/mixed_float_proof.c",
     "../../src/nanoisa/service_bindings.c",
     "../../src/nanoisa/service_bindings_module.c",
+    "../../src/nanoisa/service_multi_nominal.c",
+    "../../src/nanoisa/service_multi_nominal_plan.c",
     "../../src/nanoisa/service_socket_nominal.c",
     "../../src/nanoisa/service_socket_nominal_plan.c",
     "../../src/nsi_socket_plan.c",

@@ -70,10 +70,10 @@ static bool v2_name(const NvmV2Module *m,uint32_t i,const char *s) {
     const NvmV2Constant *c=&m->constants.items[i];
     return c->tag==TAG_STRING && exact_bytes(c->payload,c->length,s);
 }
-/* Version dispatch is transport-only. A malformed v2 claim cannot fall back
+/* Version dispatch is transport-only. A malformed nominal claim cannot fall back
  * to v1 or to shared executable ownership validation. */
 static bool nominal_version(const uint8_t *bytes,uint32_t size) {
-    return bytes && size>=2 && bytes[0]==NVM_FILE_NOMINAL_VERSION && bytes[1]==0;
+    return bytes && size>=2 && (bytes[0]==NVM_FILE_NOMINAL_VERSION || bytes[0]==NVM_MULTI_NOMINAL_VERSION) && bytes[1]==0;
 }
 static NvmV2Result nominal_status(NvmFileNominalStatus status) {
     if(status==NVM_FILE_NOMINAL_DESCRIBED)return NVM_V2_OK;
@@ -81,6 +81,14 @@ static NvmV2Result nominal_status(NvmFileNominalStatus status) {
     return status==NVM_FILE_NOMINAL_LIMIT?NVM_V2_ERR_INDEX_RANGE:NVM_V2_ERR_SECTION_TYPE;
 }
 static NvmV2Result nominal_module(const NvmModule *m) {
+    if(m->service_data && m->service_size>=2 && m->service_data[0]==NVM_MULTI_NOMINAL_VERSION && !m->service_data[1]) {
+        NvmMultiNominalPlan *plan=NULL;
+        NvmMultiNominalStatus status=nvm_multi_nominal_plan(m,&plan);
+        nvm_multi_nominal_plan_free(plan);
+        if(status==NVM_MULTI_NOMINAL_DESCRIBED)return NVM_V2_OK;
+        if(status==NVM_MULTI_NOMINAL_MEMORY)return NVM_V2_ERR_TRUNCATED;
+        return status==NVM_MULTI_NOMINAL_LIMIT?NVM_V2_ERR_INDEX_RANGE:NVM_V2_ERR_SECTION_TYPE;
+    }
     /* I select the exact TCP catalog before validating its complete map.
      * Unknown or malformed identities still fail the File/TCP validators. */
     if(m->service_data && m->service_size>=4 && m->service_data[2]==2 && !m->service_data[3]) {
@@ -102,7 +110,7 @@ static bool table_bytes(size_t count,size_t width,size_t *bytes) {
 /* I adapt only metadata. No bridge/verifier callback, renumbering or ownership
  * flag projection is involved. All pointer-array views die before return. */
 static NvmV2Result nominal_v2(const NvmV2Module *m) {
-    if(m->imports.count!=NVM_SERVICE_BINDING_COUNT || !m->imports.items ||
+    if(m->imports.count<NVM_SERVICE_BINDING_COUNT || m->imports.count>NVM_MULTI_NOMINAL_MAX_IMPORTS || !m->imports.items ||
        m->links.count || m->callbacks.count || !m->ownership_data || !m->ownership_size ||
        m->layouts.count<NVM_FILE_NOMINAL_TYPES || m->layouts.count>NVM_FILE_NOMINAL_MAX_LAYOUTS ||
        !m->layouts.items || (m->constants.count && !m->constants.items) ||
@@ -157,10 +165,10 @@ static NvmV2Result nominal_v2(const NvmV2Module *m) {
         view.functions[i].result_tag=sig->result_count?sig->result_tags[0]:TAG_VOID;
         view.function_param_types[i]=(uint8_t *)sig->param_tags;
     }
-    NvmImportEntry imports[NVM_SERVICE_BINDING_COUNT]={0};
-    uint8_t *params[NVM_SERVICE_BINDING_COUNT]={0};
-    view.imports=imports;view.import_param_types=params;view.import_count=NVM_SERVICE_BINDING_COUNT;
-    for(uint32_t i=0;i<NVM_SERVICE_BINDING_COUNT;i++) {
+    NvmImportEntry imports[NVM_MULTI_NOMINAL_MAX_IMPORTS]={0};
+    uint8_t *params[NVM_MULTI_NOMINAL_MAX_IMPORTS]={0};
+    view.imports=imports;view.import_param_types=params;view.import_count=m->imports.count;
+    for(uint32_t i=0;i<m->imports.count;i++) {
         const NvmV2Import *im=&m->imports.items[i];
         if(im->kind!=NVM_V2_IMPORT_SERVICE || im->signature_idx>=m->signatures.count)goto done;
         const NvmV2Signature *sig=&m->signatures.items[im->signature_idx];

@@ -3,6 +3,7 @@
 #include "service_bindings.h"
 #include "service_file_nominal.h"
 #include "service_socket_nominal.h"
+#include "service_multi_nominal.h"
 #include "../nsi_socket_plan.h"
 #include "nvm_v2_sections.h"
 #include "../nsi_file_plan.h"
