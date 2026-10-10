@@ -1,0 +1,15 @@
+{
+  "methods": 24,
+  "elapsed_seconds": 824.027,
+  "roots": 24,
+  "commands": 547,
+  "unexpected_status": [],
+  "source_hashes_unchanged": 1139,
+  "artifacts_unchanged": {
+    "nanoc_seed.nvm": true,
+    "nanoc_stage1.nvm": true,
+    "nanoc_stage1": true,
+    "nanoc_stage2.nvm": true,
+    "nanoc_stage2": true
+  }
+}

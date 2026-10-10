@@ -1648,6 +1648,16 @@ test-nsi-socket:
 	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket_linked.c src/nsi_socket.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_socket_linked $(LDFLAGS)
 	@$(OBJ_DIR)/test_nsi_socket_linked
 
+.PHONY: test-nsi-socket-network
+test-nsi-socket-network:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DNL_SOCKET_NETWORK_INSTRUMENT tests/test_nsi_socket_network.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_socket_network_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_socket_network_instrumented
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket_network.c src/nsi_socket.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_socket_network_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_socket_network_linked
+
+test-units: test-nsi-socket-network
+
 test-units: test-nsi-socket
 
 .PHONY: test-nsi-socket-values

@@ -1,7 +1,7 @@
 # My service archive dependency fixture correction
 
 Hosted coverage [job 114192223190](https://github.com/jordanhubbard/nanolang/actions/runs/38044859073/job/114192223190)
-at `f5696fdc6` passes build and actual three-stage bootstrap, then fails
+at `f5696fdc6` passes build and a component-build step labelled as three-stage bootstrap, then fails
 `test_real_make_links_only_changed_or_missing_tool`. I retain its cleaned log
 and reproduce the same missing `file_indirect_public.h` refusal locally.
 
@@ -22,3 +22,7 @@ gate passes: five compiler-component methods in 48.647 seconds and all 21
 dependency/message/bootstrap/tool methods in 20.325 seconds. I retain both
 terminals and the original failing baseline. Hosted coverage must run again
 on the corrected revision; I leave #982 open.
+
+I correct my earlier attribution: that hosted coverage step runs `make build`,
+not `bootstrap3`, and contains no actual Stage1 self-compilation marker. It does
+not establish a compiler fixed point. My separate mixed-bootstrap receipt does.

@@ -53,6 +53,36 @@ NlSocketResult nl_socket_acquire_tcp(NlSocketService *, const NlSocketAddress *,
  * A terminal failure remains latched until close/disposal. Pending data calls
  * return WOULD_BLOCK without host I/O. Completion needs no READ/WRITE right. */
 NlSocketResult nl_socket_finish_connect(NlSocketService *, const NlSocketToken *);
+/* I bound each buffer operation and perform at most one host call. Successful
+ * partial progress is reported in bytes; callers retain unsent data. Zero size
+ * performs no I/O after owner/rights/state validation and never denotes EOF.
+ * Buffers may not overlap the token; receive publishes only the returned bytes. */
+#define NL_SOCKET_IO_MAX 65536u
+NlSocketResult nl_socket_send(NlSocketService *, const NlSocketToken *, const void *, size_t);
+NlSocketResult nl_socket_receive(NlSocketService *, const NlSocketToken *, void *, size_t);
+
+/* I resolve a counted host string into copied endpoints, never socket owners.
+ * Numeric IPv4/IPv6 literals need no lookup permission and bypass the resolver.
+ * DNS hostnames require explicit trusted-host permission. I accept ASCII DNS
+ * labels (including an optional final dot), not URLs, services or zone syntax.
+ * The host resolver is synchronous: callers requiring a deadline must supervise
+ * it outside this API. This private boundary admits no source/runtime grant.
+ * Failure preserves *out, including capacity overflow; I never truncate a list.
+ * Input/output must be disjoint. The caller supplies valid counted storage. */
+#define NL_SOCKET_RESOLVE_MAX 16u
+#define NL_SOCKET_HOST_MAX 253u
+typedef struct {
+    size_t count;
+    NlSocketAddress addresses[NL_SOCKET_RESOLVE_MAX];
+} NlSocketResolution;
+typedef struct {
+    NlSocketStatus status;
+    int resolver_error; /* I keep EAI_* distinct from errno. */
+    int host_errno;     /* I publish errno only for EAI_SYSTEM. */
+} NlSocketResolveResult;
+NlSocketResolveResult nl_socket_resolve_tcp(NlSocketService *, const char *host,
+    size_t length, uint16_t port, bool allow_lookup, NlSocketResolution *out);
+
 NlSocketResult nl_socket_send_byte(NlSocketService *, const NlSocketToken *, uint8_t);
 NlSocketResult nl_socket_receive_byte(NlSocketService *, const NlSocketToken *, uint8_t *out);
 NlSocketResult nl_socket_transfer(NlSocketService *, const NlSocketToken *, NlSocketToken *out);

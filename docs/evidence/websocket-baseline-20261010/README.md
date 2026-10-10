@@ -22,3 +22,26 @@ fragmentation requirements in [RFC 6455](https://www.rfc-editor.org/rfc/rfc6455.
 alongside verified service ownership, explicit authority, bounded execution and
 cleanup. Repairing the existing integer/pointer wrapper alone would not satisfy
 my 5.1 release contract.
+
+## Framing and handle lifetime
+
+My second included-source fixture substitutes only send/recv/close and executes
+production frame and context functions. I use the same Clang ASan/UBSan flags.
+All input bytes and original outputs are retained in its C/JSON files.
+
+| Input | Observed legacy behavior |
+| --- | --- |
+| Ping payload `abc` | I send `8a00`: unmasked pong with no echoed payload |
+| Nonfinal text fragment `abc` | I publish it immediately as a complete message |
+| Text frame with RSV1 set | I accept it without a negotiated extension |
+| Text bytes `c0af` | I publish invalid UTF-8 |
+| Masked server frame | I accept and decode it |
+| Close | I emit `888200000000`, declaring two absent payload bytes |
+| Two text sends | I repeat the fixed masking key `37fa213d` |
+| Forged handle `1` | UBSan aborts on a misaligned context member access |
+| Query after close | ASan aborts on heap use-after-free |
+
+These protocol failures violate the linked RFC's client framing requirements.
+The fixture observes real context allocation/destruction, but its mocked I/O
+is not a real-network qualification. No adapter or public binding changes here;
+all listed failures remain required migration regressions.
