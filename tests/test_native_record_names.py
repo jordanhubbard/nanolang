@@ -54,6 +54,7 @@ shadow main {{ assert (== (main) 0) }}
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp); source=root/'generic.nano'
             source.write_text('struct NSType { value: int }\n'
+                'struct Other { text: string }\n'
                 'fn identity(value: T) -> T { return value }\n'
                 'shadow identity { assert (== (identity 1) 1) }\n'
                 'fn make() -> NSType { return NSType { value: 39 } }\n'
@@ -61,7 +62,12 @@ shadow main {{ assert (== (main) 0) }}
                 'fn main() -> int { let value: NSType = (identity NSType { value: 37 }) '
                 'assert (== value.value 37) '
                 'let local: NSType = (identity value) assert (== local.value 37) '
-                'let computed: NSType = (identity (make)) assert (== computed.value 39) return 0 }\n'
+                'let computed: NSType = (identity (make)) assert (== computed.value 39) '
+                'let nested: NSType = (identity (identity NSType { value: 43 })) '
+                'assert (== nested.value 43) '
+                'assert (== (identity NSType { value: 47 }).value 47) '
+                'let other: Other = (identity (identity Other { text: "separate" })) '
+                'assert (== other.text "separate") return 0 }\n'
                 'shadow main { assert (== (main) 0) }\n')
             self.execute(source,root/'native')
 

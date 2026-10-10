@@ -1,0 +1,7 @@
+struct NSType { value: int }
+fn identity(value: T) -> T { return value }
+shadow identity { assert (== (identity 1) 1) }
+fn make() -> NSType { return NSType { value: 39 } }
+shadow make { assert (== (make).value 39) }
+fn main() -> int { let value: NSType = (identity NSType { value: 37 }) assert (== value.value 37) let local: NSType = (identity value) assert (== local.value 37) let computed: NSType = (identity (make)) assert (== computed.value 39) let nested: NSType = (identity (identity NSType { value: 43 })) assert (== nested.value 43) assert (== (identity NSType { value: 47 }).value 47) return 0 }
+shadow main { assert (== (main) 0) }

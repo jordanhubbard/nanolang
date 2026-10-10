@@ -1,0 +1,6 @@
+test_generic_record_arguments_and_results (tests.test_native_record_names.NativeRecordNames.test_generic_record_arguments_and_results) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.560s
+
+OK

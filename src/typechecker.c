@@ -3249,8 +3249,15 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Determine return type — substitute type variable if needed */
                 if (func->return_type == TYPE_STRUCT && is_type_variable_name(func->return_struct_type_name)) {
                     for (int k = 0; k < binding_count; k++) {
-                        if (strcmp(var_names_buf[k], func->return_struct_type_name) == 0)
+                        if (strcmp(var_names_buf[k], func->return_struct_type_name) == 0) {
+                            /* I retain the concrete identity for an enclosing
+                             * call, field projection or inferred local. */
+                            char *result_name = bound_types_buf[k] == TYPE_STRUCT && bound_names_buf[k]
+                                ? strdup(bound_names_buf[k]) : NULL;
+                            free(expr->as.call.return_struct_type_name);
+                            expr->as.call.return_struct_type_name = result_name;
                             return bound_types_buf[k];
+                        }
                     }
                 }
                 return func->return_type;

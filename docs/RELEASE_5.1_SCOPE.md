@@ -38,8 +38,8 @@ None of these historical numbers narrows the requirement it identifies.
 - **Done (9902):** Define Boolean List syntax and backend parity before the compiler product claims list coverage. `List<bool>` now parses and the interpreter, native C and NanoVM backends share its boolean element contract (`tests/nl_types_bool_list.nano`).
 - **Done (9941):** Reconcile the legacy `string_from_char` alias so VM and AOT resolve the same host contract; NanoVM exports the alias and `tests/test_one_ir_compiler.py` executes both names in both backends.
 - **Done (9978):** Prevent ordinary record names from colliding with native runtime helper names. My [native record-name evidence](evidence/native-record-names-20261010/README.md) passes the original `NSType` fixture, record-array operations, imported records and external schema ABI.
-- **Required (10055):** Carry record and map globals through standalone AOT with correct runtime ownership.
-- **Required (10068):** Bind imported globals and selective or qualified aliases in the standalone product.
+- **Implemented (10055):** Carry record and map globals through standalone AOT with correct runtime ownership. My [current local audit](evidence/generic-results-global-audit-20261010/README.md) passes both installed stages, C-frontend source execution and record-retention/refusal controls; final candidate/platform qualification remains required.
+- **Implemented (10068):** Bind imported globals and selective or qualified aliases in the standalone product. My [28-method shared suite](evidence/generic-results-global-audit-20261010/README.md) passes all three producer routes locally; final candidate/platform qualification remains required.
 - **Required (10153):** Make `--emit-nvm` the self-hosted compiler's only backend and make binary output an explicit `nvm2c` plus `cc` pipeline.
 - **Required (10260):** Finish the self-hosted NanoISA lowering dual for the full compiler subset.
 - **Done (10262):** Compile the compiler to `.nvm` through the C seed and then the self-hosted emitter.
