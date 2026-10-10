@@ -26,7 +26,7 @@ class BootstrapTools(unittest.TestCase):
                        'UNAME_S=Linux', 'NANOISA_OBJECTS=', 'NANOVIRT_OBJECTS=',
                        'NANOVM_OBJECTS=', 'COMMON_OBJECTS=obj/probe.o', 'RUNTIME_OBJECTS=', 'NANOISA_UTF8=obj/probe.o',
                        'NANOISA_DUMP_OBJECT=', 'NVM2C_MAIN_OBJECT=', 'FILE_CLI_OBJECT=',
-                       'FILE_PUBLIC_LIBRARY=', '-o', 'check-binary64-parser',
+                       'FILE_PUBLIC_LIBRARY=', 'SERVICE_DRIVER_OBJECTS=', '-o', 'check-binary64-parser',
                        '-o', 'bin/nano_as_capture.so']
             for name in objects[1:]:
                 command += ['-o', name]

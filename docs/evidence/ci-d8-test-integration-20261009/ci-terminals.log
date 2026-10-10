@@ -1,0 +1,15 @@
+Memory Sanitizers	Run tests with sanitizers	2026-10-10T02:12:47.0322672Z FAIL: test_every_schema_opcode_matches_enum_and_vm_dispatch (tests.test_nanoisa_schema.NanoisaSchemaTests.test_every_schema_opcode_matches_enum_and_vm_dispatch)
+Memory Sanitizers	Run tests with sanitizers	2026-10-10T02:12:47.0326554Z 'OP_FILE_CALL_REFS'
+Memory Sanitizers	Run tests with sanitizers	2026-10-10T02:12:47.0399981Z make: *** [Makefile.gnu:276: schema-check] Error 1
+Build and Test (ubuntu-latest, x64)	Run test suite	2026-10-10T02:13:52.1562677Z FAIL: test_real_make_links_only_changed_or_missing_tool (tests.test_bootstrap_tools.BootstrapTools.test_real_make_links_only_changed_or_missing_tool)
+Build and Test (ubuntu-latest, x64)	Run test suite	2026-10-10T02:13:52.1566292Z make[2]: *** No rule to make target 'src/service_driver.c', needed by 'obj/service_driver.o'.  Stop.
+Build and Test (ubuntu-latest, x64)	Run test suite	2026-10-10T02:13:52.1700603Z make[1]: *** [Makefile.gnu:3198: test-bootstrap-dependencies] Error 1
+Build and Test (macos-14, arm64)	Run test suite	2026-10-10T02:12:36.1750760Z FAIL: test_real_make_links_only_changed_or_missing_tool (tests.test_bootstrap_tools.BootstrapTools.test_real_make_links_only_changed_or_missing_tool)
+Build and Test (macos-14, arm64)	Run test suite	2026-10-10T02:12:36.1777540Z make[2]: *** No rule to make target `src/service_driver.c', needed by `obj/service_driver.o'.  Stop.
+Build and Test (macos-14, arm64)	Run test suite	2026-10-10T02:12:36.1974350Z make[1]: *** [test-bootstrap-dependencies] Error 1
+Code Coverage	Run tests	2026-10-10T02:13:17.0100295Z FAIL: test_real_make_links_only_changed_or_missing_tool (tests.test_bootstrap_tools.BootstrapTools.test_real_make_links_only_changed_or_missing_tool)
+Code Coverage	Run tests	2026-10-10T02:13:17.0104834Z make[2]: *** No rule to make target 'src/service_driver.c', needed by 'obj/service_driver.o'.  Stop.
+Code Coverage	Run tests	2026-10-10T02:13:17.0237435Z make[1]: *** [Makefile.gnu:3198: test-bootstrap-dependencies] Error 1
+Build and Test (ubuntu-24.04-arm, arm64)	Run test suite	2026-10-10T02:14:19.6889046Z FAIL: test_real_make_links_only_changed_or_missing_tool (tests.test_bootstrap_tools.BootstrapTools.test_real_make_links_only_changed_or_missing_tool)
+Build and Test (ubuntu-24.04-arm, arm64)	Run test suite	2026-10-10T02:14:19.6893220Z make[2]: *** No rule to make target 'src/service_driver.c', needed by 'obj/service_driver.o'.  Stop.
+Build and Test (ubuntu-24.04-arm, arm64)	Run test suite	2026-10-10T02:14:19.7047812Z make[1]: *** [Makefile.gnu:3198: test-bootstrap-dependencies] Error 1

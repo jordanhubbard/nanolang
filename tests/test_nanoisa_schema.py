@@ -138,6 +138,7 @@ class NanoisaSchemaTests(unittest.TestCase):
             "OP_FILE_SERVICE": 0x91, "OP_FILE_RESULT_BRANCH": 0x92,
             "OP_FILE_RESULT_TAKE": 0x93, "OP_FILE_DROP_LOCAL": 0x94,
             "OP_FILE_DROP_STACK": 0x95, "OP_FILE_END_BORROW": 0x96,
+            "OP_FILE_CALL_REFS": 0x97,
         }
         self.assertEqual({name: expected[name] for name in non_executing},
                          non_executing)
