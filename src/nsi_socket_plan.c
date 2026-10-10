@@ -84,8 +84,9 @@ static const NlServicePlanMethod methods[] = {
 };
 _Static_assert(COUNT(methods) == NL_SOCKET_PLAN_METHODS, "I require all TCP methods");
 _Static_assert(COUNT(types) == NL_SOCKET_PLAN_TYPES, "I require all TCP types");
+static const NlServicePlanCapability capabilities[]={{"cap:nanolang/net.connect","connect"}};
 static const NlServiceCatalog catalog = {
-    IFACE, "net", ID("io"), "io", "1", "cap:nanolang/net.connect", "connect",
+    IFACE, "net", ID("io"), "io", "1", capabilities, COUNT(capabilities),
     methods, COUNT(methods), types, COUNT(types)
 };
 struct NlSocketPlan { const NlServiceCatalog *catalog; };

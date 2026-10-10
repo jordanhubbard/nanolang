@@ -67,9 +67,10 @@ static const NlFilePlanMethod methods[]={
     METHOD("close",0,0,NL_FILE_INPUT_CONSUME,close_params,NL_FILE_OWNER_CONSUMED,NULL)
 };
 struct NlFilePlan { const NlFilePlanMethod *methods; const NlFilePlanType *types; };
+static const NlServicePlanCapability capabilities[]={{"cap:nanolang/filesystem.temp","temp"}};
 static const NlServiceCatalog catalog = {
     IFACE, "filesystem", ID("io"), "io", "1",
-    "cap:nanolang/filesystem.temp", "temp", methods, COUNT(methods), types, COUNT(types)
+    capabilities, COUNT(capabilities), methods, COUNT(methods), types, COUNT(types)
 };
 static bool document_equal(const NlNsi *n) {
     return nl_service_catalog_document_equal(n, &catalog);

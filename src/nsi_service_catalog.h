@@ -8,8 +8,10 @@ typedef enum { NL_SERVICE_INPUT_NONE, NL_SERVICE_INPUT_EXCLUSIVE, NL_SERVICE_INP
 typedef enum { NL_SERVICE_OWNER_NONE, NL_SERVICE_OWNER_PRESERVED, NL_SERVICE_OWNER_CONSUMED } NlServiceOwnerState;
 typedef enum {
     NL_SERVICE_DOMAIN_NONE, NL_SERVICE_DOMAIN_BYTE_INT,
-    NL_SERVICE_DOMAIN_U32_INT, NL_SERVICE_DOMAIN_PORT_INT, NL_SERVICE_DOMAIN_IP_FAMILY
+    NL_SERVICE_DOMAIN_U32_INT, NL_SERVICE_DOMAIN_PORT_INT, NL_SERVICE_DOMAIN_IP_FAMILY,
+    NL_SERVICE_DOMAIN_TIMEOUT_MS
 } NlServiceDomain;
+typedef struct { const char *id, *name; } NlServicePlanCapability;
 typedef struct {
     const char *id, *name, *type_id;
     NlNsiDirection direction;

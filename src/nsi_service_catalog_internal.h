@@ -8,7 +8,8 @@
 typedef struct {
     const char *interface_id, *interface_name;
     const char *error_id, *error_name, *error_version;
-    const char *capability_id, *capability_name;
+    const NlServicePlanCapability *capabilities;
+    size_t capability_count;
     const NlServicePlanMethod *methods;
     size_t method_count;
     const NlServicePlanType *types;
@@ -22,13 +23,15 @@ static inline bool nl_service_catalog_document_equal(const NlNsi *n, const NlSer
         !nl_service_catalog_text_equal(n->iface.id, c->interface_id) ||
         !nl_service_catalog_text_equal(n->iface.name, c->interface_name) ||
         n->method_count != c->method_count || n->type_count != c->type_count ||
-        n->error_count != 1 || n->capability_count != 1 ||
+        n->error_count != 1 || n->capability_count != c->capability_count ||
         !n->methods || !n->types || !n->errors || !n->capabilities) return false;
     if (!nl_service_catalog_text_equal(n->errors[0].id, c->error_id) ||
         !nl_service_catalog_text_equal(n->errors[0].name, c->error_name) ||
-        !nl_service_catalog_text_equal(n->errors[0].version, c->error_version) ||
-        !nl_service_catalog_text_equal(n->capabilities[0].id, c->capability_id) ||
-        !nl_service_catalog_text_equal(n->capabilities[0].name, c->capability_name)) return false;
+        !nl_service_catalog_text_equal(n->errors[0].version, c->error_version)) return false;
+    for(size_t i=0;i<c->capability_count;i++) {
+        if(!nl_service_catalog_text_equal(n->capabilities[i].id,c->capabilities[i].id) ||
+           !nl_service_catalog_text_equal(n->capabilities[i].name,c->capabilities[i].name))return false;
+    }
     for (size_t i = 0; i < c->method_count; i++) {
         const NlNsiMethod *a = &n->methods[i];
         const NlServicePlanMethod *b = &c->methods[i];

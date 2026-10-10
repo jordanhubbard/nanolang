@@ -1632,6 +1632,16 @@ test-nsi-socket-plan:
 
 test-units: test-nsi-socket-plan
 
+.PHONY: test-nsi-websocket-plan
+test-nsi-websocket-plan:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DWEBSOCKET_PLAN_INSTRUMENT tests/test_nsi_websocket_plan.c src/nsi.c src/utf8.c src/cJSON.c -o $(OBJ_DIR)/test_nsi_websocket_plan_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_websocket_plan_instrumented tests/fixtures/nsi_websocket_plan.json
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_websocket_plan.c src/nsi_websocket_plan.c src/nsi.c src/utf8.c src/cJSON.c -o $(OBJ_DIR)/test_nsi_websocket_plan_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_websocket_plan_linked tests/fixtures/nsi_websocket_plan.json
+
+test-units: test-nsi-websocket-plan
+
 .PHONY: test-service-bindings test-service-bindings-sanitizers
 test-service-bindings:
 	@mkdir -p $(OBJ_DIR)
