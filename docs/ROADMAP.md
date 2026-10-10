@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #976 I preserve module-owned enum declarations and result identities in both producers. My [isolated enum candidate](evidence/generic-enum-candidate-20261010/README.md) passes 24 local/regression methods, but module checking first mistakes enum results for structs and then rejects equal source names from separate modules as duplicate declarations. The self-hosted product also fails these imported enum cases during lowering. I require successful qualified results and explicit distinct-owner refusal, without merging declarations merely because their names match.
+
 - [ ] Under #976 I retain enum and tuple identities through C generic checking and NanoISA specialization. My [fresh-seed baseline](evidence/generic-enum-tuple-baseline-20261010/README.md) executes both cases in the self-hosted product, NanoVM and sanitized C AOT. The C producer rejects enums at specialization and loses tuple result elements before destructuring. I require declared enum identity comparisons, complete tuple metadata, nested/returned controls and prior-output-preserving refusals before admitting these cases.
 
 - [ ] Under #976 I complete bootstrap qualification with stable host-library generations. My c56a96552 run builds and verifies Stage 1 in 554 seconds, then refuses a changed std host-library generation. Concurrent prototype builds shared the module cache; I retain both identities, preserve the exact closure guard and require a fresh run without competing native module builds.
