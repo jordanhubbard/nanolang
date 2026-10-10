@@ -238,8 +238,75 @@ static NvmModule *indirect_iterations(unsigned count){
  one(&spec[2].code,OP_LOAD_LOCAL,0);fi(&spec[2].code,10);op(&spec[2].code,OP_I64_ADD);op(&spec[2].code,OP_RET);
  return frame_module(spec,3,&b,false,-1);
 }
+/* I force target propagation through a forward factory, a callable identity
+ * return, and a higher-order application. Both target alternatives survive. */
+static NvmModule *higher_order(bool other,unsigned owner,bool indirect_wrappers){
+ int value=owner?(owner==2?0:3):-1;
+ FrameSpec spec[6]={
+  {.locals=2,.types={-4,3},.result=-1},
+  {.parameters=1,.locals=1,.types={value},.result=value},
+  {.parameters=1,.locals=1,.types={value},.result=value},
+  {.parameters=1,.locals=1,.types={-4},.result=-4},
+  {.parameters=2,.locals=2,.types={value,-4},.result=value},
+  {.result=-4}};
+ NvmFileNominalBindings bindings;Body *b=&spec[0].code;
+ if(indirect_wrappers){iref(b,5);op(b,OP_CALL_INDIRECT);u16(b,0);u16(b,1);}
+ else fc(b,5);
+ if(indirect_wrappers){iref(b,3);icall(b);}else fc(b,3);
+ one(b,OP_STORE_LOCAL,0);
+ if(owner){op(b,OP_FILE_SERVICE);u32(b,0);u16(b,UINT16_MAX);}else fi(b,41);
+ uint32_t failed=UINT32_MAX;
+ if(owner==2){one(b,OP_OWN_STORE_LOCAL,1);failed=branch(b,OP_FILE_RESULT_BRANCH,1);take_result(b,1,0);}
+ one(b,OP_LOAD_LOCAL,0);
+ if(indirect_wrappers){iref(b,4);op(b,OP_CALL_INDIRECT);u16(b,2);u16(b,1);}else fc(b,4);
+ if(owner){op(b,OP_FILE_DROP_STACK);fi(b,9);}op(b,OP_RET);
+ if(owner==2){target(b,failed);take_result(b,1,1);op(b,OP_POP);fi(b,9);op(b,OP_RET);}
+ for(unsigned f=1;f<3;f++){
+  if(owner || f==1)one(&spec[f].code,owner?OP_OWN_MOVE_LOCAL:OP_LOAD_LOCAL,0);
+  else fi(&spec[f].code,42);
+  op(&spec[f].code,OP_RET);
+ }
+ one(&spec[3].code,OP_LOAD_LOCAL,0);op(&spec[3].code,OP_RET);
+ one(&spec[4].code,owner?OP_OWN_MOVE_LOCAL:OP_LOAD_LOCAL,0);one(&spec[4].code,OP_LOAD_LOCAL,1);icall(&spec[4].code);op(&spec[4].code,OP_RET);
+ b=&spec[5].code;op(b,OP_PUSH_BOOL);op(b,!other);uint32_t alternate=branch(b,OP_JMP_FALSE,0);
+ iref(b,1);op(b,OP_RET);target(b,alternate);iref(b,2);op(b,OP_RET);
+ NvmModule *m=frame_module(spec,6,&bindings,other,-1);
+ if(owner)for(uint32_t pc=m->functions[0].code_offset;pc<m->functions[0].code_offset+m->functions[0].code_length;){
+  DecodedInstruction d;CHECK(isa_decode(m->code+pc,m->code_size-pc,&d));
+  if(d.opcode==OP_FILE_SERVICE)wr32(m->code+pc+1,bindings.imports[0]);
+  pc+=d.byte_length;
+ }
+ return m;
+}
+static void higher_order_corpus(void){
+ for(unsigned other=0;other<2;other++)for(unsigned owner=0;owner<3;owner++)for(unsigned wrappers=0;wrappers<2;wrappers++){
+  NvmModule *m=higher_order(other,owner,wrappers);NvmFileIndirectTargets *targets=NULL;
+  CHECK(nvm_file_indirect_targets(m,&targets).status==NVM_FILE_INDIRECT_DESCRIBED);
+  NvmFileIndirectSummary summary;CHECK(nvm_file_indirect_targets_summary(targets,&summary));
+  bool found=false;
+  for(uint32_t i=0;i<summary.calls;i++){
+   NvmFileIndirectCall call;CHECK(nvm_file_indirect_targets_call(targets,i,&call));
+   if(call.function==4){CHECK(call.candidates==6 && call.parameters==1);found=true;}
+  }
+  CHECK(found);nvm_file_indirect_targets_free(targets);
+  size_t size;uint8_t *wire=serialize(m,&size);nvm_module_free(m);int64_t expected=owner?9:other?42:41;
+  NvmFileIndirectExecutionReport r=run_wire(wire,size,1000,NVM_FILE_RUNTIME_OK,expected,UINT64_MAX,true);
+  run_wire(wire,size,r.instructions_started,NVM_FILE_RUNTIME_OK,expected,r.instructions_started,true);
+  for(uint64_t fuel=0;fuel<r.instructions_started;fuel++)run_wire(wire,size,fuel,NVM_FILE_RUNTIME_LIMIT,0,fuel,true);
+  release_wire(wire);
+ }
+ /* Neither an unused callable parameter nor a recursive higher-order graph
+  * is permission to invent possible targets. */
+ NvmModule *m=higher_order(false,0,false);Body b={0};fi(&b,0);op(&b,OP_RET);setbody(m,0,b);
+ run_module(m,1000,NVM_FILE_RUNTIME_UNRESOLVED,0,0);
+ m=higher_order(false,0,false);b=(Body){0};one(&b,OP_LOAD_LOCAL,0);iref(&b,1);fc(&b,4);op(&b,OP_RET);setbody(m,1,b);
+ run_module(m,1000,NVM_FILE_RUNTIME_UNRESOLVED,0,0);
+ deny_open=true;run_module(higher_order(false,1,true),1000,NVM_FILE_RUNTIME_OK,9,UINT64_MAX);deny_open=false;
+ close_index=0;close_error[0]=EIO;run_module(higher_order(true,2,true),1000,NVM_FILE_RUNTIME_CLEANUP,0,UINT64_MAX);
+ memset(close_error,0,sizeof close_error);close_index=0;
+}
 static void corpus(void){
- preserved_corpus();
+ preserved_corpus();higher_order_corpus();
  for(unsigned count=0;count<=4;count+=4){
   NvmModule *m=indirect_iterations(count);size_t size;uint8_t *wire=serialize(m,&size);nvm_module_free(m);
   NvmFileIndirectExecutionReport r=run_wire(wire,size,1000,NVM_FILE_RUNTIME_OK,count?30:0,UINT64_MAX,true);
@@ -293,9 +360,9 @@ static void refusal_controls(void){
 }
 static void prepare_faults(void){
 #ifdef HOSTED_INSTRUMENT
- NvmFileNominalBindings b;NvmModule *m=cloop(&b,false,1);size_t size;uint8_t *wire=serialize(m,&size);nvm_module_free(m);
+ NvmModule *m=higher_order(false,1,true);size_t size;uint8_t *wire=serialize(m,&size);nvm_module_free(m);
  no_alloc=false;size_t live=tracked_live,bytes=tracked_bytes;unsigned refusals=0;
- NvmFileIndirectOptions options={1,32};
+ NvmFileIndirectOptions options={1,100};
  for(unsigned transient=0;transient<2;transient++){
   bool complete=false;
   for(unsigned prefix=0;prefix<4096;prefix++){
@@ -304,10 +371,10 @@ static void prepare_faults(void){
    allocation_budget=(int)prefix;single_failure=transient!=0;failed_calls=0;
    NvmFileIndirectExecutionReport report=execute(wire,size,&options,&out);
    allocation_budget=-1;single_failure=false;
-   if(report.runtime.status==NVM_FILE_RUNTIME_OK){CHECK(out.values[0]==73);if(!failed_calls)complete=true;}
+   if(report.runtime.status==NVM_FILE_RUNTIME_OK){CHECK(out.values[0]==9);if(!failed_calls)complete=true;}
    else {CHECK(failed_calls && !memcmp(&out,&old,sizeof out));CHECK(report.runtime.status==NVM_FILE_RUNTIME_MEMORY || report.runtime.status==NVM_FILE_RUNTIME_UNRESOLVED);CHECK(!report.fuel_exhausted);refusals++;}
    CHECK(tracked_live==live && tracked_bytes==bytes);empty_host();
-   NvmFileIndirectExecutionReport recovery=execute(wire,size,&options,&out);CHECK(recovery.runtime.status==NVM_FILE_RUNTIME_OK && out.values[0]==73);
+   NvmFileIndirectExecutionReport recovery=execute(wire,size,&options,&out);CHECK(recovery.runtime.status==NVM_FILE_RUNTIME_OK && out.values[0]==9);
    CHECK(tracked_live==live && tracked_bytes==bytes);empty_host();if(complete)break;
   }
   CHECK(complete);

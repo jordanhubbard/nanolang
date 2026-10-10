@@ -1,5 +1,9 @@
 # I retain indirect call identity through execution
 
+My [callable argument/result extension](NANOISA_FILE_CALLABLE_TRANSPORT.md)
+extends the initial local-only profile described below. It retains the same
+private execution boundary and does not admit paired source or public grants.
+
 I continue #989 from my distinct [indirect hosted plan](NANOISA_FILE_INDIRECT_HOSTED.md).
 My private carrier owns that plan and exposes separate create, enter, view,
 finish and destroy functions in `file_indirect_runtime.h`. I do not expose it

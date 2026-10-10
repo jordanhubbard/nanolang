@@ -1,0 +1,30 @@
+/usr/bin/ld: obj/env.o: in function `free_environment':
+/home/runner/work/nanolang/nanolang/src/env.c:409:(.text+0x603c): undefined reference to `nl_file_source_snapshots_free'
+/usr/bin/ld: obj/module.o: in function `acquire_service_input':
+/home/runner/work/nanolang/nanolang/src/module.c:983:(.text+0x196c): undefined reference to `nl_file_source_snapshot_open'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/src/module.c:981:(.text+0x19a8): undefined reference to `nl_file_source_snapshots_new'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/src/module.c:974:(.text+0x19f0): undefined reference to `nl_file_source_snapshot_bytes'
+/usr/bin/ld: obj/service_namespace.o: in function `describe':
+/home/runner/work/nanolang/nanolang/src/service_namespace.c:167:(.text+0x68): undefined reference to `nl_file_source_catalog_view'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/src/service_namespace.c:197:(.text+0x3c8): undefined reference to `nl_file_source_plan_build'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/src/service_namespace.c:188:(.text+0x4e4): undefined reference to `nl_file_source_snapshot_bytes'
+/usr/bin/ld: obj/service_namespace.o: in function `catalog_type':
+/home/runner/work/nanolang/nanolang/src/service_namespace.c:279:(.text+0x668): undefined reference to `nl_file_source_catalog_string'
+/usr/bin/ld: obj/service_namespace.o: in function `nl_service_namespace_free':
+/home/runner/work/nanolang/nanolang/src/service_namespace.c:248:(.text+0xb8c): undefined reference to `nl_file_source_plan_free'
+/usr/bin/ld: obj/service_namespace.o: in function `declarations':
+/home/runner/work/nanolang/nanolang/src/service_namespace.c:98:(.text+0xfd0): undefined reference to `nl_file_source_catalog_string'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/src/service_namespace.c:98:(.text+0x1034): undefined reference to `nl_file_source_catalog_string'
+/usr/bin/ld: obj/service_namespace.o: in function `nl_service_member_type':
+/home/runner/work/nanolang/nanolang/src/service_namespace.c:321:(.text+0x18e4): undefined reference to `nl_file_source_catalog_number'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/src/service_namespace.c:323:(.text+0x1918): undefined reference to `nl_file_source_catalog_string'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/src/service_namespace.c:324:(.text+0x193c): undefined reference to `nl_file_source_catalog_string'
+/usr/bin/ld: obj/service_namespace.o: in function `catalog_value_type':
+/home/runner/work/nanolang/nanolang/src/service_namespace.c:308:(.text+0x19a8): undefined reference to `nl_file_source_catalog_string'
+/usr/bin/ld: obj/service_namespace.o: in function `nl_service_method_type':
+/home/runner/work/nanolang/nanolang/src/service_namespace.c:336:(.text+0x1b40): undefined reference to `nl_file_source_catalog_number'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/src/service_namespace.c:337:(.text+0x1b5c): undefined reference to `nl_file_source_catalog_number'
+/usr/bin/ld: /home/runner/work/nanolang/nanolang/src/service_namespace.c:343:(.text+0x1bc8): undefined reference to `nl_file_source_catalog_string'
+/usr/bin/ld: obj/service_namespace.o: in function `catalog_value_type':
+/home/runner/work/nanolang/nanolang/src/service_namespace.c:308:(.text+0x1c3c): undefined reference to `nl_file_source_catalog_string'
+collect2: error: ld returned 1 exit status

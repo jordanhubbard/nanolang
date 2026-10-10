@@ -1,5 +1,9 @@
 # I execute checked indirect File calls in two adapters
 
+My [callable argument/result extension](NANOISA_FILE_CALLABLE_TRANSPORT.md)
+extends the initial local-only profile described below. It retains the same
+private execution boundary and does not admit paired source or public grants.
+
 I continue #989 from my [indirect carrier](NANOISA_FILE_INDIRECT_RUNTIME.md).
 My source-private VM adapter and C11 emitter accept the distinct indirect
 hosted plan. They do not convert it to an old cyclic plan or alter ordinary

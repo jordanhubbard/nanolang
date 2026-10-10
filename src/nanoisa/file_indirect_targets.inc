@@ -1,5 +1,5 @@
 /* I share exact checked decode/declaration storage, but publish only callable
- * target facts. This report is not consumed by any File execution selector. */
+ * target facts. Execution still requires complete ownership/hosted conjunction. */
 #include "file_indirect_targets.h"
 typedef struct {
     NvmFileFlowDeclaration type;
@@ -21,6 +21,9 @@ struct NvmFileIndirectTargets {
     NvmFileIndirectSummary summary;
     NvmFileIndirectCall *calls;
     uint64_t graph[NVM_FILE_FLOW_FUNCTIONS];
+    /* Monotone same-module summaries. Empty is bottom, never a wildcard. */
+    uint64_t parameters[NVM_FILE_FLOW_FUNCTIONS][NVM_FILE_FLOW_LOCALS];
+    uint64_t results[NVM_FILE_FLOW_FUNCTIONS];
 };
 static FileIndirectValue fi_value(NvmFileFlowDeclaration t,uint8_t initialized) {
     FileIndirectValue v={0};v.type=t;v.initialized=initialized;
@@ -100,14 +103,27 @@ static NvmFileFlowStatus fi_candidates(const NvmFileCodePlan *p,const FileIndire
     }
     *bits=v->targets;*first=selected;return NVM_FILE_FLOW_OK;
 }
-static NvmFileFlowStatus fi_call(const NvmFileCodePlan *p,FileIndirectState *s,uint32_t f) {
-    const NvmFileFlowFunction *fn=&p->functions[f].declaration;
+static void fi_grow(uint64_t *to,uint64_t bits,bool *changed) {
+    *changed|=(*to|bits)!=*to;*to|=bits;
+}
+static NvmFileFlowStatus fi_call(NvmFileIndirectTargets *r,FileIndirectState *s,
+                                  uint64_t candidates,uint32_t first,bool *changed) {
+    const NvmFileCodePlan *p=r->plan;
+    const NvmFileFlowFunction *fn=&p->functions[first].declaration;
     for(uint16_t i=fn->parameters;i>0;i--) {
-        NvmFileFlowDeclaration type=p->declarations->locals[p->declarations->offsets[f]+i-1];
+        NvmFileFlowDeclaration type=p->declarations->locals[p->declarations->offsets[first]+i-1];
         if(type.mode)continue; /* Reference-slot liveness belongs to full flow. */
+        if(!s->stack_count)return NVM_FILE_FLOW_INVALID;
+        FileIndirectValue value=s->stack[s->stack_count-1];
         NvmFileFlowStatus status=fi_take(s,type);if(status!=NVM_FILE_FLOW_OK)return status;
+        if(type.tag==TAG_FUNCTION)for(uint32_t f=0;f<p->count;f++)
+            if(candidates&(UINT64_C(1)<<f))fi_grow(&r->parameters[f][i-1],value.targets,changed);
     }
-    return fn->result_count?fi_push(s,fi_value(fn->result,2)):NVM_FILE_FLOW_OK;
+    if(!fn->result_count)return NVM_FILE_FLOW_OK;
+    FileIndirectValue result=fi_value(fn->result,2);
+    if(fn->result.tag==TAG_FUNCTION)for(uint32_t f=0;f<p->count;f++)
+        if(candidates&(UINT64_C(1)<<f))result.targets|=r->results[f];
+    return fi_push(s,result);
 }
 static NvmFileFlowStatus fi_scalar(FileIndirectState *s,uint8_t input,uint8_t output,uint16_t count,bool equality) {
     if(s->stack_count<count)return NVM_FILE_FLOW_INVALID;
@@ -120,8 +136,9 @@ static NvmFileFlowStatus fi_scalar(FileIndirectState *s,uint8_t input,uint8_t ou
     }
     return output==TAG_COUNT?NVM_FILE_FLOW_OK:fi_push(s,fi_value(scalar_type(output),2));
 }
-static NvmFileFlowStatus fi_transfer(const NvmFileCodePlan *p,uint32_t f,FileIndirectState *s,
-                                      const NvmFileCodeInstruction *in) {
+static NvmFileFlowStatus fi_transfer(NvmFileIndirectTargets *r,uint32_t f,FileIndirectState *s,
+                                      const NvmFileCodeInstruction *in,bool *changed) {
+    const NvmFileCodePlan *p=r->plan;
     const DecodedInstruction *d=&in->decoded;uint16_t local=d->operands[0].u16;
     FileIndirectValue value;NvmFileFlowDeclaration type;NvmFileFlowStatus status;
     switch(d->opcode) {
@@ -177,6 +194,8 @@ static NvmFileFlowStatus fi_transfer(const NvmFileCodePlan *p,uint32_t f,FileInd
     case OP_RET: {
         const NvmFileFlowFunction *fn=&p->functions[f].declaration;
         if(s->stack_count!=fn->result_count)return NVM_FILE_FLOW_INVALID;
+        if(fn->result_count && fn->result.tag==TAG_FUNCTION)
+            fi_grow(&r->results[f],s->stack[0].targets,changed);
         return fn->result_count?fi_take(s,fn->result):NVM_FILE_FLOW_OK;
     }
     case OP_ASSERT:case OP_JMP_TRUE:case OP_JMP_FALSE:return fi_scalar(s,TAG_BOOL,TAG_COUNT,1,false);
@@ -190,12 +209,14 @@ static NvmFileFlowStatus fi_transfer(const NvmFileCodePlan *p,uint32_t f,FileInd
         return fi_scalar(s,TAG_INT,TAG_BOOL,2,false);
     case OP_AND:case OP_OR:return fi_scalar(s,TAG_BOOL,TAG_BOOL,2,false);
     case OP_NOT:return fi_scalar(s,TAG_BOOL,TAG_BOOL,1,false);
-    case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:return fi_call(p,s,d->operands[0].u32);
+    case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:
+        return fi_call(r,s,UINT64_C(1)<<d->operands[0].u32,d->operands[0].u32,changed);
     case OP_CALL_INDIRECT: {
         uint64_t bits;uint32_t first;
         status=fi_candidates(p,s,d,&bits,&first);if(status!=NVM_FILE_FLOW_OK)return status;
         status=fi_take(s,scalar_type(TAG_FUNCTION));if(status!=NVM_FILE_FLOW_OK)return status;
-        return fi_call(p,s,first);
+        fi_grow(&r->graph[f],bits,changed);
+        return fi_call(r,s,bits,first,changed);
     }
     case OP_FILE_SERVICE:
         if(in->catalog_ordinal==1)status=fi_take(s,scalar_type(TAG_INT));
@@ -242,12 +263,15 @@ static NvmFileFlowStatus fi_transfer(const NvmFileCodePlan *p,uint32_t f,FileInd
     }
 }
 static NvmFileFlowStatus fi_function(NvmFileIndirectTargets *r,uint32_t f,
-                                      FileIndirectWorkspace *w,uint32_t *failed_pc) {
+                                      FileIndirectWorkspace *w,uint32_t *failed_pc,bool publish,bool *changed) {
     NvmFileCodePlan *p=r->plan;const NvmFileCodeFunction *fn=&p->functions[f];
     memset(w,0,sizeof *w);w->incoming[0].reached=true;w->pending[0]=true;
-    for(uint16_t l=0;l<fn->declaration.locals;l++)
-        w->incoming[0].locals[l]=fi_value(p->declarations->locals[p->declarations->offsets[f]+l],
+    for(uint16_t l=0;l<fn->declaration.locals;l++) {
+        FileIndirectValue value=fi_value(p->declarations->locals[p->declarations->offsets[f]+l],
                                             l<fn->declaration.parameters?2:1);
+        if(l<fn->declaration.parameters && value.type.tag==TAG_FUNCTION)value.targets=r->parameters[f][l];
+        w->incoming[0].locals[l]=value;
+    }
     for(;;) {
         uint16_t i=0;while(i<fn->instruction_count && !w->pending[i])i++;
         if(i==fn->instruction_count)break;
@@ -255,7 +279,13 @@ static NvmFileFlowStatus fi_function(NvmFileIndirectTargets *r,uint32_t f,
         *failed_pc=in->byte_offset;
         if(r->summary.visits==NVM_FILE_INDIRECT_VISITS)return NVM_FILE_FLOW_LIMIT;
         r->summary.visits++;w->pending[i]=false;w->working=w->incoming[i];
-        NvmFileFlowStatus status=fi_transfer(p,f,&w->working,in);
+        /* An as-yet empty callable summary cannot invent a return type or
+         * successors. A later whole-module pass resumes from growing inputs. */
+        if(!publish && in->decoded.opcode==OP_CALL_INDIRECT && w->working.stack_count) {
+            const FileIndirectValue *v=&w->working.stack[w->working.stack_count-1];
+            if(v->initialized==2 && same(v->type,scalar_type(TAG_FUNCTION)) && !v->targets)continue;
+        }
+        NvmFileFlowStatus status=fi_transfer(r,f,&w->working,in,changed);
         if(status!=NVM_FILE_FLOW_OK)return status;
         for(uint8_t e=0;e<in->successor_count;e++) {
             w->edge=w->working;
@@ -264,13 +294,14 @@ static NvmFileFlowStatus fi_function(NvmFileIndirectTargets *r,uint32_t f,
                 v->arms&=(uint8_t)(1u<<e);
                 if(!v->arms)continue;
             }
-            bool changed=false;uint16_t target=in->successors[e];
-            status=fi_join(&w->incoming[target],&w->edge,fn->declaration.locals,&changed);
+            bool edge_changed=false;uint16_t target=in->successors[e];
+            status=fi_join(&w->incoming[target],&w->edge,fn->declaration.locals,&edge_changed);
             if(status!=NVM_FILE_FLOW_OK)return status;
-            w->pending[target]|=changed;
+            w->pending[target]|=edge_changed;
         }
     }
-    /* Only the completed fixed point supplies published calls and graph edges. */
+    if(!publish)return NVM_FILE_FLOW_OK;
+    /* Only the completed module and CFG fixed points supply published calls. */
     for(uint16_t i=0;i<fn->instruction_count;i++) {
         const NvmFileCodeInstruction *in=&p->instructions[p->starts[f]+i];
         if(in->decoded.opcode!=OP_CALL_INDIRECT)continue;
@@ -316,10 +347,19 @@ NvmFileIndirectResult nvm_file_indirect_targets(const NvmModule *m,NvmFileIndire
     FileIndirectWorkspace *w=calloc(1,sizeof *w);
     if(!r->calls || !w){status=NVM_FILE_FLOW_MEMORY;goto fail;}
     memcpy(r->graph,plan->calls,sizeof r->graph);
+    bool changed;
+    do {
+        changed=false;
+        for(f=0;f<plan->count;f++) {
+            pc=NVM_V2_NO_INDEX;status=fi_function(r,f,w,&pc,false,&changed);
+            if(status!=NVM_FILE_FLOW_OK)goto fail;
+        }
+    } while(changed);
     for(f=0;f<plan->count;f++) {
-        pc=NVM_V2_NO_INDEX;status=fi_function(r,f,w,&pc);
+        pc=NVM_V2_NO_INDEX;status=fi_function(r,f,w,&pc,true,&changed);
         if(status!=NVM_FILE_FLOW_OK)goto fail;
     }
+    if(changed){status=NVM_FILE_FLOW_INVALID;goto fail;}
     /* Transitive closure includes dead direct edges and every indirect target. */
     for(uint32_t via=0;via<plan->count;via++)
         for(uint32_t source=0;source<plan->count;source++)
