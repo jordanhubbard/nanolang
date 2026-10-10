@@ -1,0 +1,38 @@
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+
+# I distinguish implicit type variables from declared nominal types.
+pub fn generic_type_variable(parser: Parser, name: string) -> bool {
+    if (!= (str_length name) 1) { return false }
+    let letter: int = (char_at name 0)
+    if (or (< letter 65) (> letter 90)) { return false }
+    let mut i: int = 0
+    while (< i (parser_get_struct_def_count parser)) {
+        if (== (parser_get_struct_def parser i).name name) { return false }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (parser_get_enum_count parser)) {
+        if (== (parser_get_enum parser i).name name) { return false }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (parser_get_union_count parser)) {
+        if (== (parser_get_union parser i).name name) { return false }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (list_ASTOpaqueType_length parser.opaque_types)) {
+        if (== (list_ASTOpaqueType_get parser.opaque_types i).type_name name) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow generic_type_variable {
+    let tokens: List<LexerToken> = (tokenize_string "struct A { value: int }" "generic.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "generic.nano")
+    assert (generic_type_variable parser "T")
+    assert (not (generic_type_variable parser "A"))
+    assert (not (generic_type_variable parser "int"))
+    assert (not (generic_type_variable parser "array<T>"))
+}

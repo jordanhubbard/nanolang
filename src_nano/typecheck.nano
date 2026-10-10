@@ -1,3 +1,4 @@
+from "src_nano/compiler/generic_types.nano" import generic_type_variable
 from "src_nano/compiler/passive_graph.nano" import passive_order
 from "src_nano/compiler/passive_purity.nano" import par_closed_call
 /* =============================================================================
@@ -4624,6 +4625,73 @@ shadow check_callable_value_call {
     assert (> (list_CompilerDiagnostic_length arity_diags) 0)
 }
 
+fn tc_generic_function(parser: Parser, sym: Symbol) -> bool {
+    let mut i: int = 0
+    while (< i sym.param_count) {
+        if (generic_type_variable parser (type_to_string (at sym.param_types i))) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow tc_generic_function {
+    let tokens: List<LexerToken> = (tokenize_string "fn identity(x:T)->T{return x} fn main()->int{return (identity 7)}" "generic.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "generic.nano")
+    assert (not (typecheck_phase parser "generic.nano").had_error)
+}
+
+fn tc_generic_call(parser: Parser, sym: Symbol, start: int, count: int, line: int, column: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let location: CompilerSourceLocation = (Diagnostics.diag_location file_name line column)
+    if (!= count sym.param_count) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the generic function's exact argument count." location))
+        return (type_unknown_named "generic argument count")
+    }
+    let mut names: array<string> = []
+    let mut types: array<string> = []
+    let mut i: int = 0
+    while (< i count) {
+        let expected: NSType = (at sym.param_types i)
+        let spelling: string = (type_to_string expected)
+        let argument: ASTStmtRef = (parser_get_call_arg parser (+ start i))
+        let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+        if (generic_type_variable parser spelling) {
+            let actual: string = (type_to_string raw)
+            let mut binding: int = -1
+            let mut j: int = 0
+            while (< j (array_length names)) {
+                if (== (at names j) spelling) { set binding j }
+                set j (+ j 1)
+            }
+            if (== raw.kind TypeKind.TYPE_UNKNOWN) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a known generic argument type." location))
+            } else if (< binding 0) {
+                set names (array_push names spelling)
+                set types (array_push types actual)
+            } else if (!= (at types binding) actual) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one concrete identity for each generic type variable." location))
+            }
+        } else {
+            let hinted: NSType = (apply_value_type_hint parser argument.node_id argument.node_type raw expected)
+            let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type hinted expected symbols diags file_name)
+            if (not (types_equal actual expected)) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the declared generic function argument type." location))
+            }
+        }
+        set i (+ i 1)
+    }
+    return (type_from_string_with_parser parser (substitute_type_parameters (type_to_string sym.return_type) names types))
+}
+shadow tc_generic_call {
+    let sources: array<string> = [
+        "fn choose(a:T,b:T)->T{return a} fn main()->int{return (choose 1 2)}",
+        "fn choose(a:T,b:T)->T{return a} fn main()->int{return (choose 1 true)}"
+    ]
+    for i in (range 0 2) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "generic.nano" (list_CompilerDiagnostic_new))
+        let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "generic.nano")
+        assert (== (typecheck_phase parser "generic.nano").had_error (== i 1))
+    }
+}
+
 fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     if (== node_type ParseNodeType.PNODE_BLOCK) {
         let expected: NSType = (type_from_string_with_parser parser tc_enclosing_return)
@@ -4858,6 +4926,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             if (>= idx 0) {
                 let sym: Symbol = (at symbols idx)
                 if sym.is_function {
+                    if (tc_generic_function parser sym) {
+                        return (tc_generic_call parser sym call_node.arg_start call_node.arg_count call_node.line call_node.column symbols diags file_name)
+                    }
                     if (!= call_node.arg_count sym.param_count) {
                         let msg: string = (+ "The function `" (+ fn_name (+ "` expects " (+ (int_to_string sym.param_count) (+ " argument(s), but I see " (+ (int_to_string call_node.arg_count) "."))))))
                         let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
@@ -4928,6 +4999,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         if (>= idx 0) {
             let sym: Symbol = (at symbols idx)
             if sym.is_function {
+                if (tc_generic_function parser sym) {
+                    return (tc_generic_call parser sym mqc_node.arg_start mqc_node.arg_count mqc_node.line mqc_node.column symbols diags file_name)
+                }
                 let mut j: int = 0
                 while (< j mqc_node.arg_count) {
                     if (< j (array_length sym.param_types)) {

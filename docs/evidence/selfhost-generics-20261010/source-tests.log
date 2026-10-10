@@ -1,0 +1,13 @@
+test_declared_single_letter_record_is_nominal (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_declared_single_letter_record_is_nominal) ... ok
+test_direct_array_type_binding (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_direct_array_type_binding) ... ok
+test_distinct_record_specializations (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_distinct_record_specializations) ... ok
+test_generated_names_do_not_collide (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_generated_names_do_not_collide) ... ok
+test_primitive_generic_fixture (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_primitive_generic_fixture) ... ok
+test_repeated_type_variable_refusals (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_repeated_type_variable_refusals) ... ok
+test_retained_record_result_regression (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_retained_record_result_regression) ... ok
+test_typed_locals_transitive_calls_and_recursion (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_typed_locals_transitive_calls_and_recursion) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 5.903s
+
+OK
