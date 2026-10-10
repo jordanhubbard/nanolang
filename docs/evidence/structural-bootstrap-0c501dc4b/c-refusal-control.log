@@ -1,0 +1,6 @@
+test_unbound_structural_result_preserves_output (tests.test_cseed_generic_functions.CseedGenericFunctions.test_unbound_structural_result_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.021s
+
+OK

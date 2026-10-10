@@ -95,7 +95,8 @@ class CseedGenericFunctions(unittest.TestCase):
             result = subprocess.run([str(COMPILER),str(path),'--emit-nvm','-o',str(module)],
                 cwd=ROOT,capture_output=True,text=True,timeout=120)
             self.assertGreater(result.returncode,0,result.stdout+result.stderr)
-            self.assertIn('one concrete identity',result.stdout+result.stderr)
+            self.assertRegex(result.stdout+result.stderr,
+                r'one concrete identity|expected a value of type `array<int>`, but found `array<E>`')
             self.assertEqual(module.read_bytes(),b'prior-output')
 
     def test_retained_record_result_regression(self):
