@@ -1,0 +1,8 @@
+fn main()->int {
+    let index:int = -1
+    assert (< index (str_length "abc"))
+    assert (> (str_length "abc") index)
+    assert (== (- (str_length "") 1) -1)
+    return 0
+}
+shadow main {assert (== (main) 0)}

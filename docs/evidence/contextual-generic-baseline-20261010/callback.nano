@@ -1,0 +1,8 @@
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 1) 1)}
+fn main()->int {
+    let callback:fn(int)->int = identity
+    assert (== (callback 7) 7)
+    return 0
+}
+shadow main {assert (== (main) 0)}

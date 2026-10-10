@@ -90,7 +90,7 @@ const BuiltinEntry builtin_registry[] = {
     {"null_opaque",     "nl_null_opaque",    0, {U,U,U,U}, O, OP_NOP, L|BUILTIN_PURE},
 
     /* ── String operations ────────────────────────────────────────── */
-    {"str_length",      "strlen",            1, {S,U,U,U}, I, OP_STR_LEN,      L|BUILTIN_PURE|BUILTIN_INLINE_VM},
+    {"str_length",      "nl_cstr_length",    1, {S,U,U,U}, I, OP_STR_LEN,      L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"str_concat",      "nl_str_concat",     2, {S,S,U,U}, S, OP_STR_CONCAT,   L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"str_substring",   "nl_str_substring",  3, {S,I,I,U}, S, OP_STR_SUBSTR,   L|BUILTIN_PURE|BUILTIN_INLINE_VM},
     {"str_contains",    "nl_str_contains",   2, {S,S,U,U}, B, OP_STR_CONTAINS, L|BUILTIN_PURE|BUILTIN_INLINE_VM},
