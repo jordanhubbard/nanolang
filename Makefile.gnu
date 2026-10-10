@@ -6370,3 +6370,36 @@ test-services-dispatch: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOVM_OBJECTS) $(C
 	NANO_SOCKET_DISPATCH_CC="$(CC)" SOCKET_DISPATCH_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_DISPATCH_LDFLAGS="$(LDFLAGS)" SERVICES_VM_OBJECTS="$(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" python3 -m unittest -f -v tests.test_services_dispatch
 
 test-units: test-services-dispatch
+
+SERVICES_PUBLIC_HEADERS = nanoisa/generated_schema.h nanoisa/isa.h nanoisa/nvm_format.h nanoisa/nvm_format_v2.h nanoisa/nvm_v2_sections.h nanoisa/service_bindings.h nanoisa/service_multi_nominal.h nanoisa/services_body.h nanoisa/services_code.h nanoisa/services_cyclic.h nanoisa/services_flow.h nanoisa/services_host_grant.h nanoisa/services_host_grant_internal.h nanoisa/services_hosted.h nanoisa/services_indirect_flow.h nanoisa/services_indirect_hosted.h nanoisa/services_indirect_native_abi.h nanoisa/services_indirect_native_public.h nanoisa/services_indirect_public.h nanoisa/services_indirect_public_internal.h nanoisa/services_indirect_report.h nanoisa/services_indirect_runtime.h nanoisa/services_indirect_targets.h nanoisa/services_nominal.h nanoisa/services_public.h nanoisa/services_public_internal.h nanoisa/services_runtime.h nanoisa/services_runtime_frames.h nsi.h nsi_cap.h nsi_file.h nsi_file_catalog.h nsi_file_plan.h nsi_file_values.h nsi_service_catalog.h nsi_services_values.h nsi_socket.h nsi_socket_plan.h nsi_socket_values.h
+# I package the mixed runtime with its single shared public-call gate.
+SERVICES_PUBLIC_LIBRARY = lib/libnano_services_runtime.a
+SERVICES_PUBLIC_STEMS = $(FILE_PUBLIC_QUERY_STEMS) nanoisa/services_nominal nanoisa/services_flow nanoisa/services_runtime \
+ nanoisa/file_host_grant nanoisa/services_host_grant nanoisa/services_indirect_public_native \
+ nanoisa/services_indirect_public_abi nanovm/services_indirect_public_vm nsi_cap nsi_file nsi_file_values nsi_socket nsi_socket_values nsi_services_values
+SERVICES_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(SERVICES_PUBLIC_STEMS)))
+.PHONY: services-public-runtime install-services-public-runtime
+services-public-runtime: $(SERVICES_PUBLIC_LIBRARY) $(addprefix $(SRC_DIR)/,$(SERVICES_PUBLIC_HEADERS))
+$(SERVICES_PUBLIC_OBJECTS): $(addprefix $(SRC_DIR)/,$(SERVICES_PUBLIC_HEADERS))
+$(SERVICES_PUBLIC_LIBRARY): $(SERVICES_PUBLIC_OBJECTS) Makefile.gnu
+	@mkdir -p "$(@D)"
+	@set -e; services_archive_dir=$$(mktemp -d "$(@D)/.services-runtime.XXXXXX"); \
+	trap 'rm -rf "$$services_archive_dir"' EXIT; \
+	$(AR) rcs "$$services_archive_dir/runtime.a" $(SERVICES_PUBLIC_OBJECTS); \
+	mv "$$services_archive_dir/runtime.a" "$@"
+$(OBJ_DIR)/nanovm/services_indirect_public_vm.o: src/nanovm/service_vm_indirect_engine.inc src/nanoisa/service_indirect_dispatch.inc src/nanoisa/service_dispatch_catalog.inc src/nanoisa/services_dispatch_config.h
+$(OBJ_DIR)/nanoisa/services_indirect_public_native.o: src/nanoisa/service_indirect_native_emit.inc src/nanoisa/service_indirect_dispatch.inc src/nanoisa/service_dispatch_catalog.inc src/nanoisa/services_dispatch_config.h
+install-services-public-runtime: services-public-runtime
+	install -d "$(PREFIX)/lib"
+	install -m 644 "$(SERVICES_PUBLIC_LIBRARY)" "$(PREFIX)/lib/libnano_services_runtime.a"
+	@set -e; for header in $(SERVICES_PUBLIC_HEADERS); do \
+		install -d "$(PREFIX)/include/nanolang/services/$$(dirname "$$header")"; \
+		install -m 644 "$(SRC_DIR)/$$header" "$(PREFIX)/include/nanolang/services/$$header"; \
+	done
+SERVICES_PUBLIC_TEST_PREFIX ?= $(CURDIR)/obj/services-public-test-install
+.PHONY: test-services-public
+test-services-public: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) services-public-runtime
+	$(MAKE) -f Makefile.gnu CC="$(CC)" PREFIX="$(SERVICES_PUBLIC_TEST_PREFIX)" install-services-public-runtime
+	NANO_SOCKET_DISPATCH_CC="$(CC)" SOCKET_DISPATCH_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_DISPATCH_LDFLAGS="$(LDFLAGS)" SERVICES_VM_OBJECTS="$(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICES_PUBLIC_TEST_PREFIX="$(SERVICES_PUBLIC_TEST_PREFIX)" python3 -m unittest -f -v tests.test_services_public
+
+test-units: test-services-public

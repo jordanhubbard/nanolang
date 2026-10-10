@@ -177,3 +177,44 @@ records the exact tested scope. I do not infer full mixed-language acceptance
 from this bytecode fixture: public per-instance grants, installed packaging,
 paired source lowering and source shadows remain required, followed by the
 complete 5.1 platform and release gates.
+
+## Public mixed authority and installed runtime
+
+I expose checked mixed execution through `services_indirect_public.h` and
+`services_host_grant.h`. My host copies an ordered table of 1..64
+`NvmServicesHostPolicy` entries into an opaque grant. Each entry identifies File
+or TCP and explicitly permits or denies that zero-based instance. File permits
+temporary files; TCP permits outbound IPv4/IPv6 connections. Neither permits
+listeners or arbitrary foreign calls. The caller initializes the grant output
+to NULL and destroys the grant after use.
+
+I require the entire checked instance table to match the policy count and
+catalog order, with every instance allowed, before runtime acquisition. An
+unused declared instance still requires authority. A policy is reusable for
+another checked module with the same catalog order; it is not a bytecode digest
+or an endpoint allowlist. Repeated File entries remain independently revocable.
+Revocation only removes authority and remains effective until grant destruction.
+
+I use the shared File/TCP public-call gate for creation, revocation, destruction,
+VM execution and nonexecuting emission. Reentrant calls return BUSY before
+reading caller arguments. Ordinary C pointer-lifetime rules still apply outside
+that refusal. I reject a grant from a different runtime identity. I validate
+explicit revision-1 options and fuel, including zero, and publish a scalar only
+after clean resource destruction. Failures preserve the caller's scalar.
+
+My VM entry is `nvm_services_execute_indirect_bytes`. My nonexecuting emitter is
+`nvm2c_emit_services_indirect_bytes`; its generated
+`nvm_services_indirect_program_<identifier>` receives the same grant, options
+and scalar arguments. Generated execution authorizes its retained checked plan
+before acquiring resources and does not call my VM or emitter.
+
+```sh
+make -f Makefile.gnu services-public-runtime
+make -f Makefile.gnu install-services-public-runtime PREFIX=/chosen/prefix
+```
+
+I install `lib/libnano_services_runtime.a` and the required header closure under
+`include/nanolang/services`. A C99 host includes
+`<nanolang/services/nanoisa/services_indirect_public.h>` and links that archive
+with its platform math/crypto dependencies. My bytecode/public package tests do
+not establish mixed source lowering or CLI publication; those remain required.

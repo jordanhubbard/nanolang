@@ -1,6 +1,7 @@
 #include "services_flow_config.h"
 #include "services_indirect_runtime.h"
-#define SERVICE_PUBLIC_SUPPORTED 0
+#define SERVICE_PUBLIC_SUPPORTED 1
+#define SERVICE_PUBLIC_INSTANCE_GRANTS 1
 #define SERVICE_TYPE_TEXT "NvmServices"
 #define SERVICE_CONST_TEXT "NVM_SERVICES_"
 #define SERVICE_FN_TEXT "nvm_services_"

@@ -1,3 +1,6 @@
+#ifndef SERVICE_PUBLIC_INSTANCE_GRANTS
+#define SERVICE_PUBLIC_INSTANCE_GRANTS 0
+#endif
 #include "nvm_v2_sections.h"
 #include <inttypes.h>
 #include <stdarg.h>
@@ -437,8 +440,10 @@ static SERVICE_TYPE(RuntimeStatus) file_indirect_native_emit_serialized(const ui
     fn_text(&b,"\n};\n");fn_agreement(&b,plan,startup);
     for(uint32_t f=0;f<startup.functions;f++)fn_text(&b,"static " SERVICE_TYPE_TEXT "RuntimeStatus nf_function_%u(" SERVICE_TYPE_TEXT "Runtime *);\n",f);
     for(uint32_t f=0;f<startup.functions;f++)fn_function(&b,plan,f);
-    fn_text(&b,"%s",surface==FNE_PUBLIC?
-        "static " SERVICE_TYPE_TEXT "IndirectExecutionReport nf_execute(const " SERVICE_TYPE_TEXT "IndirectOptions *options," SERVICE_TYPE_TEXT "RuntimeView *out){\n":
+    if(surface==FNE_PUBLIC)fn_text(&b,
+        "static " SERVICE_TYPE_TEXT "IndirectExecutionReport nf_execute(const " SERVICE_TYPE_TEXT "IndirectOptions *options," SERVICE_TYPE_TEXT "RuntimeView *out%s){\n",
+        SERVICE_PUBLIC_INSTANCE_GRANTS?", " SERVICE_TYPE_TEXT "HostGrant *grant":"");
+    else fn_text(&b,"%s",
         "" SERVICE_TYPE_TEXT "IndirectExecutionReport " SERVICE_FN_TEXT "native_indirect_execute(const " SERVICE_TYPE_TEXT "IndirectOptions *options," SERVICE_TYPE_TEXT "RuntimeView *out){\n");
     fn_text(&b,
         "if(!out || !options || options->revision!=" SERVICE_CONST_TEXT "INDIRECT_RUNTIME_REVISION || options->instruction_limit>" SERVICE_CONST_TEXT "INDIRECT_FUEL_MAX)return nf_refused(" SERVICE_CONST_TEXT "RUNTIME_INVALID,options);\n"
@@ -447,7 +452,11 @@ static SERVICE_TYPE(RuntimeStatus) file_indirect_native_emit_serialized(const ui
         "" SERVICE_TYPE_TEXT "RuntimeStatus status=" SERVICE_FN_TEXT "runtime_indirect_create(nf_module,sizeof nf_module," SERVICE_CONST_TEXT "RUNTIME_NATIVE,options,&c);\n"
         "if(status!=" SERVICE_CONST_TEXT "RUNTIME_OK)return nf_refused(status,options);\n"
         "if(!nf_agrees(" SERVICE_FN_TEXT "runtime_indirect_plan(c))){(void)" SERVICE_FN_TEXT "runtime_indirect_destroy(&c,NULL);return nf_refused(" SERVICE_CONST_TEXT "RUNTIME_UNRESOLVED,options);}\n"
-        "status=" SERVICE_FN_TEXT "runtime_begin(c);\n(void)nf_bits;(void)nf_scalar;\n");
+        );
+    if(surface==FNE_PUBLIC && SERVICE_PUBLIC_INSTANCE_GRANTS)fn_text(&b,"%s",
+        "status=" SERVICE_FN_TEXT "public_grant_status(" SERVICE_FN_TEXT "host_authorize(grant," SERVICE_FN_TEXT "runtime_indirect_plan(c)));\n"
+        "if(status!=" SERVICE_CONST_TEXT "RUNTIME_OK){(void)" SERVICE_FN_TEXT "runtime_indirect_destroy(&c,NULL);return nf_refused(status,options); }\n");
+    fn_text(&b,"%s","status=" SERVICE_FN_TEXT "runtime_begin(c);\n(void)nf_bits;(void)nf_scalar;\n");
     for(uint32_t f=0;f<startup.functions;f++)fn_text(&b,"(void)nf_function_%u;\n",f);
     if(startup.initializer!=NVM_V2_NO_INDEX)fn_text(&b,
         "if(status==" SERVICE_CONST_TEXT "RUNTIME_OK)status=" SERVICE_FN_TEXT "runtime_frame_start(c);\n"
@@ -466,8 +475,8 @@ static SERVICE_TYPE(RuntimeStatus) file_indirect_native_emit_serialized(const ui
         "if(!" SERVICE_FN_TEXT "indirect_public_options(options) || !out)report=" SERVICE_FN_TEXT "indirect_public_refused(" SERVICE_CONST_TEXT "RUNTIME_INVALID,options);\n"
         "else {" SERVICE_TYPE_TEXT "IndirectOptions copied=*options;" SERVICE_TYPE_TEXT "RuntimeView view={0};\n"
         "if(!" SERVICE_FN_TEXT "runtime_indirect_public_abi(1u,sizeof copied,sizeof report,sizeof *out))report=" SERVICE_FN_TEXT "indirect_public_refused(" SERVICE_CONST_TEXT "RUNTIME_UNRESOLVED,&copied);\n"
-        "else {report=nf_execute(&copied,&view);report.runtime=" SERVICE_FN_TEXT "public_publish(report.runtime,&view,out);}}\n"
-        "" SERVICE_FN_TEXT "host_leave();return report;}\n",identifier);
+        "else {report=nf_execute(&copied,&view%s);report.runtime=" SERVICE_FN_TEXT "public_publish(report.runtime,&view,out);}}\n"
+        "" SERVICE_FN_TEXT "host_leave();return report;}\n",identifier,SERVICE_PUBLIC_INSTANCE_GRANTS?",grant":"");
     SERVICE_FN(indirect_hosted_free)(plan);
     result=b.status;
     if(result!=SERVICE_CONST(RUNTIME_OK)) {

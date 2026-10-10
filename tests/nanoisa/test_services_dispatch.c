@@ -70,6 +70,7 @@ static NvmModule *program(unsigned mode,unsigned port,bool ipv6){
  for(unsigned f=0;f<7;f++){m->functions[f].code_offset=at;m->functions[f].code_length=code[f].n;memcpy(m->code+at,code[f].data,code[f].n);at+=code[f].n;}
  return m;
 }
+#ifndef SERVICES_DISPATCH_NO_MAIN
 int main(int argc,char **argv){
  CHECK(argc==6);unsigned mode=(unsigned)strtoul(argv[1],NULL,10),port=(unsigned)strtoul(argv[2],NULL,10);bool ipv6=atoi(argv[3])!=0;
  NvmModule *m=program(mode,port,ipv6);NvmV2Module v={0};CHECK(nvm_v2_from_nvm_module(m,&v)==NVM_V2_OK);size_t bytes=0;
@@ -111,3 +112,5 @@ int main(int argc,char **argv){
  CHECK(out.values[0]==(expected==NVM_SERVICES_RUNTIME_OK?42:999));
  CHECK(report.runtime.cleanup.count==3);printf("PASS mixed VM %u checks; status=%u steps=%llu\n",checks,report.runtime.status,(unsigned long long)report.instructions_started);return 0;
 }
+
+#endif

@@ -1,3 +1,7 @@
+#ifndef SERVICE_EXECUTION_AUTH_ARGUMENT
+#define SERVICE_EXECUTION_AUTH_ARGUMENT
+#define SERVICE_EXECUTION_AUTH_CHECK(c) SERVICE_CONST(RUNTIME_OK)
+#endif
 #include "../nanoisa/service_indirect_dispatch.inc"
 #include <limits.h>
 #include <string.h>
@@ -144,7 +148,7 @@ static SERVICE_TYPE(RuntimeStatus) fvm_step(SERVICE_TYPE(Runtime) *c,SERVICE_TYP
 }
 #undef FVM_TRY
 static SERVICE_TYPE(IndirectExecutionReport) file_vm_indirect_execute_serialized(const uint8_t *bytes,size_t size,
-    const SERVICE_TYPE(IndirectOptions) *options,SERVICE_TYPE(RuntimeView) *out) {
+    const SERVICE_TYPE(IndirectOptions) *options,SERVICE_TYPE(RuntimeView) *out SERVICE_EXECUTION_AUTH_ARGUMENT) {
     if(!out)return fcd_refused(SERVICE_CONST(RUNTIME_INVALID),options);
     SERVICE_TYPE(Runtime) *c=NULL;
     SERVICE_TYPE(RuntimeStatus) status=SERVICE_FN(runtime_indirect_create)(bytes,size,SERVICE_CONST(RUNTIME_VM),options,&c);
@@ -153,6 +157,11 @@ static SERVICE_TYPE(IndirectExecutionReport) file_vm_indirect_execute_serialized
     if(!fcd_coverage(plan)) {
         (void)SERVICE_FN(runtime_indirect_destroy)(&c,NULL);
         return fcd_refused(SERVICE_CONST(RUNTIME_UNRESOLVED),options);
+    }
+    status=SERVICE_EXECUTION_AUTH_CHECK(c);
+    if(status!=SERVICE_CONST(RUNTIME_OK)) {
+        (void)SERVICE_FN(runtime_indirect_destroy)(&c,NULL);
+        return fcd_refused(status,options);
     }
     status=SERVICE_FN(runtime_begin)(c);
     if(status==SERVICE_CONST(RUNTIME_OK))status=SERVICE_FN(runtime_frame_start)(c);
