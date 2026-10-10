@@ -1,0 +1,8 @@
+fn first(values: array<T>) -> T { return (at values 0) }
+shadow first { assert (== (first [7, 8]) 7) }
+fn main() -> int {
+ assert (== (first [3, 4]) 3)
+ assert (== (first [true, false]) true)
+ return 0
+}
+shadow main { assert (== (main) 0) }
