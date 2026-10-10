@@ -6202,3 +6202,14 @@ test-socket-service-source: $(OBJ_DIR)/test_service_bodies $(OBJ_DIR)/test_servi
 	NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_socket_service_source
 
 test-units: test-socket-service-source
+
+# I rebuild both exact nominal validators when their shared engine changes.
+$(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_socket_nominal.o: src/nanoisa/service_nominal_codec.inc src/nanoisa/service_file_nominal_config.h src/nanoisa/service_socket_nominal_config.h
+$(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nanoisa/service_socket_nominal_plan.o: src/nanoisa/service_nominal_plan.inc src/nanoisa/service_file_nominal_config.h src/nanoisa/service_socket_nominal_config.h
+
+.PHONY: test-socket-nominal
+# I exercise the TCP map with sanitizers and both linked/allocation-failure modes.
+test-socket-nominal: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_SOCKET_NOMINAL_CC="$(CC)" SOCKET_NOMINAL_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_NOMINAL_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_socket_nominal
+
+test-units: test-socket-nominal

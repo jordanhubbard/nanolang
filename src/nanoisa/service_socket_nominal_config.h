@@ -1,0 +1,26 @@
+/* I keep catalog identity and exported nominal types separate. */
+#include "service_socket_nominal.h"
+#include "../nsi_socket_plan.h"
+#define NOMINAL_FN(name) nvm_socket_nominal_##name
+#define NOMINAL_CATALOG_ID 2u
+#define NOMINAL_CATEGORY_OWNER NVM_SOCKET_CATEGORY_CONN
+#define NOMINAL_CATEGORY_OWNER_RESULT NVM_SOCKET_CATEGORY_CONNECT_RESULT
+#define NOMINAL_CATEGORY_RECORD NVM_SOCKET_CATEGORY_RECORD
+#define NOMINAL_CATEGORY_SCALAR_RESULT NVM_SOCKET_CATEGORY_SCALAR_RESULT
+#define NOMINAL_CATEGORY_UNKNOWN NVM_SOCKET_CATEGORY_UNKNOWN
+#define NOMINAL_BYTES NVM_SOCKET_NOMINAL_BYTES
+#define NOMINAL_DESCRIBED NVM_SOCKET_NOMINAL_DESCRIBED
+#define NOMINAL_INVALID NVM_SOCKET_NOMINAL_INVALID
+#define NOMINAL_LIMIT NVM_SOCKET_NOMINAL_LIMIT
+#define NOMINAL_MAX_LAYOUTS NVM_SOCKET_NOMINAL_MAX_LAYOUTS
+#define NOMINAL_MEMORY NVM_SOCKET_NOMINAL_MEMORY
+#define NOMINAL_TYPES NVM_SOCKET_NOMINAL_TYPES
+#define NOMINAL_VERSION NVM_SOCKET_NOMINAL_VERSION
+#define NominalCategory NvmSocketCategory
+#define NominalBindings NvmSocketNominalBindings
+#define NominalLayout NvmSocketNominalLayout
+#define NominalPlan NvmSocketNominalPlan
+#define NominalStatus NvmSocketNominalStatus
+#define NOMINAL_CATALOG_INTERFACE nl_socket_catalog_interface
+#define NOMINAL_CATALOG_METHOD nl_socket_catalog_method
+#define NOMINAL_CATALOG_TYPE nl_socket_catalog_type

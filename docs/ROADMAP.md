@@ -14765,3 +14765,7 @@ I retain [my paired source-plan and namespace evidence](evidence/service-source-
 - [x] Under #990 I correct the new callable fixture to use a legal helper name: `use` is an import keyword. I preserve the parser failure and require owned Conn/ConnectResult callable transport plus an indirect borrowed signature in the corrected corpus.
 
 I retain [my TCP source-checking evidence](evidence/socket-source-checking-20261009/README.md). TCP wire/runtime execution, network shadows and full 5.1 qualification remain open.
+
+- [x] Under #990 I retain an exact TCP nominal wire map before runtime admission. I share the bounded File codec and layout/import/ownership validator with the TCP catalog, preserve File's 120-byte wire contract, and add TCP's distinct 128-byte catalog2 map with Endpoint and eleven-field SocketError. I require exact identity, field/tag/order checks, mutation/truncation/overlap/allocation controls and File adjacency. This map grants no execution authority; paired lowering and verified VM/native network execution remain required.
+
+I retain [my shared File/TCP nominal wire evidence](evidence/socket-nominal-wire-20261009/README.md), including exact File compatibility, TCP mutations, allocation failures and three Darwin compilers. Paired TCP lowering, verified runtime dispatch and full release acceptance remain open.

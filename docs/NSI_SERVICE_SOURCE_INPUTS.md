@@ -55,7 +55,13 @@ I retain identical C/Nano ownership facts by visiting functions before shadows
 in both implementations. My interleaved File shadow regression covers the
 binding-ID mismatch first exposed by the TCP corpus.
 
-I have not connected TCP wire metadata, service dispatch or selected network
+I also retain a private TCP nominal wire map with five import identities and
+nine layout identities. Its catalog2, 128-byte representation uses the same
+bounded codec/validator engine as File's unchanged catalog1, 120-byte map.
+The [nominal wire evidence](evidence/socket-nominal-wire-20261009/README.md)
+covers exact descriptors and refusal controls; it grants no execution authority.
+
+I have not connected TCP wire metadata to source lowering, service dispatch or selected network
 shadow execution. Both lowerers explicitly refuse TCP before wire publication,
 so the File runtime cannot interpret TCP ordinals. My paired source checks,
 mixed namespace fixture and prior-output refusal checks are retained in

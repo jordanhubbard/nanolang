@@ -1,0 +1,26 @@
+/* I keep catalog identity and exported nominal types separate. */
+#include "service_file_nominal.h"
+#include "../nsi_file_catalog.h"
+#define NOMINAL_FN(name) nvm_file_nominal_##name
+#define NOMINAL_CATALOG_ID 1u
+#define NOMINAL_CATEGORY_OWNER NVM_FILE_CATEGORY_FILE
+#define NOMINAL_CATEGORY_OWNER_RESULT NVM_FILE_CATEGORY_OPEN_RESULT
+#define NOMINAL_CATEGORY_RECORD NVM_FILE_CATEGORY_RECORD
+#define NOMINAL_CATEGORY_SCALAR_RESULT NVM_FILE_CATEGORY_SCALAR_RESULT
+#define NOMINAL_CATEGORY_UNKNOWN NVM_FILE_CATEGORY_UNKNOWN
+#define NOMINAL_BYTES NVM_FILE_NOMINAL_BYTES
+#define NOMINAL_DESCRIBED NVM_FILE_NOMINAL_DESCRIBED
+#define NOMINAL_INVALID NVM_FILE_NOMINAL_INVALID
+#define NOMINAL_LIMIT NVM_FILE_NOMINAL_LIMIT
+#define NOMINAL_MAX_LAYOUTS NVM_FILE_NOMINAL_MAX_LAYOUTS
+#define NOMINAL_MEMORY NVM_FILE_NOMINAL_MEMORY
+#define NOMINAL_TYPES NVM_FILE_NOMINAL_TYPES
+#define NOMINAL_VERSION NVM_FILE_NOMINAL_VERSION
+#define NominalCategory NvmFileCategory
+#define NominalBindings NvmFileNominalBindings
+#define NominalLayout NvmFileNominalLayout
+#define NominalPlan NvmFileNominalPlan
+#define NominalStatus NvmFileNominalStatus
+#define NOMINAL_CATALOG_INTERFACE nl_file_catalog_interface
+#define NOMINAL_CATALOG_METHOD nl_file_catalog_method
+#define NOMINAL_CATALOG_TYPE nl_file_catalog_type
