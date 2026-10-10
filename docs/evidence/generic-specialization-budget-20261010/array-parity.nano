@@ -1,0 +1,10 @@
+fn identity(value:T)->T{let copy:T = value return copy}
+shadow identity { assert (== (identity 7) 7) }
+fn main()->int{
+ let ints:array<int> = (identity [3,5])
+ let bools:array<bool> = (identity [true,false])
+ assert (== (at ints 1) 5)
+ assert (== (at bools 1) false)
+ return 0
+}
+shadow main { assert (== (main) 0) }

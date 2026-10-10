@@ -31,11 +31,14 @@ from "src_nano/compiler/diagnostics.nano" import diag_list_new
 # I specialize checked generic calls without modifying shared parser nodes.
 struct NisaGeneric {
     function_index: int,
+    parent: int,
     name: string,
     variables: array<string>,
     types: array<string>
 }
 let mut nisa_generics: array<NisaGeneric> = []
+let mut nisa_generic_type_bytes: int = 0
+let mut nisa_generic_active: int = -1
 let mut nisa_generic_variables: array<string> = []
 let mut nisa_generic_types: array<string> = []
 
@@ -63,6 +66,21 @@ shadow nisa_generic_function {
     let tokens: List<LexerToken> = (tokenize_string "fn id(x:T)->T{return x}" "generic.nano" (diag_list_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "generic.nano")
     assert (nisa_generic_function parser (parser_get_function parser 0))
+}
+
+# I bound unique instantiation work while allowing finite polymorphic cycles.
+fn nisa_generic_budget(instances: int, retained: int, added: int) -> bool {
+    if (or (< instances 0) (>= instances 4096)) { return false }
+    if (or (< retained 0) (> retained 1048576)) { return false }
+    if (< added 0) { return false }
+    return (<= added (- 1048576 retained))
+}
+shadow nisa_generic_budget {
+    assert (nisa_generic_budget 4095 1048575 1)
+    assert (not (nisa_generic_budget 4096 0 0))
+    assert (not (nisa_generic_budget 0 1048575 2))
+    assert (not (nisa_generic_budget 0 1048577 0))
+    assert (not (nisa_generic_budget 0 0 -1))
 }
 
 fn nisa_generic_bind(parser: Parser, call: ASTCall, index: int) -> int {
@@ -113,9 +131,36 @@ fn nisa_generic_bind(parser: Parser, call: ASTCall, index: int) -> int {
         }
         set i (+ i 1)
     }
+    let mut ancestor: int = nisa_generic_active
+    let mut recursive_instances: int = 0
+    while (>= ancestor 0) {
+        let parent: NisaGeneric = (at nisa_generics ancestor)
+        if (== parent.function_index index) { set recursive_instances (+ recursive_instances 1) }
+        if (>= recursive_instances 64) {
+            let _: string = (nisa_fail "I reached my generic specialization budget (64 recursive instances per declaration)")
+            return -1
+        }
+        set ancestor parent.parent
+    }
+    let mut added_bytes: int = 0
+    let mut binding_index: int = 0
+    while (< binding_index (array_length types)) {
+        let size: int = (str_length (at types binding_index))
+        if (not (nisa_generic_budget i added_bytes size)) {
+            let _: string = (nisa_fail "I reached my generic specialization budget (4096 instances or 1048576 type bytes)")
+            return -1
+        }
+        set added_bytes (+ added_bytes size)
+        set binding_index (+ binding_index 1)
+    }
+    if (not (nisa_generic_budget i nisa_generic_type_bytes added_bytes)) {
+        let _: string = (nisa_fail "I reached my generic specialization budget (4096 instances or 1048576 type bytes)")
+        return -1
+    }
+    set nisa_generic_type_bytes (+ nisa_generic_type_bytes added_bytes)
     let name: string = (nisa_shadow_name parser (+ "__nanoisa_generic_" (int_to_string i)))
     set nisa_generics (array_push nisa_generics (NisaGeneric {
-        function_index: index, name: name, variables: variables, types: types
+        function_index: index, parent: nisa_generic_active, name: name, variables: variables, types: types
     }))
     (nisa_require_function (- -1 i))
     return i
@@ -127,10 +172,12 @@ shadow nisa_generic_bind {
 }
 
 fn nisa_queued_function(parser: Parser, index: int) -> ASTFunction {
+    set nisa_generic_active -1
     set nisa_generic_variables []
     set nisa_generic_types []
     if (>= index 0) { return (parser_get_function parser index) }
-    let instance: NisaGeneric = (at nisa_generics (- -1 index))
+    set nisa_generic_active (- -1 index)
+    let instance: NisaGeneric = (at nisa_generics nisa_generic_active)
     set nisa_generic_variables instance.variables
     set nisa_generic_types instance.types
     let source: ASTFunction = (parser_get_function parser instance.function_index)
@@ -414,6 +461,8 @@ shadow nisa_ordinary_publication {
 
 fn nisa_reset() -> int {
     set nisa_generics []
+    set nisa_generic_type_bytes 0
+    set nisa_generic_active -1
     set nisa_generic_variables []
     set nisa_generic_types []
     set nisa_capture_frames []

@@ -102,6 +102,48 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 ''')
 
+    def test_finite_polymorphic_recursion(self):
+        self.execute('''fn visit(value:T, remaining:int) -> int {
+ if (> remaining 0) { return (visit false (- remaining 1)) }
+ return remaining
+}
+shadow visit { assert (== (visit 13 3) 0) }
+fn main() -> int { return (visit "start" 5000) }
+shadow main { assert (== (main) 0) }
+''')
+
+    def test_many_independent_bindings_are_not_recursive_depth(self):
+        records = ''.join('struct Record' + str(i) + ' { value:int }\n' for i in range(70))
+        checks = ''.join('assert (== (identity Record' + str(i) + ' { value:' + str(i) + ' }).value ' + str(i) + ')\n' for i in range(70))
+        self.execute(records + 'fn identity(value:T)->T{return value}\n'
+            'shadow identity {assert (== (identity 1) 1)}\n'
+            'fn main()->int{\n' + checks + 'return 0}\n'
+            'shadow main {assert (== (main) 0)}\n')
+
+    def test_growing_polymorphic_recursion_is_bounded(self):
+        source = '''fn grow(value:T, remaining:int) -> void {
+ if (> remaining 0) { (grow [value] (- remaining 1)) }
+}
+shadow grow { (grow 1 0) }
+fn main() -> int { (grow 1 0) return 0 }
+shadow main { assert (== (main) 0) }
+'''
+        with tempfile.TemporaryDirectory(prefix='nano-generic-growth-') as tmp:
+            path = Path(tmp) / 'input.nano'
+            mutual = source.replace('(grow [value]', '(relay [value]') + (
+                'fn relay(value:U, remaining:int)->void{(grow value remaining)}\n'
+                'shadow relay {(relay 1 0)}\n')
+            for name, text in [('direct', source), ('mutual', mutual)]:
+                path.write_text(text)
+                self.command([self.drivers['checker'], path])
+                for mode in ('whole', 'program', 'raw'):
+                    with self.subTest(recursion=name, mode=mode):
+                        result = subprocess.run([str(self.drivers['emitter']), str(path), '0', mode],
+                            cwd=ROOT, capture_output=True, text=True, timeout=60)
+                        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+                        self.assertIn('generic specialization budget', result.stdout + result.stderr)
+                        self.assertNotIn('.function ', result.stdout)
+
     def test_repeated_type_variable_refusals(self):
         for expected, arguments in [('int', '1 true'), ('First', 'First { value: 1 } Second { value: 2 }')]:
             with self.subTest(arguments=arguments), tempfile.TemporaryDirectory() as tmp:

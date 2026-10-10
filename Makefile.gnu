@@ -4651,7 +4651,7 @@ test-selfhost-array-field-setter: bootstrap3
 
 .PHONY: test-selfhost-generic-functions
 test-selfhost-generic-functions: $(COMPILER_C) nano_vm $(BIN_DIR)/nanoisa nvm2c $(BIN_DIR)/nano_aot_runtime.o
-	python3 -m unittest tests.test_selfhost_generic_functions
+	python3 -m unittest tests.test_selfhost_generic_functions tests.test_generic_specialization_budget
 
 .PHONY: test-cseed-generic-functions
 test-units: test-cseed-generic-functions
