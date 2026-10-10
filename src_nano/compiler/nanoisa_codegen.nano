@@ -1349,6 +1349,9 @@ fn nisa_enum_receiver(parser: Parser, access: ASTFieldAccess) -> int {
     let name: ASTIdentifier = (parser_get_identifier parser access.object)
     if (>= (nisa_local_find name.name) 0) { return -1 }
     if (>= (nisa_global_find name.name name.line) 0) { return -1 }
+    let key: string = (+ "#type:" name.name)
+    let bound: string = (mb_lookup (mb_owner name.line) key)
+    if (!= bound key) { return (nisa_enum_index parser bound) }
     return (nisa_enum_index parser name.name)
 }
 shadow nisa_enum_receiver {

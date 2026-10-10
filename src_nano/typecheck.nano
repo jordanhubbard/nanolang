@@ -2738,6 +2738,20 @@ fn is_union_name(parser: Parser, name: string) -> bool {
 
 shadow is_union_name { assert true }
 
+fn tc_enum_name(name: string, line: int) -> string {
+    let key: string = (+ "#type:" name)
+    let bound: string = (mb_lookup (mb_owner line) key)
+    if (== bound key) { return name }
+    return bound
+}
+shadow tc_enum_name {
+    (mb_reset [1])
+    (mb_add 0 "#type:Shade" "owned_Shade")
+    assert (== (tc_enum_name "Shade" 1) "owned_Shade")
+    assert (== (tc_enum_name "Other" 1) "Other")
+    (mb_reset [])
+}
+
 fn is_enum_name(parser: Parser, name: string) -> bool {
     let mut i: int = 0
     let count: int = (parser_get_enum_count parser)
@@ -5037,7 +5051,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 let mut enum_index: int = 0
                 while (< enum_index (parser_get_enum_count parser)) {
                     let definition: ASTEnum = (parser_get_enum parser enum_index)
-                    if (== definition.name receiver.name) {
+                    if (== definition.name (tc_enum_name receiver.name receiver.line)) {
                         if (resource_name_in definition.variant_names fa.field_name) {
                             return (type_from_string_with_parser parser definition.name)
                         }
