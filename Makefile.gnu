@@ -5712,6 +5712,13 @@ test-file-binding-plan-sanitizers:
 # I compose target and ownership facts only through a separate private entry.
 $(OBJ_DIR)/nanoisa/file_flow.o: $(NANOISA_DIR)/file_indirect_flow.h $(NANOISA_DIR)/file_indirect_flow.inc
 
+.PHONY: test-file-indirect-flow test-file-indirect-queries
+test-file-indirect-flow: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_FILE_INDIRECT_FLOW_CC="$(CC)" NANO_FILE_INDIRECT_FLOW_CFLAGS="$(CFLAGS)" FILE_INDIRECT_FLOW_OBJECTS="$(filter-out $(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/service_file_nominal.o $(OBJ_DIR)/nanoisa/service_file_nominal_plan.o $(OBJ_DIR)/nsi_file_plan.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8)" FILE_INDIRECT_FLOW_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_flow
+
+# I qualify all three nonexecuting layers in one Make invocation.
+test-file-indirect-queries: test-file-indirect-targets test-file-indirect-flow test-file-indirect-hosted
+
 
 .PHONY: test-file-cyclic-public test-file-cyclic-public-sanitize
 test-file-cyclic-public: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)

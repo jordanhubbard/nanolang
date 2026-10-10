@@ -125,6 +125,13 @@ jobs:
       - name: Build - Stage 3 (Bootstrap Validation)
         run: make stage3
 
+      - name: Check indirect File target, ownership and hosted plans
+        env:
+          TMPDIR: ${{ github.workspace }}/.test_output/file-indirect
+        run: |
+          mkdir -p "$TMPDIR"
+          make -f Makefile.gnu test-file-indirect-queries
+
       - name: Run test suite
         env:
           NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
@@ -158,6 +165,7 @@ jobs:
         with:
           name: verifier-corpus-${{ matrix.os }}-${{ matrix.arch }}
           path: |
+            .test_output/file-indirect/
             .test_output/verifier-corpus/
             obj/component-logs/
             obj/bootstrap-nanoisa/**/*.log
