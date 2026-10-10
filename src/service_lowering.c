@@ -2,6 +2,10 @@
 #include "string_literal_decode.h"
 #include "nsi_file_catalog.h"
 #include "nsi_socket_plan.h"
+#include "nsi_websocket_plan.h"
+#include "nanoisa/service_websocket_nominal.h"
+#include "nanoisa/websocket_indirect_flow.h"
+#include "nanoisa/websocket_codec.h"
 #include "nanoisa/service_socket_nominal.h"
 #include "nanoisa/socket_indirect_flow.h"
 #include "nanoisa/services_indirect_flow.h"
@@ -65,7 +69,7 @@ static uint32_t sl_instance(Sl *c,uint32_t declaration) {
     sl_fail(c,NULL,1,"I require the original service instance identity.");return 0;
 }
 static const NlServicePlanType *sl_catalog_type(unsigned catalog,unsigned i) {
-    return catalog==2?nl_socket_catalog_type(i):nl_file_catalog_type(i);
+    return catalog==3?nl_websocket_catalog_type(i):catalog==2?nl_socket_catalog_type(i):nl_file_catalog_type(i);
 }
 static SlType sl_type(Sl *c,Type type,const TypeInfo *info) {
     uint8_t mode=0;
@@ -77,7 +81,7 @@ static SlType sl_type(Sl *c,Type type,const TypeInfo *info) {
     SlType out={.mode=mode,.layout=NVM_V2_NO_INDEX};
     if(info && info->service_declaration) {
         NvmServiceInstance *instance=&c->catalogs.instances[sl_instance(c,info->service_declaration)];
-        if(info->service_ordinal>=(instance->catalog==2?9u:8u))sl_fail(c,NULL,1,"I require a catalog type ordinal.");
+        if(info->service_ordinal>=(instance->catalog==3?7u:instance->catalog==2?9u:8u))sl_fail(c,NULL,1,"I require a catalog type ordinal.");
         else out.layout=instance->layouts[info->service_ordinal];
         out.tag=(info->service_ordinal<3 || info->service_ordinal==8)?TAG_STRUCT:TAG_UNION;
     } else if(type==TYPE_INT)out.tag=TAG_INT;
@@ -387,24 +391,26 @@ static void sl_expr_impl(Sl *c,const ASTNode *n,bool want) {
         SlType type=sl_node_type(c,n);
         const NlServiceBodyFact *fact=sl_fact(c,n);if(!fact)return;
         uint32_t instance=sl_instance(c,fact->type.service_declaration);
-        if(c->catalogs.instances[instance].catalog!=2 || type.layout!=c->catalogs.instances[instance].layouts[8] || n->as.struct_literal.field_count!=7) {
-            sl_fail(c,n,2,"I require a checked Endpoint constructor.");return;
+        unsigned catalog=c->catalogs.instances[instance].catalog;
+        unsigned ordinal=catalog==3?2:8,count=catalog==3?2:7;
+        if((catalog!=2 && catalog!=3) || type.layout!=c->catalogs.instances[instance].layouts[ordinal] || n->as.struct_literal.field_count!=(int)count) {
+            sl_fail(c,n,2,"I require a checked catalog record constructor.");return;
         }
         uint16_t slots[7],pending=c->pending_count;
-        const NlServicePlanType *endpoint=nl_socket_catalog_type(8);
+        const NlServicePlanType *record=sl_catalog_type(catalog,ordinal);
         /* I evaluate source order, then load canonical field order. Staging also
          * gives terminal field expressions the same pending-value cleanup. */
-        for(unsigned i=0;i<7;i++) {
+        for(unsigned i=0;i<count;i++) {
             unsigned field=0;
-            while(field<7 && strcmp(n->as.struct_literal.field_names[i],endpoint->members[field].name))field++;
-            if(field==7){sl_fail(c,n,1,"I require an exact Endpoint field.");return;}
+            while(field<count && strcmp(n->as.struct_literal.field_names[i],record->members[field].name))field++;
+            if(field==count){sl_fail(c,n,1,"I require an exact catalog record field.");return;}
             sl_expr(c,n->as.struct_literal.field_values[i],true);
             if(!c->next || c->result.status)return;
-            slots[field]=sl_stage(c,(SlType){.tag=TAG_INT,.layout=NVM_V2_NO_INDEX});
+            slots[field]=sl_stage(c,sl_node_type(c,n->as.struct_literal.field_values[i]));
         }
-        for(unsigned i=0;i<7;i++){sl_load(c,slots[i]);sl_clear(c,slots[i]);}
+        for(unsigned i=0;i<count;i++){sl_load(c,slots[i]);sl_clear(c,slots[i]);}
         c->pending_count=pending;
-        sl_op(c,OP_AGG_PACK);sl_op(c,AGG_RECORD);sl_u32(c,c->struct_base[instance]+3);sl_u16(c,0);sl_u16(c,7);break;
+        sl_op(c,OP_AGG_PACK);sl_op(c,AGG_RECORD);sl_u32(c,c->struct_base[instance]+(catalog==3?2:3));sl_u16(c,0);sl_u16(c,(uint16_t)count);break;
     }
     case AST_FIELD_ACCESS: {
         const NlServiceBodyFact *object=sl_fact(c,n->as.field_access.object);if(!object)return;
@@ -475,15 +481,20 @@ static bool sl_catalog(Sl *c) {
     NvmV2Layout layouts[64*9]={0};NvmV2LayoutField fields[64*9][11]={0};
     for(uint32_t r=0;r<c->catalogs.count;r++) {
         NvmServiceInstance *instance=&c->catalogs.instances[r];
-        unsigned catalog=instance->catalog,types=catalog==2?9:8,base=c->type_count;
-        if(catalog!=1 && catalog!=2)return false;
+        unsigned catalog=instance->catalog,types=catalog==3?7:catalog==2?9:8,base=c->type_count;
+        if((catalog!=1 && catalog!=2 && catalog!=3) || (catalog==3 && c->catalogs.count!=1))return false;
         c->struct_base[r]=c->module->struct_count;
-        c->module->struct_count+=catalog==2?4:3;c->module->union_count+=5;
+        c->module->struct_count+=catalog==2?4:3;c->module->union_count+=catalog==3?4:5;
         for(unsigned i=0;i<9;i++)instance->layouts[i]=i<types?base+i:UINT32_MAX;
-        uint32_t module=sl_string(c,catalog==2?nl_socket_catalog_interface():nl_file_catalog_interface());
-        for(unsigned i=0;i<5;i++) {
-            uint8_t tags[2]={TAG_STRUCT,TAG_INT};
-            const NlServicePlanMethod *method=catalog==2?nl_socket_catalog_method(i):nl_file_catalog_method(i);
+        uint32_t module=sl_string(c,catalog==3?nl_websocket_catalog_interface():catalog==2?nl_socket_catalog_interface():nl_file_catalog_interface());
+        for(unsigned i=0;i<(catalog==3?4u:5u);i++) {
+            uint8_t tags[3]={0};
+            const NlServicePlanMethod *method=catalog==3?nl_websocket_catalog_method(i):catalog==2?nl_socket_catalog_method(i):nl_file_catalog_method(i);
+            if(method->param_count<1 || method->param_count>4)return false;
+            for(size_t j=0;j+1<method->param_count;j++) {
+                const char *id=method->params[j].type_id;
+                tags[j]=!strcmp(id,"nsi:core/string")?TAG_STRING:!strcmp(id,"nsi:core/int")?TAG_INT:!strcmp(id,"nsi:core/bool")?TAG_BOOL:TAG_STRUCT;
+            }
             uint32_t index=nvm_add_import(c->module,module,sl_string(c,method->id),(uint16_t)(method->param_count-1),TAG_UNION,tags);
             if(index==UINT32_MAX){sl_fail(c,NULL,4,"I cannot allocate service imports.");return false;}
             c->module->imports[index].kind=NVM_IMPORT_SERVICE;instance->imports[i]=index;
@@ -497,6 +508,7 @@ static bool sl_catalog(Sl *c) {
                 if(id) {
                     if(!strcmp(id,"nsi:core/int"))tag=TAG_INT;
                     else if(!strcmp(id,"nsi:core/bool"))tag=TAG_BOOL;
+                    else if(!strcmp(id,"nsi:core/string"))tag=TAG_STRING;
                     else for(unsigned k=0;k<types;k++)if(!strcmp(id,sl_catalog_type(catalog,k)->id)){layout=base+k;tag=(k<3 || k==8)?TAG_STRUCT:TAG_UNION;}
                 }
                 fields[base+i][j]=(NvmV2LayoutField){tag,layout,sl_string(c,type->members[j].id)};
@@ -507,12 +519,16 @@ static bool sl_catalog(Sl *c) {
     NvmV2Layouts table={layouts,c->type_count};
     if(nvm_retain_layouts(c->module,&table)!=NVM_V2_OK){sl_fail(c,NULL,4,"I cannot retain service layouts.");return false;}
     unsigned catalog=c->catalogs.instances[0].catalog;
-    size_t capacity=c->catalogs.count>1?16+64*c->catalogs.count:catalog==2?NVM_SOCKET_NOMINAL_BYTES:NVM_FILE_NOMINAL_BYTES,size=0;
+    size_t capacity=c->catalogs.count>1?16+64*c->catalogs.count:catalog==3?NVM_WEBSOCKET_NOMINAL_BYTES:catalog==2?NVM_SOCKET_NOMINAL_BYTES:NVM_FILE_NOMINAL_BYTES,size=0;
     c->module->service_data=malloc(capacity);
     if(!c->module->service_data){sl_fail(c,NULL,4,"I cannot retain service bindings.");return false;}
     NvmServiceResult status;
     if(c->catalogs.count>1)status=nvm_multi_nominal_encode(&c->catalogs,c->module->service_data,capacity,&size);
-    else if(catalog==2) {
+    else if(catalog==3) {
+        NvmWebSocketNominalBindings websocket={0};
+        memcpy(websocket.imports,c->catalogs.instances[0].imports,sizeof websocket.imports);memcpy(websocket.layouts,c->catalogs.instances[0].layouts,sizeof websocket.layouts);
+        status=nvm_websocket_nominal_encode(&websocket,c->module->service_data,capacity,&size);
+    } else if(catalog==2) {
         NvmSocketNominalBindings socket={0};
         memcpy(socket.imports,c->catalogs.instances[0].imports,sizeof socket.imports);memcpy(socket.layouts,c->catalogs.instances[0].layouts,sizeof socket.layouts);
         status=nvm_socket_nominal_encode(&socket,c->module->service_data,capacity,&size);
@@ -728,6 +744,32 @@ static NvmV2Result sl_socket_stack_bounds(const NvmModule *module,NvmV2Module *w
     }
     nvm_socket_indirect_flow_free(report);return result;
 }
+static NvmV2Result sl_websocket_stack_bounds(const NvmModule *module,NvmV2Module *wire,unsigned *failure) {
+    NvmWebSocketIndirectFlow *report=NULL;
+    NvmWebSocketFlowStatus status=nvm_websocket_indirect_flow_analyze(module,&report);
+    if(status!=NVM_WEBSOCKET_FLOW_OK) {
+        *failure=status==NVM_WEBSOCKET_FLOW_MEMORY?4:status==NVM_WEBSOCKET_FLOW_LIMIT?3:2;
+        return NVM_V2_ERR_INDEX_RANGE;
+    }
+    NvmV2Result result=NVM_V2_OK;
+    if(result==NVM_V2_OK)for(uint32_t f=0;f<module->function_count;f++) {
+        NvmWebSocketCodeFunction function;
+        if(!nvm_websocket_indirect_flow_function(report,f,&function)){result=NVM_V2_ERR_INDEX_RANGE;break;}
+        uint16_t peak=0;
+        for(uint16_t i=0;i<function.instruction_count;i++) {
+            uint8_t count=0;
+            if(!nvm_websocket_indirect_flow_variant_count(report,f,i,&count)){result=NVM_V2_ERR_INDEX_RANGE;break;}
+            for(uint8_t j=0;j<count;j++) {
+                NvmWebSocketCyclicVariant fact;
+                if(!nvm_websocket_indirect_flow_variant(report,f,i,j,&fact)){result=NVM_V2_ERR_INDEX_RANGE;break;}
+                if(fact.input.stack>peak)peak=fact.input.stack;
+                if(fact.output.stack>peak)peak=fact.output.stack;
+            }
+        }
+        wire->functions.items[f].max_stack=peak;
+    }
+    nvm_websocket_indirect_flow_free(report);return result;
+}
 static NvmV2Result sl_services_stack_bounds(const NvmModule *module,NvmV2Module *wire,unsigned *failure) {
     NvmServicesIndirectFlow *report=NULL;
     NvmServicesFlowStatus status=nvm_services_indirect_flow_analyze(module,&report);
@@ -756,9 +798,11 @@ static NvmV2Result sl_services_stack_bounds(const NvmModule *module,NvmV2Module 
 }
 NlServiceLoweringResult nl_service_serialize(const NvmModule *module,uint8_t **out,size_t *size) {
     if(!module || !out || !size)return (NlServiceLoweringResult){1,0,0,"I require module and output storage."};
-    NvmV2Module wire={0};NvmV2Result result=nvm_v2_from_nvm_module(module,&wire);
+    NvmWebSocketNominalBindings bindings;
+    bool websocket=module->service_data && nvm_websocket_nominal_decode(module->service_data,module->service_size,&bindings)==NVM_SERVICE_OK;
+    NvmV2Module wire={0};NvmV2Result result=websocket?nvm_websocket_from_module(module,&wire):nvm_v2_from_nvm_module(module,&wire);
     unsigned failure=2;
-    if(result==NVM_V2_OK)result=module->service_size>NVM_SOCKET_NOMINAL_BYTES?sl_services_stack_bounds(module,&wire,&failure):module->service_size==NVM_SOCKET_NOMINAL_BYTES?
+    if(result==NVM_V2_OK)result=websocket?sl_websocket_stack_bounds(module,&wire,&failure):module->service_size>NVM_SOCKET_NOMINAL_BYTES?sl_services_stack_bounds(module,&wire,&failure):module->service_size==NVM_SOCKET_NOMINAL_BYTES?
         sl_socket_stack_bounds(module,&wire,&failure):sl_file_stack_bounds(module,&wire,&failure);
     size_t count=0;uint8_t *bytes=NULL;bool memory_failure=false;
     uint8_t *canonical_code=NULL;
@@ -766,11 +810,11 @@ NlServiceLoweringResult nl_service_serialize(const NvmModule *module,uint8_t **o
         result=sl_canonical_wire(&wire,&canonical_code);
         memory_failure=result==NVM_V2_ERR_TRUNCATED;
     }
-    if(result==NVM_V2_OK)result=nvm_v2_module_serialize(&wire,NULL,0,&count);
+    if(result==NVM_V2_OK)result=websocket?nvm_websocket_serialize(&wire,NULL,0,&count):nvm_v2_module_serialize(&wire,NULL,0,&count);
     if(result==NVM_V2_OK) {
         bytes=malloc(count);
         if(!bytes){memory_failure=true;result=NVM_V2_ERR_TRUNCATED;}
-        else result=nvm_v2_module_serialize(&wire,bytes,count,&count);
+        else result=websocket?nvm_websocket_serialize(&wire,bytes,count,&count):nvm_v2_module_serialize(&wire,bytes,count,&count);
     }
     nvm_v2_module_free(&wire);free(canonical_code);
     if(result!=NVM_V2_OK){free(bytes);return (NlServiceLoweringResult){memory_failure?4u:failure,0,0,"I cannot serialize my checked File module."};}

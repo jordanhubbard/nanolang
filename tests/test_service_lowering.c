@@ -2,6 +2,7 @@
 #include "service_lowering.h"
 #include "nanoisa/file_cyclic_public.h"
 #include "nanoisa/socket_indirect_native_public.h"
+#include "nanoisa/websocket_indirect_native_public.h"
 #include "nanoisa/services_indirect_native_public.h"
 #include "runtime/service_shadows.h"
 #include <assert.h>
@@ -184,6 +185,24 @@ int main(int argc,char **argv) {
         file=fopen(argv[3],"wb");assert(file);assert(fwrite(native,1,strlen(native),file)==strlen(native));assert(!fclose(file));
         free(native);free(bytes);nvm_module_free(module);
         assert(nvm_services_host_grant_destroy(&grant)==NVM_SERVICES_HOST_OK);goto done;
+    }
+    if(module->service_size==NVM_WEBSOCKET_NOMINAL_BYTES) {
+        char wire_path[8192];assert(snprintf(wire_path,sizeof wire_path,"%s.nvm",argv[3])<(int)sizeof wire_path);
+        file=fopen(wire_path,"wb");assert(file);assert(fwrite(bytes,1,length,file)==length);assert(!fclose(file));
+        NvmWebSocketHostPolicy policy={1,false,false,2000,NULL};
+        NvmWebSocketHostGrant *grant=NULL;assert(nvm_websocket_host_grant_create(&policy,&grant)==NVM_WEBSOCKET_HOST_OK);
+        NvmWebSocketIndirectOptions options={1,100000};NvmWebSocketScalar scalar={0};
+        unsigned descriptors=descriptor_count();
+        NvmWebSocketIndirectExecutionReport denied=nvm_websocket_execute_indirect_bytes(NULL,bytes,length,&options,&scalar);
+        assert(denied.runtime.status==NVM_WEBSOCKET_RUNTIME_INVALID && !denied.runtime.acquired);
+        NvmWebSocketIndirectExecutionReport report=nvm_websocket_execute_indirect_bytes(grant,bytes,length,&options,&scalar);
+        assert(report.runtime.status==expected && !report.runtime.cleanup.cleanup_failures && descriptors==descriptor_count());
+        printf("EXEC %u VALUE %lld\n",report.runtime.status,(long long)scalar.value);
+        char diagnostic[256],*native=NULL;
+        assert(nvm2c_emit_websocket_indirect_bytes(bytes,length,"source",&native,diagnostic,sizeof diagnostic)==NVM_WEBSOCKET_RUNTIME_OK);
+        file=fopen(argv[3],"wb");assert(file);assert(fwrite(native,1,strlen(native),file)==strlen(native));assert(!fclose(file));
+        free(native);free(bytes);nvm_module_free(module);
+        assert(nvm_websocket_host_grant_destroy(&grant)==NVM_WEBSOCKET_HOST_OK);goto done;
     }
     if(module->service_size==NVM_SOCKET_NOMINAL_BYTES) {
         char wire_path[8192];assert(snprintf(wire_path,sizeof wire_path,"%s.nvm",argv[3])<(int)sizeof wire_path);

@@ -562,7 +562,11 @@ fn sl_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bo
         if (> borrowed 0) { (sl_integer (sl_reference_map references) 4) }
     } else {
     let row: ServiceName = (at space.names target)
-    if (== row.kind 9) { (sl_op 145 values produces) (sl_integer (+ (* row.request 5) row.ordinal) 4) (sl_integer reference 2) }
+    if (== row.kind 9) {
+        let mut index: int = row.ordinal let mut instance: int = 0
+        while (< instance row.request) { set index (+ index (LowerCatalog.count (at sl_catalogs instance) 2)) set instance (+ instance 1) }
+        (sl_op 145 values produces) (sl_integer index 4) (sl_integer reference 2)
+    }
     else {
         let mut callee: int = -1 set i 0
         while (< i (array_length sl_functions)) { if (== (at sl_functions i).declaration row.id) { set callee i } set i (+ i 1) }
@@ -693,23 +697,26 @@ fn sl_expr_impl(parser: Parser, space: ServiceNamespace, kind: int, id: int, wan
         let node: ASTStructLiteral = (parser_get_struct_literal parser id)
         let typ: ServiceWireType = (sl_node_type kind id)
         let instance: int = (sl_instance (sl_fact kind id).type.declaration)
-        if (or (!= (at sl_catalogs instance) 2) (or (!= typ.layout (+ (sl_base instance false) 8)) (!= node.field_count 7))) {
-            (sl_fail 2 "I require a checked Endpoint constructor.") return
+        let catalog: int = (at sl_catalogs instance)
+        let ordinal: int = (cond ((== catalog 3) 2) (else 8))
+        let count: int = (cond ((== catalog 3) 2) (else 7))
+        if (or (and (!= catalog 2) (!= catalog 3)) (or (!= typ.layout (+ (sl_base instance false) ordinal)) (!= node.field_count count))) {
+            (sl_fail 2 "I require a checked catalog record constructor.") return
         }
         let mut slots: array<int> = [0, 0, 0, 0, 0, 0, 0]
         let pending: int = (array_length sl_pending) let mut i: int = 0
-        while (< i 7) {
+        while (< i count) {
             let mut field: int = 0
-            while (and (< field 7) (!= (at node.field_names i) (LowerCatalog.catalog_text 2 1 8 3 field))) { set field (+ field 1) }
-            if (== field 7) { (sl_fail 1 "I require an exact Endpoint field.") return }
+            while (and (< field count) (!= (at node.field_names i) (LowerCatalog.catalog_text catalog 1 ordinal 3 field))) { set field (+ field 1) }
+            if (== field count) { (sl_fail 1 "I require an exact catalog record field.") return }
             (sl_expr parser space (at node.field_value_types i) (at node.field_value_ids i) true)
             if (or (not sl_next) (!= sl_status 0)) { return }
-            (array_set slots field (sl_stage (service_wire_scalar 1))) set i (+ i 1)
+            (array_set slots field (sl_stage (sl_node_type (at node.field_value_types i) (at node.field_value_ids i)))) set i (+ i 1)
         }
         set i 0
-        while (< i 7) { (sl_load (at slots i)) (sl_clear (at slots i)) set i (+ i 1) }
+        while (< i count) { (sl_load (at slots i)) (sl_clear (at slots i)) set i (+ i 1) }
         set sl_pending (sl_prefix sl_pending pending)
-        (sl_op 251 7 1) (sl_integer 0 1) (sl_integer (+ (sl_base instance true) 3) 4) (sl_integer 0 2) (sl_integer 7 2)
+        (sl_op 251 count 1) (sl_integer 0 1) (sl_integer (+ (sl_base instance true) (cond ((== catalog 3) 2) (else 3))) 4) (sl_integer 0 2) (sl_integer count 2)
     }
     else if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
         let node: ASTFieldAccess = (parser_get_field_access parser id) let fact: ServiceBodyFact = (sl_fact node.object_type node.object)

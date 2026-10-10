@@ -15,7 +15,7 @@ static inline NvmV2Result nvm_private_service_module(const NvmModule *m,const Nv
 static inline NvmV2Result nvm_private_service_wire(const NvmV2Module *m,const NvmPrivateServiceCodec *c) {
     return c?(c->module && c->wire && c->service_bytes?c->wire(m):NVM_V2_ERR_SECTION_TYPE):nvm_v2_service_bindings_validate(m);
 }
-NvmV2Result nvm_private_nominal_wire(const NvmV2Module *,uint32_t minimum_imports,
+NvmV2Result nvm_private_nominal_wire(const NvmV2Module *,uint32_t minimum_imports,uint32_t minimum_layouts,
     NvmV2Result (*validate)(const NvmModule *));
 NvmV2Result nvm_private_from_module(const NvmModule *,NvmV2Module *,const NvmPrivateServiceCodec *);
 NvmV2Result nvm_private_to_module(const NvmV2Module *,NvmModule **,const NvmPrivateServiceCodec *);

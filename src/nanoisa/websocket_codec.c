@@ -10,7 +10,7 @@ static NvmV2Result websocket_module(const NvmModule *m) {
     return status==NVM_WEBSOCKET_NOMINAL_LIMIT?NVM_V2_ERR_INDEX_RANGE:NVM_V2_ERR_SECTION_TYPE;
 }
 static NvmV2Result websocket_wire(const NvmV2Module *m) {
-    return nvm_private_nominal_wire(m,NVM_WEBSOCKET_NOMINAL_METHODS,websocket_module);
+    return nvm_private_nominal_wire(m,NVM_WEBSOCKET_NOMINAL_METHODS,NVM_WEBSOCKET_NOMINAL_TYPES,websocket_module);
 }
 static const NvmPrivateServiceCodec websocket_codec={websocket_module,websocket_wire,NVM_WEBSOCKET_NOMINAL_BYTES};
 NvmV2Result nvm_websocket_from_module(const NvmModule *m,NvmV2Module *out){return nvm_private_from_module(m,out,&websocket_codec);}

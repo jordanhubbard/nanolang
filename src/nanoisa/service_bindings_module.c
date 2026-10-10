@@ -111,10 +111,10 @@ static bool table_bytes(size_t count,size_t width,size_t *bytes) {
 /* I adapt only metadata for the selected exact nominal validator. No execution
  * verifier, renumbering or ownership flag projection is involved. Temporary
  * pointer-array views die before return. Ordinary callers select nominal_module. */
-NvmV2Result nvm_private_nominal_wire(const NvmV2Module *m,uint32_t minimum_imports,NvmV2Result (*validate)(const NvmModule *)) {
-    if(!m || !validate || !minimum_imports || m->imports.count<minimum_imports || m->imports.count>NVM_MULTI_NOMINAL_MAX_IMPORTS || !m->imports.items ||
+NvmV2Result nvm_private_nominal_wire(const NvmV2Module *m,uint32_t minimum_imports,uint32_t minimum_layouts,NvmV2Result (*validate)(const NvmModule *)) {
+    if(!m || !validate || !minimum_imports || !minimum_layouts || m->imports.count<minimum_imports || m->imports.count>NVM_MULTI_NOMINAL_MAX_IMPORTS || !m->imports.items ||
        m->links.count || m->callbacks.count || !m->ownership_data || !m->ownership_size ||
-       m->layouts.count<NVM_FILE_NOMINAL_TYPES || m->layouts.count>NVM_FILE_NOMINAL_MAX_LAYOUTS ||
+       m->layouts.count<minimum_layouts || m->layouts.count>NVM_FILE_NOMINAL_MAX_LAYOUTS ||
        !m->layouts.items || (m->constants.count && !m->constants.items) ||
        (m->functions.count && !m->functions.items) || (m->signatures.count && !m->signatures.items) ||
        m->functions.count>m->ownership_size/12)return NVM_V2_ERR_SECTION_TYPE;
@@ -223,7 +223,7 @@ NvmV2Result nvm_v2_service_bindings_validate(const NvmV2Module *m) {
     if (nvm_v2_file_instructions_present(m) && !nominal_version(m->service_data,m->service_size))
         return NVM_V2_ERR_SECTION_TYPE;
     if (!nvm_v2_service_bindings_present(m)) return NVM_V2_OK;
-    if (nominal_version(m->service_data,m->service_size)) return nvm_private_nominal_wire(m,NVM_SERVICE_BINDING_COUNT,nominal_module);
+    if (nominal_version(m->service_data,m->service_size)) return nvm_private_nominal_wire(m,NVM_SERVICE_BINDING_COUNT,NVM_FILE_NOMINAL_TYPES,nominal_module);
     NvmServiceBindings value;
     if (nvm_service_bindings_decode(m->service_data,m->service_size,&value)!=NVM_SERVICE_OK)
         return NVM_V2_ERR_SECTION_TYPE;

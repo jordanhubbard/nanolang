@@ -173,6 +173,7 @@ shadow sw_descriptor {
 fn sw_catalog_value(id: string) -> ServiceWireType {
     if (== id "nsi:core/int") { return (service_wire_scalar 1) }
     if (== id "nsi:core/bool") { return (service_wire_scalar 4) }
+    if (== id "nsi:core/string") { return (service_wire_scalar 5) }
     let mut i: int = 0
     while (< i sw_types) {
         if (== id (WireCatalog.catalog_text sw_catalog 1 i 0 0)) {
@@ -186,6 +187,7 @@ fn sw_catalog_value(id: string) -> ServiceWireType {
 }
 shadow sw_catalog_value {
     assert (== (sw_catalog_value "nsi:core/int").tag 1)
+    assert (== (sw_catalog_value "nsi:core/string").tag 5)
     assert (== (sw_catalog_value (WireCatalog.catalog_text sw_catalog 1 3 0 0)).layout 3)
     assert (== (sw_catalog_value "").tag 0)
 }
@@ -222,21 +224,27 @@ shadow sw_layouts {
 }
 
 fn sw_imports() -> array<int> {
-    set sw_bytes [] (sw_integer (* 5 (array_length sw_catalogs)) 4)
-    let mut instance: int = 0
+    let mut count: int = 0 let mut instance: int = 0
     while (< instance (array_length sw_catalogs)) {
-    set sw_catalog (at sw_catalogs instance)
-    let interface: int = (sw_string (WireCatalog.catalog_text sw_catalog 0 0 0 0))
-    let mut i: int = 0
-    while (< i 5) {
-        let mut params: array<int> = []
-        if (or (> i 0) (== sw_catalog 2)) { set params [8] }
-        if (== i 1) { set params [8, 1] }
-        (sw_integer interface 4) (sw_integer (sw_string (WireCatalog.catalog_text sw_catalog 2 i 0 0)) 4)
-        (sw_integer (sw_signature params 10) 4) (sw_integer 3 1) (sw_integer 0 3)
-        set i (+ i 1)
+        set count (+ count (WireCatalog.count (at sw_catalogs instance) 2)) set instance (+ instance 1)
     }
-    set instance (+ instance 1)
+    set sw_bytes [] (sw_integer count 4) set instance 0
+    while (< instance (array_length sw_catalogs)) {
+        set sw_catalog (at sw_catalogs instance) set sw_types (WireCatalog.count sw_catalog 1)
+        let interface: int = (sw_string (WireCatalog.catalog_text sw_catalog 0 0 0 0))
+        let mut i: int = 0
+        while (< i (WireCatalog.count sw_catalog 2)) {
+            let mut params: array<int> = [] let mut j: int = 0
+            let inputs: int = (- (WireCatalog.catalog_number sw_catalog 2 i 4 0) 1)
+            while (< j inputs) {
+                let typ: ServiceWireType = (sw_catalog_value (WireCatalog.catalog_text sw_catalog 2 i 6 j))
+                set params (array_push params typ.tag) set j (+ j 1)
+            }
+            (sw_integer interface 4) (sw_integer (sw_string (WireCatalog.catalog_text sw_catalog 2 i 0 0)) 4)
+            (sw_integer (sw_signature params 10) 4) (sw_integer 3 1) (sw_integer 0 3)
+            set i (+ i 1)
+        }
+        set instance (+ instance 1)
     }
     return sw_bytes
 }
@@ -244,6 +252,11 @@ shadow sw_imports {
     set sw_strings [] set sw_signatures [] let bytes: array<int> = (sw_imports)
     assert (== (array_length bytes) 84)
     assert (== (at bytes 16) 3) set sw_bytes [] set sw_strings [] set sw_signatures []
+    set sw_catalogs [3] set sw_catalog 3 set sw_types 7
+    let websocket: array<int> = (sw_imports)
+    assert (== (array_length websocket) 68) assert (== (at websocket 0) 4)
+    set sw_catalogs [1] set sw_catalog 1 set sw_types 8
+    set sw_bytes [] set sw_strings [] set sw_signatures []
 }
 
 fn sw_constants() -> array<int> {
@@ -316,8 +329,14 @@ fn sw_ownership(functions: array<ServiceWireFunction>) -> array<int> {
     set sw_bytes [] (sw_integer 1 4) (sw_integer sw_total 4)
     let mut instance: int = 0
     while (< instance (array_length sw_catalogs)) {
-        (sw_append [3, 1, 1, 3, 1, 1, 1, 1])
-        if (== (at sw_catalogs instance) 2) { (sw_integer 1 1) }
+        let types: int = (WireCatalog.count (at sw_catalogs instance) 1)
+        let mut ordinal: int = 0
+        while (< ordinal types) {
+            let mut flags: int = 1
+            if (or (== ordinal 0) (== ordinal 3)) { set flags 3 }
+            (sw_integer flags 1)
+            set ordinal (+ ordinal 1)
+        }
         set instance (+ instance 1)
     }
     (sw_pad) (sw_integer (array_length functions) 4)
@@ -335,6 +354,11 @@ shadow sw_ownership {
     let bytes: array<int> = (sw_ownership [])
     assert (== (array_length bytes) 20)
     assert (== (at bytes 8) 3) assert (== (at bytes 11) 3) set sw_bytes []
+    set sw_catalogs [3] set sw_total 7
+    let websocket: array<int> = (sw_ownership [])
+    assert (== (array_length websocket) 20)
+    assert (== (at websocket 14) 1) assert (== (at websocket 15) 0)
+    set sw_catalogs [1] set sw_total 8 set sw_bytes []
 }
 
 fn sw_services() -> array<int> {
@@ -358,9 +382,10 @@ fn sw_services() -> array<int> {
         return sw_bytes
     }
     set sw_bytes [] (sw_integer 2 2) (sw_integer sw_catalog 2)
-    (sw_integer 5 4) (sw_integer sw_types 4) (sw_integer 0 4)
+    let methods: int = (WireCatalog.count sw_catalog 2)
+    (sw_integer methods 4) (sw_integer sw_types 4) (sw_integer 0 4)
     let mut i: int = 0
-    while (< i 5) { (sw_integer i 4) (sw_integer i 4) set i (+ i 1) }
+    while (< i methods) { (sw_integer i 4) (sw_integer i 4) set i (+ i 1) }
     set i 0
     while (< i sw_types) { (sw_integer i 4) (sw_integer i 4) set i (+ i 1) }
     return sw_bytes
@@ -369,6 +394,11 @@ shadow sw_services {
     let bytes: array<int> = (sw_services)
     assert (== (array_length bytes) 120)
     assert (== (at bytes 116) 7) set sw_bytes []
+    set sw_catalogs [3] set sw_catalog 3 set sw_types 7
+    let websocket: array<int> = (sw_services)
+    assert (== (array_length websocket) 104) assert (== (at websocket 2) 3)
+    assert (== (at websocket 4) 4) assert (== (at websocket 8) 7)
+    set sw_catalogs [1] set sw_catalog 1 set sw_types 8 set sw_bytes []
 }
 
 fn sw_container(sections: array<ServiceWireSection>, entry: int) -> array<int> {
@@ -410,7 +440,8 @@ pub fn service_wire_serialize_instances(functions: array<ServiceWireFunction>, e
     let mut catalog_index: int = 0 let mut total: int = 0
     while (< catalog_index (array_length catalogs)) {
         let catalog: int = (at catalogs catalog_index)
-        if (and (!= catalog 1) (!= catalog 2)) { return [] }
+        if (and (!= catalog 1) (and (!= catalog 2) (!= catalog 3))) { return [] }
+        if (and (== catalog 3) (!= (array_length catalogs) 1)) { return [] }
         set total (+ total (WireCatalog.count catalog 1)) set catalog_index (+ catalog_index 1)
     }
     if (or (< entry 0) (>= entry (array_length functions))) { return [] }
