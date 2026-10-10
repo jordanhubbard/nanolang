@@ -27,7 +27,7 @@ static NvmFileFlowStatus fif_transfer(void *context,NvmFileBodyReport *body,NvmF
   s->stack[s->stack_count++]=initial_value(scalar_type(TAG_FUNCTION),true,0);
   return NVM_FILE_FLOW_OK;
  }
- if(in->decoded.opcode!=OP_CALL_INDIRECT)return file_body_transfer(body,s,in,fact);
+ if(!isa_is_file_indirect_call(in->decoded.opcode))return file_body_transfer(body,s,in,fact);
  if(!s->stack_count)return NVM_FILE_FLOW_INVALID;
  NvmFileFlowValue callable=s->stack[s->stack_count-1];
  if(!callable.initialized || !same(callable.type,scalar_type(TAG_FUNCTION)) ||
@@ -45,7 +45,7 @@ static NvmFileFlowStatus fif_transfer(void *context,NvmFileBodyReport *body,NvmF
     index-original->starts[caller]>=original->functions[caller].instruction_count ||
     original->functions[caller].instruction_count!=body->plan->functions[caller].instruction_count ||
     original->instructions[index].byte_offset!=in->byte_offset ||
-    original->instructions[index].decoded.opcode!=OP_CALL_INDIRECT)return NVM_FILE_FLOW_INVALID;
+    original->instructions[index].decoded.opcode!=in->decoded.opcode)return NVM_FILE_FLOW_INVALID;
  uint64_t candidates=w->bits[index];
  pop(s);w->saved=*s;
  uint64_t identity=s->declarations->next_identity,first_identity=identity;
@@ -58,8 +58,9 @@ static NvmFileFlowStatus fif_transfer(void *context,NvmFileBodyReport *body,NvmF
   const NvmFileFlowFunction *fn=&body->plan->functions[f].declaration;
   uint16_t references[NVM_FILE_FLOW_LOCALS];
   for(uint16_t i=0;i<fn->parameters;i++) {
-   if(s->declarations->locals[s->declarations->offsets[f]+i].mode)return NVM_FILE_FLOW_UNRESOLVED;
-   references[i]=NVM_FILE_FLOW_NO_REFERENCE;
+   bool borrowed=s->declarations->locals[s->declarations->offsets[f]+i].mode!=0;
+   if(borrowed && in->decoded.opcode!=OP_FILE_CALL_INDIRECT_REFS)return NVM_FILE_FLOW_UNRESOLVED;
+   references[i]=borrowed?in->call_references[i]:NVM_FILE_FLOW_NO_REFERENCE;
   }
   NvmFileFlowStatus status=nvm_file_flow_call(&w->candidate.transfer,in->byte_offset,f,references,fn->parameters);
   if(status!=NVM_FILE_FLOW_OK)return status;
@@ -165,7 +166,7 @@ bool nvm_file_indirect_flow_input_region(const NvmFileIndirectFlow *r,uint32_t f
 bool nvm_file_indirect_flow_call(const NvmFileIndirectFlow *r,uint32_t f,uint16_t i,uint8_t v,NvmFileIndirectFlowCall *out) {
  if(!r || !out)return false;
  NvmFileCodeInstruction in;NvmFileCyclicVariant variant;
- if(!nvm_file_cyclic_instruction(r->ownership,f,i,&in) || in.decoded.opcode!=OP_CALL_INDIRECT ||
+ if(!nvm_file_cyclic_instruction(r->ownership,f,i,&in) || !isa_is_file_indirect_call(in.decoded.opcode) ||
     !nvm_file_cyclic_variant(r->ownership,f,i,v,&variant) || !variant.body.has_obligation)return false;
  for(uint32_t n=0;n<r->targets->summary.calls;n++) {
   const NvmFileIndirectCall *call=&r->targets->calls[n];

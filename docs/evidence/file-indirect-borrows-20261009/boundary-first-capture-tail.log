@@ -1,0 +1,6 @@
+I begin allocation prefix174 transient1
+I begin allocation prefix175 transient1
+I begin allocation prefix176 transient1
+I begin allocation prefix177 transient1
+PASS indirect emitter allocation refusals=354
+PASS indirect VM capture: 86 exact modules

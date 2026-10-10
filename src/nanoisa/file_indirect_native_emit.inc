@@ -71,7 +71,7 @@ static void fn_variant(Fne *b,const NvmFileIndirectHostedPlan *p,uint32_t f,uint
 #undef V
     NvmFileCodeInstruction instruction;
     if(!nvm_file_indirect_hosted_instruction(p,f,i,&instruction)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
-    if(instruction.decoded.opcode==OP_CALL_INDIRECT) {
+    if(isa_is_file_indirect_call(instruction.decoded.opcode)) {
         NvmFileIndirectFlowCall call;
         if(!nvm_file_indirect_hosted_call(p,f,i,v,&call)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
         fn_text(b,"{NvmFileIndirectFlowCall call;if(!nvm_file_indirect_hosted_call(p,%u,%u,%u,&call))return false;\n",f,i,v);
@@ -157,6 +157,9 @@ static void fn_instruction_agreement(Fne *b,const NvmFileIndirectHostedPlan *p,u
         for(uint16_t k=0;k<callee.code.declaration.parameters;k++)
             fn_text(b,"if(in.call_references[%u]!=%u)return false;\n",k,in.call_references[k]);
     }
+    if(in.decoded.opcode==OP_FILE_CALL_INDIRECT_REFS)
+        for(uint16_t k=0;k<in.decoded.operands[0].u16;k++)
+            fn_text(b,"if(in.call_references[%u]!=%u)return false;\n",k,in.call_references[k]);
     for(uint8_t v=0;v<count;v++)fn_variant(b,p,index,j,v);
     if(in.decoded.opcode==OP_FILE_SERVICE) {
         uint32_t original;
@@ -339,7 +342,7 @@ static void fn_instruction(Fne *b,const NvmFileIndirectHostedPlan *p,uint32_t fu
             "NF_TRY(nvm_file_runtime_result_arm(c,src,&arm));\nNF_TRY(nvm_file_runtime_drop(c,src));\n"
             "NF_TRY(nvm_file_runtime_scalar(c,src,TAG_INT,arm==NVM_FILE_FLOW_ARM_ERROR));\n");
         break;
-    case OP_CALL_INDIRECT: {
+    case OP_FILE_CALL_INDIRECT_REFS:case OP_CALL_INDIRECT: {
         uint8_t variants;uint64_t candidates=0;
         if(in->successor_count!=1 || !nvm_file_indirect_hosted_variant_count(p,function,index,&variants)) {
             b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;

@@ -10,7 +10,7 @@ struct NvmFileIndirectHostedPlan {
 static bool file_ih_fact(const NvmFileIndirectHostedPlan *p,uint32_t f,uint16_t i,
                         const NvmFileCodeInstruction *in,const NvmFileCyclicVariant *v) {
     const NvmFileCyclicReport *r=p->query->ownership;
-    if(in->decoded.opcode!=OP_CALL_INDIRECT)return file_ch_fact(r,in,v);
+    if(!isa_is_file_indirect_call(in->decoded.opcode))return file_ch_fact(r,in,v);
     const NvmFileBodyInstruction *b=&v->body;
     uint64_t bits=p->targets[r->plan->starts[f]+i];
     if(!bits || !b->reachable || b->cleanup!=NVM_FILE_BODY_CLEANUP_CALL ||
@@ -26,7 +26,11 @@ static bool file_ih_fact(const NvmFileIndirectHostedPlan *p,uint32_t f,uint16_t 
         expected.checks=NVM_FILE_FLOW_CHECK_CALLEE|NVM_FILE_FLOW_CHECK_RESULT|NVM_FILE_FLOW_CHECK_CLEANUP;
         for(uint16_t local=0;local<fn->parameters;local++) {
             NvmFileFlowDeclaration d;
-            if(!nvm_file_indirect_flow_local(p->query,target,local,&d) || d.mode)return false;
+            if(!nvm_file_indirect_flow_local(p->query,target,local,&d))return false;
+            if(d.mode && in->decoded.opcode!=OP_FILE_CALL_INDIRECT_REFS)return false;
+            if(d.mode ? in->call_references[local]>=NVM_FILE_FLOW_REFERENCES :
+               (in->decoded.opcode==OP_FILE_CALL_INDIRECT_REFS && in->call_references[local]!=NVM_FILE_FLOW_NO_REFERENCE))return false;
+            expected.borrowed_inputs+=d.mode!=0;
             expected.owned_inputs+=owned(d);
         }
         if(!obligation_same(b->obligation,expected))return false;
@@ -43,12 +47,12 @@ static bool file_ih_target_map(NvmFileIndirectHostedPlan *p) {
            !call.candidates || (code->count<64 && (call.candidates>>code->count)))return false;
         uint32_t index=code->starts[call.function]+call.instruction;
         if(index>=NVM_FILE_CODE_INSTRUCTIONS || p->targets[index] ||
-           code->instructions[index].decoded.opcode!=OP_CALL_INDIRECT ||
+           !isa_is_file_indirect_call(code->instructions[index].decoded.opcode) ||
            code->instructions[index].byte_offset!=call.pc)return false;
         p->targets[index]=call.candidates;
     }
     for(uint32_t i=0;i<code->instruction_count;i++)
-        if((code->instructions[i].decoded.opcode==OP_CALL_INDIRECT)!=!!p->targets[i])return false;
+        if((isa_is_file_indirect_call(code->instructions[i].decoded.opcode))!=!!p->targets[i])return false;
     return true;
 }
 static NvmFileFlowStatus file_ih_start(NvmFileIndirectHostedPlan *p,const NvmV2Module *wire,const NvmModule *m) {
@@ -98,14 +102,14 @@ static NvmFileFlowStatus file_ih_bounds(NvmFileIndirectHostedPlan *p,const NvmV2
             const NvmFileCodeInstruction *in=&code->instructions[code->starts[f]+i];
             const FileCyclicSite *site=file_cyclic_site(p->query->ownership,f,i);
             /* Structural query coverage applies even with zero reachable variants. */
-            if(!site || (!file_code_supported(in->decoded.opcode) && in->decoded.opcode!=OP_FUNCREF && in->decoded.opcode!=OP_CALL_INDIRECT))return NVM_FILE_FLOW_UNRESOLVED;
+            if(!site || (!file_code_supported(in->decoded.opcode) && in->decoded.opcode!=OP_FUNCREF && !isa_is_file_indirect_call(in->decoded.opcode)))return NVM_FILE_FLOW_UNRESOLVED;
             for(uint8_t v=0;v<site->count;v++) {
                 const NvmFileCyclicVariant *fact=&site->nodes[v]->fact;
                 if(!file_ih_fact(p,f,i,in,fact) || !file_ih_peak(fn,fact->input) ||
                    !file_ih_peak(fn,fact->output))return NVM_FILE_FLOW_INVALID;
                 if(fact->body.has_obligation && fact->body.obligation.kind==NVM_FILE_FLOW_CALL) {
-                    uint32_t staging=(uint32_t)fact->body.obligation.parameters+1u+(in->decoded.opcode==OP_CALL_INDIRECT);
-                    if(staging>NVM_FILE_FLOW_LOCALS+1u)return NVM_FILE_FLOW_INVALID;
+                    uint32_t staging=(uint32_t)fact->body.obligation.parameters+1u+(isa_is_file_indirect_call(in->decoded.opcode));
+                    if(staging>NVM_FILE_FLOW_LOCALS+2u)return NVM_FILE_FLOW_INVALID;
                     if(staging>fn->staging_slots)fn->staging_slots=(uint16_t)staging;
                 }
             }
@@ -119,11 +123,11 @@ static NvmFileFlowStatus file_ih_bounds(NvmFileIndirectHostedPlan *p,const NvmV2
                 const NvmFileBodyInstruction *body=&site->nodes[v]->fact.body;
                 if(!body->has_obligation || body->obligation.kind!=NVM_FILE_FLOW_CALL)continue;
                 const NvmFileFlowObligation *call=&body->obligation;
-                bool indirect=code->instructions[code->starts[f]+i].decoded.opcode==OP_CALL_INDIRECT;
+                bool indirect=isa_is_file_indirect_call(code->instructions[code->starts[f]+i].decoded.opcode);
                 uint64_t candidates=indirect?p->targets[code->starts[f]+i]:
                     (call->target<code->count?UINT64_C(1)<<call->target:0);
                 if(!candidates || call->borrowed_inputs>call->parameters ||
-                   (indirect && (call->borrowed_inputs || call->target!=NVM_V2_NO_INDEX)))return NVM_FILE_FLOW_INVALID;
+                   (indirect && call->target!=NVM_V2_NO_INDEX))return NVM_FILE_FLOW_INVALID;
                 uint32_t consumed=(uint32_t)call->parameters-call->borrowed_inputs+(unsigned)indirect;
                 if(consumed>body->input_stack)return NVM_FILE_FLOW_INVALID;
                 for(uint32_t target=0;target<code->count;target++)if(candidates&(UINT64_C(1)<<target)) {
@@ -139,8 +143,8 @@ static NvmFileFlowStatus file_ih_bounds(NvmFileIndirectHostedPlan *p,const NvmV2
         }
         fn->reference_slots=(uint32_t)fn->frames*NVM_FILE_FLOW_REFERENCES;
         fn->region_slots=(uint32_t)fn->frames*NVM_FILE_FLOW_REFERENCES;
-        if(fn->frames>NVM_FILE_FLOW_FUNCTIONS || fn->vm_value_slots>UINT64_C(64)*769 ||
-           fn->native_value_slots>UINT64_C(64)*769)return NVM_FILE_FLOW_LIMIT;
+        if(fn->frames>NVM_FILE_FLOW_FUNCTIONS || fn->vm_value_slots>UINT64_C(64)*770 ||
+           fn->native_value_slots>UINT64_C(64)*770)return NVM_FILE_FLOW_LIMIT;
         checked[f]=true;
     }
     uint32_t roots[2]={p->startup.entry,p->startup.initializer};

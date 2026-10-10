@@ -13,7 +13,7 @@ struct NvmFileCodePlan {
     uint64_t calls[NVM_FILE_FLOW_FUNCTIONS];
 };
 static bool file_code_supported_mode(uint8_t op,bool indirect) {
-    if(indirect && (op==OP_FUNCREF || op==OP_CALL_INDIRECT))return true;
+    if(indirect && (op==OP_FUNCREF || isa_is_file_indirect_call(op)))return true;
     switch(op) {
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
     case OP_DUP: case OP_POP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
@@ -95,6 +95,20 @@ static NvmFileFlowStatus file_code_operands(NvmFileCodePlan *p,uint32_t function
     switch(d->opcode) {
     case OP_FUNCREF:
         return d->operands[0].u32<p->count?NVM_FILE_FLOW_OK:NVM_FILE_FLOW_INVALID;
+    case OP_FILE_CALL_INDIRECT_REFS: {
+        uint16_t parameters=d->operands[0].u16;uint32_t index=d->operands[2].u32;
+        if(parameters>NVM_FILE_FLOW_LOCALS || d->operands[1].u16>1)return NVM_FILE_FLOW_INVALID;
+        const char *map=nvm_get_string(module,index);
+        if(!map || nvm_get_string_len(module,index)!=2u*parameters)return NVM_FILE_FLOW_INVALID;
+        bool borrowed=false;
+        for(uint16_t i=0;i<parameters;i++) {
+            uint16_t ref=(uint16_t)(uint8_t)map[2u*i]|((uint16_t)(uint8_t)map[2u*i+1u]<<8);
+            if(ref!=NVM_FILE_FLOW_NO_REFERENCE && ref>=NVM_FILE_FLOW_REFERENCES)return NVM_FILE_FLOW_INVALID;
+            borrowed|=ref!=NVM_FILE_FLOW_NO_REFERENCE;in->call_references[i]=ref;
+        }
+        if(!borrowed)return NVM_FILE_FLOW_INVALID;
+        break;
+    }
     case OP_CALL_INDIRECT:
         if(d->operands[0].u16>NVM_FILE_FLOW_LOCALS || d->operands[1].u16>1)
             return NVM_FILE_FLOW_INVALID;

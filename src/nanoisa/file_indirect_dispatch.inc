@@ -4,7 +4,7 @@
 #include "../nsi_file_catalog.h"
 static bool fcd_supported(uint8_t op) {
     switch(op) {
-    case OP_FUNCREF: case OP_CALL_INDIRECT:
+    case OP_FUNCREF: case OP_FILE_CALL_INDIRECT_REFS:case OP_CALL_INDIRECT:
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
     case OP_DUP: case OP_POP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL:
@@ -35,18 +35,18 @@ static bool fcd_fact(const NvmFileIndirectHostedPlan *p,const NvmFileCodeInstruc
     case OP_FILE_DROP_STACK:cleanup=NVM_FILE_BODY_CLEANUP_DROP_STACK;break;
     case OP_ASSERT:cleanup=NVM_FILE_BODY_CLEANUP_ASSERT;break;
     case OP_RET:cleanup=NVM_FILE_BODY_CLEANUP_RETURN;break;
-    case OP_CALL_INDIRECT:case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:cleanup=NVM_FILE_BODY_CLEANUP_CALL;break;
+    case OP_FILE_CALL_INDIRECT_REFS:case OP_CALL_INDIRECT:case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:cleanup=NVM_FILE_BODY_CLEANUP_CALL;break;
     case OP_FILE_SERVICE:cleanup=NVM_FILE_BODY_CLEANUP_SERVICE;break;
     default:break;
     }
     if(fact->cleanup!=cleanup || fact->refinement!=(op==OP_FILE_RESULT_BRANCH) ||
        fact->exit_checked!=(op==OP_RET))return false;
     uint32_t checks=NVM_FILE_FLOW_CHECK_CLEANUP,discharged=0;
-    bool service=op==OP_FILE_SERVICE,call=op==OP_CALL_INDIRECT || op==OP_CALL || (op==OP_CALL_REF || op==OP_FILE_CALL_REFS);
+    bool service=op==OP_FILE_SERVICE,call=isa_is_file_indirect_call(op) || op==OP_CALL || (op==OP_CALL_REF || op==OP_FILE_CALL_REFS);
     if(fact->has_obligation!=(service || call))return false;
     if(service || call) {
         const NvmFileFlowObligation *o=&fact->obligation;
-        if(o->site!=in->byte_offset || o->target!=(op==OP_CALL_INDIRECT?NVM_V2_NO_INDEX:in->decoded.operands[0].u32) ||
+        if(o->site!=in->byte_offset || o->target!=(isa_is_file_indirect_call(op)?NVM_V2_NO_INDEX:in->decoded.operands[0].u32) ||
            o->kind!=(service?NVM_FILE_FLOW_SERVICE:NVM_FILE_FLOW_CALL))return false;
         checks|=NVM_FILE_FLOW_CHECK_RESULT;
         if(service) {
@@ -91,7 +91,7 @@ static bool fcd_coverage(const NvmFileIndirectHostedPlan *p) {
                            fact.edge_variants[e]>=destination_count)return false;
                     }
                 }
-                if(in.decoded.opcode==OP_CALL_INDIRECT) {
+                if(isa_is_file_indirect_call(in.decoded.opcode)) {
                     NvmFileIndirectFlowCall call;
                     if(!nvm_file_indirect_hosted_call(p,f,i,v,&call) || !call.candidates ||
                        call.candidates!=call.checked_candidates || call.function!=f || call.pc!=in.byte_offset ||

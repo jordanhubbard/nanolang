@@ -176,6 +176,10 @@ class FileIndirectDispatch(unittest.TestCase):
                         and 'nf_bits(UINT64_C(41))' in p.read_text())
         controls.append(('candidates', alter_once(indirect, r'(call\.candidates\)!=UINT64_C\()(\d+)'), 4))
         controls.append(('checked_candidates', alter_once(indirect, r'(call\.checked_candidates\)!=UINT64_C\()(\d+)'), 4))
+        borrowed = next(p.read_text() for _, p in generated
+                        if 'in.decoded.opcode)!=UINT64_C(152)' in p.read_text())
+        controls.append(('indirect_reference_map', alter_once(borrowed,
+                         r'(in\.call_references\[0\]!=)(\d+)'), 4))
         correct_dispatch = 'case 1:NF_TRY(nf_function_1(c));break;'
         self.assertIn(correct_dispatch, indirect)
         controls.append(('target_dispatch', indirect.replace(correct_dispatch,

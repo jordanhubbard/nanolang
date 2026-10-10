@@ -70,7 +70,7 @@ static bool frc_edge(const NvmFileRuntime *c,const FileRuntimeFrame *f,uint8_t e
 }
 static bool fr_call_target(const NvmFileRuntime *c,const FileRuntimeFrame *f,
                            const NvmFileCodeInstruction *in,uint32_t target) {
-    if(in->decoded.opcode!=OP_CALL_INDIRECT)
+    if(!isa_is_file_indirect_call(in->decoded.opcode))
         return (in->decoded.opcode==OP_CALL || in->decoded.opcode==OP_CALL_REF ||
                 in->decoded.opcode==OP_FILE_CALL_REFS) && in->decoded.operands[0].u32==target;
     NvmFileIndirectFlowCall call;

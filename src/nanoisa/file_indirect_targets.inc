@@ -85,7 +85,8 @@ static bool fi_signature(const NvmFileCodePlan *p,uint32_t a,uint32_t b) {
     return true;
 }
 static NvmFileFlowStatus fi_candidates(const NvmFileCodePlan *p,const FileIndirectState *s,
-                                         const DecodedInstruction *d,uint64_t *bits,uint32_t *first) {
+                                         const NvmFileCodeInstruction *in,uint64_t *bits,uint32_t *first) {
+    const DecodedInstruction *d=&in->decoded;
     if(!s->stack_count)return NVM_FILE_FLOW_INVALID;
     const FileIndirectValue *v=&s->stack[s->stack_count-1];
     if(v->initialized!=2 || !same(v->type,scalar_type(TAG_FUNCTION)) || !v->targets)
@@ -96,8 +97,13 @@ static NvmFileFlowStatus fi_candidates(const NvmFileCodePlan *p,const FileIndire
         const NvmFileFlowFunction *fn=&p->functions[f].declaration;
         if(fn->parameters!=d->operands[0].u16 || fn->result_count!=d->operands[1].u16)
             return NVM_FILE_FLOW_INVALID;
-        for(uint16_t i=0;i<fn->parameters;i++)
-            if(p->declarations->locals[p->declarations->offsets[f]+i].mode)return NVM_FILE_FLOW_UNRESOLVED;
+        for(uint16_t i=0;i<fn->parameters;i++) {
+            NvmFileFlowDeclaration type=p->declarations->locals[p->declarations->offsets[f]+i];
+            if(d->opcode==OP_FILE_CALL_INDIRECT_REFS) {
+                if(type.mode ? in->call_references[i]>=NVM_FILE_FLOW_REFERENCES :
+                   in->call_references[i]!=NVM_FILE_FLOW_NO_REFERENCE)return NVM_FILE_FLOW_INVALID;
+            } else if(type.mode)return NVM_FILE_FLOW_UNRESOLVED;
+        }
         if(selected==p->count)selected=f;
         else if(!fi_signature(p,selected,f))return NVM_FILE_FLOW_UNRESOLVED;
     }
@@ -211,9 +217,9 @@ static NvmFileFlowStatus fi_transfer(NvmFileIndirectTargets *r,uint32_t f,FileIn
     case OP_NOT:return fi_scalar(s,TAG_BOOL,TAG_BOOL,1,false);
     case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:
         return fi_call(r,s,UINT64_C(1)<<d->operands[0].u32,d->operands[0].u32,changed);
-    case OP_CALL_INDIRECT: {
+    case OP_FILE_CALL_INDIRECT_REFS:case OP_CALL_INDIRECT: {
         uint64_t bits;uint32_t first;
-        status=fi_candidates(p,s,d,&bits,&first);if(status!=NVM_FILE_FLOW_OK)return status;
+        status=fi_candidates(p,s,in,&bits,&first);if(status!=NVM_FILE_FLOW_OK)return status;
         status=fi_take(s,scalar_type(TAG_FUNCTION));if(status!=NVM_FILE_FLOW_OK)return status;
         fi_grow(&r->graph[f],bits,changed);
         return fi_call(r,s,bits,first,changed);
@@ -281,7 +287,7 @@ static NvmFileFlowStatus fi_function(NvmFileIndirectTargets *r,uint32_t f,
         r->summary.visits++;w->pending[i]=false;w->working=w->incoming[i];
         /* An as-yet empty callable summary cannot invent a return type or
          * successors. A later whole-module pass resumes from growing inputs. */
-        if(!publish && in->decoded.opcode==OP_CALL_INDIRECT && w->working.stack_count) {
+        if(!publish && isa_is_file_indirect_call(in->decoded.opcode) && w->working.stack_count) {
             const FileIndirectValue *v=&w->working.stack[w->working.stack_count-1];
             if(v->initialized==2 && same(v->type,scalar_type(TAG_FUNCTION)) && !v->targets)continue;
         }
@@ -304,11 +310,11 @@ static NvmFileFlowStatus fi_function(NvmFileIndirectTargets *r,uint32_t f,
     /* Only the completed module and CFG fixed points supply published calls. */
     for(uint16_t i=0;i<fn->instruction_count;i++) {
         const NvmFileCodeInstruction *in=&p->instructions[p->starts[f]+i];
-        if(in->decoded.opcode!=OP_CALL_INDIRECT)continue;
+        if(!isa_is_file_indirect_call(in->decoded.opcode))continue;
         *failed_pc=in->byte_offset;
         if(!w->incoming[i].reached)return NVM_FILE_FLOW_UNRESOLVED;
         uint64_t bits;uint32_t first;
-        NvmFileFlowStatus status=fi_candidates(p,&w->incoming[i],&in->decoded,&bits,&first);
+        NvmFileFlowStatus status=fi_candidates(p,&w->incoming[i],in,&bits,&first);
         if(status!=NVM_FILE_FLOW_OK)return status;
         const NvmFileFlowFunction *callee=&p->functions[first].declaration;
         r->calls[r->summary.calls++]=(NvmFileIndirectCall){f,in->byte_offset,i,callee->parameters,

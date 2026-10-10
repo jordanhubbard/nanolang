@@ -97,7 +97,7 @@ static bool frc_frame(NvmFileRuntime *c,const FileRuntimeFrame *f,uint32_t regio
         if(!fr_code(c,f->function,(uint16_t)f->instruction,&in) ||
            !fr_call_target(c,f,&in,f->selected_target) || !fact.body.has_obligation ||
            (uint32_t)f->stack_count+fact.body.obligation.parameters-fact.body.obligation.borrowed_inputs+
-               (in.decoded.opcode==OP_CALL_INDIRECT?1u:0u)!=fact.input.stack)
+               (isa_is_file_indirect_call(in.decoded.opcode)?1u:0u)!=fact.input.stack)
             return false;
     }
     memset(c->witness,0,sizeof *c->witness);

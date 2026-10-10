@@ -228,6 +228,7 @@ typedef enum {
     OP_FILE_DROP_STACK    = 0x95,
     OP_FILE_END_BORROW    = 0x96, /* u16 reference */
     OP_FILE_CALL_REFS = 0x97, /* u32 callee, u32 counted u16 parameter-reference map constant */
+    OP_FILE_CALL_INDIRECT_REFS = 0x98, /* u16 parameters/results, u32 counted parameter-reference map */
 
     /* Typed scalar operations (v2 migration) */
     OP_I64_ADD      = 0xC0,
@@ -426,6 +427,10 @@ uint32_t isa_operand_size(OperandType type);
 
 /* I identify the exact family independently of nominal or execution authority. */
 bool isa_is_file_opcode(uint8_t opcode);
+/* Shared private File-profile call classification, not generic admission. */
+static inline bool isa_is_file_indirect_call(uint8_t opcode) {
+    return opcode==OP_CALL_INDIRECT || opcode==OP_FILE_CALL_INDIRECT_REFS;
+}
 /* No allocation/authority: I stop at undecodable bytes and recognize truncated
  * File opcodes before operands. Existing structural validation remains required. */
 bool isa_code_has_file_instructions(const uint8_t *code,size_t size);

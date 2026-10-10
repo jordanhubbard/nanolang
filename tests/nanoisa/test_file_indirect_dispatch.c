@@ -305,8 +305,105 @@ static void higher_order_corpus(void){
  close_index=0;close_error[0]=EIO;run_module(higher_order(true,2,true),1000,NVM_FILE_RUNTIME_CLEANUP,0,UINT64_MAX);
  memset(close_error,0,sizeof close_error);close_index=0;
 }
+static void ibcall(Body *b){op(b,OP_FILE_CALL_INDIRECT_REFS);u16(b,3);u16(b,1);u32(b,0);}
+static NvmModule *borrowed_indirect(unsigned mode,bool other,unsigned fault){
+ /* mode0: shared aliases; mode1: exclusive disjoint; mode2: mixed disjoint;
+  * mode3: repeated shared reference. Borrow maps deliberately reorder slots. */
+ unsigned modes[2]={mode==1?2u:1u,(mode==1 || mode==2)?2u:1u};
+ NvmFileNominalBindings bindings;NvmModule *seed=fixture(other,&bindings);nvm_module_free(seed);
+ FrameSpec spec[4]={{.locals=3,.types={3,0,0},.result=-1},
+  {.parameters=3,.locals=3,.types={0,0,-1},.result=-1,.borrowed=3},
+  {.parameters=3,.locals=3,.types={0,0,-1},.result=-1,.borrowed=3},
+  {.parameters=3,.locals=3,.types={0,0,-1},.result=-1,.borrowed=3}};
+ Body *b=&spec[0].code;
+ service(b,bindings,0,UINT16_MAX);one(b,OP_OWN_STORE_LOCAL,0);uint32_t first_error=branch(b,OP_FILE_RESULT_BRANCH,0);
+ take_result(b,0,0);one(b,OP_OWN_STORE_LOCAL,1);
+ service(b,bindings,0,UINT16_MAX);one(b,OP_OWN_STORE_LOCAL,0);uint32_t second_error=branch(b,OP_FILE_RESULT_BRANCH,0);
+ take_result(b,0,0);one(b,OP_OWN_STORE_LOCAL,2);op(b,OP_REGION_BEGIN);
+ op(b,modes[0]==1?OP_BORROW_LOCAL_SHARED:OP_BORROW_LOCAL_EXCLUSIVE);u16(b,11);u16(b,1);
+ op(b,modes[1]==1?OP_BORROW_LOCAL_SHARED:OP_BORROW_LOCAL_EXCLUSIVE);u16(b,7);u16(b,(mode==0 || mode==3 || fault==5)?1:2);
+ fi(b,41);op(b,OP_PUSH_BOOL);op(b,!other);uint32_t alternate=branch(b,OP_JMP_FALSE,0);
+ iref(b,1);uint32_t join=branch(b,OP_JMP,0);target(b,alternate);iref(b,2);target(b,join);ibcall(b);
+ one(b,OP_FILE_END_BORROW,11);one(b,OP_FILE_END_BORROW,7);op(b,OP_REGION_END);
+ one(b,OP_FILE_DROP_LOCAL,1);one(b,OP_FILE_DROP_LOCAL,2);op(b,OP_RET);
+ target(b,second_error);take_result(b,0,1);op(b,OP_POP);one(b,OP_FILE_DROP_LOCAL,1);fi(b,0);op(b,OP_RET);
+ target(b,first_error);take_result(b,0,1);op(b,OP_POP);fi(b,0);op(b,OP_RET);
+ for(unsigned f=1;f<3;f++){
+  b=&spec[f].code;one(b,OP_LOAD_LOCAL,2);iref(b,3);ibcall(b);fi(b,f);op(b,OP_I64_ADD);op(b,OP_RET);
+ }
+ b=&spec[3].code;
+ if(fault==7){op(b,OP_PUSH_BOOL);op(b,0);op(b,OP_ASSERT);}
+ for(unsigned i=0;i<2;i++)if(modes[i]==2){one(b,OP_LOAD_LOCAL,2);service(b,bindings,1,(uint16_t)i);op(b,OP_POP);}
+ one(b,OP_LOAD_LOCAL,2);op(b,OP_RET);
+ NvmModule *m=frame_module(spec,4,&bindings,other,-1);
+ for(unsigned f=1;f<4;f++)for(unsigned i=0;i<2;i++)
+  desc(m->ownership_data+ownership_function_offset(m,f)+12+8*i,TAG_STRUCT,
+       fault==4 && f==2 && i==0?2:modes[i],bindings.layouts[0]);
+ uint8_t rootmap[]={11,0,7,0,255,255},forward[]={0,0,1,0,255,255};
+ if(mode==3)rootmap[2]=11;
+ if(fault==2){rootmap[0]=254;rootmap[1]=255;}
+ if(fault==3)rootmap[4]=rootmap[5]=0;
+ uint32_t maps[2]={nvm_add_string(m,(const char *)rootmap,fault==1?5:6),nvm_add_string(m,(const char *)forward,6)};
+ for(unsigned f=0;f<3;f++)for(uint32_t pc=m->functions[f].code_offset;pc<m->functions[f].code_offset+m->functions[f].code_length;){
+  DecodedInstruction d;CHECK(isa_decode(m->code+pc,m->code_size-pc,&d));
+  if(d.opcode==OP_FILE_CALL_INDIRECT_REFS)wr32(m->code+pc+5,fault==6 && f==0?UINT32_MAX:maps[f!=0]);
+  pc+=d.byte_length;
+ }
+ return m;
+}
+static NvmModule *borrowed_maximum(void){
+ NvmFileNominalBindings bindings;NvmModule *seed=fixture(false,&bindings);nvm_module_free(seed);
+ FrameSpec spec[2]={{.locals=2,.types={3,0},.result=-1},
+  {.parameters=1,.locals=1,.types={0},.result=-1,.borrowed=1}};
+ Body *b=&spec[0].code;service(b,bindings,0,UINT16_MAX);one(b,OP_OWN_STORE_LOCAL,0);
+ uint32_t failed=branch(b,OP_FILE_RESULT_BRANCH,0);take_result(b,0,0);one(b,OP_OWN_STORE_LOCAL,1);
+ op(b,OP_REGION_BEGIN);op(b,OP_BORROW_LOCAL_SHARED);u16(b,11);u16(b,1);iref(b,1);
+ op(b,OP_FILE_CALL_INDIRECT_REFS);u16(b,256);u16(b,1);uint32_t map_site=b->n;u32(b,0);
+ one(b,OP_FILE_END_BORROW,11);op(b,OP_REGION_END);one(b,OP_FILE_DROP_LOCAL,1);op(b,OP_RET);
+ target(b,failed);take_result(b,0,1);op(b,OP_POP);fi(b,0);op(b,OP_RET);
+ fi(&spec[1].code,42);op(&spec[1].code,OP_RET);
+ NvmModule *m=frame_module(spec,2,&bindings,false,-1);size_t offset=ownership_function_offset(m,1);
+ m->ownership_size+=255*8;
+#ifdef HOSTED_INSTRUMENT
+ m->ownership_data=file_test_realloc(m->ownership_data,m->ownership_size);
+#else
+ m->ownership_data=realloc(m->ownership_data,m->ownership_size);
+#endif
+ CHECK(m->ownership_data);
+ uint8_t *d=m->ownership_data+offset;d[0]=d[2]=0;d[1]=d[3]=1;
+ uint8_t tags[256],map[512];
+ for(unsigned i=0;i<256;i++){desc(d+12+8*i,TAG_STRUCT,1,bindings.layouts[0]);tags[i]=TAG_STRUCT;map[2*i]=11;map[2*i+1]=0;}
+ m->functions[1].arity=m->functions[1].local_count=256;CHECK(nvm_set_function_param_types(m,1,tags,256));
+ uint32_t index=nvm_add_string(m,(const char *)map,sizeof map);wr32(m->code+m->functions[0].code_offset+map_site,index);
+ return m;
+}
+static void borrowed_indirect_corpus(void){
+ NvmModule *maximum=borrowed_maximum();size_t extent;uint8_t *maximum_wire=serialize(maximum,&extent);nvm_module_free(maximum);
+ NvmFileIndirectHostedPlan *plan=NULL;CHECK(nvm_file_indirect_hosted_prepare(maximum_wire,extent,&plan)==NVM_FILE_FLOW_OK);
+ NvmFileIndirectHostedFunction entry;CHECK(nvm_file_indirect_hosted_function(plan,0,&entry) && entry.staging_slots==258);
+ nvm_file_indirect_hosted_free(plan);
+ NvmFileIndirectExecutionReport complete=run_wire(maximum_wire,extent,1000,NVM_FILE_RUNTIME_OK,42,UINT64_MAX,true);
+ for(uint64_t fuel=0;fuel<=complete.instructions_started;fuel++)run_wire(maximum_wire,extent,fuel,
+  fuel==complete.instructions_started?NVM_FILE_RUNTIME_OK:NVM_FILE_RUNTIME_LIMIT,42,fuel,true);
+ release_wire(maximum_wire);
+ for(unsigned mode=0;mode<4;mode++)for(unsigned other=0;other<2;other++){
+  NvmModule *m=borrowed_indirect(mode,other,0);size_t size;uint8_t *wire=serialize(m,&size);nvm_module_free(m);
+  NvmFileIndirectExecutionReport r=run_wire(wire,size,1000,NVM_FILE_RUNTIME_OK,other?43:42,UINT64_MAX,true);
+  run_wire(wire,size,r.instructions_started,NVM_FILE_RUNTIME_OK,other?43:42,r.instructions_started,true);
+  for(uint64_t fuel=0;fuel<r.instructions_started;fuel++)run_wire(wire,size,fuel,NVM_FILE_RUNTIME_LIMIT,0,fuel,true);
+  release_wire(wire);
+ }
+ for(unsigned fault=1;fault<=6;fault++)
+  run_module(borrowed_indirect(fault==5?1:0,false,fault),1000,
+             fault==4?NVM_FILE_RUNTIME_UNRESOLVED:NVM_FILE_RUNTIME_INVALID,0,0);
+ for(unsigned mode=0;mode<3;mode++)run_module(borrowed_indirect(mode,true,7),1000,NVM_FILE_RUNTIME_ASSERT,0,UINT64_MAX);
+ deny_open=true;run_module(borrowed_indirect(0,false,0),1000,NVM_FILE_RUNTIME_OK,0,UINT64_MAX);deny_open=false;
+ close_index=0;close_error[0]=EIO;close_error[1]=ENOSPC;
+ run_module(borrowed_indirect(2,false,0),1000,NVM_FILE_RUNTIME_CLEANUP,0,UINT64_MAX);
+ memset(close_error,0,sizeof close_error);close_index=0;
+}
 static void corpus(void){
- preserved_corpus();higher_order_corpus();
+ preserved_corpus();higher_order_corpus();borrowed_indirect_corpus();
  for(unsigned count=0;count<=4;count+=4){
   NvmModule *m=indirect_iterations(count);size_t size;uint8_t *wire=serialize(m,&size);nvm_module_free(m);
   NvmFileIndirectExecutionReport r=run_wire(wire,size,1000,NVM_FILE_RUNTIME_OK,count?30:0,UINT64_MAX,true);
@@ -416,7 +513,7 @@ static void emit_cases(const char *directory){
   char *text=(char *)(uintptr_t)1;char error[256];unsigned opens=open_attempts;
   NvmFileRuntimeStatus status=FILE_INDIRECT_EMIT(captured[i].bytes,captured[i].size,&text,error,sizeof error);CHECK(open_attempts==opens);
   if(status==NVM_FILE_RUNTIME_OK){CHECK(snprintf(path,sizeof path,"%s/case-%03u.c",directory,i)>0);file=fopen(path,"w");CHECK(file);size_t n=strlen(text);CHECK(fwrite(text,1,n,file)==n && !fclose(file));release_wire(text);}
-  else CHECK(text==(char *)(uintptr_t)1 && status==NVM_FILE_RUNTIME_UNRESOLVED);
+  else CHECK(text==(char *)(uintptr_t)1 && (status==NVM_FILE_RUNTIME_UNRESOLVED || status==NVM_FILE_RUNTIME_INVALID));
   CHECK(fprintf(manifest,"%u\t%u\t%zu\n",i,status,captured[i].size)>0);free(captured[i].bytes);
  }
  CHECK(!fclose(manifest));CHECK(captured_count>=15);

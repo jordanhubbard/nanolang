@@ -33,10 +33,10 @@ static NvmModule *ordinary(void){AsmResult r={0};NvmModule *m=asm_assemble(".fun
 static void code(NvmModule *m,const uint8_t *bytes,uint32_t n){free(m->code);m->code=malloc(n?n:1);CHECK(m->code);memcpy(m->code,bytes,n);m->code_size=m->code_capacity=n;m->functions[0].code_offset=0;m->functions[0].code_length=n;}
 static void decode_refusal(NvmModule *m){VmDecodedFunction d={0};char error[VM_DECODE_ERROR_SIZE];CHECK(!vm_decode_function(m,0,&d,error));vm_decoded_function_free(&d);CHECK(!nvm_verify(m).ok);}
 static void opcode_raw(void){
- static const uint8_t golden[7][9]={{0x91,4,3,2,1,255,255},{0x92,255,255,0,0,0,128},{0x93,255,255,1},{0x94,255,255},{0x95},{0x96,255,255},{0x97,4,3,2,1,8,7,6,5}};
- static const unsigned sizes[]={7,7,4,3,1,3,9};
- static const char *const names[]={"FILE_SERVICE","FILE_RESULT_BRANCH","FILE_RESULT_TAKE","FILE_DROP_LOCAL","FILE_DROP_STACK","FILE_END_BORROW","FILE_CALL_REFS"};
- for(unsigned i=0;i<7;i++){
+ static const uint8_t golden[8][9]={{0x91,4,3,2,1,255,255},{0x92,255,255,0,0,0,128},{0x93,255,255,1},{0x94,255,255},{0x95},{0x96,255,255},{0x97,4,3,2,1,8,7,6,5},{0x98,2,1,1,0,8,7,6,5}};
+ static const unsigned sizes[]={7,7,4,3,1,3,9,9};
+ static const char *const names[]={"FILE_SERVICE","FILE_RESULT_BRANCH","FILE_RESULT_TAKE","FILE_DROP_LOCAL","FILE_DROP_STACK","FILE_END_BORROW","FILE_CALL_REFS","FILE_CALL_INDIRECT_REFS"};
+ for(unsigned i=0;i<8;i++){
   uint8_t opcode=(uint8_t)(0x91+i);CHECK(isa_is_file_opcode(opcode));CHECK(isa_opcode_by_name(names[i])==opcode);CHECK(!strcmp(isa_get_info(opcode)->name,names[i]));
   DecodedInstruction d;CHECK(isa_decode(golden[i],sizes[i],&d)==sizes[i]);CHECK(d.opcode==opcode && d.byte_length==sizes[i]);
   uint8_t out[16];memset(out,0xa5,sizeof out);CHECK(isa_encode(&d,out,sizeof out)==sizes[i]);CHECK(!memcmp(out,golden[i],sizes[i]));for(unsigned k=sizes[i];k<16;k++)CHECK(out[k]==0xa5);
@@ -47,16 +47,16 @@ static void opcode_raw(void){
   if(sizes[i]>1){code(m,golden[i],1);CHECK(nvm_file_instructions_present(m));decode_refusal(m);all_consumers(m);}
   nvm_module_free(m);
  }
- CHECK(!isa_is_file_opcode(0x90) && !isa_is_file_opcode(0x98));CHECK(isa_get_info(0x98)==NULL);DecodedInstruction d;uint8_t unknown[]={0x98};CHECK(isa_decode(unknown,1,&d)==0);
- /* All seven bytes remain data inside ordinary I64 and F64 immediates. */
- uint8_t integer[]={OP_PUSH_I64,0x91,0x92,0x93,0x94,0x95,0x96,0x97,0,OP_RET};
+ CHECK(!isa_is_file_opcode(0x90) && !isa_is_file_opcode(0x99));CHECK(isa_get_info(0x99)==NULL);DecodedInstruction d;uint8_t unknown[]={0x99};CHECK(isa_decode(unknown,1,&d)==0);
+ /* All eight bytes remain data inside ordinary I64 and F64 immediates. */
+ uint8_t integer[]={OP_PUSH_I64,0x91,0x92,0x93,0x94,0x95,0x96,0x97,0x98,OP_RET};
  NvmModule *m=ordinary();code(m,integer,sizeof integer);CHECK(!nvm_file_instructions_present(m) && !nvm_service_execution_pending(m));CHECK(nvm_verify(m).ok);
  uint32_t bytes=0;uint8_t *wire=nvm_serialize(m,&bytes);CHECK(wire && bytes);free(wire);char error[256];char *native=nvm2c_emit(m,error,sizeof error);CHECK(native);free(native);
- VmState vm;vm_init(&vm,m);NanoValue out=val_int(0);CHECK(vm_invoke(&vm,0,NULL,0,&out)==VM_OK && out.tag==TAG_INT && out.as.i64==INT64_C(0x97969594939291));vm_destroy(&vm);nvm_module_free(m);
+ VmState vm;vm_init(&vm,m);NanoValue out=val_int(0);CHECK(vm_invoke(&vm,0,NULL,0,&out)==VM_OK && out.tag==TAG_INT && out.as.i64==(int64_t)UINT64_C(0x9897969594939291));vm_destroy(&vm);nvm_module_free(m);
  integer[0]=OP_PUSH_F64;CHECK(!isa_code_has_file_instructions(integer,sizeof integer));
  /* Undecodable prior bytes/ranges are not invented service claims. I ask the
   * structural decoder/verifier to refuse, without running these bytecodes. */
- uint8_t malformed[]={0x98,OP_FILE_DROP_STACK};m=ordinary();code(m,malformed,sizeof malformed);CHECK(!nvm_file_instructions_present(m));decode_refusal(m);
+ uint8_t malformed[]={0x99,OP_FILE_DROP_STACK};m=ordinary();code(m,malformed,sizeof malformed);CHECK(!nvm_file_instructions_present(m));decode_refusal(m);
  m->functions[0].code_offset=m->code_size+1;CHECK(!nvm_file_instructions_present(m));decode_refusal(m);nvm_module_free(m);
 }
 static void branches(void){

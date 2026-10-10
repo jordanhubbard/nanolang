@@ -145,7 +145,7 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_next(NvmFileRuntime *c,uint8_t succe
     NvmFileRuntimeStatus status=frf_ready(c,&fn,&in,&fact);if(status!=NVM_FILE_RUNTIME_OK)return status;
     FileRuntimeFrame *f=&c->frames[c->frame_count-1];
     uint8_t next;
-    if(!frc_edge(c,f,successor,&next) || in.decoded.opcode==OP_CALL_INDIRECT || in.decoded.opcode==OP_CALL || (in.decoded.opcode==OP_CALL_REF || in.decoded.opcode==OP_FILE_CALL_REFS) || in.decoded.opcode==OP_RET ||
+    if(!frc_edge(c,f,successor,&next) || isa_is_file_indirect_call(in.decoded.opcode) || in.decoded.opcode==OP_CALL || (in.decoded.opcode==OP_CALL_REF || in.decoded.opcode==OP_FILE_CALL_REFS) || in.decoded.opcode==OP_RET ||
        successor>=in.successor_count || !frf_stack(c,f,&fn,fact.output_stack) ||
        !frf_next_fact(c,f->function,in.successors[successor],next,fact.output_stack))return frf_bad(c);
     FileRuntimeFrame completed=*f;completed.stack_count=fact.output_stack;
@@ -159,7 +159,7 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_call(NvmFileRuntime *c) {
     NvmFileRuntimeStatus status=frf_ready(c,&fn,&in,&fact);if(status!=NVM_FILE_RUNTIME_OK)return status;
     FileRuntimeFrame *f=&c->frames[c->frame_count-1],child;
     uint32_t target=in.decoded.operands[0].u32;
-    bool indirect=in.decoded.opcode==OP_CALL_INDIRECT;
+    bool indirect=isa_is_file_indirect_call(in.decoded.opcode);
     uint32_t callable=NVM_FILE_RUNTIME_NO_SLOT;
     if(indirect) {
         if(c->kind!=FR_INDIRECT || !f->stack_count)return frf_bad(c);
@@ -181,7 +181,7 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_call(NvmFileRuntime *c) {
         NvmFileFlowDeclaration type;
         if(!fr_local(c,target,i,&type))return frf_bad(c);
         if(type.mode) {
-            if(indirect || (type.mode!=1 && type.mode!=2) || ++borrowed>NVM_FILE_FLOW_REFERENCES || (in.decoded.opcode!=OP_CALL_REF && in.decoded.opcode!=OP_FILE_CALL_REFS) ||
+            if((indirect && in.decoded.opcode!=OP_FILE_CALL_INDIRECT_REFS) || (type.mode!=1 && type.mode!=2) || ++borrowed>NVM_FILE_FLOW_REFERENCES || (in.decoded.opcode!=OP_CALL_REF && in.decoded.opcode!=OP_FILE_CALL_REFS && in.decoded.opcode!=OP_FILE_CALL_INDIRECT_REFS) ||
                in.call_references[i]>=NVM_FILE_FLOW_REFERENCES ||
                (in.decoded.opcode==OP_CALL_REF && in.call_references[i]!=in.decoded.operands[1].u16))return frf_bad(c);
             uint32_t reference=f->reference_base+in.call_references[i];
@@ -196,12 +196,12 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_call(NvmFileRuntime *c) {
                     return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
             }
         } else {
-            if(!indirect && in.call_references[i]!=NVM_FILE_FLOW_NO_REFERENCE)return frf_bad(c);
+            if((!indirect || in.decoded.opcode==OP_FILE_CALL_INDIRECT_REFS) && in.call_references[i]!=NVM_FILE_FLOW_NO_REFERENCE)return frf_bad(c);
             values++;
         }
     }
     if((in.decoded.opcode==OP_CALL_REF && borrowed!=1) ||
-       (in.decoded.opcode==OP_FILE_CALL_REFS && !borrowed) ||
+       ((in.decoded.opcode==OP_FILE_CALL_REFS || in.decoded.opcode==OP_FILE_CALL_INDIRECT_REFS) && !borrowed) ||
        parameters!=fact.obligation.parameters || borrowed!=fact.obligation.borrowed_inputs ||
        (uint32_t)values+(indirect?1u:0u)>f->stack_count || fn.staging_slots<parameters+1u+(indirect?1u:0u) ||
        callee.code.declaration.result_count!=fact.obligation.result_count ||

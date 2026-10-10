@@ -1,5 +1,8 @@
 # I carry callable arguments and results
 
+My [explicit indirect borrow extension](NANOISA_FILE_INDIRECT_BORROWS.md)
+subsequently adds shared/exclusive reference maps to this private profile.
+
 Under #989 I extend my private indirect File profile beyond function-local
 callable values. I admit mode-zero `TAG_FUNCTION` declarations with `NO_INDEX`
 for parameters and results as well as local slots. Old acyclic/cyclic declaration
