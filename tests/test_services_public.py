@@ -5,6 +5,7 @@ from pathlib import Path
 import shlex
 import shutil
 import socket
+import subprocess
 import tempfile
 import threading
 import unittest
@@ -32,11 +33,13 @@ class ServicesPublic(unittest.TestCase):
         compiler=shlex.split(os.environ.get('NANO_SOCKET_DISPATCH_CC','cc'))
         flags=['-std=c11','-D_DEFAULT_SOURCE','-Wall','-Wextra','-Werror','-g','-O1','-I.',
             '-I'+str(prefix/'include'),'-fsanitize=address,undefined','-fno-omit-frame-pointer']
+        flags+=shlex.split(subprocess.check_output(['pkg-config','--cflags','libcrypto'],text=True))
         ldflags=shlex.split(os.environ.get('SOCKET_DISPATCH_LDFLAGS','-lm -lcrypto'))
         sources=['nanoisa/services_nominal','nanoisa/services_flow','nanoisa/services_runtime',
             'nsi_services_values','nsi_file_values','nsi_file','nsi_socket_values','nsi_socket','nsi_cap',
             'nsi_file_plan','nsi_socket_plan','nanoisa/file_host_grant','nanoisa/services_host_grant',
-            'nanoisa/services_indirect_public_abi']
+            'nanoisa/services_indirect_public_abi','nsi_websocket_values','nsi_websocket_transport',
+            'nsi_websocket_protocol','nsi_socket_resolver','utf8']
         ordinary=[p for p in shlex.split(os.environ['SOCKET_DISPATCH_OBJECTS']) if not any(p.endswith('/'+s+'.o') for s in sources)]
         fixture_objects=[p for p in shlex.split(os.environ['SERVICES_VM_OBJECTS']) if p not in ordinary and not any(p.endswith('/'+s+'.o') for s in sources)]
         providers=[]

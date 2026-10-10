@@ -17,6 +17,8 @@ class ServicesValues(unittest.TestCase):
         flags = ['-std=c11', '-D_DEFAULT_SOURCE', '-Wall', '-Wextra', '-Werror',
                  '-g', '-fsanitize=address,undefined', '-fno-omit-frame-pointer']
         env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1', UBSAN_OPTIONS='halt_on_error=1')
+        crypto_cflags = shlex.split(subprocess.check_output(['pkg-config', '--cflags', 'libcrypto'], text=True))
+        crypto = shlex.split(subprocess.check_output(['pkg-config', '--libs', 'libcrypto'], text=True))
         commands = []
         def run(args):
             completed = subprocess.run(args, cwd=ROOT, env=env, text=True,
@@ -26,7 +28,8 @@ class ServicesValues(unittest.TestCase):
             self.assertEqual(completed.returncode, 0, completed.stdout)
             return completed.stdout
         sources = ['nsi_services_values', 'nsi_file_values', 'nsi_file',
-                   'nsi_socket_values', 'nsi_socket', 'nsi_cap']
+                   'nsi_socket_values', 'nsi_socket', 'nsi_cap', 'nsi_websocket_values',
+                   'nsi_websocket_transport', 'nsi_websocket_protocol', 'nsi_socket_resolver', 'utf8']
         for instrument in (False, True):
             objects = []
             for source in sources:
@@ -35,9 +38,9 @@ class ServicesValues(unittest.TestCase):
                           '-Dcalloc=services_test_calloc', '-Dfree=services_test_free',
                           '-Dclose=services_test_close', '-Dfclose=services_test_fclose']
                          if instrument else [])
-                run([*compiler, *flags, *hooks, '-c', f'src/{source}.c', '-o', obj])
+                run([*compiler, *flags, *hooks, *crypto_cflags, '-c', f'src/{source}.c', '-o', obj])
                 objects.append(obj)
             exe = str(artifacts / f'values-{instrument}')
             run([*compiler, *flags, *(['-DSERVICES_ALLOC_TEST'] if instrument else []),
-                 'tests/test_nsi_services_values.c', *objects, '-o', exe])
+                 'tests/test_nsi_services_values.c', *objects, *crypto, '-o', exe])
             output = run([exe]);self.assertIn('PASS', output);print(output.strip(), flush=True)

@@ -1,0 +1,52 @@
+[
+  {
+    "name": "install",
+    "argv": [
+      "make",
+      "-f",
+      "Makefile.gnu",
+      "install-services-public-runtime",
+      "PREFIX=/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-ct_2fnyl/installed",
+      "CC=/opt/homebrew/opt/llvm/bin/clang"
+    ],
+    "returncode": 0,
+    "stdout": "install -d \"/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-ct_2fnyl/installed/lib\"\ninstall -m 644 \"lib/libnano_services_runtime.a\" \"/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-ct_2fnyl/installed/lib/libnano_services_runtime.a\"\n",
+    "stderr": ""
+  },
+  {
+    "name": "installed-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-O1",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-ct_2fnyl/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-ct_2fnyl/installed-probe.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-ct_2fnyl/relocated/lib/libnano_services_runtime.a",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-lcrypto",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-ct_2fnyl/installed-probe"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "name": "installed-denied",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-ct_2fnyl/installed-probe",
+      "ws://127.0.0.1:1",
+      "denied"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

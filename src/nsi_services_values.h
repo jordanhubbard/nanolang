@@ -2,6 +2,7 @@
 #define NL_NSI_SERVICES_VALUES_H
 #include "nsi_file_values.h"
 #include "nsi_socket_values.h"
+#include "nsi_websocket_values.h"
 
 /* I retain one independent lifetime core per nominal instance. This private
  * adapter grants no source/import authority. My trusted caller supplies the
@@ -9,7 +10,7 @@
  * Caller objects are valid and disjoint from context/input/output storage.
  * Values and borrows are checked identities; copying them adds no ownership. */
 #define NL_SERVICES_VALUE_INSTANCES 64u
-typedef enum { NL_SERVICES_FILE=1, NL_SERVICES_TCP=2 } NlServicesCatalog;
+typedef enum { NL_SERVICES_FILE=1, NL_SERVICES_TCP=2, NL_SERVICES_WEBSOCKET=3 } NlServicesCatalog;
 typedef enum {
     NL_SERVICES_VALUE_OK, NL_SERVICES_VALUE_ARGUMENT, NL_SERVICES_VALUE_STALE,
     NL_SERVICES_VALUE_TYPE, NL_SERVICES_VALUE_BORROWED, NL_SERVICES_VALUE_LIMIT,
@@ -19,17 +20,17 @@ typedef struct NlServicesValues NlServicesValues;
 typedef struct {
     uint32_t instance; /* One-based; zero denotes an empty value. */
     NlServicesCatalog catalog;
-    union { NlFileValue file; NlSocketValue tcp; } value;
+    union { NlFileValue file; NlSocketValue tcp; NlWsValue websocket; } value;
 } NlServicesValue;
 typedef struct {
     uint32_t instance;
     NlServicesCatalog catalog;
-    union { NlFileValueBorrow file; NlSocketValueBorrow tcp; } borrow;
+    union { NlFileValueBorrow file; NlSocketValueBorrow tcp; NlWsValueBorrow websocket; } borrow;
 } NlServicesBorrow;
 typedef struct {
     NlServicesCatalog catalog;
     bool ok, pending;
-    union { NlFileResult file; NlSocketResult tcp; } error;
+    union { NlFileResult file; NlSocketResult tcp; NlWsTransportResult websocket; } error;
 } NlServicesOpenView;
 typedef struct {
     NlServicesCatalog catalog;
@@ -41,11 +42,31 @@ typedef struct {
     uint64_t cleanup_failures;
     struct {
         NlServicesCatalog catalog;
-        union { NlFileValuesFinish file; NlSocketValuesFinish tcp; } finish;
+        union { NlFileValuesFinish file; NlSocketValuesFinish tcp; NlWsValuesFinish websocket; } finish;
     } instances[NL_SERVICES_VALUE_INSTANCES];
 } NlServicesFinish;
+/* I require explicit WebSocket policy and a total per-instance storage limit.
+ * Its core copies the policy/path during creation. File/TCP entries require
+ * zero WebSocket policy fields and zero storage limit. Returned message storage
+ * belongs to the caller and is outside the retained context bound. */
+typedef struct {
+    NlServicesCatalog catalog;
+    NlWsTransportPolicy websocket;
+    size_t websocket_storage_limit;
+} NlServicesValueConfig;
+bool nl_services_values_config_storage_bound(const NlServicesValueConfig *,uint32_t,size_t *);
+NlServicesValueStatus nl_services_values_create_config(const NlServicesValueConfig *,uint32_t,NlServicesValues **);
+/* I require the exact instance before dispatch. Host errors are typed results;
+ * API refusals preserve outputs. Receive requires an empty message and transfers
+ * independent bytes, released with nl_ws_message_free even after destruction.
+ * Accepted close consumes its owner, including on transport/deadline errors. */
+NlServicesValueStatus nl_services_values_websocket_connect(NlServicesValues *,uint32_t,const void *,size_t,int64_t,NlServicesValue *);
+NlServicesValueStatus nl_services_value_websocket_send(NlServicesValues *,uint32_t,const NlServicesBorrow *,bool,const void *,size_t,int64_t,NlWsTransportResult *);
+NlServicesValueStatus nl_services_value_websocket_receive(NlServicesValues *,uint32_t,const NlServicesBorrow *,int64_t,NlWsMessage *,NlWsTransportResult *);
+NlServicesValueStatus nl_services_value_websocket_close(NlServicesValues *,uint32_t,NlServicesValue *,int64_t,NlWsTransportResult *);
 /* I copy the table, allocate all cores, and preserve *out on failure. Creation
- * requires *out==NULL. No resource is acquired until acquire. */
+ * requires *out==NULL. These catalog-only functions accept File/TCP only.
+ * No resource is acquired until acquire. */
 bool nl_services_values_storage_bound(const NlServicesCatalog *,uint32_t,size_t *);
 NlServicesValueStatus nl_services_values_create(const NlServicesCatalog *,uint32_t,NlServicesValues **);
 /* Instance arguments are zero-based table positions. File requires no Endpoint;

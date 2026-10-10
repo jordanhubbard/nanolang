@@ -301,8 +301,26 @@ indirect mixed queries; Message and owner identities remain instance-specific.
 My hosted query owns counted string bytes, including embedded NUL, independently
 of its input module and wire buffers. A checked query grants no host authority.
 
-Mixed runtime creation, native emission and host authorization still refuse
+Checked mixed runtime creation, native emission and host authorization still refuse
 WebSocket until per-instance policy and value dispatch are implemented. Product
 policy parsing also refuses it instead of treating TCP permission as WebSocket
 permission. Standalone WebSocket continues through its explicit version-2
 catalog-3 provider. Mixed source lowering and VM/native execution remain open.
+
+## Mixed value ownership
+
+I implement private mixed value ownership with explicit `NlServicesValueConfig`
+entries. Each WebSocket entry supplies a copied transport policy and a total
+storage limit. File/TCP entries require zero WebSocket fields. My catalog-only
+constructor remains File/TCP-only; it cannot grant WebSocket authority.
+
+I preserve instance identity for Result transfer, borrow epochs, owner moves,
+live masks and cleanup. Explicit connect/send/receive/close adapters refuse a
+wrong instance before transport dispatch. Returned message bytes belong to the
+caller and survive destruction of the mixed context. Accepted close consumes
+its owner even when the operation returns a transport or deadline error.
+
+My [value evidence](evidence/mixed-websocket-values-20261010/README.md) covers
+controlled transport lifetimes, allocation/cleanup faults, real denial and
+relocated installation. The required real-peer gate still fails at listener
+bind with EPERM. This carrier does not yet enable checked mixed execution.

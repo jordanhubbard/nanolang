@@ -242,7 +242,7 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
                 module_append_fragment(&command,"-I") && module_append_fragment(&command,qinclude) &&
                 module_append_fragment(&command,qsource) && module_append_fragment(&command,qarchive) &&
                 module_append_fragment(&command,"-lm") &&
-                (!websocket || module_append_fragment(&command,"$(pkg-config --libs libcrypto)")) &&
+                (!(websocket || mixed) || module_append_fragment(&command,"$(pkg-config --libs libcrypto)")) &&
                 module_append_fragment(&command,options->ldflags?options->ldflags:"") &&
                 module_append_fragment(&command,"-o") && module_append_fragment(&command,qproduct);
             bool compiled=ready && compile_native(command);

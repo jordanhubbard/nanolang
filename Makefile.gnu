@@ -6518,12 +6518,13 @@ test-services-dispatch: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOVM_OBJECTS) $(C
 
 test-units: test-services-dispatch
 
-SERVICES_PUBLIC_HEADERS = nanoisa/generated_schema.h nanoisa/isa.h nanoisa/nvm_format.h nanoisa/nvm_format_v2.h nanoisa/nvm_v2_sections.h nanoisa/service_bindings.h nanoisa/service_multi_nominal.h nanoisa/services_body.h nanoisa/services_code.h nanoisa/services_cyclic.h nanoisa/services_flow.h nanoisa/services_host_grant.h nanoisa/services_host_grant_internal.h nanoisa/services_hosted.h nanoisa/services_indirect_flow.h nanoisa/services_indirect_hosted.h nanoisa/services_indirect_native_abi.h nanoisa/services_indirect_native_public.h nanoisa/services_indirect_public.h nanoisa/services_indirect_public_internal.h nanoisa/services_indirect_report.h nanoisa/services_indirect_runtime.h nanoisa/services_indirect_targets.h nanoisa/services_nominal.h nanoisa/services_public.h nanoisa/services_public_internal.h nanoisa/services_runtime.h nanoisa/services_runtime_frames.h nsi.h nsi_cap.h nsi_file.h nsi_file_catalog.h nsi_file_plan.h nsi_file_values.h nsi_service_catalog.h nsi_services_values.h nsi_socket.h nsi_socket_plan.h nsi_socket_values.h
+SERVICES_PUBLIC_HEADERS = nanoisa/generated_schema.h nanoisa/isa.h nanoisa/nvm_format.h nanoisa/nvm_format_v2.h nanoisa/nvm_v2_sections.h nanoisa/service_bindings.h nanoisa/service_multi_nominal.h nanoisa/services_body.h nanoisa/services_code.h nanoisa/services_cyclic.h nanoisa/services_flow.h nanoisa/services_host_grant.h nanoisa/services_host_grant_internal.h nanoisa/services_hosted.h nanoisa/services_indirect_flow.h nanoisa/services_indirect_hosted.h nanoisa/services_indirect_native_abi.h nanoisa/services_indirect_native_public.h nanoisa/services_indirect_public.h nanoisa/services_indirect_public_internal.h nanoisa/services_indirect_report.h nanoisa/services_indirect_runtime.h nanoisa/services_indirect_targets.h nanoisa/services_nominal.h nanoisa/services_public.h nanoisa/services_public_internal.h nanoisa/services_runtime.h nanoisa/services_runtime_frames.h nsi.h nsi_cap.h nsi_file.h nsi_file_catalog.h nsi_file_plan.h nsi_file_values.h nsi_service_catalog.h nsi_services_values.h nsi_socket.h nsi_socket_plan.h nsi_socket_values.h nsi_websocket_values.h nsi_websocket_transport.h
 # I package the mixed runtime with its single shared public-call gate.
 SERVICES_PUBLIC_LIBRARY = lib/libnano_services_runtime.a
 SERVICES_PUBLIC_STEMS = $(FILE_PUBLIC_QUERY_STEMS) runtime/service_policy nanoisa/services_runtime \
  nanoisa/file_host_grant nanoisa/services_host_grant nanoisa/services_indirect_public_native \
- nanoisa/services_indirect_public_abi nanovm/services_indirect_public_vm nsi_cap nsi_file nsi_file_values nsi_socket nsi_socket_values nsi_services_values
+ nanoisa/services_indirect_public_abi nanovm/services_indirect_public_vm nsi_cap nsi_file nsi_file_values nsi_socket nsi_socket_values nsi_services_values \
+ nsi_websocket_values nsi_websocket_transport nsi_websocket_protocol nsi_socket_resolver utf8
 SERVICES_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(SERVICES_PUBLIC_STEMS)))
 .PHONY: services-public-runtime install-services-public-runtime
 services-public-runtime: $(SERVICES_PUBLIC_LIBRARY) $(addprefix $(SRC_DIR)/,$(SERVICES_PUBLIC_HEADERS))
@@ -6668,3 +6669,9 @@ test-websocket-service-network: test-websocket-service-drivers $(BIN_DIR)/nano-r
 	NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -f -v tests.test_websocket_service_network
 
 test-units: test-websocket-service-network
+
+.PHONY: test-mixed-websocket-values
+test-mixed-websocket-values: $(BIN_DIR)/nano-resolver
+	CC="$(CC)" python3 -m unittest -v tests.test_mixed_websocket_values
+
+test-units: test-mixed-websocket-values
