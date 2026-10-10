@@ -2,6 +2,7 @@
 #include "service_socket_nominal.h"
 #include "../nsi_socket_plan.h"
 #define NOMINAL_FN(name) nvm_socket_nominal_##name
+#define NOMINAL_METHODS NVM_SERVICE_BINDING_COUNT
 #define NOMINAL_CATALOG_ID 2u
 #define NOMINAL_CATEGORY_OWNER NVM_SOCKET_CATEGORY_CONN
 #define NOMINAL_CATEGORY_OWNER_RESULT NVM_SOCKET_CATEGORY_CONNECT_RESULT

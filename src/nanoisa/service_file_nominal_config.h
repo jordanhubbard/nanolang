@@ -2,6 +2,7 @@
 #include "service_file_nominal.h"
 #include "../nsi_file_catalog.h"
 #define NOMINAL_FN(name) nvm_file_nominal_##name
+#define NOMINAL_METHODS NVM_SERVICE_BINDING_COUNT
 #define NOMINAL_CATALOG_ID 1u
 #define NOMINAL_CATEGORY_OWNER NVM_FILE_CATEGORY_FILE
 #define NOMINAL_CATEGORY_OWNER_RESULT NVM_FILE_CATEGORY_OPEN_RESULT

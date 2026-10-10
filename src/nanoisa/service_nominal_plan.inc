@@ -44,6 +44,7 @@ static bool member_type(const NominalBindings *b,const char *id,uint8_t *tag,uin
     if(!id){*tag=TAG_VOID;return true;}
     if(!strcmp(id,"nsi:core/int")){*tag=TAG_INT;return true;}
     if(!strcmp(id,"nsi:core/bool")){*tag=TAG_BOOL;return true;}
+    if(!strcmp(id,"nsi:core/string")){*tag=TAG_STRING;return true;}
     for(uint32_t i=0;i<NOMINAL_TYPES;i++) {
         const NlServicePlanType *t=NOMINAL_CATALOG_TYPE(i);
         if(!t)return false;
@@ -52,9 +53,9 @@ static bool member_type(const NominalBindings *b,const char *id,uint8_t *tag,uin
     return false;
 }
 static bool imports_valid(const NvmModule *m,const NominalBindings *b) {
-    if(m->import_count!=NVM_SERVICE_BINDING_COUNT || !m->imports ||
+    if(m->import_count!=NOMINAL_METHODS || !m->imports ||
        m->module_ref_count || m->callback_contract_count)return false;
-    for(uint32_t i=0;i<NVM_SERVICE_BINDING_COUNT;i++) {
+    for(uint32_t i=0;i<NOMINAL_METHODS;i++) {
         uint32_t index=b->imports[i];
         if(index>=m->import_count)return false;
         const NvmImportEntry *im=&m->imports[index];
@@ -205,6 +206,6 @@ bool NOMINAL_FN(source)(const NominalPlan *p,uint8_t kind,uint32_t ordinal,
     return false;
 }
 bool NOMINAL_FN(import)(const NominalPlan *p,uint32_t ordinal,uint32_t *out) {
-    if(!p || !out || ordinal>=NVM_SERVICE_BINDING_COUNT)return false;
+    if(!p || !out || ordinal>=NOMINAL_METHODS)return false;
     *out=p->bindings.imports[ordinal];return true;
 }

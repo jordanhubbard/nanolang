@@ -1,0 +1,27 @@
+/* I keep catalog identity and exported nominal types separate. */
+#include "service_websocket_nominal.h"
+#include "../nsi_websocket_plan.h"
+#define NOMINAL_FN(name) nvm_websocket_nominal_##name
+#define NOMINAL_METHODS NVM_WEBSOCKET_NOMINAL_METHODS
+#define NOMINAL_CATALOG_ID 3u
+#define NOMINAL_CATEGORY_OWNER NVM_WEBSOCKET_CATEGORY_CONN
+#define NOMINAL_CATEGORY_OWNER_RESULT NVM_WEBSOCKET_CATEGORY_CONNECT_RESULT
+#define NOMINAL_CATEGORY_RECORD NVM_WEBSOCKET_CATEGORY_RECORD
+#define NOMINAL_CATEGORY_SCALAR_RESULT NVM_WEBSOCKET_CATEGORY_SCALAR_RESULT
+#define NOMINAL_CATEGORY_UNKNOWN NVM_WEBSOCKET_CATEGORY_UNKNOWN
+#define NOMINAL_BYTES NVM_WEBSOCKET_NOMINAL_BYTES
+#define NOMINAL_DESCRIBED NVM_WEBSOCKET_NOMINAL_DESCRIBED
+#define NOMINAL_INVALID NVM_WEBSOCKET_NOMINAL_INVALID
+#define NOMINAL_LIMIT NVM_WEBSOCKET_NOMINAL_LIMIT
+#define NOMINAL_MAX_LAYOUTS NVM_WEBSOCKET_NOMINAL_MAX_LAYOUTS
+#define NOMINAL_MEMORY NVM_WEBSOCKET_NOMINAL_MEMORY
+#define NOMINAL_TYPES NVM_WEBSOCKET_NOMINAL_TYPES
+#define NOMINAL_VERSION NVM_WEBSOCKET_NOMINAL_VERSION
+#define NominalCategory NvmWebSocketCategory
+#define NominalBindings NvmWebSocketNominalBindings
+#define NominalLayout NvmWebSocketNominalLayout
+#define NominalPlan NvmWebSocketNominalPlan
+#define NominalStatus NvmWebSocketNominalStatus
+#define NOMINAL_CATALOG_INTERFACE nl_websocket_catalog_interface
+#define NOMINAL_CATALOG_METHOD nl_websocket_catalog_method
+#define NOMINAL_CATALOG_TYPE nl_websocket_catalog_type

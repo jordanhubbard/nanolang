@@ -62,12 +62,36 @@ permission but no DNS permission. I require the reviewed URL validation, plain
 `ws://` transport, fresh masking/nonces and upgrade/framing checks. `wss://`
 remains refused until a TLS contract is implemented.
 
+## Private nominal transport
+
+I now validate a private nominal map with transport version 2, catalog ID 3,
+four import mappings and seven type mappings. Its exact extent is 104 bytes:
+a 16-byte header, four 8-byte method rows and seven 8-byte type rows. Integer
+fields use little-endian encoding. The header records version/catalog as u16,
+method/type counts as u32 and one zero reserved u32. Each row retains its exact
+catalog ordinal followed by a distinct, non-reserved module index. File and TCP
+maps retain their existing wire bytes.
+
+My private checker matches import identities and exact parameter tags, ordered
+layout names/members and prior-layout references. It recognizes core string as a
+scalar with no nested layout. Connection and ConnectResult carry complete plus
+resource ownership flags; Message and the remaining results remain passive.
+String parameters cannot be borrowed as resource references. Same-shaped ordinary
+records gain no catalog identity. I permit valid permutations of global import
+and layout indices while preserving these contracts.
+
+The checked map owns its copied rows and survives destruction of source metadata.
+It describes types and imports only: it does not validate function bodies or
+execute methods. The public service validator still refuses catalog 3, and
+execution remains classified as pending. `test-websocket-nominal-boundary`
+checks that separation directly against the actual public validator.
+
 ## Admission boundary
 
 The descriptor and its queries are implemented here. The behaviors above are the
 runtime acceptance contract, not claims that service execution already exists.
 I have not registered this catalog in source selection or the executable binding
-registry. My remaining dependencies are string-bearing nominal fields/results,
+registry. My remaining dependencies are string-bearing runtime fields/results,
 owned WebSocket transport values and cleanup, per-instance policy, verified
 VM/native dispatch and paired frontend lowering. I must exercise real protocol,
 refusal, fault, cleanup and installed Linux/Darwin paths before public admission.
