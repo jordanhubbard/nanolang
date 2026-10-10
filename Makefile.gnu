@@ -377,7 +377,7 @@ PREFIX ?= $(HOME)/.local
 
 
 # Build: 3-stage bootstrap (uses sentinels to skip completed stages)
-build: schema modules-index $(SENTINEL_STAGE3) $(INTERPRETER) $(REPL_BINARY)
+build: schema modules-index $(SENTINEL_STAGE3) $(INTERPRETER) $(REPL_BINARY) $(BIN_DIR)/nano-resolver
 	@echo ""
 	@echo "=========================================="
 	@echo "✅ Build Complete (3-Stage Bootstrap)"
@@ -1660,7 +1660,7 @@ test-nsi-websocket-protocol:
 	@$(OBJ_DIR)/test_nsi_websocket_protocol_instrumented
 
 .PHONY: test-websocket-client
-test-websocket-client:
+test-websocket-client: $(BIN_DIR)/nano-resolver
 	NANO_WEBSOCKET_CC="$(CC)" NANO_WEBSOCKET_CFLAGS="$(CFLAGS)" python3 -m unittest -v tests.test_websocket_client
 
 .PHONY: test-websocket-bindings
@@ -1694,6 +1694,17 @@ test-nsi-socket-resolver: $(BIN_DIR)/nano-resolver
 	$(CURDIR)/$(OBJ_DIR)/test_nsi_socket_resolver $(CURDIR)/$(BIN_DIR)/nano-resolver
 
 test-units: test-nsi-socket-resolver
+
+.PHONY: install-resolver
+install-resolver: $(BIN_DIR)/nano-resolver
+	install -d "$(PREFIX)/bin"
+	install -m 755 $(BIN_DIR)/nano-resolver "$(PREFIX)/bin/nano-resolver"
+
+.PHONY: test-socket-resolver-install
+test-socket-resolver-install:
+	CC="$(CC)" python3 -m unittest -v tests.test_socket_resolver_install
+
+test-units: test-socket-resolver-install
 
 test-units: test-nsi-socket
 
@@ -4159,7 +4170,7 @@ coverage-check: coverage.info
 	fi
 
 # Install binaries
-install: $(COMPILER) vm nvm2c install-file-public-runtime install-socket-public-runtime install-services-public-runtime
+install: $(COMPILER) vm nvm2c install-resolver install-file-public-runtime install-socket-public-runtime install-services-public-runtime
 	install -d $(PREFIX)/bin
 	install -m 755 $(COMPILER) $(PREFIX)/bin/nanoc
 	install -m 755 bin/nano_virt $(PREFIX)/bin/nano_virt
@@ -4174,6 +4185,7 @@ endif
 	@echo "Installed to $(PREFIX)/bin (nanoc, nano_virt, nano_vm, nano_cop, nano_vmd, nanoisa, nvm2c; explicit File runtime package)"
 
 uninstall:
+	rm -f "$(PREFIX)/bin/nano-resolver"
 	rm -f "$(PREFIX)/lib/libnano_file_runtime.a" "$(PREFIX)/bin/nvm2c"
 	@for header in $(FILE_PUBLIC_HEADERS); do rm -f "$(PREFIX)/include/nanolang/file/$$header"; done
 ifeq ($(UNAME_S),Linux)

@@ -3,6 +3,7 @@
 #endif
 #include "websocket_helpers.h"
 #include "../../src/nsi_socket.h"
+#include "../../src/nsi_socket_resolver.h"
 #include "../../src/nsi_websocket_protocol.h"
 #include <openssl/rand.h>
 #include <stdatomic.h>
@@ -129,9 +130,17 @@ static bool ws_url(const char *text,WsUrl *out) {
 static bool ws_connect_socket(WsCtx *c,const WsUrl *url,int64_t deadline) {
     if(nl_socket_service_create(&c->service).status!=NL_SOCKET_OK)return false;
     NlSocketResolution addresses;
-    /* This legacy unsafe wrapper explicitly requests host lookup. Public service
-     * DNS authority and deadline supervision remain separate required work. */
-    if(nl_socket_resolve_tcp(c->service,url->host,strlen(url->host),url->port,true,&addresses).status!=NL_SOCKET_OK)return false;
+    /* I retain the legacy unsafe wrapper's host lookup permission. Public affine
+     * authority remains separate; hostname work shares my connection deadline. */
+    NlSocketResolveResult numeric=nl_socket_resolve_tcp(c->service,url->host,strlen(url->host),url->port,false,&addresses);
+    if(numeric.status==NL_SOCKET_RIGHTS) {
+        char helper[4096];int64_t now=ws_now();
+        if(now<0 || now>=deadline || !nl_socket_resolver_path(helper,sizeof helper))return false;
+        now=ws_now();if(now<0 || now>=deadline)return false;
+        unsigned remaining=(unsigned)(deadline-now);
+        NlSocketLookupResult lookup=nl_socket_resolve_tcp_supervised(c->service,url->host,strlen(url->host),url->port,true,helper,remaining,&addresses);
+        if(lookup.supervision!=NL_LOOKUP_COMPLETE || lookup.resolver.status!=NL_SOCKET_OK)return false;
+    } else if(numeric.status!=NL_SOCKET_OK)return false;
     for(size_t i=0;i<addresses.count;i++) {
         int64_t now=ws_now();if(now<0 || now>=deadline)return false;
         NlSocketResult r=nl_socket_acquire_tcp(c->service,&addresses.addresses[i],NL_CAP_READ|NL_CAP_WRITE,&c->socket);

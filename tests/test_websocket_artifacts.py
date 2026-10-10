@@ -44,6 +44,7 @@ class WebSocketArtifacts(unittest.TestCase):
                 self.binary.write_text("#!/bin/sh\nexec " + shlex.join(list(map(str, command))) + ' "$@"\n')
                 self.binary.chmod(0o700)
                 WebSocketClient.peer_case(self, "artifact", behavior)
+                WebSocketClient.peer_case(self, "artifact", behavior, hostname="localhost")
 
     def test_seed_vm_and_native(self):
         self.check_driver([ROOT / "bin/nano_virt"], "seed")

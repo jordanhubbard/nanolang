@@ -18,8 +18,19 @@ Callers must close every successful connection to reclaim its registry slot.
 
 I bound connect/upgrade, send and explicit close I/O to ten seconds. Default
 receive uses ten seconds; `receive_timeout` accepts 0–60000 milliseconds. Zero
-polls available input. Hostname resolution remains synchronous and can outlast
-that I/O budget. Public DNS capability and supervised resolution remain work.
+polls available input. Hostname resolution runs in my `nano-resolver` helper
+under the remaining connect/upgrade deadline. I refuse missing or failed helpers
+and terminate a timed-out worker; I never fall back to synchronous DNS.
+
+`make install` installs my helper beside the compiler tools. I select an absolute
+`NANOLANG_RESOLVER` override first, then `NANOLANG_ROOT/bin/nano-resolver` when
+that root is configured, otherwise `nano-resolver` beside the running executable.
+An invalid configured path refuses without fallback. I do not search PATH or the
+working directory. Standalone native programs outside the installation select
+the helper with an absolute `NANOLANG_RESOLVER` or `NANOLANG_ROOT`. Numeric IPv4/
+IPv6 connections need no helper. My host caller must trust the configured path
+and environment; this process boundary is not a sandbox. Public affine DNS
+authority and service catalog bindings remain required work.
 
 I return complete text through the legacy C-string API. I refuse embedded NUL
 text rather than truncate it; I skip binary messages. My internal protocol

@@ -8,11 +8,49 @@
 #include <signal.h>
 #include <spawn.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#endif
 
 extern char **environ;
+bool nl_socket_resolver_path(char *out,size_t capacity) {
+    char candidate[4096],resolved[4096];
+    const char *explicit_path=getenv("NANOLANG_RESOLVER"),*root=getenv("NANOLANG_ROOT");
+    if(!out || !capacity)return false;
+    int n;
+    if(explicit_path) {
+        if(explicit_path[0]!='/')return false;
+        n=snprintf(candidate,sizeof candidate,"%s",explicit_path);
+    } else if(root) {
+        if(root[0]!='/')return false;
+        n=snprintf(candidate,sizeof candidate,"%s/bin/nano-resolver",root);
+    } else {
+#ifdef __APPLE__
+        uint32_t size=sizeof candidate;
+        if(_NSGetExecutablePath(candidate,&size))return false;
+#elif defined(__linux__)
+        ssize_t size=readlink("/proc/self/exe",candidate,sizeof candidate-1);
+        if(size<0 || (size_t)size>=sizeof candidate-1)return false;
+        candidate[size]=0;
+#else
+        return false;
+#endif
+        if(!realpath(candidate,resolved))return false;
+        char *slash=strrchr(resolved,'/');if(!slash)return false;
+        *slash=0;n=snprintf(candidate,sizeof candidate,"%s/nano-resolver",resolved);
+    }
+    if(n<0 || (size_t)n>=sizeof candidate || !realpath(candidate,resolved))return false;
+    struct stat st;
+    if(stat(resolved,&st) || !S_ISREG(st.st_mode) || access(resolved,X_OK))return false;
+    size_t length=strlen(resolved);
+    if(length>=capacity)return false;
+    memcpy(out,resolved,length+1);return true;
+}
 static bool lookup_clock(int64_t *out) {
     struct timespec t;
     if(clock_gettime(CLOCK_MONOTONIC,&t))return false;

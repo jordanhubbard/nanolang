@@ -51,7 +51,7 @@ class WebSocketClient(unittest.TestCase):
         command = compiler + ["-std=c11", "-D_GNU_SOURCE", "-Wall", "-Wextra", "-Werror", "-g"] + flags
         command += [str(ROOT / p) for p in (
             "tests/websocket_client_probe.c", "modules/websocket/websocket_helpers.c",
-            "src/nsi_websocket_protocol.c", "src/nsi_socket.c", "src/nsi_cap.c", "src/utf8.c")]
+            "src/nsi_websocket_protocol.c", "src/nsi_socket.c", "src/nsi_socket_resolver.c", "src/nsi_cap.c", "src/utf8.c")]
         command += shlex.split(crypto) + ["-o", str(cls.binary)]
         subprocess.run(command, check=True, timeout=60)
 
@@ -96,7 +96,8 @@ class WebSocketClient(unittest.TestCase):
         worker = threading.Thread(target=serve, daemon=True)
         worker.start()
         try:
-            result = subprocess.run([str(self.binary), f"ws://{host}:{port}?mode=test", mode], capture_output=True, text=True, timeout=15)
+            env = dict(os.environ, NANOLANG_RESOLVER=str(ROOT / "bin/nano-resolver"))
+            result = subprocess.run([str(self.binary), f"ws://{host}:{port}?mode=test", mode], env=env, capture_output=True, text=True, timeout=15)
         finally:
             worker.join(timeout=6)
             listener.close()
@@ -149,6 +150,22 @@ class WebSocketClient(unittest.TestCase):
                     peer.sendall(frame)
                     self.assertEqual(peer.recv(1), b"")
                 self.peer_case("invalid", behavior)
+
+    def test_dns_helper_failure_and_deadline(self):
+        env = dict(os.environ, NANOLANG_RESOLVER="/nonexistent-nanolang-resolver")
+        command = [str(self.binary), "ws://localhost:9/", "refuse"]
+        result = subprocess.run(command, env=env, capture_output=True, text=True, timeout=3)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        helper = Path(self.tmp.name) / "hung resolver"
+        helper.write_text("#!/bin/sh\nexec sleep 30\n")
+        helper.chmod(0o755)
+        env["NANOLANG_RESOLVER"] = str(helper)
+        start = time.monotonic()
+        result = subprocess.run(command, env=env, capture_output=True, text=True, timeout=14)
+        elapsed = time.monotonic() - start
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertGreaterEqual(elapsed, 9)
+        self.assertLess(elapsed, 13)
 
     def test_forged_or_unverified_upgrade_is_refused(self):
         for response in (

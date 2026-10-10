@@ -12,6 +12,13 @@ typedef struct {
     int supervisor_errno;
 } NlSocketLookupResult;
 
+/* I select an explicit NANOLANG_RESOLVER, then NANOLANG_ROOT/bin/nano-resolver,
+ * otherwise nano-resolver beside the running executable. Configured paths must
+ * be absolute; an invalid override refuses without fallback. I never search
+ * PATH or the working directory. The host must trust the selected path and its
+ * environment. Failure leaves the output untouched. */
+bool nl_socket_resolver_path(char *out,size_t capacity);
+
 /* I execute an absolute, trusted helper path without a shell or PATH search.
  * The caller serializes process creation and service access and must not reap
  * this worker from a signal handler or another thread. This is deadline
