@@ -3,20 +3,31 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <netinet/in.h>
+#include <poll.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #if !defined(__linux__) && !defined(__APPLE__)
-#error "I require the reviewed Linux or Darwin local-socket policy"
+#error "I require the reviewed Linux or Darwin socket policy"
 #endif
 
 #define SOCKET_TYPE "nsi:nanolang/net#Socket"
 #define SOCKET_SERVICE "nsi:nanolang/net/local-socket"
+#define SOCKET_TCP_SERVICE "nsi:nanolang/net/tcp-socket"
 #define SOCKET_RIGHTS (NL_CAP_READ | NL_CAP_WRITE | NL_CAP_TRANSFER)
 
-typedef struct { int fd; bool live; NlCap token; } SocketEntry;
+typedef enum { SOCKET_READY, SOCKET_PENDING, SOCKET_FAILED } SocketState;
+typedef struct {
+    int fd;
+    bool live;
+    NlCap token;
+    bool tcp;
+    SocketState state;
+    int connect_error;
+} SocketEntry;
 struct NlSocketService {
     NlCapTable *caps;
     uint64_t identity;
@@ -60,7 +71,8 @@ static NlSocketStatus socket_resolve(NlSocketService *service,
     SocketEntry *entry = &service->sockets[token->cap.slot];
     if (!entry->live || !socket_same_cap(entry->token, token->cap) ||
         strcmp(nl_cap_type_id(service->caps, &token->cap), SOCKET_TYPE) ||
-        strcmp(nl_cap_service_id(service->caps, &token->cap), SOCKET_SERVICE))
+        strcmp(nl_cap_service_id(service->caps, &token->cap),
+               entry->tcp ? SOCKET_TCP_SERVICE : SOCKET_SERVICE))
         return NL_SOCKET_TOKEN;
     *out = entry;
     return NL_SOCKET_OK;
@@ -176,11 +188,134 @@ NlSocketResult nl_socket_acquire_pair(NlSocketService *service, uint32_t left_ri
     }
     NlSocketPair pair;
     for (unsigned i = 0; i < 2; i++) {
-        service->sockets[caps[i].slot] = (SocketEntry){descriptors[i], true, caps[i]};
+        service->sockets[caps[i].slot] = (SocketEntry){
+            .fd = descriptors[i], .live = true, .token = caps[i]};
         pair.endpoints[i] = (NlSocketToken){service->identity, caps[i]};
     }
     *out = pair;
     return socket_result(NL_SOCKET_OK);
+}
+
+NlSocketResult nl_socket_acquire_tcp(NlSocketService *service,
+                                    const NlSocketAddress *address,
+                                    uint32_t rights, NlSocketToken *out) {
+    NlSocketStatus status = socket_context(service);
+    if (status != NL_SOCKET_OK) return socket_result(status);
+    if (!address || !out || (rights & ~SOCKET_RIGHTS) || !address->port ||
+        socket_overlap(address, sizeof(*address), out, sizeof(*out)))
+        return socket_result(NL_SOCKET_ARGUMENT);
+    union { struct sockaddr_in v4; struct sockaddr_in6 v6; } host = {0};
+    int family;
+    socklen_t length;
+    if (address->family == NL_SOCKET_IPV4) {
+        if (address->scope_id) return socket_result(NL_SOCKET_ARGUMENT);
+        for (unsigned i = 4; i < 16; i++)
+            if (address->address[i]) return socket_result(NL_SOCKET_ARGUMENT);
+        family = AF_INET;
+        length = sizeof(host.v4);
+        host.v4.sin_family = AF_INET;
+        host.v4.sin_port = htons(address->port);
+        memcpy(&host.v4.sin_addr, address->address, 4);
+#ifdef __APPLE__
+        host.v4.sin_len = sizeof(host.v4);
+#endif
+    } else if (address->family == NL_SOCKET_IPV6) {
+        family = AF_INET6;
+        length = sizeof(host.v6);
+        host.v6.sin6_family = AF_INET6;
+        host.v6.sin6_port = htons(address->port);
+        host.v6.sin6_scope_id = address->scope_id;
+        memcpy(&host.v6.sin6_addr, address->address, 16);
+#ifdef __APPLE__
+        host.v6.sin6_len = sizeof(host.v6);
+#endif
+    } else {
+        return socket_result(NL_SOCKET_ARGUMENT);
+    }
+    NlCap cap;
+    int rc = nl_cap_private_mint(service->caps, SOCKET_TYPE, SOCKET_TCP_SERVICE,
+                                 rights, &cap);
+    if (rc != NL_CAP_OK) return socket_result(socket_cap_status(rc));
+    int descriptors[2] = {-1, -1};
+    errno = 0;
+    descriptors[0] = socket(family, SOCK_STREAM, IPPROTO_TCP);
+    if (descriptors[0] < 0 || !socket_configure(descriptors[0])) {
+        NlSocketResult result = socket_io_error(errno);
+        socket_rollback(service, &cap, 1, descriptors, &result);
+        return result;
+    }
+    errno = 0;
+    rc = connect(descriptors[0], (const struct sockaddr *)&host, length);
+    int saved = errno;
+    if (rc != 0 && saved != EINPROGRESS) {
+        NlSocketResult result = socket_io_error(saved);
+        socket_rollback(service, &cap, 1, descriptors, &result);
+        return result;
+    }
+    bool pending = rc != 0;
+    service->sockets[cap.slot] = (SocketEntry){
+        .fd = descriptors[0], .live = true, .token = cap, .tcp = true,
+        .state = pending ? SOCKET_PENDING : SOCKET_READY};
+    *out = (NlSocketToken){service->identity, cap};
+    NlSocketResult result = socket_result(NL_SOCKET_OK);
+    result.connect_pending = pending;
+    return result;
+}
+
+static NlSocketResult socket_connection_state(const SocketEntry *entry) {
+    if (entry->state == SOCKET_PENDING) {
+        NlSocketResult result = socket_result(NL_SOCKET_WOULD_BLOCK);
+        result.connect_pending = true;
+        return result;
+    }
+    NlSocketResult result = socket_result(
+        entry->state == SOCKET_FAILED ? NL_SOCKET_IO : NL_SOCKET_OK);
+    result.host_errno = entry->connect_error;
+    return result;
+}
+
+static NlSocketResult socket_connect_error(SocketEntry *entry, int saved) {
+    if (saved == EINTR || saved == EAGAIN || saved == EWOULDBLOCK) {
+        NlSocketResult result = socket_io_error(saved);
+        result.connect_pending = true;
+        return result;
+    }
+    entry->state = SOCKET_FAILED;
+    entry->connect_error = saved;
+    return socket_connection_state(entry);
+}
+
+NlSocketResult nl_socket_finish_connect(NlSocketService *service,
+                                       const NlSocketToken *token) {
+    SocketEntry *entry = NULL;
+    NlSocketStatus status = socket_resolve(service, token, 0, &entry);
+    if (status != NL_SOCKET_OK) return socket_result(status);
+    if (entry->state != SOCKET_PENDING) return socket_connection_state(entry);
+    struct pollfd fd = {.fd = entry->fd, .events = POLLOUT};
+    errno = 0;
+    int rc = poll(&fd, 1, 0);
+    if (rc < 0) return socket_connect_error(entry, errno);
+    if (!rc) return socket_connection_state(entry);
+    if (fd.revents & POLLNVAL) return socket_connect_error(entry, EBADF);
+    if (!(fd.revents & (POLLOUT | POLLERR | POLLHUP)))
+        return socket_connection_state(entry);
+    int error = 0;
+    socklen_t size = sizeof(error);
+    errno = 0;
+    if (getsockopt(entry->fd, SOL_SOCKET, SO_ERROR, &error, &size) != 0)
+        return socket_connect_error(entry, errno);
+    if (size != sizeof(error)) return socket_connect_error(entry, EIO);
+    if (error) {
+        /* SO_ERROR is consumed by the host read. I latch even an unusual
+         * transient-valued socket error instead of later mistaking zero for OK. */
+        entry->state = SOCKET_FAILED;
+        entry->connect_error = error;
+        return socket_connection_state(entry);
+    }
+    if (!(fd.revents & POLLOUT) || (fd.revents & (POLLERR | POLLHUP)))
+        return socket_connect_error(entry, ECONNABORTED);
+    entry->state = SOCKET_READY;
+    return socket_connection_state(entry);
 }
 
 NlSocketResult nl_socket_send_byte(NlSocketService *service,
@@ -188,6 +323,7 @@ NlSocketResult nl_socket_send_byte(NlSocketService *service,
     SocketEntry *entry = NULL;
     NlSocketStatus status = socket_resolve(service, token, NL_CAP_WRITE, &entry);
     if (status != NL_SOCKET_OK) return socket_result(status);
+    if (entry->state != SOCKET_READY) return socket_connection_state(entry);
 #ifdef __linux__
     const int flags = MSG_NOSIGNAL;
 #else
@@ -209,6 +345,7 @@ NlSocketResult nl_socket_receive_byte(NlSocketService *service,
     SocketEntry *entry = NULL;
     NlSocketStatus status = socket_resolve(service, token, NL_CAP_READ, &entry);
     if (status != NL_SOCKET_OK) return socket_result(status);
+    if (entry->state != SOCKET_READY) return socket_connection_state(entry);
     uint8_t byte = 0;
     errno = 0;
     ssize_t received = recv(entry->fd, &byte, 1, 0);
