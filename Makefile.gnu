@@ -6342,6 +6342,15 @@ test-websocket-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 
 test-units: test-websocket-hosted
 
+.PHONY: test-websocket-runtime
+test-websocket-runtime: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(BIN_DIR)/nano-resolver
+	$(CC) $(CFLAGS) -std=c11 -D_GNU_SOURCE -Wall -Wextra -Werror tests/nanoisa/test_websocket_runtime.c src/nanoisa/websocket_flow.c src/nanoisa/websocket_codec.c src/nanoisa/service_websocket_nominal.c src/nanoisa/service_websocket_nominal_plan.c src/nsi_websocket_plan.c src/nsi_websocket_values.c src/nsi_websocket_transport.c src/nsi_websocket_protocol.c src/nsi_socket.c src/nsi_socket_resolver.c src/nsi_cap.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) src/nanoisa/websocket_runtime.c -o $(OBJ_DIR)/test_websocket_runtime
+	NANO_WEBSOCKET_RUNTIME=$(abspath $(OBJ_DIR)/test_websocket_runtime) python3 -m unittest -v tests.test_websocket_runtime
+	$(CC) $(CFLAGS) -std=c11 -D_GNU_SOURCE -Wall -Wextra -Werror tests/nanoisa/test_websocket_runtime.c src/nanoisa/websocket_flow.c src/nanoisa/websocket_codec.c src/nanoisa/service_websocket_nominal.c src/nanoisa/service_websocket_nominal_plan.c src/nsi_websocket_plan.c src/nsi_websocket_values.c src/nsi_websocket_transport.c src/nsi_websocket_protocol.c src/nsi_socket.c src/nsi_socket_resolver.c src/nsi_cap.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) -DWS_RUNTIME_INSTRUMENT -o $(OBJ_DIR)/test_websocket_runtime_instrumented
+	NANO_WEBSOCKET_RUNTIME=$(abspath $(OBJ_DIR)/test_websocket_runtime_instrumented) python3 -m unittest -v tests.test_websocket_runtime
+
+test-units: test-websocket-runtime
+
 .PHONY: test-websocket-nominal-boundary
 test-websocket-nominal-boundary: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DNOMINAL_PUBLIC_TEST tests/nanoisa/test_websocket_nominal.c src/nanoisa/service_websocket_nominal.c src/nanoisa/service_websocket_nominal_plan.c src/nsi_websocket_plan.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) -o $(OBJ_DIR)/test_websocket_nominal_boundary

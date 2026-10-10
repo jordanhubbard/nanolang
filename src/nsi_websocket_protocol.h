@@ -18,6 +18,7 @@ typedef struct NlWsDecoder NlWsDecoder;
 typedef struct { NlWsOpcode opcode; const uint8_t *bytes; size_t length; } NlWsEvent;
 /* I own bounded message storage. Decoder calls are serialized. Valid caller
  * objects and input bytes must be disjoint from each other and opaque storage. */
+bool nl_ws_decoder_storage_bound(size_t *out);
 NlWsStatus nl_ws_decoder_create(NlWsDecoder **out);
 void nl_ws_decoder_destroy(NlWsDecoder *);
 /* I consume at most NL_WS_FEED_MAX bytes and stop at one complete event. MORE

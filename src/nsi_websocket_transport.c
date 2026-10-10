@@ -21,6 +21,13 @@ struct NlWsTransport {
     NlWsEvent event;
     uint8_t incoming[4096];size_t incoming_at,incoming_size;
 };
+bool nl_ws_transport_storage_bound(size_t *out) {
+    size_t decoder,socket;
+    if(!out || !nl_ws_decoder_storage_bound(&decoder) || !nl_socket_service_storage_bound(&socket))return false;
+    size_t fixed=sizeof(NlWsTransport)+NL_WS_MESSAGE_MAX+NL_WS_FRAME_OVERHEAD;
+    if(decoder>SIZE_MAX-fixed || socket>SIZE_MAX-fixed-decoder)return false;
+    *out=fixed+decoder+socket;return true;
+}
 static int64_t ws_now(void) {
     struct timespec ts;if(clock_gettime(CLOCK_MONOTONIC,&ts))return -1;
     return (int64_t)ts.tv_sec*1000+ts.tv_nsec/1000000;

@@ -1,21 +1,31 @@
 /* I keep single-catalog defaults; mixed configuration supplies instance hooks. */
 #ifndef RUNTIME_TYPE_CAPACITY
 #define RUNTIME_TYPE_CAPACITY NOMINAL_TYPES
+#ifndef RUNTIME_CONTEXT_MEMBERS
 #define RUNTIME_CONTEXT_MEMBERS
+#endif
 #define RUNTIME_TYPE_BASE(id) (0u)
 #define RUNTIME_TYPE_COUNT(c,id) NOMINAL_TYPES
 #define RUNTIME_TYPE_VALID(c,id) ((id)<NOMINAL_TYPES)
 #define RUNTIME_CATALOG_TYPE(c,id) NOMINAL_CATALOG_TYPE(id)
 #define RUNTIME_METHOD_LOCAL(id) (id)
 #define RUNTIME_METHOD_OWNER(id) (0u)
+#ifndef RUNTIME_IMPORTS
 #define RUNTIME_IMPORTS(c) NVM_SERVICE_BINDING_COUNT
+#endif
 #define RUNTIME_ENDPOINT(c,id) RUNTIME_HAS_ENDPOINT
 #define RUNTIME_ENDPOINT_TYPE(id) RUNTIME_ENDPOINT_ORDINAL
 #define RUNTIME_ERROR_FIELDS(c,id) SERVICE_CONST(RUNTIME_FIELDS)
 #define RUNTIME_ERROR(view) ((view).error)
+#ifndef RUNTIME_SCALAR_PAYLOAD
 #define RUNTIME_SCALAR_PAYLOAD(c,p) fr_scalar_payload(p)
+#endif
+#ifndef RUNTIME_BOUND
 #define RUNTIME_BOUND(out) CORE_FN(values_storage_bound)(out)
+#endif
+#ifndef RUNTIME_BEGIN
 #define RUNTIME_BEGIN(c) CORE_FN(values_create)(&(c)->files)
+#endif
 #define RUNTIME_MAX_INSTANCES 1u
 #define RUNTIME_INSTANCES(c) 1u
 #define RUNTIME_CORE_INDEX(v) 0u

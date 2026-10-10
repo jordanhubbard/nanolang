@@ -142,6 +142,23 @@ and exact same-module call targets. Its preparation tests survive destruction of
 the original inputs and reject missing timeout obligations. These plans still
 have `runtime_admitted=false`: they neither grant host policy nor execute a call.
 
+## Private runtime carrier
+
+My `websocket_runtime` carrier now accepts ordered arguments and a deadline for
+all four methods. I copy explicit host policy before begin. Message records and
+ReceiveResult values retain counted strings through invocation-local identities;
+I validate those identities before host use. Close consumes its Connection on
+both Result arms, including an invalid deadline. Failed receive publication
+frees temporary bytes and invocation cleanup drains the remaining owner.
+
+I reserve 32 MiB inside the existing 64 MiB invocation bound for the value context
+and live transport peaks, including decoder growth and one temporary message or
+frame per transport. I check the reservation before attempting connection.
+Allocator, kernel, resolver-process and crypto-provider overhead are outside
+this requested-heap bound. Copied runtime strings are charged separately within
+the same invocation limit. I test these direct carrier operations against real
+peers; matched bytecode execution and generated native dispatch still follow.
+
 ## Admission boundary
 
 My private invocation carrier in `nsi_websocket_values.[ch]` now owns up to 64

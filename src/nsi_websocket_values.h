@@ -25,6 +25,11 @@ typedef struct {
  * all zero; creation requires *out==NULL. Checked API refusal preserves output.
  * A VALUE_OK host operation publishes its independent transport result, whose
  * status may be Error. Connection errors retain a ConnectResult until consumed. */
+/* I reserve a transport peak before connect. A bounded context refuses further
+ * acquisition with a typed LIMIT result when live transports exhaust its budget.
+ * Caller-retained messages beyond the current operation are outside this bound. */
+NlWsValueStatus nl_ws_values_create_bounded(const NlWsTransportPolicy *,size_t,NlWsValues **out);
+bool nl_ws_values_minimum_storage(size_t *out);
 NlWsValueStatus nl_ws_values_create(const NlWsTransportPolicy *,NlWsValues **out);
 NlWsValueStatus nl_ws_values_connect(NlWsValues *,const void *,size_t,int64_t,NlWsValue *out);
 NlWsValueStatus nl_ws_connect_view(NlWsValues *,const NlWsValue *,NlWsConnectView *out);

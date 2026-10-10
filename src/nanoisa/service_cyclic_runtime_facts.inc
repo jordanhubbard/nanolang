@@ -51,10 +51,10 @@ static bool fr_instruction(const SERVICE_TYPE(Runtime) *c,uint32_t f,uint16_t i,
     *fact=v.body;return true;
 }
 static bool fr_import(const SERVICE_TYPE(Runtime) *c,uint32_t original,uint32_t *ordinal) {
-    if(c->kind==FR_ACYCLIC)return SERVICE_FN(hosted_import)(c->plan,original,ordinal);
     for(uint32_t i=0;i<RUNTIME_IMPORTS(c);i++) {
         uint32_t value;
-        if(!(c->kind==FR_INDIRECT?SERVICE_FN(indirect_hosted_import)(c->indirect_plan,i,&value):
+        if(!(c->kind==FR_ACYCLIC?SERVICE_FN(hosted_import)(c->plan,i,&value):
+             c->kind==FR_INDIRECT?SERVICE_FN(indirect_hosted_import)(c->indirect_plan,i,&value):
              SERVICE_FN(cyclic_hosted_import)(c->cyclic_plan,i,&value)))return false;
         if(value==original){*ordinal=i;return true;}
     }

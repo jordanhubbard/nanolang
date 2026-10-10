@@ -29,6 +29,9 @@ typedef struct { bool binary; unsigned char *bytes; size_t length; } NlWsMessage
  * Caller objects/buffers are valid and disjoint; outputs cannot discard live
  * owners. All outputs remain unchanged on failure. Policy/path storage need
  * remain valid only during connect; the timeout ceiling is copied. */
+/* I bound my requested heap bytes, including decoder growth and one message
+ * copy or send frame. Allocator, kernel and crypto-provider overhead is external. */
+bool nl_ws_transport_storage_bound(size_t *out);
 NlWsTransportResult nl_ws_transport_connect(const void *url,size_t length,
     const NlWsTransportPolicy *,unsigned timeout_ms,NlWsTransport **out);
 NlWsTransportResult nl_ws_transport_send(NlWsTransport *,bool binary,

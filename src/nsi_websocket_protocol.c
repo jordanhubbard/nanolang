@@ -13,6 +13,11 @@ struct NlWsDecoder {
     bool final, fragmented, reset_message;
     NlWsStatus terminal;
 };
+bool nl_ws_decoder_storage_bound(size_t *out) {
+    if(!out)return false;
+    /* I include old and replacement buffers during a growing realloc. */
+    *out=sizeof(NlWsDecoder)+2u*NL_WS_MESSAGE_MAX;return true;
+}
 static bool ws_overlap(const void *a,size_t na,const void *b,size_t nb) {
     if (!na || !nb) return false;
     uintptr_t x=(uintptr_t)a,y=(uintptr_t)b;

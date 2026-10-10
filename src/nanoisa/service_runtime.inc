@@ -125,6 +125,7 @@ static bool fr_member(const SERVICE_TYPE(Runtime) *c,uint32_t context,const char
     if(!id){*out=fr_scalar_type(TAG_VOID);return true;}
     if(!strcmp(id,"nsi:core/int")){*out=fr_scalar_type(TAG_INT);return true;}
     if(!strcmp(id,"nsi:core/bool")){*out=fr_scalar_type(TAG_BOOL);return true;}
+    if(!strcmp(id,"nsi:core/string")){*out=fr_scalar_type(TAG_STRING);return true;}
     (void)c;(void)context;
     uint32_t base=RUNTIME_TYPE_BASE(context);
     for(uint32_t i=base;i<base+RUNTIME_TYPE_COUNT(c,context);i++) {
@@ -273,7 +274,8 @@ SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_construct)(SERVICE_TYPE(Runtime) 
             return fr_error(c,SERVICE_CONST(RUNTIME_TYPE),CORE_STATUS(TYPE));
         replaces|=inputs[i]==dst;
         if(record) {
-            if(input.fields!=1 || (input.type.tag!=TAG_INT && input.type.tag!=TAG_BOOL))return fr_error(c,SERVICE_CONST(RUNTIME_TYPE),CORE_STATUS(TYPE));
+            if(input.fields!=1 || (input.type.tag!=TAG_INT && input.type.tag!=TAG_BOOL && input.type.tag!=TAG_STRING))return fr_error(c,SERVICE_CONST(RUNTIME_TYPE),CORE_STATUS(TYPE));
+            if(input.type.tag==TAG_STRING && !fr_string(c,inputs[i]))return fr_error(c,SERVICE_CONST(RUNTIME_TYPE),CORE_STATUS(TYPE));
             value.values[i]=input.values[0];value.fields=(uint8_t)count;
         } else { value.fields=input.fields;memcpy(value.values,input.values,sizeof value.values); }
     }
@@ -429,6 +431,9 @@ SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_region_end)(SERVICE_TYPE(Runtime)
     }
     c->regions[--c->region_count]=0;return SERVICE_CONST(RUNTIME_OK);
 }
+#ifdef RUNTIME_SERVICE_ADAPTER
+#include RUNTIME_SERVICE_ADAPTER
+#else
 SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_service)(SERVICE_TYPE(Runtime) *c,uint32_t import,uint32_t reference,uint32_t input,uint32_t output) {
     SERVICE_TYPE(RuntimeStatus) status=fr_effect(c);if(status!=SERVICE_CONST(RUNTIME_OK))return status;
     uint32_t ordinal;
@@ -489,6 +494,7 @@ SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_service)(SERVICE_TYPE(Runtime) *c
     if(method==1)fr_clear(c,input);
     c->values[output].view=result;return SERVICE_CONST(RUNTIME_OK);
 }
+#endif
 SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_complete_root)(SERVICE_TYPE(Runtime) *c,uint32_t root) {
     SERVICE_TYPE(RuntimeStatus) status=fr_effect(c);if(status!=SERVICE_CONST(RUNTIME_OK))return status;
     if(c->kind!=FR_ACYCLIC) {

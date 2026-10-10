@@ -36,8 +36,13 @@ static bool frc_payload(const SERVICE_TYPE(Runtime) *c,const FileRuntimeValue *v
     if(p->type.category==SERVICE_CONST(CATEGORY_RECORD)) {
         if(p->fields!=type->member_count || p->fields>SERVICE_CONST(RUNTIME_FIELDS) ||
            p->arm!=SERVICE_CONST(FLOW_ARM_NONE))return false;
-        for(uint8_t i=0;i<p->fields;i++)
-            if(!strcmp(type->members[i].type_id,"nsi:core/bool") && p->values[i]!=0 && p->values[i]!=1)return false;
+        for(uint8_t i=0;i<p->fields;i++) {
+            const char *id=type->members[i].type_id;
+            if(!id)return false;
+            if(!strcmp(id,"nsi:core/bool")) {if(p->values[i]!=0 && p->values[i]!=1)return false;}
+            else if(!strcmp(id,"nsi:core/string")) {if(!fr_string_identity(c,p->values[i]))return false;}
+            else if(strcmp(id,"nsi:core/int"))return false;
+        }
         return true;
     }
     if(p->type.category!=SERVICE_CONST(CATEGORY_SCALAR_RESULT) ||

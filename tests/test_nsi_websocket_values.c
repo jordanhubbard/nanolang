@@ -12,6 +12,7 @@ static void *wv_test_calloc(size_t n,size_t size) { return fail_alloc?NULL:callo
 #include "../src/nsi_websocket_values.c"
 #undef calloc
 
+bool nl_ws_transport_storage_bound(size_t *out){if(!out)return false;*out=4096;return true;}
 NlWsTransportResult nl_ws_transport_connect(const void *url,size_t length,
     const NlWsTransportPolicy *p,unsigned timeout,NlWsTransport **out) {
     (void)url;(void)length;(void)timeout;connects++;
@@ -54,6 +55,15 @@ static NlWsValue owner(NlWsValues *s) {
 }
 int main(void) {
     NlWsTransportPolicy p={true,true,"/my/resolver",60000};NlWsValues *s=NULL;
+    size_t base=0;assert(nl_ws_values_minimum_storage(&base) && base==sizeof(NlWsValues));
+    assert(nl_ws_values_create_bounded(&p,base-1,&s)==NL_WS_VALUE_LIMIT && !s);
+    assert(nl_ws_values_create_bounded(&p,base+4096,&s)==NL_WS_VALUE_OK);
+    NlWsValue first=owner(s),blocked=connect_value(s);NlWsConnectView capacity;
+    assert(connects==1 && live==1 && nl_ws_connect_view(s,&blocked,&capacity)==NL_WS_VALUE_OK && !capacity.ok && capacity.error.status==NL_WS_TRANSPORT_LIMIT);
+    assert(nl_ws_value_drop(s,&blocked)==NL_WS_VALUE_OK);
+    assert(nl_ws_value_drop(s,&first)==NL_WS_VALUE_OK);
+    first=owner(s);assert(connects==2 && live==1);
+    nl_ws_values_destroy(s,NL_WS_VALUE_OK);s=NULL;assert(!live);connects=closes=aborts=0;
     fail_alloc=true;assert(nl_ws_values_create(&p,&s)==NL_WS_VALUE_MEMORY && !s);fail_alloc=false;
     p.resolver_helper="relative";assert(nl_ws_values_create(&p,&s)==NL_WS_VALUE_ARGUMENT && !s);
     s=context(true);NlWsValues *other=context(true);

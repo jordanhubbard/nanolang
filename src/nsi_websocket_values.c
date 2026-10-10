@@ -12,6 +12,7 @@ typedef struct {
 } WvSlot;
 struct NlWsValues {
     uint64_t identity;
+    size_t storage_limit,transport_bound;
     NlWsTransportPolicy policy;
     char helper[4096];
     bool finished;
@@ -65,16 +66,25 @@ static NlWsTransportResult wv_close_slot(NlWsValues *s,WvSlot *slot,int64_t time
     wv_cleanup(s,r);
     return r;
 }
-NlWsValueStatus nl_ws_values_create(const NlWsTransportPolicy *policy,NlWsValues **out) {
+bool nl_ws_values_minimum_storage(size_t *out) {
+    if(!out)return false;
+    *out=sizeof(NlWsValues);return true;
+}
+NlWsValueStatus nl_ws_values_create_bounded(const NlWsTransportPolicy *policy,size_t limit,NlWsValues **out) {
     if(!out || *out || !policy || policy->max_timeout_ms>60000)return NL_WS_VALUE_ARGUMENT;
     size_t length=policy->resolver_helper?strlen(policy->resolver_helper):0;
     if(length>=4096 || (policy->resolver_helper && (!length || policy->resolver_helper[0]!='/')))
         return NL_WS_VALUE_ARGUMENT;
+    size_t transport;
+    if(limit<sizeof(NlWsValues) || !nl_ws_transport_storage_bound(&transport))return NL_WS_VALUE_LIMIT;
     if(wv_identity==UINT64_MAX)return NL_WS_VALUE_LIMIT;
     NlWsValues *s=calloc(1,sizeof *s);if(!s)return NL_WS_VALUE_MEMORY;
-    s->policy=*policy;
+    s->policy=*policy;s->storage_limit=limit;s->transport_bound=transport;
     if(policy->resolver_helper){memcpy(s->helper,policy->resolver_helper,length+1);s->policy.resolver_helper=s->helper;}
     s->identity=++wv_identity;*out=s;return NL_WS_VALUE_OK;
+}
+NlWsValueStatus nl_ws_values_create(const NlWsTransportPolicy *policy,NlWsValues **out) {
+    return nl_ws_values_create_bounded(policy,SIZE_MAX,out);
 }
 NlWsValueStatus nl_ws_values_connect(NlWsValues *s,const void *url,size_t length,int64_t timeout,NlWsValue *out) {
     NlWsValueStatus status=wv_context(s);if(status!=NL_WS_VALUE_OK)return status;
@@ -86,7 +96,9 @@ NlWsValueStatus nl_ws_values_connect(NlWsValues *s,const void *url,size_t length
     if(i==NL_WS_VALUE_SLOTS)return NL_WS_VALUE_LIMIT;
     NlWsTransport *transport=NULL;
     NlWsTransportResult r={.status=NL_WS_TRANSPORT_LIMIT};
-    if(timeout>=0 && timeout<=60000)
+    size_t live=0;
+    for(uint32_t n=0;n<NL_WS_VALUE_SLOTS;n++)if(s->slots[n].transport)live++;
+    if(live<(s->storage_limit-sizeof *s)/s->transport_bound && timeout>=0 && timeout<=60000)
         r=nl_ws_transport_connect(url,length,&s->policy,(unsigned)timeout,&transport);
     WvSlot *slot=&s->slots[i];slot->generation++;
     slot->kind=r.status==NL_WS_TRANSPORT_OK?WV_CONNECT_OK:WV_CONNECT_ERROR;
