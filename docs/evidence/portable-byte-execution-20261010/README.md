@@ -36,7 +36,20 @@ compiler (`qualified-byte-tests.log`). I explicitly exclude
 `test_source_products` from that run while its installed compiler is rebuilding;
 I retain that test unchanged as an outstanding gate.
 
-My full bootstrap run `obj/bootstrap-nanoisa/run-mi9we72o` remains in progress.
+My generated Wasm allocation gate now passes both text and byte results
+(`wasm-allocation-prefixes.log`). I instrument the actual emitted freestanding
+allocator boundary, exercise each of the two observed allocation prefixes per
+fixture, require MEMORY without a trap, then recover and execute successfully.
+Managed live objects and bytes return to zero before and after disposal.
+These are generated Node/Wasm executions. They do not establish Wasmtime or
+all allocations in more complex programs. Both existing portable execution
+targets include the new gate.
+
+My full bootstrap run `obj/bootstrap-nanoisa/run-mi9we72o` remains in progress
+at Stage 2. `stage1-progress.json` records successful seed and Stage 1 steps,
+including native translation and hello execution, with unchanged source inputs.
+`stage1-source.log` additionally passes the stronger byte-source fixture from
+the newly bootstrapped Stage 1 native compiler through VM/C/LLVM/Node.
 I do not treat the older installed compiler receipt as evidence for this change.
 The installed self-hosted source gate, generated Wasmtime execution and exact
 release-platform gates remain open. Byte reads also do not close aggregate,

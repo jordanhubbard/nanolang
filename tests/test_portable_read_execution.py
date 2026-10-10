@@ -126,6 +126,10 @@ int main(int argc,char **argv) {
             'i.call("nano_dispose");i.close();\n')
         self.command(['node', runner, wasm])
 
+    def test_wasm_allocation_prefixes_and_recovery(self):
+        from tests.test_portable_read_wasm_faults import PortableReadWasmFaults
+        PortableReadWasmFaults.qualify(self, getattr(self, "portable_flag", "") == "--portable-file-read")
+
     def test_native_allocation_prefixes_and_recovery(self):
         ir = self.work/'faults.ll'
         self.command([ROOT/'bin/nvm2llvm', self.module(), getattr(self, 'portable_flag', '--portable-read-text'),

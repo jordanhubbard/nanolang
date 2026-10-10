@@ -14,6 +14,7 @@ class PortableBytesExecution(unittest.TestCase):
     command = read.PortableReadExecution.command
 
     portable_flag = '--portable-file-read'
+    test_wasm_allocation_prefixes_and_recovery = read.PortableReadExecution.test_wasm_allocation_prefixes_and_recovery
     test_native_allocation_prefixes_and_recovery = read.PortableReadExecution.test_native_allocation_prefixes_and_recovery
 
     def module(self, body='PUSH_STR path\nCALL_EXTERN 0\nARR_LEN', declaration='.import "" "file_read_bytes" array string'):
