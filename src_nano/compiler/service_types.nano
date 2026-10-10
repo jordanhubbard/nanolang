@@ -4,7 +4,7 @@ import "src_nano/parser.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
 module "modules/file_source_catalog/file_source_catalog.nano" as TypeCatalog
 
-# Kinds: invalid, int, bool, void, File, scalar record, Result.
+# Kinds: invalid, int, bool, void, File, scalar record, Result, callable, string.
 struct ServiceType {
     kind: int, declaration: int, owner: int, ordinal: int, category: int
 }

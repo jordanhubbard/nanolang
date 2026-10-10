@@ -130,7 +130,7 @@ static void so_match(SoCheck *c, SoState *s, const ASTNode *node, bool move) {
 }
 static void so_impl(SoCheck *c, SoState *s, const ASTNode *node, bool move) {
     switch(node->type) {
-    case AST_NUMBER: case AST_BOOL: return;
+    case AST_NUMBER: case AST_BOOL: case AST_STRING: return;
     case AST_IDENTIFIER: {
         int index=so_find(s,node->as.identifier);
         if(index<0) {

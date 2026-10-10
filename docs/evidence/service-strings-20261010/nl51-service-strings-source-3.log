@@ -1,0 +1,45 @@
+test_checked_source_vm_and_native (tests.test_service_strings.ServiceStrings.test_checked_source_vm_and_native) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pqf6zrwb
+
+  test_checked_source_vm_and_native (tests.test_service_strings.ServiceStrings.test_checked_source_vm_and_native) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_c') ... FAIL
+  test_checked_source_vm_and_native (tests.test_service_strings.ServiceStrings.test_checked_source_vm_and_native) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt') ... FAIL
+test_wrong_string_types_preserve_output (tests.test_service_strings.ServiceStrings.test_wrong_string_types_preserve_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-mvh8_mg3
+ok
+
+======================================================================
+FAIL: test_checked_source_vm_and_native (tests.test_service_strings.ServiceStrings.test_checked_source_vm_and_native) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_strings.py", line 47, in test_checked_source_vm_and_native
+    self.run_command([driver,self.source,'--allow-temporary-files','--emit-nvm','-o',wire])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_drivers.py", line 45, in run_command
+    self.assertEqual(run.returncode,expected,run.stdout+run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d707166367a7277622f736f757263652e6e616e6f 6964656e74697479
+SELECT 1 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d707166367a7277622f736f757263652e6e616e6f 6170706c79
+SELECT 2 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d707166367a7277622f736f757263652e6e616e6f 63686f6f7365
+START 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d707166367a7277622f736f757263652e6e616e6f 6964656e74697479
+I will not publish after File shadow failure (status 3).
+
+
+======================================================================
+FAIL: test_checked_source_vm_and_native (tests.test_service_strings.ServiceStrings.test_checked_source_vm_and_native) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_strings.py", line 47, in test_checked_source_vm_and_native
+    self.run_command([driver,self.source,'--allow-temporary-files','--emit-nvm','-o',wire])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_drivers.py", line 45, in run_command
+    self.assertEqual(run.returncode,expected,run.stdout+run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d707166367a7277622f736f757263652e6e616e6f 6964656e74697479
+SELECT 1 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d707166367a7277622f736f757263652e6e616e6f 6170706c79
+SELECT 2 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d707166367a7277622f736f757263652e6e616e6f 63686f6f7365
+START 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d707166367a7277622f736f757263652e6e616e6f 6964656e74697479
+I will not publish after File shadow failure (status 3).
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.158s
+
+FAILED (failures=2)

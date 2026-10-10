@@ -6447,3 +6447,9 @@ test-mixed-service-drivers: $(COMPILER_C) $(BIN_DIR)/nano_virt $(BIN_DIR)/nano_v
 	$(MAKE) -f Makefile.gnu CC="$(CC)" PREFIX="$(MIXED_SERVICE_TEST_PREFIX)" install-services-public-runtime
 	NANO_MIXED_INSTALL_PREFIX="$(MIXED_SERVICE_TEST_PREFIX)" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -f -v tests.test_mixed_service_drivers
 test-units: test-mixed-service-drivers
+
+.PHONY: test-service-strings
+test-service-strings: $(COMPILER_C) nano_virt nano_vm nvm2c
+	NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_service_strings
+
+test-units: test-service-strings

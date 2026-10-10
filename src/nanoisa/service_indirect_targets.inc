@@ -155,6 +155,9 @@ static SERVICE_TYPE(FlowStatus) fi_transfer(SERVICE_TYPE(IndirectTargets) *r,uin
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:
         value=s->locals[d->operands[1].u16];
         return value.initialized==2 && value.type.category==NOMINAL_CATEGORY_OWNER?SERVICE_CONST(FLOW_OK):SERVICE_CONST(FLOW_INVALID);
+    case OP_PUSH_STR:return fi_push(s,fi_value(scalar_type(TAG_STRING),2));
+    case OP_STR_EQ:return fi_scalar(s,TAG_STRING,TAG_BOOL,2,false);
+    case OP_STR_LEN:return fi_scalar(s,TAG_STRING,TAG_INT,1,false);
     case OP_PUSH_I64:return fi_push(s,fi_value(scalar_type(TAG_INT),2));
     case OP_PUSH_BOOL:return fi_push(s,fi_value(scalar_type(TAG_BOOL),2));
     case OP_PUSH_VOID:return fi_push(s,fi_value(scalar_type(TAG_VOID),2));

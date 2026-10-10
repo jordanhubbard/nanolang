@@ -1,4 +1,5 @@
 #include "service_lowering.h"
+#include "string_literal_decode.h"
 #include "nsi_file_catalog.h"
 #include "nsi_socket_plan.h"
 #include "nanoisa/service_socket_nominal.h"
@@ -81,6 +82,7 @@ static SlType sl_type(Sl *c,Type type,const TypeInfo *info) {
         out.tag=(info->service_ordinal<3 || info->service_ordinal==8)?TAG_STRUCT:TAG_UNION;
     } else if(type==TYPE_INT)out.tag=TAG_INT;
     else if(type==TYPE_BOOL)out.tag=TAG_BOOL;
+    else if(type==TYPE_STRING)out.tag=TAG_STRING;
     else if(type==TYPE_VOID)out.tag=TAG_VOID;
     else if(type==TYPE_FUNCTION)out.tag=TAG_FUNCTION;
     else sl_fail(c,NULL,2,"I have not lowered this ordinary service body type.");
@@ -203,6 +205,11 @@ static void sl_end_loans(Sl *c,uint16_t start) {
 }
 static void sl_call(Sl *c,const ASTNode *node,ASTNode **args,int count,bool want) {
     const NlServiceBodyFact *fact=sl_fact(c,node);if(!fact)return;
+    if(fact->declaration==UINT32_MAX) {
+        if(count!=1){sl_fail(c,node,1,"I require one checked string length operand.");return;}
+        sl_expr(c,args[0],true);if(!c->next || c->result.status)return;
+        sl_op(c,OP_STR_LEN);if(!want)sl_op(c,OP_POP);return;
+    }
     const NlServiceName *target=NULL;
     for(size_t i=0;i<nl_service_namespace_count(c->space);i++) {
         const NlServiceName *row=nl_service_namespace_name(c->space,i);
@@ -330,6 +337,16 @@ static void sl_expr_impl(Sl *c,const ASTNode *n,bool want) {
         for(unsigned i=0;i<8;i++)sl_op(c,(uint8_t)(v>>(8*i)));
         break;
     }
+    case AST_STRING: {
+        size_t length=nl_string_literal_value_bytes(n->as.string_val);
+        if(length>1024u*1024u){sl_fail(c,n,3,"I exceeded my service string byte bound.");return;}
+        char *bytes=nl_decode_string_literal(n->as.string_val);
+        if(!bytes){sl_fail(c,n,4,"I cannot copy my service string literal.");return;}
+        uint32_t index=nvm_add_string(c->module,bytes,(uint32_t)length);free(bytes);
+        if(index==UINT32_MAX){sl_fail(c,n,4,"I cannot retain my service string literal.");return;}
+        sl_op(c,OP_PUSH_STR);for(unsigned i=0;i<4;i++)sl_op(c,(uint8_t)(index>>(8*i)));
+        break;
+    }
     case AST_BOOL:sl_op(c,OP_PUSH_BOOL);sl_op(c,n->as.bool_val?1:0);break;
     case AST_IDENTIFIER: {
 
@@ -361,7 +378,10 @@ static void sl_expr_impl(Sl *c,const ASTNode *n,bool want) {
         if(!c->next)return;
         if(stage)for(int i=0;i<n->as.prefix_op.arg_count;i++){sl_load(c,staged[i]);sl_clear(c,staged[i]);}
         c->pending_count=pending;
-        sl_op(c,sl_operator(n->as.prefix_op.op,n->as.prefix_op.arg_count));break;
+        if((n->as.prefix_op.op==TOKEN_EQ || n->as.prefix_op.op==TOKEN_NE) &&
+           sl_node_type(c,n->as.prefix_op.args[0]).tag==TAG_STRING) {
+            sl_op(c,OP_STR_EQ);if(n->as.prefix_op.op==TOKEN_NE)sl_op(c,OP_NOT);
+        } else sl_op(c,sl_operator(n->as.prefix_op.op,n->as.prefix_op.arg_count));break;
     }
     case AST_STRUCT_LITERAL: {
         SlType type=sl_node_type(c,n);
@@ -619,6 +639,11 @@ static NvmV2Result sl_canonical_wire(NvmV2Module *wire,uint8_t **owned_code) {
     for(uint64_t pc=0;pc<wire->code_size;) {
         DecodedInstruction d;
         if(!isa_decode(code+pc,(uint32_t)(wire->code_size-pc),&d))goto done;
+        if(d.opcode==OP_PUSH_STR) {
+            uint32_t old=d.operands[0].u32;
+            if(old>=nc)goto done;
+            sl_wr32(code+pc+1,sl_order(constants,nc,&cn,old));
+        }
         if(d.opcode==OP_FILE_CALL_REFS || d.opcode==OP_FILE_CALL_INDIRECT_REFS) {
             uint32_t old=d.operands[d.opcode==OP_FILE_CALL_REFS?1:2].u32;
             if(old>=nc)goto done;

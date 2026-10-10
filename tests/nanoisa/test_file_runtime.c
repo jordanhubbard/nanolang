@@ -118,6 +118,48 @@ static NvmFileRuntimeReport finish_bad(NvmFileRuntime **c,NvmFileRuntimeStatus s
  CHECK(again.status==r.status && again.cleanup.cleanup_failures==r.cleanup.cleanup_failures && !*c && closed==closes);
  CHECK(!memcmp(&out,&before,sizeof out));empty_host();return r;
 }
+static void string_storage(void){
+ NvmFileNominalBindings b;NvmFileRuntime *c=context(&b,NVM_FILE_RUNTIME_VM,false,false,true);
+ unsigned char input[]={97,0,98},out[4]={7,7,7,7};size_t length=99;
+ ROK(nvm_file_runtime_string(c,1,input,sizeof input));input[0]=120;
+ CHECK(nvm_file_runtime_string_read(c,1,out,sizeof out,&length));
+ CHECK(length==3 && out[0]==97 && out[1]==0 && out[2]==98 && out[3]==7);
+ length=99;out[0]=7;CHECK(!nvm_file_runtime_string_read(c,1,out,2,&length));CHECK(length==99 && out[0]==7);
+ NvmFileRuntimeStorage before,after;CHECK(nvm_file_runtime_storage(c,&before));
+ ROK(nvm_file_runtime_string(c,2,"a\0b",3));CHECK(nvm_file_runtime_storage(c,&after));
+ CHECK(before.allocation_bound==after.allocation_bound);
+ ROK(nvm_file_runtime_copy(c,1,3));ROK(nvm_file_runtime_drop(c,1));ROK(nvm_file_runtime_move(c,3,4));
+ ROK(nvm_file_runtime_string_operation(c,OP_STR_EQ,2,4,2));CHECK(view(c,2).values[0]==1);
+ ROK(nvm_file_runtime_drop(c,2));ROK(nvm_file_runtime_string(c,1,"a\0c",3));
+ ROK(nvm_file_runtime_string(c,2,"a\0b",3));
+ ROK(nvm_file_runtime_string_operation(c,OP_STR_EQ,1,2,1));CHECK(view(c,1).values[0]==0);
+ ROK(nvm_file_runtime_drop(c,1));ROK(nvm_file_runtime_string(c,1,"a\0b",3));
+ ROK(nvm_file_runtime_string_operation(c,OP_STR_LEN,1,NS,1));CHECK(view(c,1).values[0]==3);
+ ROK(nvm_file_runtime_drop(c,1));ROK(nvm_file_runtime_string(c,1,NULL,0));
+ ROK(nvm_file_runtime_string_operation(c,OP_STR_LEN,1,NS,1));CHECK(view(c,1).values[0]==0);
+ ROK(nvm_file_runtime_drop(c,1));finish_ok(&c,0);
+ c=context(&b,NVM_FILE_RUNTIME_VM,false,false,true);
+ CHECK(nvm_file_runtime_scalar(c,1,TAG_STRING,1)==NVM_FILE_RUNTIME_TYPE);
+ CHECK(!view(c,1).initialized);finish_bad(&c,NVM_FILE_RUNTIME_TYPE);
+ c=context(&b,NVM_FILE_RUNTIME_VM,false,false,true);file(c,b,1);
+ CHECK(nvm_file_runtime_string(c,2,"x",1024u*1024u+1)==NVM_FILE_RUNTIME_LIMIT);
+ CHECK(!view(c,2).initialized);finish_bad(&c,NVM_FILE_RUNTIME_LIMIT);
+ c=context(&b,NVM_FILE_RUNTIME_VM,false,false,true);
+ for(uint32_t i=0;i<4096;i++){ROK(nvm_file_runtime_string(c,1,&i,sizeof i));ROK(nvm_file_runtime_drop(c,1));}
+ uint32_t existing=17;ROK(nvm_file_runtime_string(c,1,&existing,sizeof existing));ROK(nvm_file_runtime_drop(c,1));
+ CHECK(nvm_file_runtime_string(c,1,"",0)==NVM_FILE_RUNTIME_LIMIT);
+ CHECK(!view(c,1).initialized);finish_bad(&c,NVM_FILE_RUNTIME_LIMIT);
+#ifdef HOSTED_INSTRUMENT
+ c=context(&b,NVM_FILE_RUNTIME_VM,false,false,true);file(c,b,1);
+ size_t baseline=tracked_live;allocation_budget=0;
+ CHECK(nvm_file_runtime_string(c,2,"host result",11)==NVM_FILE_RUNTIME_MEMORY);allocation_budget=-1;
+ CHECK(!view(c,2).initialized && tracked_live==baseline);finish_bad(&c,NVM_FILE_RUNTIME_MEMORY);
+ c=context(&b,NVM_FILE_RUNTIME_VM,false,false,true);file(c,b,1);
+ c->storage.allocation_bound=NVM_FILE_RUNTIME_BYTES;
+ CHECK(nvm_file_runtime_string(c,2,"budget",6)==NVM_FILE_RUNTIME_LIMIT);
+ CHECK(!view(c,2).initialized);finish_bad(&c,NVM_FILE_RUNTIME_LIMIT);
+#endif
+}
 static void carrier_lifecycle(void){
  for(unsigned mode=0;mode<2;mode++)for(unsigned perm=0;perm<2;perm++){
   NvmFileNominalBindings b;NvmFileRuntime *c=context(&b,(NvmFileRuntimeMode)mode,perm!=0,false,true);
@@ -371,7 +413,7 @@ static void allocation_controls(void){
 #endif
 int FILE_RUNTIME_MAIN(void){
  FILE *sentinel=tmpfile();CHECK(sentinel);int sentinel_fd=fileno(sentinel);CHECK(sentinel_fd>=0);
- carrier_lifecycle();shared_lifecycle();passive();invalid_and_partial();invalid_passive();scalar_and_limits();initializer();public_refusal();
+ string_storage();carrier_lifecycle();shared_lifecycle();passive();invalid_and_partial();invalid_passive();scalar_and_limits();initializer();public_refusal();
 #ifdef HOSTED_INSTRUMENT
  modeled_progress_errors();faults();allocation_controls();CHECK(!tracked_live && !tracked_bytes);
 #endif

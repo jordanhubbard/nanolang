@@ -37,7 +37,10 @@ fn probe(path: string, expected: int) -> int {
         set i 0
         while (< i (array_length checked.facts)) {
             let fact: ServiceBodyFact = (at checked.facts i)
-            if (> fact.declaration 0) {
+            if (== fact.declaration -1) {
+                assert (and (== fact.type.kind 1) (== fact.borrow_mode 0))
+                (println "CALL str_length 0 0")
+            } else if (> fact.declaration 0) {
                 let row: ServiceName = (at space.names (- fact.declaration 1))
                 let mut ordinal: int = 0 if (> fact.type.declaration 0) { set ordinal fact.type.ordinal }
                 (println (+ "CALL " (+ row.name (+ " " (+ (int_to_string ordinal) (+ " " (int_to_string fact.borrow_mode)))))))

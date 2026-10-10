@@ -3,6 +3,7 @@
 #include "nvm_v2_sections.h"
 static bool fcd_supported(uint8_t op) {
     switch(op) {
+    case OP_PUSH_STR: case OP_STR_EQ: case OP_STR_LEN:
     case OP_FUNCREF: case OP_FILE_CALL_INDIRECT_REFS:case OP_CALL_INDIRECT:
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
     case OP_DUP: case OP_POP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:

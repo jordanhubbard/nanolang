@@ -51,6 +51,14 @@ bool nvm_socket_runtime_current_root(const NvmSocketRuntime *,uint32_t *);
 bool nvm_socket_runtime_view(const NvmSocketRuntime *,uint32_t,NvmSocketRuntimeView *);
 /* Destinations must be empty. No operation silently overwrites an owner. */
 NvmSocketRuntimeStatus nvm_socket_runtime_scalar(NvmSocketRuntime *,uint32_t,uint8_t,int64_t);
+/* I copy counted immutable bytes into bounded invocation storage. Strings are
+ * at most 1 MiB, with at most 4096 distinct strings per invocation; repeated
+ * equal strings share storage. Copies and returns retain bytes until finish.
+ * My view stores an invocation-local identity, never a host pointer. */
+NvmSocketRuntimeStatus nvm_socket_runtime_string(NvmSocketRuntime *,uint32_t,const void *,size_t);
+NvmSocketRuntimeStatus nvm_socket_runtime_string_literal(NvmSocketRuntime *,uint32_t);
+NvmSocketRuntimeStatus nvm_socket_runtime_string_operation(NvmSocketRuntime *,uint8_t,uint32_t,uint32_t,uint32_t);
+bool nvm_socket_runtime_string_read(const NvmSocketRuntime *,uint32_t,void *,size_t,size_t *);
 NvmSocketRuntimeStatus nvm_socket_runtime_copy(NvmSocketRuntime *,uint32_t,uint32_t);
 NvmSocketRuntimeStatus nvm_socket_runtime_move(NvmSocketRuntime *,uint32_t,uint32_t);
 NvmSocketRuntimeStatus nvm_socket_runtime_drop(NvmSocketRuntime *,uint32_t);

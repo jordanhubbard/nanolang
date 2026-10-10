@@ -26,7 +26,7 @@ struct FLOW_TYPE(State) {
     FLOW_TYPE(Reference) references[FLOW_CONST(REFERENCES)];
     uint64_t regions[FLOW_CONST(REFERENCES)];
 };
-static bool scalar(uint8_t tag) { return tag==TAG_INT || tag==TAG_BOOL || tag==TAG_VOID; }
+static bool scalar(uint8_t tag) { return tag==TAG_INT || tag==TAG_BOOL || tag==TAG_VOID || tag==TAG_STRING; }
 static bool owned(FLOW_TYPE(Declaration) d) {
     return !d.mode && (d.category==NOMINAL_CATEGORY_OWNER || d.category==NOMINAL_CATEGORY_OWNER_RESULT);
 }

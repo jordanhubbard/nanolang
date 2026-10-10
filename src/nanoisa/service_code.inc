@@ -12,7 +12,8 @@ struct CODE_TYPE(Plan) {
     uint64_t calls[FLOW_CONST(FUNCTIONS)];
 };
 static bool file_code_supported_mode(uint8_t op,bool indirect) {
-    if(indirect && (op==OP_FUNCREF || isa_is_file_indirect_call(op)))return true;
+    if(indirect && (op==OP_FUNCREF || isa_is_file_indirect_call(op) ||
+       op==OP_PUSH_STR || op==OP_STR_EQ || op==OP_STR_LEN))return true;
     switch(op) {
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
     case OP_DUP: case OP_POP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
@@ -92,6 +93,9 @@ static FLOW_TYPE(Status) file_code_operands(CODE_TYPE(Plan) *p,uint32_t function
     const FLOW_TYPE(Function) *fn=&p->functions[function].declaration;
     if(!(indirect?file_code_supported_mode(d->opcode,true):file_code_supported(d->opcode)))return FLOW_CONST(UNRESOLVED);
     switch(d->opcode) {
+    case OP_PUSH_STR:
+        if(d->operands[0].u32>=module->string_count || !nvm_get_string(module,d->operands[0].u32))return FLOW_CONST(INVALID);
+        return nvm_get_string_len(module,d->operands[0].u32)>1024u*1024u?FLOW_CONST(LIMIT):FLOW_CONST(OK);
     case OP_FUNCREF:
         return d->operands[0].u32<p->count?FLOW_CONST(OK):FLOW_CONST(INVALID);
     case OP_FILE_CALL_INDIRECT_REFS: {
@@ -246,7 +250,7 @@ static FLOW_TYPE(Status) file_code_prepare_profile(const NvmModule *m,CODE_TYPE(
     FLOW_TYPE(Declarations) *declarations=NULL;
     status=file_flow_declarations_mode(m,&declarations,indirect);if(status!=FLOW_CONST(OK))return status;
     const FLOW_TYPE(Function) *entry=&declarations->functions[m->header.entry_point];
-    if(!scalar(entry->result.tag) || entry->result.global_index!=NVM_V2_NO_INDEX) {
+    if(entry->result.tag==TAG_STRING || !scalar(entry->result.tag) || entry->result.global_index!=NVM_V2_NO_INDEX) {
         FLOW_FN(declarations_free)(declarations);return FLOW_CONST(UNRESOLVED);
     }
     for(uint16_t i=0;i<entry->parameters;i++) {

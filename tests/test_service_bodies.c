@@ -30,7 +30,10 @@ int main(int argc, char **argv) {
     assert(check->status==(unsigned)atoi(argv[2]));
     for(size_t i=0;i<check->count;++i) {
         const NlServiceBodyFact *fact=&check->facts[i];
-        if(fact->declaration) {
+        if(fact->declaration==UINT32_MAX) {
+            assert(fact->type.base_type==TYPE_INT && !fact->borrow_mode);
+            puts("CALL str_length 0 0");
+        } else if(fact->declaration) {
             const NlServiceName *row=nl_service_namespace_name(env->service_namespace,fact->declaration-1);
             assert(row);
             printf("CALL %s %u %u\n",row->name,fact->type.service_ordinal,fact->borrow_mode);

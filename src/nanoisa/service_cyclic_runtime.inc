@@ -25,6 +25,8 @@ static bool frc_payload(const SERVICE_TYPE(Runtime) *c,const FileRuntimeValue *v
     if(!frc_zero(v->owner))return false;
     if(p->formal)return (p->type.mode==1 || p->type.mode==2) && !p->fields;
     if(v->reference || p->type.mode)return false;
+    if(p->type.tag==TAG_STRING)return p->fields==1 && p->arm==SERVICE_CONST(FLOW_ARM_NONE) &&
+        fr_same(p->type,fr_scalar_type(TAG_STRING)) && fr_string_identity(c,p->values[0]);
     if(p->type.tag==TAG_INT)return p->fields==1 && p->arm==SERVICE_CONST(FLOW_ARM_NONE);
     if(p->type.tag==TAG_BOOL)return p->fields==1 && p->arm==SERVICE_CONST(FLOW_ARM_NONE) &&
         (p->values[0]==0 || p->values[0]==1);

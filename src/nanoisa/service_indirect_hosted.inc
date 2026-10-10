@@ -101,7 +101,7 @@ static SERVICE_TYPE(FlowStatus) file_ih_bounds(SERVICE_TYPE(IndirectHostedPlan) 
             const SERVICE_TYPE(CodeInstruction) *in=&code->instructions[code->starts[f]+i];
             const FileCyclicSite *site=file_cyclic_site(p->query->ownership,f,i);
             /* Structural query coverage applies even with zero reachable variants. */
-            if(!site || (!file_code_supported(in->decoded.opcode) && in->decoded.opcode!=OP_FUNCREF && !isa_is_file_indirect_call(in->decoded.opcode)))return SERVICE_CONST(FLOW_UNRESOLVED);
+            if(!site || !file_code_supported_mode(in->decoded.opcode,true))return SERVICE_CONST(FLOW_UNRESOLVED);
             for(uint8_t v=0;v<site->count;v++) {
                 const SERVICE_TYPE(CyclicVariant) *fact=&site->nodes[v]->fact;
                 if(!file_ih_fact(p,f,i,in,fact) || !file_ih_peak(fn,fact->input) ||
@@ -261,4 +261,29 @@ bool SERVICE_FN(indirect_hosted_call)(const SERVICE_TYPE(IndirectHostedPlan) *p,
     *out=(SERVICE_TYPE(IndirectFlowCall)){f,p->query->ownership->plan->instructions[index].byte_offset,
         p->targets[index],p->targets[index],variant.body.obligation};
     return true;
+}
+
+/* I inspect the retained, validated constant section; no caller bytes survive
+ * preparation. Counted strings preserve embedded zero bytes. */
+bool SERVICE_FN(indirect_hosted_string)(const SERVICE_TYPE(IndirectHostedPlan) *p,
+    uint32_t index,const uint8_t **out,size_t *length) {
+    if(!p || !out || !length)return false;
+    NvmV2Header h;
+    if(nvm_v2_read_header(p->bytes,p->startup.input_bytes,&h)!=NVM_V2_OK)return false;
+    for(uint32_t section=0;section<h.section_count;section++) {
+        NvmV2SectionEntry e;
+        if(nvm_v2_read_section(p->bytes,p->startup.input_bytes,&h,section,&e)!=NVM_V2_OK)return false;
+        if(e.type!=NVM_V2_SECTION_CONSTANTS)continue;
+        NvmV2Cursor c;nvm_v2_cursor_init(&c,p->bytes+e.offset,(size_t)e.size);
+        uint32_t count;if(nvm_v2_u32(&c,&count)!=NVM_V2_OK || index>=count)return false;
+        for(uint32_t i=0;i<=index;i++) {
+            uint8_t tag,pad;uint16_t pad2;uint32_t size;const uint8_t *bytes;
+            if(nvm_v2_u8(&c,&tag)!=NVM_V2_OK || nvm_v2_u8(&c,&pad)!=NVM_V2_OK ||
+               nvm_v2_u16(&c,&pad2)!=NVM_V2_OK || nvm_v2_u32(&c,&size)!=NVM_V2_OK ||
+               tag!=TAG_STRING || pad || pad2 || nvm_v2_take(&c,size,&bytes)!=NVM_V2_OK ||
+               nvm_v2_align4(&c)!=NVM_V2_OK)return false;
+            if(i==index){*out=bytes;*length=size;return true;}
+        }
+    }
+    return false;
 }

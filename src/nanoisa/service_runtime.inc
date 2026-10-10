@@ -1,4 +1,9 @@
 #include "service_runtime_catalog.inc"
+typedef struct ServiceRuntimeString {
+    uint32_t identity;
+    size_t length;
+    unsigned char bytes[];
+} ServiceRuntimeString;
 typedef struct {
     SERVICE_TYPE(RuntimeView) view;
     CoreValue owner;
@@ -35,6 +40,8 @@ struct SERVICE_TYPE(Runtime) {
     SERVICE_TYPE(RuntimeStorage) storage;
     SERVICE_TYPE(FlowDeclaration) types[RUNTIME_TYPE_CAPACITY];
     RUNTIME_CONTEXT_MEMBERS
+    ServiceRuntimeString *strings[4096];
+    uint32_t string_count;
     FileRuntimeValue *values;
     FileRuntimeReference *references;
     uint64_t *regions;
@@ -218,6 +225,8 @@ SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_scalar)(SERVICE_TYPE(Runtime) *c,
     SERVICE_TYPE(RuntimeView) v=fr_view(fr_scalar_type(tag));v.fields=tag==TAG_VOID?0:1;v.values[0]=value;
     c->values[dst].view=v;return SERVICE_CONST(RUNTIME_OK);
 }
+#include "service_runtime_strings.inc"
+
 SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_copy)(SERVICE_TYPE(Runtime) *c,uint32_t src,uint32_t dst) {
     SERVICE_TYPE(RuntimeStatus) status=fr_effect(c);if(status!=SERVICE_CONST(RUNTIME_OK))return status;
     if(!fr_live(c,src) || !fr_empty(c,dst) || c->values[src].view.owning || c->values[src].view.formal)
@@ -559,6 +568,8 @@ static SERVICE_TYPE(RuntimeReport) fr_finish(SERVICE_TYPE(Runtime) *c,SERVICE_TY
             fr_error(c,SERVICE_CONST(RUNTIME_CLEANUP),c->report.cleanup.execution);
     } else c->report.cleanup.execution=c->report.core_status;
     memset(c->regions,0,(size_t)c->storage.regions*sizeof *c->regions);c->region_count=0;
+    for(uint32_t i=0;i<c->string_count;i++){free(c->strings[i]);c->strings[i]=NULL;}
+    c->string_count=0;
     c->frame_count=0;c->busy=false;c->phase=FR_TERMINAL;
     if(c->report.status==SERVICE_CONST(RUNTIME_OK) && out)*out=c->result;
     return c->report;

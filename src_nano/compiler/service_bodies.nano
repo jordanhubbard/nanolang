@@ -162,6 +162,7 @@ fn sb_annotation_impl(space: ServiceNamespace, owner: int, spelling: string) -> 
     if (== name "int") { set result (sb_mode (sb_value 1) mode) }
     if (== name "bool") { set result (sb_mode (sb_value 2) mode) }
     if (== name "void") { set result (sb_mode (sb_value 3) mode) }
+    if (== name "string") { set result (sb_mode (sb_value 8) mode) }
     if (== result.type.kind 0) { return (sb_fail 2 "I have not checked this ordinary type in my service body path.") }
     return result
 }
@@ -169,6 +170,7 @@ shadow sb_annotation_impl {
     let space: ServiceNamespace = (sb_empty)
     assert (== (sb_annotation space 0 "int").type.kind 1)
     assert (== (sb_annotation space 0 "bool").type.kind 2)
+    assert (== (sb_annotation space 0 "string").type.kind 8)
     set sb_status 0 let _: ServiceBodyValue = (sb_annotation space 0 "array<int>") assert (== sb_status 2)
     set sb_status 0 set sb_diagnostic ""
 }
@@ -243,6 +245,12 @@ fn sb_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, name: st
         return (sb_remember kind id signature.result 0)
     }
     let found: int = (service_namespace_lookup space sb_owner name)
+    if (and (< found 0) (== name "str_length")) {
+        if (!= count 1) { return (sb_fail 1 "I require one string length operand.") }
+        let argument: ASTStmtRef = (parser_get_call_arg parser start)
+        let input: ServiceBodyValue = (sb_require (sb_expression parser space argument.node_type argument.node_id) (sb_value 8))
+        return (sb_remember kind id (sb_returned (sb_value 1) input.returns) -1)
+    }
     if (and (< found 0) (== name "not")) {
         if (!= count 1) { return (sb_fail 1 "I require the operator argument count.") }
         let argument: ASTStmtRef = (parser_get_call_arg parser start)
@@ -331,6 +339,7 @@ shadow sb_match {
     set sb_status 0 set sb_diagnostic ""
 }
 fn sb_expression_impl(parser: Parser, space: ServiceNamespace, kind: int, id: int) -> ServiceBodyValue {
+    if (== kind ParseNodeType.PNODE_STRING) { return (sb_value 8) }
     if (== kind ParseNodeType.PNODE_NUMBER) { return (sb_value 1) }
     if (== kind ParseNodeType.PNODE_BOOL) { return (sb_value 2) }
     if (== kind ParseNodeType.PNODE_IDENTIFIER) {
@@ -381,7 +390,7 @@ fn sb_expression_impl(parser: Parser, space: ServiceNamespace, kind: int, id: in
             set returned operand.returns
         } else {
             let first: ServiceBodyValue = (sb_expression parser space op.left_type op.left)
-            if (and (or (== op.op LexerTokenType.TOKEN_EQ) (== op.op LexerTokenType.TOKEN_NE)) (== first.type.kind 2)) { set expected 2 }
+            if (and (or (== op.op LexerTokenType.TOKEN_EQ) (== op.op LexerTokenType.TOKEN_NE)) (or (== first.type.kind 2) (== first.type.kind 8))) { set expected first.type.kind }
             let _: ServiceBodyValue = (sb_require first (sb_value expected))
             let second: ServiceBodyValue = (sb_require (sb_expression parser space op.right_type op.right) (sb_value expected))
             set returned first.returns

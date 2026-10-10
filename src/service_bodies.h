@@ -6,6 +6,7 @@
 typedef struct {
     const ASTNode *node;
     TypeInfo type;
+    /* I reserve UINT32_MAX for builtin string length; zero is not a declaration. */
     uint32_t declaration, borrow_mode;
 } NlServiceBodyFact;
 typedef struct NlServiceBodyCheck {

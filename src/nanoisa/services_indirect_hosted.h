@@ -51,4 +51,6 @@ bool nvm_services_indirect_hosted_import(const NvmServicesIndirectHostedPlan *,u
 /* Copies an exact serialized input span; zero count permits NULL output. */
 bool nvm_services_indirect_hosted_bytes(const NvmServicesIndirectHostedPlan *,size_t,void *,size_t);
 bool nvm_services_indirect_hosted_call(const NvmServicesIndirectHostedPlan *,uint32_t,uint16_t,uint8_t,NvmServicesIndirectFlowCall *);
+/* I borrow counted constant bytes only while the immutable plan lives. */
+bool nvm_services_indirect_hosted_string(const NvmServicesIndirectHostedPlan *,uint32_t,const uint8_t **,size_t *);
 #endif

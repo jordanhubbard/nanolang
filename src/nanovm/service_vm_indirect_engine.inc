@@ -58,6 +58,15 @@ static SERVICE_TYPE(RuntimeStatus) fvm_step(SERVICE_TYPE(Runtime) *c,SERVICE_TYP
     SERVICE_TYPE(RuntimeView) value;
     switch(op) {
     case OP_NOP:case OP_JMP:break;
+    case OP_PUSH_STR:
+        if(!SERVICE_FN(runtime_frame_reserve)(c,(uint16_t)f.stack_count,&dst))return fvm_bad(c);
+        FVM_TRY(SERVICE_FN(runtime_string_literal)(c,dst));break;
+    case OP_STR_EQ:case OP_STR_LEN: {
+        uint16_t count=op==OP_STR_EQ?2:1;uint32_t other=SERVICE_CONST(RUNTIME_NO_SLOT);
+        if(f.stack_count<count || !SERVICE_FN(runtime_frame_operand)(c,(uint16_t)(f.stack_count-count),&src) ||
+           (count==2 && !SERVICE_FN(runtime_frame_operand)(c,(uint16_t)(f.stack_count-1),&other)))return fvm_bad(c);
+        FVM_TRY(SERVICE_FN(runtime_string_operation)(c,op,src,other,src));break;
+    }
     case OP_PUSH_I64:case OP_PUSH_BOOL:case OP_PUSH_VOID:
         if(!SERVICE_FN(runtime_frame_reserve)(c,(uint16_t)f.stack_count,&dst))return fvm_bad(c);
         FVM_TRY(SERVICE_FN(runtime_scalar)(c,dst,op==OP_PUSH_I64?TAG_INT:op==OP_PUSH_BOOL?TAG_BOOL:TAG_VOID,

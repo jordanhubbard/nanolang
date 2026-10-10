@@ -71,6 +71,14 @@ shadow sw_pad {
 
 fn sw_string(value: string) -> int {
     let mut i: int = 0
+    while (< i (array_length sw_maps)) {
+        let bytes: array<int> = (at sw_maps i).bytes
+        let mut same: bool = (== (array_length bytes) (str_length value)) let mut j: int = 0
+        while (and same (< j (array_length bytes))) { set same (== (at bytes j) (char_at value j)) set j (+ j 1) }
+        if same { return i }
+        set i (+ i 1)
+    }
+    set i 0
     while (< i (array_length sw_strings)) {
         if (== (at sw_strings i) value) { return (+ i (array_length sw_maps)) }
         set i (+ i 1)
@@ -83,6 +91,10 @@ shadow sw_string {
     assert (== (sw_string "name") 0)
     assert (== (sw_string "second") 1)
     assert (== (sw_string "name") 0) set sw_strings []
+    set sw_maps [ServiceWireSection { kind: 1, bytes: [79, 107] }]
+    assert (== (sw_string "Ok") 0) assert (== (array_length sw_strings) 0)
+    assert (== (sw_string "main") 1)
+    set sw_maps [] set sw_strings []
 }
 
 fn sw_signature(parameters: array<int>, result: int) -> int {
@@ -421,7 +433,10 @@ pub fn service_wire_serialize_instances(functions: array<ServiceWireFunction>, e
     set i 0
     while (< i (array_length maps)) {
         let bytes: array<int> = (at maps i).bytes
-        if (or (== (array_length bytes) 0) (or (> (array_length bytes) 512) (!= (% (array_length bytes) 2) 0))) { return [] }
+        let kind: int = (at maps i).kind
+        if (and (!= kind 0) (!= kind 1)) { return [] }
+        if (and (== kind 0) (or (== (array_length bytes) 0) (or (> (array_length bytes) 512) (!= (% (array_length bytes) 2) 0)))) { return [] }
+        if (> (array_length bytes) 1048576) { return [] }
         let mut j: int = 0
         while (< j (array_length bytes)) {
             if (or (< (at bytes j) 0) (> (at bytes j) 255)) { return [] }

@@ -51,6 +51,14 @@ bool nvm_services_runtime_current_root(const NvmServicesRuntime *,uint32_t *);
 bool nvm_services_runtime_view(const NvmServicesRuntime *,uint32_t,NvmServicesRuntimeView *);
 /* Destinations must be empty. No operation silently overwrites an owner. */
 NvmServicesRuntimeStatus nvm_services_runtime_scalar(NvmServicesRuntime *,uint32_t,uint8_t,int64_t);
+/* I copy counted immutable bytes into bounded invocation storage. Strings are
+ * at most 1 MiB, with at most 4096 distinct strings per invocation; repeated
+ * equal strings share storage. Copies and returns retain bytes until finish.
+ * My view stores an invocation-local identity, never a host pointer. */
+NvmServicesRuntimeStatus nvm_services_runtime_string(NvmServicesRuntime *,uint32_t,const void *,size_t);
+NvmServicesRuntimeStatus nvm_services_runtime_string_literal(NvmServicesRuntime *,uint32_t);
+NvmServicesRuntimeStatus nvm_services_runtime_string_operation(NvmServicesRuntime *,uint8_t,uint32_t,uint32_t,uint32_t);
+bool nvm_services_runtime_string_read(const NvmServicesRuntime *,uint32_t,void *,size_t,size_t *);
 NvmServicesRuntimeStatus nvm_services_runtime_copy(NvmServicesRuntime *,uint32_t,uint32_t);
 NvmServicesRuntimeStatus nvm_services_runtime_move(NvmServicesRuntime *,uint32_t,uint32_t);
 NvmServicesRuntimeStatus nvm_services_runtime_drop(NvmServicesRuntime *,uint32_t);

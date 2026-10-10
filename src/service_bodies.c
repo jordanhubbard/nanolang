@@ -57,7 +57,7 @@ static BodyValue annotation_impl(BodyCheck *c, const ASTNode *node, Type type, c
         if(returned.borrow)return fail(c,node,1,"I cannot return a call-scoped service borrow.");
         v.type.fn_sig=info->fn_sig;return v;
     }
-    if (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_VOID || type == TYPE_UNKNOWN) return v;
+    if (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_STRING || type == TYPE_VOID || type == TYPE_UNKNOWN) return v;
     return fail(c,node,2,"I have not checked this ordinary type in my service body path.");
 }
 static BodyValue annotation(BodyCheck *c,const ASTNode *node,Type type,const TypeInfo *info) {
@@ -127,6 +127,12 @@ static BodyValue call(BodyCheck *c, const ASTNode *node, const char *name, ASTNo
         return remember(c,node,function_annotation(c,node,sig->return_type,sig->return_type_info,sig->return_fn_sig),0);
     }
     const NlServiceName *row=nl_service_namespace_lookup(c->space,c->source,name);
+    if(!row && !strcmp(name,"str_length")) {
+        if(count!=1)return fail(c,node,1,"I require one string length operand.");
+        BodyValue input=require(c,node,expression(c,args[0]),value(TYPE_STRING));
+        BodyValue result=value(TYPE_INT);result.returns=input.returns;
+        return remember(c,node,result,UINT32_MAX);
+    }
     if (!row) return fail(c,node,1,"I require a declared service or helper call.");
     if (row->kind == NL_SERVICE_METHOD) {
         NlServiceSignature sig;
@@ -189,6 +195,7 @@ static BodyValue expression_impl(BodyCheck *c, const ASTNode *node) {
     if (node->lambda_definition)
         return fail(c,node,2,"I have not checked a captured callable in my service body path.");
     switch(node->type) {
+    case AST_STRING: return value(TYPE_STRING);
     case AST_NUMBER: return value(TYPE_INT);
     case AST_BOOL: return value(TYPE_BOOL);
     case AST_IDENTIFIER: {
@@ -228,7 +235,7 @@ static BodyValue expression_impl(BodyCheck *c, const ASTNode *node) {
             return fail(c,node,1,"I require the operator argument count.");
         BodyValue first=expression(c,node->as.prefix_op.args[0]);
         Type expected=logical?TYPE_BOOL:TYPE_INT;
-        if ((op==TOKEN_EQ || op==TOKEN_NE) && first.type.base_type==TYPE_BOOL) expected=TYPE_BOOL;
+        if ((op==TOKEN_EQ || op==TOKEN_NE) && (first.type.base_type==TYPE_BOOL || first.type.base_type==TYPE_STRING)) expected=first.type.base_type;
         require(c,node,first,value(expected));
         bool returns=first.returns;
         for(int i=1;i<n;++i) {

@@ -51,4 +51,6 @@ bool nvm_socket_indirect_hosted_import(const NvmSocketIndirectHostedPlan *,uint3
 /* Copies an exact serialized input span; zero count permits NULL output. */
 bool nvm_socket_indirect_hosted_bytes(const NvmSocketIndirectHostedPlan *,size_t,void *,size_t);
 bool nvm_socket_indirect_hosted_call(const NvmSocketIndirectHostedPlan *,uint32_t,uint16_t,uint8_t,NvmSocketIndirectFlowCall *);
+/* I borrow counted constant bytes only while the immutable plan lives. */
+bool nvm_socket_indirect_hosted_string(const NvmSocketIndirectHostedPlan *,uint32_t,const uint8_t **,size_t *);
 #endif

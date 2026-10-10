@@ -291,6 +291,16 @@ static void fn_instruction(Fne *b,const SERVICE_TYPE(IndirectHostedPlan) *p,uint
     uint8_t op=d->opcode;bool branch=false;
     switch(op) {
     case OP_NOP:case OP_JMP:break;
+    case OP_PUSH_STR:
+        fn_text(b,"if(!" SERVICE_FN_TEXT "runtime_frame_reserve(c,(uint16_t)f.stack_count,&dst))return nf_bad(c);\n"
+            "NF_TRY(" SERVICE_FN_TEXT "runtime_string_literal(c,dst));\n");break;
+    case OP_STR_EQ:case OP_STR_LEN: {
+        unsigned count=op==OP_STR_EQ?2:1;
+        fn_text(b,"{uint32_t other=" SERVICE_CONST_TEXT "RUNTIME_NO_SLOT;\n"
+            "if(f.stack_count<%u || !" SERVICE_FN_TEXT "runtime_frame_operand(c,(uint16_t)(f.stack_count-%u),&src))return nf_bad(c);\n",count,count);
+        if(count==2)fn_text(b,"if(!" SERVICE_FN_TEXT "runtime_frame_operand(c,(uint16_t)(f.stack_count-1),&other))return nf_bad(c);\n");
+        fn_text(b,"NF_TRY(" SERVICE_FN_TEXT "runtime_string_operation(c,%u,src,other,src));}\n",op);break;
+    }
     case OP_PUSH_I64:case OP_PUSH_BOOL:case OP_PUSH_VOID:
         fn_text(b,"if(!" SERVICE_FN_TEXT "runtime_frame_reserve(c,(uint16_t)f.stack_count,&dst))return nf_bad(c);\n"
             "NF_TRY(" SERVICE_FN_TEXT "runtime_scalar(c,dst,%u,nf_bits(UINT64_C(%" PRIu64 "))));\n",

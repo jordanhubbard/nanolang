@@ -227,7 +227,7 @@ shadow so_match {
 }
 fn so_impl(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, kind: int, id: int, state: ServiceOwnershipState, move: bool) -> ServiceOwnershipState {
     let mut flow: ServiceOwnershipState = state
-    if (or (== kind ParseNodeType.PNODE_NUMBER) (== kind ParseNodeType.PNODE_BOOL)) { return flow }
+    if (or (== kind ParseNodeType.PNODE_STRING) (or (== kind ParseNodeType.PNODE_NUMBER) (== kind ParseNodeType.PNODE_BOOL))) { return flow }
     if (== kind ParseNodeType.PNODE_IDENTIFIER) {
         let index: int = (so_find flow (parser_get_identifier parser id).name)
         if (< index 0) {

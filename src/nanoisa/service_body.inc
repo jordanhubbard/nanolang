@@ -61,6 +61,9 @@ static FLOW_TYPE(Status) file_body_transfer(BODY_TYPE(Report) *r,FLOW_TYPE(State
     FLOW_TYPE(Status) status;
     switch(d->opcode) {
     case OP_NOP: case OP_JMP: case OP_FILE_RESULT_BRANCH:return FLOW_CONST(OK);
+    case OP_PUSH_STR:return FLOW_FN(push_scalar)(s,TAG_STRING);
+    case OP_STR_EQ:return file_body_scalar(s,TAG_STRING,TAG_BOOL,2,false);
+    case OP_STR_LEN:return file_body_scalar(s,TAG_STRING,TAG_INT,1,false);
     case OP_PUSH_I64:return FLOW_FN(push_scalar)(s,TAG_INT);
     case OP_PUSH_BOOL:return FLOW_FN(push_scalar)(s,TAG_BOOL);
     case OP_PUSH_VOID:return FLOW_FN(push_scalar)(s,TAG_VOID);

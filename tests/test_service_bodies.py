@@ -100,6 +100,10 @@ class ServiceBodies(unittest.TestCase):
         reports=self.check(generated+'\nfn main()->int { return 0 }\n',0)
         self.assertTrue(all('SHADOWS 5' in report for report in reports))
 
+    def test_string_length_builtin_facts(self):
+        reports=self.check(DECL+'fn main()->int { return (str_length "abc") }\n',0)
+        self.assertTrue(all('CALL str_length 0 0' in report for report in reports),reports)
+
     def test_nominal_refusals(self):
         cases={
             'fabricated-file':'fn main()->int { let file: File = 0 return 0 }',
