@@ -1,0 +1,29 @@
+test_record_array_callbacks (tests.test_native_record_names.NativeRecordNames.test_record_array_callbacks) ... FAIL
+
+======================================================================
+FAIL: test_record_array_callbacks (tests.test_native_record_names.NativeRecordNames.test_record_array_callbacks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_names.py", line 72, in test_record_array_callbacks
+    self.execute(source,root/'native')
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_names.py", line 19, in execute
+    self.command([compiler,source,'-o',destination])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_record_names.py", line 14, in command
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Unsupported array element type in filter
+Error: map() requires an array as first argument
+Error: reduce() requires an array as first argument
+Error: Cannot access field on non-struct value
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 13, column 2
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.033s
+
+FAILED (failures=1)

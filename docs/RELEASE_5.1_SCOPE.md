@@ -37,7 +37,7 @@ None of these historical numbers narrows the requirement it identifies.
 - **Done (9882):** Reclaim shared static arrays and owned elements at an alias-safe interpreter boundary.
 - **Done (9902):** Define Boolean List syntax and backend parity before the compiler product claims list coverage. `List<bool>` now parses and the interpreter, native C and NanoVM backends share its boolean element contract (`tests/nl_types_bool_list.nano`).
 - **Done (9941):** Reconcile the legacy `string_from_char` alias so VM and AOT resolve the same host contract; NanoVM exports the alias and `tests/test_one_ir_compiler.py` executes both names in both backends.
-- **Required (9978):** Prevent ordinary record names from colliding with native runtime helper names.
+- **Done (9978):** Prevent ordinary record names from colliding with native runtime helper names. My [native record-name evidence](evidence/native-record-names-20261010/README.md) passes the original `NSType` fixture, record-array operations, imported records and external schema ABI.
 - **Required (10055):** Carry record and map globals through standalone AOT with correct runtime ownership.
 - **Required (10068):** Bind imported globals and selective or qualified aliases in the standalone product.
 - **Required (10153):** Make `--emit-nvm` the self-hosted compiler's only backend and make binary output an explicit `nvm2c` plus `cc` pipeline.

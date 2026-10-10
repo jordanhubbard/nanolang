@@ -1,6 +1,14 @@
 # My Roadmap
 
-- [ ] Under #976 I lower the self-hosted checker's existing `file_read_bytes` builtin to its exact portable byte-array host import. Source qualification finds that checking succeeds but lowering reports an undefined function. I preserve `array<u8>` source identity, emit the ARRAY wire result, add host-catalog shadows and verify freshly built self-hosted producers.
+- [x] Under #976 I align the functional-array shadowed-callback refusal fixture with its current precise diagnostic. Seven adjacent methods pass; the eighth preserves output and returns refusal but expects the obsolete word `indirect` instead of `I require a resolved declared scalar callback`. I preserve the refusal status and prior-output assertions and rerun the exact failing method. My [native record evidence](evidence/native-record-names-20261010/README.md) retains the initial failure and corrected method.
+
+- [x] Under #976 I execute record-array `filter`, `map` and `reduce` in C-seed shadows using the existing copied record representation. The native-name callback regression fails before publication because the evaluator rejects record elements despite native lowering support. I retain the failing shadow, preserve owned output copies and verify callback execution, empty inputs and ordinary scalar neighbors. My [record-name and evaluator gates](evidence/native-record-names-20261010/README.md) pass actual static/dynamic/empty callback shadows and native execution, evaluator units and functional-array controls.
+
+- [x] Under #976 I preserve declared record identity when a generic C-seed function receives a record literal or computed record. The native-name regression reaches `identity_unknown(int64_t)` because generic binding records names only for identifier arguments. I use the shared expression identity lookup and require literal, local and returned-record calls before closing this discovered source-product gap. My [record-name gate](evidence/native-record-names-20261010/README.md) passes all three argument forms.
+
+- [x] Under #976 I distinguish ordinary user records from runtime-provided typedefs during native C naming. I reproduce the unchanged `record_arrays.nano` fixture failing on `NSType`, retain external schema ABI spellings, restore emission context, and require original-name, nested/array, imported and external-type regressions before closing the historical record-name collision requirement. My [native record-name gate](evidence/native-record-names-20261010/README.md) passes the original fixture, six name families, imported records and external schema ABI without the old rename workaround.
+
+- [x] Under #976 I lower the self-hosted checker's existing `file_read_bytes` builtin to its exact portable byte-array host import. Source qualification finds that checking succeeds but lowering reports an undefined function. I preserve `array<u8>` source identity, emit the ARRAY wire result, add host-catalog shadows and verify freshly built self-hosted producers. My [completed bootstrap and installed gate](evidence/portable-byte-execution-20261010/README.md) passes equal raw Stage 1/2 modules and all 17 text/byte execution methods.
 
 - [x] Under #976 I complete C AOT byte-read builtin parity discovered by the portable source test: NanoVirt emits `vm_file_read_bytes`, which NanoVM executes but `nvm2c` rejects. I require the exact STRING-to-array<u8> host contract, owned numeric-array storage, binary/error behavior and preserved string-array artifact adapters. My [byte execution evidence](evidence/portable-byte-execution-20261010/README.md) passes actual binary source/C parity and all 2,443 C AOT regression checks.
 
@@ -10257,9 +10265,10 @@ Compiler product:
       (`task_a5fc558cbfa34f14b4d580923de4209c`). Native/VM execution,
       alias/order/collision cases and mixed-record rejection pass; evidence:
       `docs/evidence/cseed-record-array-literals.md`.
-- [ ] I prevent ordinary user record names from colliding with internal native
-      compiler-schema typedefs (`task_1d90fd4257bb43c599a79ab11cfa7aec`). The
-      fixture's `NSType` currently produces conflicting C declarations.
+- [x] I prevent ordinary user record names from colliding with internal native
+      compiler-schema typedefs (`task_1d90fd4257bb43c599a79ab11cfa7aec`). My
+      [native record-name evidence](evidence/native-record-names-20261010/README.md)
+      passes the original `NSType` fixture, external ABI and array operations.
 - [x] I lower typed list element replacement through my existing array ABI
       (`task_0b7d7221b3fd44d5a8055a84e72397a1`), preserving operand order,
       shared identity and owned payloads. Fourteen opcode comparisons and

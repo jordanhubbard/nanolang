@@ -1926,6 +1926,7 @@ static Value builtin_map(Value *args, Environment *env) {
             case TYPE_FLOAT: result_type = VAL_FLOAT; break;
             case TYPE_BOOL: result_type = VAL_BOOL; break;
             case TYPE_STRING: result_type = VAL_STRING; break;
+            case TYPE_STRUCT: result_type = VAL_STRUCT; break;
             default: break;
         }
     }
@@ -1961,6 +1962,12 @@ static Value builtin_map(Value *args, Environment *env) {
                 case VAL_STRING:
                     elem.as.string_val = ((char**)input_arr->data)[i];
                     break;
+                case VAL_STRUCT: {
+                    StructValue *record = ((StructValue**)input_arr->data)[i];
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 default:
                     fprintf(stderr, "Error: Unsupported array element type in map\n");
                     return create_void();
@@ -2005,6 +2012,18 @@ static Value builtin_map(Value *args, Environment *env) {
                     }
                     ((char**)output_arr->data)[i] = strdup(transformed.as.string_val);
                     break;
+                case VAL_STRUCT: {
+                    if (transformed.type != VAL_STRUCT) {
+                        discard_partial_owned_array(output_arr, (int)i);
+                        fprintf(stderr, "I require a record result in map.\n");
+                        return create_void();
+                    }
+                    StructValue *record = transformed.as.struct_val;
+                    Value copy = create_struct(record->struct_name, record->field_names,
+                                               record->field_values, record->field_count);
+                    ((StructValue**)output_arr->data)[i] = copy.as.struct_val;
+                    break;
+                }
                 default:
                     break;
             }
@@ -2077,6 +2096,12 @@ static Value builtin_map(Value *args, Environment *env) {
                     elem.type = VAL_STRING;
                     elem.as.string_val = (char*)dyn_array_get_string(input_arr, i);
                     break;
+                case ELEM_STRUCT: {
+                    StructValue *record = *(StructValue**)dyn_array_get_struct(input_arr, i);
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 case ELEM_ARRAY:
                     elem.type = VAL_DYN_ARRAY;
                     elem.as.dyn_array_val = dyn_array_get_array(input_arr, i);
@@ -2125,6 +2150,18 @@ static Value builtin_map(Value *args, Environment *env) {
                     }
                     dyn_array_push_string_copy(output_arr, transformed.as.string_val);
                     break;
+                case ELEM_STRUCT: {
+                    if (transformed.type != VAL_STRUCT) {
+                        gc_release(output_arr);
+                        fprintf(stderr, "I require a record result in map.\n");
+                        return create_void();
+                    }
+                    StructValue *record = transformed.as.struct_val;
+                    Value copy = create_struct(record->struct_name, record->field_names,
+                                               record->field_values, record->field_count);
+                    dyn_array_push_struct(output_arr, &copy.as.struct_val, sizeof(StructValue*));
+                    break;
+                }
                 case ELEM_ARRAY:
                     if (transformed.type != VAL_DYN_ARRAY) {
                         fprintf(stderr, "I require the transform's declared result type in map.\n");
@@ -2160,8 +2197,8 @@ static Value builtin_filter(Value *args, Environment *env) {
         Array *input_arr = args[0].as.array_val;
         int64_t len = input_arr->length;
 
-        bool *keep = (bool*)calloc((size_t)len, sizeof(bool));
-        if (!keep) {
+        bool *keep = len ? (bool*)calloc((size_t)len, sizeof(bool)) : NULL;
+        if (len && !keep) {
             fprintf(stderr, "Error: Out of memory in filter()\n");
             return create_void();
         }
@@ -2187,6 +2224,12 @@ static Value builtin_filter(Value *args, Environment *env) {
                 case VAL_STRING:
                     elem.as.string_val = ((char**)input_arr->data)[i];
                     break;
+                case VAL_STRUCT: {
+                    StructValue *record = ((StructValue**)input_arr->data)[i];
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 default:
                     free(keep);
                     fprintf(stderr, "Error: Unsupported array element type in filter\n");
@@ -2229,6 +2272,13 @@ static Value builtin_filter(Value *args, Environment *env) {
                 case VAL_STRING:
                     ((char**)output_arr->data)[out_i] = strdup(((char**)input_arr->data)[i]);
                     break;
+                case VAL_STRUCT: {
+                    StructValue *record = ((StructValue**)input_arr->data)[i];
+                    Value copy = create_struct(record->struct_name, record->field_names,
+                                               record->field_values, record->field_count);
+                    ((StructValue**)output_arr->data)[out_i] = copy.as.struct_val;
+                    break;
+                }
                 default:
                     break;
             }
@@ -2269,6 +2319,12 @@ static Value builtin_filter(Value *args, Environment *env) {
                     elem.type = VAL_STRING;
                     elem.as.string_val = (char*)dyn_array_get_string(input_arr, i);
                     break;
+                case ELEM_STRUCT: {
+                    StructValue *record = *(StructValue**)dyn_array_get_struct(input_arr, i);
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 case ELEM_ARRAY:
                     elem.type = VAL_DYN_ARRAY;
                     elem.as.dyn_array_val = dyn_array_get_array(input_arr, i);
@@ -2305,6 +2361,13 @@ static Value builtin_filter(Value *args, Environment *env) {
                 case ELEM_STRING:
                     dyn_array_push_string_copy(output_arr, elem.as.string_val);
                     break;
+                case ELEM_STRUCT: {
+                    StructValue *record = elem.as.struct_val;
+                    Value copy = create_struct(record->struct_name, record->field_names,
+                                               record->field_values, record->field_count);
+                    dyn_array_push_struct(output_arr, &copy.as.struct_val, sizeof(StructValue*));
+                    break;
+                }
                 case ELEM_ARRAY:
                     dyn_array_push_array(output_arr, elem.as.dyn_array_val);
                     break;
@@ -2358,6 +2421,12 @@ static Value builtin_reduce(Value *args, Environment *env) {
                 case VAL_STRING:
                     elem.as.string_val = ((char**)arr->data)[i];
                     break;
+                case VAL_STRUCT: {
+                    StructValue *record = ((StructValue**)arr->data)[i];
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 default:
                     fprintf(stderr, "Error: Unsupported array element type in reduce\n");
                     return create_void();
@@ -2435,6 +2504,12 @@ static Value builtin_reduce(Value *args, Environment *env) {
                     elem.type = VAL_STRING;
                     elem.as.string_val = (char*)dyn_array_get_string(arr, i);
                     break;
+                case ELEM_STRUCT: {
+                    StructValue *record = *(StructValue**)dyn_array_get_struct(arr, i);
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 case ELEM_ARRAY:
                     elem.type = VAL_DYN_ARRAY;
                     elem.as.dyn_array_val = dyn_array_get_array(arr, i);

@@ -3219,11 +3219,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                                 bound_types_buf[k] = arg_type;
                                 /* Capture struct name for struct-typed args */
                                 if (arg_type == TYPE_STRUCT) {
-                                    ASTNode *a = expr->as.call.args[i];
-                                    if (a->type == AST_IDENTIFIER) {
-                                        Symbol *sym = env_get_var_visible_at(env, a->as.identifier, a->line, a->column);
-                                        if (sym) bound_names_buf[k] = sym->struct_type_name;
-                                    }
+                                    bound_names_buf[k] = (char *)get_struct_type_name(expr->as.call.args[i], env);
                                 }
                             } else if (bound_types_buf[k] != arg_type) {
                                 char message[256];

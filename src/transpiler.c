@@ -195,6 +195,7 @@ static bool conflicts_with_runtime(const char *name) {
 
 /* I snapshot declared one-letter unions and enums for this emission only. */
 static _Thread_local uint32_t native_declared_letters;
+static _Thread_local Environment *native_type_environment;
 
 /* Get prefixed type name for user-defined types */
 /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
@@ -210,12 +211,18 @@ static const char *get_prefixed_type_name(const char *name) {
     if (strcmp(name, "string") == 0) return "const char *";
     if (strcmp(name, "void") == 0) return "void";
     
+    /* I distinguish a source record from a runtime typedef with the same name.
+     * Extern declarations retain their C ABI spelling. My generated record
+     * namespace cannot overlap the ordinary nl_ source-name prefix. */
+    StructDef *record = native_type_environment ? env_get_struct(native_type_environment, name) : NULL;
+    bool user_runtime_record = record && !record->is_extern && conflicts_with_runtime(name);
+
     /* Special mappings for runtime types */
-    if (strcmp(name, "Token") == 0) return "Token";
-    if (strcmp(name, "NSType") == 0) return "NSType";
+    if (!user_runtime_record && strcmp(name, "Token") == 0) return "Token";
+    if (!user_runtime_record && strcmp(name, "NSType") == 0) return "NSType";
     
     /* Runtime types: no prefix */
-    if (is_runtime_typedef(name) || conflicts_with_runtime(name)) {
+    if (!user_runtime_record && (is_runtime_typedef(name) || conflicts_with_runtime(name))) {
         return name;
     }
 
@@ -228,23 +235,24 @@ static const char *get_prefixed_type_name(const char *name) {
         return "void*";
     }
 
-    /* User types: add nl_ prefix */
+    const char *prefix = user_runtime_record ? "__nl_record_" : "nl_";
+    size_t prefix_length = strlen(prefix);
     size_t length = strlen(name);
-    if (length > SIZE_MAX - 4) {
+    if (length > SIZE_MAX - prefix_length - 1) {
         fprintf(stderr, "I cannot represent this native type name\n");
         exit(1);
     }
-    if (capacity < length + 4) {
-        char *grown = realloc(buffer, length + 4);
+    if (capacity < length + prefix_length + 1) {
+        char *grown = realloc(buffer, length + prefix_length + 1);
         if (!grown) {
             fprintf(stderr, "I cannot allocate a native type name\n");
             exit(1);
         }
         buffer = grown;
-        capacity = length + 4;
+        capacity = length + prefix_length + 1;
     }
-    memcpy(buffer, "nl_", 3);
-    memcpy(buffer + 3, name, length + 1);
+    memcpy(buffer, prefix, prefix_length);
+    memcpy(buffer + prefix_length, name, length + 1);
     return buffer;
 }
 
@@ -818,7 +826,7 @@ static const char *resolve_generic_param_c(Type type, const char *struct_name,
                 if (inst->bound_types[i] == TYPE_STRING) return "const char*";
                 if (inst->bound_types[i] == TYPE_STRUCT && inst->bound_type_names[i]) {
                     static _Thread_local char buf[256];
-                    snprintf(buf, sizeof(buf), "nl_%s", inst->bound_type_names[i]);
+                    snprintf(buf, sizeof(buf), "%s", get_prefixed_type_name(inst->bound_type_names[i]));
                     return buf;
                 }
                 return "int64_t";  /* fallback */
@@ -828,7 +836,7 @@ static const char *resolve_generic_param_c(Type type, const char *struct_name,
     /* Not a type variable: fall through to regular type_to_c */
     if (type == TYPE_STRUCT && struct_name) {
         static _Thread_local char sbuf[256];
-        snprintf(sbuf, sizeof(sbuf), "nl_%s", struct_name);
+        snprintf(sbuf, sizeof(sbuf), "%s", get_prefixed_type_name(struct_name));
         return sbuf;
     }
     return NULL;  /* caller should use type_to_c() */
@@ -4954,6 +4962,8 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
 
 /* I retain no borrowed declaration pointer and restore context on every exit. */
 char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file) {
+    Environment *previous_environment = native_type_environment;
+    native_type_environment = env;
     uint32_t previous = native_declared_letters;
     native_declared_letters = 0;
     for (int i = 0; env && i < env->union_count; ++i) {
@@ -4968,5 +4978,6 @@ char *transpile_to_c(ASTNode *program, Environment *env, const char *input_file)
     }
     char *result = transpile_to_c_impl(program, env, input_file);
     native_declared_letters = previous;
+    native_type_environment = previous_environment;
     return result;
 }
