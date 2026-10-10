@@ -148,7 +148,7 @@ SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_create)(const uint8_t *bytes,size
     SERVICE_TYPE(HostedPlan) *plan=NULL;SERVICE_TYPE(FlowStatus) checked=SERVICE_FN(hosted_prepare)(bytes,size,&plan);
     if(checked!=SERVICE_CONST(FLOW_OK))return fr_prepare(checked);
     SERVICE_TYPE(HostedStartup) startup;size_t core=0,total;
-    if(!SERVICE_FN(hosted_startup)(plan,&startup) || !RUNTIME_BOUND(&core)) {
+    if(!SERVICE_FN(hosted_startup)(plan,&startup) || !RUNTIME_BOUND_HOSTED(plan,&core)) {
         SERVICE_FN(hosted_free)(plan);return SERVICE_CONST(RUNTIME_INVALID);
     }
     uint64_t values=mode==SERVICE_CONST(RUNTIME_VM)?startup.vm_value_slots:startup.native_value_slots;
@@ -447,6 +447,10 @@ SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_service)(SERVICE_TYPE(Runtime) *c
            instruction.catalog_ordinal!=ordinal)
             return fr_error(c,SERVICE_CONST(RUNTIME_TYPE),CORE_STATUS(TYPE));
     }
+#ifdef RUNTIME_MIXED
+    if(c->catalogs[ordinal/5]==NL_SERVICES_WEBSOCKET)
+        return fr_error(c,SERVICE_CONST(RUNTIME_TYPE),CORE_STATUS(TYPE));
+#endif
     uint32_t method=RUNTIME_METHOD_LOCAL(ordinal),base=RUNTIME_METHOD_OWNER(ordinal);
     bool endpoint=RUNTIME_ENDPOINT(c,ordinal);
     bool borrows=method>=1 && method<=3;

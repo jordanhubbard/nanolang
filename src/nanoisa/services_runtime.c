@@ -9,3 +9,5 @@
 #include <string.h>
 #include "services_runtime_config.h"
 #include "service_runtime.inc"
+
+#include "services_runtime_websocket.inc"

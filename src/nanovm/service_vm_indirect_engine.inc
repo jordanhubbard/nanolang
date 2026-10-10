@@ -120,7 +120,7 @@ static SERVICE_TYPE(RuntimeStatus) fvm_step(SERVICE_TYPE(Runtime) *c,SERVICE_TYP
         for(size_t i=0;i<count;i++)
             if(!SERVICE_FN(runtime_frame_operand)(c,(uint16_t)(f.stack_count-count+i),&inputs[i]))return fvm_bad(c);
         if(borrowed && !SERVICE_FN(runtime_frame_reference)(c,d->operands[1].u16,&reference))return fvm_bad(c);
-        FVM_TRY(SERVICE_FN(runtime_service)(c,d->operands[0].u32,reference,inputs,count,dst));
+        FVM_TRY(SERVICE_ORDERED_CALL(c,d->operands[0].u32,reference,inputs,count,dst));
         if(!SERVICE_FN(runtime_frame_reserve)(c,(uint16_t)(f.stack_count-count),&output))return fvm_bad(c);
 #else
         uint32_t method=DISPATCH_METHOD_LOCAL(ordinal);

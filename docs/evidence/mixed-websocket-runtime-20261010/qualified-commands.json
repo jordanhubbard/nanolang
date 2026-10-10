@@ -1,0 +1,4499 @@
+[
+  {
+    "name": "0-0-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-0.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-0.c",
+      "0",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-0-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-0-native",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":46,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-0-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-0.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-0-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-0-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-0-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-0.nvm",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":46,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-1-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-1.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-1.c",
+      "1",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-1-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-1-native",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":129,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-1-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-1.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-1-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-1-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-1-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-1.nvm",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":129,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-10-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-10.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-10.c",
+      "10",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-10-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-10-native",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":137,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-10-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-10.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-10-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-10-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-10-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-10.nvm",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":137,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-11-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-11.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-11.c",
+      "11",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-11-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-11-native",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":234,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-11-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-11.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-11-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-11-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-11-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-11.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":234,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-12-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-12.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-12.c",
+      "12",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-12-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-12-native",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":46,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-12-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-12.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-12-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-12-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-12-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-12.nvm",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":46,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-13-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-13.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-13.c",
+      "13",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-13-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-13-native",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":129,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-13-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-13.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-13-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-13-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-13-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-13.nvm",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":129,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-14-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-14.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-14.c",
+      "14",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-14-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-14-native",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":222,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-14-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-14.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-14-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-14-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-14-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-14.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":222,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-15-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-15.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-15.c",
+      "15",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-15-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-15-native",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":48,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-15-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-15.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-15-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-15-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-15-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-15.nvm",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":48,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-16-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-16.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-16.c",
+      "16",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-16-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-16-native",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":135,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-16-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-16.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-16-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-16-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-16-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-16.nvm",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":135,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-17-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-17.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-17.c",
+      "17",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-17-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-17-native",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":232,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-17-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-17.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-17-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-17-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-17-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-17.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":232,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-18-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-18.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-18.c",
+      "18",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-18-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-18-native",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":48,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-18-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-18.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-18-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-18-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-18-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-18.nvm",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":48,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-19-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-19.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-19.c",
+      "19",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-19-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-19-native",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":131,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-19-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-19.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-19-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-19-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-19-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-19.nvm",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":131,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-2-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-2.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-2.c",
+      "2",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-2-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-2-native",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":222,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-2-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-2.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-2-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-2-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-2-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-2.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":222,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-20-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-20.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-20.c",
+      "20",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-20-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-20-native",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":224,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-20-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-20.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-20-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-20-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-20-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-20.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":224,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-21-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.c",
+      "21",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-21-native-0-0",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native",
+      "0",
+      "0",
+      "0"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":50,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-native-0-16",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native",
+      "0",
+      "0",
+      "16"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":16,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-native-0-28",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native",
+      "0",
+      "0",
+      "28"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":28,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-native-0-3",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native",
+      "0",
+      "0",
+      "3"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":3,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-native-0-40",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native",
+      "0",
+      "0",
+      "40"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":40,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-native-0-7",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native",
+      "0",
+      "0",
+      "7"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":7,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-native-1-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native",
+      "0",
+      "1",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":5,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-native-2-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native",
+      "0",
+      "2",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":2,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-native-3-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native",
+      "0",
+      "3",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":5,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-native-5-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native",
+      "0",
+      "5",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":50,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-native-6-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native",
+      "0",
+      "6",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":41,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-native-7-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native",
+      "0",
+      "7",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":10,\"acquired\":1,\"value\":12345,\"cleanup\":1,\"steps\":50,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-21-vm-0-0",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "0",
+      "0",
+      "0"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":50,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-vm-0-16",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "0",
+      "0",
+      "16"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":16,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-vm-0-28",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "0",
+      "0",
+      "28"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":28,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-vm-0-3",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "0",
+      "0",
+      "3"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":3,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-vm-0-40",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "0",
+      "0",
+      "40"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":40,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-vm-0-7",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "0",
+      "0",
+      "7"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":7,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-vm-1-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "0",
+      "1",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":5,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-vm-2-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "0",
+      "2",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":2,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-vm-3-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "0",
+      "3",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":5,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-vm-5-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "0",
+      "5",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":50,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-vm-6-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "0",
+      "6",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":41,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-21-vm-7-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-21.nvm",
+      "0",
+      "7",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":10,\"acquired\":1,\"value\":12345,\"cleanup\":1,\"steps\":50,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.c",
+      "22",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-22-installed-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-O1",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-installed"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-22-installed-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.c",
+      "22",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-22-native-0-0",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-native",
+      "1",
+      "0",
+      "0"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-installed",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":137,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-22-native-0-16",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-native",
+      "1",
+      "0",
+      "16"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":16,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-native-0-28",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-native",
+      "1",
+      "0",
+      "28"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":28,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-native-0-3",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-native",
+      "1",
+      "0",
+      "3"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":3,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-native-0-40",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-native",
+      "1",
+      "0",
+      "40"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":40,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-native-0-7",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-native",
+      "1",
+      "0",
+      "7"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":7,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-native-1-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-installed",
+      "1",
+      "1",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":5,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-native-2-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-native",
+      "1",
+      "2",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":2,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-native-3-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-native",
+      "1",
+      "3",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":5,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-native-5-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-native",
+      "1",
+      "5",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":137,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-22-native-6-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-native",
+      "1",
+      "6",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":119,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-22-native-7-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-native",
+      "1",
+      "7",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":10,\"acquired\":1,\"value\":12345,\"cleanup\":2,\"steps\":137,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-22-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-22-vm-0-0",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "1",
+      "0",
+      "0"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":137,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-22-vm-0-16",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "1",
+      "0",
+      "16"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":16,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-vm-0-28",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "1",
+      "0",
+      "28"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":28,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-vm-0-3",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "1",
+      "0",
+      "3"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":3,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-vm-0-40",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "1",
+      "0",
+      "40"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":40,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-vm-0-7",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "1",
+      "0",
+      "7"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":7,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-vm-1-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "1",
+      "1",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":5,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-vm-2-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "1",
+      "2",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":2,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-vm-3-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "1",
+      "3",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":5,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-22-vm-5-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "1",
+      "5",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":137,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-22-vm-6-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "1",
+      "6",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":119,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-22-vm-7-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-22.nvm",
+      "1",
+      "7",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":10,\"acquired\":1,\"value\":12345,\"cleanup\":2,\"steps\":137,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-23-allocated-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-23-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.c",
+      "23",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-23-installed-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c99",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-g",
+      "-O1",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-installed"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-23-installed-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.c",
+      "23",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-23-native-0-0",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-native",
+      "2",
+      "0",
+      "0"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-installed",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":234,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-23-native-0-16",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-native",
+      "2",
+      "0",
+      "16"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":16,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-native-0-28",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-native",
+      "2",
+      "0",
+      "28"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":28,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-native-0-3",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-native",
+      "2",
+      "0",
+      "3"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":3,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-native-0-40",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-native",
+      "2",
+      "0",
+      "40"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":40,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-native-0-7",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-native",
+      "2",
+      "0",
+      "7"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":7,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-native-1-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-installed",
+      "2",
+      "1",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":5,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-native-2-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-native",
+      "2",
+      "2",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":2,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-native-3-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-native",
+      "2",
+      "3",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":5,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-native-5-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-native",
+      "2",
+      "5",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":234,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-23-native-6-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-native",
+      "2",
+      "6",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":189,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-23-native-7-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-native",
+      "2",
+      "7",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":10,\"acquired\":1,\"value\":12345,\"cleanup\":5,\"steps\":234,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-23-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-23-vm-0-0",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "0"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":234,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-23-vm-0-16",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "16"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":16,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-vm-0-28",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "28"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":28,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-vm-0-3",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "3"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":3,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-vm-0-40",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "40"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":40,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-vm-0-7",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "7"
+    ],
+    "output": "{\"faults\":0,\"status\":3,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":7,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-vm-1-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "1",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":5,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-vm-2-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "2",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":2,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-vm-3-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "3",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":5,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-23-vm-5-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "5",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":234,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-23-vm-6-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "6",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":189,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-23-vm-7-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "7",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":10,\"acquired\":1,\"value\":12345,\"cleanup\":5,\"steps\":234,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-24-native-8-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-24-native",
+      "0",
+      "8",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":46,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-24-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-24.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-24-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-24-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-24-negative-close-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-24.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-24.c",
+      "24",
+      "2"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-24-vm-8-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-24.nvm",
+      "0",
+      "8",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":46,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-25-native-8-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-25-native",
+      "1",
+      "8",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":129,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-25-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-25.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-25-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-25-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-25-negative-close-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-25.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-25.c",
+      "25",
+      "2"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-25-vm-8-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-25.nvm",
+      "1",
+      "8",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":129,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-26-native-8-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-26-native",
+      "2",
+      "8",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":222,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-26-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-26.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-26-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-26-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-26-negative-close-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-26.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-26.c",
+      "26",
+      "2"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-26-vm-8-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-26.nvm",
+      "2",
+      "8",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":222,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-3-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-3.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-3.c",
+      "3",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-3-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-3-native",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":48,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-3-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-3.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-3-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-3-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-3-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-3.nvm",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":48,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-4-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-4.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-4.c",
+      "4",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-4-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-4-native",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":135,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-4-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-4.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-4-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-4-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-4-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-4.nvm",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":135,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-5-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-5.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-5.c",
+      "5",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-5-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-5-native",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":232,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-5-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-5.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-5-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-5-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-5-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-5.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":232,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-6-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-6.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-6.c",
+      "6",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-6-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-6-native",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":48,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-6-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-6.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-6-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-6-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-6-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-6.nvm",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":48,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-7-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-7.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-7.c",
+      "7",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-7-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-7-native",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":131,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-7-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-7.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-7-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-7-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-7-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-7.nvm",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":131,\"connects\":2,\"sends\":2,\"receives\":2,\"closes\":2,\"aborts\":0,\"instances\":[0,0,1,1,0]}\n"
+  },
+  {
+    "name": "0-8-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-8.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-8.c",
+      "8",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-8-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-8-native",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":224,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-8-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-8.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-8-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-8-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-8-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-8.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":224,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "0-9-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-9.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-9.c",
+      "9",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-9-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-9-native",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":50,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "0-9-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-9.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-9-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-9-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "0-9-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-9.nvm",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":50,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":0,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "1-21-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-real",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-21.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-21.c",
+      "21",
+      "1"
+    ],
+    "output": ""
+  },
+  {
+    "name": "1-21-live-prepare",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-real",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-21.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-21.c",
+      "21",
+      "9"
+    ],
+    "output": "I count 54 instructions in live function 0.\nI count 2 instructions in live function 1.\nI count 9 instructions in live function 2.\n"
+  },
+  {
+    "name": "1-21-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-21-native",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":11,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "1-21-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-DMIXED_RUNTIME_REAL_TRANSPORT",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-21.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-21-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-21-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "1-21-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-real",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-21.nvm",
+      "0",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":11,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "1-22-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-real",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-22.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-22.c",
+      "22",
+      "1"
+    ],
+    "output": ""
+  },
+  {
+    "name": "1-22-live-prepare",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-real",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-22.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-22.c",
+      "22",
+      "9"
+    ],
+    "output": "I count 162 instructions in live function 0.\nI count 2 instructions in live function 1.\nI count 2 instructions in live function 2.\nI count 2 instructions in live function 3.\nI count 2 instructions in live function 4.\nI count 3 instructions in live function 5.\nI count 3 instructions in live function 6.\nI count 9 instructions in live function 7.\nI count 9 instructions in live function 8.\n"
+  },
+  {
+    "name": "1-22-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-22-native",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":59,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "1-22-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-DMIXED_RUNTIME_REAL_TRANSPORT",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-22.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-22-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-22-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "1-22-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-real",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-22.nvm",
+      "1",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":59,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "1-23-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-real",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-23.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-23.c",
+      "23",
+      "1"
+    ],
+    "output": ""
+  },
+  {
+    "name": "1-23-live-prepare",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-real",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-23.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-23.c",
+      "23",
+      "9"
+    ],
+    "output": "I count 254 instructions in live function 0.\nI count 2 instructions in live function 1.\nI count 2 instructions in live function 2.\nI count 2 instructions in live function 3.\nI count 2 instructions in live function 4.\nI count 2 instructions in live function 5.\nI count 9 instructions in live function 6.\nI count 9 instructions in live function 7.\nI count 9 instructions in live function 8.\nI count 9 instructions in live function 9.\nI count 9 instructions in live function 10.\n"
+  },
+  {
+    "name": "1-23-native-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-23-native",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":39,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "1-23-native-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-DMIXED_RUNTIME_REAL_TRANSPORT",
+      "-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/include",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-23.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-23-driver.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/relocated/lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-23-native"
+    ],
+    "output": ""
+  },
+  {
+    "name": "1-23-vm-0-100000",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-real",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/1-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":39,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-emit",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "emit",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.c",
+      "23",
+      "0"
+    ],
+    "output": ""
+  },
+  {
+    "name": "allocated-native-0",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-1",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":5,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-10",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-11",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-12",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":1,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-13",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":11,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-14",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":22,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-15",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":234,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "allocated-native-2",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":4,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-3",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":3,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-4",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":2,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-5",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-6",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-7",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-8",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-native-9",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23-allocated",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-0",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-1",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":5,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-10",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-11",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-12",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":1,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-13",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":11,\"connects\":1,\"sends\":0,\"receives\":0,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-14",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":1,\"value\":12345,\"cleanup\":0,\"steps\":22,\"connects\":1,\"sends\":1,\"receives\":1,\"closes\":1,\"aborts\":1,\"instances\":[1,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-15",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":0,\"status\":0,\"acquired\":1,\"value\":0,\"cleanup\":0,\"steps\":234,\"connects\":5,\"sends\":5,\"receives\":5,\"closes\":5,\"aborts\":0,\"instances\":[1,1,1,1,1]}\n"
+  },
+  {
+    "name": "allocated-vm-2",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":4,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-3",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":3,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-4",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":2,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-5",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-6",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-7",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-8",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "allocated-vm-9",
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated",
+      "vm",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/0-23.nvm",
+      "2",
+      "0",
+      "100000"
+    ],
+    "output": "{\"faults\":1,\"status\":4,\"acquired\":0,\"value\":12345,\"cleanup\":0,\"steps\":0,\"connects\":0,\"sends\":0,\"receives\":0,\"closes\":0,\"aborts\":0,\"instances\":[0,0,0,0,0]}\n"
+  },
+  {
+    "name": "fixture-allocated-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "tests/nanoisa/test_mixed_websocket_runtime.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket-allocated.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap-allocated.o",
+      "obj/nanoisa/file_flow.o",
+      "obj/nanoisa/service_file_nominal.o",
+      "obj/nanoisa/service_file_nominal_plan.o",
+      "obj/nanoisa/service_bindings.o",
+      "obj/nanoisa/service_bindings_module.o",
+      "obj/nanoisa/mixed_float_proof.o",
+      "obj/nanoisa/managed_array_shapes.o",
+      "obj/nanoisa/local_bindings.o",
+      "obj/nanoisa/affine_bytecode.o",
+      "obj/nanoisa/affine_state.o",
+      "obj/nanoisa/ownership_contracts.o",
+      "obj/nanoisa/retained_layouts.o",
+      "obj/nanoisa/reference_places.o",
+      "obj/nanoisa/passive.o",
+      "obj/nanoisa/isa.o",
+      "obj/nanoisa/verifier_types.o",
+      "obj/nanoisa/nvm_format.o",
+      "obj/nanoisa/nvm_format_v2.o",
+      "obj/nanoisa/nvm_v2_cursor.o",
+      "obj/nanoisa/nvm_v2_constants.o",
+      "obj/nanoisa/nvm_v2_signatures.o",
+      "obj/nanoisa/nvm_v2_layouts.o",
+      "obj/nanoisa/nvm_v2_functions.o",
+      "obj/nanoisa/nvm_v2_imports.o",
+      "obj/nanoisa/nvm_v2_module.o",
+      "obj/nanoisa/nvm_v2_convert.o",
+      "obj/nanoisa/assembler.o",
+      "obj/nanoisa/disassembler.o",
+      "obj/nanoisa/verifier.o",
+      "obj/nanoisa/nvm2c.o",
+      "obj/nanoisa/nvm2c_shape.o",
+      "obj/nanoisa/nvm2c_callables.o",
+      "obj/nanoisa/frontend.o",
+      "obj/nanoisa/nanoisa_facade.o",
+      "obj/nanovm/vm_decode.o",
+      "obj/nanovm/vm_dispatch.o",
+      "lib/libnano_compiler_inputs.a",
+      "obj/nanovm/value.o",
+      "obj/nanovm/heap.o",
+      "obj/nanovm/heap_cycles.o",
+      "obj/nanovm/vm.o",
+      "obj/nanovm/vm_callback.o",
+      "obj/nanovm/vm_ffi.o",
+      "obj/nanovm/vm_builtins.o",
+      "obj/nanovm/cop_protocol.o",
+      "obj/nanovm/vm_ffi_arrays.o",
+      "obj/runtime/callback_runtime.o",
+      "obj/lexer.o",
+      "obj/parser.o",
+      "obj/typechecker.o",
+      "obj/transpiler.o",
+      "obj/stdlib_runtime.o",
+      "obj/env.o",
+      "obj/builtins_registry.o",
+      "obj/module.o",
+      "obj/module_metadata.o",
+      "obj/cJSON.o",
+      "obj/toon_output.o",
+      "obj/module_builder.o",
+      "obj/resource_tracking.o",
+      "obj/eval.o",
+      "obj/eval/eval_hashmap.o",
+      "obj/eval/eval_math.o",
+      "obj/eval/eval_string.o",
+      "obj/eval/eval_io.o",
+      "obj/interpreter_ffi.o",
+      "obj/json_diagnostics.o",
+      "obj/reflection.o",
+      "obj/nanocore_subset.o",
+      "obj/nanocore_export.o",
+      "obj/emit_typed_ast.o",
+      "obj/type_infer.o",
+      "obj/effects.o",
+      "obj/fold_constants.o",
+      "obj/dce_pass.o",
+      "obj/par_let_pass.o",
+      "obj/ptx_backend.o",
+      "obj/opencl_backend.o",
+      "obj/tco_pass.o",
+      "obj/cps_pass.o",
+      "obj/coroutine.o",
+      "obj/pgo_pass.o",
+      "obj/c_backend.o",
+      "obj/bench.o",
+      "obj/bench_native.o",
+      "obj/riscv_backend.o",
+      "obj/dwarf_info.o",
+      "obj/docgen_md.o",
+      "obj/docgen.o",
+      "obj/fmt.o",
+      "obj/channel.o",
+      "obj/bcp47.o",
+      "obj/locale.o",
+      "obj/utf8.o",
+      "obj/diag_id.o",
+      "obj/catalog.o",
+      "obj/resource_flow.o",
+      "obj/nominal_types.o",
+      "obj/service_namespace.o",
+      "obj/service_bodies.o",
+      "obj/service_ownership.o",
+      "lib/libnano_compiler_inputs.a",
+      "obj/runtime/list_int.o",
+      "obj/runtime/list_bool.o",
+      "obj/runtime/list_string.o",
+      "obj/runtime/list_LexerToken.o",
+      "obj/runtime/list_token.o",
+      "obj/runtime/list_CompilerDiagnostic.o",
+      "obj/runtime/list_CompilerSourceLocation.o",
+      "obj/runtime/list_ASTNumber.o",
+      "obj/runtime/list_ASTFloat.o",
+      "obj/runtime/list_ASTString.o",
+      "obj/runtime/list_ASTBool.o",
+      "obj/runtime/list_ASTIdentifier.o",
+      "obj/runtime/list_ASTBinaryOp.o",
+      "obj/runtime/list_ASTCall.o",
+      "obj/runtime/list_ASTModuleQualifiedCall.o",
+      "obj/runtime/list_ASTArrayLiteral.o",
+      "obj/runtime/list_ASTLet.o",
+      "obj/runtime/list_ASTSet.o",
+      "obj/runtime/list_ASTStmtRef.o",
+      "obj/runtime/list_ASTIf.o",
+      "obj/runtime/list_ASTWhile.o",
+      "obj/runtime/list_ASTFor.o",
+      "obj/runtime/list_ASTReturn.o",
+      "obj/runtime/list_ASTBlock.o",
+      "obj/runtime/list_ASTUnsafeBlock.o",
+      "obj/runtime/list_ASTPrint.o",
+      "obj/runtime/list_ASTAssert.o",
+      "obj/runtime/list_ASTFunction.o",
+      "obj/runtime/list_ASTShadow.o",
+      "obj/runtime/list_ASTStruct.o",
+      "obj/runtime/list_ASTStructLiteral.o",
+      "obj/runtime/list_ASTFieldAccess.o",
+      "obj/runtime/list_ASTEnum.o",
+      "obj/runtime/list_ASTUnion.o",
+      "obj/runtime/list_ASTUnionConstruct.o",
+      "obj/runtime/list_ASTMatch.o",
+      "obj/runtime/list_ASTImport.o",
+      "obj/runtime/list_ASTOpaqueType.o",
+      "obj/runtime/list_ASTServiceDecl.o",
+      "obj/runtime/list_ASTTupleLiteral.o",
+      "obj/runtime/list_ASTTupleIndex.o",
+      "obj/runtime/token_helpers.o",
+      "obj/runtime/gc.o",
+      "obj/runtime/effect_runtime.o",
+      "obj/runtime/dyn_array.o",
+      "obj/runtime/gc_struct.o",
+      "obj/runtime/nl_string.o",
+      "obj/runtime/ffi_loader.o",
+      "obj/runtime/module_build_dir.o",
+      "obj/runtime/cli.o",
+      "obj/runtime/regex.o",
+      "lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-allocated"
+    ],
+    "output": "ld: warning: ignoring duplicate libraries: 'lib/libnano_compiler_inputs.a'\n"
+  },
+  {
+    "name": "fixture-controlled-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "tests/nanoisa/test_mixed_websocket_runtime.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "obj/nanoisa/file_flow.o",
+      "obj/nanoisa/service_file_nominal.o",
+      "obj/nanoisa/service_file_nominal_plan.o",
+      "obj/nanoisa/service_bindings.o",
+      "obj/nanoisa/service_bindings_module.o",
+      "obj/nanoisa/mixed_float_proof.o",
+      "obj/nanoisa/managed_array_shapes.o",
+      "obj/nanoisa/local_bindings.o",
+      "obj/nanoisa/affine_bytecode.o",
+      "obj/nanoisa/affine_state.o",
+      "obj/nanoisa/ownership_contracts.o",
+      "obj/nanoisa/retained_layouts.o",
+      "obj/nanoisa/reference_places.o",
+      "obj/nanoisa/passive.o",
+      "obj/nanoisa/isa.o",
+      "obj/nanoisa/verifier_types.o",
+      "obj/nanoisa/nvm_format.o",
+      "obj/nanoisa/nvm_format_v2.o",
+      "obj/nanoisa/nvm_v2_cursor.o",
+      "obj/nanoisa/nvm_v2_constants.o",
+      "obj/nanoisa/nvm_v2_signatures.o",
+      "obj/nanoisa/nvm_v2_layouts.o",
+      "obj/nanoisa/nvm_v2_functions.o",
+      "obj/nanoisa/nvm_v2_imports.o",
+      "obj/nanoisa/nvm_v2_module.o",
+      "obj/nanoisa/nvm_v2_convert.o",
+      "obj/nanoisa/assembler.o",
+      "obj/nanoisa/disassembler.o",
+      "obj/nanoisa/verifier.o",
+      "obj/nanoisa/nvm2c.o",
+      "obj/nanoisa/nvm2c_shape.o",
+      "obj/nanoisa/nvm2c_callables.o",
+      "obj/nanoisa/frontend.o",
+      "obj/nanoisa/nanoisa_facade.o",
+      "obj/nanovm/vm_decode.o",
+      "obj/nanovm/vm_dispatch.o",
+      "lib/libnano_compiler_inputs.a",
+      "obj/nanovm/value.o",
+      "obj/nanovm/heap.o",
+      "obj/nanovm/heap_cycles.o",
+      "obj/nanovm/vm.o",
+      "obj/nanovm/vm_callback.o",
+      "obj/nanovm/vm_ffi.o",
+      "obj/nanovm/vm_builtins.o",
+      "obj/nanovm/cop_protocol.o",
+      "obj/nanovm/vm_ffi_arrays.o",
+      "obj/runtime/callback_runtime.o",
+      "obj/lexer.o",
+      "obj/parser.o",
+      "obj/typechecker.o",
+      "obj/transpiler.o",
+      "obj/stdlib_runtime.o",
+      "obj/env.o",
+      "obj/builtins_registry.o",
+      "obj/module.o",
+      "obj/module_metadata.o",
+      "obj/cJSON.o",
+      "obj/toon_output.o",
+      "obj/module_builder.o",
+      "obj/resource_tracking.o",
+      "obj/eval.o",
+      "obj/eval/eval_hashmap.o",
+      "obj/eval/eval_math.o",
+      "obj/eval/eval_string.o",
+      "obj/eval/eval_io.o",
+      "obj/interpreter_ffi.o",
+      "obj/json_diagnostics.o",
+      "obj/reflection.o",
+      "obj/nanocore_subset.o",
+      "obj/nanocore_export.o",
+      "obj/emit_typed_ast.o",
+      "obj/type_infer.o",
+      "obj/effects.o",
+      "obj/fold_constants.o",
+      "obj/dce_pass.o",
+      "obj/par_let_pass.o",
+      "obj/ptx_backend.o",
+      "obj/opencl_backend.o",
+      "obj/tco_pass.o",
+      "obj/cps_pass.o",
+      "obj/coroutine.o",
+      "obj/pgo_pass.o",
+      "obj/c_backend.o",
+      "obj/bench.o",
+      "obj/bench_native.o",
+      "obj/riscv_backend.o",
+      "obj/dwarf_info.o",
+      "obj/docgen_md.o",
+      "obj/docgen.o",
+      "obj/fmt.o",
+      "obj/channel.o",
+      "obj/bcp47.o",
+      "obj/locale.o",
+      "obj/utf8.o",
+      "obj/diag_id.o",
+      "obj/catalog.o",
+      "obj/resource_flow.o",
+      "obj/nominal_types.o",
+      "obj/service_namespace.o",
+      "obj/service_bodies.o",
+      "obj/service_ownership.o",
+      "lib/libnano_compiler_inputs.a",
+      "obj/runtime/list_int.o",
+      "obj/runtime/list_bool.o",
+      "obj/runtime/list_string.o",
+      "obj/runtime/list_LexerToken.o",
+      "obj/runtime/list_token.o",
+      "obj/runtime/list_CompilerDiagnostic.o",
+      "obj/runtime/list_CompilerSourceLocation.o",
+      "obj/runtime/list_ASTNumber.o",
+      "obj/runtime/list_ASTFloat.o",
+      "obj/runtime/list_ASTString.o",
+      "obj/runtime/list_ASTBool.o",
+      "obj/runtime/list_ASTIdentifier.o",
+      "obj/runtime/list_ASTBinaryOp.o",
+      "obj/runtime/list_ASTCall.o",
+      "obj/runtime/list_ASTModuleQualifiedCall.o",
+      "obj/runtime/list_ASTArrayLiteral.o",
+      "obj/runtime/list_ASTLet.o",
+      "obj/runtime/list_ASTSet.o",
+      "obj/runtime/list_ASTStmtRef.o",
+      "obj/runtime/list_ASTIf.o",
+      "obj/runtime/list_ASTWhile.o",
+      "obj/runtime/list_ASTFor.o",
+      "obj/runtime/list_ASTReturn.o",
+      "obj/runtime/list_ASTBlock.o",
+      "obj/runtime/list_ASTUnsafeBlock.o",
+      "obj/runtime/list_ASTPrint.o",
+      "obj/runtime/list_ASTAssert.o",
+      "obj/runtime/list_ASTFunction.o",
+      "obj/runtime/list_ASTShadow.o",
+      "obj/runtime/list_ASTStruct.o",
+      "obj/runtime/list_ASTStructLiteral.o",
+      "obj/runtime/list_ASTFieldAccess.o",
+      "obj/runtime/list_ASTEnum.o",
+      "obj/runtime/list_ASTUnion.o",
+      "obj/runtime/list_ASTUnionConstruct.o",
+      "obj/runtime/list_ASTMatch.o",
+      "obj/runtime/list_ASTImport.o",
+      "obj/runtime/list_ASTOpaqueType.o",
+      "obj/runtime/list_ASTServiceDecl.o",
+      "obj/runtime/list_ASTTupleLiteral.o",
+      "obj/runtime/list_ASTTupleIndex.o",
+      "obj/runtime/token_helpers.o",
+      "obj/runtime/gc.o",
+      "obj/runtime/effect_runtime.o",
+      "obj/runtime/dyn_array.o",
+      "obj/runtime/gc_struct.o",
+      "obj/runtime/nl_string.o",
+      "obj/runtime/ffi_loader.o",
+      "obj/runtime/module_build_dir.o",
+      "obj/runtime/cli.o",
+      "obj/runtime/regex.o",
+      "lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-controlled"
+    ],
+    "output": "ld: warning: ignoring duplicate libraries: 'lib/libnano_compiler_inputs.a'\n"
+  },
+  {
+    "name": "fixture-real-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-DMIXED_RUNTIME_REAL_TRANSPORT",
+      "tests/nanoisa/test_mixed_websocket_runtime.c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o",
+      "obj/nanoisa/file_flow.o",
+      "obj/nanoisa/service_file_nominal.o",
+      "obj/nanoisa/service_file_nominal_plan.o",
+      "obj/nanoisa/service_bindings.o",
+      "obj/nanoisa/service_bindings_module.o",
+      "obj/nanoisa/mixed_float_proof.o",
+      "obj/nanoisa/managed_array_shapes.o",
+      "obj/nanoisa/local_bindings.o",
+      "obj/nanoisa/affine_bytecode.o",
+      "obj/nanoisa/affine_state.o",
+      "obj/nanoisa/ownership_contracts.o",
+      "obj/nanoisa/retained_layouts.o",
+      "obj/nanoisa/reference_places.o",
+      "obj/nanoisa/passive.o",
+      "obj/nanoisa/isa.o",
+      "obj/nanoisa/verifier_types.o",
+      "obj/nanoisa/nvm_format.o",
+      "obj/nanoisa/nvm_format_v2.o",
+      "obj/nanoisa/nvm_v2_cursor.o",
+      "obj/nanoisa/nvm_v2_constants.o",
+      "obj/nanoisa/nvm_v2_signatures.o",
+      "obj/nanoisa/nvm_v2_layouts.o",
+      "obj/nanoisa/nvm_v2_functions.o",
+      "obj/nanoisa/nvm_v2_imports.o",
+      "obj/nanoisa/nvm_v2_module.o",
+      "obj/nanoisa/nvm_v2_convert.o",
+      "obj/nanoisa/assembler.o",
+      "obj/nanoisa/disassembler.o",
+      "obj/nanoisa/verifier.o",
+      "obj/nanoisa/nvm2c.o",
+      "obj/nanoisa/nvm2c_shape.o",
+      "obj/nanoisa/nvm2c_callables.o",
+      "obj/nanoisa/frontend.o",
+      "obj/nanoisa/nanoisa_facade.o",
+      "obj/nanovm/vm_decode.o",
+      "obj/nanovm/vm_dispatch.o",
+      "lib/libnano_compiler_inputs.a",
+      "obj/nanovm/value.o",
+      "obj/nanovm/heap.o",
+      "obj/nanovm/heap_cycles.o",
+      "obj/nanovm/vm.o",
+      "obj/nanovm/vm_callback.o",
+      "obj/nanovm/vm_ffi.o",
+      "obj/nanovm/vm_builtins.o",
+      "obj/nanovm/cop_protocol.o",
+      "obj/nanovm/vm_ffi_arrays.o",
+      "obj/runtime/callback_runtime.o",
+      "obj/lexer.o",
+      "obj/parser.o",
+      "obj/typechecker.o",
+      "obj/transpiler.o",
+      "obj/stdlib_runtime.o",
+      "obj/env.o",
+      "obj/builtins_registry.o",
+      "obj/module.o",
+      "obj/module_metadata.o",
+      "obj/cJSON.o",
+      "obj/toon_output.o",
+      "obj/module_builder.o",
+      "obj/resource_tracking.o",
+      "obj/eval.o",
+      "obj/eval/eval_hashmap.o",
+      "obj/eval/eval_math.o",
+      "obj/eval/eval_string.o",
+      "obj/eval/eval_io.o",
+      "obj/interpreter_ffi.o",
+      "obj/json_diagnostics.o",
+      "obj/reflection.o",
+      "obj/nanocore_subset.o",
+      "obj/nanocore_export.o",
+      "obj/emit_typed_ast.o",
+      "obj/type_infer.o",
+      "obj/effects.o",
+      "obj/fold_constants.o",
+      "obj/dce_pass.o",
+      "obj/par_let_pass.o",
+      "obj/ptx_backend.o",
+      "obj/opencl_backend.o",
+      "obj/tco_pass.o",
+      "obj/cps_pass.o",
+      "obj/coroutine.o",
+      "obj/pgo_pass.o",
+      "obj/c_backend.o",
+      "obj/bench.o",
+      "obj/bench_native.o",
+      "obj/riscv_backend.o",
+      "obj/dwarf_info.o",
+      "obj/docgen_md.o",
+      "obj/docgen.o",
+      "obj/fmt.o",
+      "obj/channel.o",
+      "obj/bcp47.o",
+      "obj/locale.o",
+      "obj/utf8.o",
+      "obj/diag_id.o",
+      "obj/catalog.o",
+      "obj/resource_flow.o",
+      "obj/nominal_types.o",
+      "obj/service_namespace.o",
+      "obj/service_bodies.o",
+      "obj/service_ownership.o",
+      "lib/libnano_compiler_inputs.a",
+      "obj/runtime/list_int.o",
+      "obj/runtime/list_bool.o",
+      "obj/runtime/list_string.o",
+      "obj/runtime/list_LexerToken.o",
+      "obj/runtime/list_token.o",
+      "obj/runtime/list_CompilerDiagnostic.o",
+      "obj/runtime/list_CompilerSourceLocation.o",
+      "obj/runtime/list_ASTNumber.o",
+      "obj/runtime/list_ASTFloat.o",
+      "obj/runtime/list_ASTString.o",
+      "obj/runtime/list_ASTBool.o",
+      "obj/runtime/list_ASTIdentifier.o",
+      "obj/runtime/list_ASTBinaryOp.o",
+      "obj/runtime/list_ASTCall.o",
+      "obj/runtime/list_ASTModuleQualifiedCall.o",
+      "obj/runtime/list_ASTArrayLiteral.o",
+      "obj/runtime/list_ASTLet.o",
+      "obj/runtime/list_ASTSet.o",
+      "obj/runtime/list_ASTStmtRef.o",
+      "obj/runtime/list_ASTIf.o",
+      "obj/runtime/list_ASTWhile.o",
+      "obj/runtime/list_ASTFor.o",
+      "obj/runtime/list_ASTReturn.o",
+      "obj/runtime/list_ASTBlock.o",
+      "obj/runtime/list_ASTUnsafeBlock.o",
+      "obj/runtime/list_ASTPrint.o",
+      "obj/runtime/list_ASTAssert.o",
+      "obj/runtime/list_ASTFunction.o",
+      "obj/runtime/list_ASTShadow.o",
+      "obj/runtime/list_ASTStruct.o",
+      "obj/runtime/list_ASTStructLiteral.o",
+      "obj/runtime/list_ASTFieldAccess.o",
+      "obj/runtime/list_ASTEnum.o",
+      "obj/runtime/list_ASTUnion.o",
+      "obj/runtime/list_ASTUnionConstruct.o",
+      "obj/runtime/list_ASTMatch.o",
+      "obj/runtime/list_ASTImport.o",
+      "obj/runtime/list_ASTOpaqueType.o",
+      "obj/runtime/list_ASTServiceDecl.o",
+      "obj/runtime/list_ASTTupleLiteral.o",
+      "obj/runtime/list_ASTTupleIndex.o",
+      "obj/runtime/token_helpers.o",
+      "obj/runtime/gc.o",
+      "obj/runtime/effect_runtime.o",
+      "obj/runtime/dyn_array.o",
+      "obj/runtime/gc_struct.o",
+      "obj/runtime/nl_string.o",
+      "obj/runtime/ffi_loader.o",
+      "obj/runtime/module_build_dir.o",
+      "obj/runtime/cli.o",
+      "obj/runtime/regex.o",
+      "lib/libnano_services_runtime.a",
+      "-lm",
+      "-lcrypto",
+      "-lffi",
+      "-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/fixture-real"
+    ],
+    "output": "ld: warning: ignoring duplicate libraries: 'lib/libnano_compiler_inputs.a'\n"
+  },
+  {
+    "name": "install",
+    "argv": [
+      "make",
+      "-f",
+      "Makefile.gnu",
+      "install-services-public-runtime",
+      "PREFIX=/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/installed",
+      "CC=/opt/homebrew/opt/llvm/bin/clang"
+    ],
+    "output": "install -d \"/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/installed/lib\"\ninstall -m 644 \"lib/libnano_services_runtime.a\" \"/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/installed/lib/libnano_services_runtime.a\"\n"
+  },
+  {
+    "name": "nsi_cap-allocated-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-include",
+      "tests/nanoisa/mixed_websocket_runtime_alloc.h",
+      "-Dmalloc=mixed_runtime_malloc",
+      "-Dcalloc=mixed_runtime_calloc",
+      "-c",
+      "src/nsi_cap.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap-allocated.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "nsi_cap-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-c",
+      "src/nsi_cap.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_cap.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "nsi_file-allocated-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-include",
+      "tests/nanoisa/mixed_websocket_runtime_alloc.h",
+      "-Dmalloc=mixed_runtime_malloc",
+      "-Dcalloc=mixed_runtime_calloc",
+      "-c",
+      "src/nsi_file.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file-allocated.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "nsi_file-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-c",
+      "src/nsi_file.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "nsi_file_values-allocated-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-include",
+      "tests/nanoisa/mixed_websocket_runtime_alloc.h",
+      "-Dmalloc=mixed_runtime_malloc",
+      "-Dcalloc=mixed_runtime_calloc",
+      "-c",
+      "src/nsi_file_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values-allocated.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "nsi_file_values-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-c",
+      "src/nsi_file_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_file_values.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "nsi_services_values-allocated-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-include",
+      "tests/nanoisa/mixed_websocket_runtime_alloc.h",
+      "-Dmalloc=mixed_runtime_malloc",
+      "-Dcalloc=mixed_runtime_calloc",
+      "-c",
+      "src/nsi_services_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values-allocated.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "nsi_services_values-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-c",
+      "src/nsi_services_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_services_values.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "nsi_socket-allocated-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-include",
+      "tests/nanoisa/mixed_websocket_runtime_alloc.h",
+      "-Dmalloc=mixed_runtime_malloc",
+      "-Dcalloc=mixed_runtime_calloc",
+      "-c",
+      "src/nsi_socket.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket-allocated.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "nsi_socket-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-c",
+      "src/nsi_socket.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "nsi_socket_values-allocated-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-include",
+      "tests/nanoisa/mixed_websocket_runtime_alloc.h",
+      "-Dmalloc=mixed_runtime_malloc",
+      "-Dcalloc=mixed_runtime_calloc",
+      "-c",
+      "src/nsi_socket_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values-allocated.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "nsi_socket_values-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-c",
+      "src/nsi_socket_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_socket_values.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "nsi_websocket_values-allocated-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-include",
+      "tests/nanoisa/mixed_websocket_runtime_alloc.h",
+      "-Dmalloc=mixed_runtime_malloc",
+      "-Dcalloc=mixed_runtime_calloc",
+      "-c",
+      "src/nsi_websocket_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values-allocated.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "nsi_websocket_values-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-c",
+      "src/nsi_websocket_values.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/nsi_websocket_values.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "services_host_grant-allocated-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-include",
+      "tests/nanoisa/mixed_websocket_runtime_alloc.h",
+      "-Dmalloc=mixed_runtime_malloc",
+      "-Dcalloc=mixed_runtime_calloc",
+      "-c",
+      "src/nanoisa/services_host_grant.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant-allocated.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "services_host_grant-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-c",
+      "src/nanoisa/services_host_grant.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_host_grant.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "services_runtime-allocated-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-include",
+      "tests/nanoisa/mixed_websocket_runtime_alloc.h",
+      "-Dmalloc=mixed_runtime_malloc",
+      "-Dcalloc=mixed_runtime_calloc",
+      "-c",
+      "src/nanoisa/services_runtime.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime-allocated.o"
+    ],
+    "output": ""
+  },
+  {
+    "name": "services_runtime-build",
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-D_DEFAULT_SOURCE",
+      "-g",
+      "-O1",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-Isrc",
+      "-Isrc/nanoisa",
+      "-Imodules/nanoisa",
+      "-c",
+      "src/nanoisa/services_runtime.c",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-sr91p7y4/services_runtime.o"
+    ],
+    "output": ""
+  }
+]

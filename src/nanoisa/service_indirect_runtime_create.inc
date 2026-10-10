@@ -7,7 +7,7 @@ SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_indirect_create)(const uint8_t *b
     SERVICE_TYPE(FlowStatus) checked=SERVICE_FN(indirect_hosted_prepare)(bytes,size,&plan);
     if(checked!=SERVICE_CONST(FLOW_OK))return fr_prepare(checked);
     SERVICE_TYPE(IndirectHostedStartup) v;size_t core,total;
-    if(!SERVICE_FN(indirect_hosted_startup)(plan,&v) || !RUNTIME_BOUND(&core)) {
+    if(!SERVICE_FN(indirect_hosted_startup)(plan,&v) || !RUNTIME_BOUND_INDIRECT(plan,&core)) {
         SERVICE_FN(indirect_hosted_free)(plan);return SERVICE_CONST(RUNTIME_INVALID);
     }
     uint64_t values=mode==SERVICE_CONST(RUNTIME_VM)?v.vm_value_slots:v.native_value_slots;

@@ -44,3 +44,9 @@
     } \
 } while(0)
 #endif
+
+#ifndef RUNTIME_BOUND_HOSTED
+#define RUNTIME_BOUND_HOSTED(p,out) RUNTIME_BOUND(out)
+#define RUNTIME_BOUND_CYCLIC(p,out) RUNTIME_BOUND(out)
+#define RUNTIME_BOUND_INDIRECT(p,out) RUNTIME_BOUND(out)
+#endif

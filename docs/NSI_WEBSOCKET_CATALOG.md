@@ -301,11 +301,11 @@ indirect mixed queries; Message and owner identities remain instance-specific.
 My hosted query owns counted string bytes, including embedded NUL, independently
 of its input module and wire buffers. A checked query grants no host authority.
 
-Checked mixed runtime creation and native emission still refuse WebSocket until
-value dispatch and policy installation are implemented. Explicit mixed host
-grants can now authorize its checked instance table, but product policy parsing
-still refuses it instead of treating TCP permission as WebSocket permission. Standalone WebSocket continues through its explicit version-2
-catalog-3 provider. Mixed source lowering and VM/native execution remain open.
+I now prepare and execute mixed WebSocket bytes through explicit checked VM
+and native providers with per-instance policy installation. Product policy
+parsing still refuses mixed WebSocket instead of treating TCP permission as
+WebSocket permission; paired mixed source integration remains open. Standalone
+WebSocket continues through its explicit version-2 catalog-3 provider.
 
 ## Mixed value ownership
 
@@ -323,7 +323,7 @@ its owner even when the operation returns a transport or deadline error.
 My [value evidence](evidence/mixed-websocket-values-20261010/README.md) covers
 controlled transport lifetimes, allocation/cleanup faults, real denial and
 relocated installation. The required real-peer gate still fails at listener
-bind with EPERM. This carrier does not yet enable checked mixed execution.
+bind with EPERM. This carrier supplies the checked mixed execution described below.
 
 ## Mixed host policy
 
@@ -345,5 +345,36 @@ caller holds that gate.
 
 My [grant evidence](evidence/mixed-websocket-grants-20261010/README.md) covers
 copied paths, repeated-instance policies, malformed and denied grants, shared
-gating, allocation failure and a relocated C99 consumer. Checked VM/native
-policy installation and service dispatch remain required before execution.
+gating, allocation failure and a relocated C99 consumer. My checked VM/native
+providers install these policies before service dispatch. Paired source
+integration and live-network qualification remain required.
+
+## Mixed checked execution
+
+I execute the exact ordered arguments of each selected instance through
+`nvm_services_runtime_service_args`. File/TCP keep their single-input carrier
+API; WebSocket accepts URL/timeout, Message/timeout, timeout, or owner/timeout.
+I retain nine-field WebSocket errors and counted strings within the shared
+runtime representation, without assigning another instance's layout or owner.
+
+Each declared WebSocket instance needs an explicit copied policy before begin.
+Public VM and generated native entries first authorize the complete retained
+table, then install each WebSocket policy while holding the shared grant gate.
+A missing policy fails before core acquisition. Invalid policies and duplicate
+installation fail without replacing a policy. A prepared plan grants no host
+authority. I preserve File/TCP-only grants and their existing execution path.
+
+I reserve a total 32 MiB WebSocket core budget only when the table declares
+WebSocket, divided among its WebSocket instances. This reservation, File/TCP
+cores, runtime state and retained strings remain within the 64 MiB runtime
+limit. A declared instance can exhaust its bounded connection storage and
+return a typed limit result. I skip only catalog-defined unused import slots;
+generated native agreement checks those slots remain absent.
+
+My [runtime evidence](evidence/mixed-websocket-runtime-20261010/README.md)
+distinguishes controlled transport execution, real transport invalid-URL
+handling, relocated installation and the required real-peer gate. Controlled
+messages include independently allocated received bytes containing NUL;
+instruction and allocation failures retain cleanup and output preservation.
+Live-network and platform qualification remain open, as does paired source
+publication of these mixed instances.

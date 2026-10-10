@@ -55,7 +55,12 @@ static bool fr_import(const SERVICE_TYPE(Runtime) *c,uint32_t original,uint32_t 
         uint32_t value;
         if(!(c->kind==FR_ACYCLIC?SERVICE_FN(hosted_import)(c->plan,i,&value):
              c->kind==FR_INDIRECT?SERVICE_FN(indirect_hosted_import)(c->indirect_plan,i,&value):
-             SERVICE_FN(cyclic_hosted_import)(c->cyclic_plan,i,&value)))return false;
+             SERVICE_FN(cyclic_hosted_import)(c->cyclic_plan,i,&value))) {
+#ifdef RUNTIME_IMPORT_OPTIONAL
+            if(RUNTIME_IMPORT_OPTIONAL(c,i))continue;
+#endif
+            return false;
+        }
         if(value==original){*ordinal=i;return true;}
     }
     return false;
@@ -89,7 +94,7 @@ SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_cyclic_create)(const uint8_t *byt
     SERVICE_TYPE(FlowStatus) checked=SERVICE_FN(cyclic_hosted_prepare)(bytes,size,&plan);
     if(checked!=SERVICE_CONST(FLOW_OK))return fr_prepare(checked);
     SERVICE_TYPE(CyclicHostedStartup) v;size_t core,total;
-    if(!SERVICE_FN(cyclic_hosted_startup)(plan,&v) || !RUNTIME_BOUND(&core)) {
+    if(!SERVICE_FN(cyclic_hosted_startup)(plan,&v) || !RUNTIME_BOUND_CYCLIC(plan,&core)) {
         SERVICE_FN(cyclic_hosted_free)(plan);return SERVICE_CONST(RUNTIME_INVALID);
     }
     uint64_t values=mode==SERVICE_CONST(RUNTIME_VM)?v.vm_value_slots:v.native_value_slots;

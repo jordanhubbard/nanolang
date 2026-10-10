@@ -1,7 +1,7 @@
 #include "../nanoisa/services_indirect_public_internal.h"
 #include "../nanoisa/services_dispatch_config.h"
 #define SERVICE_EXECUTION_AUTH_ARGUMENT ,const NvmServicesHostGrant *grant
-#define SERVICE_EXECUTION_AUTH_CHECK(c) nvm_services_public_grant_status(nvm_services_host_authorize(grant,nvm_services_runtime_indirect_plan(c)))
+#define SERVICE_EXECUTION_AUTH_CHECK(c) nvm_services_public_configure(c,grant)
 #include "service_vm_indirect_engine.inc"
 
 NvmServicesIndirectExecutionReport nvm_services_execute_indirect_bytes(NvmServicesHostGrant *grant,

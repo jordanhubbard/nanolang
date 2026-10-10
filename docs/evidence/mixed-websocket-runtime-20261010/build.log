@@ -1,0 +1,160 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_bytecode.c -o obj/nanoisa/affine_bytecode.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/affine_state.c -o obj/nanoisa/affine_state.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o obj/nanoisa/file_flow.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/socket_flow.c -o obj/nanoisa/socket_flow.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_flow.c -o obj/nanoisa/services_flow.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_nominal.c -o obj/nanoisa/services_nominal.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/isa.c -o obj/nanoisa/isa.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/managed_array_shapes.c -o obj/nanoisa/managed_array_shapes.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/mixed_float_proof.c -o obj/nanoisa/mixed_float_proof.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format.c -o obj/nanoisa/nvm_format.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_format_v2.c -o obj/nanoisa/nvm_format_v2.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_constants.c -o obj/nanoisa/nvm_v2_constants.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_convert.c -o obj/nanoisa/nvm_v2_convert.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_cursor.c -o obj/nanoisa/nvm_v2_cursor.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_functions.c -o obj/nanoisa/nvm_v2_functions.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_imports.c -o obj/nanoisa/nvm_v2_imports.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_layouts.c -o obj/nanoisa/nvm_v2_layouts.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_module.c -o obj/nanoisa/nvm_v2_module.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/nvm_v2_signatures.c -o obj/nanoisa/nvm_v2_signatures.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/ownership_contracts.c -o obj/nanoisa/ownership_contracts.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/passive.c -o obj/nanoisa/passive.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/reference_places.c -o obj/nanoisa/reference_places.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/retained_layouts.c -o obj/nanoisa/retained_layouts.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings.c -o obj/nanoisa/service_bindings.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_bindings_module.c -o obj/nanoisa/service_bindings_module.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal.c -o obj/nanoisa/service_file_nominal.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_file_nominal_plan.c -o obj/nanoisa/service_file_nominal_plan.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_multi_nominal.c -o obj/nanoisa/service_multi_nominal.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_multi_nominal_plan.c -o obj/nanoisa/service_multi_nominal_plan.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_socket_nominal.c -o obj/nanoisa/service_socket_nominal.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/service_socket_nominal_plan.c -o obj/nanoisa/service_socket_nominal_plan.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/nsi_socket_plan.c -o obj/nsi_socket_plan.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/nsi_websocket_plan.c -o obj/nsi_websocket_plan.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier.c -o obj/nanoisa/verifier.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/verifier_types.c -o obj/nanoisa/verifier_types.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/nanovm/vm_decode.c -o obj/nanovm/vm_decode.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/nsi_file_plan.c -o obj/nsi_file_plan.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/runtime/service_policy.c -o obj/runtime/service_policy.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/services_runtime.c -o obj/nanoisa/services_runtime.o
+In file included from src/nanoisa/services_runtime.c:11:
+src/nanoisa/service_runtime.inc:132:36: error: call to undeclared function 'nl_websocket_catalog_type'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  132 |         const NlServicePlanType *t=RUNTIME_CATALOG_TYPE(c,i);
+      |                                    ^
+src/nanoisa/services_runtime_config.h:30:183: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                       ^
+src/nanoisa/service_runtime.inc:132:36: note: did you mean 'nl_socket_catalog_type'?
+src/nanoisa/services_runtime_config.h:30:183: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                       ^
+src/nanoisa/../nsi_socket_plan.h:24:26: note: 'nl_socket_catalog_type' declared here
+   24 | const NlServicePlanType *nl_socket_catalog_type(size_t);
+      |                          ^
+In file included from src/nanoisa/services_runtime.c:11:
+src/nanoisa/service_runtime.inc:132:36: error: pointer/integer type mismatch in conditional expression ('int' and 'const NlFilePlanType *' (aka 'const NlServicePlanType *')) [-Werror,-Wconditional-type-mismatch]
+  132 |         const NlServicePlanType *t=RUNTIME_CATALOG_TYPE(c,i);
+      |                                    ^~~~~~~~~~~~~~~~~~~~~~~~~
+src/nanoisa/services_runtime_config.h:30:182: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from src/nanoisa/services_runtime.c:11:
+src/nanoisa/service_runtime.inc:263:38: error: call to undeclared function 'nl_websocket_catalog_type'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  263 |     const NlServicePlanType *catalog=RUNTIME_CATALOG_TYPE(c,ordinal);
+      |                                      ^
+src/nanoisa/services_runtime_config.h:30:183: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                       ^
+In file included from src/nanoisa/services_runtime.c:11:
+src/nanoisa/service_runtime.inc:263:38: error: pointer/integer type mismatch in conditional expression ('int' and 'const NlFilePlanType *' (aka 'const NlServicePlanType *')) [-Werror,-Wconditional-type-mismatch]
+  263 |     const NlServicePlanType *catalog=RUNTIME_CATALOG_TYPE(c,ordinal);
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/nanoisa/services_runtime_config.h:30:182: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from src/nanoisa/services_runtime.c:11:
+src/nanoisa/service_runtime.inc:291:38: error: call to undeclared function 'nl_websocket_catalog_type'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  291 |     const NlServicePlanType *catalog=RUNTIME_CATALOG_TYPE(c,ordinal);SERVICE_TYPE(FlowDeclaration) type;
+      |                                      ^
+src/nanoisa/services_runtime_config.h:30:183: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                       ^
+In file included from src/nanoisa/services_runtime.c:11:
+src/nanoisa/service_runtime.inc:291:38: error: pointer/integer type mismatch in conditional expression ('int' and 'const NlFilePlanType *' (aka 'const NlServicePlanType *')) [-Werror,-Wconditional-type-mismatch]
+  291 |     const NlServicePlanType *catalog=RUNTIME_CATALOG_TYPE(c,ordinal);SERVICE_TYPE(FlowDeclaration) type;
+      |                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/nanoisa/services_runtime_config.h:30:182: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from src/nanoisa/services_runtime.c:11:
+src/nanoisa/service_runtime.inc:340:42: error: call to undeclared function 'nl_websocket_catalog_type'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+  340 |         const NlServicePlanType *catalog=RUNTIME_CATALOG_TYPE(c,input.type.catalog_ordinal);SERVICE_TYPE(FlowDeclaration) type;
+      |                                          ^
+src/nanoisa/services_runtime_config.h:30:183: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                       ^
+In file included from src/nanoisa/services_runtime.c:11:
+src/nanoisa/service_runtime.inc:340:42: error: pointer/integer type mismatch in conditional expression ('int' and 'const NlFilePlanType *' (aka 'const NlServicePlanType *')) [-Werror,-Wconditional-type-mismatch]
+  340 |         const NlServicePlanType *catalog=RUNTIME_CATALOG_TYPE(c,input.type.catalog_ordinal);SERVICE_TYPE(FlowDeclaration) type;
+      |                                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/nanoisa/services_runtime_config.h:30:182: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from src/nanoisa/services_runtime.c:11:
+In file included from src/nanoisa/service_runtime.inc:602:
+src/nanoisa/service_cyclic_runtime.inc:34:35: error: call to undeclared function 'nl_websocket_catalog_type'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   34 |     const NlServicePlanType *type=RUNTIME_CATALOG_TYPE(c,p->type.catalog_ordinal);
+      |                                   ^
+src/nanoisa/services_runtime_config.h:30:183: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                       ^
+In file included from src/nanoisa/services_runtime.c:11:
+In file included from src/nanoisa/service_runtime.inc:602:
+src/nanoisa/service_cyclic_runtime.inc:34:35: error: pointer/integer type mismatch in conditional expression ('int' and 'const NlFilePlanType *' (aka 'const NlServicePlanType *')) [-Werror,-Wconditional-type-mismatch]
+   34 |     const NlServicePlanType *type=RUNTIME_CATALOG_TYPE(c,p->type.catalog_ordinal);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/nanoisa/services_runtime_config.h:30:182: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from src/nanoisa/services_runtime.c:13:
+src/nanoisa/services_runtime_websocket.inc:10:37: error: call to undeclared function 'nl_websocket_catalog_type'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   10 |     const NlServicePlanType *record=RUNTIME_CATALOG_TYPE(c,type.catalog_ordinal);
+      |                                     ^
+src/nanoisa/services_runtime_config.h:30:183: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                       ^
+In file included from src/nanoisa/services_runtime.c:13:
+src/nanoisa/services_runtime_websocket.inc:10:37: error: pointer/integer type mismatch in conditional expression ('int' and 'const NlFilePlanType *' (aka 'const NlServicePlanType *')) [-Werror,-Wconditional-type-mismatch]
+   10 |     const NlServicePlanType *record=RUNTIME_CATALOG_TYPE(c,type.catalog_ordinal);
+      |                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/nanoisa/services_runtime_config.h:30:182: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from src/nanoisa/services_runtime.c:13:
+src/nanoisa/services_runtime_websocket.inc:24:35: error: call to undeclared function 'nl_websocket_catalog_type'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   24 |     const NlServicePlanType *type=RUNTIME_CATALOG_TYPE(c,p->type.catalog_ordinal);
+      |                                   ^
+src/nanoisa/services_runtime_config.h:30:183: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                       ^
+In file included from src/nanoisa/services_runtime.c:13:
+src/nanoisa/services_runtime_websocket.inc:24:35: error: pointer/integer type mismatch in conditional expression ('int' and 'const NlFilePlanType *' (aka 'const NlServicePlanType *')) [-Werror,-Wconditional-type-mismatch]
+   24 |     const NlServicePlanType *type=RUNTIME_CATALOG_TYPE(c,p->type.catalog_ordinal);
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/nanoisa/services_runtime_config.h:30:182: note: expanded from macro 'RUNTIME_CATALOG_TYPE'
+   30 | #define RUNTIME_CATALOG_TYPE(c,id) (!RUNTIME_TYPE_VALID(c,id)?NULL:(c)->catalogs[(id)/9]==NL_SERVICES_TCP?nl_socket_catalog_type((id)%9):(c)->catalogs[(id)/9]==NL_SERVICES_WEBSOCKET?nl_websocket_catalog_type((id)%9):nl_file_catalog_type((id)%9))
+      |                                                                                                                                                                                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from src/nanoisa/services_runtime.c:13:
+src/nanoisa/services_runtime_websocket.inc:53:39: error: call to undeclared function 'nl_websocket_catalog_method'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+   53 |     const NlServicePlanMethod *method=nl_websocket_catalog_method(local);
+      |                                       ^
+src/nanoisa/services_runtime_websocket.inc:53:39: note: did you mean 'nl_socket_catalog_method'?
+src/nanoisa/../nsi_socket_plan.h:23:28: note: 'nl_socket_catalog_method' declared here
+   23 | const NlServicePlanMethod *nl_socket_catalog_method(size_t);
+      |                            ^
+In file included from src/nanoisa/services_runtime.c:13:
+src/nanoisa/services_runtime_websocket.inc:53:32: error: incompatible integer to pointer conversion initializing 'const NlServicePlanMethod *' with an expression of type 'int' [-Wint-conversion]
+   53 |     const NlServicePlanMethod *method=nl_websocket_catalog_method(local);
+      |                                ^      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+16 errors generated.
+make: *** [obj/nanoisa/services_runtime.o] Error 1

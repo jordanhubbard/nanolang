@@ -1,0 +1,7 @@
+I retain service transport artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-576cyb18
+test_generated_c99_portability (tests.test_mixed_websocket_runtime.MixedWebSocketRuntime.test_generated_c99_portability) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 20.562s
+
+OK

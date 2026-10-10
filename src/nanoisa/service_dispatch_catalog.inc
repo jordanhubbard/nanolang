@@ -16,3 +16,11 @@
 #ifndef FLOW_TIMEOUT_CHECK
 #define FLOW_TIMEOUT_CHECK 0u
 #endif
+
+#ifndef SERVICE_ORDERED_CALL
+#define SERVICE_ORDERED_CALL SERVICE_FN(runtime_service)
+#define SERVICE_ORDERED_CALL_TEXT "runtime_service"
+#endif
+#ifndef DISPATCH_IMPORT_OPTIONAL
+#define DISPATCH_IMPORT_OPTIONAL(p,id) false
+#endif

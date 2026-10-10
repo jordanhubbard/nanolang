@@ -4,7 +4,7 @@
 #include "../nsi_services_values.h"
 
 /* Private carrier primitives, not a CODE dispatcher or public execution route.
- * Every operation requires external serialization with the private File/TCP cores,
+ * Every operation requires external serialization with the private service cores,
  * including construction/destruction. No thread-safety claim. All caller output
  * storage is disjoint from contexts, input spans and other output objects. */
 #define NVM_SERVICES_RUNTIME_BYTES (64u*1024u*1024u)
@@ -23,7 +23,7 @@ typedef struct {
     NvmServicesFlowArm arm;
     uint8_t fields;
     int64_t values[NVM_SERVICES_RUNTIME_FIELDS];
-} NvmServicesRuntimeView; /* No File/TCP handle, capability, stream or borrow epoch. */
+} NvmServicesRuntimeView; /* No host handle, capability, stream or borrow epoch. */
 typedef struct {
     NvmServicesRuntimeStatus status;
     bool acquired;
@@ -43,6 +43,10 @@ NvmServicesRuntimeStatus nvm_services_runtime_create(const uint8_t *,size_t,NvmS
 bool nvm_services_runtime_storage(const NvmServicesRuntime *,NvmServicesRuntimeStorage *);
 const NvmServicesHostedPlan *nvm_services_runtime_plan(const NvmServicesRuntime *);
 NvmServicesRuntimeStatus nvm_services_runtime_begin(NvmServicesRuntime *);
+/* I copy each declared WebSocket policy once before begin. The core budget is
+ * 32 MiB divided among declared WebSocket instances; payload/transport limits
+ * return typed results. File/TCP need no WebSocket policy. */
+NvmServicesRuntimeStatus nvm_services_runtime_websocket_policy(NvmServicesRuntime *,uint32_t,const NlWsTransportPolicy *);
 /* The later matched dispatcher supplies actual instruction sites. This carrier
  * API does not prove its caller followed the checked CFG or discharged masks. */
 NvmServicesRuntimeStatus nvm_services_runtime_site(NvmServicesRuntime *,uint32_t function,uint16_t instruction);
@@ -77,6 +81,10 @@ NvmServicesRuntimeStatus nvm_services_runtime_end_reference(NvmServicesRuntime *
  * instance owner for close; otherwise NO_SLOT.
  * reference is exclusive for methods 1..3 of that instance; otherwise NO_SLOT. */
 NvmServicesRuntimeStatus nvm_services_runtime_service(NvmServicesRuntime *,uint32_t import,uint32_t reference,uint32_t input,uint32_t output);
+/* I accept the catalog's ordered non-reference arguments for every instance.
+ * WebSocket supplies URL/timeout, Message/timeout, timeout or owner/timeout.
+ * The older single-input function remains File/TCP-only. */
+NvmServicesRuntimeStatus nvm_services_runtime_service_args(NvmServicesRuntime *,uint32_t,uint32_t,const uint32_t *,size_t,uint32_t);
 /* Enforce initializer/entry sequencing and scalar staging, not instruction CFG.
  * VOID initializer uses NO_SLOT; entry uses its exact scalar result root. */
 NvmServicesRuntimeStatus nvm_services_runtime_complete_root(NvmServicesRuntime *,uint32_t result);

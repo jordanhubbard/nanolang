@@ -203,7 +203,10 @@ static void fn_agreement(Fne *b,const SERVICE_TYPE(IndirectHostedPlan) *p,SERVIC
     }
     for(uint32_t method=0;method<DISPATCH_IMPORT_COUNT(p);method++) {
         uint32_t original;
-        if(!SERVICE_FN(indirect_hosted_import)(p,method,&original)){b->status=SERVICE_CONST(RUNTIME_UNRESOLVED);return;}
+        if(!SERVICE_FN(indirect_hosted_import)(p,method,&original)) {
+            if(!DISPATCH_IMPORT_OPTIONAL(p,method)){b->status=SERVICE_CONST(RUNTIME_UNRESOLVED);return;}
+            fn_text(b,"if(" SERVICE_FN_TEXT "indirect_hosted_import(p,%u,&ordinal))return false;\n",method);continue;
+        }
         fn_text(b,"if(!" SERVICE_FN_TEXT "indirect_hosted_import(p,%u,&ordinal) || ordinal!=%u)return false;\n",method,original);
     }
     for(uint32_t index=0;index<start.functions;index++) {
@@ -339,11 +342,12 @@ static void fn_instruction(Fne *b,const SERVICE_TYPE(IndirectHostedPlan) *p,uint
         bool borrowed=method->input_mode==NL_SERVICE_INPUT_EXCLUSIVE;
         size_t count=method->param_count-1-(borrowed?1:0);
         if(count>2){b->status=SERVICE_CONST(RUNTIME_UNRESOLVED);return;}
-        fn_text(b,"{uint32_t inputs[2];reference=" SERVICE_CONST_TEXT "RUNTIME_NO_SLOT;\n"
-            "if(f.stack_count<%zu || !" SERVICE_FN_TEXT "runtime_frame_scratch(c,&dst))return nf_bad(c);\n",count);
+        fn_text(b,"{uint32_t inputs[2]={0};reference=" SERVICE_CONST_TEXT "RUNTIME_NO_SLOT;\n");
+        if(count)fn_text(b,"if(f.stack_count<%zu)return nf_bad(c);\n",count);
+        fn_text(b,"if(!" SERVICE_FN_TEXT "runtime_frame_scratch(c,&dst))return nf_bad(c);\n");
         for(size_t i=0;i<count;i++)fn_text(b,"if(!" SERVICE_FN_TEXT "runtime_frame_operand(c,(uint16_t)(f.stack_count-%zu),&inputs[%zu]))return nf_bad(c);\n",count-i,i);
         if(borrowed)fn_text(b,"if(!" SERVICE_FN_TEXT "runtime_frame_reference(c,%u,&reference))return nf_bad(c);\n",d->operands[1].u16);
-        fn_text(b,"NF_TRY(" SERVICE_FN_TEXT "runtime_service(c,%u,reference,inputs,%zu,dst));\n"
+        fn_text(b,"NF_TRY(" SERVICE_FN_TEXT SERVICE_ORDERED_CALL_TEXT "(c,%u,reference,inputs,%zu,dst));\n"
             "if(!" SERVICE_FN_TEXT "runtime_frame_reserve(c,(uint16_t)(f.stack_count-%zu),&output))return nf_bad(c);\n"
             "NF_TRY(" SERVICE_FN_TEXT "runtime_move(c,dst,output));}\n",d->operands[0].u32,count,count);break;
 #else
@@ -480,7 +484,7 @@ static SERVICE_TYPE(RuntimeStatus) file_indirect_native_emit_serialized(const ui
         "if(!nf_agrees(" SERVICE_FN_TEXT "runtime_indirect_plan(c))){(void)" SERVICE_FN_TEXT "runtime_indirect_destroy(&c,NULL);return nf_refused(" SERVICE_CONST_TEXT "RUNTIME_UNRESOLVED,options);}\n"
         );
     if(surface==FNE_PUBLIC && SERVICE_PUBLIC_INSTANCE_GRANTS)fn_text(&b,"%s",
-        "status=" SERVICE_FN_TEXT "public_grant_status(" SERVICE_FN_TEXT "host_authorize(grant," SERVICE_FN_TEXT "runtime_indirect_plan(c)));\n"
+        "status=" SERVICE_FN_TEXT "public_configure(c,grant);\n"
         "if(status!=" SERVICE_CONST_TEXT "RUNTIME_OK){(void)" SERVICE_FN_TEXT "runtime_indirect_destroy(&c,NULL);return nf_refused(status,options); }\n");
     if(SERVICE_EXPLICIT_POLICY) {
         if(surface==FNE_PUBLIC)fn_text(&b,"%s",

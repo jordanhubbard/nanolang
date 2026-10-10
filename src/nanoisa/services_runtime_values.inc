@@ -1,14 +1,29 @@
-static bool fr_mixed_bound(size_t *out) {
+static bool fr_mixed_bound(bool websocket,size_t *out) {
     NlServicesCatalog catalogs[64];size_t file,tcp;
     for(unsigned i=0;i<64;i++)catalogs[i]=NL_SERVICES_FILE;
     if(!nl_services_values_storage_bound(catalogs,64,&file))return false;
     for(unsigned i=0;i<64;i++)catalogs[i]=NL_SERVICES_TCP;
     if(!nl_services_values_storage_bound(catalogs,64,&tcp))return false;
-    *out=file>tcp?file:tcp;return true;
+    *out=(file>tcp?file:tcp)+(websocket?RUNTIME_WEBSOCKET_BUDGET:0);return true;
 }
+/* I reserve WebSocket storage only when the retained table declares it. */
+#define MIXED_PLAN_BOUND(name,Plan) \
+static bool fr_mixed_##name##_bound(const Plan *p,size_t *out) { \
+    bool websocket=false;NvmServicesNominalLayout type; \
+    for(unsigned i=0;i<64;i++) { \
+        if(!nvm_services_##name##_type(p,i*9,&type))break; \
+        if(!nvm_services_##name##_type(p,i*9+7,&type))websocket=true; \
+    } \
+    return fr_mixed_bound(websocket,out); \
+}
+MIXED_PLAN_BOUND(hosted,NvmServicesHostedPlan)
+MIXED_PLAN_BOUND(cyclic_hosted,NvmServicesCyclicHostedPlan)
+MIXED_PLAN_BOUND(indirect_hosted,NvmServicesIndirectHostedPlan)
+#undef MIXED_PLAN_BOUND
 static NlServicesValue fr_mixed_borrow_value(NlServicesBorrow borrow) {
     NlServicesValue value={0};value.instance=borrow.instance;value.catalog=borrow.catalog;
     if(borrow.catalog==NL_SERVICES_TCP)value.value.tcp=borrow.borrow.tcp.value;
+    else if(borrow.catalog==NL_SERVICES_WEBSOCKET)value.value.websocket=borrow.borrow.websocket.value;
     else value.value.file=borrow.borrow.file.value;
     return value;
 }
@@ -16,6 +31,8 @@ static bool fr_mixed_identity(NlServicesValue a,NlServicesValue b) {
     if(a.instance!=b.instance || a.catalog!=b.catalog)return false;
     if(a.catalog==NL_SERVICES_TCP)return a.value.tcp.invocation==b.value.tcp.invocation &&
         a.value.tcp.generation==b.value.tcp.generation && a.value.tcp.slot==b.value.tcp.slot;
+    if(a.catalog==NL_SERVICES_WEBSOCKET)return a.value.websocket.invocation==b.value.websocket.invocation &&
+        a.value.websocket.generation==b.value.websocket.generation && a.value.websocket.slot==b.value.websocket.slot;
     return a.value.file.invocation==b.value.file.invocation &&
         a.value.file.generation==b.value.file.generation && a.value.file.slot==b.value.file.slot;
 }
@@ -30,6 +47,12 @@ static bool fr_error_payload(NlServicesOpenView view,int64_t out[NVM_SERVICES_RU
         NlFileResult r=view.error.file;if(r.bytes>(uint64_t)INT64_MAX)return false;
         out[0]=r.status;out[1]=r.host_errno;out[2]=r.cleanup_errno;out[3]=(int64_t)r.bytes;
         out[4]=r.eof;out[5]=r.consumed;out[6]=r.cleanup_failed;return true;
+    }
+    if(view.catalog==NL_SERVICES_WEBSOCKET) {
+        NlWsTransportResult r=view.error.websocket;
+        out[0]=r.status;out[1]=r.host_errno;out[2]=r.resolver_error;out[3]=r.supervisor_status;
+        out[4]=r.close_code;out[5]=r.cleanup_errno;out[6]=r.cleanup_failed;
+        out[7]=r.closure_unknown;out[8]=r.terminal;return true;
     }
     if(view.catalog!=NL_SERVICES_TCP)return false;
     NlSocketResult r=view.error.tcp;if(r.bytes>(uint64_t)INT64_MAX)return false;
@@ -66,9 +89,11 @@ static bool fr_scalar_result(NvmServicesRuntime *c,uint32_t id,NlServicesScalarR
     } else if(value || eof)return false;
     *out=result;return true;
 }
+static bool fr_mixed_ws_payload(const NvmServicesRuntime *,const NvmServicesRuntimeView *);
 static bool fr_mixed_payload(const NvmServicesRuntime *c,const NvmServicesRuntimeView *p) {
     uint32_t id=p->type.catalog_ordinal;
     if(!RUNTIME_TYPE_VALID(c,id))return false;
+    if(c->catalogs[id/9]==NL_SERVICES_WEBSOCKET)return fr_mixed_ws_payload(c,p);
     if(p->arm==NVM_SERVICES_FLOW_ARM_ERROR) {
         if(p->fields!=RUNTIME_ERROR_FIELDS(c,id))return false;
         uint8_t start=c->catalogs[id/9]==NL_SERVICES_TCP?6:4;
@@ -94,4 +119,17 @@ static NlServicesValueStatus fr_mixed_service(NvmServicesRuntime *c,uint32_t id,
     if(method==4)return nl_services_value_close(c->files,instance,&c->values[input].owner,scalar);
     return nl_services_value_call(c->files,instance,method,&c->references[reference].borrow,
         method==1?c->values[input].view.values[0]:0,scalar);
+}
+
+static NlServicesValueStatus fr_mixed_begin(NvmServicesRuntime *c) {
+    unsigned websockets=0;
+    for(unsigned i=0;i<c->instances;i++)if(c->catalogs[i]==NL_SERVICES_WEBSOCKET) {
+        if(!c->policy_set[i])return NL_SERVICES_VALUE_ARGUMENT;
+        websockets++;
+    }
+    for(unsigned i=0;i<c->instances;i++) {
+        c->configs[i].catalog=c->catalogs[i];
+        if(c->catalogs[i]==NL_SERVICES_WEBSOCKET)c->configs[i].websocket_storage_limit=RUNTIME_WEBSOCKET_BUDGET/websockets;
+    }
+    return nl_services_values_create_config(c->configs,c->instances,&c->files);
 }

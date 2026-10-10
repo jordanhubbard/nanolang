@@ -46,6 +46,12 @@ static void ws_contracts(NvmModule *m,const NvmMultiNominalBindings *b){
 static void push_text(Code *c,NvmModule *m,const char *bytes,unsigned size){
  byte(c,OP_PUSH_STR);dword(c,nvm_add_string(m,bytes,size));
 }
+static unsigned ws_fixture_timeout;
+static const char *ws_fixture_reply="a\0b";
+static bool ws_fixture_require_success;
+static void ws_deadline(Code *c){byte(c,OP_PUSH_I64);for(unsigned n=0;n<8;n++)byte(c,(uint8_t)((uint64_t)ws_fixture_timeout>>(8*n)));}
+static void ws_require_ok(Code *c){byte(c,OP_UNION_TAG);number(c);byte(c,OP_EQ);byte(c,OP_ASSERT);}
+static void ws_forbid_error(Code *c){byte(c,OP_PUSH_BOOL);byte(c,0);byte(c,OP_ASSERT);}
 static NvmModule *ws_program(const uint32_t *catalogs,unsigned count,bool indirect,bool loop,bool reverse,unsigned defect,NvmMultiNominalBindings *b){
  NvmModule *m=fixture_catalogs(reverse,b,catalogs,count);ws_contracts(m,b);
  NvmServicesNominalPlan *p=NULL;CHECK(nvm_services_nominal_plan(m,&p)==NVM_MULTI_NOMINAL_DESCRIBED);
@@ -55,7 +61,7 @@ static NvmModule *ws_program(const uint32_t *catalogs,unsigned count,bool indire
   if(catalogs[i]==2){
    for(unsigned j=0;j<7;j++)number(c);
    CHECK(nvm_services_nominal_type(p,i*9+8,&type));byte(c,OP_AGG_PACK);byte(c,AGG_RECORD);dword(c,type.source_ordinal);word(c,0);word(c,7);
-  }else if(ws){push_text(c,m,"ws://127.0.0.1/test",19);number(c);}
+  }else if(ws){push_text(c,m,"ws://127.0.0.1/test",19);ws_deadline(c);}
   svc(c,b,i,0,UINT16_MAX);local(c,OP_OWN_STORE_LOCAL,(uint16_t)i);
   uint32_t error=jump(c,OP_FILE_RESULT_BRANCH,(uint16_t)i);
   take(c,(uint16_t)i,0);local(c,OP_OWN_STORE_LOCAL,(uint16_t)(count+i));
@@ -66,7 +72,7 @@ static NvmModule *ws_program(const uint32_t *catalogs,unsigned count,bool indire
    CHECK(nvm_services_nominal_type(p,message_instance*9+2,&type));
    byte(c,OP_AGG_PACK);byte(c,AGG_RECORD);dword(c,type.source_ordinal);word(c,0);word(c,2);
   }
-  if(defect==2 && ws){byte(c,OP_PUSH_BOOL);byte(c,0);}else number(c);
+  if(defect==2 && ws){byte(c,OP_PUSH_BOOL);byte(c,0);}else if(ws)ws_deadline(c);else number(c);
   unsigned target=count+1+i;
   if(defect==3 && i==count-1)target--;
   if(indirect){
@@ -75,26 +81,33 @@ static NvmModule *ws_program(const uint32_t *catalogs,unsigned count,bool indire
    byte(c,OP_FILE_CALL_INDIRECT_REFS);word(c,(uint16_t)params);word(c,1);dword(c,map);
   }else{byte(c,OP_CALL_REF);dword(c,target);word(c,20);}
   byte(c,OP_POP);
-  if(ws)number(c);
+  if(ws)ws_deadline(c);
   svc(c,b,i,2,20);
   if(ws){
    local(c,OP_STORE_LOCAL,(uint16_t)(2*count+i));uint32_t receive_error=jump(c,OP_FILE_RESULT_BRANCH,(uint16_t)(2*count+i));
-   take(c,(uint16_t)(2*count+i),0);byte(c,OP_AGG_GET);word(c,1);byte(c,OP_STR_LEN);byte(c,OP_POP);
-   uint32_t receive_join=jump(c,OP_JMP,0);destination(c,receive_error,c->n);take(c,(uint16_t)(2*count+i),1);byte(c,OP_POP);destination(c,receive_join,c->n);
+   take(c,(uint16_t)(2*count+i),0);byte(c,OP_AGG_GET);word(c,1);byte(c,OP_DUP);byte(c,OP_STR_LEN);
+   byte(c,OP_PUSH_I64);for(unsigned n=0;n<8;n++)byte(c,n?0:3);byte(c,OP_EQ);byte(c,OP_ASSERT);
+   push_text(c,m,ws_fixture_reply,3);byte(c,OP_STR_EQ);byte(c,OP_ASSERT);
+   uint32_t receive_join=jump(c,OP_JMP,0);destination(c,receive_error,c->n);take(c,(uint16_t)(2*count+i),1);byte(c,OP_POP);if(ws_fixture_require_success)ws_forbid_error(c);destination(c,receive_join,c->n);
   }else{byte(c,OP_POP);svc(c,b,i,3,20);byte(c,OP_POP);}
-  local(c,OP_FILE_END_BORROW,20);byte(c,OP_REGION_END);
+  if(!ws || !ws_fixture_require_success)local(c,OP_FILE_END_BORROW,20);
+  byte(c,OP_REGION_END);
   local(c,OP_OWN_MOVE_LOCAL,(uint16_t)(count+i));owned_call(c,1+i,indirect);
-  if(ws && defect!=4)number(c);
+  if(ws && defect!=4){
+   if(defect==6){byte(c,OP_PUSH_I64);for(unsigned n=0;n<8;n++)byte(c,255);}
+   else ws_deadline(c);
+  }
   unsigned close_instance=defect==5 && i==count-1?i-1:i;
-  svc(c,b,close_instance,ws?3:4,UINT16_MAX);byte(c,OP_POP);
-  uint32_t join=jump(c,OP_JMP,0);destination(c,error,c->n);take(c,(uint16_t)i,1);byte(c,OP_POP);destination(c,join,c->n);
+  svc(c,b,close_instance,ws?3:4,UINT16_MAX);if(ws && ws_fixture_require_success)ws_require_ok(c);else byte(c,OP_POP);
+  uint32_t join=jump(c,OP_JMP,0);destination(c,error,c->n);take(c,(uint16_t)i,1);byte(c,OP_POP);if(ws && ws_fixture_require_success)ws_forbid_error(c);destination(c,join,c->n);
  }
  if(loop){byte(c,OP_PUSH_BOOL);byte(c,0);uint32_t back=jump(c,OP_JMP_TRUE,0);destination(c,back,0);}
  number(c);byte(c,OP_RET);
  for(unsigned i=0;i<count;i++){
   c=&code[1+i];local(c,OP_OWN_MOVE_LOCAL,0);byte(c,OP_RET);
   c=&code[1+count+i];for(unsigned j=1;j<m->functions[1+count+i].arity;j++)local(c,OP_LOAD_LOCAL,(uint16_t)j);
-  svc(c,b,i,1,0);byte(c,OP_RET);
+  svc(c,b,i,1,0);if(catalogs[i]==3 && ws_fixture_require_success){byte(c,OP_DUP);ws_require_ok(c);}
+  byte(c,OP_RET);
  }
  nvm_services_nominal_plan_free(p);
  uint32_t size=0;for(unsigned f=0;f<m->function_count;f++)size+=code[f].n;
@@ -139,11 +152,36 @@ static void ws_runtime_refusal(const uint8_t *bytes,size_t size,NvmServicesIndir
  CHECK(!nl_service_policy_read(bytes,size,true,true,true,&policy) && !memcmp(&policy,&saved_policy,sizeof policy));
  NvmServicesIndirectOptions options={1,100000};
  for(unsigned mode=0;mode<2;mode++){
-  NvmServicesRuntime *runtime=(void *)&checks;
-  CHECK(nvm_services_runtime_indirect_create(bytes,size,mode?NVM_SERVICES_RUNTIME_NATIVE:NVM_SERVICES_RUNTIME_VM,&options,&runtime)!=NVM_SERVICES_RUNTIME_OK && runtime==(void *)&checks);
+  NvmServicesRuntime *runtime=NULL;
+  CHECK(nvm_services_runtime_indirect_create(bytes,size,mode?NVM_SERVICES_RUNTIME_NATIVE:NVM_SERVICES_RUNTIME_VM,&options,&runtime)==NVM_SERVICES_RUNTIME_OK && runtime);
+  CHECK(nvm_services_runtime_begin(runtime)==NVM_SERVICES_RUNTIME_INVALID);
+  NvmServicesIndirectExecutionReport missing=nvm_services_runtime_indirect_destroy(&runtime,NULL);
+  CHECK(!runtime && !missing.runtime.acquired && missing.runtime.status==NVM_SERVICES_RUNTIME_INVALID);
+  CHECK(nvm_services_runtime_indirect_create(bytes,size,mode?NVM_SERVICES_RUNTIME_NATIVE:NVM_SERVICES_RUNTIME_VM,&options,&runtime)==NVM_SERVICES_RUNTIME_OK);
+  NlWsTransportPolicy policy={.max_timeout_ms=60001};
+  CHECK(nvm_services_runtime_websocket_policy(runtime,b->count,&policy)==NVM_SERVICES_RUNTIME_TYPE);
+  for(unsigned i=0;i<b->count;i++){
+   if(b->instances[i].catalog!=3){CHECK(nvm_services_runtime_websocket_policy(runtime,i,&policy)==NVM_SERVICES_RUNTIME_TYPE);continue;}
+   CHECK(nvm_services_runtime_websocket_policy(runtime,i,NULL)==NVM_SERVICES_RUNTIME_INVALID);
+   CHECK(nvm_services_runtime_websocket_policy(runtime,i,&policy)==NVM_SERVICES_RUNTIME_INVALID);
+   policy=(NlWsTransportPolicy){.allow_lookup=true};
+   CHECK(nvm_services_runtime_websocket_policy(runtime,i,&policy)==NVM_SERVICES_RUNTIME_INVALID);
+   policy=(NlWsTransportPolicy){.resolver_helper="relative"};
+   CHECK(nvm_services_runtime_websocket_policy(runtime,i,&policy)==NVM_SERVICES_RUNTIME_INVALID);
+   char helper[]="/copied/helper";policy=(NlWsTransportPolicy){.resolver_helper=helper};
+   CHECK(nvm_services_runtime_websocket_policy(runtime,i,&policy)==NVM_SERVICES_RUNTIME_OK);
+   memset(helper,'?',sizeof helper);
+   CHECK(nvm_services_runtime_websocket_policy(runtime,i,&policy)==NVM_SERVICES_RUNTIME_STATE);
+   policy=(NlWsTransportPolicy){.max_timeout_ms=60001};
+  }
+  CHECK(nvm_services_runtime_begin(runtime)==NVM_SERVICES_RUNTIME_OK);
+  CHECK(nvm_services_runtime_websocket_policy(runtime,0,&policy)==NVM_SERVICES_RUNTIME_STATE);
+  missing=nvm_services_runtime_indirect_destroy(&runtime,NULL);
+  CHECK(!runtime && missing.runtime.acquired && !missing.runtime.cleanup.cleanup_failures);
  }
  char *text=(void *)&checks,diagnostic[256];
- CHECK(nvm2c_emit_services_indirect_bytes(bytes,size,"mixed_ws",&text,diagnostic,sizeof diagnostic)!=NVM_SERVICES_RUNTIME_OK && text==(void *)&checks);
+ CHECK(nvm2c_emit_services_indirect_bytes(bytes,size,"mixed_ws",&text,diagnostic,sizeof diagnostic)==NVM_SERVICES_RUNTIME_OK && text!=(void *)&checks);
+ free(text);
  NvmServicesHostPolicy policies[5];for(unsigned i=0;i<b->count;i++)policies[i]=(NvmServicesHostPolicy){b->instances[i].catalog==2?NVM_SERVICES_HOST_TCP:NVM_SERVICES_HOST_FILE,true};
  NvmServicesHostGrant *grant=NULL;CHECK(nvm_services_host_grant_create(policies,b->count,&grant)==NVM_SERVICES_HOST_OK);
  CHECK(nvm_services_host_enter(grant,NVM_SERVICES_HOST_ABI,NVM_SERVICES_HOST_CATALOG)==NVM_SERVICES_HOST_OK);
@@ -327,7 +365,10 @@ static void ws_allocations(void){
  CHECK(success);free(bytes);nvm_module_free(m);
 }
 #endif
-int main(void){
+#ifndef MIXED_WEBSOCKET_FLOW_MAIN
+#define MIXED_WEBSOCKET_FLOW_MAIN main
+#endif
+int MIXED_WEBSOCKET_FLOW_MAIN(void){
  ws_grant_boundaries();ws_unused();
  const uint32_t one[]={3},mixed[]={1,2,3,3},five[]={3,3,3,3,3};
  for(unsigned reverse=0;reverse<2;reverse++)for(unsigned indirect=0;indirect<2;indirect++)for(unsigned loop=0;loop<2;loop++){
