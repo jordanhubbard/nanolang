@@ -130,7 +130,7 @@ jobs:
           TMPDIR: ${{ github.workspace }}/.test_output/file-indirect
         run: |
           mkdir -p "$TMPDIR"
-          make -f Makefile.gnu test-file-indirect-queries test-file-indirect-runtime test-file-indirect-dispatch
+          make -f Makefile.gnu test-file-indirect-queries test-file-indirect-runtime test-file-indirect-dispatch test-file-indirect-public
 
       - name: Run test suite
         env:

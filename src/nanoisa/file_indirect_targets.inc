@@ -172,6 +172,16 @@ static NvmFileFlowStatus fi_transfer(NvmFileIndirectTargets *r,uint32_t f,FileIn
     case OP_STORE_LOCAL:case OP_OWN_STORE_LOCAL:
         if(!s->stack_count)return NVM_FILE_FLOW_INVALID;
         value=s->stack[s->stack_count-1];
+        /* I mirror the ownership check's explicit end of a copy lifetime.
+         * Clearing a callable also forgets its target set. Owners and formal
+         * loans still require their checked move/borrow operations. */
+        if(d->opcode==OP_STORE_LOCAL && value.initialized==2 &&
+           same(value.type,scalar_type(TAG_VOID)) && s->locals[local].type.tag!=TAG_VOID) {
+            type=s->locals[local].type;
+            if(type.mode || owned(type))return NVM_FILE_FLOW_INVALID;
+            s->locals[local]=fi_value(type,1);
+            return fi_take(s,scalar_type(TAG_VOID));
+        }
         if(value.initialized!=2 || value.type.mode || !same(value.type,s->locals[local].type) ||
            owned(value.type)!=(d->opcode==OP_OWN_STORE_LOCAL) ||
            (d->opcode==OP_OWN_STORE_LOCAL && s->locals[local].initialized!=1))return NVM_FILE_FLOW_INVALID;

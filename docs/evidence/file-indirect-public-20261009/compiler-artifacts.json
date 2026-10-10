@@ -1,0 +1,12 @@
+{
+  "/private/tmp/nanolang-indirect-public-driver.nvm": "0ee6ccf4de45d9b072cf91698ea101a9a6a84b510e9c1f1ebe5b90cd19ae5a4f",
+  "/private/tmp/nanolang-indirect-public-driver": "254446c429ae21dea39da6df35ee66c48265772692e90cd4717b53aba9432dcb",
+  "bin/nano_aot_runtime.o": "e620df6d8335f93a5a2f5a473300cf9d6a7c2e5c149eaf88bf7474d76f93468c",
+  "lib/libnano_file_runtime.a": "8a9b6abb6ca8f2541aec1bef12e61063696fc267d31bb604d5caf668d614d27d",
+  "/Users/jordanh/Src/nanolang/modules/compiler_support/.build/.nano-gen-XISD1k/libcompiler_support.dylib": "33855fb2a06725eade3fa8a1b36f24982543810acb2e152a8bf1a2d581a4573b",
+  "/Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-7KJhUE/libfile_product.dylib": "798371bd5375e76a47786b883f520bc800e427166ea98e0d062043118ed850de",
+  "/Users/jordanh/Src/nanolang/modules/file_source_catalog/.build/.nano-gen-UrA9yD/libfile_source_catalog.dylib": "9a45a323b9e39830203cb1dd159a07352f4c4a88a0fb598b080b75e7747b3e0f",
+  "/Users/jordanh/Src/nanolang/modules/file_source_inputs/.build/.nano-gen-sl2i79/libfile_source_inputs.dylib": "3ba9e82841c66c64801c6eddf8c8318454ea7fbecb980033d7b6b262687d819c",
+  "/Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-iuMiAR/libnanoisa.dylib": "f96826894198c647438954f0f83be8a677e3cf75a817fa5f988d47706f9bae7b",
+  "/Users/jordanh/Src/nanolang/modules/std/.build/.nano-gen-ndhA9M/libstd.dylib": "ae55d4485dc9e540ebeb9596d990052963fab9cebba329874cacdae8a26a4ca0"
+}

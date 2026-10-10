@@ -1,7 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 #define _DARWIN_C_SOURCE 1
 #include "service_product.h"
-#include "../nanoisa/file_cyclic_public.h"
+#include "../nanoisa/file_indirect_public.h"
 #include "../shell_path.h"
 #include <errno.h>
 #include <fcntl.h>
@@ -70,9 +70,9 @@ static const char launcher[] =
 "  fputs(\"I require --allow-temporary-files for this invocation.\\n\",stderr); return 1; }\n"
 " NvmFileHostGrant *grant=NULL;\n"
 " if(nvm_file_host_grant_create_temporary_files(&grant)!=NVM_FILE_HOST_OK)return 1;\n"
-" NvmFileCyclicOptions options={NVM_FILE_CYCLIC_RUNTIME_REVISION,NVM_FILE_CYCLIC_FUEL_MAX};\n"
+" NvmFileIndirectOptions options={NVM_FILE_INDIRECT_RUNTIME_REVISION,NVM_FILE_INDIRECT_FUEL_MAX};\n"
 " NvmFileScalar scalar={0};\n"
-" NvmFileCyclicExecutionReport result=nvm_file_cyclic_program_product(grant,&options,&scalar);\n"
+" NvmFileIndirectExecutionReport result=nvm_file_indirect_program_product(grant,&options,&scalar);\n"
 " NvmFileHostStatus revoked=nvm_file_host_grant_revoke(grant);\n"
 " NvmFileHostStatus destroyed=nvm_file_host_grant_destroy(&grant);\n"
 " if(result.runtime.status!=NVM_FILE_RUNTIME_OK || !result.runtime.acquired ||\n"
@@ -88,7 +88,7 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
     }
     /* Translation validates the main module without executing or granting it. */
     char *native=NULL,diagnostic[256];
-    if(nvm2c_emit_file_cyclic_bytes(bytes,size,"product",&native,diagnostic,sizeof diagnostic)!=NVM_FILE_RUNTIME_OK) {
+    if(nvm2c_emit_file_indirect_bytes(bytes,size,"product",&native,diagnostic,sizeof diagnostic)!=NVM_FILE_RUNTIME_OK) {
         fprintf(stderr,"I cannot validate File output: %s\n",diagnostic);return 1;
     }
     char *parent=strdup(options->output?options->output:"/tmp/nano-file-run");
@@ -166,8 +166,8 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
     if(options->run) {
         NvmFileHostGrant *grant=NULL;
         if(nvm_file_host_grant_create_temporary_files(&grant)!=NVM_FILE_HOST_OK)goto done;
-        NvmFileScalar scalar={0};NvmFileCyclicOptions execution={1,NVM_FILE_CYCLIC_FUEL_MAX};
-        NvmFileCyclicExecutionReport report=nvm_file_execute_cyclic_bytes(grant,bytes,size,&execution,&scalar);
+        NvmFileScalar scalar={0};NvmFileIndirectOptions execution={1,NVM_FILE_INDIRECT_FUEL_MAX};
+        NvmFileIndirectExecutionReport report=nvm_file_execute_indirect_bytes(grant,bytes,size,&execution,&scalar);
         NvmFileHostStatus revoked=nvm_file_host_grant_revoke(grant);
         NvmFileHostStatus destroyed=nvm_file_host_grant_destroy(&grant);
         if(report.runtime.status!=NVM_FILE_RUNTIME_OK || !report.runtime.acquired || report.runtime.cleanup.cleanup_failures ||

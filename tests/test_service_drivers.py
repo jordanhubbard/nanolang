@@ -59,6 +59,7 @@ class ServiceDrivers(unittest.TestCase):
             symbols=subprocess.run(['nm',str(native)],capture_output=True,text=True,check=True).stdout
             self.assertNotIn('vm_execute',symbols)
             self.assertNotIn('nvm_file_execute_cyclic_bytes',symbols)
+            self.assertNotIn('nvm_file_execute_indirect_bytes',symbols)
         self.assertEqual(modules[0],modules[1])
         if self.drivers[1].name.startswith('nano_virt'):
             self.run_command([self.drivers[1],self.source,'--allow-temporary-files','--run'],7)

@@ -2,7 +2,7 @@
 #define _DARWIN_C_SOURCE 1
 #include "service_shadows.h"
 #include "shadow_timeout.h"
-#include "../nanoisa/file_cyclic_public.h"
+#include "../nanoisa/file_indirect_public.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -34,15 +34,15 @@ static bool elapsed(struct timespec start, unsigned seconds, bool *failed) {
 
 static NlServiceShadowReport execute(const NlServiceShadow *suite, size_t count, FILE *log) {
     NlServiceShadowReport report = {NL_SERVICE_SHADOW_FAILED, 0};
-    const NvmFileCyclicOptions options = {NVM_FILE_CYCLIC_RUNTIME_REVISION,
-                                         NVM_FILE_CYCLIC_FUEL_MAX};
+    const NvmFileIndirectOptions options = {NVM_FILE_INDIRECT_RUNTIME_REVISION,
+                                         NVM_FILE_INDIRECT_FUEL_MAX};
     for (size_t i = 0; i < count; ++i) {
         if (!record(log, "START", i, &suite[i])) return report;
         NvmFileHostGrant *grant = NULL;
         if (nvm_file_host_grant_create_temporary_files(&grant) != NVM_FILE_HOST_OK)
             return report;
         NvmFileScalar scalar = {0};
-        NvmFileCyclicExecutionReport result = nvm_file_execute_cyclic_bytes(
+        NvmFileIndirectExecutionReport result = nvm_file_execute_indirect_bytes(
             grant, suite[i].bytes, suite[i].size, &options, &scalar);
         NvmFileHostStatus revoked = nvm_file_host_grant_revoke(grant);
         NvmFileHostStatus destroyed = nvm_file_host_grant_destroy(&grant);

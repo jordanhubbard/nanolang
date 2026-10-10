@@ -402,8 +402,25 @@ static void borrowed_indirect_corpus(void){
  run_module(borrowed_indirect(2,false,0),1000,NVM_FILE_RUNTIME_CLEANUP,0,UINT64_MAX);
  memset(close_error,0,sizeof close_error);close_index=0;
 }
+static void cleared_callable_corpus(void){
+ /* I forget cleared target identity, accept a fresh binding, and refuse stale
+  * reads. The same spelling cannot erase affine owners or borrowed formals. */
+ for(unsigned stale=0;stale<2;stale++){
+  NvmModule *m=imodule(false,0,false,false);Body b={0};
+  iref(&b,1);one(&b,OP_STORE_LOCAL,0);op(&b,OP_PUSH_VOID);one(&b,OP_STORE_LOCAL,0);
+  if(!stale){iref(&b,2);one(&b,OP_STORE_LOCAL,0);}
+  fi(&b,41);one(&b,OP_LOAD_LOCAL,0);icall(&b);op(&b,OP_RET);setbody(m,0,b);
+  run_module(m,1000,stale?NVM_FILE_RUNTIME_INVALID:NVM_FILE_RUNTIME_OK,stale?0:42,stale?0:UINT64_MAX);
+ }
+ NvmModule *m=imodule(false,1,false,false);Body b={0};
+ op(&b,OP_PUSH_VOID);one(&b,OP_STORE_LOCAL,0);one(&b,OP_OWN_MOVE_LOCAL,0);op(&b,OP_RET);setbody(m,1,b);
+ run_module(m,1000,NVM_FILE_RUNTIME_INVALID,0,0);
+ m=borrowed_indirect(0,0,0);b=(Body){0};
+ op(&b,OP_PUSH_VOID);one(&b,OP_STORE_LOCAL,0);fi(&b,42);op(&b,OP_RET);setbody(m,3,b);
+ run_module(m,1000,NVM_FILE_RUNTIME_INVALID,0,0);
+}
 static void corpus(void){
- preserved_corpus();higher_order_corpus();borrowed_indirect_corpus();
+ preserved_corpus();higher_order_corpus();borrowed_indirect_corpus();cleared_callable_corpus();
  for(unsigned count=0;count<=4;count+=4){
   NvmModule *m=indirect_iterations(count);size_t size;uint8_t *wire=serialize(m,&size);nvm_module_free(m);
   NvmFileIndirectExecutionReport r=run_wire(wire,size,1000,NVM_FILE_RUNTIME_OK,count?30:0,UINT64_MAX,true);

@@ -98,7 +98,7 @@ class FileCyclicPublic(unittest.TestCase):
         self.assertTrue(lines)
         self.assertTrue(all(s.rfind('-std=c11') > s.rfind('-std=c99') for s in lines))
         headers = sorted((self.installed / 'include').rglob('*.h'))
-        self.assertEqual(len(headers),30)
+        self.assertEqual(len(headers),39)
         self.assertFalse(list(self.installed.rglob('*.inc')))
         self.assertFalse(list(self.installed.rglob('*.c')))
         self.assertFalse(any('private' in p.name for p in headers))

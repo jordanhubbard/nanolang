@@ -441,8 +441,13 @@ FILE_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(FILE_PUBLIC_QUERY
 	$(OBJ_DIR)/nanoisa/file_public_native.o $(OBJ_DIR)/nanovm/file_public_vm.o \
 	$(OBJ_DIR)/nanoisa/file_cyclic_public_native.o $(OBJ_DIR)/nanovm/file_cyclic_public_vm.o \
 	$(OBJ_DIR)/nanoisa/file_cyclic_public_abi.o \
+	$(OBJ_DIR)/nanoisa/file_indirect_public_native.o $(OBJ_DIR)/nanovm/file_indirect_public_vm.o \
+	$(OBJ_DIR)/nanoisa/file_indirect_public_abi.o \
 	$(OBJ_DIR)/nsi_cap.o $(OBJ_DIR)/nsi_file.o $(OBJ_DIR)/nsi_file_values.o
-FILE_PUBLIC_HEADERS = nanoisa/file_public.h nanoisa/file_public_internal.h \
+FILE_PUBLIC_HEADERS = nanoisa/file_indirect_public.h nanoisa/file_indirect_public_internal.h \
+	nanoisa/file_indirect_report.h nanoisa/file_indirect_native_public.h nanoisa/file_indirect_native_abi.h \
+	nanoisa/file_indirect_runtime.h nanoisa/file_indirect_hosted.h nanoisa/file_indirect_flow.h nanoisa/file_indirect_targets.h \
+	nanoisa/file_public.h nanoisa/file_public_internal.h \
 	nanoisa/file_cyclic_public.h nanoisa/file_cyclic_report.h nanoisa/file_cyclic_public_internal.h \
 	nanoisa/file_cyclic_native_public.h nanoisa/file_cyclic_native_abi.h \
 	nanoisa/file_cyclic_runtime.h nanoisa/file_cyclic_hosted.h nanoisa/file_cyclic.h \
@@ -4086,7 +4091,7 @@ coverage-check: coverage.info
 	fi
 
 # Install binaries
-install: $(COMPILER) vm nvm2c file-public-runtime
+install: $(COMPILER) vm nvm2c install-file-public-runtime
 	install -d $(PREFIX)/bin
 	install -m 755 $(COMPILER) $(PREFIX)/bin/nanoc
 	install -m 755 bin/nano_virt $(PREFIX)/bin/nano_virt
@@ -4095,12 +4100,6 @@ install: $(COMPILER) vm nvm2c file-public-runtime
 	install -m 755 bin/nano_vmd $(PREFIX)/bin/nano_vmd
 	install -m 755 bin/nanoisa $(PREFIX)/bin/nanoisa
 	install -m 755 bin/nvm2c $(PREFIX)/bin/nvm2c
-	install -d "$(PREFIX)/lib"
-	install -m 644 "$(FILE_PUBLIC_LIBRARY)" "$(PREFIX)/lib/libnano_file_runtime.a"
-	@set -e; for header in $(FILE_PUBLIC_HEADERS); do \
-		install -d "$(PREFIX)/include/nanolang/file/$$(dirname "$$header")"; \
-		install -m 644 "$(SRC_DIR)/$$header" "$(PREFIX)/include/nanolang/file/$$header"; \
-	done
 ifeq ($(UNAME_S),Linux)
 	install -m 755 bin/nano_as_capture.so $(PREFIX)/bin/nano_as_capture.so
 endif
@@ -6152,3 +6151,21 @@ test-nano-service-driver: bootstrap3 $(FILE_PUBLIC_LIBRARY)
 
 $(OBJ_DIR)/nvm2c_artifact_sanitize: $(NANOISA_DIR)/nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY)
 	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $@ $(NANOISA_DIR)/nvm2c.c $(filter-out $(OBJ_DIR)/nanoisa/nvm2c.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS)
+
+$(OBJ_DIR)/nanovm/file_indirect_public_vm.o: $(SRC_DIR)/nanovm/file_vm_indirect_engine.inc $(NANOISA_DIR)/file_indirect_dispatch.inc
+$(OBJ_DIR)/nanoisa/file_indirect_public_native.o: $(NANOISA_DIR)/file_indirect_native_emit.inc $(NANOISA_DIR)/file_indirect_dispatch.inc
+
+.PHONY: install-file-public-runtime
+install-file-public-runtime: file-public-runtime
+	install -d "$(PREFIX)/lib"
+	install -m 644 "$(FILE_PUBLIC_LIBRARY)" "$(PREFIX)/lib/libnano_file_runtime.a"
+	@set -e; for header in $(FILE_PUBLIC_HEADERS); do \
+		install -d "$(PREFIX)/include/nanolang/file/$$(dirname "$$header")"; \
+		install -m 644 "$(SRC_DIR)/$$header" "$(PREFIX)/include/nanolang/file/$$header"; \
+	done
+
+.PHONY: test-file-indirect-public test-file-indirect-public-sanitize
+test-file-indirect-public: $(BIN_DIR)/nano_vm $(BIN_DIR)/nvm2c $(FILE_PUBLIC_LIBRARY) $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=0 FILE_RUNTIME_OBJECTS="$(FILE_RUNTIME_TEST_OBJECTS)" FILE_INDIRECT_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_public
+test-file-indirect-public-sanitize: $(BIN_DIR)/nano_vm $(BIN_DIR)/nvm2c $(FILE_PUBLIC_LIBRARY) $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)
+	LSAN_OPTIONS= NANO_FILE_RUNTIME_CC="$(CC)" NANO_FILE_RUNTIME_CFLAGS="$(CFLAGS)" NANO_FILE_RUNTIME_SANITIZERS=1 FILE_RUNTIME_OBJECTS="$(FILE_RUNTIME_TEST_OBJECTS)" FILE_INDIRECT_NATIVE_LINK_OBJECTS="$(FILE_CYCLIC_PRIVATE_PROVIDERS) $(NANOISA_UTF8)" FILE_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_file_indirect_public

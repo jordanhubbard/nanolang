@@ -12,6 +12,7 @@
 #include "nvm2c.h"
 #include "file_public.h"
 #include "file_cyclic_public.h"
+#include "file_indirect_public.h"
 #include "file_cli.h"
 
 #include <stdio.h>
@@ -24,6 +25,7 @@ static void usage(FILE *out) {
             "I do not embed nano_vm. I am not a NanoLang compiler phase.\n"
             "Usage: nvm2c <file.nvm> [-o out.c]\n"
             "       nvm2c --file-temporary --entry-name IDENT <file.nvm> [-o out.c]\n"
+            "       nvm2c --file-temporary --file-indirect --entry-name IDENT <file.nvm> [-o out.c]\n"
             "       nvm2c --file-temporary --file-cyclic --entry-name IDENT <file.nvm> [-o out.c]\n"
             "       nvm2c --help\n"
             "Without -o I write C to stdout.\n"
@@ -38,7 +40,7 @@ int main(int argc, char **argv) {
     const char *out = NULL;
     const char *file_entry = NULL;
     bool file_temporary = false;
-    bool file_cyclic = false;
+    bool file_cyclic = false, file_indirect = false;
     int i;
     NanoisaErr err;
     NvmModule *mod;
@@ -55,8 +57,13 @@ int main(int argc, char **argv) {
             file_temporary = true;
             continue;
         }
+        if (strcmp(argv[i], "--file-indirect") == 0) {
+            if (file_cyclic || file_indirect) { usage(stderr); return 2; }
+            file_indirect = true;
+            continue;
+        }
         if (strcmp(argv[i], "--file-cyclic") == 0) {
-            if (file_cyclic) { usage(stderr); return 2; }
+            if (file_cyclic || file_indirect) { usage(stderr); return 2; }
             file_cyclic = true;
             continue;
         }
@@ -85,7 +92,7 @@ int main(int argc, char **argv) {
         return 2;
     }
 
-    if (file_temporary != (file_entry != NULL) || (file_cyclic && !file_temporary)) {
+    if (file_temporary != (file_entry != NULL) || ((file_cyclic || file_indirect) && !file_temporary)) {
         fprintf(stderr,"I require --file-temporary and --entry-name together.\n");
         return 2;
     }
@@ -98,7 +105,9 @@ int main(int argc, char **argv) {
             fprintf(stderr,"%s\n",emit_err);
             return 1;
         }
-        NvmFileRuntimeStatus status = file_cyclic
+        NvmFileRuntimeStatus status = file_indirect
+            ? nvm2c_emit_file_indirect_bytes(bytes,size,file_entry,&c,emit_err,sizeof emit_err)
+            : file_cyclic
             ? nvm2c_emit_file_cyclic_bytes(bytes,size,file_entry,&c,emit_err,sizeof emit_err)
             : nvm2c_emit_file_bytes(bytes,size,file_entry,&c,emit_err,sizeof emit_err);
         free(bytes);

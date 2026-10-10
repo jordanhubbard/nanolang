@@ -1,7 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 #define _DARWIN_C_SOURCE 1
 #include "runtime/service_shadows.h"
-#include "nanoisa/file_cyclic_public.h"
+#include "nanoisa/file_indirect_public.h"
 #include <assert.h>
 #include <signal.h>
 #include <stdio.h>
@@ -33,11 +33,11 @@ NvmFileHostStatus nvm_file_host_grant_destroy(NvmFileHostGrant **grant) {
     assert(*grant==&policy && policy.revoked); ++disposed; *grant=NULL;
     return NVM_FILE_HOST_OK;
 }
-NvmFileCyclicExecutionReport nvm_file_execute_cyclic_bytes(NvmFileHostGrant *grant,
-        const uint8_t *bytes,size_t size,const NvmFileCyclicOptions *options,NvmFileScalar *scalar) {
+NvmFileIndirectExecutionReport nvm_file_execute_indirect_bytes(NvmFileHostGrant *grant,
+        const uint8_t *bytes,size_t size,const NvmFileIndirectOptions *options,NvmFileScalar *scalar) {
     assert(grant==&policy && !grant->revoked && size==1);
     assert(options->revision==1 && options->instruction_limit>0);
-    NvmFileCyclicExecutionReport report={0};
+    NvmFileIndirectExecutionReport report={0};
     report.runtime.acquired=true;
     switch (*bytes) {
     case 1: report.runtime.status=NVM_FILE_RUNTIME_ASSERT; break;
