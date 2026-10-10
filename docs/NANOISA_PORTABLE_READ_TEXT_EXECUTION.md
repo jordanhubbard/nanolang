@@ -41,3 +41,7 @@ This is my first executable portable binding. Full generated Wasmtime execution,
 Wasm allocation-failure qualification, the full source boundary corpus and exact-candidate
 platform gates remain open. Byte/aggregate results and remaining compiler host
 capabilities remain required by my 5.1 scope.
+
+My [portable file-read profile](NANOISA_PORTABLE_FILE_READ.md) adds a separate
+byte-result opt-in and independent host grants. My text-only flag and embedding
+continue to admit only the original text ABI.

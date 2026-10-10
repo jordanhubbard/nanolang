@@ -2440,6 +2440,7 @@ shadow nisa_emit_map_call {
 
 # I name a bounded host ABI. Other externs need an explicit future contract.
 fn nisa_host_result(name: string) -> string {
+    if (or (== name "file_read_bytes") (or (== name "vm_file_read_bytes") (== name "nl_os_file_read_bytes"))) { return "array<u8>" }
     if (== name "atan") { return "float" }
     let strings: array<string> = ["vm_string_from_char", "get_argv", "nl_os_getenv", "file_read", "vm_file_read", "path_normalize", "nl_exec_capture", "vm_getenv", "vm_getcwd", "vm_tmp_dir", "vm_mktemp", "vm_mktemp_dir"]
     let integers: array<string> = ["strlen", "get_argc", "file_write", "vm_file_write", "file_delete", "file_compare_identity", "file_compare_destinations", "nl_exec_shell", "vm_chdir", "vm_dir_create", "vm_setenv", "vm_str_index_of", "vm_str_last_index_of"]
@@ -2462,6 +2463,7 @@ fn nisa_host_result(name: string) -> string {
     return ""
 }
 shadow nisa_host_result {
+    assert (== (nisa_host_result "vm_file_read_bytes") "array<u8>")
     assert (== (nisa_host_result "vm_str_index_of") "int")
     assert (== (nisa_host_result "vm_str_last_index_of") "int")
     assert (== (nisa_host_result "strlen") "int")
@@ -2483,6 +2485,7 @@ fn nisa_host_arity(name: string) -> int {
     return 1
 }
 shadow nisa_host_arity {
+    assert (== (nisa_host_arity "vm_file_read_bytes") 1)
     assert (== (nisa_host_arity "vm_str_index_of") 2)
     assert (== (nisa_host_arity "vm_str_last_index_of") 2)
     assert (== (nisa_host_arity "get_argc") 0)
@@ -2498,6 +2501,7 @@ fn nisa_host_parameter(name: string) -> string {
     return "string"
 }
 shadow nisa_host_parameter {
+    assert (== (nisa_host_parameter "vm_file_read_bytes") "string")
     assert (== (nisa_host_parameter "strlen") "string")
     assert (== (nisa_host_parameter "atan") "float")
     assert (== (nisa_host_parameter "get_argv") "int")
@@ -2508,7 +2512,7 @@ shadow nisa_host_parameter {
 }
 
 fn nisa_builtin_host_symbol(name: string) -> string {
-    let names: array<string> = ["is_alnum", "string_from_char", "getenv", "getcwd", "chdir", "file_read", "file_write", "file_exists", "dir_exists", "dir_create", "tmp_dir", "mktemp", "mktemp_dir", "setenv", "str_index_of", "str_last_index_of"]
+    let names: array<string> = ["is_alnum", "string_from_char", "getenv", "getcwd", "chdir", "file_read", "file_read_bytes", "file_write", "file_exists", "dir_exists", "dir_create", "tmp_dir", "mktemp", "mktemp_dir", "setenv", "str_index_of", "str_last_index_of"]
     let mut i: int = 0
     while (< i (array_length names)) {
         if (== name (at names i)) { return (+ "vm_" name) }
@@ -2517,6 +2521,7 @@ fn nisa_builtin_host_symbol(name: string) -> string {
     return ""
 }
 shadow nisa_builtin_host_symbol {
+    assert (== (nisa_builtin_host_symbol "file_read_bytes") "vm_file_read_bytes")
     assert (== (nisa_builtin_host_symbol "str_index_of") "vm_str_index_of")
     assert (== (nisa_builtin_host_symbol "str_last_index_of") "vm_str_last_index_of")
     assert (== (nisa_builtin_host_symbol "getenv") "vm_getenv")
@@ -2571,8 +2576,10 @@ fn nisa_import_add(symbol: string) -> int {
         let rejected: string = (nisa_fail (+ "unsupported host import " symbol))
         return -1
     }
+    let mut wire_result: string = result
+    if (== result "array<u8>") { set wire_result "array" }
     set nisa_import_names (array_push nisa_import_names symbol)
-    set nisa_import_text (+ nisa_import_text (+ ".import \"\" \"" (+ symbol (+ "\" " result))))
+    set nisa_import_text (+ nisa_import_text (+ ".import \"\" \"" (+ symbol (+ "\" " wire_result))))
     let mut i: int = 0
     while (< i (nisa_host_arity symbol)) {
         set nisa_import_text (+ nisa_import_text (+ " " (nisa_host_parameter symbol)))
@@ -2586,6 +2593,9 @@ shadow nisa_import_add {
     assert (== (nisa_import_add "vm_getenv") 0)
     assert (== nisa_import_text ".import \"\" \"vm_getenv\" string string\n")
     let _2: int = (nisa_reset)
+    assert (== (nisa_import_add "vm_file_read_bytes") 0)
+    assert (== nisa_import_text ".import \"\" \"vm_file_read_bytes\" array string\n")
+    let _3: int = (nisa_reset)
 }
 
 # I retain the exact Json artifact ABI; the module owns its opaque handles.

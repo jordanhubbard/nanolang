@@ -1,9 +1,9 @@
 /* I generate exact managed native source; do not edit.
- * managed_strings.h SHA256 487f184a0005172f39d66a167a587e61f81442ffd46d3251c9a448067fe7e699
+ * managed_strings.h SHA256 6dd366bdb85cbf48b3bbaff54fef536b7ce7e3101a454c87e939233b1fe08135
  * binary64_parse.h SHA256 bc66ca560c1cbde3a075043174d165f56d3f85ee6026578b7b0cf8dd9ccf08c5
- * managed_strings.c SHA256 24c5d151d101a1b32ffcd34725e15814fb8bb8576cb5f255e2220564db368dc7
+ * managed_strings.c SHA256 ab181499b8ed03a93aee1aba1bad570d2bb12c1a84cb5653ed59d91e4fe98488
  * I remove only the two named local includes from managed_strings.c.
- * Assembled SHA256 82f4f199044f7247148da245e22279276cea04ab560258b6a132b00239ff8cd2
+ * Assembled SHA256 f82adb0037ad805d796c52551e5cc7f8400d853ae6df641fe3a01bd3a3bb90cf
  */
 #ifndef NANOISA_MANAGED_NATIVE_SOURCE_H
 #define NANOISA_MANAGED_NATIVE_SOURCE_H
@@ -77,6 +77,8 @@ static const char nms_native_source[] =
 "NmsStatus nms_record_set(NmsRuntime *, NmsHandle, uint64_t, NmsValue);\n"
 "\n"
 "/* I retain a declared int/U8/float/bool kind; this API grants no opcode admission. */\n"
+"/* I copy counted bytes into a VM-policy packed u8 array; failure preserves out. */\n"
+"NmsStatus nms_bytes_create(NmsRuntime *, const uint8_t *, uint32_t, NmsHandle *);\n"
 "NmsStatus nms_packed_array_create(NmsRuntime *, uint32_t, NmsHandle *);\n"
 "NmsStatus nms_value_array_create(NmsRuntime *, NmsHandle *);\n"
 "/* I prepare capacity8 and VM checked-doubling semantics before publication. */\n"
@@ -930,6 +932,18 @@ static const char nms_native_source[] =
 "}\n"
 "NmsStatus nms_vm_array_create(NmsRuntime *runtime, uint32_t tag, NmsHandle *out) {\n"
 "    return vm_array_create_capacity(runtime, tag, 8, out);\n"
+"}\n"
+"NmsStatus nms_bytes_create(NmsRuntime *runtime, const uint8_t *bytes,\n"
+"                           uint32_t length, NmsHandle *out) {\n"
+"    if (!runtime || !out || (length && !bytes)) return NMS_STATE;\n"
+"    NmsHandle result = 0;\n"
+"    NmsStatus status = vm_array_create_capacity(runtime, 2, length < 8 ? 8 : length, &result);\n"
+"    if (status != NMS_OK) return status;\n"
+"    NmsSlot *slot = &runtime->slots[(uint32_t)result];\n"
+"    copy_bytes(slot->data, bytes, length);\n"
+"    slot->length = length;\n"
+"    *out = result;\n"
+"    return NMS_OK;\n"
 "}\n"
 "static NmsValue packed_value(const NmsSlot *slot, uint32_t index) {\n"
 "    uint32_t width = packed_width(slot->element_tag);\n"

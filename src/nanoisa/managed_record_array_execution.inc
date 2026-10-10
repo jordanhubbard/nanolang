@@ -304,7 +304,7 @@ NvmArrayEligibilityResult nvm_prepare_record_array_execution(const NvmModule *m,
             p->failure=NVM_ARRAY_UNRESOLVED;goto fail;
         }
     }
-    r=analyze(&p->snapshot,NULL,NULL,NULL,&p->origins,p->maximum_stacks);
+    r=analyze(&p->snapshot,NULL,NULL,NULL,&p->origins,p->maximum_stacks,0);
     if(r.status!=NVM_ARRAY_ELIGIBLE){nvm_record_array_execution_free(p);return r;}
     /* Entire numeric opcode space is a fixed, charged completeness check. */
     if(!rae_charge(p,0,256))goto fail;

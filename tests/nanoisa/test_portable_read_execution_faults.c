@@ -8,6 +8,9 @@
 extern uint64_t nano_try_entry(void);
 extern uint64_t nms_module_live_objects(void), nms_module_live_bytes(void);
 extern uint32_t nano_dispose(void);
+#ifdef TEST_PORTABLE_BYTES
+#define npr_module_bind npr_module_bind_bytes
+#endif
 static long budget=-1;
 static unsigned requests, live, callbacks;
 typedef union { max_align_t alignment; size_t size; } Header;

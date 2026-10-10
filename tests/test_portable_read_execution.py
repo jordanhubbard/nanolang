@@ -128,7 +128,7 @@ int main(int argc,char **argv) {
 
     def test_native_allocation_prefixes_and_recovery(self):
         ir = self.work/'faults.ll'
-        self.command([ROOT/'bin/nvm2llvm', self.module(), '--portable-read-text',
+        self.command([ROOT/'bin/nvm2llvm', self.module(), getattr(self, 'portable_flag', '--portable-read-text'),
                       '--entry-name', 'nano_entry', '-o', ir])
         text = ir.read_text()
         self.assertRegex(text, r'call[^\n]*@malloc\(')
@@ -143,6 +143,8 @@ int main(int argc,char **argv) {
         clang = os.environ.get('NANO_NATIVE_CLANG', 'clang')
         flags = ['-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                  '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-Isrc/nanoisa']
+        if getattr(self, 'portable_flag', '') == '--portable-file-read':
+            flags.append('-DTEST_PORTABLE_BYTES')
         scratch = self.work/'scratch.o'
         self.command([clang, *flags, '-Dmalloc=nano_scratch_malloc', '-Dfree=nano_scratch_free',
                       '-c', ROOT/'src/nanoisa/portable_read_managed.c', '-o', scratch])

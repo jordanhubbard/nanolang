@@ -403,6 +403,9 @@ static const Nvm2cHost host_adapters[] = {
     {"file_read", "nhost_file_read", 1, TAG_STRING, TAG_STRING},
     {"vm_file_read", "nhost_file_read", 1, TAG_STRING, TAG_STRING},
     {"nl_os_file_read", "nhost_file_read", 1, TAG_STRING, TAG_STRING},
+    {"file_read_bytes", "nhost_file_read_bytes", 1, TAG_STRING, TAG_ARRAY},
+    {"vm_file_read_bytes", "nhost_file_read_bytes", 1, TAG_STRING, TAG_ARRAY},
+    {"nl_os_file_read_bytes", "nhost_file_read_bytes", 1, TAG_STRING, TAG_ARRAY},
     {"file_write", "nhost_file_write", 2, TAG_STRING, TAG_INT},
     {"vm_file_write", "nhost_file_write", 2, TAG_STRING, TAG_INT},
     {"nl_os_file_write", "nhost_file_write", 2, TAG_STRING, TAG_INT},
@@ -436,6 +439,10 @@ static const Nvm2cHost host_adapters[] = {
     {"string_from_char", "nhost_from_char", 1, TAG_INT, TAG_STRING},
     {"vm_mktemp_dir", "nhost_mktemp_dir", 1, TAG_STRING, TAG_STRING},
 };
+
+static int byte_read_adapter(const Nvm2cHost *host) {
+    return host && !strcmp(host->c_name,"nhost_file_read_bytes");
+}
 
 /* These native contracts have homogeneous string parameters. I do not infer
  * an arbitrary artifact's ABI from its coarse NanoISA return tag. String
@@ -2694,7 +2701,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (host->result == TAG_OPAQUE) b->has_maps = 1;
             if (!sim_push(b, idx, stk, &sp,
                           host->result == TAG_OPAQUE ? NVM2C_VK_VALUE :
-                          host->result == TAG_ARRAY ? NVM2C_VK_SARR :
+                          host->result == TAG_ARRAY ? (byte_read_adapter(host)?NVM2C_VK_U8ARR:NVM2C_VK_SARR) :
                           host->result == TAG_STRING ? NVM2C_VK_STR :
                           host->result == TAG_BOOL ? NVM2C_VK_BOOL :
                           host->result == TAG_FLOAT ? NVM2C_VK_FLOAT : NVM2C_VK_INT, -1)) return 0;
@@ -5778,7 +5785,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 int left = stack_pop_expect(b, &st, NVM2C_VK_STR, "CALL_EXTERN");
                 if (b->failed) goto done;
                 snprintf(expression, sizeof expression, "%s(s[%d], s[%d])", host->c_name, left, right);
-                if (host->result == TAG_ARRAY)
+                if (host->result == TAG_ARRAY && !byte_read_adapter(host))
                     snprintf(expression, sizeof expression, "nhost_walk_%u(s[%d], s[%d])",
                              ins.operands[0].u32, left, right);
             } else if (host->argc) {
@@ -5788,7 +5795,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 if (b->failed) goto done;
                 snprintf(expression, sizeof expression, "%s(%c[%d])", host->c_name,
                          kind == NVM2C_VK_STR ? 's' : kind == NVM2C_VK_FLOAT ? 'f' : 't', arg);
-                if (host->result == TAG_ARRAY)
+                if (host->result == TAG_ARRAY && !byte_read_adapter(host))
                     snprintf(expression, sizeof expression, "nhost_walk_%u(s[%d])",
                              ins.operands[0].u32, arg);
             } else {
@@ -5796,6 +5803,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             if (host->result == TAG_VOID) nvm2c_printf(b, "    %s;\n", expression);
             else if (host->result == TAG_OPAQUE) stack_push_value(b, &st, expression);
+            else if (byte_read_adapter(host)) stack_push_iarray(b, &st, expression, NVM2C_VK_U8ARR);
             else if (host->result == TAG_ARRAY) stack_push_sarr(b, &st, expression);
             else if (host->result == TAG_STRING) stack_push_str(b, &st, expression);
             else if (host->result == TAG_BOOL) stack_push_bool(b, &st, expression);
@@ -6660,6 +6668,25 @@ static void emit_host_file_write(Nvm2cBuf *b) {
         "    return written == length && closed == 0 ? 0 : -1;\n}\n");
 }
 
+static void emit_host_file_read_bytes(Nvm2cBuf *b) {
+    nvm2c_puts(b,
+        "#include <stdio.h>\n"
+        "static inline narr_t nhost_file_read_bytes(const char *path) {\n"
+        "    narr_t bytes = narr_new();\n"
+        "    FILE *file = path ? fopen(path, \"rb\") : NULL;\n"
+        "    if (!file) return bytes;\n"
+        "    unsigned char chunk[4096]; size_t count;\n"
+        "    while ((count = fread(chunk, 1, sizeof chunk, file)) != 0) {\n"
+        "        if (count > SIZE_MAX - bytes->len) NVM2C_ABORT();\n"
+        "        narr_reserve(bytes, bytes->len + count);\n"
+        "        for (size_t i = 0; i < count; i++) bytes->data[bytes->len++] = chunk[i];\n"
+        "    }\n"
+        "    int failed = ferror(file);\n"
+        "    if (fclose(file) != 0) failed = 1;\n"
+        "    if (failed) bytes->len = 0;\n"
+        "    return bytes;\n}\n");
+}
+
 static void emit_host_file_read(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "#include <stdio.h>\n"
@@ -6795,7 +6822,7 @@ static void emit_walk_adapters(Nvm2cBuf *b, const NvmModule *mod) {
     int emitted = 0;
     for (uint32_t i = 0; i < mod->import_count; ++i) {
         const Nvm2cHost *host = import_host(mod, i);
-        if (!host || host->result != TAG_ARRAY) continue;
+        if (!host || host->result != TAG_ARRAY || byte_read_adapter(host)) continue;
         if (!emitted++) nvm2c_puts(b,
             "#include <dlfcn.h>\n#include <stdbool.h>\n"
             "typedef enum { nh_int=1, nh_float=2, nh_string=3, nh_bool=4,\n"
@@ -7526,7 +7553,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         /* I emit retained adapters even when no instruction calls them. */
         for (uint32_t import = 0; import < mod->import_count; ++import) {
             const Nvm2cHost *host = import_host(mod, import);
-            if (host && host->result == TAG_ARRAY) need_sarr = 1;
+            if (byte_read_adapter(host)) need_iarr = 1;
+            else if (host && host->result == TAG_ARRAY) need_sarr = 1;
         }
         int need_rarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT);
         int need_rarr = need_rarr_lit || module_has_array_constructor(&b, mod, kinds, NVM2C_VK_RARR) ||
@@ -7906,6 +7934,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 "        nmap_owned_head = owner->next; nmap_destroy(owner->map); nmap_bytes_drop(sizeof *owner); free(owner); --nmap_owned_live; }\n}\n");
         }
         if (b.global_count) nvm2c_printf(&b, "static nmap_value nglobal[%zu];\n", b.global_count);
+        if (module_uses_host(mod, "nhost_file_read_bytes")) emit_host_file_read_bytes(&b);
         emit_walk_adapters(&b, mod);
         emit_scalar_artifact_adapters(&b, mod);
         emit_typed_artifact_adapters(&b, mod);
@@ -8130,7 +8159,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT)) nvm2c_puts(&b, "    (void)nrarr_push;\n");
         for (uint32_t i = 0; i < mod->import_count; ++i) {
             const Nvm2cHost *host = import_host(mod, i);
-            if (host && host->result == TAG_ARRAY)
+            if (host && host->result == TAG_ARRAY && !byte_read_adapter(host))
                 nvm2c_printf(&b, "    (void)nhost_walk_%u;\n", i);
             if (scalar_artifact_adapter(host))
                 nvm2c_printf(&b, "    (void)nhost_artifact_%u;\n", i);

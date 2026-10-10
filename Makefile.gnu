@@ -6709,3 +6709,8 @@ test-portable-read-execution: portable-read-runtime nvm2wasm nanoisa_dump nano_v
 	python3 -m unittest -v tests.test_portable_read_execution
 
 test-nvm2wasm: test-portable-read-execution
+
+.PHONY: test-portable-bytes-execution
+test-portable-bytes-execution: portable-read-runtime nvm2wasm nanoisa_dump nano_vm nvm2c nano_virt
+	python3 -m unittest -v tests.test_portable_bytes_execution
+test-nvm2wasm: test-portable-bytes-execution

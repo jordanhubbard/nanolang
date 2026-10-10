@@ -59,6 +59,7 @@ typedef enum {
     NVM_PROFILE_CLOSED_MANAGED_STRINGS = 3,
     /* I require exact read-text imports; runtime bindings still grant no
      * authority until the embedding host supplies them explicitly. */
+    NVM_PROFILE_PORTABLE_FILE_READ = 5,
     NVM_PROFILE_PORTABLE_READ_TEXT = 4
 } NvmVerifyProfile;
 NvmVerifyResult nvm_verify_profile(const NvmModule *mod, NvmVerifyProfile profile);

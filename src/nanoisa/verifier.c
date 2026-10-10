@@ -1233,18 +1233,19 @@ static int profile_supported(uint8_t op) {
 NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile) {
     if (profile != NVM_PROFILE_GENERAL && profile != NVM_PROFILE_CLOSED_SCALAR &&
         profile != NVM_PROFILE_CLOSED_LITERAL_STRINGS &&
-        profile != NVM_PROFILE_CLOSED_MANAGED_STRINGS && profile != NVM_PROFILE_PORTABLE_READ_TEXT)
+        profile != NVM_PROFILE_CLOSED_MANAGED_STRINGS && profile != NVM_PROFILE_PORTABLE_READ_TEXT && profile != NVM_PROFILE_PORTABLE_FILE_READ)
         return fail("I do not recognize verifier profile %d", (int)profile);
     NvmVerifyResult verified = nvm_verify(m);
     if (!verified.ok || profile == NVM_PROFILE_GENERAL) return verified;
     if(nvm_owned_array_route(m)!=NVM_OWNER_ARRAY_NOT_SELECTED)return fail("I keep owner ARRAY candidates outside closed backend profiles");
     if(nvm_mixed_samples_candidate(m))return fail("I keep mixed ownership outside closed backend profiles");
-    const bool portable_read = profile == NVM_PROFILE_PORTABLE_READ_TEXT;
+    const bool portable_bytes = profile == NVM_PROFILE_PORTABLE_FILE_READ;
+    const bool portable_read = profile == NVM_PROFILE_PORTABLE_READ_TEXT || portable_bytes;
     if(portable_read) {
         if(!m->import_count || m->callback_contract_count)
             return fail("I require explicit portable read-text declarations without callbacks");
         for(uint32_t i=0;i<m->import_count;i++)
-            if(!nvm_portable_read_import_exact(m,i))return fail("I require exact portable read-text import %u",i);
+            if(!(portable_bytes?nvm_portable_file_read_import(m,i):nvm_portable_read_import_exact(m,i)))return fail("I require exact portable read-text import %u",i);
     }
     const bool record_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS &&
         (m->struct_count || m->layout_size || m->ownership_size);
@@ -1262,7 +1263,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
     const bool managed_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS || portable_read;
     const bool literal_profile = profile == NVM_PROFILE_CLOSED_LITERAL_STRINGS || managed_profile;
     bool has_strings = false;
-    bool mutable_arrays = false;
+    bool mutable_arrays = portable_bytes;
     bool needs_string_runtime = false;
     bool initializer_seen = false;
     for (uint32_t i = 0; i < m->function_count; ++i) {
@@ -1310,7 +1311,8 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
     }
     if (mutable_arrays || record_profile) {
         NvmManagedHeapPlan *plan = NULL;
-        NvmArrayEligibilityResult arrays = nvm_select_managed_heap(m, mutable_arrays, &plan);
+        NvmArrayEligibilityResult arrays = portable_bytes ? nvm_select_portable_read_heap(m, &plan) :
+            nvm_select_managed_heap(m, mutable_arrays, &plan);
         nvm_managed_heap_plan_free(plan);
         if (arrays.status != NVM_ARRAY_ELIGIBLE)
             return fail("I cannot establish mutable array eligibility (status %u) at function %u offset %u: %s",
