@@ -24,7 +24,9 @@ only the passing executions.
 
 I ran these checks on Darwin with LLVM Clang and, for the ordinary manual runtime
 checks, GCC 16. My logs are beside this file. `input-hashes.json` identifies the
-current implementation and compiler artifacts. `driver-commands.json` retains
+implementation and compiler artifacts before the final Make target. That target
+rebuilds the C tools after my header comment; `final-make-tool-hashes.json`
+records those tools for the five-method Make result. `driver-commands.json` retains
 130 individual command results from the source execution runs.
 
 - The updated Nano compiler, executed as bytecode, passes all four initial string
