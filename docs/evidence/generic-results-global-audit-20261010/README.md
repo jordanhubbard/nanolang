@@ -15,7 +15,7 @@ output is the existing unused-parameter warning in `primitive-generic.log`.
 
 ## My remaining generic NanoISA producer gap
 
-This native C fix does not establish generic NanoISA production. The retained
+This native C fix does not establish generic NanoISA production. At my recorded baseline, the retained
 `generic-producer-repro.nano` fails in both public producers: NanoVirt lowers
 one generic identity body with a STRUCT result and its integer shadow fails
 before publication; the self-hosted compiler rejects primitive and record
@@ -40,3 +40,29 @@ including nested owned strings/arrays, 4,096 global overwrites with forced
 collections, direct/global/tail-call roots and invalid projection/argument
 refusals. These establish current local implementation, not exact-candidate
 Linux/Darwin acceptance. The full release/platform gates remain open.
+
+## My C-producer specialization checkpoint
+
+I now retain generic declarations as templates and create concrete NanoISA
+signatures and bodies keyed by source-body identity and parameter types.
+I compile discovered instances through a worklist, preserving imported owner
+context, concrete local declarations and direct generic tail calls. I do not
+mutate shared template declarations when substituting local types.
+
+My focused suite is `tests/test_cseed_generic_functions.py` (also available as
+`make test-cseed-generic-functions`). I execute primitive and distinct record
+specializations, nested/transitive calls, typed locals, 5,000 recursive tail
+calls and qualified/selective imports from distinct owners. I retain mandatory
+source shadows, verify emitted modules and run NanoVM plus C AOT with address
+and undefined-behavior sanitizers. My repeated-variable negative case rejects
+different nominal records and preserves the previous output.
+
+I keep the full producer requirement open. The self-hosted checker/emitter is
+not fixed by this C-producer change. Aggregate generic substitutions, contextual
+function-value specialization and broader generic metadata still require work;
+this checkpoint admits direct scalar and declared-record arguments only.
+I also still require an exact-candidate bootstrap and platform qualification.
+
+My [combined current C-producer run](cseed-specialization-tests.log) passes all
+43 methods: six generic methods and 37 adjacent imported-global, record-array
+and canonical shadow methods. I used LLVM clang for sanitized native products.

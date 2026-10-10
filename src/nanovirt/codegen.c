@@ -133,6 +133,7 @@ typedef struct CgPassive {
     struct CgPassive *next;
 } CgPassive;
 
+typedef struct CgGeneric CgGeneric;
 typedef struct CG CG;
 struct CG {
     /* Module being built */
@@ -141,6 +142,9 @@ struct CG {
     ASTNode *root_program; /* Borrowed original top-level declarations. */
     ASTNode *current_program; /* I resolve global storage in its declaring module. */
     CgPassive *passive;
+    CgGeneric *generics, *generic_tail, *generic_active;
+    ModuleList *source_modules;
+    const char *source_file;
     CgLocalName **local_names;
     CgAuthoritySlot **authority_slots;
     bool names_enabled;
@@ -2513,6 +2517,8 @@ static void compile_union_fields(CG *cg, CgUnionDef *definition, int variant,
     free(slots);
 }
 
+#include "generic_codegen.inc"
+
 static void compile_expr(CG *cg, ASTNode *node) {
     if (!node || cg->had_error) return;
 
@@ -2819,7 +2825,9 @@ static void compile_expr(CG *cg, ASTNode *node) {
 
         /* Emit arguments left-to-right with the direct declaration's exact
          * scalar tags. Indirect calls keep their existing value contract. */
-        int32_t declared_target = name ? fn_find(cg, name) : -1;
+        int32_t declared_target = cg_generic_call(cg, node);
+        if(cg->had_error)break;
+        if(declared_target<0)declared_target = name ? fn_find(cg, name) : -1;
         uint8_t *declared_tags = declared_target >= 0
             ? cg->module->function_param_types[declared_target] : NULL;
         for (int i = 0; i < argc; i++) {
@@ -2878,7 +2886,14 @@ static void compile_expr(CG *cg, ASTNode *node) {
         snprintf(qualified, qualified_size, "%s.%s", mod_alias, func_name);
         bool callable_global = local_find(cg, mod_alias) < 0 && upvalue_resolve(cg, mod_alias) < 0 &&
             global_find(cg, mod_alias) < 0 && global_find(cg, qualified) >= 0;
-        if (callable_global) {
+        Function *qualified_function = env_get_function(cg->env, qualified);
+        bool generic_function = false;
+        if (qualified_function && !qualified_function->is_extern) {
+            for (int p = 0; p < qualified_function->param_count; ++p)
+                generic_function |= cg_type_variable(cg, qualified_function->params[p].type,
+                    qualified_function->params[p].struct_type_name);
+        }
+        if (callable_global || generic_function) {
             ASTNode call = {0};
             call.type = AST_CALL;
             call.line = node->line;
@@ -3671,7 +3686,8 @@ static int32_t direct_call_target(CG *cg, ASTNode *node) {
         const char *name = node->as.call.name;
         if (!name || local_find(cg, name) >= 0 || upvalue_resolve(cg, name) >= 0)
             return -1;
-        return fn_find(cg, name);
+        int32_t generic = cg_generic_call(cg, node);
+        return generic >= 0 ? generic : fn_find(cg, name);
     }
     if (node->type == AST_MODULE_QUALIFIED_CALL) {
         char qualified[512];
@@ -3869,6 +3885,25 @@ static void publish_passive(CG *cg) {
 
 static void compile_stmt(CG *cg, ASTNode *node) {
     if (!node || cg->had_error) return;
+    /* I substitute local declarations without changing the shared template. */
+    ASTNode concrete;
+    if (node->type == AST_LET && cg->generic_active &&
+            cg_type_variable(cg, node->as.let.var_type, node->as.let.type_name)) {
+        CgGeneric *instance = cg->generic_active;
+        for (int p = 0; p < instance->template->as.function.param_count; ++p) {
+            Parameter *formal = &instance->template->as.function.params[p];
+            if (formal->struct_type_name && !strcmp(formal->struct_type_name, node->as.let.type_name)) {
+                Parameter *bound = &instance->declaration.as.function.params[p];
+                concrete = *node;
+                concrete.as.let.var_type = bound->type;
+                concrete.as.let.type_name = bound->struct_type_name;
+                concrete.as.let.type_info = bound->type_info;
+                concrete.as.let.element_type = bound->element_type;
+                node = &concrete;
+                break;
+            }
+        }
+    }
 
     /* Source locations live in the side table, never in executable code. */
     if (node->line > 0) {
@@ -4324,13 +4359,12 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
 /* ── Function compilation ───────────────────────────────────────── */
 
-static void compile_function(CG *cg, ASTNode *fn_node) {
+static void compile_function_at(CG *cg, ASTNode *fn_node, int32_t fn_idx) {
     if (cg->had_error) return;
     if (fn_node->type != AST_FUNCTION) return;
     if (fn_node->as.function.is_extern) return;  /* skip extern declarations */
 
     const char *name = fn_node->as.function.name;
-    int32_t fn_idx = fn_find_body(cg, fn_node->as.function.body);
     if (fn_idx < 0) {
         cg_error(cg, fn_node->line, "function '%s' not registered", name);
         return;
@@ -4425,6 +4459,11 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
     entry->upvalue_count = cg->upvalue_count;
 }
 
+static void compile_function(CG *cg, ASTNode *node) {
+    if(cg_generic_declaration(cg,node))return;
+    compile_function_at(cg,node,fn_find_body(cg,node->as.function.body));
+}
+
 /* ── Main compilation entry point ───────────────────────────────── */
 
 /* Copy a struct definition out of an imported module's AST into the
@@ -4510,6 +4549,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     cg.authority_slots=&authority_slots;
     cg.module = nvm_module_new();
     cg.env = env;
+    cg.source_modules=modules;cg.source_file=input_file;
     cg.root_program = program;
     cg.current_program = program;
     cg.code = malloc(CODE_INITIAL);
@@ -4529,7 +4569,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = bytecode_declaration(program->as.program.items[i]);
 
-        if (item->type == AST_FUNCTION && !item->as.function.is_extern && !item->as.function.is_anonymous) {
+        if (item->type == AST_FUNCTION && !item->as.function.is_extern && !item->as.function.is_anonymous && !cg_generic_declaration(&cg, item)) {
             const char *name = item->as.function.name;
             uint32_t name_idx = nvm_add_string(cg.module, name, (uint32_t)strlen(name));
 
@@ -4641,7 +4681,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                     ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
 
                     /* Register all non-extern functions as bytecode functions */
-                    if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous) {
+                    if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous && !cg_generic_declaration(&cg, mitem)) {
                         const char *fname = mitem->as.function.name;
 
                         /* Check for alias: selective import may rename */
@@ -4848,7 +4888,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             for (int m = 0; m < mod_ast->as.program.count; m++) {
                 ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
 
-                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous) {
+                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous && !cg_generic_declaration(&cg, mitem)) {
                     const char *fname = mitem->as.function.name;
                     if (fn_find_body(&cg, mitem->as.function.body) < 0 && cg.fn_count < MAX_FUNCTIONS) {
                         uint32_t ni = nvm_add_string(cg.module, fname, (uint32_t)strlen(fname));
@@ -5082,7 +5122,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     env_set_current_file(env, input_file);
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = bytecode_declaration(program->as.program.items[i]);
-        if (item->type == AST_FUNCTION && !item->as.function.is_extern && !item->as.function.is_anonymous) {
+        if (item->type == AST_FUNCTION && !item->as.function.is_extern && !item->as.function.is_anonymous && !cg_generic_declaration(&cg, item)) {
             compile_function(&cg, item);
             if (cg.had_error) break;
         }
@@ -5098,7 +5138,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             cg.current_program = mod_ast;
             for (int m = 0; m < mod_ast->as.program.count; m++) {
                 ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
-                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous) {
+                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous && !cg_generic_declaration(&cg, mitem)) {
                     compile_function(&cg, mitem);
                     if (cg.had_error) break;
                 }
@@ -5193,6 +5233,16 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         env_set_current_file(env, outer_file);
     }
 
+    for(CgGeneric *instance=cg.generics;instance && !cg.had_error;instance=instance->next) {
+        env_set_current_file(env,instance->source);
+        cg.current_program=instance->program;
+        cg.generic_active=instance;
+        compile_function_at(&cg,&instance->declaration,(int32_t)instance->index);
+    }
+    env_set_current_file(env,outer_file);
+    cg.current_program=program;
+    cg.generic_active=NULL;
+
     /* For shadow-only programs (no main), generate a synthetic main that returns 0 */
     if (main_fn_idx < 0 && !cg.had_error) {
         NvmFunctionEntry syn_fn = {0};
@@ -5248,6 +5298,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     publish_local_names(&cg);
     publish_passive(&cg);
     free(cg.code);
+    while(cg.generics){CgGeneric *next=cg.generics->next;cg_generic_free(cg.generics);cg.generics=next;}
 
     if (cg.had_error) {
         result.ok = false;
