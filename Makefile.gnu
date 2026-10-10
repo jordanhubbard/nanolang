@@ -6213,3 +6213,25 @@ test-socket-nominal: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	NANO_SOCKET_NOMINAL_CC="$(CC)" SOCKET_NOMINAL_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_NOMINAL_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_socket_nominal
 
 test-units: test-socket-nominal
+
+$(OBJ_DIR)/nanoisa/file_flow.o: src/nanoisa/service_flow.inc src/nanoisa/file_flow_config.h src/nanoisa/service_file_nominal_config.h
+
+.PHONY: test-socket-flow
+test-socket-flow: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_SOCKET_FLOW_CC="$(CC)" SOCKET_FLOW_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_FLOW_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_socket_flow
+
+test-units: test-socket-flow
+
+$(OBJ_DIR)/nanoisa/file_flow.o: src/nanoisa/service_code.inc src/nanoisa/service_body.inc
+
+.PHONY: test-socket-code
+test-socket-code: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_SOCKET_CODE_CC="$(CC)" SOCKET_CODE_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_CODE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_socket_code
+
+test-units: test-socket-code
+
+.PHONY: test-socket-body
+test-socket-body: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_SOCKET_BODY_CC="$(CC)" SOCKET_BODY_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_BODY_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_socket_body
+
+test-units: test-socket-body

@@ -61,6 +61,13 @@ bounded codec/validator engine as File's unchanged catalog1, 120-byte map.
 The [nominal wire evidence](evidence/socket-nominal-wire-20261009/README.md)
 covers exact descriptors and refusal controls; it grants no execution authority.
 
+My private TCP bytecode profile also checks exact instruction operands and
+acyclic body ownership through the shared File/TCP flow engine. It consumes
+Endpoint at begin-connect and retains a pending runtime domain-check obligation.
+I retain [flow and body evidence](evidence/socket-flow-code-body-20261009/README.md)
+for the synthetic lifecycle, malformed programs and allocation recovery. These
+checks neither execute networking nor authorize the existing File runtime.
+
 I have not connected TCP wire metadata to source lowering, service dispatch or selected network
 shadow execution. Both lowerers explicitly refuse TCP before wire publication,
 so the File runtime cannot interpret TCP ordinals. My paired source checks,
