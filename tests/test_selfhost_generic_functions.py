@@ -78,6 +78,7 @@ class SelfhostGenericFunctions(unittest.TestCase):
                     self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
                     self.assertIn('one concrete identity',result.stdout+result.stderr)
 
+    test_structural_callable_local_and_nominal_letter = cases.CseedGenericFunctions.test_structural_callable_local_and_nominal_letter
     test_retained_record_result_regression = cases.CseedGenericFunctions.test_retained_record_result_regression
     test_primitive_generic_fixture = cases.CseedGenericFunctions.test_primitive_generic_fixture
     test_typed_locals_transitive_calls_and_recursion = cases.CseedGenericFunctions.test_typed_locals_transitive_calls_and_recursion

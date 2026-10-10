@@ -37,6 +37,67 @@ class CseedGenericFunctions(unittest.TestCase):
     def test_builtin_tail_call_does_not_enter_generic_specialization(self):
         self.execute('fn size(text: string) -> int { return (str_length text) }\nshadow size { assert (== (size "abc") 3) }\nfn main() -> int { assert (== (size "four") 4) return 0 }\nshadow main { assert (== (main) 0) }\n')
 
+    def test_structural_array_parameters(self):
+        self.execute((ROOT/'tests/nanoisa/fixtures/structural_generic_arrays.nano.txt').read_text())
+
+    def test_structural_callable_parameters(self):
+        self.execute((ROOT/'tests/nanoisa/fixtures/structural_generic_callable.nano.txt').read_text())
+
+    def test_structural_array_minimum(self):
+        self.execute((ROOT/'docs/evidence/structural-generic-baseline-20261010/array-parameter.nano').read_text())
+
+    def test_imported_structural_generic_parameters(self):
+        self.execute('module "a.nano" as a\nfrom "a.nano" import first as head\n'
+            'fn wrapped(values:array<int>)->int{return (a.first values)}\n'
+            'shadow wrapped {assert (== (wrapped [3]) 3)}\n'
+            'fn main()->int{assert (== (wrapped [7]) 7) '
+            'assert (== (head [true]) true) assert (== (at (a.first [[9]]) 0) 9) return 0}\n'
+            'shadow main {assert (== (main) 0)}\n', files={'a.nano':
+            'pub fn first(values:array<T>)->T{return (at values 0)}\n'
+            'shadow first {assert (== (first [1]) 1)}\n'})
+
+    def test_structural_generic_refusals_preserve_output(self):
+        bodies = ['return (combine [1] true)', 'return (combine true 1)',
+                  'return (combine [1] [1])', 'return (apply 1 positive)']
+        for body in bodies:
+            with self.subTest(body=body), tempfile.TemporaryDirectory() as tmp:
+                path, module = Path(tmp)/'main.nano', Path(tmp)/'main.nvm'
+                path.write_text('fn combine(values:array<T>,value:T)->T{return value}\n'
+                    'shadow combine {assert (== (combine [1] 2) 2)}\n'
+                    'fn positive(value:int)->bool{return (> value 0)}\nshadow positive {assert (positive 1)}\n'
+                    'fn apply(value:T,callback:fn(T)->T)->T{return (callback value)}\n'
+                    'shadow apply {assert true}\nfn main()->int{'+body+'}\n'
+                    'shadow main {assert (== (main) 0)}\n')
+                module.write_bytes(b'prior-output')
+                result = subprocess.run([str(COMPILER),str(path),'--emit-nvm','-o',str(module)],
+                    cwd=ROOT,capture_output=True,text=True,timeout=120)
+                self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+                self.assertIn('one concrete identity',result.stdout+result.stderr)
+                self.assertEqual(module.read_bytes(),b'prior-output')
+
+    def test_structural_callable_local_and_nominal_letter(self):
+        self.execute('struct A {value:int}\n'
+            'fn fixed(value:A)->A{return value}\n'
+            'shadow fixed {assert (== (fixed A {value:3}).value 3)}\n'
+            'fn positive(value:int)->bool{return (> value 0)}\nshadow positive {assert (positive 1)}\n'
+            'fn apply(value:T,callback:fn(T)->E)->E{let saved:fn(T)->E=callback return (saved value)}\n'
+            'shadow apply {assert (apply 1 positive)}\n'
+            'fn main()->int{assert (apply 2 positive) assert (== (fixed A {value:7}).value 7) return 0}\n'
+            'shadow main {assert (== (main) 0)}\n')
+
+    def test_unbound_structural_result_preserves_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path, module = Path(tmp)/'main.nano', Path(tmp)/'main.nvm'
+            path.write_text('fn unbound(value:T)->array<E>{return []}\nshadow unbound {assert true}\n'
+                'fn main()->int{let values:array<int> = (unbound 1) return (array_length values)}\n'
+                'shadow main {assert (== (main) 0)}\n')
+            module.write_bytes(b'prior-output')
+            result = subprocess.run([str(COMPILER),str(path),'--emit-nvm','-o',str(module)],
+                cwd=ROOT,capture_output=True,text=True,timeout=120)
+            self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+            self.assertIn('one concrete identity',result.stdout+result.stderr)
+            self.assertEqual(module.read_bytes(),b'prior-output')
+
     def test_retained_record_result_regression(self):
         self.execute((ROOT / 'docs/evidence/generic-results-global-audit-20261010/generic-producer-repro.nano').read_text())
 

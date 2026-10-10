@@ -2,7 +2,14 @@
  * call selects an owned concrete signature keyed by source body and types. */
 extern const char *get_struct_type_name(ASTNode *, Environment *);
 
+typedef struct CgGenericType {
+    TypeInfo *info;
+    struct CgGenericType *next;
+} CgGenericType;
+
 struct CgGeneric {
+    GenericBindings bindings;
+    CgGenericType *local_types;
     ASTNode declaration;
     ASTNode *template;
     struct CgGeneric *parent;
@@ -12,16 +19,18 @@ struct CgGeneric {
     struct CgGeneric *next;
 };
 
-static bool cg_type_variable(CG *cg, Type type, const char *name) {
-    return type == TYPE_STRUCT && name && name[0] >= 'A' && name[0] <= 'Z' &&
-        !name[1] && !env_get_struct(cg->env, name);
-}
 static bool cg_generic_declaration(CG *cg, ASTNode *node) {
     if (!node || node->type != AST_FUNCTION || node->as.function.is_extern) return false;
-    for (int p=0; p<node->as.function.param_count; ++p)
-        if(cg_type_variable(cg,node->as.function.params[p].type,
-                            node->as.function.params[p].struct_type_name)) return true;
+    for (int p=0;p<node->as.function.param_count;++p) {
+        TypeInfo view;
+        if (generic_contains(cg->env,generic_parameter(&node->as.function.params[p],&view),0)) return true;
+    }
     return false;
+}
+static const char *cg_generic_nominal(const TypeInfo *info) {
+    if (!info) return NULL;
+    if (info->base_type==TYPE_ARRAY && info->element_type) return info->element_type->generic_name;
+    return info->generic_name;
 }
 static ASTNode *cg_generic_definition(CG *cg, ASTNode *body, ASTNode **owner, const char **source) {
     for(int m=-1; m<(cg->source_modules?cg->source_modules->count:0); ++m) {
@@ -38,6 +47,13 @@ static ASTNode *cg_generic_definition(CG *cg, ASTNode *body, ASTNode **owner, co
     return NULL;
 }
 static void cg_generic_free(CgGeneric *instance) {
+    generic_bindings_free(&instance->bindings);
+    while (instance->local_types) {
+        CgGenericType *item=instance->local_types;
+        instance->local_types=item->next;
+        free_payload_type_info(item->info);free(item);
+    }
+    free_function_signature(instance->declaration.as.function.return_fn_sig);
     for(int p=0;p<instance->declaration.as.function.param_count;p++) {
         free(instance->declaration.as.function.params[p].struct_type_name);
         free_payload_type_info(instance->declaration.as.function.params[p].type_info);
@@ -50,10 +66,17 @@ static void cg_generic_free(CgGeneric *instance) {
 }
 static bool cg_generic_type_supported(CG *cg, const TypeInfo *info) {
     if (!info) return false;
+    if (info->base_type == TYPE_FUNCTION) {
+        if (!info->fn_sig) return false;
+        TypeInfo view;
+        for (int p=0;p<info->fn_sig->param_count;++p)
+            if (!cg_generic_type_supported(cg,generic_signature_param(info->fn_sig,p,&view))) return false;
+        return cg_generic_type_supported(cg,generic_signature_result(info->fn_sig,&view));
+    }
     if (info->base_type == TYPE_ARRAY) return cg_generic_type_supported(cg, info->element_type);
     if (info->base_type == TYPE_STRUCT)
         return info->generic_name && env_get_struct(cg->env, info->generic_name);
-    return info->base_type == TYPE_INT || info->base_type == TYPE_U8 ||
+    return info->base_type == TYPE_VOID || info->base_type == TYPE_INT || info->base_type == TYPE_U8 ||
         info->base_type == TYPE_FLOAT || info->base_type == TYPE_BOOL || info->base_type == TYPE_STRING;
 }
 static int32_t cg_generic_call(CG *cg, ASTNode *call) {
@@ -61,10 +84,7 @@ static int32_t cg_generic_call(CG *cg, ASTNode *call) {
     /* Builtins have arity but no source body or Parameter array. */
     if(!function || function->is_extern || !function->body || !function->params)return -1;
     Function retained_function=*function;function=&retained_function;
-    bool generic=false;
-    for(int p=0;p<function->param_count;p++)
-        generic |= cg_type_variable(cg,function->params[p].type,function->params[p].struct_type_name);
-    if(!generic)return -1;
+    if(!generic_function(cg->env,function))return -1;
     if (check_expression(call, cg->env) == TYPE_UNKNOWN || !call->as.call.checked_signature) {
         cg_error(cg, call->line, "I require a complete checked generic signature");return -1;
     }
@@ -86,59 +106,36 @@ static int32_t cg_generic_call(CG *cg, ASTNode *call) {
     instance->declaration.as.function.params=params;
     instance->declaration.as.function.name=NULL;
     instance->declaration.as.function.return_struct_type_name=NULL;
-    instance->declaration.as.function.return_type_info=copy_payload_type_info(definition->as.function.return_type_info);
+    instance->declaration.as.function.return_type_info=copy_payload_type_info(signature->return_type_info);
+    instance->declaration.as.function.return_fn_sig=copy_function_signature(signature->return_fn_sig);
+    instance->declaration.as.function.return_type=signature->return_type;
+    instance->declaration.as.function.return_element_type=signature->return_type_info && signature->return_type_info->element_type
+        ? signature->return_type_info->element_type->base_type : TYPE_UNKNOWN;
     instance->program=owner;instance->source=source;
     for(int p=0;p<function->param_count;p++) {
-        const Parameter *formal = &definition->as.function.params[p];
-        params[p] = *formal;
-        params[p].struct_type_name = NULL;
-        params[p].type_info = NULL;
-        const char *name = formal->struct_type_name;
-        if(cg_type_variable(cg,formal->type,name)) {
-            params[p].type = signature->param_types[p];
-            params[p].type_info = copy_payload_type_info(signature->param_type_info[p]);
-            name = signature->param_struct_names[p];
-            if (!cg_generic_type_supported(cg, params[p].type_info)) {
-                cg_error(cg,call->line,"I require a concrete scalar, record or array generic argument");goto fail;
-            }
-            if (params[p].type == TYPE_ARRAY) {
-                const TypeInfo *element = params[p].type_info->element_type;
-                params[p].element_type = element->base_type;
-                name = element->generic_name;
-            }
-        } else {
-            params[p].type_info = copy_payload_type_info(formal->type_info);
+        const Parameter *formal=&definition->as.function.params[p];
+        params[p]=*formal;
+        params[p].struct_type_name=NULL;
+        params[p].type=signature->param_types[p];
+        params[p].type_info=copy_payload_type_info(signature->param_type_info[p]);
+        params[p].fn_sig=params[p].type_info ? params[p].type_info->fn_sig : NULL;
+        TypeInfo view;
+        const TypeInfo *pattern=generic_parameter(formal,&view);
+        if (generic_contains(cg->env,pattern,0) &&
+            (!cg_generic_type_supported(cg,params[p].type_info) ||
+             !generic_bind(cg->env,pattern,params[p].type_info,&instance->bindings,0))) {
+            cg_error(cg,call->line,"I require a complete supported generic parameter identity");goto fail;
         }
+        const char *name=cg_generic_nominal(params[p].type_info);
         params[p].struct_type_name=name?strdup(name):NULL;
-        if(name && !params[p].struct_type_name){cg_error(cg,call->line,"I cannot copy a generic record identity");goto fail;}
-        for(int q=0;q<p;q++) {
-            const Parameter *formal=&definition->as.function.params[p], *prior=&definition->as.function.params[q];
-            if(cg_type_variable(cg,formal->type,formal->struct_type_name) &&
-               cg_type_variable(cg,prior->type,prior->struct_type_name) && !strcmp(formal->struct_type_name,prior->struct_type_name) &&
-               (params[p].type!=params[q].type || !type_infos_equal(params[p].type_info,params[q].type_info) ||
-                !!params[p].struct_type_name!=!!params[q].struct_type_name ||
-                (params[p].struct_type_name && strcmp(params[p].struct_type_name,params[q].struct_type_name)))) {
-                cg_error(cg,call->line,"I require one concrete identity for each generic type variable");goto fail;
-            }
-        }
+        if (params[p].type_info && params[p].type_info->element_type)
+            params[p].element_type=params[p].type_info->element_type->base_type;
     }
-    const char *result_name=definition->as.function.return_struct_type_name;
-    if(cg_type_variable(cg,definition->as.function.return_type,result_name)) {
-        bool found=false;
-        for(int p=0;p<function->param_count;p++) {
-            const Parameter *formal=&definition->as.function.params[p];
-            if(cg_type_variable(cg,formal->type,formal->struct_type_name) && !strcmp(formal->struct_type_name,result_name)) {
-                instance->declaration.as.function.return_type=params[p].type;
-                free_payload_type_info(instance->declaration.as.function.return_type_info);
-                instance->declaration.as.function.return_type_info=copy_payload_type_info(params[p].type_info);
-                instance->declaration.as.function.return_element_type=params[p].element_type;
-                result_name=params[p].struct_type_name;found=true;break;
-            }
-        }
-        if(!found){cg_error(cg,call->line,"I cannot infer this generic result identity");goto fail;}
-    }
+    const char *result_name=cg_generic_nominal(signature->return_type_info);
     instance->declaration.as.function.return_struct_type_name=result_name?strdup(result_name):NULL;
-    if(result_name && !instance->declaration.as.function.return_struct_type_name){cg_error(cg,call->line,"I cannot copy a generic result identity");goto fail;}
+    if (generic_contains(cg->env,signature->return_type_info,0)) {
+        cg_error(cg,call->line,"I require a concrete generic result identity");goto fail;
+    }
     for(CgGeneric *prior=cg->generics;prior;prior=prior->next) {
         if(prior->declaration.as.function.body!=definition->as.function.body)continue;
         bool same=true;

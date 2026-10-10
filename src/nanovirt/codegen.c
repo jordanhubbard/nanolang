@@ -13,6 +13,7 @@
 #include "nanovirt/codegen.h"
 #include "../nanoisa/local_bindings.h"
 #include "nanolang.h"
+#include "../generic_bindings.h"
 #include "resource_tracking.h"
 #include "nanoisa/isa.h"
 #include "nanoisa/nvm_format.h"
@@ -2887,13 +2888,8 @@ static void compile_expr(CG *cg, ASTNode *node) {
         bool callable_global = local_find(cg, mod_alias) < 0 && upvalue_resolve(cg, mod_alias) < 0 &&
             global_find(cg, mod_alias) < 0 && global_find(cg, qualified) >= 0;
         Function *qualified_function = env_get_function(cg->env, qualified);
-        bool generic_function = false;
-        if (qualified_function && !qualified_function->is_extern) {
-            for (int p = 0; p < qualified_function->param_count; ++p)
-                generic_function |= cg_type_variable(cg, qualified_function->params[p].type,
-                    qualified_function->params[p].struct_type_name);
-        }
-        if (callable_global || generic_function) {
+        bool is_generic_function = generic_function(cg->env, qualified_function);
+        if (callable_global || is_generic_function) {
             ASTNode call = {0};
             call.type = AST_CALL;
             call.line = node->line;
@@ -3887,21 +3883,26 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     if (!node || cg->had_error) return;
     /* I substitute local declarations without changing the shared template. */
     ASTNode concrete;
-    if (node->type == AST_LET && cg->generic_active &&
-            cg_type_variable(cg, node->as.let.var_type, node->as.let.type_name)) {
-        CgGeneric *instance = cg->generic_active;
-        for (int p = 0; p < instance->template->as.function.param_count; ++p) {
-            Parameter *formal = &instance->template->as.function.params[p];
-            if (formal->struct_type_name && !strcmp(formal->struct_type_name, node->as.let.type_name)) {
-                Parameter *bound = &instance->declaration.as.function.params[p];
-                concrete = *node;
-                concrete.as.let.var_type = bound->type;
-                concrete.as.let.type_name = bound->struct_type_name;
-                concrete.as.let.type_info = bound->type_info;
-                concrete.as.let.element_type = bound->element_type;
-                node = &concrete;
-                break;
+    if (node->type == AST_LET && cg->generic_active) {
+        TypeInfo view;
+        const TypeInfo *formal=generic_view(node->as.let.type_info,node->as.let.var_type,
+            node->as.let.type_name,node->as.let.fn_sig,&view);
+        if (generic_contains(cg->env,formal,0)) {
+            CgGenericType *owned=calloc(1,sizeof *owned);
+            if (!owned) { cg_error(cg,node->line,"I cannot allocate a generic local annotation");return; }
+            owned->info=generic_substitute(cg->env,formal,&cg->generic_active->bindings,0);
+            owned->next=cg->generic_active->local_types;
+            cg->generic_active->local_types=owned;
+            if (!owned->info || generic_contains(cg->env,owned->info,0)) {
+                cg_error(cg,node->line,"I require a concrete generic local annotation");return;
             }
+            concrete=*node;
+            concrete.as.let.var_type=owned->info->base_type;
+            concrete.as.let.type_info=owned->info;
+            concrete.as.let.type_name=(char *)cg_generic_nominal(owned->info);
+            concrete.as.let.fn_sig=owned->info->fn_sig;
+            concrete.as.let.element_type=owned->info->element_type?owned->info->element_type->base_type:TYPE_UNKNOWN;
+            node=&concrete;
         }
     }
 

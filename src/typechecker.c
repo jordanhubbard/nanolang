@@ -6,20 +6,7 @@
 #include "builtins_registry.h"
 #include <ctype.h>
 
-/* Returns true if name is a single uppercase letter — a generic type variable */
-static bool is_type_variable_name(const char *name) {
-    return name != NULL && name[0] != '\0' && name[1] == '\0' && isupper((unsigned char)name[0]);
-}
-
-/* Returns true if any parameter of func uses a type variable */
-static bool func_is_generic(const Function *func) {
-    if (!func->params) return false;
-    for (int i = 0; i < func->param_count; i++) {
-        if (func->params[i].type == TYPE_STRUCT && is_type_variable_name(func->params[i].struct_type_name))
-            return true;
-    }
-    return false;
-}
+#include "generic_bindings.h"
 
 /* Build monomorphized name: "identity" + T->int => "identity_int" */
 static void build_generic_mono_name(char *out, size_t out_size,
@@ -405,7 +392,7 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     if (expr->type == AST_CALL) {
         if (!expr->as.call.checked_signature && expr->as.call.name) {
             Function *function = env_get_function(env, expr->as.call.name);
-            if (function && func_is_generic(function)) check_expression(expr, env);
+            if (function && generic_function(env, function)) check_expression(expr, env);
         }
         if (expr->as.call.checked_signature)
             return expr->as.call.checked_signature->return_type_info;
@@ -1312,6 +1299,8 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     return TYPE_UNKNOWN;
 }
 
+static FunctionSignature *copy_callable_signature(ASTNode *value, Environment *env);
+
 /* I own complete generic argument annotations, including nested array identity. */
 static TypeInfo *copy_generic_argument_info(ASTNode *expr, Environment *env, unsigned depth) {
     if (!expr || depth > 128) return NULL;
@@ -1350,6 +1339,9 @@ static TypeInfo *copy_generic_argument_info(ASTNode *expr, Environment *env, uns
             }
         }
         if (!info->element_type) { free_payload_type_info(info); return NULL; }
+    } else if (type == TYPE_FUNCTION) {
+        info->fn_sig = copy_callable_signature(expr, env);
+        if (!info->fn_sig) { free_payload_type_info(info); return NULL; }
     } else if (type == TYPE_STRUCT || type == TYPE_UNION || type == TYPE_ENUM) {
         const char *name = get_struct_type_name(expr, env);
         info->generic_name = name ? strdup(name) : NULL;
@@ -3246,112 +3238,47 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             /* If the function has type-variable parameters (T, E, etc.), collect
              * the concrete types from the call site, register a monomorphized
              * instance, and store the concrete function name on the call node.   */
-            if (func_is_generic(func)) {
+            if (generic_function(env, func)) {
                 Function retained_function = *func;
                 func = &retained_function;
-                /* Collect unique type variables in first-appearance order */
-                char *var_names_buf[16];
-                Type  bound_types_buf[16];
-                char *bound_names_buf[16];
-                TypeInfo *bound_info[16] = {0};
-                bool valid_bindings = true;
-                int   binding_count = 0;
-
-                for (int i = 0; i < func->param_count && binding_count < 16; i++) {
-                    if (func->params[i].type != TYPE_STRUCT ||
-                        !is_type_variable_name(func->params[i].struct_type_name)) continue;
-                    const char *var = func->params[i].struct_type_name;
-                    bool already = false;
-                    for (int k = 0; k < binding_count; k++) {
-                        if (strcmp(var_names_buf[k], var) == 0) { already = true; break; }
-                    }
-                    if (!already) {
-                        var_names_buf[binding_count] = (char *)var;
-                        bound_types_buf[binding_count] = TYPE_UNKNOWN;
-                        bound_names_buf[binding_count] = NULL;
-                        binding_count++;
-                    }
-                }
-
-                /* I retain exact argument shapes instead of merging all arrays. */
-                for (int i = 0; i < func->param_count && i < expr->as.call.arg_count; i++) {
-                    if (func->params[i].type != TYPE_STRUCT ||
-                        !is_type_variable_name(func->params[i].struct_type_name)) {
-                        if (!indirect_argument_matches(expr->as.call.args[i], env,
-                                func->params[i].type_info, func->params[i].type, 0)) {
-                            emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                                "I require the declared argument type in this generic function.",
-                                "Match the parameter's complete type.");
-                            valid_bindings = false;
-                        }
+                GenericBindings bindings = {0};
+                bool valid = true;
+                for (int i = 0; i < func->param_count; ++i) {
+                    TypeInfo view;
+                    const TypeInfo *formal = generic_parameter(&func->params[i], &view);
+                    if (!generic_contains(env, formal, 0)) {
+                        if (!indirect_argument_matches(expr->as.call.args[i], env, formal, formal->base_type, 0)) valid = false;
                         continue;
                     }
-                    const char *var = func->params[i].struct_type_name;
-                    Type arg_type = check_expression(expr->as.call.args[i], env);
                     TypeInfo *actual = copy_generic_argument_info(expr->as.call.args[i], env, 0);
-                    for (int k = 0; k < binding_count; k++) {
-                        if (strcmp(var_names_buf[k], var)) continue;
-                        if (bound_types_buf[k] == TYPE_UNKNOWN) {
-                            bound_types_buf[k] = arg_type;
-                            bound_info[k] = actual;
-                            if (arg_type == TYPE_STRUCT && actual)
-                                bound_names_buf[k] = actual->generic_name;
-                            actual = NULL;
-                            if (!bound_info[k]) valid_bindings = false;
-                        } else if (bound_types_buf[k] != arg_type || !actual || !bound_info[k] ||
-                                   !type_infos_equal(bound_info[k], actual)) {
-                            emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                                "I require one concrete identity for each generic type variable.",
-                                "Use the same complete type for each occurrence of a type variable.");
-                            valid_bindings = false;
-                        }
-                        break;
-                    }
+                    if (!generic_bind(env, formal, actual, &bindings, 0)) valid = false;
                     free_payload_type_info(actual);
                 }
-                if (!valid_bindings) {
+                FunctionSignature *signature = function_signature_from_function(func);
+                if (valid) valid = generic_substitute_signature(env, signature, &bindings, 0);
+                if (!valid) {
                     emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                        "I require a complete generic argument type.", "Declare the argument's complete type.");
-                    for (int k = 0; k < binding_count; ++k) free_payload_type_info(bound_info[k]);
+                        "I require one concrete identity and matching structure for each generic type variable.",
+                        "Use complete matching argument types and bind every result variable.");
+                    free_function_signature(signature);
+                    generic_bindings_free(&bindings);
                     return TYPE_UNKNOWN;
                 }
-
-                /* Build monomorphized name and register instance */
+                char *names[26], *nominals[26];
+                Type types[26];
+                for (int i=0; i<bindings.count; ++i) {
+                    names[i]=(char *)bindings.names[i];
+                    types[i]=bindings.types[i]->base_type;
+                    nominals[i]=bindings.types[i]->generic_name;
+                }
                 char mono_name[256];
-                build_generic_mono_name(mono_name, sizeof(mono_name), func->name,
-                                        var_names_buf, bound_types_buf, bound_names_buf, binding_count);
+                build_generic_mono_name(mono_name, sizeof mono_name, func->name,
+                    names, types, nominals, bindings.count);
                 env_register_generic_func_instance(env, func->name, mono_name,
-                                                    (const char **)var_names_buf,
-                                                    bound_types_buf,
-                                                    (const char **)bound_names_buf,
-                                                    binding_count);
-                if (expr->as.call.concrete_func_name) free(expr->as.call.concrete_func_name);
+                    (const char **)names, types, (const char **)nominals, bindings.count);
+                free(expr->as.call.concrete_func_name);
                 expr->as.call.concrete_func_name = strdup(mono_name);
-
-                FunctionSignature *signature = function_signature_from_function(func);
-                for (int p = 0; p < func->param_count; ++p) {
-                    if (func->params[p].type != TYPE_STRUCT ||
-                        !is_type_variable_name(func->params[p].struct_type_name)) continue;
-                    for (int k = 0; k < binding_count; ++k) {
-                        if (strcmp(func->params[p].struct_type_name, var_names_buf[k])) continue;
-                        signature->param_types[p] = bound_types_buf[k];
-                        free(signature->param_struct_names[p]);
-                        signature->param_struct_names[p] = bound_names_buf[k] ? strdup(bound_names_buf[k]) : NULL;
-                        free_payload_type_info(signature->param_type_info[p]);
-                        signature->param_type_info[p] = copy_payload_type_info(bound_info[k]);
-                    }
-                }
-                if (func->return_type == TYPE_STRUCT && is_type_variable_name(func->return_struct_type_name)) {
-                    for (int k = 0; k < binding_count; ++k) {
-                        if (strcmp(var_names_buf[k], func->return_struct_type_name)) continue;
-                        signature->return_type = bound_types_buf[k];
-                        free(signature->return_struct_name);
-                        signature->return_struct_name = bound_names_buf[k] ? strdup(bound_names_buf[k]) : NULL;
-                        free_payload_type_info(signature->return_type_info);
-                        signature->return_type_info = copy_payload_type_info(bound_info[k]);
-                    }
-                }
-                for (int k = 0; k < binding_count; ++k) free_payload_type_info(bound_info[k]);
+                generic_bindings_free(&bindings);
                 free_function_signature(expr->as.call.checked_signature);
                 expr->as.call.checked_signature = signature;
                 free(expr->as.call.return_struct_type_name);
