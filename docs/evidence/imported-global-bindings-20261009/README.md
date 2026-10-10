@@ -1,0 +1,7 @@
+# My self-hosted imported-global binding checkpoint
+
+I register globals by merged declaration identity using a prefix excluded from source tokens. Public imports map qualified and selective spellings to that canonical symbol and declaring owner; ordinary local bindings retain precedence. My checker registers canonical global symbols, resolves reads and assignments through the binding table, and carries immutable scalar reads into purity analysis. My NanoISA emitter resolves those symbols to their original global storage slots, including qualified value expressions.
+
+My source compiler compiles with all shadows. Through that freshly produced self-hosted component, five methods pass in 3.260 seconds with dependency/root shadows, verified VM and strict C11 sanitizer-native execution. I check same-spelled globals with distinct types, qualified and selective aliases, shared mutable storage, lexical shadowing, immutable pure reads, and private/missing/type/mutation refusals preserving prior output.
+
+I add test-selfhost-imported-globals to the ordinary unit gate so both freshly installed stages must pass the same suite. I have not yet run that installed-stage gate for this change. My C-seed module import path remains unimplemented; complete initialization, wildcard/conflict handling, callable/aggregate ownership and Linux/Darwin qualification remain under #986. This is not full imported-global acceptance or a release fixed point.

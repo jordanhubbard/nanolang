@@ -1,0 +1,69 @@
+--- old-flow
++++ shared-flow
+@@ -1,8 +1,7 @@
+-#include "file_flow.h"
++/* I share transactional ownership states across separately checked catalogs. */
+ #include "ownership_contracts.h"
+ #include "nvm_v2_sections.h"
+ #include "isa.h"
+-#include "../nsi_file_catalog.h"
+ #include <stdlib.h>
+ #include <string.h>
+ 
+@@ -570,6 +569,20 @@
+             NvmFileFlowValue value=s->stack[s->stack_count-1];
+             if(!value.initialized || !value.owner || !same(value.type,file) || held(s,value.owner))return NVM_FILE_FLOW_INVALID;
+             consumed=1;obligation.owned_inputs=1;
++        } else {
++            /* I consume exact copy inputs, including TCP's Endpoint, before
++             * creating a new owner. Field domains remain runtime obligations. */
++            size_t inputs=method->param_count-1;
++            if(inputs>s->stack_count)return NVM_FILE_FLOW_INVALID;
++            for(size_t i=0;i<inputs;i++) {
++                NvmFileFlowDeclaration expected;
++                NvmFileFlowValue value=s->stack[s->stack_count-inputs+i];
++                if(!member_type(s,method->params[i].type_id,&expected) || owned(expected) ||
++                   !value.initialized || value.owner || !same(expected,value.type))return NVM_FILE_FLOW_INVALID;
++                if(expected.catalog_ordinal==FLOW_ENDPOINT_TYPE && expected.category==NVM_FILE_CATEGORY_RECORD)
++                    obligation.checks|=FLOW_ENDPOINT_CHECK;
++            }
++            consumed=(uint16_t)inputs;
+         }
+     }
+     if((uint32_t)s->stack_count-consumed+1>NVM_FILE_FLOW_STACK)return NVM_FILE_FLOW_LIMIT;
+@@ -579,7 +592,7 @@
+     }
+     uint16_t slot;NvmFileFlowStatus status=obligation_slot(s,obligation,&slot);if(status!=NVM_FILE_FLOW_OK)return status;
+     uint64_t owner=owned(result)?s->declarations->next_identity++:0;
+-    if(consumed)pop(s);
++    while(consumed){pop(s);consumed--;}
+     s->stack[s->stack_count++]=initial_value(result,true,owner);commit_obligation(s,obligation,slot);
+     return NVM_FILE_FLOW_OK;
+ }
+--- old-code
++++ shared-code
+@@ -1,6 +1,5 @@
+ /* I share only private declaration ownership/actual extents with file_flow.c.
+  * This plan never reaches a public admission or executing consumer. */
+-#include "file_code.h"
+ struct NvmFileCodePlan {
+     NvmFileFlowDeclarations *declarations;
+     uint8_t *code;
+@@ -91,7 +90,7 @@
+                                             NvmFileCodeInstruction *in,bool indirect,const NvmModule *module) {
+     const DecodedInstruction *d=&in->decoded;
+     const NvmFileFlowFunction *fn=&p->functions[function].declaration;
+-    if(!file_code_supported_mode(d->opcode,indirect))return NVM_FILE_FLOW_UNRESOLVED;
++    if(!(indirect?file_code_supported_mode(d->opcode,true):file_code_supported(d->opcode)))return NVM_FILE_FLOW_UNRESOLVED;
+     switch(d->opcode) {
+     case OP_FUNCREF:
+         return d->operands[0].u32<p->count?NVM_FILE_FLOW_OK:NVM_FILE_FLOW_INVALID;
+--- old-body
++++ shared-body
+@@ -1,6 +1,5 @@
+ /* Same translation unit as qualified logical states: actual sizeof accounting,
+  * no copied state layout and no public verifier/admission recursion. */
+-#include "file_body.h"
+ struct NvmFileBodyReport {
+     NvmFileCodePlan *plan;
+     NvmFileBodyInstruction *facts;

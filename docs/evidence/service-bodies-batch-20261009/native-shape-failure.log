@@ -1,0 +1,21 @@
+setUpClass (tests.test_service_bodies.ServiceBodies) ... ERROR
+
+======================================================================
+ERROR: setUpClass (tests.test_service_bodies.ServiceBodies)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 53, in setUpClass
+    cls.run_command([ROOT/'bin/nvm2c',module,'-o',source],timeout=120)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 66, in run_command
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: [PosixPath('/Users/jordanh/Src/nanolang/bin/nvm2c'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-mltslq12/probe-0.nvm'), '-o', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-mltslq12/probe-0.c')]
+exit=1
+
+I cannot translate '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-bodies-mltslq12/probe-0.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 13, offset 2161: nrec_t versus nmap_value at parameter 1 of function 6)
+
+
+----------------------------------------------------------------------
+Ran 0 tests in 1.483s
+
+FAILED (errors=1)

@@ -1,0 +1,75 @@
+[
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nl-mixed-c-probe-6p9ghj3h/root.nano",
+      "--emit-nvm",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nl-mixed-c-probe-6p9ghj3h/cli.nvm"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--services",
+      "--service-instruction-limit",
+      "100000",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nl-mixed-c-probe-6p9ghj3h/cli.nvm"
+    ],
+    "status": 1,
+    "stdout": "",
+    "stderr": "I require --allow-temporary-files for these service instances.\nI require --allow-tcp-connections for these service instances.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--services",
+      "--allow-temporary-files",
+      "--allow-tcp-connections",
+      "--service-instruction-limit",
+      "100000",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nl-mixed-c-probe-6p9ghj3h/cli.nvm"
+    ],
+    "status": 42,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "--services",
+      "--entry-name",
+      "smoke",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nl-mixed-c-probe-6p9ghj3h/cli.nvm",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nl-mixed-c-probe-6p9ghj3h/cli.c"
+    ],
+    "status": 1,
+    "stdout": "",
+    "stderr": "I cannot load '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nl-mixed-c-probe-6p9ghj3h/cli.nvm': NVM v2 module does not verify: I refuse service contracts before mixed execution selection\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nl-mixed-c-probe-6p9ghj3h/root.nano",
+      "-o",
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nl-mixed-c-probe-6p9ghj3h/cli-native"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nl-mixed-c-probe-6p9ghj3h/cli-native",
+      "--allow-temporary-files",
+      "--allow-tcp-connections"
+    ],
+    "status": 42,
+    "stdout": "",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,29 @@
+{
+  "parent": "f35ae5370",
+  "sources": {
+    "src/nanoisa/file_cyclic.inc": "a9d12d4c3e662d9615ed01ba03345cdce912d73bc6bde72614df7b0fc5404fb1",
+    "tests/test_service_drivers.py": "d4b0382874e3da3fa5447a87f10364f570e4b8e08932b870cf54b4220866c6c7"
+  },
+  "development_compare": {
+    "self_sha256": "e354718050df383afcadf07e134caf67817a75afdadfa80dfb7bef989f02e1ce",
+    "next_sha256": "3a038a51b12958de5a1520336f9f06303492c459bc04cc4dba5032c213f2e59b",
+    "size": 629076,
+    "different_offsets": [
+      36,
+      37,
+      38,
+      39,
+      34114,
+      34117,
+      34118,
+      34119
+    ]
+  },
+  "artifacts": {
+    "/private/tmp/nanolang-cyclic-compact-driver.nvm": "aeacd2cbb651379f28dd6919910266c9dc082328e739e78661513b8c0d180bd8",
+    "/private/tmp/nanolang-cyclic-compact-driver.native": "bb3f6ccdcac0ecaeeb0214c6a0eb94d38e32681f220ae6eccf13da5f3c892d77",
+    "modules/file_product/.build/current/libfile_product.dylib": "5510797b00e7d55aa7f437314e0e9a455829f2243efdd70814500b1b43b10d5d",
+    "bin/nano_aot_runtime.o": "b47ae461424a59c6c8101005b6ed840a5aa5d54e71006ddf6980061114b769ad"
+  },
+  "artifact_source_fnv1a": "4192481534518720034"
+}

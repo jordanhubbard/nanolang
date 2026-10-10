@@ -1,0 +1,7 @@
+I retain descriptive-plan artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-source-plan-akk2yhn7
+test_paired_websocket_catalog_and_selected_shadows (tests.test_file_source_plan.FileSourcePlan.test_paired_websocket_catalog_and_selected_shadows) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 22.067s
+
+OK

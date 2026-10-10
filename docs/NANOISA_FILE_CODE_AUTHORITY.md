@@ -93,6 +93,14 @@ I enumerate the actual supported scalar opcodes in production review; an
 unmodeled transfer is UNRESOLVED, never an inferred VOID or generic scalar.
 Scalar transfers do not discharge host byte-domain or rights checks.
 
+I also use the ordinary PUSH_VOID/STORE_LOCAL spelling to end the lifetime of
+an exact non-VOID copy local. I consume the VOID operand and leave the local
+uninitialized; repeating this clear on an empty copy local is valid. I reject
+the operation for File/OpenResult owners and formal references without changing
+either root. A declared VOID local still stores VOID normally. My logical
+transfer and matched VM/native frame store share this rule, so branch and loop
+scopes can discard passive temporaries without inventing a service operation.
+
 OWN_MOVE_LOCAL means the established local-to-stack transfer; OWN_STORE_LOCAL
 means stack-to-empty-local transfer. I map their existing operand semantics to
 the qualified state operations without changing other profiles. REGION_BEGIN,

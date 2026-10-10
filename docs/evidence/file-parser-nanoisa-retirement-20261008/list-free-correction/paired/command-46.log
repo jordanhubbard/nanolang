@@ -1,0 +1,58 @@
+['/private/tmp/nanolang-list-free-driver', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-8w7wknx2/bound-1.nano', 'program']
+.types 0 0 0
+.entry 0
+
+.function main 0 5 0 int 1
+  ARR_NEW 1
+  STORE_LOCAL 0
+  LOAD_LOCAL 0
+  STORE_LOCAL 1
+  PUSH_I64 1
+  STORE_LOCAL 2
+  PUSH_I64 7
+  STORE_LOCAL 3
+  LOAD_LOCAL 1
+  ARR_LEN
+  STORE_LOCAL 4
+  LOAD_LOCAL 2
+  PUSH_I64 0
+  I64_GE_S
+  ASSERT
+  LOAD_LOCAL 2
+  LOAD_LOCAL 4
+  I64_LE_S
+  ASSERT
+  LOAD_LOCAL 1
+  LOAD_LOCAL 3
+  ARR_PUSH
+  POP
+L0:
+  LOAD_LOCAL 4
+  LOAD_LOCAL 2
+  I64_GT_S
+  JMP_FALSE L1
+  LOAD_LOCAL 1
+  LOAD_LOCAL 4
+  LOAD_LOCAL 1
+  LOAD_LOCAL 4
+  PUSH_I64 1
+  I64_SUB
+  ARR_GET
+  ARR_SET
+  POP
+  LOAD_LOCAL 4
+  PUSH_I64 1
+  I64_SUB
+  STORE_LOCAL 4
+  JMP L0
+L1:
+  LOAD_LOCAL 1
+  LOAD_LOCAL 2
+  LOAD_LOCAL 3
+  ARR_SET
+  POP
+  PUSH_I64 0
+  RET
+.end
+
+

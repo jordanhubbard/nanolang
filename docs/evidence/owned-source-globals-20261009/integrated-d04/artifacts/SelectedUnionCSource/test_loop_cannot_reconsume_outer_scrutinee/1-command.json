@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/Users/jordanh/Src/nanolang/bin/nano_virt",
+    "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_loop_cannot_reconsume_outer_scrutinee/main.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_loop_cannot_reconsume_outer_scrutinee/main.nvm"
+  ],
+  "exit": 1
+}

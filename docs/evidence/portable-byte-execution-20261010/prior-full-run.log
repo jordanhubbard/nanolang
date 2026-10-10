@@ -1,0 +1,36 @@
+test_binary_aliases_mutation_and_independent_reads (tests.test_portable_bytes_execution.PortableBytesExecution.test_binary_aliases_mutation_and_independent_reads) ... ok
+test_empty_missing_and_exact_bound (tests.test_portable_bytes_execution.PortableBytesExecution.test_empty_missing_and_exact_bound) ... ok
+test_native_allocation_prefixes_and_recovery (tests.test_portable_bytes_execution.PortableBytesExecution.test_native_allocation_prefixes_and_recovery) ... ok
+test_oversize_cleanup_and_source_products (tests.test_portable_bytes_execution.PortableBytesExecution.test_oversize_cleanup_and_source_products) ... FAIL
+test_text_only_and_unknown_imports_refuse (tests.test_portable_bytes_execution.PortableBytesExecution.test_text_only_and_unknown_imports_refuse) ... ok
+test_wrong_array_write_is_refused_before_publication (tests.test_portable_bytes_execution.PortableBytesExecution.test_wrong_array_write_is_refused_before_publication) ... ok
+test_default_refusal_and_exact_imports_preserve_output (tests.test_portable_read_execution.PortableReadExecution.test_default_refusal_and_exact_imports_preserve_output) ... ok
+test_native_allocation_prefixes_and_recovery (tests.test_portable_read_execution.PortableReadExecution.test_native_allocation_prefixes_and_recovery) ... ok
+test_native_binding_and_lifecycle (tests.test_portable_read_execution.PortableReadExecution.test_native_binding_and_lifecycle) ... ok
+test_source_vm_c_and_wasm (tests.test_portable_read_execution.PortableReadExecution.test_source_vm_c_and_wasm) ... ok
+test_unused_declared_wasm_import (tests.test_portable_read_execution.PortableReadExecution.test_unused_declared_wasm_import) ... ok
+test_wasm_permission_repeated_entry_and_type_guard (tests.test_portable_read_execution.PortableReadExecution.test_wasm_permission_repeated_entry_and_type_guard) ... ok
+test_vm_native_llvm_and_wasm_core (tests.test_managed_packed_scalars.PackedScalars.test_vm_native_llvm_and_wasm_core) ... ok
+test_core_policy_ownership_and_failure_targets (tests.test_managed_mutable_runtime.MutableRuntime.test_core_policy_ownership_and_failure_targets) ... ok
+test_packaged_scalar_output_abi (tests.test_managed_mutable_runtime.MutableRuntime.test_packaged_scalar_output_abi) ... ok
+test_core_policy_ownership_and_failure_targets (tests.test_managed_array_copy_runtime.ArrayCopyRuntime.test_core_policy_ownership_and_failure_targets) ... ok
+test_packaged_scalar_output_abi (tests.test_managed_array_copy_runtime.ArrayCopyRuntime.test_packaged_scalar_output_abi) ... ok
+
+======================================================================
+FAIL: test_oversize_cleanup_and_source_products (tests.test_portable_bytes_execution.PortableBytesExecution.test_oversize_cleanup_and_source_products)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_portable_bytes_execution.py", line 142, in test_oversize_cleanup_and_source_products
+    self.command([ROOT/'bin'/driver, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_portable_read_execution.py", line 23, in command
+    self.assertEqual(result.returncode == 0, success, str(args) + '\n' + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : [PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-portable-execution-av3td608/source.nano'), '--emit-nvm', '-o', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-portable-execution-av3td608/source.nvm')]
+I cannot lower this checked program: undefined function file_read_bytes
+
+
+----------------------------------------------------------------------
+Ran 17 tests in 19.894s
+
+FAILED (failures=1)

@@ -1,0 +1,46 @@
+{
+  "stage1": {
+    "commands": 165,
+    "result": "Ran 16 tests in 462.131s",
+    "workdirs": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-vy6i8ioq",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-2nynes0e",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-jkvlg6xq",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ggf02_xo",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-z2mk0eio",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-k9xkecpk",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-j6_w__bj",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-jx8visni",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-62c_55io",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-se817aly",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-j35u0tvf",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-nr6c3z_d",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-vkaqjuoo",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-vvae_brd",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-8weik1ck",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wk0u83uz"
+    ]
+  },
+  "stage2": {
+    "commands": 165,
+    "result": "Ran 16 tests in 460.076s",
+    "workdirs": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7fj689iv",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-tp_0qzi0",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-iwrulbgn",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-xwgzpsoz",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-1g5pjm2s",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ow7zg2z0",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-8rebetay",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-111ndg86",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-owcva7zd",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-8u80gwx6",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-c1bk2rn7",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-f9tfl1fc",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-4gl7qbr4",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-w06hlujq",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-smt0_0e2",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-quo0ydn9"
+    ]
+  }
+}

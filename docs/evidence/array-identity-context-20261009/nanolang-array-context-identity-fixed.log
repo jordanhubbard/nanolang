@@ -1,0 +1,10 @@
+I retain checked array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/checked-array-literals-q53fm72t
+test_all_byte_destinations (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_all_byte_destinations) ... ok
+test_complete_slice_kind_bit_and_identity_fixture (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_complete_slice_kind_bit_and_identity_fixture) ... ok
+test_invalid_elements_and_existing_storage_preserve_output (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_invalid_elements_and_existing_storage_preserve_output) ... ok
+test_nested_literals_keep_context (tests.test_selfhost_array_literal_context.CheckedArrayLiterals.test_nested_literals_keep_context) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 3.674s
+
+OK

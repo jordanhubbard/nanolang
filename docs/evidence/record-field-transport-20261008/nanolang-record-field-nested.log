@@ -1,0 +1,7 @@
+I retain record-field transport evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-record-field-transport-vawgy38j
+test_tagged_nested_array_field_retains_children (tests.test_native_record_field_transport.RecordFieldTransport.test_tagged_nested_array_field_retains_children) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.474s
+
+OK

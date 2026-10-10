@@ -1,0 +1,15 @@
+I cannot verify affine ownership at line 3, column 36: I require an exhaustive unguarded owned match with supported concrete payloads — Choice
+I cannot verify affine ownership at line 4, column 29: this control-flow boundary needs ownership lowering — __owned$43
+I cannot verify affine ownership at line 4, column 29: this control-flow boundary needs ownership lowering — owner
+I cannot verify affine ownership at line 4, column 65: this control-flow boundary needs ownership lowering — __owned$52
+I cannot verify affine ownership at line 4, column 29: this control-flow boundary needs ownership lowering — __owned$43
+I cannot verify affine ownership at line 4, column 29: this control-flow boundary needs ownership lowering — owner
+I cannot verify affine ownership at line 4, column 65: this control-flow boundary needs ownership lowering — __owned$52
+I cannot verify affine ownership at line 4, column 29: this control-flow boundary needs ownership lowering — __owned$43
+I cannot verify affine ownership at line 4, column 29: this control-flow boundary needs ownership lowering — owner
+I cannot verify affine ownership at line 4, column 85: this boundary needs ownership lowering — owner
+I cannot verify affine ownership at line 4, column 65: this control-flow boundary needs ownership lowering — __owned$52
+I cannot verify affine ownership at line 4, column 91: resource remains live at scope exit — value
+I cannot verify affine ownership at line 5, column 21: resource remains live at scope exit — value
+Warning at line 3, column 36: Unused variable 'payload'
+error: type check failed

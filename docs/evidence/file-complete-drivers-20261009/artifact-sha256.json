@@ -1,0 +1,11 @@
+{
+  "bin/nanoc_c": "2527d463d0c0a1d117d5dd7810ee997f1f010fa4cd71e7d59c7c6d46230952b8",
+  "bin/nano_virt": "a8a0cd3ea83f5aa101fb0ff5e9c4974f52901aa81f0bd2338e6670c2cb349695",
+  "bin/nano_vm": "438410467f203c212112c23e25deb5ac086830c3e559133b6cfb2f39701f8b0a",
+  "bin/nvm2c": "ce0d7493855af7dd217e0d4f06b3dbf2edb1a5f1525801d94c5f33749edf2c6d",
+  "bin/nano_aot_runtime.o": "b47ae461424a59c6c8101005b6ed840a5aa5d54e71006ddf6980061114b769ad",
+  "lib/libnano_file_runtime.a": "b6523c2b1d4969c443b6dc78eb22f965612e406ba1b0dd01936648718bbf1bc9",
+  "/private/tmp/nanolang-file-all-driver.nvm": "96b9fc70759c67f7aa206a235d6dbcb3aa23d67fdd59b4f4b8b1f67e0b671b61",
+  "modules/file_product/.build/.nano-gen-Kkwqkb/libfile_product.dylib": "00a7df857038afde9e250965f3607066e32f3a35a884bdb3744b235f693f20f7",
+  "/private/tmp/nanolang-file-all-driver.native": "e8eb387cc8c3bdd460932fb2e919fc7373e39a78e1a4336c7ff1cedea8cbc234"
+}

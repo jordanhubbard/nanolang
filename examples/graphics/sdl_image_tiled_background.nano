@@ -8,7 +8,7 @@
 
 unsafe module "modules/sdl/sdl.nano"
 unsafe module "modules/sdl_helpers/sdl_helpers.nano"
-unsafe module "modules/sdl_image/sdl_image.nano"
+unsafe module "modules/sdl_image/sdl_image.nano" as image
 
 fn main() -> int {
     (println "=== SDL_image Tiled Background Demo ===")
@@ -18,7 +18,7 @@ fn main() -> int {
     
     # Initialize SDL and SDL_image
     (SDL_Init 32) 
-    let img_init: int = (IMG_Init IMG_INIT_PNG)
+    let img_init: int = (image.IMG_Init image.IMG_INIT_PNG)
     if (== img_init 0) {
         (println "Failed to initialize SDL_image")
         return 1
@@ -31,9 +31,9 @@ fn main() -> int {
     
     # Load tile textures (using icons as tiles)
     (println "Loading tile textures...")
-    let tile1: int = (nl_img_load_png_texture renderer "examples/icons/sdl_particles.png")
-    let tile2: int = (nl_img_load_png_texture renderer "examples/icons/sdl_fire.png")
-    let tile3: int = (nl_img_load_png_texture renderer "examples/icons/sdl_boids.png")
+    let tile1: int = (image.nl_img_load_png_texture renderer "examples/icons/sdl_particles.png")
+    let tile2: int = (image.nl_img_load_png_texture renderer "examples/icons/sdl_fire.png")
+    let tile3: int = (image.nl_img_load_png_texture renderer "examples/icons/sdl_boids.png")
     
     if (== tile1 0) {
         (println "Failed to load tile textures")
@@ -131,10 +131,10 @@ fn main() -> int {
                     set alpha 255
                 } else {}
                 
-                (nl_img_set_texture_alpha current_tile alpha) 
+                (image.nl_img_set_texture_alpha current_tile alpha)
                 
                 # Draw tile
-                (nl_img_render_texture renderer current_tile tile_x tile_y tile_size tile_size) 
+                (image.nl_img_render_texture renderer current_tile tile_x tile_y tile_size tile_size)
                 
                 set tile_x_idx (+ tile_x_idx 1)
             }
@@ -153,13 +153,13 @@ fn main() -> int {
     # Cleanup
     (println "")
     (println "Cleaning up...")
-    (nl_img_destroy_texture tile1) 
-    (nl_img_destroy_texture tile2) 
-    (nl_img_destroy_texture tile3) 
+    (image.nl_img_destroy_texture tile1)
+    (image.nl_img_destroy_texture tile2)
+    (image.nl_img_destroy_texture tile3)
     
     (SDL_DestroyRenderer renderer) 
     (SDL_DestroyWindow window) 
-    (IMG_Quit) 
+    (image.IMG_Quit)
     (SDL_Quit) 
     
     (println "✓ Tiled background demo completed")

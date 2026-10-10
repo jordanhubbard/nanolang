@@ -1,0 +1,16 @@
+import json,sys
+from pathlib import Path
+sys.path.insert(0,'/Users/jordanh/Src/nanolang')
+from tests.test_file_indirect_public import FileIndirectPublic
+art=Path('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-public-0m6ipdbt')
+i=json.loads((art/'inputs.json').read_text())
+t=FileIndirectPublic();t.artifacts=art;t.compiler=i['compiler'];t.flags=i['flags'];t.ldflags=i['link_flags']
+import os
+t.environment=dict(os.environ,LSAN_OPTIONS='',ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
+for name in ('CPATH','C_INCLUDE_PATH','CPLUS_INCLUDE_PATH','OBJC_INCLUDE_PATH'):t.environment.pop(name,None)
+t.installed=art/'linked-installed';t.archive=t.installed/'lib/libnano_file_runtime.a'
+directory=art/'linked-public-cases'
+rows=[tuple(map(int,s.split('\t'))) for s in (directory/'cases.tsv').read_text().splitlines()]
+generated=[(i,directory/f'case-{i:03d}.c') for i,status,_ in rows if status==0]
+t.installed_controls('corrected',directory,generated)
+print('PASS corrected installed headers, CLI, native linkage, grant/fuel and ABI/map mutation controls')

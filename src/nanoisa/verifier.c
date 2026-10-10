@@ -10,6 +10,7 @@
 
 #include "service_bindings_module.h"
 #include "verifier.h"
+#include "portable_read_catalog.h"
 #include "managed_array_shapes.h"
 #include "record_array_structure_private.h"
 #include "managed_record_shapes.h"
@@ -883,13 +884,12 @@ static NvmVerifyResult verify_function_body(const NvmModule *mod, uint32_t fn_id
     if(budget && proven_depth>256) {
         vm_decoded_function_free(&decoded);budget->limited=true;return fail("I reached my private stack bound.");
     }
-    if (out_max_stack) *out_max_stack = proven_depth;
-
     /* Types only once the shape is proven: the type pass indexes slots the
      * height walk guarantees exist. */
     if (stack_result.ok)
         stack_result = budget?nvm_verify_function_types_record_array(mod,fn_idx,&decoded,proven_depth,budget):
             nvm_verify_function_types(mod, fn_idx, &decoded,proven_depth,NULL,0);
+    if (stack_result.ok && out_max_stack) *out_max_stack = proven_depth;
     if(stack_result.ok && kept)*kept=decoded;
     else vm_decoded_function_free(&decoded);
     return stack_result;
@@ -975,6 +975,7 @@ static bool owned_runtime_opcode(uint8_t op,bool value_graph) {
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
     case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
+    case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
         return value_graph;
     default: return false;
     }
@@ -986,6 +987,13 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
     if (!mod->ownership_size || (!mod->function_count || mod->function_count>NVM_OWNED_MAX_FUNCTIONS) || mod->header.entry_point != 0 ||
         mod->import_count || mod->module_ref_count || mod->callback_contract_count || mod->passive_size)
         return fail("I require standalone ownership instruction execution semantics without linked contracts");
+    uint32_t globals;NvmOwnershipGlobal global_types[NVM_OWNERSHIP_MAX_GLOBALS];
+    if (nvm_ownership_globals(mod,global_types,NVM_OWNERSHIP_MAX_GLOBALS,&globals)!=NVM_V2_OK)
+        return fail("I require exact global declarations before owned execution");
+    for (uint32_t g=0;g<globals;g++)
+        if (global_types[g].tag==TAG_STRUCT || (global_types[g].tag==TAG_UNION &&
+            (mod->ownership_data[8+global_types[g].layout]&NVM_LAYOUT_RESOURCE)))
+            return fail("I require explicit record/resource global transfers and lifetime");
     bool value_graph=nvm_affine_value_call_graph(mod);
     if (!value_graph && mod->function_count>2)
         return fail("I require a bounded acyclic value graph or my separate borrowed helper");
@@ -1025,7 +1033,8 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
         const NvmV2Layout *layout = &layouts.items[i];
         if (layout->kind==NVM_V2_LAYOUT_UNION) {
             NvmUnionVariantFact fact;
-            if (mod->ownership_data[8+i] ||
+            if ((mod->ownership_data[8+i] &&
+                 !(mod->ownership_data[8+i]&NVM_LAYOUT_COMPLETE)) ||
                 nvm_ownership_union_variant(mod,union_ordinal,0,&fact)!=NVM_V2_OK ||
                 fact.layout!=i) supported=false;
             union_ordinal++;
@@ -1039,13 +1048,13 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
             /* My owned execution profile retains its prior-only graph. */
             uint32_t child=layout->fields[f].nested_idx;
             if(child!=NVM_V2_NO_INDEX && child>=i) supported=false;
-            if (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_STRUCT &&
+            if (tag!=TAG_INT && tag!=TAG_BOOL && tag!=TAG_U8 && tag!=TAG_STRUCT && tag!=TAG_UNION &&
                 !(value_graph && tag==TAG_STRING && child==NVM_V2_NO_INDEX)) supported=false;
         }
     }
     nvm_v2_layouts_free(&layouts);
     if (!supported) return fail("I require exact scalar, retained STRING or owned-child record fields before execution");
-    bool transfer=false;
+    bool transfer=globals!=0;
     for(uint32_t function=0;function<mod->function_count;function++) {
         VmDecodedFunction decoded;char error[VM_DECODE_ERROR_SIZE];
         if(!vm_decode_function(mod,function,&decoded,error)) return fail("%s",error);
@@ -1095,23 +1104,69 @@ NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
  * Public API
  * ======================================================================== */
 
+/* I share a completed structural proof only within this invocation. A caller
+ * can mutate a module between public calls, so I retain no cached admission. */
+static NvmVerifyResult verify_functions_with_structure(const NvmModule *mod,
+                                  const NvmModule *const *linked_modules,
+                                  uint32_t linked_count,
+                                  const uint16_t *declared_depths) {
+    bool owned_admitted = false;
+    NvmVerifyResult r = verify_structure(mod, false, &owned_admitted);
+    if (!r.ok) return r;
+    if (!owned_admitted && mod->function_count && mod->ownership_size)
+        owned_admitted = nvm_verify_owned_module(mod).ok;
+    if (owned_admitted && linked_count)
+        return fail("I refuse linked ownership execution contracts");
+    for (uint32_t i = 0; i < mod->function_count; ++i) {
+        if (declared_depths && !declared_depths[i]) continue;
+        uint16_t depth = NVM_AFFINE_MAX_STACK;
+        if (!owned_admitted) {
+            r = verify_function_body(mod, i, linked_modules, linked_count,
+                                     declared_depths ? &depth : NULL, NULL, NULL);
+            if (!r.ok) return r;
+        }
+        if (declared_depths && declared_depths[i] < depth)
+            return fail("function %u declares max_stack %u but reaches %u",
+                        i, (unsigned)declared_depths[i], (unsigned)depth);
+    }
+    return ok_result();
+}
+
+NvmVerifyResult nvm_verify_declared_max_stacks(const NvmModule *mod,
+                                              const uint16_t *declared_depths,
+                                              uint32_t count) {
+    if (!mod || count != mod->function_count || (count && !declared_depths))
+        return fail("I require one declared stack depth per function");
+    bool selected = false;
+    for (uint32_t i = 0; i < count; ++i) selected |= declared_depths[i] != 0;
+    /* A zero declaration retains the loader's existing absence of a depth
+     * obligation. Execution still requires the independent full verifier. */
+    if (!selected) return ok_result();
+    if (nvm_service_execution_pending(mod))
+        return fail("I refuse service contracts before mixed execution selection");
+    if (nvm_owned_array_route(mod) != NVM_OWNER_ARRAY_NOT_SELECTED ||
+        nvm_mixed_samples_candidate(mod)) {
+        /* I keep each private profile's existing complete admission path. */
+        for (uint32_t i = 0; i < count; ++i) {
+            if (!declared_depths[i]) continue;
+            uint16_t depth = 0;
+            NvmVerifyResult r = verify_function_impl(mod, i, NULL, 0, &depth);
+            if (!r.ok) return r;
+            if (declared_depths[i] < depth)
+                return fail("function %u declares max_stack %u but reaches %u",
+                            i, (unsigned)declared_depths[i], (unsigned)depth);
+        }
+        return ok_result();
+    }
+    return verify_functions_with_structure(mod, NULL, 0, declared_depths);
+}
+
 NvmVerifyResult nvm_verify(const NvmModule *mod) {
     if(nvm_service_execution_pending(mod))
         return fail("I refuse service contracts before mixed execution selection");
     if(nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED)return verify_owned_arrays(mod,0,NULL);
     if(nvm_mixed_samples_candidate(mod))return verify_mixed_samples(mod,0,NULL);
-    /* I reuse only this invocation's completed full owned-module proof. */
-    bool owned_admitted=false;
-    NvmVerifyResult r = verify_structure(mod, false, &owned_admitted);
-    if (!r.ok || owned_admitted) return r;
-
-    /* Phase 2: per-function bytecode validation */
-    for (uint32_t i = 0; i < mod->function_count; i++) {
-        r = verify_function_impl(mod, i, NULL, 0, NULL);
-        if (!r.ok) return r;
-    }
-
-    return ok_result();
+    return verify_functions_with_structure(mod, NULL, 0, NULL);
 }
 
 NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
@@ -1148,19 +1203,7 @@ NvmVerifyResult nvm_verify_linked(const NvmModule *mod,
                 return fail("I refuse linked ownership execution contracts");
         }
     }
-    /* Zero linked modules retain the same invocation-local owned proof. */
-    bool owned_admitted=false;
-    NvmVerifyResult r = verify_structure(mod, false, &owned_admitted);
-    if (!r.ok || (!linked_count && owned_admitted)) return r;
-
-    /* Phase 2: per-function validation, resolving OP_CALL_MODULE against the
-     * supplied linked-module table so cross-module call operands are bounded. */
-    for (uint32_t i = 0; i < mod->function_count; i++) {
-        r = verify_function_impl(mod, i, linked_modules, linked_count, NULL);
-        if (!r.ok) return r;
-    }
-
-    return ok_result();
+    return verify_functions_with_structure(mod, linked_modules, linked_count, NULL);
 }
 
 /* I preserve the original scalar translator eligibility as one shared policy. */
@@ -1190,15 +1233,23 @@ static int profile_supported(uint8_t op) {
 NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile) {
     if (profile != NVM_PROFILE_GENERAL && profile != NVM_PROFILE_CLOSED_SCALAR &&
         profile != NVM_PROFILE_CLOSED_LITERAL_STRINGS &&
-        profile != NVM_PROFILE_CLOSED_MANAGED_STRINGS)
+        profile != NVM_PROFILE_CLOSED_MANAGED_STRINGS && profile != NVM_PROFILE_PORTABLE_READ_TEXT && profile != NVM_PROFILE_PORTABLE_FILE_READ)
         return fail("I do not recognize verifier profile %d", (int)profile);
     NvmVerifyResult verified = nvm_verify(m);
     if (!verified.ok || profile == NVM_PROFILE_GENERAL) return verified;
     if(nvm_owned_array_route(m)!=NVM_OWNER_ARRAY_NOT_SELECTED)return fail("I keep owner ARRAY candidates outside closed backend profiles");
     if(nvm_mixed_samples_candidate(m))return fail("I keep mixed ownership outside closed backend profiles");
+    const bool portable_bytes = profile == NVM_PROFILE_PORTABLE_FILE_READ;
+    const bool portable_read = profile == NVM_PROFILE_PORTABLE_READ_TEXT || portable_bytes;
+    if(portable_read) {
+        if(!m->import_count || m->callback_contract_count)
+            return fail("I require explicit portable read-text declarations without callbacks");
+        for(uint32_t i=0;i<m->import_count;i++)
+            if(!(portable_bytes?nvm_portable_file_read_import(m,i):nvm_portable_read_import_exact(m,i)))return fail("I require exact portable read-text import %u",i);
+    }
     const bool record_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS &&
         (m->struct_count || m->layout_size || m->ownership_size);
-    if (m->import_count || m->module_ref_count || m->union_count || m->passive_size ||
+    if ((!portable_read && m->import_count) || m->module_ref_count || m->union_count || m->passive_size ||
         (!record_profile && (m->struct_count || m->ownership_size || m->layout_size)))
         return fail("I support only closed scalar modules without imports, nominal layouts or ownership/passive contracts");
     if (!(m->header.flags & NVM_FLAG_HAS_MAIN))
@@ -1209,10 +1260,10 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         return fail("I require an integer/bool executable entry result");
     if (m->functions[m->header.entry_point].arity)
         return fail("I require a zero-argument scalar entry point");
-    const bool managed_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS;
+    const bool managed_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS || portable_read;
     const bool literal_profile = profile == NVM_PROFILE_CLOSED_LITERAL_STRINGS || managed_profile;
     bool has_strings = false;
-    bool mutable_arrays = false;
+    bool mutable_arrays = portable_bytes;
     bool needs_string_runtime = false;
     bool initializer_seen = false;
     for (uint32_t i = 0; i < m->function_count; ++i) {
@@ -1229,7 +1280,10 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
             return fail("I require zero void results or one admitted closed-profile result and no captures in function %u", i);
         has_strings |= f->result_count && f->result_tag == TAG_STRING;
         for (uint16_t p = 0; p < f->arity; ++p) {
-            if (!m->function_param_types || !m->function_param_types[i]) continue;
+            if (!m->function_param_types || !m->function_param_types[i]) {
+                if(portable_read)return fail("I require explicit portable function parameter tags");
+                continue;
+            }
             uint8_t tag = m->function_param_types[i][p];
             has_strings |= tag == TAG_STRING;
             if (!profile_scalar(tag) && !(literal_profile && tag == TAG_STRING) && !(managed_profile && tag == TAG_ARRAY) && !(record_profile && tag == TAG_STRUCT))
@@ -1251,13 +1305,14 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
                 ins.opcode == OP_STRUCT_LITERAL || ins.opcode == OP_STRUCT_GET ||
                 ins.opcode == OP_STRUCT_SET || ins.opcode == OP_AGG_PACK ||
                 ins.opcode == OP_AGG_GET || ins.opcode == OP_AGG_SET);
-            if (!width || (!profile_supported(ins.opcode) && !literal_op && !record_op)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
+            if (!width || (!profile_supported(ins.opcode) && !literal_op && !record_op && !(portable_read && ins.opcode==OP_CALL_EXTERN))) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
             pc += width;
         }
     }
     if (mutable_arrays || record_profile) {
         NvmManagedHeapPlan *plan = NULL;
-        NvmArrayEligibilityResult arrays = nvm_select_managed_heap(m, mutable_arrays, &plan);
+        NvmArrayEligibilityResult arrays = portable_bytes ? nvm_select_portable_read_heap(m, &plan) :
+            nvm_select_managed_heap(m, mutable_arrays, &plan);
         nvm_managed_heap_plan_free(plan);
         if (arrays.status != NVM_ARRAY_ELIGIBLE)
             return fail("I cannot establish mutable array eligibility (status %u) at function %u offset %u: %s",

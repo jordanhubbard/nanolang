@@ -1,0 +1,19 @@
+{
+  "source": "5dc3a17fb345b925e9cbe7dd06aaf1d2a62652a4",
+  "component_sha256": "40ad986472e4696784360282d563b56c1bf5f95f7b91e3c5ddc3893db1f28eb4",
+  "historical_ci_source": "51c8cfb48540a3badd45962febcf92df3e286963",
+  "jobs": [
+    {
+      "job": 113797705331,
+      "complete_log_sha256": "8d1a0374eb5f80857d01ec904916e58d8faffc83d046e458ac9e487bfd88566f",
+      "complete_log_bytes": 8727309,
+      "url": "https://github.com/jordanhubbard/nanolang/actions/runs/37923762179/job/113797705331"
+    },
+    {
+      "job": 113797705252,
+      "complete_log_sha256": "41677bc5aa28c83545dafb61d62791f6eadfab6a642de796c3a4d67e656b4c9f",
+      "complete_log_bytes": 757668,
+      "url": "https://github.com/jordanhubbard/nanolang/actions/runs/37923762179/job/113797705252"
+    }
+  ]
+}

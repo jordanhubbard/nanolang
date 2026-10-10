@@ -1,0 +1,8 @@
+{
+  "src/nsi_socket.c": "abf226e7d970cb95bbba3dfedb56961e0adb6ef177852f2acf7cddf1be0954e4",
+  "src/nsi_socket.h": "9d2179c12fcb0dbb2ddca80d36b5d8fb2cc96908e953d964edd29fd450b7ee9d",
+  "tests/test_nsi_socket_network.c": "e613b32d91e11e79942a4e93bd5eb71a7788db702cd7054501e1016bcea8f623",
+  "tests/test_nsi_socket.c": "7bd9a88e7695a9f8e0e202c7211afdd6609f79e1401bf72f1f6bb9796963c13c",
+  "tests/test_nsi_socket_values.c": "d0924be0bc39d1df471356facf189c47061df57e9513715ef42d883225f71a9c",
+  "Makefile.gnu": "579b707c30832fba17cecc82cc899730d5a229e099ff784c5c60043b63c62190"
+}

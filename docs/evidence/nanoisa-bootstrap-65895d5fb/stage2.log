@@ -1,0 +1,7 @@
+python3 scripts/embed_binary64_parser.py --check
+I run stage2; I retain its log at /private/tmp/nanolang-bootstrap-65895d5fb/obj/bootstrap-nanoisa/run-fck8k2jq/08-stage2.log.
+I run stage2-verify; I retain its log at /private/tmp/nanolang-bootstrap-65895d5fb/obj/bootstrap-nanoisa/run-fck8k2jq/09-stage2-verify.log.
+I run stage2-translate; I retain its log at /private/tmp/nanolang-bootstrap-65895d5fb/obj/bootstrap-nanoisa/run-fck8k2jq/10-stage2-translate.log.
+I run stage2-native; I retain its log at /private/tmp/nanolang-bootstrap-65895d5fb/obj/bootstrap-nanoisa/run-fck8k2jq/11-stage2-native.log.
+I run stage2-hello-compile; I retain its log at /private/tmp/nanolang-bootstrap-65895d5fb/obj/bootstrap-nanoisa/run-fck8k2jq/12-stage2-hello-compile.log.
+I run stage2-hello-execute; I retain its log at /private/tmp/nanolang-bootstrap-65895d5fb/obj/bootstrap-nanoisa/run-fck8k2jq/13-stage2-hello-execute.log.

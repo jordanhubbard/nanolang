@@ -1,0 +1,30 @@
+{
+  "raw_equal": false,
+  "assembly_equal_except_host_paths": true,
+  "host_libraries": [
+    {
+      "name": "libnanoisa.dylib",
+      "baseline": "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-73c6fe6f3f61f786044ab4ef848a17ea0f42b3de29033b90d5d84d63cfb6fdea/.nano-gen-Y5Qv5J/libnanoisa.dylib",
+      "candidate": "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-73c6fe6f3f61f786044ab4ef848a17ea0f42b3de29033b90d5d84d63cfb6fdea/.nano-gen-PsZu32/libnanoisa.dylib",
+      "baseline_sha256": "fd10171b794a9e7ccc80e10e52767e63208ea0cee99e153c5cc86655a74d1a44",
+      "candidate_sha256": "6445c7462d9e0dc332fc61efa29f2052df6d939e1ef260ea7e393cffc18777d3",
+      "equal": false
+    },
+    {
+      "name": "libstd.dylib",
+      "baseline": "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-2d117157bbac7e962a0bd7124c688ca3b825bc56317715bd9cdf990381965bd8/.nano-gen-XU9cpr/libstd.dylib",
+      "candidate": "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-2d117157bbac7e962a0bd7124c688ca3b825bc56317715bd9cdf990381965bd8/.nano-gen-QC8efn/libstd.dylib",
+      "baseline_sha256": "4ce19ce4d05c5aaa22bb50900a1b2a1a39d7de7346243ff88f4276293c2f5813",
+      "candidate_sha256": "5f749bb72bde48166bb62e8be928a60ff4a5b2a1c54a963914ad0895e6d934c9",
+      "equal": false
+    },
+    {
+      "name": "libcompiler_support.dylib",
+      "baseline": "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-13bbc4ecd686c6b0331670a17746976c18dac31bd11c6f6996e2d749dec33a89/.nano-gen-8qi9AB/libcompiler_support.dylib",
+      "candidate": "/private/tmp/nanolang-match-guards-20261009/obj/module_cache/v2-13bbc4ecd686c6b0331670a17746976c18dac31bd11c6f6996e2d749dec33a89/.nano-gen-aQ3YQh/libcompiler_support.dylib",
+      "baseline_sha256": "b9d223f236617ea2487aaa028943effe6cb5b0a696b7dce40f31432e1404cd52",
+      "candidate_sha256": "883c48eb35738fade9ac6a3d84959e3dee5de1b0efe43c4832fd23841302b13f",
+      "equal": false
+    }
+  ]
+}

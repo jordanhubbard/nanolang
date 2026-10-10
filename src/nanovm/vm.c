@@ -275,6 +275,8 @@ static bool vm_ownership_supported(const VmState *vm) {
 typedef struct {
     const NvmModule *module;
     bool mixed, owner_arrays;
+    uint32_t global_count;
+    const NvmModule *global_module;
     VmResult refusal;
     const char *reason;
     uint32_t function_count, record_count;
@@ -421,7 +423,7 @@ fail:nvm_owned_array_plan_free(plan);return false;
 }
 
 static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
-    proof->module=NULL;proof->mixed=false;proof->owner_arrays=false;proof->refusal=VM_OK;proof->reason=NULL;
+    proof->module=NULL;proof->mixed=false;proof->owner_arrays=false;proof->global_count=0;proof->global_module=NULL;proof->refusal=VM_OK;proof->reason=NULL;
     if(vm && nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED)return vm_owner_array_invocation_prepare(vm,proof);
     if(vm && nvm_mixed_samples_candidate(vm->module))return vm_mixed_invocation_prepare(vm,proof,false);
     bool required=false;
@@ -430,6 +432,7 @@ static bool vm_ownership_admit(VmState *vm, VmOwnedInvocationProof *proof) {
         !vm->linked_module_count && !vm->callbacks && !vm->opcode_trace &&
         !vm->references.active && required) {
         if (!nvm_verify_owned_module(vm->module).ok) return false;
+        if (nvm_ownership_globals(vm->module,NULL,0,&proof->global_count)!=NVM_V2_OK) return false;
         proof->module=vm->module;
         return true;
     }
@@ -1527,6 +1530,13 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
             if(!vm_owned_constants_ready(vm))return trap_error(vm,VM_ERR_TYPE_ERROR,"I require complete owner ARRAY constants.");
         } else if (!vm_owned_runtime_ready_scoped(vm,&required,facts))
             return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
+        if (required && !(admitted && (proof->mixed || proof->owner_arrays))) {
+            uint32_t globals=0;
+            if (nvm_ownership_globals(vm->module,NULL,0,&globals)!=NVM_V2_OK)
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I require complete typed-global declarations.");
+            if (globals && (!proof || proof->global_module!=vm->module || proof->global_count!=globals))
+                return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a scoped typed-global entry invocation.");
+        }
         if (!admitted && !vm_ownership_supported_scoped(vm,facts))
             return trap_error(vm, VM_ERR_TYPE_ERROR, "%s", VM_OWNERSHIP_REQUIRED);
     }
@@ -1975,8 +1985,9 @@ vm_dispatch_top:
                     vm_release(&vm->heap,previous);
                 } else {
                     NanoValue value=vm->stack[index];
-                    if (value.tag!=TAG_STRUCT || !value.as.sval)
-                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a live owned record");
+                    if ((value.tag!=TAG_STRUCT || !value.as.sval) &&
+                        (value.tag!=TAG_UNION || !value.as.uval))
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a live owned aggregate");
                     if (op==OP_OWN_MOVE_LOCAL) {
                         /* I preserve the owner even if this handler is later
                          * separated from the common instruction preflight. */
@@ -1985,15 +1996,16 @@ vm_dispatch_top:
                         vm->stack[index]=val_void();
                         stack_push(vm,value);
                     } else {
-                        VmStruct *record=value.as.sval;
-                        if (stack_reserve(vm,(uint64_t)vm->stack_size+record->field_count)!=VM_OK)
+                        uint32_t count=value.tag==TAG_STRUCT?value.as.sval->field_count:value.as.uval->field_count;
+                        NanoValue *fields=value.tag==TAG_STRUCT?value.as.sval->fields:value.as.uval->fields;
+                        bool buffered=value.tag==TAG_STRUCT?value.as.sval->header.buffered:value.as.uval->header.buffered;
+                        if (stack_reserve(vm,(uint64_t)vm->stack_size+count)!=VM_OK)
                             return trap_error(vm,VM_ERR_MEMORY,"I cannot reserve every unpacked field");
                         vm->stack[index]=val_void();
-                        for (uint32_t i=0;i<record->field_count;i++) {
-                            stack_push(vm,record->fields[i]);
-                            record->fields[i]=val_void();
+                        for (uint32_t i=0;i<count;i++) {
+                            stack_push(vm,fields[i]);
+                            fields[i]=val_void();
                         }
-                        bool buffered=record->header.buffered;
                         vm_release(&vm->heap,value);
                         if (buffered) vm_gc_collect_cycles(&vm->heap);
                     }
@@ -2124,8 +2136,23 @@ vm_dispatch_top:
             VM_NEXT();
         }
 
-        VM_CASE(OP_NOP)
+        VM_CASE(OP_NOP) {
+            /* I report a selected shadow only when execution reaches its marker.
+             * Advisory metadata never grants execution or ownership authority. */
+            if (getenv("NANO_SHADOW_TRACE")) {
+                char key[64];
+                snprintf(key, sizeof key, "nanolang.shadow.offset.%u", instr_start);
+                for (uint32_t i = 0; i < vm->module->metadata_count; ++i) {
+                    const NvmMetadataEntry *entry = &vm->module->metadata[i];
+                    const char *name = nvm_get_string(vm->module, entry->key_idx);
+                    if (name && strcmp(name, key) == 0) {
+                        const char *target = nvm_get_string(vm->module, entry->value_idx);
+                        if (target) fprintf(stderr, "I am testing shadow %s\n", target);
+                    }
+                }
+            }
             VM_NEXT();
+        }
 
         VM_CASE(OP_PUSH_I64)
             stack_push(vm, val_int(instr.operands[0].i64));
@@ -2282,8 +2309,11 @@ vm_dispatch_top:
             }
             NanoValue v = stack_pop(vm);
             NanoValue previous = vm->globals[idx];
+            bool buffered=owned_execution && val_is_heap_obj(previous) && previous.as.obj &&
+                ((VmHeapHeader *)previous.as.obj)->buffered;
             vm->globals[idx] = v;
             vm_release(&vm->heap, previous);
+            if (buffered) vm_gc_collect_cycles(&vm->heap);
             if (idx >= vm->global_count) vm->global_count = idx + 1;
             VM_NEXT();
         }
@@ -2950,6 +2980,13 @@ dynamic_div:
                         (argument.tag==TAG_STRUCT && (!argument.as.sval ||
                          argument.as.sval->def_idx!=parameters[p].layout)))
                         return trap_error(vm,VM_ERR_TYPE_ERROR,"I require exact positional consuming argument types");
+                    if (argument.tag==TAG_UNION) {
+                        NvmUnionVariantFact fact;
+                        if (!argument.as.uval || nvm_ownership_union_variant(vm->module,
+                            argument.as.uval->def_idx,argument.as.uval->variant,&fact)!=NVM_V2_OK ||
+                            fact.layout!=parameters[p].layout || fact.field_count!=argument.as.uval->field_count)
+                            return trap_error(vm,VM_ERR_TYPE_ERROR,"I require exact consuming union argument identity");
+                    }
                 }
             }
 
@@ -3258,6 +3295,12 @@ vm_return_values: ;
             NanoValue results[UINT8_MAX];
             for (uint8_t i = 0; i < returning->result_count; i++) {
                 results[i] = vm->stack[vm->stack_size - returning->result_count + i];
+                /* I admit only zero as the integer spelling of opaque null. */
+                if (returning->result_tag == TAG_OPAQUE &&
+                    results[i].tag == TAG_INT && results[i].as.i64 == 0) {
+                    results[i] = (NanoValue){0};
+                    results[i].tag = TAG_OPAQUE;
+                }
                 if (!result_tag_matches(returning->result_tag, results[i].tag)) {
                     return trap_error(vm, VM_ERR_TYPE_ERROR,
                                       "Function %u returned %s, expected %s",
@@ -3287,6 +3330,17 @@ vm_return_values: ;
                     if (!valid || type.tag!=TAG_STRUCT || !results[0].as.sval ||
                         results[0].as.sval->def_idx!=type.layout || results[0].as.sval->field_count!=fields)
                         return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact declared owned result");
+                }
+                if (returning->result_tag==TAG_UNION) {
+                    NvmAffineState *contract=nvm_affine_state_create(vm->module,frame->fn_idx,returning->local_count);
+                    NvmAffineType type;uint16_t fields=0;NvmUnionVariantFact fact;
+                    bool valid=nvm_affine_value_result(contract,&type,&fields);
+                    nvm_affine_state_free(contract);
+                    VmUnion *value=results[0].as.uval;
+                    if (!valid || type.tag!=TAG_UNION || !value ||
+                        nvm_ownership_union_variant(vm->module,value->def_idx,value->variant,&fact)!=NVM_V2_OK ||
+                        fact.layout!=type.layout || fact.field_count!=value->field_count)
+                        return trap_error(vm,VM_ERR_TYPE_ERROR,"I require an exact declared union result");
                 }
                 /* The returned operand already fits this stack. I establish
                  * publication capacity before removing any callee roots. */
@@ -5002,6 +5056,14 @@ static VmResult vm_call_function_impl(VmState *vm, uint32_t fn_idx, NanoValue *a
     }
 }
 
+static void vm_owned_globals_clear(VmState *vm) {
+    for (uint32_t i=0;i<vm->global_count;i++) {
+        vm_release(&vm->heap,vm->globals[i]);vm->globals[i]=val_void();
+    }
+    vm->global_count=0;
+    vm_gc_collect_cycles(&vm->heap);
+}
+
 static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue *args,
                                          uint16_t arg_count, VmOwnedInvocationProof *proof) {
     if ((nvm_uses_owned_transfers(vm->module) || nvm_owned_array_route(vm->module)!=NVM_OWNER_ARRAY_NOT_SELECTED || nvm_mixed_samples_candidate(vm->module)) && fn_idx!=0)
@@ -5011,8 +5073,15 @@ static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue 
                         proof->reason?proof->reason:VM_OWNERSHIP_REQUIRED);
     if (vm->references.active)
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a call in my standalone reference activation");
+    if (proof->global_count) {
+        if (fn_idx || vm->frame_count)
+            return vm_error(vm,VM_ERR_TYPE_ERROR,"I require a root typed-global entry invocation");
+        if (!vm_ensure_globals(vm,proof->global_count))
+            return vm_error(vm,VM_ERR_MEMORY,"I cannot allocate typed-global invocation storage");
+        vm_owned_globals_clear(vm);proof->global_module=vm->module;
+    }
     uint32_t base = vm->stack_size, frames = vm->frame_count;
-    bool owned = nvm_uses_owned_transfers(vm->module) || proof->mixed || proof->owner_arrays;
+    bool owned = nvm_uses_owned_transfers(vm->module) || proof->mixed || proof->owner_arrays || proof->global_count;
     uint32_t floor = vm->activation_floor;
     vm->activation_floor = vm->frame_count;
     VmResult result = vm_call_function_impl(vm, fn_idx, args, arg_count, val_void(),proof);
@@ -5031,6 +5100,7 @@ static VmResult vm_call_function_scoped(VmState *vm, uint32_t fn_idx, NanoValue 
             effect_prune(vm,frames);
         }
     }
+    if (proof->global_count) {vm_owned_globals_clear(vm);proof->global_module=NULL;}
     return result;
 }
 
@@ -5097,6 +5167,11 @@ VmResult vm_invoke_callable(VmState *vm, NanoValue callable, const NanoValue *ar
         return vm_error(vm,VM_ERR_TYPE_ERROR,"I cannot nest a callable in my standalone reference activation");
     if (!vm_callable_target(vm, callable, &target, &function_index))
         return vm_error(vm, VM_ERR_UNDEFINED_FUNCTION, "I need a callable with a live module identity.");
+    if (proof.global_count) {
+        if (callable.tag!=TAG_FUNCTION || target!=vm->root_module || function_index)
+            return vm_error(vm,VM_ERR_TYPE_ERROR,"I require a direct root typed-global callable");
+        return vm_invoke(vm,0,args,arg_count,out_result);
+    }
     if (vm_stack_address(vm, out_result))
         return vm_error(vm, VM_ERR_TYPE_ERROR, "I need result storage outside my movable stack.");
     if ((nvm_uses_owned_transfers(target) || nvm_owned_array_route(target)!=NVM_OWNER_ARRAY_NOT_SELECTED || nvm_mixed_samples_candidate(target)) && function_index!=0)

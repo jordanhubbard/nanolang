@@ -2,6 +2,26 @@ import "src_nano/parser.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/typecheck.nano"
 
+fn check_legacy_global_declarations() -> void {
+    let names: array<string> = ["module_aliases", "module_alias_targets", "func_aliases", "func_alias_targets"]
+    for index in (range 0 (array_length names)) {
+        let name: string = (at names index)
+        let usage: string = (+ "fn main()->int { return (array_length " (+ name ") }"))
+        let declaration: string = (+ "let " (+ name ":array<string> = [] "))
+        let sources: array<string> = [usage, (+ declaration usage)]
+        for declared in (range 0 2) {
+            let tokens: List<LexerToken> = (tokenize_string (at sources declared) "global-check.nano" (list_CompilerDiagnostic_new))
+            let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "global-check.nano")
+            assert (not (parser_has_error parsed))
+            let checked: TypecheckPhaseOutput = (typecheck_phase parsed "global-check.nano")
+            assert (== checked.had_error (== declared 0))
+            assert (== (> checked.environment.error_count 0) (== declared 0))
+            assert (== (> (list_CompilerDiagnostic_length checked.diagnostics) 0) (== declared 0))
+        }
+    }
+}
+shadow check_legacy_global_declarations { (check_legacy_global_declarations) }
+
 fn main() -> int {
     let sources: array<string> = ["fn main() -> int { return 7 }", "fn main() -> int { return true }"]
     let mut index: int = 0
@@ -22,6 +42,7 @@ fn main() -> int {
         }
         set index (+ index 1)
     }
+    (check_legacy_global_declarations)
     (println "I passed my checker entry assertions.")
     return 0
 }

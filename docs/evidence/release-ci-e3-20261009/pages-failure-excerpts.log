@@ -1,0 +1,2 @@
+build	Validate user guide snippets	2026-10-09T06:50:29.9187488Z src/nanovirt/borrow_codegen.inc:462:18: error: ‘layout’ may be used uninitialized [-Werror=maybe-uninitialized]
+build	Validate user guide snippets	2026-10-09T06:50:32.4357930Z make: *** [Makefile.gnu:1086: obj/nanovirt/codegen.o] Error 1

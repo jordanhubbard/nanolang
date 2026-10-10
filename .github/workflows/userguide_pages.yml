@@ -30,6 +30,10 @@ on:
       - ".github/workflows/userguide_pages.yml"
   workflow_dispatch:
 
+env:
+  # I retain all shadows with the same finite hosted deadline as main CI.
+  NANO_SHADOW_TIMEOUT_SECONDS: "60"
+
 permissions:
   contents: read
   pages: write

@@ -1,0 +1,7 @@
+{
+  "src_nano/compiler/nanoisa_codegen.nano": "1a5a770c2bb72cd4eca00e939bff361ee86f3fb1e346f74d4560b9d601d535c6",
+  "tests/test_nanoisa_match_guards.py": "5ae556a6298dabdab0ee5f5430a302db06dc3878ffcba9c428e2ef448208976e",
+  "Makefile.gnu": "5241159311001f940e3a93f919b1d8f273d6b802508fc06fdcfe52f5da281f7b",
+  "bin/match_program_driver": "e51b2419b5b66950ac8e8c5536c1b553f5c4a6a410e21e78cb1d5c3d3b3486fb",
+  "base": "0273c40fdf6361ac24daccf91247f6d82804d965"
+}

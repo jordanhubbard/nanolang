@@ -1,0 +1,15 @@
+test_missing_index_is_generated_before_bootstrap_snapshot (__main__.BootstrapDependencies.test_missing_index_is_generated_before_bootstrap_snapshot) ... FAIL
+
+======================================================================
+FAIL: test_missing_index_is_generated_before_bootstrap_snapshot (__main__.BootstrapDependencies.test_missing_index_is_generated_before_bootstrap_snapshot)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-bootstrap-index-dependency-20261009/test_dependencies.py", line 84, in test_missing_index_is_generated_before_bootstrap_snapshot
+    self.assertEqual(self.query(".bootstrap1.built"), 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 1 test in 0.142s
+
+FAILED (failures=1)

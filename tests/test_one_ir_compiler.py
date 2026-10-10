@@ -1,5 +1,6 @@
 """I require a native compiler built from bytecode to compile a real program."""
 import os
+import re
 from pathlib import Path
 import shutil
 import signal
@@ -14,6 +15,22 @@ HOST_RUNTIME = [ROOT / "bin/nano_aot_runtime.o", "-lm",
 
 
 class OneIrCompiler(unittest.TestCase):
+    def assert_no_vm_wrapper(self, source):
+        # I inspect identifiers, preserving compiler literals such as the
+        # path used to run a separately emitted shadow-test module.
+        tokens = re.compile(r'''"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|/\*.*?\*/|//[^\n]*|(?P<identifier>[A-Za-z_][A-Za-z_0-9]*)''', re.DOTALL)
+        forbidden = [match['identifier'] for match in tokens.finditer(source)
+                     if match['identifier'] and
+                     ('nano_vm' in match['identifier'] or 'nvm_blob' in match['identifier'])]
+        self.assertEqual(forbidden, [], "I require native code without VM or bytecode-blob identifiers")
+
+    def test_no_vm_wrapper_assertion_checks_code_not_literals(self):
+        self.assert_no_vm_wrapper('const char *path = "bin/nano_vm"; /* nano_vm */ // nvm_blob\n')
+        for source in ('nano_vm_run(module);', 'const unsigned char nvm_blob[] = {0};',
+                       '"escaped \\" quote"; nano_vm_run(module);'):
+            with self.subTest(source=source), self.assertRaises(AssertionError):
+                self.assert_no_vm_wrapper(source)
+
     def test_void_locals_preserve_tags_through_calls_and_tail_restarts(self):
         fixtures = {}
         for name, tag, value, consume in (
@@ -112,6 +129,68 @@ class OneIrCompiler(unittest.TestCase):
         self.assertEqual(process.returncode, 0,
                          f"I failed {args[0]}\n" + (stdout + stderr).decode(errors="replace")[-6000:])
         return stdout
+
+    def test_global_discovery_rebuilds_optional_boolean_join_facts(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc)
+        for present in (False, True):
+            with self.subTest(present=present), tempfile.TemporaryDirectory(prefix="nano-join-reset-") as tmp:
+                work = Path(tmp)
+                assembly, module, source, binary = (work / name for name in
+                                                    ("input.nasm", "input.nvm", "input.c", "program"))
+                values = "PUSH_BOOL 1\nARR_LITERAL 4 1\n" if present else "ARR_LITERAL 4 0\n"
+                assembly.write_text(
+                    '.types 1 0 0\n.entry main\n'
+                    '.function choose 1 1 0 int 1\nPUSH_BOOL 0\nDUP\nJMP_TRUE done\nPOP\n'
+                    'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\ndone:\n'
+                    f'TYPE_CHECK {4 if present else 0}\nASSERT\nPUSH_I64 0\nRET\n.end\n'
+                    '.function main 0 0 0 int 1\nPUSH_I64 7\nAGG_PACK 0 0 0 1\n'
+                    'ARR_LITERAL 8 1\nSTORE_GLOBAL 0\n' + values +
+                    'CALL choose\nRET\n.end\n.parameters 0 array\n')
+                self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                self.run_checked([ROOT / "bin/nano_vm", module])
+                self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+                                  "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                                  source, "-o", binary])
+                self.run_checked([binary])
+
+    def test_recursive_array_results_wait_for_tagged_element_storage(self):
+        cc = shutil.which("cc")
+        self.assertIsNotNone(cc)
+        for tag, declared, value in ((5, "string", "PUSH_STR item"),
+                                     (4, "bool", "PUSH_BOOL 1"),
+                                     (1, "int", "PUSH_I64 42"),
+                                     (3, "float", "PUSH_F64 1.5")):
+            with self.subTest(element=declared), tempfile.TemporaryDirectory(prefix="nano-recursive-array-") as tmp:
+                work = Path(tmp)
+                assembly, module, source, binary = (work / name for name in
+                                                    ("input.nasm", "input.nvm", "input.c", "program"))
+                # I encounter the projected (tagged) argument before callers
+                # establish the recursive function's array element storage.
+                assembly.write_text(
+                    '.string item "kept"\n.entry main\n'
+                    '.function before 1 1 0 array 1\n' + value +
+                    f'\nARR_LITERAL {tag} 1\nPUSH_I64 0\nARR_GET\nLOAD_LOCAL 0\n'
+                    'PUSH_I64 1\nCALL collect\nRET\n.end\n'
+                    '.function collect 3 3 0 array 1\n'
+                    'LOAD_LOCAL 2\nPUSH_I64 0\nI64_GT_S\nJMP_FALSE append\n'
+                    'LOAD_LOCAL 0\nLOAD_LOCAL 1\nLOAD_LOCAL 2\nPUSH_I64 1\nI64_SUB\n'
+                    'CALL collect\nRET\nappend:\nLOAD_LOCAL 1\nLOAD_LOCAL 0\nARR_PUSH\nRET\n.end\n'
+                    '.function main 0 1 0 int 1\n'
+                    f'ARR_LITERAL {tag} 0\nCALL before\nSTORE_LOCAL 0\n' + value +
+                    '\nLOAD_LOCAL 0\nPUSH_I64 1\nCALL collect\nSTORE_LOCAL 0\n'
+                    'LOAD_LOCAL 0\nARR_LEN\nPUSH_I64 2\nI64_EQ\nASSERT\n'
+                    'LOAD_LOCAL 0\nPUSH_I64 1\nARR_GET\n' + value +
+                    '\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n'
+                    f'.parameters 0 array\n.parameters 1 {declared} array int\n')
+                self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
+                self.run_checked([ROOT / "bin/nano_vm", module])
+                self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
+                self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror",
+                                  "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
+                                  source, "-o", binary])
+                self.run_checked([binary])
 
     def test_declared_empty_array_returns_reach_native(self):
         cc = shutil.which("cc")
@@ -256,11 +335,20 @@ static inline void tracked_free(void *p) {
                               "--emit-nvm", "--strip-debug", "-o", module], timeout=600)
             self.assertGreater(module.stat().st_size, 0)
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
-            self.assertNotIn("nano_vm", source.read_text())
+            self.assert_no_vm_wrapper(source.read_text())
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
                               source, "-o", compiler, *HOST_RUNTIME], timeout=240)
             help_output = self.run_checked([compiler, "--help"], timeout=10)
             self.assertIn(b"Compiler", help_output)
+            self.run_checked([sys.executable, "-m", "unittest", "tests.test_selfhost_captures",
+                              "tests.test_native_mutable_record_arrays", "tests.test_genenv_scope"],
+                             timeout=180, extra_env={"NANOLANG_SELFHOST_COMPILER": str(compiler)})
+            # I require the native compiler to parse and lower its full source,
+            # including recursive record calls that a hello product cannot cover.
+            rebuilt = work / "rebuilt-compiler.nvm"
+            self.run_checked([compiler, ROOT / "src_nano/nanoc_v06.nano", "--emit-nvm",
+                              "-o", rebuilt], timeout=900)
+            self.run_checked([ROOT / "bin/nano_vm", "--verify-only", rebuilt])
             hello = work / "hello"
             self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano", "-o", hello])
             self.assertEqual(self.run_checked([hello], timeout=10), b"Hello from NanoLang!\n")
@@ -295,10 +383,13 @@ static inline void tracked_free(void *p) {
                               "-o", module], timeout=600, extra_env=helper_env)
             self.assertGreater(module.stat().st_size, 0)
             self.run_checked([ROOT / "bin/nvm2c", module, "-o", source], timeout=240)
-            self.assertNotIn("nano_vm", source.read_text())
+            self.assert_no_vm_wrapper(source.read_text())
             self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", "-O0",
                               source, "-o", compiler, *HOST_RUNTIME], timeout=240)
             self.assertIn(b"Compiler", self.run_checked([compiler, "--help"], timeout=10))
+            self.run_checked([sys.executable, "-m", "unittest", "tests.test_selfhost_captures",
+                              "tests.test_native_mutable_record_arrays", "tests.test_genenv_scope"],
+                             timeout=180, extra_env={"NANOLANG_SELFHOST_COMPILER": str(compiler)})
             hello_module, hello_c, hello_native = (work / name for name in
                                                    ("hello.nvm", "hello.c", "hello"))
             self.run_checked([compiler, ROOT / "examples/language/nl_hello.nano",
@@ -643,10 +734,10 @@ fn main() -> int {
                         "int": ("42", "r.k[0] == 0 && r.f[0] == 42"),
                         "bool": ("1", "r.k[0] == 9 && r.f[0] == 1"),
                         "string": ('"hello"', 'r.k[0] == 1 && strcmp(r.s[0], "hello") == 0'),
-                        "struct": ("(nrec_t){0}", "r.k[0] == 4 && r.rec[0] && r.rec[0]->n == 0"),
+                        "struct": ("&(nrec_t){0}", "r.k[0] == 4 && r.rec[0] && r.rec[0]->n == 0"),
                     }[tag]
                     generated = source.read_text().replace("int main(", "int generated_main(")
-                    source.write_text(generated + f"\nint main(void) {{ nrec_t r = nl_pack({argument}); return !(r.n == 1 && {check}); }}\n")
+                    source.write_text(generated + f"\nint main(void) {{ nrec_t r; nl_pack(&r, {argument}); return !(r.n == 1 && {check}); }}\n")
                     self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
                     untyped = text.split(".parameters", 1)[0]
@@ -723,7 +814,7 @@ fn main() -> int {
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                     check = "r.k[0] == 9 && r.f[0] == 1" if case == "bool" else 'r.k[0] == 1 && strcmp(r.s[0], "hello") == 0' if case == "string" else "r.k[0] == 0 && r.f[0] == 42"
                     generated = source.read_text().replace("int main(", "int generated_main(")
-                    source.write_text(generated + f"\nint main(void) {{ nrec_t r = nl_copy(nl_seed()); return !(r.n == 1 && {check}); }}\n")
+                    source.write_text(generated + f"\nint main(void) {{ nrec_t seed, r; nl_seed(&seed); nl_copy(&r, &seed); return !(r.n == 1 && {check}); }}\n")
                     self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     self.run_checked([binary])
 
@@ -751,10 +842,10 @@ fn main() -> int {
                         setup += "r.n = 0;"
                     elif case == "null":
                         setup += "r.a[0] = NULL;"
-                    body = setup + f"if (nl_length(r) != {initial}) return 1; a.len = 5; return nl_length(r) != 5 || r.k[0] != {tag};"
+                    body = setup + f"if (nl_length(&r) != {initial}) return 1; a.len = 5; return nl_length(&r) != 5 || r.k[0] != {tag};"
                     if case in ("record_get", "record_set"):
                         operation = "nvalue_array_get((nmap_value){7, 6, (char *)&a}, 0)" if case == "record_get" else "nvalue_array_set((nmap_value){7, 6, (char *)&a}, 0, (nmap_value){1, 0, NULL})"
-                        body = setup + f"if (nl_length(r) != {initial}) return 1; (void){operation}; return 0;"
+                        body = setup + f"if (nl_length(&r) != {initial}) return 1; (void){operation}; return 0;"
                     source.write_text(source.read_text().replace("int main(", "int generated_main(") + f"\nint main(void) {{ {body} }}\n")
                     self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     if case in ("bad_tag", "bad_width", "null", "record_get", "record_set"):
@@ -780,13 +871,13 @@ fn main() -> int {
                     self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                     setup = "nrec_t inner = {.n = 1}, outer = {.n = 1}; outer.k[0] = 4; outer.rec[0] = &inner; inner.f[0] = 42;"
-                    check = "nl_read(outer) == 42"
+                    check = "nl_read(&outer) == 42"
                     if case == "bool":
                         setup += "inner.k[0] = 9; inner.f[0] = 1;"
-                        check = "nl_read(outer) == 1"
+                        check = "nl_read(&outer) == 1"
                     elif case == "string":
                         setup += 'inner.k[0] = 1; inner.s[0] = "hello";'
-                        check = 'strcmp(nl_read(outer), "hello") == 0'
+                        check = 'strcmp(nl_read(&outer), "hello") == 0'
                     elif case == "outer_tag":
                         setup += "outer.k[0] = 0;"
                     elif case == "inner_tag":
@@ -827,7 +918,7 @@ fn main() -> int {
                     if case == "wrong_tag":
                         setup = 'nrec_t r = {.n = 1}; r.k[0] = 1; r.s[0] = "bad";'
                     generated = source.read_text().replace("int main(", "int generated_main(")
-                    source.write_text(generated + f"\nint main(void) {{ {setup} return nl_negative(r) != {expected}; }}\n")
+                    source.write_text(generated + f"\nint main(void) {{ {setup} return nl_negative(&r) != {expected}; }}\n")
                     self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
                     if case == "wrong_tag":
                         result = subprocess.run([binary], capture_output=True, timeout=10)
@@ -839,14 +930,14 @@ fn main() -> int {
         cc = shutil.which("cc")
         self.assertIsNotNone(cc, "I require the host C compiler")
         operations = {
-            "length": ("LOAD_LOCAL 1\nSTR_LEN", "int", "nl_use(r) == 5"),
-            "concat_right": ("LOAD_LOCAL 1\nPUSH_STR bang\nSTR_CONCAT", "string", 'strcmp(nl_use(r), "hello!") == 0'),
-            "concat_left": ("PUSH_STR bang\nLOAD_LOCAL 1\nSTR_CONCAT", "string", 'strcmp(nl_use(r), "!hello") == 0'),
-            "substring": ("LOAD_LOCAL 1\nPUSH_I64 1\nPUSH_I64 3\nSTR_SUBSTR", "string", 'strcmp(nl_use(r), "ell") == 0'),
-            "starts": ("LOAD_LOCAL 1\nPUSH_STR prefix\nSTR_STARTS_WITH", "bool", "nl_use(r) == 1"),
-            "ends": ("LOAD_LOCAL 1\nPUSH_STR suffix\nSTR_ENDS_WITH", "bool", "nl_use(r) == 1"),
-            "contains": ("LOAD_LOCAL 1\nPUSH_STR middle\nSTR_CONTAINS", "bool", "nl_use(r) == 1"),
-            "char": ("LOAD_LOCAL 1\nPUSH_I64 0\nSTR_CHAR_AT", "int", "nl_use(r) == 104"),
+            "length": ("LOAD_LOCAL 1\nSTR_LEN", "int", "nl_use(&r) == 5"),
+            "concat_right": ("LOAD_LOCAL 1\nPUSH_STR bang\nSTR_CONCAT", "string", 'strcmp(nl_use(&r), "hello!") == 0'),
+            "concat_left": ("PUSH_STR bang\nLOAD_LOCAL 1\nSTR_CONCAT", "string", 'strcmp(nl_use(&r), "!hello") == 0'),
+            "substring": ("LOAD_LOCAL 1\nPUSH_I64 1\nPUSH_I64 3\nSTR_SUBSTR", "string", 'strcmp(nl_use(&r), "ell") == 0'),
+            "starts": ("LOAD_LOCAL 1\nPUSH_STR prefix\nSTR_STARTS_WITH", "bool", "nl_use(&r) == 1"),
+            "ends": ("LOAD_LOCAL 1\nPUSH_STR suffix\nSTR_ENDS_WITH", "bool", "nl_use(&r) == 1"),
+            "contains": ("LOAD_LOCAL 1\nPUSH_STR middle\nSTR_CONTAINS", "bool", "nl_use(&r) == 1"),
+            "char": ("LOAD_LOCAL 1\nPUSH_I64 0\nSTR_CHAR_AT", "int", "nl_use(&r) == 104"),
         }
         for reverse in (False, True):
             for name, (operation, result_tag, check) in operations.items():
@@ -885,14 +976,14 @@ fn main() -> int {
                     self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                     if tag == "string":
                         setup = 'const char *data[] = {"hello"}; nsarr_s a = {.data = data, .len = 1}; r.k[0] = 5; r.sa[0] = &a;'
-                        check = 'strcmp(nl_read(r), "hello") == 0'
+                        check = 'strcmp(nl_read(&r), "hello") == 0'
                     elif tag == "record":
                         setup = "nrec_t data[1] = {{.n = 1}}; data[0].f[0] = 42; nrarr_s a = {.data = data, .len = 1}; r.k[0] = 6; r.ra[0] = &a;"
-                        check = "nl_read(r) == 42"
+                        check = "nl_read(&r) == 42"
                     else:
                         value = 1 if tag == "bool" else 42
                         setup = f"int64_t data[] = {{{value}}}; narr_s a = {{.data = data, .len = 1}}; r.k[0] = {10 if tag == 'bool' else 3}; r.a[0] = &a;"
-                        check = f"nl_read(r) == {value}"
+                        check = f"nl_read(&r) == {value}"
                     generated = source.read_text().replace("int main(", "int generated_main(")
                     wrong_storage = 3 if tag in ("bool", "string") else 10 if tag == "int" else 5
                     source.write_text(generated + f'\nint main(int argc, char **argv) {{ nrec_t r = {{.n = 1}}; {setup} if (argc > 1) {{ if (argv[1][0] == \'t\') r.k[0] = 0; else if (argv[1][0] == \'s\') r.k[0] = {wrong_storage}; else a.len = 0; }} return !({check}); }}\n')
@@ -966,7 +1057,7 @@ int main(int argc, char **argv) {
     record.k[0] = kinds[which]; record.vk[0] = tags[which];
     if (which == 1 || which == 4) record.f[0] = 1;
     if (which == 11) record.s[0] = NULL;
-    return nl_probe(record) != (which == 0 || which == 3);
+    return nl_probe(&record) != (which == 0 || which == 3);
 }
 ''')
                     self.run_checked([cc, "-std=c11", "-Wall", "-Wextra", "-Werror", source, "-o", binary])
@@ -1021,6 +1112,14 @@ int main(int argc, char **argv) {
                 self.run_checked([ROOT / "bin/nanoisa", "asm", assembly, "-o", module])
                 self.run_checked([ROOT / "bin/nvm2c", module, "-o", source])
                 generated = source.read_text().replace("int main(", "int generated_main(")
+                # I count record-frame allocations in generated functions only.
+                # Runtime root tables also allocate through realloc; intercepting
+                # their frees with a calloc-only counter invents a double free.
+                function_start = "static int64_t nl_main(void) {"
+                self.assertEqual(generated.count(function_start), 1)
+                generated = generated.replace(
+                    function_start,
+                    "#define calloc tracked_calloc\n#define free tracked_free\n" + function_start)
                 source.write_text('''#include <stdlib.h>
 static size_t live, peak;
 static int fail_allocation;
@@ -1029,14 +1128,12 @@ static void *tracked_calloc(size_t n, size_t size) {
     void *p = calloc(n, size); if (p) { ++live; if (live > peak) peak = live; } return p;
 }
 static void tracked_free(void *p) { if (p) { if (!live) abort(); --live; } free(p); }
-#define calloc tracked_calloc
-#define free tracked_free
 ''' + generated + '''
 int main(int argc, char **argv) {
     (void)argv; fail_allocation = argc > 1;
     nrec_t input = {.n = 75}; input.f[0] = 24;
     for (int i = 0; i < 10; ++i) {
-        nrec_t result = nl_walk(input, 12);
+        nrec_t result; nl_walk(&result, &input, 12);
         if (result.n != 75 || result.f[0] != 24 || live) return 1;
     }
 ''' + ('if (peak != 2) return 2;\n' if mode == "self_tail" else 'if (peak < 26) return 2;\n') + 'return 0;\n}\n')

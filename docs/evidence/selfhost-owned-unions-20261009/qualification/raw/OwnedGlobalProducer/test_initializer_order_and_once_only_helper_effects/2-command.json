@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nanoisa",
+    "asm",
+    "/private/tmp/nanolang-selfhost-union-final/raw/OwnedGlobalProducer/test_initializer_order_and_once_only_helper_effects/main.nasm",
+    "-o",
+    "/private/tmp/nanolang-selfhost-union-final/raw/OwnedGlobalProducer/test_initializer_order_and_once_only_helper_effects/main.nvm"
+  ],
+  "exit": 0
+}

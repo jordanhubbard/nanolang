@@ -105,8 +105,19 @@ pub fn diag_typecheck_error(code: string, message: string, location: CompilerSou
     return (diag_error CompilerPhase.PHASE_TYPECHECK code message location)
 }
 
-pub fn diag_transpiler_error(code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
-    return (diag_error CompilerPhase.PHASE_TRANSPILER code message location)
+pub fn diag_nanoisa_error(code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return (diag_error CompilerPhase.PHASE_NANOISA code message location)
+}
+shadow diag_nanoisa_error {
+    let loc: CompilerSourceLocation = (diag_location "input.nano" 20 8)
+    let diag: CompilerDiagnostic = (diag_nanoisa_error "N001" "I could not lower this operation" loc)
+    assert (== diag.phase CompilerPhase.PHASE_NANOISA)
+    assert (== diag.severity DiagnosticSeverity.DIAG_ERROR)
+    assert (== diag.location.line 20)
+}
+
+pub fn diag_backend_error(code: string, message: string, location: CompilerSourceLocation) -> CompilerDiagnostic {
+    return (diag_error CompilerPhase.PHASE_BACKEND code message location)
 }
 
 shadow diag_parser_error {
@@ -223,7 +234,7 @@ shadow diag_error_simple {
 }
 
 shadow diag_warning_simple {
-    let diag: CompilerDiagnostic = (diag_warning_simple CompilerPhase.PHASE_TRANSPILER "W002" "Warning")
+    let diag: CompilerDiagnostic = (diag_warning_simple CompilerPhase.PHASE_BACKEND "W002" "Warning")
     assert (== diag.severity DiagnosticSeverity.DIAG_WARNING)
 }
 
@@ -250,10 +261,10 @@ shadow diag_typecheck_error {
     assert (== diag.phase CompilerPhase.PHASE_TYPECHECK)
 }
 
-shadow diag_transpiler_error {
+shadow diag_backend_error {
     let loc: CompilerSourceLocation = (diag_location "input.nano" 20 8)
-    let diag: CompilerDiagnostic = (diag_transpiler_error "TR001" "Transpiler error" loc)
-    assert (== diag.phase CompilerPhase.PHASE_TRANSPILER)
+    let diag: CompilerDiagnostic = (diag_backend_error "TR001" "I could not produce the backend output" loc)
+    assert (== diag.phase CompilerPhase.PHASE_BACKEND)
 }
 
 shadow diag_list_count {

@@ -118,6 +118,19 @@ static void shadow_json_escape(FILE *out, const char *s) {
     }
 }
 
+/* I flush each boundary so a killed shadow still identifies its source.
+ * Timing is diagnostic only; the outer supervisor owns the deadline. */
+static void shadow_trace_event(const char *event, const char *name, const char *file,
+                               int line, double elapsed, int failures) {
+    fprintf(stderr, "{\"event\":\"%s\",\"name\":\"", event);
+    shadow_json_escape(stderr, name);
+    fputs("\",\"source\":\"", stderr);
+    shadow_json_escape(stderr, file);
+    fprintf(stderr, "\",\"line\":%d,\"elapsed_seconds\":%.6f,\"failures\":%d}\n",
+            line, elapsed, failures);
+    fflush(stderr);
+}
+
 static bool shadow_write_json_file(const char *path, const ShadowFailure *fails, int fail_len, bool success, int test_count) {
     if (!path || path[0] == '\0') return true;
     FILE *f = fopen(path, "w");
@@ -1913,6 +1926,7 @@ static Value builtin_map(Value *args, Environment *env) {
             case TYPE_FLOAT: result_type = VAL_FLOAT; break;
             case TYPE_BOOL: result_type = VAL_BOOL; break;
             case TYPE_STRING: result_type = VAL_STRING; break;
+            case TYPE_STRUCT: result_type = VAL_STRUCT; break;
             default: break;
         }
     }
@@ -1948,6 +1962,12 @@ static Value builtin_map(Value *args, Environment *env) {
                 case VAL_STRING:
                     elem.as.string_val = ((char**)input_arr->data)[i];
                     break;
+                case VAL_STRUCT: {
+                    StructValue *record = ((StructValue**)input_arr->data)[i];
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 default:
                     fprintf(stderr, "Error: Unsupported array element type in map\n");
                     return create_void();
@@ -1992,6 +2012,18 @@ static Value builtin_map(Value *args, Environment *env) {
                     }
                     ((char**)output_arr->data)[i] = strdup(transformed.as.string_val);
                     break;
+                case VAL_STRUCT: {
+                    if (transformed.type != VAL_STRUCT) {
+                        discard_partial_owned_array(output_arr, (int)i);
+                        fprintf(stderr, "I require a record result in map.\n");
+                        return create_void();
+                    }
+                    StructValue *record = transformed.as.struct_val;
+                    Value copy = create_struct(record->struct_name, record->field_names,
+                                               record->field_values, record->field_count);
+                    ((StructValue**)output_arr->data)[i] = copy.as.struct_val;
+                    break;
+                }
                 default:
                     break;
             }
@@ -2064,6 +2096,12 @@ static Value builtin_map(Value *args, Environment *env) {
                     elem.type = VAL_STRING;
                     elem.as.string_val = (char*)dyn_array_get_string(input_arr, i);
                     break;
+                case ELEM_STRUCT: {
+                    StructValue *record = *(StructValue**)dyn_array_get_struct(input_arr, i);
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 case ELEM_ARRAY:
                     elem.type = VAL_DYN_ARRAY;
                     elem.as.dyn_array_val = dyn_array_get_array(input_arr, i);
@@ -2112,6 +2150,18 @@ static Value builtin_map(Value *args, Environment *env) {
                     }
                     dyn_array_push_string_copy(output_arr, transformed.as.string_val);
                     break;
+                case ELEM_STRUCT: {
+                    if (transformed.type != VAL_STRUCT) {
+                        gc_release(output_arr);
+                        fprintf(stderr, "I require a record result in map.\n");
+                        return create_void();
+                    }
+                    StructValue *record = transformed.as.struct_val;
+                    Value copy = create_struct(record->struct_name, record->field_names,
+                                               record->field_values, record->field_count);
+                    dyn_array_push_struct(output_arr, &copy.as.struct_val, sizeof(StructValue*));
+                    break;
+                }
                 case ELEM_ARRAY:
                     if (transformed.type != VAL_DYN_ARRAY) {
                         fprintf(stderr, "I require the transform's declared result type in map.\n");
@@ -2147,8 +2197,8 @@ static Value builtin_filter(Value *args, Environment *env) {
         Array *input_arr = args[0].as.array_val;
         int64_t len = input_arr->length;
 
-        bool *keep = (bool*)calloc((size_t)len, sizeof(bool));
-        if (!keep) {
+        bool *keep = len ? (bool*)calloc((size_t)len, sizeof(bool)) : NULL;
+        if (len && !keep) {
             fprintf(stderr, "Error: Out of memory in filter()\n");
             return create_void();
         }
@@ -2174,6 +2224,12 @@ static Value builtin_filter(Value *args, Environment *env) {
                 case VAL_STRING:
                     elem.as.string_val = ((char**)input_arr->data)[i];
                     break;
+                case VAL_STRUCT: {
+                    StructValue *record = ((StructValue**)input_arr->data)[i];
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 default:
                     free(keep);
                     fprintf(stderr, "Error: Unsupported array element type in filter\n");
@@ -2216,6 +2272,13 @@ static Value builtin_filter(Value *args, Environment *env) {
                 case VAL_STRING:
                     ((char**)output_arr->data)[out_i] = strdup(((char**)input_arr->data)[i]);
                     break;
+                case VAL_STRUCT: {
+                    StructValue *record = ((StructValue**)input_arr->data)[i];
+                    Value copy = create_struct(record->struct_name, record->field_names,
+                                               record->field_values, record->field_count);
+                    ((StructValue**)output_arr->data)[out_i] = copy.as.struct_val;
+                    break;
+                }
                 default:
                     break;
             }
@@ -2256,6 +2319,12 @@ static Value builtin_filter(Value *args, Environment *env) {
                     elem.type = VAL_STRING;
                     elem.as.string_val = (char*)dyn_array_get_string(input_arr, i);
                     break;
+                case ELEM_STRUCT: {
+                    StructValue *record = *(StructValue**)dyn_array_get_struct(input_arr, i);
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 case ELEM_ARRAY:
                     elem.type = VAL_DYN_ARRAY;
                     elem.as.dyn_array_val = dyn_array_get_array(input_arr, i);
@@ -2292,6 +2361,13 @@ static Value builtin_filter(Value *args, Environment *env) {
                 case ELEM_STRING:
                     dyn_array_push_string_copy(output_arr, elem.as.string_val);
                     break;
+                case ELEM_STRUCT: {
+                    StructValue *record = elem.as.struct_val;
+                    Value copy = create_struct(record->struct_name, record->field_names,
+                                               record->field_values, record->field_count);
+                    dyn_array_push_struct(output_arr, &copy.as.struct_val, sizeof(StructValue*));
+                    break;
+                }
                 case ELEM_ARRAY:
                     dyn_array_push_array(output_arr, elem.as.dyn_array_val);
                     break;
@@ -2345,6 +2421,12 @@ static Value builtin_reduce(Value *args, Environment *env) {
                 case VAL_STRING:
                     elem.as.string_val = ((char**)arr->data)[i];
                     break;
+                case VAL_STRUCT: {
+                    StructValue *record = ((StructValue**)arr->data)[i];
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 default:
                     fprintf(stderr, "Error: Unsupported array element type in reduce\n");
                     return create_void();
@@ -2422,6 +2504,12 @@ static Value builtin_reduce(Value *args, Environment *env) {
                     elem.type = VAL_STRING;
                     elem.as.string_val = (char*)dyn_array_get_string(arr, i);
                     break;
+                case ELEM_STRUCT: {
+                    StructValue *record = *(StructValue**)dyn_array_get_struct(arr, i);
+                    elem = create_struct(record->struct_name, record->field_names,
+                                         record->field_values, record->field_count);
+                    break;
+                }
                 case ELEM_ARRAY:
                     elem.type = VAL_DYN_ARRAY;
                     elem.as.dyn_array_val = dyn_array_get_array(arr, i);
@@ -4836,6 +4924,8 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     g_eval_return_target = &return_boundary;
     char *saved_module_context = env->current_module;
     env->current_module = func->module_name;
+    const char *saved_source_file = env_current_file(env);
+    env_set_current_file(env, func->source_file);
     Value result = create_void();
     for (int i = 0; i < func->body->as.block.count; i++) {
         ASTNode *stmt = func->body->as.block.statements[i];
@@ -4855,6 +4945,7 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     /* Pop call stack */
     g_eval_return_target = saved_return_target;
     env->current_module = saved_module_context;
+    env_set_current_file(env, saved_source_file);
     tracing_pop_call();
 
     /*
@@ -5325,6 +5416,8 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
         }
 
         case AST_FIELD_ACCESS: {
+            ASTNode *literal = env_qualified_import_literal(env, expr);
+            if (literal) return eval_expression(literal, env);
             /* Check object is not NULL */
             if (!expr->as.field_access.object) {
                 fprintf(stderr, "Error: NULL object in field access\n");
@@ -6299,6 +6392,7 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
     int failure_cap = 0;
     int test_count = 0;
     const char *shadow_json_path = getenv("NANO_LLM_SHADOW_JSON");
+    bool trace_shadows = getenv("NANO_SHADOW_TRACE") != NULL;
     ASTNode *root_program = program;
     char *root_owner = env->current_module;
     const char *root_file = env_current_file(env);
@@ -6375,7 +6469,19 @@ bool run_shadow_tests_scope(ASTNode *program, Environment *env, ModuleList *modu
                     }
                 }
 
+                struct timespec trace_start = {0}, trace_end = {0};
+                bool trace_clock = trace_shadows && clock_gettime(CLOCK_MONOTONIC, &trace_start) == 0;
+                if (trace_shadows)
+                    shadow_trace_event("shadow-start", func_name, file, item->line, 0, 0);
                 eval_statement(item->as.shadow.body, env);
+                if (trace_shadows) {
+                    double elapsed = -1;
+                    if (trace_clock && clock_gettime(CLOCK_MONOTONIC, &trace_end) == 0)
+                        elapsed = (double)(trace_end.tv_sec - trace_start.tv_sec) +
+                                  (double)(trace_end.tv_nsec - trace_start.tv_nsec) / 1e9;
+                    shadow_trace_event("shadow-complete", func_name, file, item->line,
+                                       elapsed, g_shadow_current_fail_count);
+                }
 
                 if (!verbose && saved_stdout_fd >= 0) {
                     fflush(stdout);
@@ -6603,9 +6709,12 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     g_eval_return_target = &return_boundary;
     char *saved_module_context = env->current_module;
     env->current_module = func->module_name;
+    const char *saved_source_file = env_current_file(env);
+    env_set_current_file(env, func->source_file);
     Value result = eval_statement(func->body, env);
     g_eval_return_target = saved_return_target;
     env->current_module = saved_module_context;
+    env_set_current_file(env, saved_source_file);
 
     /* Make a copy of the result if it's a string BEFORE cleaning up parameters */
     Value return_value = result;

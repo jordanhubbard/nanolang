@@ -1,0 +1,3 @@
+('/opt/homebrew/bin/gcc-16', '-std=c11', '-O2', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-t67_fpa9/null-boundary.c', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-t67_fpa9/null-boundary-gcc')
+{'ASAN_OPTIONS': 'detect_leaks=1'}
+

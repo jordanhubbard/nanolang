@@ -1,0 +1,104 @@
+[
+  {
+    "path": "interrupted-bootstrap/00-seed.log",
+    "sha256": "1c8f6fb068630a2d44801ba923dfa9ba6cd4c3a7cabcc4d414dea0bf56d53a18",
+    "bytes": 3009,
+    "text_archived": true
+  },
+  {
+    "path": "interrupted-bootstrap/01-seed-verify.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "interrupted-bootstrap/02-stage1.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0,
+    "text_archived": true
+  },
+  {
+    "path": "interrupted-bootstrap/host-cache-probes.log",
+    "sha256": "a45013997e03f8ae912cddceec8493e5f78755fdec40443d7c506f7cb5c2212f",
+    "bytes": 1942,
+    "text_archived": true
+  },
+  {
+    "path": "interrupted-bootstrap/interruption.json",
+    "sha256": "c3b649fbb8cfe9cfda449ebc13fa3adb3711e51f487ef6a5b3b265057d3342d8",
+    "bytes": 323,
+    "text_archived": true
+  },
+  {
+    "path": "interrupted-bootstrap/make.log",
+    "sha256": "02809187c984e889e46ea9d4b3d27e394ecc1a59e294c9f45416f680ad6ad771",
+    "bytes": 6076,
+    "text_archived": true
+  },
+  {
+    "path": "interrupted-bootstrap/manifest.json",
+    "sha256": "66c62ae91e44fc6002e6350c5ef5d38e8a8ef77720b62cdeb36696e78495a059",
+    "bytes": 98567,
+    "text_archived": true
+  },
+  {
+    "path": "interrupted-bootstrap/retained-host-inputs.json",
+    "sha256": "c44149a2678b000922b576a63c10308ad6352aeb53aeb57b3843cf605ef6e4de",
+    "bytes": 3467,
+    "text_archived": true
+  },
+  {
+    "path": "nanolang-selfhost-union-boundaries.log",
+    "sha256": "3f19ea5928e94dde5366f1478eded6efa980c72d0d31a7b759dbcfe802d1cd75",
+    "bytes": 4777,
+    "text_archived": true
+  },
+  {
+    "path": "nanolang-selfhost-union-c-corrected.log",
+    "sha256": "aaad8339f1c447185408c1394f01fda62dff8c87f62074d14c0ec889f8c9c95b",
+    "bytes": 6669,
+    "text_archived": true
+  },
+  {
+    "path": "nanolang-selfhost-union-corrected-build.log",
+    "sha256": "9e681935f77f50a7b43ffcfbb405279cf01889a82143e3490f48960c00313e6c",
+    "bytes": 1894,
+    "text_archived": true
+  },
+  {
+    "path": "nanolang-selfhost-union-first-build.log",
+    "sha256": "83ed3a8dcff2e1f8841bbcfae6dd71d48d3caa3853f0c1787cdde35fdc4edf01",
+    "bytes": 1367,
+    "text_archived": true
+  },
+  {
+    "path": "nanolang-selfhost-union-first.log",
+    "sha256": "226f1fdb7516da7c6bf67b5badde04514e98b4259b461548637dd90e18e75fc2",
+    "bytes": 23868,
+    "text_archived": true
+  },
+  {
+    "path": "nanolang-selfhost-union-raw.log",
+    "sha256": "6000234652b7c9729ac85f404b6f40f661b8812a450d48305a762bf5e0720674",
+    "bytes": 6755,
+    "text_archived": true
+  },
+  {
+    "path": "source-inventory.json",
+    "sha256": "dbd87f6e03b828ec4f7cbe6d3a73cd32f587be892960ad65d0ec1efa8a316e14",
+    "bytes": 104677,
+    "text_archived": true
+  },
+  {
+    "path": "source-parity.json",
+    "sha256": "cb2aa703347197d11a2f16e4a39064f34dd17a95e48b1e0823e1b149a40ddd1c",
+    "bytes": 12198,
+    "text_archived": true
+  },
+  {
+    "path": "source.patch",
+    "sha256": "596fbb03cb4f1be34978d20d3323e475684dc7de373bde546f7c036a40015f89",
+    "bytes": 56259,
+    "text_archived": true
+  }
+]

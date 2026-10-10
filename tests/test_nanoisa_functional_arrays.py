@@ -192,7 +192,7 @@ shadow container { assert true }
             output.write_bytes(b'previous')
             result=subprocess.run([ROOT/'bin/nanoisa_emit',source,'--emit-nvm','-o',output],cwd=ROOT,capture_output=True,text=True,timeout=60)
             self.assertEqual(result.returncode,1,result.stdout+result.stderr)
-            self.assertIn('indirect',result.stdout)
+            self.assertIn('I require a resolved declared scalar callback',result.stdout)
             self.assertEqual(output.read_bytes(),b'previous')
 
 if __name__=='__main__': unittest.main()

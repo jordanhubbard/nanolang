@@ -1,0 +1,4 @@
+I cannot verify affine ownership at line 6, column 1: resource remains live at scope exit — value
+Warning at line 6, column 1: Unused variable 'value'
+Warning: Function 'abandon' is missing a shadow test
+error: type check failed

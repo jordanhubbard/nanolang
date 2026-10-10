@@ -872,6 +872,34 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return false;
         }
 
+        /* I retain shadow names as advisory execution markers, not host calls. */
+        if (strcmp(directive, "shadow") == 0) {
+            if (!state->in_function || state->mod->code_size > UINT32_MAX - state->fn_code_size)
+                return par_error(result, "I require a shadow marker inside a bounded function.");
+            size_t available = strlen(p) + 1;
+            uint32_t length = 0;
+            char *name = malloc(available);
+            if (!name) return par_error(result, "I cannot allocate a shadow name.");
+            bool valid = parse_quoted_string(&p, name, available, &length) && length && require_line_end(p, result);
+            for (uint32_t i = 0; valid && i < length; ++i)
+                if ((unsigned char)name[i] < 32 || (unsigned char)name[i] == 127) valid = false;
+            if (!valid) {
+                free(name);
+                return par_error(result, "I require one nonempty shadow name without control bytes.");
+            }
+            char key[64];
+            snprintf(key, sizeof key, "nanolang.shadow.offset.%u", state->mod->code_size + state->fn_code_size);
+            uint32_t key_index = nvm_add_string(state->mod, key, (uint32_t)strlen(key));
+            uint32_t value_index = nvm_add_string(state->mod, name, length);
+            free(name);
+            if (key_index == UINT32_MAX || value_index == UINT32_MAX ||
+                !nvm_add_metadata(state->mod, key_index, value_index))
+                return par_error(result, "I cannot retain a shadow execution marker.");
+            uint8_t opcode = OP_NOP;
+            fn_emit(state, &opcode, 1);
+            return true;
+        }
+
         if (strcmp(directive,"local_begin")==0 || strcmp(directive,"local_end")==0) {
             uint16_t slot;
             if(!state->in_function || !parse_uint16(&p,&slot) ||

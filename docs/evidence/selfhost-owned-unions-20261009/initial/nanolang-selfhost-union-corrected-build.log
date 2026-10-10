@@ -1,0 +1,23 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -DNANO_WRAPPER_CRYPTO_DIR='"/opt/homebrew/Cellar/openssl@3/3.6.5/lib"' -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+NANO_MODULE_PATH=modules NANO_BUILD_CACHE=/private/tmp/nanolang-match-guards-20261009/obj/module_cache perl -e 'alarm 600; exec @ARGV; die "I cannot execute the requested command: $!\n"' bin/nanoc_c src_nano/nanoisa_emit.nano -o bin/nanoisa_emit
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2567, column 9: Unused variable 'rejected'
+Warning at line 2731, column 9: Unused variable 'rejected'
+Warning at line 2735, column 9: Unused variable 'rejected'
+Warning at line 2742, column 13: Unused variable 'rejected'
+Warning at line 2800, column 9: Unused variable 'rejected'
+Warning at line 2804, column 9: Unused variable 'rejected'
+Warning at line 2811, column 13: Unused variable 'rejected'
+Warning at line 6431, column 17: Unused variable 'imported'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2567, column 9: Unused variable 'rejected'
+Warning at line 2731, column 9: Unused variable 'rejected'
+Warning at line 2735, column 9: Unused variable 'rejected'
+Warning at line 2742, column 13: Unused variable 'rejected'
+Warning at line 2800, column 9: Unused variable 'rejected'
+Warning at line 2804, column 9: Unused variable 'rejected'
+Warning at line 2811, column 13: Unused variable 'rejected'
+Warning at line 6431, column 17: Unused variable 'imported'

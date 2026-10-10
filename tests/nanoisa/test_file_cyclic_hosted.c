@@ -91,7 +91,7 @@ static unsigned ch_compare(NvmFileCyclicHostedPlan *p,NvmFileCyclicReport *q){
     for(uint16_t l=0;l<x.input.stack;l++){NvmFileFlowValue hv,qv;CHECK(nvm_file_cyclic_hosted_input_stack(p,f,i,v,l,&hv) && nvm_file_cyclic_input_stack(q,f,i,v,l,&qv));ch_value(hv,qv);}
     for(uint16_t l=0;l<NVM_FILE_FLOW_REFERENCES;l++){
      NvmFileFlowReference hv,qv;CHECK(nvm_file_cyclic_hosted_input_reference(p,f,i,v,l,&hv) && nvm_file_cyclic_input_reference(q,f,i,v,l,&qv));
-     CHECK(hv.live==qv.live && hv.formal==qv.formal && hv.local==qv.local && hv.owner==qv.owner && hv.identity==qv.identity && hv.region==qv.region);
+     CHECK(hv.live==qv.live && hv.formal==qv.formal && hv.local==qv.local && hv.owner==qv.owner && hv.identity==qv.identity && hv.region==qv.region && hv.shared==qv.shared);
     }
     for(uint16_t l=0;l<x.input.regions;l++){uint64_t hv,qv;CHECK(nvm_file_cyclic_hosted_input_region(p,f,i,v,l,&hv) && nvm_file_cyclic_input_region(q,f,i,v,l,&qv) && hv==qv);}
     for(unsigned edge=0;edge<2;edge++)if(x.edge_mask&(1u<<edge)){

@@ -1,0 +1,21 @@
+I retain NanoISA match evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-dbqyu7qk
+test_integer_wildcard_effects_and_exits (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_integer_wildcard_effects_and_exits) ... 
+  test_integer_wildcard_effects_and_exits (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_integer_wildcard_effects_and_exits) (producer='selfhost') ... FAIL
+test_named_union_guard_effects (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_named_union_guard_effects) ... ok
+
+======================================================================
+FAIL: test_integer_wildcard_effects_and_exits (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_integer_wildcard_effects_and_exits) (producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_nanoisa_match_guards.py", line 41, in qualify
+    assembly.write_text(self.command(self.driver, source, 'program').stdout)
+                        ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_nanoisa_match_guards.py", line 28, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.230s
+
+FAILED (failures=1)

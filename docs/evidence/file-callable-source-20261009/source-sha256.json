@@ -1,0 +1,17 @@
+{
+  "src/parser.c": "3ff14484fb79634d47715fe4f469aa8d7f7c69b7dc88b0875a569d6cbedb319e",
+  "src/service_bodies.c": "80c13cc66832665dc5024ec69601fa007f40c262a9426e7b6d3933b04b4fadc0",
+  "src/service_bodies.h": "d00f0a591c7d5bb558e913d515352f9e93e177e734d5cbdbb3ef03379177cd42",
+  "src/service_lowering.c": "f22fcbc9d15ff0140bbdddc2ff013f513648144ff94db2d569bd500024ebbbb3",
+  "src/service_ownership.c": "e5db191e6188b2f932c1247bd90baf3ef1774993dda0d4801604e87841294f5b",
+  "src_nano/compiler/service_bodies.nano": "27c09dd61989cbde6d972a5ae8ea6d190e26351716d913409beef34fc982d6be",
+  "src_nano/compiler/service_lowering.nano": "aa602bd53569d7d25cda194a39e972b1b7a2c39f5d52aeb49f6fea2289362ba5",
+  "src_nano/compiler/service_ownership.nano": "92b5b246bd0b0fdc0330f2be1f630873f2d8e668100640b7b26abc7061bc6949",
+  "src_nano/parser.nano": "285bdf3de414a47347c2b686968fa77558b806fb4de1a1783800c5e62a1d37ac",
+  "tests/fixtures/file_indirect_source.nano": "5f93066f5c77752255ed358de967f2afd25ea02244a0f5abff4f8c9ab39ef5a7",
+  "tests/nested_structs.nano": "4ab1231372e34c7be808802141d476f9de2aaae19491cddb36ca9abb309d6478",
+  "tests/test_nano_service_driver.py": "05035b20fd4ab17838aab2171bd2af262b74df9dc32ad44ae5f6bec918375fd0",
+  "tests/test_service_bodies.c": "c947d1cc0ea33bcda884334b8eac496a3e849269992d58e60d8bf6488b26cfff",
+  "tests/test_service_drivers.py": "522c2e542b902529f054894677591f3bdb67d14661cfdf94531cc9114c4d6b55",
+  "tests/test_service_lowering.c": "ebf64810481d66c9e643ac384a5477a2ee835de0590978b8a96d066380417bca"
+}

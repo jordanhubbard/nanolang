@@ -1,0 +1,28 @@
+{
+  "command": [
+    "make",
+    "-j2",
+    "test-typechecker",
+    "test-env-scoping",
+    "test-callee-snapshots",
+    "CC=/opt/homebrew/opt/llvm/bin/clang"
+  ],
+  "outer_exit_code": null,
+  "outer_exit_note": "I lost the tool handle; I retain the completed receipt and terminal test log instead of inventing an outer exit code.",
+  "all_bootstrap_steps_exit_zero": true,
+  "source_hashes_match_receipt": true,
+  "artifacts": {
+    "nanoc_seed.nvm": {
+      "bytes": 519580,
+      "sha256": "9872e26e5c523bcb0376db3c555f43b6390b4dd0162d67d45a03a51d276ba2c8"
+    },
+    "nanoc_stage1.nvm": {
+      "bytes": 493360,
+      "sha256": "7b14ba424f9f6724f9fc84cba68668e2ef7667d86edd9062b40ebb8f0b308eec"
+    },
+    "nanoc_stage2.nvm": {
+      "bytes": 493360,
+      "sha256": "7b14ba424f9f6724f9fc84cba68668e2ef7667d86edd9062b40ebb8f0b308eec"
+    }
+  }
+}

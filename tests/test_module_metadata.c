@@ -565,16 +565,19 @@ static void test_recursive_signature_roundtrip(void) {
         .row_var_name = "r", .row_field_names = row_names,
         .row_field_types = row_types, .row_field_type_names = row_type_names,
         .row_field_count = 1, .type_var_names = variables, .type_var_count = 2};
+    TypeInfo service = {.base_type = TYPE_OPAQUE, .service_declaration = 37,
+        .service_module = 2, .service_ordinal = 0, .service_category = 1};
     Parameter parameters[] = {
         {.name = "callback", .type = TYPE_FUNCTION, .fn_sig = &outer, .type_info = &callback},
         {.name = "values", .type = TYPE_ARRAY, .element_type = TYPE_ARRAY, .type_info = &nested},
-        {.name = "pair", .type = TYPE_TUPLE, .type_info = &tuple}};
+        {.name = "pair", .type = TYPE_TUPLE, .type_info = &tuple},
+        {.name = "file", .type = TYPE_OPAQUE, .type_info = &service}};
     Function fn = make_simple_fn("factory");
     fn.return_type = TYPE_FUNCTION;
     fn.return_fn_sig = &outer;
     fn.return_type_info = &callback;
     fn.params = parameters;
-    fn.param_count = 3;
+    fn.param_count = 4;
     ModuleMetadata meta = make_empty_meta("recursive");
     meta.functions = &fn;
     meta.function_count = 1;
@@ -613,6 +616,10 @@ static void test_recursive_signature_roundtrip(void) {
         " assert(g->type_params[1]->base_type == TYPE_INT);\n"
         " assert(s->return_fn_sig->return_type_info == a);\n"
         " assert(s->return_fn_sig->param_types == NULL && s->return_fn_sig->param_type_info == NULL);\n"
+        " TypeInfo *file = f->params[3].type_info;\n"
+        " assert(file->base_type == TYPE_OPAQUE && file->service_declaration == 37);\n"
+        " assert(file->service_module == 2 && file->service_ordinal == 0 && file->service_category == 1);\n"
+        " assert(a->service_declaration == 0);\n"
         " TypeInfo *t = f->params[2].type_info;\n"
         " assert(t->tuple_element_count == 2 && t->tuple_types[1] == TYPE_UNION);\n"
         " assert(t->tuple_type_names[0] == NULL && !strcmp(t->tuple_type_names[1], \"Box<int>\"));\n"

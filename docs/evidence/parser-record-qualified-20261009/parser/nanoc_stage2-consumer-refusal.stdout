@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0037] I have not resolved File service declarations for this consumer. (:0:0)

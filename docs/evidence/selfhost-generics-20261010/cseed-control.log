@@ -1,0 +1,11 @@
+test_distinct_record_specializations (tests.test_cseed_generic_functions.CseedGenericFunctions.test_distinct_record_specializations) ... ok
+test_imported_qualified_and_selective_owners (tests.test_cseed_generic_functions.CseedGenericFunctions.test_imported_qualified_and_selective_owners) ... ok
+test_primitive_generic_fixture (tests.test_cseed_generic_functions.CseedGenericFunctions.test_primitive_generic_fixture) ... ok
+test_repeated_type_variable_rejects_distinct_records (tests.test_cseed_generic_functions.CseedGenericFunctions.test_repeated_type_variable_rejects_distinct_records) ... ok
+test_retained_record_result_regression (tests.test_cseed_generic_functions.CseedGenericFunctions.test_retained_record_result_regression) ... ok
+test_typed_locals_transitive_calls_and_recursion (tests.test_cseed_generic_functions.CseedGenericFunctions.test_typed_locals_transitive_calls_and_recursion) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.667s
+
+OK

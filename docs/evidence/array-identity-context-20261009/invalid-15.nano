@@ -1,0 +1,2 @@
+struct Box { values:array<u8> } fn main()->int { let box:Box = Box { values:[true] } return 0 }
+shadow main { assert true }

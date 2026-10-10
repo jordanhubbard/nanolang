@@ -1,0 +1,96 @@
+FFFFFFF
+======================================================================
+FAIL: test_existing_populated_diagnostic_formatter (__main__.MutableRecordArrays.test_existing_populated_diagnostic_formatter) (producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 29, in execute
+    self.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-diagnostic-format-g8gu_92c/selfhost.nvm': function 16 at offset 205: I cannot resolve AGG_PACK field 1
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (__main__.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', mutation='(add alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 29, in execute
+    self.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mutable-records-lcbrkem_/seed.nvm': function 0 at offset 18: I cannot resolve AGG_PACK field 0
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (__main__.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', mutation='(add alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 29, in execute
+    self.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mutable-records-lcbrkem_/selfhost.nvm': function 2 at offset 18: I cannot resolve AGG_PACK field 0
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (__main__.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', mutation='(forward alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 29, in execute
+    self.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mutable-records-e14jfiwk/seed.nvm': function 0 at offset 18: I cannot resolve AGG_PACK field 0
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (__main__.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', mutation='(forward alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 29, in execute
+    self.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mutable-records-e14jfiwk/selfhost.nvm': function 2 at offset 18: I cannot resolve AGG_PACK field 0
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (__main__.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', mutation='let callback:fn(array<Diagnostic>, Diagnostic)->void = forward\n (callback alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 29, in execute
+    self.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mutable-records-52o74sm2/seed.nvm': function 0 at offset 18: I cannot resolve AGG_PACK field 0
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (__main__.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', mutation='let callback:fn(array<Diagnostic>, Diagnostic)->void = forward\n (callback alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 29, in execute
+    self.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/docs/evidence/mutable-record-array-baseline-20261008/regression.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mutable-records-52o74sm2/selfhost.nvm': function 2 at offset 18: I cannot resolve AGG_PACK field 0
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.790s
+
+FAILED (failures=7)

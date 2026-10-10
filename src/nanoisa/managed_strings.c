@@ -468,6 +468,18 @@ static NmsStatus vm_array_create_capacity(NmsRuntime *runtime, uint32_t tag,
 NmsStatus nms_vm_array_create(NmsRuntime *runtime, uint32_t tag, NmsHandle *out) {
     return vm_array_create_capacity(runtime, tag, 8, out);
 }
+NmsStatus nms_bytes_create(NmsRuntime *runtime, const uint8_t *bytes,
+                           uint32_t length, NmsHandle *out) {
+    if (!runtime || !out || (length && !bytes)) return NMS_STATE;
+    NmsHandle result = 0;
+    NmsStatus status = vm_array_create_capacity(runtime, 2, length < 8 ? 8 : length, &result);
+    if (status != NMS_OK) return status;
+    NmsSlot *slot = &runtime->slots[(uint32_t)result];
+    copy_bytes(slot->data, bytes, length);
+    slot->length = length;
+    *out = result;
+    return NMS_OK;
+}
 static NmsValue packed_value(const NmsSlot *slot, uint32_t index) {
     uint32_t width = packed_width(slot->element_tag);
     uint64_t offset = (uint64_t)index * width;

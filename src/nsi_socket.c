@@ -1,22 +1,36 @@
 #include "nsi_socket.h"
 #include "nsi_cap_private.h"
 
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <stdio.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <netinet/in.h>
+#include <poll.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #if !defined(__linux__) && !defined(__APPLE__)
-#error "I require the reviewed Linux or Darwin local-socket policy"
+#error "I require the reviewed Linux or Darwin socket policy"
 #endif
 
 #define SOCKET_TYPE "nsi:nanolang/net#Socket"
 #define SOCKET_SERVICE "nsi:nanolang/net/local-socket"
+#define SOCKET_TCP_SERVICE "nsi:nanolang/net/tcp-socket"
 #define SOCKET_RIGHTS (NL_CAP_READ | NL_CAP_WRITE | NL_CAP_TRANSFER)
 
-typedef struct { int fd; bool live; NlCap token; } SocketEntry;
+typedef enum { SOCKET_READY, SOCKET_PENDING, SOCKET_FAILED } SocketState;
+typedef struct {
+    int fd;
+    bool live;
+    NlCap token;
+    bool tcp;
+    SocketState state;
+    int connect_error;
+} SocketEntry;
 struct NlSocketService {
     NlCapTable *caps;
     uint64_t identity;
@@ -25,6 +39,14 @@ struct NlSocketService {
     SocketEntry sockets[NL_CAP_PRIVATE_SLOTS];
 };
 static uint64_t socket_context_counter;
+
+bool nl_socket_service_storage_bound(size_t *out) {
+    size_t caps;
+    if (!out || !nl_cap_private_storage_bound(&caps) ||
+        caps > SIZE_MAX - sizeof(NlSocketService)) return false;
+    *out = sizeof(NlSocketService) + caps;
+    return true;
+}
 
 static NlSocketResult socket_result(NlSocketStatus status) {
     NlSocketResult result = {0};
@@ -35,6 +57,7 @@ static NlSocketStatus socket_cap_status(int status) {
     switch (status) {
     case NL_CAP_OK: return NL_SOCKET_OK;
     case NL_CAP_ERR_RIGHTS: case NL_CAP_ERR_TRANSFER: return NL_SOCKET_RIGHTS;
+    case NL_CAP_ERR_ENTROPY: return NL_SOCKET_IO;
     case NL_CAP_ERR_FULL: return NL_SOCKET_CAPACITY;
     case NL_CAP_PRIVATE_ERR_GENERATION: return NL_SOCKET_LIMIT;
     default: return NL_SOCKET_TOKEN;
@@ -60,7 +83,8 @@ static NlSocketStatus socket_resolve(NlSocketService *service,
     SocketEntry *entry = &service->sockets[token->cap.slot];
     if (!entry->live || !socket_same_cap(entry->token, token->cap) ||
         strcmp(nl_cap_type_id(service->caps, &token->cap), SOCKET_TYPE) ||
-        strcmp(nl_cap_service_id(service->caps, &token->cap), SOCKET_SERVICE))
+        strcmp(nl_cap_service_id(service->caps, &token->cap),
+               entry->tcp ? SOCKET_TCP_SERVICE : SOCKET_SERVICE))
         return NL_SOCKET_TOKEN;
     *out = entry;
     return NL_SOCKET_OK;
@@ -176,48 +200,327 @@ NlSocketResult nl_socket_acquire_pair(NlSocketService *service, uint32_t left_ri
     }
     NlSocketPair pair;
     for (unsigned i = 0; i < 2; i++) {
-        service->sockets[caps[i].slot] = (SocketEntry){descriptors[i], true, caps[i]};
+        service->sockets[caps[i].slot] = (SocketEntry){
+            .fd = descriptors[i], .live = true, .token = caps[i]};
         pair.endpoints[i] = (NlSocketToken){service->identity, caps[i]};
     }
     *out = pair;
     return socket_result(NL_SOCKET_OK);
 }
 
-NlSocketResult nl_socket_send_byte(NlSocketService *service,
-                                  const NlSocketToken *token, uint8_t byte) {
+NlSocketResult nl_socket_acquire_tcp(NlSocketService *service,
+                                    const NlSocketAddress *address,
+                                    uint32_t rights, NlSocketToken *out) {
+    NlSocketStatus status = socket_context(service);
+    if (status != NL_SOCKET_OK) return socket_result(status);
+    if (!address || !out || (rights & ~SOCKET_RIGHTS) || !address->port ||
+        socket_overlap(address, sizeof(*address), out, sizeof(*out)))
+        return socket_result(NL_SOCKET_ARGUMENT);
+    union { struct sockaddr_in v4; struct sockaddr_in6 v6; } host = {0};
+    int family;
+    socklen_t length;
+    if (address->family == NL_SOCKET_IPV4) {
+        if (address->scope_id) return socket_result(NL_SOCKET_ARGUMENT);
+        for (unsigned i = 4; i < 16; i++)
+            if (address->address[i]) return socket_result(NL_SOCKET_ARGUMENT);
+        family = AF_INET;
+        length = sizeof(host.v4);
+        host.v4.sin_family = AF_INET;
+        host.v4.sin_port = htons(address->port);
+        memcpy(&host.v4.sin_addr, address->address, 4);
+#ifdef __APPLE__
+        host.v4.sin_len = sizeof(host.v4);
+#endif
+    } else if (address->family == NL_SOCKET_IPV6) {
+        family = AF_INET6;
+        length = sizeof(host.v6);
+        host.v6.sin6_family = AF_INET6;
+        host.v6.sin6_port = htons(address->port);
+        host.v6.sin6_scope_id = address->scope_id;
+        memcpy(&host.v6.sin6_addr, address->address, 16);
+#ifdef __APPLE__
+        host.v6.sin6_len = sizeof(host.v6);
+#endif
+    } else {
+        return socket_result(NL_SOCKET_ARGUMENT);
+    }
+    NlCap cap;
+    int rc = nl_cap_private_mint(service->caps, SOCKET_TYPE, SOCKET_TCP_SERVICE,
+                                 rights, &cap);
+    if (rc != NL_CAP_OK) return socket_result(socket_cap_status(rc));
+    int descriptors[2] = {-1, -1};
+    errno = 0;
+    descriptors[0] = socket(family, SOCK_STREAM, IPPROTO_TCP);
+    if (descriptors[0] < 0 || !socket_configure(descriptors[0])) {
+        NlSocketResult result = socket_io_error(errno);
+        socket_rollback(service, &cap, 1, descriptors, &result);
+        return result;
+    }
+    errno = 0;
+    rc = connect(descriptors[0], (const struct sockaddr *)&host, length);
+    int saved = errno;
+    if (rc != 0 && saved != EINPROGRESS) {
+        NlSocketResult result = socket_io_error(saved);
+        socket_rollback(service, &cap, 1, descriptors, &result);
+        return result;
+    }
+    bool pending = rc != 0;
+    service->sockets[cap.slot] = (SocketEntry){
+        .fd = descriptors[0], .live = true, .token = cap, .tcp = true,
+        .state = pending ? SOCKET_PENDING : SOCKET_READY};
+    *out = (NlSocketToken){service->identity, cap};
+    NlSocketResult result = socket_result(NL_SOCKET_OK);
+    result.connect_pending = pending;
+    return result;
+}
+
+static NlSocketResult socket_connection_state(const SocketEntry *entry) {
+    if (entry->state == SOCKET_PENDING) {
+        NlSocketResult result = socket_result(NL_SOCKET_WOULD_BLOCK);
+        result.connect_pending = true;
+        return result;
+    }
+    NlSocketResult result = socket_result(
+        entry->state == SOCKET_FAILED ? NL_SOCKET_IO : NL_SOCKET_OK);
+    result.host_errno = entry->connect_error;
+    return result;
+}
+
+static NlSocketResult socket_connect_error(SocketEntry *entry, int saved) {
+    if (saved == EINTR || saved == EAGAIN || saved == EWOULDBLOCK) {
+        NlSocketResult result = socket_io_error(saved);
+        result.connect_pending = true;
+        return result;
+    }
+    entry->state = SOCKET_FAILED;
+    entry->connect_error = saved;
+    return socket_connection_state(entry);
+}
+
+NlSocketResult nl_socket_finish_connect(NlSocketService *service,
+                                       const NlSocketToken *token) {
+    SocketEntry *entry = NULL;
+    NlSocketStatus status = socket_resolve(service, token, 0, &entry);
+    if (status != NL_SOCKET_OK) return socket_result(status);
+    if (entry->state != SOCKET_PENDING) return socket_connection_state(entry);
+    struct pollfd fd = {.fd = entry->fd, .events = POLLOUT};
+    errno = 0;
+    int rc = poll(&fd, 1, 0);
+    if (rc < 0) return socket_connect_error(entry, errno);
+    if (!rc) return socket_connection_state(entry);
+    if (fd.revents & POLLNVAL) return socket_connect_error(entry, EBADF);
+    if (!(fd.revents & (POLLOUT | POLLERR | POLLHUP)))
+        return socket_connection_state(entry);
+    int error = 0;
+    socklen_t size = sizeof(error);
+    errno = 0;
+    if (getsockopt(entry->fd, SOL_SOCKET, SO_ERROR, &error, &size) != 0)
+        return socket_connect_error(entry, errno);
+    if (size != sizeof(error)) return socket_connect_error(entry, EIO);
+    if (error) {
+        /* SO_ERROR is consumed by the host read. I latch even an unusual
+         * transient-valued socket error instead of later mistaking zero for OK. */
+        entry->state = SOCKET_FAILED;
+        entry->connect_error = error;
+        return socket_connection_state(entry);
+    }
+    if (!(fd.revents & POLLOUT) || (fd.revents & (POLLERR | POLLHUP)))
+        return socket_connect_error(entry, ECONNABORTED);
+    entry->state = SOCKET_READY;
+    return socket_connection_state(entry);
+}
+
+NlSocketResult nl_socket_send(NlSocketService *service,
+                              const NlSocketToken *token, const void *bytes, size_t size) {
+    if (!token || size > NL_SOCKET_IO_MAX || (size && (!bytes ||
+        socket_overlap(bytes, size, token, sizeof(*token)))))
+        return socket_result(NL_SOCKET_ARGUMENT);
     SocketEntry *entry = NULL;
     NlSocketStatus status = socket_resolve(service, token, NL_CAP_WRITE, &entry);
     if (status != NL_SOCKET_OK) return socket_result(status);
+    if (entry->state != SOCKET_READY) return socket_connection_state(entry);
+    if (!size) return socket_result(NL_SOCKET_OK);
 #ifdef __linux__
     const int flags = MSG_NOSIGNAL;
 #else
     const int flags = 0;
 #endif
     errno = 0;
-    ssize_t sent = send(entry->fd, &byte, 1, flags);
+    ssize_t sent = send(entry->fd, bytes, size, flags);
     if (sent < 0) return socket_io_error(errno);
-    if (sent != 1) return socket_result(NL_SOCKET_IO);
+    if (!sent || (size_t)sent > size) return socket_result(NL_SOCKET_IO);
     NlSocketResult result = socket_result(NL_SOCKET_OK);
-    result.bytes = 1;
+    result.bytes = (size_t)sent;
     return result;
 }
 
-NlSocketResult nl_socket_receive_byte(NlSocketService *service,
-                                     const NlSocketToken *token, uint8_t *out) {
-    if (!out || !token || socket_overlap(out, sizeof(*out), token, sizeof(*token)))
+NlSocketResult nl_socket_receive(NlSocketService *service,
+                                 const NlSocketToken *token, void *bytes, size_t size) {
+    if (!token || size > NL_SOCKET_IO_MAX || (size && (!bytes ||
+        socket_overlap(bytes, size, token, sizeof(*token)))))
         return socket_result(NL_SOCKET_ARGUMENT);
     SocketEntry *entry = NULL;
     NlSocketStatus status = socket_resolve(service, token, NL_CAP_READ, &entry);
     if (status != NL_SOCKET_OK) return socket_result(status);
-    uint8_t byte = 0;
+    if (entry->state != SOCKET_READY) return socket_connection_state(entry);
+    if (!size) return socket_result(NL_SOCKET_OK);
     errno = 0;
-    ssize_t received = recv(entry->fd, &byte, 1, 0);
+    ssize_t received = recv(entry->fd, bytes, size, 0);
     if (received < 0) return socket_io_error(errno);
-    if (received > 1) return socket_result(NL_SOCKET_IO);
+    if ((size_t)received > size) return socket_result(NL_SOCKET_IO);
     NlSocketResult result = socket_result(received ? NL_SOCKET_OK : NL_SOCKET_EOF);
     result.bytes = (size_t)received;
     result.eof = received == 0;
-    *out = received ? byte : 0;
+    return result;
+}
+
+NlSocketResult nl_socket_send_byte(NlSocketService *service,
+                                  const NlSocketToken *token, uint8_t byte) {
+    return nl_socket_send(service, token, &byte, 1);
+}
+
+NlSocketResult nl_socket_receive_byte(NlSocketService *service,
+                                     const NlSocketToken *token, uint8_t *out) {
+    NlSocketResult result = nl_socket_receive(service, token, out, 1);
+    if (result.status == NL_SOCKET_EOF) *out = 0;
+    return result;
+}
+
+/* I validate labels before consulting host name services. Legacy abbreviated
+ * numeric forms are refused rather than reinterpreted by getaddrinfo. */
+static bool socket_hostname(const char *host, size_t length) {
+    size_t label = 0;
+    bool only_numeric = true;
+    for (size_t i = 0; i < length; i++) {
+        unsigned char c = (unsigned char)host[i];
+        if (c == '.') {
+            if (!label || host[i - 1] == '-') return false;
+            label = 0;
+            continue;
+        }
+        bool digit = c >= '0' && c <= '9';
+        bool alpha = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+        if (!digit && !alpha && c != '-') return false;
+        if (!label && c == '-') return false;
+        if (++label > 63) return false;
+        if (!digit) only_numeric = false;
+    }
+    return !only_numeric && host[length - 1] != '-';
+}
+
+static bool socket_ipv4_literal(const char *name, uint8_t out[4]) {
+    const char *p = name;
+    for (unsigned i = 0; i < 4; i++) {
+        unsigned value = 0, digits = 0;
+        const char *start = p;
+        while (*p >= '0' && *p <= '9') {
+            value = value * 10 + (unsigned)(*p++ - '0');
+            if (++digits > 3 || value > 255) return false;
+        }
+        if (!digits || (digits > 1 && *start == '0')) return false;
+        out[i] = (uint8_t)value;
+        if (i < 3) { if (*p++ != '.') return false; }
+        else if (*p) return false;
+    }
+    return true;
+}
+
+NlSocketResolveResult nl_socket_resolve_tcp(NlSocketService *service,
+    const char *host, size_t length, uint16_t port, bool allow_lookup,
+    NlSocketResolution *out) {
+    NlSocketResolveResult result = {.status = socket_context(service)};
+    if (result.status != NL_SOCKET_OK) return result;
+    result.status = NL_SOCKET_ARGUMENT;
+    if (!host || !out || !length || length > NL_SOCKET_HOST_MAX || !port ||
+        socket_overlap(host, length, out, sizeof(*out)) || memchr(host, 0, length))
+        return result;
+    char name[NL_SOCKET_HOST_MAX + 1];
+    memcpy(name, host, length);
+    name[length] = 0;
+    NlSocketResolution resolved = {0};
+    NlSocketAddress *numeric = &resolved.addresses[0];
+    numeric->port = port;
+    uint8_t v4[4];
+    if (socket_ipv4_literal(name, v4)) {
+        memcpy(numeric->address, v4, sizeof(v4));
+        numeric->family = NL_SOCKET_IPV4;
+    } else {
+        const char *colon = strrchr(name, ':');
+        bool ipv6_chars = colon != NULL;
+        for (size_t i = 0; i < length; i++) {
+            char c = name[i];
+            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') ||
+                  (c >= 'A' && c <= 'F') || c == ':' || c == '.')) ipv6_chars = false;
+        }
+        bool canonical_tail = !strchr(name, '.') ||
+            (colon && socket_ipv4_literal(colon + 1, v4));
+        if (ipv6_chars && canonical_tail && inet_pton(AF_INET6, name, numeric->address) == 1)
+            numeric->family = NL_SOCKET_IPV6;
+    }
+    if (numeric->family) {
+        resolved.count = 1;
+        *out = resolved;
+        result.status = NL_SOCKET_OK;
+        return result;
+    }
+    if (!socket_hostname(name, length)) return result;
+    if (!allow_lookup) { result.status = NL_SOCKET_RIGHTS; return result; }
+    char service_name[6];
+    (void)snprintf(service_name, sizeof(service_name), "%u", (unsigned)port);
+    struct addrinfo hints = {0}, *answers = NULL;
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+    hints.ai_flags = AI_NUMERICSERV;
+    errno = 0;
+    int rc = getaddrinfo(name, service_name, &hints, &answers), saved = errno;
+    if (rc) {
+        result.status = rc == EAI_MEMORY ? NL_SOCKET_MEMORY :
+            rc == EAI_AGAIN ? NL_SOCKET_WOULD_BLOCK : NL_SOCKET_IO;
+        result.resolver_error = rc;
+        result.host_errno = rc == EAI_SYSTEM ? saved : 0;
+        return result;
+    }
+    result.status = NL_SOCKET_OK;
+    unsigned visited = 0;
+    for (const struct addrinfo *ai = answers; ai; ai = ai->ai_next) {
+        if (++visited > 256) { result.status = NL_SOCKET_LIMIT; break; }
+        if (ai->ai_socktype != SOCK_STREAM || ai->ai_protocol != IPPROTO_TCP ||
+            (ai->ai_family != AF_INET && ai->ai_family != AF_INET6)) continue;
+        NlSocketAddress address = {.port = port};
+        if (!ai->ai_addr) { result.status = NL_SOCKET_IO; break; }
+        if (ai->ai_family == AF_INET) {
+            if (ai->ai_addrlen < sizeof(struct sockaddr_in)) { result.status = NL_SOCKET_IO; break; }
+            struct sockaddr_in v4;
+            memcpy(&v4, ai->ai_addr, sizeof(v4));
+            if (v4.sin_family != AF_INET || ntohs(v4.sin_port) != port) { result.status = NL_SOCKET_IO; break; }
+            address.family = NL_SOCKET_IPV4;
+            memcpy(address.address, &v4.sin_addr, 4);
+        } else {
+            if (ai->ai_addrlen < sizeof(struct sockaddr_in6)) { result.status = NL_SOCKET_IO; break; }
+            struct sockaddr_in6 v6;
+            memcpy(&v6, ai->ai_addr, sizeof(v6));
+            if (v6.sin6_family != AF_INET6 || ntohs(v6.sin6_port) != port) { result.status = NL_SOCKET_IO; break; }
+            address.family = NL_SOCKET_IPV6;
+            address.scope_id = v6.sin6_scope_id;
+            memcpy(address.address, &v6.sin6_addr, 16);
+        }
+        bool duplicate = false;
+        for (size_t i = 0; i < resolved.count; i++) {
+            const NlSocketAddress *old = &resolved.addresses[i];
+            if (old->family == address.family && old->scope_id == address.scope_id &&
+                !memcmp(old->address, address.address, sizeof(address.address))) duplicate = true;
+        }
+        if (duplicate) continue;
+        if (resolved.count == NL_SOCKET_RESOLVE_MAX) { result.status = NL_SOCKET_CAPACITY; break; }
+        resolved.addresses[resolved.count++] = address;
+    }
+    if (answers) freeaddrinfo(answers);
+    if (result.status == NL_SOCKET_OK && !resolved.count) {
+        result.status = NL_SOCKET_IO;
+        result.resolver_error = EAI_NONAME;
+    }
+    if (result.status == NL_SOCKET_OK) *out = resolved;
     return result;
 }
 

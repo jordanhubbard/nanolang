@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0001] Variable bytes: I expected a value of type `array<u8>`, but found `array<int>`. (/private/tmp/nanolang-array-slice-retirement-probe.nano:10:5)

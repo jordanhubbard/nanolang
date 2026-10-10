@@ -1,0 +1,15 @@
+I retain list insertion evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-og5_pu7z
+test_declared_function_retains_precedence (tests.test_nanoisa_list_free.ListFree.test_declared_function_retains_precedence) ... ok
+test_evaluation_order_once (tests.test_nanoisa_list_free.ListFree.test_evaluation_order_once) ... ok
+test_invalid_bounds_trap (tests.test_nanoisa_list_free.ListFree.test_invalid_bounds_trap) ... ok
+test_named_roots_and_repeated_allocation (tests.test_nanoisa_list_free.ListFree.test_named_roots_and_repeated_allocation) ... ok
+test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_free.ListFree.test_positions_aliases_and_record_payloads) ... ok
+test_record_alias_keeps_independent_owner (tests.test_nanoisa_list_free.ListFree.test_record_alias_keeps_independent_owner) ... ok
+test_temporary_receiver_evaluated_once (tests.test_nanoisa_list_free.ListFree.test_temporary_receiver_evaluated_once) ... ok
+test_unchecked_emitter_refuses_invalid_types (tests.test_nanoisa_list_free.ListFree.test_unchecked_emitter_refuses_invalid_types) ... ok
+test_unchecked_release_refusals (tests.test_nanoisa_list_free.ListFree.test_unchecked_release_refusals) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 6.077s
+
+OK

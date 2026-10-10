@@ -1,0 +1,40 @@
+{
+  "base_commit": "d11ae94e2f80f6f8b448ef6e0192c79a89adf451",
+  "source_sha256": {
+    "src/nanoisa/nvm2c.c": "bd8040a23cb3673651107b0253581bd1eae9fa0bb1a8b64488e88dde741a558a",
+    "src/nanoisa/nvm2c_shape.c": "4c83155233d899c40ba3766cc6e500b57a8bbb438eabf9bdf0bc6a9ad63207ca",
+    "src/nanoisa/nvm2c_shape.h": "86ed23d634331bd86ab9fb366c603a285fc4a1385e24ba50567792fab0b9b4d9",
+    "tests/test_native_optional_array_reads.py": "50274ca631599f00f8c78864f101ddcdc4b022ff8016383a349bc8063dbdd33d",
+    "tests/nanoisa/test_nvm2c_shape.c": "c1da7638de75dd24f775b7bb960116b6d049b60b73d7fdc1b44832d9b516ce55",
+    "tests/test_one_ir_compiler.py": "74dbf5d3a67cdcda142b3b03aca086a1e9f080df206495d57fbfce4b97c868e8"
+  },
+  "compiler_module_sha256": "69ca320a3e901087cb6f90e9c1e00e78836f0f6730550546ec8574e8bfe16939",
+  "generated_compiler_c_sha256": "a0b61baf0c2f128251ac55e7e65d74346141a9256eeebf9a2597ae0b6ab9b3cf",
+  "translator_sha256": "5ad28de466e079c9ca16aae1cef6e76b063cee07867d0b4dff02a66ef44cf938",
+  "host_cc": "Homebrew clang version 23.1.1\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /opt/homebrew/Cellar/llvm/23.1.1/bin\nConfiguration file: /opt/homebrew/Cellar/llvm/23.1.1/etc/clang/arm64-apple-darwin25.cfg\n",
+  "files_sha256": {
+    "README.md": "632c434a0f959b5b9255e09f79a27c8f8c8d5e7183e171eaacc95c88adab8b12",
+    "deferred-read-1.nasm": "19be71663157a881e3b5792cc515d3dfb988386c2172ede954f5071acc6ca809",
+    "deferred-read-2.nasm": "4aefb1b339b840cc82f109cd70e00da0252a6d0afd110aaceeb046503739b6ef",
+    "deferred-read-3.nasm": "3fe42f7b486feab81dfe0eca8e990c65599e442e9676da243bcbe22d35db2f93",
+    "deferred-read-4.nasm": "244cc10a091bed070fbe96cef61640bbfc0463908f6cac8a0d640e3fe371c81a",
+    "deferred-read-5.nasm": "da21d986337f8ada70c1136b3c2507d4be75e69e7c60688180a95d457a366dfa",
+    "deferred-read-6.nasm": "0f58cea6f719a276c7d482cc14bf803d24dd5e70ab947813928dd76fb9087ebf",
+    "deferred-read-7.nasm": "60559db861b87a671c4094e5d1d6cbb7535516945a1faac08e749573b42fc447",
+    "deferred-read-8.nasm": "58843fb6e899cf019ab89da5a1fdb44f17f60514629cc503cdbe73ebaccda38c",
+    "deferred-read-adjacency.log": "5f9c25f91526ad1cd1b4abf52e1ce02675d874f3d34d26a16139f4ac78103b4b",
+    "deferred-read-baseline.log": "6a6ba3667d97098f093e0ae0f337d23b7f8e4c9bd0e578b9b0e500f6df3e6146",
+    "deferred-read-final-adjacency.log": "00b167afe0b01dbcc64fbadaa43b7b01532a19a68d78886ca4d0dc3933abb313",
+    "deferred-read-final-core.log": "d8811cec39b4b22c4161949b45bf12637948d05b3ad72dedf1f4280f425f93fb",
+    "deferred-read-focused.log": "0e2fa5f68a548b3257df16fe2aada107e186cab439076b3ab8a09e559c87cabd",
+    "deferred-read-product-corrected.log": "bf9756e9a5daab7edbf438d4d65ee68fad4eaaa1aa6a803c801c0a4c6f26e4e9",
+    "deferred-read-selfhost-product.log": "f3e7c4efb4cf5163879145c1959dbcae1f3b500742a00ff316f4cd06a94dc1bc",
+    "deferred-read-shapes-sanitized.log": "2c3c7ff27f278834e3e3e492cf54c7e75ef177f9514fa88e70e20b04af49459f",
+    "initial-shape-command.txt": "5514241fad331cb11c257423f7a9f6246cbea0fbc3ebf941e3f2a1d7dbc79882",
+    "literal-assertion-failure.txt": "0d4bfab23c24ece61ff5b8f7ff7869670ba42bc6c01cdc857f605091f7e979c5",
+    "no-vm-oracle.log": "144aea5b60c7b98ef1b4e0c5aac0bfd2cf75ddb2123f112713c584ebe5f0b401",
+    "read-union-trace.log": "76c7d6f6035ca2b7ff0f924ee4f7bd169583059e7f6d75915171498525afa56b",
+    "record-return-trace.log": "289314a1f1b30d68731b2dde7e05a28af48db1ecbb1ca176a3c63e5269df5fba"
+  },
+  "selfhost_seed_sha256": "822d68dcdc4cb1caa97d41b9ec6e908844d49e632f86ca079f5c210a3742f6aa"
+}

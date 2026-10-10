@@ -1,0 +1,15 @@
+{
+  "source_commit": "9790d9a91aac6b412e48e2f6af04c8f5a6392be1",
+  "root": "/private/tmp/nanolang-closure-arrays-9790d9a91",
+  "command": [
+    "make",
+    "-j2",
+    "test-one-ir-compiler"
+  ],
+  "initial_status": "clean",
+  "exit_code": 0,
+  "seconds": 775.3333287500427,
+  "log_sha256": "accb59ebf8297db23653eb77edf61391d945518eeda95efbe08bd10d678720cb",
+  "final_status": "",
+  "head_unchanged": true
+}

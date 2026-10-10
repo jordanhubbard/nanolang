@@ -1,0 +1,53 @@
+{
+  "base_commit": "9790d9a91aac6b412e48e2f6af04c8f5a6392be1",
+  "task": "task_f9059876cb0b463a8d51244f759e55c9",
+  "source_sha256": {
+    "schema/compiler_schema.json": "bd7aa261df34857ca388991de5ac653cb718d33bb683ebf2c62c91a50a3ac6c0",
+    "src/generated/compiler_schema.h": "2973171904be9880cb0e5cc2465656fdc3fec6501455887166d372661410b3f6",
+    "src_nano/generated/compiler_schema.nano": "2eebd56927f639b4e38fa6ada1a91b4bf4b7213fdf76302b362e93ace50f4547",
+    "src_nano/parser.nano": "6b93e2c7c986d85a2aea8d613f3750222958d4190a031e227139ef0d1c49ad7d",
+    "src_nano/typecheck.nano": "e122bbae39ebbe250ca5d129186951178eac7ff4df969cefb9c35bcb4d1f8244",
+    "tests/fixtures/selfhost_capture_scope.nano": "0eb7e2f2b71c8b5c59b64bd67d8798f40ff5192eea3551ff4c64888ea77cefca",
+    "tests/test_selfhost_capture_scope.py": "a00242219e87f1f175fd03986b0b86ad4023aed3a1f78972ed6d94a3a56baecc",
+    "Makefile.gnu": "09bab94416d048ddef31f5dcb100be9f8a643930c1dffdf6ec39fe1688f4d3f3"
+  },
+  "artifacts_sha256": {
+    "build4.log": "fea2b57f681be32aeda6eac775a1f5fd189f8ceb8c41ec419fb581531a8adf0e",
+    "build2.log": "fea2b57f681be32aeda6eac775a1f5fd189f8ceb8c41ec419fb581531a8adf0e",
+    "build3.log": "fea2b57f681be32aeda6eac775a1f5fd189f8ceb8c41ec419fb581531a8adf0e",
+    "source-refusal.log": "ba0489ea34825e1b3560318d8b0d6a441dd4e68a15f9133c1edd52c0f4e331a9",
+    "producer-translate.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "producer-build.log": "76729d7f9c957f66ec6ad71f1b6ccc681d6c10038ca18b2098c192ff5bd0ecf1",
+    "vm3.log": "04b1abaa7d714eecbfb29cfc54df0eaacc815693c3fbfc8251adc4b9ad7c502f",
+    "README.md": "e6586a174235982ea4f85cb4a6f8d24e55f3d26fb88bdd4126a435c1f6780ff3",
+    "vm2.log": "c8a4e9efca64d2117ef43bfcaea36ed8015f8ca35089eb64c455a95898dd5293",
+    "final.log": "2b1113f558d91f5b25e5a7a5eaefefcf59f562666bc7024e0a1632698bda257a",
+    "cseed-immediate.log": "444012434c0f2cd58c849240335452d97b7fbda5cea983a8c08f80186c101210",
+    "producer-cc.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "vm.log": "c8a4e9efca64d2117ef43bfcaea36ed8015f8ca35089eb64c455a95898dd5293",
+    "debug-vm.log": "1ec94831b066396cd4d121cf0feae180c259da371baf2930fb87fff886c7fc77",
+    "qualified.log": "70c12e069567c02915506944f072bcccc4d8ff148ef8f12cee3ccfbad6fdca69",
+    "parity.log": "47752b1f21b4bc8e7925746f53ad6fd0836f52e88105e5df053f5d7c31b3844b",
+    "cseed-immediate.nano": "f1fadf0a1d95c9dd4e6d5a3439cc9208f2ddc6f9c8b2815ceac1ce257441dfab",
+    "build.log": "ac44a3d76539a27e348010f597391c218cfcd2e2e20cd0685c5a17978ea39de2"
+  },
+  "terminals": {
+    "build": 1,
+    "build2": 0,
+    "vm": 1,
+    "build3": 0,
+    "vm2": 1,
+    "debug_vm": 1,
+    "build4": 0,
+    "vm3": 0,
+    "qualified": 0,
+    "final": 0,
+    "producer_build": 0,
+    "producer_translate_and_cc": 0,
+    "parity": 0,
+    "cseed_immediate": 1,
+    "source_refusal": 1
+  },
+  "prior_output_preserved": true,
+  "schema_regeneration_identical": true
+}

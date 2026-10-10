@@ -1,0 +1,404 @@
+# I retain service moves and borrows independently from the C ownership checker.
+import "src_nano/compiler/service_bodies.nano"
+import "src_nano/compiler/service_types.nano"
+import "src_nano/compiler/service_namespace.nano"
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+
+struct ServiceOwner { name: string, id: int, category: int, mode: int, moved: bool, shared: int, exclusive: bool }
+struct ServiceOwnershipState { locals: array<ServiceOwner>, next: bool }
+# Actions are bind/move/borrow/end-borrow/refine, numbered 1 through 5.
+# Binding IDs are lexical; refine mode is the source arm index. Other modes
+# are owned/shared/exclusive (0/1/2). Body facts retain nominal identity.
+struct ServiceOwnershipFact { node_kind: int, node_id: int, action: int, binding: int, mode: int }
+struct ServiceOwnershipCheck { status: int, diagnostic: string, facts: array<ServiceOwnershipFact>, functions: int, shadows: int }
+struct ServiceOwnershipHold { local: int, mode: int }
+let mut so_status: int = 0
+let mut so_diagnostic: string = ""
+let mut so_facts: array<ServiceOwnershipFact> = []
+let mut so_binding: int = 0
+let mut so_depth: int = 0
+
+fn so_parser(source: string) -> Parser {
+    let tokens: List<LexerToken> = (tokenize_string source "ownership.nano" (list_CompilerDiagnostic_new))
+    return (parse_program tokens (list_LexerToken_length tokens) "ownership.nano")
+}
+shadow so_parser { assert (== (so_parser "fn main()->int{return 0}").functions_count 1) }
+fn so_space() -> ServiceNamespace {
+    return ServiceNamespace { status: 0, names: [], plan: FileSourcePlan { status: 0, rows: [], logical_bytes: 0 }, text_bytes: 0, ordinary_count: 0, alias_count: 0 }
+}
+shadow so_space { assert (== (array_length (so_space).names) 0) }
+fn so_bodies() -> ServiceBodyCheck {
+    return ServiceBodyCheck { status: 0, diagnostic: "", facts: [], functions: 0, shadows: 0 }
+}
+shadow so_bodies { assert (== (array_length (so_bodies).facts) 0) }
+fn so_state() -> ServiceOwnershipState { return ServiceOwnershipState { locals: [], next: true } }
+shadow so_state { assert (so_state).next assert (== (array_length (so_state).locals) 0) }
+fn so_fail(status: int, why: string) -> void {
+    if (== so_status 0) { set so_status status set so_diagnostic why }
+}
+shadow so_fail { set so_status 0 (so_fail 1 "first") (so_fail 3 "later") assert (== so_diagnostic "first") set so_status 0 set so_diagnostic "" }
+fn so_owned(category: int) -> bool { return (or (== category 1) (== category 2)) }
+shadow so_owned { assert (so_owned 1) assert (so_owned 2) assert (not (so_owned 3)) }
+fn so_type(bodies: ServiceBodyCheck, kind: int, id: int) -> ServiceBodyFact {
+    let mut i: int = 0
+    while (< i (array_length bodies.facts)) {
+        let fact: ServiceBodyFact = (at bodies.facts i)
+        if (and (== fact.node_kind kind) (== fact.node_id id)) { return fact }
+        set i (+ i 1)
+    }
+    return ServiceBodyFact { node_kind: -1, node_id: -1, type: ServiceType { kind: 0, declaration: 0, owner: -1, ordinal: -1, category: 0 }, borrow_mode: 0, declaration: 0 }
+}
+shadow so_type { assert (== (so_type (so_bodies) 0 0).node_id -1) }
+fn so_find(state: ServiceOwnershipState, name: string) -> int {
+    let mut i: int = (array_length state.locals)
+    while (> i 0) { set i (- i 1) if (== (at state.locals i).name name) { return i } }
+    return -1
+}
+shadow so_find { assert (== (so_find (so_state) "missing") -1) }
+fn so_note(kind: int, id: int, action: int, binding: int, mode: int) -> void {
+    if (!= so_status 0) { return }
+    if (== (array_length so_facts) 65536) { (so_fail 3 "I exceeded my service ownership fact bound.") return }
+    set so_facts (array_push so_facts ServiceOwnershipFact { node_kind: kind, node_id: id, action: action, binding: binding, mode: mode })
+}
+shadow so_note {
+    set so_status 0 set so_facts [] (so_note 2 3 1 4 0)
+    assert (== (at so_facts 0).binding 4) assert (== (at so_facts 0).node_id 3) set so_facts []
+}
+fn so_update(value: ServiceOwner, moved: bool, shared: int, exclusive: bool) -> ServiceOwner {
+    return ServiceOwner { name: value.name, id: value.id, category: value.category, mode: value.mode, moved: moved, shared: shared, exclusive: exclusive }
+}
+shadow so_update {
+    let old: ServiceOwner = ServiceOwner { name: "f", id: 1, category: 1, mode: 0, moved: false, shared: 0, exclusive: false }
+    let new: ServiceOwner = (so_update old true 2 false)
+    assert new.moved assert (== new.shared 2) assert (not old.moved)
+}
+fn so_set(state: ServiceOwnershipState, index: int, value: ServiceOwner) -> ServiceOwnershipState {
+    (array_set state.locals index value) return state
+}
+shadow so_set {
+    let old: ServiceOwner = ServiceOwner { name: "f", id: 1, category: 1, mode: 0, moved: false, shared: 0, exclusive: false }
+    let next: ServiceOwnershipState = (so_set ServiceOwnershipState { locals: [old], next: true } 0 (so_update old true 0 false))
+    assert (at next.locals 0).moved
+}
+fn so_bind(state: ServiceOwnershipState, kind: int, id: int, name: string, category: int, mode: int) -> ServiceOwnershipState {
+    if (or (== (array_length state.locals) 1024) (== so_binding 65536)) {
+        (so_fail 3 "I exceeded my service ownership binding bound.") return state
+    }
+    set so_binding (+ so_binding 1)
+    let value: ServiceOwner = ServiceOwner { name: name, id: so_binding, category: category, mode: mode, moved: false, shared: 0, exclusive: false }
+    if (so_owned category) { (so_note kind id 1 value.id mode) }
+    return ServiceOwnershipState { locals: (array_push state.locals value), next: state.next }
+}
+shadow so_bind {
+    set so_status 0 set so_binding 0 set so_facts []
+    let bound: ServiceOwnershipState = (so_bind (so_state) 0 0 "f" 1 0)
+    assert (== (so_find bound "f") 0) assert (== (at bound.locals 0).id 1)
+    set so_binding 65536
+    let refused: ServiceOwnershipState = (so_bind (so_state) 0 0 "overflow" 1 0)
+    assert (== so_status 3) assert (== (array_length refused.locals) 0)
+    set so_status 0 set so_diagnostic ""
+    set so_binding 0 set so_facts []
+}
+fn so_copy(state: ServiceOwnershipState, count: int) -> ServiceOwnershipState {
+    let mut values: array<ServiceOwner> = [] let mut i: int = 0
+    while (< i count) { set values (array_push values (at state.locals i)) set i (+ i 1) }
+    return ServiceOwnershipState { locals: values, next: state.next }
+}
+shadow so_copy {
+    let value: ServiceOwner = ServiceOwner { name: "f", id: 1, category: 1, mode: 0, moved: false, shared: 0, exclusive: false }
+    let before: ServiceOwnershipState = ServiceOwnershipState { locals: [value], next: true }
+    let after: ServiceOwnershipState = (so_set (so_copy before 1) 0 (so_update value true 0 false))
+    assert (at after.locals 0).moved assert (not (at before.locals 0).moved)
+}
+fn so_exit(state: ServiceOwnershipState, first: int) -> void {
+    let mut i: int = first
+    while (< i (array_length state.locals)) {
+        let value: ServiceOwner = (at state.locals i)
+        if (and (so_owned value.category) (and (== value.mode 0) (not value.moved))) {
+            (so_fail 1 "I require every service owner to be consumed before scope exit.")
+        }
+        set i (+ i 1)
+    }
+}
+shadow so_exit {
+    set so_status 0 set so_facts [] (so_exit (so_bind (so_state) 0 0 "f" 1 0) 0)
+    assert (== so_status 1) set so_status 0 set so_diagnostic "" set so_facts [] set so_binding 0
+}
+fn so_same(a: ServiceOwnershipState, b: ServiceOwnershipState) -> void {
+    if (!= (array_length a.locals) (array_length b.locals)) { (so_fail 1 "I require matching lexical ownership states.") return }
+    let mut i: int = 0
+    while (< i (array_length a.locals)) {
+        let left: ServiceOwner = (at a.locals i) let right: ServiceOwner = (at b.locals i)
+        if (and (so_owned left.category) (or (!= left.moved right.moved) (or (!= left.shared right.shared) (!= left.exclusive right.exclusive)))) {
+            (so_fail 1 "I require branches and loop edges to agree on service ownership.")
+        }
+        set i (+ i 1)
+    }
+}
+shadow so_same {
+    set so_status 0 set so_facts []
+    let left: ServiceOwnershipState = (so_bind (so_state) 0 0 "f" 1 0)
+    let right: ServiceOwnershipState = (so_set (so_copy left 1) 0 (so_update (at left.locals 0) true 0 false))
+    (so_same left right) assert (== so_status 1)
+    set so_status 0 set so_diagnostic "" set so_facts [] set so_binding 0
+}
+fn so_call(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, kind: int, id: int, start: int, count: int, state: ServiceOwnershipState, move: bool) -> ServiceOwnershipState {
+    let mut flow: ServiceOwnershipState = state
+    let mut holds: array<ServiceOwnershipHold> = [] let mut i: int = 0
+    while (and (< i count) (and flow.next (== so_status 0))) {
+        let arg: ASTStmtRef = (parser_get_call_arg parser (+ start i))
+        let fact: ServiceBodyFact = (so_type bodies arg.node_type arg.node_id)
+        if (> fact.borrow_mode 0) {
+            let mut root: ASTStmtRef = arg
+            if (== arg.node_type ParseNodeType.PNODE_CALL) {
+                let address: ASTCall = (parser_get_call parser arg.node_id)
+                if (and (> address.borrow_mode 0) (== address.arg_count 1)) { set root (parser_get_call_arg parser address.arg_start) }
+            }
+            let mut index: int = -1
+            if (== root.node_type ParseNodeType.PNODE_IDENTIFIER) { set index (so_find flow (parser_get_identifier parser root.node_id).name) }
+            if (< index 0) { (so_fail 1 "I require a lexical service borrow root.") }
+            else {
+                let value: ServiceOwner = (at flow.locals index)
+                let mode: int = fact.borrow_mode
+                if (or value.moved (or value.exclusive (and (== mode 2) (or (> value.shared 0) (== value.mode 1))))) {
+                    (so_fail 1 "I cannot overlap an exclusive borrow or borrow a moved service owner.")
+                } else {
+                    let mut shared: int = value.shared if (== mode 1) { set shared (+ shared 1) }
+                    set flow (so_set flow index (so_update value value.moved shared (== mode 2)))
+                    set holds (array_push holds ServiceOwnershipHold { local: index, mode: mode })
+                    (so_note arg.node_type arg.node_id 3 value.id mode)
+                }
+            }
+        } else { set flow (so_expr parser space bodies arg.node_type arg.node_id flow true) }
+        set i (+ i 1)
+    }
+    set i (array_length holds)
+    while (> i 0) {
+        set i (- i 1) let held: ServiceOwnershipHold = (at holds i)
+        let value: ServiceOwner = (at flow.locals held.local)
+        let mut shared: int = value.shared if (== held.mode 1) { set shared (- shared 1) }
+        set flow (so_set flow held.local (so_update value value.moved shared false))
+        (so_note kind id 4 value.id held.mode)
+    }
+    let result: ServiceBodyFact = (so_type bodies kind id)
+    if (< result.node_id 0) { (so_fail 2 "I require retained service call result facts.") }
+    if (and flow.next (and (so_owned result.type.category) (not move))) { (so_fail 1 "I require an owner for a service or helper result.") }
+    return flow
+}
+shadow so_call {
+    set so_status 0 let result: ServiceOwnershipState = (so_call (so_parser "") (so_space) (so_bodies) 0 0 0 0 (so_state) false)
+    assert result.next assert (== so_status 2) set so_status 0 set so_diagnostic ""
+}
+fn so_match(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, id: int, state: ServiceOwnershipState, move: bool) -> ServiceOwnershipState {
+    let node: ASTMatch = (parser_get_match parser id)
+    let input: ServiceBodyFact = (so_type bodies node.scrutinee_type node.scrutinee)
+    if (< input.node_id 0) { (so_fail 2 "I require retained Result ownership facts.") return state }
+    let consumed: ServiceOwnershipState = (so_expr parser space bodies node.scrutinee_type node.scrutinee state true)
+    if (or (not consumed.next) (!= so_status 0)) { return consumed }
+    let first: int = (array_length consumed.locals)
+    let mut joined: ServiceOwnershipState = (so_state) let mut have: bool = false let mut i: int = 0
+    while (and (< i node.arm_count) (== so_status 0)) {
+        let mut arm: ServiceOwnershipState = (so_copy consumed first)
+        let payload: ServiceType = (service_member_type space input.type (at node.arm_variants i))
+        if (== payload.kind 0) { (so_fail 1 "I require the exact Result ownership arm.") }
+        if (!= payload.kind 3) {
+            set arm (so_bind arm ParseNodeType.PNODE_MATCH id (at node.arm_bindings i) payload.category 0)
+            if (and (so_owned payload.category) (> (array_length arm.locals) first)) {
+                (so_note ParseNodeType.PNODE_MATCH id 5 (at arm.locals (- (array_length arm.locals) 1)).id i)
+            }
+        }
+        set arm (so_expr parser space bodies (at node.arm_body_types i) (at node.arm_body_ids i) arm move)
+        if arm.next { (so_exit arm first) }
+        set arm (so_copy arm first)
+        if (not have) { set joined arm set have true }
+        else {
+            if (and joined.next arm.next) { (so_same joined arm) }
+            if (and (not joined.next) arm.next) { set joined arm }
+        }
+        set i (+ i 1)
+    }
+    if have { return joined } return consumed
+}
+shadow so_match {
+    let parser: Parser = (so_parser "fn f()->void { match x { Ok(v)=>{} Error(e)=>{} } }")
+    set so_status 0 let result: ServiceOwnershipState = (so_match parser (so_space) (so_bodies) 0 (so_state) false)
+    assert result.next assert (== so_status 2) set so_status 0 set so_diagnostic ""
+}
+fn so_impl(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, kind: int, id: int, state: ServiceOwnershipState, move: bool) -> ServiceOwnershipState {
+    let mut flow: ServiceOwnershipState = state
+    if (or (== kind ParseNodeType.PNODE_STRING) (or (== kind ParseNodeType.PNODE_NUMBER) (== kind ParseNodeType.PNODE_BOOL))) { return flow }
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) {
+        let index: int = (so_find flow (parser_get_identifier parser id).name)
+        if (< index 0) {
+            let fact: ServiceBodyFact = (so_type bodies kind id)
+            if (and (== fact.type.kind 7) (> fact.declaration 0)) { return flow }
+            (so_fail 2 "I require a retained lexical service value.") return flow
+        }
+        let value: ServiceOwner = (at flow.locals index)
+        if (not (so_owned value.category)) { return flow }
+        if (or value.moved (or value.exclusive (and move (or (> value.mode 0) (> value.shared 0))))) {
+            (so_fail 1 "I cannot use a moved service owner or consume a borrowed owner.") return flow
+        }
+        if move { set flow (so_set flow index (so_update value true value.shared value.exclusive)) (so_note kind id 2 value.id 0) }
+        return flow
+    }
+    if (== kind ParseNodeType.PNODE_CALL) {
+        let node: ASTCall = (parser_get_call parser id)
+        if (> node.borrow_mode 0) { (so_fail 1 "I cannot store or escape a service borrow.") return flow }
+        if (!= node.function_type ParseNodeType.PNODE_IDENTIFIER) { set flow (so_expr parser space bodies node.function_type node.function flow false) }
+        return (so_call parser space bodies kind id node.arg_start node.arg_count flow move)
+    }
+    if (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
+        let node: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser id)
+        return (so_call parser space bodies kind id node.arg_start node.arg_count flow move)
+    }
+    if (== kind ParseNodeType.PNODE_BINARY_OP) {
+        let node: ASTBinaryOp = (parser_get_binary_op parser id)
+        if (not node.is_unary) { set flow (so_expr parser space bodies node.left_type node.left flow false) }
+        if (or (== node.op LexerTokenType.TOKEN_AND) (== node.op LexerTokenType.TOKEN_OR)) {
+            if (or (not flow.next) (!= so_status 0)) { return flow }
+            let right: ServiceOwnershipState = (so_expr parser space bodies node.right_type node.right (so_copy flow (array_length flow.locals)) false)
+            if right.next { (so_same flow right) }
+            return flow
+        }
+        return (so_expr parser space bodies node.right_type node.right flow false)
+    }
+    if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
+        let fact: ServiceBodyFact = (so_type bodies kind id)
+        if (and (== fact.type.kind 7) (> fact.declaration 0)) { return flow }
+        let node: ASTFieldAccess = (parser_get_field_access parser id)
+        return (so_expr parser space bodies node.object_type node.object flow false)
+    }
+    if (== kind ParseNodeType.PNODE_STRUCT_LITERAL) {
+        let node: ASTStructLiteral = (parser_get_struct_literal parser id)
+        let mut i: int = 0
+        while (and (< i node.field_count) (and flow.next (== so_status 0))) {
+            set flow (so_expr parser space bodies (at node.field_value_types i) (at node.field_value_ids i) flow false)
+            set i (+ i 1)
+        }
+        return flow
+    }
+    if (== kind ParseNodeType.PNODE_LET) {
+        let node: ASTLet = (parser_get_let parser id)
+        set flow (so_expr parser space bodies node.value_type node.value flow true)
+        if (or (not flow.next) (!= so_status 0)) { return flow }
+        let fact: ServiceBodyFact = (so_type bodies node.value_type node.value)
+        if (< fact.node_id 0) { (so_fail 2 "I require retained service local type facts.") return flow }
+        return (so_bind flow kind id node.name fact.type.category fact.borrow_mode)
+    }
+    if (== kind ParseNodeType.PNODE_SET) {
+        let node: ASTSet = (parser_get_set parser id)
+        let index: int = (so_find flow node.target)
+        if (< index 0) { (so_fail 2 "I require a retained service assignment root.") return flow }
+        let value: ServiceOwner = (at flow.locals index)
+        if (or (> value.mode 0) (or (> value.shared 0) (or value.exclusive (and (so_owned value.category) (not value.moved))))) {
+            (so_fail 1 "I cannot overwrite a live or borrowed service owner.") return flow
+        }
+        set flow (so_expr parser space bodies node.value_type node.value flow true)
+        if (or (not flow.next) (!= so_status 0)) { return flow }
+        set flow (so_set flow index (so_update value false value.shared value.exclusive))
+        if (so_owned value.category) { (so_note kind id 1 value.id 0) }
+        return flow
+    }
+    if (== kind ParseNodeType.PNODE_RETURN) {
+        let node: ASTReturn = (parser_get_return parser id)
+        set flow (so_expr parser space bodies node.value_type node.value flow true)
+        (so_exit flow 0) return ServiceOwnershipState { locals: flow.locals, next: false }
+    }
+    if (== kind ParseNodeType.PNODE_ASSERT) {
+        let node: ASTAssert = (parser_get_assert parser id)
+        return (so_expr parser space bodies node.condition_type node.condition flow false)
+    }
+    if (== kind ParseNodeType.PNODE_BLOCK) {
+        let node: ASTBlock = (parser_get_block parser id)
+        let first: int = (array_length flow.locals) let mut i: int = 0
+        while (and (< i (list_ASTStmtRef_length node.statements)) (and flow.next (== so_status 0))) {
+            let statement: ASTStmtRef = (list_ASTStmtRef_get node.statements i)
+            set flow (so_expr parser space bodies statement.node_type statement.node_id flow (and move (== (+ i 1) (list_ASTStmtRef_length node.statements))))
+            set i (+ i 1)
+        }
+        if flow.next { (so_exit flow first) } return (so_copy flow first)
+    }
+    if (== kind ParseNodeType.PNODE_IF) {
+        let node: ASTIf = (parser_get_if parser id)
+        set flow (so_expr parser space bodies node.condition_type node.condition flow false)
+        if (or (not flow.next) (!= so_status 0)) { return flow }
+        let left: ServiceOwnershipState = (so_expr parser space bodies ParseNodeType.PNODE_BLOCK node.then_body (so_copy flow (array_length flow.locals)) move)
+        let right: ServiceOwnershipState = (so_expr parser space bodies ParseNodeType.PNODE_BLOCK node.else_body (so_copy flow (array_length flow.locals)) move)
+        if (and left.next right.next) { (so_same left right) }
+        if left.next { return left } return right
+    }
+    if (== kind ParseNodeType.PNODE_WHILE) {
+        let node: ASTWhile = (parser_get_while parser id)
+        let entry: ServiceOwnershipState = (so_copy flow (array_length flow.locals))
+        set flow (so_expr parser space bodies node.condition_type node.condition flow false)
+        if (or (not flow.next) (!= so_status 0)) { return flow }
+        (so_same entry flow)
+        let body: ServiceOwnershipState = (so_expr parser space bodies ParseNodeType.PNODE_BLOCK node.body (so_copy flow (array_length flow.locals)) false)
+        if body.next { (so_same entry body) } return flow
+    }
+    if (== kind ParseNodeType.PNODE_MATCH) { return (so_match parser space bodies id flow move) }
+    (so_fail 2 "I have not retained ownership for this service source form.") return flow
+}
+shadow so_impl {
+    set so_status 0 let state: ServiceOwnershipState = (so_impl (so_parser "") (so_space) (so_bodies) -100 0 (so_state) false)
+    assert state.next assert (== so_status 2) set so_status 0 set so_diagnostic ""
+}
+fn so_expr(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, kind: int, id: int, state: ServiceOwnershipState, move: bool) -> ServiceOwnershipState {
+    if (or (< id 0) (or (not state.next) (!= so_status 0))) { return state }
+    if (== so_depth 128) { (so_fail 3 "I exceeded my service ownership nesting bound.") return state }
+    set so_depth (+ so_depth 1)
+    let result: ServiceOwnershipState = (so_impl parser space bodies kind id state move)
+    set so_depth (- so_depth 1) return result
+}
+shadow so_expr {
+    assert (so_expr (so_parser "") (so_space) (so_bodies) 0 -1 (so_state) false).next
+    set so_status 0 set so_depth 128
+    let refused: ServiceOwnershipState = (so_expr (so_parser "") (so_space) (so_bodies) ParseNodeType.PNODE_NUMBER 0 (so_state) false)
+    assert refused.next assert (== so_status 3)
+    set so_status 0 set so_diagnostic "" set so_depth 0
+}
+
+pub fn check_service_ownership(parser: Parser, files: array<string>, sources: array<string>, space: ServiceNamespace, bodies: ServiceBodyCheck) -> ServiceOwnershipCheck {
+    set so_status 0 set so_diagnostic "" set so_facts [] set so_binding 0 set so_depth 0
+    let mut functions: int = 0 let mut shadows: int = 0
+    if (> parser.services_count 0) {
+        if (or (!= space.status 0) (!= bodies.status 0)) { (so_fail 2 "I require complete nominal service body facts before ownership checking.") }
+        let mut group: int = 0
+        while (and (< group 2) (== so_status 0)) {
+            let mut count: int = parser.functions_count if (== group 1) { set count parser.shadows_count }
+            let mut i: int = 0
+            while (and (< i count) (== so_status 0)) {
+                let mut state: ServiceOwnershipState = (so_state)
+                let mut body: int = -1
+                if (== group 0) {
+                    let function: ASTFunction = (parser_get_function parser i)
+                    set functions (+ functions 1) set body function.body
+                    let owner: int = (sn_owner files sources function.line)
+                    let mut j: int = 0
+                    while (< j function.param_count) {
+                        let parameter: ASTLet = (parser_get_let parser (+ function.param_start j))
+                        let mut spelling: string = parameter.var_type let mut mode: int = 0
+                        if (str_starts_with spelling "&mut ") { set mode 2 set spelling (str_substring spelling 5 (- (str_length spelling) 5)) }
+                        else { if (str_starts_with spelling "&") { set mode 1 set spelling (str_substring spelling 1 (- (str_length spelling) 1)) } }
+                        let nominal: ServiceType = (service_named_type space owner spelling)
+                        set state (so_bind state ParseNodeType.PNODE_FUNCTION i parameter.name nominal.category mode)
+                        set j (+ j 1)
+                    }
+                } else {
+                    let item: ASTShadow = (list_ASTShadow_get parser.shadows i)
+                    set shadows (+ shadows 1) set body item.body
+                }
+                if (>= body 0) {
+                    set state (so_expr parser space bodies ParseNodeType.PNODE_BLOCK body state false)
+                    if state.next { (so_exit state 0) }
+                }
+                set i (+ i 1)
+            }
+            set group (+ group 1)
+        }
+    }
+    return ServiceOwnershipCheck { status: so_status, diagnostic: so_diagnostic, facts: so_facts, functions: functions, shadows: shadows }
+}
+shadow check_service_ownership { assert (== (check_service_ownership (so_parser "") [] [] (so_space) (so_bodies)).status 0) }

@@ -1,0 +1,3 @@
+let answer: int = 41
+pub fn read_answer()->int{return answer}
+shadow read_answer {assert (== (read_answer) 41)}

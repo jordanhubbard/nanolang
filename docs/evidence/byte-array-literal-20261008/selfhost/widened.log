@@ -1,0 +1,9 @@
+I retain byte-array qualification at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-byte-arrays-jsjq1wb9
+test_contextual_destinations (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_contextual_destinations) ... ok
+test_mutation_slice_and_outer_independence (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_mutation_slice_and_outer_independence) ... ok
+test_wrong_literal_elements_refused (tests.test_nanoisa_byte_arrays.NanoISAByteArrays.test_wrong_literal_elements_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.331s
+
+OK

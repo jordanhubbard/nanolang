@@ -1,0 +1,13 @@
+-- E024 UNDEFINED VARIABLE --- /private/tmp/nanolang-imported-globals-20261009/qualified.nano
+I cannot find a variable named `values`.
+
+2| fn main() -> int { assert (== values.answer 41) return 0 }
+                                 ^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /private/tmp/nanolang-imported-globals-20261009/qualified.nano
+Field access requires a struct value.
+
+2| fn main() -> int { assert (== values.answer 41) return 0 }
+                                       ^
+Hint: Ensure the object before '.' is a struct type.
+error: type check failed

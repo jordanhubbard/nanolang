@@ -1,0 +1,15 @@
+{
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/lexer.o": "2f42b615ef47f0e35114f59e9eea9b64d401ef95b77b62116fc6fa00e1b0d5cd",
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/utf8.o": "6baa538d175831f62c7bf56e9c6724aba870c0c34b23256cb5d45c297d5592db",
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/env.o": "9c246ad749bb9ab7d895a3e311dc7b781ba5519ea81b8b8a96555b6017cf648f",
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/eval.o": "d5ffbd2119a4c877fb802b4bfa8c875085b086bd15061e4a24b9a2956eb41047",
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/transpiler.o": "1f111265c48ff1ad914d36ee6b065726283f718a22392bfe880b69bf06f6a3d8",
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/publisher-bin/nsi-file-binding": "c61cd51ad2dc6d9a7d92a034e33e51cd32c8ded4303790a7c9f47f985688fa61",
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/publisher-obj/file-binding-publisher/cJSON.o": "d29d948ed34addb7ba5d682df2ea7577fc9f289b76348183e7f666637ce5c632",
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/publisher-obj/file-binding-publisher/nsi.o": "a7b25ffe682003e8c5265c9495f9d55e589eba21b896c7352396d622456c9af6",
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/publisher-obj/file-binding-publisher/nsi_file_binding.o": "e04a587d25c7f19b2542d7bb08a23cb9399a06f0824573be2298dda1abe46001",
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/publisher-obj/file-binding-publisher/nsi_file_binding_main.o": "6c12ab06e7be09c52212ef5026e5e4c68b7a1072c8e5f6662caf51f9e0125885",
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/publisher-obj/file-binding-publisher/nsi_file_plan.o": "3fcd8030a26e72dee4ac4a097200d348b3a7f894c3902c1a525b293df227f1c5",
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/publisher-obj/file-binding-publisher/nsi_file_publish.o": "795c8add29370e63d8e99d6378ea990c0d3288891630edd7bac5790a1676bcf7",
+  "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-ifh8prbq/publisher-obj/file-binding-publisher/utf8.o": "1ad4cab715b07c489d90a6214cd09e836e0260342eb1a3d39c7c870a586bdc6a"
+}

@@ -1,0 +1,4 @@
+{
+  "tests/test_nanoisa_flat_records.py": "7ecf1621689e15e248bc89091e1592449b5139ffa38ee0dd5c8dd9df35f972c8",
+  "src_nano/compiler/nanoisa_codegen.nano": "bface322c555a6e24e353cd2ef9122f49c11830dd4ba4b6fc3689c12c4f34dcf"
+}

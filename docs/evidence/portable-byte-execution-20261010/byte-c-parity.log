@@ -1,0 +1,7 @@
+test_binary_aliases_mutation_and_independent_reads (tests.test_portable_bytes_execution.PortableBytesExecution.test_binary_aliases_mutation_and_independent_reads) ... ok
+test_empty_missing_and_exact_bound (tests.test_portable_bytes_execution.PortableBytesExecution.test_empty_missing_and_exact_bound) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.631s
+
+OK

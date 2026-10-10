@@ -168,8 +168,9 @@ typedef enum CompilerPhase {
     CompilerPhase_PHASE_LEXER,
     CompilerPhase_PHASE_PARSER,
     CompilerPhase_PHASE_TYPECHECK,
-    CompilerPhase_PHASE_TRANSPILER,
-    CompilerPhase_PHASE_RUNTIME
+    CompilerPhase_PHASE_NANOISA,
+    CompilerPhase_PHASE_RUNTIME,
+    CompilerPhase_PHASE_BACKEND
 } CompilerPhase;
 #endif
 
@@ -310,7 +311,8 @@ typedef enum {
     PNODE_EFFECT_DECL = 41,
     PNODE_HANDLE_EXPR = 42,
     PNODE_ASYNC_FN = 43,
-    PNODE_SERVICE_DECL = 44
+    PNODE_SERVICE_DECL = 44,
+    PNODE_LAMBDA = 45
 } ParseNodeType;
 
 #ifndef DEFINED_nl_LexerToken
@@ -460,6 +462,7 @@ typedef struct nl_ASTLet {
     int value;
     int value_type;
     bool is_mut;
+    bool is_pub;
     bool is_destructure;
     bool is_destructure_projection;
     DynArray * destructure_names;

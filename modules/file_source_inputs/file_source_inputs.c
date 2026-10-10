@@ -1,0 +1,63 @@
+#include "file_source_inputs.h"
+#include <stdlib.h>
+#include <string.h>
+
+/* I expose data-only context operations. No AST, service grant, name resolver,
+ * or bytecode producer crosses this boundary. My caller owns each context. */
+NlFileSourceSnapshots *nl_source_inputs_new(void) {
+    NlFileSourceSnapshots *context = NULL;
+    (void)nl_file_source_snapshots_new(&context);
+    return context;
+}
+int64_t nl_source_inputs_valid(NlFileSourceSnapshots *context) {
+    return context != NULL;
+}
+int64_t nl_source_inputs_open_catalog(NlFileSourceSnapshots *context,int64_t catalog,
+                            const char *origin, int64_t origin_size,
+                            const char *relative, int64_t relative_size) {
+    /* My string ABI supplies terminated strings; counts must describe all
+     * bytes, never a repaired/truncated declaration or an out-of-bounds span. */
+    if (!origin || !relative || origin_size <= 0 || relative_size <= 0 ||
+        origin_size > 4096 || relative_size > NL_FILE_BINDING_MAX_BYTES ||
+        strlen(origin) != (size_t)origin_size ||
+        strlen(relative) != (size_t)relative_size)
+        return -(int64_t)NL_FILE_BINDING_INVALID;
+    size_t index = 0;
+    NlFileBindingStatus status = nl_service_source_snapshot_open(context,catalog,
+        origin, (size_t)origin_size, relative, (size_t)relative_size, &index);
+    return status == NL_FILE_BINDING_OK ? (int64_t)index : -(int64_t)status;
+}
+int64_t nl_source_inputs_count(NlFileSourceSnapshots *context) {
+    return (int64_t)nl_file_source_snapshot_count(context);
+}
+char *nl_source_inputs_text(NlFileSourceSnapshots *context, int64_t index, int64_t kind) {
+    if (index < 0 || index >= NL_FILE_SOURCE_SNAPSHOT_LIMIT || kind < 0 || kind > 3)
+        return NULL;
+    size_t size = 0;
+    const unsigned char *view = nl_file_source_snapshot_bytes(context,
+        (size_t)index, (unsigned)kind, &size);
+    if (!view || memchr(view, 0, size)) return NULL;
+    char *copy = malloc(size + 1);
+    if (!copy) return NULL;
+    memcpy(copy, view, size);
+    copy[size] = 0;
+    return copy;
+}
+void nl_source_inputs_free(NlFileSourceSnapshots *context) {
+    nl_file_source_snapshots_free(context);
+}
+/* I release through the producing artifact after the consumer copies my view. */
+void nl_source_inputs_text__nano_string_release_v1(const char *result) {
+    free((void *)result);
+}
+
+int64_t nl_source_inputs_open(NlFileSourceSnapshots *context,
+                            const char *origin,int64_t origin_size,
+                            const char *relative,int64_t relative_size) {
+    return nl_source_inputs_open_catalog(context,NL_SOURCE_CATALOG_FILE,
+                                        origin,origin_size,relative,relative_size);
+}
+int64_t nl_source_inputs_catalog(NlFileSourceSnapshots *context,int64_t index) {
+    if(index<0 || index>=NL_FILE_SOURCE_SNAPSHOT_LIMIT)return NL_SOURCE_CATALOG_NONE;
+    return nl_service_source_snapshot_catalog(context,(size_t)index);
+}

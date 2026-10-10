@@ -73,7 +73,7 @@ static void equal_reports(NvmFileCyclicReport *a,NvmFileCyclicReport *b){
     for(uint16_t l=0;l<va.input.stack;l++){NvmFileFlowValue x,y;CHECK(nvm_file_cyclic_input_stack(a,f,i,v,l,&x) && nvm_file_cyclic_input_stack(b,f,i,v,l,&y));same_value(x,y);}
     for(uint16_t l=0;l<NVM_FILE_FLOW_REFERENCES;l++){
      NvmFileFlowReference x,y;CHECK(nvm_file_cyclic_input_reference(a,f,i,v,l,&x) && nvm_file_cyclic_input_reference(b,f,i,v,l,&y));
-     CHECK(x.live==y.live && x.formal==y.formal && x.local==y.local && x.owner==y.owner && x.identity==y.identity && x.region==y.region);
+     CHECK(x.live==y.live && x.formal==y.formal && x.local==y.local && x.owner==y.owner && x.identity==y.identity && x.region==y.region && x.shared==y.shared);
     }
     for(uint16_t l=0;l<va.input.regions;l++){uint64_t x,y;CHECK(nvm_file_cyclic_input_region(a,f,i,v,l,&x) && nvm_file_cyclic_input_region(b,f,i,v,l,&y) && x==y);}
     for(uint8_t e=0;e<ia.successor_count;e++)if(va.edge_mask&(1u<<e)){
@@ -262,7 +262,7 @@ static void canonical_relation_controls(void){
  NvmFileNominalBindings b;NvmModule *m=bodymodule(&b,false);NvmFileFlowDeclarations *d=NULL;OK(nvm_file_flow_declarations(m,&d));
  NvmFileFlowState *s=state(d,0);FileCyclicWorkspace *w=calloc(1,sizeof *w);FileCyclicState *saved=calloc(1,sizeof *saved);CHECK(w && saved);
  s->locals[0].initialized=s->locals[9].initialized=true;s->locals[0].owner=7000;s->locals[9].owner=9000;
- s->region_count=1;s->regions[0]=333;s->references[20]=(NvmFileFlowReference){true,false,0,7000,444,333};
+ s->region_count=1;s->regions[0]=333;s->references[20]=(NvmFileFlowReference){true,false,0,7000,444,333,false};
  w->transfer=*s;OK(file_cyclic_canonicalize(w));*saved=w->canonical;
  CHECK(saved->locals[0].owner==1 && saved->locals[9].owner==2 && saved->references[20].owner==1);
  s->locals[0].owner=2222;s->locals[9].owner=1111;s->references[20].owner=2222;s->references[20].identity=555;

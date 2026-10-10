@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/Users/jordanh/Src/nanolang/bin/nano_virt",
+    "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_scalar_kinds_and_mutation/main.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-owned-source-integrated-d04/OwnedGlobalSource/test_scalar_kinds_and_mutation/main.nvm"
+  ],
+  "exit": 0
+}

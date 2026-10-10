@@ -1,0 +1,23 @@
+{
+  "Makefile.gnu": "7dae16916193f330914eaf65ca15c090fd928c160b335dbb68b9c4ce0e105570",
+  "src/nanoisa/service_cyclic_runtime_facts.inc": "b734dd9f768ea6c2d265092d3738b6e3c94f615428cc8229b02794955a8d6646",
+  "src/nanoisa/service_dispatch_catalog.inc": "d80f0a5753352ec0db8c4b7920e03249fbeae3b3590c027d18b3000f35e6f99e",
+  "src/nanoisa/service_indirect_native_emit.inc": "add55734686794fad4f34ab6a41007e87d6a3ce72ff49797712d185dd0924bee",
+  "src/nanoisa/service_indirect_runtime_create.inc": "53943b7bed1227a04fb6e6e82b1fa71601be1b9c0e6c69886fabad770373a4cb",
+  "src/nanoisa/service_runtime.inc": "2162c451366e9f74c28438a49a2fb4c73b83c2d2867c91d188dfeefd2ef63a90",
+  "src/nanoisa/service_runtime_catalog.inc": "4e50a65c64bb777849dbba82a019a167bda5051a3cd8c42f194f0b177fbbd431",
+  "src/nanoisa/services_dispatch_config.h": "4c3844e6019a7f3060fb39c46b6a1e9bc78bec0539711b738d6cc0720a38b5db",
+  "src/nanoisa/services_indirect_public_internal.h": "2d10105bca04acf11d616ff25d334c42f882d0cd1cbd10d9e7ea8b3bcd1fb0ca",
+  "src/nanoisa/services_runtime.c": "77e8dbfafa42aca603c4fb4270dd2954750a67a6af8538ed2a6640b7d15194ea",
+  "src/nanoisa/services_runtime.h": "091b1bdee0255926c66cbce0639972b3593ad26a287eb57c3b3c044dd98d685e",
+  "src/nanoisa/services_runtime_config.h": "6f0915c160f47eedeb4af985409be94de9d5f55266e3ce1d7da52cbe9e69b122",
+  "src/nanoisa/services_runtime_values.inc": "c685aa7f2d68040f5ce20ce7d0aa1ca4f3015c52eae62aa0c15b5f316f71149e",
+  "src/nanovm/service_vm_indirect_engine.inc": "1e00685ea5fb7bff28743f292184e5e13a95ed2db24a505324ca1abd31e8548e",
+  "src/nanovm/services_indirect_public_vm.c": "846e1d051aaa794d4a73a17aa73c94690510dd78aaf7214ef76b8d64f469c986",
+  "tests/nanoisa/test_mixed_websocket_flow.c": "6e95e953ae89a5ed7031750cf5e262fbcff97b36aaca7627b66786e58be5b246",
+  "src/nanoisa/services_runtime_websocket.inc": "d639a3815e5fb8d7c1ffdba4339a7f2cf7d4f2fe637e5683ebb0933741f32b87",
+  "tests/nanoisa/mixed_websocket_runtime_alloc.h": "3c00fed4dca12bd231b68236d4f0a031c2f3d75361f498a533dded64d999dbe5",
+  "tests/nanoisa/mixed_websocket_runtime_host.h": "54b0231512a91645ae41e21a285cbcb0fe92007b770c4754fb5d8d4a01839b1f",
+  "tests/nanoisa/test_mixed_websocket_runtime.c": "88c2cd2692ef930be969fa353079759ae8d633aa1d1c4fab52036656da825854",
+  "tests/test_mixed_websocket_runtime.py": "cec3263fc00e0ad8928e4934da4bfe9d77c17528ca546f9b08932acf1014b54c"
+}

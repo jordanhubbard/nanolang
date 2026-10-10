@@ -1,0 +1,9 @@
+{
+  "source_commit": "ae92c0488ed44da0112f7eb51367a9976054b16a",
+  "method": "APFS clonefile of every tracked path from clean committed source plus shared object database; independent index; clean git status verified",
+  "files": 61352,
+  "seconds": 34.16646354197292,
+  "source": "/Users/jordanh/Src/nanolang",
+  "destination": "/private/tmp/nanolang-capture-ae92c0488-cow",
+  "status": ""
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "name": "repaired-translate",
+    "command": [
+      "bin/nvm2c",
+      "/private/tmp/nanolang-closure-array-baseline-20261008/input.nvm",
+      "-o",
+      "/private/tmp/nanolang-closure-array-baseline-20261008/repaired.c"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "repaired-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-closure-array-baseline-20261008/repaired.c",
+      "-o",
+      "/private/tmp/nanolang-closure-array-baseline-20261008/repaired"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "repaired-native",
+    "command": [
+      "/private/tmp/nanolang-closure-array-baseline-20261008/repaired"
+    ],
+    "exit_code": 0
+  }
+]

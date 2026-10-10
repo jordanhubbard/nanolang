@@ -1,0 +1,6 @@
+fn main()->int {
+ let xs:List<int> = (list_int_new)
+ (list_int_insert xs -1 7)
+ return 0
+}
+shadow main { assert true }

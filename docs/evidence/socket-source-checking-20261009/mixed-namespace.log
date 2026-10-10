@@ -1,0 +1,6 @@
+test_mixed_catalog_namespace_and_types (tests.test_service_namespace.ServiceNamespace.test_mixed_catalog_namespace_and_types) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 152.070s
+
+OK

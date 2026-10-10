@@ -1,0 +1,9 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2345, column 9: Unused variable 'rejected'
+Warning at line 2466, column 9: Unused variable 'rejected'
+Warning at line 2473, column 13: Unused variable 'rejected'
+Warning at line 2511, column 9: Unused variable 'rejected'
+Warning at line 2515, column 9: Unused variable 'rejected'
+Warning at line 2522, column 13: Unused variable 'rejected'
+Warning at line 5813, column 17: Unused variable 'imported'
+I passed my NanoISA emitter entry assertions.

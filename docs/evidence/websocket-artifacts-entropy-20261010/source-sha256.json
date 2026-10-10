@@ -1,0 +1,12 @@
+{
+  "src/nsi_cap.c": "1cf4fade2477514e8d92cad51ef4a7f0c7128255f279e6151725d3594bdfa937",
+  "src/nsi_cap.h": "d419e5c1b8f97aeeff737a82ba2f112f478314c7ed8d4e4b9ef5ddc1ba59352a",
+  "src/nsi_file.c": "26f4b5496ec4f1ece13ce929b4d9690ea4846ff9013b4e6203da0020a5679164",
+  "src/nsi_socket.c": "aadf3b956ce63bf3e34283764e804487e359568b402022ea011e0391983adf2d",
+  "src/nanoisa/nvm2c.c": "947b9caaccfa046cd2ad03d2510c6cee17baa952bb98a6448a7f56e012270ebe",
+  "src_nano/compiler/nanoisa_codegen.nano": "cecfbc31c28e4e4757b453e014a801ff5c3b069412ffb9381ecbee66ac872112",
+  "tests/test_nsi_cap_entropy.c": "a9143745998924f8469ccc626594829f5ced9cfbb065378d5d88bf9de1af40a2",
+  "tests/test_websocket_artifacts.py": "8d74ef0aa4a4a9a893d9e9d9ec702ad75be73f2988e4df6cd503ad24f589eb95",
+  "tests/fixtures/websocket_artifact_client.nano": "935b9d0242ca123633bbff679f293c743e07b4b49b4e2e1b678e3211c94d0255",
+  "Makefile.gnu": "78ff9a3fd1a989a533b1967b54e5e6ce57c4513c6f3cfc18e3b74c83737f555d"
+}

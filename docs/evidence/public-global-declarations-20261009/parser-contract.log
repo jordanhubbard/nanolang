@@ -1,0 +1,6 @@
+test_parser_visibility_survives_storage_and_type_backfill (tests.test_public_global_declarations.PublicGlobalDeclarations.test_parser_visibility_survives_storage_and_type_backfill) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 17.277s
+
+OK

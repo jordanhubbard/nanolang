@@ -1,0 +1,8 @@
+I retain WebSocket artifact evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-websocket-artifacts-0vkbz7cw
+test_updated_nano_vm_and_native (tests.test_websocket_artifacts.WebSocketArtifacts.test_updated_nano_vm_and_native) ... ok
+test_updated_nano_refuses_wrong_abi_without_replacing_output (tests.test_websocket_artifacts.WebSocketArtifacts.test_updated_nano_refuses_wrong_abi_without_replacing_output) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 2.277s
+
+OK

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""I publish freestanding Wasm from my verified scalar NanoISA lowering."""
+"""I publish freestanding Wasm from my verified NanoISA lowering."""
 import argparse
 import os
 from pathlib import Path
@@ -14,6 +14,11 @@ def main():
     parser.add_argument('input', type=Path)
     parser.add_argument('-o', '--output', type=Path,
                         help='I write a complete module here; otherwise I write binary stdout.')
+    reads = parser.add_mutually_exclusive_group()
+    reads.add_argument('--portable-file-read', action='store_true',
+                       help='I link text and byte reads with separate explicit host grants.')
+    reads.add_argument('--portable-read-text', action='store_true',
+                        help='I link read-text calls requiring an explicit host allowlist.')
     args = parser.parse_args()
     translator = os.environ.get('NANO_NVM2LLVM', str(Path(__file__).resolve().parent / 'nvm2llvm'))
     llc = os.environ.get('NANO_LLC', 'llc')
@@ -28,12 +33,34 @@ def main():
                                          dir=output.parent if output else None) as tmp:
             work = Path(tmp)
             ir, obj, module = (work / name for name in ('input.ll', 'input.o', 'output.wasm'))
-            commands = ([translator, str(source), '--entry-name', 'nano_entry', '--runtime-target', 'wasm32', '-o', str(ir)],
-                        [llc, '-mtriple=wasm32-unknown-unknown', '-filetype=obj',
+            translate = [translator, str(source), '--entry-name', 'nano_entry', '--runtime-target', 'wasm32', '-o', str(ir)]
+            if args.portable_read_text or args.portable_file_read:
+                translate.append('--portable-file-read' if args.portable_file_read else '--portable-read-text')
+            commands = [translate, [llc, '-mtriple=wasm32-unknown-unknown', '-filetype=obj',
                          str(ir), '-o', str(obj)],
                         [linker, '--no-entry', '--export=nano_entry', '--export-if-defined=nano_try_entry',
                          '--export-if-defined=nano_dispose', '--fatal-warnings',
-                         str(obj), '-o', str(module)])
+                         str(obj), '-o', str(module)]]
+            if args.portable_read_text or args.portable_file_read:
+                root = Path(__file__).resolve().parent.parent
+                runtime = root / 'share/nanolang/portable-read'
+                if not runtime.is_dir():
+                    runtime = root / 'src/nanoisa'
+                clang = os.environ.get('NANO_WASM_CLANG', 'clang')
+                objects = []
+                for stem in ('portable_read_module', 'portable_read_wasm'):
+                    target = work / (stem + '.o')
+                    commands.insert(-1, [clang, '--target=wasm32-unknown-unknown',
+                        '-std=c11', '-O2', '-ffreestanding', '-fno-builtin',
+                        '-Wall', '-Wextra', '-Werror', *(['-DNPR_ENABLE_BYTES'] if args.portable_file_read else []), '-I' + str(runtime),
+                        '-c', str(runtime / (stem + '.c')), '-o', str(target)])
+                    objects.append(str(target))
+                allowed = work / 'allowed-imports.txt'
+                allowed.write_text('npr_wasm_host_read_text\n' + ('npr_wasm_host_read_bytes\n' if args.portable_file_read else ''))
+                commands[-1][1:1] = [*objects, '--export-memory',
+                    '--export=npr_module_host_status', '--initial-memory=2097152',
+                    '--max-memory=67108864', '-z', 'stack-size=65536',
+                    '--allow-undefined-file=' + str(allowed)]
             for command in commands:
                 result = subprocess.run(command, capture_output=True)
                 if result.returncode:

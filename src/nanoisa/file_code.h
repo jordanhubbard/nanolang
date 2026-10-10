@@ -18,6 +18,7 @@ typedef struct {
     DecodedInstruction decoded;
     uint16_t successors[2]; /* Function-local instruction indices. */
     uint8_t successor_count;
+    uint16_t call_references[NVM_FILE_FLOW_LOCALS]; /* One per declared parameter; NO_REFERENCE for values. */
     uint32_t catalog_ordinal; /* Constructor/service identity, else NO_INDEX. */
 } NvmFileCodeInstruction;
 typedef struct {

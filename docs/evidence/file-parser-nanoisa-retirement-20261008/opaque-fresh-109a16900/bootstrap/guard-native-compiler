@@ -1,0 +1,69 @@
+#!/opt/homebrew/opt/python@3.14/bin/python3.14
+config = {'compiler': ['/opt/homebrew/opt/llvm/bin/clang'], 'native_sources': ['/Users/jordanh/Src/nanolang/modules/compiler_support/compiler_support.c', '/Users/jordanh/Src/nanolang/src/module_builder.c', '/Users/jordanh/Src/nanolang/src/runtime/module_build_dir.c', '/Users/jordanh/Src/nanolang/src/cJSON.c', '/Users/jordanh/Src/nanolang/src/utf8.c', '/Users/jordanh/Src/nanolang/modules/nanoisa/nanoisa.c', '/Users/jordanh/Src/nanolang/src/nanoisa/isa.c', '/Users/jordanh/Src/nanolang/src/nanoisa/retained_layouts.c', '/Users/jordanh/Src/nanolang/src/nanoisa/passive.c', '/Users/jordanh/Src/nanolang/src/nanoisa/affine_bytecode.c', '/Users/jordanh/Src/nanolang/src/nanoisa/affine_state.c', '/Users/jordanh/Src/nanolang/src/nanoisa/mixed_float_proof.c', '/Users/jordanh/Src/nanolang/src/nanoisa/ownership_contracts.c', '/Users/jordanh/Src/nanolang/src/nanoisa/reference_places.c', '/Users/jordanh/Src/nanolang/src/nanoisa/file_flow.c', '/Users/jordanh/Src/nanolang/src/nanoisa/service_file_nominal.c', '/Users/jordanh/Src/nanolang/src/nanoisa/service_file_nominal_plan.c', '/Users/jordanh/Src/nanolang/src/nanoisa/service_bindings.c', '/Users/jordanh/Src/nanolang/src/nanoisa/service_bindings_module.c', '/Users/jordanh/Src/nanolang/src/nsi_file_plan.c', '/Users/jordanh/Src/nanolang/src/nanoisa/nvm_format.c', '/Users/jordanh/Src/nanolang/src/nanoisa/nvm_format_v2.c', '/Users/jordanh/Src/nanolang/src/nanoisa/nvm_v2_cursor.c', '/Users/jordanh/Src/nanolang/src/nanoisa/nvm_v2_constants.c', '/Users/jordanh/Src/nanolang/src/nanoisa/nvm_v2_signatures.c', '/Users/jordanh/Src/nanolang/src/nanoisa/nvm_v2_layouts.c', '/Users/jordanh/Src/nanolang/src/nanoisa/nvm_v2_functions.c', '/Users/jordanh/Src/nanolang/src/nanoisa/nvm_v2_imports.c', '/Users/jordanh/Src/nanolang/src/nanoisa/nvm_v2_module.c', '/Users/jordanh/Src/nanolang/src/nanoisa/nvm_v2_convert.c', '/Users/jordanh/Src/nanolang/src/nanoisa/local_bindings.c', '/Users/jordanh/Src/nanolang/src/nanoisa/assembler.c', '/Users/jordanh/Src/nanolang/src/nanoisa/disassembler.c', '/Users/jordanh/Src/nanolang/src/nanoisa/verifier.c', '/Users/jordanh/Src/nanolang/src/nanoisa/managed_array_shapes.c', '/Users/jordanh/Src/nanolang/src/nanoisa/verifier_types.c', '/Users/jordanh/Src/nanolang/src/nanovm/vm_decode.c', '/Users/jordanh/Src/nanolang/src/nanovm/vm_dispatch.c', '/Users/jordanh/Src/nanolang/src/nanovm/value.c', '/Users/jordanh/Src/nanolang/src/nanovm/heap.c', '/Users/jordanh/Src/nanolang/src/nanovm/heap_cycles.c', '/Users/jordanh/Src/nanolang/modules/std/fs.c', '/Users/jordanh/Src/nanolang/modules/std/process.c'], 'retained_host_inputs': '/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-famf_1sl/retained-host-inputs.json', 'module_build_roots': ['/Users/jordanh/Src/nanolang/modules/compiler_support/.build', '/Users/jordanh/Src/nanolang/modules/nanoisa/.build', '/Users/jordanh/Src/nanolang/modules/std/.build'], 'native_marker': '/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-famf_1sl/unexpected-native-compiler', 'probe_log': '/Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-famf_1sl/host-cache-probes.log'}
+"""I distinguish native host artifact work from NanoLang-generated C in bootstrap checks."""
+import json
+import os
+import sys
+from pathlib import Path
+
+
+def retained_input_names(name, metadata):
+    """I admit only declared source snapshots and the builder's host objects."""
+    names = [f'{name}.o']
+    for group, key in enumerate(('c_sources', 'shared_c_sources')):
+        count = len(metadata.get(key, []))
+        for index in range(count):
+            names.extend(f'__snapshot_{group}_{index}.{suffix}' for suffix in ('i', 's'))
+            names.append(f'__shared_{index}.o' if group else
+                         f'{name}.o' if count == 1 else f'{name}_{index}.o')
+    return sorted(set(names))
+
+
+def main(config):
+    args = sys.argv[1:]
+    probe = any(arg in ('-E', '-###', '-print-prog-name=as', '--version',
+                                  '-Wl,--version', '-Wl,-version_details') for arg in args)
+    active = os.environ.get('NANOLANG_BOOTSTRAP_NO_CC') == '1'
+
+    def host_input(value):
+        path = Path(value).resolve()
+        if str(path) in config['native_sources']:
+            return True
+        retained_file = config.get('retained_host_inputs')
+        if retained_file and Path(retained_file).exists():
+            retained = json.loads(Path(retained_file).read_text())
+            stage = path.parent
+            if (stage.name.startswith('.nano-build-') and
+                    path.name in retained.get(str(stage.parent), [])):
+                return True
+        if any(path.is_relative_to(Path(root)) for root in config['module_build_roots']):
+            return True
+        # The module builder compiles retained native-host inputs here while
+        # validating its cache. Product/shadow C uses a different staging area.
+        return any(part.startswith('nano-gcc-check-') for part in path.parts)
+
+    if active:
+        inputs = []
+        skip = False
+        for arg in args:
+            if skip:
+                skip = False
+                continue
+            if arg in ('-o', '-MF', '-MT', '-MQ'):
+                skip = True
+                continue
+            if not arg.startswith('-') and Path(arg).suffix in ('.c', '.i', '.s', '.S', '.o', '.a'):
+                inputs.append(arg)
+        primary = os.environ.get('NANO_AS_CAPTURE_PRIMARY')
+        if primary:
+            inputs.append(primary)
+        if not probe and (not inputs or not all(host_input(value) for value in inputs)):
+            with open(config['native_marker'], 'a') as log:
+                log.write(json.dumps({'message': 'I rejected unclassified compiler work.',
+                                      'inputs': inputs, 'options': [arg for arg in args if arg.startswith('-')]}) + '\n')
+            sys.exit(91)
+        with open(config['probe_log'], 'a') as log:
+            log.write('host-cache-probe\n' if probe else 'native-host-artifact\n')
+    os.execvp(config['compiler'][0], config['compiler'] + args)
+
+main(config)

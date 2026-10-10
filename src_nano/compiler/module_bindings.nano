@@ -1,5 +1,10 @@
 # I share one invocation's function bindings between checking and C emission.
 # Like the bootstrap compiler's other phase state, this is sequential, not reentrant.
+let mut mb_global_import_owners: array<int> = []
+let mut mb_global_import_names: array<string> = []
+let mut mb_global_import_targets: array<string> = []
+let mut mb_global_import_definitions: array<int> = []
+let mut mb_binding_indices: HashMap<string, int> = (map_new)
 let mut mb_enabled: bool = false
 let mut mb_file_starts: array<int> = []
 let mut mb_owners: array<int> = []
@@ -7,6 +12,45 @@ let mut mb_names: array<string> = []
 let mut mb_targets: array<string> = []
 let mut mb_definition_owners: array<int> = []
 let mut mb_source_paths: array<string> = []
+let mut mb_header_names: array<string> = []
+let mut mb_header_values: array<string> = []
+let mut mb_header_owners: array<int> = []
+
+pub fn mb_header_value(name: string) -> string {
+    let mut i: int = 0
+    while (< i (array_length mb_header_names)) {
+        if (== (at mb_header_names i) name) { return (at mb_header_values i) }
+        set i (+ i 1)
+    }
+    return ""
+}
+shadow mb_header_value {
+    (mb_reset [1])
+    assert (== (mb_header_value "missing") "")
+    (mb_header_add 0 "VALUE" "41")
+    assert (== (mb_header_value "VALUE") "41")
+    (mb_reset [])
+    assert (== (mb_header_value "VALUE") "")
+}
+
+pub fn mb_header_add(owner: int, name: string, value: string) -> void {
+    if (or (< owner 0) (>= owner (array_length mb_file_starts))) { return }
+    if (or (== name "") (== value "")) { return }
+    if (!= (mb_header_value name) "") { return }
+    set mb_header_names (array_push mb_header_names name)
+    set mb_header_values (array_push mb_header_values value)
+    set mb_header_owners (array_push mb_header_owners owner)
+}
+shadow mb_header_add {
+    (mb_reset [1, 3])
+    (mb_header_add 0 "VALUE" "41")
+    (mb_header_add 1 "VALUE" "99")
+    (mb_header_add 2 "INVALID" "7")
+    assert (== (mb_header_value "VALUE") "41")
+    assert (== (mb_header_value "INVALID") "")
+    assert (== (at mb_header_owners 0) 0)
+    (mb_reset [])
+}
 
 pub fn mb_active() -> bool {
     return mb_enabled
@@ -20,12 +64,20 @@ shadow mb_active {
 }
 
 pub fn mb_reset(starts: array<int>) -> void {
+    set mb_binding_indices (map_new)
+    set mb_global_import_owners []
+    set mb_global_import_names []
+    set mb_global_import_targets []
+    set mb_global_import_definitions []
     set mb_file_starts starts
     set mb_owners []
     set mb_names []
     set mb_targets []
     set mb_definition_owners []
     set mb_source_paths []
+    set mb_header_names []
+    set mb_header_values []
+    set mb_header_owners []
     set mb_enabled (> (array_length starts) 0)
 }
 shadow mb_reset {
@@ -54,14 +106,43 @@ shadow mb_owner {
     assert (== (mb_owner 1) (- 0 1))
 }
 
+fn mb_binding_key(owner: int, name: string) -> string {
+    return (+ (int_to_string owner) (+ ":" name))
+}
+shadow mb_binding_key {
+    assert (!= (mb_binding_key 1 "2:x") (mb_binding_key 12 "x"))
+    assert (!= (mb_binding_key -1 "x") (mb_binding_key 1 "x"))
+    assert (== (mb_binding_key 0 "") "0:")
+}
+
+fn mb_binding_index(owner: int, name: string) -> int {
+    let key: string = (mb_binding_key owner name)
+    if (map_has mb_binding_indices key) { return (map_get mb_binding_indices key) }
+    return -1
+}
+shadow mb_binding_index {
+    (mb_reset [1, 8])
+    assert (== (mb_binding_index 0 "answer") -1)
+    (mb_add_target 0 "answer" "first" 1)
+    (mb_add_target 1 "answer" "second" 0)
+    assert (== (mb_binding_index 0 "answer") 0)
+    assert (== (mb_binding_index 1 "answer") 1)
+    (mb_add_target 0 "answer" "ignored" 0)
+    assert (== (mb_lookup 0 "answer") "first")
+    assert (== (mb_target_owner 0 "answer") 1)
+    (mb_reset [1])
+    assert (== (mb_binding_index 0 "answer") -1)
+    (mb_add_target 0 "answer" "fresh" 0)
+    assert (== (mb_lookup 0 "answer") "fresh")
+    assert (== (mb_target_owner 0 "answer") 0)
+    (mb_reset [])
+}
+
 pub fn mb_add_target(owner: int, name: string, target: string, definition_owner: int) -> void {
     if (not (mb_active)) { return }
     # I install local declarations before imports, so local definitions win.
-    let mut i: int = 0
-    while (< i (array_length mb_names)) {
-        if (and (== (at mb_owners i) owner) (== (at mb_names i) name)) { return }
-        set i (+ i 1)
-    }
+    if (>= (mb_binding_index owner name) 0) { return }
+    (map_put mb_binding_indices (mb_binding_key owner name) (array_length mb_names))
     set mb_owners (array_push mb_owners owner)
     set mb_names (array_push mb_names name)
     set mb_targets (array_push mb_targets target)
@@ -74,6 +155,40 @@ shadow mb_add_target {
     (mb_add_target 1 "external" "other" 1)
     assert (== (at mb_definition_owners 0) 0)
     (mb_reset [])
+}
+
+# I validate imported aliases independently of local declaration precedence.
+pub fn mb_import_global(owner: int, name: string, target: string, definition_owner: int) -> bool {
+    if (not (mb_active)) { return false }
+    let mut i: int = 0
+    while (< i (array_length mb_global_import_names)) {
+        if (and (== (at mb_global_import_owners i) owner) (== (at mb_global_import_names i) name)) {
+            return (and (== (at mb_global_import_targets i) target) (== (at mb_global_import_definitions i) definition_owner))
+        }
+        set i (+ i 1)
+    }
+    set mb_global_import_owners (array_push mb_global_import_owners owner)
+    set mb_global_import_names (array_push mb_global_import_names name)
+    set mb_global_import_targets (array_push mb_global_import_targets target)
+    set mb_global_import_definitions (array_push mb_global_import_definitions definition_owner)
+    (mb_add_target owner name target definition_owner)
+    return true
+}
+shadow mb_import_global {
+    (mb_reset [1, 8, 16])
+    (mb_add 2 "value" "local")
+    assert (mb_import_global 2 "value" "first" 0)
+    assert (mb_import_global 2 "value" "first" 0)
+    assert (not (mb_import_global 2 "value" "second" 1))
+    assert (not (mb_import_global 2 "value" "first" 1))
+    assert (== (mb_lookup 2 "value") "local")
+    assert (mb_import_global 1 "value" "second" 0)
+    assert (== (mb_lookup 1 "value") "second")
+    (mb_reset [1])
+    assert (mb_import_global 0 "value" "fresh" 0)
+    assert (== (mb_lookup 0 "value") "fresh")
+    (mb_reset [])
+    assert (not (mb_import_global 0 "value" "disabled" 0))
 }
 
 pub fn mb_add(owner: int, name: string, target: string) -> void {
@@ -90,13 +205,8 @@ shadow mb_add {
 
 pub fn mb_lookup(owner: int, name: string) -> string {
     if (not (mb_active)) { return name }
-    let mut i: int = 0
-    while (< i (array_length mb_names)) {
-        if (and (== (at mb_owners i) owner) (== (at mb_names i) name)) {
-            return (at mb_targets i)
-        }
-        set i (+ i 1)
-    }
+    let index: int = (mb_binding_index owner name)
+    if (>= index 0) { return (at mb_targets index) }
     return name
 }
 shadow mb_lookup {
@@ -129,13 +239,8 @@ shadow mb_resolve {
 # I retain import provenance separately from the C-linkage spelling.
 pub fn mb_target_owner(owner: int, name: string) -> int {
     if (not (mb_active)) { return -1 }
-    let mut i: int = 0
-    while (< i (array_length mb_names)) {
-        if (and (== (at mb_owners i) owner) (== (at mb_names i) name)) {
-            return (at mb_definition_owners i)
-        }
-        set i (+ i 1)
-    }
+    let index: int = (mb_binding_index owner name)
+    if (>= index 0) { return (at mb_definition_owners index) }
     return owner
 }
 shadow mb_target_owner {

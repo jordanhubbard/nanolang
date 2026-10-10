@@ -1,0 +1,42 @@
+test_real_emitter_driver_executes_in_vm_and_sanitized_native (tests.test_bootstrap_components.BootstrapComponents.test_real_emitter_driver_executes_in_vm_and_sanitized_native) ... FAIL
+
+======================================================================
+FAIL: test_real_emitter_driver_executes_in_vm_and_sanitized_native (tests.test_bootstrap_components.BootstrapComponents.test_real_emitter_driver_executes_in_vm_and_sanitized_native)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_bootstrap_components.py", line 68, in test_real_emitter_driver_executes_in_vm_and_sanitized_native
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Undefined symbols for architecture arm64:
+  "_llvm_gcda_emit_arcs", referenced from:
+      ___llvm_gcov_writeout in runtime.o
+      ___llvm_gcov_writeout in runtime.o
+      ___llvm_gcov_writeout in runtime.o
+  "_llvm_gcda_emit_function", referenced from:
+      ___llvm_gcov_writeout in runtime.o
+      ___llvm_gcov_writeout in runtime.o
+      ___llvm_gcov_writeout in runtime.o
+  "_llvm_gcda_end_file", referenced from:
+      ___llvm_gcov_writeout in runtime.o
+      ___llvm_gcov_writeout in runtime.o
+      ___llvm_gcov_writeout in runtime.o
+  "_llvm_gcda_start_file", referenced from:
+      ___llvm_gcov_writeout in runtime.o
+      ___llvm_gcov_writeout in runtime.o
+      ___llvm_gcov_writeout in runtime.o
+  "_llvm_gcda_summary_info", referenced from:
+      ___llvm_gcov_writeout in runtime.o
+      ___llvm_gcov_writeout in runtime.o
+      ___llvm_gcov_writeout in runtime.o
+  "_llvm_gcov_init", referenced from:
+      ___llvm_gcov_init in runtime.o
+      ___llvm_gcov_init in runtime.o
+      ___llvm_gcov_init in runtime.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 38.662s
+
+FAILED (failures=1)

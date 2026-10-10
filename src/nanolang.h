@@ -115,6 +115,9 @@ typedef enum {
 /* Extended type information for arrays and generics */
 typedef struct TypeInfo {
     Type base_type;
+    /* I retain service origin separately from visible spelling and opaque tags.
+     * Zero declaration is the ordinary-type sentinel. These fields own no heap. */
+    uint32_t service_declaration, service_module, service_ordinal, service_category;
     struct TypeInfo *element_type;  /* For arrays: array<int> has element_type = int */
     
     /* For generic types: List<int> */
@@ -300,11 +303,13 @@ struct ASTNode {
             ASTNode **args;
             int arg_count;
             char *return_struct_type_name;  /* For calls that return struct types */
+            FunctionSignature *checked_signature; /* Owned concrete qualified-call context. */
         } module_qualified_call;
         struct {
             ASTNode **elements;
             int element_count;
             Type element_type;  /* Type of array elements */
+            bool has_element_annotation; /* I retain a checked contextual storage kind. */
         } array_literal;
         struct {
             char *name;
@@ -314,6 +319,7 @@ struct ASTNode {
             FunctionSignature *fn_sig;  /* For TYPE_FUNCTION: function signature */
             TypeInfo *type_info;     /* For generic types: Result<int, string>, List<Point>, etc. */
             bool is_mut;
+            bool is_pub;
             ASTNode *value;
             bool is_destructure;
             bool is_destructure_projection;
@@ -606,6 +612,7 @@ typedef struct {
     bool is_mut;
     Value value;
     bool is_global;     /* Top-level binding, not a retained function local */
+    ASTNode *global_declaration; /* Borrowed checked declaration; aliases share this identity. */
     bool is_used;        /* Track if variable is ever used (for warnings) */
     bool is_resource;    /* True if this variable's type is a resource type */
     ResourceUseState resource_state;  /* For resource types: track usage state */
@@ -797,9 +804,17 @@ typedef struct {
     int import_capacity;
 } ImportTracker;
 
+typedef struct GlobalImport {
+    const char *owner_file;
+    const char *name;
+    ASTNode *declaration;
+    struct GlobalImport *next;
+} GlobalImport;
+
 /* Environment for variable and function storage */
 typedef struct {
     Symbol *symbols;
+    GlobalImport *global_imports;
     int symbol_count;
     int symbol_capacity;
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
@@ -861,6 +876,17 @@ typedef struct {
     /* File whose code is being processed; stamped onto definitions and used to
      * keep source-position lookups inside one file. Borrowed, not owned. */
     const char *current_file;
+    /* I own canonical origins for service-bearing source modules separately
+     * from their declared names and import aliases. Indices remain stable. */
+    char *service_origins[16];
+    int service_origin_count;
+    struct NlFileSourceSnapshots *service_inputs;
+    struct NlServiceBodyCheck *service_bodies; /* Owned nominal body facts; not execution authority. */
+    struct NlServiceOwnershipCheck *service_ownership; /* Owned lexical transfer facts. */
+    struct NlServiceNamespace *service_namespace;
+    int service_import_depth;
+    size_t service_snapshot_indices[16];
+    bool service_snapshot_bound[16];
 } Environment;
 
 /* Function declarations */
@@ -890,6 +916,8 @@ typedef struct {
 
 ASTNode *parse_program(Token *tokens, int token_count);
 bool ast_has_service_declaration(const ASTNode *program);
+bool bind_service_origin(ASTNode *program, Environment *env, const char *source_file);
+bool acquire_service_input(ASTNode *program, Environment *env);
 bool ast_is_value_expression(ASTNodeType type);
 bool ast_always_returns(const ASTNode *node);
 ASTNode *parse_repl_input(Token *tokens, int token_count);  /* REPL variant: accepts statements at top level */
@@ -937,6 +965,12 @@ void free_environment(Environment *env);
 /* Transfer one newly allocated checker-only block; NULL is a no-op.
  * Borrowed AST/signature blocks and runtime values must never enter this registry. */
 void *env_own_checker_allocation(Environment *env, void *allocation);
+bool env_import_global(Environment *env, const char *owner_file, const char *name, ASTNode *declaration);
+const GlobalImport *env_lookup_global_import(Environment *env, const char *name);
+const GlobalImport *env_lookup_global_import_at(Environment *env, const char *owner_file, const char *name);
+Symbol *env_global_import_symbol(Environment *env, const char *name);
+ASTNode *env_qualified_import_literal(Environment *env, ASTNode *expr);
+Symbol *env_global_import_symbol_at(Environment *env, const char *owner_file, const char *name);
 void env_define_var(Environment *env, const char *name, Type type, bool is_mut, Value value);
 void env_define_var_with_element_type(Environment *env, const char *name, Type type, Type element_type, bool is_mut, Value value);
 void env_define_var_with_type_info(Environment *env, const char *name, Type type, Type element_type, TypeInfo *type_info, bool is_mut, Value value);
@@ -958,6 +992,7 @@ void env_define_struct(Environment *env, StructDef struct_def);
 StructDef *env_get_struct(Environment *env, const char *name);
 StructDef *env_get_struct_owned(Environment *env, const char *name, const char *owner);
 bool bind_nominal_records(ASTNode *program, Environment *env);
+bool bind_service_annotations(ASTNode *program, Environment *env, const char *source);
 void env_register_namespace(Environment *env, const char *alias, const char *module_name,
                             char **function_names, int function_count,
                             char **struct_names, int struct_count,
@@ -1053,6 +1088,8 @@ int64_t module_get_import_count(const char *module_path);
 const char *module_get_import_path(const char *module_path, int64_t index);
 const char *module_generate_forward_declarations(const char *module_path);
 bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
+/* Only independently lowering File consumers may opt into retained facts. */
+bool process_imports_for_service(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
 void clear_module_cache(void);
 bool compile_module_to_object(const char *module_path,
                               const char *output_obj,

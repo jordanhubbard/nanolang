@@ -1,0 +1,5 @@
+['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-4nd4fg08/retained.c', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-4nd4fg08/retained.native']
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-nested-arrays-4nd4fg08/retained.c:1030:15: error: unused function 'narr_lit' [-Werror,-Wunused-function]
+ 1030 | static narr_t narr_lit(const int64_t *elems, size_t n) {
+      |               ^~~~~~~~
+1 error generated.

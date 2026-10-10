@@ -1,0 +1,11 @@
+test_external_schema_type_keeps_abi (tests.test_native_record_names.NativeRecordNames.test_external_schema_type_keeps_abi) ... ok
+test_generic_record_arguments_and_results (tests.test_native_record_names.NativeRecordNames.test_generic_record_arguments_and_results) ... ok
+test_imported_record (tests.test_native_record_names.NativeRecordNames.test_imported_record) ... ok
+test_original_nested_record_array_fixture (tests.test_native_record_names.NativeRecordNames.test_original_nested_record_array_fixture) ... ok
+test_record_array_callbacks (tests.test_native_record_names.NativeRecordNames.test_record_array_callbacks) ... ok
+test_runtime_name_families_and_ordinary_neighbor (tests.test_native_record_names.NativeRecordNames.test_runtime_name_families_and_ordinary_neighbor) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 16.546s
+
+OK

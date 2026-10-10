@@ -1,0 +1,13 @@
+NSType checking failed
+Diagnostics:
+  [E0010] Argument 1 to 'identity': expected T, got NSType (/private/tmp/nl51-generic-pipeline.nano:6:40)
+  [E0001] Variable value: I expected a value of type `NSType`, but found `T`. (/private/tmp/nl51-generic-pipeline.nano:6:20)
+  [E0010] Argument 1 to 'identity': expected T, got NSType (/private/tmp/nl51-generic-pipeline.nano:6:119)
+  [E0001] Variable local: I expected a value of type `NSType`, but found `T`. (/private/tmp/nl51-generic-pipeline.nano:6:99)
+  [E0010] Argument 1 to 'identity': expected T, got NSType (/private/tmp/nl51-generic-pipeline.nano:6:186)
+  [E0001] Variable computed: I expected a value of type `NSType`, but found `T`. (/private/tmp/nl51-generic-pipeline.nano:6:163)
+  [E0010] Argument 1 to 'identity': expected T, got NSType (/private/tmp/nl51-generic-pipeline.nano:6:265)
+  [E0010] Argument 1 to 'identity': expected T, got NSType (/private/tmp/nl51-generic-pipeline.nano:6:265)
+  [E0001] Variable nested: I expected a value of type `NSType`, but found `T`. (/private/tmp/nl51-generic-pipeline.nano:6:234)
+  [E0010] Argument 1 to 'identity': expected T, got NSType (/private/tmp/nl51-generic-pipeline.nano:6:337)
+  [E0010] Argument 1 to 'identity': expected T, got int (/private/tmp/nl51-generic-pipeline.nano:3:30)

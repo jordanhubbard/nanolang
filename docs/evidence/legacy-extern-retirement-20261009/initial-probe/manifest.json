@@ -1,0 +1,206 @@
+[
+  {
+    "argv": [
+      "/private/tmp/nanolang-match-guards-20261009/bin/nano_virt",
+      "/private/tmp/nanolang-extern-fixture-probe/driver.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-extern-fixture-probe/nano_virt.nvm"
+    ],
+    "exit": 0,
+    "seconds": 1.2720208168029785,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/0.log"
+  },
+  {
+    "argv": [
+      "bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-extern-fixture-probe/nano_virt.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.012379169464111328,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/1.log"
+  },
+  {
+    "argv": [
+      "bin/nano_vm",
+      "/private/tmp/nanolang-extern-fixture-probe/nano_virt.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.02456188201904297,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/2.log"
+  },
+  {
+    "argv": [
+      "bin/nvm2c",
+      "/private/tmp/nanolang-extern-fixture-probe/nano_virt.nvm",
+      "-o",
+      "/private/tmp/nanolang-extern-fixture-probe/nano_virt.c"
+    ],
+    "exit": 0,
+    "seconds": 5.759987115859985,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/3.log"
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-extern-fixture-probe/nano_virt.c",
+      "-o",
+      "/private/tmp/nanolang-extern-fixture-probe/nano_virt.native"
+    ],
+    "exit": 0,
+    "seconds": 11.767473220825195,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/4.log"
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-extern-fixture-probe/nano_virt.native"
+    ],
+    "exit": 0,
+    "seconds": 0.19759416580200195,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/5.log"
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-match-guards-20261009/bin/nanoc_stage1",
+      "/private/tmp/nanolang-extern-fixture-probe/driver.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage1.nvm"
+    ],
+    "exit": 0,
+    "seconds": 41.077478885650635,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/6.log"
+  },
+  {
+    "argv": [
+      "bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage1.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.025091171264648438,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/7.log"
+  },
+  {
+    "argv": [
+      "bin/nano_vm",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage1.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.024035215377807617,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/8.log"
+  },
+  {
+    "argv": [
+      "bin/nvm2c",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage1.nvm",
+      "-o",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage1.c"
+    ],
+    "exit": 0,
+    "seconds": 2.679219961166382,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/9.log"
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage1.c",
+      "-o",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage1.native"
+    ],
+    "exit": 0,
+    "seconds": 11.580694198608398,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/10.log"
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage1.native"
+    ],
+    "exit": 0,
+    "seconds": 0.20469188690185547,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/11.log"
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-match-guards-20261009/bin/nanoc_stage2",
+      "/private/tmp/nanolang-extern-fixture-probe/driver.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage2.nvm"
+    ],
+    "exit": 0,
+    "seconds": 41.97929406166077,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/12.log"
+  },
+  {
+    "argv": [
+      "bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage2.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.022610902786254883,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/13.log"
+  },
+  {
+    "argv": [
+      "bin/nano_vm",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage2.nvm"
+    ],
+    "exit": 0,
+    "seconds": 0.024116992950439453,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/14.log"
+  },
+  {
+    "argv": [
+      "bin/nvm2c",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage2.nvm",
+      "-o",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage2.c"
+    ],
+    "exit": 0,
+    "seconds": 2.734031915664673,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/15.log"
+  },
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage2.c",
+      "-o",
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage2.native"
+    ],
+    "exit": 0,
+    "seconds": 11.639640808105469,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/16.log"
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-extern-fixture-probe/nanoc_stage2.native"
+    ],
+    "exit": 0,
+    "seconds": 0.19717979431152344,
+    "log": "/private/tmp/nanolang-extern-fixture-probe/17.log"
+  }
+]

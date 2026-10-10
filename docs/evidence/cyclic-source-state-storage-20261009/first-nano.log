@@ -1,0 +1,18 @@
+test_cyclic_owners_helpers_and_selected_shadows (tests.test_nano_service_driver.NanoServiceDriver.test_cyclic_owners_helpers_and_selected_shadows) ... FAIL
+
+======================================================================
+FAIL: test_cyclic_owners_helpers_and_selected_shadows (tests.test_nano_service_driver.NanoServiceDriver.test_cyclic_owners_helpers_and_selected_shadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_drivers.py", line 115, in test_cyclic_owners_helpers_and_selected_shadows
+    run=self.run_command([driver,self.source,'--allow-temporary-files','--emit-nvm','-o',bytecode])
+  File "/Users/jordanh/Src/nanolang/tests/test_service_drivers.py", line 34, in run_command
+    self.assertEqual(run.returncode,expected,run.stdout+run.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot validate File output: I refuse cyclic File preparation (3)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 11.413s
+
+FAILED (failures=1)

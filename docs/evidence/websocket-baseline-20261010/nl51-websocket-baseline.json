@@ -1,0 +1,16 @@
+[
+  {
+    "argv": [],
+    "status": 0,
+    "stdout": "zero nonce base64: AAAAAAAAAAAAAAAAAAAAAAAA\nwss parse status: 0\nwss selected host/port: localhost 80\n403 with 101 header handshake status: 0\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "long-frame"
+    ],
+    "status": -6,
+    "stdout": "",
+    "stderr": "=================================================================\n==89548==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x00016b28d36a at pc 0x000104b71ab8 bp 0x00016b28d330 sp 0x00016b28d328\nWRITE of size 4 at 0x00016b28d36a thread T0\n    #0 0x000104b71ab4 in ws_send_text websocket_helpers.c:303\n    #1 0x000104b72cb0 in main nl51-websocket-baseline.c:21\n    #2 0x0001828804e0 in start+0x1b4c (dyld:arm64e+0x204e0)\n\nAddress 0x00016b28d36a is located in stack of thread T0 at offset 42 in frame\n    #0 0x000104b716e4 in ws_send_text websocket_helpers.c:280\n\n  This frame has 2 object(s):\n    [32, 42) 'header' (line 287) <== Memory access at offset 42 overflows this variable\n    [64, 4160) 'chunk' (line 309)\nHINT: this may be a false positive if your program uses some custom stack unwind mechanism, swapcontext or vfork\n      (longjmp and C++ exceptions *are* supported)\nSUMMARY: AddressSanitizer: stack-buffer-overflow websocket_helpers.c:303 in ws_send_text\nShadow bytes around the buggy address:\n  0x00016b28d080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x00016b28d100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x00016b28d180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x00016b28d200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n  0x00016b28d280: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00\n=>0x00016b28d300: 00 00 00 00 00 00 00 00 f1 f1 f1 f1 00[02]f2 f2\n  0x00016b28d380: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8\n  0x00016b28d400: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8\n  0x00016b28d480: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8\n  0x00016b28d500: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8\n  0x00016b28d580: f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8 f8\nShadow byte legend (one shadow byte represents 8 application bytes):\n  Addressable:           00\n  Partially addressable: 01 02 03 04 05 06 07 \n  Heap left redzone:       fa\n  Freed heap region:       fd\n  Stack left redzone:      f1\n  Stack mid redzone:       f2\n  Stack right redzone:     f3\n  Stack after return:      f5\n  Stack use after scope:   f8\n  Global redzone:          f9\n  Global init order:       f6\n  Poisoned by user:        f7\n  Container overflow:      fc\n  Array cookie:            ac\n  Intra object redzone:    bb\n  ASan internal:           fe\n  Left alloca redzone:     ca\n  Right alloca redzone:    cb\n==89548==ABORTING\n"
+  }
+]

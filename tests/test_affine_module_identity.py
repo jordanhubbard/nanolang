@@ -1,6 +1,7 @@
 """I keep same-spelled module types distinct through checking and native execution."""
 from pathlib import Path
 import os
+import shlex
 import subprocess
 import tempfile
 import unittest
@@ -10,9 +11,34 @@ COMPILER_ROOT = Path(os.environ.get("NANOLANG_AFFINE_COMPILER_ROOT", ROOT / "bin
 OWNERSHIP = r"(?i)(ownership|resource.{0,80}(scope|leak|live|consum)|moved value|after.{0,30}(mov|consum))"
 
 
+def compile_product(compiler, source, output, env=None):
+    """I qualify my C seed through verified NanoISA and native C as well."""
+    def run(command):
+        return subprocess.run(list(map(str, command)), cwd=ROOT, env=env,
+                              capture_output=True, text=True, timeout=120)
+    if compiler != "nano_virt":
+        return run([COMPILER_ROOT / compiler, source, "-o", output])
+    with tempfile.TemporaryDirectory(prefix="affine-seed-product-", dir=output.parent) as directory:
+        work = Path(directory)
+        module, native, binary = work / "program.nvm", work / "program.c", work / "program"
+        configuration = os.environ if env is None else env
+        cc = shlex.split(configuration.get("NANO_NATIVE_TEST_CC") or configuration.get("CC") or "cc")
+        commands = ([COMPILER_ROOT / compiler, source, "--emit-nvm", "-o", module],
+                    [ROOT / "bin/nano_vm", "--verify-only", module],
+                    [ROOT / "bin/nano_vm", module],
+                    [ROOT / "bin/nvm2c", module, "-o", native],
+                    [*cc, "-std=c11", "-Wall", "-Wextra", "-Werror", native, "-lm", "-o", binary])
+        for command in commands:
+            result = run(command)
+            if result.returncode:
+                return result
+        binary.replace(output)
+        return result
+
+
 class AffineModuleIdentity(unittest.TestCase):
     def check_modules(self, resource_body, accepted, reverse=False, nested=False, long_names=False):
-        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(","):
+        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nano_virt,nanoc_stage1,nanoc_stage2").split(","):
             with self.subTest(compiler=compiler, reverse=reverse, nested=nested), tempfile.TemporaryDirectory(prefix="nano-affine-modules-") as directory:
                 work = Path(directory)
                 plain = "struct Handle { plain_value: int }\n"
@@ -51,7 +77,7 @@ class AffineModuleIdentity(unittest.TestCase):
                 source.write_text("\n".join(imports) + "\nfn main() -> int { assert (== (ordinary.run_plain) 14) assert (== (owning.run_owned) 7) return 0 }\nshadow main { assert (== (main) 0) }\n")
                 output = work / "program"
                 output.write_bytes(b"prior artifact")
-                result = subprocess.run([str(COMPILER_ROOT / compiler), str(source), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+                result = compile_product(compiler, source, output)
                 messages = result.stdout + result.stderr
                 if accepted:
                     self.assertEqual(result.returncode, 0, messages)
@@ -90,13 +116,13 @@ fn main() -> int {
 shadow main { assert (== (main) 0) }
 """,
         }
-        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(","):
+        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nano_virt,nanoc_stage1,nanoc_stage2").split(","):
             with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix="nano-affine-qualified-") as directory:
                 work = Path(directory)
                 for name, source in fixtures.items():
                     (work / name).write_text(source)
                 output = work / "program"
-                result = subprocess.run([str(COMPILER_ROOT / compiler), str(work / "main.nano"), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+                result = compile_product(compiler, work / "main.nano", output)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 run = subprocess.run([str(output)], capture_output=True, text=True, timeout=10)
                 self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
@@ -110,7 +136,7 @@ shadow main { assert (== (main) 0) }
             self.check_modules("let moved: Handle = value return (close_owned moved)", True, reverse, long_names=True)
 
     def test_generic_annotation_metadata(self):
-        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(","):
+        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nano_virt,nanoc_stage1,nanoc_stage2").split(","):
             for argument in ("int", "array<int>", "Handle"):
                 with self.subTest(compiler=compiler, argument=argument), tempfile.TemporaryDirectory(prefix="nano-affine-generic-") as directory:
                     work = Path(directory)
@@ -135,7 +161,7 @@ shadow main {{ assert (== (main) 0) }}
                     source.write_text(program)
                     env = os.environ.copy()
                     env["MALLOC_PERTURB_"] = "165"
-                    result = subprocess.run([str(COMPILER_ROOT / compiler), str(source), "-o", str(output)], cwd=ROOT, env=env, capture_output=True, text=True, timeout=120)
+                    result = compile_product(compiler, source, output, env)
                     messages = result.stdout + result.stderr
                     if argument == "Handle":
                         self.assertGreater(result.returncode, 0, messages)
@@ -147,7 +173,7 @@ shadow main {{ assert (== (main) 0) }}
                         self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
 
     def test_foreign_record_collision_is_rejected(self):
-        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(","):
+        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nano_virt,nanoc_stage1,nanoc_stage2").split(","):
             for reverse in (False, True):
                 with self.subTest(compiler=compiler, reverse=reverse), tempfile.TemporaryDirectory(prefix="nano-affine-foreign-") as directory:
                     work = Path(directory)
@@ -160,19 +186,19 @@ shadow main {{ assert (== (main) 0) }}
                     source.write_text("\n".join(imports) + "\nfn main() -> int { return 0 }\n")
                     output = work / "program"
                     output.write_bytes(b"prior artifact")
-                    result = subprocess.run([str(COMPILER_ROOT / compiler), str(source), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+                    result = compile_product(compiler, source, output)
                     self.assertGreater(result.returncode, 0, result.stdout + result.stderr)
                     self.assertIn("colliding foreign record declarations", result.stdout + result.stderr)
                     self.assertEqual(output.read_bytes(), b"prior artifact")
 
     def test_same_module_duplicate_is_rejected(self):
-        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nanoc_stage1,nanoc_stage2").split(","):
+        for compiler in os.environ.get("NANOLANG_AFFINE_COMPILERS", "nanoc_c,nano_virt,nanoc_stage1,nanoc_stage2").split(","):
             with self.subTest(compiler=compiler), tempfile.TemporaryDirectory(prefix="nano-affine-duplicate-") as directory:
                 source = Path(directory) / "duplicate.nano"
                 output = Path(directory) / "program"
                 source.write_text("struct Handle { first: int }\nresource struct Handle { second: int }\nfn main() -> int { return 0 }\n")
                 output.write_bytes(b"prior artifact")
-                result = subprocess.run([str(COMPILER_ROOT / compiler), str(source), "-o", str(output)], cwd=ROOT, capture_output=True, text=True, timeout=120)
+                result = compile_product(compiler, source, output)
                 self.assertGreater(result.returncode, 0, result.stdout + result.stderr)
                 self.assertRegex(result.stdout + result.stderr, r"(?i)(already defined|twice in one module)")
                 self.assertEqual(output.read_bytes(), b"prior artifact")

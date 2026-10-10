@@ -56,7 +56,11 @@ typedef enum {
     NVM_PROFILE_GENERAL = 0,
     NVM_PROFILE_CLOSED_SCALAR = 1,
     NVM_PROFILE_CLOSED_LITERAL_STRINGS = 2,
-    NVM_PROFILE_CLOSED_MANAGED_STRINGS = 3
+    NVM_PROFILE_CLOSED_MANAGED_STRINGS = 3,
+    /* I require exact read-text imports; runtime bindings still grant no
+     * authority until the embedding host supplies them explicitly. */
+    NVM_PROFILE_PORTABLE_FILE_READ = 5,
+    NVM_PROFILE_PORTABLE_READ_TEXT = 4
 } NvmVerifyProfile;
 NvmVerifyResult nvm_verify_profile(const NvmModule *mod, NvmVerifyProfile profile);
 
@@ -100,6 +104,14 @@ NvmVerifyResult nvm_verify_function_types(const NvmModule *mod, uint32_t fn_idx,
 NvmVerifyResult nvm_verify_function_max_stack(const NvmModule *mod,
                                               uint32_t fn_idx,
                                               uint16_t *out_max_stack);
+
+/* I verify every nonzero declared maximum, sharing ordinary module structure
+ * within this invocation. Private profiles keep their complete admission paths.
+ * Zero retains the loader's unspecified-depth behavior; this query is not a
+ * substitute for full verification before execution. */
+NvmVerifyResult nvm_verify_declared_max_stacks(const NvmModule *mod,
+                                              const uint16_t *declared_depths,
+                                              uint32_t count);
 
 /* Validate a module together with the table of modules it is linked against.
  *

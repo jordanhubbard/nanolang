@@ -1,0 +1,1 @@
+fn main()->int { let xs:List<string> = (list_string_new) (list_string_free 7) return 0 }

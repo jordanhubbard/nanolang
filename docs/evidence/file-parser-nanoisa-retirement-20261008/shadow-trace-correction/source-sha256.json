@@ -1,0 +1,7 @@
+{
+  "src/nanoisa/assembler.c": "c0ca6079aa359ae0d47effa0e6c3bca6edfdd065a6b8a89726d756d536ecf6a6",
+  "src/nanovm/vm.c": "ed455685d0b6db996323cad74efa077132d17d656722e21e76737a00fe067a83",
+  "src_nano/compiler/nanoisa_codegen.nano": "1ceb92903f5b773aa214bd388a72136c90c417eed88a647aa24a3b9e6fd7e7f1",
+  "src_nano/compiler/nanoisa_borrows.nano": "8fcc4ed0fb933eecbe7a63693c3a43c7b14b7ab7cf56ee025ba994fff71122d3",
+  "tests/test_nanoisa_shadow_emitter.py": "23d82ff7b171a05a448dade27de29b26f0562221b4436467e92fa8c057567c64"
+}

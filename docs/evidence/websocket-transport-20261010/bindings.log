@@ -1,0 +1,6 @@
+test_packaged_refusals_and_dependency_shadows (tests.test_websocket_bindings.WebSocketBindings.test_packaged_refusals_and_dependency_shadows) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 5.292s
+
+OK

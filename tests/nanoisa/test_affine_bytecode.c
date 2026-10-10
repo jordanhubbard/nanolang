@@ -165,14 +165,70 @@ static void analyze(const char *body,uint16_t params,uint16_t locals,const uint8
     if(resource)CHECK(!nvm_verify(m).ok); /* Analysis never admits runtime. */
     free(before);nvm_module_free(m);
 }
+static void instruction_facts(void) {
+    uint8_t tags[]={TAG_STRUCT};
+    NvmModule *m=fixture("PUSH_I64 9\nOWN_PACK 0\nOWN_STORE_LOCAL 0\n"
+                         "OWN_UNPACK_LOCAL 0\nRET\n",0,1,tags,NULL,TAG_INT,false);
+    m->ownership_data[8]|=NVM_LAYOUT_RESOURCE;
+    CHECK(nvm_verify(m).ok);
+    NvmAffineInstructionFact facts[5],before[5];
+    memset(facts,0xa5,sizeof(facts));memcpy(before,facts,sizeof(facts));
+    CHECK(!nvm_affine_analyze_instructions(m,0,facts,4).ok);
+    CHECK(!memcmp(facts,before,sizeof(facts)));
+    CHECK(!nvm_affine_analyze_instructions(m,1,facts,5).ok);
+    CHECK(!memcmp(facts,before,sizeof(facts)));
+    CHECK(!nvm_affine_analyze_instructions(NULL,0,facts,5).ok);
+    CHECK(!memcmp(facts,before,sizeof(facts)));
+    CHECK(!nvm_affine_analyze_instructions(m,0,NULL,5).ok);
+    CHECK(!nvm_affine_analyze_instructions(m,0,facts,0).ok);
+    CHECK(!nvm_affine_analyze_instructions(m,0,facts,NVM_AFFINE_MAX_INSTRUCTIONS+1).ok);
+    CHECK(!memcmp(facts,before,sizeof(facts)));
+    CHECK(nvm_affine_analyze_instructions(m,0,facts,5).ok);
+    uint16_t depths[]={0,1,1,0,1};
+    uint8_t top_tags[]={TAG_VOID,TAG_INT,TAG_STRUCT,TAG_VOID,TAG_INT};
+    for (unsigned i=0;i<5;i++) {
+        CHECK(facts[i].reachable && facts[i].stack_depth==depths[i]);
+        CHECK(facts[i].unpack_count==(i==3));
+        CHECK(facts[i].top_tag==top_tags[i]);
+        if(i) CHECK(facts[i].byte_offset>facts[i-1].byte_offset);
+    }
+#ifdef AFFINE_BYTECODE_ALLOCATION_TEST
+    for (unsigned failure=1;;failure++) {
+        memcpy(facts,before,sizeof(facts));allocation_attempts=0;fail_at=failure;
+        NvmAffineAnalysis trial=nvm_affine_analyze_instructions(m,0,facts,5);
+        fail_at=0;
+        if (trial.ok) {CHECK(allocation_attempts<failure);break;}
+        CHECK(failure<1000);CHECK(trial.message[0]);
+        CHECK(!memcmp(facts,before,sizeof(facts)));
+        CHECK(nvm_affine_analyze_instructions(m,0,facts,5).ok);
+    }
+#endif
+    nvm_module_free(m);
+    m=union_fixture("PUSH_I64 9\nAGG_PACK 1 0 0 1\nMATCH_TAG 0 matched\n"
+                    "POP\nPUSH_I64 0\nRET\nmatched:\nAGG_GET 0\nRET\n",0,0,TAG_INT);
+    NvmAffineInstructionFact selected[8];
+    CHECK(nvm_affine_analyze_instructions(m,0,selected,8).ok);
+    for (unsigned i=0;i<8;i++) CHECK(selected[i].reachable==(i<3 || i>5));
+    CHECK(selected[6].stack_depth==1 && selected[7].stack_depth==1);
+    nvm_module_free(m);
+    m=fixture("PUSH_BOOL 1\nSTORE_LOCAL 0\nPUSH_I64 0\nRET\n",0,1,tags,NULL,TAG_INT,true);
+    memcpy(facts,before,sizeof(facts));
+    CHECK(!nvm_affine_analyze_instructions(m,0,facts,4).ok);
+    CHECK(!memcmp(facts,before,sizeof(facts)));
+    nvm_module_free(m);
+}
+#include "test_affine_globals.inc"
+
 int main(int argc,char **argv) {
+    check_global_flow();
     if(argc==3){native_output=argv[1];module_output=argv[2];}
     else CHECK(argc==1);
+    instruction_facts();
     uint8_t tags[4]={TAG_STRUCT,TAG_BOOL,TAG_INT,TAG_INT};
     uint8_t shared[4]={1,0,0,0},exclusive[4]={2,0,0,0};
     analyze("LOAD_LOCAL 0\nAGG_GET 0\nRET\n",1,1,tags,shared,TAG_INT,true,true,NULL);
     analyze_union("PUSH_STR 0\nPUSH_BOOL 1\nAGG_PACK 1 0 1 2\nSTORE_LOCAL 0\n"
-                  "LOAD_LOCAL 0\nMATCH_TAG 1 matched\nPOP\nPUSH_BOOL 0\nRET\n"
+                  "LOAD_LOCAL 0\nMATCH_TAG 1 matched\nPOP\nPOP\nPUSH_BOOL 0\nRET\n"
                   "matched:\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nAGG_GET 1\nRET\n",
                   0,2,TAG_BOOL,true,NULL);
     if(argc==3)CHECK(native_output==NULL && module_output==NULL);

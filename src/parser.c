@@ -61,6 +61,35 @@ static char *join_qualified_type_name(const char *owner, const char *name) {
     return qualified;
 }
 
+/* I retain every identifier in a re-exported call path. Zero means an
+ * expression rather than a name; negative means allocation/size failure. */
+static int qualified_call_path(const ASTNode *node, char **out) {
+    const ASTNode *base = node;
+    size_t length = 0;
+    while (base && base->type == AST_FIELD_ACCESS) {
+        size_t field = strlen(base->as.field_access.field_name);
+        if (field == SIZE_MAX || length > SIZE_MAX - field - 1) return -1;
+        length += field + 1;
+        base = base->as.field_access.object;
+    }
+    if (!base || base->type != AST_IDENTIFIER) return 0;
+    size_t prefix = strlen(base->as.identifier);
+    if (prefix == SIZE_MAX || length > SIZE_MAX - prefix - 1) return -1;
+    length += prefix;
+    char *name = malloc(length + 1);
+    if (!name) return -1;
+    name[length] = '\0';
+    for (const ASTNode *part = node; part != base; part = part->as.field_access.object) {
+        size_t field = strlen(part->as.field_access.field_name);
+        length -= field;
+        memcpy(name + length, part->as.field_access.field_name, field);
+        name[--length] = '.';
+    }
+    memcpy(name, base->as.identifier, prefix);
+    *out = name;
+    return 1;
+}
+
 static Token *current_token(Stage1Parser *p) {
     if (!p) {
         return NULL;
@@ -239,7 +268,19 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
             char *struct_name = NULL;
             FunctionSignature *nested_fn_sig = NULL;
             TypeInfo *param_info = NULL;
+            Type borrow_type=TYPE_UNKNOWN;
+            if(match(p,TOKEN_AMPERSAND)) {
+                advance(p);borrow_type=TYPE_BORROW_SHARED;
+                if(match(p,TOKEN_MUT)){advance(p);borrow_type=TYPE_BORROW_MUT;}
+            }
             Type param_type = parse_type_with_element(p, NULL, &struct_name, &nested_fn_sig, &param_info);
+            if(param_type!=TYPE_UNKNOWN && borrow_type!=TYPE_UNKNOWN) {
+                if(!param_info){param_info=calloc(1,sizeof *param_info);param_info->base_type=param_type;
+                    param_info->generic_name=struct_name?strdup(struct_name):NULL;}
+                if(nested_fn_sig){param_info->fn_sig=nested_fn_sig;nested_fn_sig=NULL;}
+                TypeInfo *wrapper=calloc(1,sizeof *wrapper);wrapper->base_type=borrow_type;
+                wrapper->element_type=param_info;param_info=wrapper;param_type=borrow_type;
+            }
             
             if (param_type == TYPE_UNKNOWN) {
                 /* Error already reported */
@@ -267,14 +308,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
             }
             sig->param_type_info[sig->param_count - 1] = param_info;
             
-            /* TODO: Handle nested function signatures in function parameters */
-            /* For now, we don't support fn(fn(int)->int)->int */
-            if (nested_fn_sig) {
-                parser_error(p, 0, 0, "Error: Nested function types not yet supported\n");
-                free_function_signature(nested_fn_sig);
-                free_function_signature(sig);
-                return NULL;
-            }
+            if(nested_fn_sig)param_info->fn_sig=nested_fn_sig;
             
             tok = current_token(p);
             if (!tok) {
@@ -373,6 +407,14 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             if (sig) {
                 if (fn_sig_out) {
                     *fn_sig_out = sig;
+                } else if (type_info_out) {
+                    TypeInfo *info = calloc(1, sizeof *info);
+                    if (!info) { free_function_signature(sig); return TYPE_UNKNOWN; }
+                    info->base_type = TYPE_FUNCTION;
+                    info->fn_sig = sig;
+                    *type_info_out = info;
+                } else {
+                    free_function_signature(sig);
                 }
                 return TYPE_FUNCTION;
             }
@@ -399,8 +441,8 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                 char *type_name = strdup(tok->value);
                 advance(p);  /* consume type name */
 
-                /* Check for Module.Type pattern */
-                if (current_token(p)->token_type == TOKEN_DOT) {
+                /* I retain every qualifier through re-exported type paths. */
+                while (current_token(p)->token_type == TOKEN_DOT) {
                     advance(p);  /* consume '.' */
                     Token *type_tok = current_token(p);
                     if (type_tok->token_type != TOKEN_IDENTIFIER) {
@@ -971,25 +1013,6 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
                 if (match(p, TOKEN_MUT)) { advance(p); borrow_type = TYPE_BORROW_MUT; }
             }
 
-            /* Type - check if it's a struct type (identifier) */
-            Token *type_token = current_token(p);
-            char *struct_name = NULL;
-            if (type_token->token_type == TOKEN_IDENTIFIER) {
-                /* I retain the declaring-module qualifier. */
-                Token *dot = peek_token(p, 1);
-                Token *rhs = peek_token(p, 2);
-                if (dot && rhs && dot->token_type == TOKEN_DOT && rhs->token_type == TOKEN_IDENTIFIER) {
-                    struct_name = join_qualified_type_name(type_token->value, rhs->value);
-                    if (!struct_name) {
-                        free(param_list);
-                        parser_error(p, type_token->line, type_token->column, "I cannot allocate a qualified parameter type\n");
-                        return false;
-                    }
-                } else {
-                    struct_name = strdup(type_token->value);
-                }
-            }
-            
             /* Parse type with element_type support for arrays and generics */
             Type element_type = TYPE_UNKNOWN;
             char *type_param_name = NULL;
@@ -1024,13 +1047,6 @@ static bool parse_parameters(Stage1Parser *p, Parameter **params, int *param_cou
                 type_info->fn_sig = fn_sig;
             }
             param_list[count].type_info = type_info;  /* Retain the borrow and referent separately. */
-            
-            /* If it's a struct type, save the struct name */
-            if (param_list[count].type == TYPE_STRUCT && struct_name) {
-                param_list[count].struct_type_name = struct_name;
-            } else if (struct_name) {
-                free(struct_name);
-            }
             
             count++;
 
@@ -2109,7 +2125,13 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                  * If first_expr is an identifier, treat it as a function call with zero arguments.
                  * This ensures (main) calls main() instead of returning the function value.
                  */
-                if (first_expr->type == AST_IDENTIFIER) {
+                if (first_expr->type == AST_IDENTIFIER && first_expr->lambda_definition) {
+                    /* I preserve the anonymous declaration on its callee expression. */
+                    advance(p);
+                    ASTNode *call = create_node(AST_CALL, line, column);
+                    call->as.call.func_expr = first_expr;
+                    return call;
+                } else if (first_expr->type == AST_IDENTIFIER) {
                     /* Treat as function call with zero arguments */
                     advance(p);  /* consume ')' */
                     
@@ -2125,18 +2147,25 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     return node;
                 } else if (first_expr->type == AST_FIELD_ACCESS) {
                     /* Module.function call with zero arguments - use AST_MODULE_QUALIFIED_CALL */
-                    if (first_expr->as.field_access.object->type == AST_IDENTIFIER) {
-                        char *module = first_expr->as.field_access.object->as.identifier;
+                    char *module = NULL;
+                    int path = qualified_call_path(first_expr->as.field_access.object, &module);
+                    if (path < 0) {
+                        parser_error(p, line, column, "I cannot allocate a qualified call path\n");
+                        free_ast(first_expr);
+                        return NULL;
+                    }
+                    if (path > 0) {
                         char *field = first_expr->as.field_access.field_name;
                         
                         advance(p);  /* consume ')' */
                         
                         ASTNode *node = create_node(AST_MODULE_QUALIFIED_CALL, line, column);
-                        node->as.module_qualified_call.module_alias = strdup(module);
+                        node->as.module_qualified_call.module_alias = module;
                         node->as.module_qualified_call.function_name = strdup(field);
                         node->as.module_qualified_call.args = NULL;
                         node->as.module_qualified_call.arg_count = 0;
                         node->as.module_qualified_call.return_struct_type_name = NULL;
+                        node->as.module_qualified_call.checked_signature = NULL;
                         
                         /* Free the field_access node */
                         free_ast(first_expr);
@@ -2164,26 +2193,28 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 char *module_alias = NULL;
                 char *qualified_func_name = NULL;
                 
-                if (first_expr->type == AST_IDENTIFIER) {
+                if (first_expr->type == AST_IDENTIFIER && first_expr->lambda_definition) {
+                    func_expr = first_expr;
+                } else if (first_expr->type == AST_IDENTIFIER) {
                     /* Regular function call */
                     func_name = first_expr->as.identifier;
                 } else if (first_expr->type == AST_FIELD_ACCESS) {
                     /* Module.function call - use AST_MODULE_QUALIFIED_CALL */
-                    if (first_expr->as.field_access.object->type == AST_IDENTIFIER) {
-                        char *module = first_expr->as.field_access.object->as.identifier;
+                    int path = qualified_call_path(first_expr->as.field_access.object, &module_alias);
+                    if (path > 0) {
                         char *field = first_expr->as.field_access.field_name;
                         
                         /* Mark as module-qualified for later processing */
                         is_module_qualified = true;
-                        module_alias = strdup(module);
                         qualified_func_name = strdup(field);
                         
                         /* Free the field_access node */
                         free_ast(first_expr);
                         first_expr = NULL;
                     } else {
-                        parser_error(p, line, column, "Error at line %d, column %d: Complex field access not supported in function calls\n",
-                                line, column);
+                        parser_error(p, line, column, "%s\n", path < 0 ?
+                                "I cannot allocate a qualified call path" :
+                                "I require a named qualified call path");
                         free_ast(first_expr);
                         return NULL;
                     }
@@ -2252,6 +2283,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     node->as.module_qualified_call.args = args;
                     node->as.module_qualified_call.arg_count = count;
                     node->as.module_qualified_call.return_struct_type_name = NULL;
+                    node->as.module_qualified_call.checked_signature = NULL;
                 } else {
                     /* Create regular call node */
                     node = create_node(AST_CALL, line, column);
@@ -5534,7 +5566,8 @@ static ASTNode *parse_service_declaration(Stage1Parser *p) {
         if (strlen(decoded[i]) != (size_t)texts[i]->value_bytes ||
             !nl_utf8_validate(decoded[i], (size_t)texts[i]->value_bytes, NULL)) goto invalid;
     }
-    if (strcmp(decoded[0], "nsi:nanolang/filesystem") || decoded[1][0] == '/') goto invalid;
+    if ((strcmp(decoded[0], "nsi:nanolang/filesystem") && strcmp(decoded[0], "nsi:nanolang/net") && strcmp(decoded[0], "nsi:nanolang/websocket")) ||
+        decoded[1][0] == '/') goto invalid;
     ASTNode *node = calloc(1, sizeof(*node));
     if (!node) goto invalid;
     node->type = AST_SERVICE_DECL;
@@ -5716,6 +5749,13 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                     /* Assume it's a pub extern fn declarations */
                     parsed = parse_function(&parser, true, true);  /* is_extern=true, is_pub=true */
                 }
+            } else if (match(&parser, TOKEN_LET)) {
+                parsed = parse_statement(&parser);
+                if (parsed && parsed->type == AST_LET && !parsed->as.let.is_destructure) {
+                    parsed->as.let.is_pub = true;
+                } else {
+                    parser_error(&parser, 0, 0, "I require one named binding after pub let.\n");
+                }
             } else if (match(&parser, TOKEN_FN)) {
                 /* pub fn declarations */
                 parsed = parse_function(&parser, false, true);  /* is_extern=false, is_pub=true */
@@ -5754,7 +5794,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             } else {
                 Token *err_tok = current_token(&parser);
                 if (err_tok) {
-                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'pub' keyword must be followed by fn, pure, struct, enum, union, use, opaque, or effect\n",
+                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'pub' keyword must be followed by let, fn, pure, struct, enum, union, use, opaque, or effect\n",
                             err_tok->line, err_tok->column);
                 }
                 continue;
@@ -5977,6 +6017,7 @@ void free_ast(ASTNode *node) {
             free(node->as.call.args);
             break;
         case AST_MODULE_QUALIFIED_CALL:
+            free_function_signature(node->as.module_qualified_call.checked_signature);
             free(node->as.module_qualified_call.module_alias);
             free(node->as.module_qualified_call.function_name);
             if (node->as.module_qualified_call.return_struct_type_name) {

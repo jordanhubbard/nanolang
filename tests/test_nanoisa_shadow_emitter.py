@@ -36,13 +36,18 @@ class ShadowEmitter(unittest.TestCase):
         path.write_text(source)
         return self.command(self.tool, path, first, mode, expected=expected)
 
-    def execute(self, assembly, success=True):
+    def execute(self, assembly, success=True, trace=False):
         asm, module = self.work / "shadow.nasm", self.work / "shadow.nvm"
         asm.write_text(assembly)
         self.command(ROOT / "bin/nanoisa", "asm", asm, "-o", module)
         self.command(ROOT / "bin/nano_vm", "--verify-only", module)
-        result = subprocess.run([ROOT / "bin/nano_vm", module], cwd=ROOT,
-                                text=True, capture_output=True, timeout=15)
+        env = dict(os.environ)
+        env.pop("NANO_SHADOW_TRACE", None)
+        if trace:
+            env["NANO_SHADOW_TRACE"] = "1"
+        command = [ROOT / "bin/nano_vm"] + (["--check-shadows"] if trace else []) + [module]
+        result = subprocess.run(command, cwd=ROOT,
+                                env=env, text=True, capture_output=True, timeout=15)
         self.assertEqual(result.returncode == 0, success, result.stdout + result.stderr)
         return result
 
@@ -123,3 +128,60 @@ shadow unused { let values: array<array<float>> = (unused) }
         refusal = self.emit(source, expected=1)
         self.assertIn("I cannot lower shadow unused at merged line", refusal.stdout)
         self.execute(self.emit(source, 1).stdout)
+
+    def test_transitive_refusal_retains_its_selected_shadow_origin(self):
+        source = '''extern fn unsupported() -> array<array<float>>
+fn leaf() -> array<array<float>> { return (unsupported) }
+fn unused() -> array<array<float>> { return (leaf) }
+fn good() -> int { return 7 }
+shadow good { assert (== (good) 7) }
+shadow unused { let values: array<array<float>> = (unused) }
+'''
+        for first in (0, 1):
+            refusal = self.emit(source, first, expected=1)
+            self.assertIn("I cannot lower shadow unused at merged line 6", refusal.stdout)
+            self.assertIn("unsupported extern result or symbol unsupported", refusal.stdout)
+            self.assertNotIn(".entry", refusal.stdout)
+        self.execute(self.emit(source, 2).stdout)
+
+    def test_trace_reports_only_reached_selected_shadows(self):
+        source = '''fn first() -> int { return 1 }
+fn second() -> int { return 2 }
+shadow first { assert true }
+shadow first { assert false }
+shadow second { assert true }
+'''
+        assembly = self.emit(source).stdout
+        self.assertEqual(self.execute(assembly, success=False).stderr.count("I am testing shadow"), 0)
+        traced = self.execute(assembly, success=False, trace=True)
+        self.assertEqual([line for line in traced.stderr.splitlines() if line.startswith("I am testing shadow")],
+                         ["I am testing shadow first", "I am testing shadow first"])
+        self.assertEqual(self.execute(self.emit(source, 2).stdout, trace=True).stderr,
+                         "I am testing shadow second\n")
+        # I preserve advisory trace metadata through a textual round trip.
+        dumped = self.command(ROOT / "bin/nanoisa", "dump", self.work / "shadow.nvm").stdout
+        self.assertEqual(self.execute(dumped, trace=True).stderr, "I am testing shadow second\n")
+        self.assertEqual(self.execute(self.emit(source, 3).stdout, trace=True).stderr, "")
+
+    def test_trace_reaches_owned_shadow_bodies(self):
+        source = '''resource struct Handle { fd: int }
+fn main() -> int { let handle: Handle = Handle { fd: 7 } let Handle { fd } = handle return fd }
+shadow main { assert (== (main) 7) }
+shadow main { assert false }
+shadow main { assert true }
+'''
+        traced = self.execute(self.emit(source).stdout, success=False, trace=True)
+        self.assertEqual([line for line in traced.stderr.splitlines() if line.startswith("I am testing shadow")],
+                         ["I am testing shadow main", "I am testing shadow main"])
+
+    def test_marker_refuses_invalid_names_and_context(self):
+        for marker in ('""', '"bad\\nname"', '"bad\\x00name"'):
+            asm = self.work / "invalid.nasm"
+            asm.write_text(f'.function main 0 0 0 int 1\n.shadow {marker}\nPUSH_I64 0\nRET\n.end\n.entry 0\n')
+            rejected = subprocess.run([ROOT / "bin/nanoisa", "asm", asm, "-o", self.work / "invalid.nvm"],
+                                      cwd=ROOT, text=True, capture_output=True, timeout=15)
+            self.assertNotEqual(rejected.returncode, 0, rejected.stdout + rejected.stderr)
+        asm.write_text('.shadow "outside"\n')
+        rejected = subprocess.run([ROOT / "bin/nanoisa", "asm", asm, "-o", self.work / "invalid.nvm"],
+                                  cwd=ROOT, text=True, capture_output=True, timeout=15)
+        self.assertNotEqual(rejected.returncode, 0, rejected.stdout + rejected.stderr)

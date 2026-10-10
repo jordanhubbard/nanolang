@@ -4,8 +4,7 @@ import "src_nano/compiler/lexer.nano"
 import "src_nano/compiler/diagnostics.nano"
 import "src_nano/generated/compiler_ast.nano"
 from "src_nano/typecheck.nano" import typecheck_phase
-from "src_nano/transpiler.nano" import transpile_parser, transpile_last_error, gen_match_variant_binding
-from "src_nano/compiler/nanoisa_codegen.nano" import nisa_match_coverage
+from "src_nano/compiler/nanoisa_codegen.nano" import nisa_match_coverage, nanoisa_emit_program_nasm
 
 fn service_parse(source: string) -> Parser {
     let tokens: List<LexerToken> = (tokenize_string source "binding.nano" (diag_list_new))
@@ -68,23 +67,15 @@ fn ordinary_bindings() -> void {
         let expected_coverage: bool = (< i 2)
         assert (== (typecheck_phase p "ordinary-zero.nano").had_error expected_error)
         assert (== (nisa_match_coverage p matched (parser_get_union p 0)) expected_coverage)
+        let emitted: string = (nanoisa_emit_program_nasm p)
         if (< i 2) {
-            let emitted: string = (transpile_parser p)
             assert (!= emitted "")
-            assert (== (transpile_last_error) "")
-            assert (== (gen_match_variant_binding p "Choice" "None" "" "") "")
-            assert (== (transpile_last_error) "")
-            assert (== (gen_match_variant_binding p "Choice" "Some" "" "") "")
-            assert (str_contains (transpile_last_error) "zero-field")
-            let recovered: string = (transpile_parser p)
-            assert (!= recovered "")
-            assert (== (transpile_last_error) "")
-            assert (== (gen_match_variant_binding p "Choice" "Missing" "" "") "")
-            assert (str_contains (transpile_last_error) "zero-field")
-            let final: string = (transpile_parser p)
-            assert (!= final "")
-            assert (== (transpile_last_error) "")
-        }
+            assert (str_contains emitted ".function main")
+        } else { assert (== emitted "") }
+        let recovered: Parser = (service_parse (+ prefix (+ (at arms 0) " } }")))
+        let first: string = (nanoisa_emit_program_nasm recovered)
+        assert (!= first "")
+        assert (== first (nanoisa_emit_program_nasm recovered))
     }
     let malformed: Parser = (service_parse (+ prefix "None() => { return 7 } Some(,) => { return 8 } } }"))
     assert (parser_has_error malformed)

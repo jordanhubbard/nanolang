@@ -1,0 +1,24 @@
+[
+  {
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nano_virt",
+      "/private/tmp/nanolang-array-slice-retirement-probe.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-array-slice-probe-20261008/nano_virt.nvm"
+    ],
+    "tool_sha256": "78f9916a2e58b669c4d147fe591ee11c324e07a0d8392998f77b351a8dcbe442",
+    "exit_code": 1
+  },
+  {
+    "command": [
+      "/private/tmp/nanolang-retirement-20261008/bin/nanoc_stage2",
+      "/private/tmp/nanolang-array-slice-retirement-probe.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-array-slice-probe-20261008/nanoc_stage2.nvm"
+    ],
+    "tool_sha256": "91872f5feef3036d24b813e19d17ed76f23200ebbe111d8556e8930abf5574eb",
+    "exit_code": 1
+  }
+]

@@ -1,0 +1,66 @@
+test_array_binding_parity (__main__.EnumGenerics.test_array_binding_parity) ... ok
+test_builtin_tail_call_does_not_enter_generic_specialization (__main__.EnumGenerics.test_builtin_tail_call_does_not_enter_generic_specialization) ... ok
+test_distinct_enum_bindings_refuse_during_checking (__main__.EnumGenerics.test_distinct_enum_bindings_refuse_during_checking) ... ok
+test_distinct_record_specializations (__main__.EnumGenerics.test_distinct_record_specializations) ... ok
+test_enum_array_identity (__main__.EnumGenerics.test_enum_array_identity) ... ok
+test_enum_literal_return_local_and_field (__main__.EnumGenerics.test_enum_literal_return_local_and_field) ... ok
+test_generic_array_contexts_reject_wrong_elements (__main__.EnumGenerics.test_generic_array_contexts_reject_wrong_elements) ... ok
+test_generic_array_mutation_preserves_aliases_and_empty_types (__main__.EnumGenerics.test_generic_array_mutation_preserves_aliases_and_empty_types) ... ok
+test_growing_array_specializations_preserve_output (__main__.EnumGenerics.test_growing_array_specializations_preserve_output) ... ok
+test_imported_enum_results (__main__.EnumGenerics.test_imported_enum_results) ... FAIL
+test_imported_generic_array_results_keep_complete_types (__main__.EnumGenerics.test_imported_generic_array_results_keep_complete_types) ... ok
+test_imported_qualified_and_selective_owners (__main__.EnumGenerics.test_imported_qualified_and_selective_owners) ... ok
+test_imported_structural_generic_parameters (__main__.EnumGenerics.test_imported_structural_generic_parameters) ... ok
+test_nested_array_calls_and_record_elements (__main__.EnumGenerics.test_nested_array_calls_and_record_elements) ... ok
+test_primitive_generic_fixture (__main__.EnumGenerics.test_primitive_generic_fixture) ... ok
+test_repeated_generic_array_types_must_match (__main__.EnumGenerics.test_repeated_generic_array_types_must_match) ... ok
+test_repeated_type_variable_rejects_distinct_records (__main__.EnumGenerics.test_repeated_type_variable_rejects_distinct_records) ... ok
+test_retained_record_result_regression (__main__.EnumGenerics.test_retained_record_result_regression) ... ok
+test_same_named_imported_enums_remain_distinct (__main__.EnumGenerics.test_same_named_imported_enums_remain_distinct) ... FAIL
+test_structural_array_minimum (__main__.EnumGenerics.test_structural_array_minimum) ... ok
+test_structural_array_parameters (__main__.EnumGenerics.test_structural_array_parameters) ... ok
+test_structural_callable_local_and_nominal_letter (__main__.EnumGenerics.test_structural_callable_local_and_nominal_letter) ... ok
+test_structural_callable_parameters (__main__.EnumGenerics.test_structural_callable_parameters) ... ok
+test_structural_generic_refusals_preserve_output (__main__.EnumGenerics.test_structural_generic_refusals_preserve_output) ... ok
+test_typed_locals_transitive_calls_and_recursion (__main__.EnumGenerics.test_typed_locals_transitive_calls_and_recursion) ... ok
+test_unbound_structural_result_preserves_output (__main__.EnumGenerics.test_unbound_structural_result_preserves_output) ... ok
+
+======================================================================
+FAIL: test_imported_enum_results (__main__.EnumGenerics.test_imported_enum_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nl51-enum-candidate/test_candidate.py", line 47, in test_imported_enum_results
+    self.execute('module "a.nano" as a\nmodule "b.nano" as b\n'
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'fn identity(value:T)->T{return value}\nshadow identity {assert (== (identity 1) 1)}\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        'a.nano':'pub enum Shade {VALUE=1}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 1)}\n',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'b.nano':'pub enum Shade {VALUE=2}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 2)}\n'})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 27, in execute
+    self.run_command([COMPILER, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 17, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 1, column 5: Enum 'Shade' is already defined
+Error: Type checking failed for module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-1100qhpi/b.nano'
+Error at line 2, column 1: Failed to load module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-1100qhpi/b.nano'
+error: module loading failed
+
+
+======================================================================
+FAIL: test_same_named_imported_enums_remain_distinct (__main__.EnumGenerics.test_same_named_imported_enums_remain_distinct)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nl51-enum-candidate/test_candidate.py", line 65, in test_same_named_imported_enums_remain_distinct
+    self.assertIn('one concrete identity',r.stdout+r.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'one concrete identity' not found in "Error at line 1, column 5: Enum 'Shade' is already defined\nError: Type checking failed for module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpnvysx9zf/b.nano'\nError at line 2, column 1: Failed to load module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpnvysx9zf/b.nano'\nerror: module loading failed\n"
+
+----------------------------------------------------------------------
+Ran 26 tests in 7.917s
+
+FAILED (failures=2)

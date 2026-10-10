@@ -1,0 +1,15 @@
+{
+  "source_commit": "4f56b353ced394c13317a3df14fafffe1dfd28ff",
+  "root": "/private/tmp/nanolang-callables-4f56b353c",
+  "command": [
+    "make",
+    "-j2",
+    "test-one-ir-compiler"
+  ],
+  "initial_status": "clean",
+  "exit_code": 0,
+  "seconds": 732.2231629169837,
+  "log_sha256": "7dc76411a90328db09b0443b99113b9a5836fa3b40f22de933ba00396a9ea673",
+  "final_status": "",
+  "head_unchanged": true
+}

@@ -1,0 +1,27 @@
+test_shared_aliases_and_forwarded_loans (tests.test_service_drivers.ServiceDrivers.test_shared_aliases_and_forwarded_loans) ... ok
+test_cyclic_and_overlapping_owner_refusals_preserve_output (tests.test_service_drivers.ServiceDrivers.test_cyclic_and_overlapping_owner_refusals_preserve_output) ... 
+  test_cyclic_and_overlapping_owner_refusals_preserve_output (tests.test_service_drivers.ServiceDrivers.test_cyclic_and_overlapping_owner_refusals_preserve_output) (driver='nanoc_c', body='fn mutate(a:&File)->int{let result:PositionResult=(rewind &mut a) return 0} fn main()->int{return 0}') ... FAIL
+  test_cyclic_and_overlapping_owner_refusals_preserve_output (tests.test_service_drivers.ServiceDrivers.test_cyclic_and_overlapping_owner_refusals_preserve_output) (driver='nano_virt', body='fn mutate(a:&File)->int{let result:PositionResult=(rewind &mut a) return 0} fn main()->int{return 0}') ... FAIL
+
+======================================================================
+FAIL: test_cyclic_and_overlapping_owner_refusals_preserve_output (tests.test_service_drivers.ServiceDrivers.test_cyclic_and_overlapping_owner_refusals_preserve_output) (driver='nanoc_c', body='fn mutate(a:&File)->int{let result:PositionResult=(rewind &mut a) return 0} fn main()->int{return 0}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_drivers.py", line 189, in test_cyclic_and_overlapping_owner_refusals_preserve_output
+    self.assertIn('ownership',run.stdout+run.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ownership' not found in 'I cannot type-check File service bodies: I require a mutable File root for an exclusive borrow.\nI have not resolved File service declarations for this consumer.\nModule loading failed\n'
+
+======================================================================
+FAIL: test_cyclic_and_overlapping_owner_refusals_preserve_output (tests.test_service_drivers.ServiceDrivers.test_cyclic_and_overlapping_owner_refusals_preserve_output) (driver='nano_virt', body='fn mutate(a:&File)->int{let result:PositionResult=(rewind &mut a) return 0} fn main()->int{return 0}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_drivers.py", line 189, in test_cyclic_and_overlapping_owner_refusals_preserve_output
+    self.assertIn('ownership',run.stdout+run.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ownership' not found in 'I cannot type-check File service bodies: I require a mutable File root for an exclusive borrow.\nI have not resolved File service declarations for this consumer.\nerror: module loading failed\n'
+
+----------------------------------------------------------------------
+Ran 2 tests in 72.259s
+
+FAILED (failures=2)

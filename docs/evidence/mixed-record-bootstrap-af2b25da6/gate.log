@@ -1,0 +1,94 @@
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+✓ Bootstrap Stage 0: C reference compiler ready
+python3 scripts/embed_binary64_parser.py --check
+I run seed; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/00-seed.log.
+I run seed-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/01-seed-verify.log.
+I run stage1; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/02-stage1.log.
+I run stage1-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/03-stage1-verify.log.
+I run stage1-translate; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/04-stage1-translate.log.
+I run stage1-native; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/05-stage1-native.log.
+I run stage1-hello-compile; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/06-stage1-hello-compile.log.
+I run stage1-hello-execute; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/07-stage1-hello-execute.log.
+I run stage2; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/08-stage2.log.
+I run stage2-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/09-stage2-verify.log.
+I run stage2-translate; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/10-stage2-translate.log.
+I run stage2-native; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/11-stage2-native.log.
+I run stage2-hello-compile; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/12-stage2-hello-compile.log.
+I run stage2-hello-execute; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/13-stage2-hello-execute.log.
+I run seed-final-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/14-seed-final-verify.log.
+I run stage1-final-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/15-stage1-final-verify.log.
+I run stage2-final-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-x8llgqn8/16-stage2-final-verify.log.
+I compared raw Stage 1 and Stage 2 modules: they are byte-identical in this build.
+I have not established reproducibility across clean environments or proved compiler semantic correctness.
+I installed bin/nanoc from the verified Stage 2 module.
+Hello from NanoLang!
+ld: warning: ignoring duplicate libraries: '-lm'
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+ld: warning: ignoring duplicate libraries: '-lm'
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+
+==========================================
+✅ TRUE BOOTSTRAP COMPLETE!
+==========================================
+Bootstrap Status:
+
+  ✅ Stage 0: C reference compiler (bin/nanoc)
+  ✅ Stage 1: Self-hosted compiler (bin/nanoc_stage1)
+  ✅ Stage 2: Recompiled compiler (bin/nanoc_stage2)
+  Stage 3: recorded comparison and installed-compiler smoke checks passed.
+
+  I do not infer compiler correctness or release readiness from this stamp.
+
+
+✓ Self-hosted compiler installed as bin/nanoc
+✓ Stage binaries preserved in bin/ for verification
+✓ All future builds will use the self-hosted compiler
+
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 18.028s
+
+OK
+python3 -m unittest -v tests.test_imported_globals
+test_captured_local_shadows_imported_alias (tests.test_imported_globals.ImportedGlobals.test_captured_local_shadows_imported_alias) ... ok
+test_conflicting_aliases_preserve_output (tests.test_imported_globals.ImportedGlobals.test_conflicting_aliases_preserve_output) ... ok
+test_diamond_initialization_runs_once (tests.test_imported_globals.ImportedGlobals.test_diamond_initialization_runs_once) ... ok
+test_immutable_public_value_in_pure_function (tests.test_imported_globals.ImportedGlobals.test_immutable_public_value_in_pure_function) ... ok
+test_imported_call_snapshot_before_argument (tests.test_imported_globals.ImportedGlobals.test_imported_call_snapshot_before_argument) ... ok
+test_imported_callable_globals (tests.test_imported_globals.ImportedGlobals.test_imported_callable_globals) ... ok
+test_imported_closure_global_capture (tests.test_imported_globals.ImportedGlobals.test_imported_closure_global_capture) ... ok
+test_imported_integer_arrays (tests.test_imported_globals.ImportedGlobals.test_imported_integer_arrays) ... ok
+test_imported_qualified_map (tests.test_imported_globals.ImportedGlobals.test_imported_qualified_map) ... ok
+test_imported_qualified_record (tests.test_imported_globals.ImportedGlobals.test_imported_qualified_record) ... ok
+test_imported_qualified_string_array (tests.test_imported_globals.ImportedGlobals.test_imported_qualified_string_array) ... ok
+test_imported_record_module_identity (tests.test_imported_globals.ImportedGlobals.test_imported_record_module_identity) ... ok
+test_imported_selective_map (tests.test_imported_globals.ImportedGlobals.test_imported_selective_map) ... ok
+test_imported_selective_record (tests.test_imported_globals.ImportedGlobals.test_imported_selective_record) ... ok
+test_imported_selective_string_array (tests.test_imported_globals.ImportedGlobals.test_imported_selective_string_array) ... ok
+test_legacy_plain_import_keeps_immutable_constants (tests.test_imported_globals.ImportedGlobals.test_legacy_plain_import_keeps_immutable_constants) ... ok
+test_mutable_aliases_share_storage (tests.test_imported_globals.ImportedGlobals.test_mutable_aliases_share_storage) ... ok
+test_private_missing_wrong_type_and_immutable_write_preserve_output (tests.test_imported_globals.ImportedGlobals.test_private_missing_wrong_type_and_immutable_write_preserve_output) ... ok
+test_qualified_distinct_types_and_dependency_shadows (tests.test_imported_globals.ImportedGlobals.test_qualified_distinct_types_and_dependency_shadows) ... ok
+test_qualified_map_type_refusals (tests.test_imported_globals.ImportedGlobals.test_qualified_map_type_refusals) ... ok
+test_qualified_write_refusals_preserve_output (tests.test_imported_globals.ImportedGlobals.test_qualified_write_refusals_preserve_output) ... ok
+test_qualified_writes_share_alias_storage (tests.test_imported_globals.ImportedGlobals.test_qualified_writes_share_alias_storage) ... ok
+test_relative_spellings_share_canonical_storage (tests.test_imported_globals.ImportedGlobals.test_relative_spellings_share_canonical_storage) ... ok
+test_repeated_alias_keeps_identity (tests.test_imported_globals.ImportedGlobals.test_repeated_alias_keeps_identity) ... ok
+test_resource_bearing_globals_preserve_output (tests.test_imported_globals.ImportedGlobals.test_resource_bearing_globals_preserve_output) ... ok
+test_selective_aliases_and_lexical_shadowing (tests.test_imported_globals.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) ... ok
+test_transitive_selective_import_keeps_declaring_context (tests.test_imported_globals.ImportedGlobals.test_transitive_selective_import_keeps_declaring_context) ... ok
+test_wildcard_public_globals (tests.test_imported_globals.ImportedGlobals.test_wildcard_public_globals) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 20.684s
+
+OK
+python3 -m unittest -v tests.test_selfhost_native_link_flags
+test_instrumented_object_uses_effective_link_flags (tests.test_selfhost_native_link_flags.NativeProductLinkFlags.test_instrumented_object_uses_effective_link_flags) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.066s
+
+OK

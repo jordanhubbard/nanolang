@@ -10,11 +10,9 @@
       "WebFetch(domain:jordanhubbard.github.io)",
       "mcp__responsible-vibe-mcp__list_workflows",
       "Bash(./bin/nanoc --help)",
-      "Bash(mac task *)",
       "Bash(xargs -I{} sh -c 'echo \"== {} ==\"; cat {}')",
       "Bash(./tests/cross-backend/run-all.sh bin/nanoc)",
       "Bash(./bin/nanoc tests/cross-backend/05_match.nano -o /tmp/nc_out_match --keep-c)",
-      "Bash(/Users/jordanh/.local/bin/mac task *)",
       "Bash(./bin/nanoc tests/cross-backend/05_match.nano --target c -o /tmp/nc_out_match_c --keep-c)",
       "Bash(gh pr *)",
       "Bash(gh issue *)",
@@ -24,7 +22,8 @@
       "Bash(echo \"grep exit=$?\")",
       "Bash(git push *)",
       "Bash(gh run *)",
-      "Bash(gh api *)"
+      "Bash(gh api *)",
+      "Bash(gh issue *)"
     ]
   },
   "enableAllProjectMcpServers": true,

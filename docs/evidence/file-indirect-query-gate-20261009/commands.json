@@ -1,0 +1,498 @@
+[
+  {
+    "artifacts": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect_targets-bcr7e6ol",
+    "commands": [
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -DFLOW_INSTRUMENT tests/nanoisa/test_file_indirect_targets.c src/nanoisa/service_file_nominal.c src/nsi_file_plan.c obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect_targets-bcr7e6ol/instrumented",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect_targets-bcr7e6ol/instrumented",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include tests/nanoisa/test_file_indirect_targets.c src/nanoisa/service_file_nominal.c src/nsi_file_plan.c src/nanoisa/service_file_nominal_plan.c src/nanoisa/file_flow.c obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect_targets-bcr7e6ol/linked",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect_targets-bcr7e6ol/linked",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      }
+    ]
+  },
+  {
+    "artifacts": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect_flow-9fyz_819",
+    "commands": [
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -DFLOW_INSTRUMENT tests/nanoisa/test_file_indirect_flow.c src/nanoisa/service_file_nominal.c src/nsi_file_plan.c obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect_flow-9fyz_819/instrumented",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect_flow-9fyz_819/instrumented",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include tests/nanoisa/test_file_indirect_flow.c src/nanoisa/service_file_nominal.c src/nsi_file_plan.c src/nanoisa/service_file_nominal_plan.c src/nanoisa/file_flow.c obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect_flow-9fyz_819/linked",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect_flow-9fyz_819/linked",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      }
+    ]
+  },
+  {
+    "artifacts": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2",
+    "commands": [
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -DHOSTED_INSTRUMENT tests/nanoisa/test_file_indirect_hosted.c /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-service_file_nominal_plan.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-service_bindings_module.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_format.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_constants.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_signatures.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_layouts.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_functions.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_imports.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_module.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_convert.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-retained_layouts.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-ownership_contracts.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_bindings.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -include tests/nanoisa/file_hosted_alloc.h -Dmalloc=file_test_malloc -Dcalloc=file_test_calloc -Drealloc=file_test_realloc -Dfree=file_test_free -c src/nanoisa/nvm_format.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_format.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -include tests/nanoisa/file_hosted_alloc.h -Dmalloc=file_test_malloc -Dcalloc=file_test_calloc -Drealloc=file_test_realloc -Dfree=file_test_free -c src/nanoisa/nvm_v2_constants.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_constants.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -include tests/nanoisa/file_hosted_alloc.h -Dmalloc=file_test_malloc -Dcalloc=file_test_calloc -Drealloc=file_test_realloc -Dfree=file_test_free -c src/nanoisa/nvm_v2_convert.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_convert.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -include tests/nanoisa/file_hosted_alloc.h -Dmalloc=file_test_malloc -Dcalloc=file_test_calloc -Drealloc=file_test_realloc -Dfree=file_test_free -c src/nanoisa/nvm_v2_functions.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_functions.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -include tests/nanoisa/file_hosted_alloc.h -Dmalloc=file_test_malloc -Dcalloc=file_test_calloc -Drealloc=file_test_realloc -Dfree=file_test_free -c src/nanoisa/nvm_v2_imports.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_imports.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -include tests/nanoisa/file_hosted_alloc.h -Dmalloc=file_test_malloc -Dcalloc=file_test_calloc -Drealloc=file_test_realloc -Dfree=file_test_free -c src/nanoisa/nvm_v2_layouts.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_layouts.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -include tests/nanoisa/file_hosted_alloc.h -Dmalloc=file_test_malloc -Dcalloc=file_test_calloc -Drealloc=file_test_realloc -Dfree=file_test_free -c src/nanoisa/nvm_v2_module.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_module.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -include tests/nanoisa/file_hosted_alloc.h -Dmalloc=file_test_malloc -Dcalloc=file_test_calloc -Drealloc=file_test_realloc -Dfree=file_test_free -c src/nanoisa/nvm_v2_signatures.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-nvm_v2_signatures.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -include tests/nanoisa/file_hosted_alloc.h -Dmalloc=file_test_malloc -Dcalloc=file_test_calloc -Drealloc=file_test_realloc -Dfree=file_test_free -c src/nanoisa/ownership_contracts.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-ownership_contracts.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -include tests/nanoisa/file_hosted_alloc.h -Dmalloc=file_test_malloc -Dcalloc=file_test_calloc -Drealloc=file_test_realloc -Dfree=file_test_free -c src/nanoisa/retained_layouts.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-retained_layouts.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -include tests/nanoisa/file_hosted_alloc.h -Dmalloc=file_test_malloc -Dcalloc=file_test_calloc -Drealloc=file_test_realloc -Dfree=file_test_free -c src/nanoisa/service_bindings_module.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-service_bindings_module.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -include tests/nanoisa/file_hosted_alloc.h -Dmalloc=file_test_malloc -Dcalloc=file_test_calloc -Drealloc=file_test_realloc -Dfree=file_test_free -c src/nanoisa/service_file_nominal_plan.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/instrumented-service_file_nominal_plan.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -c src/nanoisa/file_flow.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-file_flow.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror tests/nanoisa/test_file_indirect_hosted.c /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-file_flow.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-service_file_nominal_plan.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-service_bindings_module.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_format.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_constants.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_signatures.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_layouts.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_functions.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_imports.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_module.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_convert.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-retained_layouts.o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-ownership_contracts.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_bindings.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o lib/libnano_compiler_inputs.a obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -c src/nanoisa/nvm_format.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_format.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -c src/nanoisa/nvm_v2_constants.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_constants.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -c src/nanoisa/nvm_v2_convert.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_convert.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -c src/nanoisa/nvm_v2_functions.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_functions.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -c src/nanoisa/nvm_v2_imports.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_imports.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -c src/nanoisa/nvm_v2_layouts.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_layouts.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -c src/nanoisa/nvm_v2_module.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_module.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -c src/nanoisa/nvm_v2_signatures.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-nvm_v2_signatures.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -c src/nanoisa/ownership_contracts.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-ownership_contracts.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -c src/nanoisa/retained_layouts.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-retained_layouts.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -c src/nanoisa/service_bindings_module.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-service_bindings_module.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      },
+      {
+        "command": "/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -g -O1 -Wall -Wextra -Werror -c src/nanoisa/service_file_nominal_plan.c -o /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-indirect-hosted-u5zfauz2/linked-service_file_nominal_plan.o",
+        "status": {
+          "timeout": false,
+          "returncode": 0,
+          "leader_reaped": true,
+          "group_disappeared": true,
+          "bound_seconds": 240,
+          "errors": [],
+          "cleanup_signals": [],
+          "launched": true
+        }
+      }
+    ]
+  }
+]

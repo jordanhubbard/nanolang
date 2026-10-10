@@ -1,0 +1,6 @@
+test_multiple_borrow_shadow_failure_preserves_output (tests.test_service_drivers.ServiceDrivers.test_multiple_borrow_shadow_failure_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.428s
+
+OK

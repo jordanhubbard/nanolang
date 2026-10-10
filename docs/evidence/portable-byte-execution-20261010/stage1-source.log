@@ -1,0 +1,1 @@
+I pass binary source contents, aliases and independent reads from the newly bootstrapped Stage 1 native compiler through VM/C/LLVM/Node.

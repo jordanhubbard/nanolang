@@ -1,0 +1,18 @@
+fn make_offset(n: int) -> fn() -> fn() -> int {
+    return fn() -> fn() -> int {
+        return fn() -> int { return (+ n 2) }
+    }
+}
+shadow make_offset {
+    let middle: fn() -> fn() -> int = (make_offset 40)
+    let inner: fn() -> int = (middle)
+    assert (== (inner) 42)
+}
+fn main() -> int {
+    let middle: fn() -> fn() -> int = (make_offset 40)
+    let inner: fn() -> int = (middle)
+    assert (== (inner) 42)
+    (println (inner))
+    return 0
+}
+shadow main { assert (== (main) 0) }

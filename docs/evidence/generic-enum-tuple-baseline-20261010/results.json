@@ -1,0 +1,38 @@
+[
+  {
+    "case": "enum",
+    "producer": "cseed",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "case": "enum",
+    "producer": "selfhost",
+    "returncode": 0,
+    "preserved": false
+  },
+  {
+    "case": "enum-mismatch",
+    "producer": "cseed",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "case": "enum-mismatch",
+    "producer": "selfhost",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "case": "tuple",
+    "producer": "cseed",
+    "returncode": 1,
+    "preserved": true
+  },
+  {
+    "case": "tuple",
+    "producer": "selfhost",
+    "returncode": 0,
+    "preserved": false
+  }
+]

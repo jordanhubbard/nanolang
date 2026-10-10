@@ -1,0 +1,14 @@
+I retain list insertion evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-6rd4ztqn
+test_evaluation_order_once (tests.test_nanoisa_list_remove.ListRemoval.test_evaluation_order_once) ... ok
+test_invalid_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_invalid_bounds_trap) ... ok
+test_positions_aliases_and_record_payloads (tests.test_nanoisa_list_remove.ListRemoval.test_positions_aliases_and_record_payloads) ... ok
+test_removal_bounds_trap (tests.test_nanoisa_list_remove.ListRemoval.test_removal_bounds_trap) ... ok
+test_removal_without_pop (tests.test_nanoisa_list_remove.ListRemoval.test_removal_without_pop) ... ok
+test_remove_and_pop_preserve_aliases_and_values (tests.test_nanoisa_list_remove.ListRemoval.test_remove_and_pop_preserve_aliases_and_values) ... ok
+test_unchecked_emitter_refuses_invalid_types (tests.test_nanoisa_list_remove.ListRemoval.test_unchecked_emitter_refuses_invalid_types) ... ok
+test_unchecked_removal_operand_refusals (tests.test_nanoisa_list_remove.ListRemoval.test_unchecked_removal_operand_refusals) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 7.474s
+
+OK

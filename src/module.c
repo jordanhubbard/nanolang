@@ -3,6 +3,11 @@
 #include "module_builder.h"
 #include "shell_path.h"
 #include "stdlib_runtime.h"
+#include "utf8.h"
+#include "nanoisa/file_source_snapshot.h"
+#include "service_namespace.h"
+#include "service_bodies.h"
+#include "service_ownership.h"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -312,8 +317,8 @@ char *unpack_module_package(const char *package_path, char *temp_dir_out, size_t
 const char *resolve_module_path(const char *module_path, const char *current_file) {
     if (!module_path) return NULL;
     
-    /* If module_path is absolute or starts with ./, use as-is */
-    if (module_path[0] == '/' || (module_path[0] == '.' && module_path[1] == '/')) {
+    /* I resolve explicit relative paths from the importing file, like bare paths. */
+    if (module_path[0] == '/') {
         return strdup(module_path);
     }
     
@@ -669,6 +674,17 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
         return NULL;
     }
     
+    /* I retain the whole service graph before checking any service identities.
+     * Ordinary modules loaded before its first service keep their existing path. */
+    if (env->service_origin_count > 0) {
+        env->current_module = saved_current_module;
+        free(module_name);
+        free_tokens(tokens, token_count);
+        free(source);
+        if (use_cache) cache_module_with_ast(module_path, module_ast);
+        return module_ast;
+    }
+
     /* Type check module (without requiring main) */
     /* I must not merge distinct files into one public introspection identity.
      * Imports are resolved first so this also catches a parent/child clash. */
@@ -691,6 +707,9 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
             return NULL;
         }
     }
+    /* I retain the same physical source under its declared introspection name. */
+    if (identity && strcmp(identity, module_name) != 0)
+        env_register_module(env, identity, module_path, false);
     free(identity);
     /* Register module for introspection BEFORE type checking so functions can be tracked */
     env_register_module(env, module_name, module_path, false);  /* is_unsafe will be updated later */
@@ -736,37 +755,26 @@ static ASTNode *load_module_internal(const char *module_path, Environment *env, 
     if (meta && meta->headers_count > 0) {
         /* Try to find and parse C headers for constants */
         for (size_t i = 0; i < meta->headers_count; i++) {
-            /* Try to locate the header - check system include paths */
-            char header_path[1024];
-            
-            /* Try common locations */
-            const char *search_paths[] = {
-                "/opt/homebrew/include",  /* macOS homebrew */
-                "/usr/local/include",      /* Linux/macOS local */
-                "/usr/include",            /* Linux system */
-                NULL
-            };
-            
-            bool found = false;
-            for (int j = 0; search_paths[j] != NULL; j++) {
-                snprintf(header_path, sizeof(header_path), "%s/%s", search_paths[j], meta->headers[i]);
-                FILE *test = fopen(header_path, "r");
-                if (test) {
-                    fclose(test);
-                    found = true;
-                    break;
-                }
-            }
-            
-            if (found) {
+            char *header_path = module_find_header(meta->headers[i]);
+            if (header_path) {
                 int const_count = 0;
                 ConstantDef *constants = parse_c_header_constants(header_path, &const_count);
+                free(header_path);
                 
                 if (constants && const_count > 0) {
                     /* Add constants to environment as immutable symbols */
                     for (int j = 0; j < const_count; j++) {
-                        /* Check if symbol already exists (from manual declarations) */
+                        /* I keep this module's explicit functions authoritative
+                         * over constants discovered implicitly in its headers. */
                         bool exists = false;
+                        for (int k = 0; k < module_ast->as.program.count; k++) {
+                            ASTNode *declaration = module_ast->as.program.items[k];
+                            if (declaration->type == AST_FUNCTION &&
+                                strcmp(declaration->as.function.name, constants[j].name) == 0) {
+                                exists = true;
+                                break;
+                            }
+                        }
                         for (int k = 0; k < env->symbol_count; k++) {
                             if (strcmp(env->symbols[k].name, constants[j].name) == 0) {
                                 exists = true;
@@ -900,11 +908,103 @@ ASTNode *load_module_from_package(const char *package_path, Environment *env, ch
 
 static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file);
 
-/* I apply an explicit module declaration before registering its import aliases. */
-bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
+/* I bind the parser's own source before import aliases or module declarations
+ * can change visible names. Failure leaves both the AST and origin table intact. */
+bool bind_service_origin(ASTNode *program, Environment *env, const char *source_file) {
     if (!program || program->type != AST_PROGRAM || !env) return false;
-    if (ast_has_service_declaration(program)) {
-        fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+    if (!ast_has_service_declaration(program)) return true;
+    int declarations = 0;
+    for (int i = 0; i < program->as.program.count; ++i)
+        if (program->as.program.items[i]->type == AST_SERVICE_DECL) ++declarations;
+    if (declarations != 1) return false;
+    if (!source_file || !source_file[0]) return false;
+    char *canonical = realpath(source_file, NULL);
+    if (!canonical) return false;
+    size_t size = strlen(canonical);
+    if (!size || size > 4096 || canonical[0] != '/' || !nl_utf8_validate(canonical, size, NULL)) {
+        free(canonical);
+        return false;
+    }
+    int index = 0;
+    while (index < env->service_origin_count &&
+           strcmp(env->service_origins[index], canonical)) ++index;
+    if (index == 16) { free(canonical); return false; }
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *node = program->as.program.items[i];
+        if (node->type != AST_SERVICE_DECL) continue;
+        if (node->as.service_decl.origin_index != -1 &&
+            node->as.service_decl.origin_index != index) { free(canonical); return false; }
+    }
+    if (index == env->service_origin_count) {
+        env->service_origins[env->service_origin_count++] = canonical;
+    } else free(canonical);
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *node = program->as.program.items[i];
+        if (node->type == AST_SERVICE_DECL) node->as.service_decl.origin_index = index;
+    }
+    return true;
+}
+
+/* I acquire data under the original source identity. Repeated import aliases
+ * retain the first immutable bytes rather than reopening a changed document. */
+bool acquire_service_input(ASTNode *program, Environment *env) {
+    if (!program || program->type != AST_PROGRAM || !env) return false;
+    ASTNode *service = NULL;
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *node = program->as.program.items[i];
+        if (node->type != AST_SERVICE_DECL) continue;
+        if (service) return false;
+        service = node;
+    }
+    if (!service) return true;
+    int64_t owner = service->as.service_decl.origin_index;
+    const char *interface_id = service->as.service_decl.interface_id;
+    const char *relative = service->as.service_decl.document_path;
+    if (owner < 0 || owner >= env->service_origin_count || owner >= 16 ||
+        service->as.service_decl.catalog_version != 1 || !interface_id || !relative ||
+        !nl_service_source_catalog_id(interface_id) ||
+        service->as.service_decl.interface_bytes != (int64_t)strlen(interface_id) ||
+        service->as.service_decl.path_bytes <= 0 ||
+        service->as.service_decl.path_bytes > NL_FILE_BINDING_MAX_BYTES ||
+        (uint64_t)service->as.service_decl.path_bytes != strlen(relative)) return false;
+    const char *origin = env->service_origins[owner];
+    if (!origin) return false;
+    if (env->service_snapshot_bound[owner]) {
+        size_t size = 0, parent = strlen(origin), count = strlen(relative);
+        const unsigned char *path = nl_file_source_snapshot_bytes(env->service_inputs,
+            env->service_snapshot_indices[owner], 0, &size);
+        while (parent && origin[parent - 1] != '/') --parent;
+        return nl_service_source_snapshot_catalog(env->service_inputs, env->service_snapshot_indices[owner]) ==
+            nl_service_source_catalog_id(interface_id) && path && parent <= size && count == size - parent &&
+            !memcmp(path, origin, parent) && !memcmp(path + parent, relative, count);
+    }
+    if (!env->service_inputs &&
+        nl_file_source_snapshots_new(&env->service_inputs) != NL_FILE_BINDING_OK) return false;
+    size_t index;
+    if (nl_service_source_snapshot_open(env->service_inputs, nl_service_source_catalog_id(interface_id), origin, strlen(origin),
+            relative, service->as.service_decl.path_bytes, &index) != NL_FILE_BINDING_OK) return false;
+    env->service_snapshot_indices[owner] = index;
+    env->service_snapshot_bound[owner] = true;
+    return true;
+}
+
+/* I apply an explicit module declaration before registering its import aliases. */
+static bool process_imports_consumer(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file, bool service_consumer) {
+    if (!program || program->type != AST_PROGRAM || !env) return false;
+    if (env->service_import_depth == 0) {
+        nl_service_ownership_free(env->service_ownership);
+        env->service_ownership = NULL;
+        nl_service_body_check_free(env->service_bodies);
+        env->service_bodies = NULL;
+        nl_service_namespace_free(env->service_namespace);
+        env->service_namespace = NULL;
+    }
+    if (!bind_service_origin(program, env, current_file)) {
+        fprintf(stderr, "I cannot retain the original source of this File service declaration.\n");
+        return false;
+    }
+    if (!acquire_service_input(program, env)) {
+        fprintf(stderr, "I cannot acquire the immutable companion of this File service declaration.\n");
         return false;
     }
     char *saved_owner = env->current_module;
@@ -915,9 +1015,61 @@ bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, co
             break;
         }
     }
+    bool root = env->service_import_depth++ == 0;
+    bool own_modules = root && !modules;
+    if (own_modules) modules = create_module_list();
     bool ok = process_imports_owned(program, env, modules, current_file);
+    --env->service_import_depth;
     env->current_module = saved_owner;
+    if (root && ok && env->service_origin_count > 0) {
+        NlServiceNamespace *space = NULL;
+        NlFileSourceStatus status = nl_service_namespace_build(program, env, modules, current_file, &space);
+        if (status != NL_FILE_SOURCE_OK) {
+            fprintf(stderr, "I cannot resolve the complete File service namespace (status %d).\n", status);
+        } else {
+            nl_service_namespace_free(env->service_namespace);
+            env->service_namespace = space;
+            uint32_t module = 0;
+            while (nl_service_namespace_program(space, module)) {
+                if (!bind_service_annotations(nl_service_namespace_program(space, module), env,
+                        nl_service_namespace_module(space, module))) {
+                    fprintf(stderr, "I cannot retain nominal File type annotations.\n");
+                    nl_service_namespace_free(space);
+                    env->service_namespace = NULL;
+                    break;
+                }
+                ++module;
+            }
+            if (env->service_namespace) {
+                env->service_bodies = nl_service_check_bodies(space);
+                if (!env->service_bodies || env->service_bodies->status == 1 || env->service_bodies->status == 3)
+                    fprintf(stderr, "I cannot type-check File service bodies: %s\n",
+                            env->service_bodies ? env->service_bodies->diagnostic : "I cannot allocate body facts.");
+                if (env->service_bodies && env->service_bodies->status == 0) {
+                    env->service_ownership = nl_service_check_ownership(space, env->service_bodies);
+                    if (!env->service_ownership || env->service_ownership->status == 1 || env->service_ownership->status == 3)
+                        fprintf(stderr, "I cannot verify File service ownership: %s\n",
+                                env->service_ownership ? env->service_ownership->diagnostic : "I cannot allocate ownership facts.");
+                }
+            }
+        }
+        ok = service_consumer && env->service_namespace && env->service_bodies &&
+            env->service_bodies->status == 0 && env->service_ownership &&
+            env->service_ownership->status == 0;
+        if(!ok)fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
+    }
+    if (own_modules) free_module_list(modules);
     return ok;
+}
+
+bool process_imports(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
+    return process_imports_consumer(program,env,modules,current_file,false);
+}
+
+bool process_imports_for_service(ASTNode *program, Environment *env, ModuleList *modules, const char *current_file) {
+    /* I retain the complete graph through lowering; the caller owns modules. */
+    if(!modules)return false;
+    return process_imports_consumer(program,env,modules,current_file,true);
 }
 
 /* Process imports in a program */
@@ -1022,6 +1174,11 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                 module_list_add(modules, module_path);
             }
 
+            if (env->service_origin_count > 0) {
+                free(module_path);
+                continue;
+            }
+
             /* If module was already cached and returned NULL, try to grab cached AST for alias handling */
             if (module_ast == NULL) {
                 module_ast = get_cached_module_ast(module_path);
@@ -1083,6 +1240,43 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                 free(inferred_name);
             }
 
+            /* I retain public imports and the legacy plain-import immutable constant contract. */
+            for (int g = 0; g < module_ast->as.program.count; ++g) {
+                ASTNode *global = module_ast->as.program.items[g];
+                if (global->type != AST_LET) continue;
+                bool legacy_constant = !module_alias && !item->as.import_stmt.is_selective && !global->as.let.is_mut;
+                if (!global->as.let.is_pub && !legacy_constant) continue;
+                const char *name = global->as.let.name;
+                if (item->as.import_stmt.is_selective && !item->as.import_stmt.is_wildcard) {
+                    for (int selected = 0; selected < item->as.import_stmt.import_symbol_count; ++selected) {
+                        if (strcmp(item->as.import_stmt.import_symbols[selected], name)) continue;
+                        const char *alias = item->as.import_stmt.import_aliases ? item->as.import_stmt.import_aliases[selected] : NULL;
+                        if (!env_import_global(env, current_file, alias && *alias ? alias : name, global)) {
+                            fprintf(stderr, "I cannot bind a conflicting public global import.\n");
+                            free(module_path);
+                            return false;
+                        }
+                    }
+                } else {
+                    size_t length = (module_alias ? strlen(module_alias) + 1 : 0) + strlen(name) + 1;
+                    char *qualified = malloc(length);
+                    if (!qualified) { free(module_path); return false; }
+                    snprintf(qualified, length, "%s%s%s", module_alias ? module_alias : "", module_alias ? "." : "", name);
+                    bool bound = env_import_global(env, current_file, qualified, global);
+                    /* I preserve legacy literal folding without copying the binding into another scope. */
+                    Symbol *constant = bound && legacy_constant ? env_global_import_symbol_at(env, current_file, qualified) : NULL;
+                    ASTNode *value = global->as.let.value;
+                    if (constant && constant->value.type == VAL_VOID && value) {
+                        if (value->type == AST_NUMBER) constant->value = create_int(value->as.number);
+                        else if (value->type == AST_FLOAT) constant->value = create_float(value->as.float_val);
+                        else if (value->type == AST_BOOL) constant->value = create_bool(value->as.bool_val);
+                        else if (value->type == AST_STRING) constant->value = create_string(value->as.string_val);
+                    }
+                    free(qualified);
+                    if (!bound) { fprintf(stderr, "I cannot bind a conflicting public global import.\n"); free(module_path); return false; }
+                }
+            }
+
             /* Apply import aliases for selective imports: from "module" import foo as bar */
             if (item->as.import_stmt.is_selective &&
                 item->as.import_stmt.import_symbols &&
@@ -1117,6 +1311,7 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                     }
                     
                     Function *func = find_module_function(env, module_name_for_alias, symbol);
+                    if (!func && env_lookup_global_import_at(env, current_file, alias)) continue;
                     if (!func) {
                         fprintf(stderr, "Error at line %d, column %d: Symbol '%s' not found in module for alias '%s'\n",
                                 item->line, item->column, symbol, alias);
@@ -1145,33 +1340,6 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
             /* This makes module symbols available in the current environment */
             for (int j = 0; j < module_ast->as.program.count; j++) {
                 ASTNode *module_item = module_ast->as.program.items[j];
-                
-                /* Export top-level constants (immutable let statements) from modules */
-                if (module_item->type == AST_LET && !module_item->as.let.is_mut) {
-                    /* This is a constant - evaluate it and make it available in importing module */
-                    Value val = create_void();
-                    
-                    /* Try to evaluate constant expressions (literals and simple expressions) */
-                    if (module_item->as.let.value) {
-                        ASTNode *value_node = module_item->as.let.value;
-                        if (value_node->type == AST_NUMBER) {
-                            val = create_int(value_node->as.number);
-                        } else if (value_node->type == AST_FLOAT) {
-                            val = create_float(value_node->as.float_val);
-                        } else if (value_node->type == AST_BOOL) {
-                            val = create_bool(value_node->as.bool_val);
-                        } else if (value_node->type == AST_STRING) {
-                            val = create_string(value_node->as.string_val);
-                        }
-                        /* For complex expressions, keep as void - transpiler will use variable name */
-                    }
-                    
-                    env_define_var(env, module_item->as.let.name, 
-                                   module_item->as.let.var_type, 
-                                   false, val);
-                    env->symbols[env->symbol_count - 1].is_global = true;
-                    continue;
-                }
                 
                 /* Skip imports, shadows, and executable statements in modules */
                 if (module_item->type == AST_IMPORT || 
@@ -1283,7 +1451,10 @@ bool compile_module_to_object(const char *module_path,
         if (item->type == AST_MODULE_DECL && item->as.module_decl.name)
             module_env->current_module = item->as.module_decl.name;
     }
+    const char *saved_source_file = env_current_file(module_env);
+    env_set_current_file(module_env, module_path);
     char *c_code = transpile_to_c(module_ast, module_env, module_path);
+    env_set_current_file(module_env, saved_source_file);
     module_env->current_module = saved_module_context;
 
     if (saved_main) {

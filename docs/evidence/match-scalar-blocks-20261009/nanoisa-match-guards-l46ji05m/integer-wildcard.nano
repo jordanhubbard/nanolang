@@ -1,0 +1,39 @@
+union Choice { Some { number: int }, None {} }
+let mut trace: int = 0
+fn mark(n: int) -> int { set trace (+ (* trace 10) n) return n }
+shadow mark { set trace 0 assert (== (mark 1) 1) assert (== trace 1) set trace 0 }
+fn gate(n: int, answer: bool) -> bool { let ignored: int = (mark n) return answer }
+shadow gate { set trace 0 assert (not (gate 2 false)) assert (== trace 2) set trace 0 }
+fn fresh() -> Choice { let ignored: int = (mark 1) return Choice.Some { number: 7 } }
+shadow fresh { set trace 0 let c: Choice = (fresh) assert (== trace 1) set trace 0 }
+fn select() -> int {
+ return match (mark 1) {
+  9 if (gate 9 true) => (mark 9)
+  _ if (gate 2 false) => (mark 8)
+  1 if (gate 3 false) => (mark 8)
+  _ if (gate 4 true) => (mark 5)
+  _ => (mark 9)
+ }
+}
+shadow select { set trace 0 assert (== (select) 5) assert (== trace 12345) set trace 0 }
+fn statement() -> int {
+ let mut out: int = 0
+ match (mark 1) { _ if (gate 2 false) => { set out (mark 8) } 1 if (gate 3 true) => { set out (mark 6) } _ => { set out (mark 9) } }
+ return out
+}
+shadow statement { set trace 0 assert (== (statement) 6) assert (== trace 1236) set trace 0 }
+fn early(n: int) -> int { let result: int = match n { 1 if true => { return 7 } _ => { 9 } } return (+ result 1) }
+shadow early { assert (== (early 1) 7) assert (== (early 2) 10) }
+fn looped() -> int {
+ let mut n: int = 0
+ while (< n 3) { set n (+ n 1) match n { 1 if true => { continue } 2 if true => { break } _ => { assert false } } assert false }
+ return n
+}
+shadow looped { assert (== (looped) 2) }
+fn main() -> int {
+ set trace 0 assert (== (select) 5) assert (== trace 12345)
+ set trace 0 assert (== (statement) 6) assert (== trace 1236)
+ assert (== (early 1) 7) assert (== (early 2) 10) assert (== (looped) 2)
+ return 0
+}
+shadow main { assert (== (main) 0) }

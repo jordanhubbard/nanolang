@@ -1,0 +1,10 @@
+test_declared_host_import_executes_in_native_product (tests.test_native_product_pipeline.NativeProductPipeline.test_declared_host_import_executes_in_native_product) ... ok
+test_failed_tools_preserve_output_and_remove_staging (tests.test_native_product_pipeline.NativeProductPipeline.test_failed_tools_preserve_output_and_remove_staging) ... ok
+test_invalid_module_and_directory_destination_preserve_prior_state (tests.test_native_product_pipeline.NativeProductPipeline.test_invalid_module_and_directory_destination_preserve_prior_state) ... ok
+test_keep_c_retains_only_source_after_native_publication (tests.test_native_product_pipeline.NativeProductPipeline.test_keep_c_retains_only_source_after_native_publication) ... ok
+test_native_and_source_outputs_from_vm_and_native_drivers (tests.test_native_product_pipeline.NativeProductPipeline.test_native_and_source_outputs_from_vm_and_native_drivers) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 3.664s
+
+OK

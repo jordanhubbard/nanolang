@@ -1,0 +1,3 @@
+('/Users/jordanh/Src/nanolang/bin/nanoc_stage2', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-t67_fpa9/all-kinds.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-t67_fpa9/all-kinds-nanoc_stage2.nvm')
+{'ASAN_OPTIONS': 'detect_leaks=1'}
+

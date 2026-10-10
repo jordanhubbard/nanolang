@@ -1,0 +1,18 @@
+let mut trace:int = 0
+fn receiver(values:List<int>)->List<int> { set trace (+ (* trace 10) 1) return values }
+shadow receiver { let xs:List<int> = (list_int_new) assert (== (list_int_length (receiver xs)) 0) }
+fn index()->int { set trace (+ (* trace 10) 2) return 0 }
+shadow index { assert (== (index) 0) }
+fn value(values:List<int>)->int { set trace (+ (* trace 10) 3) (list_int_push values 9) return 7 }
+shadow value { let xs:List<int> = (list_int_new) assert (== (value xs) 7) }
+fn main()->int {
+ let xs:List<int> = (list_int_new)
+ set trace 0
+ (list_int_insert (receiver xs) (index) (value xs))
+ assert (== trace 123)
+ assert (== (list_int_length xs) 2)
+ assert (== (list_int_get xs 0) 7)
+ assert (== (list_int_get xs 1) 9)
+ return 0
+}
+shadow main { assert (== (main) 0) }

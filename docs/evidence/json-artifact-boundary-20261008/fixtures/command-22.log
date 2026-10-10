@@ -1,0 +1,655 @@
+['/private/tmp/nanolang-array-types-20261008/bin/nanoisa', 'dump', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-scwvxybx/provider.nvm']
+.string "./modules/std/json/json.nano"
+.string "nl_json_parse"
+.string "nl_json_free"
+.string "nl_json_stringify"
+.string "nl_json_is_null"
+.string "nl_json_is_bool"
+.string "nl_json_is_number"
+.string "nl_json_is_string"
+.string "nl_json_is_array"
+.string "nl_json_is_object"
+.string "nl_json_as_int"
+.string "nl_json_as_float"
+.string "nl_json_as_bool"
+.string "nl_json_as_string"
+.string "nl_json_object_has"
+.string "nl_json_get"
+.string "nl_json_object_keys"
+.string "nl_json_array_size"
+.string "nl_json_get_index"
+.string "nl_json_new_object"
+.string "nl_json_new_array"
+.string "nl_json_new_string"
+.string "nl_json_new_int"
+.string "nl_json_new_bool"
+.string "nl_json_new_null"
+.string "nl_json_object_set"
+.string "nl_json_array_push"
+.string "parse"
+.string "free"
+.string "stringify"
+.string "is_null"
+.string "is_bool"
+.string "is_number"
+.string "is_string"
+.string "is_array"
+.string "is_object"
+.string "as_int"
+.string "as_float"
+.string "as_bool"
+.string "as_string"
+.string "get_float"
+.string "get_bool"
+.string "decode_int_array"
+.string "decode_string_array"
+.string "object_has"
+.string "get"
+.string "keys"
+.string "array_size"
+.string "get_index"
+.string "new_object"
+.string "new_array"
+.string "new_string"
+.string "new_int"
+.string "new_bool"
+.string "new_null"
+.string "object_set"
+.string "json_array_push"
+.string "get_string"
+.string "get_int"
+.string "main"
+.string ""
+.string "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-scwvxybx/provider.nano"
+.string "nano.local.v1"
+.string "\x1f\x00\x00\x00\x03\x00\x00\x005\x00\x00\x00A\x00\x00\x00v"
+.string "\x1f\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00A\x00\x00\x00key"
+.string "\x1e\x00\x00\x00\x03\x00\x00\x001\x00\x00\x00=\x00\x00\x00s"
+.string "\x1e\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00=\x00\x00\x00key"
+.string "\x1c\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x19\x00\x00\x00key"
+.string "\x1a\x00\x00\x00\x01\x00\x00\x00\"\x00\x00\x00+\x00\x00\x00iv"
+.string "\x1a\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00+\x00\x00\x00v"
+.string "\x19\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\t\x00\x00\x00v"
+.string "\x18\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\t\x00\x00\x00s"
+.string "\x15\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x0c\x00\x00\x00idx"
+.string "\x12\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x0c\x00\x00\x00key"
+.string "\x11\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x16\x00\x00\x00key"
+.string "\x10\x00\x00\x00\x03\x00\x00\x00\x1e\x00\x00\x00h\x00\x00\x00i"
+.string "\x10\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00h\x00\x00\x00n"
+.string "\x0f\x00\x00\x00\x03\x00\x00\x00\x1e\x00\x00\x00h\x00\x00\x00i"
+.string "\x0f\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00h\x00\x00\x00n"
+.string "\x0e\x00\x00\x00\x03\x00\x00\x00.\x00\x00\x00:\x00\x00\x00b"
+.string "\x0e\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00:\x00\x00\x00key"
+.string "\r\x00\x00\x00\x03\x00\x00\x005\x00\x00\x00A\x00\x00\x00f"
+.string "\r\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00A\x00\x00\x00key"
+.string "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\t\x00\x00\x00text"
+.string "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib"
+.string "nano.source_file"
+
+.metadata 62 63
+.metadata 62 64
+.metadata 62 65
+.metadata 62 66
+.metadata 62 67
+.metadata 62 68
+.metadata 62 69
+.metadata 62 70
+.metadata 62 71
+.metadata 62 72
+.metadata 62 73
+.metadata 62 74
+.metadata 62 75
+.metadata 62 76
+.metadata 62 77
+.metadata 62 78
+.metadata 62 79
+.metadata 62 80
+.metadata 62 81
+.metadata 62 82
+.metadata 62 83
+.metadata 85 61
+
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_parse" opaque string
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_free" void opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_stringify" string opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_is_null" int opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_is_bool" int opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_is_number" int opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_is_string" int opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_is_array" int opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_is_object" int opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_as_int" int opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_as_float" float opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_as_bool" int opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_as_string" string opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_object_has" int opaque string
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_get" opaque opaque string
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_object_keys" array opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_array_size" int opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_get_index" opaque opaque int
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_new_object" opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_new_array" opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_new_string" opaque string
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_new_int" opaque int
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_new_bool" opaque int
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_new_null" opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_object_set" int opaque string opaque
+.import "/private/tmp/nanolang-array-types-20261008/modules/std/json/.build/.nano-gen-j3AxjT/libstd_json.dylib" "nl_json_array_push" int opaque opaque
+
+.import_kind 0 artifact
+.import_kind 1 artifact
+.import_kind 2 artifact
+.import_kind 3 artifact
+.import_kind 4 artifact
+.import_kind 5 artifact
+.import_kind 6 artifact
+.import_kind 7 artifact
+.import_kind 8 artifact
+.import_kind 9 artifact
+.import_kind 10 artifact
+.import_kind 11 artifact
+.import_kind 12 artifact
+.import_kind 13 artifact
+.import_kind 14 artifact
+.import_kind 15 artifact
+.import_kind 16 artifact
+.import_kind 17 artifact
+.import_kind 18 artifact
+.import_kind 19 artifact
+.import_kind 20 artifact
+.import_kind 21 artifact
+.import_kind 22 artifact
+.import_kind 23 artifact
+.import_kind 24 artifact
+.import_kind 25 artifact
+.flag needs_extern
+.flag debug_info
+
+.debug 0 2 18
+.debug 21 2 47
+.debug 31 43 5
+.debug 40 53 5
+.debug 40 54 9
+.debug 49 65 5
+.debug 58 75 38
+.debug 77 83 38
+.debug 96 91 40
+.debug 115 99 40
+.debug 134 107 39
+.debug 153 115 40
+.debug 172 123 36
+.debug 181 131 40
+.debug 190 140 38
+.debug 209 148 42
+.debug 218 159 5
+.debug 232 160 5
+.debug 250 160 18
+.debug 250 161 9
+.debug 260 163 5
+.debug 271 164 5
+.debug 279 165 5
+.debug 283 177 5
+.debug 297 178 5
+.debug 315 178 18
+.debug 315 179 9
+.debug 318 181 5
+.debug 329 182 5
+.debug 337 183 5
+.debug 341 195 5
+.debug 352 196 5
+.debug 359 197 5
+.debug 371 198 5
+.debug 383 198 19
+.debug 383 199 9
+.debug 397 200 9
+.debug 412 201 9
+.debug 428 202 9
+.debug 441 204 5
+.debug 445 218 5
+.debug 456 219 5
+.debug 463 220 5
+.debug 475 221 5
+.debug 487 221 19
+.debug 487 222 9
+.debug 501 223 9
+.debug 516 224 9
+.debug 532 225 9
+.debug 545 227 5
+.debug 549 238 53
+.debug 571 247 46
+.debug 583 257 43
+.debug 592 266 39
+.debug 601 278 49
+.debug 613 291 31
+.debug 619 299 30
+.debug 625 307 40
+.debug 634 315 34
+.debug 643 323 5
+.debug 677 327 5
+.debug 686 336 29
+.debug 692 345 5
+.debug 717 357 5
+.debug 739 370 5
+.debug 753 371 5
+.debug 771 371 18
+.debug 771 372 9
+.debug 777 374 5
+.debug 788 375 5
+.debug 796 376 5
+.debug 800 387 5
+.debug 814 388 5
+.debug 832 388 18
+.debug 832 389 9
+.debug 842 391 5
+.debug 853 392 5
+.debug 861 393 5
+
+.entry 32
+
+.function parse 1 1 0 opaque 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 0
+  RET
+.end
+
+.parameters 0 string
+
+.function free 1 1 0 void 0
+  LOAD_LOCAL 0
+  CALL_EXTERN 1
+  RET
+.end
+
+.parameters 1 opaque
+
+.function stringify 1 1 0 string 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 2
+  RET
+.end
+
+.parameters 2 opaque
+
+.function is_null 1 1 0 bool 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 3
+  PUSH_I64 0
+  I64_NE
+  RET
+.end
+
+.parameters 3 opaque
+
+.function is_bool 1 1 0 bool 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 4
+  PUSH_I64 0
+  I64_NE
+  RET
+.end
+
+.parameters 4 opaque
+
+.function is_number 1 1 0 bool 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 5
+  PUSH_I64 0
+  I64_NE
+  RET
+.end
+
+.parameters 5 opaque
+
+.function is_string 1 1 0 bool 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 6
+  PUSH_I64 0
+  I64_NE
+  RET
+.end
+
+.parameters 6 opaque
+
+.function is_array 1 1 0 bool 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 7
+  PUSH_I64 0
+  I64_NE
+  RET
+.end
+
+.parameters 7 opaque
+
+.function is_object 1 1 0 bool 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 8
+  PUSH_I64 0
+  I64_NE
+  RET
+.end
+
+.parameters 8 opaque
+
+.function as_int 1 1 0 int 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 9
+  RET
+.end
+
+.parameters 9 opaque
+
+.function as_float 1 1 0 float 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 10
+  RET
+.end
+
+.parameters 10 opaque
+
+.function as_bool 1 1 0 bool 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 11
+  PUSH_I64 0
+  I64_NE
+  RET
+.end
+
+.parameters 11 opaque
+
+.function as_string 1 1 0 string 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 12
+  RET
+.end
+
+.parameters 12 opaque
+
+.function get_float 2 4 0 float 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  CALL 18
+  STORE_LOCAL 2
+  LOAD_LOCAL 2
+  PUSH_I64 0
+  EQ
+  JMP_FALSE L0
+  PUSH_F64 bits:0000000000000000
+  RET
+L0:
+  LOAD_LOCAL 2
+  CALL 10
+  STORE_LOCAL 3
+  LOAD_LOCAL 2
+  CALL 1
+  LOAD_LOCAL 3
+  RET
+.end
+
+.parameters 13 opaque string
+
+.function get_bool 2 4 0 bool 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  CALL 18
+  STORE_LOCAL 2
+  LOAD_LOCAL 2
+  PUSH_I64 0
+  EQ
+  JMP_FALSE L0
+  PUSH_BOOL 0
+  RET
+L0:
+  LOAD_LOCAL 2
+  CALL 11
+  STORE_LOCAL 3
+  LOAD_LOCAL 2
+  CALL 1
+  LOAD_LOCAL 3
+  RET
+.end
+
+.parameters 14 opaque string
+
+.function decode_int_array 1 5 0 array 1
+  LOAD_LOCAL 0
+  CALL 20
+  STORE_LOCAL 1
+  ARR_LITERAL 1 0
+  STORE_LOCAL 2
+  PUSH_I64 0
+  STORE_LOCAL 3
+L1:
+  LOAD_LOCAL 3
+  LOAD_LOCAL 1
+  I64_LT_S
+  JMP_FALSE L0
+  LOAD_LOCAL 0
+  LOAD_LOCAL 3
+  CALL 21
+  STORE_LOCAL 4
+  LOAD_LOCAL 2
+  LOAD_LOCAL 4
+  CALL 9
+  ARR_PUSH
+  STORE_LOCAL 2
+  LOAD_LOCAL 3
+  PUSH_I64 1
+  I64_ADD
+  STORE_LOCAL 3
+  LOAD_LOCAL 4
+  CALL 1
+  JMP L1
+L0:
+  LOAD_LOCAL 2
+  RET
+.end
+
+.parameters 15 opaque
+
+.function decode_string_array 1 5 0 array 1
+  LOAD_LOCAL 0
+  CALL 20
+  STORE_LOCAL 1
+  ARR_LITERAL 5 0
+  STORE_LOCAL 2
+  PUSH_I64 0
+  STORE_LOCAL 3
+L1:
+  LOAD_LOCAL 3
+  LOAD_LOCAL 1
+  I64_LT_S
+  JMP_FALSE L0
+  LOAD_LOCAL 0
+  LOAD_LOCAL 3
+  CALL 21
+  STORE_LOCAL 4
+  LOAD_LOCAL 2
+  LOAD_LOCAL 4
+  CALL 12
+  ARR_PUSH
+  STORE_LOCAL 2
+  LOAD_LOCAL 3
+  PUSH_I64 1
+  I64_ADD
+  STORE_LOCAL 3
+  LOAD_LOCAL 4
+  CALL 1
+  JMP L1
+L0:
+  LOAD_LOCAL 2
+  RET
+.end
+
+.parameters 16 opaque
+
+.function object_has 2 2 0 bool 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  CALL_EXTERN 13
+  PUSH_I64 0
+  I64_NE
+  RET
+.end
+
+.parameters 17 opaque string
+
+.function get 2 2 0 opaque 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  CALL_EXTERN 14
+  RET
+.end
+
+.parameters 18 opaque string
+
+.function keys 1 1 0 array 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 15
+  RET
+.end
+
+.parameters 19 opaque
+
+.function array_size 1 1 0 int 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 16
+  RET
+.end
+
+.parameters 20 opaque
+
+.function get_index 2 2 0 opaque 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  CALL_EXTERN 17
+  RET
+.end
+
+.parameters 21 opaque int
+
+.function new_object 0 0 0 opaque 1
+  CALL_EXTERN 18
+  RET
+.end
+
+.function new_array 0 0 0 opaque 1
+  CALL_EXTERN 19
+  RET
+.end
+
+.function new_string 1 1 0 opaque 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 20
+  RET
+.end
+
+.parameters 24 string
+
+.function new_int 1 1 0 opaque 1
+  LOAD_LOCAL 0
+  CALL_EXTERN 21
+  RET
+.end
+
+.parameters 25 int
+
+.function new_bool 1 2 0 opaque 1
+  LOAD_LOCAL 0
+  JMP_FALSE L0
+  PUSH_I64 1
+  JMP L1
+L0:
+  PUSH_I64 0
+L1:
+  STORE_LOCAL 1
+  LOAD_LOCAL 1
+  CALL_EXTERN 22
+  RET
+.end
+
+.parameters 26 bool
+
+.function new_null 0 0 0 opaque 1
+  CALL_EXTERN 23
+  RET
+.end
+
+.function object_set 3 3 0 bool 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  LOAD_LOCAL 2
+  CALL_EXTERN 24
+  PUSH_I64 0
+  I64_NE
+  RET
+.end
+
+.parameters 28 opaque string opaque
+
+.function json_array_push 2 2 0 bool 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  CALL_EXTERN 25
+  PUSH_I64 0
+  I64_NE
+  RET
+.end
+
+.parameters 29 opaque opaque
+
+.function get_string 2 4 0 string 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  CALL 18
+  STORE_LOCAL 2
+  LOAD_LOCAL 2
+  PUSH_I64 0
+  EQ
+  JMP_FALSE L0
+  PUSH_STR 60
+  RET
+L0:
+  LOAD_LOCAL 2
+  CALL 12
+  STORE_LOCAL 3
+  LOAD_LOCAL 2
+  CALL 1
+  LOAD_LOCAL 3
+  RET
+.end
+
+.parameters 30 opaque string
+
+.function get_int 2 4 0 int 1
+  LOAD_LOCAL 0
+  LOAD_LOCAL 1
+  CALL 18
+  STORE_LOCAL 2
+  LOAD_LOCAL 2
+  PUSH_I64 0
+  EQ
+  JMP_FALSE L0
+  PUSH_I64 0
+  RET
+L0:
+  LOAD_LOCAL 2
+  CALL 9
+  STORE_LOCAL 3
+  LOAD_LOCAL 2
+  CALL 1
+  LOAD_LOCAL 3
+  RET
+.end
+
+.parameters 31 opaque string
+
+.function main 0 0 0 int 1
+  PUSH_I64 0
+  CALL 12
+  PUSH_STR 60
+  EQ
+  ASSERT
+  PUSH_I64 0
+  RET
+.end
+

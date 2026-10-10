@@ -1,0 +1,25 @@
+I retain byte-array evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-byte-arrays-p3cx5784
+test_alias_mutation_slice_independence_and_empty (tests.test_native_byte_arrays.NativeByteArrays.test_alias_mutation_slice_independence_and_empty) ... ok
+test_calls_globals_records_and_absent_reads (tests.test_native_byte_arrays.NativeByteArrays.test_calls_globals_records_and_absent_reads) ... FAIL
+test_literal_tags_and_integer_narrowing (tests.test_native_byte_arrays.NativeByteArrays.test_literal_tags_and_integer_narrowing) ... ok
+
+======================================================================
+FAIL: test_calls_globals_records_and_absent_reads (tests.test_native_byte_arrays.NativeByteArrays.test_calls_globals_records_and_absent_reads)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 81, in test_calls_globals_records_and_absent_reads
+    self.paired('transport', body, helpers)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 37, in paired
+    self.command(ROOT / 'bin/nvm2c', module, '-o', native_c)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_native_byte_arrays.py", line 25, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-byte-arrays-p3cx5784/transport.nvm': I found invalid aggregate shape constraints during ARR_POP in function 1 at offset 151: I found conflicting aggregate shape kinds optional/array at nodes 44/64
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.737s
+
+FAILED (failures=1)

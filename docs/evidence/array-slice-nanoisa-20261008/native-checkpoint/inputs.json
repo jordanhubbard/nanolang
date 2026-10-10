@@ -1,0 +1,8 @@
+{
+  "src/nanoisa/nvm2c.c": "4c85377f9511a1eba9fd64b06abfd74bb636d01f17372c2102f494b0fc6646bb",
+  "src/nanoisa/nvm2c_callables.c": "863e8bed42bffd12fbc3b061d56a38a3ea1366ea90f9095c440686efb3543d25",
+  "tests/test_nanoisa_array_slice.py": "d28f0ad149117ab1d55f1394ee7e3dc2c7010aae69ac09b0a513e7480b6b5369",
+  "tests/nanoisa/fixtures/array_slice_bits.nano.txt": "bcdefa6eb47565332d20c343d0abf63897151f790372c43722490a470948257a",
+  "bin/nvm2c": "4a0fb0fc99cebb650144d17ab37d1f63282c6f5fef89a970f60687fdc7c14c06",
+  "/private/tmp/nanolang-array-slice-driver": "140ea7bc27ed649a7126294744595d4771cd653e69fb8e0377fc893fb3936d81"
+}

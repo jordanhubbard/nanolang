@@ -1,0 +1,15 @@
+{
+  "source_commit": "02a58079a",
+  "source_sha256": {
+    "src_nano/nanoc_v06.nano": "7003aa6c526cb73a3c8da6df81185c2af7f41955113c65e055dacaf8f93ec740",
+    "src_nano/typecheck.nano": "1282306b0cbcf0c14fc4147fdc538481e681a6ec842204f5a0525467aeaf2c7d",
+    "src/nanoisa/nvm2c.c": "ed54f1c189a72d88a85807a9b6e2d1f48959d12cb9a542e0bc30b487197c8d4a",
+    "tests/test_one_ir_compiler.py": "c2841b652420fd373d283327083046356405a33660ebe7c5306b9b2cd4a1ecb1",
+    "tests/test_field_metadata_lookup.py": "7533bc3235d6bce2214f1d3c0e8d578c24cfd022da8a5be1beafed7bd2c9a8ab",
+    "tests/test_native_map_byte_debt.py": "b2d6fde85026f0f4e1637ee738af5dd32d35f229f65f68fe7eecdda676402c76"
+  },
+  "evidence_sha256": {
+    "README.md": "6ae5faacc69f9a671ae70ae2551dc39b426888fc1555960294fd015d23e598dc",
+    "gate.log": "9b7b51ca3e523207914284ee1d9375c48ac8b24a5355609d74532adb7ce8fa37"
+  }
+}

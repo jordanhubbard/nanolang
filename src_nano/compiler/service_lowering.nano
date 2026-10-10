@@ -1,0 +1,890 @@
+# I lower retained Nano parser and checker facts independently to File or TCP bytecode.
+import "src_nano/compiler/service_ownership.nano"
+import "src_nano/compiler/service_bodies.nano"
+import "src_nano/compiler/service_namespace.nano"
+import "src_nano/compiler/service_types.nano"
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+import "src_nano/compiler/service_wire.nano"
+module "modules/file_source_catalog/file_source_catalog.nano" as LowerCatalog
+
+struct ServiceLowering { status: int, diagnostic: string, bytes: array<int> }
+struct ServiceLowerName { name: string, slot: int }
+struct ServiceLowerFunction { declaration: int, owner: int, body: int, arity: int, params: int, name: string, result: ServiceWireType }
+let mut sl_catalogs: array<int> = [1]
+let mut sl_service_names: array<ServiceName> = []
+let mut sl_status: int = 0
+let mut sl_diagnostic: string = ""
+let mut sl_code: array<int> = []
+let mut sl_locals: array<ServiceWireType> = []
+let mut sl_live: array<bool> = []
+let mut sl_names: array<ServiceLowerName> = []
+let mut sl_name_count: int = 0
+let mut sl_loans: array<int> = []
+let mut sl_pending: array<int> = []
+let mut sl_next_ref: int = 0
+let mut sl_next: bool = true
+let mut sl_stack: int = 0
+let mut sl_peak: int = 0
+let mut sl_depth: int = 0
+let mut sl_result: ServiceWireType = ServiceWireType { tag: 0, mode: 0, layout: 4294967295 }
+let mut sl_functions: array<ServiceLowerFunction> = []
+let mut sl_facts: array<ServiceBodyFact> = []
+let mut sl_maps: array<ServiceWireSection> = []
+
+fn sl_fail(status: int, diagnostic: string) -> void {
+    if (== sl_status 0) { set sl_status status set sl_diagnostic diagnostic }
+}
+shadow sl_fail {
+    set sl_status 0 (sl_fail 2 "first") (sl_fail 1 "second")
+    assert (== sl_status 2) assert (== sl_diagnostic "first") set sl_status 0 set sl_diagnostic ""
+}
+
+fn sl_instance(declaration: int) -> int {
+    if (== (array_length sl_catalogs) 1) { return 0 }
+    let mut i: int = 0
+    while (< i (array_length sl_service_names)) {
+        let row: ServiceName = (at sl_service_names i)
+        if (and (== row.target declaration) (== row.kind 8)) { return row.request }
+        set i (+ i 1)
+    }
+    (sl_fail 1 "I require the original service instance identity.") return 0
+}
+shadow sl_instance { assert (== (sl_instance 1) 0) }
+
+fn sl_base(instance: int, records: bool) -> int {
+    let mut base: int = 0 let mut i: int = 0
+    while (< i instance) {
+        let catalog: int = (at sl_catalogs i)
+        if records { set base (+ base 3) if (== catalog 2) { set base (+ base 1) } }
+        else { set base (+ base (LowerCatalog.count catalog 1)) }
+        set i (+ i 1)
+    }
+    return base
+}
+shadow sl_base { assert (== (sl_base 0 false) 0) assert (== (sl_base 1 true) 3) }
+
+fn sl_wire_type(typ: ServiceType, mode: int) -> ServiceWireType {
+    let mut tag: int = 0 let mut layout: int = 4294967295
+    if (== typ.kind 1) { set tag 1 }
+    else if (== typ.kind 2) { set tag 4 }
+    else if (== typ.kind 3) { set tag 0 }
+    else if (== typ.kind 7) { set tag 11 }
+    else if (== typ.kind 8) { set tag 5 }
+    else if (and (>= typ.kind 4) (and (> typ.declaration 0) (and (>= typ.ordinal 0) (< typ.ordinal (LowerCatalog.count (at sl_catalogs (sl_instance typ.declaration)) 1))))) {
+        set layout (+ (sl_base (sl_instance typ.declaration) false) typ.ordinal) set tag 10 if (or (< typ.ordinal 3) (== typ.ordinal 8)) { set tag 8 }
+    } else { (sl_fail 2 "I have not lowered this checked service type.") }
+    return ServiceWireType { tag: tag, mode: mode, layout: layout }
+}
+shadow sl_wire_type {
+    let typ: ServiceType = ServiceType { kind: 1, declaration: 0, owner: -1, ordinal: -1, category: 0 }
+    assert (== (sl_wire_type ServiceType { kind: 8, declaration: 0, owner: -1, ordinal: -1, category: 0 } 0).tag 5)
+    assert (== (sl_wire_type typ 0).tag 1)
+    assert (== (sl_wire_type typ 0).layout 4294967295)
+    let file: ServiceType = ServiceType { kind: 4, declaration: 1, owner: 0, ordinal: 0, category: 1 }
+    assert (== (sl_wire_type file 1).mode 1)
+    assert (== (sl_wire_type file 1).layout 0)
+    set sl_catalogs [2]
+    let endpoint: ServiceType = ServiceType { kind: 4, declaration: 1, owner: 0, ordinal: 8, category: 4 }
+    assert (== (sl_wire_type endpoint 0).tag 8)
+    assert (== (sl_wire_type endpoint 0).layout 8)
+    set sl_catalogs [1]
+}
+
+fn sl_annotation(space: ServiceNamespace, owner: int, spelling: string) -> ServiceWireType {
+    let tokens: List<LexerToken> = (tokenize_string spelling "<lower-type>" (list_CompilerDiagnostic_new))
+    if (== (list_LexerToken_get tokens 0).token_type LexerTokenType.TOKEN_FN) { return (service_wire_scalar 11) }
+    let mut i: int = 0 let mut mode: int = 0
+    if (== (list_LexerToken_get tokens i).token_type LexerTokenType.TOKEN_AMPERSAND) {
+        set mode 1 set i 1
+        if (== (list_LexerToken_get tokens i).token_type LexerTokenType.TOKEN_MUT) { set mode 2 set i (+ i 1) }
+    }
+    let mut name: string = (list_LexerToken_get tokens i).value set i (+ i 1)
+    while (and (< (+ i 1) (list_LexerToken_length tokens)) (== (list_LexerToken_get tokens i).token_type LexerTokenType.TOKEN_DOT)) {
+        set name (+ name (+ "." (list_LexerToken_get tokens (+ i 1)).value)) set i (+ i 2)
+    }
+    let mut kind: int = 0
+    if (== name "int") { set kind 1 } else if (== name "bool") { set kind 2 } else if (== name "void") { set kind 3 } else if (== name "string") { set kind 8 }
+    if (!= kind 0) { return (sl_wire_type ServiceType { kind: kind, declaration: 0, owner: -1, ordinal: -1, category: 0 } mode) }
+    return (sl_wire_type (service_named_type space owner name) mode)
+}
+shadow sl_annotation {
+    let space: ServiceNamespace = ServiceNamespace { status: 0, names: [], plan: FileSourcePlan { status: 0, rows: [], logical_bytes: 0 }, text_bytes: 0, ordinary_count: 0, alias_count: 0 }
+    assert (== (sl_annotation space 0 "bool").tag 4)
+}
+
+fn sl_fact(kind: int, id: int) -> ServiceBodyFact {
+    let mut i: int = 0
+    while (< i (array_length sl_facts)) {
+        let fact: ServiceBodyFact = (at sl_facts i)
+        if (and (== fact.node_kind kind) (== fact.node_id id)) { return fact }
+        set i (+ i 1)
+    }
+    (sl_fail 1 "I require retained nominal facts for each lowered expression.")
+    return ServiceBodyFact { node_kind: kind, node_id: id, type: ServiceType { kind: 0, declaration: 0, owner: -1, ordinal: -1, category: 0 }, borrow_mode: 0, declaration: 0 }
+}
+shadow sl_fact {
+    set sl_facts [] set sl_status 0 let fact: ServiceBodyFact = (sl_fact -1 -1)
+    assert (== sl_status 1) assert (== fact.type.kind 0) set sl_status 0 set sl_diagnostic ""
+}
+
+fn sl_node_type(kind: int, id: int) -> ServiceWireType {
+    let fact: ServiceBodyFact = (sl_fact kind id)
+    return (sl_wire_type fact.type fact.borrow_mode)
+}
+shadow sl_node_type {
+    set sl_facts [ServiceBodyFact { node_kind: 1, node_id: 2, type: ServiceType { kind: 2, declaration: 0, owner: -1, ordinal: -1, category: 0 }, borrow_mode: 0, declaration: 0 }]
+    assert (== (sl_node_type 1 2).tag 4) set sl_facts []
+}
+
+fn sl_owner(typ: ServiceWireType) -> bool {
+    if (!= typ.mode 0) { return false }
+    let mut i: int = 0
+    while (< i (array_length sl_catalogs)) {
+        let base: int = (sl_base i false)
+        if (or (== typ.layout base) (== typ.layout (+ base 3))) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow sl_owner {
+    assert (not (sl_owner (service_wire_scalar 1)))
+    assert (sl_owner ServiceWireType { tag: 10, mode: 0, layout: 3 })
+}
+
+fn sl_integer(value: int, width: int) -> void {
+    if (!= sl_status 0) { return }
+    if (> (+ (array_length sl_code) width) 65536) { (sl_fail 3 "I exceeded my File code bound.") return }
+    let mut remaining: int = value let mut i: int = 0
+    while (< i width) {
+        let mut octet: int = (% remaining 256) if (< octet 0) { set octet (+ octet 256) }
+        set sl_code (array_push sl_code octet) set remaining (/ (- remaining octet) 256) set i (+ i 1)
+    }
+}
+shadow sl_integer {
+    set sl_code [] (sl_integer -1 4)
+    assert (== (array_length sl_code) 4) assert (== (at sl_code 3) 255) set sl_code []
+}
+
+fn sl_op(op: int, pop: int, push: int) -> void {
+    if (< sl_stack pop) { (sl_fail 1 "I require a complete operand stack before lowering this instruction.") return }
+    set sl_stack (+ (- sl_stack pop) push)
+    if (> sl_stack sl_peak) { set sl_peak sl_stack }
+    if (> sl_peak 256) { (sl_fail 3 "I exceeded my File operand stack bound.") }
+    (sl_integer op 1)
+}
+shadow sl_op {
+    set sl_code [] set sl_stack 0 set sl_peak 0 (sl_op 5 0 1) (sl_op 8 1 0)
+    assert (== sl_peak 1) assert (== sl_stack 0) set sl_code [] set sl_peak 0
+}
+
+fn sl_local_op(op: int, slot: int, pop: int, push: int) -> void {
+    (sl_op op pop push) (sl_integer slot 2)
+}
+shadow sl_local_op {
+    set sl_code [] set sl_stack 0 (sl_local_op 16 257 0 1)
+    assert (== (at sl_code 1) 1) assert (== (at sl_code 2) 1)
+    set sl_code [] set sl_stack 0 set sl_peak 0
+}
+
+fn sl_branch(op: int, slot: int) -> int {
+    let pc: int = (array_length sl_code) let mut pop: int = 0
+    if (or (== op 57) (== op 58)) { set pop 1 }
+    (sl_op op pop 0) if (== op 146) { (sl_integer slot 2) }
+    (sl_integer 0 4) return pc
+}
+shadow sl_branch {
+    set sl_code [] set sl_stack 0 assert (== (sl_branch 56 0) 0)
+    assert (== (array_length sl_code) 5) set sl_code []
+}
+
+fn sl_target(pc: int, target: int) -> void {
+    if (!= sl_status 0) { return }
+    let mut index: int = (+ pc 1) if (== (at sl_code pc) 146) { set index (+ pc 3) }
+    let mut remaining: int = (- target pc) let mut i: int = 0
+    while (< i 4) {
+        let mut octet: int = (% remaining 256) if (< octet 0) { set octet (+ octet 256) }
+        (array_set sl_code (+ index i) octet) set remaining (/ (- remaining octet) 256) set i (+ i 1)
+    }
+}
+shadow sl_target {
+    set sl_code [0, 56, 0, 0, 0, 0] (sl_target 1 0)
+    assert (== (at sl_code 2) 255) assert (== (at sl_code 5) 255) set sl_code []
+}
+
+fn sl_bind(name: string, typ: ServiceWireType) -> int {
+    let slot: int = (array_length sl_locals)
+    if (>= slot 256) { (sl_fail 3 "I exceeded my File local bound.") return 0 }
+    set sl_locals (array_push sl_locals typ) set sl_live (array_push sl_live false)
+    if (!= name "") {
+        let row: ServiceLowerName = ServiceLowerName { name: name, slot: slot }
+        if (< sl_name_count (array_length sl_names)) { (array_set sl_names sl_name_count row) }
+        else { set sl_names (array_push sl_names row) }
+        set sl_name_count (+ sl_name_count 1)
+    }
+    return slot
+}
+shadow sl_bind {
+    set sl_locals [] set sl_live [] set sl_names [] set sl_name_count 0
+    assert (== (sl_bind "x" (service_wire_scalar 1)) 0)
+    assert (== (sl_bind "" (service_wire_scalar 4)) 1) assert (== sl_name_count 1)
+    set sl_locals [] set sl_live [] set sl_names [] set sl_name_count 0
+}
+
+fn sl_lookup(name: string) -> int {
+    let mut i: int = sl_name_count
+    while (> i 0) { set i (- i 1) if (== (at sl_names i).name name) { return (at sl_names i).slot } }
+    (sl_fail 1 "I require a lexical File binding.") return 0
+}
+shadow sl_lookup {
+    set sl_names [ServiceLowerName { name: "x", slot: 4 }, ServiceLowerName { name: "x", slot: 7 }]
+    set sl_name_count 2 assert (== (sl_lookup "x") 7)
+    set sl_name_count 1 assert (== (sl_lookup "x") 4) set sl_name_count 0 set sl_names []
+}
+
+fn sl_clear(slot: int) -> void {
+    let typ: ServiceWireType = (at sl_locals slot)
+    if (and (at sl_live slot) (and (not (sl_owner typ)) (and (== typ.mode 0) (!= typ.tag 0)))) {
+        (sl_op 5 0 1) (sl_local_op 17 slot 1 0) (array_set sl_live slot false)
+    }
+}
+shadow sl_clear {
+    set sl_locals [(service_wire_scalar 1)] set sl_live [true] set sl_code [] set sl_stack 0
+    (sl_clear 0) assert (== (array_length sl_code) 4) assert (not (at sl_live 0))
+    (sl_clear 0) assert (== (array_length sl_code) 4)
+    set sl_locals [] set sl_live [] set sl_code [] set sl_peak 0
+}
+
+fn sl_scope_end(names: int, slots: int) -> void {
+    let mut i: int = slots
+    while (and sl_next (< i (array_length sl_locals))) { (sl_clear i) set i (+ i 1) }
+    set sl_name_count names
+}
+shadow sl_scope_end {
+    set sl_name_count 3 set sl_locals [] (sl_scope_end 1 0)
+    assert (== sl_name_count 1) set sl_name_count 0
+}
+
+fn sl_store(slot: int) -> void {
+    let typ: ServiceWireType = (at sl_locals slot)
+    if (== typ.tag 0) { (sl_op 8 1 0) return }
+    let mut op: int = 17 if (sl_owner typ) { set op 12 }
+    (sl_local_op op slot 1 0) (array_set sl_live slot true)
+}
+shadow sl_store {
+    set sl_locals [(service_wire_scalar 1)] set sl_live [false] set sl_code [] set sl_stack 1
+    (sl_store 0) assert (== sl_stack 0) assert (at sl_live 0)
+    set sl_locals [] set sl_live [] set sl_code []
+}
+
+fn sl_load(slot: int) -> void {
+    let typ: ServiceWireType = (at sl_locals slot)
+    if (== typ.tag 0) { (sl_op 5 0 1) return }
+    let mut op: int = 16 if (sl_owner typ) { set op 11 }
+    (sl_local_op op slot 0 1)
+}
+shadow sl_load {
+    set sl_locals [(service_wire_scalar 1)] set sl_code [] set sl_stack 0
+    (sl_load 0) assert (== sl_stack 1) assert (== (at sl_code 0) 16)
+    set sl_locals [] set sl_code [] set sl_stack 0 set sl_peak 0
+}
+
+fn sl_prefix(values: array<int>, count: int) -> array<int> {
+    let mut result: array<int> = [] let mut i: int = 0
+    while (< i count) { set result (array_push result (at values i)) set i (+ i 1) }
+    return result
+}
+shadow sl_prefix { assert (== (array_length (sl_prefix [1, 2, 3] 2)) 2) assert (== (at (sl_prefix [7] 1) 0) 7) }
+
+fn sl_end_loans(start: int) -> void {
+    let mut i: int = (array_length sl_loans)
+    while (> i start) { set i (- i 1) (sl_local_op 150 (at sl_loans i) 0 0) (sl_op 23 0 0) }
+    set sl_loans (sl_prefix sl_loans start)
+}
+shadow sl_end_loans {
+    set sl_loans [4] set sl_code [] set sl_stack 0 (sl_end_loans 0)
+    assert (== (array_length sl_loans) 0) assert (== (at sl_code 0) 150) set sl_code []
+}
+
+fn sl_pending_exit() -> void {
+    let mut i: int = (array_length sl_pending)
+    while (> i 0) {
+        set i (- i 1) let slot: int = (at sl_pending i)
+        if (sl_owner (at sl_locals slot)) { (sl_local_op 148 slot 0 0) } else { (sl_clear slot) }
+    }
+    set sl_pending []
+}
+shadow sl_pending_exit {
+    set sl_pending [0] set sl_locals [ServiceWireType { tag: 8, mode: 0, layout: 0 }]
+    set sl_code [] set sl_stack 0 (sl_pending_exit)
+    assert (== (array_length sl_pending) 0) assert (== (at sl_code 0) 148)
+    set sl_locals [] set sl_code []
+}
+
+fn sl_stage(typ: ServiceWireType) -> int {
+    let slot: int = (sl_bind "" typ) (sl_store slot)
+    set sl_pending (array_push sl_pending slot) return slot
+}
+shadow sl_stage {
+    set sl_locals [] set sl_live [] set sl_pending [] set sl_code [] set sl_stack 1
+    assert (== (sl_stage (service_wire_scalar 1)) 0) assert (== (at sl_pending 0) 0)
+    set sl_locals [] set sl_live [] set sl_pending [] set sl_code [] set sl_stack 0
+}
+
+fn sl_children(parser: Parser, kind: int, id: int) -> array<ASTStmtRef> {
+    let mut result: array<ASTStmtRef> = [] let mut start: int = 0 let mut count: int = 0
+    if (< id 0) { return result }
+    if (== kind ParseNodeType.PNODE_CALL) { let n: ASTCall = (parser_get_call parser id) set start n.arg_start set count n.arg_count }
+    else if (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) { let n: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser id) set start n.arg_start set count n.arg_count }
+    else if (== kind ParseNodeType.PNODE_BLOCK) {
+        let n: ASTBlock = (parser_get_block parser id) let mut i: int = 0
+        while (< i (list_ASTStmtRef_length n.statements)) { set result (array_push result (list_ASTStmtRef_get n.statements i)) set i (+ i 1) }
+    } else if (== kind ParseNodeType.PNODE_BINARY_OP) {
+        let n: ASTBinaryOp = (parser_get_binary_op parser id)
+        if (not n.is_unary) { set result (array_push result ASTStmtRef { node_type: n.left_type, node_id: n.left }) }
+        set result (array_push result ASTStmtRef { node_type: n.right_type, node_id: n.right })
+    } else if (== kind ParseNodeType.PNODE_MATCH) {
+        let n: ASTMatch = (parser_get_match parser id)
+        set result [ASTStmtRef { node_type: n.scrutinee_type, node_id: n.scrutinee }]
+        let mut i: int = 0
+        while (< i n.arm_count) {
+            set result (array_push result ASTStmtRef { node_type: (at n.arm_body_types i), node_id: (at n.arm_body_ids i) }) set i (+ i 1)
+        }
+    } else if (== kind ParseNodeType.PNODE_IF) {
+        let n: ASTIf = (parser_get_if parser id)
+        set result [ASTStmtRef { node_type: n.condition_type, node_id: n.condition }, ASTStmtRef { node_type: ParseNodeType.PNODE_BLOCK, node_id: n.then_body }, ASTStmtRef { node_type: ParseNodeType.PNODE_BLOCK, node_id: n.else_body }]
+    } else if (== kind ParseNodeType.PNODE_WHILE) {
+        let n: ASTWhile = (parser_get_while parser id)
+        set result [ASTStmtRef { node_type: n.condition_type, node_id: n.condition }, ASTStmtRef { node_type: ParseNodeType.PNODE_BLOCK, node_id: n.body }]
+    } else if (== kind ParseNodeType.PNODE_LET) {
+        let n: ASTLet = (parser_get_let parser id) set result [ASTStmtRef { node_type: n.value_type, node_id: n.value }]
+    } else if (== kind ParseNodeType.PNODE_SET) {
+        let n: ASTSet = (parser_get_set parser id) set result [ASTStmtRef { node_type: n.value_type, node_id: n.value }]
+    } else if (== kind ParseNodeType.PNODE_ASSERT) {
+        let n: ASTAssert = (parser_get_assert parser id) set result [ASTStmtRef { node_type: n.condition_type, node_id: n.condition }]
+    } else if (== kind ParseNodeType.PNODE_STRUCT_LITERAL) {
+        let n: ASTStructLiteral = (parser_get_struct_literal parser id)
+        let mut j: int = 0
+        while (< j n.field_count) {
+            set result (array_push result ASTStmtRef { node_type: (at n.field_value_types j), node_id: (at n.field_value_ids j) })
+            set j (+ j 1)
+        }
+    } else if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
+        let n: ASTFieldAccess = (parser_get_field_access parser id) set result [ASTStmtRef { node_type: n.object_type, node_id: n.object }]
+    }
+    let mut i: int = 0
+    while (< i count) { set result (array_push result (parser_get_call_arg parser (+ start i))) set i (+ i 1) }
+    return result
+}
+shadow sl_children {
+    let tokens: List<LexerToken> = (tokenize_string "" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    assert (== (array_length (sl_children p 0 -1)) 0)
+}
+
+fn sl_terminal(parser: Parser, kind: int, id: int, depth: int) -> bool {
+    if (< id 0) { return false }
+    if (or (>= depth 128) (== kind ParseNodeType.PNODE_RETURN)) { return true }
+    let children: array<ASTStmtRef> = (sl_children parser kind id) let mut i: int = 0
+    while (< i (array_length children)) {
+        let child: ASTStmtRef = (at children i)
+        if (sl_terminal parser child.node_type child.node_id (+ depth 1)) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow sl_terminal {
+    let tokens: List<LexerToken> = (tokenize_string "" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    assert (sl_terminal p ParseNodeType.PNODE_RETURN 0 0)
+    assert (not (sl_terminal p 0 -1 0))
+}
+
+fn sl_operator(token: int, unary: bool) -> int {
+    if (== token LexerTokenType.TOKEN_PLUS) { return 32 }
+    if (== token LexerTokenType.TOKEN_MINUS) { if unary { return 37 } return 33 }
+    if (== token LexerTokenType.TOKEN_STAR) { return 34 }
+    if (== token LexerTokenType.TOKEN_SLASH) { return 35 }
+    if (== token LexerTokenType.TOKEN_PERCENT) { return 36 }
+    if (== token LexerTokenType.TOKEN_EQ) { return 40 }
+    if (== token LexerTokenType.TOKEN_NE) { return 41 }
+    if (== token LexerTokenType.TOKEN_LT) { return 42 }
+    if (== token LexerTokenType.TOKEN_LE) { return 43 }
+    if (== token LexerTokenType.TOKEN_GT) { return 44 }
+    if (== token LexerTokenType.TOKEN_GE) { return 45 }
+    if (== token LexerTokenType.TOKEN_NOT) { return 50 }
+    (sl_fail 2 "I have not lowered this service operator.") return 0
+}
+shadow sl_operator {
+    assert (== (sl_operator LexerTokenType.TOKEN_MINUS true) 37)
+    assert (== (sl_operator LexerTokenType.TOKEN_MINUS false) 33)
+}
+
+# I decode raw source escapes directly into counted bytes, including zero.
+fn sl_string_literal(raw: string) -> int {
+    let mut bytes: array<int> = [] let mut i: int = 0
+    while (< i (str_length raw)) {
+        let mut value: int = (char_at raw i)
+        if (and (== value 92) (< (+ i 1) (str_length raw))) {
+            set i (+ i 1) set value (char_at raw i)
+            if (== value 110) { set value 10 }
+            else if (== value 116) { set value 9 }
+            else if (== value 114) { set value 13 }
+            else if (== value 48) { set value 0 }
+            else if (not (or (== value 92) (or (== value 39) (== value 34)))) { set bytes (array_push bytes 92) }
+        }
+        set bytes (array_push bytes value) set i (+ i 1)
+    }
+    if (> (array_length bytes) 1048576) { (sl_fail 3 "I exceeded my service string byte bound.") return 0 }
+    set i 0
+    while (< i (array_length sl_maps)) {
+        let prior: array<int> = (at sl_maps i).bytes
+        let mut same: bool = (== (array_length prior) (array_length bytes)) let mut j: int = 0
+        while (and same (< j (array_length bytes))) { set same (== (at prior j) (at bytes j)) set j (+ j 1) }
+        if same { return i }
+        set i (+ i 1)
+    }
+    set sl_maps (array_push sl_maps ServiceWireSection { kind: 1, bytes: bytes }) return i
+}
+shadow sl_string_literal {
+    set sl_maps [] set sl_status 0
+    assert (== (sl_string_literal "") 0)
+    assert (== (sl_string_literal "a\\0b") 1)
+    assert (== (sl_string_literal "a\\0b") 1)
+    assert (== (array_length (at sl_maps 1).bytes) 3)
+    assert (== (at (at sl_maps 1).bytes 1) 0)
+    set sl_maps []
+}
+
+fn sl_reference_map(references: array<int>) -> int {
+    let mut bytes: array<int> = [] let mut i: int = 0
+    while (< i (array_length references)) {
+        let value: int = (at references i)
+        set bytes (array_push bytes (% value 256)) set bytes (array_push bytes (/ value 256))
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length sl_maps)) {
+        let prior: array<int> = (at sl_maps i).bytes
+        let mut same: bool = (== (array_length prior) (array_length bytes)) let mut j: int = 0
+        while (and same (< j (array_length bytes))) {
+            set same (== (at prior j) (at bytes j)) set j (+ j 1)
+        }
+        if same { return i }
+        set i (+ i 1)
+    }
+    set sl_maps (array_push sl_maps ServiceWireSection { kind: 0, bytes: bytes }) return i
+}
+shadow sl_reference_map {
+    set sl_maps []
+    assert (== (sl_reference_map [3, 65535, 1]) 0)
+    assert (== (sl_reference_map [3, 65535, 1]) 0)
+    assert (== (sl_reference_map [1, 65535, 3]) 1)
+    assert (== (at (at sl_maps 0).bytes 2) 255) set sl_maps []
+}
+
+fn sl_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bool) -> void {
+    let fact: ServiceBodyFact = (sl_fact kind id)
+    let args: array<ASTStmtRef> = (sl_children parser kind id)
+    if (== fact.declaration -1) {
+        if (!= (array_length args) 1) { (sl_fail 1 "I require one checked string length operand.") return }
+        let arg: ASTStmtRef = (at args 0) (sl_expr parser space arg.node_type arg.node_id true)
+        if sl_next { (sl_op 64 1 1) if (not want) { (sl_op 8 1 0) } }
+        return
+    }
+    if (== fact.declaration 0) {
+        if (== kind ParseNodeType.PNODE_CALL) {
+            let node: ASTCall = (parser_get_call parser id)
+            if (and (== node.function_type ParseNodeType.PNODE_IDENTIFIER) (== (parser_get_identifier parser node.function).name "not")) {
+                let arg: ASTStmtRef = (at args 0) (sl_expr parser space arg.node_type arg.node_id true)
+                if sl_next { (sl_op 50 1 1) if (not want) { (sl_op 8 1 0) } }
+                return
+            }
+        }
+    }
+    let indirect: bool = (and (== fact.declaration 0) (== kind ParseNodeType.PNODE_CALL))
+    let mut target: int = -1 let mut i: int = 0
+    while (< i (array_length space.names)) {
+        let row: ServiceName = (at space.names i)
+        if (and (== row.id fact.declaration) (== row.id row.target)) { set target i }
+        set i (+ i 1)
+    }
+    if (and (< target 0) (not indirect)) { (sl_fail 1 "I require an original callable identity.") return }
+    let pending: int = (array_length sl_pending) let mut callable_slot: int = -1
+    if indirect {
+        let node: ASTCall = (parser_get_call parser id)
+        (sl_expr parser space node.function_type node.function true)
+        if (or (not sl_next) (!= sl_status 0)) { return }
+        set callable_slot (sl_stage (service_wire_scalar 11))
+    }
+    let mut reference: int = 65535 let mut values: int = 0
+    let mut references: array<int> = [] let mut borrowed: int = 0
+    let loans: int = (array_length sl_loans)
+    let stage: bool = (sl_terminal parser kind id 0) let mut staged: array<int> = []
+    if (> (array_length args) 256) { (sl_fail 3 "I exceeded my call operand bound.") return }
+    set i 0
+    while (and sl_next (and (== sl_status 0) (< i (array_length args)))) {
+        let arg: ASTStmtRef = (at args i) let checked: ServiceBodyFact = (sl_fact arg.node_type arg.node_id)
+        if (!= checked.borrow_mode 0) {
+            if (and (!= checked.borrow_mode 1) (!= checked.borrow_mode 2)) { (sl_fail 2 "I have not lowered this multi-reference call.") return }
+            let mut root: ASTStmtRef = arg
+            if (== root.node_type ParseNodeType.PNODE_CALL) {
+                let borrow: ASTCall = (parser_get_call parser root.node_id)
+                if (!= borrow.borrow_mode 0) { set root (parser_get_call_arg parser borrow.arg_start) }
+            }
+            if (!= root.node_type ParseNodeType.PNODE_IDENTIFIER) { (sl_fail 2 "I require a named File reference root.") return }
+            let slot: int = (sl_lookup (parser_get_identifier parser root.node_id).name)
+            if (!= (at sl_locals slot).mode 0) { set reference slot }
+            else {
+                if (>= sl_next_ref 256) { (sl_fail 3 "I exceeded my File reference bound.") return }
+                set reference sl_next_ref set sl_next_ref (+ sl_next_ref 1)
+                let mut op: int = 25 if (== checked.borrow_mode 1) { set op 24 }
+                (sl_op 22 0 0) (sl_local_op op reference 0 0) (sl_integer slot 2)
+                set sl_loans (array_push sl_loans reference)
+            }
+            set references (array_push references reference) set borrowed (+ borrowed 1)
+        } else {
+            set references (array_push references 65535)
+            (sl_expr parser space arg.node_type arg.node_id true) set values (+ values 1)
+            if (and sl_next stage) { set staged (array_push staged (sl_stage (sl_wire_type checked.type checked.borrow_mode))) }
+        }
+        set i (+ i 1)
+    }
+    if (or (not sl_next) (!= sl_status 0)) { return }
+    set i 0
+    while (< i (array_length staged)) { (sl_load (at staged i)) (sl_clear (at staged i)) set i (+ i 1) }
+    set sl_pending (sl_prefix sl_pending pending)
+    let mut produces: int = 1 if (== fact.type.kind 3) { set produces 0 }
+    if indirect {
+        (sl_load callable_slot) (sl_clear callable_slot)
+        let mut op: int = 60 if (> borrowed 0) { set op 152 }
+        (sl_op op (+ values 1) produces) (sl_integer (array_length args) 2) (sl_integer produces 2)
+        if (> borrowed 0) { (sl_integer (sl_reference_map references) 4) }
+    } else {
+    let row: ServiceName = (at space.names target)
+    if (== row.kind 9) {
+        let mut index: int = row.ordinal let mut instance: int = 0
+        while (< instance row.request) { set index (+ index (LowerCatalog.count (at sl_catalogs instance) 2)) set instance (+ instance 1) }
+        (sl_op 145 values produces) (sl_integer index 4) (sl_integer reference 2)
+    }
+    else {
+        let mut callee: int = -1 set i 0
+        while (< i (array_length sl_functions)) { if (== (at sl_functions i).declaration row.id) { set callee i } set i (+ i 1) }
+        if (< callee 0) { (sl_fail 1 "I require a retained helper body.") return }
+        if (> borrowed 1) {
+            (sl_op 151 values produces) (sl_integer callee 4) (sl_integer (sl_reference_map references) 4)
+        } else {
+            let mut op: int = 59 if (!= reference 65535) { set op 15 }
+            (sl_op op values produces) (sl_integer callee 4)
+            if (!= reference 65535) { (sl_integer reference 2) }
+        }
+    }
+    }
+    (sl_end_loans loans)
+    if (and (!= produces 0) (not want)) { (sl_op 8 1 0) }
+    if (and (== produces 0) want) { (sl_op 5 0 1) }
+}
+shadow sl_call {
+    let tokens: List<LexerToken> = (tokenize_string "fn main()->int{return (missing)}" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    let space: ServiceNamespace = ServiceNamespace { status: 0, names: [], plan: FileSourcePlan { status: 0, rows: [], logical_bytes: 0 }, text_bytes: 0, ordinary_count: 0, alias_count: 0 }
+    set sl_facts [] set sl_status 0 (sl_call p space ParseNodeType.PNODE_CALL 0 true)
+    assert (== sl_status 1) set sl_status 0 set sl_diagnostic ""
+}
+
+fn sl_binary(parser: Parser, space: ServiceNamespace, id: int, want: bool) -> void {
+    let node: ASTBinaryOp = (parser_get_binary_op parser id)
+    if (or (== node.op LexerTokenType.TOKEN_AND) (== node.op LexerTokenType.TOKEN_OR)) {
+        (sl_expr parser space node.left_type node.left true) if (not sl_next) { return }
+        let mut branch: int = 58 let mut literal: int = 0
+        if (== node.op LexerTokenType.TOKEN_OR) { set branch 57 set literal 1 }
+        let skip: int = (sl_branch branch 0) let mut end: int = -1
+        let base: int = sl_stack let loans: array<int> = (sl_prefix sl_loans (array_length sl_loans)) let pending: array<int> = (sl_prefix sl_pending (array_length sl_pending))
+        (sl_expr parser space node.right_type node.right want)
+        if sl_next { set end (sl_branch 56 0) }
+        (sl_target skip (array_length sl_code)) set sl_stack base
+        if want { (sl_op 3 0 1) (sl_integer literal 1) }
+        if (>= end 0) { (sl_target end (array_length sl_code)) }
+        set sl_next true set sl_loans (sl_prefix loans (array_length loans)) set sl_pending (sl_prefix pending (array_length pending)) return
+    }
+    let args: array<ASTStmtRef> = (sl_children parser ParseNodeType.PNODE_BINARY_OP id)
+    let stage: bool = (sl_terminal parser ParseNodeType.PNODE_BINARY_OP id 0)
+    let pending: int = (array_length sl_pending) let mut staged: array<int> = [] let mut i: int = 0
+    while (and sl_next (< i (array_length args))) {
+        let arg: ASTStmtRef = (at args i) (sl_expr parser space arg.node_type arg.node_id true)
+        if (and sl_next stage) { set staged (array_push staged (sl_stage (sl_node_type arg.node_type arg.node_id))) }
+        set i (+ i 1)
+    }
+    if (not sl_next) { return }
+    set i 0
+    while (< i (array_length staged)) { (sl_load (at staged i)) (sl_clear (at staged i)) set i (+ i 1) }
+    set sl_pending (sl_prefix sl_pending pending)
+    if (and (or (== node.op LexerTokenType.TOKEN_EQ) (== node.op LexerTokenType.TOKEN_NE)) (== (sl_node_type node.left_type node.left).tag 5)) {
+        (sl_op 68 2 1) if (== node.op LexerTokenType.TOKEN_NE) { (sl_op 50 1 1) }
+    } else { (sl_op (sl_operator node.op node.is_unary) (array_length args) 1) }
+    if (not want) { (sl_op 8 1 0) }
+}
+shadow sl_binary {
+    let tokens: List<LexerToken> = (tokenize_string "fn main()->int{return (+ 2 3)}" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    let space: ServiceNamespace = ServiceNamespace { status: 0, names: [], plan: FileSourcePlan { status: 0, rows: [], logical_bytes: 0 }, text_bytes: 0, ordinary_count: 0, alias_count: 0 }
+    set sl_code [] set sl_stack 0 set sl_peak 0 set sl_next true (sl_binary p space 0 true)
+    assert (== sl_stack 1) assert (== sl_peak 2) assert (== (at sl_code 18) 32)
+    set sl_code [] set sl_stack 0 set sl_peak 0
+}
+
+fn sl_match(parser: Parser, space: ServiceNamespace, id: int, want: bool) -> void {
+    let node: ASTMatch = (parser_get_match parser id)
+    let fact: ServiceBodyFact = (sl_fact node.scrutinee_type node.scrutinee)
+    (sl_expr parser space node.scrutinee_type node.scrutinee true)
+    if (or (not sl_next) (!= sl_status 0)) { return }
+    let slot: int = (sl_bind "" (sl_wire_type fact.type 0)) (sl_store slot) (array_set sl_live slot false)
+    let error: int = (sl_branch 146 slot) let mut end: int = -1 let mut continues: bool = false
+    let base: int = sl_stack let loans: array<int> = (sl_prefix sl_loans (array_length sl_loans)) let pending: array<int> = (sl_prefix sl_pending (array_length sl_pending))
+    let mut arm: int = 0
+    while (< arm 2) {
+        let mut name: string = "Ok" if (== arm 1) { set name "Error" (sl_target error (array_length sl_code)) }
+        let mut index: int = 0
+        while (and (< index node.arm_count) (!= (at node.arm_variants index) name)) { set index (+ index 1) }
+        if (== index node.arm_count) { (sl_fail 1 "I require both Result arms.") return }
+        set sl_next true set sl_stack base set sl_loans (sl_prefix loans (array_length loans)) set sl_pending (sl_prefix pending (array_length pending))
+        let names: int = sl_name_count let slots: int = (array_length sl_locals)
+        (sl_local_op 147 slot 0 1) (sl_integer arm 1)
+        let payload: ServiceWireType = (sl_wire_type (service_member_type space fact.type name) 0)
+        if (== payload.tag 0) { (sl_op 8 1 0) }
+        else { (sl_store (sl_bind (at node.arm_bindings index) payload)) }
+        (sl_expr parser space (at node.arm_body_types index) (at node.arm_body_ids index) want)
+        (sl_scope_end names slots) set continues (or continues sl_next)
+        if (and (== arm 0) sl_next) { set end (sl_branch 56 0) }
+        set arm (+ arm 1)
+    }
+    if (>= end 0) { (sl_target end (array_length sl_code)) }
+    set sl_next continues set sl_loans (sl_prefix loans (array_length loans)) set sl_pending (sl_prefix pending (array_length pending)) set sl_stack base
+    if (and continues want) { set sl_stack (+ base 1) }
+}
+shadow sl_match {
+    let tokens: List<LexerToken> = (tokenize_string "fn main()->void{match absent {Ok(x)=>{} Error(e)=>{}}}" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    let space: ServiceNamespace = ServiceNamespace { status: 0, names: [], plan: FileSourcePlan { status: 0, rows: [], logical_bytes: 0 }, text_bytes: 0, ordinary_count: 0, alias_count: 0 }
+    set sl_facts [] set sl_status 0 set sl_next true set sl_code []
+    (sl_match p space 0 false)
+    assert (== sl_status 1) assert (== (array_length sl_code) 0)
+    set sl_status 0 set sl_diagnostic ""
+}
+
+fn sl_expr_impl(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bool) -> void {
+    if (< id 0) { if want { (sl_op 5 0 1) } return }
+    if (or (== kind ParseNodeType.PNODE_IDENTIFIER) (== kind ParseNodeType.PNODE_FIELD_ACCESS)) {
+        let fact: ServiceBodyFact = (sl_fact kind id)
+        if (and (== fact.type.kind 7) (> fact.declaration 0)) {
+            let mut target: int = -1 let mut i: int = 0
+            while (< i (array_length sl_functions)) { if (== (at sl_functions i).declaration fact.declaration) { set target i } set i (+ i 1) }
+            if (< target 0) { (sl_fail 1 "I require a retained helper value.") return }
+            if want { (sl_op 250 0 1) (sl_integer target 4) }
+            return
+        }
+    }
+    if (== kind ParseNodeType.PNODE_NUMBER) { (sl_op 1 0 1) (sl_integer (string_to_int (parser_get_number parser id).value) 8) }
+    else if (== kind ParseNodeType.PNODE_STRING) { (sl_op 4 0 1) (sl_integer (sl_string_literal (parser_get_string parser id).value) 4) }
+    else if (== kind ParseNodeType.PNODE_BOOL) {
+        (sl_op 3 0 1) let mut value: int = 0 if (parser_get_bool parser id).value { set value 1 } (sl_integer value 1)
+    } else if (== kind ParseNodeType.PNODE_IDENTIFIER) {
+        (sl_load (sl_lookup (parser_get_identifier parser id).name))
+    }
+    else if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) { (sl_call parser space kind id want) return }
+    else if (== kind ParseNodeType.PNODE_BINARY_OP) { (sl_binary parser space id want) return }
+    else if (== kind ParseNodeType.PNODE_STRUCT_LITERAL) {
+        let node: ASTStructLiteral = (parser_get_struct_literal parser id)
+        let typ: ServiceWireType = (sl_node_type kind id)
+        let instance: int = (sl_instance (sl_fact kind id).type.declaration)
+        let catalog: int = (at sl_catalogs instance)
+        let ordinal: int = (cond ((== catalog 3) 2) (else 8))
+        let count: int = (cond ((== catalog 3) 2) (else 7))
+        if (or (and (!= catalog 2) (!= catalog 3)) (or (!= typ.layout (+ (sl_base instance false) ordinal)) (!= node.field_count count))) {
+            (sl_fail 2 "I require a checked catalog record constructor.") return
+        }
+        let mut slots: array<int> = [0, 0, 0, 0, 0, 0, 0]
+        let pending: int = (array_length sl_pending) let mut i: int = 0
+        while (< i count) {
+            let mut field: int = 0
+            while (and (< field count) (!= (at node.field_names i) (LowerCatalog.catalog_text catalog 1 ordinal 3 field))) { set field (+ field 1) }
+            if (== field count) { (sl_fail 1 "I require an exact catalog record field.") return }
+            (sl_expr parser space (at node.field_value_types i) (at node.field_value_ids i) true)
+            if (or (not sl_next) (!= sl_status 0)) { return }
+            (array_set slots field (sl_stage (sl_node_type (at node.field_value_types i) (at node.field_value_ids i)))) set i (+ i 1)
+        }
+        set i 0
+        while (< i count) { (sl_load (at slots i)) (sl_clear (at slots i)) set i (+ i 1) }
+        set sl_pending (sl_prefix sl_pending pending)
+        (sl_op 251 count 1) (sl_integer 0 1) (sl_integer (+ (sl_base instance true) (cond ((== catalog 3) 2) (else 3))) 4) (sl_integer 0 2) (sl_integer count 2)
+    }
+    else if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
+        let node: ASTFieldAccess = (parser_get_field_access parser id) let fact: ServiceBodyFact = (sl_fact node.object_type node.object)
+        let catalog: int = (at sl_catalogs (sl_instance fact.type.declaration))
+        let count: int = (LowerCatalog.catalog_number catalog 1 fact.type.ordinal 1 0) let mut field: int = 0
+        while (and (< field count) (!= (LowerCatalog.catalog_text catalog 1 fact.type.ordinal 3 field) node.field_name)) { set field (+ field 1) }
+        if (>= field count) { (sl_fail 1 "I require an exact catalog field.") return }
+        (sl_expr parser space node.object_type node.object true) if (not sl_next) { return }
+        (sl_local_op 252 field 1 1)
+    } else if (== kind ParseNodeType.PNODE_LET) {
+        let node: ASTLet = (parser_get_let parser id)
+        (sl_expr parser space node.value_type node.value true) if (not sl_next) { return }
+        (sl_store (sl_bind node.name (sl_node_type kind id))) if want { (sl_op 5 0 1) } return
+    } else if (== kind ParseNodeType.PNODE_SET) {
+        let node: ASTSet = (parser_get_set parser id) let slot: int = (sl_lookup node.target)
+        (sl_expr parser space node.value_type node.value true) if (not sl_next) { return }
+        (sl_store slot) if want { (sl_op 5 0 1) } return
+    } else if (== kind ParseNodeType.PNODE_ASSERT) {
+        let node: ASTAssert = (parser_get_assert parser id)
+        (sl_expr parser space node.condition_type node.condition true) if (not sl_next) { return }
+        (sl_op 161 1 0) if want { (sl_op 5 0 1) } return
+    } else if (== kind ParseNodeType.PNODE_RETURN) {
+        let node: ASTReturn = (parser_get_return parser id)
+        (sl_expr parser space node.value_type node.value (!= sl_result.tag 0)) if (not sl_next) { return }
+        (sl_end_loans 0) (sl_pending_exit)
+        let mut count: int = 0 if (!= sl_result.tag 0) { set count 1 }
+        if (!= sl_stack count) { (sl_fail 1 "I require only the declared return value on my operand stack.") }
+        (sl_op 61 count 0) set sl_next false return
+    } else if (== kind ParseNodeType.PNODE_BLOCK) {
+        let node: ASTBlock = (parser_get_block parser id)
+        let names: int = sl_name_count let slots: int = (array_length sl_locals) let count: int = (list_ASTStmtRef_length node.statements)
+        let mut i: int = 0
+        while (and sl_next (< i count)) {
+            let statement: ASTStmtRef = (list_ASTStmtRef_get node.statements i)
+            (sl_expr parser space statement.node_type statement.node_id (and want (== (+ i 1) count))) set i (+ i 1)
+        }
+        if (and (== count 0) want) { (sl_op 5 0 1) }
+        (sl_scope_end names slots) return
+    } else if (== kind ParseNodeType.PNODE_MATCH) { (sl_match parser space id want) return }
+    else if (== kind ParseNodeType.PNODE_IF) {
+        let node: ASTIf = (parser_get_if parser id)
+        (sl_expr parser space node.condition_type node.condition true) if (not sl_next) { return }
+        let other: int = (sl_branch 58 0) let mut end: int = -1
+        let base: int = sl_stack let loans: array<int> = (sl_prefix sl_loans (array_length sl_loans)) let pending: array<int> = (sl_prefix sl_pending (array_length sl_pending))
+        (sl_expr parser space ParseNodeType.PNODE_BLOCK node.then_body false) let yes: bool = sl_next
+        if yes { set end (sl_branch 56 0) }
+        (sl_target other (array_length sl_code)) set sl_next true set sl_stack base set sl_loans (sl_prefix loans (array_length loans)) set sl_pending (sl_prefix pending (array_length pending))
+        (sl_expr parser space ParseNodeType.PNODE_BLOCK node.else_body false)
+        set sl_next (or sl_next yes) set sl_stack base set sl_loans (sl_prefix loans (array_length loans)) set sl_pending (sl_prefix pending (array_length pending))
+        if (>= end 0) { (sl_target end (array_length sl_code)) }
+        if (and sl_next want) { (sl_op 5 0 1) } return
+    } else if (== kind ParseNodeType.PNODE_WHILE) {
+        let node: ASTWhile = (parser_get_while parser id) let start: int = (array_length sl_code)
+        (sl_expr parser space node.condition_type node.condition true) if (not sl_next) { return }
+        let end: int = (sl_branch 58 0) let base: int = sl_stack let loans: array<int> = (sl_prefix sl_loans (array_length sl_loans)) let pending: array<int> = (sl_prefix sl_pending (array_length sl_pending))
+        (sl_expr parser space ParseNodeType.PNODE_BLOCK node.body false)
+        if sl_next { let back: int = (sl_branch 56 0) (sl_target back start) }
+        (sl_target end (array_length sl_code)) set sl_next true set sl_stack base set sl_loans (sl_prefix loans (array_length loans)) set sl_pending (sl_prefix pending (array_length pending))
+        if want { (sl_op 5 0 1) } return
+    } else { (sl_fail 2 "I have not lowered this checked service source form.") return }
+    if (not want) { (sl_op 8 1 0) }
+}
+shadow sl_expr_impl {
+    let tokens: List<LexerToken> = (tokenize_string "fn main()->int{return 7}" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    let space: ServiceNamespace = ServiceNamespace { status: 0, names: [], plan: FileSourcePlan { status: 0, rows: [], logical_bytes: 0 }, text_bytes: 0, ordinary_count: 0, alias_count: 0 }
+    set sl_code [] set sl_stack 0 (sl_expr_impl p space ParseNodeType.PNODE_NUMBER 0 true)
+    assert (== (at sl_code 1) 7) assert (== sl_stack 1) set sl_code [] set sl_stack 0 set sl_peak 0
+}
+
+fn sl_expr(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bool) -> void {
+    if (or (!= sl_status 0) (not sl_next)) { return }
+    if (>= sl_depth 128) { (sl_fail 3 "I exceeded my File lowering nesting bound.") return }
+    set sl_depth (+ sl_depth 1) (sl_expr_impl parser space kind id want) set sl_depth (- sl_depth 1)
+}
+shadow sl_expr {
+    let tokens: List<LexerToken> = (tokenize_string "" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    let space: ServiceNamespace = ServiceNamespace { status: 0, names: [], plan: FileSourcePlan { status: 0, rows: [], logical_bytes: 0 }, text_bytes: 0, ordinary_count: 0, alias_count: 0 }
+    set sl_code [] set sl_stack 0 set sl_next true (sl_expr p space 0 -1 true)
+    assert (== sl_stack 1) assert (== (at sl_code 0) 5) set sl_code [] set sl_stack 0 set sl_peak 0
+}
+
+pub fn lower_service_source(parser: Parser, files: array<string>, sources: array<string>, space: ServiceNamespace,
+    bodies: ServiceBodyCheck, owners: ServiceOwnershipCheck, selection: int) -> ServiceLowering {
+    set sl_catalogs [1]
+    set sl_status 0 set sl_diagnostic "" set sl_functions [] set sl_facts bodies.facts set sl_maps []
+    let mut result: array<ServiceWireFunction> = []
+    if (or (!= space.status 0) (or (!= bodies.status 0) (!= owners.status 0))) { (sl_fail 1 "I require complete nominal and ownership checks before lowering.") }
+    let count: int = (+ parser.functions_count parser.shadows_count)
+    if (or (== count 0) (> count 63)) { (sl_fail 3 "I exceeded my File function bound.") }
+    set sl_catalogs [] set sl_service_names space.names
+    let mut i: int = 0
+    while (< i (array_length space.plan.rows)) {
+        let row: FileSourceRow = (at space.plan.rows i)
+        if (== row.request (array_length sl_catalogs)) { set sl_catalogs (array_push sl_catalogs row.catalog) }
+        else if (or (< row.request 0) (>= row.request (array_length sl_catalogs))) { (sl_fail 1 "I require ordered service instance identities.") }
+        set i (+ i 1)
+    }
+    if (or (== (array_length sl_catalogs) 0) (> (array_length sl_catalogs) 64)) { (sl_fail 3 "I require one to 64 service instances.") }
+    let mut selected: int = -1 set i 0
+    while (and (== sl_status 0) (< i count)) {
+        let mut line: int = 0 let mut body: int = -1 let mut arity: int = 0 let mut params: int = 0 let mut name: string = ""
+        let mut typ: ServiceWireType = (service_wire_scalar 0) let mut declaration: int = 0 let mut owner: int = -1
+        if (< i parser.functions_count) {
+            let fnc: ASTFunction = (parser_get_function parser i)
+            set line fnc.line set body fnc.body set arity fnc.param_count set params fnc.param_start set name fnc.name
+            set owner (sn_owner files sources line) set typ (sl_annotation space owner fnc.return_type)
+            let found: int = (service_namespace_lookup space owner name)
+            if (< found 0) { (sl_fail 1 "I require the original function identity.") }
+            else { set declaration (at space.names found).target }
+            if (and (< selection 0) (and (== name "main") (== owner (- (array_length files) 1)))) { set selected i }
+        } else {
+            let item: ASTShadow = (list_ASTShadow_get parser.shadows (- i parser.functions_count))
+            set line item.line set body item.body set name (+ "shadow." item.target_name)
+            set owner (sn_owner files sources line)
+            if (== selection (- i parser.functions_count)) { set selected i }
+        }
+        if (or (< owner 0) (>= owner (array_length files))) { (sl_fail 1 "I require the original function source.") }
+        else { set name (+ (at files owner) (+ "::" (+ name (+ "#" (int_to_string i))))) }
+        set sl_functions (array_push sl_functions ServiceLowerFunction { declaration: declaration, owner: owner, body: body, arity: arity, params: params, name: name, result: typ })
+        set i (+ i 1)
+    }
+    if (< selected 0) { (sl_fail 1 "I require a selected File entry in this graph.") }
+    set i 0
+    while (and (== sl_status 0) (< i (array_length sl_functions))) {
+        let fnc: ServiceLowerFunction = (at sl_functions i)
+        set sl_code [] set sl_locals [] set sl_live [] set sl_names [] set sl_name_count 0
+        set sl_loans [] set sl_pending [] set sl_next true set sl_stack 0 set sl_peak 0 set sl_depth 0
+        set sl_result fnc.result set sl_next_ref fnc.arity let mut j: int = 0
+        while (and (== sl_status 0) (< j fnc.arity)) {
+            let parameter: ASTLet = (parser_get_let parser (+ fnc.params j))
+            let _: int = (sl_bind parameter.name (sl_annotation space fnc.owner parameter.var_type)) set j (+ j 1)
+        }
+        (sl_expr parser space ParseNodeType.PNODE_BLOCK fnc.body false)
+        if sl_next {
+            if (!= sl_result.tag 0) { (sl_fail 1 "I require a return from this File helper.") }
+            else { (sl_op 61 0 0) }
+        }
+        set result (array_push result ServiceWireFunction { name: fnc.name, arity: fnc.arity, result: fnc.result, locals: sl_locals, code: sl_code, max_stack: sl_peak })
+        set i (+ i 1)
+    }
+    if (== sl_status 0) {
+        let entry: ServiceLowerFunction = (at sl_functions selected)
+        if (or (!= entry.arity 0) (and (< selected parser.functions_count) (and (!= entry.result.tag 1) (!= entry.result.tag 4)))) {
+            (sl_fail 2 "I require a zero-argument scalar entry or a selected shadow.")
+        } else if (>= selected parser.functions_count) {
+            set sl_code [] (sl_integer 59 1) (sl_integer selected 4) (sl_integer 1 1) (sl_integer 0 8) (sl_integer 61 1)
+            set selected (array_length result)
+            set result (array_push result ServiceWireFunction { name: "__file_selected_shadow", arity: 0,
+                result: (service_wire_scalar 1), locals: [], code: sl_code, max_stack: 1 })
+        }
+    }
+    let mut bytes: array<int> = []
+    if (== sl_status 0) {
+        set bytes (service_wire_serialize_instances result selected sl_maps sl_catalogs)
+        if (== (array_length bytes) 0) { (sl_fail 3 "I cannot serialize these bounded File lowering records.") }
+    }
+    set sl_catalogs [1] set sl_service_names []
+    return ServiceLowering { status: sl_status, diagnostic: sl_diagnostic, bytes: bytes }
+}
+shadow lower_service_source {
+    let tokens: List<LexerToken> = (tokenize_string "" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    let space: ServiceNamespace = ServiceNamespace { status: 1, names: [], plan: FileSourcePlan { status: 0, rows: [], logical_bytes: 0 }, text_bytes: 0, ordinary_count: 0, alias_count: 0 }
+    let bodies: ServiceBodyCheck = ServiceBodyCheck { status: 0, diagnostic: "", facts: [], functions: 0, shadows: 0 }
+    let owners: ServiceOwnershipCheck = ServiceOwnershipCheck { status: 0, diagnostic: "", facts: [], functions: 0, shadows: 0 }
+    let result: ServiceLowering = (lower_service_source p [] [] space bodies owners -1)
+    assert (== result.status 1) assert (== (array_length result.bytes) 0)
+    set sl_status 0 set sl_diagnostic ""
+}

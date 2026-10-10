@@ -1,0 +1,2398 @@
+✓ Bootstrap Stage 0: C reference compiler ready
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+		obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+		obj/nanovm/main.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib 
+python3 scripts/embed_binary64_parser.py --check
+I run seed; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/00-seed.log.
+I run seed-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/01-seed-verify.log.
+I run stage1; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/02-stage1.log.
+I run stage1-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/03-stage1-verify.log.
+I run stage1-translate; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/04-stage1-translate.log.
+I run stage1-native; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/05-stage1-native.log.
+I run stage1-hello-compile; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/06-stage1-hello-compile.log.
+I run stage1-hello-execute; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/07-stage1-hello-execute.log.
+I run stage2; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/08-stage2.log.
+I run stage2-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/09-stage2-verify.log.
+I run stage2-translate; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/10-stage2-translate.log.
+I run stage2-native; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/11-stage2-native.log.
+I run stage2-hello-compile; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/12-stage2-hello-compile.log.
+I run stage2-hello-execute; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/13-stage2-hello-execute.log.
+I run seed-final-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/14-seed-final-verify.log.
+I run stage1-final-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/15-stage1-final-verify.log.
+I run stage2-final-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-0r5vvb0o/16-stage2-final-verify.log.
+I compared raw Stage 1 and Stage 2 modules: they are byte-identical in this build.
+I have not established reproducibility across clean environments or proved compiler semantic correctness.
+I installed bin/nanoc from the verified Stage 2 module.
+Hello from NanoLang!
+ld: warning: ignoring duplicate libraries: '-lm'
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+ld: warning: ignoring duplicate libraries: '-lm'
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+✓ Compiler: bin/nanoc -> nanoc_stage2 (self-hosted)
+✓ Stage 1 complete (C reference binaries)
+
+==========================================
+Stage 2: Building Self-Hosted Components
+==========================================
+Compiling components with bin/nanoc...
+
+  Building parser...
+    ✓ parser compiled successfully
+
+  Building typecheck...
+    ✓ typecheck compiled successfully
+
+  Building nanoisa_emitter...
+    ✓ nanoisa_emitter compiled successfully
+
+✓ Stage 2: 3/3 components built successfully
+
+==========================================
+Stage 3: Bootstrap Validation
+==========================================
+Validating self-hosted components...
+
+  Checking parser entry assertions...
+    ✓ parser entry assertions passed
+  Checking typecheck entry assertions...
+    ✓ typecheck entry assertions passed
+  Checking nanoisa_emitter entry assertions...
+    ✓ nanoisa_emitter entry assertions passed
+
+✓ Stage 3: 3/3 component entry checks passed; imported shadows are separate
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o bin/nano obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nano_main.o obj/proptest.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+✓ Interpreter: bin/nano
+
+==========================================
+✅ Build Complete (3-Stage Bootstrap)
+==========================================
+Build Status:
+
+  ✅ Stage 1: C reference compiler (bin/nanoc)
+  ✅ Stage 2: Self-hosted components compiled
+    • parser
+    • typecheck
+    • nanoisa_emitter
+  ✅ Stage 3: Bootstrap validated
+
+
+python3 -m unittest -v tests.test_github_issue_tracking
+test_create_preserves_literal_multiline_body_and_deduplicates_run (tests.test_github_issue_tracking.GitHubTracking.test_create_preserves_literal_multiline_body_and_deduplicates_run) ... ok
+test_dry_run_never_contacts_github (tests.test_github_issue_tracking.GitHubTracking.test_dry_run_never_contacts_github) ... ok
+test_fingerprint_finds_issue_after_title_change (tests.test_github_issue_tracking.GitHubTracking.test_fingerprint_finds_issue_after_title_change) ... ok
+test_legacy_entry_point_routes_to_github_without_network_in_dry_run (tests.test_github_issue_tracking.GitHubTracking.test_legacy_entry_point_routes_to_github_without_network_in_dry_run) ... ok
+test_new_issue_limit_does_not_suppress_existing_updates (tests.test_github_issue_tracking.GitHubTracking.test_new_issue_limit_does_not_suppress_existing_updates) ... ok
+test_offline_preserves_failure_and_still_runs_examples (tests.test_github_issue_tracking.GitHubTracking.test_offline_preserves_failure_and_still_runs_examples) ... ok
+test_paginated_issues_exclude_pull_requests (tests.test_github_issue_tracking.GitHubTracking.test_paginated_issues_exclude_pull_requests) ... ok
+test_recurrence_reopens_closed_issue_without_creating_duplicate (tests.test_github_issue_tracking.GitHubTracking.test_recurrence_reopens_closed_issue_without_creating_duplicate) ... ok
+test_success_never_creates_summary_and_closes_only_managed_issue (tests.test_github_issue_tracking.GitHubTracking.test_success_never_creates_summary_and_closes_only_managed_issue) ... ok
+test_summary_failure_reopens_and_records_nonzero_exit (tests.test_github_issue_tracking.GitHubTracking.test_summary_failure_reopens_and_records_nonzero_exit) ... ok
+test_summary_zero_limit_leaves_failure_unfiled (tests.test_github_issue_tracking.GitHubTracking.test_summary_zero_limit_leaves_failure_unfiled) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.124s
+
+OK
+
+[1m========================================
+NANOLANG COMPREHENSIVE TEST SUITE
+========================================[0m
+Backend: [0;36mc[0m
+Native compiler: ./bin/nanoc
+
+[0;36m=== CORE LANGUAGE TESTS (nl_*) ===[0m
+
+[1m-- Syntax --[0m
+[0;32m✅[0m nl_syntax_literals.nano
+[0;32m✅[0m nl_syntax_operators.nano
+
+[1m-- Types --[0m
+[0;32m✅[0m nl_types_bool_list.nano
+[0;32m✅[0m nl_types_enum.nano
+[0;32m✅[0m nl_types_struct.nano
+[0;32m✅[0m nl_types_tuple.nano
+
+[1m-- Control Flow --[0m
+[0;32m✅[0m nl_control_array_elements.nano
+[0;32m✅[0m nl_control_flow.nano
+[0;32m✅[0m nl_control_match.nano
+[0;32m✅[0m nl_control_while.nano
+
+[1m-- Functions --[0m
+[0;32m✅[0m nl_functions_array_param.nano
+[0;32m✅[0m nl_functions_audio_examples_default_args.nano
+[0;32m✅[0m nl_functions_filter.nano
+[0;32m✅[0m nl_functions_map_reduce.nano
+[0;32m✅[0m nl_functions_module_introspection_flags.nano
+[0;32m✅[0m nl_functions_module_metadata.nano
+[0;32m✅[0m nl_functions_nanoamp_default_args.nano
+[0;32m✅[0m nl_functions_relative_import.nano
+[0;32m✅[0m nl_functions_string_edges.nano
+
+[0;36mLanguage Tests: [0;32m19 passed[0m, [0;31m0 failed[0m
+
+[1m========================================
+TEST RESULTS SUMMARY
+========================================[0m
+
+Core Language (nl_*):  [0;32m19 passed[0m, [0;31m0 failed[0m
+
+TOTAL: [0;32m19 passed[0m, [0;31m0 failed[0m, [0;34m0 skipped[0m
+
+[0;32m✅ All runnable tests passed![0m
+...
+----------------------------------------------------------------------
+Ran 3 tests in 3.100s
+
+OK
+python3 scripts/embed_binary64_parser.py --check
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 47.775s
+
+OK
+..............I run probe-native; I retain its log at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-wk7pb5s3/obj/bootstrap-nanoisa/run-9ho77kz7/00-probe-native.log.
+I run probe-native; I retain its log at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-wk7pb5s3/obj/bootstrap-nanoisa/run-pfotilgm/00-probe-native.log.
+....
+----------------------------------------------------------------------
+Ran 18 tests in 21.673s
+
+OK
+bin/nanoc_c tests/parser_parenthesized.nano -o bin/parser_parenthesized_test
+bin/parser_parenthesized_test
+I passed the compiled parenthesized-parser assertions.
+python3 scripts/embed_binary64_parser.py --check
+
+==========================================
+✅ TRUE BOOTSTRAP COMPLETE!
+==========================================
+Bootstrap Status:
+
+  ✅ Stage 0: C reference compiler (bin/nanoc)
+  ✅ Stage 1: Self-hosted compiler (bin/nanoc_stage1)
+  ✅ Stage 2: Recompiled compiler (bin/nanoc_stage2)
+  Stage 3: recorded comparison and installed-compiler smoke checks passed.
+
+  I do not infer compiler correctness or release readiness from this stamp.
+
+
+✓ Self-hosted compiler installed as bin/nanoc
+✓ Stage binaries preserved in bin/ for verification
+✓ All future builds will use the self-hosted compiler
+
+python3 -m unittest -v tests.test_nanoisa_extern_declarations
+test_original_declaration_assertions_on_both_frontends_and_installed_stages (tests.test_nanoisa_extern_declarations.ExternDeclarations.test_original_declaration_assertions_on_both_frontends_and_installed_stages) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 167.331s
+
+OK
+bin/nanoc_c tests/module_introspection.nano -o bin/module_introspection_test
+bin/module_introspection_test
+I passed source-level module introspection checks.
+I rebuild C objects when their recorded headers change.
+release workflow checks passed
+==========================================
+GLUT initialization boundary tests
+==========================================
+
+-- Boundary unit test --
+=== glut init boundary tests ===
+[1] headless skip (not applicable on macOS)
+[2] first call initializes GLUT
+  PASS  reports GLUT ready
+  PASS  glutInit called exactly once
+  PASS  state reports initialized
+[3] glutInit receives a real argc/argv
+  PASS  argc is 1
+  PASS  argv[0] is a non-empty program name
+  PASS  argv is NULL terminated
+[4] repeated calls are idempotent
+  PASS  second call still reports ready
+  PASS  third call still reports ready
+  PASS  glutInit still called only once
+[5] initialized state survives display loss
+  PASS  still reports ready once initialized
+  PASS  glutInit not called again
+  PASS  state still reports initialized
+
+12 passed, 0 failed
+[0;32m✅[0m glut init boundary unit test
+
+-- Call-site guard --
+[0;32m✅[0m examples/opengl/opengl_lit_atelier.nano initializes GLUT through the shared boundary
+[0;32m✅[0m examples/opengl/opengl_lit_atelier.nano does not hand-roll glutInit
+[0;32m✅[0m examples/opengl/opengl_solar_system.nano initializes GLUT through the shared boundary
+[0;32m✅[0m examples/opengl/opengl_solar_system.nano does not hand-roll glutInit
+[0;32m✅[0m examples/opengl/opengl_teapot.nano initializes GLUT through the shared boundary
+[0;32m✅[0m examples/opengl/opengl_teapot.nano does not hand-roll glutInit
+[0;32m✅[0m modules/glut/glut_helpers.nano initializes GLUT through the shared boundary
+[0;32m✅[0m modules/glut/glut_helpers.nano does not hand-roll glutInit
+
+-- macOS framework dependency guard --
+[0;32m✅[0m teapot uses the native GLUT framework without Homebrew
+
+-- Launch smoke --
+[1;33m⏭[0m  SKIP: launch smoke (opens interactive windows; pass --launch to run it)
+
+==========================================
+[0;32m✅ GLUT initialization boundary tests passed[0m
+==========================================
+CI dependency-install helper tests
+==========================================
+[0;32m✅[0m apt helper retries a failing mirror and succeeds within budget
+[0;32m✅[0m brew helper retries a failing download and succeeds within budget
+[0;32m✅[0m apt helper fails after exhausting its attempt budget
+[0;32m✅[0m brew helper fails after exhausting its attempt budget
+[0;32m✅[0m brew helper skips a formula the runner image already provides
+[0;32m✅[0m brew helper installs the remaining formulae after a skip
+[0;32m✅[0m apt helper reports the package manager's real exit code
+[0;32m✅[0m brew helper reports the package manager's real exit code
+[0;32m✅[0m ci-apt-install.sh reports a usage error when given no packages
+[0;32m✅[0m ci-brew-install.sh reports a usage error when given no packages
+[0;32m✅[0m no workflow installs dependencies outside the retry helpers
+[0;32m✅[0m apt helper still retries and installs on a host without GNU timeout
+[0;32m✅[0m apt helper still exhausts its budget on a host without GNU timeout
+[0;32m✅[0m brew helper still retries and installs on a host without GNU timeout
+==========================================
+[0;32mAll CI dependency-install helper tests passed[0m
+==========================================
+Module validator tests
+==========================================
+[0;32m✅[0m validator reports readline present when only a keg-only pkg-config path would find it
+[0;32m✅[0m validator does not print apt-get hints on Darwin
+==========================================
+[0;32mAll module validator tests passed[0m
+==========================================
+Example launcher Makefile tests
+==========================================
+[0;32m✅[0m make launcher plans to compile sdl_example_launcher before launching, even without SDL2
+[0;32m✅[0m gpu-kernels writes matmul.ptx under bin/gpu
+[0;32m✅[0m gpu-kernels writes matmul.cl under bin/gpu
+[0;32m✅[0m gpu-kernels writes julia_flow.ptx under bin/gpu
+[0;32m✅[0m gpu-kernels writes julia_flow.cl under bin/gpu
+[0;32m✅[0m gpu-kernels leaves examples/gpu source-only
+[0;32m✅[0m GPU examples load kernels from bin/gpu
+[0;32m✅[0m sdl_forth_ide depends on bin/forth and execs it
+==========================================
+[0;32mAll example launcher Makefile tests passed[0m
+Stage 1: Building C reference compiler...
+✓ C Compiler: bin/nanoc_c
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o obj/test_module_install_policy tests/test_module_install_policy.c obj/cJSON.o obj/utf8.o obj/runtime/module_build_dir.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] Package 'fixture-unavailable-package' not found for module 'fixture'
+[Module] I will not install system packages during compilation without NANO_ALLOW_PACKAGE_INSTALL=1. Install dependencies manually or opt in for a trusted build.
+[Module] I could not find pkg-config. Install it manually, or explicitly allow package installation with NANO_ALLOW_PACKAGE_INSTALL=1.
+[Module]   Non-interactive shell detected; using sudo -n
+[Module]   Running: fixture-install
+[Module]   ✓ Successfully installed fixture
+I passed module installation authority checks.
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o obj/test_module_builder_cache tests/test_module_builder_cache.c obj/cJSON.o obj/utf8.o obj/runtime/module_build_dir.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+I passed absolute, relative, changed, missing and oversized source checks.
+==========================================
+Module dependency re-check tests
+==========================================
+[0;32m✅[0m compile and run succeed while the system package is present
+[0;32m✅[0m compile fails when the cached module's system package is gone
+[0;32m✅[0m failure names the missing package
+[0;32m✅[0m failure is my diagnostic, not a missing-header C error
+[0;32m✅[0m compile recovers after the system package is restored
+==========================================
+[0;32mAll module dependency re-check tests passed[0m
+....
+----------------------------------------------------------------------
+Ran 4 tests in 12.749s
+
+OK
+Running pt2_audio playback tests...
+PASS: pt2_audio playback (14 checks)
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o bin/nano_virt obj/nanovirt/codegen.o obj/nanovirt/wrapper_gen.o obj/nanovirt/shadow_runner.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nanovirt/main.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o bin/nano_vm obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o \
+		obj/nanovm/vmd_protocol.o obj/nanovm/vmd_client.o \
+		obj/nanovm/main.o obj/nanoisa/file_cli.o lib/libnano_file_runtime.a -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib 
+✓ Bootstrap Stage 0: C reference compiler ready
+python3 scripts/embed_binary64_parser.py --check
+I run seed; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/00-seed.log.
+I run seed-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/01-seed-verify.log.
+I run stage1; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/02-stage1.log.
+I run stage1-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/03-stage1-verify.log.
+I run stage1-translate; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/04-stage1-translate.log.
+I run stage1-native; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/05-stage1-native.log.
+I run stage1-hello-compile; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/06-stage1-hello-compile.log.
+I run stage1-hello-execute; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/07-stage1-hello-execute.log.
+I run stage2; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/08-stage2.log.
+I run stage2-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/09-stage2-verify.log.
+I run stage2-translate; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/10-stage2-translate.log.
+I run stage2-native; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/11-stage2-native.log.
+I run stage2-hello-compile; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/12-stage2-hello-compile.log.
+I run stage2-hello-execute; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/13-stage2-hello-execute.log.
+I run seed-final-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/14-seed-final-verify.log.
+I run stage1-final-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/15-stage1-final-verify.log.
+I run stage2-final-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-rhfkdhq9/16-stage2-final-verify.log.
+I compared raw Stage 1 and Stage 2 modules: they are byte-identical in this build.
+I have not established reproducibility across clean environments or proved compiler semantic correctness.
+I installed bin/nanoc from the verified Stage 2 module.
+Hello from NanoLang!
+ld: warning: ignoring duplicate libraries: '-lm'
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+ld: warning: ignoring duplicate libraries: '-lm'
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+✓ Compiler: bin/nanoc -> nanoc_stage2 (self-hosted)
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -fblocks -pthread tests/nanovm/test_dispatch_retained.c modules/dispatch/dispatch.c src/runtime/callback_runtime.c -o obj/test_dispatch_retained -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+I passed retained dispatch sync, concurrent groups, notification, barrier, timer drain and late cancellation checks.
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -fblocks -pthread tests/nanovm/test_dispatch_allocation.c -o obj/test_dispatch_allocation -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+I passed dispatch wrapper allocation failure and recovery checks.
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.535s
+
+OK
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include $(pkg-config --cflags SDL2_mixer) -pthread tests/nanovm/test_mixer_callbacks.c src/runtime/callback_runtime.c modules/sdl_mixer/sdl_mixer_operations.c -o obj/test_mixer_callbacks -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib $(pkg-config --libs SDL2_mixer)
+I passed post-mix retention, replacement, allocation failure, audio-lock clearing, buffer mutation and late cancellation checks.
+...
+----------------------------------------------------------------------
+Ran 3 tests in 3.360s
+
+OK
+python3 -m unittest -v tests.test_header_constant_functions
+test_callable_local_still_shadows_declared_function (tests.test_header_constant_functions.HeaderConstantFunctions.test_callable_local_still_shadows_declared_function) ... skipped 'I require SQLite headers in the module constant search paths.'
+test_noncallable_local_refuses_without_replacing_prior_output (tests.test_header_constant_functions.HeaderConstantFunctions.test_noncallable_local_refuses_without_replacing_prior_output) ... skipped 'I require SQLite headers in the module constant search paths.'
+test_original_sqlite_example_and_dependency_shadows (tests.test_header_constant_functions.HeaderConstantFunctions.test_original_sqlite_example_and_dependency_shadows) ... skipped 'I require SQLite headers in the module constant search paths.'
+test_unrelated_sqlite_header_value (tests.test_header_constant_functions.HeaderConstantFunctions.test_unrelated_sqlite_header_value) ... skipped 'I require SQLite headers in the module constant search paths.'
+test_compiler_support_query_preserves_snapshot_and_literal_contract (tests.test_header_constant_functions.HeaderConstantValues.test_compiler_support_query_preserves_snapshot_and_literal_contract) ... ok
+test_header_values_keep_lexical_bindings_in_shadows_vm_and_native (tests.test_header_constant_functions.HeaderConstantValues.test_header_values_keep_lexical_bindings_in_shadows_vm_and_native) ... ok
+test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) ... ok
+test_real_sqlite_header_value (tests.test_header_constant_functions.HeaderConstantValues.test_real_sqlite_header_value) ... skipped 'I require SQLite headers.'
+
+----------------------------------------------------------------------
+Ran 8 tests in 3.722s
+
+OK (skipped=5)
+..
+----------------------------------------------------------------------
+Ran 2 tests in 0.366s
+
+OK
+==========================================
+NanoVM example coverage
+==========================================
+
+Examples on disk: 248   eligible: 244   excluded: 4
+
+Test 1: VM build covers the whole example tree
+  ✓ every example is either built or explicitly declared
+
+Test 2: every eligible example compiles to NanoISA bytecode
+  ✓ all 244 eligible examples lowered to bytecode
+
+Test 3: every exclusion is still genuinely ineligible
+  ✓ all 4 exclusions still fail to compile
+
+Test 4: exclusions are broken sources, not NanoVirt gaps
+  ✓ no exclusion compiles natively
+
+Test 5: deeply nested statements compile without crashing
+  ✓ 400 levels of nesting compiled
+  ✓ and executes correctly (acc = 400)
+
+Test 6: VM builtins that examples depend on
+  ✓ tmp_dir, mktemp and the GPU geometry intrinsics compile
+  ✓ and return the documented host-target values
+
+==========================================
+✅ NanoVM example coverage: all checks passed
+   244 examples build for the VM.
+stdlib doc coverage: 158 builtins in src/builtins_registry.c, 158 documented in docs/STDLIB.md
+
+OK: every builtin is documented and every section count is accurate.
+=== Forth 2012 pin consistency ===
+DOCOK 5 needles
+  PASS  docs/FORTH_2012.md matches tests/forth/pins.json
+
+=== Gforth differential (pi.fs) ===
+  SKIP  gforth not installed (pin is 0.7.3); pin checks already ran
+
+Forth 2012 pin and Gforth differential checks passed.
+python3 scripts/embed_binary64_parser.py --check
+
+==========================================
+✅ TRUE BOOTSTRAP COMPLETE!
+==========================================
+Bootstrap Status:
+
+  ✅ Stage 0: C reference compiler (bin/nanoc)
+  ✅ Stage 1: Self-hosted compiler (bin/nanoc_stage1)
+  ✅ Stage 2: Recompiled compiler (bin/nanoc_stage2)
+  Stage 3: recorded comparison and installed-compiler smoke checks passed.
+
+  I do not infer compiler correctness or release readiness from this stamp.
+
+
+✓ Self-hosted compiler installed as bin/nanoc
+✓ Stage binaries preserved in bin/ for verification
+✓ All future builds will use the self-hosted compiler
+
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o obj/test_affine_c_frontend tests/test_affine_c_frontend.c obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+.................................
+----------------------------------------------------------------------
+Ran 33 tests in 26.432s
+
+OK
+.........................
+----------------------------------------------------------------------
+Ran 25 tests in 34.829s
+
+OK
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.234s
+
+OK
+mkdir -p obj/forth
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/forth/forth_session.c -o obj/forth/forth_session.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o bin/nano_forth src/forth/forth_repl.c obj/forth/forth_session.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib -Wl,-export_dynamic
+cp bin/nano_forth bin/forth
+Running Jackson Forth-2012 vendor and INCLUDE-gap tests...
+=== Jackson vendor pin ===
+DOCOK
+  PASS  Jackson pin, notices, and docs
+
+=== Core evidence vs optional files ===
+DOCOK 4 core evidence files
+  PASS  optional word-set files are not Core evidence
+
+=== INCLUDE / INCLUDED gap (NanoISA session) ===
+  PASS  FIND DUP
+  PASS  FIND EVALUATE
+  PASS  FIND SOURCE
+  PASS  C forth_file_open + forth_source_push_file
+COREFIND
+PRESENT !
+PRESENT #
+PRESENT #>
+PRESENT #S
+PRESENT '
+PRESENT (
+PRESENT *
+PRESENT */
+PRESENT */MOD
+PRESENT +
+PRESENT +!
+PRESENT +LOOP
+PRESENT ,
+PRESENT -
+PRESENT .
+PRESENT ."
+PRESENT /
+PRESENT /MOD
+PRESENT 0<
+PRESENT 0=
+PRESENT 1+
+PRESENT 1-
+PRESENT 2!
+PRESENT 2*
+PRESENT 2/
+PRESENT 2@
+PRESENT 2DROP
+PRESENT 2DUP
+PRESENT 2OVER
+PRESENT 2SWAP
+PRESENT :
+PRESENT ;
+PRESENT <
+PRESENT <#
+PRESENT =
+PRESENT >
+PRESENT >BODY
+PRESENT >IN
+PRESENT >NUMBER
+PRESENT >R
+PRESENT ?DUP
+PRESENT @
+PRESENT ABORT
+PRESENT ABORT"
+PRESENT ABS
+PRESENT ACCEPT
+PRESENT ALIGN
+PRESENT ALIGNED
+PRESENT ALLOT
+PRESENT AND
+PRESENT BASE
+PRESENT BEGIN
+PRESENT BL
+PRESENT C!
+PRESENT C,
+PRESENT C@
+PRESENT CELL+
+PRESENT CELLS
+PRESENT CHAR
+PRESENT CHAR+
+PRESENT CHARS
+PRESENT CONSTANT
+PRESENT COUNT
+PRESENT CR
+PRESENT CREATE
+PRESENT DECIMAL
+PRESENT DEPTH
+PRESENT DO
+PRESENT DOES>
+PRESENT DROP
+PRESENT DUP
+PRESENT ELSE
+PRESENT EMIT
+PRESENT ENVIRONMENT?
+PRESENT EVALUATE
+PRESENT EXECUTE
+PRESENT EXIT
+PRESENT FILL
+PRESENT FIND
+PRESENT FM/MOD
+PRESENT HERE
+PRESENT HOLD
+PRESENT I
+PRESENT IF
+PRESENT IMMEDIATE
+PRESENT INVERT
+PRESENT J
+PRESENT KEY
+PRESENT LEAVE
+PRESENT LITERAL
+PRESENT LOOP
+PRESENT LSHIFT
+PRESENT M*
+PRESENT MAX
+PRESENT MIN
+PRESENT MOD
+PRESENT MOVE
+PRESENT NEGATE
+PRESENT OR
+PRESENT OVER
+PRESENT POSTPONE
+PRESENT QUIT
+PRESENT R>
+PRESENT R@
+PRESENT RECURSE
+PRESENT REPEAT
+PRESENT ROT
+PRESENT RSHIFT
+PRESENT S"
+PRESENT S>D
+PRESENT SIGN
+PRESENT SM/REM
+PRESENT SOURCE
+PRESENT SPACE
+PRESENT SPACES
+PRESENT STATE
+PRESENT SWAP
+PRESENT THEN
+PRESENT TYPE
+PRESENT U.
+PRESENT U<
+PRESENT UM*
+PRESENT UM/MOD
+PRESENT UNLOOP
+PRESENT UNTIL
+PRESENT VARIABLE
+PRESENT WHILE
+PRESENT WORD
+PRESENT XOR
+PRESENT [
+PRESENT [']
+PRESENT [CHAR]
+PRESENT ]
+  PASS  INCLUDE-gap probe
+DOCOK coverage matches FIND
+  PASS  coverage matrix matches FIND
+
+=== REPL does not load files; I do not run runtests.fth ===
+  PASS  bin/forth is bin/nano_forth
+  PASS  interactive REPL does not claim a Standard System
+
+=== Forth 2012 system label ===
+label document denials, INCLUDE gap, coverage matrix, and pin cross-links
+  PASS  label document denials and pin cross-links
+
+Forth 2012 system label checks passed. I do not claim a Standard System.
+  PASS  precise Forth 2012 system label
+
+Jackson vendor, Core-evidence classification, coverage, and system-label checks passed. I do not claim Core.
+mkdir -p obj/scheme
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/scheme/scheme.c -o obj/scheme/scheme.o
+Running Nano Scheme laboratory tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o tests/scheme/test_scheme \
+		tests/scheme/test_scheme.c obj/scheme/scheme.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+
+[scheme] Nano Scheme laboratory...
+
+  (+ 1 2)                                                      PASS
+  (+)                                                          PASS
+  (+ 4)                                                        PASS
+  (+ 1 2 3)                                                    PASS
+  (- 10 3)                                                     PASS
+  (- 5)                                                        PASS
+  (* 6 7)                                                      PASS
+  (/ 20 4)                                                     PASS
+  (if #t 1 0)                                                  PASS
+  (if #f 1 0)                                                  PASS
+  zero is truthy                                               PASS
+  (not #f)                                                     PASS
+  (not 0)                                                      PASS
+  named add                                                    PASS
+  lambda apply                                                 PASS
+  let desugars                                                 PASS
+  lexical shadow                                               PASS
+  make-add closure                                             PASS
+  nested capture                                               PASS
+  first-class procedure                                        PASS
+  car cons                                                     PASS
+  cdr cons                                                     PASS
+  null?                                                        PASS
+  pair?                                                        PASS
+  quoted list car                                              PASS
+  recursive list tail build                                    PASS
+  tail result 50005000                                         PASS
+  constant frame depth                                         PASS
+  goal implemented                                             PASS
+  nl_scheme_accept                                             PASS
+  session define                                               PASS
+  session call                                                 PASS
+  live code publication                                        PASS
+  call/cc refused                                              PASS
+  set! refused                                                 PASS
+  unknown form                                                 PASS
+  if joins int and uses chosen branch                          PASS
+
+=== 37 passed, 0 failed ===
+mkdir -p obj/ml
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/ml/ml.c -o obj/ml/ml.o
+Running Nano ML laboratory tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o tests/ml/test_ml \
+		tests/ml/test_ml.c obj/ml/ml.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+
+[ml] Nano ML laboratory...
+
+  1 + 2                                                        PASS
+  if                                                           PASS
+  if false                                                     PASS
+  fun add                                                      PASS
+  fn apply                                                     PASS
+  let                                                          PASS
+  lexical                                                      PASS
+  id int                                                       PASS
+  make-add                                                     PASS
+  apply                                                        PASS
+  id scheme                                                    PASS
+  pair scheme                                                  PASS
+  tuple fst                                                    PASS
+  option some                                                  PASS
+  option none                                                  PASS
+  inexhaustive                                                 PASS
+  signature add                                                PASS
+  signature mismatch                                           PASS
+  ref                                                          PASS
+  exception                                                    PASS
+  assign                                                       PASS
+  goal implemented                                             PASS
+  nl_ml_accept                                                 PASS
+  type metadata                                                PASS
+  shared aggregate NanoLang+ML                                 PASS
+
+=== 25 passed, 0 failed ===
+mkdir -p obj/actor
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/actor/actor.c -o obj/actor/actor.o
+Running Nano Actor laboratory tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o tests/actor/test_actor \
+		tests/actor/test_actor.c obj/actor/actor.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+
+[actor] Nano Actor laboratory...
+
+  ping                                                         PASS
+  mailbox order                                                PASS
+  become                                                       PASS
+  crash containment                                            PASS
+  monitor                                                      PASS
+  link does not kill unlinked                                  PASS
+  link crash                                                   PASS
+  supervise restart                                            PASS
+  deadline after 0                                             PASS
+  cancel send                                                  PASS
+  hot replace                                                  PASS
+  typed mailbox                                                PASS
+  remote spawn                                                 PASS
+  cap                                                          PASS
+  actor name boundary                                          PASS
+  goal implemented                                             PASS
+  nl_actor_accept                                              PASS
+
+=== 17 passed, 0 failed ===
+mkdir -p obj/dataflow
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/dataflow/dataflow.c -o obj/dataflow/dataflow.o
+Running Nano Dataflow laboratory tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o tests/dataflow/test_dataflow \
+		tests/dataflow/test_dataflow.c obj/dataflow/dataflow.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+
+[dataflow] Nano Dataflow laboratory...
+
+  add                                                          PASS
+  pipeline                                                     PASS
+  backpressure                                                 PASS
+  parallel determinism                                         PASS
+  retry                                                        PASS
+  cancel                                                       PASS
+  replay                                                       PASS
+  provenance journal                                           PASS
+  bulk copy                                                    PASS
+  remote place                                                 PASS
+  unknown effect                                               PASS
+  goal implemented                                             PASS
+  nl_dataflow_accept                                           PASS
+
+=== 13 passed, 0 failed ===
+mkdir -p obj/object
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/object/object.c -o obj/object/object.o
+Running Nano Object laboratory tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o tests/object/test_object \
+		tests/object/test_object.c obj/object/object.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+
+[object] Nano Object laboratory...
+
+  inc                                                          PASS
+  plus                                                         PASS
+  mutable graph                                                PASS
+  inline cache                                                 PASS
+  live replace                                                 PASS
+  layout evolution                                             PASS
+  classof                                                      PASS
+  callable handle                                              PASS
+  image snapshot                                               PASS
+  goal implemented                                             PASS
+  nl_object_accept                                             PASS
+
+=== 11 passed, 0 failed ===
+mkdir -p obj/shell
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/shell/shell.c -o obj/shell/shell.o
+Running Nano Shell laboratory tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o tests/shell/test_shell \
+		tests/shell/test_shell.c obj/shell/shell.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+
+[shell] Nano Shell laboratory...
+
+  typed pipe                                                   PASS
+  chained pipe                                                 PASS
+  structured bind                                              PASS
+  parse adapter                                                PASS
+  text is not a pipeline value                                 PASS
+  cancel                                                       PASS
+  read without cap                                             PASS
+  read with cap still refuses files                            PASS
+  run without cap                                              PASS
+  run with cap still refuses processes                         PASS
+  connect without cap                                          PASS
+  connect with cap still refuses networks                      PASS
+  service without cap                                          PASS
+  service with cap still refuses services                      PASS
+  stream without cap                                           PASS
+  stream with cap still refuses host streams                   PASS
+  remote without cap                                           PASS
+  remote with cap still refuses remote                         PASS
+  host arith                                                   PASS
+  goal implemented                                             PASS
+  nl_shell_accept                                              PASS
+
+=== 21 passed, 0 failed ===
+mkdir -p obj/logic
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/logic/logic.c -o obj/logic/logic.o
+Running Nano Logic laboratory tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o tests/logic/test_logic \
+		tests/logic/test_logic.c obj/logic/logic.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+
+[logic] Nano Logic laboratory...
+
+  ground fact                                                  PASS
+  missing fact                                                 PASS
+  transitive least fixed-point                                 PASS
+  no spurious path                                             PASS
+  restricted policy query                                      PASS
+  policy deny                                                  PASS
+  unary fact                                                   PASS
+  open query                                                   PASS
+  goal implemented                                             PASS
+  choice points stay out of scope                              PASS
+  nl_logic_accept                                              PASS
+
+=== 11 passed, 0 failed ===
+Running 4.6 frontend matrix tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o tests/frontend/test_frontend_matrix \
+		tests/frontend/test_frontend_matrix.c obj/scheme/scheme.o obj/ml/ml.o obj/actor/actor.o obj/dataflow/dataflow.o obj/object/object.o obj/shell/shell.o obj/logic/logic.o \
+		obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+
+[matrix] 4.6 frontend matrix...
+
+  NanoLang is native                                           PASS
+  matrix document                                              PASS
+  every published frontend is implemented                      PASS
+  shared add library from NanoLang, Forth, Scheme, ML          PASS
+  measure NanoLang   compile_ns=3000 eval_ns=135000 code=8 fns=1 ins=4 calls=0 strings=1
+  NanoLang                                                     PASS
+  measure Forth      compile_ns=3000 eval_ns=135000 code=8 fns=1 ins=4 calls=0 strings=1
+  Forth                                                        PASS
+  measure Scheme     compile_ns=45000 eval_ns=48000 code=20 fns=1 ins=4 calls=0 strings=1
+  Scheme                                                       PASS
+  measure ML         compile_ns=44000 eval_ns=33000 code=50 fns=3 ins=12 calls=2 strings=4
+  ML                                                           PASS
+  measure Dataflow   compile_ns=36000 eval_ns=28000 code=30 fns=2 ins=8 calls=0 strings=4
+  Dataflow                                                     PASS
+  measure Object     compile_ns=27000 eval_ns=60000 code=45 fns=2 ins=15 calls=0 strings=3
+  Object                                                       PASS
+  measure Shell      compile_ns=8000 eval_ns=20000 code=18 fns=2 ins=6 calls=0 strings=3
+  Shell                                                        PASS
+  Logic deny keeps Echo stopped                                PASS
+  Logic allow is outside the Actor program                     PASS
+  measure Actor      compile_ns=27000 eval_ns=113000 code=154 fns=2 ins=28 calls=0 strings=2
+  Actor                                                        PASS
+  measure Logic      compile_ns=6000 eval_ns=0 code=18 fns=2 ins=6 calls=0 strings=3
+  Logic                                                        PASS
+  Shell orchestrates supervised Echo under Logic policy        PASS
+
+=== 16 passed, 0 failed ===
+Checking Jackson Core evidence via C file-source REFILL...
+Running Jackson Core via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/prelimtest.fth ===
+loaded 233 lines
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== tests/forth/vendor/gerryjackson/src/core.fr ===
+loaded 1009 lines
+=== tests/forth/vendor/gerryjackson/src/coreplustest.fth ===
+loaded 305 lines
+OUTPUT:
+
+
+CR CR SOURCE TYPE ( Preliminary test ) CR
+SOURCE ( These lines test SOURCE, TYPE, CR and parenthetic comments ) TYPE CR
+( The next line of output should be blank to test CR ) SOURCE TYPE CR CR
+
+( Pass #1: testing 0 >IN +! ) 0 >IN +! SOURCE TYPE CR
+( Pass #2: testing 1 >IN +! ) 1 >IN +! xSOURCE TYPE CR
+( Pass #3: testing 1+ ) 1 1+ >IN +! xxSOURCE TYPE CR
+( Pass #4: testing @ ! BASE ) 0 1+ 1+ BASE ! BASE @ >IN +! xxSOURCE TYPE CR
+( Pass #5: testing decimal BASE ) BASE @ >IN +! xxxxxxxxxxSOURCE TYPE CR
+( Pass #6: testing : ; ) : .SRC SOURCE TYPE CR ; 6 >IN +! xxxxxx.SRC
+( Pass #7: testing number input ) 19 >IN +! xxxxxxxxxxxxxxxxxxx.SRC
+( Pass #8: testing VARIABLE ) VARIABLE Y 2 Y ! Y @ >IN +! xx.SRC
+( Pass #9: testing WORD COUNT ) 5 MSG abcdef) Y ! Y ! >IN +! xxxxx.SRC
+( Pass #10: testing WORD COUNT ) MSG ab) >IN +! xxY ! .SRC
+Pass #11: testing WORD COUNT .MSG
+Pass #12: testing = returns all 1's for true
+Pass #13: testing = returns 0 for false
+Pass #14: testing -1 interpreted correctly
+Pass #15: testing 2*
+Pass #16: testing 2*
+Pass #17: testing AND
+Pass #18: testing AND
+Pass #19: testing AND
+Pass #20: testing ?F~ ?~~ Pass Error
+Pass #21: testing ?~
+Pass #22: testing EMIT
+Pass #23: testing S"
+
+Results: 
+
+Pass messages #1 to #23 should be displayed above
+and no error messages
+
+0 tests failed out of 57 additional tests
+
+
+--- End of Preliminary Tests --- 
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9 
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G 
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5  
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+SIGNED: -8000000000000000 7FFFFFFFFFFFFFFF 
+UNSIGNED: 0 FFFFFFFFFFFFFFFF 
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+
+RECEIVED: ""
+*
+End of Core word set tests
+*********
+You should see 2345: 2345
+******
+End of additional Core tests
+
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS Jackson Core evidence files. I do not claim Core.
+
+Checking Jackson Core Ext evidence via C file-source REFILL...
+Running Jackson Core Ext via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/prelimtest.fth ===
+loaded 233 lines
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== tests/forth/vendor/gerryjackson/src/core.fr ===
+loaded 1009 lines
+=== tests/forth/vendor/gerryjackson/src/coreplustest.fth ===
+loaded 305 lines
+=== tests/forth/vendor/gerryjackson/src/errorreport.fth ===
+loaded 88 lines
+=== tests/forth/vendor/gerryjackson/src/utilities.fth ===
+loaded 143 lines
+=== tests/forth/vendor/gerryjackson/src/coreexttest.fth ===
+loaded 775 lines
+OUTPUT:
+
+
+CR CR SOURCE TYPE ( Preliminary test ) CR
+SOURCE ( These lines test SOURCE, TYPE, CR and parenthetic comments ) TYPE CR
+( The next line of output should be blank to test CR ) SOURCE TYPE CR CR
+
+( Pass #1: testing 0 >IN +! ) 0 >IN +! SOURCE TYPE CR
+( Pass #2: testing 1 >IN +! ) 1 >IN +! xSOURCE TYPE CR
+( Pass #3: testing 1+ ) 1 1+ >IN +! xxSOURCE TYPE CR
+( Pass #4: testing @ ! BASE ) 0 1+ 1+ BASE ! BASE @ >IN +! xxSOURCE TYPE CR
+( Pass #5: testing decimal BASE ) BASE @ >IN +! xxxxxxxxxxSOURCE TYPE CR
+( Pass #6: testing : ; ) : .SRC SOURCE TYPE CR ; 6 >IN +! xxxxxx.SRC
+( Pass #7: testing number input ) 19 >IN +! xxxxxxxxxxxxxxxxxxx.SRC
+( Pass #8: testing VARIABLE ) VARIABLE Y 2 Y ! Y @ >IN +! xx.SRC
+( Pass #9: testing WORD COUNT ) 5 MSG abcdef) Y ! Y ! >IN +! xxxxx.SRC
+( Pass #10: testing WORD COUNT ) MSG ab) >IN +! xxY ! .SRC
+Pass #11: testing WORD COUNT .MSG
+Pass #12: testing = returns all 1's for true
+Pass #13: testing = returns 0 for false
+Pass #14: testing -1 interpreted correctly
+Pass #15: testing 2*
+Pass #16: testing 2*
+Pass #17: testing AND
+Pass #18: testing AND
+Pass #19: testing AND
+Pass #20: testing ?F~ ?~~ Pass Error
+Pass #21: testing ?~
+Pass #22: testing EMIT
+Pass #23: testing S"
+
+Results: 
+
+Pass messages #1 to #23 should be displayed above
+and no error messages
+
+0 tests failed out of 57 additional tests
+
+
+--- End of Preliminary Tests --- 
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9 
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G 
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5  
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+SIGNED: -8000000000000000 7FFFFFFFFFFFFFFF 
+UNSIGNED: 0 FFFFFFFFFFFFFFFF 
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+
+RECEIVED: ""
+*
+End of Core word set tests
+*********
+You should see 2345: 2345
+******
+End of additional Core tests
+
+Test utilities loaded
+********************
+
+Output from .(
+You should see -9876: -9876 
+and again: -9876
+
+
+On the next 2 lines you should see First then Second messages:
+First message via .( 
+Second message via ."
+
+*
+
+Output from .R and U.R
+You should see lines duplicated:
+indented by 0 spaces
+8522862768232894100 
+8522862768232894100
+-8970676912557384690 
+-8970676912557384690
+8522862768232894100 
+8522862768232894100
+9476067161152166926 
+9476067161152166926
+
+indented by 0 spaces
+8522862768232894100 
+8522862768232894100
+-8970676912557384690 
+-8970676912557384690
+8522862768232894100 
+8522862768232894100
+9476067161152166926 
+9476067161152166926
+
+indented by 5 spaces
+     8522862768232894100 
+     8522862768232894100
+     -8970676912557384690 
+     -8970676912557384690
+     8522862768232894100 
+     8522862768232894100
+     9476067161152166926 
+     9476067161152166926
+
+*******
+The next test should display:
+One line...
+another line
+One line...
+anotherLine
+
+End of Core Extension word tests
+
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS Jackson Core Ext evidence files. I do not claim a Standard System.
+
+Checking Jackson Exception evidence via C file-source REFILL...
+Running Jackson Exception via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/prelimtest.fth ===
+loaded 233 lines
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== tests/forth/vendor/gerryjackson/src/core.fr ===
+loaded 1009 lines
+=== tests/forth/vendor/gerryjackson/src/coreplustest.fth ===
+loaded 305 lines
+=== tests/forth/vendor/gerryjackson/src/errorreport.fth ===
+loaded 88 lines
+=== tests/forth/vendor/gerryjackson/src/utilities.fth ===
+loaded 143 lines
+=== tests/forth/vendor/gerryjackson/src/exceptiontest.fth ===
+loaded 102 lines
+OUTPUT:
+
+
+CR CR SOURCE TYPE ( Preliminary test ) CR
+SOURCE ( These lines test SOURCE, TYPE, CR and parenthetic comments ) TYPE CR
+( The next line of output should be blank to test CR ) SOURCE TYPE CR CR
+
+( Pass #1: testing 0 >IN +! ) 0 >IN +! SOURCE TYPE CR
+( Pass #2: testing 1 >IN +! ) 1 >IN +! xSOURCE TYPE CR
+( Pass #3: testing 1+ ) 1 1+ >IN +! xxSOURCE TYPE CR
+( Pass #4: testing @ ! BASE ) 0 1+ 1+ BASE ! BASE @ >IN +! xxSOURCE TYPE CR
+( Pass #5: testing decimal BASE ) BASE @ >IN +! xxxxxxxxxxSOURCE TYPE CR
+( Pass #6: testing : ; ) : .SRC SOURCE TYPE CR ; 6 >IN +! xxxxxx.SRC
+( Pass #7: testing number input ) 19 >IN +! xxxxxxxxxxxxxxxxxxx.SRC
+( Pass #8: testing VARIABLE ) VARIABLE Y 2 Y ! Y @ >IN +! xx.SRC
+( Pass #9: testing WORD COUNT ) 5 MSG abcdef) Y ! Y ! >IN +! xxxxx.SRC
+( Pass #10: testing WORD COUNT ) MSG ab) >IN +! xxY ! .SRC
+Pass #11: testing WORD COUNT .MSG
+Pass #12: testing = returns all 1's for true
+Pass #13: testing = returns 0 for false
+Pass #14: testing -1 interpreted correctly
+Pass #15: testing 2*
+Pass #16: testing 2*
+Pass #17: testing AND
+Pass #18: testing AND
+Pass #19: testing AND
+Pass #20: testing ?F~ ?~~ Pass Error
+Pass #21: testing ?~
+Pass #22: testing EMIT
+Pass #23: testing S"
+
+Results: 
+
+Pass messages #1 to #23 should be displayed above
+and no error messages
+
+0 tests failed out of 57 additional tests
+
+
+--- End of Preliminary Tests --- 
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9 
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G 
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5  
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+SIGNED: -8000000000000000 7FFFFFFFFFFFFFFF 
+UNSIGNED: 0 FFFFFFFFFFFFFFFF 
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+
+RECEIVED: ""
+*
+End of Core word set tests
+*********
+You should see 2345: 2345
+******
+End of additional Core tests
+
+Test utilities loaded
+**This should not be displayed*
+End of Exception word tests
+
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS Jackson Exception evidence files. I do not claim a Standard System.
+
+Checking Jackson Double evidence via C file-source REFILL...
+Running Jackson Double via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/prelimtest.fth ===
+loaded 233 lines
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== tests/forth/vendor/gerryjackson/src/core.fr ===
+loaded 1009 lines
+=== tests/forth/vendor/gerryjackson/src/coreplustest.fth ===
+loaded 305 lines
+=== tests/forth/vendor/gerryjackson/src/errorreport.fth ===
+loaded 88 lines
+=== tests/forth/vendor/gerryjackson/src/utilities.fth ===
+loaded 143 lines
+=== tests/forth/vendor/gerryjackson/src/doubletest.fth ===
+loaded 437 lines
+OUTPUT:
+
+
+CR CR SOURCE TYPE ( Preliminary test ) CR
+SOURCE ( These lines test SOURCE, TYPE, CR and parenthetic comments ) TYPE CR
+( The next line of output should be blank to test CR ) SOURCE TYPE CR CR
+
+( Pass #1: testing 0 >IN +! ) 0 >IN +! SOURCE TYPE CR
+( Pass #2: testing 1 >IN +! ) 1 >IN +! xSOURCE TYPE CR
+( Pass #3: testing 1+ ) 1 1+ >IN +! xxSOURCE TYPE CR
+( Pass #4: testing @ ! BASE ) 0 1+ 1+ BASE ! BASE @ >IN +! xxSOURCE TYPE CR
+( Pass #5: testing decimal BASE ) BASE @ >IN +! xxxxxxxxxxSOURCE TYPE CR
+( Pass #6: testing : ; ) : .SRC SOURCE TYPE CR ; 6 >IN +! xxxxxx.SRC
+( Pass #7: testing number input ) 19 >IN +! xxxxxxxxxxxxxxxxxxx.SRC
+( Pass #8: testing VARIABLE ) VARIABLE Y 2 Y ! Y @ >IN +! xx.SRC
+( Pass #9: testing WORD COUNT ) 5 MSG abcdef) Y ! Y ! >IN +! xxxxx.SRC
+( Pass #10: testing WORD COUNT ) MSG ab) >IN +! xxY ! .SRC
+Pass #11: testing WORD COUNT .MSG
+Pass #12: testing = returns all 1's for true
+Pass #13: testing = returns 0 for false
+Pass #14: testing -1 interpreted correctly
+Pass #15: testing 2*
+Pass #16: testing 2*
+Pass #17: testing AND
+Pass #18: testing AND
+Pass #19: testing AND
+Pass #20: testing ?F~ ?~~ Pass Error
+Pass #21: testing ?~
+Pass #22: testing EMIT
+Pass #23: testing S"
+
+Results: 
+
+Pass messages #1 to #23 should be displayed above
+and no error messages
+
+0 tests failed out of 57 additional tests
+
+
+--- End of Preliminary Tests --- 
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9 
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G 
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5  
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+SIGNED: -8000000000000000 7FFFFFFFFFFFFFFF 
+UNSIGNED: 0 FFFFFFFFFFFFFFFF 
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+
+RECEIVED: ""
+*
+End of Core word set tests
+*********
+You should see 2345: 2345
+******
+End of additional Core tests
+
+Test utilities loaded
+*****************
+You should see lines duplicated:
+     165479781173881033602052035120928376802
+     165479781173881033602052035120928376802 
+        165479781173881033602052035120928376802
+        165479781173881033602052035120928376802
+     -157219068260939922992571812294424553395
+     -157219068260939922992571812294424553395 
+          -157219068260939922992571812294424553395
+          -157219068260939922992571812294424553395
+**
+End of Double-Number word tests
+
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS Jackson Double evidence files. I do not claim a Standard System.
+
+Checking Jackson String evidence via C file-source REFILL...
+Running Jackson String via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/prelimtest.fth ===
+loaded 233 lines
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== tests/forth/vendor/gerryjackson/src/core.fr ===
+loaded 1009 lines
+=== tests/forth/vendor/gerryjackson/src/coreplustest.fth ===
+loaded 305 lines
+=== tests/forth/vendor/gerryjackson/src/errorreport.fth ===
+loaded 88 lines
+=== tests/forth/vendor/gerryjackson/src/utilities.fth ===
+loaded 143 lines
+=== tests/forth/vendor/gerryjackson/src/stringtest.fth ===
+loaded 323 lines
+OUTPUT:
+
+
+CR CR SOURCE TYPE ( Preliminary test ) CR
+SOURCE ( These lines test SOURCE, TYPE, CR and parenthetic comments ) TYPE CR
+( The next line of output should be blank to test CR ) SOURCE TYPE CR CR
+
+( Pass #1: testing 0 >IN +! ) 0 >IN +! SOURCE TYPE CR
+( Pass #2: testing 1 >IN +! ) 1 >IN +! xSOURCE TYPE CR
+( Pass #3: testing 1+ ) 1 1+ >IN +! xxSOURCE TYPE CR
+( Pass #4: testing @ ! BASE ) 0 1+ 1+ BASE ! BASE @ >IN +! xxSOURCE TYPE CR
+( Pass #5: testing decimal BASE ) BASE @ >IN +! xxxxxxxxxxSOURCE TYPE CR
+( Pass #6: testing : ; ) : .SRC SOURCE TYPE CR ; 6 >IN +! xxxxxx.SRC
+( Pass #7: testing number input ) 19 >IN +! xxxxxxxxxxxxxxxxxxx.SRC
+( Pass #8: testing VARIABLE ) VARIABLE Y 2 Y ! Y @ >IN +! xx.SRC
+( Pass #9: testing WORD COUNT ) 5 MSG abcdef) Y ! Y ! >IN +! xxxxx.SRC
+( Pass #10: testing WORD COUNT ) MSG ab) >IN +! xxY ! .SRC
+Pass #11: testing WORD COUNT .MSG
+Pass #12: testing = returns all 1's for true
+Pass #13: testing = returns 0 for false
+Pass #14: testing -1 interpreted correctly
+Pass #15: testing 2*
+Pass #16: testing 2*
+Pass #17: testing AND
+Pass #18: testing AND
+Pass #19: testing AND
+Pass #20: testing ?F~ ?~~ Pass Error
+Pass #21: testing ?~
+Pass #22: testing EMIT
+Pass #23: testing S"
+
+Results: 
+
+Pass messages #1 to #23 should be displayed above
+and no error messages
+
+0 tests failed out of 57 additional tests
+
+
+--- End of Preliminary Tests --- 
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9 
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G 
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5  
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+SIGNED: -8000000000000000 7FFFFFFFFFFFFFFF 
+UNSIGNED: 0 FFFFFFFFFFFFFFFF 
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+
+RECEIVED: ""
+*
+End of Core word set tests
+*********
+You should see 2345: 2345
+******
+End of additional Core tests
+
+Test utilities loaded
+**********
+End of String word tests
+
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS Jackson String evidence files. I do not claim a Standard System.
+
+Checking Jackson Search Order evidence via C file-source REFILL...
+Running Jackson Search Order via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/prelimtest.fth ===
+loaded 233 lines
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== tests/forth/vendor/gerryjackson/src/core.fr ===
+loaded 1009 lines
+=== tests/forth/vendor/gerryjackson/src/coreplustest.fth ===
+loaded 305 lines
+=== tests/forth/vendor/gerryjackson/src/errorreport.fth ===
+loaded 88 lines
+=== tests/forth/vendor/gerryjackson/src/utilities.fth ===
+loaded 143 lines
+=== tests/forth/vendor/gerryjackson/src/searchordertest.fth ===
+loaded 192 lines
+OUTPUT:
+
+
+CR CR SOURCE TYPE ( Preliminary test ) CR
+SOURCE ( These lines test SOURCE, TYPE, CR and parenthetic comments ) TYPE CR
+( The next line of output should be blank to test CR ) SOURCE TYPE CR CR
+
+( Pass #1: testing 0 >IN +! ) 0 >IN +! SOURCE TYPE CR
+( Pass #2: testing 1 >IN +! ) 1 >IN +! xSOURCE TYPE CR
+( Pass #3: testing 1+ ) 1 1+ >IN +! xxSOURCE TYPE CR
+( Pass #4: testing @ ! BASE ) 0 1+ 1+ BASE ! BASE @ >IN +! xxSOURCE TYPE CR
+( Pass #5: testing decimal BASE ) BASE @ >IN +! xxxxxxxxxxSOURCE TYPE CR
+( Pass #6: testing : ; ) : .SRC SOURCE TYPE CR ; 6 >IN +! xxxxxx.SRC
+( Pass #7: testing number input ) 19 >IN +! xxxxxxxxxxxxxxxxxxx.SRC
+( Pass #8: testing VARIABLE ) VARIABLE Y 2 Y ! Y @ >IN +! xx.SRC
+( Pass #9: testing WORD COUNT ) 5 MSG abcdef) Y ! Y ! >IN +! xxxxx.SRC
+( Pass #10: testing WORD COUNT ) MSG ab) >IN +! xxY ! .SRC
+Pass #11: testing WORD COUNT .MSG
+Pass #12: testing = returns all 1's for true
+Pass #13: testing = returns 0 for false
+Pass #14: testing -1 interpreted correctly
+Pass #15: testing 2*
+Pass #16: testing 2*
+Pass #17: testing AND
+Pass #18: testing AND
+Pass #19: testing AND
+Pass #20: testing ?F~ ?~~ Pass Error
+Pass #21: testing ?~
+Pass #22: testing EMIT
+Pass #23: testing S"
+
+Results: 
+
+Pass messages #1 to #23 should be displayed above
+and no error messages
+
+0 tests failed out of 57 additional tests
+
+
+--- End of Preliminary Tests --- 
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9 
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G 
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5  
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+SIGNED: -8000000000000000 7FFFFFFFFFFFFFFF 
+UNSIGNED: 0 FFFFFFFFFFFFFFFF 
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+
+RECEIVED: ""
+*
+End of Core word set tests
+*********
+You should see 2345: 2345
+******
+End of additional Core tests
+
+Test utilities loaded
+**********
+ONLY FORTH DEFINITIONS search order and compilation wordlist
+1 CURRENT 1
+
+Plus another unnamed wordlist at the head of the search order
+2 1 CURRENT 2
+
+End of Search Order word tests
+
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS Jackson Search Order evidence files. I do not claim a Standard System.
+
+Checking Jackson File Access evidence via C file-source REFILL...
+Running Jackson File Access via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/prelimtest.fth ===
+loaded 233 lines
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== tests/forth/vendor/gerryjackson/src/core.fr ===
+loaded 1009 lines
+=== tests/forth/vendor/gerryjackson/src/coreplustest.fth ===
+loaded 305 lines
+=== tests/forth/vendor/gerryjackson/src/errorreport.fth ===
+loaded 88 lines
+=== tests/forth/vendor/gerryjackson/src/utilities.fth ===
+loaded 143 lines
+=== tests/forth/vendor/gerryjackson/src/coreexttest.fth ===
+loaded 775 lines
+=== tests/forth/vendor/gerryjackson/src/filetest.fth ===
+loaded 311 lines
+OUTPUT:
+
+
+CR CR SOURCE TYPE ( Preliminary test ) CR
+SOURCE ( These lines test SOURCE, TYPE, CR and parenthetic comments ) TYPE CR
+( The next line of output should be blank to test CR ) SOURCE TYPE CR CR
+
+( Pass #1: testing 0 >IN +! ) 0 >IN +! SOURCE TYPE CR
+( Pass #2: testing 1 >IN +! ) 1 >IN +! xSOURCE TYPE CR
+( Pass #3: testing 1+ ) 1 1+ >IN +! xxSOURCE TYPE CR
+( Pass #4: testing @ ! BASE ) 0 1+ 1+ BASE ! BASE @ >IN +! xxSOURCE TYPE CR
+( Pass #5: testing decimal BASE ) BASE @ >IN +! xxxxxxxxxxSOURCE TYPE CR
+( Pass #6: testing : ; ) : .SRC SOURCE TYPE CR ; 6 >IN +! xxxxxx.SRC
+( Pass #7: testing number input ) 19 >IN +! xxxxxxxxxxxxxxxxxxx.SRC
+( Pass #8: testing VARIABLE ) VARIABLE Y 2 Y ! Y @ >IN +! xx.SRC
+( Pass #9: testing WORD COUNT ) 5 MSG abcdef) Y ! Y ! >IN +! xxxxx.SRC
+( Pass #10: testing WORD COUNT ) MSG ab) >IN +! xxY ! .SRC
+Pass #11: testing WORD COUNT .MSG
+Pass #12: testing = returns all 1's for true
+Pass #13: testing = returns 0 for false
+Pass #14: testing -1 interpreted correctly
+Pass #15: testing 2*
+Pass #16: testing 2*
+Pass #17: testing AND
+Pass #18: testing AND
+Pass #19: testing AND
+Pass #20: testing ?F~ ?~~ Pass Error
+Pass #21: testing ?~
+Pass #22: testing EMIT
+Pass #23: testing S"
+
+Results: 
+
+Pass messages #1 to #23 should be displayed above
+and no error messages
+
+0 tests failed out of 57 additional tests
+
+
+--- End of Preliminary Tests --- 
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9 
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G 
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5  
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+SIGNED: -8000000000000000 7FFFFFFFFFFFFFFF 
+UNSIGNED: 0 FFFFFFFFFFFFFFFF 
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+
+RECEIVED: ""
+*
+End of Core word set tests
+*********
+You should see 2345: 2345
+******
+End of additional Core tests
+
+Test utilities loaded
+********************
+
+Output from .(
+You should see -9876: -9876 
+and again: -9876
+
+
+On the next 2 lines you should see First then Second messages:
+First message via .( 
+Second message via ."
+
+*
+
+Output from .R and U.R
+You should see lines duplicated:
+indented by 0 spaces
+8522862768232894100 
+8522862768232894100
+-8970676912557384690 
+-8970676912557384690
+8522862768232894100 
+8522862768232894100
+9476067161152166926 
+9476067161152166926
+
+indented by 0 spaces
+8522862768232894100 
+8522862768232894100
+-8970676912557384690 
+-8970676912557384690
+8522862768232894100 
+8522862768232894100
+9476067161152166926 
+9476067161152166926
+
+indented by 5 spaces
+     8522862768232894100 
+     8522862768232894100
+     -8970676912557384690 
+     -8970676912557384690
+     8522862768232894100 
+     8522862768232894100
+     9476067161152166926 
+     9476067161152166926
+
+*******
+The next test should display:
+One line...
+another line
+One line...
+anotherLine
+
+End of Core Extension word tests
+*******************
+End of File-Access word set tests
+
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS Jackson File Access evidence files. I do not claim a Standard System.
+
+Checking Jackson Memory-Allocation evidence via C file-source REFILL...
+Running Jackson Memory-Allocation via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/prelimtest.fth ===
+loaded 233 lines
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== tests/forth/vendor/gerryjackson/src/core.fr ===
+loaded 1009 lines
+=== tests/forth/vendor/gerryjackson/src/coreplustest.fth ===
+loaded 305 lines
+=== tests/forth/vendor/gerryjackson/src/errorreport.fth ===
+loaded 88 lines
+=== tests/forth/vendor/gerryjackson/src/utilities.fth ===
+loaded 143 lines
+=== tests/forth/vendor/gerryjackson/src/memorytest.fth ===
+loaded 127 lines
+OUTPUT:
+
+
+CR CR SOURCE TYPE ( Preliminary test ) CR
+SOURCE ( These lines test SOURCE, TYPE, CR and parenthetic comments ) TYPE CR
+( The next line of output should be blank to test CR ) SOURCE TYPE CR CR
+
+( Pass #1: testing 0 >IN +! ) 0 >IN +! SOURCE TYPE CR
+( Pass #2: testing 1 >IN +! ) 1 >IN +! xSOURCE TYPE CR
+( Pass #3: testing 1+ ) 1 1+ >IN +! xxSOURCE TYPE CR
+( Pass #4: testing @ ! BASE ) 0 1+ 1+ BASE ! BASE @ >IN +! xxSOURCE TYPE CR
+( Pass #5: testing decimal BASE ) BASE @ >IN +! xxxxxxxxxxSOURCE TYPE CR
+( Pass #6: testing : ; ) : .SRC SOURCE TYPE CR ; 6 >IN +! xxxxxx.SRC
+( Pass #7: testing number input ) 19 >IN +! xxxxxxxxxxxxxxxxxxx.SRC
+( Pass #8: testing VARIABLE ) VARIABLE Y 2 Y ! Y @ >IN +! xx.SRC
+( Pass #9: testing WORD COUNT ) 5 MSG abcdef) Y ! Y ! >IN +! xxxxx.SRC
+( Pass #10: testing WORD COUNT ) MSG ab) >IN +! xxY ! .SRC
+Pass #11: testing WORD COUNT .MSG
+Pass #12: testing = returns all 1's for true
+Pass #13: testing = returns 0 for false
+Pass #14: testing -1 interpreted correctly
+Pass #15: testing 2*
+Pass #16: testing 2*
+Pass #17: testing AND
+Pass #18: testing AND
+Pass #19: testing AND
+Pass #20: testing ?F~ ?~~ Pass Error
+Pass #21: testing ?~
+Pass #22: testing EMIT
+Pass #23: testing S"
+
+Results: 
+
+Pass messages #1 to #23 should be displayed above
+and no error messages
+
+0 tests failed out of 57 additional tests
+
+
+--- End of Preliminary Tests --- 
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9 
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G 
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5  
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+SIGNED: -8000000000000000 7FFFFFFFFFFFFFFF 
+UNSIGNED: 0 FFFFFFFFFFFFFFFF 
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+
+RECEIVED: ""
+*
+End of Core word set tests
+*********
+You should see 2345: 2345
+******
+End of additional Core tests
+
+Test utilities loaded
+****
+End of Memory-Allocation word tests
+
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS Jackson Memory-Allocation evidence files. I do not claim a Standard System.
+
+Checking Jackson Locals evidence via C file-source REFILL...
+Running Jackson Locals via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/prelimtest.fth ===
+loaded 233 lines
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== tests/forth/vendor/gerryjackson/src/core.fr ===
+loaded 1009 lines
+=== tests/forth/vendor/gerryjackson/src/coreplustest.fth ===
+loaded 305 lines
+=== tests/forth/vendor/gerryjackson/src/errorreport.fth ===
+loaded 88 lines
+=== tests/forth/vendor/gerryjackson/src/utilities.fth ===
+loaded 143 lines
+=== tests/forth/vendor/gerryjackson/src/localstest.fth ===
+loaded 161 lines
+OUTPUT:
+
+
+CR CR SOURCE TYPE ( Preliminary test ) CR
+SOURCE ( These lines test SOURCE, TYPE, CR and parenthetic comments ) TYPE CR
+( The next line of output should be blank to test CR ) SOURCE TYPE CR CR
+
+( Pass #1: testing 0 >IN +! ) 0 >IN +! SOURCE TYPE CR
+( Pass #2: testing 1 >IN +! ) 1 >IN +! xSOURCE TYPE CR
+( Pass #3: testing 1+ ) 1 1+ >IN +! xxSOURCE TYPE CR
+( Pass #4: testing @ ! BASE ) 0 1+ 1+ BASE ! BASE @ >IN +! xxSOURCE TYPE CR
+( Pass #5: testing decimal BASE ) BASE @ >IN +! xxxxxxxxxxSOURCE TYPE CR
+( Pass #6: testing : ; ) : .SRC SOURCE TYPE CR ; 6 >IN +! xxxxxx.SRC
+( Pass #7: testing number input ) 19 >IN +! xxxxxxxxxxxxxxxxxxx.SRC
+( Pass #8: testing VARIABLE ) VARIABLE Y 2 Y ! Y @ >IN +! xx.SRC
+( Pass #9: testing WORD COUNT ) 5 MSG abcdef) Y ! Y ! >IN +! xxxxx.SRC
+( Pass #10: testing WORD COUNT ) MSG ab) >IN +! xxY ! .SRC
+Pass #11: testing WORD COUNT .MSG
+Pass #12: testing = returns all 1's for true
+Pass #13: testing = returns 0 for false
+Pass #14: testing -1 interpreted correctly
+Pass #15: testing 2*
+Pass #16: testing 2*
+Pass #17: testing AND
+Pass #18: testing AND
+Pass #19: testing AND
+Pass #20: testing ?F~ ?~~ Pass Error
+Pass #21: testing ?~
+Pass #22: testing EMIT
+Pass #23: testing S"
+
+Results: 
+
+Pass messages #1 to #23 should be displayed above
+and no error messages
+
+0 tests failed out of 57 additional tests
+
+
+--- End of Preliminary Tests --- 
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9 
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G 
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5  
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+SIGNED: -8000000000000000 7FFFFFFFFFFFFFFF 
+UNSIGNED: 0 FFFFFFFFFFFFFFFF 
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+
+RECEIVED: ""
+*
+End of Core word set tests
+*********
+You should see 2345: 2345
+******
+End of additional Core tests
+
+Test utilities loaded
+*************
+End of Locals word set tests. 
+
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS Jackson Locals evidence files. I do not claim a Standard System.
+
+Checking Jackson Facility evidence via C file-source REFILL...
+Running Jackson Facility via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/prelimtest.fth ===
+loaded 233 lines
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== tests/forth/vendor/gerryjackson/src/core.fr ===
+loaded 1009 lines
+=== tests/forth/vendor/gerryjackson/src/coreplustest.fth ===
+loaded 305 lines
+=== tests/forth/vendor/gerryjackson/src/errorreport.fth ===
+loaded 88 lines
+=== tests/forth/vendor/gerryjackson/src/utilities.fth ===
+loaded 143 lines
+=== tests/forth/vendor/gerryjackson/src/facilitytest.fth ===
+loaded 143 lines
+OUTPUT:
+
+
+CR CR SOURCE TYPE ( Preliminary test ) CR
+SOURCE ( These lines test SOURCE, TYPE, CR and parenthetic comments ) TYPE CR
+( The next line of output should be blank to test CR ) SOURCE TYPE CR CR
+
+( Pass #1: testing 0 >IN +! ) 0 >IN +! SOURCE TYPE CR
+( Pass #2: testing 1 >IN +! ) 1 >IN +! xSOURCE TYPE CR
+( Pass #3: testing 1+ ) 1 1+ >IN +! xxSOURCE TYPE CR
+( Pass #4: testing @ ! BASE ) 0 1+ 1+ BASE ! BASE @ >IN +! xxSOURCE TYPE CR
+( Pass #5: testing decimal BASE ) BASE @ >IN +! xxxxxxxxxxSOURCE TYPE CR
+( Pass #6: testing : ; ) : .SRC SOURCE TYPE CR ; 6 >IN +! xxxxxx.SRC
+( Pass #7: testing number input ) 19 >IN +! xxxxxxxxxxxxxxxxxxx.SRC
+( Pass #8: testing VARIABLE ) VARIABLE Y 2 Y ! Y @ >IN +! xx.SRC
+( Pass #9: testing WORD COUNT ) 5 MSG abcdef) Y ! Y ! >IN +! xxxxx.SRC
+( Pass #10: testing WORD COUNT ) MSG ab) >IN +! xxY ! .SRC
+Pass #11: testing WORD COUNT .MSG
+Pass #12: testing = returns all 1's for true
+Pass #13: testing = returns 0 for false
+Pass #14: testing -1 interpreted correctly
+Pass #15: testing 2*
+Pass #16: testing 2*
+Pass #17: testing AND
+Pass #18: testing AND
+Pass #19: testing AND
+Pass #20: testing ?F~ ?~~ Pass Error
+Pass #21: testing ?~
+Pass #22: testing EMIT
+Pass #23: testing S"
+
+Results: 
+
+Pass messages #1 to #23 should be displayed above
+and no error messages
+
+0 tests failed out of 57 additional tests
+
+
+--- End of Preliminary Tests --- 
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9 
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G 
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5  
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+SIGNED: -8000000000000000 7FFFFFFFFFFFFFFF 
+UNSIGNED: 0 FFFFFFFFFFFFFFFF 
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+
+RECEIVED: ""
+*
+End of Core word set tests
+*********
+You should see 2345: 2345
+******
+End of additional Core tests
+
+Test utilities loaded
+****
+End of Facility word tests
+
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS Jackson Facility evidence files. I do not claim a Standard System.
+
+Checking Jackson Programming Tools evidence via C file-source REFILL...
+Running Jackson Programming Tools via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/prelimtest.fth ===
+loaded 233 lines
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== tests/forth/vendor/gerryjackson/src/core.fr ===
+loaded 1009 lines
+=== tests/forth/vendor/gerryjackson/src/coreplustest.fth ===
+loaded 305 lines
+=== tests/forth/vendor/gerryjackson/src/errorreport.fth ===
+loaded 88 lines
+=== tests/forth/vendor/gerryjackson/src/utilities.fth ===
+loaded 143 lines
+=== tests/forth/vendor/gerryjackson/src/toolstest.fth ===
+loaded 376 lines
+OUTPUT:
+
+
+CR CR SOURCE TYPE ( Preliminary test ) CR
+SOURCE ( These lines test SOURCE, TYPE, CR and parenthetic comments ) TYPE CR
+( The next line of output should be blank to test CR ) SOURCE TYPE CR CR
+
+( Pass #1: testing 0 >IN +! ) 0 >IN +! SOURCE TYPE CR
+( Pass #2: testing 1 >IN +! ) 1 >IN +! xSOURCE TYPE CR
+( Pass #3: testing 1+ ) 1 1+ >IN +! xxSOURCE TYPE CR
+( Pass #4: testing @ ! BASE ) 0 1+ 1+ BASE ! BASE @ >IN +! xxSOURCE TYPE CR
+( Pass #5: testing decimal BASE ) BASE @ >IN +! xxxxxxxxxxSOURCE TYPE CR
+( Pass #6: testing : ; ) : .SRC SOURCE TYPE CR ; 6 >IN +! xxxxxx.SRC
+( Pass #7: testing number input ) 19 >IN +! xxxxxxxxxxxxxxxxxxx.SRC
+( Pass #8: testing VARIABLE ) VARIABLE Y 2 Y ! Y @ >IN +! xx.SRC
+( Pass #9: testing WORD COUNT ) 5 MSG abcdef) Y ! Y ! >IN +! xxxxx.SRC
+( Pass #10: testing WORD COUNT ) MSG ab) >IN +! xxY ! .SRC
+Pass #11: testing WORD COUNT .MSG
+Pass #12: testing = returns all 1's for true
+Pass #13: testing = returns 0 for false
+Pass #14: testing -1 interpreted correctly
+Pass #15: testing 2*
+Pass #16: testing 2*
+Pass #17: testing AND
+Pass #18: testing AND
+Pass #19: testing AND
+Pass #20: testing ?F~ ?~~ Pass Error
+Pass #21: testing ?~
+Pass #22: testing EMIT
+Pass #23: testing S"
+
+Results: 
+
+Pass messages #1 to #23 should be displayed above
+and no error messages
+
+0 tests failed out of 57 additional tests
+
+
+--- End of Preliminary Tests --- 
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9 
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G 
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5  
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+SIGNED: -8000000000000000 7FFFFFFFFFFFFFFF 
+UNSIGNED: 0 FFFFFFFFFFFFFFFF 
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+
+RECEIVED: ""
+*
+End of Core word set tests
+*********
+You should see 2345: 2345
+******
+End of additional Core tests
+
+Test utilities loaded
+**********
+End of Programming Tools word tests
+
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS Jackson Programming Tools evidence files. I do not claim a Standard System.
+
+Checking Jackson Floating-Point evidence via C file-source REFILL...
+Running Jackson Floating-Point via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/prelimtest.fth ===
+loaded 233 lines
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== tests/forth/vendor/gerryjackson/src/core.fr ===
+loaded 1009 lines
+=== tests/forth/vendor/gerryjackson/src/coreplustest.fth ===
+loaded 305 lines
+=== tests/forth/vendor/gerryjackson/src/errorreport.fth ===
+loaded 88 lines
+=== tests/forth/vendor/gerryjackson/src/utilities.fth ===
+loaded 143 lines
+=== tests/forth/vendor/gerryjackson/src/fp/ak-fp-test.fth ===
+loaded 397 lines
+OUTPUT:
+
+
+CR CR SOURCE TYPE ( Preliminary test ) CR
+SOURCE ( These lines test SOURCE, TYPE, CR and parenthetic comments ) TYPE CR
+( The next line of output should be blank to test CR ) SOURCE TYPE CR CR
+
+( Pass #1: testing 0 >IN +! ) 0 >IN +! SOURCE TYPE CR
+( Pass #2: testing 1 >IN +! ) 1 >IN +! xSOURCE TYPE CR
+( Pass #3: testing 1+ ) 1 1+ >IN +! xxSOURCE TYPE CR
+( Pass #4: testing @ ! BASE ) 0 1+ 1+ BASE ! BASE @ >IN +! xxSOURCE TYPE CR
+( Pass #5: testing decimal BASE ) BASE @ >IN +! xxxxxxxxxxSOURCE TYPE CR
+( Pass #6: testing : ; ) : .SRC SOURCE TYPE CR ; 6 >IN +! xxxxxx.SRC
+( Pass #7: testing number input ) 19 >IN +! xxxxxxxxxxxxxxxxxxx.SRC
+( Pass #8: testing VARIABLE ) VARIABLE Y 2 Y ! Y @ >IN +! xx.SRC
+( Pass #9: testing WORD COUNT ) 5 MSG abcdef) Y ! Y ! >IN +! xxxxx.SRC
+( Pass #10: testing WORD COUNT ) MSG ab) >IN +! xxY ! .SRC
+Pass #11: testing WORD COUNT .MSG
+Pass #12: testing = returns all 1's for true
+Pass #13: testing = returns 0 for false
+Pass #14: testing -1 interpreted correctly
+Pass #15: testing 2*
+Pass #16: testing 2*
+Pass #17: testing AND
+Pass #18: testing AND
+Pass #19: testing AND
+Pass #20: testing ?F~ ?~~ Pass Error
+Pass #21: testing ?~
+Pass #22: testing EMIT
+Pass #23: testing S"
+
+Results: 
+
+Pass messages #1 to #23 should be displayed above
+and no error messages
+
+0 tests failed out of 57 additional tests
+
+
+--- End of Preliminary Tests --- 
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9 
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G 
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5  
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+SIGNED: -8000000000000000 7FFFFFFFFFFFFFFF 
+UNSIGNED: 0 FFFFFFFFFFFFFFFF 
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+
+RECEIVED: ""
+*
+End of Core word set tests
+*********
+You should see 2345: 2345
+******
+End of additional Core tests
+
+Test utilities loaded
+
+Running ak-fp-test.fth
+----------------------
+
+************
+CHECKING FS. 
+You might see 1.0000E0 : 1.0000E+00 
+You might see 2.0000E1 : 2.0000E+01 
+You might see 2.0000E-2: 2.0000E-02 
+You might see -3.3300E4: -3.3300E+04 
+You might see 3.3333E0 : 3.3333E+00 
+You might see 6.6667E-2: 6.6667E-02 
+CHECKING FE. 
+You might see 1.0000E0 : 1.0000E0 
+You might see 20.000E0 : 20.0000E0 
+You might see 300.00E0 : 300.0000E0 
+You might see 4.0000E3 : 4.0000E3 
+You might see 333.33E-3: 333.3333E-3 
+You might see 6.6667E3 : 6.6667E3 
+CHECKING F. 
+You might see 1000.  : 1000.00000 
+You might see 1100.  : 1100.00000 
+You might see 0.33333: 0.33333 
+You might see 66.667 : 66.66667 
+You might see 0.00023: 0.00023 
+You might see 0.00024: 0.00024 
+
+End of ak-fp-test.fth
+
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS Jackson Floating-Point evidence files. I do not claim a Standard System.
+
+Checking Jackson Block evidence via C file-source REFILL...
+Running Jackson Block via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/prelimtest.fth ===
+loaded 233 lines
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== tests/forth/vendor/gerryjackson/src/core.fr ===
+loaded 1009 lines
+=== tests/forth/vendor/gerryjackson/src/coreplustest.fth ===
+loaded 305 lines
+=== tests/forth/vendor/gerryjackson/src/errorreport.fth ===
+loaded 88 lines
+=== tests/forth/vendor/gerryjackson/src/utilities.fth ===
+loaded 143 lines
+=== tests/forth/vendor/gerryjackson/src/blocktest.fth ===
+loaded 646 lines
+OUTPUT:
+
+
+CR CR SOURCE TYPE ( Preliminary test ) CR
+SOURCE ( These lines test SOURCE, TYPE, CR and parenthetic comments ) TYPE CR
+( The next line of output should be blank to test CR ) SOURCE TYPE CR CR
+
+( Pass #1: testing 0 >IN +! ) 0 >IN +! SOURCE TYPE CR
+( Pass #2: testing 1 >IN +! ) 1 >IN +! xSOURCE TYPE CR
+( Pass #3: testing 1+ ) 1 1+ >IN +! xxSOURCE TYPE CR
+( Pass #4: testing @ ! BASE ) 0 1+ 1+ BASE ! BASE @ >IN +! xxSOURCE TYPE CR
+( Pass #5: testing decimal BASE ) BASE @ >IN +! xxxxxxxxxxSOURCE TYPE CR
+( Pass #6: testing : ; ) : .SRC SOURCE TYPE CR ; 6 >IN +! xxxxxx.SRC
+( Pass #7: testing number input ) 19 >IN +! xxxxxxxxxxxxxxxxxxx.SRC
+( Pass #8: testing VARIABLE ) VARIABLE Y 2 Y ! Y @ >IN +! xx.SRC
+( Pass #9: testing WORD COUNT ) 5 MSG abcdef) Y ! Y ! >IN +! xxxxx.SRC
+( Pass #10: testing WORD COUNT ) MSG ab) >IN +! xxY ! .SRC
+Pass #11: testing WORD COUNT .MSG
+Pass #12: testing = returns all 1's for true
+Pass #13: testing = returns 0 for false
+Pass #14: testing -1 interpreted correctly
+Pass #15: testing 2*
+Pass #16: testing 2*
+Pass #17: testing AND
+Pass #18: testing AND
+Pass #19: testing AND
+Pass #20: testing ?F~ ?~~ Pass Error
+Pass #21: testing ?~
+Pass #22: testing EMIT
+Pass #23: testing S"
+
+Results: 
+
+Pass messages #1 to #23 should be displayed above
+and no error messages
+
+0 tests failed out of 57 additional tests
+
+
+--- End of Preliminary Tests --- 
+
+*********************YOU SHOULD SEE THE STANDARD GRAPHIC CHARACTERS:
+ !"#$%&'()*+,-./0123456789:;<=>?@
+ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`
+abcdefghijklmnopqrstuvwxyz{|}~
+YOU SHOULD SEE 0-9 SEPARATED BY A SPACE:
+0 1 2 3 4 5 6 7 8 9 
+YOU SHOULD SEE 0-9 (WITH NO SPACES):
+0123456789
+YOU SHOULD SEE A-G SEPARATED BY A SPACE:
+A B C D E F G 
+YOU SHOULD SEE 0-5 SEPARATED BY TWO SPACES:
+0  1  2  3  4  5  
+YOU SHOULD SEE TWO SEPARATE LINES:
+LINE 1
+LINE 2
+YOU SHOULD SEE THE NUMBER RANGES OF SIGNED AND UNSIGNED NUMBERS:
+SIGNED: -8000000000000000 7FFFFFFFFFFFFFFF 
+UNSIGNED: 0 FFFFFFFFFFFFFFFF 
+*
+PLEASE TYPE UP TO 80 CHARACTERS:
+
+RECEIVED: ""
+*
+End of Core word set tests
+*********
+You should see 2345: 2345
+******
+End of additional Core tests
+
+Test utilities loaded
+*********Should show a (mostly) blank screen                             
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+List of the First test block                                    
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+List of the Last test block                                     
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                   End of Screen
+Should show another (mostly) blank screen                       
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+                                                                
+***Calculated Characters per Line: 64 
+*
+End of Block word tests
+
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS Jackson Block evidence files. I do not claim a Standard System.
+
+Checking 280 example T{ cases via C file-source REFILL...
+Running 280 example T{ cases via C file-source REFILL...
+PASS Core evidence still loads through C REFILL
+=== tests/forth/vendor/gerryjackson/src/tester.fr ===
+loaded 66 lines
+=== examples/language/forth/session_prelude.fs ===
+loaded 7 lines
+=== examples/language/forth/test_arithmetic.fs ===
+loaded 121 lines
+=== examples/language/forth/test_stack.fs ===
+loaded 69 lines
+=== examples/language/forth/test_compare.fs ===
+loaded 77 lines
+=== examples/language/forth/test_bitwise.fs ===
+loaded 48 lines
+=== examples/language/forth/test_memory.fs ===
+loaded 47 lines
+=== examples/language/forth/test_rstack.fs ===
+loaded 34 lines
+=== examples/language/forth/test_control.fs ===
+loaded 71 lines
+=== examples/language/forth/test_words.fs ===
+loaded 57 lines
+=== examples/language/forth/test_base.fs ===
+loaded 17 lines
+OUTPUT:
+**************************************************************************************
+#ERRS=0 #ERRORS=0 INCORRECT=0 WRONG-NUMBER=0
+PASS 280 example T{ cases via Jackson tester.fr. I do not claim Core.
+Running Forth PTY REPL liveness tests...
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -Imodules/pty -o tests/forth/test_forth_pty_repl \
+		tests/forth/test_forth_pty_repl.c modules/pty/pty.c
+Forth PTY REPL liveness
+  PTY Forth REPL stays alive and evaluates 1 2 +               PASS
+1 passed, 0 failed
+Running Forth IDE build and graphical smoke...
+  ✓ bin/forth exists (PTY child for sdl_forth_ide)
+Building ../bin/sdl_forth_ide...
+../bin/nanoc_c graphics/sdl_forth_ide.nano  -o ../bin/sdl_forth_ide
+ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2_ttf', '-lSDL2main'
+ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2_ttf', '-lSDL2main'
+ld: warning: ignoring duplicate libraries: '-lSDL2', '-lSDL2_ttf', '-lSDL2main'
+  ✓ bin/sdl_forth_ide compiled
+  ⊘ graphical initialization requires xvfb-run and timeout

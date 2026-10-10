@@ -1,0 +1,514 @@
+fn f0(x: int) -> int { return (+ x 1) }
+shadow f0 { assert (== (f0 2) 3) }
+fn f1(x: int) -> int { return (+ x 1) }
+shadow f1 { assert (== (f1 2) 3) }
+fn f2(x: int) -> int { return (+ x 1) }
+shadow f2 { assert (== (f2 2) 3) }
+fn f3(x: int) -> int { return (+ x 1) }
+shadow f3 { assert (== (f3 2) 3) }
+fn f4(x: int) -> int { return (+ x 1) }
+shadow f4 { assert (== (f4 2) 3) }
+fn f5(x: int) -> int { return (+ x 1) }
+shadow f5 { assert (== (f5 2) 3) }
+fn f6(x: int) -> int { return (+ x 1) }
+shadow f6 { assert (== (f6 2) 3) }
+fn f7(x: int) -> int { return (+ x 1) }
+shadow f7 { assert (== (f7 2) 3) }
+fn f8(x: int) -> int { return (+ x 1) }
+shadow f8 { assert (== (f8 2) 3) }
+fn f9(x: int) -> int { return (+ x 1) }
+shadow f9 { assert (== (f9 2) 3) }
+fn f10(x: int) -> int { return (+ x 1) }
+shadow f10 { assert (== (f10 2) 3) }
+fn f11(x: int) -> int { return (+ x 1) }
+shadow f11 { assert (== (f11 2) 3) }
+fn f12(x: int) -> int { return (+ x 1) }
+shadow f12 { assert (== (f12 2) 3) }
+fn f13(x: int) -> int { return (+ x 1) }
+shadow f13 { assert (== (f13 2) 3) }
+fn f14(x: int) -> int { return (+ x 1) }
+shadow f14 { assert (== (f14 2) 3) }
+fn f15(x: int) -> int { return (+ x 1) }
+shadow f15 { assert (== (f15 2) 3) }
+fn f16(x: int) -> int { return (+ x 1) }
+shadow f16 { assert (== (f16 2) 3) }
+fn f17(x: int) -> int { return (+ x 1) }
+shadow f17 { assert (== (f17 2) 3) }
+fn f18(x: int) -> int { return (+ x 1) }
+shadow f18 { assert (== (f18 2) 3) }
+fn f19(x: int) -> int { return (+ x 1) }
+shadow f19 { assert (== (f19 2) 3) }
+fn f20(x: int) -> int { return (+ x 1) }
+shadow f20 { assert (== (f20 2) 3) }
+fn f21(x: int) -> int { return (+ x 1) }
+shadow f21 { assert (== (f21 2) 3) }
+fn f22(x: int) -> int { return (+ x 1) }
+shadow f22 { assert (== (f22 2) 3) }
+fn f23(x: int) -> int { return (+ x 1) }
+shadow f23 { assert (== (f23 2) 3) }
+fn f24(x: int) -> int { return (+ x 1) }
+shadow f24 { assert (== (f24 2) 3) }
+fn f25(x: int) -> int { return (+ x 1) }
+shadow f25 { assert (== (f25 2) 3) }
+fn f26(x: int) -> int { return (+ x 1) }
+shadow f26 { assert (== (f26 2) 3) }
+fn f27(x: int) -> int { return (+ x 1) }
+shadow f27 { assert (== (f27 2) 3) }
+fn f28(x: int) -> int { return (+ x 1) }
+shadow f28 { assert (== (f28 2) 3) }
+fn f29(x: int) -> int { return (+ x 1) }
+shadow f29 { assert (== (f29 2) 3) }
+fn f30(x: int) -> int { return (+ x 1) }
+shadow f30 { assert (== (f30 2) 3) }
+fn f31(x: int) -> int { return (+ x 1) }
+shadow f31 { assert (== (f31 2) 3) }
+fn f32(x: int) -> int { return (+ x 1) }
+shadow f32 { assert (== (f32 2) 3) }
+fn f33(x: int) -> int { return (+ x 1) }
+shadow f33 { assert (== (f33 2) 3) }
+fn f34(x: int) -> int { return (+ x 1) }
+shadow f34 { assert (== (f34 2) 3) }
+fn f35(x: int) -> int { return (+ x 1) }
+shadow f35 { assert (== (f35 2) 3) }
+fn f36(x: int) -> int { return (+ x 1) }
+shadow f36 { assert (== (f36 2) 3) }
+fn f37(x: int) -> int { return (+ x 1) }
+shadow f37 { assert (== (f37 2) 3) }
+fn f38(x: int) -> int { return (+ x 1) }
+shadow f38 { assert (== (f38 2) 3) }
+fn f39(x: int) -> int { return (+ x 1) }
+shadow f39 { assert (== (f39 2) 3) }
+fn f40(x: int) -> int { return (+ x 1) }
+shadow f40 { assert (== (f40 2) 3) }
+fn f41(x: int) -> int { return (+ x 1) }
+shadow f41 { assert (== (f41 2) 3) }
+fn f42(x: int) -> int { return (+ x 1) }
+shadow f42 { assert (== (f42 2) 3) }
+fn f43(x: int) -> int { return (+ x 1) }
+shadow f43 { assert (== (f43 2) 3) }
+fn f44(x: int) -> int { return (+ x 1) }
+shadow f44 { assert (== (f44 2) 3) }
+fn f45(x: int) -> int { return (+ x 1) }
+shadow f45 { assert (== (f45 2) 3) }
+fn f46(x: int) -> int { return (+ x 1) }
+shadow f46 { assert (== (f46 2) 3) }
+fn f47(x: int) -> int { return (+ x 1) }
+shadow f47 { assert (== (f47 2) 3) }
+fn f48(x: int) -> int { return (+ x 1) }
+shadow f48 { assert (== (f48 2) 3) }
+fn f49(x: int) -> int { return (+ x 1) }
+shadow f49 { assert (== (f49 2) 3) }
+fn f50(x: int) -> int { return (+ x 1) }
+shadow f50 { assert (== (f50 2) 3) }
+fn f51(x: int) -> int { return (+ x 1) }
+shadow f51 { assert (== (f51 2) 3) }
+fn f52(x: int) -> int { return (+ x 1) }
+shadow f52 { assert (== (f52 2) 3) }
+fn f53(x: int) -> int { return (+ x 1) }
+shadow f53 { assert (== (f53 2) 3) }
+fn f54(x: int) -> int { return (+ x 1) }
+shadow f54 { assert (== (f54 2) 3) }
+fn f55(x: int) -> int { return (+ x 1) }
+shadow f55 { assert (== (f55 2) 3) }
+fn f56(x: int) -> int { return (+ x 1) }
+shadow f56 { assert (== (f56 2) 3) }
+fn f57(x: int) -> int { return (+ x 1) }
+shadow f57 { assert (== (f57 2) 3) }
+fn f58(x: int) -> int { return (+ x 1) }
+shadow f58 { assert (== (f58 2) 3) }
+fn f59(x: int) -> int { return (+ x 1) }
+shadow f59 { assert (== (f59 2) 3) }
+fn f60(x: int) -> int { return (+ x 1) }
+shadow f60 { assert (== (f60 2) 3) }
+fn f61(x: int) -> int { return (+ x 1) }
+shadow f61 { assert (== (f61 2) 3) }
+fn f62(x: int) -> int { return (+ x 1) }
+shadow f62 { assert (== (f62 2) 3) }
+fn f63(x: int) -> int { return (+ x 1) }
+shadow f63 { assert (== (f63 2) 3) }
+fn f64(x: int) -> int { return (+ x 1) }
+shadow f64 { assert (== (f64 2) 3) }
+fn f65(x: int) -> int { return (+ x 1) }
+shadow f65 { assert (== (f65 2) 3) }
+fn f66(x: int) -> int { return (+ x 1) }
+shadow f66 { assert (== (f66 2) 3) }
+fn f67(x: int) -> int { return (+ x 1) }
+shadow f67 { assert (== (f67 2) 3) }
+fn f68(x: int) -> int { return (+ x 1) }
+shadow f68 { assert (== (f68 2) 3) }
+fn f69(x: int) -> int { return (+ x 1) }
+shadow f69 { assert (== (f69 2) 3) }
+fn f70(x: int) -> int { return (+ x 1) }
+shadow f70 { assert (== (f70 2) 3) }
+fn f71(x: int) -> int { return (+ x 1) }
+shadow f71 { assert (== (f71 2) 3) }
+fn f72(x: int) -> int { return (+ x 1) }
+shadow f72 { assert (== (f72 2) 3) }
+fn f73(x: int) -> int { return (+ x 1) }
+shadow f73 { assert (== (f73 2) 3) }
+fn f74(x: int) -> int { return (+ x 1) }
+shadow f74 { assert (== (f74 2) 3) }
+fn f75(x: int) -> int { return (+ x 1) }
+shadow f75 { assert (== (f75 2) 3) }
+fn f76(x: int) -> int { return (+ x 1) }
+shadow f76 { assert (== (f76 2) 3) }
+fn f77(x: int) -> int { return (+ x 1) }
+shadow f77 { assert (== (f77 2) 3) }
+fn f78(x: int) -> int { return (+ x 1) }
+shadow f78 { assert (== (f78 2) 3) }
+fn f79(x: int) -> int { return (+ x 1) }
+shadow f79 { assert (== (f79 2) 3) }
+fn f80(x: int) -> int { return (+ x 1) }
+shadow f80 { assert (== (f80 2) 3) }
+fn f81(x: int) -> int { return (+ x 1) }
+shadow f81 { assert (== (f81 2) 3) }
+fn f82(x: int) -> int { return (+ x 1) }
+shadow f82 { assert (== (f82 2) 3) }
+fn f83(x: int) -> int { return (+ x 1) }
+shadow f83 { assert (== (f83 2) 3) }
+fn f84(x: int) -> int { return (+ x 1) }
+shadow f84 { assert (== (f84 2) 3) }
+fn f85(x: int) -> int { return (+ x 1) }
+shadow f85 { assert (== (f85 2) 3) }
+fn f86(x: int) -> int { return (+ x 1) }
+shadow f86 { assert (== (f86 2) 3) }
+fn f87(x: int) -> int { return (+ x 1) }
+shadow f87 { assert (== (f87 2) 3) }
+fn f88(x: int) -> int { return (+ x 1) }
+shadow f88 { assert (== (f88 2) 3) }
+fn f89(x: int) -> int { return (+ x 1) }
+shadow f89 { assert (== (f89 2) 3) }
+fn f90(x: int) -> int { return (+ x 1) }
+shadow f90 { assert (== (f90 2) 3) }
+fn f91(x: int) -> int { return (+ x 1) }
+shadow f91 { assert (== (f91 2) 3) }
+fn f92(x: int) -> int { return (+ x 1) }
+shadow f92 { assert (== (f92 2) 3) }
+fn f93(x: int) -> int { return (+ x 1) }
+shadow f93 { assert (== (f93 2) 3) }
+fn f94(x: int) -> int { return (+ x 1) }
+shadow f94 { assert (== (f94 2) 3) }
+fn f95(x: int) -> int { return (+ x 1) }
+shadow f95 { assert (== (f95 2) 3) }
+fn f96(x: int) -> int { return (+ x 1) }
+shadow f96 { assert (== (f96 2) 3) }
+fn f97(x: int) -> int { return (+ x 1) }
+shadow f97 { assert (== (f97 2) 3) }
+fn f98(x: int) -> int { return (+ x 1) }
+shadow f98 { assert (== (f98 2) 3) }
+fn f99(x: int) -> int { return (+ x 1) }
+shadow f99 { assert (== (f99 2) 3) }
+fn f100(x: int) -> int { return (+ x 1) }
+shadow f100 { assert (== (f100 2) 3) }
+fn f101(x: int) -> int { return (+ x 1) }
+shadow f101 { assert (== (f101 2) 3) }
+fn f102(x: int) -> int { return (+ x 1) }
+shadow f102 { assert (== (f102 2) 3) }
+fn f103(x: int) -> int { return (+ x 1) }
+shadow f103 { assert (== (f103 2) 3) }
+fn f104(x: int) -> int { return (+ x 1) }
+shadow f104 { assert (== (f104 2) 3) }
+fn f105(x: int) -> int { return (+ x 1) }
+shadow f105 { assert (== (f105 2) 3) }
+fn f106(x: int) -> int { return (+ x 1) }
+shadow f106 { assert (== (f106 2) 3) }
+fn f107(x: int) -> int { return (+ x 1) }
+shadow f107 { assert (== (f107 2) 3) }
+fn f108(x: int) -> int { return (+ x 1) }
+shadow f108 { assert (== (f108 2) 3) }
+fn f109(x: int) -> int { return (+ x 1) }
+shadow f109 { assert (== (f109 2) 3) }
+fn f110(x: int) -> int { return (+ x 1) }
+shadow f110 { assert (== (f110 2) 3) }
+fn f111(x: int) -> int { return (+ x 1) }
+shadow f111 { assert (== (f111 2) 3) }
+fn f112(x: int) -> int { return (+ x 1) }
+shadow f112 { assert (== (f112 2) 3) }
+fn f113(x: int) -> int { return (+ x 1) }
+shadow f113 { assert (== (f113 2) 3) }
+fn f114(x: int) -> int { return (+ x 1) }
+shadow f114 { assert (== (f114 2) 3) }
+fn f115(x: int) -> int { return (+ x 1) }
+shadow f115 { assert (== (f115 2) 3) }
+fn f116(x: int) -> int { return (+ x 1) }
+shadow f116 { assert (== (f116 2) 3) }
+fn f117(x: int) -> int { return (+ x 1) }
+shadow f117 { assert (== (f117 2) 3) }
+fn f118(x: int) -> int { return (+ x 1) }
+shadow f118 { assert (== (f118 2) 3) }
+fn f119(x: int) -> int { return (+ x 1) }
+shadow f119 { assert (== (f119 2) 3) }
+fn f120(x: int) -> int { return (+ x 1) }
+shadow f120 { assert (== (f120 2) 3) }
+fn f121(x: int) -> int { return (+ x 1) }
+shadow f121 { assert (== (f121 2) 3) }
+fn f122(x: int) -> int { return (+ x 1) }
+shadow f122 { assert (== (f122 2) 3) }
+fn f123(x: int) -> int { return (+ x 1) }
+shadow f123 { assert (== (f123 2) 3) }
+fn f124(x: int) -> int { return (+ x 1) }
+shadow f124 { assert (== (f124 2) 3) }
+fn f125(x: int) -> int { return (+ x 1) }
+shadow f125 { assert (== (f125 2) 3) }
+fn f126(x: int) -> int { return (+ x 1) }
+shadow f126 { assert (== (f126 2) 3) }
+fn f127(x: int) -> int { return (+ x 1) }
+shadow f127 { assert (== (f127 2) 3) }
+fn f128(x: int) -> int { return (+ x 1) }
+shadow f128 { assert (== (f128 2) 3) }
+fn f129(x: int) -> int { return (+ x 1) }
+shadow f129 { assert (== (f129 2) 3) }
+fn f130(x: int) -> int { return (+ x 1) }
+shadow f130 { assert (== (f130 2) 3) }
+fn f131(x: int) -> int { return (+ x 1) }
+shadow f131 { assert (== (f131 2) 3) }
+fn f132(x: int) -> int { return (+ x 1) }
+shadow f132 { assert (== (f132 2) 3) }
+fn f133(x: int) -> int { return (+ x 1) }
+shadow f133 { assert (== (f133 2) 3) }
+fn f134(x: int) -> int { return (+ x 1) }
+shadow f134 { assert (== (f134 2) 3) }
+fn f135(x: int) -> int { return (+ x 1) }
+shadow f135 { assert (== (f135 2) 3) }
+fn f136(x: int) -> int { return (+ x 1) }
+shadow f136 { assert (== (f136 2) 3) }
+fn f137(x: int) -> int { return (+ x 1) }
+shadow f137 { assert (== (f137 2) 3) }
+fn f138(x: int) -> int { return (+ x 1) }
+shadow f138 { assert (== (f138 2) 3) }
+fn f139(x: int) -> int { return (+ x 1) }
+shadow f139 { assert (== (f139 2) 3) }
+fn f140(x: int) -> int { return (+ x 1) }
+shadow f140 { assert (== (f140 2) 3) }
+fn f141(x: int) -> int { return (+ x 1) }
+shadow f141 { assert (== (f141 2) 3) }
+fn f142(x: int) -> int { return (+ x 1) }
+shadow f142 { assert (== (f142 2) 3) }
+fn f143(x: int) -> int { return (+ x 1) }
+shadow f143 { assert (== (f143 2) 3) }
+fn f144(x: int) -> int { return (+ x 1) }
+shadow f144 { assert (== (f144 2) 3) }
+fn f145(x: int) -> int { return (+ x 1) }
+shadow f145 { assert (== (f145 2) 3) }
+fn f146(x: int) -> int { return (+ x 1) }
+shadow f146 { assert (== (f146 2) 3) }
+fn f147(x: int) -> int { return (+ x 1) }
+shadow f147 { assert (== (f147 2) 3) }
+fn f148(x: int) -> int { return (+ x 1) }
+shadow f148 { assert (== (f148 2) 3) }
+fn f149(x: int) -> int { return (+ x 1) }
+shadow f149 { assert (== (f149 2) 3) }
+fn f150(x: int) -> int { return (+ x 1) }
+shadow f150 { assert (== (f150 2) 3) }
+fn f151(x: int) -> int { return (+ x 1) }
+shadow f151 { assert (== (f151 2) 3) }
+fn f152(x: int) -> int { return (+ x 1) }
+shadow f152 { assert (== (f152 2) 3) }
+fn f153(x: int) -> int { return (+ x 1) }
+shadow f153 { assert (== (f153 2) 3) }
+fn f154(x: int) -> int { return (+ x 1) }
+shadow f154 { assert (== (f154 2) 3) }
+fn f155(x: int) -> int { return (+ x 1) }
+shadow f155 { assert (== (f155 2) 3) }
+fn f156(x: int) -> int { return (+ x 1) }
+shadow f156 { assert (== (f156 2) 3) }
+fn f157(x: int) -> int { return (+ x 1) }
+shadow f157 { assert (== (f157 2) 3) }
+fn f158(x: int) -> int { return (+ x 1) }
+shadow f158 { assert (== (f158 2) 3) }
+fn f159(x: int) -> int { return (+ x 1) }
+shadow f159 { assert (== (f159 2) 3) }
+fn f160(x: int) -> int { return (+ x 1) }
+shadow f160 { assert (== (f160 2) 3) }
+fn f161(x: int) -> int { return (+ x 1) }
+shadow f161 { assert (== (f161 2) 3) }
+fn f162(x: int) -> int { return (+ x 1) }
+shadow f162 { assert (== (f162 2) 3) }
+fn f163(x: int) -> int { return (+ x 1) }
+shadow f163 { assert (== (f163 2) 3) }
+fn f164(x: int) -> int { return (+ x 1) }
+shadow f164 { assert (== (f164 2) 3) }
+fn f165(x: int) -> int { return (+ x 1) }
+shadow f165 { assert (== (f165 2) 3) }
+fn f166(x: int) -> int { return (+ x 1) }
+shadow f166 { assert (== (f166 2) 3) }
+fn f167(x: int) -> int { return (+ x 1) }
+shadow f167 { assert (== (f167 2) 3) }
+fn f168(x: int) -> int { return (+ x 1) }
+shadow f168 { assert (== (f168 2) 3) }
+fn f169(x: int) -> int { return (+ x 1) }
+shadow f169 { assert (== (f169 2) 3) }
+fn f170(x: int) -> int { return (+ x 1) }
+shadow f170 { assert (== (f170 2) 3) }
+fn f171(x: int) -> int { return (+ x 1) }
+shadow f171 { assert (== (f171 2) 3) }
+fn f172(x: int) -> int { return (+ x 1) }
+shadow f172 { assert (== (f172 2) 3) }
+fn f173(x: int) -> int { return (+ x 1) }
+shadow f173 { assert (== (f173 2) 3) }
+fn f174(x: int) -> int { return (+ x 1) }
+shadow f174 { assert (== (f174 2) 3) }
+fn f175(x: int) -> int { return (+ x 1) }
+shadow f175 { assert (== (f175 2) 3) }
+fn f176(x: int) -> int { return (+ x 1) }
+shadow f176 { assert (== (f176 2) 3) }
+fn f177(x: int) -> int { return (+ x 1) }
+shadow f177 { assert (== (f177 2) 3) }
+fn f178(x: int) -> int { return (+ x 1) }
+shadow f178 { assert (== (f178 2) 3) }
+fn f179(x: int) -> int { return (+ x 1) }
+shadow f179 { assert (== (f179 2) 3) }
+fn f180(x: int) -> int { return (+ x 1) }
+shadow f180 { assert (== (f180 2) 3) }
+fn f181(x: int) -> int { return (+ x 1) }
+shadow f181 { assert (== (f181 2) 3) }
+fn f182(x: int) -> int { return (+ x 1) }
+shadow f182 { assert (== (f182 2) 3) }
+fn f183(x: int) -> int { return (+ x 1) }
+shadow f183 { assert (== (f183 2) 3) }
+fn f184(x: int) -> int { return (+ x 1) }
+shadow f184 { assert (== (f184 2) 3) }
+fn f185(x: int) -> int { return (+ x 1) }
+shadow f185 { assert (== (f185 2) 3) }
+fn f186(x: int) -> int { return (+ x 1) }
+shadow f186 { assert (== (f186 2) 3) }
+fn f187(x: int) -> int { return (+ x 1) }
+shadow f187 { assert (== (f187 2) 3) }
+fn f188(x: int) -> int { return (+ x 1) }
+shadow f188 { assert (== (f188 2) 3) }
+fn f189(x: int) -> int { return (+ x 1) }
+shadow f189 { assert (== (f189 2) 3) }
+fn f190(x: int) -> int { return (+ x 1) }
+shadow f190 { assert (== (f190 2) 3) }
+fn f191(x: int) -> int { return (+ x 1) }
+shadow f191 { assert (== (f191 2) 3) }
+fn f192(x: int) -> int { return (+ x 1) }
+shadow f192 { assert (== (f192 2) 3) }
+fn f193(x: int) -> int { return (+ x 1) }
+shadow f193 { assert (== (f193 2) 3) }
+fn f194(x: int) -> int { return (+ x 1) }
+shadow f194 { assert (== (f194 2) 3) }
+fn f195(x: int) -> int { return (+ x 1) }
+shadow f195 { assert (== (f195 2) 3) }
+fn f196(x: int) -> int { return (+ x 1) }
+shadow f196 { assert (== (f196 2) 3) }
+fn f197(x: int) -> int { return (+ x 1) }
+shadow f197 { assert (== (f197 2) 3) }
+fn f198(x: int) -> int { return (+ x 1) }
+shadow f198 { assert (== (f198 2) 3) }
+fn f199(x: int) -> int { return (+ x 1) }
+shadow f199 { assert (== (f199 2) 3) }
+fn f200(x: int) -> int { return (+ x 1) }
+shadow f200 { assert (== (f200 2) 3) }
+fn f201(x: int) -> int { return (+ x 1) }
+shadow f201 { assert (== (f201 2) 3) }
+fn f202(x: int) -> int { return (+ x 1) }
+shadow f202 { assert (== (f202 2) 3) }
+fn f203(x: int) -> int { return (+ x 1) }
+shadow f203 { assert (== (f203 2) 3) }
+fn f204(x: int) -> int { return (+ x 1) }
+shadow f204 { assert (== (f204 2) 3) }
+fn f205(x: int) -> int { return (+ x 1) }
+shadow f205 { assert (== (f205 2) 3) }
+fn f206(x: int) -> int { return (+ x 1) }
+shadow f206 { assert (== (f206 2) 3) }
+fn f207(x: int) -> int { return (+ x 1) }
+shadow f207 { assert (== (f207 2) 3) }
+fn f208(x: int) -> int { return (+ x 1) }
+shadow f208 { assert (== (f208 2) 3) }
+fn f209(x: int) -> int { return (+ x 1) }
+shadow f209 { assert (== (f209 2) 3) }
+fn f210(x: int) -> int { return (+ x 1) }
+shadow f210 { assert (== (f210 2) 3) }
+fn f211(x: int) -> int { return (+ x 1) }
+shadow f211 { assert (== (f211 2) 3) }
+fn f212(x: int) -> int { return (+ x 1) }
+shadow f212 { assert (== (f212 2) 3) }
+fn f213(x: int) -> int { return (+ x 1) }
+shadow f213 { assert (== (f213 2) 3) }
+fn f214(x: int) -> int { return (+ x 1) }
+shadow f214 { assert (== (f214 2) 3) }
+fn f215(x: int) -> int { return (+ x 1) }
+shadow f215 { assert (== (f215 2) 3) }
+fn f216(x: int) -> int { return (+ x 1) }
+shadow f216 { assert (== (f216 2) 3) }
+fn f217(x: int) -> int { return (+ x 1) }
+shadow f217 { assert (== (f217 2) 3) }
+fn f218(x: int) -> int { return (+ x 1) }
+shadow f218 { assert (== (f218 2) 3) }
+fn f219(x: int) -> int { return (+ x 1) }
+shadow f219 { assert (== (f219 2) 3) }
+fn f220(x: int) -> int { return (+ x 1) }
+shadow f220 { assert (== (f220 2) 3) }
+fn f221(x: int) -> int { return (+ x 1) }
+shadow f221 { assert (== (f221 2) 3) }
+fn f222(x: int) -> int { return (+ x 1) }
+shadow f222 { assert (== (f222 2) 3) }
+fn f223(x: int) -> int { return (+ x 1) }
+shadow f223 { assert (== (f223 2) 3) }
+fn f224(x: int) -> int { return (+ x 1) }
+shadow f224 { assert (== (f224 2) 3) }
+fn f225(x: int) -> int { return (+ x 1) }
+shadow f225 { assert (== (f225 2) 3) }
+fn f226(x: int) -> int { return (+ x 1) }
+shadow f226 { assert (== (f226 2) 3) }
+fn f227(x: int) -> int { return (+ x 1) }
+shadow f227 { assert (== (f227 2) 3) }
+fn f228(x: int) -> int { return (+ x 1) }
+shadow f228 { assert (== (f228 2) 3) }
+fn f229(x: int) -> int { return (+ x 1) }
+shadow f229 { assert (== (f229 2) 3) }
+fn f230(x: int) -> int { return (+ x 1) }
+shadow f230 { assert (== (f230 2) 3) }
+fn f231(x: int) -> int { return (+ x 1) }
+shadow f231 { assert (== (f231 2) 3) }
+fn f232(x: int) -> int { return (+ x 1) }
+shadow f232 { assert (== (f232 2) 3) }
+fn f233(x: int) -> int { return (+ x 1) }
+shadow f233 { assert (== (f233 2) 3) }
+fn f234(x: int) -> int { return (+ x 1) }
+shadow f234 { assert (== (f234 2) 3) }
+fn f235(x: int) -> int { return (+ x 1) }
+shadow f235 { assert (== (f235 2) 3) }
+fn f236(x: int) -> int { return (+ x 1) }
+shadow f236 { assert (== (f236 2) 3) }
+fn f237(x: int) -> int { return (+ x 1) }
+shadow f237 { assert (== (f237 2) 3) }
+fn f238(x: int) -> int { return (+ x 1) }
+shadow f238 { assert (== (f238 2) 3) }
+fn f239(x: int) -> int { return (+ x 1) }
+shadow f239 { assert (== (f239 2) 3) }
+fn f240(x: int) -> int { return (+ x 1) }
+shadow f240 { assert (== (f240 2) 3) }
+fn f241(x: int) -> int { return (+ x 1) }
+shadow f241 { assert (== (f241 2) 3) }
+fn f242(x: int) -> int { return (+ x 1) }
+shadow f242 { assert (== (f242 2) 3) }
+fn f243(x: int) -> int { return (+ x 1) }
+shadow f243 { assert (== (f243 2) 3) }
+fn f244(x: int) -> int { return (+ x 1) }
+shadow f244 { assert (== (f244 2) 3) }
+fn f245(x: int) -> int { return (+ x 1) }
+shadow f245 { assert (== (f245 2) 3) }
+fn f246(x: int) -> int { return (+ x 1) }
+shadow f246 { assert (== (f246 2) 3) }
+fn f247(x: int) -> int { return (+ x 1) }
+shadow f247 { assert (== (f247 2) 3) }
+fn f248(x: int) -> int { return (+ x 1) }
+shadow f248 { assert (== (f248 2) 3) }
+fn f249(x: int) -> int { return (+ x 1) }
+shadow f249 { assert (== (f249 2) 3) }
+fn f250(x: int) -> int { return (+ x 1) }
+shadow f250 { assert (== (f250 2) 3) }
+fn f251(x: int) -> int { return (+ x 1) }
+shadow f251 { assert (== (f251 2) 3) }
+fn f252(x: int) -> int { return (+ x 1) }
+shadow f252 { assert (== (f252 2) 3) }
+fn f253(x: int) -> int { return (+ x 1) }
+shadow f253 { assert (== (f253 2) 3) }
+fn f254(x: int) -> int { return (+ x 1) }
+shadow f254 { assert (== (f254 2) 3) }
+fn f255(x: int) -> int { return (+ x 1) }
+shadow f255 { assert (== (f255 2) 3) }
+fn main() -> int { return 0 }
+shadow main { assert (== (main) 0) }

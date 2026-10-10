@@ -1,0 +1,86 @@
+test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) ... 
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='local') ... FAIL
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='assignment') ... FAIL
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='return') ... FAIL
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='argument') ... FAIL
+  test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='field') ... FAIL
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='local')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 31, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-byte-literal-gldzlxe1/local.nano:1:46
+I could not execute the module: Assertion failed
+  Assertion failed
+
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='assignment')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 31, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-byte-literal-gldzlxe1/assignment.nano:1:63
+I could not execute the module: Assertion failed
+  Assertion failed
+
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 31, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-byte-literal-gldzlxe1/return.nano:1:57
+I could not execute the module: Assertion failed
+  Assertion failed
+
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='argument')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 31, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-byte-literal-gldzlxe1/argument.nano:1:72
+I could not execute the module: Assertion failed
+  Assertion failed
+
+
+======================================================================
+FAIL: test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) (name='field')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_byte_array_literals.py", line 31, in test_contextual_byte_storage
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-byte-literal-gldzlxe1/field.nano:1:85
+I could not execute the module: Assertion failed
+  Assertion failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.214s
+
+FAILED (failures=5)

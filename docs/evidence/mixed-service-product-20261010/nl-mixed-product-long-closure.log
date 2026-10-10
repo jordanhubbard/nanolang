@@ -1,0 +1,6 @@
+test_large_quoted_object_closure (tests.test_module_builder_self_capture.ModuleBuilderSelfCapture.test_large_quoted_object_closure) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 4.275s
+
+OK

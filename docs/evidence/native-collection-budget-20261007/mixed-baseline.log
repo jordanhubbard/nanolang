@@ -1,0 +1,28 @@
+F
+======================================================================
+FAIL: test_small_map_debt_amortizes_over_retained_aggregates (test_native_map_byte_debt.NativeMapByteDebt.test_small_map_debt_amortizes_over_retained_aggregates)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_map_byte_debt.py", line 78, in test_small_map_debt_amortizes_over_retained_aggregates
+            self.check_harness(r'''
+            ~~~~~~~~~~~~~~~~~~^^^^^
+    int main(void) {
+    ^^^^^^^^^^^^^^^^
+    ...<28 lines>...
+    }
+    ^
+    ''', trace_scans=True, trace_visits=True)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_map_byte_debt.py", line 43, in check_harness
+    print(self.run_checked([binary], env=env).stdout, end='')
+          ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_map_byte_debt.py", line 19, in run_checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : mixed scans=63 visits=630252 retained=2097504 allocated=4195016 peak=65838
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.333s
+
+FAILED (failures=1)

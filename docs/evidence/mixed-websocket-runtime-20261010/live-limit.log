@@ -1,0 +1,14 @@
+ld: warning: ignoring duplicate libraries: 'lib/libnano_compiler_inputs.a'
+native status=3: I refuse indirect mixed services preparation (3)
+FAIL line 31: status==NVM_SERVICES_RUNTIME_OK
+I count 274 instructions in live function 0.
+I count 2 instructions in live function 1.
+I count 2 instructions in live function 2.
+I count 2 instructions in live function 3.
+I count 2 instructions in live function 4.
+I count 2 instructions in live function 5.
+I count 4 instructions in live function 6.
+I count 4 instructions in live function 7.
+I count 4 instructions in live function 8.
+I count 4 instructions in live function 9.
+I count 4 instructions in live function 10.

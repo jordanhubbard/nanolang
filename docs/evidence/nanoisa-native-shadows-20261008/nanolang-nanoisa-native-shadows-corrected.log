@@ -1,0 +1,17 @@
+test_compiler_drivers_isolate_shadow_output (tests.test_native_shadow_emitter.NativeShadowEmitter.test_compiler_drivers_isolate_shadow_output) ... ok
+test_explicit_selection (tests.test_native_shadow_emitter.NativeShadowEmitter.test_explicit_selection) ... ok
+test_failing_assertion_with_ndebug (tests.test_native_shadow_emitter.NativeShadowEmitter.test_failing_assertion_with_ndebug) ... ok
+test_helper_assertions_are_enabled (tests.test_native_shadow_emitter.NativeShadowEmitter.test_helper_assertions_are_enabled) ... ok
+test_invalid_selection_does_not_emit (tests.test_native_shadow_emitter.NativeShadowEmitter.test_invalid_selection_does_not_emit) ... ok
+test_local_scopes_and_order (tests.test_native_shadow_emitter.NativeShadowEmitter.test_local_scopes_and_order) ... ok
+test_main_is_not_implicitly_a_test (tests.test_native_shadow_emitter.NativeShadowEmitter.test_main_is_not_implicitly_a_test) ... ok
+test_main_remains_callable (tests.test_native_shadow_emitter.NativeShadowEmitter.test_main_remains_callable) ... ok
+test_opaque_arguments_reject_nonzero_and_wrong_declared_handles (tests.test_native_shadow_emitter.NativeShadowEmitter.test_opaque_arguments_reject_nonzero_and_wrong_declared_handles) ... ok
+test_opaque_null_arguments_compile (tests.test_native_shadow_emitter.NativeShadowEmitter.test_opaque_null_arguments_compile) ... ok
+test_product_does_not_run_shadows (tests.test_native_shadow_emitter.NativeShadowEmitter.test_product_does_not_run_shadows) ... ok
+test_record_string_survives_callee_locals (tests.test_native_shadow_emitter.NativeShadowEmitter.test_record_string_survives_callee_locals) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 117.071s
+
+OK

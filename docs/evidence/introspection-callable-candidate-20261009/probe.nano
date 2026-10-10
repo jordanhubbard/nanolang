@@ -1,0 +1,4 @@
+module callable_probe
+pub struct Visible { value: int }
+pub fn answer() -> int { return 7 }
+shadow answer { assert (== (answer) 7) }

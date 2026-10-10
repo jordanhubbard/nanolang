@@ -112,6 +112,14 @@ static unsigned purity_identifier(PurityWalk *p,const char *name) {
         if (sym->is_mut || !purity_input_value(p,sym->type,sym->struct_type_name,0)) effects|=PURE_READ;
         effects|=purity_type(p,sym->type,sym->struct_type_name,sym->type_info,0);
     }
+    if (!found) {
+        Symbol *sym=env_global_import_symbol_at(p->env,p->source_file,name);
+        if (sym) {
+            found=true;
+            if (sym->is_mut || !purity_input_value(p,sym->type,sym->struct_type_name,0)) effects|=PURE_READ;
+            effects|=purity_type(p,sym->type,sym->struct_type_name,sym->type_info,0);
+        }
+    }
     if (found || env_get_enum(p->env,name)) return effects;
     /* Taking a resolved declaration's function value has no observable effect.
      * Calling a function-typed local remains unknown in purity_call. */
@@ -180,7 +188,24 @@ static unsigned purity_node(PurityWalk *p, ASTNode *node) {
     case AST_STRUCT_LITERAL:
         if (is_resource_type(p->env,node->as.struct_literal.struct_name)) result|=PURE_RESOURCE;
         MANY(node->as.struct_literal.field_values,node->as.struct_literal.field_count); CHILD(node->as.struct_literal.spread_source); break;
-    case AST_FIELD_ACCESS: CHILD(node->as.field_access.object); break;
+    case AST_FIELD_ACCESS: {
+        ASTNode *receiver=node->as.field_access.object;
+        if (receiver && receiver->type==AST_IDENTIFIER && purity_local(p,receiver->as.identifier)<0) {
+            size_t length=strlen(receiver->as.identifier)+strlen(node->as.field_access.field_name)+2;
+            char *name=malloc(length);
+            if (!name) { result|=PURE_UNKNOWN; break; }
+            snprintf(name,length,"%s.%s",receiver->as.identifier,node->as.field_access.field_name);
+            const char *saved_file=env_current_file(p->env);
+            env_set_current_file(p->env,p->source_file);
+            Symbol *binding=env_get_var_visible_at(p->env,receiver->as.identifier,receiver->line,receiver->column);
+            env_set_current_file(p->env,saved_file);
+            bool imported=!binding && env_lookup_global_import_at(p->env,p->source_file,name)!=NULL;
+            if (imported) result|=purity_identifier(p,name);
+            free(name);
+            if (imported) break;
+        }
+        CHILD(node->as.field_access.object); break;
+    }
     case AST_TUPLE_LITERAL: MANY(node->as.tuple_literal.elements,node->as.tuple_literal.element_count); break;
     case AST_TUPLE_INDEX: CHILD(node->as.tuple_index.tuple); break;
     case AST_UNSAFE_BLOCK: result|=PURE_UNSAFE|PURE_UNKNOWN; break;

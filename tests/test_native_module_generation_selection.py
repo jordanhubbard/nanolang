@@ -126,6 +126,9 @@ class NativeModuleGenerationSelection(unittest.TestCase):
             source.write_text('unsafe module "foreign/foreign.nano" as f\n'
                               'fn main() -> int { unsafe { assert (== (f.probe) 42) } return 0 }\nshadow main { assert true }\n')
             env = os.environ.copy()
+            # I exercise the module's shell-form compiler, even under a CI CC override.
+            env.pop("NANO_CC", None)
+            env.pop("CC", None)
             env["NANO_BUILD_CACHE"] = str(work / "cache")
             result = subprocess.run(
                 [str(ROOT / "bin/nanoc_c"), str(source), "-o", str(work / "program")],

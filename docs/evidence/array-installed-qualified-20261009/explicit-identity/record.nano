@@ -1,0 +1,11 @@
+struct Item { value: int }
+fn main() -> int {
+let a: Item = Item { value: 7 }
+let b: Item = Item { value: 9 }
+let values: array<Item> = [a, b]
+let copy: array<Item> = (array_slice values 1 1)
+let chosen: Item = (at copy 0)
+assert (== chosen.value 9)
+return 0
+}
+shadow main { assert (== (main) 0) }

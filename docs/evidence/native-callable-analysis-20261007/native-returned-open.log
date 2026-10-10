@@ -1,0 +1,44 @@
+test_branch_fixtures (tests.test_selfhost_returned_calls.ReturnedCalls.test_branch_fixtures) ... 
+  test_branch_fixtures (tests.test_selfhost_returned_calls.ReturnedCalls.test_branch_fixtures) (name='calls') ... FAIL
+test_multiple_arguments_execute_once_in_order (tests.test_selfhost_returned_calls.ReturnedCalls.test_multiple_arguments_execute_once_in_order) ... FAIL
+test_nested_signature_and_printed_result (tests.test_selfhost_returned_calls.ReturnedCalls.test_nested_signature_and_printed_result) ... FAIL
+
+======================================================================
+FAIL: test_branch_fixtures (tests.test_selfhost_returned_calls.ReturnedCalls.test_branch_fixtures) (name='calls')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_returned_calls.py", line 25, in test_branch_fixtures
+    self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : callee
+argument
+callee
+argument
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_bytecode_product_i64loi/program.nvm': function 0: operand stack underflow
+
+
+======================================================================
+FAIL: test_multiple_arguments_execute_once_in_order (tests.test_selfhost_returned_calls.ReturnedCalls.test_multiple_arguments_execute_once_in_order)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_returned_calls.py", line 79, in test_multiple_arguments_execute_once_in_order
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b"I could not translate the verified module to C\nI could not publish the requested product: \ncallee\nfirst\nsecond\ncallee\nfirst\nsecond\nI cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_bytecode_product_z1an2j/program.nvm': function 0: operand stack underflow\n"
+
+======================================================================
+FAIL: test_nested_signature_and_printed_result (tests.test_selfhost_returned_calls.ReturnedCalls.test_nested_signature_and_printed_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_returned_calls.py", line 53, in test_nested_signature_and_printed_result
+    self.assertEqual(result.returncode, 0, (result.stdout + result.stderr).decode(errors="replace"))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not translate the verified module to C
+I could not publish the requested product: 
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nano_bytecode_product_8Gmqed/program.nvm': function 0: operand stack underflow
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.320s
+
+FAILED (failures=3)

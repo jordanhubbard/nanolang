@@ -1,0 +1,12 @@
+test_actual_driver_acquisition_and_companion_output_protection (tests.test_service_inputs.ServiceInputs.test_actual_driver_acquisition_and_companion_output_protection) ... ok
+test_native_codegen_marker_and_changed_artifact_are_refused (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_native_codegen_marker_and_changed_artifact_are_refused) ... ok
+test_native_link_uses_effective_flags_for_covered_runtime (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_native_link_uses_effective_flags_for_covered_runtime) ... I run probe-native; I retain its log at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-434tavtr/obj/bootstrap-nanoisa/run-5hvpt7dl/00-probe-native.log.
+I run probe-native; I retain its log at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-434tavtr/obj/bootstrap-nanoisa/run-pnmagzar/00-probe-native.log.
+ok
+test_source_membership_changes_are_refused_but_host_cache_growth_is_allowed (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_source_membership_changes_are_refused_but_host_cache_growth_is_allowed) ... ok
+test_source_tool_and_host_mutation_are_refused (tests.test_bootstrap_nanoisa.BootstrapBoundaries.test_source_tool_and_host_mutation_are_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 2.583s
+
+OK

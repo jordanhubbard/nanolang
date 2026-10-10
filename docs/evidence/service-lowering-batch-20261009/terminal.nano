@@ -1,0 +1,14 @@
+service "nsi:nanolang/filesystem" catalog 1 from "interface.nsi.json"
+fn sink(first:int, stop:void)->void{return}
+fn exercise(file:File)->int {
+ let mut owned:File=file
+ (sink 5 (match (rewind &mut owned) {
+  Ok()=>{let c:CloseResult=(close owned) return 7}
+  Error(e)=>{let c:CloseResult=(close owned) return 8}
+ }))
+ return 9
+}
+fn main()->int {
+ let opened:OpenResult=(temp)
+ match opened {Ok(file)=>{return (exercise file)} Error(e)=>{return -1}}
+}

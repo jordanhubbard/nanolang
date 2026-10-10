@@ -1,0 +1,18 @@
+{
+  "base_commit": "92a452d05",
+  "shadow_module_bytes": 970980,
+  "shadow_module_sha256": "327f547640745f85f3b7cbc114b8a633d38f2c2afaf690731e57c98cfa26a572",
+  "seed_sha256": "822d68dcdc4cb1caa97d41b9ec6e908844d49e632f86ca079f5c210a3742f6aa",
+  "capture_command": [
+    "/tmp/nanolang-5.1-20261007/deferred-read-selfhost-seed",
+    "src_nano/nanoc_v06.nano",
+    "--emit-nvm",
+    "-o",
+    "/tmp/nanolang-5.1-20261007/selfhost-capture-compiler.nvm"
+  ],
+  "capture_env": {
+    "NANO_VM": "/tmp/nanolang-5.1-20261007/capture-shadow-vm",
+    "NANO_MODULE_PATH": "/Users/jordanh/Src/nanolang/modules"
+  },
+  "diagnostic_build_correction": "The first sanitizer-build script requested nonexistent src/nanoisa/nanoisa_facade.c. I use the actual modules/nanoisa/nanoisa.c recipe; production sources were unaffected."
+}

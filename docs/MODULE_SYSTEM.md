@@ -257,7 +257,10 @@ I use this C compiler:
 export NANO_CC=clang
 ```
 
-I default to `gcc` if you do not specify otherwise.
+I select the first configured compiler from `NANO_CC`, the module manifest's
+`c_compiler`, `CC`, and finally `cc`. An explicit module driver such as `c++`
+therefore keeps its language when the surrounding build sets `CC=clang`.
+`NANO_CC` deliberately overrides even an explicit module driver.
 
 ### NANO_VERBOSE_BUILD
 

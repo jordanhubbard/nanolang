@@ -1,0 +1,4 @@
+opaque type Json
+extern fn nl_json_free(value:Json,extra:int)->void
+fn main()->int { unsafe { (nl_json_free 0 1) } return 0 }
+shadow main { assert true }

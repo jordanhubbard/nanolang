@@ -1,0 +1,24 @@
+{
+  "source_commit": "f0f6a0c62b9a3fb53251f987a492f3de9f7ab514",
+  "root": "/private/tmp/nanolang-capture-ae92c0488-cow",
+  "command": [
+    "/opt/homebrew/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_source_snapshots"
+  ],
+  "PATH": "/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin",
+  "initial_status": "clean",
+  "initial_free_bytes": 55911653376,
+  "probe_sha256": "1037fb559b5427bcd03318814f8ac5fa2e3d43229e8e44131163d66e646b27de",
+  "cc_version": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "final_free_bytes": 67804532736,
+  "exit_code": 1,
+  "seconds": 5252.276818250015,
+  "log_sha256": "0e1f587355d817fbd34ec0b83c6f7767d8895de34beef655482e2f2fb2d37148",
+  "final_status": "",
+  "head_unchanged": true,
+  "source_unchanged": true,
+  "probe_unchanged": true
+}

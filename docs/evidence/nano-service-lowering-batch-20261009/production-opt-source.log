@@ -1,0 +1,26 @@
+test_assertion_drains_live_file (tests.test_service_lowering.ServiceLowering.test_assertion_drains_live_file) ... I finish native compilation in 0.459s
+ok
+test_helpers_loops_fields_and_result_values (tests.test_service_lowering.ServiceLowering.test_helpers_loops_fields_and_result_values) ... I finish native compilation in 2.722s
+ok
+test_limits_and_unimplemented_reference_calls_preserve_outputs (tests.test_service_lowering.ServiceLowering.test_limits_and_unimplemented_reference_calls_preserve_outputs) ... ok
+test_nested_argument_borrows_keep_branch_state (tests.test_service_lowering.ServiceLowering.test_nested_argument_borrows_keep_branch_state) ... I finish native compilation in 1.311s
+ok
+test_qualified_reexported_helper (tests.test_service_lowering.ServiceLowering.test_qualified_reexported_helper) ... I finish native compilation in 0.562s
+ok
+test_short_circuit_skips_effects (tests.test_service_lowering.ServiceLowering.test_short_circuit_skips_effects) ... I finish native compilation in 0.351s
+ok
+test_terminal_operands_release_pending_values (tests.test_service_lowering.ServiceLowering.test_terminal_operands_release_pending_values) ... I finish native compilation in 0.672s
+I finish native compilation in 0.687s
+I finish native compilation in 0.474s
+ok
+test_unchanged_generated_binding_and_all_shadows (tests.test_service_lowering.ServiceLowering.test_unchanged_generated_binding_and_all_shadows) ... I finish native compilation in 8.105s
+I finish native compilation in 8.443s
+I finish native compilation in 8.446s
+I finish native compilation in 8.371s
+I finish native compilation in 8.332s
+ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 50.572s
+
+OK

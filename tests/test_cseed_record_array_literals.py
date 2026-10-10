@@ -23,7 +23,6 @@ class RecordArrayLiterals(unittest.TestCase):
 
     def test_direct_nested_projections_retain_record_identity(self):
         baseline = (ROOT / 'tests/nanoisa/fixtures/record_arrays.nano').read_text()
-        baseline = baseline.replace('NSType', 'ValueType')
         direct = baseline.replace('first.name', '(at value.symbols 0).name')
         direct = direct.replace('third.location.line', '(at more 2).location.line')
         direct = direct.replace('    let empty_table:',

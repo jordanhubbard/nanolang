@@ -1,0 +1,17 @@
+/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-aauo2n_w/0-22.c: In function 'nf_function_0':
+/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-aauo2n_w/0-22.c:28264:17: error: comparison of unsigned expression in '< 0' is always false [-Werror=type-limits]
+28264 | if(f.stack_count<0 || !nvm_services_runtime_frame_scratch(c,&dst))return nf_bad(c);
+      |                 ^
+/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-aauo2n_w/0-22.c:28346:17: error: comparison of unsigned expression in '< 0' is always false [-Werror=type-limits]
+28346 | if(f.stack_count<0 || !nvm_services_runtime_frame_scratch(c,&dst))return nf_bad(c);
+      |                 ^
+/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-aauo2n_w/0-22.c:28365:17: error: comparison of unsigned expression in '< 0' is always false [-Werror=type-limits]
+28365 | if(f.stack_count<0 || !nvm_services_runtime_frame_scratch(c,&dst))return nf_bad(c);
+      |                 ^
+/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-aauo2n_w/0-22.c:28607:17: error: comparison of unsigned expression in '< 0' is always false [-Werror=type-limits]
+28607 | if(f.stack_count<0 || !nvm_services_runtime_frame_scratch(c,&dst))return nf_bad(c);
+      |                 ^
+/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-aauo2n_w/0-22.c:28626:17: error: comparison of unsigned expression in '< 0' is always false [-Werror=type-limits]
+28626 | if(f.stack_count<0 || !nvm_services_runtime_frame_scratch(c,&dst))return nf_bad(c);
+      |                 ^
+cc1: all warnings being treated as errors

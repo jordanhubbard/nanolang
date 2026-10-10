@@ -1,0 +1,32 @@
+test_callable_local_still_shadows_declared_function (__main__.HeaderConstantFunctions.test_callable_local_still_shadows_declared_function) ... FAIL
+test_noncallable_local_refuses_without_replacing_prior_output (__main__.HeaderConstantFunctions.test_noncallable_local_refuses_without_replacing_prior_output) ... ok
+test_original_sqlite_example_and_dependency_shadows (__main__.HeaderConstantFunctions.test_original_sqlite_example_and_dependency_shadows) ... ok
+
+======================================================================
+FAIL: test_callable_local_still_shadows_declared_function (__main__.HeaderConstantFunctions.test_callable_local_still_shadows_declared_function)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/work/tests/test_header_constant_functions.py", line 61, in test_callable_local_still_shadows_declared_function
+    self.execute(source, '')
+  File "/work/tests/test_header_constant_functions.py", line 38, in execute
+    self.checked([ROOT / 'bin/nanoc_c', source, '-o', native])
+  File "/work/tests/test_header_constant_functions.py", line 28, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : In file included from /tmp/nanoc_70_native.c:29:
+/tmp/nano-header-functions-12ao29ad/main.nano: In function ‘nl_main’:
+/tmp/nano-header-functions-12ao29ad/main.nano:6:14: error: expected identifier or ‘(’ before numeric constant
+    6 |  let SQLITE_OK: fn() -> int = replacement
+      |              ^~~~~~~~~
+/tmp/nano-header-functions-12ao29ad/main.nano:7:55: error: called object ‘__nl_callee_27’ is not a function or function pointer
+    7 |  assert (== (SQLITE_OK) 37)
+      |                                                       ^             
+/tmp/nano-header-functions-12ao29ad/main.nano:7:27: note: declared here
+    7 |  assert (== (SQLITE_OK) 37)
+      |                           ^             
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.387s
+
+FAILED (failures=1)

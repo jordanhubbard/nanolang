@@ -1,0 +1,21 @@
+{
+  "Makefile.gnu": "2e6d6fa81c1acd7a7d239529eb54df10990f35a50de26f43e45e5f4a5d6da648",
+  "src/nanoisa/service_nominal_codec.inc": "b93ebec3aa823fb2f8afbbbcacab7c2cc878ef75f6ed5feffb811bcdc069c696",
+  "src/nanoisa/service_nominal_plan.inc": "980365fff96813afd837fecfb12319cacb95489fac0e75fed39ecf2edd0816dc",
+  "src/nanoisa/service_file_nominal_config.h": "e7cf5146c3834eebfa55f0a2b32501e7fc936cbb6bc06467c8de499c69fc60e2",
+  "src/nanoisa/service_socket_nominal_config.h": "b6ce2b6dfa794368890af0213920f231f7d1fe09fe9841fc21a75ed5c5284a25",
+  "src/nanoisa/service_websocket_nominal.c": "28aa29547d3841d483102a06b3e3e6c79a1ba79898b7fa572fe35cb1bc2d0ed6",
+  "src/nanoisa/service_websocket_nominal_plan.c": "095e6ddbcbcede595ebdb49a8fa6d2c6b390a5c472ea913e6d8f3e40311d4cfc",
+  "src/nanoisa/service_websocket_nominal.h": "df291735a8deffd45e7dcc2de05232135e22c55984b2803f70b862129d88097b",
+  "src/nanoisa/service_websocket_nominal_config.h": "b54587bfb324f8f9a88a535ea1740af920fe961257d42fdba639ba922efd29df",
+  "src/nsi_websocket_plan.c": "6006b2eef8b26336f70ac7c2d0a1d52dca1ee67a7441d8fc50d2c5ab48f83e04",
+  "src/nanoisa/nvm_v2_cursor.c": "d84b11478f6034fd8bca29d63746abae67c9700a1e571d220de285f2c49748fb",
+  "tests/nanoisa/test_websocket_nominal.c": "b9c0f09c49d54e5d35b4a9abe8f765220c1b6f3f9618fcaadfa627dabcc2dc32",
+  "/private/tmp/nl51-websocket-nominal-gcc-instrumented": "1d746b554145639fbef7602a6ac528f6231858e5cccce16884075787deabf41a",
+  "/private/tmp/nl51-websocket-nominal-gcc-linked": "be0cf7037cf77b7714e4b33f0588ec97e3c208b6d225f8c4e92f21c4851e9a29",
+  "/private/tmp/nl51-websocket-nominal-sanitizer-instrumented": "a206f103c98a90c8433bdda42d170beee46ceaa9cee7c45552d8538ff5d67073",
+  "/private/tmp/nl51-websocket-nominal-sanitizer-linked": "2cad49d2559062d92cc1031a6ba0dc55d3c7839f438e203c68c67fa5dbbd83df",
+  "obj/test_websocket_nominal_instrumented": "8ef3fb803d8d389bbfca67ddce2deec02846bbbc486b71fd7a42d63a208ce34e",
+  "obj/test_websocket_nominal_linked": "4d7c69e05e772edff59beeb43d4ca8452056736ded9495dcb4f0b7f1d32c63a0",
+  "obj/test_websocket_nominal_boundary": "896274314289484dbc1d421b45693a732b683787ad6dfc27a32039428516ffa8"
+}

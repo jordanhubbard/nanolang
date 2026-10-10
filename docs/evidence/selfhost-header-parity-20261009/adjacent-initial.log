@@ -1,0 +1,264 @@
+python3 scripts/embed_binary64_parser.py --check
+CC="cc" python3 -m unittest -v tests.test_native_array_pop
+test_binary64_payloads (tests.test_native_array_pop.NativeArrayPop.test_binary64_payloads) ... 
+  test_binary64_payloads (tests.test_native_array_pop.NativeArrayPop.test_binary64_payloads) (bits=-9223372036854775808) ... FAIL
+  test_binary64_payloads (tests.test_native_array_pop.NativeArrayPop.test_binary64_payloads) (bits=9221120237041090561) ... FAIL
+  test_binary64_payloads (tests.test_native_array_pop.NativeArrayPop.test_binary64_payloads) (bits=9218868437227405313) ... FAIL
+  test_binary64_payloads (tests.test_native_array_pop.NativeArrayPop.test_binary64_payloads) (bits=1) ... FAIL
+test_empty_record_array_returns_void (tests.test_native_array_pop.NativeArrayPop.test_empty_record_array_returns_void) ... FAIL
+test_empty_record_projection_traps (tests.test_native_array_pop.NativeArrayPop.test_empty_record_projection_traps) ... FAIL
+test_popped_closure_survives_owner_reuse_and_collection (tests.test_native_array_pop.NativeArrayPop.test_popped_closure_survives_owner_reuse_and_collection) ... FAIL
+test_popped_record_crosses_return_and_argument (tests.test_native_array_pop.NativeArrayPop.test_popped_record_crosses_return_and_argument) ... FAIL
+test_record_children_survive_owner_reuse_and_collection (tests.test_native_array_pop.NativeArrayPop.test_record_children_survive_owner_reuse_and_collection) ... FAIL
+test_scalar_values_aliases_and_empty_results (tests.test_native_array_pop.NativeArrayPop.test_scalar_values_aliases_and_empty_results) ... 
+  test_scalar_values_aliases_and_empty_results (tests.test_native_array_pop.NativeArrayPop.test_scalar_values_aliases_and_empty_results) (tag=1) ... FAIL
+  test_scalar_values_aliases_and_empty_results (tests.test_native_array_pop.NativeArrayPop.test_scalar_values_aliases_and_empty_results) (tag=4) ... FAIL
+  test_scalar_values_aliases_and_empty_results (tests.test_native_array_pop.NativeArrayPop.test_scalar_values_aliases_and_empty_results) (tag=5) ... FAIL
+
+======================================================================
+FAIL: test_binary64_payloads (tests.test_native_array_pop.NativeArrayPop.test_binary64_payloads) (bits=-9223372036854775808)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 89, in test_binary64_payloads
+    self.run_module('.entry main\n.function main 0 1 0 int 1\n'+
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f'PUSH_I64 {bits}\nF64_FROM_BITS\nARR_LITERAL 3 1\nSTORE_LOCAL 0\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'LOAD_LOCAL 0\nARR_POP\nF64_TO_BITS\n'+f'PUSH_I64 {bits}\nEQ\nASSERT\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'LOAD_LOCAL 0\nARR_POP\nTYPE_CHECK 0\nASSERT\nPUSH_I64 0\nRET\n.end\n', '')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 36, in run_module
+    result = self.sanitized(source, work / 'program')
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 17, in sanitized
+    return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==16568==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_binary64_payloads (tests.test_native_array_pop.NativeArrayPop.test_binary64_payloads) (bits=9221120237041090561)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 89, in test_binary64_payloads
+    self.run_module('.entry main\n.function main 0 1 0 int 1\n'+
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f'PUSH_I64 {bits}\nF64_FROM_BITS\nARR_LITERAL 3 1\nSTORE_LOCAL 0\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'LOAD_LOCAL 0\nARR_POP\nF64_TO_BITS\n'+f'PUSH_I64 {bits}\nEQ\nASSERT\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'LOAD_LOCAL 0\nARR_POP\nTYPE_CHECK 0\nASSERT\nPUSH_I64 0\nRET\n.end\n', '')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 36, in run_module
+    result = self.sanitized(source, work / 'program')
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 17, in sanitized
+    return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==16576==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_binary64_payloads (tests.test_native_array_pop.NativeArrayPop.test_binary64_payloads) (bits=9218868437227405313)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 89, in test_binary64_payloads
+    self.run_module('.entry main\n.function main 0 1 0 int 1\n'+
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f'PUSH_I64 {bits}\nF64_FROM_BITS\nARR_LITERAL 3 1\nSTORE_LOCAL 0\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'LOAD_LOCAL 0\nARR_POP\nF64_TO_BITS\n'+f'PUSH_I64 {bits}\nEQ\nASSERT\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'LOAD_LOCAL 0\nARR_POP\nTYPE_CHECK 0\nASSERT\nPUSH_I64 0\nRET\n.end\n', '')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 36, in run_module
+    result = self.sanitized(source, work / 'program')
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 17, in sanitized
+    return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==16584==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_binary64_payloads (tests.test_native_array_pop.NativeArrayPop.test_binary64_payloads) (bits=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 89, in test_binary64_payloads
+    self.run_module('.entry main\n.function main 0 1 0 int 1\n'+
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        f'PUSH_I64 {bits}\nF64_FROM_BITS\nARR_LITERAL 3 1\nSTORE_LOCAL 0\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'LOAD_LOCAL 0\nARR_POP\nF64_TO_BITS\n'+f'PUSH_I64 {bits}\nEQ\nASSERT\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'LOAD_LOCAL 0\nARR_POP\nTYPE_CHECK 0\nASSERT\nPUSH_I64 0\nRET\n.end\n', '')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 36, in run_module
+    result = self.sanitized(source, work / 'program')
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 17, in sanitized
+    return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==16592==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_empty_record_array_returns_void (tests.test_native_array_pop.NativeArrayPop.test_empty_record_array_returns_void)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 82, in test_empty_record_array_returns_void
+    self.run_module('.entry main\n.function main 0 0 0 int 1\n'
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    'ARR_NEW 8\nARR_POP\nTYPE_CHECK 0\nASSERT\n'
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    'PUSH_I64 0\nRET\n.end\n', '')
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 36, in run_module
+    result = self.sanitized(source, work / 'program')
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 17, in sanitized
+    return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==16600==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_empty_record_projection_traps (tests.test_native_array_pop.NativeArrayPop.test_empty_record_projection_traps)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 78, in test_empty_record_projection_traps
+    self.assertIn('native invariant', result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'native invariant' not found in '==16609==AddressSanitizer: detect_leaks is not supported on this platform.\n'
+
+======================================================================
+FAIL: test_popped_closure_survives_owner_reuse_and_collection (tests.test_native_array_pop.NativeArrayPop.test_popped_closure_survives_owner_reuse_and_collection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 105, in test_popped_closure_survives_owner_reuse_and_collection
+    self.run_module(text, '', collections=True)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 36, in run_module
+    result = self.sanitized(source, work / 'program')
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 17, in sanitized
+    return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==16617==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_popped_record_crosses_return_and_argument (tests.test_native_array_pop.NativeArrayPop.test_popped_record_crosses_return_and_argument)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 54, in test_popped_record_crosses_return_and_argument
+    self.run_module('.entry main\n'
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+                    '.function take 1 1 0 struct 1\nLOAD_LOCAL 0\nARR_POP\nRET\n.end\n'
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+                    'ARR_LITERAL 8 1\nCALL take\nCALL read\nPUSH_I64 77\nEQ\nASSERT\n'
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    'PUSH_I64 0\nRET\n.end\n', '')
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 36, in run_module
+    result = self.sanitized(source, work / 'program')
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 17, in sanitized
+    return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==16625==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_record_children_survive_owner_reuse_and_collection (tests.test_native_array_pop.NativeArrayPop.test_record_children_survive_owner_reuse_and_collection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 51, in test_record_children_survive_owner_reuse_and_collection
+    self.run_module(text, '', collections=True)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 36, in run_module
+    result = self.sanitized(source, work / 'program')
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 17, in sanitized
+    return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==16634==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_scalar_values_aliases_and_empty_results (tests.test_native_array_pop.NativeArrayPop.test_scalar_values_aliases_and_empty_results) (tag=1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 35, in test_scalar_values_aliases_and_empty_results
+    self.run_module(text, '')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 36, in run_module
+    result = self.sanitized(source, work / 'program')
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 17, in sanitized
+    return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==16642==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_scalar_values_aliases_and_empty_results (tests.test_native_array_pop.NativeArrayPop.test_scalar_values_aliases_and_empty_results) (tag=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 35, in test_scalar_values_aliases_and_empty_results
+    self.run_module(text, '')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 36, in run_module
+    result = self.sanitized(source, work / 'program')
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 17, in sanitized
+    return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==16650==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_scalar_values_aliases_and_empty_results (tests.test_native_array_pop.NativeArrayPop.test_scalar_values_aliases_and_empty_results) (tag=5)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 35, in test_scalar_values_aliases_and_empty_results
+    self.run_module(text, '')
+    ~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_closures.py", line 36, in run_module
+    result = self.sanitized(source, work / 'program')
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_array_pop.py", line 17, in sanitized
+    return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==16658==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 2.552s
+
+FAILED (failures=12)
+make: *** [test-native-array-pop] Error 1

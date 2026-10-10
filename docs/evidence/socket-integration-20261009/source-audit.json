@@ -1,0 +1,32 @@
+{
+  "changed_inputs": [
+    "src/nsi_cap.c",
+    "src/nsi_cap_private.h",
+    "src/nsi_file.c",
+    "src/nsi_file.h",
+    "Makefile.gnu"
+  ],
+  "current_source_sha256": {
+    "Makefile.gnu": "9fea8767379fe2d6dba0a9f1b5517711c747dbae7a7cbf950b4e4c6eab62633f",
+    "src/nsi_cap.c": "a94dfd27cce4a112d018d541c32ca5cc41927efb0dd7b622b84ef2e787abc353",
+    "src/nsi_cap.h": "db63f1d6c28f035fd6a2aee8467d6dfbc60d1e0fdbf9b726b2983d52ad1c4ee2",
+    "src/nsi_cap_private.h": "63d678efc51176823a3c9ddfabddabd9ba5b25232d9e451e77d442f1a25a8fc5",
+    "src/nsi_file.c": "87b11bff744dc0cda8b8d6341917543df106717e0d4e7b3163d189dc8c0a88de",
+    "src/nsi_file.h": "4b76d8e23f366ee5311ffcc2bc38f183a71df5d3318459cb76292898e706613f",
+    "src/nsi_socket.c": "2f73edd2a6abb33e8945957b710c769adac52ec9fee11c68ca85277c86d4b72c",
+    "src/nsi_socket.h": "6f25b589e4546ee7d793c3b1b236dd316d7565a6801ca88801a0e1c3703c13a8",
+    "tests/test_nsi_cap.c": "7c436df72196fdfac7b83ca63996646586b62552ef6f293a7eb3b4c983fdcab5",
+    "tests/test_nsi_file.c": "73debf2f9dc613578bb1fac97357b2d6b893d8e0c6391eb247815ec25fbb83cf",
+    "tests/test_nsi_file_linked.c": "0685248874ef5f42c9f7329005d350a622a624eba557d024f87bd41198a1364d",
+    "tests/test_nsi_socket.c": "eda35f5ba6261faa28a087314fe35cde6b62bbd5d496bbc3359c49f745c9ef37",
+    "tests/test_nsi_socket_linked.c": "637102c26f1a1e089a385ed1a2555cd9cb7e33a9a6e0c4a4b6377ef5f3202509"
+  },
+  "head": "fea341eb09fa7d0149d34b57881e0447c78a4a17",
+  "historical_merge": "d8caf70ff",
+  "historical_platform_steps": {
+    "darwin": 12,
+    "linux": 23
+  },
+  "historical_production": "724076809d050362555e62c1b175ff7ce17b29f9",
+  "historical_source": "d8144114b302dbee7c177cf63125cdde1256a46e"
+}

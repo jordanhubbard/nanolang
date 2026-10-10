@@ -1,0 +1,7 @@
+test_generated_present_field_compatibility_and_refusal (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_generated_present_field_compatibility_and_refusal) ... ok
+test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 4.075s
+
+OK

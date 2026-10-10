@@ -1,0 +1,2 @@
+fn main()->int { let values:array<u8> = ["text"] return 0 }
+shadow main { assert true }

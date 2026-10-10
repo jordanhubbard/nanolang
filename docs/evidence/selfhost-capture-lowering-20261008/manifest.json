@@ -1,0 +1,46 @@
+{
+  "base_commit": "2388a9220faa9ef6fb828f9c18836618fb7ac062",
+  "source_state": "uncommitted checkpoint before commit; exact inputs hashed below",
+  "source_sha256": {
+    "src/parser.c": "d5d4e797d4d7566943f7c512f4d6f1ddded78cc3424b657701806a06c7b33f92",
+    "src/typechecker.c": "d622db05a23eaabca5a570f7825dd22b7811ba3a8760b5eb3e478213287459b0",
+    "src/nanoisa/nvm2c.c": "2b29408df6298b0d3b1dd1891cdb5a4f785ae7bc00bb69cf40769e3b50d9aaf2",
+    "src_nano/parser.nano": "2c239ac9a1af379f4a1c6a9561693ac8a97ec66b86f336f8be503ce62d0e8777",
+    "src_nano/compiler/nanoisa_codegen.nano": "e736665767d66cc3dd5f2753b5b48ebb827c9a2c5ea1b1cedafe2c9f81316888",
+    "Makefile.gnu": "17aca9c90022867f18569c06b77661653167831cc56cbaa1eb865099df4a22f6",
+    "tests/test_one_ir_compiler.py": "ed5fff2d2f34a9635c0acb508558acf30799bcd2d824104c02baa7ce1e59e69e",
+    "tests/test_selfhost_captures.py": "a398ceedae019572b613b1c504c9b4bc244e496d27cacc2c257f1bdd20bdd0b2",
+    "tests/test_native_record_array_tagged_fields.py": "1bf3daed6812ef3597d5052f10c32819f9c43d899901fd95860adac85e096571"
+  },
+  "prepared_compiler_sha256": {
+    "/private/tmp/nanolang-capture-producer-current": "a9a9e4c77914df71c45b98493a72ed1be41bea222cf43e77d3005e70fd2dcaf9",
+    "/private/tmp/nanolang-capture-producer-current.nvm": "b1ccdd09e285e2da47f49f79f22a0a47b4e94c25a2fa7dc23674d1569311ba2d",
+    "/private/tmp/nanolang-capture-producer-current.c": "444da5c5c50e74be27893dfa12adbec311c638f31f91e54060aaed1f02995f64"
+  },
+  "qualification_exit_codes": {
+    "qualified.log": 0,
+    "tagged-fields-final.log": 0,
+    "native-regressions.log": 0,
+    "compiler-build.log": 0,
+    "compiler-translate.log": 0,
+    "compiler-cc.log": 0,
+    "seed-build.log": 0
+  },
+  "logs_sha256": {
+    "compiler-build.log": "2a0cc3a601ca891700a7c0cbeeaf49e7cc802ef002114a586b4477aca4c18904",
+    "compiler-cc.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compiler-native-delay-only.log": "514907699e2f82eca9cce702b3f0670ff73086a4e3234c80627c7d2de028fb32",
+    "compiler-native-first.log": "af91421e9b3b7fa8272e65cc2317e15459b4fdd406ac4cb90b27a774db5d7cb8",
+    "compiler-translate.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "indirect-signature-baseline.log": "a0998aa9c47236b79449019051b3f135423d2411dacf9afd7baebb08bcc4e2bd",
+    "native-regressions.log": "9dd5ce1f58bfdf352ef612544e06f9094b5b222f8a79f39d54413588d2ed31f8",
+    "qualified.log": "fc3cf4f7855cf704c91d89b5d98291a303e6e7439ddd65e9e7c0468bc4e3f1c3",
+    "seed-build.log": "3bfe47e99f5094186971d26126ca2c2575f2a8507cad5ff17c72ebc82c433dec",
+    "source-matrix-first.log": "ab61887c8f053b43ce68489746de748cd115633cabc4e9d75822e5e157a571dc",
+    "source-matrix-second.log": "41add23a79b150f2a6c46d0559c78b93f2dea820e41930690aef1982d67cad7b",
+    "tagged-fields-final.log": "e6078c1645fe207cdac563a6b0d64abdd0e1ba79f60fdfae749d8cf47bf906bb",
+    "tagged-fields-first.log": "b1ed10898224db4f566bb000463f2ee79aa38f2d341303a1816392622c4a4a6f",
+    "tagged-fields-second.log": "880dda05e3d19f80bc9297f285d218d5862a231e8eed305c9f529f0abeadd7fd",
+    "tagged-frame-reducer-run.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,6 +1,7 @@
 /* I compile scalar instructions to LLVM blocks, never to a bytecode dispatcher. */
 #include "service_bindings_module.h"
 #include "nvm2llvm.h"
+#include "portable_read_catalog.h"
 #include "verifier.h"
 #include <inttypes.h>
 #include <stdarg.h>
@@ -453,6 +454,15 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             }
             terminates = 1; break;
         }
+        case OP_CALL_EXTERN: {
+            bool bytes = nvm_portable_file_read_import(m,ins.operands[0].u32)==2;
+            pop(&frame, pc, "a");
+            fprintf(out, " %%p%u_path = call i64 @integer(%%V %%p%u_a, i8 %u)\n"
+                " %%p%u_result = call i64 @%s(i64 %%p%u_path)\n",
+                pc,pc,TAG_STRING,pc,bytes?"npr_module_read_bytes":"npr_module_read_text",pc);
+            result(&frame, pc, bytes?TAG_ARRAY:TAG_STRING);
+            break;
+        }
         case OP_CALL: {
             uint32_t callee = ins.operands[0].u32;
             for (uint16_t i = m->functions[callee].arity; i > 0; --i)
@@ -752,7 +762,7 @@ static void function(FILE *out, const NvmModule *m, uint32_t index, uint16_t dep
             " call i64 @integer(%%V %%returned, i8 %u)\n ret %%V %%returned\n}\n", f->result_tag);
     else fputs(" ret void\n}\n", out);
 }
-int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size, const char *entry, NvmLlvmTarget target) {
+static int emit_target(const NvmModule *m, FILE *out, char *error, size_t size, const char *entry, NvmLlvmTarget target, unsigned portable_read) {
     if (target != NVM_LLVM_NATIVE && target != NVM_LLVM_WASM32)
         return refuse(error, size, "I require a native or wasm32 runtime target");
     if (!entry || (strcmp(entry, "main") && strncmp(entry, "nano_", 5)))
@@ -766,13 +776,13 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
     if (!m || !out) return refuse(error, size, "I require a module and output stream");
     if (nvm_service_execution_pending(m))
         return refuse(error, size, "I require reviewed service lifetime and dispatch admission before translation");
-    NvmVerifyResult verified = nvm_verify_profile(m, NVM_PROFILE_CLOSED_LITERAL_STRINGS);
-    bool managed = !verified.ok;
-    if (managed) verified = nvm_verify_profile(m, NVM_PROFILE_CLOSED_MANAGED_STRINGS);
+    NvmVerifyResult verified = nvm_verify_profile(m, portable_read == 2 ? NVM_PROFILE_PORTABLE_FILE_READ : portable_read ? NVM_PROFILE_PORTABLE_READ_TEXT : NVM_PROFILE_CLOSED_LITERAL_STRINGS);
+    bool managed = portable_read || !verified.ok;
+    if (managed && !portable_read) verified = nvm_verify_profile(m, NVM_PROFILE_CLOSED_MANAGED_STRINGS);
     if (!verified.ok) return refuse(error, size, "%s", verified.error_msg);
     /* I size storage from every verified literal global operand, matching
      * VM module allocation. Verification bounds index+1 by NVM_MAX_GLOBALS. */
-    bool mutable_arrays = false;
+    bool mutable_arrays = portable_read == 2;
     uint32_t global_count = 0;
     uint32_t initializer = m->function_count;
     for (uint32_t i = 0; i < m->function_count; ++i) {
@@ -796,7 +806,8 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
     NvmManagedHeapPlan *heap = NULL;
     int graph_arrays = 0;
     if (managed && (mutable_arrays || m->struct_count || m->layout_size || m->ownership_size)) {
-        NvmArrayEligibilityResult mode = nvm_select_managed_heap(m, mutable_arrays, &heap);
+        NvmArrayEligibilityResult mode = portable_read == 2 ? nvm_select_portable_read_heap(m, &heap) :
+            nvm_select_managed_heap(m, mutable_arrays, &heap);
         if (mode.status != NVM_ARRAY_ELIGIBLE)
             return refuse(error, size, "I cannot select managed heap lifetime: %s", mode.message);
         graph_arrays = heap->mode != NVM_MANAGED_LEAF;
@@ -805,6 +816,9 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
     if (managed) fputs(target == NVM_LLVM_WASM32 ? nms_runtime_ir_wasm32 : nms_runtime_ir_native, out);
     else fputs(target == NVM_LLVM_WASM32 ? nms_runtime_target_wasm32 : nms_runtime_target_native, out);
     runtime(out, managed);
+    if(portable_read)fputs("declare i64 @npr_module_read_text(i64)\n"
+        "declare void @npr_module_reset()\n",out);
+    if(portable_read==2)fputs("declare i64 @npr_module_read_bytes(i64)\n",out);
     if (global_count)
         fprintf(out, "@globals = internal global [%u x %%V] zeroinitializer\n", global_count);
     float_runtime(out);
@@ -819,7 +833,7 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
         function(out, m, i, depth, managed, mutable_arrays, graph_arrays != 0, records != NULL);
     }
     if (managed) {
-        managed_entry(out, m, entry, initializer, global_count, graph_arrays != 0, records);
+        managed_entry(out, m, entry, initializer, global_count, graph_arrays != 0, records, portable_read);
         nvm_managed_heap_plan_free(heap);
         if (ferror(out)) return refuse(error, size, "I could not write managed LLVM IR");
         return 1;
@@ -836,9 +850,20 @@ int nvm2llvm_emit_target(const NvmModule *m, FILE *out, char *error, size_t size
     return 1;
 }
 
+int nvm2llvm_emit_portable_read_target(const NvmModule *m,FILE *out,char *error,size_t size,const char *entry,NvmLlvmTarget target) {
+    return emit_target(m,out,error,size,entry,target,true);
+}
+int nvm2llvm_emit_target(const NvmModule *m,FILE *out,char *error,size_t size,const char *entry,NvmLlvmTarget target) {
+    return emit_target(m,out,error,size,entry,target,false);
+}
+
 int nvm2llvm_emit_entry(const NvmModule *m, FILE *out, char *error, size_t size, const char *entry) {
     return nvm2llvm_emit_target(m, out, error, size, entry, NVM_LLVM_NATIVE);
 }
 int nvm2llvm_emit(const NvmModule *m, FILE *out, char *error, size_t size) {
     return nvm2llvm_emit_entry(m, out, error, size, "main");
+}
+
+int nvm2llvm_emit_portable_file_read_target(const NvmModule *m,FILE *out,char *error,size_t size,const char *entry,NvmLlvmTarget target) {
+    return emit_target(m,out,error,size,entry,target,2);
 }

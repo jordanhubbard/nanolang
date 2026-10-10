@@ -1,0 +1,30 @@
+I retain source lowering artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-2s9km22m
+I build independent File lowerer with producer 0.
+test_mixed_source_bytes_and_execution (tests.test_service_lowering_nano.ServiceLoweringNano.test_mixed_source_bytes_and_execution) ... FAIL
+
+======================================================================
+FAIL: test_mixed_source_bytes_and_execution (tests.test_service_lowering_nano.ServiceLoweringNano.test_mixed_source_bytes_and_execution)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering_nano.py", line 224, in test_mixed_source_bytes_and_execution
+    wire=self.lower(path,selected,dependencies=[first,tcp,second])
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering_nano.py", line 56, in lower
+    report = self.command([*command, path, selection, expected, *dependencies])
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 65, in command
+    if process.returncode:raise AssertionError(f'{args}\n{process.returncode}\n{stdout}\n{stderr}')
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [PosixPath('/Users/jordanh/Src/nanolang/bin/nano_vm'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-2s9km22m/probe-0.nvm'), '--', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-2s9km22m/mixed-4-main.nano'), 'main', 0, PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-2s9km22m/first.nano'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-2s9km22m/tcp.nano'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-2s9km22m/second.nano')]
+1
+
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   lower_probe  /Users/jordanh/Src/nanolang/tests/service_lowering.nano:50:5
+I could not execute the module: Assertion failed
+  Assertion failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 44.185s
+
+FAILED (failures=1)

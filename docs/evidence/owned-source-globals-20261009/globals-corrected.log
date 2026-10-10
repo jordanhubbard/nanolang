@@ -1,0 +1,70 @@
+python3 scripts/embed_binary64_parser.py --check
+python3 -m unittest -v tests.test_owned_global_source
+test_copyable_union_global (tests.test_owned_global_source.OwnedGlobalSource.test_copyable_union_global) ... FAIL
+test_immutable_assignment_refused (tests.test_owned_global_source.OwnedGlobalSource.test_immutable_assignment_refused) ... ok
+test_initializer_order_and_once_only_helper_effects (tests.test_owned_global_source.OwnedGlobalSource.test_initializer_order_and_once_only_helper_effects) ... ok
+test_local_and_parameter_shadowing (tests.test_owned_global_source.OwnedGlobalSource.test_local_and_parameter_shadowing) ... ok
+test_resource_global_remains_refused (tests.test_owned_global_source.OwnedGlobalSource.test_resource_global_remains_refused) ... ok
+test_scalar_kinds_and_mutation (tests.test_owned_global_source.OwnedGlobalSource.test_scalar_kinds_and_mutation) ... ok
+test_uninitialized_global_read_in_initializer_refused (tests.test_owned_global_source.OwnedGlobalSource.test_uninitialized_global_read_in_initializer_refused) ... ok
+test_wrong_global_assignment_type_refused (tests.test_owned_global_source.OwnedGlobalSource.test_wrong_global_assignment_type_refused) ... ok
+
+======================================================================
+FAIL: test_copyable_union_global (tests.test_owned_global_source.OwnedGlobalSource.test_copyable_union_global)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 64, in test_copyable_union_global
+            self.source('''union Choice { Some { value: int }, None {} }
+            ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let mut selected: Choice = Choice.Some { value: 7 }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        None(payload) => { assert true }
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    }''')
+    ^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_global_source.py", line 21, in source
+    self.source_route(program, accepted, {"nanoc_c": diagnostic} if diagnostic else None)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_owned_union_c_source.py", line 43, in source_route
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 4, column 1: Constant 'selected' type mismatch (declared struct, got union)
+-- E024 UNDEFINED VARIABLE --- /private/tmp/nanolang-owned-global-source-corrected/OwnedGlobalSource/test_copyable_union_global/main.nano
+I cannot find a variable named `selected`.
+
+11|     match selected {
+              ^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /private/tmp/nanolang-owned-global-source-corrected/OwnedGlobalSource/test_copyable_union_global/main.nano
+I require a match to inspect an int or a known union.
+
+11|     match selected {
+        ^^^^^
+Hint: Give the scrutinee an exact supported type before matching it.
+-- E024 UNDEFINED VARIABLE --- /private/tmp/nanolang-owned-global-source-corrected/OwnedGlobalSource/test_copyable_union_global/main.nano
+I cannot find a variable named `selected`.
+
+15| set selected Choice.None {}
+    ^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /private/tmp/nanolang-owned-global-source-corrected/OwnedGlobalSource/test_copyable_union_global/main.nano
+I cannot find a variable named `selected`.
+
+16| match selected {
+          ^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /private/tmp/nanolang-owned-global-source-corrected/OwnedGlobalSource/test_copyable_union_global/main.nano
+I require a match to inspect an int or a known union.
+
+16| match selected {
+    ^^^^^
+Hint: Give the scrutinee an exact supported type before matching it.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 1.141s
+
+FAILED (failures=1)
+make: *** [test-owned-global-source] Error 1

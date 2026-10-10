@@ -1,0 +1,188 @@
+test_distinct_record_specializations (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_distinct_record_specializations) ... FAIL
+test_primitive_generic_fixture (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_primitive_generic_fixture) ... FAIL
+test_repeated_type_variable_refusals (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_repeated_type_variable_refusals) ... 
+  test_repeated_type_variable_refusals (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_repeated_type_variable_refusals) (arguments='1 true') ... FAIL
+  test_repeated_type_variable_refusals (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_repeated_type_variable_refusals) (arguments='First { value: 1 } Second { value: 2 }') ... FAIL
+test_retained_record_result_regression (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_retained_record_result_regression) ... FAIL
+test_typed_locals_transitive_calls_and_recursion (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_typed_locals_transitive_calls_and_recursion) ... FAIL
+
+======================================================================
+FAIL: test_distinct_record_specializations (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_distinct_record_specializations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 66, in test_distinct_record_specializations
+            self.execute('''struct First { value: int }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    struct Second { text: string }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_generic_functions.py", line 51, in execute
+    self.command([ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_generic_functions.py", line 39, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-selfhost-generic-njc55gb0/input.nasm': Duplicate function symbol: $generic
+
+
+======================================================================
+FAIL: test_primitive_generic_fixture (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_primitive_generic_fixture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 40, in test_primitive_generic_fixture
+    self.execute((ROOT / 'tests/unit/test_generics.nano').read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_generic_functions.py", line 51, in execute
+    self.command([ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_generic_functions.py", line 39, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-selfhost-generic-ap2f5yix/input.nasm': Duplicate function symbol: $generic
+
+
+======================================================================
+FAIL: test_repeated_type_variable_refusals (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_repeated_type_variable_refusals) (arguments='1 true')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_generic_functions.py", line 78, in test_repeated_type_variable_refusals
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : .types 2 0 0
+.entry 2
+
+.function __nanoisa_shadow_0 0 0 0 void 0
+  PUSH_I64 1
+  PUSH_I64 2
+  CALL $generic.0
+  PUSH_I64 1
+  I64_EQ
+  ASSERT
+  RET
+.end
+.function __nanoisa_shadow_1 0 0 0 void 0
+  PUSH_BOOL 1
+  ASSERT
+  RET
+.end
+.function __nanoisa_shadow_entry 0 0 0 int 1
+  .shadow "choose"
+  CALL __nanoisa_shadow_0
+  .shadow "main"
+  CALL __nanoisa_shadow_1
+  PUSH_I64 0
+  RET
+.end
+.function $generic.0 2 2 0 int 1
+.parameters $generic.0 int int
+.local_begin 0 "a"
+.local_begin 1 "b"
+  LOAD_LOCAL 0
+  TYPE_CHECK 1
+  ASSERT
+  LOAD_LOCAL 1
+  TYPE_CHECK 1
+  ASSERT
+  LOAD_LOCAL 0
+  RET
+.end
+.layouts "0200000000000100ffffffff01000000ffffffffffffffff00000100ffffffff01000000ffffffffffffffff"
+.ownership "010000000200000001010000040000000000000000000000ffffffff0000000000000000ffffffff0000000001000000ffffffff0200020001000000ffffffff01000000ffffffff01000000ffffffff"
+
+
+======================================================================
+FAIL: test_repeated_type_variable_refusals (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_repeated_type_variable_refusals) (arguments='First { value: 1 } Second { value: 2 }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_generic_functions.py", line 78, in test_repeated_type_variable_refusals
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : .types 2 0 0
+.entry 2
+
+.function __nanoisa_shadow_0 0 0 0 void 0
+  PUSH_I64 1
+  PUSH_I64 2
+  CALL $generic.0
+  PUSH_I64 1
+  I64_EQ
+  ASSERT
+  RET
+.end
+.function __nanoisa_shadow_1 0 0 0 void 0
+  PUSH_BOOL 1
+  ASSERT
+  RET
+.end
+.function __nanoisa_shadow_entry 0 0 0 int 1
+  .shadow "choose"
+  CALL __nanoisa_shadow_0
+  .shadow "main"
+  CALL __nanoisa_shadow_1
+  PUSH_I64 0
+  RET
+.end
+.function $generic.0 2 2 0 int 1
+.parameters $generic.0 int int
+.local_begin 0 "a"
+.local_begin 1 "b"
+  LOAD_LOCAL 0
+  TYPE_CHECK 1
+  ASSERT
+  LOAD_LOCAL 1
+  TYPE_CHECK 1
+  ASSERT
+  LOAD_LOCAL 0
+  RET
+.end
+.layouts "0200000000000100ffffffff01000000ffffffffffffffff00000100ffffffff01000000ffffffffffffffff"
+.ownership "010000000200000001010000040000000000000000000000ffffffff0000000000000000ffffffff0000000001000000ffffffff0200020001000000ffffffff01000000ffffffff01000000ffffffff"
+
+
+======================================================================
+FAIL: test_retained_record_result_regression (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_retained_record_result_regression)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 37, in test_retained_record_result_regression
+    self.execute((ROOT / 'docs/evidence/generic-results-global-audit-20261010/generic-producer-repro.nano').read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_generic_functions.py", line 51, in execute
+    self.command([ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_generic_functions.py", line 39, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-selfhost-generic-8lmk6yia/input.nasm': Duplicate function symbol: $generic
+
+
+======================================================================
+FAIL: test_typed_locals_transitive_calls_and_recursion (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_typed_locals_transitive_calls_and_recursion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 43, in test_typed_locals_transitive_calls_and_recursion
+            self.execute('''struct Box { value: int }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn identity(value: T) -> T { let copy: T = value return copy }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<17 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_generic_functions.py", line 51, in execute
+    self.command([ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_generic_functions.py", line 39, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-selfhost-generic-sw74ppsw/input.nasm': Duplicate function symbol: $generic
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.237s
+
+FAILED (failures=6)

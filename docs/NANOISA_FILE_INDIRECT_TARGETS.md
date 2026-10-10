@@ -1,5 +1,9 @@
 # I retain every possible File call target
 
+My [callable argument/result extension](NANOISA_FILE_CALLABLE_TRANSPORT.md)
+extends the initial local-only profile described below. It retains the same
+private execution boundary and does not admit paired source or public grants.
+
 I scope `task_2c135a488bd61576caf83debb2786270` under72556/6931 and my
 [control and call contract](NANOISA_FILE_CONTROL_CALL_EXTENSION.md), at
 canonical `5f98a27a0565da92539dfc7bd242aa01f6c16d8e`. This proposal adds no

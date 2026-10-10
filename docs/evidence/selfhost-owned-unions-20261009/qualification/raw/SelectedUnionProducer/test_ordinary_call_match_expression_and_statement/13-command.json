@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/opt/homebrew/opt/llvm/bin/clang",
+    "-std=c11",
+    "-Wall",
+    "-Wextra",
+    "-Werror",
+    "-fsanitize=address,undefined",
+    "-fno-omit-frame-pointer",
+    "-g",
+    "/private/tmp/nanolang-selfhost-union-final/raw/SelectedUnionProducer/test_ordinary_call_match_expression_and_statement/shadows.c",
+    "-o",
+    "/private/tmp/nanolang-selfhost-union-final/raw/SelectedUnionProducer/test_ordinary_call_match_expression_and_statement/shadows.native"
+  ],
+  "exit": 0
+}

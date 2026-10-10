@@ -1,0 +1,12 @@
+fn plus(value:int)->int{return (+ value 1)}
+shadow plus {assert (== (plus 2) 3)}
+fn positive(value:int)->bool{return (> value 0)}
+shadow positive {assert (positive 1)}
+fn apply(value:T, callback:fn(T)->E)->E{return (callback value)}
+shadow apply {assert (== (apply 2 plus) 3)}
+fn main()->int {
+ assert (== (apply 4 plus) 5)
+ assert (apply 1 positive)
+ return 0
+}
+shadow main {assert (== (main) 0)}

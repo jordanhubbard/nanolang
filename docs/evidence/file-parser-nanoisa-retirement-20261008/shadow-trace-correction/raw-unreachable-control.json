@@ -1,0 +1,24 @@
+[
+  {
+    "command": [
+      "bin/nanoisa",
+      "asm",
+      "/private/tmp/nanolang-shadow-marker-raw/probe.nasm",
+      "-o",
+      "/private/tmp/nanolang-shadow-marker-raw/probe.nvm"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bin/nano_vm",
+      "--check-shadows",
+      "/private/tmp/nanolang-shadow-marker-raw/probe.nvm"
+    ],
+    "exit_code": 1,
+    "stdout": "",
+    "stderr": "I am testing shadow first\nI could not execute the module: Assertion failed\n  Assertion failed\nI rejected failed shadow execution\n"
+  }
+]

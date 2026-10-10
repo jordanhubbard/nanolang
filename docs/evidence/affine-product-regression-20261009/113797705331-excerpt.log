@@ -1,0 +1,136 @@
+2026-10-09T12:18:57.0927831Z OK
+2026-10-09T12:19:22.4484663Z ..FFFFFFFFFFFFFF...................
+2026-10-09T12:19:22.4485050Z ======================================================================
+2026-10-09T12:19:22.4486104Z FAIL: test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='nanoc_stage1', reverse=False, nested=False)
+2026-10-09T12:19:22.4486710Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4487115Z Traceback (most recent call last):
+2026-10-09T12:19:22.4487471Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 57, in check_modules
+2026-10-09T12:19:22.4487843Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-09T12:19:22.4488239Z AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+2026-10-09T12:19:22.4488534Z 
+2026-10-09T12:19:22.4488537Z 
+2026-10-09T12:19:22.4488622Z ======================================================================
+2026-10-09T12:19:22.4489102Z FAIL: test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='nanoc_stage2', reverse=False, nested=False)
+2026-10-09T12:19:22.4489608Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4489943Z Traceback (most recent call last):
+2026-10-09T12:19:22.4490269Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 57, in check_modules
+2026-10-09T12:19:22.4490627Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-09T12:19:22.4491061Z AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+2026-10-09T12:19:22.4491349Z 
+2026-10-09T12:19:22.4491352Z 
+2026-10-09T12:19:22.4491440Z ======================================================================
+2026-10-09T12:19:22.4491914Z FAIL: test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='nanoc_stage1', reverse=True, nested=False)
+2026-10-09T12:19:22.4492394Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4492624Z Traceback (most recent call last):
+2026-10-09T12:19:22.4492954Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 57, in check_modules
+2026-10-09T12:19:22.4493308Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-09T12:19:22.4493694Z AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+2026-10-09T12:19:22.4493982Z 
+2026-10-09T12:19:22.4493992Z 
+2026-10-09T12:19:22.4494067Z ======================================================================
+2026-10-09T12:19:22.4494529Z FAIL: test_long_module_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_long_module_identity) (compiler='nanoc_stage2', reverse=True, nested=False)
+2026-10-09T12:19:22.4495011Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4495249Z Traceback (most recent call last):
+2026-10-09T12:19:22.4495562Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 57, in check_modules
+2026-10-09T12:19:22.4495913Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-09T12:19:22.4496298Z AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+2026-10-09T12:19:22.4496587Z 
+2026-10-09T12:19:22.4496590Z 
+2026-10-09T12:19:22.4496663Z ======================================================================
+2026-10-09T12:19:22.4497335Z FAIL: test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='nanoc_stage1', reverse=False, nested=True)
+2026-10-09T12:19:22.4497876Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4498119Z Traceback (most recent call last):
+2026-10-09T12:19:22.4498440Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 57, in check_modules
+2026-10-09T12:19:22.4498797Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-09T12:19:22.4499255Z AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+2026-10-09T12:19:22.4499556Z 
+2026-10-09T12:19:22.4499558Z 
+2026-10-09T12:19:22.4499635Z ======================================================================
+2026-10-09T12:19:22.4500149Z FAIL: test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='nanoc_stage2', reverse=False, nested=True)
+2026-10-09T12:19:22.4500687Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4500926Z Traceback (most recent call last):
+2026-10-09T12:19:22.4501267Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 57, in check_modules
+2026-10-09T12:19:22.4501686Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-09T12:19:22.4502099Z AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+2026-10-09T12:19:22.4502472Z 
+2026-10-09T12:19:22.4502474Z 
+2026-10-09T12:19:22.4502575Z ======================================================================
+2026-10-09T12:19:22.4503112Z FAIL: test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='nanoc_stage1', reverse=True, nested=True)
+2026-10-09T12:19:22.4503672Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4503928Z Traceback (most recent call last):
+2026-10-09T12:19:22.4504262Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 57, in check_modules
+2026-10-09T12:19:22.4504629Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-09T12:19:22.4505032Z AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+2026-10-09T12:19:22.4505341Z 
+2026-10-09T12:19:22.4505343Z 
+2026-10-09T12:19:22.4505446Z ======================================================================
+2026-10-09T12:19:22.4505986Z FAIL: test_nested_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_nested_plain_copy_and_owned_move) (compiler='nanoc_stage2', reverse=True, nested=True)
+2026-10-09T12:19:22.4506546Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4506800Z Traceback (most recent call last):
+2026-10-09T12:19:22.4507245Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 57, in check_modules
+2026-10-09T12:19:22.4507623Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-09T12:19:22.4508029Z AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+2026-10-09T12:19:22.4508340Z 
+2026-10-09T12:19:22.4508343Z 
+2026-10-09T12:19:22.4508438Z ======================================================================
+2026-10-09T12:19:22.4508958Z FAIL: test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='nanoc_stage1', reverse=False, nested=False)
+2026-10-09T12:19:22.4509491Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4509741Z Traceback (most recent call last):
+2026-10-09T12:19:22.4510105Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 57, in check_modules
+2026-10-09T12:19:22.4510479Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-09T12:19:22.4510936Z AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+2026-10-09T12:19:22.4511241Z 
+2026-10-09T12:19:22.4511243Z 
+2026-10-09T12:19:22.4511347Z ======================================================================
+2026-10-09T12:19:22.4511908Z FAIL: test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='nanoc_stage2', reverse=False, nested=False)
+2026-10-09T12:19:22.4512436Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4512684Z Traceback (most recent call last):
+2026-10-09T12:19:22.4513022Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 57, in check_modules
+2026-10-09T12:19:22.4513404Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-09T12:19:22.4513806Z AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+2026-10-09T12:19:22.4514099Z 
+2026-10-09T12:19:22.4514101Z 
+2026-10-09T12:19:22.4514203Z ======================================================================
+2026-10-09T12:19:22.4514707Z FAIL: test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='nanoc_stage1', reverse=True, nested=False)
+2026-10-09T12:19:22.4515236Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4515538Z Traceback (most recent call last):
+2026-10-09T12:19:22.4515875Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 57, in check_modules
+2026-10-09T12:19:22.4516265Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-09T12:19:22.4516669Z AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+2026-10-09T12:19:22.4517107Z 
+2026-10-09T12:19:22.4517112Z 
+2026-10-09T12:19:22.4517258Z ======================================================================
+2026-10-09T12:19:22.4517811Z FAIL: test_plain_copy_and_owned_move (tests.test_affine_module_identity.AffineModuleIdentity.test_plain_copy_and_owned_move) (compiler='nanoc_stage2', reverse=True, nested=False)
+2026-10-09T12:19:22.4518345Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4518603Z Traceback (most recent call last):
+2026-10-09T12:19:22.4518943Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 57, in check_modules
+2026-10-09T12:19:22.4519335Z     self.assertEqual(result.returncode, 0, messages)
+2026-10-09T12:19:22.4519742Z AssertionError: 1 != 0 : I cannot lower this checked program: I require owner-only record parameters in my source borrow profile
+2026-10-09T12:19:22.4520043Z 
+2026-10-09T12:19:22.4520045Z 
+2026-10-09T12:19:22.4520148Z ======================================================================
+2026-10-09T12:19:22.4520650Z FAIL: test_qualified_public_record_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_qualified_public_record_identity) (compiler='nanoc_stage1')
+2026-10-09T12:19:22.4521166Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4521423Z Traceback (most recent call last):
+2026-10-09T12:19:22.4521821Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 100, in test_qualified_public_record_identity
+2026-10-09T12:19:22.4522310Z     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+2026-10-09T12:19:22.4522803Z AssertionError: 1 != 0 : I cannot lower this checked program: I require an exact declared owner or scalar union result in my source borrow profile
+2026-10-09T12:19:22.4523137Z 
+2026-10-09T12:19:22.4523139Z 
+2026-10-09T12:19:22.4523241Z ======================================================================
+2026-10-09T12:19:22.4523737Z FAIL: test_qualified_public_record_identity (tests.test_affine_module_identity.AffineModuleIdentity.test_qualified_public_record_identity) (compiler='nanoc_stage2')
+2026-10-09T12:19:22.4524253Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4524511Z Traceback (most recent call last):
+2026-10-09T12:19:22.4524920Z   File "/home/runner/work/nanolang/nanolang/tests/test_affine_module_identity.py", line 100, in test_qualified_public_record_identity
+2026-10-09T12:19:22.4525440Z     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+2026-10-09T12:19:22.4525934Z AssertionError: 1 != 0 : I cannot lower this checked program: I require an exact declared owner or scalar union result in my source borrow profile
+2026-10-09T12:19:22.4526277Z 
+2026-10-09T12:19:22.4526279Z 
+2026-10-09T12:19:22.4526385Z ----------------------------------------------------------------------
+2026-10-09T12:19:22.4526629Z Ran 25 tests in 25.313s
+2026-10-09T12:19:22.4526753Z 
+2026-10-09T12:19:22.4526825Z FAILED (failures=14)
+2026-10-09T12:19:22.4566172Z make[1]: *** [Makefile.gnu:3243: test-affine-selfhost] Error 1
+2026-10-09T12:19:22.4576843Z make: *** [Makefile.gnu:3163: test-quick] Error 2
+2026-10-09T12:19:22.4596250Z ##[error]Process completed with exit code 2.
+2026-10-09T12:19:22.4669807Z ##[group]Run dorny/test-reporter@v1

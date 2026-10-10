@@ -12,6 +12,9 @@
 #define NL_CAP_ERR_TRANSFER 5
 #define NL_CAP_ERR_FULL 6
 #define NL_CAP_ERR_MALFORMED 7
+/* I reserve 8 for the private generation-limit status. Entropy refusal leaves
+ * destination storage and existing authority unchanged. */
+#define NL_CAP_ERR_ENTROPY 9
 
 #define NL_CAP_READ      1u
 #define NL_CAP_WRITE     2u

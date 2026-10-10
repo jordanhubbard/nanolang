@@ -57,6 +57,60 @@ class NativeRecordLocals(unittest.TestCase):
             self.assertLess(frames[0], 64 * 1024, 'I keep wide record locals off the C stack')
             self.sanitized(source, work / 'program')
 
+    def test_record_call_results_do_not_accumulate_hidden_stack_copies(self):
+        calls = ('LOAD_LOCAL 1\nCALL echo\nAGG_GET 0\n'
+                 'PUSH_I64 42\nEQ\nASSERT\n') * 48
+        text = ('.entry main\n.types 2 0 0\n'
+                '.function wide 0 0 0 struct 1\n' + 'PUSH_I64 0\n' * 75 +
+                'AGG_PACK 0 1 0 75\nRET\n.end\n'
+                '.function echo 1 1 0 struct 1\nLOAD_LOCAL 0\nRET\n.end\n'
+                '.function relay 1 1 0 struct 1\nLOAD_LOCAL 0\nTAIL_CALL echo\n.end\n'
+                '.function walk 2 2 0 struct 1\n' + calls +
+                'LOAD_LOCAL 0\nPUSH_I64 0\nEQ\nJMP_FALSE recurse\n'
+                'LOAD_LOCAL 1\nTAIL_CALL relay\nrecurse:\n'
+                'LOAD_LOCAL 0\nPUSH_I64 1\nI64_SUB\nLOAD_LOCAL 1\nCALL walk\n'
+                'AGG_GET 0\nPUSH_I64 42\nEQ\nASSERT\nLOAD_LOCAL 1\nRET\n.end\n'
+                '.function main 0 0 0 int 1\nPUSH_I64 32\nPUSH_I64 42\n'
+                'AGG_PACK 0 0 0 1\nCALL walk\nAGG_GET 0\nPUSH_I64 42\nEQ\nASSERT\n'
+                'PUSH_I64 0\nRET\n.end\n')
+        with tempfile.TemporaryDirectory(prefix='nano-record-call-frame-') as tmp:
+            work = Path(tmp)
+            source = self.emit(work, text)
+            self.checked(['cc', '-std=c11', '-O0', '-fstack-usage', '-c', source,
+                          '-o', work / 'frame.o'])
+            frames = [int(line.split('\t')[1]) for line in
+                      (work / 'frame.su').read_text().splitlines()
+                      if line.split('\t')[0].endswith(':nl_walk')]
+            self.assertEqual(len(frames), 1)
+            self.assertLess(frames[0], 64 * 1024,
+                            'I do not accumulate by-value record call temporaries')
+            self.sanitized(source, work / 'program')
+
+    def test_tail_restart_clears_record_locals_without_stack_literals(self):
+        setup = ''.join(f'PUSH_I64 {i}\nAGG_PACK 0 0 0 1\nSTORE_LOCAL {i}\n'
+                        for i in range(1, 97))
+        text = ('.entry main\n.types 2 0 0\n'
+                '.function wide 0 0 0 struct 1\n' + 'PUSH_I64 0\n' * 75 +
+                'AGG_PACK 0 1 0 75\nRET\n.end\n'
+                '.function restart 1 97 0 int 1\n' + setup +
+                'LOAD_LOCAL 0\nPUSH_I64 0\nEQ\nJMP_FALSE again\n'
+                'LOAD_LOCAL 96\nAGG_GET 0\nRET\nagain:\n'
+                'LOAD_LOCAL 0\nPUSH_I64 1\nI64_SUB\nTAIL_CALL restart\n.end\n'
+                '.function main 0 0 0 int 1\nPUSH_I64 32\nCALL restart\n'
+                'PUSH_I64 96\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n')
+        with tempfile.TemporaryDirectory(prefix='nano-record-tail-frame-') as tmp:
+            work = Path(tmp)
+            source = self.emit(work, text)
+            self.checked(['cc', '-std=c11', '-O0', '-fstack-usage', '-c', source,
+                          '-o', work / 'frame.o'])
+            frames = [int(line.split('\t')[1]) for line in
+                      (work / 'frame.su').read_text().splitlines()
+                      if line.split('\t')[0].endswith(':nl_restart')]
+            self.assertEqual(len(frames), 1)
+            self.assertLess(frames[0], 64 * 1024,
+                            'I clear heap record locals without stack-sized compound literals')
+            self.sanitized(source, work / 'program')
+
     def test_record_tail_swap_preserves_owned_edges_and_array_aliases(self):
         # Each call allocates an owned string; loop collection must trace records
         # in the current frame, including swapped parameters and copied locals.

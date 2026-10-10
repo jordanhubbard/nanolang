@@ -1,0 +1,25 @@
+# My module-binding lookup measurements
+
+Under #982 I measure a synthetic source with 16, 64, 256 and 1,024 independent functions and shadows. This isolates declaration-count scaling; it is not the full compiler or proof of the Linux timeout cause. My baseline is the af2b25da6 seed compiler. I retain the driver, fixtures, opcode profiles and an isolated VM diagnostic patch counting instructions by root-module function. The temporary diagnostic's first build used the wrong field for function_count; I retain that failure and its corrected build. No diagnostic source or binary is integrated.
+
+With per-function counters, my baseline executes 1,957,167,957 instructions for 1,024 functions in 32.829s. mb_lookup accounts for 782,542,376 and mb_target_owner for 618,497,288. Both scan the entire binding table. My isolated source candidate indexes bindings by an unambiguous owner/name key, retaining the existing binding arrays, first-declaration precedence and separate imported-global conflict validation. Reset replaces the index. New shadows check owner/key separation, lookup misses, reset and preserved binding provenance.
+
+My indexed compiler executes 547,354,924 instructions for the same function count in 15.407s. These initial profile probes use distinct absolute fixture paths, so tiny non-binding instruction differences also reflect path length. In a separate same-input-path comparison, all four output modules are byte-identical between the baseline and indexed compiler. All outputs verify. The indexed compiler build passes full source shadows; the nine identity and 28 import methods pass together (37 methods).
+
+I retain the prepared source patch, not an integrated implementation. I launched a separate full compiler generation using the indexed component and diagnostic VM, a 1,800-second bound and a rejecting native-compiler guard. Its result is pending. The independent af2b25da6 fixed-point bootstrap remains live with unchanged recorded inputs. I require full generation equality, integration, fresh installed-stage and Linux/Darwin qualification before claiming bootstrap repair.
+
+My first full-source probe stops after 64.811s because its reject-all native compiler guard refuses permitted host-cache work for modules/nanoisa. I retain the terminal, profile and original driver under full-generation-initial. This is a diagnostic harness mistake, not a product failure. The corrected probe uses the existing bootstrap guard implementation and retained host-input classification, with separate logs/markers; its result remains pending.
+
+## My full-source and native checks
+
+My indexed compiler also passes all 37 identity/import methods as a native executable in 13.041s. A separate fixture compares 2,048 insertions against a linear reference across four resets, then checks cross-owner names, duplicate local precedence and imported-global conflict/provenance refusals. It passes C-seed and indexed self-hosted source shadows, VM execution, and strict C11 generated native execution under ASan/UBSan/LSan.
+
+My corrected guarded full-source generation passes in 230.909s, versus 879.104s for the ordinary af2b25da6 bootstrap Stage 1. Both compile the unchanged full compiler source. The diagnostic uses instruction counters and runs concurrently with the bootstrap, so these are observed durations, not an isolated benchmark. The first successful diagnostic uses module-local host caches; its module differs only at three host-library references in textual assembly. I retain it under full-generation-default-cache.
+
+A second diagnostic uses the shared cache and passes in 232.726s. Verification passes and the guard records no forbidden native compiler work. Textual assembly again differs only at the three host-library references, but the library bytes differ too. I did not copy Make's exported linker flags into the diagnostic environment. I retain the raw inequality, full diff, library hashes and environment difference under full-generation-shared-cache. I do not normalize this into a raw-equality claim. The optimization still needs integration and its own consistently configured fixed-point/platform gates.
+
+The af2b25da6 bootstrap passed Stage 1 verification, native linking and smoke execution and remains live in Stage 2. Diagnostic work can publish additional immutable cache generations; I leave its actual terminal authoritative and do not change source, tools or cache pointers to manufacture equality.
+
+## My integration
+
+After the af2b25da6 bootstrap completed, I applied the prepared binding index. I add the linear-reference fixture to tests/fixtures and its regression to tests/test_selfhost_module_bindings.py. The Make target now runs the full binding suite through each installed stage and participates in test-units. The prepared ten-method suite passes; after integration, full compiler shadows and all ten methods pass again through the freshly compiled component (8.678s). The indexed implementation still requires its own fresh bootstrap and hosted qualification.

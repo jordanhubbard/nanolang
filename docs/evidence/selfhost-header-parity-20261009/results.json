@@ -1,0 +1,20 @@
+[
+  {
+    "compiler": "nano_virt",
+    "sha256": "2c87b7dcd1fccbd9052e2b46d4130047e6fec44aab2597bad1b291e3ed9e3140",
+    "exit": 0,
+    "output_preserved": false
+  },
+  {
+    "compiler": "nanoc_stage1",
+    "sha256": "915461e3ce6ac86ccfdf3555d6592675350e37adb38cc0bdfd50645066f9fd7e",
+    "exit": 1,
+    "output_preserved": true
+  },
+  {
+    "compiler": "nanoc_stage2",
+    "sha256": "2ad230efa0510cd249ba15c1714992766a157776308556b0d30a1c2d19239ebb",
+    "exit": 1,
+    "output_preserved": true
+  }
+]

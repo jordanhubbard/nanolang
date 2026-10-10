@@ -1,0 +1,14 @@
+{
+  "base": "e50ea978bbf8fac0c2a39f85ca24d232a1dc6da1",
+  "source_sha256": {
+    "src/typechecker.c": "230ab301e4fcf369e605f934fa7ad49e001288a1a2f053021493352b1288d7f0",
+    "tests/test_genenv_scope.py": "71bf99a3cb4656fbc58f7421e365e3f845c47ff99499b260c3d9fd90120b9c75",
+    "tests/test_one_ir_compiler.py": "e300b429a6ebb8b32b4d7edbf9891caa2138b1101b257c4186fdd0b158017651"
+  },
+  "tools": {
+    "bin/nano_virt": "78f9916a2e58b669c4d147fe591ee11c324e07a0d8392998f77b351a8dcbe442",
+    "bin/nanoc_stage2": "9314d0eee50daaaaf55315a4022d4a44544fb272c4de64ad02be6a6ec2e7e2fb",
+    "bin/nano_vm": "94ee7b746293b6bb91b84e52bc60f98e6e960eb5b039335ddd728b5a1672d098",
+    "bin/nvm2c": "11e474013d369c3344d52e708f56418f8b3fd0e7fb3302172a5e405ec2766dfa"
+  }
+}

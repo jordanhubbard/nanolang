@@ -1,0 +1,3 @@
+['bin/nano_virt', 'tests/nanoisa/fixtures/nested_array_contexts.nano', '--emit-nvm', '-o', '/private/tmp/nanolang-nested-context-probe/seed.nvm']
+
+exit=0

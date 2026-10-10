@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/Users/jordanh/Src/nanolang/bin/nano_vm",
+    "--verify-only",
+    "/private/tmp/nanolang-owned-source-integrated-d04/SelectedUnionCSource/test_two_resources_and_ordinary_sibling_arms/main.nvm"
+  ],
+  "exit": 0
+}

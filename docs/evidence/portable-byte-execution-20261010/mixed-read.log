@@ -1,0 +1,6 @@
+test_text_and_byte_calls_share_workspace_without_sharing_grants (tests.test_portable_bytes_execution.PortableBytesExecution.test_text_and_byte_calls_share_workspace_without_sharing_grants) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.971s
+
+OK

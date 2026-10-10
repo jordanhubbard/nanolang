@@ -1,0 +1,6 @@
+test_multiple_borrows_with_owned_operand (tests.test_service_drivers.ServiceDrivers.test_multiple_borrows_with_owned_operand) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 56.248s
+
+OK

@@ -1,0 +1,14 @@
+{
+  "source_inventory_matches": true,
+  "bootstrap_steps_passed": 17,
+  "raw_modules_equal": true,
+  "artifacts": {
+    "nanoc_seed.nvm": "b4688f13f9f490c5120111d1d260712548020ef8ecc922c11847b34b5c82295b",
+    "nanoc_stage1.nvm": "18c0362fe407a40e2ec861c485ef2eade147b3e168fb691d27e59745302b3e6d",
+    "nanoc_stage1": "75c1ab5f9301be80db6c13f8bca8c131b256637bd05710236af60bcd17f7bdea",
+    "nanoc_stage2.nvm": "18c0362fe407a40e2ec861c485ef2eade147b3e168fb691d27e59745302b3e6d",
+    "nanoc_stage2": "b501014ac46d0c8244f8f98598bffc6194cf345b484f0f54956f0d96216dff07"
+  },
+  "installed_stage_test_methods": 8,
+  "skipped_missing_sqlite_headers": 2
+}

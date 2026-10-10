@@ -1,0 +1,7 @@
+I retain guard artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-match-guards-qdgm6gp2
+test_unchecked_generated_terminal_backstops (tests.test_canonical_match_guards.CanonicalMatchGuards.test_unchecked_generated_terminal_backstops) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 76.010s
+
+OK

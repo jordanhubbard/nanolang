@@ -1,0 +1,20 @@
+{
+  "artifacts": {
+    "nanoc_seed.nvm": {
+      "bytes": 508308,
+      "sha256": "bc62b9c3438179beba4dd0a51c55d3e729ab3efe46afb8efd312a0aadad6ced3"
+    },
+    "nanoc_stage1.nvm": {
+      "bytes": 482084,
+      "sha256": "014e173bfaf5efaa297d15465bcc49bc47f934af88e08f98426d79838039c93d"
+    },
+    "nanoc_stage2.nvm": {
+      "bytes": 482084,
+      "sha256": "014e173bfaf5efaa297d15465bcc49bc47f934af88e08f98426d79838039c93d"
+    }
+  },
+  "native_codegen_calls": 0,
+  "host_cache_probe_calls": 16,
+  "native_host_artifact_calls": 172,
+  "raw_stage1_stage2_equal": true
+}

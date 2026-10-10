@@ -356,7 +356,351 @@ static void test_finite_variant_integer_array(void) {
     nvm_shape_destroy(&g);
 }
 
+static void test_deferred_array_reads(void) {
+    const NvmShapeKind kinds[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_STRING, NVM_SHAPE_FUNCTION};
+    for (size_t i = 0; i < sizeof kinds / sizeof *kinds; ++i) {
+        for (int exact = 0; exact < 2; ++exact) {
+            NvmShapeGraph g = {0};
+            NvmShapeId element = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+            NvmShapeId result = nvm_shape_new(&g, exact ? kinds[i] : NVM_SHAPE_UNKNOWN);
+            CHECK(nvm_shape_array_read(&g, element, result));
+            CHECK(nvm_shape_solve_conversions(&g));
+            CHECK(nvm_shape_kind(&g, element) == NVM_SHAPE_UNKNOWN);
+            CHECK(nvm_shape_convert(&g, nvm_shape_new(&g, kinds[i]), element));
+            CHECK(nvm_shape_solve_conversions(&g) == !exact);
+            if (!exact) {
+                CHECK(nvm_shape_kind(&g, element) == kinds[i]);
+                CHECK(nvm_shape_kind(&g, result) == NVM_SHAPE_OPTIONAL);
+                CHECK(nvm_shape_kind(&g, nvm_shape_child(&g, result, 0)) == kinds[i]);
+                size_t count = g.count, conversions = g.conversion_count;
+                CHECK(nvm_shape_solve_conversions(&g));
+                CHECK(g.count == count && g.conversion_count == conversions);
+            } else CHECK(g.error != NULL);
+            nvm_shape_destroy(&g);
+            CHECK(!g.array_reads && !g.array_read_count);
+        }
+    }
+    NvmShapeGraph g = {0};
+    NvmShapeId element = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+    NvmShapeId result = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+    NvmShapeId field = nvm_shape_child(&g, result, 0);
+    CHECK(nvm_shape_convert(&g, nvm_shape_new(&g, NVM_SHAPE_INT), field));
+    CHECK(nvm_shape_array_read(&g, element, result));
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(nvm_shape_kind(&g, element) == NVM_SHAPE_RECORD);
+    NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+    NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+    CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, optional, 0),
+                         nvm_shape_new(&g, NVM_SHAPE_INT)));
+    CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, source, 0), optional));
+    CHECK(nvm_shape_convert(&g, source, element));
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(nvm_shape_kind(&g, field) == NVM_SHAPE_OPTIONAL);
+    CHECK(nvm_shape_kind(&g, nvm_shape_child(&g, field, 0)) == NVM_SHAPE_INT);
+    CHECK(nvm_shape_root(&g, element) != nvm_shape_root(&g, result));
+    nvm_shape_destroy(&g);
+}
+
+static void check_function_targets(NvmShapeGraph *g, NvmShapeId shape,
+                                   const uint32_t *expected, size_t count) {
+    CHECK(nvm_shape_kind(g, shape) == NVM_SHAPE_FUNCTION);
+    CHECK(nvm_shape_function_count(g, shape) == count);
+    for (size_t i = 0; i < count; ++i) {
+        uint32_t target = UINT32_MAX;
+        CHECK(nvm_shape_function_target(g, shape, i, &target));
+        CHECK(target == expected[i]);
+    }
+}
+
+static void test_nested_array_write_facts(void) {
+    NvmShapeGraph g = {0};
+    NvmShapeId holders[2], arrays[2], fields[2], producers[2];
+    NvmShapeId callee = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+    for (size_t i = 0; i < 2; ++i) {
+        holders[i] = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+        arrays[i] = nvm_shape_child(&g, holders[i], 0);
+        CHECK(nvm_shape_unify(&g, arrays[i], nvm_shape_new(&g, NVM_SHAPE_ARRAY)));
+        NvmShapeId element = nvm_shape_child(&g, arrays[i], 0);
+        CHECK(nvm_shape_unify(&g, element, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+        fields[i] = nvm_shape_child(&g, element, 0);
+        producers[i] = nvm_shape_new(&g, NVM_SHAPE_FUNCTION);
+        CHECK(nvm_shape_function_add(&g, producers[i], (uint32_t)i + 2));
+        CHECK(nvm_shape_convert(&g, producers[i], fields[i]));
+        CHECK(nvm_shape_convert(&g, holders[i], callee));
+    }
+    CHECK(nvm_shape_solve_conversions(&g));
+    const uint32_t first[] = {2}, second[] = {3}, read_join[] = {2, 3};
+    check_function_targets(&g, fields[0], first, 1);
+    check_function_targets(&g, fields[1], second, 1);
+    NvmShapeId callee_array = nvm_shape_child(&g, callee, 0);
+    NvmShapeId read_field = nvm_shape_child(&g, nvm_shape_child(&g, callee_array, 0), 0);
+    check_function_targets(&g, read_field, read_join, 2);
+    /* I add a write after initial convergence, through another alias hop.
+     * Each caller gains that write but never the other caller's read facts. */
+    NvmShapeId forwarded = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+    CHECK(nvm_shape_array_alias(&g, callee_array, forwarded));
+    NvmShapeId written = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+    CHECK(nvm_shape_function_add(&g, nvm_shape_child(&g, written, 0), 9));
+    CHECK(nvm_shape_array_write(&g, forwarded, written));
+    CHECK(nvm_shape_solve_conversions(&g));
+    const uint32_t first_written[] = {2, 9}, second_written[] = {3, 9};
+    check_function_targets(&g, fields[0], first_written, 2);
+    check_function_targets(&g, fields[1], second_written, 2);
+    check_function_targets(&g, producers[0], first, 1);
+    check_function_targets(&g, producers[1], second, 1);
+    CHECK(nvm_shape_unify(&g, callee_array, forwarded));
+    CHECK(nvm_shape_solve_conversions(&g));
+    check_function_targets(&g, fields[0], first_written, 2);
+    check_function_targets(&g, fields[1], second_written, 2);
+    size_t count = g.count, conversions = g.conversion_count;
+    size_t aliases = g.array_alias_count, writes = g.array_write_count;
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(g.count == count && g.conversion_count == conversions);
+    CHECK(g.array_alias_count == aliases && g.array_write_count == writes);
+    nvm_shape_destroy(&g);
+    CHECK(!g.array_aliases && !g.array_writes);
+}
+
+static void test_array_write_alias_cycle(void) {
+    NvmShapeGraph g = {0};
+    NvmShapeId arrays[128];
+    for (size_t i = 0; i < 128; ++i) arrays[i] = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+    for (size_t i = 0; i < 128; ++i)
+        CHECK(nvm_shape_array_alias(&g, arrays[i], arrays[(i + 1) % 128]));
+    NvmShapeId written = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+    CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, written, 0), nvm_shape_new(&g, NVM_SHAPE_STRING)));
+    CHECK(nvm_shape_array_write(&g, arrays[0], written));
+    CHECK(nvm_shape_solve_conversions(&g));
+    for (size_t i = 0; i < 128; ++i) {
+        NvmShapeId element = nvm_shape_child(&g, arrays[i], 0);
+        CHECK(nvm_shape_kind(&g, element) == NVM_SHAPE_RECORD);
+        CHECK(nvm_shape_kind(&g, nvm_shape_child(&g, element, 0)) == NVM_SHAPE_STRING);
+    }
+    CHECK(g.array_write_count == 128);
+    size_t count = g.count, conversions = g.conversion_count;
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(g.count == count && g.conversion_count == conversions && g.array_write_count == 128);
+    nvm_shape_destroy(&g);
+}
+
+static void test_function_targets(void) {
+    for (int reverse = 0; reverse < 2; ++reverse) {
+        NvmShapeGraph g = {0};
+        NvmShapeId first = nvm_shape_new(&g, NVM_SHAPE_FUNCTION);
+        NvmShapeId second = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        CHECK(nvm_shape_function_count(&g, first) == 0);
+        CHECK(nvm_shape_function_add(&g, first, 19));
+        CHECK(nvm_shape_function_add(&g, first, 0));
+        CHECK(nvm_shape_function_add(&g, first, 19));
+        CHECK(nvm_shape_function_add(&g, second, UINT32_MAX));
+        /* I force root rank and node-array growth before joining the sets. */
+        CHECK(nvm_shape_unify(&g, second, nvm_shape_new(&g, NVM_SHAPE_UNKNOWN)));
+        for (int i = 0; i < 128; ++i) CHECK(nvm_shape_new(&g, NVM_SHAPE_INT));
+        CHECK(nvm_shape_unify(&g, reverse ? second : first, reverse ? first : second));
+        const uint32_t expected[] = {0, 19, UINT32_MAX};
+        check_function_targets(&g, first, expected, 3);
+        check_function_targets(&g, second, expected, 3);
+        CHECK(nvm_shape_function_add(&g, first, 7));
+        const uint32_t extended[] = {0, 7, 19, UINT32_MAX};
+        check_function_targets(&g, second, extended, 4);
+        nvm_shape_destroy(&g);
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId first = nvm_shape_new(&g, NVM_SHAPE_FUNCTION);
+        NvmShapeId second = nvm_shape_new(&g, NVM_SHAPE_FUNCTION);
+        NvmShapeId joined = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId result = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        CHECK(nvm_shape_function_add(&g, first, 2));
+        CHECK(nvm_shape_function_add(&g, second, 9));
+        /* I order consumers before producers and retain a conversion cycle. */
+        CHECK(nvm_shape_convert(&g, result, joined));
+        CHECK(nvm_shape_convert(&g, joined, result));
+        CHECK(nvm_shape_convert(&g, second, joined));
+        CHECK(nvm_shape_convert(&g, first, joined));
+        CHECK(nvm_shape_solve_conversions(&g));
+        const uint32_t both[] = {2, 9}, only_first[] = {2}, only_second[] = {9};
+        check_function_targets(&g, result, both, 2);
+        check_function_targets(&g, first, only_first, 1);
+        check_function_targets(&g, second, only_second, 1);
+        /* I propagate new targets without changing either unrelated producer. */
+        CHECK(nvm_shape_function_add(&g, second, 13));
+        CHECK(nvm_shape_solve_conversions(&g));
+        const uint32_t late[] = {2, 9, 13};
+        check_function_targets(&g, result, late, 3);
+        check_function_targets(&g, first, only_first, 1);
+        CHECK(nvm_shape_solve_conversions(&g));
+        check_function_targets(&g, joined, late, 3);
+        nvm_shape_destroy(&g);
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = recursive_record(&g), storage = recursive_record(&g);
+        NvmShapeId producer = nvm_shape_child(&g, source, 1);
+        CHECK(nvm_shape_function_add(&g, producer, 41));
+        CHECK(nvm_shape_convert(&g, source, storage));
+        CHECK(nvm_shape_solve_conversions(&g));
+        NvmShapeId stored = nvm_shape_lookup(&g, storage, 1);
+        const uint32_t target[] = {41};
+        check_function_targets(&g, stored, target, 1);
+        CHECK(nvm_shape_function_add(&g, stored, 42));
+        CHECK(nvm_shape_solve_conversions(&g));
+        check_function_targets(&g, producer, target, 1);
+        nvm_shape_destroy(&g);
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        NvmShapeId array = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        NvmShapeId element = nvm_shape_child(&g, array, 0);
+        CHECK(nvm_shape_convert(&g, source, element));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, element) == NVM_SHAPE_UNKNOWN);
+        uint32_t targets[128];
+        for (uint32_t i = 128; i > 0; --i) {
+            targets[i - 1] = i * 3;
+            CHECK(nvm_shape_function_add(&g, source, targets[i - 1]));
+        }
+        CHECK(nvm_shape_solve_conversions(&g));
+        check_function_targets(&g, element, targets, 128);
+        CHECK(nvm_shape_function_add(&g, source, targets[0]));
+        CHECK(nvm_shape_solve_conversions(&g));
+        check_function_targets(&g, element, targets, 128);
+        nvm_shape_destroy(&g);
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId function = nvm_shape_new(&g, NVM_SHAPE_FUNCTION);
+        NvmShapeId optional = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+        CHECK(nvm_shape_function_add(&g, function, 9));
+        CHECK(nvm_shape_convert(&g, function, optional));
+        CHECK(nvm_shape_solve_conversions(&g));
+        const uint32_t target[] = {9};
+        check_function_targets(&g, nvm_shape_lookup(&g, optional, 0), target, 1);
+        CHECK(nvm_shape_kind(&g, optional) == NVM_SHAPE_OPTIONAL);
+        nvm_shape_destroy(&g);
+    }
+    for (int operation = 0; operation < 8; ++operation) {
+        NvmShapeGraph g = {0};
+        NvmShapeId function = nvm_shape_new(&g, NVM_SHAPE_FUNCTION);
+        NvmShapeId integer = nvm_shape_new(&g, NVM_SHAPE_INT);
+        CHECK(nvm_shape_function_add(&g, function, 0));
+        uint32_t sentinel = 123;
+        if (operation == 0) CHECK(!nvm_shape_unify(&g, function, integer));
+        if (operation == 1 || operation == 2) {
+            CHECK(nvm_shape_convert(&g, operation == 1 ? integer : function,
+                                       operation == 1 ? function : integer));
+            CHECK(!nvm_shape_solve_conversions(&g));
+        }
+        if (operation == 3) CHECK(!nvm_shape_function_add(&g, integer, 1));
+        if (operation == 4) CHECK(!nvm_shape_child(&g, function, 0));
+        if (operation == 5) CHECK(!nvm_shape_function_target(&g, function, 1, &sentinel));
+        if (operation == 6) CHECK(!nvm_shape_function_target(&g, function, 0, NULL));
+        if (operation == 7) CHECK(!nvm_shape_function_count(&g, integer));
+        CHECK(g.error != NULL);
+        CHECK(sentinel == 123);
+        CHECK(!nvm_shape_function_add(&g, function, 8));
+        nvm_shape_destroy(&g);
+    }
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId projected = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        CHECK(nvm_shape_child(&g, projected, 0));
+        CHECK(!nvm_shape_function_add(&g, projected, 1));
+        nvm_shape_destroy(&g);
+    }
+}
+
+static void test_nested_record_array_views(void) {
+    for (int array = 0; array < 2; ++array) {
+        for (int wrong = 0; wrong < 2; ++wrong) {
+            NvmShapeGraph g = {0};
+            NvmShapeId source = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+            NvmShapeId target = nvm_shape_new(&g, NVM_SHAPE_RECORD);
+            NvmShapeId from = source, to = target;
+            if (array) {
+                from = nvm_shape_child(&g, from, 7);
+                to = nvm_shape_child(&g, to, 7);
+                CHECK(nvm_shape_unify(&g, from, nvm_shape_new(&g, NVM_SHAPE_ARRAY)));
+                CHECK(nvm_shape_unify(&g, to, nvm_shape_new(&g, NVM_SHAPE_ARRAY)));
+                from = nvm_shape_child(&g, from, 0);
+                to = nvm_shape_child(&g, to, 0);
+                CHECK(nvm_shape_unify(&g, from, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+                CHECK(nvm_shape_unify(&g, to, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+            }
+            NvmShapeId boxed = nvm_shape_child(&g, from, 2);
+            NvmShapeId exact = nvm_shape_child(&g, to, 2);
+            CHECK(nvm_shape_unify(&g, boxed, nvm_shape_new(&g, NVM_SHAPE_OPTIONAL)));
+            CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, boxed, 0),
+                                  nvm_shape_new(&g, wrong ? NVM_SHAPE_INT : NVM_SHAPE_STRING)));
+            CHECK(nvm_shape_unify(&g, exact, nvm_shape_new(&g, NVM_SHAPE_STRING)));
+            CHECK(nvm_shape_convert(&g, source, target));
+            CHECK(nvm_shape_solve_conversions(&g) == (array && !wrong));
+            if (array && !wrong) {
+                CHECK(nvm_shape_kind(&g, exact) == NVM_SHAPE_STRING);
+                CHECK(nvm_shape_kind(&g, boxed) == NVM_SHAPE_OPTIONAL);
+            }
+            nvm_shape_destroy(&g);
+        }
+    }
+}
+
+static void test_shared_array_views(void) {
+    for (int reverse = 0; reverse < 2; ++reverse) {
+        NvmShapeGraph g = {0};
+        NvmShapeId caller = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        NvmShapeId callee = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
+        NvmShapeId stored = nvm_shape_child(&g, caller, 0);
+        NvmShapeId written = nvm_shape_child(&g, callee, 0);
+        CHECK(nvm_shape_unify(&g, stored, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+        CHECK(nvm_shape_unify(&g, written, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+        if (reverse) CHECK(nvm_shape_alias_view(&g, callee, caller));
+        CHECK(nvm_shape_convert(&g, caller, callee));
+        if (!reverse) CHECK(nvm_shape_alias_view(&g, callee, caller));
+        CHECK(nvm_shape_solve_conversions(&g));
+        /* I add the nested write after the first solve to exercise late facts. */
+        NvmShapeId nested = nvm_shape_child(&g, written, 3);
+        CHECK(nvm_shape_unify(&g, nested, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
+        CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, nested, 0),
+                              nvm_shape_new(&g, NVM_SHAPE_STRING)));
+        CHECK(nvm_shape_solve_conversions(&g));
+        NvmShapeId retained = nvm_shape_lookup(&g, stored, 3);
+        CHECK(nvm_shape_kind(&g, retained) == NVM_SHAPE_RECORD);
+        CHECK(nvm_shape_kind(&g, nvm_shape_lookup(&g, retained, 0)) == NVM_SHAPE_STRING);
+        nvm_shape_destroy(&g);
+    }
+    const NvmShapeKind scalars[] = {NVM_SHAPE_STRING, NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT};
+    for (size_t i = 0; i < sizeof scalars / sizeof scalars[0]; ++i) {
+        for (int wrong = 0; wrong < 2; ++wrong) {
+            NvmShapeGraph g = {0};
+            NvmShapeId exact = nvm_shape_new(&g, scalars[i]);
+            NvmShapeId tagged = nvm_shape_new(&g, NVM_SHAPE_OPTIONAL);
+            CHECK(nvm_shape_unify(&g, nvm_shape_child(&g, tagged, 0),
+                                  nvm_shape_new(&g, wrong ? NVM_SHAPE_RECORD : scalars[i])));
+            CHECK(nvm_shape_alias_view(&g, tagged, exact));
+            CHECK(nvm_shape_solve_conversions(&g) == !wrong);
+            if (!wrong) {
+                CHECK(nvm_shape_kind(&g, exact) == scalars[i]);
+                CHECK(nvm_shape_kind(&g, tagged) == NVM_SHAPE_OPTIONAL);
+            }
+            nvm_shape_destroy(&g);
+        }
+    }
+}
+
 int main(void) {
+    {
+        NvmShapeGraph g = {0};
+        NvmShapeId byte = nvm_shape_new(&g, NVM_SHAPE_U8);
+        NvmShapeId read = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+        CHECK(nvm_shape_array_read(&g, byte, read));
+        CHECK(nvm_shape_solve_conversions(&g));
+        CHECK(nvm_shape_kind(&g, read) == NVM_SHAPE_OPTIONAL);
+        CHECK(nvm_shape_kind(&g, nvm_shape_lookup(&g, read, 0)) == NVM_SHAPE_U8);
+        CHECK(!nvm_shape_unify(&g, byte, nvm_shape_new(&g, NVM_SHAPE_INT)));
+        CHECK(g.error != NULL);
+        nvm_shape_destroy(&g);
+    }
     test_finite_variant_integer_array();
     test_explicit_variant_scalar_storage();
     test_numeric_union_payload();
@@ -369,6 +713,8 @@ int main(void) {
         nvm_shape_destroy(&g);
     }
 
+    test_nested_record_array_views();
+    test_shared_array_views();
     test_directed_conversions();
     test_array_optional_conversion();
     {
@@ -407,6 +753,10 @@ int main(void) {
         CHECK(g.error != NULL);
         nvm_shape_destroy(&g);
     }
+    test_array_write_alias_cycle();
+    test_nested_array_write_facts();
+    test_function_targets();
+    test_deferred_array_reads();
     test_map_shapes();
     test_lookup_without_constraints();
     test_cycles_and_shared_children();

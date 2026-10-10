@@ -1245,6 +1245,38 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                     self.assertEqual(shlex.split(" ".join(captured)), expected)
                     self.assertEqual((module / "module.json").read_text(), manifest)
 
+    def test_uncaptured_linker_flags_stay_out_of_compile_jobs(self):
+        with tempfile.TemporaryDirectory(prefix="nano-uncaptured-linker-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.support.foreign_build_fixture(directory)
+            metadata = json.loads((module / "module.json").read_text())
+            metadata["cflags"] = ["-Werror", "-I", "-Xlinker", "-Xlinker", "-lm"]
+            response = module / "link.rsp"
+            response.write_text("-lm\n")
+            metadata["ldflags"] = ["-Wl,@" + str(response)]
+            (module / "module.json").write_text(json.dumps(metadata))
+            calls, wrapper = directory / "calls", directory / "cc"
+            compiler = shutil.which("cc")
+            wrapper.write_text(f"#!{sys.executable}\nimport json,os,sys\n"
+                f"with open({str(calls)!r}, 'a') as log: log.write(json.dumps(sys.argv[1:])+'\\n')\n"
+                "if any(a in sys.argv for a in ('-Wl,--version','-Wl,-version_details')): raise SystemExit(1)\n"
+                f"os.execv({compiler!r}, [{compiler!r}]+sys.argv[1:])\n")
+            wrapper.chmod(0o700)
+            env["NANO_CC"] = str(wrapper)
+            generation = self.support.probe_path("build", module, env, timeout=30)
+            self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+            self.assertFalse((generation / "source_hashes.json").exists())
+            commands = [json.loads(line) for line in calls.read_text().splitlines()]
+            compiled = [a for a in commands if "-c" in a and "-###" not in a]
+            self.assertTrue(compiled)
+            for args in compiled:
+                # I preserve the literal include operand named like an option.
+                self.assertEqual(args.count("-Xlinker"), 1)
+                self.assertEqual(args[args.index("-Xlinker") - 1], "-I")
+                self.assertNotIn("-lm", args)
+                self.assertIn("-Werror", args)
+            self.assertTrue(any("-lm" in a and "-c" not in a for a in commands))
+
     def test_assembler_search_order_phases_and_recovery(self):
         self.assembler_search_order_phases_and_recovery(("wa-paired", "wa-joined", "xassembler"))
 
@@ -1370,6 +1402,8 @@ os.execv({compiler!r}, [{compiler!r}] + sys.argv[1:])
                 self.assertEqual(build(baseline), first, self.support.last_build_diagnostics)
                 commands = [json.loads(line) for line in calls.read_text().splitlines()]
                 for argv in commands:
+                    if "-c" in argv and "-###" not in argv:
+                        self.assertNotIn("-Xlinker", argv)
                     source_phase = ("-E" in argv and "-Xclang" not in argv) or ("-S" in argv and not (self.clang and not external))
                     if source_phase:
                         for flag in asm_flags:
@@ -2578,6 +2612,24 @@ os.execv({shutil.which('cc')!r}, [{shutil.which('cc')!r}] + sys.argv[1:])
                     generation = self.support.probe_path("directory", module, env)
                     self.assertEqual(list(generation.glob("__snapshot_*")), [])
                     self.assertEqual(self.answer(self.support.probe_path("library", module, env)), 42)
+
+    def test_unadmitted_expansion_preserves_original_argument_evaluation(self):
+        with tempfile.TemporaryDirectory(prefix="nano-unadmitted-expansion-") as tmp:
+            directory = Path(tmp)
+            module, _, env = self.support.support.foreign_build_fixture(directory)
+            (module / "answer.c").write_text("long long nano_build_answer(void) { return ANSWER; }\n")
+            for value, expected in ((None, 42), ("43", 43)):
+                with self.subTest(value=value):
+                    env.pop("NANO_SNAPSHOT_FALLBACK_ANSWER", None)
+                    if value is not None:
+                        env["NANO_SNAPSHOT_FALLBACK_ANSWER"] = value
+                    (module / "module.json").write_text(json.dumps({"name": "answer_native",
+                        "c_sources": ["answer.c"],
+                        "cflags": ["-Wall -DANSWER=${NANO_SNAPSHOT_FALLBACK_ANSWER:-42} -Werror"]}))
+                    self.support.probe_path("build", module, env)
+                    generation = self.support.probe_path("directory", module, env)
+                    self.assertEqual(list(generation.glob("__snapshot_*")), [])
+                    self.assertEqual(self.answer(self.support.probe_path("library", module, env)), expected)
 
     def test_response_file_restored_arguments(self):
         observed = measure(shutil.which("cc"), ("response",))

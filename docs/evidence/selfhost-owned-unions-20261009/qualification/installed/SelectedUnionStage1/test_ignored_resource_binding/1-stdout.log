@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0036] I cannot verify ownership: I require a binding for the selected resource payload (/private/tmp/nanolang-selfhost-union-final/installed/SelectedUnionStage1/test_ignored_resource_binding/main.nano:5:36)

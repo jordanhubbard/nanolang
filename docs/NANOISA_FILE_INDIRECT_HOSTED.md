@@ -1,5 +1,9 @@
 # I retain complete indirect File startup facts
 
+My [callable argument/result extension](NANOISA_FILE_CALLABLE_TRANSPORT.md)
+extends the initial local-only profile described below. It retains the same
+private execution boundary and does not admit paired source or public grants.
+
 I continue task_2c135a488bd61576caf83debb2786270 after the canonical private
 [indirect ownership composition](NANOISA_FILE_INDIRECT_FLOW.md), merged by
 PR904 at36fb22d9114a83748a5919c27cd12a5f7ffb0f6b. This is a proposed private

@@ -1,0 +1,6 @@
+test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.357s
+
+OK

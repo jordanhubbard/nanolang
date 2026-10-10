@@ -1,0 +1,50 @@
+Analysis of sampling nanoc_c (pid 69450) every 1 millisecond
+Process:         nanoc_c [69450]
+Path:            /private/tmp/*/nanoc_c
+Load Address:    0x100f08000
+Identifier:      nanoc_c
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  nanoc_c [56663]
+Target Type:     live task
+
+Date/Time:       2026-10-09 11:20:49.815 -0700
+Launch Time:     2026-10-09 11:20:49.576 -0700
+OS Version:      macOS 26.7.1 (25G241)
+Report Version:  7
+Analysis Tool:   /usr/bin/sample
+
+Physical footprint:         710.7M
+Physical footprint (peak):  710.7M
+Idle exit:                  untracked
+----
+
+Sort by top of stack, same collapsed (when >= 5):
+        _platform_strcmp$VARIANT$Base  (in libsystem_platform.dylib)        5512
+        env_get_var_visible_at  (in nanoc_c)        3452
+        DYLD-STUB$$strcmp  (in nanoc_c)        1299
+        DYLD-STUB$$_platform_strcmp  (in libsystem_platform.dylib)        1293
+        env_get_function  (in nanoc_c)        188
+        env_define_var_with_type_info  (in nanoc_c)        87
+        eval_expression  (in nanoc_c)        66
+        __write_nocancel  (in libsystem_kernel.dylib)        61
+        symbol_lookup  (in nanoc_c)        50
+        __open  (in libsystem_kernel.dylib)        49
+        _xzm_xzone_malloc_freelist_outlined  (in libsystem_malloc.dylib)        45
+        <deduplicated_symbol>  (in libsystem_malloc.dylib)        33
+        _platform_memmove  (in libsystem_platform.dylib)        29
+        _xzm_xzone_malloc  (in libsystem_malloc.dylib)        27
+        _xzm_xzone_thread_cache_fill_and_malloc  (in libsystem_malloc.dylib)        25
+        eval_call_impl  (in nanoc_c)        22
+        create_struct  (in nanoc_c)        21
+        _platform_strlen  (in libsystem_platform.dylib)        17
+        eval_statement  (in nanoc_c)        17
+        env_get_enum  (in nanoc_c)        13
+        _xzm_free  (in libsystem_malloc.dylib)        11
+        DYLD-STUB$$malloc_type_malloc  (in libsystem_c.dylib)        8
+        malloc_type_malloc  (in libsystem_malloc.dylib)        7
+        _xzm_xzone_malloc_tiny  (in libsystem_malloc.dylib)        6
+        env_set_var  (in nanoc_c)        6
+        DYLD-STUB$$strdup  (in nanoc_c)        5
+

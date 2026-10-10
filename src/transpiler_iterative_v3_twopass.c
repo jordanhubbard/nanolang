@@ -2068,10 +2068,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                 if (elem_type == TYPE_STRUCT && struct_name) {
                     emit_formatted(list,
-                                   "nl_%s _elem = *((nl_%s*)dyn_array_get_struct(_arr, _i)); ",
-                                   struct_name, struct_name);
+                                   "%s _elem = *((%s*)dyn_array_get_struct(_arr, _i)); ",
+                                   get_prefixed_type_name(struct_name), get_prefixed_type_name(struct_name));
                     emit_literal(list, "if (_pred(_elem)) { ");
-                    emit_formatted(list, "dyn_array_push_struct(_out, &_elem, sizeof(nl_%s)); ", struct_name);
+                    emit_formatted(list, "dyn_array_push_struct(_out, &_elem, sizeof(%s)); ", get_prefixed_type_name(struct_name));
                     emit_literal(list, "} ");
                 } else if (elem_type == TYPE_STRUCT && !struct_name) {
                     emit_literal(list, "int64_t _elem = dyn_array_get_int(_arr, _i); ");
@@ -2157,11 +2157,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                 if (elem_type == TYPE_STRUCT && struct_name) {
                     emit_formatted(list,
-                                   "nl_%s _elem = *((nl_%s*)dyn_array_get_struct(_arr, _i)); ",
-                                   struct_name, struct_name);
+                                   "%s _elem = *((%s*)dyn_array_get_struct(_arr, _i)); ",
+                                   get_prefixed_type_name(struct_name), get_prefixed_type_name(struct_name));
                     emit_formatted(list,
-                                   "nl_%s _mapped = _f(_elem); dyn_array_push_struct(_out, &_mapped, sizeof(nl_%s)); ",
-                                   struct_name, struct_name);
+                                   "%s _mapped = _f(_elem); dyn_array_push_struct(_out, &_mapped, sizeof(%s)); ",
+                                   get_prefixed_type_name(struct_name), get_prefixed_type_name(struct_name));
                 } else if (elem_type == TYPE_STRUCT && !struct_name) {
                     /* Best effort fallback - treat as int to avoid generating invalid C types */
                     emit_literal(list, "int64_t _elem = dyn_array_get_int(_arr, _i); ");
@@ -2227,7 +2227,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                     if (acc_struct_name) {
                         static _Thread_local char buf[256];
-                        snprintf(buf, sizeof(buf), "nl_%s", acc_struct_name);
+                        snprintf(buf, sizeof(buf), "%s", get_prefixed_type_name(acc_struct_name));
                         acc_c_type = buf;
                     }
                 }
@@ -2263,8 +2263,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                 if (elem_type == TYPE_STRUCT && elem_struct_name) {
                     emit_formatted(list,
-                                   "nl_%s _elem = *((nl_%s*)dyn_array_get_struct(_arr, _i)); ",
-                                   elem_struct_name, elem_struct_name);
+                                   "%s _elem = *((%s*)dyn_array_get_struct(_arr, _i)); ",
+                                   get_prefixed_type_name(elem_struct_name), get_prefixed_type_name(elem_struct_name));
                     emit_literal(list, "_acc = _f(_acc, _elem); ");
                 } else if (elem_type == TYPE_STRUCT && !elem_struct_name) {
                     emit_literal(list, "int64_t _elem = dyn_array_get_int(_arr, _i); ");
@@ -2332,7 +2332,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (elem_type == TYPE_STRUCT && struct_name) {
                     if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0)) {
                         /* Generate: *((nl_StructName*)dyn_array_get_struct(arr, idx)) */
-                        emit_formatted(list, "(*((nl_%s*)dyn_array_get_struct(", struct_name);
+                        emit_formatted(list, "(*((%s*)dyn_array_get_struct(", get_prefixed_type_name(struct_name));
                         build_expr(list, expr->as.call.args[0], env);  /* array */
                         emit_literal(list, ", ");
                         build_expr(list, expr->as.call.args[1], env);  /* index */
@@ -2345,7 +2345,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         build_expr(list, expr->as.call.args[1], env);  /* index */
                         emit_literal(list, ", &(");
                         build_expr(list, expr->as.call.args[2], env);  /* value */
-                        emit_formatted(list, "), sizeof(nl_%s))", struct_name);
+                        emit_formatted(list, "), sizeof(%s))", get_prefixed_type_name(struct_name));
                     }
                 } else {
                     /* Map element type to suffix for primitive types */
@@ -2501,9 +2501,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 /* For structs, use dyn_array_pop_struct */
                 if (elem_type == TYPE_STRUCT && struct_name) {
                     /* Generate: ({ bool _s; nl_StructName _v; dyn_array_pop_struct(arr, &_v, sizeof(nl_StructName), &_s); _v; }) */
-                    emit_formatted(list, "({ bool _s; nl_%s _v; dyn_array_pop_struct(", struct_name);
+                    emit_formatted(list, "({ bool _s; %s _v; dyn_array_pop_struct(", get_prefixed_type_name(struct_name));
                     build_expr(list, expr->as.call.args[0], env);  /* array */
-                    emit_formatted(list, ", &_v, sizeof(nl_%s), &_s); _v; })", struct_name);
+                    emit_formatted(list, ", &_v, sizeof(%s), &_s); _v; })", get_prefixed_type_name(struct_name));
                 } else {
                     /* Map element type to suffix for primitive types */
                     const char *type_suffix = "int";
@@ -2809,6 +2809,11 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
         }
         
         case AST_FIELD_ACCESS: {
+            ASTNode *literal = env_qualified_import_literal(env, expr);
+            if (literal) {
+                build_expr(list, literal, env);
+                break;
+            }
             /* Check if this is an enum variant (Enum.Variant) */
             if (expr->as.field_access.object->type == AST_IDENTIFIER) {
                 const char *object_name = expr->as.field_access.object->as.identifier;

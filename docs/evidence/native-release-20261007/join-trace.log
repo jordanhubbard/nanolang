@@ -1,0 +1,27 @@
+JOIN final=0 globals=1 existing=0 kind=9 tags=10 plan=0
+JOIN final=0 globals=1 existing=1 kind=2 tags=8000 plan=0
+JOIN final=0 globals=1 existing=0 kind=9 tags=10 plan=0
+JOIN final=0 globals=1 existing=1 kind=8 tags=11 plan=0
+JOIN final=0 globals=1 existing=0 kind=9 tags=10 plan=11
+JOIN final=0 globals=1 existing=1 kind=8 tags=11 plan=11
+JOIN final=0 globals=1 existing=0 kind=9 tags=10 plan=11
+JOIN final=0 globals=1 existing=1 kind=8 tags=11 plan=11
+JOIN final=0 globals=1 existing=0 kind=9 tags=10 plan=11
+JOIN final=0 globals=1 existing=1 kind=8 tags=11 plan=11
+JOIN final=0 globals=1 existing=0 kind=9 tags=10 plan=11
+JOIN final=0 globals=1 existing=1 kind=8 tags=11 plan=11
+JOIN final=0 globals=1 existing=0 kind=9 tags=10 plan=11
+JOIN final=0 globals=1 existing=1 kind=8 tags=11 plan=11
+JOIN final=0 globals=1 existing=0 kind=9 tags=10 plan=11
+JOIN final=0 globals=1 existing=1 kind=8 tags=11 plan=11
+JOIN final=0 globals=1 existing=0 kind=9 tags=10 plan=11
+JOIN final=0 globals=1 existing=1 kind=8 tags=11 plan=11
+JOIN final=0 globals=1 existing=0 kind=9 tags=10 plan=11
+JOIN final=0 globals=1 existing=1 kind=8 tags=11 plan=11
+JOIN final=0 globals=1 existing=0 kind=9 tags=10 plan=11
+JOIN final=0 globals=1 existing=1 kind=8 tags=11 plan=11
+JOIN final=0 globals=1 existing=0 kind=9 tags=10 plan=11
+JOIN final=0 globals=1 existing=1 kind=8 tags=11 plan=11
+JOIN final=0 globals=0 existing=0 kind=9 tags=10 plan=11
+JOIN final=0 globals=0 existing=1 kind=2 tags=8000 plan=11
+I cannot translate '/tmp/nanolang-5.1-20261007/compiler-seed.nvm': I require proved finite payload provenance at a boxed join (function 904, target 27, slot 0)

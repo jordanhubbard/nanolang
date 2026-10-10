@@ -1,0 +1,18 @@
+
+resource struct Handle { fd: int }
+union Box<T> { Some { value: T }, None {} }
+let selected: Box<int> = Box.Some { value: 7 }
+let alias: Box<int> = selected
+
+
+fn main() -> int {
+    let local_owner: Handle = Handle { fd: 7 }
+    let Handle { fd } = local_owner
+    assert (== fd 7)
+    match alias {
+    Some(payload) => { assert (== payload.value 7) }
+    None(payload) => { assert false }
+}
+    return 0
+}
+shadow main { assert (== (main) 0) }

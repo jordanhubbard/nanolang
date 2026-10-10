@@ -1,0 +1,9 @@
+/private/tmp/nanolang-map-nano-virt record_module_identity PASS
+/private/tmp/nanolang-map-nano-virt closure_global_capture PASS
+/private/tmp/nanolang-map-nano-virt call_snapshot_before_argument PASS
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- record_module_identity PASS
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- closure_global_capture PASS
+bin/nano_vm /private/tmp/nanolang-import-callable-corrected-compiler.nvm -- call_snapshot_before_argument FAIL 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0001] Variable result: I expected a value of type `int`, but found `fn(int)->int`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-cn3vwijo/main.nano:2:16)
+

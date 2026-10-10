@@ -1,0 +1,21 @@
+test_callable_tags_and_target_membership_are_checked (tests.test_native_callables.NativeCallables.test_callable_tags_and_target_membership_are_checked) ... ok
+test_function_array_aliases_globals_and_missing_elements (tests.test_native_callables.NativeCallables.test_function_array_aliases_globals_and_missing_elements) ... ok
+test_function_array_writes_check_payload_tags (tests.test_native_callables.NativeCallables.test_function_array_writes_check_payload_tags) ... ok
+test_function_field_tags_and_targets_are_checked (tests.test_native_callables.NativeCallables.test_function_field_tags_and_targets_are_checked) ... ok
+test_function_fields_survive_nested_records_and_record_arrays (tests.test_native_callables.NativeCallables.test_function_fields_survive_nested_records_and_record_arrays) ... ok
+test_function_identity_comparisons_preserve_tags (tests.test_native_callables.NativeCallables.test_function_identity_comparisons_preserve_tags) ... ok
+test_indirect_record_and_array_results_retain_roots (tests.test_native_callables.NativeCallables.test_indirect_record_and_array_results_retain_roots) ... ok
+test_many_targets_share_exclusive_dispatch_temporaries (tests.test_native_callables.NativeCallables.test_many_targets_share_exclusive_dispatch_temporaries) ... ok
+test_retained_source_function_containers (tests.test_native_callables.NativeCallables.test_retained_source_function_containers) ... ok
+test_captured_call_checks_tag_target_and_environment (tests.test_native_closures.NativeClosures.test_captured_call_checks_tag_target_and_environment) ... ok
+test_implicit_roots_cannot_supply_captures (tests.test_native_closures.NativeClosures.test_implicit_roots_cannot_supply_captures) ... ok
+test_instances_aliases_mutation_and_record_global_roots (tests.test_native_closures.NativeClosures.test_instances_aliases_mutation_and_record_global_roots) ... ok
+test_managed_captures_and_active_environment_roots (tests.test_native_closures.NativeClosures.test_managed_captures_and_active_environment_roots) ... ok
+test_nested_callable_and_scalar_capture_tags (tests.test_native_closures.NativeClosures.test_nested_callable_and_scalar_capture_tags) ... ok
+test_retained_canonical_returned_chain (tests.test_native_closures.NativeClosures.test_retained_canonical_returned_chain) ... ok
+test_zero_capture_instances_and_exact_tags (tests.test_native_closures.NativeClosures.test_zero_capture_instances_and_exact_tags) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 8.021s
+
+OK

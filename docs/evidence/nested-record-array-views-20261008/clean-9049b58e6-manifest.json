@@ -1,0 +1,15 @@
+{
+  "source_commit": "9049b58e65561a0185a6920001742b66375ffe8f",
+  "root": "/private/tmp/nanolang-capture-ae92c0488-cow",
+  "command": [
+    "make",
+    "-j2",
+    "test-one-ir-compiler"
+  ],
+  "initial_status": "clean",
+  "exit_code": 2,
+  "seconds": 429.74391587497666,
+  "log_sha256": "16692fb76f4d5bcbc0312755b8cb0c26424b267d84a7b2f55483095a1285aa32",
+  "final_status": "",
+  "head_unchanged": true
+}

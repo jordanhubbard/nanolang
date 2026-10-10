@@ -1,0 +1,2 @@
+fn main()->int { let mut values:array<u8> = [] set values [true] return 0 }
+shadow main { assert true }

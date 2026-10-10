@@ -123,12 +123,25 @@ shadow make_offset {
 This is tested bytecode behavior, not a claim that the C-native or tree-walking
 backends implement the same anonymous-capture semantics.
 
-My self-hosted native compiler also supports computed calls such as
-`((choose) value)` when `choose` returns a function. I test nested calls,
-nested function-parameter signatures, wrong argument types and counts, and
-callee-before-arguments evaluation exactly once from left to right. These
-tests use named function values; they do not establish captured-closure parity.
-My self-hosted NanoISA subset still rejects computed calls explicitly.
+My self-hosted NanoISA emitter lowers computed calls such as `((choose) value)`
+when `choose` returns a function. My VM execution checks cover nested calls,
+function parameters/results, imported aliases, void results, and callee-before-
+arguments evaluation exactly once from left to right, including an argument
+that changes the callee's binding. Wrong signatures, argument types/counts and
+non-callable values preserve prior output. These tests use named function
+values; they do not establish captured-closure parity. My former AST-to-C
+emitter supported native computed calls. My `nvm2c` translator now implements
+named `FUNCREF` values and checked `CALL_INDIRECT` dispatch, and the unchanged
+native returned-call tests pass. My native record fields also retain function
+identity through nesting and record arrays. Native arrays of named functions
+preserve checked element tags, mutation aliases and missing values. My self-hosted
+producer now passes these named-function container cases, including recursive
+callback signatures and invalid-signature prior-output preservation. My native translator now also executes the canonical returned closure chain,
+with tagged environments, alias mutation and managed captures tested across
+collection. My self-hosted checker now checks anonymous bodies in their creation scope,
+but its emitter still lacks capture lowering. My native function arrays retain both named targets and owned closure
+environments through mutation, growth and collection, including unreachable cycles. Captured-closure parity remains
+a release requirement; the completed native environment cases do not close it.
 
 My C-seed checker derives a mapped array's element type from the transform's
 declared result, including direct indexing and local-bound results. I check
@@ -349,9 +362,11 @@ syntax for new code merely because it still parses.
 My C-seed and self-hosted parsers decode `\n`, `\t`, `\r`, `\\`, `\"`, and `\'` in quoted
 import paths once, preserving unknown escapes as written. I reject `\0`:
 a filesystem path cannot contain a NUL byte. These are path bytes, not shell
-syntax. My self-hosted merger uses the same path decoder as its parser and
-ignores quotes after the path's closing quote. Its line-oriented import
-discovery is not a replacement for full syntax-aware module loading.
+syntax. My self-hosted merger now discovers imports through my actual parser, including
+indented and multiline declarations. I preserve source lines, module headers
+and export modifiers during merging, and reject cycles before binding. A
+malformed source still reaches my companion-output protection before parser
+diagnostics can be published.
 
 **Policy:** import a module under a short, specific alias and qualify its public
 API. Use selective imports only when they materially improve a small file.
@@ -387,8 +402,8 @@ codes are `M0001` and `M0002`; merged offsets are not original-file provenance.
 This binding state belongs to one sequential compiler invocation; it is not
 reentrant. Private visibility, conflicting aliases within one importer,
 selective type aliases, colliding nominal module identities and foreign-name
-isolation remain open. Same-basename fixtures use distinct declared module
-identities; I still reject ambiguous introspection names. Qualification is not
+isolation remain open. I retain introspection facts by physical source path, including same-basename
+modules. I reject an ambiguous name-based introspection request when it is used. Qualification is not
 yet a universal isolation guarantee across my backends.
 
 ## Unsafe Code And FFI
@@ -543,8 +558,7 @@ file paths are canonicalized before C-frontend cache and graph registration;
 dot segments and symlinks do not select the same file twice. Relative imports
 inside a symlinked module resolve from the target directory. This does not
 establish colliding nominal type identity. My self-hosted merger uses the same
-physical-path rule; it is still line-oriented import discovery, not a complete
-syntax-aware loader.
+physical-path rule and parses each dependency to discover its imports.
 
 All selected shadows share one test process and its ten-second parent deadline.
 Foreign calls, printing and other side effects still happen with host authority;

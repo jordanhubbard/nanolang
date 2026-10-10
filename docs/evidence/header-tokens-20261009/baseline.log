@@ -1,0 +1,171 @@
+test_header_values_keep_lexical_bindings_in_shadows_vm_and_native (tests.test_header_constant_functions.HeaderConstantValues.test_header_values_keep_lexical_bindings_in_shadows_vm_and_native) ... FAIL
+test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) ... 
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='3.5') ... FAIL
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='1e3') ... FAIL
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='1 << 4') ... FAIL
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='1 + 2') ... FAIL
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='08') ... FAIL
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='0x1p2') ... FAIL
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='2oops') ... FAIL
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='9223372036854775808') ... FAIL
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='-9223372036854775809') ... FAIL
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='0xffffffffffffffffULL') ... FAIL
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='2ulL') ... FAIL
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='1 /* note */ + 2') ... FAIL
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            + 2') ... FAIL
+  test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='1 \\\n + 2') ... FAIL
+
+======================================================================
+FAIL: test_header_values_keep_lexical_bindings_in_shadows_vm_and_native (tests.test_header_constant_functions.HeaderConstantValues.test_header_values_keep_lexical_bindings_in_shadows_vm_and_native)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 166, in test_header_values_keep_lexical_bindings_in_shadows_vm_and_native
+    self.assertEqual(result.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     repr(command) + '\n' + result.stdout + result.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/private/tmp/nanolang-match-guards-20261009/bin/nano_virt'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-header-values-gw7ah_dl/main.nano'), '--emit-nvm', '-o', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-header-values-gw7ah_dl/out.nvm')]
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-header-values-gw7ah_dl/main.nano:24:2
+  #1   $shadow_5_main  /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-header-values-gw7ah_dl/main.nano:32:15
+  #2   $shadow_entry  /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-header-values-gw7ah_dl/main.nano:?
+I failed a shadow: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-header-values-gw7ah_dl/main.nano:24:2
+  #1   $shadow_5_main  /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-header-values-gw7ah_dl/main.nano:32:15
+  #2   $shadow_entry  /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-header-values-gw7ah_dl/main.nano:?
+I will not publish output after failed shadow execution
+
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='3.5')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='1e3')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='1 << 4')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='1 + 2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='08')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='0x1p2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='2oops')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='9223372036854775808')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='-9223372036854775809')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='0xffffffffffffffffULL')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='2ulL')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='1 /* note */ + 2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            + 2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+======================================================================
+FAIL: test_noninteger_or_out_of_range_header_values_are_not_imported (tests.test_header_constant_functions.HeaderConstantValues.test_noninteger_or_out_of_range_header_values_are_not_imported) (value='1 \\\n + 2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 201, in test_noninteger_or_out_of_range_header_values_are_not_imported
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.930s
+
+FAILED (failures=15)

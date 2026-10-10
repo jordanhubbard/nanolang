@@ -1,0 +1,42 @@
+{
+  "base_revision": "1bbae0bb051efb1c6b356a98d12be0494b9ff935",
+  "state": "78 native-adjacency methods and 2431 structured-C checks pass. Two full compiler-product tests and full release acceptance remain incomplete.",
+  "source_sha256": {
+    "Makefile.gnu": "88450ec811474c0d44c2e818f4e96b1fc01b7eef3b056c67d2be79481d0c16a6",
+    "src/nanoisa/nvm2c.c": "9fa0257ba9442ada5eb22d7ed7c39e87fad573e57b1283281e36b45266a5dd30",
+    "tests/test_one_ir_compiler.py": "9cdeae6c69f8f787858d78b46c957697c46d204ec26de6684fd7db8366f34a30",
+    "tests/test_native_map_byte_debt.py": "0c717c568dbd17f64fa96dae3ff1d562fcd72fe836ebfc081385ff9111bb1d08",
+    "tests/test_native_string_joins.py": "25b23d360e40d3105a022af5da5efdcdaf330ddda3a7faaa65667e1f2f431380"
+  },
+  "evidence_sha256": {
+    "one-ir-openssl-corrected.log": "39963dfe4636853adc04df2758874d763d4a6875cccc546bffa92193de7ee983",
+    "one-ir-openssl-corrected.json": "7310a69d8e05cece701ad64d70a85570f25cc187d286a2f36c184307c48babd7",
+    "recursive-tagged.nasm": "2d4730e25a283b892aa04757c355727e288811be2ccc580525b03b85ceef72c2",
+    "compiler-translation.log": "6d70dab7cc3a049921ffc8eec725620733b8eb6134a645c55d2a846b90ff1ae4",
+    "native-llvm.log": "6cf4abf535de4bfd194dd2a458a7ecab032aad08bc9ab7bae4bb8caf79ae7565",
+    "native-llvm.json": "162657a4ec821860020072425538d40ac66d2e83abd6f7872c67f189aa92a0ab",
+    "record-temporaries.log": "8c69fd9add0c982b325a3a76955d464b99dca4cd89d361986b0830b124b77c8f",
+    "recursive-array-regression.log": "11ff2f376f965ca00c7e3063fce6aa986d21f5cdb53c1d69e5a10263e7e760aa",
+    "boolean-joins.log": "affc23aa2f880f8912820058cf02c8dad97a59b64e309261b9f09fddce3c8410",
+    "map-byte-debt-corrected.log": "8f04625aaa6b0354a014e6a4bda3c263cba923162b2e002bd3164814ba5b36d1",
+    "record-frames-corrected.log": "65d707984816bcddd6614af725833ddbf4f89366652a28f60d0621a1cac47037",
+    "compiler-seed.nvm": "69ca320a3e901087cb6f90e9c1e00e78836f0f6730550546ec8574e8bfe16939",
+    "recursive-array-projected.nasm": "1dc7f3b204e0fe2da2751368c1b08aa24ed20ad7fe8fce8b28c1c664d410fad0",
+    "join-reset.nasm": "b43da0990cd7e6f38e1e317c7fa3c308e2424a38bb20dbc2e3de95b6dfe6e4c4",
+    "lsan-probe.json": "015e27e42cceb303deac5b78b5e79d49462d1dfcd714bbb7dac8b3c52fd1aafd",
+    "README.md": "c8940601190892eb45fb67ab0647520b34c35727ae1b2d5dedcf4599082186a9",
+    "compiler-translation-bool.log": "ca40a4474415b9159c7f0f734269256e30e76b4c9ee87ca128097c52c11a0152",
+    "one-ir.log": "1e5f4e82256ac09cb70770e5a2d61f39f5b178c35c4647855c3424b183ce7ef4",
+    "native-llvm-corrected.log": "8007f53a55b023a861493ee1286874abeaefa92ce9af37338c125e65bf8ed432",
+    "compiler-seed.json": "ae194bf7c2f010e1fd3c4dc2cb875f66d4410c8f838b1377ab9a6ce2b1b54798",
+    "shape-trace.log": "459f4d2fd0451a011cecb57292666985c4d1a4b8aaaf31127e15e7528411088e",
+    "compiler-join-current.log": "fe0db25edfc404464780d8c37dc05637e5a49e7ae8b8c687aebeebea97a3b266",
+    "join-trace.log": "b3a1edd618401765abb3aa0119b51bb1892406c3eefe64cc2662e6ccd1dc9aee",
+    "recursive-tagged-before.log": "4cc10ecc2f551f784ccad451028410def45c5caf403ec80690686f18396a874e",
+    "compiler-translation-reset.log": "6319a332eb8094330aa6383c62cab1767697ffbcdd70f6e0b6240b88350853cd",
+    "native-llvm-corrected.json": "628707cbd1254a7b5620278e42a4e02c02fcde1e9191834bf72048cc96a3798c",
+    "one-ir.json": "c60ac6190a314c6509e4dc65c04b5d5f4bf53238959a77e958953254a6810e1b",
+    "nvm2c-final.log": "66629470f1265db776e19fcbb451a50c11d361b8bb23fe0db3b5c906fb909001",
+    "openssl-discovery.json": "ba2cdfdac1b0093fd5b9c3096d9a1dac3340a5ccc9f08d5c8a9ff20dffaeed82"
+  }
+}

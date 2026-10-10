@@ -1,0 +1,19 @@
+struct Item { value: int, text: string }
+fn main()->int {
+ let values:List<Item> = (list_Item_new)
+ let alias:List<Item> = values
+ (list_Item_insert values 0 Item { value: 7, text: "retained" })
+ (list_Item_insert values 1 Item { value: 9, text: "new" })
+ (list_Item_insert values 1 Item { value: 7, text: "retained" })
+ (list_Item_insert values 0 Item { value: 9, text: "new" })
+ assert (== (list_Item_length alias) 4)
+ let a:Item = (list_Item_get alias 0)
+ let b:Item = (list_Item_get alias 1)
+ let c:Item = (list_Item_get alias 2)
+ let d:Item = (list_Item_get alias 3)
+ assert (== a.value 9) assert (== b.value 7)
+ assert (== c.value 7) assert (== d.value 9)
+ assert (== b.text "retained")
+ return 0
+}
+shadow main { assert (== (main) 0) }

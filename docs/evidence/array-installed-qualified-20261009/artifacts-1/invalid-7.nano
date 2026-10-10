@@ -1,0 +1,2 @@
+let values:array<u8> = [1.5] fn main()->int { return 0 }
+shadow main { assert true }

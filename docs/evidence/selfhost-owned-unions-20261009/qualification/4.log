@@ -1,0 +1,86 @@
+test_distinct_instances_verify_and_execute_in_vm_and_native (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_distinct_instances_verify_and_execute_in_vm_and_native) ... ok
+test_imported_aliases_and_concrete_instances_execute_in_vm_and_native (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_imported_aliases_and_concrete_instances_execute_in_vm_and_native) ... ok
+test_imported_identity_and_shadow_refusals_preserve_prior_output (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_imported_identity_and_shadow_refusals_preserve_prior_output) ... ok
+test_refusals_preserve_prior_output_on_every_frontend (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_refusals_preserve_prior_output_on_every_frontend) ... 
+  test_refusals_preserve_prior_output_on_every_frontend (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_refusals_preserve_prior_output_on_every_frontend) (case='result_mismatch', route='raw-cseed') ... FAIL
+  test_refusals_preserve_prior_output_on_every_frontend (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_refusals_preserve_prior_output_on_every_frontend) (case='result_mismatch', route='raw-selfhost') ... FAIL
+  test_refusals_preserve_prior_output_on_every_frontend (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_refusals_preserve_prior_output_on_every_frontend) (case='incomplete_match', route='raw-cseed') ... FAIL
+  test_refusals_preserve_prior_output_on_every_frontend (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_refusals_preserve_prior_output_on_every_frontend) (case='incomplete_match', route='raw-selfhost') ... FAIL
+I retain guard artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-canonical-match-guards-bk3z0562
+test_checked_negatives_preserve_output (tests.test_canonical_match_guards.CanonicalMatchGuards.test_checked_negatives_preserve_output) ... ok
+test_named_union_vm_and_sanitized_native (tests.test_canonical_match_guards.CanonicalMatchGuards.test_named_union_vm_and_sanitized_native) ... ok
+test_native_order_scope_and_control (tests.test_canonical_match_guards.CanonicalMatchGuards.test_native_order_scope_and_control) ... ok
+test_parser877_unchanged (tests.test_canonical_match_guards.CanonicalMatchGuards.test_parser877_unchanged) ... ok
+test_shadow_and_profile_refusals (tests.test_canonical_match_guards.CanonicalMatchGuards.test_shadow_and_profile_refusals) ... ok
+test_unchecked_generated_terminal_backstops (tests.test_canonical_match_guards.CanonicalMatchGuards.test_unchecked_generated_terminal_backstops) ... ok
+test_wildcard_vm_and_sanitized_native (tests.test_canonical_match_guards.CanonicalMatchGuards.test_wildcard_vm_and_sanitized_native) ... ok
+I retain NanoISA match evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-po7140ba
+test_block_values_and_union_wildcards (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_block_values_and_union_wildcards) ... ok
+test_integer_wildcard_effects_and_exits (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_integer_wildcard_effects_and_exits) ... ok
+test_invalid_guards_domains_and_coverage (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_invalid_guards_domains_and_coverage) ... ok
+test_named_union_guard_effects (tests.test_nanoisa_match_guards.NanoISAMatchGuards.test_named_union_guard_effects) ... ok
+
+======================================================================
+FAIL: test_refusals_preserve_prior_output_on_every_frontend (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_refusals_preserve_prior_output_on_every_frontend) (case='result_mismatch', route='raw-cseed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_scalar_union_source.py", line 322, in test_refusals_preserve_prior_output_on_every_frontend
+    self.rejected(args, output, expected)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_scalar_union_source.py", line 147, in rejected
+    self.assertTrue(any(fragment.lower() in diagnostic.lower() for fragment in expected),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    diagnostic)
+                    ^^^^^^^^^^^
+AssertionError: False is not true : I refused that program: I require one matching exact value-match result type in my source borrow profile
+
+
+======================================================================
+FAIL: test_refusals_preserve_prior_output_on_every_frontend (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_refusals_preserve_prior_output_on_every_frontend) (case='result_mismatch', route='raw-selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_scalar_union_source.py", line 322, in test_refusals_preserve_prior_output_on_every_frontend
+    self.rejected(args, output, expected)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_scalar_union_source.py", line 147, in rejected
+    self.assertTrue(any(fragment.lower() in diagnostic.lower() for fragment in expected),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    diagnostic)
+                    ^^^^^^^^^^^
+AssertionError: False is not true : I refused that program: I require one matching exact value-match result type in my source borrow profile
+
+
+======================================================================
+FAIL: test_refusals_preserve_prior_output_on_every_frontend (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_refusals_preserve_prior_output_on_every_frontend) (case='incomplete_match', route='raw-cseed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_scalar_union_source.py", line 322, in test_refusals_preserve_prior_output_on_every_frontend
+    self.rejected(args, output, expected)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_scalar_union_source.py", line 147, in rejected
+    self.assertTrue(any(fragment.lower() in diagnostic.lower() for fragment in expected),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    diagnostic)
+                    ^^^^^^^^^^^
+AssertionError: False is not true : I refused that program: I require complete named union match coverage in my source borrow profile
+
+
+======================================================================
+FAIL: test_refusals_preserve_prior_output_on_every_frontend (tests.test_affine_scalar_union_source.AffineScalarUnionSource.test_refusals_preserve_prior_output_on_every_frontend) (case='incomplete_match', route='raw-selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_scalar_union_source.py", line 322, in test_refusals_preserve_prior_output_on_every_frontend
+    self.rejected(args, output, expected)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_affine_scalar_union_source.py", line 147, in rejected
+    self.assertTrue(any(fragment.lower() in diagnostic.lower() for fragment in expected),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    diagnostic)
+                    ^^^^^^^^^^^
+AssertionError: False is not true : I refused that program: I require complete named union match coverage in my source borrow profile
+
+
+----------------------------------------------------------------------
+Ran 15 tests in 617.536s
+
+FAILED (failures=4)

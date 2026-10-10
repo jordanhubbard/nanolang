@@ -1,0 +1,3 @@
+PASS (map_put first.values 7 "kept")
+PASS (map_put first.values "key" 7)
+PASS let first: int = 1 (map_put first.values "key" "kept")

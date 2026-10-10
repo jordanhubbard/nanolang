@@ -1,0 +1,53 @@
+test_assertion_drains_live_file (tests.test_service_lowering_nano.ServiceLoweringNano.test_assertion_drains_live_file) ... I finish native compilation in 0.722s
+ok
+test_helpers_loops_fields_and_result_values (tests.test_service_lowering_nano.ServiceLoweringNano.test_helpers_loops_fields_and_result_values) ... I finish native compilation in 2.930s
+ok
+test_limits_and_unimplemented_reference_calls_preserve_outputs (tests.test_service_lowering_nano.ServiceLoweringNano.test_limits_and_unimplemented_reference_calls_preserve_outputs) ... ok
+test_nested_argument_borrows_keep_branch_state (tests.test_service_lowering_nano.ServiceLoweringNano.test_nested_argument_borrows_keep_branch_state) ... FAIL
+test_qualified_reexported_helper (tests.test_service_lowering_nano.ServiceLoweringNano.test_qualified_reexported_helper) ... I finish native compilation in 1.242s
+ok
+test_short_circuit_skips_effects (tests.test_service_lowering_nano.ServiceLoweringNano.test_short_circuit_skips_effects) ... I finish native compilation in 0.401s
+ok
+test_terminal_operands_release_pending_values (tests.test_service_lowering_nano.ServiceLoweringNano.test_terminal_operands_release_pending_values) ... I finish native compilation in 0.681s
+I finish native compilation in 0.615s
+I finish native compilation in 0.527s
+ok
+test_unchanged_generated_binding_and_all_shadows (tests.test_service_lowering_nano.ServiceLoweringNano.test_unchanged_generated_binding_and_all_shadows) ... I finish native compilation in 8.645s
+I finish native compilation in 8.996s
+I finish native compilation in 8.745s
+I finish native compilation in 8.933s
+I finish native compilation in 8.607s
+ok
+
+======================================================================
+FAIL: test_nested_argument_borrows_keep_branch_state (tests.test_service_lowering_nano.ServiceLoweringNano.test_nested_argument_borrows_keep_branch_state)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 113, in test_nested_argument_borrows_keep_branch_state
+            self.check("""
+            ~~~~~~~~~~^^^^
+    fn pick(file:&mut File,condition:bool)->int {assert condition return 7}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<18 lines>...
+    }
+    ^
+    """,expected=7)
+    ^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering_nano.py", line 77, in check
+    self.command([ROOT/'bin/nvm2c', '--file-temporary', '--file-cyclic', '--entry-name',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  'source', module, '-o', native_c])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 61, in command
+    if process.returncode:raise AssertionError(f'{args}\n{process.returncode}\n{stdout}\n{stderr}')
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [PosixPath('/Users/jordanh/Src/nanolang/bin/nvm2c'), '--file-temporary', '--file-cyclic', '--entry-name', 'source', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-uk1n20k9/lowered.nvm'), '-o', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-uk1n20k9/source.c')]
+1
+
+I cannot emit the File profile (1): I refuse cyclic File preparation (1)
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 198.272s
+
+FAILED (failures=1)

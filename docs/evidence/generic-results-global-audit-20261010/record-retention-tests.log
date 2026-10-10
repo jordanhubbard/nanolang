@@ -1,0 +1,9 @@
+test_alias_retention_overwrite_and_collection (tests.test_native_record_globals.NativeRecordGlobals.test_alias_retention_overwrite_and_collection) ... ok
+test_invalid_boxed_record_argument_traps (tests.test_native_record_globals.NativeRecordGlobals.test_invalid_boxed_record_argument_traps) ... ok
+test_record_arguments_from_direct_global_and_tail_calls (tests.test_native_record_globals.NativeRecordGlobals.test_record_arguments_from_direct_global_and_tail_calls) ... ok
+test_scalar_overwrite_refuses_record_projection (tests.test_native_record_globals.NativeRecordGlobals.test_scalar_overwrite_refuses_record_projection) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.514s
+
+OK

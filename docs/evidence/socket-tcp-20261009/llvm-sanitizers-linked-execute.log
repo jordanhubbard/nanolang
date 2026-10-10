@@ -1,0 +1,3 @@
+PASS ordinary linked Socket NUL/byte/EOF/transfer/close
+PASS real IPv4 TCP transfer/NUL/byte/EOF/refusal/close
+PASS real IPv6 TCP transfer/NUL/byte/EOF/refusal/close

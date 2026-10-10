@@ -1,0 +1,13 @@
+{
+  "src/nsi_websocket_protocol.c": "780a90e3d839c6e97222f2eb6eecd97fd70c3740e0677406afdf2975874f9bd8",
+  "src/nsi_websocket_protocol.h": "6d2fa62f183309d6ab86ded429f66ae529a1cdd60f152f3975ab02488e4af652",
+  "modules/websocket/websocket_helpers.c": "0f06dc73f7aa4b1bd6823707f48cd4b1678e19b1199aa9c4d14bbc22c9f301f4",
+  "modules/websocket/websocket_helpers.h": "861287467cb669b6fe0fe3f00f56d315eb4d20cf363b3b897a61631b86dcf6b7",
+  "modules/websocket/module.json": "451d8d715b961afa48c95bf48a5c22e77dd7f4716bf42f96af23f3ec95f1d429",
+  "modules/websocket/websocket.nano": "f598d26b9ab7a9d7e7dcafc9842994e2b7ad49baf1b5587bcfe45f63510ffa40",
+  "tests/test_nsi_websocket_protocol.c": "e3676aac35f9a291992c4376d4e4625ced38ba97e776c2f5d41200e1cf119338",
+  "tests/test_websocket_client.py": "b55f6f4eebb1bd0008e8b011f7f8c1316b42c2d385e4f48147c05e640adc6598",
+  "tests/test_websocket_bindings.py": "2214c1a4eed34eb76b4ff3c749130e8800404ef5e8e5f55bf604cbc6d0c230fc",
+  "tests/websocket_client_probe.c": "f17c39f42f2ca0fa274dfd00eaef48b2e9c02992836c5668196fa4ec1cef681a",
+  "tests/websocket_safety.nano": "d03d0a25a0b07f2c088fb0bdb9b3bcdf569a1069d13423c859a3260fdee73c8f"
+}

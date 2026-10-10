@@ -1,0 +1,69 @@
+test_all_operations_and_single_index_evaluation (__main__.NanoisaIntrospection.test_all_operations_and_single_index_evaluation) ... FAIL
+test_empty_export_sets (__main__.NanoisaIntrospection.test_empty_export_sets) ... FAIL
+test_intrinsic_signature_is_required_before_publication (__main__.NanoisaIntrospection.test_intrinsic_signature_is_required_before_publication) ... 
+  test_intrinsic_signature_is_required_before_publication (__main__.NanoisaIntrospection.test_intrinsic_signature_is_required_before_publication) (declaration='extern fn ___module_function_name_probe(index: string) -> string') ... FAIL
+  test_intrinsic_signature_is_required_before_publication (__main__.NanoisaIntrospection.test_intrinsic_signature_is_required_before_publication) (declaration='extern fn ___module_struct_name_probe() -> string') ... FAIL
+  test_intrinsic_signature_is_required_before_publication (__main__.NanoisaIntrospection.test_intrinsic_signature_is_required_before_publication) (declaration='extern fn ___module_name_probe() -> int') ... FAIL
+test_ordinary_function_with_similar_name_keeps_its_body (__main__.NanoisaIntrospection.test_ordinary_function_with_similar_name_keeps_its_body) ... ok
+
+======================================================================
+FAIL: test_all_operations_and_single_index_evaluation (__main__.NanoisaIntrospection.test_all_operations_and_single_index_evaluation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_nanoisa_introspection.py", line 68, in test_all_operations_and_single_index_evaluation
+    self.exercise(False)
+    ~~~~~~~~~~~~~^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_nanoisa_introspection.py", line 57, in exercise
+    self.checked([COMPILER, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_nanoisa_introspection.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, (result.stdout + result.stderr)[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I cannot lower this checked program: unsupported extern result or symbol ___module_is_unsafe_reflection_probe\n'
+
+======================================================================
+FAIL: test_empty_export_sets (__main__.NanoisaIntrospection.test_empty_export_sets)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_nanoisa_introspection.py", line 71, in test_empty_export_sets
+    self.exercise(True)
+    ~~~~~~~~~~~~~^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_nanoisa_introspection.py", line 57, in exercise
+    self.checked([COMPILER, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_nanoisa_introspection.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, (result.stdout + result.stderr)[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'I cannot lower this checked program: unsupported extern result or symbol ___module_is_unsafe_reflection_probe\n'
+
+======================================================================
+FAIL: test_intrinsic_signature_is_required_before_publication (__main__.NanoisaIntrospection.test_intrinsic_signature_is_required_before_publication) (declaration='extern fn ___module_function_name_probe(index: string) -> string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_nanoisa_introspection.py", line 98, in test_intrinsic_signature_is_required_before_publication
+    self.assertNotEqual(result.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_intrinsic_signature_is_required_before_publication (__main__.NanoisaIntrospection.test_intrinsic_signature_is_required_before_publication) (declaration='extern fn ___module_struct_name_probe() -> string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_nanoisa_introspection.py", line 98, in test_intrinsic_signature_is_required_before_publication
+    self.assertNotEqual(result.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_intrinsic_signature_is_required_before_publication (__main__.NanoisaIntrospection.test_intrinsic_signature_is_required_before_publication) (declaration='extern fn ___module_name_probe() -> int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_nanoisa_introspection.py", line 98, in test_intrinsic_signature_is_required_before_publication
+    self.assertNotEqual(result.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.206s
+
+FAILED (failures=5)

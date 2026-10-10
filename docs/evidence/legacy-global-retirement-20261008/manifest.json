@@ -1,0 +1,122 @@
+[
+  {
+    "name": "seed-emit",
+    "command": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/driver.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/seed.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 1.377610333962366
+  },
+  {
+    "name": "seed-vm",
+    "command": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/seed.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.041563291975762695
+  },
+  {
+    "name": "seed-translate",
+    "command": [
+      "/private/tmp/nanolang-write-indexed-tools/bin/nvm2c",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/seed.nvm",
+      "-o",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/seed.c"
+    ],
+    "exit_code": 0,
+    "seconds": 8.514723667001817
+  },
+  {
+    "name": "seed-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/seed.c",
+      "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/seed"
+    ],
+    "exit_code": 0,
+    "seconds": 20.66419570799917
+  },
+  {
+    "name": "seed-native",
+    "command": [
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/seed"
+    ],
+    "exit_code": 0,
+    "seconds": 0.27098537498386577
+  },
+  {
+    "name": "selfhost-emit",
+    "command": [
+      "/private/tmp/nanolang-indexed-write-compiler",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/driver.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/selfhost.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 141.10636808397248
+  },
+  {
+    "name": "selfhost-vm",
+    "command": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/selfhost.nvm"
+    ],
+    "exit_code": 0,
+    "seconds": 0.0380572919966653
+  },
+  {
+    "name": "selfhost-translate",
+    "command": [
+      "/private/tmp/nanolang-write-indexed-tools/bin/nvm2c",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/selfhost.nvm",
+      "-o",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/selfhost.c"
+    ],
+    "exit_code": 0,
+    "seconds": 4.015521750028711
+  },
+  {
+    "name": "selfhost-cc",
+    "command": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-O0",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/selfhost.c",
+      "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/selfhost"
+    ],
+    "exit_code": 0,
+    "seconds": 20.608217583969235
+  },
+  {
+    "name": "selfhost-native",
+    "command": [
+      "/private/tmp/nanolang-legacy-globals-corrected-20261008/selfhost"
+    ],
+    "exit_code": 0,
+    "seconds": 0.2818395830108784
+  }
+]

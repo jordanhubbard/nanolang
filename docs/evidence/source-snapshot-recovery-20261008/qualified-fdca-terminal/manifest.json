@@ -1,0 +1,24 @@
+{
+  "source_commit": "fdca4ee9b53b816232074b0d539893168715baf2",
+  "root": "/private/tmp/nanolang-retirement-20261008",
+  "command": [
+    "/opt/homebrew/bin/python3",
+    "-m",
+    "unittest",
+    "-v",
+    "tests.test_source_snapshots"
+  ],
+  "PATH": "/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin",
+  "initial_status": "clean",
+  "initial_free_bytes": 51730681856,
+  "probe_sha256": "a5e4b4db8120fa2a4f69d828473eb370e60a7cad851cc85bd69af419a675de89",
+  "cc_version": "Apple clang version 21.0.0 (clang-2100.3.34.2)\nTarget: arm64-apple-darwin25.6.0\nThread model: posix\nInstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin\n",
+  "final_free_bytes": 208488452096,
+  "exit_code": 0,
+  "seconds": 5324.065333875013,
+  "log_sha256": "4b70c3f06c94371af84a0c2a4ef6aa0ed5e46c250aeff1d4dee24ed13dcff497",
+  "final_status": "",
+  "head_unchanged": true,
+  "source_unchanged": true,
+  "probe_unchanged": true
+}

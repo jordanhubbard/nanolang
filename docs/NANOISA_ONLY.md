@@ -77,9 +77,36 @@ not prove compiler semantic correctness.
 My canonical `--emit-nvm` driver executes verified bytecode shadows. At
 `e35d8f55`, two full compiler generations match raw 365,976-byte modules with
 the same immutable host closure; see [my cutover evidence](evidence/canonical-vm-shadow-cutover.md).
-My default native product remains a separate cutover. Native execution of compiler
+My product driver now emits a module by default and translates explicit native output
+through `nvm2c` and `cc`; see [my driver checkpoint](evidence/native-driver-cutover-20261007/README.md).
+My Make bootstrap now uses this sequence and records source, tool, host-library and
+artifact hashes in `bin/nanoc_bootstrap.json`. My [clean Darwin Make bootstrap](evidence/nanoisa-bootstrap-65895d5fb/README.md)
+passes both raw generations, native installation, and installed CLI/publication
+checks at `65895d5fb`. Exact final-release and complete language qualification
+remain open. Native execution of compiler
 bytecode through `nvm2c` and `cc` is a separate route; my measured VM fixed
 point does not claim completion of native full-source bootstrap.
+
+I run `make bootstrap1` to emit the seed module, execute its first self-hosted
+VM generation, translate that generation with `nvm2c` and `cc`, and exercise
+the resulting native compiler. `make bootstrap2` executes the second VM
+generation over the same source and host closure, requires raw byte equality,
+and separately translates and exercises its native compiler. `make bootstrap3`
+rechecks module verification and the recorded hashes before installing Stage 2.
+A failed attempted stage clears its stamp and downstream stamps. Each command
+retains its logs under `obj/bootstrap-nanoisa/run-*`; a receipt is published
+only after the requested stage succeeds. `BOOTSTRAP_NANOISA_TIMEOUT` defaults
+to 1,800 seconds per command. `NANO_CFLAGS` and `NANO_LDFLAGS` configure the
+separate native translation; module equality is always required.
+
+My bootstrap harness gives the complete compiler shadow suite a separate
+30-second deadline. I accept `NANO_SHADOW_TIMEOUT_SECONDS` or the script's
+`--shadow-timeout` option from 1 to 300 seconds; the explicit option takes
+precedence. I record that setting in the receipt and require the same setting
+when continuing or verifying a stage. Ordinary compiler and File-publication
+invocations retain their existing defaults. My declared bootstrap host closure
+includes `file_product`; I still refuse generated NanoLang C during VM
+generations and pin the exact host-library bytes.
 
 The seed `nvm2c` stays C, the way `cc` stays C. I may later write
 `nvm2c` in myself and lower it through NanoISA. The seed translator
@@ -95,8 +122,9 @@ CLI, generated AST/schema. Those do not care what the last pass emits.
 to be a compiler phase. Its dual with `src/transpiler.c` is the tax. The
 last pass becomes a dual of `nanovirt/codegen.c`: typed AST → `NvmModule`
 → `.nvm`. My `compiler/nanoisa_codegen.nano` emitter now lowers the full compiler
-program closure, and the VM bootstrap above exercises it. My driver still
-retains the legacy C native product route; the NanoISA-only product cutover remains open.
+program closure, and the VM bootstrap above exercises it. My driver now uses that emitter for every product and no longer imports the legacy
+C emitter. Remaining bootstrap and product dependency removal keep the complete
+NanoISA-only cutover open.
 
 **Driver.** `nanoc_v06.nano` stops emitting `.c` and invoking `cc` as a
 language backend. Default output is `.nvm`. `-o binary` is the tool

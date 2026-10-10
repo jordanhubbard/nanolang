@@ -18,10 +18,13 @@ typedef uint32_t NvmShapeId;
 typedef enum {
     NVM_SHAPE_UNKNOWN, NVM_SHAPE_INT, NVM_SHAPE_STRING,
     NVM_SHAPE_ARRAY, NVM_SHAPE_RECORD, NVM_SHAPE_MAP, NVM_SHAPE_OPTIONAL,
-    NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_NUMERIC, NVM_SHAPE_VARIANT_SCALAR, NVM_SHAPE_VARIANT_INT_ARRAY
+    NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_NUMERIC, NVM_SHAPE_VARIANT_SCALAR, NVM_SHAPE_VARIANT_INT_ARRAY,
+    NVM_SHAPE_FUNCTION, NVM_SHAPE_U8
 } NvmShapeKind;
 typedef struct NvmShapeNode NvmShapeNode;
-typedef struct { NvmShapeId source, target; } NvmShapeConversion;
+typedef struct { NvmShapeId source, target; int alias_view; } NvmShapeConversion;
+typedef struct { NvmShapeId element, result; int resolved; } NvmShapeArrayRead;
+typedef struct { uint64_t *keys; size_t count, capacity; } NvmShapePairSet;
 typedef struct {
     NvmShapeNode *nodes;
     size_t count, capacity;
@@ -29,6 +32,12 @@ typedef struct {
     char error_detail[160];
     NvmShapeConversion *conversions;
     size_t conversion_count, conversion_capacity;
+    NvmShapeConversion *array_aliases, *array_writes;
+    NvmShapePairSet alias_pairs, write_pairs;
+    size_t array_alias_count, array_alias_capacity;
+    size_t array_write_count, array_write_capacity;
+    NvmShapeArrayRead *array_reads;
+    size_t array_read_count, array_read_capacity;
 } NvmShapeGraph;
 
 void nvm_shape_destroy(NvmShapeGraph *graph);
@@ -40,9 +49,26 @@ NvmShapeId nvm_shape_child(NvmShapeGraph *graph, NvmShapeId id, uint32_t index);
  * means unconstrained. Root path compression may still update parent links. */
 NvmShapeId nvm_shape_lookup(NvmShapeGraph *graph, NvmShapeId id, uint32_t index);
 int nvm_shape_unify(NvmShapeGraph *graph, NvmShapeId a, NvmShapeId b);
+/* I retain function-table indices as a finite target set, never as integer
+ * payloads or record edges. Empty means unresolved, not any callable target.
+ * Exact joins union sets; storage conversions propagate only toward storage.
+ * The caller validates each index against its module and checks signatures. */
+int nvm_shape_function_add(NvmShapeGraph *graph, NvmShapeId id, uint32_t target);
+size_t nvm_shape_function_count(NvmShapeGraph *graph, NvmShapeId id);
+int nvm_shape_function_target(NvmShapeGraph *graph, NvmShapeId id,
+                            size_t index, uint32_t *target);
 /* Storage conversion does not equate source and destination nodes. I solve
  * these directed constraints after collecting the module's exact shapes. */
 int nvm_shape_convert(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target);
+/* I separate optional scalar reads from exact element storage, even when
+ * the element kind becomes known only through later record conversions. */
+int nvm_shape_array_read(NvmShapeGraph *graph, NvmShapeId element, NvmShapeId result);
+/* I propagate a shared handle back into an existing guarded storage view. */
+int nvm_shape_alias_view(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target);
+/* I carry actual writes back through shared array handles, independently of
+ * callee read views that may join values from unrelated callers. */
+int nvm_shape_array_alias(NvmShapeGraph *graph, NvmShapeId caller, NvmShapeId callee);
+int nvm_shape_array_write(NvmShapeGraph *graph, NvmShapeId array, NvmShapeId value);
 int nvm_shape_solve_conversions(NvmShapeGraph *graph);
 
 #endif

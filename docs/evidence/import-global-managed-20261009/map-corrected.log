@@ -1,0 +1,8 @@
+/private/tmp/nanolang-map-nano-virt qualified_string_array PASS
+/private/tmp/nanolang-map-nano-virt selective_string_array PASS
+/private/tmp/nanolang-map-nano-virt qualified_map PASS
+/private/tmp/nanolang-map-nano-virt selective_map PASS
+/private/tmp/nanolang-map-nano-virt qualified_record FAIL 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-_cfm__1y/main.nvm': I cannot yet store an aggregate or unresolved global in function 1 at offset 15
+
+/private/tmp/nanolang-map-nano-virt selective_record FAIL 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-imported-global-fjndy9e1/main.nvm': I cannot yet store an aggregate or unresolved global in function 1 at offset 15
+

@@ -1,0 +1,7 @@
+test_popped_closure_survives_owner_reuse_and_collection (tests.test_native_array_pop.NativeArrayPop.test_popped_closure_survives_owner_reuse_and_collection) ... ok
+test_record_children_survive_owner_reuse_and_collection (tests.test_native_array_pop.NativeArrayPop.test_record_children_survive_owner_reuse_and_collection) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.228s
+
+OK

@@ -1,0 +1,28 @@
+I retain SQLite artifact evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-a7ti2090
+test_seed_real_sqlite_and_borrowed_strings (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_seed_real_sqlite_and_borrowed_strings) ... ok
+test_native_refuses_wrong_signature_kind_path_and_symbol (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_native_refuses_wrong_signature_kind_path_and_symbol) ... 
+  test_native_refuses_wrong_signature_kind_path_and_symbol (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_native_refuses_wrong_signature_kind_path_and_symbol) (signature='"nl_sqlite3_version" string', kind='artifact', path='relative.so') ... FAIL
+test_same_symbol_retains_artifact_owner (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_same_symbol_retains_artifact_owner) ... ok
+
+======================================================================
+FAIL: test_native_refuses_wrong_signature_kind_path_and_symbol (tests.test_selfhost_sqlite_artifacts.SqliteArtifacts.test_native_refuses_wrong_signature_kind_path_and_symbol) (signature='"nl_sqlite3_version" string', kind='artifact', path='relative.so')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_selfhost_sqlite_artifacts.py", line 138, in test_native_refuses_wrong_signature_kind_path_and_symbol
+    module = self.assembly(f'.import {json.dumps(path)} {signature}\n'
+                          f'.import_kind 0 {kind}\n.entry main\n'
+                          '.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n')
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_selfhost_sqlite_artifacts.py", line 124, in assembly
+    self.command(ROOT / 'bin/nanoisa', 'asm', source, '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_selfhost_sqlite_artifacts.py", line 85, in command
+    raise AssertionError(f'{command}: {result.returncode}\n{result.stdout}\n{result.stderr}')
+AssertionError: ['/private/tmp/nanolang-match-guards-20261009/bin/nanoisa', 'asm', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-a7ti2090/input.nasm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-a7ti2090/input.nvm']: 1
+
+I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-a7ti2090/input.nasm': Assembled module failed verification: import[0] artifact path must be absolute and contain no NUL
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.956s
+
+FAILED (failures=1)

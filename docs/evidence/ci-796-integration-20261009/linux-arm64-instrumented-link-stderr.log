@@ -1,0 +1,8 @@
+tests/nanoisa/test_file_indirect_runtime.c: In function ‘istep’:
+tests/nanoisa/test_file_indirect_runtime.c:69:3: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+   69 |   if(s==NVM_FILE_RUNTIME_OK)s=nvm_file_runtime_move(c,dst,fout(c,f.frame.stack_count));break;
+      |   ^~
+tests/nanoisa/test_file_indirect_runtime.c:69:88: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+   69 |   if(s==NVM_FILE_RUNTIME_OK)s=nvm_file_runtime_move(c,dst,fout(c,f.frame.stack_count));break;
+      |                                                                                        ^~~~~
+cc1: all warnings being treated as errors

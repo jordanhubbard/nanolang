@@ -1187,6 +1187,7 @@ static void test_match_tag_out_of_bounds(void) {
 static void test_null_code_nonzero_size(void) {
     const char *test_name = "nvm_verify: null code pointer with code_size > 0 fails";
     NvmModule *mod = nvm_module_new();
+    free(mod->code);
     mod->code = NULL;
     mod->code_size = 100; /* Non-zero size with NULL pointer */
     NvmVerifyResult r = nvm_verify(mod);
@@ -1673,6 +1674,51 @@ static void test_effect_handler_verification(void) {
     PASS(test_name);
 }
 
+static void test_batch_depths_recheck_mutation_and_late_functions(void) {
+    const char *test_name = "I check all selected depths and revalidate mutations";
+    uint8_t code[64]; uint32_t n = 0;
+    n += emit(code + n, OP_PUSH_I64, (int64_t)1);
+    n += emit(code + n, OP_PUSH_I64, (int64_t)2);
+    n += emit(code + n, OP_I64_ADD);
+    n += emit(code + n, OP_RET);
+    NvmModule *mod = make_simple_module(code, n, 0, 0);
+    declares_one_result(mod);
+    uint16_t depths[32]; depths[0] = 2;
+    for (uint32_t i = 1; i < 32; ++i) {
+        NvmFunctionEntry fn = mod->functions[0];
+        fn.code_offset = nvm_append_code(mod, code, n);
+        ASSERT(nvm_add_function(mod, &fn) == i, "I append each independent function");
+        depths[i] = 2;
+    }
+    ASSERT(nvm_verify(mod).ok, "I accept the valid full module");
+    ASSERT(nvm_verify_declared_max_stacks(mod, depths, 32).ok, "I verify every depth");
+    ASSERT(!nvm_verify_declared_max_stacks(mod, depths, 31).ok, "I require the whole declaration table");
+    ASSERT(!nvm_verify_declared_max_stacks(mod, NULL, 32).ok, "I require declaration storage");
+    depths[31] = 1;
+    ASSERT(!nvm_verify_declared_max_stacks(mod, depths, 32).ok, "I reject an understated later depth");
+    depths[31] = 2;
+    uint32_t offset = mod->functions[31].code_offset;
+    mod->code[offset] = OP_PUSH_F64;
+    uint16_t rejected_depth = 77;
+    ASSERT(!nvm_verify_function_max_stack(mod, 31, &rejected_depth).ok, "I reject the typed depth query");
+    ASSERT(rejected_depth == 77, "I leave the caller output unchanged on type rejection");
+    ASSERT(!nvm_verify(mod).ok, "I still check later function types");
+    ASSERT(!nvm_verify_linked(mod, NULL, 0).ok, "I retain linked function type checks");
+    ASSERT(!nvm_verify_declared_max_stacks(mod, depths, 32).ok, "I recheck types after mutation");
+    depths[31] = 0;
+    ASSERT(nvm_verify_declared_max_stacks(mod, depths, 32).ok, "I preserve an unspecified depth");
+    ASSERT(!nvm_verify(mod).ok, "I never treat a depth query as execution admission");
+    mod->code[offset] = OP_PUSH_I64;
+    mod->functions[31].arity = 1;
+    ASSERT(!nvm_verify_declared_max_stacks(mod, depths, 32).ok, "I check structure even for an unselected body");
+    mod->functions[31].arity = 0;
+    depths[31] = 2;
+    ASSERT(nvm_verify_declared_max_stacks(mod, depths, 32).ok && nvm_verify(mod).ok,
+           "I recover after restoring valid metadata and code");
+    nvm_module_free(mod);
+    PASS(test_name);
+}
+
 int main(void) {
     test_effect_handler_verification();
     printf("\n[verifier] NanoVM bytecode verifier tests...\n\n");
@@ -1768,6 +1814,7 @@ int main(void) {
     test_implicit_return_shape_is_checked();
     test_implicit_return_shape_releases_ownership_state();
     test_implicit_return_with_matching_shape_passes();
+    test_batch_depths_recheck_mutation_and_late_functions();
     test_max_stack_of_an_empty_function();
     test_max_stack_counts_the_deepest_point();
     test_max_stack_is_refused_for_an_unverifiable_function();

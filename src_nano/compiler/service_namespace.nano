@@ -1,0 +1,412 @@
+# I collect complete source names before assigning service types or wire authority.
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+import "modules/file_source_inputs/file_source_inputs.nano"
+import "src_nano/compiler/service_origins.nano"
+import "src_nano/compiler/service_inputs.nano"
+import "src_nano/compiler/file_source_plan.nano"
+from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets, declaration_local_functions
+module "modules/file_source_catalog/file_source_catalog.nano" as ServiceCatalog
+
+# Kinds match source identities, not runtime tags: function/record/union/enum/
+# opaque/global/module/service-type/service-method are 1 through 9.
+struct ServiceName {
+    name: string, id: int, target: int, owner: int, target_owner: int,
+    kind: int, ordinal: int, request: int, exported: bool, immutable: bool,
+    node_id: int
+}
+struct ServiceNamespace {
+    status: int, names: array<ServiceName>, plan: FileSourcePlan,
+    text_bytes: int, ordinary_count: int, alias_count: int
+}
+
+fn sn_empty(status: int) -> ServiceNamespace {
+    return ServiceNamespace { status: status, names: [],
+        plan: FileSourcePlan { status: status, rows: [], logical_bytes: 0 },
+        text_bytes: 0, ordinary_count: 0, alias_count: 0 }
+}
+shadow sn_empty { assert (== (sn_empty 4).status 4) assert (== (array_length (sn_empty 0).names) 0) }
+
+fn sn_span(value: string) -> FileSourceText {
+    return FileSourceText { data: value, size: (str_length value) }
+}
+shadow sn_span { assert (== (sn_span "File").size 4) }
+
+fn sn_name(name: string, owner: int, kind: int, node_id: int) -> ServiceName {
+    return ServiceName { name: name, id: 0, target: 0, owner: owner, target_owner: owner,
+        kind: kind, ordinal: 4294967295, request: 4294967295,
+        exported: true, immutable: false, node_id: node_id }
+}
+shadow sn_name { assert (== (sn_name "plain" 2 1 7).target_owner 2) assert (== (sn_name "plain" 2 1 7).target 0) }
+
+fn sn_find(names: array<ServiceName>, owner: int, name: string) -> int {
+    let mut i: int = 0
+    while (< i (array_length names)) {
+        let row: ServiceName = (at names i)
+        if (and (== row.owner owner) (== row.name name)) { return i }
+        set i (+ i 1)
+    }
+    return -1
+}
+shadow sn_find {
+    let rows: array<ServiceName> = [(sn_name "File" 0 8 0), (sn_name "File" 1 2 0)]
+    assert (== (sn_find rows 1 "File") 1)
+    assert (== (sn_find rows 2 "File") -1)
+}
+
+fn sn_add(space: ServiceNamespace, row: ServiceName) -> ServiceNamespace {
+    if (!= space.status 0) { return space }
+    if (or (< row.owner 0) (not (fsp_text_ok (sn_span row.name) 128 true))) { return (sn_empty 1) }
+    let prior: int = (sn_find space.names row.owner row.name)
+    if (>= prior 0) {
+        let previous: ServiceName = (at space.names prior)
+        let repeated_module: bool = (and (== row.kind 7) (and (== previous.kind 7) (== previous.target_owner row.target_owner)))
+        if (and (not repeated_module) (or (== row.target 0) (or (!= previous.target row.target) (or (!= previous.kind row.kind) (!= previous.target_owner row.target_owner))))) { return (sn_empty 1) }
+        if row.exported {
+            (array_set space.names prior ServiceName { name: previous.name, id: previous.id, target: previous.target,
+                owner: previous.owner, target_owner: previous.target_owner, kind: previous.kind,
+                ordinal: previous.ordinal, request: previous.request, exported: true,
+                immutable: previous.immutable, node_id: previous.node_id })
+        }
+        return space
+    }
+    let alias: bool = (or (!= row.target 0) (== row.kind 7))
+    let ordinary: bool = (< row.kind 8)
+    if (or (>= (array_length space.names) 544) (or (and alias (>= space.alias_count 64)) (and ordinary (>= space.ordinary_count 256)))) { return (sn_empty 2) }
+    let bytes: int = (+ space.text_bytes (+ (str_length row.name) 1))
+    if (> bytes 1048576) { return (sn_empty 2) }
+    let id: int = (+ (array_length space.names) 1)
+    let mut target: int = row.target
+    if (== target 0) { set target id }
+    let added: ServiceName = ServiceName { name: row.name, id: id, target: target, owner: row.owner,
+        target_owner: row.target_owner, kind: row.kind, ordinal: row.ordinal, request: row.request,
+        exported: row.exported, immutable: row.immutable, node_id: row.node_id }
+    let mut aliases: int = space.alias_count
+    let mut ordinaries: int = space.ordinary_count
+    if alias { set aliases (+ aliases 1) }
+    if ordinary { set ordinaries (+ ordinaries 1) }
+    return ServiceNamespace { status: 0, names: (array_push space.names added), plan: space.plan,
+        text_bytes: bytes, ordinary_count: ordinaries, alias_count: aliases }
+}
+shadow sn_add {
+    let first: ServiceNamespace = (sn_add (sn_empty 0) (sn_name "File" 0 8 0))
+    assert (== first.status 0)
+    assert (== (at first.names 0).target 1)
+    assert (== (sn_add first (sn_name "File" 0 2 0)).status 1)
+    assert (== (sn_add first (sn_name "File" 1 2 0)).status 0)
+}
+
+pub fn sn_owner(files: array<string>, sources: array<string>, line: int) -> int {
+    if (or (<= line 0) (> line (array_length sources))) { return -1 }
+    return (service_origin_file files (at sources (- line 1)))
+}
+shadow sn_owner {
+    assert (== (sn_owner ["/a", "/b"] ["/b", "/a"] 1) 1)
+    assert (== (sn_owner ["/a"] ["/a"] 0) -1)
+}
+
+fn sn_declarations(parser: Parser, files: array<string>, sources: array<string>) -> ServiceNamespace {
+    let mut space: ServiceNamespace = (sn_empty 0)
+    let mut bytes: int = 0
+    let mut m: int = 0
+    while (< m (array_length files)) {
+        let path: string = (at files m)
+        if (!= (service_origin_file files path) m) { return (sn_empty 1) }
+        set bytes (+ bytes (+ (str_length path) 1))
+        set m (+ m 1)
+    }
+    if (> bytes 1048576) { return (sn_empty 2) }
+    set space ServiceNamespace { status: 0, names: [], plan: space.plan, text_bytes: bytes, ordinary_count: 0, alias_count: 0 }
+    let locals: array<bool> = (declaration_local_lets parser)
+    let local_functions: array<bool> = (declaration_local_functions parser)
+    set m 0
+    while (< m (array_length files)) {
+        let mut kind: int = 1
+        while (<= kind 6) {
+            let mut count: int = parser.functions_count
+            if (== kind 2) { set count parser.structs_count }
+            if (== kind 3) { set count parser.unions_count }
+            if (== kind 4) { set count parser.enums_count }
+            if (== kind 5) { set count parser.opaque_types_count }
+            if (== kind 6) { set count parser.lets_count }
+            let mut i: int = 0
+            while (< i count) {
+                let mut name: string = ""
+                let mut line: int = 0
+                let mut exported: bool = true
+                let mut immutable: bool = false
+                if (== kind 1) { let node: ASTFunction = (parser_get_function parser i) set line node.line if (not (at local_functions i)) { set name node.name } }
+                if (== kind 2) { let node: ASTStruct = (parser_get_struct_def parser i) set name node.name set line node.line }
+                if (== kind 3) { let node: ASTUnion = (parser_get_union parser i) set name node.name set line node.line }
+                if (== kind 4) { let node: ASTEnum = (parser_get_enum parser i) set name node.name set line node.line }
+                if (== kind 5) { let node: ASTOpaqueType = (list_ASTOpaqueType_get parser.opaque_types i) set name node.type_name set line node.line }
+                if (== kind 6) {
+                    let node: ASTLet = (parser_get_let parser i)
+                    set line node.line set exported node.is_pub set immutable (not node.is_mut)
+                    if (not (at locals i)) { set name node.name }
+                }
+                if (and (!= name "") (< (sn_owner files sources line) 0)) { return (sn_empty 1) }
+                if (and (!= name "") (== (sn_owner files sources line) m)) {
+                    set space (sn_add space ServiceName { name: name, id: 0, target: 0, owner: m, target_owner: m,
+                        kind: kind, ordinal: 4294967295, request: 4294967295, exported: exported, immutable: immutable, node_id: i })
+                    if (!= space.status 0) { return space }
+                }
+                set i (+ i 1)
+            }
+            set kind (+ kind 1)
+        }
+        let mut r: int = 0
+        while (< r parser.services_count) {
+            let service: ASTServiceDecl = (list_ASTServiceDecl_get parser.services r)
+            if (== service.origin_index m) {
+                let identity: int = (ServiceCatalog.catalog_id service.interface_id)
+                if (== identity 0) { return (sn_empty 4) }
+                let types: int = (ServiceCatalog.count identity 1)
+                let methods: int = (ServiceCatalog.count identity 2)
+                let mut b: int = 0
+                while (< b (+ types methods)) {
+                    let mut kind: int = 8
+                    let mut ordinal: int = b
+                    let mut catalog_kind: int = 1
+                    if (>= b types) { set kind 9 set ordinal (- b types) set catalog_kind 2 }
+                    set space (sn_add space ServiceName { name: (ServiceCatalog.catalog_text identity catalog_kind ordinal 1 0),
+                        id: 0, target: 0, owner: m, target_owner: m, kind: kind, ordinal: ordinal, request: r,
+                        exported: true, immutable: false, node_id: r })
+                    if (!= space.status 0) { return space }
+                    set b (+ b 1)
+                }
+            }
+            set r (+ r 1)
+        }
+        set m (+ m 1)
+    }
+    return space
+}
+shadow sn_declarations {
+    let source: string = "fn f(value: int) -> int { let local: int = 1 return local }\nlet global: int = 2\nfn closure() -> fn() -> int { return fn() -> int { return 1 } }"
+    let tokens: List<LexerToken> = (tokenize_string source "/a" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "/a")
+    let space: ServiceNamespace = (sn_declarations parser ["/a"] ["/a", "/a", "/a"])
+    assert (== space.status 0)
+    assert (== (array_length space.names) 3)
+    assert (== (sn_find space.names 0 "local") -1)
+    assert (== (sn_declarations parser ["/a"] ["/missing", "/a", "/a"]).status 1)
+}
+
+fn sn_alias(space: ServiceNamespace, owner: int, name: string, target: ServiceName, exported: bool) -> ServiceNamespace {
+    return (sn_add space ServiceName { name: name, id: 0, target: target.target, owner: owner,
+        target_owner: target.target_owner, kind: target.kind, ordinal: target.ordinal, request: target.request,
+        exported: exported, immutable: target.immutable, node_id: target.node_id })
+}
+shadow sn_alias {
+    let first: ServiceNamespace = (sn_add (sn_empty 0) (sn_name "File" 0 8 0))
+    let alias: ServiceNamespace = (sn_alias first 1 "Handle" (at first.names 0) true)
+    assert (== (at alias.names 1).target 1)
+    assert (== (at alias.names 1).target_owner 0)
+}
+
+fn sn_imports(parser: Parser, files: array<string>, sources: array<string>, targets: array<int>, initial: ServiceNamespace) -> ServiceNamespace {
+    if (!= (array_length targets) parser.imports_count) { return (sn_empty 1) }
+    let mut check: int = 0
+    while (< check parser.imports_count) {
+        if (< (sn_owner files sources (parser_get_import parser check).line) 0) { return (sn_empty 1) }
+        set check (+ check 1)
+    }
+    let mut space: ServiceNamespace = initial
+    let mut owner: int = 0
+    while (< owner (array_length files)) {
+        let mut i: int = 0
+        while (< i parser.imports_count) {
+            let imp: ASTImport = (parser_get_import parser i)
+            if (== (sn_owner files sources imp.line) owner) {
+                let target: int = (at targets i)
+                if (or (< target 0) (>= target owner)) { return (sn_empty 4) }
+                if (!= imp.module_name "") {
+                    set space (sn_add space ServiceName { name: imp.module_name, id: 0, target: 0, owner: owner,
+                        target_owner: target, kind: 7, ordinal: 4294967295, request: 4294967295,
+                        exported: imp.is_pub_use, immutable: false, node_id: i })
+                } else {
+                    if (and imp.is_selective (not imp.is_wildcard)) {
+                        let mut j: int = 0
+                        while (< j imp.import_symbol_count) {
+                            let name: string = (at imp.import_symbols j)
+                            let found: int = (sn_find space.names target name)
+                            if (< found 0) { return (sn_empty 4) }
+                            let row: ServiceName = (at space.names found)
+                            if (not row.exported) { return (sn_empty 4) }
+                            let mut alias: string = name
+                            if (< j (array_length imp.import_aliases)) {
+                                if (!= (at imp.import_aliases j) "") { set alias (at imp.import_aliases j) }
+                            }
+                            set space (sn_alias space owner alias row imp.is_pub_use)
+                            if (!= space.status 0) { return space }
+                            set j (+ j 1)
+                        }
+                    } else {
+                        let count: int = (array_length space.names)
+                        let mut j: int = 0
+                        while (< j count) {
+                            let row: ServiceName = (at space.names j)
+                            let legacy: bool = (and (not imp.is_selective) (and (== row.kind 6) row.immutable))
+                            if (and (== row.owner target) (or row.exported legacy)) {
+                                set space (sn_alias space owner row.name row imp.is_pub_use)
+                                if (!= space.status 0) { return space }
+                            }
+                            set j (+ j 1)
+                        }
+                    }
+                }
+                if (!= space.status 0) { return space }
+            }
+            set i (+ i 1)
+        }
+        set owner (+ owner 1)
+    }
+    return space
+}
+shadow sn_imports {
+    let tokens: List<LexerToken> = (tokenize_string "module \"/a\" as lib" "/b" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "/b")
+    let first: ServiceNamespace = (sn_add (sn_empty 0) (sn_name "File" 0 8 0))
+    let result: ServiceNamespace = (sn_imports parser ["/a", "/b"] ["/b"] [0] first)
+    assert (== result.status 0)
+    assert (== (at result.names 1).target_owner 0)
+    assert (== (sn_imports parser ["/a", "/b"] ["/b"] [1] first).status 4)
+}
+
+fn sn_describe(parser: Parser, files: array<string>, origins: ServiceOrigins, inputs: ServiceInputs, context: NlFileSourceSnapshots, space: ServiceNamespace) -> FileSourcePlan {
+    let mut requests: array<FileSourceRequest> = []
+    let mut aliases: array<FileSourceAlias> = []
+    let mut ordinary: array<FileSourceOrdinary> = []
+    let mut r: int = 0
+    while (< r parser.services_count) {
+        let node: ASTServiceDecl = (list_ASTServiceDecl_get parser.services r)
+        let identity: int = (ServiceCatalog.catalog_id node.interface_id)
+        if (== identity 0) { return (sn_empty 4).plan }
+        let catalog: string = (service_source_catalog_view identity)
+        let origin: ServiceOrigin = (at origins.locations r)
+        if (or (!= node.origin_index origin.file_index) (or (< origin.file_index 0) (>= origin.file_index (array_length files)))) { return (sn_empty 1).plan }
+        unsafe {
+            let snapshot: int = (at inputs.snapshots r)
+            if (!= (nl_source_inputs_catalog context snapshot) identity) { return (sn_empty 4).plan }
+            if (!= snapshot r) { return (sn_empty 1).plan }
+            if (or (== (at inputs.paths r) "") (!= (at inputs.paths r) (nl_source_inputs_text context snapshot 0))) { return (sn_empty 1).plan }
+            if (== (nl_source_inputs_text context snapshot 2) "") { return (sn_empty 1).plan }
+        }
+        let mut bindings: array<FileSourceBinding> = []
+        let mut i: int = 0
+        while (< i (array_length space.names)) {
+            let row: ServiceName = (at space.names i)
+            if (and (>= row.kind 8) (and (== row.request r) (== row.id row.target))) {
+                set bindings (array_push bindings FileSourceBinding { id: row.id, kind: (- row.kind 8), ordinal: row.ordinal, name: (sn_span row.name) })
+            }
+            set i (+ i 1)
+        }
+        set requests (array_push requests FileSourceRequest { module_id: (sn_span (at files origin.file_index)),
+            interface_id: (sn_span node.interface_id), catalog_view: (sn_span catalog), catalog_version: node.catalog_version,
+            line: origin.line, column: origin.column, bindings: bindings })
+        set r (+ r 1)
+    }
+    let mut i: int = 0
+    while (< i (array_length space.names)) {
+        let row: ServiceName = (at space.names i)
+        if (< row.kind 8) {
+            set ordinary (array_push ordinary FileSourceOrdinary { module_id: (sn_span (at files row.owner)), name: (sn_span row.name), id: row.id })
+        } else {
+            if (!= row.id row.target) {
+                set aliases (array_push aliases FileSourceAlias { module_id: (sn_span (at files row.owner)), name: (sn_span row.name), id: row.id, target: row.target })
+            }
+        }
+        set i (+ i 1)
+    }
+    return (service_source_plan requests aliases ordinary)
+}
+shadow sn_describe {
+    let tokens: List<LexerToken> = (tokenize_string "" "/empty" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "/empty")
+    unsafe {
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        let plan: FileSourcePlan = (sn_describe parser [] ServiceOrigins { ok: true, locations: [] } ServiceInputs { ok: true, paths: [], snapshots: [] } context (sn_empty 0))
+        assert (!= plan.status 0)
+        (nl_source_inputs_free context)
+    }
+}
+
+pub fn resolve_service_namespace(parser: Parser, files: array<string>, sources: array<string>, targets: array<int>, origins: ServiceOrigins, inputs: ServiceInputs, context: NlFileSourceSnapshots) -> ServiceNamespace {
+    if (== parser.services_count 0) { return (sn_empty 0) }
+    if (or (not origins.ok) (or (not inputs.ok) (or (!= parser.services_count (array_length origins.locations)) (!= parser.services_count (array_length inputs.snapshots))))) { return (sn_empty 1) }
+    if (or (> (array_length files) 5000) (> parser.services_count 16)) { return (sn_empty 2) }
+    if (or (< parser.services_count 0) (!= parser.services_count (array_length inputs.paths))) { return (sn_empty 1) }
+    unsafe {
+        if (or (== (nl_source_inputs_valid context) 0) (!= (nl_source_inputs_count context) parser.services_count)) { return (sn_empty 1) }
+    }
+    let declarations: ServiceNamespace = (sn_declarations parser files sources)
+    if (!= declarations.status 0) { return declarations }
+    let space: ServiceNamespace = (sn_imports parser files sources targets declarations)
+    if (!= space.status 0) { return space }
+    let plan: FileSourcePlan = (sn_describe parser files origins inputs context space)
+    if (!= plan.status 0) { return (sn_empty plan.status) }
+    return ServiceNamespace { status: 0, names: space.names, plan: plan, text_bytes: space.text_bytes,
+        ordinary_count: space.ordinary_count, alias_count: space.alias_count }
+}
+shadow resolve_service_namespace {
+    let tokens: List<LexerToken> = (tokenize_string "" "/empty" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "/empty")
+    unsafe {
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        let space: ServiceNamespace = (resolve_service_namespace parser [] [] [] ServiceOrigins { ok: true, locations: [] } ServiceInputs { ok: true, paths: [], snapshots: [] } context)
+        assert (== space.status 0)
+        assert (== (array_length space.names) 0)
+        assert (== (nl_source_inputs_count context) 0)
+        (nl_source_inputs_free context)
+    }
+}
+
+pub fn service_namespace_lookup(space: ServiceNamespace, owner: int, name: string) -> int {
+    let mut current: int = owner
+    let mut offset: int = 0
+    let mut imported: bool = false
+    while (< offset (str_length name)) {
+        let start: int = offset
+        while (and (< offset (str_length name)) (!= (char_at name offset) 46)) { set offset (+ offset 1) }
+        let found: int = (sn_find space.names current (str_substring name start (- offset start)))
+        if (< found 0) { return -1 }
+        let row: ServiceName = (at space.names found)
+        if (and imported (not row.exported)) { return -1 }
+        if (== offset (str_length name)) { return found }
+        if (!= row.kind 7) { return -1 }
+        set current row.target_owner set imported true set offset (+ offset 1)
+    }
+    return -1
+}
+shadow service_namespace_lookup {
+    let first: ServiceNamespace = (sn_add (sn_empty 0) (sn_name "File" 0 8 0))
+    let space: ServiceNamespace = (sn_add first ServiceName { name: "files", id: 0, target: 0, owner: 1,
+        target_owner: 0, kind: 7, ordinal: 4294967295, request: 4294967295, exported: false, immutable: false, node_id: 0 })
+    assert (== (service_namespace_lookup space 1 "files.File") 0)
+    assert (== (service_namespace_lookup space 1 "files.Missing") -1)
+    assert (== (service_namespace_lookup space 1 "files.") -1)
+}
+
+# I recover catalog identity from checked original declarations and plan rows.
+pub fn service_namespace_catalog(space: ServiceNamespace, owner: int) -> int {
+    if (!= space.status 0) { return 0 }
+    let mut i: int = 0
+    while (< i (array_length space.names)) {
+        let name: ServiceName = (at space.names i)
+        if (and (== name.owner owner) (and (== name.kind 8) (== name.id name.target))) {
+            let mut j: int = 0
+            while (< j (array_length space.plan.rows)) {
+                let row: FileSourceRow = (at space.plan.rows j)
+                if (== row.id name.id) { return row.catalog }
+                set j (+ j 1)
+            }
+        }
+        set i (+ i 1)
+    }
+    return 0
+}
+shadow service_namespace_catalog {
+    assert (== (service_namespace_catalog (sn_empty 0) 0) 0)
+    assert (== (service_namespace_catalog (sn_empty 1) 0) 0)
+}

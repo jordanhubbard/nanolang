@@ -13,6 +13,7 @@
 #include "nanovirt/codegen.h"
 #include "../nanoisa/local_bindings.h"
 #include "nanolang.h"
+#include "../generic_bindings.h"
 #include "resource_tracking.h"
 #include "nanoisa/isa.h"
 #include "nanoisa/nvm_format.h"
@@ -78,6 +79,7 @@ typedef struct {
     char *name;
     uint32_t fn_idx;
     ASTNode *body; /* I identify a source function independently of its short name. */
+    bool module_intrinsic;
 } FnEntry;
 
 typedef struct {
@@ -108,6 +110,8 @@ typedef struct {
 typedef struct {
     char *name;
     uint16_t slot;
+    ASTNode *owner;
+    ASTNode *declaration;
 } GlobalVar;
 
 typedef struct {
@@ -130,13 +134,18 @@ typedef struct CgPassive {
     struct CgPassive *next;
 } CgPassive;
 
+typedef struct CgGeneric CgGeneric;
 typedef struct CG CG;
 struct CG {
     /* Module being built */
     NvmModule *module;
     Environment *env;
     ASTNode *root_program; /* Borrowed original top-level declarations. */
+    ASTNode *current_program; /* I resolve global storage in its declaring module. */
     CgPassive *passive;
+    CgGeneric *generics, *generic_tail, *generic_active;
+    ModuleList *source_modules;
+    const char *source_file;
     CgLocalName **local_names;
     CgAuthoritySlot **authority_slots;
     bool names_enabled;
@@ -511,11 +520,36 @@ static int16_t union_variant_index(CgUnionDef *ud, const char *variant) {
 }
 
 static int16_t global_find(CG *cg, const char *name) {
+    /* I keep enclosing lexical bindings ahead of module globals without creating captures. */
+    for (CG *scope = cg->parent; scope; scope = scope->parent)
+        if (local_find(scope, name) >= 0 || upvalue_find(scope, name) >= 0) return -1;
     for (int i = 0; i < cg->global_count; i++) {
-        if (strcmp(cg->globals[i].name, name) == 0)
+        if (cg->globals[i].owner == cg->current_program &&
+            strcmp(cg->globals[i].name, name) == 0)
             return (int16_t)cg->globals[i].slot;
     }
+    const GlobalImport *import = env_lookup_global_import(cg->env, name);
+    if (import) {
+        for (int i = 0; i < cg->global_count; ++i)
+            if (cg->globals[i].declaration == import->declaration) return (int16_t)cg->globals[i].slot;
+    }
     return -1;
+}
+
+/* I register each cached declaration once, independently of import aliases. */
+static void global_register(CG *cg, ASTNode *owner, ASTNode *declaration) {
+    for (int i = 0; i < cg->global_count; ++i) {
+        if (cg->globals[i].owner == owner && cg->globals[i].declaration == declaration) return;
+    }
+    if (cg->global_count >= MAX_GLOBALS) {
+        cg_error(cg, declaration->line, "I exceeded my global storage limit");
+        return;
+    }
+    GlobalVar *global = &cg->globals[cg->global_count];
+    global->name = declaration->as.let.name;
+    global->slot = cg->global_count++;
+    global->owner = owner;
+    global->declaration = declaration;
 }
 
 /* ── Extern function lookup ────────────────────────────────────── */
@@ -673,7 +707,25 @@ static void register_extern(CG *cg, const char *name, const char *module_name,
         if (param_count != intrinsic_arity || return_tag != intrinsic_result ||
             (intrinsic_arity && (!param_tags || param_tags[0] != TAG_INT)))
             cg_error(cg, 0, "I require the declared module introspection signature");
-        /* These declarations lower to module facts, not external host calls. */
+        if (cg->had_error || fn_find(cg, name) >= 0) return;
+        if (cg->fn_count >= MAX_FUNCTIONS) {
+            cg_error(cg, 0, "I cannot register another module introspection function");
+            return;
+        }
+        NvmFunctionEntry function = {0};
+        function.name_idx = nvm_add_string(cg->module, name, (uint32_t)strlen(name));
+        function.arity = intrinsic_arity;
+        function.result_tag = intrinsic_result;
+        function.result_count = 1;
+        uint32_t index = nvm_add_function(cg->module, &function);
+        if (!nvm_set_function_param_types(cg->module, index, param_tags, intrinsic_arity)) {
+            cg_error(cg, 0, "I could not retain module introspection parameter types");
+            return;
+        }
+        FnEntry *entry = &cg->functions[cg->fn_count++];
+        entry->name = (char *)name;
+        entry->fn_idx = index;
+        entry->module_intrinsic = true;
         return;
     }
     if (param_count > NANO_MAX_FFI_ARGS) {
@@ -719,29 +771,22 @@ static void register_extern(CG *cg, const char *name, const char *module_name,
 /* I consume the already evaluated index once and preserve the empty-string
  * result outside the exported-name range. */
 static void compile_module_names(CG *cg, char **names, int count) {
-    emit_op(cg, OP_DUP);
-    emit_op(cg, OP_PUSH_I64, (int64_t)0);
-    emit_op(cg, OP_I64_LT_S);
-    uint32_t lower = emit_op(cg, OP_JMP_TRUE, (int32_t)0);
-    emit_op(cg, OP_DUP);
-    emit_op(cg, OP_PUSH_I64, (int64_t)count);
-    emit_op(cg, OP_I64_GE_S);
-    uint32_t upper = emit_op(cg, OP_JMP_TRUE, (int32_t)0);
-    uint16_t index = local_add(cg, "", 0);
-    emit_op(cg, OP_STORE_LOCAL, (int)index);
-    for (int i = 0; i < count; i++) {
-        uint32_t text = nvm_add_string(cg->module, names[i], (uint32_t)strlen(names[i]));
-        emit_op(cg, OP_PUSH_STR, text);
+    uint32_t *exits = count ? calloc((size_t)count, sizeof(*exits)) : NULL;
+    if (count && !exits) { cg_error(cg, 0, "I could not allocate metadata index branches"); return; }
+    for (int i = 0; i < count; ++i) {
+        emit_op(cg, OP_DUP);
+        emit_op(cg, OP_PUSH_I64, (int64_t)i);
+        emit_op(cg, OP_EQ);
+        uint32_t next = emit_op(cg, OP_JMP_FALSE, (int32_t)0);
+        emit_op(cg, OP_POP);
+        emit_op(cg, OP_PUSH_STR, nvm_add_string(cg->module, names[i], (uint32_t)strlen(names[i])));
+        exits[i] = emit_op(cg, OP_JMP, (int32_t)0);
+        patch_jump(cg, next + 1, next, cg->code_size);
     }
-    emit_op(cg, OP_ARR_LITERAL, (int)TAG_STRING, (uint32_t)count);
-    emit_op(cg, OP_LOAD_LOCAL, (int)index);
-    emit_op(cg, OP_ARR_GET);
-    uint32_t done = emit_op(cg, OP_JMP, (int32_t)0);
-    patch_jump(cg, lower + 1, lower, cg->code_size);
-    patch_jump(cg, upper + 1, upper, cg->code_size);
     emit_op(cg, OP_POP);
     emit_op(cg, OP_PUSH_STR, nvm_add_string(cg->module, "", 0));
-    patch_jump(cg, done + 1, done, cg->code_size);
+    for (int i = 0; i < count; ++i) patch_jump(cg, exits[i] + 1, exits[i], cg->code_size);
+    free(exits);
 }
 
 /* Handle ___module_* calls inline instead of FFI so wrapper binaries work.
@@ -832,6 +877,10 @@ static void compile_numeric_expr(CG *cg, ASTNode *node, Type type,
  * still refuse. TYPE_UNKNOWN and the row-polymorphic record placeholder are
  * the checker's imprecise builtin results; the runtime cast is their check. */
 static void compile_expected_tag(CG *cg, ASTNode *node, uint8_t tag) {
+    if (tag == TAG_INT || tag == TAG_FLOAT) {
+        compile_numeric_expr(cg, node, check_expression(node, cg->env), tag == TAG_FLOAT);
+        return;
+    }
     if (tag == TAG_U8) {
         if (node && node->type == AST_NUMBER) {
             if (node->as.number < 0 || node->as.number > UINT8_MAX) {
@@ -2039,6 +2088,63 @@ static bool compile_builtin_call(CG *cg, ASTNode *node) {
         /* Find the operation suffix */
         const char *suffix = strrchr(name, '_');
         if (suffix) {
+            if (strcmp(suffix, "_free") == 0) {
+                if (extern_find(cg, name) >= 0) return false;
+                if (argc != 1) {
+                    cg_error(cg, node->line, "I require one list release receiver");
+                    return true;
+                }
+                Type type = check_expression(args[0], cg->env);
+                const char *element = type == TYPE_LIST_INT ? "int" :
+                    type == TYPE_LIST_STRING ? "string" :
+                    type == TYPE_LIST_TOKEN ? "Token" : NULL;
+                char *owned_element = NULL;
+                if (type == TYPE_LIST_GENERIC) {
+                    TypeInfo *info = NULL;
+                    if (args[0]->type == AST_IDENTIFIER) {
+                        Symbol *symbol = env_get_var_visible_at(cg->env,
+                            args[0]->as.identifier, args[0]->line, args[0]->column);
+                        if (symbol) {
+                            info = symbol->type_info;
+                            element = symbol->struct_type_name;
+                        }
+                    } else if (args[0]->type == AST_CALL && args[0]->as.call.name) {
+                        Function *function = env_get_function(cg->env, args[0]->as.call.name);
+                        if (function) {
+                            info = function->return_type_info;
+                            element = function->return_struct_type_name;
+                        }
+                    }
+                    if (info && info->type_param_count == 1) {
+                        owned_element = typeinfo_to_generic_arg_name(info->type_params[0]);
+                        element = owned_element;
+                    }
+                }
+                size_t length = (size_t)(suffix - (name + 5));
+                bool matches = element && strlen(element) == length &&
+                    strncmp(element, name + 5, length) == 0;
+                free(owned_element);
+                if (!matches) {
+                    cg_error(cg, node->line, "I require a matching list release receiver");
+                    return true;
+                }
+                /* I evaluate once, release that temporary reference, then
+                 * relinquish the named owner. Other aliases keep their roots. */
+                compile_expr(cg, args[0]);
+                emit_op(cg, OP_POP);
+                if (args[0]->type == AST_IDENTIFIER) {
+                    const char *id = args[0]->as.identifier;
+                    int16_t local = local_find(cg, id);
+                    int16_t global = local < 0 ? global_find(cg, id) : -1;
+                    int16_t capture = local < 0 && global < 0 ? upvalue_resolve(cg, id) : -1;
+                    emit_op(cg, OP_PUSH_VOID);
+                    if (local >= 0) emit_op(cg, OP_STORE_LOCAL, (int)local);
+                    else if (global >= 0) emit_op(cg, OP_STORE_GLOBAL, (uint32_t)global);
+                    else if (capture >= 0) emit_op(cg, OP_STORE_UPVALUE, 0, (int)capture);
+                    else cg_error(cg, node->line, "I cannot resolve this list release owner");
+                }
+                return true;
+            }
             if ((strcmp(suffix, "_insert") == 0 && argc == 3) ||
                 (strcmp(suffix, "_remove") == 0 && argc == 2) ||
                 (strcmp(suffix, "_pop") == 0 && argc == 1)) {
@@ -2412,6 +2518,8 @@ static void compile_union_fields(CG *cg, CgUnionDef *definition, int variant,
     free(slots);
 }
 
+#include "generic_codegen.inc"
+
 static void compile_expr(CG *cg, ASTNode *node) {
     if (!node || cg->had_error) return;
 
@@ -2555,7 +2663,25 @@ static void compile_expr(CG *cg, ASTNode *node) {
                     if (uv >= 0) {
                         emit_op(cg, OP_LOAD_UPVALUE, 0, (int)uv);
                     } else {
-                        cg_error(cg, node->line, "undefined variable '%s'", id);
+                        /* I materialize checked header constants only after
+                         * lexical bindings and source declarations resolve. */
+                        Symbol *constant = NULL;
+                        /* My checker also retains locals from other functions;
+                         * they cannot hide this fallback after lexical lookup. */
+                        for (int i = cg->env->symbol_count - 1; i >= 0; --i) {
+                            Symbol *candidate = &cg->env->symbols[i];
+                            if (candidate->from_c_header && candidate->name &&
+                                strcmp(candidate->name, id) == 0) {
+                                constant = candidate;
+                                break;
+                            }
+                        }
+                        if (constant && constant->is_global && !constant->is_mut &&
+                            constant->type == TYPE_INT && constant->value.type == VAL_INT) {
+                            emit_op(cg, OP_PUSH_I64, constant->value.as.int_val);
+                        } else {
+                            cg_error(cg, node->line, "undefined variable '%s'", id);
+                        }
                     }
                 }
             }
@@ -2676,11 +2802,13 @@ static void compile_expr(CG *cg, ASTNode *node) {
          * entry in the function table is not a substitute for that value. */
         int16_t callable_slot = name ? local_find(cg, name) : -1;
         int16_t callable_upvalue = name && callable_slot < 0 ? upvalue_resolve(cg, name) : -1;
-        if (callable_slot >= 0 || callable_upvalue >= 0 || node->as.call.func_expr) {
+        int16_t callable_global = name && callable_slot < 0 && callable_upvalue < 0 ? global_find(cg, name) : -1;
+        if (callable_slot >= 0 || callable_upvalue >= 0 || callable_global >= 0 || node->as.call.func_expr) {
             /* I snapshot the callee before arguments can mutate its binding. */
             if (node->as.call.func_expr) compile_expr(cg, node->as.call.func_expr);
             else if (callable_slot >= 0) emit_op(cg, OP_LOAD_LOCAL, (int)callable_slot);
-            else emit_op(cg, OP_LOAD_UPVALUE, 0, (int)callable_upvalue);
+            else if (callable_upvalue >= 0) emit_op(cg, OP_LOAD_UPVALUE, 0, (int)callable_upvalue);
+            else emit_op(cg, OP_LOAD_GLOBAL, (uint32_t)callable_global);
             uint16_t saved_callee = local_add(cg, "", node->line);
             emit_op(cg, OP_STORE_LOCAL, (int)saved_callee);
             for (int i = 0; i < argc; i++) compile_expr(cg, node->as.call.args[i]);
@@ -2698,7 +2826,9 @@ static void compile_expr(CG *cg, ASTNode *node) {
 
         /* Emit arguments left-to-right with the direct declaration's exact
          * scalar tags. Indirect calls keep their existing value contract. */
-        int32_t declared_target = name ? fn_find(cg, name) : -1;
+        int32_t declared_target = cg_generic_call(cg, node);
+        if(cg->had_error)break;
+        if(declared_target<0)declared_target = name ? fn_find(cg, name) : -1;
         uint8_t *declared_tags = declared_target >= 0
             ? cg->module->function_param_types[declared_target] : NULL;
         for (int i = 0; i < argc; i++) {
@@ -2751,6 +2881,30 @@ static void compile_expr(CG *cg, ASTNode *node) {
         const char *mod_alias = node->as.module_qualified_call.module_alias;
         const char *func_name = node->as.module_qualified_call.function_name;
         int argc = node->as.module_qualified_call.arg_count;
+        size_t qualified_size = strlen(mod_alias) + strlen(func_name) + 2;
+        char *qualified = malloc(qualified_size);
+        if (!qualified) { cg_error(cg, node->line, "I could not allocate a qualified callable name"); break; }
+        snprintf(qualified, qualified_size, "%s.%s", mod_alias, func_name);
+        bool callable_global = local_find(cg, mod_alias) < 0 && upvalue_resolve(cg, mod_alias) < 0 &&
+            global_find(cg, mod_alias) < 0 && global_find(cg, qualified) >= 0;
+        Function *qualified_function = env_get_function(cg->env, qualified);
+        bool is_generic_function = generic_function(cg->env, qualified_function);
+        if (callable_global || is_generic_function) {
+            ASTNode call = {0};
+            call.type = AST_CALL;
+            call.line = node->line;
+            call.column = node->column;
+            call.as.call.name = qualified;
+            call.as.call.args = node->as.module_qualified_call.args;
+            call.as.call.arg_count = argc;
+            compile_expr(cg, &call);
+            free(call.as.call.return_struct_type_name);
+            free(call.as.call.concrete_func_name);
+            free_function_signature(call.as.call.checked_signature);
+            free(qualified);
+            break;
+        }
+        free(qualified);
 
         /* Emit arguments left-to-right */
         for (int i = 0; i < argc; i++) {
@@ -2937,6 +3091,17 @@ static void compile_expr(CG *cg, ASTNode *node) {
     case AST_FIELD_ACCESS: {
         ASTNode *obj = node->as.field_access.object;
         const char *field = node->as.field_access.field_name;
+
+        if (obj->type == AST_IDENTIFIER && local_find(cg, obj->as.identifier) < 0 &&
+            upvalue_resolve(cg, obj->as.identifier) < 0 && global_find(cg, obj->as.identifier) < 0) {
+            size_t length = strlen(obj->as.identifier) + strlen(field) + 2;
+            char *qualified = malloc(length);
+            if (!qualified) { cg_error(cg, node->line, "I could not allocate a qualified global name"); break; }
+            snprintf(qualified, length, "%s.%s", obj->as.identifier, field);
+            int16_t global = global_find(cg, qualified);
+            free(qualified);
+            if (global >= 0) { emit_op(cg, OP_LOAD_GLOBAL, (uint32_t)global); break; }
+        }
 
         /* Check if this is EnumType.Variant (obj is an identifier naming an enum) */
         if (obj->type == AST_IDENTIFIER) {
@@ -3517,7 +3682,8 @@ static int32_t direct_call_target(CG *cg, ASTNode *node) {
         const char *name = node->as.call.name;
         if (!name || local_find(cg, name) >= 0 || upvalue_resolve(cg, name) >= 0)
             return -1;
-        return fn_find(cg, name);
+        int32_t generic = cg_generic_call(cg, node);
+        return generic >= 0 ? generic : fn_find(cg, name);
     }
     if (node->type == AST_MODULE_QUALIFIED_CALL) {
         char qualified[512];
@@ -3715,6 +3881,30 @@ static void publish_passive(CG *cg) {
 
 static void compile_stmt(CG *cg, ASTNode *node) {
     if (!node || cg->had_error) return;
+    /* I substitute local declarations without changing the shared template. */
+    ASTNode concrete;
+    if (node->type == AST_LET && cg->generic_active) {
+        TypeInfo view;
+        const TypeInfo *formal=generic_view(node->as.let.type_info,node->as.let.var_type,
+            node->as.let.type_name,node->as.let.fn_sig,&view);
+        if (generic_contains(cg->env,formal,0)) {
+            CgGenericType *owned=calloc(1,sizeof *owned);
+            if (!owned) { cg_error(cg,node->line,"I cannot allocate a generic local annotation");return; }
+            owned->info=generic_substitute(cg->env,formal,&cg->generic_active->bindings,0);
+            owned->next=cg->generic_active->local_types;
+            cg->generic_active->local_types=owned;
+            if (!owned->info || generic_contains(cg->env,owned->info,0)) {
+                cg_error(cg,node->line,"I require a concrete generic local annotation");return;
+            }
+            concrete=*node;
+            concrete.as.let.var_type=owned->info->base_type;
+            concrete.as.let.type_info=owned->info;
+            concrete.as.let.type_name=(char *)cg_generic_nominal(owned->info);
+            concrete.as.let.fn_sig=owned->info->fn_sig;
+            concrete.as.let.element_type=owned->info->element_type?owned->info->element_type->base_type:TYPE_UNKNOWN;
+            node=&concrete;
+        }
+    }
 
     /* Source locations live in the side table, never in executable code. */
     if (node->line > 0) {
@@ -3761,6 +3951,20 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
     case AST_SET: {
         if (node->as.set.field_name) {
+            if (local_find(cg, node->as.set.name) < 0 && upvalue_resolve(cg, node->as.set.name) < 0 &&
+                global_find(cg, node->as.set.name) < 0) {
+                size_t length = strlen(node->as.set.name) + strlen(node->as.set.field_name) + 2;
+                char *name = malloc(length);
+                if (!name) { cg_error(cg, node->line, "I could not allocate a qualified global name"); break; }
+                snprintf(name, length, "%s.%s", node->as.set.name, node->as.set.field_name);
+                int16_t global = global_find(cg, name);
+                free(name);
+                if (global >= 0) {
+                    compile_stored_expr(cg, node->as.set.value);
+                    emit_op(cg, OP_STORE_GLOBAL, (uint32_t)global);
+                    break;
+                }
+            }
             cg_error(cg, node->line, "I require reference IR before lowering field-place assignment");
             break;
         }
@@ -4156,13 +4360,12 @@ static void compile_stmt(CG *cg, ASTNode *node) {
 
 /* ── Function compilation ───────────────────────────────────────── */
 
-static void compile_function(CG *cg, ASTNode *fn_node) {
+static void compile_function_at(CG *cg, ASTNode *fn_node, int32_t fn_idx) {
     if (cg->had_error) return;
     if (fn_node->type != AST_FUNCTION) return;
     if (fn_node->as.function.is_extern) return;  /* skip extern declarations */
 
     const char *name = fn_node->as.function.name;
-    int32_t fn_idx = fn_find_body(cg, fn_node->as.function.body);
     if (fn_idx < 0) {
         cg_error(cg, fn_node->line, "function '%s' not registered", name);
         return;
@@ -4257,6 +4460,11 @@ static void compile_function(CG *cg, ASTNode *fn_node) {
     entry->upvalue_count = cg->upvalue_count;
 }
 
+static void compile_function(CG *cg, ASTNode *node) {
+    if(cg_generic_declaration(cg,node))return;
+    compile_function_at(cg,node,fn_find_body(cg,node->as.function.body));
+}
+
 /* ── Main compilation entry point ───────────────────────────────── */
 
 /* Copy a struct definition out of an imported module's AST into the
@@ -4342,7 +4550,9 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     cg.authority_slots=&authority_slots;
     cg.module = nvm_module_new();
     cg.env = env;
+    cg.source_modules=modules;cg.source_file=input_file;
     cg.root_program = program;
+    cg.current_program = program;
     cg.code = malloc(CODE_INITIAL);
     cg.code_cap = CODE_INITIAL;
 
@@ -4360,7 +4570,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = bytecode_declaration(program->as.program.items[i]);
 
-        if (item->type == AST_FUNCTION && !item->as.function.is_extern && !item->as.function.is_anonymous) {
+        if (item->type == AST_FUNCTION && !item->as.function.is_extern && !item->as.function.is_anonymous && !cg_generic_declaration(&cg, item)) {
             const char *name = item->as.function.name;
             uint32_t name_idx = nvm_add_string(cg.module, name, (uint32_t)strlen(name));
 
@@ -4472,7 +4682,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                     ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
 
                     /* Register all non-extern functions as bytecode functions */
-                    if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous) {
+                    if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous && !cg_generic_declaration(&cg, mitem)) {
                         const char *fname = mitem->as.function.name;
 
                         /* Check for alias: selective import may rename */
@@ -4615,21 +4825,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         }
                     }
 
-                    /* Register module-level let bindings as globals */
-                    if (mitem->type == AST_LET && cg.global_count < MAX_GLOBALS) {
-                        bool dup = false;
-                        for (int g = 0; g < cg.global_count; g++) {
-                            if (strcmp(cg.globals[g].name, mitem->as.let.name) == 0) {
-                                dup = true;
-                                break;
-                            }
-                        }
-                        if (!dup) {
-                            cg.globals[cg.global_count].name = mitem->as.let.name;
-                            cg.globals[cg.global_count].slot = cg.global_count;
-                            cg.global_count++;
-                        }
-                    }
+                    if (mitem->type == AST_LET) global_register(&cg, mod_ast, mitem);
                 }
             } else {
                 /* Module AST not available - fall back to registering as externs */
@@ -4679,12 +4875,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             if (resolved_path) free((char *)resolved_path);
         }
 
-        /* Register top-level let bindings as globals */
-        if (item->type == AST_LET && cg.global_count < MAX_GLOBALS) {
-            cg.globals[cg.global_count].name = item->as.let.name;
-            cg.globals[cg.global_count].slot = cg.global_count;
-            cg.global_count++;
-        }
+        if (item->type == AST_LET) global_register(&cg, program, item);
     }
 
     /* ── Pass 1b: Register transitive module dependencies ──────── */
@@ -4698,7 +4889,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             for (int m = 0; m < mod_ast->as.program.count; m++) {
                 ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
 
-                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous) {
+                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous && !cg_generic_declaration(&cg, mitem)) {
                     const char *fname = mitem->as.function.name;
                     if (fn_find_body(&cg, mitem->as.function.body) < 0 && cg.fn_count < MAX_FUNCTIONS) {
                         uint32_t ni = nvm_add_string(cg.module, fname, (uint32_t)strlen(fname));
@@ -4795,19 +4986,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                     }
                 }
 
-                if (mitem->type == AST_LET && cg.global_count < MAX_GLOBALS) {
-                    bool dup = false;
-                    for (int g = 0; g < cg.global_count; g++) {
-                        if (strcmp(cg.globals[g].name, mitem->as.let.name) == 0) {
-                            dup = true; break;
-                        }
-                    }
-                    if (!dup) {
-                        cg.globals[cg.global_count].name = mitem->as.let.name;
-                        cg.globals[cg.global_count].slot = cg.global_count;
-                        cg.global_count++;
-                    }
-                }
+                if (mitem->type == AST_LET) global_register(&cg, mod_ast, mitem);
             }
         }
 
@@ -4840,6 +5019,33 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         }
     }
 
+    /* I give metadata declarations ordinary bodies for direct and indirect calls. */
+    for (int i = 0; i < cg.fn_count && !cg.had_error; ++i) {
+        FnEntry *function = &cg.functions[i];
+        if (!function->module_intrinsic) continue;
+        uint32_t index = function->fn_idx;
+        cg.code_size = 0;
+        cg.local_count = 0;
+        cg.local_binding_count = 0;
+        cg.names_enabled = false;
+        cg.current_fn_idx = index;
+        cg.param_count = cg.module->functions[index].arity;
+        if (cg.param_count) {
+            uint16_t slot = local_add(&cg, "", 0);
+            emit_op(&cg, OP_LOAD_LOCAL, (int)slot);
+        }
+        if (!compile_module_introspection(&cg, function->name)) {
+            cg_error(&cg, 0, "I require a known module introspection operation");
+            break;
+        }
+        emit_op(&cg, OP_RET);
+        if (cg.had_error) break;
+        uint32_t offset = nvm_append_code(cg.module, cg.code, cg.code_size);
+        cg.module->functions[index].code_offset = offset;
+        cg.module->functions[index].code_length = cg.code_size;
+        cg.module->functions[index].local_count = cg.local_count;
+    }
+
     /* ── Pass 1.5: Compile top-level let bindings as globals ─────── */
     if (cg.global_count > 0) {
         /* Create an __init__ function to initialize globals */
@@ -4856,11 +5062,17 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         cg.local_binding_count = 0;
         cg.loop_depth = 0;
 
+        const char *initializer_file = env_current_file(env);
+        char *initializer_module = env->current_module;
         /* Initialize module globals first (they may be referenced by module functions) */
         if (modules) {
             for (int mi = 0; mi < modules->count; mi++) {
                 ASTNode *mod_ast = get_cached_module_ast(modules->module_paths[mi]);
                 if (!mod_ast || mod_ast->type != AST_PROGRAM) continue;
+                cg.current_program = mod_ast;
+                env_set_current_file(env, modules->module_paths[mi]);
+                char *owner = module_program_name(mod_ast, modules->module_paths[mi]);
+                env->current_module = owner;
                 for (int m = 0; m < mod_ast->as.program.count; m++) {
                     ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
                     if (mitem->type == AST_LET) {
@@ -4871,8 +5083,12 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                         }
                     }
                 }
+                env->current_module = initializer_module;
+                free(owner);
             }
         }
+        cg.current_program = program;
+        env_set_current_file(env, input_file);
         /* Then initialize program globals */
         for (int i = 0; i < program->as.program.count; i++) {
             ASTNode *item = bytecode_declaration(program->as.program.items[i]);
@@ -4884,6 +5100,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                 }
             }
         }
+        env_set_current_file(env, initializer_file);
         emit_op(&cg, OP_RET);
 
         if (!cg.had_error) {
@@ -4906,7 +5123,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     env_set_current_file(env, input_file);
     for (int i = 0; i < program->as.program.count; i++) {
         ASTNode *item = bytecode_declaration(program->as.program.items[i]);
-        if (item->type == AST_FUNCTION && !item->as.function.is_extern && !item->as.function.is_anonymous) {
+        if (item->type == AST_FUNCTION && !item->as.function.is_extern && !item->as.function.is_anonymous && !cg_generic_declaration(&cg, item)) {
             compile_function(&cg, item);
             if (cg.had_error) break;
         }
@@ -4919,9 +5136,10 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             if (!mod_ast || mod_ast->type != AST_PROGRAM) continue;
 
             env_set_current_file(env, modules->module_paths[mi]);
+            cg.current_program = mod_ast;
             for (int m = 0; m < mod_ast->as.program.count; m++) {
                 ASTNode *mitem = bytecode_declaration(mod_ast->as.program.items[m]);
-                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous) {
+                if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous && !cg_generic_declaration(&cg, mitem)) {
                     compile_function(&cg, mitem);
                     if (cg.had_error) break;
                 }
@@ -4930,6 +5148,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         }
     }
     env_set_current_file(env, outer_file);   /* leave the environment as found */
+    cg.current_program = program;
 
     if (shadows && !cg.had_error) {
         uint32_t shadow_functions[MAX_FUNCTIONS];
@@ -4947,6 +5166,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
               break;
           }
           env_set_current_file(env, file);
+          cg.current_program = selected;
           env->current_module = imported ? owner : outer_module;
           for (int i = 0; i < selected->as.program.count; i++) {
             ASTNode *shadow = selected->as.program.items[i];
@@ -4990,7 +5210,20 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             cg.loop_depth = 0;
             cg.upvalue_count = 0;
             cg.current_fn_idx = index;
-            for (int i = 0; i < shadow_count; i++) emit_op(&cg, OP_CALL, shadow_functions[i]);
+            for (int i = 0; i < shadow_count; i++) {
+                if (getenv("NANO_SHADOW_TRACE")) {
+                    char key[64];
+                    snprintf(key, sizeof key, "nanolang.shadow.offset.%u", cg.module->code_size + cg.code_size);
+                    uint32_t key_idx = nvm_add_string(cg.module, key, (uint32_t)strlen(key));
+                    if (key_idx == UINT32_MAX || !nvm_add_metadata(cg.module, key_idx,
+                            cg.module->functions[shadow_functions[i]].name_idx)) {
+                        cg_error(&cg, 0, "I cannot retain my selected shadow trace.");
+                        break;
+                    }
+                    emit_op(&cg, OP_NOP);
+                }
+                emit_op(&cg, OP_CALL, shadow_functions[i]);
+            }
             emit_op(&cg, OP_PUSH_I64, (int64_t)0);
             emit_op(&cg, OP_RET);
             uint32_t offset = nvm_append_code(cg.module, cg.code, cg.code_size);
@@ -5000,6 +5233,25 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         }
         env_set_current_file(env, outer_file);
     }
+
+    for(CgGeneric *instance=cg.generics;instance && !cg.had_error;instance=instance->next) {
+        env_set_current_file(env,instance->source);
+        cg.current_program=instance->program;
+        cg.generic_active=instance;
+        int first_symbol = env->symbol_count;
+        compile_function_at(&cg,&instance->declaration,(int32_t)instance->index);
+        /* I discard emission-only dummy bindings before freeing their owned
+         * specialization annotations. Later modules must see source bindings. */
+        env_symbol_index_invalidate(env);
+        for (int i = first_symbol; i < env->symbol_count; ++i) {
+            free(env->symbols[i].name);
+            free(env->symbols[i].struct_type_name);
+        }
+        env->symbol_count = first_symbol;
+    }
+    env_set_current_file(env,outer_file);
+    cg.current_program=program;
+    cg.generic_active=NULL;
 
     /* For shadow-only programs (no main), generate a synthetic main that returns 0 */
     if (main_fn_idx < 0 && !cg.had_error) {
@@ -5056,6 +5308,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
     publish_local_names(&cg);
     publish_passive(&cg);
     free(cg.code);
+    while(cg.generics){CgGeneric *next=cg.generics->next;cg_generic_free(cg.generics);cg.generics=next;}
 
     if (cg.had_error) {
         result.ok = false;

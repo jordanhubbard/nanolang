@@ -24,22 +24,28 @@ class BootstrapDependencies(unittest.TestCase):
                         "src_nano/compiler/nested/new_import.nano"]
         self.runtime_inputs = ["modules/std/fs.c", "modules/std/fs.h", "modules/std/module.json",
                                "modules/std/fs.nano", "modules/std/json/json.c",
-                               "src/runtime/shadow_runner.h", "src/runtime/directory_walk.h",
+                               "src/runtime/shadow_runner.h", "src/runtime/directory_walk.h", "src/engine.inc",
                                "src/runtime/native_array_abi.h", "src/runtime/gc.c",
                                "src/generated/compiler_schema.h", "src/cJSON.c",
                                "stdlib/example.nano", "std/example/example.nano"]
         for name in self.sources + self.runtime_inputs:
             self.file(name, 100)
         for name in ["schema/compiler_schema.json", "scripts/gen_compiler_schema.py",
-                     "scripts/gen_compiler_schema.nano"]:
+                     "scripts/gen_compiler_schema.nano", "scripts/bootstrap_nanoisa.py",
+                     "tests/bootstrap_native_guard.py"]:
             self.file(name, 80)
+        for name in ("tools/generate_module_index.c", "src/runtime/dyn_array.c", "src/runtime/gc_struct.c"):
+            self.file(name, 80)
+        self.file("bin/generate_module_index", 110)
+        self.file("modules/index.json", 110)
         self.file("obj/build_bootstrap/schema.stamp", 90)
         os.utime(self.root / "Makefile.gnu", (100, 100))
-        for name, stamp in [("bin/nanoc_c", 110), ("bin/nano_vm", 110),
-                            ("bin/nvm2c", 110), ("bin/nano_aot_runtime.o", 110),
+        for name, stamp in [("bin/nanoc_c", 110), ("bin/nano_virt", 110), ("bin/nano_vm", 110),
+                            ("bin/nanoisa", 110), ("bin/nvm2c", 110), ("bin/nano_aot_runtime.o", 110),
                             (".bootstrap0.built", 120),
-                            (".bootstrap1.built", 130), ("bin/nanoc_stage1", 130),
-                            (".bootstrap2.built", 140), ("bin/nanoc_stage2", 140),
+                            ("bin/nanoc_seed.nvm", 130), ("bin/nanoc_stage1.nvm", 130),
+                            ("bin/nanoc_bootstrap.json", 130), (".bootstrap1.built", 130), ("bin/nanoc_stage1", 130),
+                            ("bin/nanoc_stage2.nvm", 140), (".bootstrap2.built", 140), ("bin/nanoc_stage2", 140),
                             (".bootstrap3.built", 150), (".stage1.built", 160),
                             (".stage2.built", 170), (".stage3.built", 180)]:
             self.file(name, stamp)
@@ -54,20 +60,31 @@ class BootstrapDependencies(unittest.TestCase):
         path.touch()
         os.utime(path, (stamp, stamp))
 
-    def query(self, target, changed=None):
+    def query(self, target, changed=None, dry_run=False):
         # These phony wrappers are already satisfied in this built fixture.
         # Ignoring the wrappers keeps make -q focused on bootstrap invalidation;
         # their concrete outputs above still make the fixture truthful.
         command = [os.environ.get("MAKE_BIN", "make"), "-f", "Makefile.gnu",
-                   "--no-print-directory", "-q", "-o", "bin/nanoc_c",
+                   "--no-print-directory", "-n" if dry_run else "-q", "-o", "bin/nanoc_c", "-o", "bin/generate_module_index",
                    "-o", ".bootstrap0.built", "-o", ".stage1.built",
-                   "-o", "nano_vm", "-o", "nvm2c", "-o", "nvm2c-runtime",
+                   "-o", "bin/nano_virt", "-o", "bin/nano_vm", "-o", "bin/nanoisa",
+                   "-o", "bin/nvm2c", "-o", "bin/nano_aot_runtime.o",
+                   "-o", "bin/nano_as_capture.so",
+                   "-o", "nanoisa_dump", "-o", "nano_virt", "-o", "nano_vm", "-o", "nvm2c", "-o", "nvm2c-runtime",
                    "UNAME_S=Linux", target]
         if changed:
             command += ["-W", changed]
         result = subprocess.run(command, cwd=self.root, capture_output=True, text=True)
         self.assertIn(result.returncode, (0, 1), result.stdout + result.stderr)
-        return result.returncode
+        return result.stdout if dry_run else result.returncode
+
+    def test_missing_index_is_generated_before_bootstrap_snapshot(self):
+        (self.root / "modules/index.json").unlink()
+        os.utime(self.root / "modules", (100, 100))
+        self.assertEqual(self.query(".bootstrap1.built"), 1)
+        commands = self.query(".bootstrap1.built", dry_run=True)
+        self.assertLess(commands.index("./bin/generate_module_index"),
+                        commands.index("scripts/bootstrap_nanoisa.py stage1"))
 
     def test_up_to_date_and_source_invalidation(self):
         targets = [".bootstrap1.built", ".bootstrap2.built", ".bootstrap3.built",
@@ -75,7 +92,10 @@ class BootstrapDependencies(unittest.TestCase):
         for target in targets:
             with self.subTest(target=target, changed=None):
                 self.assertEqual(self.query(target), 0)
-            for source in self.sources + ["Makefile.gnu"]:
+            inputs = self.sources + ["Makefile.gnu"]
+            if target not in (".stage2.built", ".stage3.built"):
+                inputs += ["scripts/bootstrap_nanoisa.py", "tests/bootstrap_native_guard.py"]
+            for source in inputs:
                 with self.subTest(target=target, changed=source):
                     self.assertEqual(self.query(target, source), 1)
 
@@ -115,6 +135,14 @@ class BootstrapDependencies(unittest.TestCase):
             os.utime(self.root / "modules/std", (100, 100))
             with self.subTest(path=name):
                 self.assertEqual(self.query(".bootstrap3.built", name), 0)
+
+    def test_missing_raw_modules_or_receipt_invalidate_bootstrap(self):
+        for name in ('nanoc_seed.nvm', 'nanoc_stage1.nvm', 'nanoc_stage2.nvm', 'nanoc_bootstrap.json'):
+            path = self.root / 'bin' / name
+            path.unlink()
+            with self.subTest(artifact=name):
+                self.assertEqual(self.query('.bootstrap3.built'), 1)
+            self.file('bin/' + name, 130)
 
     def test_missing_stage_one_invalidates_later_stages(self):
         (self.root / "bin/nanoc_stage1").unlink()

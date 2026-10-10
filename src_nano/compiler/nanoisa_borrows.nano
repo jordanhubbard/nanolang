@@ -1,5 +1,6 @@
 # I lower one closed, verified source-reference profile.
 import "src_nano/parser.nano"
+import "src_nano/compiler/module_introspection.nano"
 from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
 from "src_nano/compiler/lexer.nano" import tokenize_string
 from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
@@ -34,10 +35,16 @@ let mut nb_current_function: int = 0
 let mut nb_edges: array<bool> = []
 let mut nb_paths: array<string> = []
 let mut nb_depths: array<int> = []
+let mut nb_globals: array<int> = []
+let mut nb_global_names: array<string> = []
+let mut nb_global_tags: array<int> = []
+let mut nb_global_layouts: array<int> = []
 let mut nb_union_layout_base: int = 0
 let mut nb_union_identities: array<string> = []
 let mut nb_union_spellings: array<string> = []
 let mut nb_union_sources: array<int> = []
+let mut nb_union_owned: array<bool> = []
+let mut nb_union_complete: array<bool> = []
 let mut nb_projection_parents: array<int> = []
 let mut nb_projection_fields: array<int> = []
 let mut nb_in_helper: bool = false
@@ -465,6 +472,50 @@ shadow nb_reference {
     assert (== nb_code "  BORROW_PATH_EXCLUSIVE 1 2 0\n") assert (== (array_length nb_paths) 1)
     set nb_paths [] set nb_code ""
 }
+fn nb_owned_type(tag: int, layout: int) -> bool {
+    if (== tag 8) { return (not (nb_ordinary_layout layout)) }
+    if (and (== tag 10) (and (>= layout 0) (< layout (array_length nb_union_owned)))) { return (at nb_union_owned layout) }
+    return false
+}
+shadow nb_owned_type {
+    let saved: array<bool> = nb_union_owned
+    set nb_union_owned [false, true]
+    assert (not (nb_owned_type 10 0)) assert (nb_owned_type 10 1)
+    assert (not (nb_owned_type 5 1))
+    set nb_union_owned saved
+}
+fn nb_owned_local(local: int) -> bool {
+    if (or (< local 0) (>= local (array_length nb_tags))) { return false }
+    return (nb_owned_type (at nb_tags local) (at nb_layouts local))
+}
+shadow nb_owned_local {
+    let _: int = (nb_reset_locals)
+    let slot: int = (nb_slot "number" 1 4294967295 0 false)
+    assert (not (nb_owned_local slot)) assert (not (nb_owned_local -1))
+    let _: int = (nb_reset_locals)
+}
+fn nb_concrete_tag(parser: Parser, spelling: string) -> int {
+    if (>= (nb_union_instance parser spelling) 0) { return 10 }
+    let record: int = (nb_record parser spelling)
+    if (and (>= record 0) (nb_record_has_owner parser record)) { return 8 }
+    return (nb_union_payload_tag spelling)
+}
+shadow nb_concrete_tag {
+    assert (== (nb_concrete_tag (nb_fixture) "R") 8)
+    assert (== (nb_concrete_tag (nb_fixture) "string") 5)
+    assert (== (nb_concrete_tag (nb_fixture) "array<R>") 0)
+}
+fn nb_concrete_layout(parser: Parser, spelling: string) -> int {
+    let union_layout: int = (nb_union_instance parser spelling)
+    if (>= union_layout 0) { return union_layout }
+    let record: int = (nb_record parser spelling)
+    if (>= record 0) { return record }
+    return 4294967295
+}
+shadow nb_concrete_layout {
+    assert (== (nb_concrete_layout (nb_fixture) "R") 0)
+    assert (== (nb_concrete_layout (nb_fixture) "int") 4294967295)
+}
 fn nb_unpack(parser: Parser, local: int) -> int {
     let record: ASTStruct = (parser_get_struct_def parser (at nb_layouts local))
     let mut slots: array<int> = []
@@ -505,10 +556,11 @@ fn nb_project_binding(parser: Parser, binding: ASTLet) -> bool {
     if (!= field.object_type ParseNodeType.PNODE_IDENTIFIER) { return false }
     let parent: int = (nb_local (parser_get_identifier parser field.object).name)
     if (< parent 0) { return false }
-    if (or (at nb_live parent) (!= (at nb_tags parent) 8)) { return false }
-    if (nb_ordinary_local parent) { return false }
-    if (and (not (nb_arrays)) (nb_leaf parser (at nb_layouts parent))) { return false }
-    let index: int = (nb_layout_field parser (at nb_layouts parent) field.field_name)
+    if (or (at nb_live parent) (not (nb_owned_local parent))) { return false }
+    if (and (== (at nb_tags parent) 8) (and (not (nb_arrays)) (nb_leaf parser (at nb_layouts parent)))) { return false }
+    let mut index: int = -1
+    if (== (at nb_tags parent) 10) { set index (nb_union_field parser parent field.field_name) }
+    else { set index (nb_layout_field parser (at nb_layouts parent) field.field_name) }
     let mut source: int = -1
     let mut i: int = 0
     while (< i (array_length nb_names)) {
@@ -518,10 +570,12 @@ fn nb_project_binding(parser: Parser, binding: ASTLet) -> bool {
     if (< source 0) { let _: int = (nb_fail "an exact destructured field") return true }
     if (not (at nb_live source)) { let _: int = (nb_fail "an unconsumed destructured field") return true }
     let tag: int = (at nb_tags source)
-    if (== tag 8) { let _: int = (nb_op1 "OWN_MOVE_LOCAL" source) (array_set nb_live source false) }
+    let owned: bool = (nb_owned_local source)
+    if owned { let _: int = (nb_op1 "OWN_MOVE_LOCAL" source) (array_set nb_live source false) }
     else { let _: int = (nb_op1 "LOAD_LOCAL" source) }
     let slot: int = (nb_slot binding.name tag (at nb_layouts source) 0 binding.is_mut)
-    if (== tag 8) { let _: int = (nb_op1 "OWN_STORE_LOCAL" slot) }
+    (array_set nb_identities slot (at nb_identities source))
+    if owned { let _: int = (nb_op1 "OWN_STORE_LOCAL" slot) }
     else { let _: int = (nb_op1 "STORE_LOCAL" slot) }
     let _: int = (nb_name_begin slot binding.name)
     return true
@@ -533,7 +587,10 @@ shadow nb_project_binding {
 fn nb_cleanup(parser: Parser, first: int) -> int {
     let mut i: int = first
     while (and (== nb_error "") (< i (array_length nb_names))) {
-        if (and (at nb_live i) (and (and (== (at nb_tags i) 8) (not (nb_ordinary_local i))) (== (at nb_modes i) 0))) {
+        if (and (at nb_live i) (and (nb_owned_local i) (== (at nb_modes i) 0))) {
+            if (== (at nb_tags i) 10) {
+                return (nb_fail "explicit selected union destruction before cleanup")
+            }
             if (nb_leaf parser (at nb_layouts i)) {
                 let _: int = (nb_op1 "OWN_UNPACK_LOCAL" i)
                 let record: ASTStruct = (parser_get_struct_def parser (at nb_layouts i))
@@ -549,7 +606,7 @@ fn nb_cleanup(parser: Parser, first: int) -> int {
 fn nb_consumed(first: int) -> bool {
     let mut i: int = first
     while (< i (array_length nb_names)) {
-        if (and (at nb_live i) (and (and (== (at nb_tags i) 8) (not (nb_ordinary_local i))) (and (== (at nb_modes i) 0) (not (at nb_disposal_pending i))))) {
+        if (and (at nb_live i) (and (nb_owned_local i) (and (== (at nb_modes i) 0) (not (at nb_disposal_pending i))))) {
             let _: int = (nb_fail "explicit source owner consumption at scope exit") return false
         }
         set i (+ i 1)
@@ -577,7 +634,7 @@ shadow nb_copy_flags {
 fn nb_same_owners(count: int, live: array<bool>, pending: array<bool>) -> bool {
     let mut i: int = 0
     while (< i count) {
-        if (and (and (== (at nb_tags i) 8) (not (nb_ordinary_local i))) (or (!= (at nb_live i) (at live i)) (!= (at nb_disposal_pending i) (at pending i)))) {
+        if (and (nb_owned_local i) (or (!= (at nb_live i) (at live i)) (!= (at nb_disposal_pending i) (at pending i)))) {
             let _: int = (nb_fail "matching ownership on every reaching edge") return false
         }
         set i (+ i 1)
@@ -730,23 +787,81 @@ shadow nb_array_builtin_arity {
     assert (== (nb_array_builtin_arity "module.array_push") 0)
     assert (== (nb_array_builtin_arity "") 0)
 }
+# I share exact declared slots across helpers within one entry invocation.
+fn nb_global(name: string) -> int {
+    let mut i: int = 0
+    while (< i (array_length nb_global_names)) {
+        if (== (at nb_global_names i) name) { return i }
+        set i (+ i 1)
+    }
+    return -1
+}
+shadow nb_global {
+    set nb_global_names ["counter", "label"]
+    assert (== (nb_global "label") 1)
+    assert (== (nb_global "absent") -1)
+    set nb_global_names []
+}
+fn nb_value_bound(name: string) -> bool {
+    return (or (>= (nb_local name) 0) (>= (nb_global name) 0))
+}
+shadow nb_value_bound {
+    set nb_global_names ["counter"]
+    assert (nb_value_bound "counter")
+    assert (not (nb_value_bound "absent"))
+    set nb_global_names []
+}
+fn nb_global_value(parser: Parser, slot: int, value: int, kind: int) -> int {
+    let expected: int = (at nb_global_tags slot)
+    let mut actual: int = 0
+    if (== expected 10) {
+        let binding: ASTLet = (parser_get_let parser (at nb_globals slot))
+        set actual (nb_union_expr parser value kind binding.var_type)
+    } else { set actual (nb_expr parser value kind) }
+    if (!= actual expected) { return (nb_fail "the exact declared global value type") }
+    if (and (== expected 10) (!= nb_expression_layout (at nb_global_layouts slot))) {
+        return (nb_fail "the exact declared global union identity")
+    }
+    return (nb_op1 "STORE_GLOBAL" slot)
+}
+shadow nb_global_value {
+    set nb_globals [0] set nb_global_tags [1] set nb_global_layouts [4294967295]
+    set nb_error "" let _: int = (nb_reset_locals)
+    let _: int = (nb_global_value (nb_fixture) 0 0 ParseNodeType.PNODE_NUMBER)
+    assert (str_contains nb_code "STORE_GLOBAL 0")
+    set nb_globals [] set nb_global_tags [] set nb_global_layouts []
+    let _: int = (nb_reset_locals)
+}
+fn nb_global_bytes(parser: Parser) -> string {
+    let mut out: string = (nb_hex (array_length nb_globals) 4)
+    let mut i: int = 0
+    while (< i (array_length nb_globals)) {
+        let mut mutable: int = 0
+        if (parser_get_let parser (at nb_globals i)).is_mut { set mutable 1 }
+        set out (+ out (nb_descriptor (at nb_global_tags i) mutable (at nb_global_layouts i)))
+        set i (+ i 1)
+    }
+    return out
+}
+shadow nb_global_bytes {
+    let tokens: List<LexerToken> = (tokenize_string "let mut counter: int = 7 let enabled: bool = true" "globals.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "globals.nano")
+    set nb_globals [0, 1] set nb_global_tags [1, 4] set nb_global_layouts [4294967295, 4294967295]
+    assert (== (nb_global_bytes parser) "0200000001010000ffffffff04000000ffffffff")
+    set nb_globals [] set nb_global_tags [] set nb_global_layouts []
+    assert (== (nb_global_bytes parser) "00000000")
+}
 fn nb_union_expr(parser: Parser, id: int, kind: int, identity: string) -> int {
     let instance: int = (nb_union_instance parser identity)
     if (< instance 0) { return (nb_fail "a registered exact concrete scalar union instance") }
     let authoritative: string = (at nb_union_identities instance)
     let canonical: string = (at nb_union_spellings instance)
-    if (== kind ParseNodeType.PNODE_IDENTIFIER) {
-        let local: int = (nb_local (parser_get_identifier parser id).name)
-        if (or (< local 0) (or (not (at nb_live local)) (or (!= (at nb_tags local) 10) (or (!= (at nb_layouts local) instance) (!= (at nb_identities local) authoritative))))) { return (nb_fail "a live exact concrete union value") }
-        set nb_expression_layout instance set nb_expression_identity authoritative
-        let _: int = (nb_op1 "LOAD_LOCAL" local) return 10
-    }
-    if (and nb_value_graph (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL))) {
-        if (!= (nb_expr parser id kind) 10) { return (nb_fail "an exact concrete union call result") }
-        if (or (!= nb_expression_layout instance) (!= nb_expression_identity authoritative)) { return (nb_fail "the exact concrete union call result") }
+    if (== kind ParseNodeType.PNODE_MATCH) { return (nb_match_value parser id 10 instance) }
+    if (!= kind ParseNodeType.PNODE_UNION_CONSTRUCT) {
+        if (!= (nb_expr parser id kind) 10) { return (nb_fail "an exact concrete union value") }
+        if (or (!= nb_expression_layout instance) (!= nb_expression_identity authoritative)) { return (nb_fail "the exact declared global union identity or local union identity") }
         return 10
     }
-    if (!= kind ParseNodeType.PNODE_UNION_CONSTRUCT) { return (nb_fail "a concrete union constructor, alias or call result") }
     let literal: ASTUnionConstruct = (parser_get_union_construct parser id)
     let source: int = (at nb_union_sources instance)
     if (!= (nb_union_source parser literal.union_name) source) { return (nb_fail "the exact union constructor declaration") }
@@ -770,18 +885,32 @@ fn nb_union_expr(parser: Parser, id: int, kind: int, identity: string) -> int {
             set candidate (+ candidate 1)
         }
         if (or (< field 0) (>= (at slots field) 0)) { return (nb_fail "each declared union field once") }
-        let expected: int = (nb_union_payload_tag (nb_union_field_type definition canonical (+ offset field)))
+        let spelling: string = (nb_union_field_type definition canonical (+ offset field))
+        let expected: int = (nb_concrete_tag parser spelling)
+        let layout: int = (nb_concrete_layout parser spelling)
         let value: int = (at literal.field_value_ids i)
         let value_kind: int = (at literal.field_value_types i)
-        if (!= (nb_expr parser value value_kind) expected) { return (nb_fail "the exact concrete union field type") }
+        let mut actual: int = 0
+        if (== expected 8) { let _: int = (nb_owner parser value value_kind layout) set actual 8 }
+        else { if (== expected 10) { set actual (nb_union_expr parser value value_kind spelling) }
+            else { set actual (nb_expr parser value value_kind) } }
+        if (!= actual expected) { return (nb_fail "the exact concrete union field type") }
         if (!= nb_error "") { return 0 }
-        let slot: int = (nb_slot "" expected 4294967295 0 false)
+        let slot: int = (nb_slot "" expected layout 0 false)
+        if (== expected 10) { (array_set nb_identities slot (at nb_union_identities layout)) }
         (array_set slots field slot)
-        let _: int = (nb_op1 "STORE_LOCAL" slot)
+        if (nb_owned_type expected layout) { let _: int = (nb_op1 "OWN_STORE_LOCAL" slot) }
+        else { let _: int = (nb_op1 "STORE_LOCAL" slot) }
         set i (+ i 1)
     }
     set i 0
-    while (< i count) { let _: int = (nb_op1 "LOAD_LOCAL" (at slots i)) set i (+ i 1) }
+    while (< i count) {
+        let slot: int = (at slots i)
+        if (nb_owned_local slot) { let _: int = (nb_op1 "OWN_MOVE_LOCAL" slot) (array_set nb_live slot false) }
+        else { let _: int = (nb_op1 "LOAD_LOCAL" slot) }
+        set i (+ i 1)
+    }
+    if (nb_owned_type 10 instance) { set nb_any_transfer true }
     let _: int = (nb_emit (+ "AGG_PACK 1 " (+ (int_to_string instance) (+ " " (+ (int_to_string variant) (+ " " (int_to_string count)))))))
     set nb_expression_layout instance set nb_expression_identity authoritative
     return 10
@@ -789,13 +918,13 @@ fn nb_union_expr(parser: Parser, id: int, kind: int, identity: string) -> int {
 shadow nb_union_expr {
     let tokens: List<LexerToken> = (tokenize_string "union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} } fn main() -> int { let first: Choice<int,string> = Choice.Left { value: 7 } let second: Choice<float,bool> = Choice.Right { value: true } return 0 }" "union-expr.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "union-expr.nano")
-    set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] set nb_error "" let _: int = (nb_reset_locals)
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] set nb_error "" let _: int = (nb_reset_locals)
     assert (nb_register_union parser "Choice<int,string>")
     assert (nb_register_union parser "Choice<float,bool>")
     assert (== (nb_union_expr parser 0 ParseNodeType.PNODE_UNION_CONSTRUCT "Choice<int,string>") 10)
     assert (str_contains nb_code "AGG_PACK 1 0 0 1")
     assert (== nb_expression_identity "#union:-1:0<int,string>")
-    let _: int = (nb_reset_locals) set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] set nb_error ""
+    let _: int = (nb_reset_locals) set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] set nb_error ""
 }
 
 fn nb_match_coverage(parser: Parser, matched: ASTMatch, definition: ASTUnion) -> bool {
@@ -840,26 +969,100 @@ shadow nb_match_scope_end {
     let _: int = (nb_reset_locals)
 }
 
-fn nb_match_binding(instance: int, variant: int, binding: string) -> int {
+fn nb_union_field(parser: Parser, local: int, name: string) -> int {
+    let instance: int = (at nb_layouts local)
+    let variant: int = (at nb_variants local)
+    if (or (< instance 0) (or (>= instance (array_length nb_union_sources)) (< variant 0))) { let _: int = (nb_fail "an exact selected union payload") return -1 }
+    let definition: ASTUnion = (parser_get_union parser (at nb_union_sources instance))
+    if (>= variant definition.variant_count) { let _: int = (nb_fail "a declared selected variant") return -1 }
+    let offset: int = (nb_union_offset definition variant)
+    let mut i: int = 0
+    while (< i (at definition.variant_field_counts variant)) {
+        if (== (at definition.variant_field_names (+ offset i)) name) { return i }
+        set i (+ i 1)
+    }
+    let _: int = (nb_fail "a declared selected payload field") return -1
+}
+shadow nb_union_field {
+    let parser: Parser = (nb_union_owner_fixture)
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+    assert (nb_register_union parser "Box<R>")
+    let _: int = (nb_reset_locals) set nb_error ""
+    let slot: int = (nb_slot "payload" 10 0 0 false)
+    (array_set nb_variants slot 0)
+    assert (== (nb_union_field parser slot "item") 0)
+    assert (== (nb_union_field parser slot "wrong") -1)
+    set nb_error "" let _: int = (nb_reset_locals)
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+}
+fn nb_union_unpack(parser: Parser, local: int) -> int {
+    let instance: int = (at nb_layouts local)
+    let variant: int = (at nb_variants local)
+    if (or (not (at nb_live local)) (< variant 0)) { return (nb_fail "a live selected union shell") }
+    let definition: ASTUnion = (parser_get_union parser (at nb_union_sources instance))
+    let count: int = (at definition.variant_field_counts variant)
+    let offset: int = (nb_union_offset definition variant)
+    let mut slots: array<int> = [] let mut i: int = 0
+    while (and (== nb_error "") (< i count)) {
+        let spelling: string = (nb_union_field_type definition (at nb_union_spellings instance) (+ offset i))
+        let tag: int = (nb_concrete_tag parser spelling)
+        let layout: int = (nb_concrete_layout parser spelling)
+        let slot: int = (nb_slot "" tag layout 0 false)
+        if (!= nb_error "") { return 0 }
+        if (== tag 10) { (array_set nb_identities slot (at nb_union_identities layout)) }
+        (array_set nb_projection_parents slot local) (array_set nb_projection_fields slot i)
+        set slots (array_push slots slot) set i (+ i 1)
+    }
+    let _: int = (nb_op1 "OWN_UNPACK_LOCAL" local) (array_set nb_live local false)
+    while (> i 0) {
+        set i (- i 1) let slot: int = (at slots i)
+        if (nb_owned_local slot) { let _: int = (nb_op1 "OWN_STORE_LOCAL" slot) }
+        else { let _: int = (nb_op1 "STORE_LOCAL" slot) }
+    }
+    return 0
+}
+shadow nb_union_unpack {
+    let parser: Parser = (nb_union_owner_fixture)
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+    assert (nb_register_union parser "Box<R>")
+    set nb_error "" let _: int = (nb_reset_locals)
+    let slot: int = (nb_slot "payload" 10 0 0 false) (array_set nb_variants slot 0)
+    let _: int = (nb_union_unpack parser slot)
+    assert (not (at nb_live slot)) assert (nb_owned_local 1)
+    assert (str_contains nb_code "OWN_STORE_LOCAL 1")
+    let _: int = (nb_reset_locals)
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+}
+fn nb_match_binding(parser: Parser, instance: int, variant: int, binding: string) -> int {
     let mut name: string = binding
     if (== name "_") { set name "" }
     let slot: int = (nb_slot name 10 instance 0 false)
     if (< slot 0) { return -1 }
     (array_set nb_identities slot (at nb_union_identities instance))
     (array_set nb_variants slot variant)
-    let _: int = (nb_emit "DUP")
-    let _: int = (nb_op1 "STORE_LOCAL" slot)
+    if (nb_owned_type 10 instance) {
+        let _: int = (nb_op1 "OWN_STORE_LOCAL" slot)
+        let definition: ASTUnion = (parser_get_union parser (at nb_union_sources instance))
+        let offset: int = (nb_union_offset definition variant)
+        let mut owned: bool = false let mut i: int = 0
+        while (< i (at definition.variant_field_counts variant)) {
+            let spelling: string = (nb_union_field_type definition (at nb_union_spellings instance) (+ offset i))
+            if (nb_owned_type (nb_concrete_tag parser spelling) (nb_concrete_layout parser spelling)) { set owned true }
+            set i (+ i 1)
+        }
+        if (not owned) { let _: int = (nb_union_unpack parser slot) }
+    } else { let _: int = (nb_emit "DUP") let _: int = (nb_op1 "STORE_LOCAL" slot) }
     let _: int = (nb_name_begin slot name)
     return slot
 }
 shadow nb_match_binding {
     set nb_error "" set nb_union_identities ["#union:1:0<int,string>"]
     let _: int = (nb_reset_locals)
-    let slot: int = (nb_match_binding 0 1 "payload")
+    let slot: int = (nb_match_binding (nb_fixture) 0 1 "payload")
     assert (== slot 0) assert (== (at nb_variants slot) 1)
     assert (== (at nb_identities slot) "#union:1:0<int,string>")
     assert (str_contains nb_code "DUP\n  STORE_LOCAL 0")
-    let _: int = (nb_reset_locals) set nb_union_identities []
+    let _: int = (nb_reset_locals) set nb_union_owned [] set nb_union_complete [] set nb_union_identities []
 }
 
 fn nb_match_instance(parser: Parser, matched: ASTMatch) -> int {
@@ -873,71 +1076,131 @@ fn nb_match_instance(parser: Parser, matched: ASTMatch) -> int {
     if (!= nb_expression_identity (at nb_union_identities instance)) {
         let _: int = (nb_fail "the authoritative concrete union match identity") return -1
     }
+    if (nb_owned_type 10 instance) {
+        let mut i: int = 0
+        while (< i matched.arm_count) {
+            if (>= (at matched.arm_guard_ids i) 0) { let _: int = (nb_fail "an exhaustive unguarded owned match") return -1 }
+            set i (+ i 1)
+        }
+    }
     return instance
 }
 shadow nb_match_instance {
     let tokens: List<LexerToken> = (tokenize_string "union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} } fn main(value: Choice<int,string>) -> int { return match value { Left(p) => p.value Right(p) => 0 Empty(p) => 0 } }" "match-instance.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "match-instance.nano")
-    set nb_error "" set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] let _: int = (nb_reset_locals)
+    set nb_error "" set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] let _: int = (nb_reset_locals)
     assert (nb_register_union parser "Choice<int,string>")
     let slot: int = (nb_slot "value" 10 0 0 false)
     (array_set nb_identities slot (at nb_union_identities 0))
     assert (== (nb_match_instance parser (parser_get_match parser 0)) 0)
-    let _: int = (nb_reset_locals) set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+    let _: int = (nb_reset_locals) set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
 }
 
-fn nb_match_expr(parser: Parser, node_id: int) -> int {
+fn nb_match_value(parser: Parser, node_id: int, expected: int, expected_layout: int) -> int {
     let matched: ASTMatch = (parser_get_match parser node_id)
     let instance: int = (nb_match_instance parser matched)
     if (< instance 0) { return 0 }
     let definition: ASTUnion = (parser_get_union parser (at nb_union_sources instance))
-    if (not (nb_match_coverage parser matched definition)) { return (nb_fail "complete named scalar union match coverage") }
+    if (not (nb_match_coverage parser matched definition)) { return (nb_fail "complete named union match coverage") }
+    let incoming_count: int = (array_length nb_live)
+    let incoming_live: array<bool> = (nb_copy_flags nb_live incoming_count)
+    let incoming_pending: array<bool> = (nb_copy_flags nb_disposal_pending incoming_count)
+    let mut joined_live: array<bool> = [] let mut joined_pending: array<bool> = [] let mut has_join: bool = false
     let end: string = (nb_label)
-    let mut result: int = 0
+    let mut result: int = 0 let mut result_layout: int = 4294967295 let mut result_identity: string = ""
     let mut arm_index: int = 0
     while (< arm_index matched.arm_count) {
-        if (== (at matched.arm_body_types arm_index) ParseNodeType.PNODE_BLOCK) { return (nb_fail "scalar expressions in value match arms") }
+        let mut local: int = 0
+        while (< local incoming_count) {
+            (array_set nb_live local (at incoming_live local)) (array_set nb_disposal_pending local (at incoming_pending local))
+            set local (+ local 1)
+        }
         let variant: int = (nb_union_variant definition (at matched.arm_variants arm_index))
         if (< variant 0) { return (nb_fail "a declared concrete union match variant") }
-        let arm: string = (nb_label)
-        let next: string = (nb_label)
+        let arm: string = (nb_label) let next: string = (nb_label)
         let _: int = (nb_emit (+ "MATCH_TAG " (+ (int_to_string variant) (+ " " arm))))
-        let _: int = (nb_emit (+ "JMP " next))
-        let _: int = (nb_emit (+ arm ":"))
+        let _: int = (nb_emit (+ "JMP " next)) let _: int = (nb_emit (+ arm ":"))
         let first: int = (array_length nb_names)
-        if (< (nb_match_binding instance variant (at matched.arm_bindings arm_index)) 0) { return 0 }
+        if (< (nb_match_binding parser instance variant (at matched.arm_bindings arm_index)) 0) { return 0 }
         let guard_id: int = (at matched.arm_guard_ids arm_index)
         if (>= guard_id 0) {
             if (!= (nb_expr parser guard_id (at matched.arm_guard_types arm_index)) 4) { return (nb_fail "an exact Boolean scalar union match guard") }
             let _: int = (nb_emit (+ "JMP_FALSE " next))
         }
-        let _: int = (nb_emit "POP")
-        let tag: int = (nb_expr parser (at matched.arm_body_ids arm_index) (at matched.arm_body_types arm_index))
-        if (not (or (== tag 1) (or (== tag 3) (or (== tag 4) (== tag 5))))) { return (nb_fail "one exact scalar value-match result") }
-        if (== result 0) { set result tag }
-        else { if (!= result tag) { return (nb_fail "one matching scalar value-match result type") } }
+        if (not (nb_owned_type 10 instance)) { let _: int = (nb_emit "POP") }
+        let mut body: int = (at matched.arm_body_ids arm_index)
+        let mut kind: int = (at matched.arm_body_types arm_index)
+        if (== kind ParseNodeType.PNODE_BLOCK) {
+            let block: ASTBlock = (parser_get_block parser body)
+            if (or block.is_par block.is_flow) { return (nb_fail "an ordinary lexical value-match block") }
+            let count: int = (list_ASTStmtRef_length block.statements)
+            if (<= count 0) { return (nb_fail "a final value in every match block") }
+            let prefix: List<ASTStmtRef> = (list_ASTStmtRef_new)
+            let mut i: int = 0
+            while (< i (- count 1)) { (list_ASTStmtRef_push prefix (list_ASTStmtRef_get block.statements i)) set i (+ i 1) }
+            let depth: int = nb_control_depth set nb_control_depth 0
+            let _: int = (nb_body_statements parser prefix false)
+            set nb_control_depth depth
+            if (or nb_returned nb_transferred) { return (nb_fail "a reaching final match value") }
+            let tail: ASTStmtRef = (list_ASTStmtRef_get block.statements (- count 1))
+            set body tail.node_id set kind tail.node_type
+        }
+        let mut tag: int = 0
+        if (== expected 10) { set tag (nb_union_expr parser body kind (at nb_union_spellings expected_layout)) }
+        else { if (== expected 8) { let _: int = (nb_owner parser body kind expected_layout) set tag 8 set nb_expression_layout expected_layout }
+            else { set tag (nb_expr parser body kind) } }
+        if (!= nb_error "") { return 0 }
+        if (not (or (== tag 1) (or (== tag 3) (or (== tag 4) (or (== tag 5) (or (== tag 8) (== tag 10))))))) { return (nb_fail "one exact value-match result") }
+        if (and (!= expected 0) (!= tag expected)) { return (nb_fail "the declared match result type") }
+        if (== result 0) { set result tag set result_layout nb_expression_layout set result_identity nb_expression_identity }
+        else {
+            if (or (!= result tag) (and (or (== tag 8) (== tag 10)) (!= result_layout nb_expression_layout))) { return (nb_fail "one matching exact value-match result type") }
+        }
+        if has_join { if (not (nb_same_owners incoming_count joined_live joined_pending)) { return 0 } }
+        else { set joined_live (nb_copy_flags nb_live incoming_count) set joined_pending (nb_copy_flags nb_disposal_pending incoming_count) set has_join true }
+        if (not (nb_consumed first)) { return 0 }
+        let _: int = (nb_cleanup parser first)
         let _: int = (nb_match_scope_end first)
-        let _: int = (nb_emit (+ "JMP " end))
-        let _: int = (nb_emit (+ next ":"))
+        let _: int = (nb_emit (+ "JMP " end)) let _: int = (nb_emit (+ next ":"))
         set arm_index (+ arm_index 1)
     }
-    let _: int = (nb_emit "POP")
-    let _: int = (nb_emit "PUSH_BOOL 0")
-    let _: int = (nb_emit "ASSERT")
-    let _: int = (nb_emit "HALT")
-    let _: int = (nb_emit (+ end ":"))
+    let _: int = (nb_emit "POP") let _: int = (nb_emit "PUSH_BOOL 0")
+    let _: int = (nb_emit "ASSERT") let _: int = (nb_emit "HALT") let _: int = (nb_emit (+ end ":"))
+    if has_join {
+        let mut local: int = 0
+        while (< local incoming_count) {
+            (array_set nb_live local (at joined_live local)) (array_set nb_disposal_pending local (at joined_pending local))
+            set local (+ local 1)
+        }
+    }
+    set nb_expression_layout result_layout set nb_expression_identity result_identity
     return result
+}
+shadow nb_match_value {
+    let tokens: List<LexerToken> = (tokenize_string "union Item { Number { value: int } } fn main(value: Item) -> int { return match value { Number(payload) => payload.value } }" "value-match.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "value-match.nano")
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+    assert (nb_register_union parser "Item")
+    set nb_error "" let _: int = (nb_reset_locals)
+    let slot: int = (nb_slot "value" 10 0 0 false) (array_set nb_identities slot (at nb_union_identities 0))
+    assert (== (nb_match_value parser 0 1 4294967295) 1)
+    assert (str_contains nb_code "AGG_GET 0")
+    let _: int = (nb_reset_locals)
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+}
+fn nb_match_expr(parser: Parser, node_id: int) -> int {
+    return (nb_match_value parser node_id 0 4294967295)
 }
 shadow nb_match_expr {
     let tokens: List<LexerToken> = (tokenize_string "union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} } fn main(value: Choice<int,string>) -> int { return match value { Left(p) if false => 9 Left(p) => p.value Right(p) => 0 Empty(p) => 0 } }" "match-expression.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "match-expression.nano")
-    set nb_error "" set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] let _: int = (nb_reset_locals)
+    set nb_error "" set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] let _: int = (nb_reset_locals)
     assert (nb_register_union parser "Choice<int,string>")
     let slot: int = (nb_slot "value" 10 0 0 false)
     (array_set nb_identities slot (at nb_union_identities 0))
     assert (== (nb_match_expr parser 0) 1)
     assert (str_contains nb_code "MATCH_TAG 0") assert (str_contains nb_code "AGG_GET 0")
-    let _: int = (nb_reset_locals) set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+    let _: int = (nb_reset_locals) set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
 }
 
 fn nb_match_statement(parser: Parser, node_id: int) -> int {
@@ -973,17 +1236,19 @@ fn nb_match_statement(parser: Parser, node_id: int) -> int {
         let _: int = (nb_emit (+ "JMP " next))
         let _: int = (nb_emit (+ arm ":"))
         let first: int = (array_length nb_names)
-        if (< (nb_match_binding instance variant (at matched.arm_bindings arm_index)) 0) { return 0 }
+        if (< (nb_match_binding parser instance variant (at matched.arm_bindings arm_index)) 0) { return 0 }
         let guard_id: int = (at matched.arm_guard_ids arm_index)
         if (>= guard_id 0) {
             if (!= (nb_expr parser guard_id (at matched.arm_guard_types arm_index)) 4) { return (nb_fail "an exact Boolean scalar union match guard") }
             let _: int = (nb_emit (+ "JMP_FALSE " next))
         }
-        let _: int = (nb_emit "POP")
+        if (not (nb_owned_type 10 instance)) { let _: int = (nb_emit "POP") }
         set nb_control_depth (+ nb_control_depth 1)
         let _: int = (nb_body parser (at matched.arm_body_ids arm_index) false)
         set nb_control_depth (- nb_control_depth 1)
         if (!= nb_error "") { return 0 }
+        if (not (nb_consumed first)) { return 0 }
+        let _: int = (nb_cleanup parser first)
         let arm_return: bool = nb_returned
         let arm_stop: bool = (or nb_returned nb_transferred)
         let _: int = (nb_match_scope_end first)
@@ -1022,7 +1287,7 @@ fn nb_match_statement(parser: Parser, node_id: int) -> int {
 shadow nb_match_statement {
     let tokens: List<LexerToken> = (tokenize_string "union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} } fn main(value: Choice<int,string>) -> int { match value { Left(p) => { return p.value } Right(p) => { return 0 } Empty(p) => { return 0 } } }" "match-statement.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "match-statement.nano")
-    set nb_error "" set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] let _: int = (nb_reset_locals)
+    set nb_error "" set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] let _: int = (nb_reset_locals)
     assert (nb_register_union parser "Choice<int,string>")
     let slot: int = (nb_slot "value" 10 0 0 false)
     (array_set nb_identities slot (at nb_union_identities 0))
@@ -1030,7 +1295,7 @@ shadow nb_match_statement {
     let _: int = (nb_match_statement parser 0)
     assert (== nb_error "") assert nb_returned
     assert (str_contains nb_code "MATCH_TAG 0") assert (str_contains nb_code "RET")
-    let _: int = (nb_reset_locals) set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+    let _: int = (nb_reset_locals) set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
 }
 
 fn nb_declared_match_binding(parser: Parser, name: string) -> bool {
@@ -1054,9 +1319,143 @@ shadow nb_declared_match_binding {
     assert (not (nb_declared_match_binding parser "outside"))
 }
 
+fn nb_module_prefixes() -> array<string> {
+    return ["___module_is_unsafe_", "___module_has_ffi_", "___module_name_", "___module_path_", "___module_function_count_", "___module_struct_count_", "___module_function_name_", "___module_struct_name_"]
+}
+shadow nb_module_prefixes { assert (== (array_length (nb_module_prefixes)) 8) }
+fn nb_module_kind(name: string) -> int {
+    let prefixes: array<string> = (nb_module_prefixes)
+    let mut i: int = 0
+    while (< i (array_length prefixes)) {
+        if (str_starts_with name (at prefixes i)) { return i }
+        set i (+ i 1)
+    }
+    return -1
+}
+shadow nb_module_kind {
+    assert (== (nb_module_kind "___module_function_name_probe") 6)
+    assert (== (nb_module_kind "ordinary") -1)
+}
+fn nb_module_signature(parser: Parser, function: ASTFunction) -> bool {
+    let kind: int = (nb_module_kind function.name)
+    if (< kind 0) { return false }
+    let mut result: string = "string"
+    if (< kind 2) { set result "bool" }
+    if (and (>= kind 4) (< kind 6)) { set result "int" }
+    let mut arity: int = 0
+    if (>= kind 6) { set arity 1 }
+    if (or (!= function.return_type result) (!= function.param_count arity)) { return false }
+    if (== arity 1) { return (== (parser_get_let parser function.param_start).var_type "int") }
+    return true
+}
+shadow nb_module_signature {
+    let tokens: List<LexerToken> = (tokenize_string "extern fn ___module_name_probe()->string extern fn ___module_struct_name_probe(i:bool)->string" "facts.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "facts.nano")
+    assert (nb_module_signature parser (parser_get_function parser 0))
+    assert (not (nb_module_signature parser (parser_get_function parser 1)))
+}
+fn nb_module_external(parser: Parser, name: string) -> bool {
+    let mut i: int = 0
+    while (< i (parser_get_function_count parser)) {
+        let function: ASTFunction = (parser_get_function parser i)
+        if (== function.name name) { return (and (< function.body 0) (nb_module_signature parser function)) }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow nb_module_external {
+    let tokens: List<LexerToken> = (tokenize_string "extern fn ___module_name_probe()->string fn ___module_name_local()->string{return \"local\"}" "facts.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "facts.nano")
+    assert (nb_module_external parser "___module_name_probe")
+    assert (not (nb_module_external parser "___module_name_local"))
+    assert (not (nb_module_external parser "___module_name_missing"))
+}
+fn nb_defined_count(parser: Parser) -> int {
+    let mut count: int = 0
+    let mut i: int = 0
+    while (< i (parser_get_function_count parser)) {
+        if (>= (parser_get_function parser i).body 0) { set count (+ count 1) }
+        set i (+ i 1)
+    }
+    return count
+}
+shadow nb_defined_count {
+    let tokens: List<LexerToken> = (tokenize_string "extern fn host()->int fn main()->int{return 0}" "count.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "count.nano")
+    assert (== (nb_defined_count parser) 1)
+}
+fn nb_module_names(values: array<string>) -> int {
+    let done: string = (nb_label)
+    let mut i: int = 0
+    while (< i (array_length values)) {
+        let next: string = (nb_label)
+        let _: int = (nb_emit "DUP")
+        let _: int = (nb_op1 "PUSH_I64" i)
+        let _: int = (nb_emit "EQ")
+        let _: int = (nb_emit (+ "JMP_FALSE " next))
+        let _: int = (nb_emit "POP")
+        let _: int = (nb_op1 "PUSH_STR" (nb_string (at values i)))
+        let _: int = (nb_emit (+ "JMP " done))
+        let _: int = (nb_emit (+ next ":"))
+        set i (+ i 1)
+    }
+    let _: int = (nb_emit "POP")
+    let _: int = (nb_op1 "PUSH_STR" (nb_string ""))
+    let _: int = (nb_emit (+ done ":"))
+    return 5
+}
+shadow nb_module_names {
+    set nb_error "" set nb_code "" set nb_strings []
+    assert (== (nb_module_names ["answer"]) 5)
+    assert (str_contains nb_code "  EQ\n")
+    assert (not (str_contains nb_code "STORE_LOCAL"))
+    set nb_code "" set nb_strings []
+}
+fn nb_module_call(parser: Parser, call: ASTCall, name: string) -> int {
+    let kind: int = (nb_module_kind name)
+    let prefix: string = (at (nb_module_prefixes) kind)
+    let suffix: string = (str_substring name (str_length prefix) (- (str_length name) (str_length prefix)))
+    let info: ModuleIntrospection = (mi_fact suffix)
+    if (not info.ok) { return (nb_fail (+ "I reject ambiguous module introspection identity: " suffix)) }
+    if (>= kind 6) {
+        if (!= call.arg_count 1) { return (nb_fail "the exact module introspection arguments") }
+        let arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+        if (!= (nb_expr parser arg.node_id arg.node_type) 1) { return (nb_fail "an integer module introspection index") }
+        if (== kind 6) { return (nb_module_names info.functions) }
+        return (nb_module_names info.structs)
+    }
+    if (!= call.arg_count 0) { return (nb_fail "the exact module introspection arguments") }
+    if (< kind 2) {
+        let mut value: bool = info.is_unsafe
+        if (== kind 1) { set value info.has_ffi }
+        let mut number: int = 0
+        if value { set number 1 }
+        let _: int = (nb_op1 "PUSH_BOOL" number) return 4
+    }
+    if (== kind 2) { let _: int = (nb_op1 "PUSH_STR" (nb_string suffix)) return 5 }
+    if (== kind 3) { let _: int = (nb_op1 "PUSH_STR" (nb_string info.path)) return 5 }
+    if (== kind 4) { let _: int = (nb_op1 "PUSH_I64" (array_length info.functions)) return 1 }
+    let _: int = (nb_op1 "PUSH_I64" (array_length info.structs)) return 1
+}
+shadow nb_module_call {
+    let tokens: List<LexerToken> = (tokenize_string "fn main()->int{return (___module_function_count_missing)}" "facts.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "facts.nano")
+    set nb_error "" set nb_code ""
+    assert (== (nb_module_call parser (parser_get_call parser 0) "___module_function_count_missing") 1)
+    assert (str_contains nb_code "PUSH_I64 0")
+    (mi_reset)
+    assert (mi_capture "module ambiguous" "/one.nano")
+    assert (mi_capture "module ambiguous" "/two.nano")
+    let _: int = (nb_module_call parser (parser_get_call parser 0) "___module_function_count_ambiguous")
+    assert (!= nb_error "")
+    (mi_reset)
+    set nb_error ""
+    set nb_code ""
+}
+
 fn nb_value_call(parser: Parser, name: string, arg_start: int, arg_count: int) -> int {
     let target: int = (nb_function_index parser name)
-    if (or (<= target 0) (>= (nb_local name) 0)) { return (nb_fail "an unshadowed direct non-entry value-call target") }
+    if (or (<= target 0) (nb_value_bound name)) { return (nb_fail "an unshadowed direct non-entry value-call target") }
     let function: ASTFunction = (parser_get_function parser (at nb_functions target))
     if (!= arg_count function.param_count) { return (nb_fail "the exact declared value-call arity") }
     let mut i: int = 0
@@ -1068,14 +1467,15 @@ fn nb_value_call(parser: Parser, name: string, arg_start: int, arg_count: int) -
         if (>= union_layout 0) {
             if (!= (nb_union_expr parser argument.node_id argument.node_type parameter.var_type) 10) { return 0 }
         } else { if (>= layout 0) {
-            if (== argument.node_type ParseNodeType.PNODE_IDENTIFIER) {
+            if (nb_ordinary_layout layout) { let _: int = (nb_ordinary parser argument.node_id argument.node_type layout) }
+            else { if (== argument.node_type ParseNodeType.PNODE_IDENTIFIER) {
                 let local: int = (nb_local (parser_get_identifier parser argument.node_id).name)
                 if (< local 0) { return (nb_fail "an existing owner argument") }
                 if (or (not (at nb_live local)) (or (!= (at nb_modes local) 0) (or (at nb_disposal_pending local) (or (!= (at nb_tags local) 8) (!= (at nb_layouts local) layout))))) { return (nb_fail "a named live exact whole owner argument") }
                 let _: int = (nb_op1 "OWN_MOVE_LOCAL" local)
                 (array_set nb_live local false)
                 set nb_any_transfer true
-            } else { let _: int = (nb_owner parser argument.node_id argument.node_type layout) }
+            } else { let _: int = (nb_owner parser argument.node_id argument.node_type layout) } }
         } else {
             if (!= (nb_expr parser argument.node_id argument.node_type) (nb_parameter_tag parameter.var_type)) { return (nb_fail "the exact positional scalar argument") }
         } }
@@ -1089,6 +1489,44 @@ fn nb_value_call(parser: Parser, name: string, arg_start: int, arg_count: int) -
     let union_result: int = (nb_union_instance parser function.return_type)
     if (>= union_result 0) { set nb_expression_layout union_result set nb_expression_identity (at nb_union_identities union_result) }
     return (nb_result_tag parser function.return_type)
+}
+
+fn nb_ordinary_receiver(parser: Parser, id: int, kind: int) -> int {
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) {
+        let local: int = (nb_local (parser_get_identifier parser id).name)
+        if (nb_ordinary_local local) { return (at nb_layouts local) }
+        return -1
+    }
+    if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
+        let field: ASTFieldAccess = (parser_get_field_access parser id)
+        let parent: int = (nb_ordinary_receiver parser field.object field.object_type)
+        if (< parent 0) { return -1 }
+        let record: ASTStruct = (parser_get_struct_def parser parent)
+        let mut index: int = 0
+        while (< index record.field_count) {
+            if (== (at record.field_names index) field.field_name) {
+                let child: int = (nb_record parser (at record.field_types index))
+                if (nb_ordinary_layout child) { return child }
+                return -1
+            }
+            set index (+ index 1)
+        }
+    }
+    return -1
+}
+shadow nb_ordinary_receiver {
+    let tokens: List<LexerToken> = (tokenize_string "struct Leaf { value: int } struct Box { child: Leaf } fn main() -> int { let box: Box = Box { child: Leaf { value: 3 } } return box.child.value }" "ordinary-receiver.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "ordinary-receiver.nano")
+    let saved: array<bool> = nb_ordinary_layouts
+    set nb_ordinary_layouts [true, true]
+    let _: int = (nb_reset_locals)
+    let _: int = (nb_slot "box" 8 1 0 false)
+    let field: ASTFieldAccess = (parser_get_field_access parser 1)
+    assert (== (nb_ordinary_receiver parser field.object field.object_type) 0)
+    set nb_ordinary_layouts [false, false]
+    assert (== (nb_ordinary_receiver parser field.object field.object_type) -1)
+    set nb_ordinary_layouts saved
+    let _: int = (nb_reset_locals)
 }
 
 fn nb_expr(parser: Parser, id: int, kind: int) -> int {
@@ -1119,14 +1557,39 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     }
     if (== kind ParseNodeType.PNODE_IDENTIFIER) {
         let local: int = (nb_local (parser_get_identifier parser id).name)
-        if (< local 0) { return (nb_fail "a live scalar local") }
+        if (< local 0) {
+            let global: int = (nb_global (parser_get_identifier parser id).name)
+            if (< global 0) { return (nb_fail "a live scalar local or declared global") }
+            set nb_expression_layout (at nb_global_layouts global)
+            set nb_expression_identity ""
+            if (== (at nb_global_tags global) 10) { set nb_expression_identity (at nb_union_identities nb_expression_layout) }
+            let _: int = (nb_op1 "LOAD_GLOBAL" global)
+            return (at nb_global_tags global)
+        }
         if (or (not (at nb_live local)) (and (== (at nb_tags local) 8) (not (nb_ordinary_local local)))) { return (nb_fail "a scalar value, not a copied owner/reference") }
         set nb_expression_layout (at nb_layouts local)
         set nb_expression_identity (at nb_identities local)
-        let _: int = (nb_op1 "LOAD_LOCAL" local) return (at nb_tags local)
+        if (nb_owned_local local) {
+            let _: int = (nb_op1 "OWN_MOVE_LOCAL" local)
+            (array_set nb_live local false) set nb_any_transfer true
+        } else { let _: int = (nb_op1 "LOAD_LOCAL" local) }
+        return (at nb_tags local)
     }
     if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
         let field: ASTFieldAccess = (parser_get_field_access parser id)
+        let ordinary: int = (nb_ordinary_receiver parser field.object field.object_type)
+        if (>= ordinary 0) {
+            let index: int = (nb_layout_field parser ordinary field.field_name)
+            if (< index 0) { return 0 }
+            if (!= (nb_expr parser field.object field.object_type) 8) { return (nb_fail "an exact ordinary receiver") }
+            let spelling: string = (at (parser_get_struct_def parser ordinary).field_types index)
+            set nb_expression_layout (nb_record parser spelling)
+            let mut tag: int = (nb_tag spelling)
+            if (nb_ordinary_layout nb_expression_layout) { set tag 8 }
+            if (== spelling "array<float>") { set tag 7 }
+            let _: int = (nb_op1 "AGG_GET" index)
+            return tag
+        }
         if (== field.object_type ParseNodeType.PNODE_IDENTIFIER) {
             let object_name: string = (parser_get_identifier parser field.object).name
             let local: int = (nb_local object_name)
@@ -1136,7 +1599,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
             if (and (>= local 0) (== (at nb_tags local) 10)) {
                 let instance: int = (at nb_layouts local)
                 let variant: int = (at nb_variants local)
-                if (or (not (at nb_live local)) (or (< instance 0) (or (>= instance (array_length nb_union_identities)) (< variant 0)))) {
+                if (or (< instance 0) (or (>= instance (array_length nb_union_identities)) (< variant 0))) {
                     return (nb_fail "a live variant-qualified scalar union payload")
                 }
                 if (!= (at nb_identities local) (at nb_union_identities instance)) { return (nb_fail "the authoritative payload binding identity") }
@@ -1152,8 +1615,22 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
                 }
                 if (< index 0) { return (nb_fail "a declared exact variant payload field") }
                 let spelling: string = (nb_union_field_type definition (at nb_union_spellings instance) (+ offset index))
-                let tag: int = (nb_union_payload_tag spelling)
-                if (== tag 0) { return (nb_fail "an exact scalar variant payload field") }
+                let tag: int = (nb_concrete_tag parser spelling)
+                let layout: int = (nb_concrete_layout parser spelling)
+                if (== tag 0) { return (nb_fail "an exact variant payload field") }
+                set nb_expression_layout layout set nb_expression_identity ""
+                if (== tag 10) { set nb_expression_identity (at nb_union_identities layout) }
+                if (nb_owned_local local) {
+                    let mut source: int = -1 let mut i: int = 0
+                    while (< i (array_length nb_names)) {
+                        if (and (== (at nb_projection_parents i) local) (== (at nb_projection_fields i) index)) { set source i }
+                        set i (+ i 1)
+                    }
+                    if (< source 0) { return (nb_fail "explicit selected resource payload destruction") }
+                    if (or (not (at nb_live source)) (nb_owned_type tag layout)) { return (nb_fail "explicit selected resource payload destruction") }
+                    let _: int = (nb_op1 "LOAD_LOCAL" source) return tag
+                }
+                if (not (at nb_live local)) { return (nb_fail "a live selected payload") }
                 let _: int = (nb_op1 "LOAD_LOCAL" local)
                 let _: int = (nb_op1 "AGG_GET" index)
                 return tag
@@ -1218,8 +1695,12 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
         let call: ASTCall = (parser_get_call parser id)
         if (and (== call.function_type ParseNodeType.PNODE_IDENTIFIER) (== call.borrow_mode 0)) {
             let name: string = (parser_get_identifier parser call.function).name
+            let resolved: string = (mb_resolve name call.line nb_names)
+            if (and (nb_module_external parser resolved) (and (not (nb_value_bound name)) (< (nb_function_index parser resolved) 0))) {
+                return (nb_module_call parser call resolved)
+            }
             let arity: int = (nb_array_builtin_arity name)
-            if (and nb_owner_arrays (and (> arity 0) (and (< (nb_local name) 0) (< (nb_function_index parser name) 0)))) {
+            if (and nb_owner_arrays (and (> arity 0) (and (not (nb_value_bound name)) (< (nb_function_index parser name) 0)))) {
                 if (!= call.arg_count arity) { return (nb_fail "the exact array builtin arity") }
                 let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                 if (!= (nb_expr parser receiver.node_id receiver.node_type) 7) { return (nb_fail "an exact FLOAT array receiver") }
@@ -1234,7 +1715,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
                 if (== arity 3) { let _: int = (nb_emit "ARR_SET") let _: int = (nb_emit "POP") return 0 }
                 let _: int = (nb_emit "ARR_PUSH") return 7
             }
-            if (and (nb_arrays) (and (== (parser_get_identifier parser call.function).name "at") (and (< (nb_local "at") 0) (< (nb_function_index parser "at") 0)))) {
+            if (and (nb_arrays) (and (== (parser_get_identifier parser call.function).name "at") (and (not (nb_value_bound "at")) (< (nb_function_index parser "at") 0)))) {
                 if (!= call.arg_count 2) { return (nb_fail "an exact FLOAT array and integer index") }
                 let values_arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                 let index: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
@@ -1243,7 +1724,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
                 # I retain the runtime FLOAT-or-VOID obligation at this raw projection.
                 let _: int = (nb_emit "ARR_GET") return 3
             }
-            if (and (== (parser_get_identifier parser call.function).name "not") (and (< (nb_local "not") 0) (< (nb_function_index parser "not") 0))) {
+            if (and (== (parser_get_identifier parser call.function).name "not") (and (not (nb_value_bound "not")) (< (nb_function_index parser "not") 0))) {
                 if (!= call.arg_count 1) { return (nb_fail "one Boolean not operand") }
                 let arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                 if (!= (nb_expr parser arg.node_id arg.node_type) 4) { return (nb_fail "a Boolean not operand") }
@@ -1255,7 +1736,7 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
         let call: ASTCall = (parser_get_call parser id)
         if (and (== call.function_type ParseNodeType.PNODE_IDENTIFIER) (== call.borrow_mode 0)) {
             let name: string = (parser_get_identifier parser call.function).name
-            if (and (or (== name "print") (== name "println")) (and (< (nb_local name) 0) (< (nb_function_index parser name) 0))) {
+            if (and (or (== name "print") (== name "println")) (and (not (nb_value_bound name)) (< (nb_function_index parser name) 0))) {
                 if nb_owner_arrays { return (nb_fail "STRING print outside the owner ARRAY profile") }
                 if (!= call.arg_count 1) { return (nb_fail "one exact immutable string print operand") }
                 let argument: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
@@ -1334,6 +1815,10 @@ fn nb_expr(parser: Parser, id: int, kind: int) -> int {
 fn nb_owner(parser: Parser, id: int, kind: int, layout: int) -> int {
     if (!= nb_error "") { return 0 }
     if (nb_ordinary_layout layout) { return (nb_fail "a resource layout for owner transfer") }
+    if (== kind ParseNodeType.PNODE_MATCH) {
+        if (!= (nb_match_value parser id 8 layout) 8) { return (nb_fail "the exact owned match result") }
+        return 0
+    }
     if (== kind ParseNodeType.PNODE_STRUCT_LITERAL) {
         let value: ASTStructLiteral = (parser_get_struct_literal parser id)
         let record: ASTStruct = (parser_get_struct_def parser layout)
@@ -1387,7 +1872,7 @@ fn nb_owner(parser: Parser, id: int, kind: int, layout: int) -> int {
             let _: int = (nb_op1 "OWN_MOVE_LOCAL" old)
             (array_set nb_live old false) (array_set nb_disposal_pending old false)
         } else {
-            if (and (== kind ParseNodeType.PNODE_CALL) nb_value_graph) {
+            if (and (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) nb_value_graph) {
                 if (!= (nb_expr parser id kind) 8) { return (nb_fail "an owned call result") }
                 if (!= nb_expression_layout layout) { return (nb_fail "the exact nominal owned call result") }
             } else { return (nb_fail "a resource constructor, exact owner move or destructive pattern") }
@@ -1404,6 +1889,11 @@ fn nb_ordinary(parser: Parser, id: int, kind: int, layout: int) -> int {
         if (or (not (at nb_live local)) (!= (at nb_layouts local) layout)) { return (nb_fail "an exact live ordinary record alias") }
         return (nb_op1 "LOAD_LOCAL" local)
     }
+    if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+        if (!= (nb_expr parser id kind) 8) { return (nb_fail "an ordinary record call result") }
+        if (!= nb_expression_layout layout) { return (nb_fail "the exact ordinary call result layout") }
+        return 0
+    }
     if (!= kind ParseNodeType.PNODE_STRUCT_LITERAL) { return (nb_fail "an exact complete ordinary constructor") }
     let value: ASTStructLiteral = (parser_get_struct_literal parser id)
     let record: ASTStruct = (parser_get_struct_def parser layout)
@@ -1416,14 +1906,20 @@ fn nb_ordinary(parser: Parser, id: int, kind: int, layout: int) -> int {
         if (< field 0) { return 0 }
         if (>= (at slots field) 0) { return (nb_fail "distinct ordinary constructor fields") }
         let spelling: string = (at record.field_types field)
+        let child: int = (nb_record parser spelling)
         let mut tag: int = 0 let mut expected: int = (nb_tag spelling)
         if (== spelling "array<float>") {
             set expected 7
             set tag (nb_float_array parser (at value.field_value_ids i) (at value.field_value_types i) true)
-        } else { set tag (nb_expr parser (at value.field_value_ids i) (at value.field_value_types i)) }
+        } else { if (nb_ordinary_layout child) {
+            let _: int = (nb_ordinary parser (at value.field_value_ids i) (at value.field_value_types i) child)
+            set tag 8 set expected 8
+        } else { set tag (nb_expr parser (at value.field_value_ids i) (at value.field_value_types i)) } }
         if (!= tag expected) { return (nb_fail "exact ordinary field types") }
         if (!= nb_error "") { return 0 }
-        let slot: int = (nb_slot "" tag 4294967295 0 false)
+        let mut retained: int = 4294967295
+        if (== tag 8) { set retained child }
+        let slot: int = (nb_slot "" tag retained 0 false)
         if (!= nb_error "") { return 0 }
         (array_set slots field slot) let _: int = (nb_op1 "STORE_LOCAL" slot)
         set i (+ i 1)
@@ -1436,8 +1932,41 @@ shadow nb_ordinary {
     set nb_error "" set nb_mixed false
     let _: int = (nb_ordinary (nb_fixture) 0 ParseNodeType.PNODE_NUMBER 0)
     assert (!= nb_error "") set nb_error ""
+    let tokens: List<LexerToken> = (tokenize_string "struct Plain { value: int } struct Box { child: Plain } resource struct Handle { fd: int } fn copy(value: Plain) -> Plain { return value } shadow copy { let plain: Plain = Plain { value: 7 } let copied: Plain = (copy plain) assert (== copied.value plain.value) } fn close(value: Handle) -> int { let Handle { fd } = value return fd } shadow close { assert (== (close Handle { fd: 3 }) 3) } fn main() -> int { let plain: Plain = Plain { value: 7 } let boxed: Box = Box { child: plain } let copied: Plain = (copy plain) assert (== boxed.child.value copied.value) return (- (close Handle { fd: 3 }) 3) } shadow main { assert (== (main) 0) }" "copyable-record.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "copyable-record.nano")
+    assert (not (parser_has_error parser))
+    let output: string = (nanoisa_borrow_emit parser true 0)
+    assert (!= output "")
+    assert (str_contains output "AGG_PACK 0 0 0 1")
+    assert (str_contains output "AGG_PACK 0 1 0 1")
+    assert (str_contains output "OWN_PACK 2")
+    assert (str_contains output "AGG_GET 0")
+    let _: string = (nanoisa_borrow_emit (nb_fixture) false 0)
 }
 fn nb_binding(parser: Parser, binding: ASTLet) -> int {
+    if (and binding.is_destructure (== binding.value_type ParseNodeType.PNODE_IDENTIFIER)) {
+        let selected: int = (nb_local (parser_get_identifier parser binding.value).name)
+        if (>= selected 0) { if (and (== (at nb_tags selected) 10) (nb_owned_local selected)) {
+            let variant: int = (at nb_variants selected)
+            if (< variant 0) { return (nb_fail "a proven selected union pattern") }
+            let definition: ASTUnion = (parser_get_union parser (at nb_union_sources (at nb_layouts selected)))
+            if (!= binding.var_type (+ definition.name (+ "." (at definition.variant_names variant)))) { return (nb_fail "the exact selected union pattern identity") }
+            if (!= (array_length binding.destructure_names) (at definition.variant_field_counts variant)) { return (nb_fail "every selected payload field once") }
+            let mut i: int = 0
+            while (< i (array_length binding.destructure_names)) {
+                if (< (nb_union_field parser selected (at binding.destructure_names i)) 0) { return 0 }
+                let mut prior: int = 0
+                while (< prior i) {
+                    if (== (at binding.destructure_names prior) (at binding.destructure_names i)) { return (nb_fail "distinct selected payload fields") }
+                    set prior (+ prior 1)
+                }
+                set i (+ i 1)
+            }
+            if (at nb_live selected) { let _: int = (nb_union_unpack parser selected) }
+            (array_set nb_names selected binding.name)
+            return 0
+        } }
+    }
     if (nb_project_binding parser binding) { return 0 }
     let layout: int = (nb_record parser binding.var_type)
     let union_layout: int = (nb_union_instance parser binding.var_type)
@@ -1447,7 +1976,9 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
         if (!= nb_error "") { return 0 }
         let slot: int = (nb_slot binding.name 10 union_layout 0 binding.is_mut)
         (array_set nb_identities slot (at nb_union_identities union_layout))
-        let _: int = (nb_op1 "STORE_LOCAL" slot)
+        if (nb_owned_type 10 union_layout) {
+            let _: int = (nb_op1 "OWN_STORE_LOCAL" slot) set nb_any_transfer true
+        } else { let _: int = (nb_op1 "STORE_LOCAL" slot) }
         return (nb_name_begin slot binding.name)
     }
     if (nb_ordinary_layout layout) {
@@ -1556,7 +2087,7 @@ fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: b
                 let call: ASTCall = (parser_get_call parser loop.iterable)
                 if (or (!= call.function_type ParseNodeType.PNODE_IDENTIFIER) (!= call.borrow_mode 0)) { return (nb_fail "a direct builtin range") }
                 if (!= (parser_get_identifier parser call.function).name "range") { return (nb_fail "a direct builtin range") }
-                if (or (>= (nb_local "range") 0) (>= (nb_function_index parser "range") 0)) { return (nb_fail "an unshadowed builtin range") }
+                if (or (nb_value_bound "range") (>= (nb_function_index parser "range") 0)) { return (nb_fail "an unshadowed builtin range") }
                 if (!= call.arg_count 2) { return (nb_fail "two integer range bounds") }
                 let first_arg: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
                 if (!= (nb_expr parser first_arg.node_id first_arg.node_type) 1) { return (nb_fail "integer range bounds") }
@@ -1658,16 +2189,24 @@ fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: b
                 if (== stmt.node_type ParseNodeType.PNODE_SET) {
                     let assignment: ASTSet = (parser_get_set parser stmt.node_id)
                     let local: int = (nb_local assignment.target)
-                    if (< local 0) { return (nb_fail "an existing mutable target") }
+                    if (< local 0) {
+                        let global: int = (nb_global assignment.target)
+                        if (< global 0) { return (nb_fail "an existing mutable target") }
+                        let binding: ASTLet = (parser_get_let parser (at nb_globals global))
+                        if (or (not binding.is_mut) (!= assignment.field_name "")) { return (nb_fail "a mutable whole global target") }
+                        let _: int = (nb_global_value parser global assignment.value assignment.value_type)
+                        set i (+ i 1)
+                        continue
+                    }
                     if (or (nb_ordinary_local local) (== (at nb_tags local) 7)) { return (nb_fail "ordinary managed bindings without assignment") }
-                    if (and (== assignment.field_name "") (== (at nb_tags local) 8)) {
+                    if (and (== assignment.field_name "") (nb_owned_local local)) {
                         let mut source: int = -1
                         if (== assignment.value_type ParseNodeType.PNODE_IDENTIFIER) {
                             set source (nb_local (parser_get_identifier parser assignment.value).name)
                         }
                         if (or (not (at nb_mutable local)) (or (at nb_live local) (!= (at nb_modes local) 0))) { return (nb_fail "a consumed mutable owner destination") }
                         if (< source 0) { return (nb_fail "an exact live owner assignment source") }
-                        if (or (not (at nb_live source)) (or (!= (at nb_modes source) 0) (or (!= (at nb_tags source) 8) (!= (at nb_layouts source) (at nb_layouts local))))) { return (nb_fail "an exact live owner assignment source") }
+                        if (or (not (at nb_live source)) (or (!= (at nb_modes source) 0) (or (!= (at nb_tags source) (at nb_tags local)) (!= (at nb_layouts source) (at nb_layouts local))))) { return (nb_fail "an exact live owner assignment source") }
                         if (at nb_disposal_pending source) { return (nb_fail "an unconsumed source owner") }
                         let _: int = (nb_op1 "OWN_MOVE_LOCAL" source)
                         (array_set nb_live source false) (array_set nb_disposal_pending source false)
@@ -1692,7 +2231,10 @@ fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: b
                 } else {
                     if (and (== stmt.node_type ParseNodeType.PNODE_RETURN) (not is_shadow)) {
                         let result: ASTReturn = (parser_get_return parser stmt.node_id)
-                        if (== nb_result 8) { let _: int = (nb_owner parser result.value result.value_type nb_result_layout) }
+                        if (== nb_result 8) {
+                            if (nb_ordinary_layout nb_result_layout) { let _: int = (nb_ordinary parser result.value result.value_type nb_result_layout) }
+                            else { let _: int = (nb_owner parser result.value result.value_type nb_result_layout) }
+                        }
                         else { if (== nb_result 10) {
                             if (!= (nb_union_expr parser result.value result.value_type (at nb_union_spellings nb_result_layout)) 10) { return 0 }
                         }
@@ -1709,7 +2251,7 @@ fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: b
                     } else {
                         if (== stmt.node_type ParseNodeType.PNODE_CALL) {
                             let tag: int = (nb_expr parser stmt.node_id stmt.node_type)
-                            if (== tag 8) { return (nb_fail "explicit consumption of an owned call result") }
+                            if (nb_owned_type tag nb_expression_layout) { return (nb_fail "explicit consumption of an owned call result") }
                             if (!= tag 0) { let _: int = (nb_emit "POP") }
                         } else { return (nb_fail "straight-line let/set/assert/call/return statements") }
                     }
@@ -1780,6 +2322,14 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
             set parameter_index (+ parameter_index 1)
         }
     }
+    if (not helper) {
+        let mut global: int = 0
+        while (and (== nb_error "") (< global (array_length nb_globals))) {
+            let binding: ASTLet = (parser_get_let parser (at nb_globals global))
+            let _: int = (nb_global_value parser global binding.value binding.value_type)
+            set global (+ global 1)
+        }
+    }
     if (and shadows (not helper)) {
         set name "__nanoisa_shadow_entry"
         while (>= (nb_function_index parser name) 0) { set name (+ name "_") }
@@ -1787,6 +2337,7 @@ fn nb_function(parser: Parser, index: int, shadows: bool, first_shadow: int, hel
         let mut i: int = first_shadow
         while (and (== nb_error "") (< i parser.shadows_count)) {
             let selected: ASTShadow = (list_ASTShadow_get parser.shadows i)
+            let _: int = (nb_emit (+ ".shadow \"" (+ (nb_escape_string selected.target_name) "\"")))
             let _: int = (nb_body parser selected.body true)
             set i (+ i 1)
         }
@@ -1925,7 +2476,11 @@ fn nb_union_type_identity(parser: Parser, spelling: string, depth: int) -> strin
     if (== (array_length parts) 1) {
         if (> (nb_union_payload_tag canonical) 0) { return canonical }
         let source: int = (nb_union_source parser canonical)
-        if (< source 0) { return "" }
+        if (< source 0) {
+            let record: int = (nb_record parser canonical)
+            if (< record 0) { return "" }
+            return (+ "#record:" (+ (int_to_string (mb_owner (parser_get_struct_def parser record).line)) (+ ":" (int_to_string record))))
+        }
         let definition: ASTUnion = (parser_get_union parser source)
         if (> definition.generic_param_count 0) { return "" }
         return (nb_union_declaration_identity parser source)
@@ -1989,17 +2544,25 @@ fn nb_union_supported(parser: Parser, spelling: string) -> bool {
     let arguments: array<string> = (nb_union_arguments identity)
     if (or (!= definition.generic_param_count (array_length arguments)) (<= definition.variant_count 0)) { return false }
     if (and (== definition.generic_param_count 0) (!= identity definition.name)) { return false }
-    let mut i: int = 0
-    while (< i (array_length arguments)) {
-        if (== (nb_union_payload_tag (at arguments i)) 0) { return false }
-        set i (+ i 1)
-    }
+    if (> definition.variant_count 256) { return false }
     if (or (!= definition.variant_count (array_length definition.variant_names)) (!= definition.variant_count (array_length definition.variant_field_counts))) { return false }
     let count: int = (nb_union_offset definition definition.variant_count)
     if (or (> count 65535) (or (!= count (array_length definition.variant_field_names)) (!= count (array_length definition.variant_field_types)))) { return false }
-    set i 0
-    while (< i count) {
-        if (== (nb_union_payload_tag (nb_union_field_type definition identity i)) 0) { return false }
+    let mut i: int = 0
+    while (< i definition.variant_count) {
+        if (or (< (at definition.variant_field_counts i) 0) (> (at definition.variant_field_counts i) 256)) { return false }
+        let mut prior: int = 0
+        while (< prior i) { if (== (at definition.variant_names prior) (at definition.variant_names i)) { return false } set prior (+ prior 1) }
+        let offset: int = (nb_union_offset definition i)
+        let mut field: int = 0
+        while (< field (at definition.variant_field_counts i)) {
+            set prior 0
+            while (< prior field) {
+                if (== (at definition.variant_field_names (+ offset prior)) (at definition.variant_field_names (+ offset field))) { return false }
+                set prior (+ prior 1)
+            }
+            set field (+ field 1)
+        }
         set i (+ i 1)
     }
     return true
@@ -2022,23 +2585,63 @@ fn nb_union_identity_instance(identity: string) -> int {
     }
     return -1
 }
-fn nb_register_union(parser: Parser, spelling: string) -> bool {
+fn nb_register_union_depth(parser: Parser, spelling: string, depth: int) -> bool {
     let source: int = (nb_union_source parser spelling)
     if (< source 0) { return true }
+    if (>= depth 32) { return false }
     if (not (nb_union_supported parser spelling)) { return false }
     let identity: string = (nb_union_type_identity parser spelling 0)
     if (== identity "") { return false }
     if (>= (nb_union_identity_instance identity) 0) { return true }
+    let canonical: string = (nb_union_canonical spelling)
+    let definition: ASTUnion = (parser_get_union parser source)
+    let arguments: array<string> = (nb_union_arguments canonical)
+    let mut i: int = 0
+    while (< i (array_length arguments)) {
+        let argument: string = (at arguments i)
+        if (not (nb_register_union_depth parser argument (+ depth 1))) { return false }
+        if (== (nb_concrete_tag parser argument) 0) { return false }
+        set i (+ i 1)
+    }
+    let mut owned: bool = false let mut complete: bool = false
+    set i 0
+    while (< i (array_length definition.variant_field_types)) {
+        let field: string = (nb_union_field_type definition canonical i)
+        if (not (nb_register_union_depth parser field (+ depth 1))) { return false }
+        let tag: int = (nb_concrete_tag parser field)
+        if (== tag 0) { return false }
+        let layout: int = (nb_concrete_layout parser field)
+        if (or (== tag 8) (== tag 10)) { set complete true }
+        if (== tag 10) { (array_set nb_union_complete layout true) }
+        if (nb_owned_type tag layout) { set owned true }
+        set i (+ i 1)
+    }
     if (>= (array_length nb_union_identities) 256) { return false }
     set nb_union_identities (array_push nb_union_identities identity)
-    set nb_union_spellings (array_push nb_union_spellings (nb_union_canonical spelling))
+    set nb_union_spellings (array_push nb_union_spellings canonical)
     set nb_union_sources (array_push nb_union_sources source)
+    set nb_union_owned (array_push nb_union_owned owned)
+    set nb_union_complete (array_push nb_union_complete complete)
     return true
+}
+shadow nb_register_union_depth {
+    assert (not (nb_register_union_depth (nb_union_owner_fixture) "Box<R>" 32))
+    let parser: Parser = (nb_union_owner_fixture)
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+    assert (nb_register_union parser "Box<int>")
+    assert (not (at nb_union_complete 0))
+    assert (nb_register_union parser "Box<Box<int>>")
+    assert (at nb_union_complete 0) assert (at nb_union_complete 1)
+    assert (not (at nb_union_owned 0)) assert (not (at nb_union_owned 1))
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+}
+fn nb_register_union(parser: Parser, spelling: string) -> bool {
+    return (nb_register_union_depth parser spelling 0)
 }
 shadow nb_register_union {
     let tokens: List<LexerToken> = (tokenize_string "union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} }" "union-identity.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "union-identity.nano")
-    set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
     assert (nb_register_union parser "Choice<int, string>")
     assert (nb_register_union parser "Choice<int,string>")
     assert (nb_register_union parser "Choice<float,bool>")
@@ -2048,7 +2651,7 @@ shadow nb_register_union {
     assert (not (nb_register_union parser "Choice<T,bool>"))
     assert (== (at nb_union_identities 0) "#union:-1:0<int,string>")
     assert (== (at nb_union_spellings 0) "Choice<int,string>")
-    set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
 }
 fn nb_union_layout_bytes(parser: Parser) -> string {
     let mut out: string = ""
@@ -2060,9 +2663,12 @@ fn nb_union_layout_bytes(parser: Parser) -> string {
         set out (+ out (+ "0200" (+ (nb_hex fields 2) (nb_hex (nb_string identity) 4))))
         let mut field: int = 0
         while (< field fields) {
-            let tag: int = (nb_union_payload_tag (nb_union_field_type definition identity field))
-            if (== tag 0) { let _: int = (nb_fail "exact scalar union payload fields") return "" }
-            set out (+ out (+ (nb_hex tag 1) (+ "000000ffffffff" (nb_hex (nb_string (at definition.variant_field_names field)) 4))))
+            let spelling: string = (nb_union_field_type definition identity field)
+            let tag: int = (nb_concrete_tag parser spelling)
+            if (== tag 0) { let _: int = (nb_fail "exact concrete union payload fields") return "" }
+            let mut layout: int = (nb_concrete_layout parser spelling)
+            if (== tag 10) { set layout (+ nb_union_layout_base layout) }
+            set out (+ out (+ (nb_hex tag 1) (+ "000000" (+ (nb_hex layout 4) (nb_hex (nb_string (at definition.variant_field_names field)) 4)))))
             set field (+ field 1)
         }
         set instance (+ instance 1)
@@ -2088,7 +2694,7 @@ fn nb_union_fact_bytes(parser: Parser) -> string {
 shadow nb_union_fact_bytes {
     let tokens: List<LexerToken> = (tokenize_string "union Choice<T,U> { Left { value: T }, Right { value: U }, Empty {} }" "union-facts.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "union-facts.nano")
-    set nb_strings [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] set nb_union_layout_base 2 set nb_error ""
+    set nb_strings [] set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] set nb_union_layout_base 2 set nb_error ""
     assert (nb_register_union parser "Choice<int,string>")
     assert (nb_register_union parser "Choice<float,bool>")
     let layouts: string = (nb_union_layout_bytes parser)
@@ -2101,7 +2707,7 @@ shadow nb_union_fact_bytes {
     assert (str_starts_with facts "020000000200000003000000")
     assert (str_contains facts "0500000002000000")
     assert (== nb_error "")
-    set nb_strings [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] set nb_union_layout_base 0
+    set nb_strings [] set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources [] set nb_union_layout_base 0
 }
 
 # I retain the exact version-2 path-count/rows encoding as one bounded v3 blob.
@@ -2273,21 +2879,35 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     set nb_error "" set nb_next_label 0 set nb_strings [] set nb_helper -1 set nb_arity 0 set nb_consuming false set nb_paths [] set nb_depths []
     set nb_value_graph true set nb_functions [] set nb_any_transfer false set nb_edges []
     set nb_mixed false set nb_owner_arrays false set nb_ordinary_layouts []
-    set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+    set nb_globals [] set nb_global_names [] set nb_global_tags [] set nb_global_layouts []
     let mut edge: int = 0
     while (< edge 64) { set nb_edges (array_push nb_edges false) set edge (+ edge 1) }
     if (or (parser_has_error parser) (or (< first_shadow 0) (> first_shadow parser.shadows_count))) { let _: int = (nb_fail "a parsed module and valid shadow selection") return "" }
     let records: int = (parser_get_struct_def_count parser)
     set nb_union_layout_base records
-    if (or (> (parser_get_function_count parser) 8) (or (<= records 0) (or (and (> parser.imports_count 0) (not (mb_active))) (or (> parser.enums_count 0) (> parser.opaque_types_count 0))))) { let _: int = (nb_fail "only resource records, scalar unions, main, one helper and selected shadows") return "" }
+    if (or (> (nb_defined_count parser) 8) (or (<= records 0) (or (and (> parser.imports_count 0) (not (mb_active))) (or (> parser.enums_count 0) (> parser.opaque_types_count 0))))) { let _: int = (nb_fail "only resource records, scalar unions, main, one helper and selected shadows") return "" }
     let flags: array<bool> = (declaration_local_lets parser)
     let mut i: int = 0
-    while (< i (array_length flags)) { if (not (at flags i)) { let _: int = (nb_fail "no global initializers") return "" } set i (+ i 1) }
+    while (< i (array_length flags)) {
+        if (not (at flags i)) {
+            let binding: ASTLet = (parser_get_let parser i)
+            if (or binding.is_destructure (or (< binding.value 0) (or (>= (nb_global binding.name) 0) (>= (array_length nb_globals) 256)))) {
+                let _: int = (nb_fail "at most 256 distinct initialized whole globals") return ""
+            }
+            set nb_globals (array_push nb_globals i)
+            set nb_global_names (array_push nb_global_names binding.name)
+        }
+        set i (+ i 1)
+    }
     let mut entry: int = -1
     set i 0
     while (< i (parser_get_function_count parser)) {
         let function: ASTFunction = (parser_get_function parser i)
-        if (< function.body 0) { let _: int = (nb_fail "defined source functions") return "" }
+        if (< function.body 0) {
+            if (not (nb_module_signature parser function)) { let _: int = (nb_fail "the declared module introspection signature") return "" }
+            set i (+ i 1) continue
+        }
         if (not (nb_register_union parser function.return_type)) { let _: int = (nb_fail "exact concrete scalar union signatures") return "" }
         if (== function.name "main") { if (>= entry 0) { let _: int = (nb_fail "one main") return "" } set entry i }
         else { set nb_helper i }
@@ -2307,18 +2927,34 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         if (not (nb_register_union parser (parser_get_let parser i).var_type)) { let _: int = (nb_fail "exact concrete scalar union bindings") return "" }
         set i (+ i 1)
     }
+    set i 0
+    while (< i (array_length nb_globals)) {
+        let binding: ASTLet = (parser_get_let parser (at nb_globals i))
+        let layout: int = (nb_union_instance parser binding.var_type)
+        let mut tag: int = (nb_local_tag binding.var_type)
+        if (>= layout 0) {
+            if (nb_owned_type 10 layout) { let _: int = (nb_fail "copyable global union storage") return "" }
+            set tag 10
+        }
+        if (== tag 0) { let _: int = (nb_fail "explicit copyable scalar or union global types") return "" }
+        set nb_global_tags (array_push nb_global_tags tag)
+        let mut retained: int = 4294967295
+        if (== tag 10) { set retained layout }
+        set nb_global_layouts (array_push nb_global_layouts retained)
+        set i (+ i 1)
+    }
     if (< entry 0) { let _: int = (nb_fail "one main") return "" }
     let main_function: ASTFunction = (parser_get_function parser entry)
     if (or (!= main_function.param_count 0) (!= main_function.return_type "int")) { let _: int = (nb_fail "a zero-argument int main") return "" }
     if (not nb_value_graph) {
-        if (or (!= (parser_get_function_count parser) 2) (< nb_helper 0)) { let _: int = (nb_fail "exactly main and one borrowed helper") return "" }
+        if (or (!= (nb_defined_count parser) 2) (< nb_helper 0)) { let _: int = (nb_fail "exactly main and one borrowed helper") return "" }
     }
     set nb_consuming nb_value_graph
     if (and nb_value_graph shadows) { set nb_functions (array_push nb_functions -1) }
     else { set nb_functions (array_push nb_functions entry) }
     set i 0
     while (< i (parser_get_function_count parser)) {
-        if (or (!= i entry) (and nb_value_graph shadows)) {
+        if (and (>= (parser_get_function parser i).body 0) (or (!= i entry) (and nb_value_graph shadows))) {
             if (>= (array_length nb_functions) 8) { let _: int = (nb_fail "at most eight emitted functions including shadow entry") return "" }
             set nb_functions (array_push nb_functions i)
         }
@@ -2331,7 +2967,7 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         let result_layout: int = (nb_record parser function.return_type)
         if nb_value_graph {
             if (and (== (nb_tag function.return_type) 0) (!= function.return_type "void")) {
-                if (and (not (nb_record_has_owner parser result_layout)) (< (nb_union_instance parser function.return_type) 0)) { let _: int = (nb_fail "an exact declared owner or scalar union result") return "" }
+                if (and (< result_layout 0) (< (nb_union_instance parser function.return_type) 0)) { let _: int = (nb_fail "an exact declared owner or scalar union result") return "" }
             }
         } else {
             if (or (< function.param_count 1) (== (nb_tag function.return_type) 0)) { let _: int = (nb_fail "a scalar-result borrowed helper") return "" }
@@ -2349,13 +2985,14 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
             let layout: int = (nb_record parser nominal)
             if (< layout 0) {
                 if (or (not nb_value_graph) (and (== (nb_parameter_tag nominal) 0) (< (nb_union_instance parser nominal) 0))) { let _: int = (nb_fail "an exact positional parameter") return "" }
-            } else { if (not (nb_record_has_owner parser layout)) { let _: int = (nb_fail "owner-only record parameters") return "" } if (not nb_value_graph) { if (not (nb_leaf parser layout)) { let _: int = (nb_fail "a scalar-leaf borrowed formal") return "" } } }
+            } else { if (not nb_value_graph) { if (or (not (nb_record_has_owner parser layout)) (not (nb_leaf parser layout))) { let _: int = (nb_fail "a scalar-leaf borrowed owner formal") return "" } } }
             let mut prior: int = 0
             while (< prior j) { if (== parameter.name (parser_get_let parser (+ function.param_start prior)).name) { let _: int = (nb_fail "distinct parameter names") return "" } set prior (+ prior 1) }
             set j (+ j 1)
         }
         set i (+ i 1)
     }
+    let mut mixed_arrays: bool = false
     let mut layouts: string = (nb_hex (+ records (array_length nb_union_identities)) 4)
     let mut ownership: string = (+ "01000000" (nb_hex (+ records (array_length nb_union_identities)) 4))
     set i 0
@@ -2376,12 +3013,12 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
             if (== tag 0) {
                 set child (nb_record parser (at record.field_types field))
                 if (or (< child 0) (>= child i)) { let _: int = (nb_fail "earlier resource child declarations") return "" }
-                if (nb_ordinary_layout child) { let _: int = (nb_fail "owner children without ordinary record fields") return "" }
+                if (and owned (nb_ordinary_layout child)) { let _: int = (nb_fail "owner children without ordinary record fields") return "" }
                 let nested_depth: int = (+ (at nb_depths child) 1)
                 if (> nested_depth 32) { let _: int = (nb_fail "resource depth at most 32") return "" }
                 if (> nested_depth depth) { set depth nested_depth }
                 set tag 8
-                set owned true
+                if (not (nb_ordinary_layout child)) { set owned true }
             }
             let mut prior: int = 0
             while (< prior field) { if (== (at record.field_names prior) (at record.field_names field)) { let _: int = (nb_fail "distinct field declarations") return "" } set prior (+ prior 1) }
@@ -2391,14 +3028,15 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         }
         if (and owned array_field) { set nb_owner_arrays true }
         if (not owned) {
-            if (or (not array_field) (not nb_value_graph)) { let _: int = (nb_fail "a closed ordinary record with a FLOAT array field in a value graph") return "" }
+            if (not nb_value_graph) { let _: int = (nb_fail "an ordinary record in a value graph") return "" }
             set field 0
             while (< field record.field_count) {
                 let spelling: string = (at record.field_types field)
-                if (and (!= spelling "array<float>") (== (nb_tag spelling) 0)) { let _: int = (nb_fail "ordinary int/bool or flat FLOAT array fields") return "" }
+                if (and (!= spelling "array<float>") (and (== (nb_tag spelling) 0) (not (nb_ordinary_layout (nb_record parser spelling))))) { let _: int = (nb_fail "ordinary scalar, record or flat FLOAT array fields") return "" }
                 set field (+ field 1)
             }
             set nb_mixed true
+            if array_field { set mixed_arrays true }
         }
         set nb_ordinary_layouts (array_push nb_ordinary_layouts (not owned))
         set nb_depths (array_push nb_depths depth)
@@ -2407,7 +3045,20 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
     }
     set layouts (+ layouts (nb_union_layout_bytes parser))
     set i 0
-    while (< i (array_length nb_union_identities)) { set ownership (+ ownership "00") set i (+ i 1) }
+    while (< i (array_length nb_union_identities)) {
+        let mut complete: bool = (at nb_union_complete i)
+        let mut global: int = 0
+        while (< global (array_length nb_globals)) {
+            if (and (== (at nb_global_tags global) 10) (== (at nb_global_layouts global) i)) { set complete true }
+            set global (+ global 1)
+        }
+        if (at nb_union_owned i) { set ownership (+ ownership "03") }
+        else { if complete { set ownership (+ ownership "01") } else { set ownership (+ ownership "00") } }
+        set i (+ i 1)
+    }
+    if (and (> (array_length nb_globals) 0) (or (not nb_value_graph) (or mixed_arrays nb_owner_arrays))) {
+        let _: int = (nb_fail "copyable globals only in a standalone value graph") return ""
+    }
     if (!= nb_error "") { return "" }
     if (and nb_owner_arrays (or nb_mixed (not nb_value_graph))) { let _: int = (nb_fail "a separate mode-zero owner ARRAY profile") return "" }
     while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
@@ -2466,16 +3117,26 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         }
     }
     if (and nb_value_graph (not nb_any_transfer)) { let _: int = (nb_fail "an actual owned transfer in my module") return "" }
-    if (> (array_length nb_union_identities) 0) {
+    if (or (> (array_length nb_union_identities) 0) (> (array_length nb_globals) 0)) {
         set ownership (+ "03000000" (str_substring ownership 8 (- (str_length ownership) 8)))
         let paths: string = (nb_path_suffix)
-        let facts: string = (nb_union_fact_bytes parser)
         set ownership (+ ownership (+ (nb_hex (/ (str_length paths) 2) 4) paths))
-        set ownership (+ ownership "01000000")
-        # UNION_VARIANTS kind 1, revision 1, followed by its bounded payload.
-        set ownership (+ ownership (+ "01000100" (nb_hex (/ (str_length facts) 2) 4)))
-        set ownership (+ ownership facts)
-        while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
+        let mut extensions: int = 0
+        if (> (array_length nb_union_identities) 0) { set extensions (+ extensions 1) }
+        if (> (array_length nb_globals) 0) { set extensions (+ extensions 1) }
+        set ownership (+ ownership (nb_hex extensions 4))
+        if (> (array_length nb_union_identities) 0) {
+            let facts: string = (nb_union_fact_bytes parser)
+            set ownership (+ ownership (+ "01000100" (nb_hex (/ (str_length facts) 2) 4)))
+            set ownership (+ ownership facts)
+            while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
+        }
+        if (> (array_length nb_globals) 0) {
+            let globals: string = (nb_global_bytes parser)
+            set ownership (+ ownership (+ "03000100" (nb_hex (/ (str_length globals) 2) 4)))
+            set ownership (+ ownership globals)
+            while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
+        }
     } else { if (> (array_length nb_paths) 0) {
         set ownership (+ "02000000" (str_substring ownership 8 (- (str_length ownership) 8)))
         set ownership (+ ownership (nb_path_suffix))
@@ -2679,4 +3340,45 @@ shadow nb_owner_array_mutation_fixture {
     assert (str_contains nb_error "unshadowed direct")
     let _: string = (nanoisa_borrow_emit (nb_fixture) false 0)
     assert (not nb_owner_arrays)
+}
+
+shadow nb_value_call {
+    let saved_functions: array<int> = nb_functions
+    let saved_globals: array<string> = nb_global_names
+    let saved_names: array<string> = nb_names
+    let saved_code: string = nb_code
+    let saved_error: string = nb_error
+    set nb_functions [1, 0] set nb_global_names ["read"] set nb_names []
+    set nb_code "" set nb_error ""
+    assert (== (nb_value_call (nb_fixture) "read" 0 0) 0)
+    assert (str_contains nb_error "unshadowed direct non-entry value-call target")
+    assert (== nb_code "")
+    set nb_functions saved_functions set nb_global_names saved_globals set nb_names saved_names
+    set nb_code saved_code set nb_error saved_error
+}
+
+fn nb_union_owner_fixture() -> Parser {
+    let tokens: List<LexerToken> = (tokenize_string "resource struct R { value: int } union Box<T> { Some { item: T }, None {} } union Result<T,E> { Ok { value: T }, Err { error: E } }" "union-owners.nano" (list_CompilerDiagnostic_new))
+    return (parse_program tokens (list_LexerToken_length tokens) "union-owners.nano")
+}
+shadow nb_union_owner_fixture { assert (not (parser_has_error (nb_union_owner_fixture))) }
+shadow nb_union_supported {
+    assert (nb_union_supported (nb_union_owner_fixture) "Box<R>")
+    assert (not (nb_union_supported (nb_union_owner_fixture) "Box<R,int>"))
+    let tokens: List<LexerToken> = (tokenize_string "union Wrong { Some { value: int, value: int } }" "duplicate-field.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "duplicate-field.nano")
+    assert (not (nb_union_supported parser "Wrong"))
+}
+shadow nb_union_layout_bytes {
+    let parser: Parser = (nb_union_owner_fixture)
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+    set nb_union_layout_base 1 set nb_error ""
+    assert (nb_register_union parser "Box<Result<R,string>>")
+    assert (== (array_length nb_union_identities) 2)
+    assert (nb_owned_type 10 0) assert (nb_owned_type 10 1)
+    let bytes: string = (nb_union_layout_bytes parser)
+    assert (str_contains bytes "0800000000000000")
+    assert (str_contains bytes "0a00000001000000")
+    set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
+    set nb_union_layout_base 0
 }

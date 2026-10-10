@@ -1,0 +1,99 @@
+test_immediate_zero_capture_identity_and_scope_restore (tests.test_selfhost_captures.SelfhostCaptures.test_immediate_zero_capture_identity_and_scope_restore) ... 
+  test_immediate_zero_capture_identity_and_scope_restore (tests.test_selfhost_captures.SelfhostCaptures.test_immediate_zero_capture_identity_and_scope_restore) (producer='selfhost') ... FAIL
+test_imported_capture_and_shadow_local (tests.test_selfhost_captures.SelfhostCaptures.test_imported_capture_and_shadow_local) ... 
+  test_imported_capture_and_shadow_local (tests.test_selfhost_captures.SelfhostCaptures.test_imported_capture_and_shadow_local) (producer='seed') ... FAIL
+  test_imported_capture_and_shadow_local (tests.test_selfhost_captures.SelfhostCaptures.test_imported_capture_and_shadow_local) (producer='selfhost') ... FAIL
+test_invalid_capture_preserves_prior_output (tests.test_selfhost_captures.SelfhostCaptures.test_invalid_capture_preserves_prior_output) ... ok
+test_mutable_instances_containers_and_forwarded_callable (tests.test_selfhost_captures.SelfhostCaptures.test_mutable_instances_containers_and_forwarded_callable) ... 
+  test_mutable_instances_containers_and_forwarded_callable (tests.test_selfhost_captures.SelfhostCaptures.test_mutable_instances_containers_and_forwarded_callable) (producer='seed') ... FAIL
+  test_mutable_instances_containers_and_forwarded_callable (tests.test_selfhost_captures.SelfhostCaptures.test_mutable_instances_containers_and_forwarded_callable) (producer='selfhost') ... FAIL
+test_unchanged_returned_closure_chain (tests.test_selfhost_captures.SelfhostCaptures.test_unchanged_returned_closure_chain) ... ok
+
+======================================================================
+FAIL: test_immediate_zero_capture_identity_and_scope_restore (tests.test_selfhost_captures.SelfhostCaptures.test_immediate_zero_capture_identity_and_scope_restore) (producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 25, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 17, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I will not publish bytecode after failed shadows
+I could not execute the module: Type error
+  I64_NE requires two integers
+I rejected failed shadow execution
+
+
+======================================================================
+FAIL: test_imported_capture_and_shadow_local (tests.test_selfhost_captures.SelfhostCaptures.test_imported_capture_and_shadow_local) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 25, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 17, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 1, column 5: Unused variable 'n'
+Error at line 2, column 95: I cannot find a variable named `n`.
+Hint: Check spelling or ensure the variable is in scope.
+Error: Type checking failed for module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-captured-import-wf_kzts3/offset.nano'
+Error at line 1, column 1: Failed to load module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-captured-import-wf_kzts3/offset.nano'
+error: module loading failed
+
+
+======================================================================
+FAIL: test_imported_capture_and_shadow_local (tests.test_selfhost_captures.SelfhostCaptures.test_imported_capture_and_shadow_local) (producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 25, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 17, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not verify the shadow module: Undefined function symbol: __nano_module_0___lambda_2_54
+
+
+======================================================================
+FAIL: test_mutable_instances_containers_and_forwarded_callable (tests.test_selfhost_captures.SelfhostCaptures.test_mutable_instances_containers_and_forwarded_callable) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 25, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 17, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 3, column 5: Unused variable 'value'
+Warning at line 7, column 1: Unused variable 'f'
+Warning at line 13, column 1: Unused variable 'values'
+Warning at line 13, column 1: Unused variable 'box'
+Warning at line 19, column 24: Unused variable 'temporary'
+-- E027 UNDEFINED FUNCTION --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-captured-values-hicahwum/input.nano
+I cannot find a function named `box.callback`.
+
+41|     assert (== (box.callback) 3)
+                   ^^^^^^^^^^^^
+Hint: Check the module alias and exported functions.
+error: type check failed
+
+
+======================================================================
+FAIL: test_mutable_instances_containers_and_forwarded_callable (tests.test_selfhost_captures.SelfhostCaptures.test_mutable_instances_containers_and_forwarded_callable) (producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 25, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 17, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot resolve a qualified function in this module: box.callback
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.859s
+
+FAILED (failures=5)

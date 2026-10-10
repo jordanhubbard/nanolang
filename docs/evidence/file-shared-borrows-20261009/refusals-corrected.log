@@ -1,0 +1,6 @@
+test_cyclic_and_overlapping_owner_refusals_preserve_output (tests.test_service_drivers.ServiceDrivers.test_cyclic_and_overlapping_owner_refusals_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.370s
+
+OK

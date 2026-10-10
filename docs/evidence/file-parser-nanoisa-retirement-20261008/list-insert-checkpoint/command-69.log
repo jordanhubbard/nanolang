@@ -1,0 +1,3 @@
+['/Users/jordanh/Src/nanolang/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-z0rid8lg/Item-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-z0rid8lg/Item-seed.c']
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-list-insert-z0rid8lg/Item-seed.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage record to optional at nodes 17/21

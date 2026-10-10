@@ -1,0 +1,13 @@
+COMMAND ['/private/tmp/nanolang-introspection-c-callables-20261009/nano_virt', '/private/tmp/nanolang-introspection-callables-20261009/all_values.nano', '--emit-nvm', '-o', '/private/tmp/nanolang-introspection-c-callables-20261009/program.nvm'] EXIT 1  
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /private/tmp/nanolang-introspection-callables-20261009/all_values.nano:25:1
+  #1   $shadow_4_main  /private/tmp/nanolang-introspection-callables-20261009/all_values.nano:42:15
+  #2   $shadow_entry  /private/tmp/nanolang-introspection-callables-20261009/all_values.nano:?
+I failed a shadow: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /private/tmp/nanolang-introspection-callables-20261009/all_values.nano:25:1
+  #1   $shadow_4_main  /private/tmp/nanolang-introspection-callables-20261009/all_values.nano:42:15
+  #2   $shadow_entry  /private/tmp/nanolang-introspection-callables-20261009/all_values.nano:?
+I will not publish output after failed shadow execution
+

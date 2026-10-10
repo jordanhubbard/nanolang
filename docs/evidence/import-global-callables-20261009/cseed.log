@@ -1,0 +1,22 @@
+test_captured_local_shadows_imported_alias (tests.test_imported_globals.ImportedGlobals.test_captured_local_shadows_imported_alias) ... ok
+test_conflicting_aliases_preserve_output (tests.test_imported_globals.ImportedGlobals.test_conflicting_aliases_preserve_output) ... ok
+test_diamond_initialization_runs_once (tests.test_imported_globals.ImportedGlobals.test_diamond_initialization_runs_once) ... ok
+test_immutable_public_value_in_pure_function (tests.test_imported_globals.ImportedGlobals.test_immutable_public_value_in_pure_function) ... ok
+test_imported_callable_globals (tests.test_imported_globals.ImportedGlobals.test_imported_callable_globals) ... ok
+test_imported_integer_arrays (tests.test_imported_globals.ImportedGlobals.test_imported_integer_arrays) ... ok
+test_legacy_plain_import_keeps_immutable_constants (tests.test_imported_globals.ImportedGlobals.test_legacy_plain_import_keeps_immutable_constants) ... ok
+test_mutable_aliases_share_storage (tests.test_imported_globals.ImportedGlobals.test_mutable_aliases_share_storage) ... ok
+test_private_missing_wrong_type_and_immutable_write_preserve_output (tests.test_imported_globals.ImportedGlobals.test_private_missing_wrong_type_and_immutable_write_preserve_output) ... ok
+test_qualified_distinct_types_and_dependency_shadows (tests.test_imported_globals.ImportedGlobals.test_qualified_distinct_types_and_dependency_shadows) ... ok
+test_qualified_write_refusals_preserve_output (tests.test_imported_globals.ImportedGlobals.test_qualified_write_refusals_preserve_output) ... ok
+test_qualified_writes_share_alias_storage (tests.test_imported_globals.ImportedGlobals.test_qualified_writes_share_alias_storage) ... ok
+test_relative_spellings_share_canonical_storage (tests.test_imported_globals.ImportedGlobals.test_relative_spellings_share_canonical_storage) ... ok
+test_repeated_alias_keeps_identity (tests.test_imported_globals.ImportedGlobals.test_repeated_alias_keeps_identity) ... ok
+test_selective_aliases_and_lexical_shadowing (tests.test_imported_globals.ImportedGlobals.test_selective_aliases_and_lexical_shadowing) ... ok
+test_transitive_selective_import_keeps_declaring_context (tests.test_imported_globals.ImportedGlobals.test_transitive_selective_import_keeps_declaring_context) ... ok
+test_wildcard_public_globals (tests.test_imported_globals.ImportedGlobals.test_wildcard_public_globals) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 5.812s
+
+OK

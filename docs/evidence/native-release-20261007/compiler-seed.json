@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "bin/nano_virt",
+    "src_nano/nanoc_v06.nano",
+    "--emit-nvm",
+    "--strip-debug",
+    "-o",
+    "/tmp/nanolang-5.1-20261007/compiler-seed.nvm"
+  ],
+  "status": 0,
+  "seconds": 27.413787625002442
+}

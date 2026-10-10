@@ -1,0 +1,224 @@
+[
+  {
+    "path": "00.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "01.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "02.log",
+    "bytes": 39,
+    "sha256": "da8ac23f4e5a4637801c10b1f6de22a1bbc55dc0c35b19c668690539af24aeb3",
+    "archived": true
+  },
+  {
+    "path": "03.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "04.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "05.log",
+    "bytes": 39,
+    "sha256": "da8ac23f4e5a4637801c10b1f6de22a1bbc55dc0c35b19c668690539af24aeb3",
+    "archived": true
+  },
+  {
+    "path": "06.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "07.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "08.log",
+    "bytes": 39,
+    "sha256": "da8ac23f4e5a4637801c10b1f6de22a1bbc55dc0c35b19c668690539af24aeb3",
+    "archived": true
+  },
+  {
+    "path": "09.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "10.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "11.log",
+    "bytes": 39,
+    "sha256": "da8ac23f4e5a4637801c10b1f6de22a1bbc55dc0c35b19c668690539af24aeb3",
+    "archived": true
+  },
+  {
+    "path": "12.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "13.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "14.log",
+    "bytes": 39,
+    "sha256": "da8ac23f4e5a4637801c10b1f6de22a1bbc55dc0c35b19c668690539af24aeb3",
+    "archived": true
+  },
+  {
+    "path": "15.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "16.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived": true
+  },
+  {
+    "path": "17.log",
+    "bytes": 39,
+    "sha256": "da8ac23f4e5a4637801c10b1f6de22a1bbc55dc0c35b19c668690539af24aeb3",
+    "archived": true
+  },
+  {
+    "path": "driver.nano",
+    "bytes": 45857,
+    "sha256": "d8b0992e64d93138ae7a6a13574f2bc85bfc0b99a18b2d21a2d1a71b18343914",
+    "archived": true
+  },
+  {
+    "path": "nano_virt.c",
+    "bytes": 3932635,
+    "sha256": "594a5a23ed126bd6c06c2ecc7142192392e5ce31903d68757010105f3bedcaaa",
+    "archived": false
+  },
+  {
+    "path": "nano_virt.native",
+    "bytes": 42196880,
+    "sha256": "ad5dbbc0e7e473a9036ba713c5ad629f3c3ac4ee5e00b7dc9f8df518daba070f",
+    "archived": false
+  },
+  {
+    "path": "nano_virt.native.dSYM/Contents/Info.plist",
+    "bytes": 645,
+    "sha256": "4741c0f5695b74467aa882dd58d129aadf37275ab67fb36dd8b7883775ca2b42",
+    "archived": false
+  },
+  {
+    "path": "nano_virt.native.dSYM/Contents/Resources/DWARF/nano_virt.native",
+    "bytes": 10660967,
+    "sha256": "16ab39e8941e907e1a7969cea110268b7c32512313926776553a5ffd7beb1c85",
+    "archived": false
+  },
+  {
+    "path": "nano_virt.native.dSYM/Contents/Resources/Relocations/aarch64/nano_virt.native.yml",
+    "bytes": 148,
+    "sha256": "79d420db210f145cc58a716fea2bf06d010a93f855b58d269ce101a09d555452",
+    "archived": false
+  },
+  {
+    "path": "nano_virt.nvm",
+    "bytes": 241084,
+    "sha256": "8cbd3a0b7345d62f044340acf15e3022584908aa3efb0c35096eb3d058cd9e17",
+    "archived": false
+  },
+  {
+    "path": "nanoc_stage1.c",
+    "bytes": 3763172,
+    "sha256": "88f476999a14331f9340d08640d38b02cb5b5db8912b5f58cd09193fba3542c0",
+    "archived": false
+  },
+  {
+    "path": "nanoc_stage1.native",
+    "bytes": 40812992,
+    "sha256": "227c8d112622bf4471cfa839d54fd1ed3e38bd64e00a6910c5a726791f3389a1",
+    "archived": false
+  },
+  {
+    "path": "nanoc_stage1.native.dSYM/Contents/Info.plist",
+    "bytes": 648,
+    "sha256": "500ffcc1c13dcc2f84afbcc1d459e6ddc58daa58745cc121d054b4e99ea8f888",
+    "archived": false
+  },
+  {
+    "path": "nanoc_stage1.native.dSYM/Contents/Resources/DWARF/nanoc_stage1.native",
+    "bytes": 10208750,
+    "sha256": "fa9acff116157ea09b2fe099b97ea6a088ed63ea579f8704daa8e19d9c1c099c",
+    "archived": false
+  },
+  {
+    "path": "nanoc_stage1.native.dSYM/Contents/Resources/Relocations/aarch64/nanoc_stage1.native.yml",
+    "bytes": 151,
+    "sha256": "f6325e581e078125a1acd2e490dc34790b055b54181a57c1e4a89b46849f68bd",
+    "archived": false
+  },
+  {
+    "path": "nanoc_stage1.nvm",
+    "bytes": 127772,
+    "sha256": "b3bf473064dcc1ec9e5436be00546d7fd295879db85181b59ad87a2c9a80d3a7",
+    "archived": false
+  },
+  {
+    "path": "nanoc_stage2.c",
+    "bytes": 3763172,
+    "sha256": "88f476999a14331f9340d08640d38b02cb5b5db8912b5f58cd09193fba3542c0",
+    "archived": false
+  },
+  {
+    "path": "nanoc_stage2.native",
+    "bytes": 40812992,
+    "sha256": "ceb860b6a75b90049c3976562684291d2612b4b2993f52e42b48e552bdc0e55e",
+    "archived": false
+  },
+  {
+    "path": "nanoc_stage2.native.dSYM/Contents/Info.plist",
+    "bytes": 648,
+    "sha256": "250ced23f1666cadc013b91069a10ad11aeb7b2373224d83e05e599405f13728",
+    "archived": false
+  },
+  {
+    "path": "nanoc_stage2.native.dSYM/Contents/Resources/DWARF/nanoc_stage2.native",
+    "bytes": 10208750,
+    "sha256": "95f78aa7e509f3353dcdf3de0f097f764023123eb2029d5eb40dbc481ecff6eb",
+    "archived": false
+  },
+  {
+    "path": "nanoc_stage2.native.dSYM/Contents/Resources/Relocations/aarch64/nanoc_stage2.native.yml",
+    "bytes": 151,
+    "sha256": "dbadc93cdab7535cc34dd043fd0a288e97831a0c4f12d334910dc04b8e39740e",
+    "archived": false
+  },
+  {
+    "path": "nanoc_stage2.nvm",
+    "bytes": 127772,
+    "sha256": "b3bf473064dcc1ec9e5436be00546d7fd295879db85181b59ad87a2c9a80d3a7",
+    "archived": false
+  }
+]

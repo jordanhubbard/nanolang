@@ -1,0 +1,32 @@
+Error at line 4, column 1: Constant 'selected' type mismatch (declared struct, got union)
+-- E024 UNDEFINED VARIABLE --- /private/tmp/nanolang-owned-global-source-corrected/OwnedGlobalSource/test_copyable_union_global/main.nano
+I cannot find a variable named `selected`.
+
+11|     match selected {
+              ^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /private/tmp/nanolang-owned-global-source-corrected/OwnedGlobalSource/test_copyable_union_global/main.nano
+I require a match to inspect an int or a known union.
+
+11|     match selected {
+        ^^^^^
+Hint: Give the scrutinee an exact supported type before matching it.
+-- E024 UNDEFINED VARIABLE --- /private/tmp/nanolang-owned-global-source-corrected/OwnedGlobalSource/test_copyable_union_global/main.nano
+I cannot find a variable named `selected`.
+
+15| set selected Choice.None {}
+    ^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /private/tmp/nanolang-owned-global-source-corrected/OwnedGlobalSource/test_copyable_union_global/main.nano
+I cannot find a variable named `selected`.
+
+16| match selected {
+          ^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /private/tmp/nanolang-owned-global-source-corrected/OwnedGlobalSource/test_copyable_union_global/main.nano
+I require a match to inspect an int or a known union.
+
+16| match selected {
+    ^^^^^
+Hint: Give the scrutinee an exact supported type before matching it.
+error: type check failed

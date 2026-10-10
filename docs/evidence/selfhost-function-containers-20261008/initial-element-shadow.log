@@ -1,0 +1,37 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2202, column 9: Unused variable 'rejected'
+Warning at line 2323, column 9: Unused variable 'rejected'
+Warning at line 2330, column 13: Unused variable 'rejected'
+Warning at line 2368, column 9: Unused variable 'rejected'
+Warning at line 2372, column 9: Unused variable 'rejected'
+Warning at line 2379, column 13: Unused variable 'rejected'
+Warning at line 5626, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   $shadow_726_nisa_emit_expected_expr  src_nano/nanoc_v06.nano:3060:5
+  #1   $shadow_entry  src_nano/nanoc_v06.nano:?
+I failed a shadow: Assertion failed
+Stack trace (most recent call first):
+  #0   $shadow_726_nisa_emit_expected_expr  src_nano/nanoc_v06.nano:3060:5
+  #1   $shadow_entry  src_nano/nanoc_v06.nano:?
+-- TYPE MISMATCH ------------------------------------------- test.nano
+
+
+
+1| let x: int = "hello"
+ | ^
+
+
+TYPE MISMATCH: I expected a value of type `<expected>`, but found `<found>`.
+=== NSType Checking (Count-based) ===
+Validating 5 functions
+NSType checking complete!
+=== NSType Checking (Count-based) ===
+Validating 0 functions
+Error: No functions found
+=== NSType Checking (Count-based) ===
+Validating 1 functions
+NSType checking complete!
+I will not publish output after failed shadow execution

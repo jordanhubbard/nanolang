@@ -1,0 +1,12 @@
+{
+  "src/runtime/service_product.c": "ada8b3f28033e94429efb104e3c52ba2093c25091afb1199a272b66494257aa4",
+  "src/runtime/service_policy.c": "b2b8820a34cbce994909e333df59c4276f90d2366d3697408f36e30e252dea10",
+  "src/runtime/service_shadows.c": "b3099a64eb9c264f41e568de3890383b06d0b3328dd5bb0d648de2afac3a1f51",
+  "src_nano/compiler/service_product.nano": "10ce1be6c7f9aeca940b068becb818b894a3103f03613bcc04cc00aee3a17a9f",
+  "src_nano/compiler/nanoisa_codegen.nano": "fa93d76b06c767e9a9ba74fed1e57786bddf790e981d7635d19096d50738d1da",
+  "src_nano/nanoc_v06.nano": "7708bf1fa594b9f1c2a85af8db3ebcac7376cda017269d1a213575a42ee4e928",
+  "modules/file_product/file_product.c": "3f2d0721bb7e9b6b784f046d06a805553baf2385714047317b3538238c7f9b08",
+  "modules/file_product/module.json": "046bbe7a834aca604e884233cdf483f49f33884188ede551b288841087e160eb",
+  "tests/test_websocket_service_drivers.py": "0f80c47cdd94123aad9abe1b2db58df3dbb9038b2007d854f8e57bb2ffe46c7b",
+  "tests/test_websocket_service_network.py": "40ac6f0a374b409f82e62bae38c7298aa18ec0954f71984dd733726a0ce2ac86"
+}

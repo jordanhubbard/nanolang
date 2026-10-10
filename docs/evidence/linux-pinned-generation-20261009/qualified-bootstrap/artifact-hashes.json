@@ -1,0 +1,7 @@
+{
+  "stage1.c": "8e38cf0087e5dda85234abcdfb4f31d447a3bd9c4997dc35eccc04ace73e43b1",
+  "stage2.c": "8e38cf0087e5dda85234abcdfb4f31d447a3bd9c4997dc35eccc04ace73e43b1",
+  "guard-native-compiler": "4d26b94fcfe3c09b20e14b8a94d098ecc502ae070b688b9dda5b100e6ead90a8",
+  "stage1-hello": "08d99418466920b3b779f8ade0cb66d8ec00885c1e930fa0102da881ea352cf9",
+  "stage2-hello": "08d99418466920b3b779f8ade0cb66d8ec00885c1e930fa0102da881ea352cf9"
+}

@@ -1,0 +1,18 @@
+test_alias_retention_overwrite_and_collection (tests.test_native_record_globals.NativeRecordGlobals.test_alias_retention_overwrite_and_collection) ... ok
+test_invalid_boxed_record_argument_traps (tests.test_native_record_globals.NativeRecordGlobals.test_invalid_boxed_record_argument_traps) ... ok
+test_record_arguments_from_direct_global_and_tail_calls (tests.test_native_record_globals.NativeRecordGlobals.test_record_arguments_from_direct_global_and_tail_calls) ... ok
+test_scalar_overwrite_refuses_record_projection (tests.test_native_record_globals.NativeRecordGlobals.test_scalar_overwrite_refuses_record_projection) ... ok
+test_record_call_results_do_not_accumulate_hidden_stack_copies (tests.test_native_record_locals.NativeRecordLocals.test_record_call_results_do_not_accumulate_hidden_stack_copies) ... ok
+test_record_tail_swap_preserves_owned_edges_and_array_aliases (tests.test_native_record_locals.NativeRecordLocals.test_record_tail_swap_preserves_owned_edges_and_array_aliases) ... ok
+test_tail_restart_clears_record_locals_without_stack_literals (tests.test_native_record_locals.NativeRecordLocals.test_tail_restart_clears_record_locals_without_stack_literals) ... ok
+test_wide_local_frames_preserve_recursive_values_with_small_static_stack (tests.test_native_record_locals.NativeRecordLocals.test_wide_local_frames_preserve_recursive_values_with_small_static_stack) ... ok
+test_bad_receiver_and_value_tags (tests.test_native_map_globals.NativeMapGlobals.test_bad_receiver_and_value_tags) ... ok
+test_distinct_maps_keep_identity_and_vm_ordering (tests.test_native_map_globals.NativeMapGlobals.test_distinct_maps_keep_identity_and_vm_ordering) ... ok
+test_global_local_record_and_operand_roots_survive_collection (tests.test_native_map_globals.NativeMapGlobals.test_global_local_record_and_operand_roots_survive_collection) ... ok
+test_initializer_alias_call_return_and_reassignment (tests.test_native_map_globals.NativeMapGlobals.test_initializer_alias_call_return_and_reassignment) ... ok
+test_mixed_direct_and_tagged_callers (tests.test_native_map_globals.NativeMapGlobals.test_mixed_direct_and_tagged_callers) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 9.522s
+
+OK

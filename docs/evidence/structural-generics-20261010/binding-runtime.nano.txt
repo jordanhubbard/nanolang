@@ -1,0 +1,192 @@
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+
+# I distinguish implicit type variables from declared nominal types.
+pub fn generic_type_variable(parser: Parser, name: string) -> bool {
+    if (!= (str_length name) 1) { return false }
+    let letter: int = (char_at name 0)
+    if (or (< letter 65) (> letter 90)) { return false }
+    let mut i: int = 0
+    while (< i (parser_get_struct_def_count parser)) {
+        if (== (parser_get_struct_def parser i).name name) { return false }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (parser_get_enum_count parser)) {
+        if (== (parser_get_enum parser i).name name) { return false }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (parser_get_union_count parser)) {
+        if (== (parser_get_union parser i).name name) { return false }
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (list_ASTOpaqueType_length parser.opaque_types)) {
+        if (== (list_ASTOpaqueType_get parser.opaque_types i).type_name name) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow generic_type_variable {
+    let tokens: List<LexerToken> = (tokenize_string "struct A { value: int }" "generic.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "generic.nano")
+    assert (generic_type_variable parser "T")
+    assert (not (generic_type_variable parser "A"))
+    assert (not (generic_type_variable parser "int"))
+    assert (not (generic_type_variable parser "array<T>"))
+}
+
+struct GenericBindings {
+    names: array<string>,
+    types: array<string>,
+    valid: bool
+}
+
+fn generic_word_char(c: int) -> bool {
+    return (or (or (and (>= c 65) (<= c 90)) (and (>= c 97) (<= c 122))) (or (and (>= c 48) (<= c 57)) (or (== c 95) (== c 46))))
+}
+shadow generic_word_char {
+    assert (generic_word_char 84)
+    assert (generic_word_char 46)
+    assert (not (generic_word_char 60))
+}
+
+pub fn generic_type_contains_variable(parser: Parser, spelling: string) -> bool {
+    let length: int = (str_length spelling)
+    let mut i: int = 0
+    while (< i length) {
+        if (generic_word_char (char_at spelling i)) {
+            let start: int = i
+            while (and (< i length) (generic_word_char (char_at spelling i))) { set i (+ i 1) }
+            if (generic_type_variable parser (str_substring spelling start (- i start))) { return true }
+        } else { set i (+ i 1) }
+    }
+    return false
+}
+shadow generic_type_contains_variable {
+    let tokens: List<LexerToken> = (tokenize_string "struct A {value:int}" "generic.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "generic.nano")
+    assert (generic_type_contains_variable parser "fn(array<T>)->T")
+    assert (not (generic_type_contains_variable parser "array<A>"))
+    assert (not (generic_type_contains_variable parser "module.T"))
+}
+
+# I consume one balanced concrete type, leaving its enclosing separator unread.
+fn generic_argument_end(spelling: string, start: int) -> int {
+    let length: int = (str_length spelling)
+    let mut i: int = start
+    let mut angles: int = 0
+    let mut parens: int = 0
+    while (< i length) {
+        let c: int = (char_at spelling i)
+        if (and (== angles 0) (== parens 0)) {
+            if (or (== c 44) (== c 41)) { break }
+            if (and (== c 62) (or (== i start) (!= (char_at spelling (- i 1)) 45))) { break }
+        }
+        if (== c 60) { set angles (+ angles 1) }
+        if (and (== c 62) (or (== i start) (!= (char_at spelling (- i 1)) 45))) { set angles (- angles 1) }
+        if (== c 40) { set parens (+ parens 1) }
+        if (== c 41) { set parens (- parens 1) }
+        if (or (or (< angles 0) (< parens 0)) (or (> angles 128) (> parens 128))) { return -1 }
+        set i (+ i 1)
+    }
+    if (or (!= angles 0) (!= parens 0)) { return -1 }
+    if (== i start) { return -1 }
+    return i
+}
+shadow generic_argument_end {
+    assert (== (generic_argument_end "array<int>,bool" 0) 10)
+    assert (== (generic_argument_end "fn(int)->array<int>,bool" 0) 19)
+    assert (== (generic_argument_end "array<int" 0) -1)
+    assert (== (generic_argument_end ">" 0) -1)
+}
+
+pub fn generic_bind_type(parser: Parser, formal: string, actual: string, prior: GenericBindings) -> GenericBindings {
+    let mut names: array<string> = []
+    let mut types: array<string> = []
+    let mut copy: int = 0
+    while (< copy (array_length prior.names)) {
+        set names (array_push names (at prior.names copy))
+        set types (array_push types (at prior.types copy))
+        set copy (+ copy 1)
+    }
+    let mut valid: bool = prior.valid
+    let formal_length: int = (str_length formal)
+    let actual_length: int = (str_length actual)
+    let mut f: int = 0
+    let mut a: int = 0
+    while (and valid (< f formal_length)) {
+        if (>= a actual_length) { set valid false break }
+        if (generic_word_char (char_at formal f)) {
+            let start: int = f
+            while (and (< f formal_length) (generic_word_char (char_at formal f))) { set f (+ f 1) }
+            let word: string = (str_substring formal start (- f start))
+            if (generic_type_variable parser word) {
+                let end: int = (generic_argument_end actual a)
+                if (< end 0) { set valid false break }
+                let concrete: string = (str_substring actual a (- end a))
+                let mut index: int = -1
+                let mut i: int = 0
+                while (< i (array_length names)) {
+                    if (== (at names i) word) { set index i }
+                    set i (+ i 1)
+                }
+                if (< index 0) {
+                    set names (array_push names word)
+                    set types (array_push types concrete)
+                } else if (!= (at types index) concrete) { set valid false }
+                set a end
+            } else {
+                let begin: int = a
+                while (and (< a actual_length) (generic_word_char (char_at actual a))) { set a (+ a 1) }
+                if (!= word (str_substring actual begin (- a begin))) { set valid false }
+            }
+        } else {
+            if (!= (char_at formal f) (char_at actual a)) { set valid false }
+            set f (+ f 1)
+            set a (+ a 1)
+        }
+    }
+    if (!= a actual_length) { set valid false }
+    return GenericBindings { names: names, types: types, valid: valid }
+}
+shadow generic_bind_type {
+    let tokens: List<LexerToken> = (tokenize_string "struct A {value:int}" "generic.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "generic.nano")
+    let empty: GenericBindings = GenericBindings { names: [], types: [], valid: true }
+    let nested: GenericBindings = (generic_bind_type parser "Pair<T,array<E>>" "Pair<array<int>,array<bool>>" empty)
+    assert nested.valid
+    assert (== (array_length empty.names) 0)
+    assert (== (array_length empty.types) 0)
+    assert (== (at nested.types 0) "array<int>")
+    assert (== (at nested.types 1) "bool")
+    let callback: GenericBindings = (generic_bind_type parser "fn(T)->array<T>" "fn(int)->array<int>" empty)
+    assert callback.valid
+    assert (not (generic_bind_type parser "fn(T)->T" "fn(int)->bool" empty).valid)
+    assert (not (generic_bind_type parser "array<T>" "List<int>" empty).valid)
+    assert (not (generic_bind_type parser "array<A>" "array<int>" empty).valid)
+    assert (not (generic_bind_type parser "T" "int,bool" empty).valid)
+    assert (generic_bind_type parser "T" "fn(int)->array<bool>" empty).valid
+}
+
+fn main() -> int {
+    let tokens: List<LexerToken> = (tokenize_string "struct A {value:int}" "generic.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "generic.nano")
+    let empty: GenericBindings = GenericBindings { names: [], types: [], valid: true }
+    let nested: GenericBindings = (generic_bind_type parser "Pair<T,array<E>>" "Pair<array<int>,array<bool>>" empty)
+    assert nested.valid
+    assert (== (array_length empty.names) 0)
+    assert (== (array_length empty.types) 0)
+    assert (== (at nested.types 0) "array<int>")
+    assert (== (at nested.types 1) "bool")
+    let callback: GenericBindings = (generic_bind_type parser "fn(T)->array<T>" "fn(int)->array<int>" empty)
+    assert callback.valid
+    assert (not (generic_bind_type parser "fn(T)->T" "fn(int)->bool" empty).valid)
+    assert (not (generic_bind_type parser "array<T>" "List<int>" empty).valid)
+    assert (not (generic_bind_type parser "array<A>" "array<int>" empty).valid)
+    assert (not (generic_bind_type parser "T" "int,bool" empty).valid)
+    assert (generic_bind_type parser "T" "fn(int)->array<bool>" empty).valid
+ return 0
+}
+shadow main { assert (== (main) 0) }

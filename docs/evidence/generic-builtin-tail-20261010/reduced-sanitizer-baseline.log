@@ -1,0 +1,2 @@
+src/nanovirt/generic_codegen.inc:65:40: runtime error: member access within null pointer of type 'Parameter'
+SUMMARY: UndefinedBehaviorSanitizer: undefined-behavior src/nanovirt/generic_codegen.inc:65:40 

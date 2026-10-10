@@ -1,0 +1,19 @@
+/opt/homebrew/opt/llvm/bin/clang -std=c11 -g -O1 -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket.c -o obj/test_nsi_socket_instrumented -fsanitize=address,undefined -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+I check real NUL/bidirectional/EOF/would-block and exact Socket identity.
+I check rights, interrupted calls and byte output retention.
+I check pair atomicity, aliased transfer capacity, generations and reuse.
+I check every platform setup step and complete pair rollback.
+I inject acquisition step 0/10.
+I inject acquisition step 1/10.
+I inject acquisition step 2/10.
+I inject acquisition step 3/10.
+I inject acquisition step 4/10.
+I inject acquisition step 5/10.
+I inject acquisition step 6/10.
+I inject acquisition step 7/10.
+I inject acquisition step 8/10.
+I inject acquisition step 9/10.
+I inject acquisition step 10/10.
+I distinguish real close, injected reports and deliberately unclosed fault descriptors.
+FAIL line 48: !"I exceeded my bounded connection wait"
+make: *** [test-nsi-socket] Error 1

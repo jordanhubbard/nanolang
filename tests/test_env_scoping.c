@@ -305,6 +305,32 @@ static void test_borrowed_record_identity(void) {
     free_environment(owner_env);
 }
 
+static void test_public_global_import_identity(void) {
+    Environment *env = create_environment();
+    ASTNode declaration = {0}, other = {0};
+    Symbol *global = define_at(env, "module.nano", "answer", TYPE_INT, 1);
+    global->is_global = true;
+    global->global_declaration = &declaration;
+    CHECK(env_import_global(env, "caller.nano", "selected", &declaration), "I bind a public alias");
+    CHECK(env_import_global(env, "caller.nano", "selected", &declaration), "I retain repeated alias identity");
+    CHECK(!env_import_global(env, "caller.nano", "selected", &other), "I reject a conflicting alias");
+    for (int i = 0; i < 40; ++i) {
+        char name[32];
+        snprintf(name, sizeof name, "filler_%d", i);
+        define_at(env, "module.nano", name, TYPE_INT, i + 2);
+    }
+    env_set_current_file(env, "caller.nano");
+    global = env_get_var_visible_at(env, "selected", 4, 1);
+    CHECK(global && global->global_declaration == &declaration, "I retain declaration identity across symbol growth");
+    Symbol *local = define_at(env, "caller.nano", "selected", TYPE_STRING, 5);
+    local->scope_end_line = 10;
+    CHECK(env_get_var_visible_at(env, "selected", 6, 1)->type == TYPE_STRING, "I prefer lexical locals");
+    CHECK(env_get_var_visible_at(env, "selected", 11, 1)->global_declaration == &declaration, "I restore the imported binding after local scope");
+    env_set_current_file(env, "other.nano");
+    CHECK(env_get_var_visible_at(env, "selected", 20, 1) == NULL, "I confine the alias to its importing source");
+    free_environment(env);
+}
+
 int main(void) {
     printf("\n[env_scoping] symbol visibility is confined to one file...\n\n");
     test_lookup_ignores_other_files();
@@ -313,6 +339,7 @@ int main(void) {
     test_redefinition_does_not_inherit_across_files();
     test_same_name_in_many_files();
     test_import_alias_owners();
+    test_public_global_import_identity();
     test_import_owner_restoration();
     test_retained_block_bounds();
     test_union_owns_string_payload();

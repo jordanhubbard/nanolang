@@ -1,0 +1,11 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -DNANO_WRAPPER_CRYPTO_DIR='"/opt/homebrew/Cellar/openssl@3/3.6.5/lib"' -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -Isrc/nanoisa -c src/nanoisa/file_flow.c -o obj/nanoisa/file_flow.o
+In file included from src/nanoisa/file_flow.c:629:
+src/nanoisa/file_indirect_flow.inc:75:32: error: incompatible pointer types passing 'FileCyclicState *' to parameter of type 'const FileCyclicStoredState *' [-Werror,-Wincompatible-pointer-types]
+   75 |   } else if(!file_cyclic_equal(&w->canonical_first,&w->candidate.canonical) ||
+      |                                ^~~~~~~~~~~~~~~~~~~
+src/nanoisa/file_cyclic.inc:62:60: note: passing argument to parameter 'a' here
+   62 | static bool file_cyclic_equal(const FileCyclicStoredState *a,const FileCyclicState *b) {
+      |                                                            ^
+1 error generated.
+make: *** [obj/nanoisa/file_flow.o] Error 1

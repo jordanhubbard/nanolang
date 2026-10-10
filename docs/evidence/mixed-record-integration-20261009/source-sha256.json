@@ -1,0 +1,13 @@
+{
+  "Makefile.gnu": "40466ec4e4b225a3757c3e273df9cb6669be971f5ab81f24ad3499962754af89",
+  "examples/sdl_example_launcher.nano": "41e98142d31228b4af124216077d03583d58e2841053ca182aaff177bcf060a7",
+  "modules/sdl_image/sdl_image.nano": "991d6e4a55d4da61a4bb32f7f2e29763f03fe02389713719d2b3a33d880dea08",
+  "src/nanoisa/affine_bytecode.c": "bd65b43b99d8301e51941357362dd67c58dff0d176681090a33fecdc1d4c7752",
+  "src/nanoisa/affine_state.c": "6f032c5507e0e7892f8148701c6265c40d591328ae33d9556ceb941058214697",
+  "src/nanoisa/affine_state.h": "2ae319532495a4ab7e0cf68a8937944a3f4e5d5dbfaf1235755d467b039d2c1c",
+  "src/nanoisa/nvm2c_owned.h": "dbf6dc6f443860422bf6747a5d25e4efb825d3f628cd89ce330853e8cd14fb1a",
+  "src/nanovirt/borrow_codegen.inc": "92cde8e1a164c42f5c7e2eb7e01dd58ced0b2ff7fb6fc31081f82a2f8ada29bd",
+  "src_nano/compiler/nanoisa_borrows.nano": "f021ec7b6d93d71d12b1d869ec6bf18665d9ff85e703e346838bb791e776198b",
+  "tests/test_affine_module_identity.py": "8303239a40df650d99209c4acc849ff23d280783d516ceaf38b3182d2ee06bd2",
+  "tests/test_affine_ordinary_records.py": "b5cb5c558eb9b443f9c9af3b59c4cb025f75c1c717d166acb60a73644b04d884"
+}

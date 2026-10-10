@@ -1,0 +1,84 @@
+{
+  "command": [
+    "/Users/jordanh/Src/nanolang/bin/nano_virt",
+    "src_nano/nanoc_v06.nano",
+    "--emit-nvm",
+    "-o",
+    "/private/tmp/nanolang-file-all-driver.nvm"
+  ],
+  "timeout_seconds": 30,
+  "elapsed_seconds": 71.44915995799238,
+  "exit_code": 0,
+  "selected_shadows": 1066,
+  "first_shadow": {
+    "seconds": 56.483017582970206,
+    "shadow": "$shadow_0_token_literal_value_bytes"
+  },
+  "last_shadow": {
+    "seconds": 65.0608789169928,
+    "shadow": "$shadow_1065_main"
+  },
+  "first_to_last_shadow_seconds": 8.5778613340226,
+  "largest_trace_gaps": [
+    {
+      "shadow": "$shadow_894_file_source_catalog_view",
+      "seconds_until_next_shadow": 1.109848249994684
+    },
+    {
+      "shadow": "$shadow_913_sn_describe",
+      "seconds_until_next_shadow": 1.0096240830025636
+    },
+    {
+      "shadow": "$shadow_860_load_print",
+      "seconds_until_next_shadow": 0.5224251670297235
+    },
+    {
+      "shadow": "$shadow_861_load_pretty",
+      "seconds_until_next_shadow": 0.44182862498564646
+    },
+    {
+      "shadow": "$shadow_36_walkdir",
+      "seconds_until_next_shadow": 0.3940240840311162
+    },
+    {
+      "shadow": "$shadow_862_assemble_save",
+      "seconds_until_next_shadow": 0.37039112497586757
+    },
+    {
+      "shadow": "$shadow_53_copy_file",
+      "seconds_until_next_shadow": 0.33749879198148847
+    },
+    {
+      "shadow": "$shadow_980_service_wire_serialize",
+      "seconds_until_next_shadow": 0.3251955409650691
+    },
+    {
+      "shadow": "$shadow_1043_collect_files_dfs",
+      "seconds_until_next_shadow": 0.26997779100202024
+    },
+    {
+      "shadow": "$shadow_869_module_cache_get",
+      "seconds_until_next_shadow": 0.2663572080200538
+    },
+    {
+      "shadow": "$shadow_54_copy_dir",
+      "seconds_until_next_shadow": 0.24952025001402944
+    },
+    {
+      "shadow": "$shadow_971_sw_layouts",
+      "seconds_until_next_shadow": 0.24554983398411423
+    },
+    {
+      "shadow": "$shadow_49_append",
+      "seconds_until_next_shadow": 0.15941358398413286
+    },
+    {
+      "shadow": "$shadow_535_purity_type",
+      "seconds_until_next_shadow": 0.13893604202894494
+    },
+    {
+      "shadow": "$shadow_1059_output_destinations_distinct",
+      "seconds_until_next_shadow": 0.12053891702089459
+    }
+  ]
+}

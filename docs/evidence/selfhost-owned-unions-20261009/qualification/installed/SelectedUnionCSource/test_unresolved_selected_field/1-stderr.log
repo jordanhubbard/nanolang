@@ -1,0 +1,5 @@
+I cannot verify affine ownership at line 6, column 69: resource remains live at scope exit — right
+Warning at line 6, column 20: Unused variable 'right'
+Warning at line 6, column 20: Unused variable 'label'
+Warning at line 5, column 36: Unused variable 'payload'
+error: type check failed

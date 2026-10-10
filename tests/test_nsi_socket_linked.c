@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define CHECK(x) do { if (!(x)) {fprintf(stderr,"FAIL line %d: %s\n",__LINE__,#x);exit(1);} } while(0)
+#include "socket_tcp_fixture.h"
 int main(void) {
     NlSocketService *s=NULL;CHECK(nl_socket_service_create(&s).status==NL_SOCKET_OK);
     NlSocketPair pair;CHECK(nl_socket_acquire_pair(s,NL_CAP_READ|NL_CAP_WRITE|NL_CAP_TRANSFER,NL_CAP_READ|NL_CAP_WRITE,&pair).status==NL_SOCKET_OK);
@@ -12,5 +13,8 @@ int main(void) {
     NlSocketResult r=nl_socket_consume_close(s,&pair.endpoints[0]);CHECK(r.status==NL_SOCKET_OK && r.closed_count==1 && r.consumed);
     byte=17;r=nl_socket_receive_byte(s,&pair.endpoints[1],&byte);CHECK(r.status==NL_SOCKET_EOF && r.eof && byte==0);
     CHECK(nl_socket_send_byte(s,&pair.endpoints[1],1).status==NL_SOCKET_IO);r=nl_socket_service_destroy(s);CHECK(r.status==NL_SOCKET_OK && r.closed_count==1);
-    puts("PASS ordinary linked Socket NUL/byte/EOF/transfer/close");return 0;
+    puts("PASS ordinary linked Socket NUL/byte/EOF/transfer/close");
+    tcp_real_connections(NL_SOCKET_IPV4);
+    tcp_real_connections(NL_SOCKET_IPV6);
+    return 0;
 }

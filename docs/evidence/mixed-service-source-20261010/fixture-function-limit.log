@@ -1,0 +1,25 @@
+I retain source lowering artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-h0abqwkx
+I build independent File lowerer with producer 0.
+test_mixed_source_bytes_and_execution (tests.test_service_lowering_nano.ServiceLoweringNano.test_mixed_source_bytes_and_execution) ... FAIL
+
+======================================================================
+FAIL: test_mixed_source_bytes_and_execution (tests.test_service_lowering_nano.ServiceLoweringNano.test_mixed_source_bytes_and_execution)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering_nano.py", line 218, in test_mixed_source_bytes_and_execution
+    report=self.command([os.environ.get('NANO_SERVICE_LOWERING_RUNNER',ROOT/'obj/test_service_lowering'),path,selected,generated,0])
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 65, in command
+    if process.returncode:raise AssertionError(f'{args}\n{process.returncode}\n{stdout}\n{stderr}')
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_lowering'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-h0abqwkx/mixed-4-main.nano'), 'main', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-h0abqwkx/mixed-4-main.c'), 0]
+-6
+
+I have not resolved File service declarations for this consumer.
+SERIALIZE 3 I cannot serialize my checked File module.
+Assertion failed: (!result.status), function main, file test_service_lowering.c, line 156.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 43.312s
+
+FAILED (failures=1)

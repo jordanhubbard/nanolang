@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+    "/Users/jordanh/Src/nanolang/tests/token_value_bytes.nano",
+    "-o",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-8by_zhxq/token_value_bytes-nanoc_c",
+    "--keep-c",
+    "--llm-shadow-json",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-file-service-parser-8by_zhxq/token_value_bytes-nanoc_c-shadows.json",
+    "--verbose"
+  ],
+  "cwd": "/Users/jordanh/Src/nanolang",
+  "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+  "UBSAN_OPTIONS": "halt_on_error=1:print_stacktrace=1",
+  "LSAN_OPTIONS": ""
+}

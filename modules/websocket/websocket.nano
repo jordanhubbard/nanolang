@@ -12,9 +12,9 @@ extern fn nl_ws_close(_handle: int) -> int
 extern fn nl_ws_is_connected(_handle: int) -> int
 extern fn nl_ws_last_error(_handle: int) -> string
 
-/* Connect to a WebSocket server.
- * url: "ws://host:port/path"
- * Returns a handle (non-zero) on success, 0 on failure. */
+/* I connect to ws://host:port/path. I refuse wss:// until TLS exists.
+ * My nonzero handle is a legacy registry identity, not an affine resource.
+ * I bound connect/upgrade I/O to ten seconds; DNS remains synchronous. */
 pub fn connect(url: string) -> int {
     unsafe {
         return (nl_ws_connect url)
@@ -22,9 +22,10 @@ pub fn connect(url: string) -> int {
 }
 
 shadow connect {
-    /* We can only test that the function is callable without a real server */
+    /* I refuse invalid transport requests without needing a peer. */
     let h: int = (connect "ws://127.0.0.1:0/")
-    assert (== h 0)  /* expected: connection refused to port 0 */
+    assert (== h 0)
+    assert (== (connect "wss://localhost/private") 0)
 }
 
 /* Send a UTF-8 text message. Returns 0 on success. */
@@ -38,8 +39,8 @@ shadow send {
     assert (== (send 0 "hello") -1)  /* invalid handle returns error */
 }
 
-/* Receive the next message (blocks until data arrives or connection closes).
- * Returns "" on error or close. */
+/* I receive a complete text message within a ten-second I/O deadline.
+ * I return "" on timeout, error or close; I retain partial frames on timeout. */
 pub fn receive(h: int) -> string {
     unsafe {
         return (nl_ws_receive h)
@@ -50,8 +51,8 @@ shadow receive {
     assert (== (receive 0) "")  /* invalid handle returns empty */
 }
 
-/* Receive with a timeout in milliseconds.
- * Returns "" on timeout or error. */
+/* I accept a timeout from zero through 60000 milliseconds.
+ * I return "" on timeout, invalid timeout or error. */
 pub fn receive_timeout(h: int, timeout_ms: int) -> string {
     unsafe {
         return (nl_ws_receive_timeout h timeout_ms)

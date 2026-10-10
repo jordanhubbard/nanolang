@@ -1,0 +1,11 @@
+{
+  "command": [
+    "bin/nvm2c",
+    "docs/evidence/captured-closure-baseline-20261008/capture.nvm",
+    "-o",
+    "/private/tmp/nanolang-native-closure.c"
+  ],
+  "exit_code": 1,
+  "stderr": "I cannot translate 'docs/evidence/captured-closure-baseline-20261008/capture.nvm': I found invalid aggregate shape constraints during RET in function 3 at offset 15: I cannot resolve an invalid shape ID",
+  "provenance": "I transcribe this observed tool terminal; I did not retain a separate subprocess log."
+}

@@ -1,0 +1,18 @@
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+import "src_nano/typecheck.nano"
+fn main() -> int {
+ let names:array<string> = ["module_aliases", "module_alias_targets", "func_aliases", "func_alias_targets", "not_a_declared_global"]
+ for i in (range 0 (array_length names)) {
+  let name:string = (at names i)
+  let source:string = (+ "fn main()->int { return (array_length " (+ name ") }"))
+  let tokens:List<LexerToken> = (tokenize_string source "legacy-global.nano" (list_CompilerDiagnostic_new))
+  let parsed:Parser = (parse_program tokens (list_LexerToken_length tokens) "legacy-global.nano")
+  assert (not (parser_has_error parsed))
+  let checked:TypecheckPhaseOutput = (typecheck_phase parsed "legacy-global.nano")
+  (print name)
+  if checked.had_error { (println ": rejected") } else { (println ": accepted") }
+ }
+ return 0
+}
+shadow main { assert (== (main) 0) }

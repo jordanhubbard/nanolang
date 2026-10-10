@@ -1,0 +1,14 @@
+I retain strict binding artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-websocket-binding-wm1n109_
+test_complete_document_lifetime_and_allocation (tests.test_nsi_websocket_binding.WebSocketBindingPlan.test_complete_document_lifetime_and_allocation) ... PASS strict Websocket binding 8885 checks cases=798 allocations=0/0/0/0 bound=7575756 mode=linked
+PASS strict Websocket binding 32205733 checks cases=798 allocations=13828932/224762/0/1889795 bound=7575756 mode=instrumented
+ok
+test_immutable_source_snapshots (tests.test_nsi_websocket_binding.WebSocketBindingPlan.test_immutable_source_snapshots) ... ok
+test_unchanged_legacy_neighbors (tests.test_nsi_websocket_binding.WebSocketBindingPlan.test_unchanged_legacy_neighbors) ... nsi 20 passed, 0 failed
+nsi-generator 3 passed, 0 failed
+nsi-websocket-plan PASS 983 checks; exact owned WebSocket catalog, no service execution
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 11.229s
+
+OK

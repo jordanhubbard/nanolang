@@ -1,0 +1,3 @@
+('/Users/jordanh/Src/nanolang/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-0638nqmu/null-boundary.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-0638nqmu/null-boundary.c')
+{'ASAN_OPTIONS': 'detect_leaks=1'}
+

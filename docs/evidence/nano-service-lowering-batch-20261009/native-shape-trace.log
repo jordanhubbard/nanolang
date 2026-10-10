@@ -1,0 +1,15 @@
+OUTPUT function=21 pc=322 root=5647 name=sl_children
+OUTPUT function=21 pc=351 root=5647 name=sl_children
+OUTPUT function=21 pc=414 root=5647 name=sl_children
+OUTPUT function=21 pc=483 root=5647 name=sl_children
+OUTPUT function=21 pc=565 root=5647 name=sl_children
+OUTPUT function=21 pc=584 root=5647 name=sl_children
+OUTPUT function=21 pc=609 root=5647 name=sl_children
+OUTPUT function=21 pc=681 root=5647 name=sl_children
+OUTPUT function=21 pc=700 root=5647 name=sl_children
+OUTPUT function=21 pc=772 root=5647 name=sl_children
+OUTPUT function=21 pc=838 root=5647 name=sl_children
+OUTPUT function=21 pc=904 root=5647 name=sl_children
+OUTPUT function=21 pc=970 root=5647 name=sl_children
+OUTPUT function=327 pc=9 root=254611 name=parser_get_call_arg
+I cannot translate '/private/tmp/nanolang-nano-lowering-probe.nvm': I cannot solve aggregate storage shape conversions: I cannot widen an exactly constrained int destination at nodes 744266/5647 (conversion 254611/7465)

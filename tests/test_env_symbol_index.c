@@ -50,6 +50,81 @@ static void pop_to(Environment *env, int count) {
     env->symbol_count = count;
 }
 
+/* I compare selection with an independent exhaustive scan, including the
+ * priority of located locals, imports and unlocated runtime bindings. */
+static Symbol *linear_visible(Environment *env, const char *name, int line, int column) {
+    if (line <= 0) return linear(env, name);
+    Symbol *located = NULL, *unknown = NULL;
+    for (int i = 0; i < env->symbol_count; ++i) {
+        Symbol *sym = &env->symbols[i];
+        if (!sym->name || strcmp(sym->name, name)) continue;
+        if (sym->scope_end_line > 0 && (line > sym->scope_end_line ||
+            (line == sym->scope_end_line && column >= sym->scope_end_column))) continue;
+        if (sym->def_line <= 0) unknown = sym;
+        int start = sym->flow_start_line > 0 ? sym->flow_start_line : sym->def_line;
+        int col = sym->flow_start_line > 0 ? sym->flow_start_column : sym->def_column;
+        if (start <= 0 || start > line || (start == line && column > 0 && col > column)) continue;
+        if (sym->def_file && env->current_file && strcmp(sym->def_file, env->current_file)) continue;
+        located = sym;
+    }
+    if (located) return located;
+    Symbol *imported = env_global_import_symbol(env, name);
+    return imported ? imported : unknown;
+}
+
+static void check_visible_index(Environment *env) {
+    int mark = env->symbol_count;
+    ASTNode declaration = {0};
+    env_set_current_file(env, "import-owner.nano");
+    env_define_var(env, "owner_value", TYPE_INT, false, create_int(91));
+    env_get_var(env, "owner_value")->global_declaration = &declaration;
+    assert(env_import_global(env, "a.nano", "selected", &declaration));
+    for (int round = 0; round < 12; ++round) {
+        int inner = env->symbol_count;
+        for (int i = 0; i < 24; ++i) {
+            env_set_current_file(env, i % 2 ? "a.nano" : "b.nano");
+            env_define_var(env, "selected", TYPE_INT, false, create_int(i));
+            Symbol *sym = env_get_var(env, "selected");
+            sym->def_line = i % 4 ? i + 3 : 0;
+            sym->def_column = 4;
+            sym->flow_start_line = i % 3 ? 0 : i + 1;
+            sym->flow_start_column = 2;
+            sym->scope_end_line = i % 5 ? i + 8 : 0;
+            sym->scope_end_column = 6;
+        }
+        const char *files[] = {"a.nano", "b.nano", "unrelated.nano", NULL};
+        for (size_t file = 0; file < sizeof files / sizeof *files; ++file) {
+            env_set_current_file(env, files[file]);
+            for (int line = 0; line < 36; ++line)
+                for (int col = 0; col < 8; ++col)
+                    assert(env_get_var_visible_at(env, "selected", line, col) ==
+                           linear_visible(env, "selected", line, col));
+        }
+        pop_to(env, inner);
+        env_set_current_file(env, "a.nano");
+        env_define_var(env, "reused_visible_slot", TYPE_INT, false, create_int(round));
+        assert(env_get_var_visible_at(env, "selected", 40, 1)->value.as.int_val == 91);
+        assert(env_get_var_visible_at(env, "reused_visible_slot", 40, 1)->value.as.int_val == round);
+        pop_to(env, inner);
+    }
+    for (int failure = 1; failure <= 3; ++failure) {
+        env_symbol_index_invalidate(env);
+        index_allocation_number = 0;
+        fail_index_allocation = failure;
+        assert(env_get_var_visible_at(env, "name_0", 1, 1) == linear(env, "name_0"));
+        assert(index_allocation_number == failure);
+        fail_index_allocation = 0;
+    }
+    name_comparisons = 0;
+    for (int i = 0; i < 1000; ++i) {
+        assert(env_get_var_visible_at(env, "name_0", 1, 1) == linear(env, "name_0"));
+        assert(!env_get_var_visible_at(env, "missing_visible", 1, 1));
+    }
+    printf("I perform 2000 source-position lookups with %zu name comparisons.\n", name_comparisons);
+    assert(name_comparisons < 64000);
+    pop_to(env, mark);
+}
+
 int main(void) {
     gc_init();
     Environment *env = create_environment();
@@ -66,6 +141,8 @@ int main(void) {
     }
     printf("I perform 2000 lookups with %zu name comparisons.\n", name_comparisons);
     assert(name_comparisons < 64000);
+
+    check_visible_index(env);
 
     int outer = env->symbol_count;
     char first_file[] = "a.nano", equal_file[] = "a.nano";

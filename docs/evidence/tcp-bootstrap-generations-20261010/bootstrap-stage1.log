@@ -1,0 +1,11 @@
+test_dependency_shadow_selection_preserves_outputs (tests.test_socket_service_drivers.SocketServiceDrivers.test_dependency_shadow_selection_preserves_outputs) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-_jl_rcap
+ok
+test_failure_aliases_and_nonexecuting_emission (tests.test_socket_service_drivers.SocketServiceDrivers.test_failure_aliases_and_nonexecuting_emission) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-2k_ca59n
+ok
+test_network_shadow_publication_and_invocation (tests.test_socket_service_drivers.SocketServiceDrivers.test_network_shadow_publication_and_invocation) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9x_wwcs3
+ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 49.565s
+
+OK

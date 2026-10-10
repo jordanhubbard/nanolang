@@ -1,0 +1,19 @@
+{
+  "Makefile.gnu": "5d0d7dba0e41557336f32c4867586ed4280322d35a1f67755dec145ec5360ded",
+  "src/nanoisa/nvm_v2_convert.c": "cafd8bdd091ace6217e5a72409c8496638bd4c2b7b5bcc4d4c43459b48885788",
+  "src/nanoisa/nvm_v2_module.c": "ed46b9a89dbf2a1854fb0ec529e2ee18637d5583dddb675b3e58ee741b7e6063",
+  "src/nanoisa/service_bindings_module.c": "c7f534472e8d346f126fd847c9d16eebf51424c936cd0ff8ab17e246d7c6aa27",
+  "src/nanoisa/service_cyclic_hosted.inc": "53c93eaf13700265aa354bd59c5e37eaa71d379fcff2b219a885b3af2dc76d9f",
+  "src/nanoisa/service_hosted.inc": "2272fc3ffa52c9f99f6026a7c48261b1c3da51fbd73431b2525c9daef5eee8a9",
+  "src/nanoisa/service_indirect_hosted.inc": "20e7849472130d75e89c259f4d770a2b73bce1a2b343a173583c112da86aadae",
+  "src/nanoisa/websocket_flow.c": "66945d9fbfa31b0faf13cdd13d7d2c7a45ed9c79f7d1f9eac2947faa34ce1e14",
+  "tests/nanoisa/test_websocket_body.c": "f756d623639f0f242a1dd680764d3dc203ed0c2ef102bb0cf16e6dceeb14f38c",
+  "tests/nanoisa/websocket_nominal_fixture.h": "790fd35784a7d19461141dd1e70d88900dc1557487c90db3087110414d231db9",
+  "src/nanoisa/service_codec_internal.h": "c58b134ab28cb6f4d6cc8e6d3c75d09f9d1503e03d13be2489be1a00599a8db3",
+  "src/nanoisa/websocket_codec.c": "a4530a5315ce8b59128bbc292fc7f0408ca545fcb486a0f8516187f5d66d4ecb",
+  "src/nanoisa/websocket_codec.h": "5da4e276d8da45fd7bc006a0842ab049d648470ed7fd86bc30737ce57218951c",
+  "src/nanoisa/websocket_cyclic_hosted.h": "7ec7a9cc1b7b5f9c5ad745cb082c2c85d3855eb5798b1266ce066d84061e510b",
+  "src/nanoisa/websocket_hosted.h": "18c2420e9d1ed22731f06719ba59db8d5afbef609eff6f53ff4bb3166755f058",
+  "src/nanoisa/websocket_indirect_hosted.h": "41df6a4917121aa4d2adb9b3772d24aa00ea6314896ce08e7b97c7c44878f47d",
+  "tests/nanoisa/test_websocket_hosted.c": "4262addeb22ddcf171e5b3b2a1251141ff9b7f1729c202d7d165bf887a1f7770"
+}

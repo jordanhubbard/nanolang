@@ -1,5 +1,6 @@
 #include "nsi_file_plan.h"
 #include "nsi_file_catalog.h"
+#include "nsi_service_catalog_internal.h"
 #include "nsi_cap.h"
 #include <stdlib.h>
 #include <string.h>
@@ -66,42 +67,13 @@ static const NlFilePlanMethod methods[]={
     METHOD("close",0,0,NL_FILE_INPUT_CONSUME,close_params,NL_FILE_OWNER_CONSUMED,NULL)
 };
 struct NlFilePlan { const NlFilePlanMethod *methods; const NlFilePlanType *types; };
-static bool text_equal(const char *a,const char *b) {
-    return (!a || !b) ? a==b : strcmp(a,b)==0;
-}
-static bool param_equal(const NlNsiParam *a,const NlFilePlanParam *b) {
-    return text_equal(a->id,b->id) && text_equal(a->name,b->name) &&
-        text_equal(a->type_id,b->type_id) && a->direction==b->direction &&
-        a->ownership==b->ownership && a->lifetime==b->lifetime &&
-        a->mutability==b->mutability && a->optional==0 && a->streaming==NL_NSI_STREAM_NONE;
-}
+static const NlServicePlanCapability capabilities[]={{"cap:nanolang/filesystem.temp","temp"}};
+static const NlServiceCatalog catalog = {
+    IFACE, "filesystem", ID("io"), "io", "1",
+    capabilities, COUNT(capabilities), methods, COUNT(methods), types, COUNT(types)
+};
 static bool document_equal(const NlNsi *n) {
-    if(!n || n->version!=NL_NSI_VERSION || !text_equal(n->iface.id,IFACE) ||
-       !text_equal(n->iface.name,"filesystem") || n->method_count!=COUNT(methods) ||
-       n->type_count!=COUNT(types) || n->error_count!=1 || n->capability_count!=1 ||
-       !n->methods || !n->types || !n->errors || !n->capabilities) return false;
-    if(!text_equal(n->errors[0].id,ID("io")) || !text_equal(n->errors[0].name,"io") ||
-       !text_equal(n->errors[0].version,"1") ||
-       !text_equal(n->capabilities[0].id,"cap:nanolang/filesystem.temp") ||
-       !text_equal(n->capabilities[0].name,"temp")) return false;
-    for(size_t i=0;i<COUNT(methods);i++) {
-        const NlNsiMethod *a=&n->methods[i];const NlFilePlanMethod *b=&methods[i];
-        if(!text_equal(a->id,b->id) || !text_equal(a->name,b->name) || a->idempotent!=0 ||
-           a->param_count!=b->param_count || !a->params) return false;
-        for(size_t j=0;j<b->param_count;j++) if(!param_equal(&a->params[j],&b->params[j])) return false;
-    }
-    for(size_t i=0;i<COUNT(types);i++) {
-        const NlNsiType *a=&n->types[i];const NlFilePlanType *b=&types[i];
-        if(!text_equal(a->id,b->id) || !text_equal(a->name,b->name) || a->kind!=b->kind ||
-           a->member_count!=b->member_count || a->element_id || a->method_id || a->result_id ||
-           (b->member_count && !a->members) || (!b->member_count && a->members)) return false;
-        for(size_t j=0;j<b->member_count;j++) {
-            const NlNsiMember *x=&a->members[j];const NlFilePlanMember *y=&b->members[j];
-            if(!text_equal(x->id,y->id) || !text_equal(x->name,y->name) ||
-               !text_equal(x->type_id,y->type_id)) return false;
-        }
-    }
-    return true;
+    return nl_service_catalog_document_equal(n, &catalog);
 }
 NlFilePlanStatus nl_file_plan_build(const NlNsi *n,NlFilePlan **out) {
     if(!out || !document_equal(n)) return NL_FILE_PLAN_INVALID;

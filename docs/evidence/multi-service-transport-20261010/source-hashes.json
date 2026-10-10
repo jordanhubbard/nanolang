@@ -1,0 +1,16 @@
+{
+  "src/nanoisa/service_multi_nominal.c": "22be98f2667a5059e4944437d33c9acd41a466391d8f55143d8fd4903f158c70",
+  "src/nanoisa/service_multi_nominal.h": "eb799b4f19e5b41e8ed004a38ebfa9e67f2d8cd64e700fcffa5919b3a4ff67e6",
+  "src/nanoisa/service_multi_nominal_plan.c": "6838ee2b3a7d2a78b5d8150e2d4e0c5106fcf7849ffba4c3829c5609ee45ed9c",
+  "src/nanoisa/service_bindings_module.c": "7dde56b4caabe9953986454830a9c4d14a149faf930996e8e04780c3204f2433",
+  "src/nanoisa/service_bindings_module.h": "e6093509a67b3c8577b662808178905d00be500fff043dd67aec07acb54aa3c5",
+  "src/nanoisa/nvm_v2_convert.c": "a8596f49a2d890c6974edcc8981fdcb898d997402f4d63d1aa4227927e00b018",
+  "src/nanoisa/nvm_v2_module.c": "acf8dce704cb56d571cd3a6ec82bb7a8b516fb6d64b355ef83a8b0a27b632504",
+  "tests/nanoisa/test_multi_nominal.c": "97578fc31edc40811e1fdffea390dc6486dcc51b5b38a6b98db872b9d2cbbddb",
+  "tests/test_multi_nominal.py": "aac7ae940ba975f329bac431283e9a20e45870e22f98681913697d7322d30971",
+  "Makefile.gnu": "d1154b8a11a66ba62bc5be1e60b8714df688234c7d166711117b66ad3e05b38e",
+  "modules/nanoisa/module.json": "a19b7ad745458ad365218e000cf7619fde3ec161c5c7841db3f2244ccde64667",
+  "modules/file_product/module.json": "4dea5d17d80a3da8e464c2edc9694b4bcbcd1668074f4a3e5ef8489d45d96270",
+  "modules/forth_see/module.json": "27ccdf9b6ddef763614fee18961a11fd3f43ddaf2f5586676c3504c458418254",
+  "tests/user_guide/refresh_language_pure_function.nano": "c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976"
+}

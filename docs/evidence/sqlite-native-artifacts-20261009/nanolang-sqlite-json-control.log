@@ -1,0 +1,8 @@
+I retain Json artifact evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-k6z0va55
+I retain Json artifact evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-upynjrl0
+test_real_artifact_ownership_vm_and_native (tests.test_selfhost_json_artifacts.JsonArtifacts.test_real_artifact_ownership_vm_and_native) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.963s
+
+OK

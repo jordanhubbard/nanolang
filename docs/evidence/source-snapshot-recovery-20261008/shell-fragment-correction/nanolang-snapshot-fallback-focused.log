@@ -1,0 +1,28 @@
+test_unknown_fragments_keep_original_compilation (tests.test_source_snapshots.SourceSnapshots.test_unknown_fragments_keep_original_compilation) ... ok
+test_unadmitted_expansion_preserves_original_argument_evaluation (tests.test_source_snapshots.SourceSnapshots.test_unadmitted_expansion_preserves_original_argument_evaluation) ... 
+  test_unadmitted_expansion_preserves_original_argument_evaluation (tests.test_source_snapshots.SourceSnapshots.test_unadmitted_expansion_preserves_original_argument_evaluation) (value=None) ... FAIL
+  test_unadmitted_expansion_preserves_original_argument_evaluation (tests.test_source_snapshots.SourceSnapshots.test_unadmitted_expansion_preserves_original_argument_evaluation) (value='43') ... FAIL
+test_uncaptured_linker_flags_stay_out_of_compile_jobs (tests.test_source_snapshots.SourceSnapshots.test_uncaptured_linker_flags_stay_out_of_compile_jobs) ... ok
+
+======================================================================
+FAIL: test_unadmitted_expansion_preserves_original_argument_evaluation (tests.test_source_snapshots.SourceSnapshots.test_unadmitted_expansion_preserves_original_argument_evaluation) (value=None)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_source_snapshots.py", line 2632, in test_unadmitted_expansion_preserves_original_argument_evaluation
+    self.assertFalse((generation / "source_hashes.json").exists())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_unadmitted_expansion_preserves_original_argument_evaluation (tests.test_source_snapshots.SourceSnapshots.test_unadmitted_expansion_preserves_original_argument_evaluation) (value='43')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_source_snapshots.py", line 2632, in test_unadmitted_expansion_preserves_original_argument_evaluation
+    self.assertFalse((generation / "source_hashes.json").exists())
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.728s
+
+FAILED (failures=2)

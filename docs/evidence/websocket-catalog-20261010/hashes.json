@@ -1,0 +1,16 @@
+{
+  "Makefile.gnu": "fb20d343d2999847160aaa99164937ee56f5d8b19b92cd942a7597a5d764f205",
+  "src/nsi_service_catalog.h": "afe47ca42e95c2a48d37340a2128c88e8ab173e1f76537c4ad4ae4409f4a683f",
+  "src/nsi_service_catalog_internal.h": "43a606f9f7a427f87b1cc87dbeee9d898781f9e5ba9ebdb2ab6a77a341647db4",
+  "src/nsi_file_plan.c": "8520f83344d3aa94ee8270d95308c386fdf6b8ef92f656db67dc2b02aa88b642",
+  "src/nsi_socket_plan.c": "8c41114ecab64a194d80caeb3c878133a2621a59ef8cbad0f230153e16b07bfc",
+  "src/nsi_websocket_plan.h": "d867e54339d30ff61eb72f5684f444573fc65eef1f3f61af502425bb9bbdc924",
+  "src/nsi_websocket_plan.c": "6006b2eef8b26336f70ac7c2d0a1d52dca1ee67a7441d8fc50d2c5ab48f83e04",
+  "tests/test_nsi_websocket_plan.c": "406d3f19370cd401b7ade254dadd6b103a86e28a4bbfebf585fb44895718b767",
+  "tests/fixtures/nsi_websocket_plan.json": "197710ba22d2efa188786d6e090da80e312336324f9350af0a548cf19bea4ea2",
+  "docs/NSI_WEBSOCKET_CATALOG.md": "2fb4b2e22958a63e7f0bd5c02c12fa72874022443476715dd63aacb1897a827b",
+  "/private/tmp/nl51-websocket-plan-gcc-instrumented": "986363781ed0843f23d5d7c752aea878733d64fc0f152cad4d08dd8457f60b31",
+  "/private/tmp/nl51-websocket-plan-gcc-linked": "d05292b02c240de56fad380c459a9cab40e5a1dff3d1c724ea1fb803a1f2cf8c",
+  "/private/tmp/nl51-websocket-plan-sanitizer-instrumented": "5338abf3665d96aecf7339c22c88f6ee2b8a0f64ba47fa642d5efed02d42cd2c",
+  "/private/tmp/nl51-websocket-plan-sanitizer-linked": "baf8caeb178a0b09cf0c9543820e41943c3547e0577da19765db8f8b07fe1b13"
+}

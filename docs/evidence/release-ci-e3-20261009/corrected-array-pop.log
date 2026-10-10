@@ -1,0 +1,12 @@
+test_binary64_payloads (tests.test_native_array_pop.NativeArrayPop.test_binary64_payloads) ... ok
+test_empty_record_array_returns_void (tests.test_native_array_pop.NativeArrayPop.test_empty_record_array_returns_void) ... ok
+test_empty_record_projection_traps (tests.test_native_array_pop.NativeArrayPop.test_empty_record_projection_traps) ... ok
+test_popped_closure_survives_owner_reuse_and_collection (tests.test_native_array_pop.NativeArrayPop.test_popped_closure_survives_owner_reuse_and_collection) ... ok
+test_popped_record_crosses_return_and_argument (tests.test_native_array_pop.NativeArrayPop.test_popped_record_crosses_return_and_argument) ... ok
+test_record_children_survive_owner_reuse_and_collection (tests.test_native_array_pop.NativeArrayPop.test_record_children_survive_owner_reuse_and_collection) ... ok
+test_scalar_values_aliases_and_empty_results (tests.test_native_array_pop.NativeArrayPop.test_scalar_values_aliases_and_empty_results) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 4.596s
+
+OK

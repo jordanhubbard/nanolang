@@ -1,0 +1,15 @@
+{
+  "source_commit": "c7a43b0bc6ed3032ec25695f3d56971320736b3a",
+  "root": "/private/tmp/nanolang-selfhost-containers-c7a43b0bc",
+  "command": [
+    "make",
+    "-j2",
+    "test-one-ir-compiler"
+  ],
+  "initial_status": "clean",
+  "exit_code": 0,
+  "seconds": 782.791597125004,
+  "log_sha256": "4eeba3da23039d2f50346ccfaa6824fa68a0c454138f796f00d345bfc9405afa",
+  "final_status": "",
+  "head_unchanged": true
+}

@@ -1,0 +1,131 @@
+test_actual_assembly_publication_and_diagnostic_vm_native (tests.test_nanoisa_artifact_imports.ArtifactImports.test_actual_assembly_publication_and_diagnostic_vm_native) ... FAIL
+test_actual_file_assembly_and_disassembly_preserve_results (tests.test_nanoisa_artifact_imports.ArtifactImports.test_actual_file_assembly_and_disassembly_preserve_results) ... FAIL
+test_bad_artifact_signatures_operands_and_missing_owner_refuse (tests.test_nanoisa_artifact_imports.ArtifactImports.test_bad_artifact_signatures_operands_and_missing_owner_refuse) ... ok
+test_cseed_and_selfhost_preserve_exact_artifact_abi_and_code (tests.test_nanoisa_artifact_imports.ArtifactImports.test_cseed_and_selfhost_preserve_exact_artifact_abi_and_code) ... ERROR
+test_duplicate_symbols_keep_owner_and_raw_api_clears_bindings (tests.test_nanoisa_artifact_imports.ArtifactImports.test_duplicate_symbols_keep_owner_and_raw_api_clears_bindings) ... ok
+test_file_facade_signature_mismatches_refuse (tests.test_nanoisa_artifact_imports.ArtifactImports.test_file_facade_signature_mismatches_refuse) ... ok
+test_filesystem_array_and_scalar_artifacts_execute_in_both_backends (tests.test_nanoisa_artifact_imports.ArtifactImports.test_filesystem_array_and_scalar_artifacts_execute_in_both_backends) ... FAIL
+test_filesystem_array_signature_mismatch_is_rejected (tests.test_nanoisa_artifact_imports.ArtifactImports.test_filesystem_array_signature_mismatch_is_rejected) ... ok
+test_integer_status_and_zero_argument_diagnostic_match_cseed (tests.test_nanoisa_artifact_imports.ArtifactImports.test_integer_status_and_zero_argument_diagnostic_match_cseed) ... ERROR
+test_publication_contract_refuses_wrong_result_and_zero_arg_shapes (tests.test_nanoisa_artifact_imports.ArtifactImports.test_publication_contract_refuses_wrong_result_and_zero_arg_shapes) ... ok
+
+======================================================================
+ERROR: test_cseed_and_selfhost_preserve_exact_artifact_abi_and_code (tests.test_nanoisa_artifact_imports.ArtifactImports.test_cseed_and_selfhost_preserve_exact_artifact_abi_and_code)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_artifact_imports.py", line 95, in test_cseed_and_selfhost_preserve_exact_artifact_abi_and_code
+    compared = self.command(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, assembly, "main", "--imports")
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_artifact_imports.py", line 35, in command
+    result = subprocess.run([str(x) for x in args], cwd=ROOT, env=environment,
+                            capture_output=True, text=True, timeout=120)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/nanolang-array-types-20261008/tests/nanoisa/test_nanoisa_src_nano'
+
+======================================================================
+ERROR: test_integer_status_and_zero_argument_diagnostic_match_cseed (tests.test_nanoisa_artifact_imports.ArtifactImports.test_integer_status_and_zero_argument_diagnostic_match_cseed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_artifact_imports.py", line 126, in test_integer_status_and_zero_argument_diagnostic_match_cseed
+    compared = self.command(ROOT / "tests/nanoisa/test_nanoisa_src_nano", seed, text, "main", "--imports")
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_artifact_imports.py", line 35, in command
+    result = subprocess.run([str(x) for x in args], cwd=ROOT, env=environment,
+                            capture_output=True, text=True, timeout=120)
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/nanolang-array-types-20261008/tests/nanoisa/test_nanoisa_src_nano'
+
+======================================================================
+FAIL: test_actual_assembly_publication_and_diagnostic_vm_native (tests.test_nanoisa_artifact_imports.ArtifactImports.test_actual_assembly_publication_and_diagnostic_vm_native)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_artifact_imports.py", line 160, in test_actual_assembly_publication_and_diagnostic_vm_native
+    self.native_command("-std=c11", "-Wall", "-Wextra", "-Werror", c_source,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 ROOT / "bin/nano_aot_runtime.o", "-lm",
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 "-o", binary)
+                 ^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_artifact_imports.py", line 45, in native_command
+    return self.command(*compiler, *args, *link_flags)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_artifact_imports.py", line 37, in command
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/nanolang-array-types-20261008/bin/nano_aot_runtime.o'
+
+
+======================================================================
+FAIL: test_actual_file_assembly_and_disassembly_preserve_results (tests.test_nanoisa_artifact_imports.ArtifactImports.test_actual_file_assembly_and_disassembly_preserve_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_artifact_imports.py", line 203, in test_actual_file_assembly_and_disassembly_preserve_results
+    self.native_command("-std=c11", "-Wall", "-Wextra", "-Werror", c_source,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 ROOT / "bin/nano_aot_runtime.o", "-lm",
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 "-o", binary)
+                 ^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_artifact_imports.py", line 45, in native_command
+    return self.command(*compiler, *args, *link_flags)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_artifact_imports.py", line 37, in command
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/nanolang-array-types-20261008/bin/nano_aot_runtime.o'
+
+
+======================================================================
+FAIL: test_filesystem_array_and_scalar_artifacts_execute_in_both_backends (tests.test_nanoisa_artifact_imports.ArtifactImports.test_filesystem_array_and_scalar_artifacts_execute_in_both_backends)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_artifact_imports.py", line 281, in test_filesystem_array_and_scalar_artifacts_execute_in_both_backends
+    self.native_command('-std=c11', '-Wall', '-Wextra', '-Werror', c_source,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 ROOT/'bin/nano_aot_runtime.o', '-lm',
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                 *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []), '-o', binary)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_artifact_imports.py", line 45, in native_command
+    return self.command(*compiler, *args, *link_flags)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-array-types-20261008/tests/test_nanoisa_artifact_imports.py", line 37, in command
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/nanolang-array-types-20261008/bin/nano_aot_runtime.o'
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 112.138s
+
+FAILED (failures=3, errors=2)

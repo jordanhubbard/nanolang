@@ -1,0 +1,30 @@
+from "src_nano/typecheck.nano" import typecheck_phase_with_shadows
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+fn accepts(source:string)->bool {
+    let diagnostics:List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let tokens:List<LexerToken> = (tokenize_string source "capture.nano" diagnostics)
+    let parser:Parser = (parse_program tokens (list_LexerToken_length tokens) "capture.nano")
+    assert (not parser.has_error)
+    return (not (typecheck_phase_with_shadows parser "capture.nano" [] 0).had_error)
+}
+shadow accepts {
+    assert (accepts "fn make(n:int)->fn()->int{return fn()->int{return n}}")
+    assert (not (accepts "fn make()->fn()->int{return fn()->int{return absent}}"))
+}
+fn main()->int {
+    assert (accepts "fn make(n:int)->fn()->fn()->int{return fn()->fn()->int{return fn()->int{return (+ n 2)}}}")
+    assert (accepts "fn make(n:string)->fn(int)->int{return fn(n:int)->int{return (+ n 1)}}")
+    assert (accepts "fn make()->fn()->int{let mut n:int = 0 return fn()->int{set n (+ n 1) return n}}")
+    assert (accepts "fn make(n:int)->fn()->int{let outer:fn()->int = fn()->int{return n} if true {let n:string = \"local\" let inner:fn()->string = fn()->string{return n}} return outer}")
+    assert (accepts "fn make()->int{return 0} shadow make {let n:int = 42 let f:fn()->int = fn()->int{return n} assert (== (f) 42)}")
+    assert (accepts "fn make(n:int)->int{return (fn()->int{return n})}")
+    assert (not (accepts "fn make()->fn()->int{let f:fn()->int = fn()->int{return later} let later:int = 42 return f}"))
+    assert (not (accepts "fn make()->fn()->int{if true {let hidden:int = 42} return fn()->int{return hidden}}"))
+    assert (not (accepts "fn make(n:int)->fn()->int{return fn()->int{set n 42 return n}}"))
+    assert (not (accepts "fn make(n:string)->fn()->int{return fn()->int{return n}}"))
+    assert (not (accepts "resource struct Owner {value:int} fn make()->fn()->int{return fn()->int{let owner:Owner = Owner{value:1} return 0}}"))
+    (println "lexical checker ok")
+    return 0
+}
+shadow main { assert (accepts "fn make(n:int)->fn()->int{return fn()->int{return n}}") }

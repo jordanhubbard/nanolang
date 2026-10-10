@@ -1,0 +1,6 @@
+test_no_vm_wrapper_assertion_checks_code_not_literals (tests.test_one_ir_compiler.OneIrCompiler.test_no_vm_wrapper_assertion_checks_code_not_literals) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+OK

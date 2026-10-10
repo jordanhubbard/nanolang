@@ -1,0 +1,8 @@
+I retain opaque import controls at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-opaque-imports-yyzkbf5r
+test_root_and_imported_declarations (tests.test_selfhost_opaque_imports.OpaqueImports.test_root_and_imported_declarations) ... ok
+test_unknown_opaque_name_refused (tests.test_selfhost_opaque_imports.OpaqueImports.test_unknown_opaque_name_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.256s
+
+OK

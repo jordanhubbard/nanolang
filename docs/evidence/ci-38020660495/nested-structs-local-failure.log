@@ -1,0 +1,33 @@
+-- E027 UNDEFINED FUNCTION ------ tests/nested_structs.nano
+I cannot find a function named `line.start.x`.
+
+28|     println(line.start.x)
+               ^^^^^^^^^^^^
+Hint: Check the module alias and exported functions.
+-- E027 UNDEFINED FUNCTION ------ tests/nested_structs.nano
+I cannot find a function named `line.end.y`.
+
+29|     println(line.end.y)
+               ^^^^^^^^^^
+Hint: Check the module alias and exported functions.
+-- E027 UNDEFINED FUNCTION ------ tests/nested_structs.nano
+I cannot find a function named `tri.a.x`.
+
+30|     println(tri.a.x)
+               ^^^^^^^
+Hint: Check the module alias and exported functions.
+-- E027 UNDEFINED FUNCTION ------ tests/nested_structs.nano
+I cannot find a function named `tri.b.y`.
+
+31|     println(tri.b.y)
+               ^^^^^^^
+Hint: Check the module alias and exported functions.
+-- E027 UNDEFINED FUNCTION ------ tests/nested_structs.nano
+I cannot find a function named `tri.c.x`.
+
+32|     println(tri.c.x)
+               ^^^^^^^
+Hint: Check the module alias and exported functions.
+Warning at line 23, column 5: Unused variable 'line'
+Warning at line 25, column 5: Unused variable 'tri'
+error: type check failed

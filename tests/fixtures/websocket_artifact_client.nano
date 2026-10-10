@@ -1,0 +1,24 @@
+# I retain borrowed WebSocket strings across later calls and closure.
+module "modules/websocket/websocket.nano" as ws
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+
+fn main() -> int {
+    if (< (get_argc) 2) { return 0 }
+    let connection: int = (ws.connect (get_argv 1))
+    assert (> connection 0)
+    assert (ws.is_connected connection)
+    assert (== (ws.send connection "hello") 0)
+    let first: string = (ws.receive_timeout connection 2000)
+    let second: string = (ws.receive connection)
+    assert (== first "first")
+    assert (== second "second")
+    assert (== (ws.last_error connection) "")
+    assert (== (ws.close connection) 0)
+    assert (not (ws.is_connected connection))
+    assert (== first "first")
+    assert (== second "second")
+    assert (!= (ws.last_error connection) "")
+    return 0
+}
+shadow main { assert true }

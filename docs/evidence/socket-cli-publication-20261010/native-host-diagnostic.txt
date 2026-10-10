@@ -1,0 +1,1 @@
+I loaded the exact std library named by nhost_artifact_20 with ctypes.CDLL. The file existed, but dlopen reported: symbol not found in flat namespace _dyn_array_get_string. My ad hoc native driver link had omitted bin/nano_aot_runtime.o. I corrected the link to match scripts/bootstrap_nanoisa.py.

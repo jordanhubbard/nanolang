@@ -1,0 +1,4 @@
+fn size(text: string) -> int { return (str_length text) }
+shadow size { assert (== (size "abc") 3) }
+fn main() -> int { assert (== (size "four") 4) return 0 }
+shadow main { assert (== (main) 0) }

@@ -1,0 +1,19 @@
+{
+  "base": "75fefad2abc175f75326b46d9510d625a870d51b",
+  "sha256": {
+    "src_nano/compiler/nanoisa_codegen.nano": "a6b587a3a061f8eeb97861bcaca4de706d95083ead2d6278018bd3100475b76f",
+    "src/nanoisa/nvm2c.c": "d829a879f71c3cc04321692d11e5ba224bebd8a05227631642daaf2e2ab5fc81",
+    "src/nanoisa/nvm2c_callables.c": "40f8a17e9bc6b0ed6c70d8b5cc46fddcd93415b2e2c7f1628a8719addebe60d9",
+    "tests/test_nanoisa_list_remove.py": "c036d4320f914ea8c035c218bb50967987e61f3564a03a8e65aac42ec696c282",
+    "tests/test_nanoisa_list_insert.py": "91f9f25c8f1ef6579c9f2a1da97a97ae028d0058a0196af4ac73c128b6be2162",
+    "/private/tmp/nanolang-list-removal-driver": "9dcedd9edfbe354af45a87c66a8ff5d8710d27314d3a32cfcc2e72faeb1ac735",
+    "bin/nvm2c": "b82b05f522ffe2a2828ae4b1ca4342e48957529c238187a67e9a369e51e60fdd",
+    "bin/nano_virt": "78f9916a2e58b669c4d147fe591ee11c324e07a0d8392998f77b351a8dcbe442",
+    "bin/nano_vm": "c9da75ee01600d77ba1c2bac7740d20b8e2389e9d5115f596871fc5478bc6111"
+  },
+  "component_command": "NANOLANG_INSERT_DRIVER=/private/tmp/nanolang-list-removal-driver CC=/opt/homebrew/opt/llvm/bin/clang python3 -m unittest -v tests.test_nanoisa_list_remove",
+  "component_exit_code": 1,
+  "hash_observation": "I recorded these hashes after the component run, while the subsequent Make regression could rebuild tools; they are not an immutable pre-run binary manifest.",
+  "regression_exit_code": 0,
+  "regression_command": "make -j2 test-nvm2c CC=/opt/homebrew/opt/llvm/bin/clang"
+}

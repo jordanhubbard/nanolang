@@ -1,0 +1,69 @@
+import "modules/file_source_inputs/file_source_inputs.nano"
+module "src_nano/compiler/file_source_plan.nano" as Plan
+extern fn get_argv(index: int) -> string
+
+fn main() -> int {
+    unsafe {
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        assert (== (nl_source_inputs_valid context) 1)
+        assert (== (nl_source_inputs_count context) 0)
+        let origin: string = (get_argv 1)
+        assert (== (nl_source_inputs_open context origin (str_length origin) "interface.nsi.json" 17) -1)
+        assert (== (nl_source_inputs_count context) 0)
+        assert (== (nl_source_inputs_open context origin (str_length origin) "interface.nsi.json" 18) 0)
+        assert (== (nl_source_inputs_catalog context 0) 1)
+        assert (== (nl_source_inputs_open_catalog context 0 origin (str_length origin) "missing.json" 12) -1)
+        assert (== (nl_source_inputs_open_catalog context 2 origin (str_length origin) "interface.nsi.json" 18) -1)
+        assert (== (nl_source_inputs_open_catalog context 1 origin (str_length origin) "tcp.nsi.json" 12) -1)
+        assert (== (nl_source_inputs_count context) 1)
+        assert (== (nl_source_inputs_open_catalog context 2 origin (str_length origin) "tcp.nsi.json" 12) 1)
+        assert (== (nl_source_inputs_catalog context 1) 2)
+        assert (== (nl_source_inputs_catalog context 2) 0)
+        assert (== (nl_source_inputs_catalog context -1) 0)
+        assert (== (nl_source_inputs_open_catalog context 3 origin (str_length origin) "tcp.nsi.json" 12) -1)
+        assert (== (nl_source_inputs_open_catalog context 3 origin (str_length origin) "websocket.nsi.json" 18) 2)
+        assert (== (nl_source_inputs_catalog context 2) 3)
+        assert (== (nl_source_inputs_count context) 3)
+        let websocket: string = (nl_source_inputs_text context 2 2)
+        let websocket_source: string = (nl_source_inputs_text context 2 3)
+        assert (str_contains websocket "cap:nanolang/net.lookup")
+        assert (str_contains websocket "cap:nanolang/websocket.connect")
+        assert (str_contains websocket_source "nsi:nanolang/websocket")
+        let tcp: string = (nl_source_inputs_text context 1 2)
+        let tcp_source: string = (nl_source_inputs_text context 1 3)
+        assert (str_contains tcp "Endpoint")
+        assert (str_contains tcp_source "nsi:nanolang/net")
+        let retained: string = (nl_source_inputs_text context 0 1)
+        let canonical: string = (nl_source_inputs_text context 0 2)
+        let generated: string = (nl_source_inputs_text context 0 3)
+        assert (> (str_length retained) 0)
+        assert (> (str_length generated) 0)
+        let other: NlFileSourceSnapshots = (nl_source_inputs_new)
+        assert (== (nl_source_inputs_valid other) 1)
+        assert (== (nl_source_inputs_count other) 0)
+        (nl_source_inputs_free context)
+        assert (str_contains websocket "cap:nanolang/net.lookup")
+        assert (str_contains websocket_source "nsi:nanolang/websocket")
+        assert (str_contains tcp "Endpoint")
+        assert (str_contains tcp_source "nsi:nanolang/net")
+        assert (> (str_length retained) 0)
+        assert (> (str_length canonical) 0)
+        assert (> (str_length generated) 0)
+        assert (== (nl_source_inputs_count other) 0)
+        (nl_source_inputs_free other)
+    }
+    (println (+ "CAT1:" (Plan.service_source_catalog_view 1)))
+    (println (+ "CAT2:" (Plan.service_source_catalog_view 2)))
+    (println (+ "CAT3:" (Plan.service_source_catalog_view 3)))
+    (println "PASS source input bridge")
+    return 0
+}
+shadow main {
+    unsafe {
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        assert (== (nl_source_inputs_valid context) 1)
+        assert (== (nl_source_inputs_open context "relative" 8 "missing" 7) -1)
+        assert (== (nl_source_inputs_count context) 0)
+        (nl_source_inputs_free context)
+    }
+}

@@ -1,0 +1,90 @@
+Code Coverage	Build with coverage	2026-10-09T06:51:21.1001034Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -fprofile-arcs -ftest-coverage -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+Code Coverage	Build with coverage	2026-10-09T06:51:22.4002868Z In file included from src/nanovirt/codegen.c:4361:
+Code Coverage	Build with coverage	2026-10-09T06:51:22.4004011Z src/nanovirt/borrow_codegen.inc: In function ‘borrow_union_unpack’:
+Code Coverage	Build with coverage	2026-10-09T06:51:22.4008874Z src/nanovirt/borrow_codegen.inc:462:18: error: ‘layout’ may be used uninitialized [-Werror=maybe-uninitialized]
+Code Coverage	Build with coverage	2026-10-09T06:51:22.4010229Z   462 |         slots[f]=borrow_slot(b,NULL,tag,layout,0,false);
+Code Coverage	Build with coverage	2026-10-09T06:51:22.4010739Z       |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Code Coverage	Build with coverage	2026-10-09T06:51:22.4011430Z src/nanovirt/borrow_codegen.inc:461:18: note: ‘layout’ declared here
+Code Coverage	Build with coverage	2026-10-09T06:51:22.4012250Z   461 |         uint32_t layout;uint8_t tag=borrow_union_payload_type(b,instance,variant,f,NULL,&layout);
+Code Coverage	Build with coverage	2026-10-09T06:51:22.4013191Z       |                  ^~~~~~
+Code Coverage	Build with coverage	2026-10-09T06:51:26.5499576Z cc1: all warnings being treated as errors
+Strict examples (x64)	Build C reference compiler	2026-10-09T06:51:07.0549461Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+Strict examples (x64)	Build C reference compiler	2026-10-09T06:51:07.8876501Z In file included from src/nanovirt/codegen.c:4361:
+Strict examples (x64)	Build C reference compiler	2026-10-09T06:51:07.8880258Z src/nanovirt/borrow_codegen.inc: In function ‘borrow_union_unpack’:
+Strict examples (x64)	Build C reference compiler	2026-10-09T06:51:07.8886474Z src/nanovirt/borrow_codegen.inc:462:18: error: ‘layout’ may be used uninitialized [-Werror=maybe-uninitialized]
+Strict examples (x64)	Build C reference compiler	2026-10-09T06:51:07.8887566Z   462 |         slots[f]=borrow_slot(b,NULL,tag,layout,0,false);
+Strict examples (x64)	Build C reference compiler	2026-10-09T06:51:07.8888168Z       |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Strict examples (x64)	Build C reference compiler	2026-10-09T06:51:07.8888949Z src/nanovirt/borrow_codegen.inc:461:18: note: ‘layout’ declared here
+Strict examples (x64)	Build C reference compiler	2026-10-09T06:51:07.8889903Z   461 |         uint32_t layout;uint8_t tag=borrow_union_payload_type(b,instance,variant,f,NULL,&layout);
+Strict examples (x64)	Build C reference compiler	2026-10-09T06:51:07.8890409Z       |                  ^~~~~~
+Strict examples (x64)	Build C reference compiler	2026-10-09T06:51:11.0625456Z cc1: all warnings being treated as errors
+Build and Test (ubuntu-latest, x64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:50:56.4502765Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+Build and Test (ubuntu-latest, x64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:50:57.1126872Z In file included from src/nanovirt/codegen.c:4361:
+Build and Test (ubuntu-latest, x64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:50:57.1128209Z src/nanovirt/borrow_codegen.inc: In function ‘borrow_union_unpack’:
+Build and Test (ubuntu-latest, x64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:50:57.1134705Z src/nanovirt/borrow_codegen.inc:462:18: error: ‘layout’ may be used uninitialized [-Werror=maybe-uninitialized]
+Build and Test (ubuntu-latest, x64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:50:57.1135299Z   462 |         slots[f]=borrow_slot(b,NULL,tag,layout,0,false);
+Build and Test (ubuntu-latest, x64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:50:57.1135585Z       |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Build and Test (ubuntu-latest, x64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:50:57.1135937Z src/nanovirt/borrow_codegen.inc:461:18: note: ‘layout’ declared here
+Build and Test (ubuntu-latest, x64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:50:57.1136417Z   461 |         uint32_t layout;uint8_t tag=borrow_union_payload_type(b,instance,variant,f,NULL,&layout);
+Build and Test (ubuntu-latest, x64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:50:57.1136784Z       |                  ^~~~~~
+Build and Test (ubuntu-latest, x64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:50:59.6363029Z cc1: all warnings being treated as errors
+Benchmark measurement check	Build nanoc	2026-10-09T06:50:46.1060769Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+Benchmark measurement check	Build nanoc	2026-10-09T06:50:46.8998276Z In file included from src/nanovirt/codegen.c:4361:
+Benchmark measurement check	Build nanoc	2026-10-09T06:50:46.9000135Z src/nanovirt/borrow_codegen.inc: In function ‘borrow_union_unpack’:
+Benchmark measurement check	Build nanoc	2026-10-09T06:50:46.9001109Z src/nanovirt/borrow_codegen.inc:462:18: error: ‘layout’ may be used uninitialized [-Werror=maybe-uninitialized]
+Benchmark measurement check	Build nanoc	2026-10-09T06:50:46.9001754Z   462 |         slots[f]=borrow_slot(b,NULL,tag,layout,0,false);
+Benchmark measurement check	Build nanoc	2026-10-09T06:50:46.9002228Z       |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Benchmark measurement check	Build nanoc	2026-10-09T06:50:46.9002786Z src/nanovirt/borrow_codegen.inc:461:18: note: ‘layout’ declared here
+Benchmark measurement check	Build nanoc	2026-10-09T06:50:46.9003385Z   461 |         uint32_t layout;uint8_t tag=borrow_union_payload_type(b,instance,variant,f,NULL,&layout);
+Benchmark measurement check	Build nanoc	2026-10-09T06:50:46.9003903Z       |                  ^~~~~~
+Benchmark measurement check	Build nanoc	2026-10-09T06:50:49.9746122Z cc1: all warnings being treated as errors
+Docs (link check)	Test and build user guide	2026-10-09T06:50:25.3057504Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+Docs (link check)	Test and build user guide	2026-10-09T06:50:26.1601398Z In file included from src/nanovirt/codegen.c:4361:
+Docs (link check)	Test and build user guide	2026-10-09T06:50:26.1603528Z src/nanovirt/borrow_codegen.inc: In function ‘borrow_union_unpack’:
+Docs (link check)	Test and build user guide	2026-10-09T06:50:26.1605238Z src/nanovirt/borrow_codegen.inc:462:18: error: ‘layout’ may be used uninitialized [-Werror=maybe-uninitialized]
+Docs (link check)	Test and build user guide	2026-10-09T06:50:26.1607048Z   462 |         slots[f]=borrow_slot(b,NULL,tag,layout,0,false);
+Docs (link check)	Test and build user guide	2026-10-09T06:50:26.1607852Z       |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Docs (link check)	Test and build user guide	2026-10-09T06:50:26.1616554Z src/nanovirt/borrow_codegen.inc:461:18: note: ‘layout’ declared here
+Docs (link check)	Test and build user guide	2026-10-09T06:50:26.1636363Z   461 |         uint32_t layout;uint8_t tag=borrow_union_payload_type(b,instance,variant,f,NULL,&layout);
+Docs (link check)	Test and build user guide	2026-10-09T06:50:26.1646282Z       |                  ^~~~~~
+Docs (link check)	Test and build user guide	2026-10-09T06:50:29.3730822Z cc1: all warnings being treated as errors
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0021779Z   File "/home/runner/work/nanolang/nanolang/tests/test_native_callables.py", line 15, in checked
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0022339Z     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0023177Z AssertionError: 1 != 0 : /tmp/nano-native-closures-_ev4xt7m/input.c: In function ‘main’:
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0024626Z /tmp/nano-native-closures-_ev4xt7m/input.c:1305:5: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0025683Z  1305 |     if (collections < 2) abort(); return result; }
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0026195Z       |     ^~
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0027471Z /tmp/nano-native-closures-_ev4xt7m/input.c:1305:35: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0029079Z  1305 |     if (collections < 2) abort(); return result; }
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0029893Z       |                                   ^~~~~~
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0030394Z cc1: all warnings being treated as errors
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0048112Z   File "/home/runner/work/nanolang/nanolang/tests/test_native_callables.py", line 15, in checked
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0048687Z     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0049380Z AssertionError: 1 != 0 : /tmp/nano-native-closures-9zfbdrwz/input.c: In function ‘main’:
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0050633Z /tmp/nano-native-closures-9zfbdrwz/input.c:1354:5: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0051721Z  1354 |     if (collections < 2) abort(); return result; }
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0052041Z       |     ^~
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0052735Z /tmp/nano-native-closures-9zfbdrwz/input.c:1354:35: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0053643Z  1354 |     if (collections < 2) abort(); return result; }
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0053953Z       |                                   ^~~~~~
+Memory Sanitizers	Run tests with sanitizers	2026-10-09T06:59:35.0054237Z cc1: all warnings being treated as errors
+Build and Test (macos-14, arm64)	Run test suite	2026-10-09T06:58:55.2046650Z   File "/Users/runner/work/nanolang/nanolang/tests/test_bootstrap_components.py", line 71, in test_real_emitter_driver_executes_in_vm_and_sanitized_native
+Build and Test (macos-14, arm64)	Run test suite	2026-10-09T06:58:55.2049530Z     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+Build and Test (macos-14, arm64)	Run test suite	2026-10-09T06:58:55.2050190Z     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Build and Test (macos-14, arm64)	Run test suite	2026-10-09T06:58:55.2054490Z AssertionError: -6 != 0 : ==75963==AddressSanitizer: detect_leaks is not supported on this platform.
+Build and Test (macos-14, arm64)	Run test suite	2026-10-09T06:58:55.2055190Z
+Build and Test (macos-14, arm64)	Run test suite	2026-10-09T06:58:55.2055200Z
+Build and Test (macos-14, arm64)	Run test suite	2026-10-09T06:58:55.2055620Z ----------------------------------------------------------------------
+Build and Test (macos-14, arm64)	Run test suite	2026-10-09T06:58:55.2056310Z Ran 4 tests in 155.209s
+Build and Test (macos-14, arm64)	Run test suite	2026-10-09T06:58:55.2056520Z
+Build and Test (macos-14, arm64)	Run test suite	2026-10-09T06:58:55.2056820Z FAILED (failures=1)
+Build and Test (ubuntu-24.04-arm, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:51:29.4597322Z cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE  -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+Build and Test (ubuntu-24.04-arm, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:51:30.2528395Z In file included from src/nanovirt/codegen.c:4361:
+Build and Test (ubuntu-24.04-arm, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:51:30.2534282Z src/nanovirt/borrow_codegen.inc: In function ‘borrow_union_unpack’:
+Build and Test (ubuntu-24.04-arm, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:51:30.2535345Z src/nanovirt/borrow_codegen.inc:462:18: error: ‘layout’ may be used uninitialized [-Werror=maybe-uninitialized]
+Build and Test (ubuntu-24.04-arm, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:51:30.2536039Z   462 |         slots[f]=borrow_slot(b,NULL,tag,layout,0,false);
+Build and Test (ubuntu-24.04-arm, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:51:30.2536495Z       |                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Build and Test (ubuntu-24.04-arm, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:51:30.2537024Z src/nanovirt/borrow_codegen.inc:461:18: note: ‘layout’ declared here
+Build and Test (ubuntu-24.04-arm, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:51:30.2537651Z   461 |         uint32_t layout;uint8_t tag=borrow_union_payload_type(b,instance,variant,f,NULL,&layout);
+Build and Test (ubuntu-24.04-arm, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:51:30.2538121Z       |                  ^~~~~~
+Build and Test (ubuntu-24.04-arm, arm64)	Build - Stage 1 (C Reference Compiler)	2026-10-09T06:51:33.8956091Z cc1: all warnings being treated as errors

@@ -11,14 +11,16 @@ env:
   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
   # Every bootstrap still runs shadows; slower and instrumented runners get a
   # larger finite deadline instead of disabling that gate.
-  NANO_SHADOW_TIMEOUT_SECONDS: "60"
+  NANO_SHADOW_TIMEOUT_SECONDS: "120"
+  NANO_SHADOW_TRACE: "1"
 
 jobs:
   build-and-test:
     name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.allow_failure || false }}
-    timeout-minutes: 75
+    # I budget bootstrap and both service generations separately from the general suite.
+    timeout-minutes: 240
     permissions:
       contents: read
       checks: write
@@ -91,6 +93,7 @@ jobs:
           "$llvm_prefix/bin/clang" --version
           "$llvm_prefix/bin/opt" --version
           {
+            printf 'CC=%s/bin/clang\n' "$llvm_prefix"
             printf 'NANO_NATIVE_TEST_CC=%s/bin/clang\n' "$llvm_prefix"
             printf 'NANOLANG_GUARD_SAN_CC=%s/bin/clang\n' "$llvm_prefix"
             printf 'NMS_RUNTIME_CLANG=%s/bin/clang\n' "$llvm_prefix"
@@ -123,6 +126,44 @@ jobs:
       - name: Build - Stage 3 (Bootstrap Validation)
         run: make stage3
 
+      - name: Check indirect File plans and execution
+        env:
+          TMPDIR: ${{ github.workspace }}/.test_output/file-indirect
+        run: |
+          mkdir -p "$TMPDIR"
+          make -f Makefile.gnu test-file-indirect-queries test-file-indirect-runtime test-file-indirect-dispatch test-file-indirect-public
+
+      - name: Bootstrap both compiler generations
+        timeout-minutes: 60
+        shell: bash
+        run: make -f Makefile.gnu bootstrap3
+
+      - name: Check C File source drivers
+        timeout-minutes: 15
+        env:
+          NANO_SHADOW_TIMEOUT_SECONDS: "10"
+        run: python3 -m unittest -v tests.test_service_drivers
+
+      - name: Check File TCP and mixed source across both generations
+        timeout-minutes: 90
+        shell: bash
+        env:
+          NANO_SHADOW_TIMEOUT_SECONDS: "10"
+        run: |
+          for generation in 1 2; do
+            NANO_FILE_DRIVER_MODULE="$PWD/bin/nanoc_stage${generation}.nvm" \
+            NANO_FILE_DRIVER_NATIVE="$PWD/bin/nanoc_stage${generation}" \
+              python3 -m unittest -v tests.test_nano_service_driver.NanoServiceDriver
+            NANO_TCP_DRIVER_MODULE="$PWD/bin/nanoc_stage${generation}.nvm" \
+            NANO_TCP_DRIVER_NATIVE="$PWD/bin/nanoc_stage${generation}" \
+              python3 -m unittest -v tests.test_socket_service_drivers.SocketServiceDrivers
+            make -f Makefile.gnu PREFIX="$PWD/obj/mixed-service-ci-install" install-services-public-runtime
+            NANO_TCP_DRIVER_MODULE="$PWD/bin/nanoc_stage${generation}.nvm" \
+              NANO_TCP_DRIVER_NATIVE="$PWD/bin/nanoc_stage${generation}" \
+              NANO_MIXED_INSTALL_PREFIX="$PWD/obj/mixed-service-ci-install" \
+              python3 -m unittest -v tests.test_mixed_service_drivers.MixedServiceDrivers
+          done
+
       - name: Run test suite
         env:
           NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
@@ -150,12 +191,17 @@ jobs:
       - name: Validate user guide snippets
         run: make userguide-check
 
-      - name: Retain verifier-corpus diagnostics
+      - name: Retain verifier and bootstrap diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: verifier-corpus-${{ matrix.os }}-${{ matrix.arch }}
-          path: .test_output/verifier-corpus/
+          path: |
+            .test_output/file-indirect/
+            .test_output/verifier-corpus/
+            obj/component-logs/
+            obj/bootstrap-nanoisa/**/*.log
+            obj/bootstrap-nanoisa/**/manifest.json
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7
@@ -341,8 +387,14 @@ jobs:
 
   sanitizers:
     name: Memory Sanitizers
+    env:
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+      # I bound each instrumented self-compilation separately from shadow tests.
+      BOOTSTRAP_NANOISA_TIMEOUT: "3600"
+      CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
+      LDFLAGS: "-lm -lcrypto -fsanitize=address,undefined"
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 285
     permissions:
       contents: read
 
@@ -381,12 +433,13 @@ jobs:
           # Disable leak detection for exit-time leaks in short-lived compiler process
           # AddressSanitizer still catches real memory issues (use-after-free, buffer overflow, etc.)
           export ASAN_OPTIONS=detect_leaks=0
-          make sanitize
+          make sanitize CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
-      - name: Complete 3-stage bootstrap with sanitizers
+      - name: Compile and verify both compiler generations with sanitizers
+        timeout-minutes: 135
         run: |
           export ASAN_OPTIONS=detect_leaks=0
-          make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
+          make bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Run tests with sanitizers
         # Sanitizer instrumentation is substantially slower, and the full
@@ -398,7 +451,7 @@ jobs:
         timeout-minutes: 120
         run: |
           export ASAN_OPTIONS=detect_leaks=0
-          make test-units CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer" LDFLAGS="-lm -lcrypto -fsanitize=address,undefined"
+          make test-units CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Run negative tests with sanitizers
         env:
@@ -407,12 +460,16 @@ jobs:
           export ASAN_OPTIONS=detect_leaks=0
           bash tests/run_negative_tests.sh
 
-      - name: Retain verifier-corpus diagnostics
+      - name: Retain verifier and bootstrap diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: verifier-corpus-sanitizers
-          path: .test_output/verifier-corpus/
+          path: |
+            .test_output/verifier-corpus/
+            obj/component-logs/
+            obj/bootstrap-nanoisa/**/*.log
+            obj/bootstrap-nanoisa/**/manifest.json
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7
@@ -432,8 +489,12 @@ jobs:
 
   coverage:
     name: Code Coverage
+    env:
+      NANO_SHADOW_TIMEOUT_SECONDS: "300"
+      CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
+      LDFLAGS: "-lm -lcrypto -fprofile-arcs -ftest-coverage"
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 240
     permissions:
       contents: read
       pull-requests: write
@@ -456,7 +517,12 @@ jobs:
           python3 -c 'import yaml'
 
       - name: Install dependencies
-        timeout-minutes: 10
+        timeout-minutes: 15
+        env:
+          # I allow slow downloads to finish within a bounded setup budget.
+          CI_APT_ATTEMPTS: "2"
+          CI_APT_TIMEOUT_SECS: "420"
+          CI_APT_BACKOFF_SECS: "5"
         run: |
           ./scripts/ci-apt-install.sh \
             build-essential \
@@ -475,27 +541,33 @@ jobs:
             gforth
 
       - name: Build with coverage
-        run: make coverage
+        run: make coverage CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
-      - name: Complete 3-stage bootstrap with coverage
-        run: make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
+      - name: Compile and verify both compiler generations with coverage
+        timeout-minutes: 75
+        run: make bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Run tests
+        timeout-minutes: 120
         env:
           NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
-        run: make test-quick CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage" LDFLAGS="-lm -lcrypto -fprofile-arcs -ftest-coverage"
+        run: make test-quick CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Run negative tests
         env:
           NANOLANG_COMPILER: ./bin/nanoc_c
         run: bash tests/run_negative_tests.sh
 
-      - name: Retain verifier-corpus diagnostics
+      - name: Retain verifier and bootstrap diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: verifier-corpus-coverage
-          path: .test_output/verifier-corpus/
+          path: |
+            .test_output/verifier-corpus/
+            obj/component-logs/
+            obj/bootstrap-nanoisa/**/*.log
+            obj/bootstrap-nanoisa/**/manifest.json
           include-hidden-files: true
           if-no-files-found: ignore
           retention-days: 7
@@ -515,7 +587,8 @@ jobs:
 
       - name: Generate coverage report
         run: |
-          lcov --capture --directory . --output-file coverage.info
+          # I exclude ephemeral native products before geninfo reads deleted sources.
+          lcov --capture --directory . --exclude '*/.nano-native.*/*' --output-file coverage.info
           lcov --remove coverage.info '/usr/*' --output-file coverage.info --ignore-errors unused
           lcov --remove coverage.info '*/cJSON.c' --output-file coverage.info --ignore-errors unused
           lcov --list coverage.info

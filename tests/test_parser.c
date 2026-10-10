@@ -355,6 +355,29 @@ void test_parse_constants(void) {
     free_ast(prog);
 }
 
+void test_parse_public_globals(void) {
+    ASTNode *prog = parse_ok(
+        "pub let answer: int = 41\n"
+        "pub let mut counter: int = 0\n"
+        "let hidden: int = 9\n");
+    ASSERT_NOT_NULL(prog);
+    ASSERT_EQ(prog->as.program.count, 3);
+    for (int i = 0; i < 3; ++i) {
+        ASSERT_EQ(prog->as.program.items[i]->type, AST_LET);
+        ASSERT_EQ(prog->as.program.items[i]->as.let.is_pub, i < 2);
+        ASSERT_EQ(prog->as.program.items[i]->as.let.is_mut, i == 1);
+    }
+    free_ast(prog);
+    suppress_stderr();
+    prog = parse_ok("fn main() -> int { pub let local: int = 1 return local }");
+    restore_stderr();
+    ASSERT_NULL(prog);
+    suppress_stderr();
+    prog = parse_ok("pub let (left, right) = (1, 2)");
+    restore_stderr();
+    ASSERT_NULL(prog);
+}
+
 void test_parse_pub_functions(void) {
     ASTNode *prog = parse_ok(
         "pub fn add(a: int, b: int) -> int { return (+ a b) }\n"
@@ -1074,7 +1097,25 @@ static void test_exclusive_field_place_retention(void) {
     free_ast(program);
 }
 
+void test_reexported_call_paths(void) {
+    ASTNode *program = parse_ok("fn main()->int { (api.files.temp) return (api.files.write_byte value 1) }");
+    ASSERT_NOT_NULL(program);
+    ASTNode *body = program->as.program.items[0]->as.function.body;
+    ASTNode *empty = body->as.block.statements[0];
+    ASTNode *args = body->as.block.statements[1]->as.return_stmt.value;
+    ASSERT_EQ(empty->type, AST_MODULE_QUALIFIED_CALL);
+    ASSERT_EQ(args->type, AST_MODULE_QUALIFIED_CALL);
+    ASSERT(strcmp(empty->as.module_qualified_call.module_alias, "api.files") == 0);
+    ASSERT(strcmp(empty->as.module_qualified_call.function_name, "temp") == 0);
+    ASSERT_EQ(empty->as.module_qualified_call.arg_count, 0);
+    ASSERT(strcmp(args->as.module_qualified_call.module_alias, "api.files") == 0);
+    ASSERT(strcmp(args->as.module_qualified_call.function_name, "write_byte") == 0);
+    ASSERT_EQ(args->as.module_qualified_call.arg_count, 2);
+    free_ast(program);
+}
+
 int main(void) {
+    TEST(reexported_call_paths);
     printf("=== Parser Tests ===\n");
 
     printf("\n--- Valid programs ---\n");
@@ -1104,6 +1145,7 @@ int main(void) {
     TEST(parse_let_mut);
     TEST(parse_constants);
     TEST(parse_pub_functions);
+    TEST(parse_public_globals);
     TEST(parse_extern_fn);
     TEST(parse_pure_fn);
     TEST(parse_pub_pure_fn);

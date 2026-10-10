@@ -1,0 +1,19 @@
+test_header_values_keep_lexical_bindings_in_shadows_vm_and_native (tests.test_header_constant_functions.HeaderConstantValues.test_header_values_keep_lexical_bindings_in_shadows_vm_and_native) ... FAIL
+
+======================================================================
+FAIL: test_header_values_keep_lexical_bindings_in_shadows_vm_and_native (tests.test_header_constant_functions.HeaderConstantValues.test_header_values_keep_lexical_bindings_in_shadows_vm_and_native)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_header_constant_functions.py", line 135, in test_header_values_keep_lexical_bindings_in_shadows_vm_and_native
+    self.assertEqual(result.returncode, 0,
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                     repr(command) + '\n' + result.stdout + result.stderr)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : [PosixPath('/private/tmp/nanolang-match-guards-20261009/bin/nano_virt'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-header-values-752x57i3/main.nano'), '--emit-nvm', '-o', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-header-values-752x57i3/out.nvm')]
+I could not compile shadows at line 3: undefined variable 'HEADER_VALUE'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.019s
+
+FAILED (failures=1)

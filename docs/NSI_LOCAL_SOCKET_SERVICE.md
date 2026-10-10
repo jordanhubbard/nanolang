@@ -1,5 +1,10 @@
 # I bind local socket endpoints to private service owners
 
+I retain this original local-pair contract and qualification history. Under
+#990 my adapter also implements the separately specified
+[private TCP lifecycle](NSI_TCP_SOCKET_SERVICE.md). That extension does not
+change my public Socket/Conn admission or establish WebSocket integration.
+
 I record `task_372aa1e18e45e605d09f0e611495f948` under
 `task_d03c232dc067e75cbc2fb2b7fb84ee46`, related to ed702, from canonical
 `1cbe8c6f4c8dd2130ca44eb89e2d1f62594d32f4`. This is my preimplementation

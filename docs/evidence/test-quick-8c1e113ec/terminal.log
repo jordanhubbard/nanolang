@@ -1,0 +1,199 @@
+[tool] Building module index generator (C)...
+[modules] Generating module index from manifests...
+Generating module index...
+Found 47 module manifests
+  ✓ vector2d
+  ✓ preferences
+  ✓ audio_helpers
+  ✓ tools
+  ✓ pt2_state
+  ✓ ncurses
+  ✓ unicode
+  ✓ pty
+  ✓ pybridge_warp
+  ✓ math_ext
+  ✓ pt2_module
+  ✓ sdl_image
+  ✓ readline
+  ✓ mujoco
+  ✓ nano_eval
+  ✓ std
+  ✓ filesystem
+  ✓ ui_widgets
+  ✓ sqlite
+  ✓ sdl_ttf
+  ✓ uv
+  ✓ curl
+  ✓ pybridge
+  ✓ nano_highlight
+  ✓ glut
+  ✓ stdio
+  ✓ pybridge_matplotlib
+  ✓ github
+  ✓ http_server
+  ✓ sdl
+  ✓ bullet
+  ✓ audio_viz
+  ✓ stdlib
+  ✓ glew
+  ✓ pt2_audio
+  ✓ forth_see
+  ✓ glfw
+  ✓ nanoisa
+  ✓ sdl_term
+  ✓ event
+  ✓ nano_tools
+  ✓ sdl_helpers
+  ✓ proptest
+  ✓ openai
+  ✓ opengl
+  ✓ sdl_mixer
+  ✓ log
+
+✓ Generated modules/index.json
+  47 modules indexed
+python3 scripts/embed_binary64_parser.py --check
+I run seed; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/00-seed.log.
+I run seed-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/01-seed-verify.log.
+I run stage1; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/02-stage1.log.
+I run stage1-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/03-stage1-verify.log.
+I run stage1-translate; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/04-stage1-translate.log.
+I run stage1-native; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/05-stage1-native.log.
+I run stage1-hello-compile; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/06-stage1-hello-compile.log.
+I run stage1-hello-execute; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/07-stage1-hello-execute.log.
+I run stage2; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/08-stage2.log.
+I run stage2-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/09-stage2-verify.log.
+I run stage2-translate; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/10-stage2-translate.log.
+I run stage2-native; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/11-stage2-native.log.
+I run stage2-hello-compile; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/12-stage2-hello-compile.log.
+I run stage2-hello-execute; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/13-stage2-hello-execute.log.
+I run seed-final-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/14-seed-final-verify.log.
+I run stage1-final-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/15-stage1-final-verify.log.
+I run stage2-final-verify; I retain its log at /private/tmp/nanolang-match-guards-20261009/obj/bootstrap-nanoisa/run-javkp8ib/16-stage2-final-verify.log.
+I compared raw Stage 1 and Stage 2 modules: they are byte-identical in this build.
+I have not established reproducibility across clean environments or proved compiler semantic correctness.
+I installed bin/nanoc from the verified Stage 2 module.
+Hello from NanoLang!
+ld: warning: ignoring duplicate libraries: '-lm'
+🔍 Verifying self-hosted compiler works without bin/nanoc_c...
+Hello from NanoLang!
+ld: warning: ignoring duplicate libraries: '-lm'
+✅ bin/nanoc succeeded with bin/nanoc_c removed
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/ffi_bindgen.c -o obj/ffi_bindgen.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o bin/nanoc-ffi obj/ffi_bindgen.o obj/utf8.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+✓ Stage 1 complete (C reference binaries)
+
+==========================================
+Stage 2: Building Self-Hosted Components
+==========================================
+Compiling components with bin/nanoc...
+
+  Building parser...
+    ✓ parser compiled successfully
+
+  Building typecheck...
+    ✓ typecheck compiled successfully
+
+  Building nanoisa_emitter...
+    ✓ nanoisa_emitter compiled successfully
+
+✓ Stage 2: 3/3 components built successfully
+
+==========================================
+Stage 3: Bootstrap Validation
+==========================================
+Validating self-hosted components...
+
+  Checking parser entry assertions...
+    ✓ parser entry assertions passed
+  Checking typecheck entry assertions...
+    ✓ typecheck entry assertions passed
+  Checking nanoisa_emitter entry assertions...
+    ✓ nanoisa_emitter entry assertions passed
+
+✓ Stage 3: 3/3 component entry checks passed; imported shadows are separate
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/nano_main.c -o obj/nano_main.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/proptest.c -o obj/proptest.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o bin/nano obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nano_main.o obj/proptest.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+✓ Interpreter: bin/nano
+
+==========================================
+✅ Build Complete (3-Stage Bootstrap)
+==========================================
+Build Status:
+
+  ✅ Stage 1: C reference compiler (bin/nanoc)
+  ✅ Stage 2: Self-hosted components compiled
+    • parser
+    • typecheck
+    • nanoisa_emitter
+  ✅ Stage 3: Bootstrap validated
+
+
+python3 -m unittest -v tests.test_github_issue_tracking
+test_create_preserves_literal_multiline_body_and_deduplicates_run (tests.test_github_issue_tracking.GitHubTracking.test_create_preserves_literal_multiline_body_and_deduplicates_run) ... ok
+test_dry_run_never_contacts_github (tests.test_github_issue_tracking.GitHubTracking.test_dry_run_never_contacts_github) ... ok
+test_fingerprint_finds_issue_after_title_change (tests.test_github_issue_tracking.GitHubTracking.test_fingerprint_finds_issue_after_title_change) ... ok
+test_legacy_entry_point_routes_to_github_without_network_in_dry_run (tests.test_github_issue_tracking.GitHubTracking.test_legacy_entry_point_routes_to_github_without_network_in_dry_run) ... ok
+test_new_issue_limit_does_not_suppress_existing_updates (tests.test_github_issue_tracking.GitHubTracking.test_new_issue_limit_does_not_suppress_existing_updates) ... ok
+test_offline_preserves_failure_and_still_runs_examples (tests.test_github_issue_tracking.GitHubTracking.test_offline_preserves_failure_and_still_runs_examples) ... ok
+test_paginated_issues_exclude_pull_requests (tests.test_github_issue_tracking.GitHubTracking.test_paginated_issues_exclude_pull_requests) ... ok
+test_recurrence_reopens_closed_issue_without_creating_duplicate (tests.test_github_issue_tracking.GitHubTracking.test_recurrence_reopens_closed_issue_without_creating_duplicate) ... ok
+test_success_never_creates_summary_and_closes_only_managed_issue (tests.test_github_issue_tracking.GitHubTracking.test_success_never_creates_summary_and_closes_only_managed_issue) ... ok
+test_summary_failure_reopens_and_records_nonzero_exit (tests.test_github_issue_tracking.GitHubTracking.test_summary_failure_reopens_and_records_nonzero_exit) ... ok
+test_summary_zero_limit_leaves_failure_unfiled (tests.test_github_issue_tracking.GitHubTracking.test_summary_zero_limit_leaves_failure_unfiled) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.097s
+
+OK
+
+[1m========================================
+NANOLANG COMPREHENSIVE TEST SUITE
+========================================[0m
+Backend: [0;36mc[0m
+Native compiler: ./bin/nanoc
+
+[0;36m=== CORE LANGUAGE TESTS (nl_*) ===[0m
+
+[1m-- Syntax --[0m
+[0;32m✅[0m nl_syntax_literals.nano
+[0;32m✅[0m nl_syntax_operators.nano
+
+[1m-- Types --[0m
+[0;32m✅[0m nl_types_bool_list.nano
+[0;32m✅[0m nl_types_enum.nano
+[0;32m✅[0m nl_types_struct.nano
+[0;32m✅[0m nl_types_tuple.nano
+
+[1m-- Control Flow --[0m
+[0;32m✅[0m nl_control_array_elements.nano
+[0;32m✅[0m nl_control_flow.nano
+[0;32m✅[0m nl_control_match.nano
+[0;32m✅[0m nl_control_while.nano
+
+[1m-- Functions --[0m
+[0;32m✅[0m nl_functions_array_param.nano
+[0;32m✅[0m nl_functions_audio_examples_default_args.nano
+[0;32m✅[0m nl_functions_filter.nano
+[0;32m✅[0m nl_functions_map_reduce.nano
+[0;31m❌[0m nl_functions_module_introspection_flags.nano [0;31m(compilation failed)[0m
+I cannot lower this checked program: unsupported extern result or symbol ___module_is_unsafe_metadata_ffi_probe
+[0;31m❌[0m nl_functions_module_metadata.nano [0;31m(compilation failed)[0m
+I cannot lower this checked program: unsupported extern result or symbol ___module_name_metadata_probe
+[0;32m✅[0m nl_functions_nanoamp_default_args.nano
+[0;32m✅[0m nl_functions_relative_import.nano
+[0;32m✅[0m nl_functions_string_edges.nano
+
+[0;36mLanguage Tests: [0;32m17 passed[0m, [0;31m2 failed[0m
+
+[1m========================================
+TEST RESULTS SUMMARY
+========================================[0m
+
+Core Language (nl_*):  [0;32m17 passed[0m, [0;31m2 failed[0m
+
+TOTAL: [0;32m17 passed[0m, [0;31m2 failed[0m, [0;34m0 skipped[0m
+
+[0;31m❌ Some tests failed[0m
+make: *** [test-quick] Error 1

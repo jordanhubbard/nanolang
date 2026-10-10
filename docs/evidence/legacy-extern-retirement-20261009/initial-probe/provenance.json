@@ -1,0 +1,43 @@
+{
+  "source_sha256": "a6c79952bde2b0aca99abcebc1c3edbb362870eca813df86d357c412fa2aba4f",
+  "functions": {
+    "add_module_alias": "0d23aec04100b8ef882e4493b0317e42b868244332c6a8424ae6eedddc0c903f",
+    "c_func_name_for_definition": "a6b705f01455f3782e9f909cc2a21660a05dba787a0906c7ce1cc3bf1fac8253",
+    "c_name_for_qualified_function": "db9b1ea059dac40d2714acb305a76334f3a4075efdfcaf56e320417b773d4d2a",
+    "cg_append": "c2792dba02e1a8ca2512afedb3c801fbda171fb7dc96b1a49595d5ed85136538",
+    "cg_build": "574b112f1cb9a9d435af4020526a4bb26347fa4c8bd9cad386c4ac58f8d760e2",
+    "extract_base_type_name": "6a97df987d04ef4a19d69f0d9b7b564b4ceba671474af062ac1fda6dab2a9dc0",
+    "extract_type_args": "da45d30a46ebeb1047aab5c7d77c4c749b0d77d049e797296f38d4038007dd3b",
+    "gen_function_signature": "ae9dcec05e53809148ccaaf30ced91aeb6e990867b7136c8b160b50cdd171845",
+    "generate_function_prototypes": "c26d337f5ced3a87bdaa9ffaca1f820320e3e39ab8cffa7ffb39ad87bf188957",
+    "is_fn_type": "3c935f61d40f71d3635b52b13f82036fa19887151dd89633c32f4dd50030e118",
+    "is_generic_type": "0e7a560e85ed3375eaff855c8477324307afe3fb549699e13003319fbbb1a659",
+    "is_opaque_type": "61cb4ca9ef618fe35c00ffc0fe546f662bd81efaff363709192de94ee6f265ea",
+    "is_runtime_declared_extern": "4a8c2adb9fe11f95f96573aa36de4a75d86e294856c12e8c479af80004a2e4d9",
+    "is_tuple_type": "0361a6dde2621c16f99b178729597a94e81a0e7912cfd617116106d7394946bd",
+    "last_dot_index": "3ef1755a656dad1d7e2554cc3e6f88fad78bd886d9c3de7076e7f63ace4c1a97",
+    "last_double_colon_index": "f9ba93a17977be2666c50ff70aad09f8c2db1c0e80a155ccda33611cee986496",
+    "mangle_module_ident": "e41c0667052de5587107c79794648e094283afb42e91d24617dca3f7c9aaf711",
+    "mangle_name": "9f4524a4f4d55dd549a610a2c6242eec77cd6bdac9d4128d1b3de306bae50079",
+    "mangle_type_name": "d7cb49fdf3ceb58642efcb18f8b4a3816592050196d19607e1737e29ef4100bb",
+    "monomorphize_type_name": "e2fa7fa56c54ac465e156e61d7cc849f2e716a9f5f2d7901e62b8968bb66b23b",
+    "parse_fn_type_params": "cb2e4cc148abd8a842ce1d9cfcf3c57cc5bc1e391a25dd90a253e14dd5a95311",
+    "parse_fn_type_return": "58cbcfa396d2caab588ecd025ae47995e4770d1d85516a6e195fc224f4918d82",
+    "register_fn_type": "15e74c72adec395a3309159efa3ed9f26334b8942b5d591f35f6bba9bc96bb9f",
+    "reset_fn_types": "b371bb458d0f273f708f306d4707e9a9b8e71a59c29b0a3085460f444908de15",
+    "reset_module_aliases": "d55f1832ec7e35a4c01bae6cc1bded7a6ae5ee037dc8a905cb66c0bcad346c94",
+    "resolve_module_alias": "475d24f4f0e5cd26fc64d3ca04e3c6c257f2c02000b27bbde0c5a738ad0e6a00",
+    "transp_str_index_of": "31c194ee18c2f72b564a9784a3f10930230166991d83082720d4f58e5b31b055",
+    "transp_str_starts_with": "9279a3612b8d054295e2348f232a8f63a5c233b1237446264bfe22be8ebe1c64",
+    "tuple_typedef_name": "72f05b095c39c07e32376c5fcacb58247b931b098ae951a50cc2b52ddcd9fbfa",
+    "type_to_c": "52f52156ea140572df6987f3bae19f3e430b0bff76640ba995ca62fdb1ba5c6f",
+    "would_collide_with_extern": "73d67fdca638beb9e0fb4fe595d16f699feef3de13ebc6295e95f2a965a49f94"
+  },
+  "globals": [
+    "let mut module_aliases: array<string> = []",
+    "let mut module_alias_targets: array<string> = []",
+    "let mut extern_func_names: array<string> = []",
+    "let mut fn_type_originals: array<string> = []",
+    "let mut fn_type_names: array<string> = []"
+  ]
+}

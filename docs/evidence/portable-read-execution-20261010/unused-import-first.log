@@ -1,0 +1,35 @@
+test_default_refusal_and_exact_imports_preserve_output (tests.test_portable_read_execution.PortableReadExecution.test_default_refusal_and_exact_imports_preserve_output) ... ok
+test_native_allocation_prefixes_and_recovery (tests.test_portable_read_execution.PortableReadExecution.test_native_allocation_prefixes_and_recovery) ... ok
+test_native_binding_and_lifecycle (tests.test_portable_read_execution.PortableReadExecution.test_native_binding_and_lifecycle) ... ok
+test_source_vm_c_and_wasm (tests.test_portable_read_execution.PortableReadExecution.test_source_vm_c_and_wasm) ... ok
+test_unused_declared_wasm_import (tests.test_portable_read_execution.PortableReadExecution.test_unused_declared_wasm_import) ... FAIL
+test_wasm_permission_repeated_entry_and_type_guard (tests.test_portable_read_execution.PortableReadExecution.test_wasm_permission_repeated_entry_and_type_guard) ... ok
+
+======================================================================
+FAIL: test_unused_declared_wasm_import (tests.test_portable_read_execution.PortableReadExecution.test_unused_declared_wasm_import)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_portable_read_execution.py", line 127, in test_unused_declared_wasm_import
+    self.command(['node', runner, wasm])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_portable_read_execution.py", line 23, in command
+    self.assertEqual(result.returncode == 0, success, str(args) + '\n' + result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False != True : ['node', PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-portable-execution-qrhmqdtb/unused.mjs'), PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-portable-execution-qrhmqdtb/out.wasm')]
+file:///private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-portable-execution-qrhmqdtb/unused.mjs:5
+if(JSON.stringify(imports)!==JSON.stringify([{module:"nanolang_host_v1",name:"read_text",kind:"function"}]))throw Error("import");
+                                                                                                                  ^
+
+Error: import
+    at file:///private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-portable-execution-qrhmqdtb/unused.mjs:5:115
+    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
+    at async node:internal/modules/esm/loader:650:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:105:5)
+
+Node.js v26.11.0
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 3.805s
+
+FAILED (failures=1)

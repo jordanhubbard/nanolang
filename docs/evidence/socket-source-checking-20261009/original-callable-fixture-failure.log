@@ -1,0 +1,41 @@
+test_callable_transport_and_borrowed_signatures (tests.test_socket_service_source.SocketOwnership.test_callable_transport_and_borrowed_signatures) ... FAIL
+
+======================================================================
+FAIL: test_callable_transport_and_borrowed_signatures (tests.test_socket_service_source.SocketOwnership.test_callable_transport_and_borrowed_signatures)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 86, in test_callable_transport_and_borrowed_signatures
+    self.check('fn keep(value:Conn)->Conn{return value} '
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               'fn apply(f:fn(Conn)->Conn,value:Conn)->Conn{return (f value)} '
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+               'fn use(value:Conn)->void{let f:fn(Conn)->Conn=keep let owned:Conn=(apply f value) let c:CloseResult=(close owned)}',0)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 77, in check
+    return ownership.ServiceOwnership.check(self,source(text),status,complete=True)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 92, in check
+    reports=[self.checked([os.environ.get('NANO_SERVICE_OWNERSHIP_C_RUNNER',ROOT/'obj/test_service_ownership'),path,status])]
+             ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_ownership.py", line 64, in checked
+    raise AssertionError(f'{command}\nexit={run.returncode}\n{run.stdout}\n{run.stderr}')
+AssertionError: [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_ownership'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-ownership-qc87amlc/body.nano'), 0]
+exit=-6
+
+Error at line 4, column 103: Expected function name
+Error at line 4, column 109: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 110: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 115: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 116: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 120: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 121: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 123: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 127: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 216: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Assertion failed: (root), function main, file test_service_ownership.c, line 36.
+
+
+----------------------------------------------------------------------
+Ran 1 test in 38.984s
+
+FAILED (failures=1)

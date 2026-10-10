@@ -1,0 +1,6 @@
+test_lexical_scope_and_refusal_in_both_products (tests.test_selfhost_capture_scope.SelfhostCaptureScope.test_lexical_scope_and_refusal_in_both_products) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 28.183s
+
+OK

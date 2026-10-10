@@ -1,0 +1,3 @@
+['/private/tmp/nanolang-array-types-20261008/bin/nano_virt', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-l46ji05m/block-values.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-match-guards-l46ji05m/block-values-seed.nvm']
+Warning at line 5, column 41: Unused variable 'ignored'
+Warning at line 7, column 24: Unused variable 'ignored'

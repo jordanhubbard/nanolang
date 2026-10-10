@@ -1,0 +1,4 @@
+fn unbound(value:T)->array<E>{return []}
+shadow unbound {assert true}
+fn main()->int{let values:array<int> = (unbound 1) return (array_length values)}
+shadow main {assert (== (main) 0)}

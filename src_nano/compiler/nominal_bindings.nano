@@ -252,7 +252,7 @@ pub fn nb_rewrite(parser: Parser) -> void {
     let mut lets_index: int = 0
     while (< lets_index parser.lets_count) {
         let item: ASTLet = (list_ASTLet_get parser.lets lets_index)
-        (list_ASTLet_set parser.lets lets_index (ASTLet { node_type: item.node_type, line: item.line, column: item.column, name: item.name, var_type: (nb_type item.var_type item.line), value: item.value, value_type: item.value_type, is_mut: item.is_mut, is_destructure: item.is_destructure, is_destructure_projection: item.is_destructure_projection, destructure_names: item.destructure_names }))
+        (list_ASTLet_set parser.lets lets_index (ASTLet { node_type: item.node_type, line: item.line, column: item.column, name: item.name, var_type: (nb_type item.var_type item.line), value: item.value, value_type: item.value_type, is_mut: item.is_mut, is_pub: item.is_pub, is_destructure: item.is_destructure, is_destructure_projection: item.is_destructure_projection, destructure_names: item.destructure_names }))
         set lets_index (+ lets_index 1)
     }
     let mut functions_index: int = 0
@@ -281,6 +281,14 @@ pub fn nb_rewrite(parser: Parser) -> void {
     }
 }
 shadow nb_rewrite {
+    let public_tokens: List<LexerToken> = (tokenize_string "struct PublicRecord { value: int }\npub let exported: PublicRecord = PublicRecord { value: 7 }" "public-record.nano" (list_CompilerDiagnostic_new))
+    let public_parser: Parser = (parse_program public_tokens (list_LexerToken_length public_tokens) "public-record.nano")
+    (mb_reset [1])
+    assert (nb_register public_parser "__visibility_")
+    (nb_rewrite public_parser)
+    assert (parser_get_let public_parser 0).is_pub
+    assert (== (parser_get_let public_parser 0).var_type (parser_get_struct_def public_parser 0).name)
+    (mb_reset [])
     let tokens: List<LexerToken> = (tokenize_string "struct Handle { plain: int }\nresource struct Handle { fd: int }\nfn take(value: Handle) -> Handle { return value }" "nominal.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "nominal.nano")
     (mb_reset [1, 2])

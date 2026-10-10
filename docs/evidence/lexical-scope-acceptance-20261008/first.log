@@ -1,0 +1,19 @@
+test_alias_types_mutability_and_global_bindings_restore (tests.test_genenv_scope.GenEnvScopeTests.test_alias_types_mutability_and_global_bindings_restore) ... ok
+test_match_and_loop_binders_restore_outer_names (tests.test_genenv_scope.GenEnvScopeTests.test_match_and_loop_binders_restore_outer_names) ... ok
+test_out_of_scope_and_immutable_writes_preserve_output (tests.test_genenv_scope.GenEnvScopeTests.test_out_of_scope_and_immutable_writes_preserve_output) ... 
+  test_out_of_scope_and_immutable_writes_preserve_output (tests.test_genenv_scope.GenEnvScopeTests.test_out_of_scope_and_immutable_writes_preserve_output) (case='shadowed function', producer='seed') ... FAIL
+
+======================================================================
+FAIL: test_out_of_scope_and_immutable_writes_preserve_output (tests.test_genenv_scope.GenEnvScopeTests.test_out_of_scope_and_immutable_writes_preserve_output) (case='shadowed function', producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-retirement-20261008/tests/test_genenv_scope.py", line 127, in test_out_of_scope_and_immutable_writes_preserve_output
+    self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : Warning at line 3, column 20: Unused variable 'selected'
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.181s
+
+FAILED (failures=1)

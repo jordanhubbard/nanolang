@@ -1,4 +1,5 @@
 #include "portable_host_plan.h"
+#include "portable_read_catalog.h"
 #include "isa.h"
 #include "service_bindings_module.h"
 #include "verifier.h"
@@ -45,18 +46,6 @@ static bool unsupported_opcode(uint8_t op) {
         return true;
     default: return false;
     }
-}
-
-static bool read_name(const NvmModule *m, uint32_t index) {
-    static const char *const names[] = {
-        "file_read", "vm_file_read", "nl_os_file_read"
-    };
-    for (size_t i = 0; i < sizeof(names) / sizeof(names[0]); i++) {
-        size_t length = strlen(names[i]);
-        if (m->string_lengths[index] == length &&
-            !memcmp(m->strings[index], names[i], length)) return true;
-    }
-    return false;
 }
 
 NvmPortableReadResult nvm_portable_read_plan(const NvmModule *m,
@@ -151,9 +140,7 @@ NvmPortableReadResult nvm_portable_read_plan(const NvmModule *m,
             memchr(m->strings[imp->function_name_idx], 0, m->string_lengths[imp->function_name_idx]))
             return result(NVM_PORTABLE_READ_INVALID, NONE, NONE, i,
                           "I refuse embedded NUL in import identifiers.");
-        if (imp->kind != NVM_IMPORT_FFI || m->string_lengths[imp->module_name_idx] ||
-            !read_name(m, imp->function_name_idx) || imp->param_count != 1 ||
-            imp->return_type != TAG_STRING || m->import_param_types[i][0] != TAG_STRING)
+        if (!nvm_portable_read_import_exact(m,i))
             return result(NVM_PORTABLE_READ_UNSUPPORTED, NONE, NONE, i,
                           "I require an exact empty-namespace STRING read-text declaration.");
     }

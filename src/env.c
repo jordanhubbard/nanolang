@@ -1,4 +1,8 @@
 #include "nanolang.h"
+#include "nanoisa/file_source_snapshot.h"
+#include "service_namespace.h"
+#include "service_bodies.h"
+#include "service_ownership.h"
 #include "builtins_registry.h"
 #include "runtime/gc.h"
 #include <string.h>
@@ -399,6 +403,11 @@ void env_reclaim_static_arrays(Environment *env) {
 
 /* Free environment */
 void free_environment(Environment *env) {
+    nl_service_ownership_free(env->service_ownership);
+    nl_service_body_check_free(env->service_bodies);
+    nl_service_namespace_free(env->service_namespace);
+    nl_file_source_snapshots_free(env->service_inputs);
+    for (int i = 0; i < env->service_origin_count; ++i) free(env->service_origins[i]);
     env_symbol_index_invalidate(env);
     /* I reclaim every static array exactly once before the string/record
      * teardown below, so shared containers and their elements do not leak. */
@@ -617,6 +626,7 @@ void env_define_var_with_type_info(Environment *env, const char *name, Type type
     sym.is_mut = is_mut;
     sym.value = value;
     sym.is_global = false;
+    sym.global_declaration = NULL;
     sym.is_used = false;  /* Initialize as unused */
     sym.is_resource = false;  /* Will be set by type checker if type is a resource struct */
     sym.resource_state = RESOURCE_UNUSED;  /* Initialize resource state */
@@ -681,6 +691,85 @@ const char *env_current_file(Environment *env) {
     return env ? env->current_file : NULL;
 }
 
+/* I retain import spellings separately from the declaration and runtime storage. */
+bool env_import_global(Environment *env, const char *owner_file, const char *name, ASTNode *declaration) {
+    if (!env || !owner_file || !name || !declaration) return false;
+    for (GlobalImport *item = env->global_imports; item; item = item->next) {
+        if (!strcmp(item->owner_file, owner_file) && !strcmp(item->name, name))
+            return item->declaration == declaration;
+    }
+    size_t owner_size = strlen(owner_file) + 1, name_size = strlen(name) + 1;
+    GlobalImport *item = calloc(1, sizeof *item + owner_size + name_size);
+    if (!item) return false;
+    char *strings = (char *)(item + 1);
+    memcpy(strings, owner_file, owner_size);
+    memcpy(strings + owner_size, name, name_size);
+    item->owner_file = strings;
+    item->name = strings + owner_size;
+    item->declaration = declaration;
+    item->next = env->global_imports;
+    env->global_imports = env_own_checker_allocation(env, item);
+    return true;
+}
+
+const GlobalImport *env_lookup_global_import_at(Environment *env, const char *owner_file, const char *name) {
+    if (!env || !owner_file || !name) return NULL;
+    for (GlobalImport *item = env->global_imports; item; item = item->next) {
+        if (!strcmp(item->name, name) && !strcmp(item->owner_file, owner_file)) return item;
+    }
+    return NULL;
+}
+
+Symbol *env_global_import_symbol_at(Environment *env, const char *owner_file, const char *name) {
+    const GlobalImport *import = env_lookup_global_import_at(env, owner_file, name);
+    if (!import) return NULL;
+    for (int i = env->symbol_count - 1; i >= 0; --i) {
+        if (env->symbols[i].global_declaration == import->declaration) return &env->symbols[i];
+    }
+    return NULL;
+}
+
+const GlobalImport *env_lookup_global_import(Environment *env, const char *name) {
+    return env_lookup_global_import_at(env, env_current_file(env), name);
+}
+
+Symbol *env_global_import_symbol(Environment *env, const char *name) {
+    return env_global_import_symbol_at(env, env_current_file(env), name);
+}
+
+/* I resolve immutable literals by declaration identity, never by a module's
+ * unqualified symbol name. A visible receiver still denotes an ordinary value. */
+ASTNode *env_qualified_import_literal(Environment *env, ASTNode *expr) {
+    if (!expr || expr->type != AST_FIELD_ACCESS) return NULL;
+    ASTNode *receiver = expr->as.field_access.object;
+    const char *field = expr->as.field_access.field_name;
+    if (!receiver || receiver->type != AST_IDENTIFIER || !field ||
+        env_get_var_visible_at(env, receiver->as.identifier, receiver->line, receiver->column)) return NULL;
+    const char *owner = env_current_file(env);
+    if (!owner) return NULL;
+    size_t prefix_length = strlen(receiver->as.identifier);
+    for (const GlobalImport *item = env->global_imports; item; item = item->next) {
+        if (strcmp(item->owner_file, owner) ||
+            strncmp(item->name, receiver->as.identifier, prefix_length) ||
+            item->name[prefix_length] != '.' ||
+            strcmp(item->name + prefix_length + 1, field)) continue;
+        ASTNode *declaration = item->declaration;
+        if (!declaration || declaration->type != AST_LET || declaration->as.let.is_mut) return NULL;
+        ASTNode *value = declaration->as.let.value;
+        if (!value) return NULL;
+        switch (value->type) {
+            case AST_NUMBER:
+            case AST_FLOAT:
+            case AST_BOOL:
+            case AST_STRING:
+                return value;
+            default:
+                return NULL;
+        }
+    }
+    return NULL;
+}
+
 Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int column) {
     if (!env || !name) return NULL;
     if (line <= 0) return env_get_var(env, name);
@@ -695,10 +784,18 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
      * incorrectly shadow well-scoped locals in earlier functions.
      */
     Symbol *best_unknown = NULL;
+    /* I visit only this name's hash chain, in the original newest-first order.
+     * Locations and files remain live symbol facts, never cached decisions. */
+    struct EnvSymbolIndex *index = symbol_index_sync(env);
+    uint64_t hash = symbol_name_hash(name);
+    int head = index ? index->heads[hash & (index->bucket_count - 1)] : env->symbol_count;
 
     /* Pass 1: from most-recent to oldest, return first visible symbol WITH a source location. */
-    for (int i = env->symbol_count - 1; i >= 0; i--) {
-        Symbol *sym = &env->symbols[i];
+    for (int next = head; next;) {
+        int slot = next - 1;
+        Symbol *sym = &env->symbols[slot];
+        next = index ? index->links[slot].previous : slot;
+        if (index && index->links[slot].hash != hash) continue;
         if (!sym->name) continue;
         if (safe_strcmp(sym->name, name) != 0) continue;
 
@@ -731,9 +828,15 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
         return sym;
     }
 
+    Symbol *imported = env_global_import_symbol(env, name);
+    if (imported) return imported;
+
     /* Pass 2: fall back to most-recent symbol without a source location. */
-    for (int i = env->symbol_count - 1; i >= 0; i--) {
-        Symbol *sym = &env->symbols[i];
+    for (int next = head; next;) {
+        int slot = next - 1;
+        Symbol *sym = &env->symbols[slot];
+        next = index ? index->links[slot].previous : slot;
+        if (index && index->links[slot].hash != hash) continue;
         if (!sym->name) continue;
         if (safe_strcmp(sym->name, name) != 0) continue;
 
@@ -1948,6 +2051,13 @@ static bool annotation_names_equal(const char *left, const char *right) {
 static bool signatures_equal_depth(const FunctionSignature *, const FunctionSignature *, unsigned);
 static bool annotations_equal(const TypeInfo *a, const TypeInfo *b, unsigned depth) {
     if (a == b) return true;
+    if (a && b && (a->service_declaration || b->service_declaration)) {
+        return a->base_type == b->base_type &&
+            a->service_declaration == b->service_declaration &&
+            a->service_module == b->service_module &&
+            a->service_ordinal == b->service_ordinal &&
+            a->service_category == b->service_category;
+    }
     if (!a || !b || depth > 128 || a->base_type != b->base_type ||
         a->type_param_count != b->type_param_count ||
         a->tuple_element_count != b->tuple_element_count ||

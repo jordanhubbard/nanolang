@@ -11,11 +11,13 @@ struct NvmShapeNode {
     int conversion_kind;
     ShapeEdge *edges;
     size_t count, capacity;
+    uint32_t *functions;
+    size_t function_count, function_capacity;
 };
 typedef struct { NvmShapeId a, b; } ShapePair;
 
 static const char *kind_name(NvmShapeKind kind) {
-    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric", "variant-scalar", "variant-int-array"};
+    static const char *names[] = {"unknown", "int", "string", "array", "record", "map", "optional", "bool", "float", "numeric", "variant-scalar", "variant-int-array", "function", "u8"};
     return names[kind];
 }
 
@@ -50,15 +52,23 @@ static void *grow(NvmShapeGraph *g, void *data, size_t *capacity,
 }
 
 void nvm_shape_destroy(NvmShapeGraph *g) {
-    for (size_t i = 0; i < g->count; ++i) free(g->nodes[i].edges);
+    for (size_t i = 0; i < g->count; ++i) {
+        free(g->nodes[i].edges);
+        free(g->nodes[i].functions);
+    }
     free(g->nodes);
     free(g->conversions);
+    free(g->array_aliases);
+    free(g->array_writes);
+    free(g->alias_pairs.keys);
+    free(g->write_pairs.keys);
+    free(g->array_reads);
     memset(g, 0, sizeof *g);
 }
 
 NvmShapeId nvm_shape_new(NvmShapeGraph *g, NvmShapeKind kind) {
     if (g->error) return 0;
-    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_VARIANT_INT_ARRAY)
+    if (kind < NVM_SHAPE_UNKNOWN || kind > NVM_SHAPE_U8)
         return fail(g, "I cannot create an invalid shape kind");
     if (g->count >= UINT32_MAX)
         return fail(g, "I cannot represent another shape ID");
@@ -86,6 +96,53 @@ NvmShapeId nvm_shape_root(NvmShapeGraph *g, NvmShapeId id) {
 NvmShapeKind nvm_shape_kind(NvmShapeGraph *g, NvmShapeId id) {
     NvmShapeId root = nvm_shape_root(g, id);
     return root ? g->nodes[root - 1].kind : NVM_SHAPE_UNKNOWN;
+}
+
+static int function_add(NvmShapeGraph *g, NvmShapeNode *node, uint32_t target,
+                        int *changed) {
+    size_t at = 0;
+    while (at < node->function_count && node->functions[at] < target) ++at;
+    if (at < node->function_count && node->functions[at] == target) return 1;
+    uint32_t *next = grow(g, node->functions, &node->function_capacity,
+                          node->function_count + 1, sizeof *next);
+    if (!next) return 0;
+    node->functions = next;
+    memmove(next + at + 1, next + at, (node->function_count - at) * sizeof *next);
+    next[at] = target;
+    ++node->function_count;
+    *changed = 1;
+    return 1;
+}
+
+int nvm_shape_function_add(NvmShapeGraph *g, NvmShapeId id, uint32_t target) {
+    NvmShapeId root = nvm_shape_root(g, id);
+    if (!root) return 0;
+    NvmShapeNode *node = &g->nodes[root - 1];
+    if ((node->kind != NVM_SHAPE_UNKNOWN && node->kind != NVM_SHAPE_FUNCTION) || node->count)
+        return fail(g, "I require an exact function shape for a callable target");
+    node->kind = NVM_SHAPE_FUNCTION;
+    int changed = 0;
+    return function_add(g, node, target, &changed);
+}
+
+size_t nvm_shape_function_count(NvmShapeGraph *g, NvmShapeId id) {
+    NvmShapeId root = nvm_shape_root(g, id);
+    if (!root) return 0;
+    if (g->nodes[root - 1].kind != NVM_SHAPE_FUNCTION) {
+        fail(g, "I require a function shape before inspecting callable targets");
+        return 0;
+    }
+    return g->nodes[root - 1].function_count;
+}
+
+int nvm_shape_function_target(NvmShapeGraph *g, NvmShapeId id,
+                             size_t index, uint32_t *target) {
+    size_t count = nvm_shape_function_count(g, id);
+    if (g->error) return 0;
+    if (!target || index >= count)
+        return fail(g, "I require an existing callable target and an output slot");
+    *target = g->nodes[nvm_shape_root(g, id) - 1].functions[index];
+    return 1;
 }
 
 static int allows_edge(NvmShapeKind kind, uint32_t index) {
@@ -152,6 +209,12 @@ int nvm_shape_unify(NvmShapeGraph *g, NvmShapeId a, NvmShapeId b) {
         y->parent = left;
         x->kind = kind;
         if (x->rank == y->rank) ++x->rank;
+        int changed = 0;
+        for (size_t i = 0; i < y->function_count && !g->error; ++i)
+            function_add(g, x, y->functions[i], &changed);
+        free(y->functions);
+        y->functions = NULL;
+        y->function_count = y->function_capacity = 0;
         for (size_t i = 0; i < y->count && !g->error; ++i) {
             ShapeEdge edge = y->edges[i];
             size_t at = 0;
@@ -182,11 +245,140 @@ int nvm_shape_convert(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
                                     g->conversion_count + 1, sizeof *next);
     if (!next) return 0;
     g->conversions = next;
-    g->conversions[g->conversion_count++] = (NvmShapeConversion){source, target};
+    g->conversions[g->conversion_count++] = (NvmShapeConversion){source, target, 0};
     return 1;
 }
 
-typedef struct { NvmShapeId source, target; int exact; } FlowPair;
+int nvm_shape_alias_view(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
+    if (!nvm_shape_convert(g, source, target)) return 0;
+    g->conversions[g->conversion_count - 1].alias_view = 1;
+    return 1;
+}
+
+static size_t shape_pair_slot(uint64_t key, size_t capacity) {
+    key ^= key >> 30;
+    key *= UINT64_C(0xbf58476d1ce4e5b9);
+    key ^= key >> 27;
+    key *= UINT64_C(0x94d049bb133111eb);
+    key ^= key >> 31;
+    return (size_t)key & (capacity - 1);
+}
+
+/* I index immutable insertion IDs. Later exact joins may leave equivalent
+ * entries, but traversal resolves roots and never loses an alias or write. */
+static int shape_pair_insert(NvmShapeGraph *g, NvmShapePairSet *set,
+                             NvmShapeId source, NvmShapeId target) {
+    uint64_t key = ((uint64_t)source << 32) | target;
+    if (!set->capacity || set->count >= set->capacity / 2) {
+        size_t capacity = set->capacity ? set->capacity * 2 : 64;
+        if (capacity < set->capacity || capacity > SIZE_MAX / sizeof *set->keys) {
+            fail(g, "I cannot grow shared-array shape facts"); return -1;
+        }
+        uint64_t *keys = calloc(capacity, sizeof *keys);
+        if (!keys) { fail(g, "I cannot allocate shared-array shape facts"); return -1; }
+        for (size_t i = 0; i < set->capacity; ++i) if (set->keys[i]) {
+            size_t at = shape_pair_slot(set->keys[i], capacity);
+            while (keys[at]) at = (at + 1) & (capacity - 1);
+            keys[at] = set->keys[i];
+        }
+        free(set->keys); set->keys = keys; set->capacity = capacity;
+    }
+    size_t at = shape_pair_slot(key, set->capacity);
+    while (set->keys[at] && set->keys[at] != key) at = (at + 1) & (set->capacity - 1);
+    if (set->keys[at]) return 0;
+    set->keys[at] = key; ++set->count;
+    return 1;
+}
+
+int nvm_shape_array_alias(NvmShapeGraph *g, NvmShapeId caller, NvmShapeId callee) {
+    caller = nvm_shape_root(g, caller); callee = nvm_shape_root(g, callee);
+    if (!caller || !callee) return 0;
+    if (caller == callee) return 1;
+    int inserted = shape_pair_insert(g, &g->alias_pairs, caller, callee);
+    if (inserted <= 0) return inserted == 0;
+    NvmShapeConversion *next = grow(g, g->array_aliases, &g->array_alias_capacity,
+                                    g->array_alias_count + 1, sizeof *next);
+    if (!next) return 0;
+    g->array_aliases = next;
+    g->array_aliases[g->array_alias_count++] = (NvmShapeConversion){caller, callee, 0};
+    return 1;
+}
+
+int nvm_shape_array_write(NvmShapeGraph *g, NvmShapeId array, NvmShapeId value) {
+    array = nvm_shape_root(g, array); value = nvm_shape_root(g, value);
+    if (!array || !value) return 0;
+    int inserted = shape_pair_insert(g, &g->write_pairs, array, value);
+    if (inserted <= 0) return inserted == 0;
+    NvmShapeConversion *next = grow(g, g->array_writes, &g->array_write_capacity,
+                                    g->array_write_count + 1, sizeof *next);
+    if (!next) return 0;
+    g->array_writes = next;
+    g->array_writes[g->array_write_count++] = (NvmShapeConversion){array, value, 0};
+    return nvm_shape_alias_view(g, value, nvm_shape_child(g, array, 0));
+}
+
+static int propagate_array_writes(NvmShapeGraph *g) {
+    if (!g->array_write_count || !g->array_alias_count) return !g->error;
+    /* I rebuild adjacency after exact joins. Propagation visits only aliases
+     * of the written handle, including writes discovered during this pass. */
+    size_t *heads = calloc(g->count, sizeof *heads);
+    size_t *next = calloc(g->array_alias_count, sizeof *next);
+    if (!heads || !next) {
+        free(heads); free(next); return fail(g, "I cannot allocate shared-array write traversal");
+    }
+    for (size_t a = 0; a < g->array_alias_count && !g->error; ++a) {
+        NvmShapeId target = nvm_shape_root(g, g->array_aliases[a].target);
+        if (!target) break;
+        next[a] = heads[target - 1]; heads[target - 1] = a + 1;
+    }
+    for (size_t i = 0; i < g->array_write_count && !g->error; ++i) {
+        NvmShapeId array = nvm_shape_root(g, g->array_writes[i].source);
+        NvmShapeId value = g->array_writes[i].target;
+        if (!array) break;
+        for (size_t a = heads[array - 1]; a && !g->error; a = next[a - 1])
+            if (!nvm_shape_array_write(g, g->array_aliases[a - 1].source, value)) break;
+    }
+    free(heads); free(next);
+    return !g->error;
+}
+
+typedef struct { NvmShapeId source, target; int exact, alias_view; } FlowPair;
+
+int nvm_shape_array_read(NvmShapeGraph *g, NvmShapeId element, NvmShapeId result) {
+    if (!nvm_shape_root(g, element) || !nvm_shape_root(g, result)) return 0;
+    NvmShapeArrayRead *next = grow(g, g->array_reads, &g->array_read_capacity,
+                                  g->array_read_count + 1, sizeof *next);
+    if (!next) return 0;
+    g->array_reads = next;
+    g->array_reads[g->array_read_count++] = (NvmShapeArrayRead){element, result, 0};
+    return 1;
+}
+
+static int solve_array_reads(NvmShapeGraph *g, int *changed) {
+    for (size_t i = 0; i < g->array_read_count && !g->error; ++i) {
+        NvmShapeArrayRead *read = &g->array_reads[i];
+        if (read->resolved) continue;
+        NvmShapeKind kind = nvm_shape_kind(g, read->element);
+        if (kind == NVM_SHAPE_UNKNOWN &&
+            nvm_shape_kind(g, read->result) == NVM_SHAPE_RECORD) {
+            /* I retain a record consumer's container requirement without
+             * equating its inferred fields with the stored record fields. */
+            if (!nvm_shape_unify(g, read->element, nvm_shape_new(g, NVM_SHAPE_RECORD))) return 0;
+            kind = NVM_SHAPE_RECORD;
+        }
+        if (kind == NVM_SHAPE_UNKNOWN) continue;
+        if (kind == NVM_SHAPE_INT || kind == NVM_SHAPE_BOOL ||
+            kind == NVM_SHAPE_FLOAT || kind == NVM_SHAPE_STRING || kind == NVM_SHAPE_FUNCTION || kind == NVM_SHAPE_U8) {
+            NvmShapeId optional = nvm_shape_new(g, NVM_SHAPE_OPTIONAL);
+            if (!optional ||
+                !nvm_shape_unify(g, nvm_shape_child(g, optional, 0), read->element) ||
+                !nvm_shape_convert(g, optional, read->result)) return 0;
+        } else if (!nvm_shape_convert(g, read->element, read->result)) return 0;
+        read->resolved = 1;
+        *changed = 1;
+    }
+    return !g->error;
+}
 
 static int flow_kind(NvmShapeGraph *g, NvmShapeId target, NvmShapeKind kind, int *changed) {
     NvmShapeNode *node = &g->nodes[target - 1];
@@ -201,7 +393,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
     size_t count = 0, capacity = 0, cursor = 0;
     FlowPair *queue = grow(g, NULL, &capacity, 1, sizeof *queue);
     if (!queue) return 0;
-    queue[count++] = (FlowPair){conversion.source, conversion.target, 0};
+    queue[count++] = (FlowPair){conversion.source, conversion.target, 0, conversion.alias_view};
     while (cursor < count && !g->error) {
         FlowPair pair = queue[cursor++];
         NvmShapeId source = nvm_shape_root(g, pair.source), target = nvm_shape_root(g, pair.target);
@@ -210,7 +402,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         int seen = 0;
         for (size_t i = 0; i + 1 < cursor; ++i)
             if (nvm_shape_root(g, queue[i].source) == source &&
-                nvm_shape_root(g, queue[i].target) == target && queue[i].exact == pair.exact) seen = 1;
+                nvm_shape_root(g, queue[i].target) == target && queue[i].exact == pair.exact && queue[i].alias_view == pair.alias_view) seen = 1;
         if (seen) continue;
         NvmShapeKind from = g->nodes[source - 1].kind, to = g->nodes[target - 1].kind;
         if (from == NVM_SHAPE_UNKNOWN) {
@@ -222,6 +414,20 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         if (to == NVM_SHAPE_UNKNOWN) {
             if (!flow_kind(g, target, from, changed)) break;
             to = from;
+        }
+        /* Shared record-array handles retain caller and callee views. A
+         * tagged field can flow back into an exact scalar view because native
+         * projection checks its tag before use; I retain the payload constraint
+         * rather than rewriting the caller's constructor as optional storage. */
+        if (pair.alias_view && from == NVM_SHAPE_OPTIONAL &&
+            (to == NVM_SHAPE_STRING || to == NVM_SHAPE_INT || to == NVM_SHAPE_BOOL ||
+             to == NVM_SHAPE_FLOAT || to == NVM_SHAPE_ARRAY || to == NVM_SHAPE_MAP ||
+             to == NVM_SHAPE_FUNCTION || to == NVM_SHAPE_U8)) {
+            NvmShapeId payload = nvm_shape_child(g, source, 0);
+            FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
+            if (!next || !payload) break;
+            queue = next; queue[count++] = (FlowPair){payload, target, 1, pair.alias_view};
+            continue;
         }
         if (!pair.exact && from == NVM_SHAPE_OPTIONAL &&
             (to == NVM_SHAPE_STRING || to == NVM_SHAPE_INT || to == NVM_SHAPE_BOOL)) {
@@ -240,11 +446,11 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
         }
         if (!pair.exact && (from == NVM_SHAPE_STRING || from == NVM_SHAPE_INT ||
                             from == NVM_SHAPE_BOOL || from == NVM_SHAPE_FLOAT || from == NVM_SHAPE_ARRAY ||
-                            from == NVM_SHAPE_MAP) && to == NVM_SHAPE_OPTIONAL) {
+                            from == NVM_SHAPE_MAP || from == NVM_SHAPE_FUNCTION || from == NVM_SHAPE_U8) && to == NVM_SHAPE_OPTIONAL) {
             NvmShapeId payload = nvm_shape_child(g, target, 0);
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next || !payload) break;
-            queue = next; queue[count++] = (FlowPair){source, payload, 1};
+            queue = next; queue[count++] = (FlowPair){source, payload, 1, pair.alias_view};
             continue;
         }
         /* An explicitly declared union destination accepts either exact
@@ -276,6 +482,12 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
                      kind_name(from), kind_name(to), source, target);
             fail(g, g->error_detail); break;
         }
+        if (from == NVM_SHAPE_ARRAY && !nvm_shape_array_alias(g, source, target)) break;
+        if (from == NVM_SHAPE_FUNCTION) {
+            NvmShapeNode *producer = &g->nodes[source - 1], *storage = &g->nodes[target - 1];
+            for (size_t i = 0; i < producer->function_count && !g->error; ++i)
+                function_add(g, storage, producer->functions[i], changed);
+        }
         size_t edges = g->nodes[source - 1].count;
         for (size_t i = 0; i < edges && !g->error; ++i) {
             ShapeEdge edge = g->nodes[source - 1].edges[i];
@@ -303,8 +515,12 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             FlowPair *next = grow(g, queue, &capacity, count + 1, sizeof *queue);
             if (!next) break;
             queue = next;
+            /* Record arrays nested inside copied records still share their
+             * element handles. Their projections retain checked field views. */
             queue[count++] = (FlowPair){child_source, child_target,
-                pair.exact || from == NVM_SHAPE_OPTIONAL || from == NVM_SHAPE_MAP};
+                pair.exact || from == NVM_SHAPE_OPTIONAL || from == NVM_SHAPE_MAP,
+                pair.alias_view || (from == NVM_SHAPE_ARRAY &&
+                    nvm_shape_kind(g, child_source) == NVM_SHAPE_RECORD)};
         }
     }
     free(queue);
@@ -315,8 +531,12 @@ int nvm_shape_solve_conversions(NvmShapeGraph *g) {
     int changed;
     do {
         changed = 0;
+        size_t prior_writes = g->array_write_count, prior_aliases = g->array_alias_count;
+        if (!solve_array_reads(g, &changed)) return 0;
         for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
             if (!flow_one(g, g->conversions[i], &changed, 0)) return 0;
+        if (!propagate_array_writes(g)) return 0;
+        if (prior_writes != g->array_write_count || prior_aliases != g->array_alias_count) changed = 1;
     } while (changed && !g->error);
     /* Unknown sources may resolve on a later conversion pass. Only after
      * convergence do I require evidence for explicit scalar-set injection.

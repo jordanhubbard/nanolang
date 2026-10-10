@@ -1,0 +1,43 @@
+CI 37974454367, Memory Sanitizers job 113969070919, source 0ee20e47e
+2026-10-09T18:45:47.9766504Z   Testing eval_unary_minus_float_array... ✓
+2026-10-09T18:45:47.9766842Z   Testing eval_array_scalar_broadcast_add... ✓
+2026-10-09T18:45:47.9767193Z   Testing eval_array_scalar_broadcast_mul... ✓
+2026-10-09T18:45:47.9767512Z   Testing eval_for_over_dynarray... ✓
+2026-10-09T18:45:47.9767810Z   Testing eval_for_over_float_array... ✓
+2026-10-09T18:45:47.9768116Z   Testing eval_coroutine_spawn_and_run... ✓
+2026-10-09T18:45:47.9795931Z   Testing eval_async_fn_direct_call... ✓
+2026-10-09T18:45:47.9799273Z   Testing eval_string_format_struct... ✓
+2026-10-09T18:45:47.9804428Z   Testing eval_array_broadcast_scalar_right... ✓
+2026-10-09T18:45:47.9808185Z   Testing eval_foreign_native_call_api... ✓
+2026-10-09T18:45:47.9812308Z src/eval.c:125:5: runtime error: null pointer passed as argument 1, which is declared to never be null
+2026-10-09T18:45:47.9813088Z AddressSanitizer:DEADLYSIGNAL
+2026-10-09T18:45:47.9813501Z =================================================================
+2026-10-09T18:45:47.9814610Z ==40211==ERROR: AddressSanitizer: SEGV on unknown address 0x0000000000c0 (pc 0x7f1b80e6b531 bp 0x7ffec07b15f0 sp 0x7ffec07b14d0 T0)
+2026-10-09T18:45:47.9815296Z ==40211==The signal is caused by a READ memory access.
+2026-10-09T18:45:47.9815671Z ==40211==Hint: address points to the zero page.
+2026-10-09T18:45:48.8021516Z     #0 0x7f1b80e6b531  (/lib/x86_64-linux-gnu/libc.so.6+0x6b531) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)
+2026-10-09T18:45:48.8022828Z     #1 0x7f1b820ce421 in vfprintf ../../../../src/libsanitizer/sanitizer_common/sanitizer_common_interceptors.inc:1648
+2026-10-09T18:45:48.8023775Z     #2 0x7f1b820d02bb in fprintf ../../../../src/libsanitizer/sanitizer_common/sanitizer_common_interceptors.inc:1705
+2026-10-09T18:45:48.8025289Z     #3 0x56169e214263 in shadow_trace_event src/eval.c:125
+2026-10-09T18:45:48.8025915Z     #4 0x56169e286406 in run_shadow_tests_scope src/eval.c:6400
+2026-10-09T18:45:48.8026762Z     #5 0x56169e284fab in run_shadow_tests src/eval.c:6297
+2026-10-09T18:45:48.8027287Z     #6 0x56169dd9ac02 in test_eval_indexed_read_aliases tests/test_eval.c:2436
+2026-10-09T18:45:48.8027795Z     #7 0x56169dda5044 in main tests/test_eval.c:3156
+2026-10-09T18:45:48.8028439Z     #8 0x7f1b80e2a1c9  (/lib/x86_64-linux-gnu/libc.so.6+0x2a1c9) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)
+2026-10-09T18:45:48.8029432Z     #9 0x7f1b80e2a28a in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2a28a) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65)
+2026-10-09T18:45:48.8030565Z     #10 0x56169dd82824 in _start (/home/runner/work/nanolang/nanolang/tests/test_eval+0x78b824) (BuildId: 95d724880c69d42fcefae40487edfab9abd0df5d)
+2026-10-09T18:45:48.8031298Z 
+2026-10-09T18:45:48.8031464Z AddressSanitizer can not provide additional info.
+2026-10-09T18:45:48.8032305Z SUMMARY: AddressSanitizer: SEGV (/lib/x86_64-linux-gnu/libc.so.6+0x6b531) (BuildId: a4a7992a8e66555c8141ab2a08a8465ff6e0ea65) 
+2026-10-09T18:45:48.8032946Z ==40211==ABORTING
+2026-10-09T18:45:48.8095685Z make: *** [Makefile.gnu:1241: test-eval] Error 1
+2026-10-09T18:45:48.8106159Z   Testing eval_indexed_read_aliases...
+2026-10-09T18:45:48.8120677Z ##[error]Process completed with exit code 2.
+2026-10-09T18:45:48.8209006Z ##[group]Run actions/upload-artifact@v4
+2026-10-09T18:45:48.8209312Z with:
+2026-10-09T18:45:48.8209522Z   name: verifier-corpus-sanitizers
+2026-10-09T18:45:48.8210095Z   path: .test_output/verifier-corpus/
+obj/component-logs/
+obj/bootstrap-nanoisa/**/*.log
+obj/bootstrap-nanoisa/**/manifest.json
+

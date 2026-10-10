@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nanoisa",
+    "asm",
+    "/private/tmp/nanolang-selfhost-union-final/raw/GenericSelectedUnionProducer/test_declared_constructor_argument/shadows.nasm",
+    "-o",
+    "/private/tmp/nanolang-selfhost-union-final/raw/GenericSelectedUnionProducer/test_declared_constructor_argument/shadows.nvm"
+  ],
+  "exit": 0
+}

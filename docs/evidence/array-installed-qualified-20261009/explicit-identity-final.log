@@ -1,0 +1,10 @@
+I retain source, logs and generated artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-slice-qualified-t67_fpa9
+test_arguments_are_evaluated_once (tests.test_selfhost_native_array_slice.NativeArraySlice.test_arguments_are_evaluated_once) ... ok
+test_generated_helper_all_kinds_and_bits (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_helper_all_kinds_and_bits) ... ok
+test_generated_native_null_boundary (tests.test_selfhost_native_array_slice.NativeArraySlice.test_generated_native_null_boundary) ... ok
+test_source_and_normal_shadows (tests.test_selfhost_native_array_slice.NativeArraySlice.test_source_and_normal_shadows) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 24.214s
+
+OK

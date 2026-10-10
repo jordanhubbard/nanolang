@@ -1,0 +1,2 @@
+LDFLAGS=None
+MAKEFLAGS='s -- LDFLAGS=-lm\\ -lcrypto\\ -fprofile-arcs\\ -ftest-coverage'

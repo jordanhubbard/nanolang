@@ -1,0 +1,53 @@
+test_instances_aliases_mutation_and_record_global_roots (tests.test_native_closures.NativeClosures.test_instances_aliases_mutation_and_record_global_roots) ... FAIL
+test_managed_captures_and_active_environment_roots (tests.test_native_closures.NativeClosures.test_managed_captures_and_active_environment_roots) ... FAIL
+test_retained_canonical_returned_chain (tests.test_native_closures.NativeClosures.test_retained_canonical_returned_chain) ... ok
+test_callable_tags_and_target_membership_are_checked (tests.test_native_callables.NativeCallables.test_callable_tags_and_target_membership_are_checked) ... ok
+test_function_array_aliases_globals_and_missing_elements (tests.test_native_callables.NativeCallables.test_function_array_aliases_globals_and_missing_elements) ... ok
+test_function_array_writes_check_payload_tags (tests.test_native_callables.NativeCallables.test_function_array_writes_check_payload_tags) ... ok
+test_function_field_tags_and_targets_are_checked (tests.test_native_callables.NativeCallables.test_function_field_tags_and_targets_are_checked) ... ok
+test_function_fields_survive_nested_records_and_record_arrays (tests.test_native_callables.NativeCallables.test_function_fields_survive_nested_records_and_record_arrays) ... ok
+test_function_identity_comparisons_preserve_tags (tests.test_native_callables.NativeCallables.test_function_identity_comparisons_preserve_tags) ... ok
+test_indirect_record_and_array_results_retain_roots (tests.test_native_callables.NativeCallables.test_indirect_record_and_array_results_retain_roots) ... ok
+test_many_targets_share_exclusive_dispatch_temporaries (tests.test_native_callables.NativeCallables.test_many_targets_share_exclusive_dispatch_temporaries) ... ok
+test_retained_source_function_containers (tests.test_native_callables.NativeCallables.test_retained_source_function_containers) ... ok
+
+======================================================================
+FAIL: test_instances_aliases_mutation_and_record_global_roots (tests.test_native_closures.NativeClosures.test_instances_aliases_mutation_and_record_global_roots)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_closures.py", line 63, in test_instances_aliases_mutation_and_record_global_roots
+    self.run_module(text, 'closure(1)\n', collections=True)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_closures.py", line 24, in run_module
+    source = self.emit(work, text, stdout)
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 21, in emit
+    self.checked([ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-closures-3ba070yw/input.nasm': Duplicate constant symbol: a
+
+
+======================================================================
+FAIL: test_managed_captures_and_active_environment_roots (tests.test_native_closures.NativeClosures.test_managed_captures_and_active_environment_roots)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_closures.py", line 75, in test_managed_captures_and_active_environment_roots
+    self.run_module(text, collections=True)
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_closures.py", line 24, in run_module
+    source = self.emit(work, text, stdout)
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 21, in emit
+    self.checked([ROOT / 'bin/nanoisa', 'asm', assembly, '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot assemble '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-closures-5jb9fe64/input.nasm': Duplicate constant symbol: a
+
+
+----------------------------------------------------------------------
+Ran 12 tests in 5.662s
+
+FAILED (failures=2)

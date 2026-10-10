@@ -1,0 +1,38 @@
+--- a/tests/nanoisa/test_nvm2c.c
++++ b/tests/nanoisa/test_nvm2c.c
+@@ -1190,6 +1190,7 @@
+ static void test_projected_global_stores(void) {
+     const struct { const char *value, *check; } cases[] = {
+         {"PUSH_I64 42", "PUSH_I64 42\nEQ\nASSERT"},
++        {"PUSH_I64 1\nAGG_PACK 0 0 0 1", "AGG_GET 0\nPUSH_I64 1\nEQ\nASSERT"},
+         {"PUSH_F64 1.5", "PUSH_F64 1.5\nF64_EQ\nASSERT"},
+         {"PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1",
+          "PUSH_I64 0\nARR_GET\nAGG_GET 0\nPUSH_I64 1\nEQ\nASSERT"},
+@@ -1215,26 +1216,11 @@
+             if (c) {
+                 int status = -1;
+                 CHECK(compile_and_run(c, &status) == 0 && status == 0,
+-                      "I preserve scalar and primitive-array values across nested-record global stores");
++                      "I preserve scalar, array and record values across nested-record global stores");
+                 free(c);
+             }
+             nvm_module_free(m);
+         }
+-    }
+-    const char *unsupported[] = {
+-        "PUSH_I64 1\nAGG_PACK 0 0 0 1"
+-    };
+-    for (size_t i = 0; i < sizeof unsupported / sizeof unsupported[0]; ++i) {
+-        char source[2048];
+-        snprintf(source, sizeof source, ".entry main\n.function main 0 0 0 int 1\n%s\n"
+-            "AGG_PACK 0 0 0 1\nAGG_PACK 0 0 0 1\nCALL store\nPUSH_I64 0\nRET\n.end\n%s",
+-            unsupported[i], store);
+-        NvmModule *m = assemble_ok(source, "unsupported projected global storage");
+-        if (!m) continue;
+-        char error[256] = {0};
+-        char *c = nvm2c_emit(m, error, sizeof error);
+-        CHECK(c == NULL, "I reject unsupported global storage after resolving nested fields");
+-        free(c); nvm_module_free(m);
+     }
+ }
+ 

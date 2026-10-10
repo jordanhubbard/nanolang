@@ -1,0 +1,6 @@
+enum First { VALUE=0 }
+enum Second { VALUE=0 }
+fn choose(a:T,b:T)->T{return a}
+shadow choose {assert (== (choose 1 2) 1)}
+fn main()->int{let value:First = (choose First.VALUE Second.VALUE) return 0}
+shadow main {assert (== (main) 0)}

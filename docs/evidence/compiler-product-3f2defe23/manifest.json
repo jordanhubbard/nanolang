@@ -1,0 +1,15 @@
+{
+  "source_commit": "3f2defe23d2e52e0c31718dc8adc9397d29e8c0f",
+  "root": "/private/tmp/nanolang-native-environments-3f2defe23",
+  "command": [
+    "make",
+    "-j2",
+    "test-one-ir-compiler"
+  ],
+  "initial_status": "clean",
+  "exit_code": 0,
+  "seconds": 759.8686717079836,
+  "log_sha256": "593a53dc7deac9e23143f94500bec10de8cb6c6e4e14e824d969de2147a6d5dc",
+  "final_status": "",
+  "head_unchanged": true
+}

@@ -1,0 +1,9 @@
+{
+  "src/nanoisa/nvm2c.c": "5db735660770dee61a8e0247c21ed0b15caf483edcecc9196a934275bf3f87c9",
+  "src_nano/typecheck.nano": "6c2562db6c70e5594c0bfb1ca6a43bb3638650710105446f7c780f5cb065e1bd",
+  "src_nano/compiler/nanoisa_codegen.nano": "708ced327e65e4f6e14a3281d5dea8a396efc48cde719b7e86d61c16a901ebdc",
+  "tests/test_native_array_identity.py": "cae9b01b637f54e9f766eefb568bd7b7c77b393566c870e99d2fb3300c822807",
+  "tests/test_selfhost_array_literal_context.py": "8b528365cced43cc69d0a155bdd6e6327b136c75b999684a1501470b2eb48ba7",
+  "tests/test_selfhost_native_array_slice.py": "af59f9d7e18be2fad94ee507b80bcccd26dc3b9fd9c4979d09c40340c54ce6a7",
+  "tests/nanoisa/fixtures/array_slice_all_kinds.nano.txt": "c298d03fdac2e39c968e890ad782e2e248d34a2da5077792979523bd0500bb4a"
+}

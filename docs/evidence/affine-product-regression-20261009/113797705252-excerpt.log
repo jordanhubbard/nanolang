@@ -1,0 +1,7 @@
+2026-10-09T11:48:52.5259605Z I run seed; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-srcwawde/00-seed.log.
+2026-10-09T11:49:57.4591660Z I run seed-verify; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-srcwawde/01-seed-verify.log.
+2026-10-09T11:50:01.9523182Z I run stage1; I retain its log at /home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-srcwawde/02-stage1.log.
+2026-10-09T12:20:01.9750163Z Command '['/home/runner/work/nanolang/nanolang/bin/nano_vm', '/home/runner/work/nanolang/nanolang/bin/nanoc_seed.nvm', '--', 'src_nano/nanoc_v06.nano', '--emit-nvm', '-o', '/home/runner/work/nanolang/nanolang/obj/bootstrap-nanoisa/run-srcwawde/stage1.nvm']' timed out after 1800 seconds
+2026-10-09T12:20:01.9815835Z make: *** [Makefile.gnu:3793: .bootstrap1.built] Error 1
+2026-10-09T12:20:01.9833805Z ##[error]Process completed with exit code 2.
+2026-10-09T12:20:01.9918188Z ##[group]Run actions/upload-artifact@v4

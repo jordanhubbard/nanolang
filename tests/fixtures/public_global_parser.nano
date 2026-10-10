@@ -1,0 +1,19 @@
+import "src_nano/parser.nano"
+fn main() -> int {
+    let tokens: List<LexerToken> = (tokenize_string "pub let answer: int = 41\npub let mut count: int = 0\nlet hidden: int = 9\npub let callback: fn(int) -> int = fn(x: int) -> int { let local: int = x return local }" "visibility.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "visibility.nano")
+    assert (not p.has_error)
+    assert (parser_get_let p 0).is_pub
+    assert (not (parser_get_let p 0).is_mut)
+    assert (parser_get_let p 1).is_pub
+    assert (parser_get_let p 1).is_mut
+    assert (not (parser_get_let p 2).is_pub)
+    assert (not (parser_get_let p 3).is_pub)
+    assert (not (parser_get_let p 4).is_pub)
+    assert (parser_get_let p 5).is_pub
+    let changed: Parser = (parser_set_let_var_type p 0 "float")
+    assert (parser_get_let changed 0).is_pub
+    assert (== (parser_get_let changed 0).var_type "float")
+    return 0
+}
+shadow main { assert (== (main) 0) }

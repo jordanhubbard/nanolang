@@ -1,0 +1,8 @@
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_87221_nl51-record-name-original.c:1741:3: error: typedef redefinition with different types ('struct NSType' vs 'nl_NSType' (aka 'struct nl_NSType'))
+ 1741 | } NSType;
+      |   ^
+/Users/jordanh/Src/nanolang/src/generated/compiler_schema.h:896:19: note: previous definition is here
+  896 | typedef nl_NSType NSType;
+      |                   ^
+1 error generated.
+C compilation failed

@@ -8,8 +8,8 @@
  * 1. Lexer:       tokenize_file_result() -> Result<TokenList, Diagnostic>
  * 2. Parser:      parse_program() -> Parser
  * 3. Typechecker: typecheck_parser() -> int
- * 4. Transpiler:  transpile_parser() -> string (C code)
- * 5. C Compiler:  system("cc ...") -> int
+ * 4. NanoISA:     checked AST -> verified module
+ * 5. Native:      nvm2c -> cc, when explicitly requested
  * 
  * This is TRUE SELF-HOSTING - no dependency on nanoc_c!
  */
@@ -17,14 +17,23 @@
 import "src_nano/compiler/lexer.nano"
 import "src_nano/parser.nano"
 import "src_nano/typecheck.nano"
-import "src_nano/transpiler.nano"
+from "src_nano/compiler/native_product.nano" import publish_native_module
 import "src_nano/compiler/nanoisa_codegen.nano"
 module "modules/nanoisa/nanoisa.nano" as Nanoisa
+module "modules/compiler_support/compiler_support.nano" as DriverSupport
 import "src_nano/compiler/diagnostics.nano" as Diagnostics
 import "src_nano/compiler/module_loader.nano"
-import "src_nano/compiler/module_introspection.nano"
 import "src_nano/compiler/module_bindings.nano"
+import "src_nano/compiler/module_introspection.nano"
 import "src_nano/compiler/nominal_bindings.nano"
+import "src_nano/compiler/service_origins.nano"
+import "src_nano/compiler/service_inputs.nano"
+import "src_nano/compiler/service_namespace.nano"
+import "src_nano/compiler/service_types.nano"
+import "src_nano/compiler/service_bodies.nano"
+import "src_nano/compiler/service_ownership.nano"
+from "src_nano/compiler/service_product.nano" import publish_service_source
+import "modules/file_source_inputs/file_source_inputs.nano"
 from "src_nano/compiler/module_loader.nano" import process_imports_recursive, ModuleCache, module_cache_new, merge_module_unions
 from "std/fs.nano" import canonical
 module "std/fs.nano" as compiler_fs
@@ -60,6 +69,12 @@ struct CompileOptions {
     emit_c: bool,
     emit_nvm: bool,
     test_imports: bool,
+    allow_temporary_files: bool,
+    allow_tcp_connections: bool,
+    allow_websocket_connections: bool,
+    allow_websocket_lookup: bool,
+    websocket_resolver_helper: string,
+    implicit_module: bool,
     error: string
 }
 
@@ -69,7 +84,8 @@ fn default_options() -> CompileOptions {
 
 shadow default_options {
     let opts: CompileOptions = (default_options)
-    assert (== opts.output_file "a.out")
+    assert (== opts.output_file "a.nvm")
+    assert opts.emit_nvm
     assert (not opts.emit_c)
     assert opts.test_imports
     assert (== opts.error "")
@@ -96,6 +112,17 @@ shadow c_source_output_path {
     assert (== (c_source_output_path "plain") "plain.c")
 }
 
+fn nvm_source_output_path(input: string) -> string {
+    if (== input "") { return "a.nvm" }
+    let c_path: string = (c_source_output_path input)
+    return (+ (str_substring c_path 0 (- (str_length c_path) 1)) "nvm")
+}
+shadow nvm_source_output_path {
+    assert (== (nvm_source_output_path "file.nano") "file.nvm")
+    assert (== (nvm_source_output_path "a.b/file") "a.b/file.nvm")
+    assert (== (nvm_source_output_path ".hidden") ".hidden.nvm")
+}
+
 # I parse arguments before any source loading or output writes.
 fn parse_options(args: array<string>) -> CompileOptions {
     let mut input: string = ""
@@ -107,8 +134,14 @@ fn parse_options(args: array<string>) -> CompileOptions {
     let mut diags: string = ""
     let mut help: bool = false
     let mut emit_c: bool = false
+    let mut native_target: bool = false
     let mut emit_nvm: bool = false
     let mut test_imports: bool = true
+    let mut allow_temporary_files: bool = false
+    let mut allow_tcp_connections: bool = false
+    let mut allow_websocket_connections: bool = false
+    let mut allow_websocket_lookup: bool = false
+    let mut websocket_resolver_helper: string = ""
     let mut error: string = ""
     let mut positional_only: bool = false
     let count: int = (array_length args)
@@ -125,6 +158,21 @@ fn parse_options(args: array<string>) -> CompileOptions {
             set keep_c true
         } else if (and (not positional_only) (== arg "--emit-nvm")) {
             set emit_nvm true
+        } else if (and (not positional_only) (== arg "--allow-websocket-connections")) {
+            if allow_websocket_connections { set error "I refuse a repeated WebSocket connection option." }
+            set allow_websocket_connections true
+        } else if (and (not positional_only) (== arg "--allow-websocket-lookup")) {
+            if allow_websocket_lookup { set error "I refuse a repeated WebSocket lookup option." }
+            set allow_websocket_lookup true
+        } else if (and (not positional_only) (== arg "--websocket-resolver-helper")) {
+            if (or (!= websocket_resolver_helper "") (>= (+ i 1) (array_length args))) { set error "I require one WebSocket resolver helper path." }
+            else { set i (+ i 1) set websocket_resolver_helper (at args i)
+                if (== websocket_resolver_helper "") { set error "I require a nonempty WebSocket resolver helper path." }
+            }
+        } else if (and (not positional_only) (== arg "--allow-tcp-connections")) {
+            set allow_tcp_connections true
+        } else if (and (not positional_only) (== arg "--allow-temporary-files")) {
+            set allow_temporary_files true
         } else if (and (not positional_only) (== arg "--test-imports")) {
             set test_imports true
         } else if (and (not positional_only) (== arg "--root-shadows-only")) {
@@ -153,6 +201,7 @@ fn parse_options(args: array<string>) -> CompileOptions {
                     break
                 }
                 set emit_c (== value "c")
+                set native_target (== value "native")
             }
         } else if (and (not positional_only) (nlc_str_starts_with arg "-")) {
             set error (+ "I do not recognize this option: " arg)
@@ -167,14 +216,39 @@ fn parse_options(args: array<string>) -> CompileOptions {
     if (and emit_c emit_nvm) { set error "I cannot combine --emit-nvm with --target c" }
     if (and emit_nvm (not output_set)) { set error "I require -o for --emit-nvm" }
     if (and emit_c (not output_set)) { set output (c_source_output_path input) }
+    if (and emit_nvm native_target) { set error "I cannot combine --emit-nvm with --target native" }
+    let implicit_module: bool = (and (not output_set) (and (not emit_nvm) (and (not emit_c) (not native_target))))
+    if (and (not output_set) (and (not emit_c) (not native_target))) {
+        set emit_nvm true
+        set output (nvm_source_output_path input)
+    }
+    if (and emit_nvm (or keep_c show_code)) { set error "I require a native or C target for generated C options" }
     return CompileOptions {
         input_file: input, output_file: output, verbose: verbose,
         keep_c: keep_c, show_intermediate_code: show_code,
-        llm_diags_json_path: diags, show_help: help, emit_c: emit_c, emit_nvm: emit_nvm, test_imports: test_imports, error: error
+        llm_diags_json_path: diags, show_help: help, emit_c: emit_c, emit_nvm: emit_nvm, test_imports: test_imports, allow_temporary_files: allow_temporary_files, allow_tcp_connections: allow_tcp_connections, allow_websocket_connections: allow_websocket_connections, allow_websocket_lookup: allow_websocket_lookup, websocket_resolver_helper: websocket_resolver_helper, implicit_module: implicit_module, error: error
     }
 }
 
 shadow parse_options {
+    let implicit: CompileOptions = (parse_options ["file.nano"])
+    assert implicit.emit_nvm
+    assert implicit.implicit_module
+    assert (not implicit.allow_websocket_connections) assert (not implicit.allow_websocket_lookup)
+    assert (parse_options ["net.nano", "--allow-websocket-connections"]).allow_websocket_connections
+    assert (!= (parse_options ["net.nano", "--websocket-resolver-helper"]).error "")
+    assert (== (parse_options ["net.nano", "--allow-websocket-lookup", "--websocket-resolver-helper", "/helper"]).websocket_resolver_helper "/helper")
+    assert (not implicit.allow_tcp_connections)
+    assert (parse_options ["net.nano", "--allow-tcp-connections"]).allow_tcp_connections
+    assert (not implicit.allow_temporary_files)
+    assert (parse_options ["file.nano", "--allow-temporary-files"]).allow_temporary_files
+    assert (not (parse_options ["file.nano", "--emit-nvm", "-o", "out.nvm"]).implicit_module)
+    assert (== implicit.output_file "file.nvm")
+    assert (== implicit.error "")
+    assert (not (parse_options ["file.nano", "-o", "program"]).emit_nvm)
+    let native: CompileOptions = (parse_options ["file.nano", "--target", "native"])
+    assert (not native.emit_nvm)
+    assert (== native.output_file "a.out")
     let source: CompileOptions = (parse_options ["file.nano", "--target", "c"])
     assert source.emit_c
     assert (== source.output_file "file.c")
@@ -497,6 +571,27 @@ fn find_repo_root(start_dir: string) -> string {
     return ""
 }
 
+fn compiler_tool_root() -> string {
+    let configured: string = (getenv "NANOLANG_ROOT")
+    if (!= configured "") { return configured }
+    let mut executable: string = (canonical (get_argv 0))
+    if (== executable "") {
+        let located: string = (nlc_str_trim (nl_exec_capture (+ "command -v -- " (native_shell_quote (get_argv 0)))))
+        if (!= located "") { set executable (canonical located) }
+    }
+    if (!= executable "") {
+        let installed: string = (find_repo_root (nl_path_dirname executable))
+        if (!= installed "") { return installed }
+    }
+    return (find_repo_root (getcwd))
+}
+shadow compiler_tool_root {
+    let root: string = (compiler_tool_root)
+    if (== (getenv "NANOLANG_ROOT") "") {
+        assert (!= root "")
+    } else { assert (== root (getenv "NANOLANG_ROOT")) }
+}
+
 fn split_lines(s: string) -> array<string> {
     let len: int = (str_length s)
     let mut out: array<string> = []
@@ -789,7 +884,15 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
     }
 
     if (nlc_hashset_has_string visited_set norm_path) {
-        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: true, lines_scanned: lines_scanned }
+        # I distinguish a finished dependency from an edge into the active stack.
+        let mut finished: bool = false
+        let mut seen: int = 0
+        while (< seen (array_length order)) {
+            if (== (at order seen) norm_path) { set finished true }
+            set seen (+ seen 1)
+        }
+        if (not finished) { (println (+ "I cannot load a cyclic import graph at " norm_path)) }
+        return CollectResult { visited: visited, visited_set: visited_set, order: order, ok: finished, lines_scanned: lines_scanned }
     } else {
         let mut visited2: array<string> = (array_push visited norm_path)
         let mut visited_set2: HashMap<string, int> = visited_set
@@ -821,7 +924,7 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
                 (println norm_path)
                 return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: false, lines_scanned: lines_scanned2 }
             } else { (print "") }
-            if (> i max_lines_per_file) {
+            if (>= i max_lines_per_file) {
                 (print "Error: import scan exceeded max lines per file (")
                 (print max_lines_per_file)
                 (print ") while scanning: ")
@@ -832,13 +935,15 @@ fn collect_files_dfs(path: string, repo_root: string, visited: array<string>, vi
                 (print "[import] scanned lines: ")
                 (println lines_scanned2)
             } else { (print "") }
-            let imp: string = (parse_import_path_from_line (at lines i))
-            let import_line: string = (at lines i)
-            let quoted_import: bool = (or (or (nlc_str_starts_with import_line "module \"") (nlc_str_starts_with import_line "unsafe module \"")) (or (nlc_str_starts_with import_line "import \"") (nlc_str_starts_with import_line "from \"")))
-            if (and quoted_import (== imp "")) {
-                (println "I cannot use an empty, unterminated or NUL-containing import path.")
-                return CollectResult { visited: visited2, visited_set: visited_set2, order: order2, ok: false, lines_scanned: lines_scanned2 }
-            }
+            set i (+ i 1)
+        }
+        let tokens: List<LexerToken> = (tokenize_string src norm_path (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) norm_path)
+        # I retain a malformed source for the merged parser's diagnostic path,
+        # which protects already declared companion files before publication.
+        set i 0
+        while (and ok2 (< i parsed.imports_count)) {
+            let imp: string = (parser_get_import parsed i).module_path
             if (!= imp "") {
                 let dep: string = (resolve_import_path norm_path imp repo_root)
                 if (== dep "") {
@@ -883,7 +988,19 @@ shadow collect_files_dfs {
         let again: CollectResult = (collect_files_dfs (+ directory "/./fixture.nano") "" result.visited result.visited_set result.order true 10 100 100 0 false)
         assert again.ok
         assert (== (array_length again.order) 1)
-        unsafe { assert (== (file_delete path) 0) assert (== (file_delete directory) 0) }
+        let dependency: string = (+ directory "/dep.nano")
+        unsafe {
+            assert (== (file_write dependency "module dependency pub fn dep() -> int { return 1 }") 0)
+            assert (== (file_write path "  module\n \"dep.nano\" as dep\nfn value() -> int { return 1 }") 0)
+        }
+        let graph: CollectResult = (collect_files_dfs path "" [] (nlc_hashset_new_string) [] true 10 100 100 0 false)
+        assert graph.ok
+        assert (== (array_length graph.order) 2)
+        assert (== (at graph.order 0) (canonical dependency))
+        unsafe { assert (== (file_write dependency "module \"fixture.nano\" as cycle") 0) }
+        let cycle: CollectResult = (collect_files_dfs path "" [] (nlc_hashset_new_string) [] true 10 100 100 0 false)
+        assert (not cycle.ok)
+        unsafe { assert (== (file_delete dependency) 0) assert (== (file_delete path) 0) assert (== (file_delete directory) 0) }
     }
 }
 
@@ -1010,12 +1127,55 @@ shadow merged_qualified_calls_valid {
     (mb_reset [])
 }
 
+fn bind_header_lines(owner: int, text: string, originals: array<string>, owners: array<int>) -> void {
+    let lines: array<string> = (split_lines text)
+    let mut i: int = 0
+    while (< i (array_length lines)) {
+        let line: string = (at lines i)
+        let separator: int = (nlc_str_index_of line "=")
+        if (> separator 0) {
+            let name: string = (str_substring line 0 separator)
+            let mut declared: bool = false
+            let mut f: int = 0
+            while (< f (array_length originals)) {
+                if (and (== (at owners f) owner) (== (at originals f) name)) { set declared true }
+                set f (+ f 1)
+            }
+            if (not declared) {
+                let value: string = (str_substring line (+ separator 1) (- (str_length line) (+ separator 1)))
+                (mb_header_add owner name value)
+            }
+        }
+        set i (+ i 1)
+    }
+}
+shadow bind_header_lines {
+    (mb_reset [1, 3])
+    (bind_header_lines 0 "VALUE=41\ndeclared=999\n" ["declared"] [0])
+    assert (== (mb_header_value "VALUE") "41")
+    assert (== (mb_header_value "declared") "")
+    (bind_header_lines 1 "VALUE=99\n" [] [])
+    assert (== (mb_header_value "VALUE") "41")
+    (mb_reset [])
+}
+
 fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
     (mb_reset merge.file_starts)
     (mb_set_sources merge.files)
     let prefix: string = (merged_binding_prefix parser)
     if (not (nb_register parser prefix)) { return false }
     let root_owner: int = (- (array_length merge.files) 1)
+    let local_lets: array<bool> = (typecheck_local_lets parser)
+    let mut global: int = 0
+    while (< global (parser_get_let_count parser)) {
+        if (not (at local_lets global)) {
+            let declaration: ASTLet = (parser_get_let parser global)
+            let owner: int = (mb_owner declaration.line)
+            let name: string = (+ prefix (+ "global_" (int_to_string global)))
+            (mb_add owner declaration.name name)
+        }
+        set global (+ global 1)
+    }
     let mut originals: array<string> = []
     let mut owners: array<int> = []
     let count: int = (parser_get_function_count parser)
@@ -1035,6 +1195,11 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
         set i (+ i 1)
     }
     set i 0
+    while (< i root_owner) {
+        (bind_header_lines i (DriverSupport.module_header_constants (at merge.files i)) originals owners)
+        set i (+ i 1)
+    }
+    set i 0
     while (< i (parser_get_import_count parser)) {
         let imp: ASTImport = (parser_get_import parser i)
         let owner: int = (mb_owner imp.line)
@@ -1048,6 +1213,38 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
             return false
         }
         (nb_import parser imp target_owner)
+        set global 0
+        while (< global (parser_get_let_count parser)) {
+            let declaration: ASTLet = (parser_get_let parser global)
+            let legacy_constant: bool = (and (== imp.module_name "") (and (not imp.is_selective) (not declaration.is_mut)))
+            if (and (not (at local_lets global)) (and (or declaration.is_pub legacy_constant) (== (mb_owner declaration.line) target_owner))) {
+                let target: string = (mb_lookup target_owner declaration.name)
+                if (and imp.is_selective (not imp.is_wildcard)) {
+                    let mut selected: int = 0
+                    while (< selected imp.import_symbol_count) {
+                        if (== (at imp.import_symbols selected) declaration.name) {
+                            let mut alias: string = declaration.name
+                            if (< selected (array_length imp.import_aliases)) {
+                                if (!= (at imp.import_aliases selected) "") { set alias (at imp.import_aliases selected) }
+                            }
+                            if (not (mb_import_global owner alias target target_owner)) {
+                                (println "I cannot bind a conflicting public global import.")
+                                return false
+                            }
+                        }
+                        set selected (+ selected 1)
+                    }
+                } else {
+                    let mut name: string = declaration.name
+                    if (!= imp.module_name "") { set name (+ imp.module_name (+ "." declaration.name)) }
+                    if (not (mb_import_global owner name target target_owner)) {
+                        (println "I cannot bind a conflicting public global import.")
+                        return false
+                    }
+                }
+            }
+            set global (+ global 1)
+        }
         let mut f: int = 0
         while (< f count) {
             if (== (at owners f) target_owner) {
@@ -1139,343 +1336,34 @@ shadow remap_diagnostics {
     assert (== mapped.location.line 7)
 }
 
-struct ModuleBuildFlags {
-    compile_flags: string
-    link_flags: string
-}
-
-fn json_extract_string_array(text: string, key: string) -> array<string> {
-    let mut result: array<string> = []
-    let search: string = (+ "\"" (+ key "\""))
-    let idx: int = (nlc_str_index_of text search)
-    if (< idx 0) { return result } else { (print "") }
-    let after_key: int = (+ idx (str_length search))
-    let tlen: int = (str_length text)
-    let mut pos: int = after_key
-    while (and (< pos tlen) (!= (char_at text pos) 91)) { set pos (+ pos 1) }
-    if (>= pos tlen) { return result } else { (print "") }
-    set pos (+ pos 1)
-    while (< pos tlen) {
-        let ch: int = (char_at text pos)
-        if (== ch 93) { return result } else { (print "") }
-        if (== ch 34) {
-            set pos (+ pos 1)
-            let mut end: int = pos
-            while (and (< end tlen) (!= (char_at text end) 34)) { set end (+ end 1) }
-            if (< end tlen) {
-                let val: string = (str_substring text pos (- end pos))
-                set result (array_push result val)
-                set pos (+ end 1)
-            } else { set pos end }
-        } else { set pos (+ pos 1) }
+fn merge_source_parts(parts: array<string>) -> string {
+    if (== (array_length parts) 0) { return "" }
+    let mut current: array<string> = parts
+    while (> (array_length current) 1) {
+        let mut next: array<string> = []
+        let mut i: int = 0
+        while (< i (array_length current)) {
+            if (< (+ i 1) (array_length current)) {
+                set next (array_push next (+ (at current i) (at current (+ i 1))))
+            } else { set next (array_push next (at current i)) }
+            set i (+ i 2)
+        }
+        set current next
     }
-    return result
+    return (at current 0)
 }
-
-shadow json_extract_string_array {
-    let json: string = "{\"pkg_config\": [\"sdl2\", \"SDL2_mixer\"], \"name\": \"test\"}"
-    let pkgs: array<string> = (json_extract_string_array json "pkg_config")
-    assert (== (array_length pkgs) 2)
-    assert (== (at pkgs 0) "sdl2")
-    assert (== (at pkgs 1) "SDL2_mixer")
-    let empty: array<string> = (json_extract_string_array json "missing")
-    assert (== (array_length empty) 0)
-}
-
-fn json_extract_string(text: string, key: string) -> string {
-    let search: string = (+ "\"" (+ key "\""))
-    let idx: int = (nlc_str_index_of text search)
-    if (< idx 0) { return "" } else { (print "") }
-    let after_key: int = (+ idx (str_length search))
-    let tlen: int = (str_length text)
-    let mut pos: int = after_key
-    while (and (< pos tlen) (!= (char_at text pos) 34)) { set pos (+ pos 1) }
-    if (>= pos tlen) { return "" } else { (print "") }
-    set pos (+ pos 1)
-    let mut end: int = pos
-    while (and (< end tlen) (!= (char_at text end) 34)) { set end (+ end 1) }
-    if (>= end tlen) { return "" } else { (print "") }
-    return (str_substring text pos (- end pos))
-}
-
-shadow json_extract_string {
-    let json: string = "{\"c_compiler\": \"c++\", \"name\": \"bullet\"}"
-    assert (== (json_extract_string json "c_compiler") "c++")
-    assert (== (json_extract_string json "missing") "")
-}
-
-fn nlc_path_basename(path: string) -> string {
-    let len: int = (str_length path)
-    let mut i: int = (- len 1)
-    while (and (>= i 0) (!= (char_at path i) 47)) { set i (- i 1) }
-    return (str_substring path (+ i 1) (- len (+ i 1)))
-}
-
-shadow nlc_path_basename {
-    assert (== (nlc_path_basename "/foo/bar.c") "bar.c")
-    assert (== (nlc_path_basename "test.c") "test.c")
-}
-
-fn collect_module_dirs(files: array<string>, repo_root: string) -> array<string> {
-    let modules_prefix: string = (+ repo_root "/modules/")
-    let std_prefix: string = (+ repo_root "/modules/std/")
-    let mut dirs: array<string> = []
-    let mut seen: array<string> = []
-    let mut i: int = 0
-    while (< i (array_length files)) {
-        let f: string = (at files i)
-        if (and (nlc_str_starts_with f modules_prefix) (not (nlc_str_starts_with f std_prefix))) {
-            let dir: string = (nl_path_dirname f)
-            let mut dup: bool = false
-            let mut j: int = 0
-            while (< j (array_length seen)) {
-                if (== (at seen j) dir) { set dup true } else { (print "") }
-                set j (+ j 1)
-            }
-            if (not dup) {
-                set dirs (array_push dirs dir)
-                set seen (array_push seen dir)
-            } else { (print "") }
-        } else { (print "") }
-        set i (+ i 1)
-    }
-    return dirs
-}
-
-shadow collect_module_dirs {
-    assert (== 1 1)
-}
-
-# My native driver already compiles this runtime source into every output.
-fn native_source_already_linked(source: string, runtime_json: string) -> bool {
-    return (and (!= source "") (== source runtime_json))
-}
-shadow native_source_already_linked {
-    assert (native_source_already_linked "/repo/src/cJSON.c" "/repo/src/cJSON.c")
-    assert (not (native_source_already_linked "/other/cJSON.c" "/repo/src/cJSON.c"))
-    assert (not (native_source_already_linked "" ""))
-}
-
-fn collect_module_build_flags(files: array<string>, repo_root: string, verbose: bool) -> ModuleBuildFlags {
-    let module_dirs: array<string> = (collect_module_dirs files repo_root)
-    let mut cflags: string = ""
-    let mut ldflags: string = ""
-    let mut objects: string = ""
-    let runtime_json: string = (canonical (nl_path_join repo_root "src/cJSON.c"))
-    let mut processed_pkgs: array<string> = []
-
-    let mut i: int = 0
-    while (< i (array_length module_dirs)) {
-        let dir: string = (at module_dirs i)
-        let json_path: string = (nl_path_join dir "module.json")
-        if (file_exists json_path) {
-            let json_text: string = (file_read json_path)
-            let mod_name: string = (json_extract_string json_text "name")
-            if verbose {
-                (print "  [module] ")
-                (print mod_name)
-                (print " (")
-                (print dir)
-                (println ")")
-            } else { (print "") }
-
-            /* pkg-config: collect compile and link flags */
-            let pkgs: array<string> = (json_extract_string_array json_text "pkg_config")
-            let mut pi: int = 0
-            while (< pi (array_length pkgs)) {
-                let pkg: string = (at pkgs pi)
-                let mut already: bool = false
-                let mut ai: int = 0
-                while (< ai (array_length processed_pkgs)) {
-                    if (== (at processed_pkgs ai) pkg) { set already true } else { (print "") }
-                    set ai (+ ai 1)
-                }
-                if (not already) {
-                    set processed_pkgs (array_push processed_pkgs pkg)
-                    let cflags_cmd: string = (+ "pkg-config --cflags " (+ pkg " 2>/dev/null"))
-                    let pkg_cflags: string = (nlc_str_trim (nl_exec_capture cflags_cmd))
-                    if (> (str_length pkg_cflags) 0) {
-                        set cflags (+ cflags (+ " " pkg_cflags))
-                        if verbose {
-                            (print "    pkg-config --cflags ")
-                            (print pkg)
-                            (print " -> ")
-                            (println pkg_cflags)
-                        } else { (print "") }
-                    } else { (print "") }
-                    let ldflags_cmd: string = (+ "pkg-config --libs " (+ pkg " 2>/dev/null"))
-                    let pkg_ldflags: string = (nlc_str_trim (nl_exec_capture ldflags_cmd))
-                    if (> (str_length pkg_ldflags) 0) {
-                        set ldflags (+ ldflags (+ " " pkg_ldflags))
-                        if verbose {
-                            (print "    pkg-config --libs ")
-                            (print pkg)
-                            (print " -> ")
-                            (println pkg_ldflags)
-                        } else { (print "") }
-                    } else { (print "") }
-                } else { (print "") }
-                set pi (+ pi 1)
-            }
-
-            /* Direct ldflags from module.json */
-            let mod_ldflags: array<string> = (json_extract_string_array json_text "ldflags")
-            let mut li: int = 0
-            while (< li (array_length mod_ldflags)) {
-                set ldflags (+ ldflags (+ " " (at mod_ldflags li)))
-                set li (+ li 1)
-            }
-
-            /* system_libs -> -l flags */
-            let sys_libs: array<string> = (json_extract_string_array json_text "system_libs")
-            let mut si: int = 0
-            while (< si (array_length sys_libs)) {
-                set ldflags (+ ldflags (+ " -l" (at sys_libs si)))
-                set si (+ si 1)
-            }
-
-            /* frameworks (macOS) */
-            let frameworks: array<string> = (json_extract_string_array json_text "frameworks")
-            let mut fi: int = 0
-            while (< fi (array_length frameworks)) {
-                set ldflags (+ ldflags (+ " -framework " (at frameworks fi)))
-                set fi (+ fi 1)
-            }
-
-            /* cflags from module.json */
-            let mod_cflags: array<string> = (json_extract_string_array json_text "cflags")
-            let mut ci: int = 0
-            while (< ci (array_length mod_cflags)) {
-                let flag: string = (at mod_cflags ci)
-                if (nlc_str_starts_with flag "-I") {
-                    let rel_path: string = (str_substring flag 2 (- (str_length flag) 2))
-                    set cflags (+ cflags (+ " -I" (nl_path_join repo_root rel_path)))
-                } else {
-                    set cflags (+ cflags (+ " " flag))
-                }
-                set ci (+ ci 1)
-            }
-
-            /* include_dirs */
-            let inc_dirs: array<string> = (json_extract_string_array json_text "include_dirs")
-            let mut ii: int = 0
-            while (< ii (array_length inc_dirs)) {
-                set cflags (+ cflags (+ " -I" (nl_path_join repo_root (at inc_dirs ii))))
-                set ii (+ ii 1)
-            }
-
-            /* Always add the module dir itself as an include path */
-            set cflags (+ cflags (+ " -I" dir))
-
-            /* c_sources: compile to .o files */
-            let c_sources: array<string> = (json_extract_string_array json_text "c_sources")
-            if (> (array_length c_sources) 0) {
-                let c_compiler: string = (json_extract_string json_text "c_compiler")
-                let mut cc_bin: string = (resolve_cc_binary)
-                if (== c_compiler "c++") {
-                    set cc_bin "c++"
-                } else { (print "") }
-                let build_dir: string = (nl_path_join repo_root "obj/nano_modules")
-                let _mk: int = (nl_exec_shell (+ "mkdir -p " build_dir))
-                let mut csi: int = 0
-                while (< csi (array_length c_sources)) {
-                    let csrc: string = (nl_path_join dir (at c_sources csi))
-                    if (native_source_already_linked (canonical csrc) runtime_json) {
-                        set csi (+ csi 1)
-                        continue
-                    }
-                    let base: string = (nlc_path_basename csrc)
-                    let blen: int = (str_length base)
-                    let stem: string = (str_substring base 0 (- blen 2))
-                    let obj: string = (nl_path_join build_dir (+ stem ".o"))
-                    let mut compile_cmd: string = (+ cc_bin " -c -std=c99")
-                    if (== c_compiler "c++") {
-                        set compile_cmd (+ cc_bin " -c -std=c++11")
-                    } else { (print "") }
-                    set compile_cmd (+ compile_cmd cflags)
-                    set compile_cmd (+ compile_cmd (+ " -I" (nl_path_join repo_root "src")))
-                    set compile_cmd (+ compile_cmd (+ " " csrc))
-                    set compile_cmd (+ compile_cmd (+ " -o " obj))
-                    set compile_cmd (+ compile_cmd " 2>&1")
-                    if verbose {
-                        (print "    Compiling: ")
-                        (println csrc)
-                    } else { (print "") }
-                    let cr: int = (nl_exec_shell compile_cmd)
-                    if (== cr 0) {
-                        set objects (+ objects (+ " " obj))
-                    } else {
-                        (print "    Warning: failed to compile module source: ")
-                        (println csrc)
-                    }
-                    set csi (+ csi 1)
-                }
-            } else { (print "") }
-
-            /* dependencies: process recursively by finding their module dirs */
-            let deps: array<string> = (json_extract_string_array json_text "dependencies")
-            let mut di: int = 0
-            while (< di (array_length deps)) {
-                let dep_dir: string = (nl_path_join repo_root (+ "modules/" (at deps di)))
-                let dep_json: string = (nl_path_join dep_dir "module.json")
-                if (file_exists dep_json) {
-                    let mut dep_already: bool = false
-                    let mut dai: int = 0
-                    while (< dai (array_length module_dirs)) {
-                        if (== (at module_dirs dai) dep_dir) { set dep_already true } else { (print "") }
-                        set dai (+ dai 1)
-                    }
-                    if (not dep_already) {
-                        if verbose {
-                            (print "    dependency: ")
-                            (println (at deps di))
-                        } else { (print "") }
-                        let dep_json_text: string = (file_read dep_json)
-                        let dep_pkgs: array<string> = (json_extract_string_array dep_json_text "pkg_config")
-                        let mut dpi: int = 0
-                        while (< dpi (array_length dep_pkgs)) {
-                            let dpkg: string = (at dep_pkgs dpi)
-                            let mut dp_already: bool = false
-                            let mut dpai: int = 0
-                            while (< dpai (array_length processed_pkgs)) {
-                                if (== (at processed_pkgs dpai) dpkg) { set dp_already true } else { (print "") }
-                                set dpai (+ dpai 1)
-                            }
-                            if (not dp_already) {
-                                set processed_pkgs (array_push processed_pkgs dpkg)
-                                let dc_cmd: string = (+ "pkg-config --cflags " (+ dpkg " 2>/dev/null"))
-                                let dc_flags: string = (nlc_str_trim (nl_exec_capture dc_cmd))
-                                if (> (str_length dc_flags) 0) { set cflags (+ cflags (+ " " dc_flags)) } else { (print "") }
-                                let dl_cmd: string = (+ "pkg-config --libs " (+ dpkg " 2>/dev/null"))
-                                let dl_flags: string = (nlc_str_trim (nl_exec_capture dl_cmd))
-                                if (> (str_length dl_flags) 0) { set ldflags (+ ldflags (+ " " dl_flags)) } else { (print "") }
-                            } else { (print "") }
-                            set dpi (+ dpi 1)
-                        }
-                        let dep_ldflags: array<string> = (json_extract_string_array dep_json_text "ldflags")
-                        let mut dli: int = 0
-                        while (< dli (array_length dep_ldflags)) {
-                            set ldflags (+ ldflags (+ " " (at dep_ldflags dli)))
-                            set dli (+ dli 1)
-                        }
-                    } else { (print "") }
-                } else { (print "") }
-                set di (+ di 1)
-            }
-        } else { (print "") }
-        set i (+ i 1)
-    }
-    return ModuleBuildFlags { compile_flags: cflags, link_flags: (+ objects ldflags) }
-}
-
-shadow collect_module_build_flags {
-    assert (== 1 1)
+shadow merge_source_parts {
+    assert (== (merge_source_parts []) "")
+    assert (== (merge_source_parts ["one"]) "one")
+    assert (== (merge_source_parts ["a", "b", "c", "d", "e"]) "abcde")
 }
 
 fn merge_with_imports(input_file: string) -> MergeResult {
+    (mi_reset)
     let start: string = (canonical input_file)
     if (== start "") { return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: "", root_line: 0 } }
-    let repo_root: string = (find_repo_root (nl_path_dirname start))
+    let mut repo_root: string = (find_repo_root (nl_path_dirname start))
+    if (== repo_root "") { set repo_root (compiler_tool_root) }
     let max_files: int = (parse_env_int "NANO_IMPORT_MAX_FILES" 5000)
     let max_lines: int = (parse_env_int "NANO_IMPORT_MAX_LINES" 50000)
     let max_lines_per_file: int = (parse_env_int "NANO_IMPORT_MAX_LINES_PER_FILE" 20000)
@@ -1508,28 +1396,25 @@ fn merge_with_imports(input_file: string) -> MergeResult {
         set file_starts (array_push file_starts (+ merged_lines 1))
         if (== i (- (array_length files) 1)) { set root_line (+ merged_lines 1) }
         let src: string = (file_read (at files i))
+        if (< i (- (array_length files) 1)) {
+            if (not (mi_capture src (at files i))) {
+                return MergeResult { source: "", files: [], file_starts: [], source_files: [], source_lines: [], repo_root: repo_root, root_line: 0 }
+            }
+        }
         let lines: array<string> = (split_lines src)
         let mut j: int = 0
         while (< j (array_length lines)) {
             let line: string = (at lines j)
-            let imp: string = (parse_import_path_from_line line)
-            let is_module_decl: bool = (nlc_str_starts_with line "module ")
-            let is_unsafe_module_decl: bool = (nlc_str_starts_with line "unsafe module ")
-            let is_opaque_decl: bool = (nlc_str_starts_with line "opaque type ")
-            if (or (!= imp "") (and (not is_module_decl) (and (not is_unsafe_module_decl) (not is_opaque_decl)))) {
-                let resolved_line: string = (strip_pub_decl line)
-                set parts (cg_append parts (+ resolved_line "\n"))
-                set merged_lines (+ merged_lines 1)
-                set source_files (array_push source_files (at files i))
-                set source_lines (array_push source_lines (+ j 1))
-            } else {
-                (print "")
-            }
+            # I retain headers, exports and adjacent declarations exactly as parsed.
+            set parts (array_push parts (+ line "\n"))
+            set merged_lines (+ merged_lines 1)
+            set source_files (array_push source_files (at files i))
+            set source_lines (array_push source_lines (+ j 1))
             set j (+ j 1)
         }
         set i (+ i 1)
     }
-    return MergeResult { source: (cg_build parts), files: files, file_starts: file_starts, source_files: source_files, source_lines: source_lines, repo_root: repo_root, root_line: root_line }
+    return MergeResult { source: (merge_source_parts parts), files: files, file_starts: file_starts, source_files: source_files, source_lines: source_lines, repo_root: repo_root, root_line: root_line }
 }
 
 shadow merge_with_imports {
@@ -1540,73 +1425,6 @@ shadow merge_with_imports {
     assert (== (array_length result.file_starts) (array_length result.files))
     assert (== (at result.file_starts 0) 1)
 }
-
-struct IntrospectionOutput { ok: bool, code: string }
-
-fn collect_introspection(files: array<string>, repo_root: string) -> IntrospectionOutput {
-    let mut unsafe_paths: array<string> = []
-    let mut i: int = 0
-    while (< i (array_length files)) {
-        let path: string = (at files i)
-        let info: ModuleIntrospection = (mi_scan (file_read path) path "entry")
-        let mut j: int = 0
-        while (< j (array_length info.unsafe_imports)) {
-            let target: string = (resolve_import_path path (at info.unsafe_imports j) repo_root)
-            set unsafe_paths (mi_unique unsafe_paths (canonical target))
-            set j (+ j 1)
-        }
-        set i (+ i 1)
-    }
-    let mut names: array<string> = []
-    let mut parts: array<string> = []
-    set i 0
-    # The final DFS entry is the program itself, not an imported module.
-    while (< i (- (array_length files) 1)) {
-        let path: string = (at files i)
-        let base: string = (compiler_fs.basename path)
-        let dot: int = (last_dot_index base)
-        let mut fallback: string = base
-        if (> dot 0) { set fallback (str_substring base 0 dot) }
-        let raw: ModuleIntrospection = (mi_scan (file_read path) path fallback)
-        let mut j: int = 0
-        while (< j (array_length names)) {
-            if (== (at names j) raw.name) {
-                (println (+ "I reject ambiguous module introspection identity: " raw.name))
-                return IntrospectionOutput { ok: false, code: "" }
-            }
-            set j (+ j 1)
-        }
-        if (not raw.ok) {
-            (println (+ "I cannot derive valid module introspection for: " path))
-            return IntrospectionOutput { ok: false, code: "" }
-        }
-        let mut is_unsafe: bool = raw.is_unsafe
-        set j 0
-        while (< j (array_length unsafe_paths)) {
-            if (== (at unsafe_paths j) (compiler_fs.normalize path)) { set is_unsafe true }
-            set j (+ j 1)
-        }
-        let info: ModuleIntrospection = ModuleIntrospection {
-            name: raw.name, path: raw.path, functions: raw.functions, structs: raw.structs,
-            unsafe_imports: raw.unsafe_imports, is_unsafe: is_unsafe, has_ffi: raw.has_ffi, ok: raw.ok
-        }
-        set names (array_push names info.name)
-        set parts (cg_append parts (mi_emit info))
-        set i (+ i 1)
-    }
-    return IntrospectionOutput { ok: true, code: (cg_build parts) }
-}
-
-shadow collect_introspection {
-    let empty: array<string> = []
-    let result: IntrospectionOutput = (collect_introspection empty "")
-    assert result.ok
-    assert (== result.code "")
-}
-
-/* =============================================================================
- * COMPILATION PIPELINE
- * ============================================================================= */
 
 fn llm_escape_json(s: string) -> string {
     let mut out: string = ""
@@ -1800,20 +1618,6 @@ fn bytecode_shadow_cleanup(directory: string) -> void {
 }
 shadow bytecode_shadow_cleanup { (bytecode_shadow_cleanup "") }
 
-fn native_cleanup(directory: string, keep_c: bool) -> void {
-    if (== directory "") { return }
-    unsafe { (file_delete (+ directory "/shadows")) }
-    if keep_c { (println (+ "I kept generated C in " (+ directory "/program.c"))) }
-    else {
-        unsafe {
-            (file_delete (+ directory "/program.c"))
-            (file_delete directory)
-        }
-    }
-}
-
-shadow native_cleanup { (native_cleanup "" false) }
-
 fn outputs_preserve_sources(sources: array<string>, output: string, diagnostics: string) -> bool {
     let destinations: array<string> = [output, diagnostics]
     let mut i: int = 0
@@ -1893,7 +1697,7 @@ shadow outputs_preserve_sources {
     }
 }
 
-fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool) -> int {
+fn compile_program_inputs(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, allow_temporary_files: bool, allow_tcp_connections: bool, allow_websocket_connections: bool, allow_websocket_lookup: bool, websocket_resolver_helper: string, implicit_module: bool, service_context: NlFileSourceSnapshots) -> int {
     if (== input_file "") { return 1 }
     if verbose {
         (println "")
@@ -1913,7 +1717,7 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     /* Step 0: Merge imports into single source */
     /* Find repository root for absolute paths to runtime sources  */
     /* Start search from current working directory, not input file location */
-    let mut repo_root: string = (find_repo_root (getcwd))
+    let mut repo_root: string = (compiler_tool_root)
     if (== repo_root "") {
         /* Fallback: use current working directory */
         set repo_root (getcwd)
@@ -1932,7 +1736,6 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
     let merged_files: array<string> = merge_result.files
     let source_files: array<string> = merge_result.source_files
     let source_lines: array<int> = merge_result.source_lines
-    let merge_repo_root: string = merge_result.repo_root
     let source_to_compile: string = input_file
 
     # I reject aliases before parsing can write diagnostics or shadows can run.
@@ -1992,6 +1795,20 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
             }
             
             let parser: Parser = (parse_program tokens token_count input_file)
+            # I protect retained companion declarations before publishing parse-error diagnostics.
+            let service_origins: ServiceOrigins = (bind_service_origins parser merged_files source_files source_lines)
+            if (not service_origins.ok) {
+                (println "I cannot retain the original sources of my File service declarations.")
+                return 1
+            }
+
+            let service_inputs: ServiceInputs = (acquire_service_inputs parser merged_files service_origins service_context)
+            if (not service_inputs.ok) {
+                (println "I cannot acquire the immutable companions of my File service declarations.")
+                return 1
+            }
+            if (not (outputs_preserve_sources service_inputs.paths output_file llm_diags_json_path)) { return 1 }
+
             if (parser_has_error parser) {
                 let tok: LexerToken = (parser_current parser)
                 let parse_loc: CompilerSourceLocation = (source_location_for_line source_files source_lines tok.line tok.column)
@@ -2036,6 +1853,59 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                     (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
                 }
                 return 1
+            }
+
+            let mut service_targets: array<int> = []
+            if (> parser.services_count 0) {
+                let mut i: int = 0
+                while (< i parser.imports_count) {
+                    let imp: ASTImport = (parser_get_import parser i)
+                    let owner: int = (sn_owner merged_files source_files imp.line)
+                    if (< owner 0) { return 1 }
+                    let path: string = (canonical (resolve_import_path (at merged_files owner) imp.module_path merge_result.repo_root))
+                    set service_targets (array_push service_targets (service_origin_file merged_files path))
+                    set i (+ i 1)
+                }
+            }
+            let service_namespace: ServiceNamespace = (resolve_service_namespace parser merged_files source_files service_targets service_origins service_inputs service_context)
+            if (!= service_namespace.status 0) {
+                (println "I cannot resolve the complete File service namespace.")
+                return 1
+            }
+
+            let service_annotations: ServiceAnnotationFacts = (bind_service_annotations parser merged_files source_files service_namespace)
+            if (not service_annotations.ok) {
+                (println "I cannot retain nominal File type annotations.")
+                return 1
+            }
+
+            let service_bodies: ServiceBodyCheck = (check_service_bodies parser merged_files source_files service_namespace)
+            if (or (== service_bodies.status 1) (== service_bodies.status 3)) {
+                (println (+ "I cannot type-check File service bodies: " service_bodies.diagnostic))
+                return 1
+            }
+            if (> parser.services_count 0) {
+                let ownership: ServiceOwnershipCheck = (check_service_ownership parser merged_files source_files service_namespace service_bodies)
+                if (or (== ownership.status 1) (== ownership.status 3)) {
+                    (println (+ "I cannot verify File service ownership: " ownership.diagnostic))
+                    return 1
+                }
+                if (or (!= service_bodies.status 0) (!= ownership.status 0)) {
+                    (println "I have not resolved File service declarations for this consumer.")
+                    return 1
+                }
+                if (or emit_c (or keep_c (or show_intermediate_code (!= llm_diags_json_path "")))) {
+                    (println "I do not support these output options for File source.")
+                    return 1
+                }
+                let mut product_output: string = output_file
+                if implicit_module { set product_output "a.out" }
+                if (not (outputs_preserve_sources merged_files product_output "")) { return 1 }
+                if (not (outputs_preserve_sources service_inputs.paths product_output "")) { return 1 }
+                let mut first_service_shadow: int = 0
+                if (not test_imports) { set first_service_shadow (native_shadow_start parser merge_result.root_line) }
+                return (publish_service_source parser merged_files source_files service_namespace service_bodies ownership
+                    first_service_shadow product_output merge_result.repo_root (and emit_nvm (not implicit_module)) allow_temporary_files allow_tcp_connections allow_websocket_connections allow_websocket_lookup websocket_resolver_helper)
             }
 
             if (not (bind_merged_functions parser merge_result)) {
@@ -2126,14 +1996,13 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                 } else { (print "") }
             } else { (print "") }
 
-            # I check bytecode shadows and publish before entering C emission.
-            if emit_nvm {
+            # I lower once, check selected shadows, then publish the requested product.
                 let assembly: string = (nanoisa_emit_program_nasm parser)
                 if (== assembly "") {
                     (println (+ "I cannot lower this checked program: " (nanoisa_last_lowering_error)))
                     return 1
                 }
-                if has_shadows {
+                if (and has_shadows (not emit_c)) {
                     let shadow_assembly: string = (nanoisa_emit_shadows_nasm parser first_shadow)
                     if (== shadow_assembly "") {
                         (println (+ "I cannot lower the selected shadows: " (nanoisa_last_lowering_error)))
@@ -2161,331 +2030,29 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
                         return 1
                     }
                 }
-                if (!= (Nanoisa.assemble_text_save assembly output_file) 0) {
-                    (println (+ "I could not publish the NanoISA module: " (Nanoisa.last_error)))
-                    return 1
+                let mut status: int = 0
+                if emit_nvm {
+                    set status (Nanoisa.assemble_text_save assembly output_file)
+                } else {
+                    let directory: string = (mktemp_dir "nano_bytecode_product_")
+                    if (== directory "") { (println "I could not stage the verified module") return 1 }
+                    let module_file: string = (+ directory "/program.nvm")
+                    set status (Nanoisa.assemble_text_save assembly module_file)
+                    if (== status 0) {
+                        set status (publish_native_module module_file output_file repo_root
+                            (resolve_cc_binary) (native_product_cflags (getenv "NANO_CFLAGS"))
+                            (native_product_ldflags (getenv "NANO_LDFLAGS") (getenv "LDFLAGS")) emit_c keep_c show_intermediate_code verbose)
+                    }
+                    unsafe { (file_delete module_file) (file_delete directory) }
                 }
-                if (!= llm_diags_json_path "") {
-                    (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
-                }
-                return 0
-            }
-            /* Step 4: Transpiler - Generate C code */
-            if verbose {
-                (println "[4/5] Generating C code...")
-            } else {
-                (print "")
-            }
-
-            let introspection: IntrospectionOutput = (collect_introspection merged_files merge_repo_root)
-            if (not introspection.ok) { return 1 }
-            let emitted: string = (transpile_parser parser)
-            if (== emitted "") { (println (transpile_last_error)) return 1 }
-            let c_code: string = (+ emitted introspection.code)
-            
-            if verbose {
-                (print "  ✓ Generated ")
-                (print (int_to_string (str_length c_code)))
-                (println " bytes of C code")
-            } else {
-                (print "")
-            }
-
-            if show_intermediate_code {
-                (print c_code)
-            } else { (print "") }
-
-            # I publish C source without invoking the native toolchain.
-            if emit_c {
-                let status: int = (file_write output_file c_code)
                 if (!= status 0) {
-                    (println "I could not write the requested C source file")
+                    (println (+ "I could not publish the requested product: " (Nanoisa.last_error)))
                     return 1
                 }
                 if (!= llm_diags_json_path "") {
                     (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
                 }
-                if has_shadows { (println "I emitted C source without executing shadows; native compilation runs them.") }
                 return 0
-            }
-            
-            /* Write C code to temporary file */
-            let native_dir: string = (mktemp_dir "nano_native_")
-            if (== native_dir "") { (println "I could not create native compilation staging") return 1 }
-            let c_file: string = (+ native_dir "/program.c")
-            let mut staged_code: string = c_code
-            if has_shadows {
-                let shadow_code: string = (transpile_parser_shadows parser first_shadow)
-                if (== shadow_code "") {
-                    (println (transpile_last_error))
-                    (native_cleanup native_dir false)
-                    return 1
-                }
-                set staged_code (+ shadow_code introspection.code)
-            }
-            let write_result: int = (file_write c_file staged_code)
-            if (!= write_result 0) {
-                (native_cleanup native_dir false)
-                (println "Error: Failed to write C file")
-                if (not (== llm_diags_json_path "")) {
-                    let msg: string = "Failed to write temporary C file"
-                    let loc: CompilerSourceLocation = (Diagnostics.diag_location source_to_compile 0 0)
-                    let diag: CompilerDiagnostic = (Diagnostics.diag_transpiler_error "C0001" msg loc)
-                    (Diagnostics.diag_list_add diags diag)
-                    (llm_write_diags_json llm_diags_json_path input_file output_file 1 diags)
-                } else { (print "") }
-                return 1
-            } else {
-                (print "")
-            }
-            
-            /* Step 5: C Compiler - Compile to executable */
-            /* Step 4.5: Collect module build flags (pkg-config, ldflags, etc.) */
-            if verbose {
-                (println "[4.5/5] Collecting module build flags...")
-            } else { (print "") }
-            let mut module_root: string = merge_repo_root
-            if (== module_root "") { set module_root repo_root }
-            let mod_flags: ModuleBuildFlags = (collect_module_build_flags merged_files module_root verbose)
-
-            if verbose {
-                (println "[5/5] Compiling C to executable...")
-            } else {
-                (print "")
-            }
-            
-            /* Build C compiler command with runtime library files
-             * The transpiler generates calls to runtime functions (dyn_array_*, gc_*, etc.)
-             * We must link with the runtime C sources to provide these implementations.
-             * This matches what the C compiler does in src/main.c line 461.
-             */
-            let cc_bin: string = (resolve_cc_binary)
-            /* Use absolute paths for includes and runtime sources */
-            let include_src: string = (nl_path_join repo_root "src")
-            let include_modules: string = (nl_path_join repo_root "modules/std")
-            let mut cc_cmd: string = (+ cc_bin " -std=c99 -I")
-            set cc_cmd (+ cc_cmd include_src)
-            set cc_cmd (+ cc_cmd " -I")
-            set cc_cmd (+ cc_cmd include_modules)
-            /* Module compile flags (include paths from pkg-config, module cflags) */
-            if (> (str_length mod_flags.compile_flags) 0) {
-                set cc_cmd (+ cc_cmd mod_flags.compile_flags)
-            } else { (print "") }
-            set cc_cmd (+ cc_cmd " ")
-            let extra_cflags: string = (native_product_cflags (getenv "NANO_CFLAGS"))
-            if (!= extra_cflags "") {
-                set cc_cmd (+ cc_cmd extra_cflags)
-                set cc_cmd (+ cc_cmd " ")
-            } else {
-                (print "")
-            }
-            set cc_cmd (+ cc_cmd (native_shell_quote c_file))
-            /* Add runtime library sources with absolute paths */
-            let runtime_dir: string = (nl_path_join repo_root "src/runtime")
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_int.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_string.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_LexerToken.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_token.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_CompilerDiagnostic.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_CompilerSourceLocation.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "token_helpers.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "gc.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "dyn_array.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "hashmap_bootstrap.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "gc_struct.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "nl_string.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join repo_root "src/utf8.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "cli.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "regex.c"))
-            /* Add AST list runtime sources for compiler support */
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTLet.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTFunction.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTNumber.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTFloat.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTString.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTBool.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTIdentifier.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTBinaryOp.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTCall.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTModuleQualifiedCall.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTArrayLiteral.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTStmtRef.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTBlock.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTUnsafeBlock.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTPrint.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTAssert.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTFieldAccess.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTSet.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTIf.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTWhile.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTFor.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTReturn.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTShadow.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTStruct.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTStructLiteral.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTEnum.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTUnion.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTUnionConstruct.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTMatch.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTImport.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTOpaqueType.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTServiceDecl.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTTupleLiteral.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join runtime_dir "list_ASTTupleIndex.c"))
-
-            /* std/fs provides fs_walkdir + file_* used by modules/std/fs.nano */
-            let modules_std: string = (nl_path_join repo_root "modules/std")
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "fs.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "process.c"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "collections/collections.c"))
-            set cc_cmd (+ cc_cmd " -I")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "collections"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "json/json.c"))
-            set cc_cmd (+ cc_cmd " -I")
-            set cc_cmd (+ cc_cmd (nl_path_join modules_std "json"))
-            set cc_cmd (+ cc_cmd " ")
-            set cc_cmd (+ cc_cmd (nl_path_join repo_root "src/cJSON.c"))
-            /* Conditionally link peg2.c if the program imports modules/std/peg2 */
-            let mut uses_peg2: bool = false
-            let mut peg2_fi: int = 0
-            while (< peg2_fi (array_length merged_files)) {
-                let peg2_f: string = (at merged_files peg2_fi)
-                if (> (nlc_str_index_of peg2_f "peg2") -1) { set uses_peg2 true } else { (print "") }
-                set peg2_fi (+ peg2_fi 1)
-            }
-            if uses_peg2 {
-                set cc_cmd (+ cc_cmd " ")
-                set cc_cmd (+ cc_cmd (nl_path_join modules_std "peg2/peg2.c"))
-                set cc_cmd (+ cc_cmd " -I")
-                set cc_cmd (+ cc_cmd (nl_path_join modules_std "peg2"))
-            } else { (print "") }
-            set cc_cmd (+ cc_cmd " -lm")
-            let abi_platform: string = (nlc_str_trim (nl_exec_capture "uname -s"))
-            if (== abi_platform "") {
-                (println "I could not identify the host for native array ABI linking")
-                (native_cleanup native_dir keep_c)
-                return 1
-            }
-            set cc_cmd (+ cc_cmd (native_array_abi_link_flags abi_platform))
-            /* Module link flags (pkg-config --libs, -l, -framework, .o files) */
-            if (> (str_length mod_flags.link_flags) 0) {
-                set cc_cmd (+ cc_cmd mod_flags.link_flags)
-            } else { (print "") }
-            let extra_ldflags: string = (getenv "NANO_LDFLAGS")
-            if (!= extra_ldflags "") {
-                set cc_cmd (+ cc_cmd " ")
-                set cc_cmd (+ cc_cmd extra_ldflags)
-            } else {
-                (print "")
-            }
-            if has_shadows {
-                let test_file: string = (+ native_dir "/shadows")
-                let test_cmd: string = (+ cc_cmd (+ " -o " (+ (native_shell_quote test_file) " 2>&1")))
-                if (!= (nl_exec_shell test_cmd) 0) {
-                    (println "I could not compile native shadows")
-                    (native_cleanup native_dir keep_c)
-                    return 1
-                }
-                if (!= (nl_exec_shell (native_shell_quote test_file)) 0) {
-                    (println "I will not publish native output after failed shadows")
-                    (native_cleanup native_dir keep_c)
-                    return 1
-                }
-                if (!= (file_write c_file c_code) 0) {
-                    (println "I could not stage production C after checking shadows")
-                    (native_cleanup native_dir keep_c)
-                    return 1
-                }
-            }
-            set cc_cmd (+ cc_cmd (+ " -o " (+ (native_shell_quote output_file) " 2>&1")))
-            
-            if verbose {
-                (print "  Command: ")
-                (println cc_cmd)
-            } else {
-                (print "")
-            }
-            
-            let cc_result: int = (nl_exec_shell cc_cmd)
-            if (!= cc_result 0) {
-                (println "Error: C compilation failed")
-                (native_cleanup native_dir keep_c)
-                return 1
-            } else {
-                (print "")
-            }
-            
-            if verbose {
-                (println "  ✓ Executable created")
-                (println "")
-                (println "╔══════════════════════════════════════════════════════════════╗")
-                (println "║  ✅ COMPILATION SUCCESSFUL (100% NanoLang Pipeline)         ║")
-                (println "╚══════════════════════════════════════════════════════════════╝")
-                (println "")
-            } else {
-                (print "")
-            }
-            
-            (native_cleanup native_dir keep_c)
-            
-            if (not (== llm_diags_json_path "")) {
-                (llm_write_diags_json llm_diags_json_path input_file output_file 0 diags)
-            } else { (print "") }
-
-            return 0
     }
 }
 
@@ -2493,8 +2060,31 @@ fn compile_program(input_file: string, output_file: string, verbose: bool, keep_
  * MAIN ENTRY POINT
  * ============================================================================= */
 
+fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, allow_temporary_files: bool, allow_tcp_connections: bool, allow_websocket_connections: bool, allow_websocket_lookup: bool, websocket_resolver_helper: string, implicit_module: bool) -> int {
+    unsafe {
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        if (== (nl_source_inputs_valid context) 0) {
+            (println "I cannot allocate my compiler-input snapshot context.")
+            return 1
+        }
+        let status: int = (compile_program_inputs input_file output_file verbose keep_c show_intermediate_code llm_diags_json_path emit_c emit_nvm test_imports allow_temporary_files allow_tcp_connections allow_websocket_connections allow_websocket_lookup websocket_resolver_helper implicit_module context)
+        (nl_source_inputs_free context)
+        return status
+    }
+}
+
+shadow compile_program_inputs {
+    unsafe {
+        let context: NlFileSourceSnapshots = (nl_source_inputs_new)
+        assert (== (nl_source_inputs_valid context) 1)
+        assert (== (compile_program_inputs "" "" false false false "" false false true false false false false "" false context) 1)
+        assert (== (nl_source_inputs_count context) 0)
+        (nl_source_inputs_free context)
+    }
+}
+
 shadow compile_program {
-    assert (== (compile_program "" "" false false false "" false false true) 1)
+    assert (== (compile_program "" "" false false false "" false false true false false false false "" false) 1)
 }
 
 fn show_usage() -> int {
@@ -2506,20 +2096,25 @@ fn show_usage() -> int {
     (println "Usage: nanoc <input.nano> [-o output] [options]")
     (println "")
     (println "Options:")
-    (println "  -o <file>        Output executable (default: a.out)")
+    (println "  -o <file>        Explicit native output; --emit-nvm selects module output")
     (println "  -v, --verbose    Verbose compilation output")
     (println "  -k, --keep-c     Keep generated C file")
-    (println "  --target <t>    native (default) or c (source output, no native compilation)")
+    (println "  --target <t>    native or c; unqualified compilation publishes input.nvm")
     (println "  --emit-nvm     I publish verified NanoISA after VM shadow checks; requires -o")
     (println "  --test-imports  I run dependency shadows before root shadows (default)")
     (println "  --root-shadows-only  I run only root-file shadows")
+    (println "  --allow-websocket-connections I grant WebSocket shadows outbound connections")
+    (println "  --allow-websocket-lookup I separately grant DNS with --websocket-resolver-helper PATH")
+    (println "  --allow-tcp-connections I grant selected TCP shadows outbound connections")
+    (println "  --allow-temporary-files  I grant selected File shadows temporary-file access")
+    (println "  File graphs default to native output (a.out without -o); runtime grants are separate")
     (println "  --              End options; the remaining argument is my input path")
     (println "  -fshow-intermediate-code  Print generated C to stdout")
     (println "  -h, --help       Show this help")
     (println "  --llm-diags-json <p>  Write machine-readable diagnostics JSON (agent-only)")
     (println "")
     (println "This compiler is 100% written in NanoLang!")
-    (println "Pipeline: Lex → Parse → Typecheck → Transpile → Compile")
+    (println "Pipeline: Lex → Parse → Typecheck → NanoISA → optional native translation")
     (println "")
     return 0
 }
@@ -2529,16 +2124,14 @@ shadow show_usage {
     assert (== result 0)  /* show_usage always returns 0 */
 }
 
-fn native_array_abi_link_flags(platform: string) -> string {
-    if (== platform "Linux") { return " -rdynamic -ldl" }
-    if (== platform "FreeBSD") { return " -Wl,-E" }
-    return ""
+fn native_product_ldflags(configured: string, fallback: string) -> string {
+    if (!= configured "") { return configured }
+    return fallback
 }
-
-shadow native_array_abi_link_flags {
-    assert (== (native_array_abi_link_flags "Linux") " -rdynamic -ldl")
-    assert (== (native_array_abi_link_flags "FreeBSD") " -Wl,-E")
-    assert (== (native_array_abi_link_flags "Darwin") "")
+shadow native_product_ldflags {
+    assert (== (native_product_ldflags "" "--coverage") "--coverage")
+    assert (== (native_product_ldflags "-lchosen" "-lignored") "-lchosen")
+    assert (== (native_product_ldflags "" "") "")
 }
 
 fn main() -> int {
@@ -2570,7 +2163,7 @@ fn main() -> int {
         (print "")
     }
     
-    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path opts.emit_c opts.emit_nvm opts.test_imports)
+    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path opts.emit_c opts.emit_nvm opts.test_imports opts.allow_temporary_files opts.allow_tcp_connections opts.allow_websocket_connections opts.allow_websocket_lookup opts.websocket_resolver_helper opts.implicit_module)
 }
 
 shadow main {

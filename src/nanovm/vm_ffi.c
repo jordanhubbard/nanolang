@@ -521,9 +521,14 @@ static const NvmCallDescriptor *vm_ffi_resolve_descriptor(
             bool supported = desc->param_count <= 2;
             for (uint16_t i = 0; i < desc->param_count; ++i)
                 supported = supported && desc->param_types && desc->param_types[i] == TAG_STRING;
+            supported = supported || (desc->param_count == 1 && desc->param_types &&
+                                       desc->param_types[0] == TAG_OPAQUE);
+            supported = supported || (desc->param_count == 3 && desc->param_types &&
+                desc->param_types[0] == TAG_OPAQUE && desc->param_types[1] == TAG_INT &&
+                desc->param_types[2] == TAG_INT);
             if (!supported) {
                 desc->state = NVM_CALL_FAILED;
-                snprintf(error_msg, error_msg_size, "I require up to two string parameters for provider string cleanup");
+                snprintf(error_msg, error_msg_size, "I require strings or an opaque context with zero or two integer indices for provider string cleanup");
                 return NULL;
             }
         }
@@ -869,17 +874,35 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
     }
 
     if (desc->string_release) {
-        const char *arguments[2] = {NULL, NULL};
-        for (int i = 0; i < arg_count; ++i) {
-            if (args[i].tag != TAG_STRING || !args[i].as.string) {
-                snprintf(error_msg, error_msg_size, "I require string values for provider string cleanup");
+        const char *text = NULL;
+        bool opaque_input = (arg_count == 1 || arg_count == 3) && param_types && param_types[0] == TAG_OPAQUE;
+        if (opaque_input) {
+            bool null = args[0].tag == TAG_INT && args[0].as.i64 == 0;
+            if (args[0].tag != TAG_OPAQUE && !null) {
+                snprintf(error_msg, error_msg_size, "I require an opaque value or zero null for provider string cleanup");
                 return false;
             }
-            arguments[i] = vmstring_cstr(args[i].as.string);
+            void *context = null ? NULL : args[0].as.obj;
+            if (arg_count == 3) {
+                if (args[1].tag != TAG_INT || args[2].tag != TAG_INT) {
+                    snprintf(error_msg, error_msg_size, "I require integer indices for provider string cleanup");
+                    return false;
+                }
+                text = ((const char *(*)(void *, int64_t, int64_t))func_ptr)(context, args[1].as.i64, args[2].as.i64);
+            } else text = ((const char *(*)(void *))func_ptr)(context);
+        } else {
+            const char *arguments[2] = {NULL, NULL};
+            for (int i = 0; i < arg_count; ++i) {
+                if (args[i].tag != TAG_STRING || !args[i].as.string) {
+                    snprintf(error_msg, error_msg_size, "I require string values for provider string cleanup");
+                    return false;
+                }
+                arguments[i] = vmstring_cstr(args[i].as.string);
+            }
+            text = arg_count == 0 ? ((const char *(*)(void))func_ptr)() :
+                arg_count == 1 ? ((const char *(*)(const char *))func_ptr)(arguments[0]) :
+                ((const char *(*)(const char *, const char *))func_ptr)(arguments[0], arguments[1]);
         }
-        const char *text = arg_count == 0 ? ((const char *(*)(void))func_ptr)() :
-            arg_count == 1 ? ((const char *(*)(const char *))func_ptr)(arguments[0]) :
-            ((const char *(*)(const char *, const char *))func_ptr)(arguments[0], arguments[1]);
         bool copied = false;
         bool has_text = text != NULL;
         NanoValue snapshot = marshal_result((int64_t)(intptr_t)text, TAG_STRING, heap, &copied);

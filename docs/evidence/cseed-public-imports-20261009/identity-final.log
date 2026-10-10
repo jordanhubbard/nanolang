@@ -1,0 +1,8 @@
+test_distinct_types_and_root_binding (tests.test_cseed_global_identity.CSeedGlobalIdentity.test_distinct_types_and_root_binding) ... ok
+test_initializer_context_and_repeated_import (tests.test_cseed_global_identity.CSeedGlobalIdentity.test_initializer_context_and_repeated_import) ... ok
+test_long_function_names_keep_distinct_native_targets (tests.test_cseed_global_identity.CSeedGlobalIdentity.test_long_function_names_keep_distinct_native_targets) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.981s
+
+OK

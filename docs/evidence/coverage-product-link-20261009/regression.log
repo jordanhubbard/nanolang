@@ -1,0 +1,6 @@
+test_instrumented_object_uses_effective_link_flags (__main__.NativeProductLinkFlags.test_instrumented_object_uses_effective_link_flags) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.606s
+
+OK

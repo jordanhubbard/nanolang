@@ -1,3 +1,4 @@
+import "src_nano/compiler/generic_types.nano"
 from "src_nano/compiler/passive_graph.nano" import passive_order
 from "src_nano/compiler/passive_purity.nano" import par_closed_call
 /* =============================================================================
@@ -2234,27 +2235,41 @@ shadow lookup_field_type_kind {
 }
 
 fn lookup_field_type(metadata: array<FieldMetadata>, struct_name: string, field_name: string) -> NSType {
-    let idx: HashMap<string, string> = (build_field_metadata_index metadata)
-    let key: string = (field_metadata_key struct_name field_name)
-    if (map_has idx key) {
-        let type_str: string = (map_get idx key)
-        return (type_from_string type_str)
-    } else { (print "") }
-
-    let capitalized: string = (capitalize_first struct_name)
-    let cap_key: string = (field_metadata_key capitalized field_name)
-    if (map_has idx cap_key) {
-        let type_str: string = (map_get idx cap_key)
-        return (type_from_string type_str)
-    } else { (print "") }
-
+    # I search newest declarations first, matching map replacement precedence.
+    # Exact spelling wins before I try the legacy capitalization fallback.
+    let mut spelling: string = struct_name
+    let mut pass: int = 0
+    while (< pass 2) {
+        let mut i: int = (array_length metadata)
+        while (> i 0) {
+            set i (- i 1)
+            let entry: FieldMetadata = (at metadata i)
+            if (and (== entry.struct_name spelling) (== entry.field_name field_name)) {
+                return (type_from_string (field_metadata_type_string entry))
+            }
+        }
+        set spelling (capitalize_first struct_name)
+        set pass (+ pass 1)
+    }
     return (type_unknown_named "field_type")
 }
 
 shadow lookup_field_type {
     let m: array<FieldMetadata> = (init_struct_metadata)
-    let t: NSType = (lookup_field_type m "ASTPrint" "value")
-    assert (== t.kind TypeKind.TYPE_INT)
+    assert (== (lookup_field_type m "ASTPrint" "value").kind TypeKind.TYPE_INT)
+    assert (== (lookup_field_type m "parser" "position").kind TypeKind.TYPE_INT)
+    assert (== (lookup_field_type [] "Parser" "position").kind TypeKind.TYPE_UNKNOWN)
+    assert (== (lookup_field_type m "Parser" "absent").name "field_type")
+    let mut custom: array<FieldMetadata> = []
+    set custom (array_push custom FieldMetadata { struct_name: "parser", field_name: "value", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
+    set custom (array_push custom FieldMetadata { struct_name: "Parser", field_name: "value", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
+    set custom (array_push custom FieldMetadata { struct_name: "Parser", field_name: "value", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
+    assert (== (lookup_field_type custom "Parser" "value").kind TypeKind.TYPE_STRING)
+    assert (== (lookup_field_type custom "parser" "value").kind TypeKind.TYPE_BOOL)
+    set custom (array_push custom FieldMetadata { struct_name: "Parser", field_name: "values", field_type_kind: TypeKind.TYPE_ARRAY, field_type_is_list: false, field_type_name: "string" })
+    assert (== (type_to_string (lookup_field_type custom "parser" "values")) "array<string>")
+    set custom (array_push custom FieldMetadata { struct_name: "provider.Record", field_name: "items", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTPrint" })
+    assert (== (type_to_string (lookup_field_type custom "provider.Record" "items")) "List<ASTPrint>")
 }
 
 fn option_type_some(value: NSType) -> OptionType {
@@ -2968,6 +2983,7 @@ fn is_builtin_function(fn_name: string) -> bool {
     /* String operations */
     if (== fn_name "str_length") { return true } else { (print "") }
     if (== fn_name "str_concat") { return true } else { (print "") }
+    if (== fn_name "str_trim") { return true }
     if (== fn_name "str_substring") { return true } else { (print "") }
     if (== fn_name "str_contains") { return true } else { (print "") }
     if (== fn_name "str_equals") { return true } else { (print "") }
@@ -3094,6 +3110,7 @@ fn is_builtin_function(fn_name: string) -> bool {
 }
 
 shadow is_builtin_function {
+    assert (is_builtin_function "str_trim")
     assert (is_builtin_function "array_push")
     assert (is_builtin_function "at")
     assert (is_builtin_function "println")
@@ -3151,6 +3168,7 @@ fn check_builtin_function(fn_name: string) -> NSType {
     /* String operations */
     if (== fn_name "str_length") { return (type_int) } else { (print "") }
     if (== fn_name "str_concat") { return (type_string) } else { (print "") }
+    if (== fn_name "str_trim") { return (type_string) }
     if (== fn_name "str_substring") { return (type_string) } else { (print "") }
     if (== fn_name "str_contains") { return (type_bool) } else { (print "") }
     if (== fn_name "str_equals") { return (type_bool) } else { (print "") }
@@ -3295,7 +3313,8 @@ fn check_builtin_function(fn_name: string) -> NSType {
     
     /* Diagnostics module functions (workaround for module qualification) */
     if (== fn_name "diag_typecheck_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
-    if (== fn_name "diag_transpiler_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
+    if (== fn_name "diag_backend_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
+    if (== fn_name "diag_nanoisa_error") { return (type_from_string "CompilerDiagnostic") } else { (print "") }
     if (== fn_name "diag_location") { return (type_from_string "CompilerSourceLocation") } else { (print "") }
     if (== fn_name "diag_list_new") { return (type_from_string "List<CompilerDiagnostic>") } else { (print "") }
     if (== fn_name "list_CompilerDiagnostic_new") { return (type_from_string "List<CompilerDiagnostic>") } else { (print "") }
@@ -3309,6 +3328,7 @@ fn check_builtin_function(fn_name: string) -> NSType {
 }
 
 shadow check_builtin_function {
+    assert (== (check_builtin_function "str_trim").kind TypeKind.TYPE_STRING)
     assert (== (check_builtin_function "float_from_bits").kind TypeKind.TYPE_FLOAT)
     assert (== (check_builtin_function "float_to_bits").kind TypeKind.TYPE_INT)
     assert (== (check_builtin_function "string_to_float").kind TypeKind.TYPE_FLOAT)
@@ -3572,7 +3592,7 @@ shadow env_copy_symbols {
 }
 
 # I classify locals from every statement list, including nested expression blocks.
-fn typecheck_local_lets(parser: Parser) -> array<bool> {
+pub fn typecheck_local_lets(parser: Parser) -> array<bool> {
     return (declaration_local_lets parser)
 }
 
@@ -4011,7 +4031,52 @@ shadow ensure_known_expr_node {
  * Returns: The union type (TYPE_UNION with union name)
  */
 # I validate actual constructor nodes without coercing selected payload variables.
+# I contextualize literals, not existing array storage. Byte literal elements
+# retain the array constructor's integer narrowing policy.
+fn check_array_literal_context(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (or (!= expected.kind TypeKind.TYPE_ARRAY) (!= node_type ParseNodeType.PNODE_ARRAY_LITERAL)) { return actual }
+    let literal: ASTArrayLiteral = (parser_get_array_literal parser node_id)
+    let spelling: string = (array_elem_type_from_array_decl (type_to_string expected))
+    if (== spelling "") { return actual }
+    let element_type: NSType = (type_from_string_with_parser parser spelling)
+    let mut valid: bool = true
+    let mut i: int = 0
+    while (< i literal.element_count) {
+        let element: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
+        let raw: NSType = (check_expr_node parser element.node_id element.node_type symbols diags file_name)
+        let mut checked: NSType = (check_array_literal_context parser element.node_id element.node_type raw element_type symbols diags file_name)
+        if (and (== spelling "u8") (== checked.kind TypeKind.TYPE_INT)) { set checked element_type }
+        if (or (== checked.kind TypeKind.TYPE_UNKNOWN) (not (types_equal checked element_type))) { set valid false }
+        set i (+ i 1)
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require each array literal element to match its declared storage type." (Diagnostics.diag_location file_name literal.line literal.column)))
+        return actual
+    }
+    (parser_set_array_literal_element_type parser node_id spelling)
+    return expected
+}
+shadow check_array_literal_context {
+    let parser: Parser = (resource_test_parser "fn f() -> int { let values: array<array<u8>> = [[300], []] let wrong: array<u8> = [true] let child: array<int> = [7] let alias: array<array<u8>> = [child] return 0 }")
+    let good: ASTLet = (parser_get_let parser 0)
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let expected: NSType = (type_from_string "array<array<u8>>")
+    let checked: NSType = (check_array_literal_context parser good.value good.value_type (type_from_string "array<array<int>>") expected [] diags "context.nano")
+    assert (types_equal checked expected)
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+    assert (== (parser_get_array_literal parser good.value).element_type "array<u8>")
+    let wrong: ASTLet = (parser_get_let parser 1)
+    let rejected: NSType = (check_array_literal_context parser wrong.value wrong.value_type (type_from_string "array<bool>") (type_from_string "array<u8>") [] diags "context.nano")
+    assert (> (list_CompilerDiagnostic_length diags) 0)
+    assert (not (types_equal rejected (type_from_string "array<u8>")))
+    let alias: ASTLet = (parser_get_let parser 3)
+    let symbols: array<Symbol> = [(symbol_new "child" (type_from_string "array<int>") false false 0 (empty_param_types) (type_void))]
+    let bad_alias: NSType = (check_array_literal_context parser alias.value alias.value_type (type_from_string "array<array<int>>") expected symbols diags "context.nano")
+    assert (not (types_equal bad_alias expected))
+}
+
 fn check_constructor_argument(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (== expected.kind TypeKind.TYPE_ARRAY) { return (check_array_literal_context parser node_id node_type actual expected symbols diags file_name) }
     if (or (!= expected.kind TypeKind.TYPE_UNION) (!= node_type ParseNodeType.PNODE_UNION_CONSTRUCT)) { return actual }
     let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
     let concrete: string = (type_to_string expected)
@@ -4521,6 +4586,106 @@ shadow check_map_call {
     assert (== (list_CompilerDiagnostic_length diags) 0)
 }
 
+fn check_callable_value_call(parser: Parser, signature: string, name: string, arg_start: int, arg_count: int, line: int, column: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let params: array<NSType> = (fn_type_params_with_parser parser signature)
+    if (!= arg_count (array_length params)) {
+        let msg: string = (+ "The function value `" (+ name (+ "` expects " (+ (int_to_string (array_length params)) (+ " argument(s), but I see " (+ (int_to_string arg_count) "."))))))
+        let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name line column))
+        (Diagnostics.diag_list_add diags diag)
+    } else { (print "") }
+    let mut argument_index: int = 0
+    while (< argument_index arg_count) {
+        if (< argument_index (array_length params)) {
+            let argument: ASTStmtRef = (parser_get_call_arg parser (+ arg_start argument_index))
+            let expected: NSType = (at params argument_index)
+            let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+            let hinted: NSType = (apply_value_type_hint parser argument.node_id argument.node_type raw expected)
+            let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type hinted expected symbols diags file_name)
+            if (not (types_equal actual expected)) {
+                let message: string = (+ "I require the declared callback argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" message (Diagnostics.diag_location file_name line column)))
+            }
+        }
+        set argument_index (+ argument_index 1)
+    }
+    return (type_from_string_with_parser parser (type_to_string (fn_type_return_type signature)))
+}
+shadow check_callable_value_call {
+    let parser: Parser = (resource_test_parser "fn main()->int{return (first.apply 7)}")
+    let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser 0)
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let result: NSType = (check_callable_value_call parser "fn(int)->int" "first.apply" call.arg_start call.arg_count call.line call.column [] diags "call.nano")
+    assert (== result.kind TypeKind.TYPE_INT)
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+    let invalid: NSType = (check_callable_value_call parser "fn(string)->bool" "first.apply" call.arg_start call.arg_count call.line call.column [] diags "call.nano")
+    assert (== invalid.kind TypeKind.TYPE_BOOL)
+    assert (> (list_CompilerDiagnostic_length diags) 0)
+    let arity_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let wrong_arity: NSType = (check_callable_value_call parser "fn()->int" "first.apply" call.arg_start call.arg_count call.line call.column [] arity_diags "call.nano")
+    assert (> (list_CompilerDiagnostic_length arity_diags) 0)
+}
+
+fn tc_generic_function(parser: Parser, sym: Symbol) -> bool {
+    let mut i: int = 0
+    while (< i sym.param_count) {
+        if (generic_type_contains_variable parser (type_to_string (at sym.param_types i))) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow tc_generic_function {
+    let tokens: List<LexerToken> = (tokenize_string "fn identity(x:T)->T{return x} fn main()->int{return (identity 7)}" "generic.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "generic.nano")
+    assert (not (typecheck_phase parser "generic.nano").had_error)
+}
+
+fn tc_generic_call(parser: Parser, sym: Symbol, start: int, count: int, line: int, column: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let location: CompilerSourceLocation = (Diagnostics.diag_location file_name line column)
+    if (!= count sym.param_count) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the generic function's exact argument count." location))
+        return (type_unknown_named "generic argument count")
+    }
+    let mut names: array<string> = []
+    let mut types: array<string> = []
+    let mut i: int = 0
+    while (< i count) {
+        let expected: NSType = (at sym.param_types i)
+        let spelling: string = (type_to_string expected)
+        let argument: ASTStmtRef = (parser_get_call_arg parser (+ start i))
+        let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
+        if (generic_type_contains_variable parser spelling) {
+            let actual: string = (type_to_string raw)
+            let prior: GenericBindings = GenericBindings {names: names, types: types, valid: true}
+            let bound: GenericBindings = (generic_bind_type parser spelling actual prior)
+            if (or (== raw.kind TypeKind.TYPE_UNKNOWN) (not bound.valid)) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one concrete identity and matching structure for each generic type variable." location))
+            } else {
+                set names bound.names
+                set types bound.types
+            }
+        } else {
+            let hinted: NSType = (apply_value_type_hint parser argument.node_id argument.node_type raw expected)
+            let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type hinted expected symbols diags file_name)
+            if (not (types_equal actual expected)) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the declared generic function argument type." location))
+            }
+        }
+        set i (+ i 1)
+    }
+    return (type_from_string_with_parser parser (substitute_type_parameters (type_to_string sym.return_type) names types))
+}
+shadow tc_generic_call {
+    let sources: array<string> = [
+        "fn choose(a:T,b:T)->T{return a} fn main()->int{return (choose 1 2)}",
+        "fn choose(a:T,b:T)->T{return a} fn main()->int{return (choose 1 true)}"
+    ]
+    for i in (range 0 2) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "generic.nano" (list_CompilerDiagnostic_new))
+        let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "generic.nano")
+        assert (== (typecheck_phase parser "generic.nano").had_error (== i 1))
+    }
+}
+
 fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     if (== node_type ParseNodeType.PNODE_BLOCK) {
         let expected: NSType = (type_from_string_with_parser parser tc_enclosing_return)
@@ -4533,8 +4698,10 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     if (== node_type ParseNodeType.PNODE_FLOAT) { return (type_float) } else { (print "") }
     if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
         let id_node: ASTIdentifier = (parser_get_identifier parser node_id)
+        (check_lambda_creation parser id_node symbols diags file_name)
         let lookup: OptionType = (env_get_type symbols (tc_bound_name id_node.name id_node.line symbols))
         if lookup.has_value { return lookup.value }
+        if (!= (mb_header_value id_node.name) "") { return (type_int) }
         let builtin: NSType = (check_builtin_function id_node.name)
         let named_type: bool = (or (is_enum_name parser id_node.name) (is_union_name parser id_node.name))
         if (and (not named_type) (== builtin.kind TypeKind.TYPE_UNKNOWN)) {
@@ -4616,7 +4783,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         }
         /* Get function name from identifier node */
         let fn_id_node: ASTIdentifier = (parser_get_identifier parser call_node.function)
+        (check_lambda_creation parser fn_id_node symbols diags file_name)
         let fn_name: string = (tc_bound_name fn_id_node.name fn_id_node.line symbols)
+        if (and (< (env_lookup symbols fn_name) 0) (!= (mb_header_value fn_id_node.name) "")) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a function value for a bound call." (Diagnostics.diag_location file_name call_node.line call_node.column)))
+            return (type_unknown_named fn_name)
+        }
         if (and (== fn_name "map_get") (and (== call_node.arg_count 2) (< (env_lookup symbols fn_name) 0))) {
             let receiver: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
             let receiver_type: NSType = (check_expr_node parser receiver.node_id receiver.node_type symbols diags file_name)
@@ -4748,6 +4920,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             if (>= idx 0) {
                 let sym: Symbol = (at symbols idx)
                 if sym.is_function {
+                    if (tc_generic_function parser sym) {
+                        return (tc_generic_call parser sym call_node.arg_start call_node.arg_count call_node.line call_node.column symbols diags file_name)
+                    }
                     if (!= call_node.arg_count sym.param_count) {
                         let msg: string = (+ "The function `" (+ fn_name (+ "` expects " (+ (int_to_string sym.param_count) (+ " argument(s), but I see " (+ (int_to_string call_node.arg_count) "."))))))
                         let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
@@ -4780,28 +4955,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 } else {
                     /* Variable being called - if it's a function type, extract return type */
                     if (== sym.sym_type.kind TypeKind.TYPE_FUNCTION) {
-                        let params: array<NSType> = (fn_type_params_with_parser parser sym.sym_type.name)
-                        if (!= call_node.arg_count (array_length params)) {
-                            let msg: string = (+ "The function value `" (+ fn_name (+ "` expects " (+ (int_to_string (array_length params)) (+ " argument(s), but I see " (+ (int_to_string call_node.arg_count) "."))))))
-                            let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0010" msg (Diagnostics.diag_location file_name call_node.line call_node.column))
-                            (Diagnostics.diag_list_add diags diag)
-                        } else { (print "") }
-                        let mut argument_index: int = 0
-                        while (< argument_index call_node.arg_count) {
-                            if (< argument_index (array_length params)) {
-                                let argument: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start argument_index))
-                                let expected: NSType = (at params argument_index)
-                                let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
-                                let hinted: NSType = (apply_value_type_hint parser argument.node_id argument.node_type raw expected)
-                                let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type hinted expected symbols diags file_name)
-                                if (not (types_equal actual expected)) {
-                                    let message: string = (+ "I require the declared callback argument type: expected " (+ (type_to_string expected) (+ ", got " (type_to_string actual))))
-                                    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" message (Diagnostics.diag_location file_name call_node.line call_node.column)))
-                                }
-                            }
-                            set argument_index (+ argument_index 1)
-                        }
-                        return (type_from_string_with_parser parser (type_to_string (fn_type_return_type sym.sym_type.name)))
+                        return (check_callable_value_call parser sym.sym_type.name fn_name call_node.arg_start call_node.arg_count call_node.line call_node.column symbols diags file_name)
                     } else {
                         return sym.sym_type
                     }
@@ -4839,6 +4993,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         if (>= idx 0) {
             let sym: Symbol = (at symbols idx)
             if sym.is_function {
+                if (tc_generic_function parser sym) {
+                    return (tc_generic_call parser sym mqc_node.arg_start mqc_node.arg_count mqc_node.line mqc_node.column symbols diags file_name)
+                }
                 let mut j: int = 0
                 while (< j mqc_node.arg_count) {
                     if (< j (array_length sym.param_types)) {
@@ -4857,6 +5014,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 }
                 return sym.return_type
             } else {
+                if (== sym.sym_type.kind TypeKind.TYPE_FUNCTION) {
+                    return (check_callable_value_call parser sym.sym_type.name qualified_name mqc_node.arg_start mqc_node.arg_count mqc_node.line mqc_node.column symbols diags file_name)
+                }
                 return sym.sym_type
             }
         } else {
@@ -4868,6 +5028,12 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         if (== fa.object_type ParseNodeType.PNODE_IDENTIFIER) {
             let receiver: ASTIdentifier = (parser_get_identifier parser fa.object)
             if (< (env_lookup symbols (tc_bound_name receiver.name receiver.line symbols)) 0) {
+                let qualified: string = (+ receiver.name (+ "." fa.field_name))
+                let resolved: string = (mb_lookup (mb_owner fa.line) qualified)
+                if (!= resolved qualified) {
+                    let value: OptionType = (env_get_type symbols resolved)
+                    if value.has_value { return value.value }
+                }
                 let mut enum_index: int = 0
                 while (< enum_index (parser_get_enum_count parser)) {
                     let definition: ASTEnum = (parser_get_enum parser enum_index)
@@ -5060,6 +5226,19 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
 }
 
 shadow check_expr_node {
+    (mb_reset [1])
+    (mb_header_add 0 "HEADER_VALUE" "41")
+    let header_parser: Parser = (resource_test_parser "fn main()->int { return HEADER_VALUE }")
+    let header_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let header_type: NSType = (check_expr_node header_parser 0 ParseNodeType.PNODE_IDENTIFIER [] header_diags "header.nano")
+    assert (== header_type.kind TypeKind.TYPE_INT)
+    let header_locals: array<Symbol> = [(symbol_new "HEADER_VALUE" (type_string) false false 0 (empty_param_types) (type_void))]
+    let local_type: NSType = (check_expr_node header_parser 0 ParseNodeType.PNODE_IDENTIFIER header_locals header_diags "header.nano")
+    assert (== local_type.kind TypeKind.TYPE_STRING)
+    let header_call: Parser = (resource_test_parser "fn main()->int { return (HEADER_VALUE) }")
+    let refused: NSType = (check_expr_node header_call 0 ParseNodeType.PNODE_CALL [] header_diags "header.nano")
+    assert (> (list_CompilerDiagnostic_length header_diags) 0)
+    (mb_reset [])
     let source: string = "fn message(var_name: string) -> string { return (+ \"Error: \" (+ var_name \"not found\")) }"
     let tokens: List<LexerToken> = (tokenize_string source "test.nano" (list_CompilerDiagnostic_new))
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "test.nano")
@@ -5306,8 +5485,13 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
                 }
             }
         }
-        let init_type_hint: NSType = (apply_value_type_hint parser let_node.value let_node.value_type init_type_raw declared_type)
+        let init_context: NSType = (check_array_literal_context parser let_node.value let_node.value_type init_type_raw declared_type symbols diags file_name)
+        let init_type_hint: NSType = (apply_value_type_hint parser let_node.value let_node.value_type init_context declared_type)
         let mut init_type: NSType = (apply_return_type_hint init_type_hint declared_type)
+        # I accept only literal zero as a declared opaque null, as at call sites.
+        if (and (tc_is_opaque_name parser let_node.var_type) (== let_node.value_type ParseNodeType.PNODE_NUMBER)) {
+            if (== (parser_get_number parser let_node.value).value "0") { set init_type declared_type }
+        }
         if (and (== let_node.value_type ParseNodeType.PNODE_ARRAY_LITERAL) (and (== declared_type.kind TypeKind.TYPE_ARRAY) (== declared_type.element_type_kind TypeKind.TYPE_INT))) {
             let literal: ASTArrayLiteral = (parser_get_array_literal parser let_node.value)
             let mut has_enum: bool = false
@@ -5394,8 +5578,12 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
         }
     } else {
         let expr_t_raw: NSType = (check_expr_node parser ret_node.value ret_node.value_type symbols diags file_name)
-        let expr_t_hint: NSType = (apply_value_type_hint parser ret_node.value ret_node.value_type expr_t_raw expected_type)
-        let expr_t: NSType = (apply_return_type_hint expr_t_hint expected_type)
+        let expr_context: NSType = (check_array_literal_context parser ret_node.value ret_node.value_type expr_t_raw expected_type symbols diags file_name)
+        let expr_t_hint: NSType = (apply_value_type_hint parser ret_node.value ret_node.value_type expr_context expected_type)
+        let mut expr_t: NSType = (apply_return_type_hint expr_t_hint expected_type)
+        if (and (tc_is_opaque_name parser (type_to_string expected_type)) (== ret_node.value_type ParseNodeType.PNODE_NUMBER)) {
+            if (== (parser_get_number parser ret_node.value).value "0") { set expr_t expected_type }
+        }
         if (not (types_equal expr_t expected_type)) {
             let detail: string = (+ "Return value of " current_function)
             let msg: string = (encode_type_mismatch_message "return" (type_to_string expected_type) (type_to_string expr_t) detail)
@@ -5408,10 +5596,25 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
     }
 }
 
-shadow check_return_statement { assert true }
+shadow check_return_statement {
+    let valid: Parser = (resource_test_parser "opaque type Handle fn empty()->Handle { return 0 }")
+    let accepted: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (check_return_statement valid (parser_get_return valid 0) (type_from_string_with_parser valid "Handle") [] accepted "opaque.nano" "empty")
+    assert (== (list_CompilerDiagnostic_length accepted) 0)
+    let invalid: Parser = (resource_test_parser "opaque type Handle fn forged()->Handle { return 7 }")
+    let rejected: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (not (check_return_statement invalid (parser_get_return invalid 0) (type_from_string_with_parser invalid "Handle") [] rejected "opaque.nano" "forged"))
+    assert (> (list_CompilerDiagnostic_length rejected) 0)
+}
 
 fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
-    let idx: int = (env_lookup symbols set_node.target)
+    let mut idx: int = (env_lookup symbols (tc_bound_name set_node.target set_node.line symbols))
+    let mut qualified_global: bool = false
+    if (and (< idx 0) (!= set_node.field_name "")) {
+        let name: string = (+ set_node.target (+ "." set_node.field_name))
+        set idx (env_lookup symbols (tc_bound_name name set_node.line symbols))
+        set qualified_global (>= idx 0)
+    }
     if (< idx 0) {
         let msg: string = (encode_undefined_name_message set_node.target)
         let diag: CompilerDiagnostic = (Diagnostics.diag_typecheck_error "E0002" msg (Diagnostics.diag_location file_name set_node.line set_node.column))
@@ -5419,7 +5622,7 @@ fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>,
         return false
     } else {
         let sym: Symbol = (at symbols idx)
-        if (!= set_node.field_name "") {
+        if (and (!= set_node.field_name "") (not qualified_global)) {
             let mut i: int = 0
             while (< i (parser_get_struct_def_count parser)) {
                 let record: ASTStruct = (parser_get_struct_def parser i)
@@ -5448,7 +5651,8 @@ fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>,
             return false
         } else {
             let rhs_t_raw: NSType = (check_expr_node parser set_node.value set_node.value_type symbols diags file_name)
-            let rhs_t_hint: NSType = (apply_value_type_hint parser set_node.value set_node.value_type rhs_t_raw sym.sym_type)
+            let rhs_context: NSType = (check_array_literal_context parser set_node.value set_node.value_type rhs_t_raw sym.sym_type symbols diags file_name)
+            let rhs_t_hint: NSType = (apply_value_type_hint parser set_node.value set_node.value_type rhs_context sym.sym_type)
             let rhs_t: NSType = (apply_return_type_hint rhs_t_hint sym.sym_type)
             if (not (types_equal rhs_t sym.sym_type)) {
                 let detail: string = (+ "Assignment to " set_node.target)
@@ -5463,7 +5667,25 @@ fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>,
     }
 }
 
-shadow check_set_statement { assert true }
+shadow check_set_statement {
+    let parser: Parser = (resource_test_parser "fn f() -> int { let mut values: array<u8> = [] set values [300] set values [true] return 0 }")
+    let symbols: array<Symbol> = [(symbol_new "values" (type_from_string "array<u8>") true false 0 (empty_param_types) (type_void))]
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (check_set_statement parser (parser_get_set parser 0) symbols diags "bytes.nano")
+    assert (== (list_CompilerDiagnostic_length diags) 0)
+    assert (not (check_set_statement parser (parser_get_set parser 1) symbols diags "bytes.nano"))
+    assert (> (list_CompilerDiagnostic_length diags) 0)
+    (mb_reset [1])
+    (mb_add_target 0 "first.count" "imported_count" 0)
+    let qualified: Parser = (resource_test_parser "fn f()->int{set first.count 7 return 0}")
+    let imported: array<Symbol> = [(symbol_new "imported_count" (type_from_string "int") true false 0 (empty_param_types) (type_void))]
+    let qualified_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (check_set_statement qualified (parser_get_set qualified 0) imported qualified_diags "qualified.nano")
+    assert (== (list_CompilerDiagnostic_length qualified_diags) 0)
+    let local: array<Symbol> = (array_push imported (symbol_new "first" (type_from_string "int") true false 0 (empty_param_types) (type_void)))
+    assert (not (check_set_statement qualified (parser_get_set qualified 0) local qualified_diags "qualified.nano"))
+    (mb_reset [])
+}
 
 fn expr_kind_from_pnode(pnode_type: int) -> int {
     if (== pnode_type ParseNodeType.PNODE_NUMBER) { return 0 }
@@ -5836,6 +6058,28 @@ shadow scalar_borrow_shape {
     assert (not (scalar_borrow_shape parser "&Unsupported"))
 }
 
+fn check_lambda_creation(parser: Parser, identifier: ASTIdentifier, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> void {
+    let index: int = (parser_lambda_function parser identifier)
+    if (< index 0) { return }
+    let func: ASTFunction = (parser_get_function parser index)
+    let before: int = (list_CompilerDiagnostic_length diags)
+    let valid: bool = (check_function parser func symbols diags file_name)
+    (resource_check_function parser func diags file_name)
+    if (and (not valid) (== before (list_CompilerDiagnostic_length diags))) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" "I cannot check this anonymous body in its lexical scope." (Diagnostics.diag_location file_name func.line func.column)))
+    }
+}
+shadow check_lambda_creation {
+    let parser: Parser = (resource_test_parser "fn outer(n:int)->fn()->int{return fn()->int{return n}}")
+    let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let symbols: array<Symbol> = [(symbol_new "n" (type_int) false false 0 (empty_param_types) (type_void))]
+    (check_lambda_creation parser (parser_get_identifier parser 1) symbols diagnostics "lambda.nano")
+    assert (not (Diagnostics.diag_list_has_errors diagnostics))
+    let absent: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_lambda_creation parser (parser_get_identifier parser 1) [] absent "lambda.nano")
+    assert (Diagnostics.diag_list_has_errors absent)
+}
+
 fn check_function(parser: Parser, func: ASTFunction, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
     if (or (== func.name "float_from_bits") (== func.name "float_to_bits")) {
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I reserve binary64 bit intrinsic names." (Diagnostics.diag_location file_name func.line func.column)))
@@ -5925,7 +6169,7 @@ fn apply_return_type_hint(expr_type: NSType, expected_type: NSType) -> NSType {
         } else { (print "") }
     } else { (print "") }
     if (== expected_type.kind TypeKind.TYPE_INT) {
-        if (or (== expr_type.kind TypeKind.TYPE_INT) (or (== expr_type.kind TypeKind.TYPE_UNKNOWN) (== expr_type.kind TypeKind.TYPE_ENUM))) {
+        if (or (== (type_to_string expr_type) "u8") (or (== expr_type.kind TypeKind.TYPE_INT) (or (== expr_type.kind TypeKind.TYPE_UNKNOWN) (== expr_type.kind TypeKind.TYPE_ENUM)))) {
             return expected_type
         } else { (print "") }
     } else { (print "") }
@@ -5962,6 +6206,8 @@ shadow apply_value_type_hint {
 }
 
 shadow apply_return_type_hint {
+    assert (== (apply_return_type_hint (type_from_string "u8") (type_int)).kind TypeKind.TYPE_INT)
+    assert (== (apply_return_type_hint (type_bool) (type_int)).kind TypeKind.TYPE_BOOL)
     let int_t: NSType = (type_int)
     let float_t: NSType = (type_float)
     let result: NSType = (apply_return_type_hint int_t float_t)
@@ -6171,7 +6417,12 @@ shadow purity_call {
 fn purity_node(parser: Parser, id: int, kind: int, context: PurityContext, count: int) -> int {
     if (< id 0) { return 0 }
     if (or (or (== kind ParseNodeType.PNODE_NUMBER) (== kind ParseNodeType.PNODE_FLOAT)) (or (== kind ParseNodeType.PNODE_STRING) (== kind ParseNodeType.PNODE_BOOL))) { return 0 }
-    if (== kind ParseNodeType.PNODE_IDENTIFIER) { return (purity_identifier parser context (parser_get_identifier parser id).name count) }
+    if (== kind ParseNodeType.PNODE_IDENTIFIER) {
+        let identifier: ASTIdentifier = (parser_get_identifier parser id)
+        let mut name: string = identifier.name
+        if (< (purity_local context name count) 0) { set name (mb_lookup (mb_owner identifier.line) name) }
+        return (purity_identifier parser context name count)
+    }
     if (== kind ParseNodeType.PNODE_BINARY_OP) {
         let n: ASTBinaryOp = (parser_get_binary_op parser id)
         return (purity_join (purity_node parser n.left n.left_type context count) (purity_node parser n.right n.right_type context count))
@@ -6269,6 +6520,14 @@ fn purity_node(parser: Parser, id: int, kind: int, context: PurityContext, count
     }
     if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
         let n: ASTFieldAccess = (parser_get_field_access parser id)
+        if (== n.object_type ParseNodeType.PNODE_IDENTIFIER) {
+            let receiver: ASTIdentifier = (parser_get_identifier parser n.object)
+            if (< (purity_local context receiver.name count) 0) {
+                let qualified: string = (+ receiver.name (+ "." n.field_name))
+                let resolved: string = (mb_lookup (mb_owner n.line) qualified)
+                if (!= resolved qualified) { return (purity_identifier parser context resolved count) }
+            }
+        }
         return (purity_node parser n.object n.object_type context count)
     }
     if (== kind ParseNodeType.PNODE_ARRAY_LITERAL) {
@@ -6442,16 +6701,6 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
     let or_sym: Symbol = (symbol_new "or" (type_bool) false true (- 0 1) (empty_param_types) (type_bool))
     set symbols (env_add_symbol symbols or_sym)
 
-    /* Bootstrap: Add known top-level global variables from transpiler.nano */
-    let module_aliases_sym: Symbol = (symbol_new "module_aliases" (type_array TypeKind.TYPE_STRING "string") true false 0 (empty_param_types) (type_void))
-    set symbols (env_add_symbol symbols module_aliases_sym)
-    let module_alias_targets_sym: Symbol = (symbol_new "module_alias_targets" (type_array TypeKind.TYPE_STRING "string") true false 0 (empty_param_types) (type_void))
-    set symbols (env_add_symbol symbols module_alias_targets_sym)
-    let func_aliases_sym: Symbol = (symbol_new "func_aliases" (type_array TypeKind.TYPE_STRING "string") true false 0 (empty_param_types) (type_void))
-    set symbols (env_add_symbol symbols func_aliases_sym)
-    let func_alias_targets_sym: Symbol = (symbol_new "func_alias_targets" (type_array TypeKind.TYPE_STRING "string") true false 0 (empty_param_types) (type_void))
-    set symbols (env_add_symbol symbols func_alias_targets_sym)
-
     /* Phase 0.5: Add global let constants to symbol table */
     let global_let_count: int = (parser_get_let_count parser)
     let local_lets: array<bool> = (typecheck_local_lets parser)
@@ -6462,7 +6711,7 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
             (resource_check_global parser gl env.diagnostics file_name)
             let gl_type: NSType = (type_from_string_with_parser parser gl.var_type)
             if (!= gl_type.kind TypeKind.TYPE_UNKNOWN) {
-                let gl_sym: Symbol = (symbol_new gl.name gl_type gl.is_mut false 0 (empty_param_types) (type_void))
+                let gl_sym: Symbol = (symbol_new (mb_lookup (mb_owner gl.line) gl.name) gl_type gl.is_mut false 0 (empty_param_types) (type_void))
                 set symbols (env_add_symbol symbols gl_sym)
             } else { (print "") }
         } else { (print "") }
@@ -6496,6 +6745,8 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
     set i 0
     while (< i func_count) {
         let func: ASTFunction = (parser_get_function parser i)
+        # I check anonymous bodies at their creation expression with lexical bindings.
+        if (== func.node_type ParseNodeType.PNODE_LAMBDA) { set i (+ i 1) continue }
         let valid: bool = (check_function parser func symbols env.diagnostics file_name)
         (resource_check_function parser func env.diagnostics file_name)
         if (and func.is_pure (>= func.body 0)) {
@@ -6541,6 +6792,16 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
         }
         set i (+ i 1)
     }
+    # I include expression diagnostics even when their unknown result permits
+    # the enclosing function check to continue without incrementing its count.
+    let mut diagnostic_errors: int = 0
+    for diagnostic_index in (range 0 (Diagnostics.diag_list_count env.diagnostics)) {
+        let diagnostic: CompilerDiagnostic = (Diagnostics.diag_list_get env.diagnostics diagnostic_index)
+        if (== diagnostic.severity DiagnosticSeverity.DIAG_ERROR) {
+            set diagnostic_errors (+ diagnostic_errors 1)
+        }
+    }
+    if (> diagnostic_errors error_count) { set error_count diagnostic_errors }
     let had_error: bool = (or (> error_count 0) (Diagnostics.diag_list_has_errors env.diagnostics))
     return (typecheck_output env.diagnostics error_count had_error)
 }
@@ -6613,4 +6874,15 @@ fn typecheck() -> int {
 
 shadow typecheck {
     assert (== (typecheck) 0)
+}
+
+shadow check_let_statement {
+    let valid: Parser = (resource_test_parser "opaque type Handle fn main()->int { let handle:Handle = 0 return 0 }")
+    let accepted: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_let_statement valid (parser_get_let valid 0) 0 [] accepted "opaque.nano")
+    assert (== (list_CompilerDiagnostic_length accepted) 0)
+    let invalid: Parser = (resource_test_parser "opaque type Handle fn main()->int { let handle:Handle = 1 return 0 }")
+    let rejected: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_let_statement invalid (parser_get_let invalid 0) 0 [] rejected "opaque.nano")
+    assert (> (list_CompilerDiagnostic_length rejected) 0)
 }

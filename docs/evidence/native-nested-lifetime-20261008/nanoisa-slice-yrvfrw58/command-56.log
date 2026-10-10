@@ -1,0 +1,3 @@
+['/private/tmp/nanolang-array-types-20261008/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-yrvfrw58/nested-contexts-seed.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-yrvfrw58/nested-contexts-seed.c']
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nanoisa-slice-yrvfrw58/nested-contexts-seed.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to array at nodes 204/99

@@ -1,0 +1,34 @@
+I retain service transport artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-bu5d_t2n
+test_live_graphs_prepare (tests.test_mixed_websocket_runtime.MixedWebSocketRuntime.test_live_graphs_prepare) ... FAIL
+test_required_real_peer_lifecycles (tests.test_mixed_websocket_runtime.MixedWebSocketRuntime.test_required_real_peer_lifecycles) ... ERROR
+
+======================================================================
+ERROR: test_required_real_peer_lifecycles (tests.test_mixed_websocket_runtime.MixedWebSocketRuntime.test_required_real_peer_lifecycles)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_mixed_websocket_runtime.py", line 176, in test_required_real_peer_lifecycles
+    port, messages = self.server()
+                     ~~~~~~~~~~~^^
+  File "/Users/jordanh/Src/nanolang/tests/test_websocket_dispatch.py", line 42, in server
+    listener.bind(("127.0.0.1", 0))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+FAIL: test_live_graphs_prepare (tests.test_mixed_websocket_runtime.MixedWebSocketRuntime.test_live_graphs_prepare)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_mixed_websocket_runtime.py", line 190, in test_live_graphs_prepare
+    self.command(label+'-live-prepare', [str(fixture), 'emit', str(self.artifacts/(label+'.nvm')),
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        str(self.artifacts/(label+'.c')), str(graph), '9'])
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bindings_module.py", line 32, in command
+    self.assertEqual(result.returncode, expected, (command, result.stdout, result.stderr))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : (['/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-bu5d_t2n/fixture-real', 'emit', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-bu5d_t2n/1-23.nvm', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-module-bu5d_t2n/1-23.c', '23', '9'], '', 'native status=3: I refuse indirect mixed services preparation (3)\nFAIL line 25: status==NVM_SERVICES_RUNTIME_OK\n')
+
+----------------------------------------------------------------------
+Ran 2 tests in 45.230s
+
+FAILED (failures=1, errors=1)

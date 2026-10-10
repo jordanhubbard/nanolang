@@ -1,0 +1,12 @@
+test_close_has_valid_length_and_mask (tests.test_websocket_client.WebSocketClient.test_close_has_valid_length_and_mask) ... ok
+test_forged_or_unverified_upgrade_is_refused (tests.test_websocket_client.WebSocketClient.test_forged_or_unverified_upgrade_is_refused) ... ok
+test_invalid_server_frames_close_transport (tests.test_websocket_client.WebSocketClient.test_invalid_server_frames_close_transport) ... ok
+test_ipv6_url_and_hostname_resolution (tests.test_websocket_client.WebSocketClient.test_ipv6_url_and_hostname_resolution) ... ok
+test_long_frames_random_masks_fragments_and_control_payload (tests.test_websocket_client.WebSocketClient.test_long_frames_random_masks_fragments_and_control_payload) ... ok
+test_partial_frame_survives_timeout (tests.test_websocket_client.WebSocketClient.test_partial_frame_survives_timeout) ... ok
+test_packaged_refusals_and_dependency_shadows (tests.test_websocket_bindings.WebSocketBindings.test_packaged_refusals_and_dependency_shadows) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 6.660s
+
+OK

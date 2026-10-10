@@ -1,3 +1,4 @@
+#include "service_codec_internal.h"
 #include "service_bindings_module.h"
 #include "service_classification_private.h"
 #include "../nsi_file_catalog.h"
@@ -70,10 +71,10 @@ static bool v2_name(const NvmV2Module *m,uint32_t i,const char *s) {
     const NvmV2Constant *c=&m->constants.items[i];
     return c->tag==TAG_STRING && exact_bytes(c->payload,c->length,s);
 }
-/* Version dispatch is transport-only. A malformed v2 claim cannot fall back
+/* Version dispatch is transport-only. A malformed nominal claim cannot fall back
  * to v1 or to shared executable ownership validation. */
 static bool nominal_version(const uint8_t *bytes,uint32_t size) {
-    return bytes && size>=2 && bytes[0]==NVM_FILE_NOMINAL_VERSION && bytes[1]==0;
+    return bytes && size>=2 && (bytes[0]==NVM_FILE_NOMINAL_VERSION || bytes[0]==NVM_MULTI_NOMINAL_VERSION) && bytes[1]==0;
 }
 static NvmV2Result nominal_status(NvmFileNominalStatus status) {
     if(status==NVM_FILE_NOMINAL_DESCRIBED)return NVM_V2_OK;
@@ -81,6 +82,24 @@ static NvmV2Result nominal_status(NvmFileNominalStatus status) {
     return status==NVM_FILE_NOMINAL_LIMIT?NVM_V2_ERR_INDEX_RANGE:NVM_V2_ERR_SECTION_TYPE;
 }
 static NvmV2Result nominal_module(const NvmModule *m) {
+    if(m->service_data && m->service_size>=2 && m->service_data[0]==NVM_MULTI_NOMINAL_VERSION && !m->service_data[1]) {
+        NvmMultiNominalPlan *plan=NULL;
+        NvmMultiNominalStatus status=nvm_multi_nominal_plan(m,&plan);
+        nvm_multi_nominal_plan_free(plan);
+        if(status==NVM_MULTI_NOMINAL_DESCRIBED)return NVM_V2_OK;
+        if(status==NVM_MULTI_NOMINAL_MEMORY)return NVM_V2_ERR_TRUNCATED;
+        return status==NVM_MULTI_NOMINAL_LIMIT?NVM_V2_ERR_INDEX_RANGE:NVM_V2_ERR_SECTION_TYPE;
+    }
+    /* I select the exact TCP catalog before validating its complete map.
+     * Unknown or malformed identities still fail the File/TCP validators. */
+    if(m->service_data && m->service_size>=4 && m->service_data[2]==2 && !m->service_data[3]) {
+        NvmSocketNominalPlan *plan=NULL;
+        NvmSocketNominalStatus status=nvm_socket_nominal_plan(m,&plan);
+        nvm_socket_nominal_plan_free(plan);
+        if(status==NVM_SOCKET_NOMINAL_DESCRIBED)return NVM_V2_OK;
+        if(status==NVM_SOCKET_NOMINAL_MEMORY)return NVM_V2_ERR_TRUNCATED;
+        return status==NVM_SOCKET_NOMINAL_LIMIT?NVM_V2_ERR_INDEX_RANGE:NVM_V2_ERR_SECTION_TYPE;
+    }
     NvmFileNominalPlan *plan=NULL;
     NvmV2Result status=nominal_status(nvm_file_nominal_plan(m,&plan));
     nvm_file_nominal_plan_free(plan);return status;
@@ -89,12 +108,13 @@ static bool table_bytes(size_t count,size_t width,size_t *bytes) {
     if(width && count>SIZE_MAX/width)return false;
     *bytes=count*width;return true;
 }
-/* I adapt only metadata. No bridge/verifier callback, renumbering or ownership
- * flag projection is involved. All pointer-array views die before return. */
-static NvmV2Result nominal_v2(const NvmV2Module *m) {
-    if(m->imports.count!=NVM_SERVICE_BINDING_COUNT || !m->imports.items ||
+/* I adapt only metadata for the selected exact nominal validator. No execution
+ * verifier, renumbering or ownership flag projection is involved. Temporary
+ * pointer-array views die before return. Ordinary callers select nominal_module. */
+NvmV2Result nvm_private_nominal_wire(const NvmV2Module *m,uint32_t minimum_imports,uint32_t minimum_layouts,NvmV2Result (*validate)(const NvmModule *)) {
+    if(!m || !validate || !minimum_imports || !minimum_layouts || m->imports.count<minimum_imports || m->imports.count>NVM_MULTI_NOMINAL_MAX_IMPORTS || !m->imports.items ||
        m->links.count || m->callbacks.count || !m->ownership_data || !m->ownership_size ||
-       m->layouts.count<NVM_FILE_NOMINAL_TYPES || m->layouts.count>NVM_FILE_NOMINAL_MAX_LAYOUTS ||
+       m->layouts.count<minimum_layouts || m->layouts.count>NVM_FILE_NOMINAL_MAX_LAYOUTS ||
        !m->layouts.items || (m->constants.count && !m->constants.items) ||
        (m->functions.count && !m->functions.items) || (m->signatures.count && !m->signatures.items) ||
        m->functions.count>m->ownership_size/12)return NVM_V2_ERR_SECTION_TYPE;
@@ -147,10 +167,10 @@ static NvmV2Result nominal_v2(const NvmV2Module *m) {
         view.functions[i].result_tag=sig->result_count?sig->result_tags[0]:TAG_VOID;
         view.function_param_types[i]=(uint8_t *)sig->param_tags;
     }
-    NvmImportEntry imports[NVM_SERVICE_BINDING_COUNT]={0};
-    uint8_t *params[NVM_SERVICE_BINDING_COUNT]={0};
-    view.imports=imports;view.import_param_types=params;view.import_count=NVM_SERVICE_BINDING_COUNT;
-    for(uint32_t i=0;i<NVM_SERVICE_BINDING_COUNT;i++) {
+    NvmImportEntry imports[NVM_MULTI_NOMINAL_MAX_IMPORTS]={0};
+    uint8_t *params[NVM_MULTI_NOMINAL_MAX_IMPORTS]={0};
+    view.imports=imports;view.import_param_types=params;view.import_count=m->imports.count;
+    for(uint32_t i=0;i<m->imports.count;i++) {
         const NvmV2Import *im=&m->imports.items[i];
         if(im->kind!=NVM_V2_IMPORT_SERVICE || im->signature_idx>=m->signatures.count)goto done;
         const NvmV2Signature *sig=&m->signatures.items[im->signature_idx];
@@ -168,7 +188,7 @@ static NvmV2Result nominal_v2(const NvmV2Module *m) {
     if(result!=NVM_V2_OK)goto done;
     view.service_data=(uint8_t *)m->service_data;view.service_size=m->service_size;
     view.ownership_data=(uint8_t *)m->ownership_data;view.ownership_size=m->ownership_size;
-    result=nominal_module(&view);
+    result=validate(&view);
 done:
     free(view.layout_data);free(view.strings);free(view.string_lengths);
     free(view.functions);free(view.function_param_types);return result;
@@ -203,7 +223,20 @@ NvmV2Result nvm_v2_service_bindings_validate(const NvmV2Module *m) {
     if (nvm_v2_file_instructions_present(m) && !nominal_version(m->service_data,m->service_size))
         return NVM_V2_ERR_SECTION_TYPE;
     if (!nvm_v2_service_bindings_present(m)) return NVM_V2_OK;
-    if (nominal_version(m->service_data,m->service_size)) return nominal_v2(m);
+    if (nominal_version(m->service_data,m->service_size)) {
+        uint32_t imports=NVM_SERVICE_BINDING_COUNT,layouts=NVM_FILE_NOMINAL_TYPES;
+        if(m->service_data[0]==NVM_MULTI_NOMINAL_VERSION) {
+            NvmMultiNominalBindings bindings;
+            if(nvm_multi_nominal_decode(m->service_data,m->service_size,&bindings)!=NVM_SERVICE_OK)
+                return NVM_V2_ERR_SECTION_TYPE;
+            imports=0;layouts=0;
+            for(uint32_t i=0;i<bindings.count;i++) {
+                imports+=nvm_multi_nominal_catalog_methods(bindings.instances[i].catalog);
+                layouts+=nvm_multi_nominal_catalog_types(bindings.instances[i].catalog);
+            }
+        }
+        return nvm_private_nominal_wire(m,imports,layouts,nominal_module);
+    }
     NvmServiceBindings value;
     if (nvm_service_bindings_decode(m->service_data,m->service_size,&value)!=NVM_SERVICE_OK)
         return NVM_V2_ERR_SECTION_TYPE;
@@ -258,6 +291,30 @@ NvmV2Result nvm_file_nominal_attach(NvmModule *m,const NlFilePlan *plan,
         if(nl_file_plan_type(plan,i)!=nl_file_catalog_type(i))return NVM_V2_ERR_SECTION_TYPE;
     uint8_t staged[NVM_FILE_NOMINAL_BYTES];size_t size=0;
     if(nvm_file_nominal_encode(bindings,staged,sizeof staged,&size)!=NVM_SERVICE_OK)
+        return NVM_V2_ERR_SECTION_TYPE;
+    NvmModule candidate=*m;candidate.service_data=staged;candidate.service_size=(uint32_t)size;
+    NvmV2Result result=nominal_module(&candidate);
+    if(result!=NVM_V2_OK)return result;
+    if(m->service_data || m->service_size)
+        return m->service_data && m->service_size==size && !memcmp(m->service_data,staged,size)
+            ?NVM_V2_OK:NVM_V2_ERR_FEATURE_MISMATCH;
+    uint8_t *owned=malloc(size);
+    if(!owned)return NVM_V2_ERR_TRUNCATED;
+    memcpy(owned,staged,size);m->service_data=owned;m->service_size=(uint32_t)size;
+    return NVM_V2_OK;
+}
+
+NvmV2Result nvm_socket_nominal_attach(NvmModule *m,const NlSocketPlan *plan,
+                                    const NvmSocketNominalBindings *bindings) {
+    if(!m || !plan || nl_socket_plan_type_count(plan)!=NVM_SOCKET_NOMINAL_TYPES ||
+       nl_socket_plan_method_count(plan)!=NVM_SERVICE_BINDING_COUNT ||
+       strcmp(nl_socket_plan_interface(plan),nl_socket_catalog_interface()))return NVM_V2_ERR_SECTION_TYPE;
+    for(uint32_t i=0;i<NVM_SERVICE_BINDING_COUNT;i++)
+        if(nl_socket_plan_method(plan,i)!=nl_socket_catalog_method(i))return NVM_V2_ERR_SECTION_TYPE;
+    for(uint32_t i=0;i<NVM_SOCKET_NOMINAL_TYPES;i++)
+        if(nl_socket_plan_type(plan,i)!=nl_socket_catalog_type(i))return NVM_V2_ERR_SECTION_TYPE;
+    uint8_t staged[NVM_SOCKET_NOMINAL_BYTES];size_t size=0;
+    if(nvm_socket_nominal_encode(bindings,staged,sizeof staged,&size)!=NVM_SERVICE_OK)
         return NVM_V2_ERR_SECTION_TYPE;
     NvmModule candidate=*m;candidate.service_data=staged;candidate.service_size=(uint32_t)size;
     NvmV2Result result=nominal_module(&candidate);

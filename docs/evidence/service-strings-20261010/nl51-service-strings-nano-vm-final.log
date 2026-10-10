@@ -1,0 +1,13 @@
+test_checked_source_vm_and_native (tests.test_service_strings.ServiceStrings.test_checked_source_vm_and_native) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-lxv4m97r
+ok
+test_invalid_literal_and_operand_types_preserve_output (tests.test_service_strings.ServiceStrings.test_invalid_literal_and_operand_types_preserve_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-9v387yo5
+ok
+test_mixed_catalog_strings (tests.test_service_strings.ServiceStrings.test_mixed_catalog_strings) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-y_f5cgox
+ok
+test_wrong_string_types_preserve_output (tests.test_service_strings.ServiceStrings.test_wrong_string_types_preserve_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3adsd9zs
+ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 26.005s
+
+OK

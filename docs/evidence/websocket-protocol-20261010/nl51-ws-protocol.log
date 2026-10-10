@@ -1,0 +1,5 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -std=c11 -Wall -Wextra -Werror tests/test_nsi_websocket_protocol.c src/nsi_websocket_protocol.c src/utf8.c -o obj/test_nsi_websocket_protocol -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+PASS nonce/accept known vectors and exact bounded HTTP upgrade
+PASS all stream splits, fragments, interleaved controls, binary/NUL and UTF-8
+PASS masked/RSV/opcode/length/UTF-8/close/fragment/EOF refusals
+PASS masked client frames at every length boundary through 1 MiB

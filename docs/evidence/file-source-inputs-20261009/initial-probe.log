@@ -1,0 +1,60 @@
+test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) ... 
+  test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nanoc_c') ... FAIL
+  test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nano_virt') ... FAIL
+  test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nanoc_stage1') ... FAIL
+  test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nanoc_stage2') ... FAIL
+
+======================================================================
+FAIL: test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 33, in test_native_and_vm_module_consumers
+    output = self.checked([product, origin])
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Contract violation at line 10: (== (nl_source_inputs_open context origin (str_length origin) "interface.nsi.json" 18) -1)
+
+
+======================================================================
+FAIL: test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 36, in test_native_and_vm_module_consumers
+    output = self.checked([ROOT / "bin/nano_vm", product, origin])
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I accept one module path; place guest arguments after --.
+
+
+======================================================================
+FAIL: test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 31, in test_native_and_vm_module_consumers
+    self.checked(command)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported extern result or symbol nl_source_inputs_new
+
+
+======================================================================
+FAIL: test_native_and_vm_module_consumers (tests.test_file_source_inputs.FileSourceInputs.test_native_and_vm_module_consumers) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 31, in test_native_and_vm_module_consumers
+    self.checked(command)
+    ~~~~~~~~~~~~^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_file_source_inputs.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported extern result or symbol nl_source_inputs_new
+
+
+----------------------------------------------------------------------
+Ran 1 test in 2.494s
+
+FAILED (failures=4)

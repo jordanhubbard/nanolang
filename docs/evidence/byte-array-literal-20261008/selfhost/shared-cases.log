@@ -1,0 +1,7 @@
+test_contextual_byte_storage (tests.test_byte_array_literals.ByteArrayLiterals.test_contextual_byte_storage) ... ok
+test_wrong_element_kind_is_refused (tests.test_byte_array_literals.ByteArrayLiterals.test_wrong_element_kind_is_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 7.792s
+
+OK

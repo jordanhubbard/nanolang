@@ -1,0 +1,14 @@
+Error: Undefined variable or function 'first'
+Error: Cannot access field on non-struct value
+Error: Undefined variable or function 'second'
+Error: Cannot access field on non-struct value
+Error: Undefined variable or function 'first'
+Error: Cannot access field on non-struct value
+Error: Undefined variable or function 'second'
+Error: Cannot access field on non-struct value
+Error: Undefined variable or function 'first'
+Error: Cannot access field on non-struct value
+  Shadow test 'main' FAILED: 5 failure(s)
+  First failure at line 4, column 2
+I will not publish output after failed shadow execution.
+Shadow tests failed

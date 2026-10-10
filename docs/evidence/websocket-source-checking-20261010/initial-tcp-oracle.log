@@ -1,0 +1,21 @@
+test_endpoint_calls_results_and_shadows (tests.test_socket_service_source.SocketBodies.test_endpoint_calls_results_and_shadows) ... FAIL
+
+======================================================================
+FAIL: test_endpoint_calls_results_and_shadows (tests.test_socket_service_source.SocketBodies.test_endpoint_calls_results_and_shadows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_socket_service_source.py", line 31, in test_endpoint_calls_results_and_shadows
+    self.check(source(tcp(bodies.POSITIVE)),0)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 76, in check
+    self.check_drivers(path,status)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_bodies.py", line 90, in check_drivers
+    self.assertRegex(message,r'I have not resolved File service declarations|I require --allow-temporary-files|I cannot lower File source')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Regex didn't match: 'I have not resolved File service declarations|I require --allow-temporary-files|I cannot lower File source' not found in 'I require --allow-tcp-connections for selected service shadows or execution.\n'
+
+----------------------------------------------------------------------
+Ran 1 test in 37.521s
+
+FAILED (failures=1)

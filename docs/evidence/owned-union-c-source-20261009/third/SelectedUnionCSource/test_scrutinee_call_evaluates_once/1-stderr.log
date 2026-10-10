@@ -1,0 +1,2 @@
+Warning at line 6, column 23: Unused variable 'payload'
+I could not compile shadows at line 3: I require only resource records, scalar unions, main, one helper and selected shadows in my source borrow profile

@@ -1,0 +1,4 @@
+I cannot verify affine ownership at line 5, column 36: I require a binding for the selected resource payload — Choice.Some
+I cannot verify affine ownership at line 6, column 15: resource remains live at scope exit — _
+Warning at line 5, column 36: Unused variable 'payload'
+error: type check failed

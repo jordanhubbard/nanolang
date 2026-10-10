@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/private/tmp/nanolang-match-guards-20261009/bin/nanoisa_emit",
+    "/private/tmp/nanolang-selfhost-union-final/raw/UnionBoundaryProducer/test_copyable_union_inside_ordinary_arm_of_owned_union/main.nano",
+    "-o",
+    "/private/tmp/nanolang-selfhost-union-final/raw/UnionBoundaryProducer/test_copyable_union_inside_ordinary_arm_of_owned_union/main.nasm"
+  ],
+  "exit": 0
+}

@@ -1,0 +1,3 @@
+warning: /Users/jordanh/Src/nanolang/obj/runtime/dyn_array.o: timestamp mismatch between object file (2026-10-09 15:08:31.322450144) and debug map (2026-10-09 12:24:31.000000000)
+warning: /Users/jordanh/Src/nanolang/obj/runtime/gc.o: timestamp mismatch between object file (2026-10-09 15:08:31.108429103) and debug map (2026-10-09 12:24:31.000000000)
+warning: /Users/jordanh/Src/nanolang/obj/runtime/gc_struct.o: timestamp mismatch between object file (2026-10-09 15:08:31.432959623) and debug map (2026-10-09 12:24:31.000000000)

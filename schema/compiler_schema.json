@@ -135,7 +135,8 @@
     "PNODE_EFFECT_DECL",
     "PNODE_HANDLE_EXPR",
     "PNODE_ASYNC_FN",
-    "PNODE_SERVICE_DECL"
+    "PNODE_SERVICE_DECL",
+    "PNODE_LAMBDA"
   ],
   "nano_enums": [
     {
@@ -180,8 +181,9 @@
         "PHASE_LEXER",
         "PHASE_PARSER",
         "PHASE_TYPECHECK",
-        "PHASE_TRANSPILER",
-        "PHASE_RUNTIME"
+        "PHASE_NANOISA",
+        "PHASE_RUNTIME",
+        "PHASE_BACKEND"
       ]
     }
   ],
@@ -520,6 +522,10 @@
         ],
         [
           "is_mut",
+          "bool"
+        ],
+        [
+          "is_pub",
           "bool"
         ],
         [

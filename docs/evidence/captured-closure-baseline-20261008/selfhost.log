@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0011] I cannot find this name in the current scope: n (/private/tmp/nanolang-captured-closure-probe-20261008/capture.nano:3:40)

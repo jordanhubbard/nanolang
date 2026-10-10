@@ -7,16 +7,18 @@
  * My opaque state owns its facts; failed transitions leave it unchanged.
  * Reference slots are verifier identities, not runtime pointers. Entry
  * reference parameters occupy their corresponding local-numbered slots.
- * I accept only scalar/complete-record declarations. Joins compare clones
+ * I retain scalar, complete-record and exact union declarations. Joins compare clones
  * of one analysis; symbolic invocation 1 does not prove caller alias facts. */
 typedef struct NvmAffineState NvmAffineState;
 NvmAffineState *nvm_affine_state_create(const NvmModule *module,
                                        uint32_t function, uint32_t references);
 NvmAffineState *nvm_affine_state_clone(const NvmAffineState *state);
 void nvm_affine_state_free(NvmAffineState *state);
+/* I expose the declaration boundary for consumers lacking union transfers. */
+bool nvm_affine_has_complete_unions(const NvmAffineState *state);
 bool nvm_affine_state_equal(const NvmAffineState *a, const NvmAffineState *b);
-/* I intersect initialized facts only for declared mode-zero scalar slots.
- * All other facts remain exact; refusal leaves destination unchanged. */
+/* I intersect copyable initialization and merge selected variants. Live
+ * resource obligations remain exact; refusal leaves destination unchanged. */
 bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
                                           const NvmAffineState *incoming,bool *changed);
 bool nvm_affine_scalar_define(NvmAffineState *state, uint16_t local);
@@ -57,14 +59,29 @@ typedef struct { uint8_t tag; uint32_t layout; } NvmAffineType;
 #define NVM_AFFINE_UNKNOWN_VARIANT UINT16_MAX
 /* These transfer APIs exchange an exact record token with the bytecode stack.
  * The stack analysis must prohibit duplication, loss and incompatible joins. */
+/* I require explicit transfer tokens for resource records and resource unions.
+ * Complete ordinary records retain exact layout identity while copying. */
+bool nvm_affine_type_is_owned(const NvmAffineState *state,NvmAffineType type);
+bool nvm_affine_record_is_copyable(const NvmAffineState *state,uint32_t layout);
+bool nvm_affine_record_define(NvmAffineState *state,uint16_t local,uint32_t layout);
+bool nvm_affine_owned_local_fields(const NvmAffineState *state,uint16_t local,
+    NvmAffineType *fields,uint16_t capacity,uint16_t *count);
 bool nvm_affine_take_local(NvmAffineState *state, uint16_t local, NvmAffineType *type);
 bool nvm_affine_put_local(NvmAffineState *state, uint16_t local, NvmAffineType type);
 bool nvm_affine_local_type(const NvmAffineState *state, uint16_t local, NvmAffineType *type);
 bool nvm_affine_record_fields(const NvmAffineState *state, uint32_t layout,
                                NvmAffineType *fields, uint16_t capacity, uint16_t *count);
-/* I keep concrete union identity separate from its path-local selected arm. */
+/* I keep concrete union identity separate from its path-local selected arm.
+ * Define is copyable-only; resource construction uses union_pack. */
 bool nvm_affine_union_define(NvmAffineState *state,uint16_t local,
                               uint32_t layout,uint16_t variant);
+/* I transfer a complete selected payload atomically. Unpack requires a
+ * proven variant; owned children move, scalar children copy. The general
+ * record pack/unpack APIs never flatten a union's concatenated variants. */
+bool nvm_affine_union_pack(NvmAffineState *state,uint16_t destination,uint16_t variant,
+                            const uint16_t *fields,uint16_t count);
+bool nvm_affine_union_unpack(NvmAffineState *state,uint16_t source,uint16_t variant,
+                              const uint16_t *fields,uint16_t count);
 bool nvm_affine_union_refine(NvmAffineState *state,uint16_t local,uint16_t variant);
 bool nvm_affine_union_variant(const NvmAffineState *state,uint16_t local,
                                uint16_t *variant);
@@ -83,14 +100,15 @@ bool nvm_affine_parameter_at(const NvmAffineState *state,uint16_t parameter,
                                NvmAffineType *type,NvmReferenceMode *mode);
 #define NVM_AFFINE_MAX_RESULT_DEPTH 32u
 #define NVM_AFFINE_MAX_RESULT_FIELDS 256u
-/* I inspect an exact mode-zero scalar, void, or owned result.
- * Nested results contain bounded complete owned trees with INT/BOOL/U8/STRING leaves; FLOAT fields stay refused;
+/* I inspect an exact mode-zero scalar, void, or record/union result.
+ * Nested record results contain bounded complete trees with consistent resource
+ * authority and INT/BOOL/U8/STRING leaves; FLOAT fields stay refused;
  * scalar/VOID and existing scalar-leaf queries add no allocations.
  * I require matching function count/tag and leave both outputs unchanged on refusal.
  * This declaration query alone grants no executable return authority. */
 bool nvm_affine_value_result(const NvmAffineState *state,NvmAffineType *type,
                               uint16_t *field_count);
-/* I inspect zero through eight mode-zero scalar/resource parameters.
+/* I inspect zero through eight mode-zero scalar/record/resource parameters.
  * Executable graph and result eligibility are separate checks. */
 bool nvm_affine_value_parameters(const NvmAffineState *state,
                                   NvmAffineType *types,uint16_t capacity,uint16_t *count);

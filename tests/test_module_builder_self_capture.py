@@ -21,6 +21,26 @@ class ModuleBuilderSelfCapture(unittest.TestCase):
         return subprocess.run([PROBE, "build", module], cwd=ROOT, env=env,
                               capture_output=True, text=True, timeout=120)
 
+    def test_large_quoted_object_closure(self):
+        import ctypes
+        with tempfile.TemporaryDirectory(prefix="nano-large-closure-") as tmp:
+            module=Path(tmp)/("quoted ' dollar$ path "+"x"*180);module.mkdir()
+            count=36;names=[]
+            for i in range(count):
+                name=f"part{i}.c";names.append(name)
+                (module/name).write_text(f"long long part{i}(void) {{ return {i}; }}\n")
+            names.append("sum.c")
+            (module/"sum.c").write_text("".join(f"extern long long part{i}(void);\n" for i in range(count))+
+                "long long total(void) { return "+"+".join(f"part{i}()" for i in range(count))+"; }\n")
+            (module/"module.json").write_text(json.dumps({"name":"many","c_sources":names}))
+            result=self.build(module)
+            self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+            artifact=Path(result.stdout.strip())
+            self.assertGreater(sum(len(str(artifact.parent/f"many_{i}.o"))+3 for i in range(len(names))),8192)
+            library=artifact.parent/("libmany.dylib" if sys.platform=="darwin" else "libmany.so")
+            native=ctypes.CDLL(str(library));native.total.restype=ctypes.c_longlong
+            self.assertEqual(native.total(),sum(range(count)))
+
     def test_builder_source_retains_and_builds_its_own_marker(self):
         with tempfile.TemporaryDirectory(prefix="nano-self-capture-") as tmp:
             module = Path(tmp)

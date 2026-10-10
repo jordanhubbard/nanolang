@@ -1,0 +1,17 @@
+fn main()->int {
+ let values:List<int> = (list_int_new)
+ let alias:List<int> = values
+ (list_int_insert values 0 7)
+ (list_int_insert values 1 9)
+ (list_int_insert values 1 7)
+ (list_int_insert values 0 9)
+ assert (== (list_int_length alias) 4)
+ let a:int = (list_int_get alias 0)
+ let b:int = (list_int_get alias 1)
+ let c:int = (list_int_get alias 2)
+ let d:int = (list_int_get alias 3)
+ assert (== a 9) assert (== b 7)
+ assert (== c 7) assert (== d 9)
+ return 0
+}
+shadow main { assert (== (main) 0) }

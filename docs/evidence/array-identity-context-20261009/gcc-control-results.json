@@ -1,0 +1,22 @@
+[
+  {
+    "argv": [
+      "/opt/homebrew/bin/gcc-16",
+      "-fsanitize=address,undefined",
+      "/private/tmp/nanolang-gcc-asan-exit-control/main.c",
+      "-o",
+      "/private/tmp/nanolang-gcc-asan-exit-control/main"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nanolang-gcc-asan-exit-control/main"
+    ],
+    "timeout": 15,
+    "stdout": "None",
+    "stderr": "None"
+  }
+]

@@ -1,0 +1,3 @@
+['/private/tmp/nanolang-array-types-20261008/bin/nano_vm', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-json-artifacts-scwvxybx/opaque-value.nvm']
+I could not execute the module: Not implemented
+  FFI call failed: I require an opaque value or zero null for provider string cleanup

@@ -1,0 +1,247 @@
+diff --git a/src/nanoisa/nvm2c.c b/src/nanoisa/nvm2c.c
+index b7e2aa85b..3daa0e103 100644
+--- a/src/nanoisa/nvm2c.c
++++ b/src/nanoisa/nvm2c.c
+@@ -1193,7 +1193,7 @@ static int classify_direct_call(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
+                                      shape_child(b, parameter, 0), arg.rec_k, fields)) return 0;
+             /* The runtime passes one mutable handle. I also carry callee
+              * writes back into the caller's checked element-storage view. */
+-            if (b->track_shapes && !nvm_shape_alias_view(&b->shapes, parameter, arg.shape)) return 0;
++            if (b->track_shapes && !nvm_shape_array_alias(&b->shapes, arg.shape, parameter)) return 0;
+         } else if ((facts->parameters[at] == NVM2C_VK_STR || facts->parameters[at] == NVM2C_VK_INT ||
+                     facts->parameters[at] == NVM2C_VK_BOOL || facts->parameters[at] == NVM2C_VK_FLOAT) &&
+                    (arg.kind == facts->parameters[at] || arg.kind == NVM2C_VK_UNK)) {
+@@ -2123,6 +2123,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
+                     !shape_equal(b, stk[sp - 1].shape, arr.shape)) return 0;
+                 break;
+             }
++            if (b->track_shapes && arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC &&
++                !nvm_shape_array_write(&b->shapes, arr.shape, val.shape)) return 0;
+             int checked_record_fields = 0;
+             if (arr.kind == NVM2C_VK_RARR && val.kind == NVM2C_VK_REC)
+                 for (size_t f = 0; f < b->record_width; ++f)
+diff --git a/src/nanoisa/nvm2c_shape.c b/src/nanoisa/nvm2c_shape.c
+index 6fa2aea47..17f930818 100644
+--- a/src/nanoisa/nvm2c_shape.c
++++ b/src/nanoisa/nvm2c_shape.c
+@@ -58,6 +58,8 @@ void nvm_shape_destroy(NvmShapeGraph *g) {
+     }
+     free(g->nodes);
+     free(g->conversions);
++    free(g->array_aliases);
++    free(g->array_writes);
+     free(g->array_reads);
+     memset(g, 0, sizeof *g);
+ }
+@@ -251,6 +253,47 @@ int nvm_shape_alias_view(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target)
+     return 1;
+ }
+ 
++int nvm_shape_array_alias(NvmShapeGraph *g, NvmShapeId caller, NvmShapeId callee) {
++    if (!nvm_shape_root(g, caller) || !nvm_shape_root(g, callee)) return 0;
++    for (size_t i = 0; i < g->array_alias_count; ++i)
++        if (nvm_shape_root(g, g->array_aliases[i].source) == nvm_shape_root(g, caller) &&
++            nvm_shape_root(g, g->array_aliases[i].target) == nvm_shape_root(g, callee)) return 1;
++    NvmShapeConversion *next = grow(g, g->array_aliases, &g->array_alias_capacity,
++                                    g->array_alias_count + 1, sizeof *next);
++    if (!next) return 0;
++    g->array_aliases = next;
++    g->array_aliases[g->array_alias_count++] = (NvmShapeConversion){caller, callee, 0};
++    return 1;
++}
++
++int nvm_shape_array_write(NvmShapeGraph *g, NvmShapeId array, NvmShapeId value) {
++    if (!nvm_shape_root(g, array) || !nvm_shape_root(g, value)) return 0;
++    for (size_t i = 0; i < g->array_write_count; ++i)
++        if (nvm_shape_root(g, g->array_writes[i].source) == nvm_shape_root(g, array) &&
++            nvm_shape_root(g, g->array_writes[i].target) == nvm_shape_root(g, value)) return 1;
++    NvmShapeConversion *next = grow(g, g->array_writes, &g->array_write_capacity,
++                                    g->array_write_count + 1, sizeof *next);
++    if (!next) return 0;
++    g->array_writes = next;
++    g->array_writes[g->array_write_count++] = (NvmShapeConversion){array, value, 0};
++    return nvm_shape_alias_view(g, value, nvm_shape_child(g, array, 0));
++}
++
++static int propagate_array_writes(NvmShapeGraph *g) {
++    /* I propagate actual writes through call aliases. A callee's read view
++     * may merge unrelated callers and must not become a write to all of them. */
++    for (size_t i = 0; i < g->array_write_count && !g->error; ++i) {
++        NvmShapeId array = nvm_shape_root(g, g->array_writes[i].source);
++        NvmShapeId value = g->array_writes[i].target;
++        for (size_t a = 0; a < g->array_alias_count; ++a) {
++            if (nvm_shape_root(g, g->array_aliases[a].target) != array) continue;
++            NvmShapeId caller = g->array_aliases[a].source;
++            if (!nvm_shape_array_write(g, caller, value)) return 0;
++        }
++    }
++    return !g->error;
++}
++
+ typedef struct { NvmShapeId source, target; int exact, alias_view; } FlowPair;
+ 
+ int nvm_shape_array_read(NvmShapeGraph *g, NvmShapeId element, NvmShapeId result) {
+@@ -391,6 +434,7 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
+                      kind_name(from), kind_name(to), source, target);
+             fail(g, g->error_detail); break;
+         }
++        if (from == NVM_SHAPE_ARRAY && !nvm_shape_array_alias(g, source, target)) break;
+         if (from == NVM_SHAPE_FUNCTION) {
+             NvmShapeNode *producer = &g->nodes[source - 1], *storage = &g->nodes[target - 1];
+             for (size_t i = 0; i < producer->function_count && !g->error; ++i)
+@@ -439,9 +483,12 @@ int nvm_shape_solve_conversions(NvmShapeGraph *g) {
+     int changed;
+     do {
+         changed = 0;
++        size_t prior_writes = g->array_write_count, prior_aliases = g->array_alias_count;
+         if (!solve_array_reads(g, &changed)) return 0;
+         for (size_t i = 0; i < g->conversion_count && !g->error; ++i)
+             if (!flow_one(g, g->conversions[i], &changed, 0)) return 0;
++        if (!propagate_array_writes(g)) return 0;
++        if (prior_writes != g->array_write_count || prior_aliases != g->array_alias_count) changed = 1;
+     } while (changed && !g->error);
+     /* Unknown sources may resolve on a later conversion pass. Only after
+      * convergence do I require evidence for explicit scalar-set injection.
+diff --git a/src/nanoisa/nvm2c_shape.h b/src/nanoisa/nvm2c_shape.h
+index 2f7abf943..521aed0bc 100644
+--- a/src/nanoisa/nvm2c_shape.h
++++ b/src/nanoisa/nvm2c_shape.h
+@@ -31,6 +31,9 @@ typedef struct {
+     char error_detail[160];
+     NvmShapeConversion *conversions;
+     size_t conversion_count, conversion_capacity;
++    NvmShapeConversion *array_aliases, *array_writes;
++    size_t array_alias_count, array_alias_capacity;
++    size_t array_write_count, array_write_capacity;
+     NvmShapeArrayRead *array_reads;
+     size_t array_read_count, array_read_capacity;
+ } NvmShapeGraph;
+@@ -60,6 +63,10 @@ int nvm_shape_convert(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target
+ int nvm_shape_array_read(NvmShapeGraph *graph, NvmShapeId element, NvmShapeId result);
+ /* I propagate a shared handle back into an existing guarded storage view. */
+ int nvm_shape_alias_view(NvmShapeGraph *graph, NvmShapeId source, NvmShapeId target);
++/* I carry actual writes back through shared array handles, independently of
++ * callee read views that may join values from unrelated callers. */
++int nvm_shape_array_alias(NvmShapeGraph *graph, NvmShapeId caller, NvmShapeId callee);
++int nvm_shape_array_write(NvmShapeGraph *graph, NvmShapeId array, NvmShapeId value);
+ int nvm_shape_solve_conversions(NvmShapeGraph *graph);
+ 
+ #endif
+diff --git a/tests/nanoisa/test_nvm2c_shape.c b/tests/nanoisa/test_nvm2c_shape.c
+index a62a8b93b..0e5faf267 100644
+--- a/tests/nanoisa/test_nvm2c_shape.c
++++ b/tests/nanoisa/test_nvm2c_shape.c
+@@ -412,6 +412,51 @@ static void check_function_targets(NvmShapeGraph *g, NvmShapeId shape,
+     }
+ }
+ 
++static void test_nested_array_write_facts(void) {
++    NvmShapeGraph g = {0};
++    NvmShapeId holders[2], arrays[2], fields[2], producers[2];
++    NvmShapeId callee = nvm_shape_new(&g, NVM_SHAPE_RECORD);
++    for (size_t i = 0; i < 2; ++i) {
++        holders[i] = nvm_shape_new(&g, NVM_SHAPE_RECORD);
++        arrays[i] = nvm_shape_child(&g, holders[i], 0);
++        CHECK(nvm_shape_unify(&g, arrays[i], nvm_shape_new(&g, NVM_SHAPE_ARRAY)));
++        NvmShapeId element = nvm_shape_child(&g, arrays[i], 0);
++        CHECK(nvm_shape_unify(&g, element, nvm_shape_new(&g, NVM_SHAPE_RECORD)));
++        fields[i] = nvm_shape_child(&g, element, 0);
++        producers[i] = nvm_shape_new(&g, NVM_SHAPE_FUNCTION);
++        CHECK(nvm_shape_function_add(&g, producers[i], (uint32_t)i + 2));
++        CHECK(nvm_shape_convert(&g, producers[i], fields[i]));
++        CHECK(nvm_shape_convert(&g, holders[i], callee));
++    }
++    CHECK(nvm_shape_solve_conversions(&g));
++    const uint32_t first[] = {2}, second[] = {3}, read_join[] = {2, 3};
++    check_function_targets(&g, fields[0], first, 1);
++    check_function_targets(&g, fields[1], second, 1);
++    NvmShapeId callee_array = nvm_shape_child(&g, callee, 0);
++    NvmShapeId read_field = nvm_shape_child(&g, nvm_shape_child(&g, callee_array, 0), 0);
++    check_function_targets(&g, read_field, read_join, 2);
++    /* I add a write after initial convergence, through another alias hop.
++     * Each caller gains that write but never the other caller's read facts. */
++    NvmShapeId forwarded = nvm_shape_new(&g, NVM_SHAPE_ARRAY);
++    CHECK(nvm_shape_array_alias(&g, callee_array, forwarded));
++    NvmShapeId written = nvm_shape_new(&g, NVM_SHAPE_RECORD);
++    CHECK(nvm_shape_function_add(&g, nvm_shape_child(&g, written, 0), 9));
++    CHECK(nvm_shape_array_write(&g, forwarded, written));
++    CHECK(nvm_shape_solve_conversions(&g));
++    const uint32_t first_written[] = {2, 9}, second_written[] = {3, 9};
++    check_function_targets(&g, fields[0], first_written, 2);
++    check_function_targets(&g, fields[1], second_written, 2);
++    check_function_targets(&g, producers[0], first, 1);
++    check_function_targets(&g, producers[1], second, 1);
++    size_t count = g.count, conversions = g.conversion_count;
++    size_t aliases = g.array_alias_count, writes = g.array_write_count;
++    CHECK(nvm_shape_solve_conversions(&g));
++    CHECK(g.count == count && g.conversion_count == conversions);
++    CHECK(g.array_alias_count == aliases && g.array_write_count == writes);
++    nvm_shape_destroy(&g);
++    CHECK(!g.array_aliases && !g.array_writes);
++}
++
+ static void test_function_targets(void) {
+     for (int reverse = 0; reverse < 2; ++reverse) {
+         NvmShapeGraph g = {0};
+@@ -670,6 +715,7 @@ int main(void) {
+         CHECK(g.error != NULL);
+         nvm_shape_destroy(&g);
+     }
++    test_nested_array_write_facts();
+     test_function_targets();
+     test_deferred_array_reads();
+     test_map_shapes();
+diff --git a/tests/test_native_mutable_record_arrays.py b/tests/test_native_mutable_record_arrays.py
+index e2776a29a..25a2dfac4 100644
+--- a/tests/test_native_mutable_record_arrays.py
++++ b/tests/test_native_mutable_record_arrays.py
+@@ -40,6 +40,7 @@ class MutableRecordArrays(unittest.TestCase):
+     def test_nested_fields_after_direct_forwarded_and_indirect_mutation(self):
+         source = """struct Location {file:string, line:int}
+ struct Diagnostic {location:Location}
++struct Holder {items:array<Diagnostic>}
+ struct Output {file:string, line:int}
+ fn project(d:Diagnostic)->Output {
+  return Output {file:d.location.file, line:d.location.line}
+@@ -61,6 +62,12 @@ shadow forward {
+  (forward a Diagnostic {location:Location {file:"abc",line:42}})
+  assert (== (array_length a) 1)
+ }
++fn wrapped(holder:Holder, d:Diagnostic)->void { (forward holder.items d) }
++shadow wrapped {
++ let a:array<Diagnostic> = []
++ (wrapped Holder {items:a} Diagnostic {location:Location {file:"abc",line:42}})
++ assert (== (array_length a) 1)
++}
+ fn main()->int {
+  let a:array<Diagnostic> = []
+  let alias:array<Diagnostic> = a
+@@ -74,13 +81,21 @@ fn main()->int {
+ }
+ shadow main { assert (== (main) 0) }
+ """
+-        for mutation in ['(array_push alias d)', '(add alias d)', '(forward alias d)',
+-                         'let callback:fn(array<Diagnostic>, Diagnostic)->void = forward\n (callback alias d)']:
+-            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory(prefix='nano-mutable-records-') as tmp:
+-                work = Path(tmp)
+-                path = work / 'input.nano'
+-                path.write_text(source.replace('MUTATION', mutation))
+-                self.execute(path, work)
++        for operation in ('push', 'set'):
++            fixture = source
++            if operation == 'set':
++                fixture = fixture.replace('let a:array<Diagnostic> = []',
++                    'let a:array<Diagnostic> = [Diagnostic {location:Location {file:"old",line:1}}]')
++                fixture = fixture.replace('(array_push a d)', '(array_set a 0 d)')
++            mutations = ['(array_push alias d)' if operation == 'push' else '(array_set alias 0 d)',
++                         '(add alias d)', '(forward alias d)', '(wrapped Holder {items:alias} d)',
++                         'let callback:fn(array<Diagnostic>, Diagnostic)->void = forward\n (callback alias d)']
++            for mutation in mutations:
++                with self.subTest(operation=operation, mutation=mutation), tempfile.TemporaryDirectory(prefix='nano-mutable-records-') as tmp:
++                    work = Path(tmp)
++                    path = work / 'input.nano'
++                    path.write_text(fixture.replace('MUTATION', mutation))
++                    self.execute(path, work)
+ 
+     def test_existing_populated_diagnostic_formatter(self):
+         with tempfile.TemporaryDirectory(prefix='nano-diagnostic-format-') as tmp:

@@ -1,0 +1,534 @@
+Code Coverage	Install dependencies	﻿2026-10-08T20:09:25.0325470Z ##[group]Run ./scripts/ci-apt-install.sh \
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0325797Z ^[[36;1m./scripts/ci-apt-install.sh \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0326017Z ^[[36;1m  build-essential \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0326205Z ^[[36;1m  lcov \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0326365Z ^[[36;1m  bc \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0326531Z ^[[36;1m  pkg-config \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0326753Z ^[[36;1m  libssl-dev libffi-dev libsqlite3-dev \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0326994Z ^[[36;1m  libsdl2-dev \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0327182Z ^[[36;1m  libsdl2-image-dev \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0327378Z ^[[36;1m  libsdl2-mixer-dev \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0327567Z ^[[36;1m  libsdl2-ttf-dev \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0327752Z ^[[36;1m  libutf8proc-dev \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0327960Z ^[[36;1m  libncurses-dev libreadline-dev \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0328224Z ^[[36;1m  libevent-dev libuv1-dev libbullet-dev \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0328484Z ^[[36;1m  libglfw3-dev libglew-dev freeglut3-dev \^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0328705Z ^[[36;1m  gforth^[[0m
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0383700Z shell: /usr/bin/bash -e {0}
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0383952Z env:
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0384163Z   NANO_VERIFY_CORPUS_LOG_ROOT: .test_output/verifier-corpus
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0384438Z   NANO_SHADOW_TIMEOUT_SECONDS: 60
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0384641Z ##[endgroup]
+Code Coverage	Install dependencies	2026-10-08T20:09:25.0697220Z apt install attempt 1/3 (timeout 180s): build-essential lcov bc pkg-config libssl-dev libffi-dev libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev libncurses-dev libreadline-dev libevent-dev libuv1-dev libbullet-dev libglfw3-dev libglew-dev freeglut3-dev gforth
+Code Coverage	Install dependencies	2026-10-08T20:09:40.5636724Z Reading package lists...
+Code Coverage	Install dependencies	2026-10-08T20:09:40.7289787Z Building dependency tree...
+Code Coverage	Install dependencies	2026-10-08T20:09:40.7295826Z Reading state information...
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8631703Z bc is already the newest version (1.07.1-3ubuntu4).
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8632253Z bc set to manually installed.
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8632633Z pkg-config is already the newest version (1.8.1-2build1).
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8633135Z libssl-dev is already the newest version (3.0.13-0ubuntu3.16).
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8633676Z libffi-dev is already the newest version (3.4.6-1build1).
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8634125Z libffi-dev set to manually installed.
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8634592Z libsqlite3-dev is already the newest version (3.45.1-1ubuntu2.8).
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8635163Z libncurses-dev is already the newest version (6.4+20240113-1ubuntu2.2).
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8635621Z libncurses-dev set to manually installed.
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8636014Z The following additional packages will be installed:
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8636541Z   bzip2-doc gforth-common gforth-lib gir1.2-freedesktop gir1.2-freedesktop-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8637198Z   gir1.2-glib-2.0-dev gir1.2-harfbuzz-0.0 gir1.2-ibus-1.0 libalgorithm-c3-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8638201Z   libasound2-dev libasyncns0 libb-hooks-endofscope-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8638722Z   libb-hooks-op-check-perl libblkid-dev libbrotli-dev libbullet3.24t64
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8639364Z   libbz2-dev libcapture-tiny-perl libclass-c3-perl libclass-c3-xs-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8639897Z   libclass-data-inheritable-perl libclass-inspector-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8640381Z   libclass-method-modifiers-perl libclass-singleton-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8641064Z   libclass-xsaccessor-perl libdata-optlist-perl libdatetime-locale-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8641663Z   libdatetime-perl libdatetime-timezone-perl libdbus-1-dev libdecor-0-0
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8642178Z   libdecor-0-dev libdecor-0-plugin-1-gtk libdeflate-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8642691Z   libdevel-callchecker-perl libdevel-caller-perl libdevel-lexalias-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8643364Z   libdevel-stacktrace-perl libdrm-dev libdrm-nouveau2 libdrm-radeon1
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8643994Z   libdynaloader-functions-perl libegl-dev libegl-mesa0 libegl1
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8644496Z   libegl1-mesa-dev libeval-closure-perl libevent-2.1-7t64
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8645096Z   libevent-extra-2.1-7t64 libevent-openssl-2.1-7t64 libexception-class-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8645711Z   libfile-sharedir-perl libflac-dev libflac12t64 libfluidsynth-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8646549Z   libfluidsynth3 libfreetype-dev libfreetype6 libgbm-dev libgd-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8647046Z   libgirepository-2.0-0 libgl-dev libgl1-mesa-dev libgles-dev libgles1
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8647639Z   libgles2 libglew2.2 libglfw3 libglib2.0-dev libglib2.0-dev-bin libglu1-mesa
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8648023Z   libglu1-mesa-dev libglut-dev libglut3.12 libglvnd-core-dev libglvnd-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8648397Z   libglx-dev libgraphite2-dev libharfbuzz-cairo0 libharfbuzz-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8648819Z   libharfbuzz-gobject0 libharfbuzz-icu0 libharfbuzz-subset0 libibus-1.0-5
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8649239Z   libibus-1.0-dev libice-dev libinstpatch-1.0-2 libinstpatch-dev libjack-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8649700Z   libjack0 libjbig-dev libjpeg-dev libjpeg-turbo8-dev libjpeg8-dev liblerc-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8650202Z   liblzma-dev libmodplug-dev libmodplug1 libmodule-implementation-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8650596Z   libmodule-runtime-perl libmount-dev libmp3lame0 libmpg123-0t64 libmpg123-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8651178Z   libmro-compat-perl libnamespace-autoclean-perl libnamespace-clean-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8651573Z   libogg-dev libopengl-dev libopengl0 libopus-dev libopus0 libopusfile-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8651959Z   libopusfile0 libout123-0t64 libpackage-stash-perl libpackage-stash-xs-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8652332Z   libpadwalker-perl libparams-classify-perl libparams-util-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8652798Z   libparams-validationcompiler-perl libpciaccess-dev libperlio-gzip-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8653202Z   libpipewire-0.3-0t64 libpipewire-0.3-common libpipewire-0.3-dev libpng-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8653574Z   libpng-tools libpng16-16t64 libpthread-stubs0-dev libpulse-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8653930Z   libpulse-mainloop-glib0 libpulse0 libreadonly-perl libref-util-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8654304Z   libref-util-xs-perl librole-tiny-perl libsamplerate0 libsamplerate0-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8654816Z   libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 libsdl2-ttf-2.0-0
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8655346Z   libselinux1-dev libsepol-dev libsharpyuv-dev libsm-dev libsndfile1
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8655894Z   libsndfile1-dev libsndio-dev libsndio7.0 libspa-0.2-dev libspa-0.2-modules
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8656457Z   libspecio-perl libsub-exporter-perl libsub-exporter-progressive-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8657047Z   libsub-identify-perl libsub-install-perl libsub-name-perl libsub-quote-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8657442Z   libsyn123-0t64 libsystemd-dev libtiff-dev libtiffxx6 libtry-tiny-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8657822Z   libudev-dev libutf8proc3 libvariable-magic-perl libvorbis-dev libvorbisenc2
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8658215Z   libvulkan-dev libwayland-bin libwayland-dev libwayland-server0 libwebp-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8658749Z   libwebpdecoder3 libwebrtc-audio-processing1 libx11-dev libxau-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8659124Z   libxcb1-dev libxcursor-dev libxdmcp-dev libxext-dev libxfixes-dev libxi-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8659613Z   libxinerama-dev libxkbcommon-dev libxrandr-dev libxrender-dev libxss-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8660224Z   libxstring-perl libxt-dev libxv-dev libxv1 libxxf86vm-dev timgm6mb-soundfont
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8660920Z   uuid-dev x11proto-dev xorg-sgml-doctools xtrans-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8661270Z Suggested packages:
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8661520Z   libasound2-doc freetype2-doc glew-utils libosmesa6 libglfw3-doc
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8661874Z   libglib2.0-doc libgdk-pixbuf2.0-bin libxml2-utils libgraphite2-utils
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8662246Z   libice-doc jackd1 liblzma-doc opus-tools libscalar-number-perl pipewire
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8662638Z   pipewire-doc pulseaudio readline-doc libsm-doc sndiod libtest-fatal-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8663157Z   libwayland-doc libx11-doc libxcb-doc libxext-doc libxt-doc
+Code Coverage	Install dependencies	2026-10-08T20:09:40.8663570Z   fluid-soundfont-gm
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9283512Z The following NEW packages will be installed:
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9284134Z   build-essential bzip2-doc freeglut3-dev gforth gforth-common gforth-lib
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9285249Z   gir1.2-freedesktop gir1.2-freedesktop-dev gir1.2-glib-2.0-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9285842Z   gir1.2-harfbuzz-0.0 gir1.2-ibus-1.0 lcov libalgorithm-c3-perl libasound2-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9286524Z   libasyncns0 libb-hooks-endofscope-perl libb-hooks-op-check-perl libblkid-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9287202Z   libbrotli-dev libbullet-dev libbullet3.24t64 libbz2-dev libcapture-tiny-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9287876Z   libclass-c3-perl libclass-c3-xs-perl libclass-data-inheritable-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9288558Z   libclass-inspector-perl libclass-method-modifiers-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9289265Z   libclass-singleton-perl libclass-xsaccessor-perl libdata-optlist-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9289932Z   libdatetime-locale-perl libdatetime-perl libdatetime-timezone-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9290591Z   libdbus-1-dev libdecor-0-0 libdecor-0-dev libdecor-0-plugin-1-gtk
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9291404Z   libdeflate-dev libdevel-callchecker-perl libdevel-caller-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9292105Z   libdevel-lexalias-perl libdevel-stacktrace-perl libdrm-dev libdrm-nouveau2
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9292859Z   libdrm-radeon1 libdynaloader-functions-perl libegl-dev libegl-mesa0 libegl1
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9293535Z   libegl1-mesa-dev libeval-closure-perl libevent-2.1-7t64 libevent-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9294180Z   libevent-extra-2.1-7t64 libevent-openssl-2.1-7t64 libexception-class-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9294830Z   libfile-sharedir-perl libflac-dev libflac12t64 libfluidsynth-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9295499Z   libfluidsynth3 libfreetype-dev libgbm-dev libgd-perl libgirepository-2.0-0
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9296182Z   libgl-dev libgl1-mesa-dev libgles-dev libgles1 libgles2 libglew-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9296785Z   libglew2.2 libglfw3 libglfw3-dev libglib2.0-dev libglib2.0-dev-bin
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9297447Z   libglu1-mesa libglu1-mesa-dev libglut-dev libglut3.12 libglvnd-core-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9298130Z   libglvnd-dev libglx-dev libgraphite2-dev libharfbuzz-cairo0 libharfbuzz-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9298829Z   libharfbuzz-gobject0 libharfbuzz-icu0 libharfbuzz-subset0 libibus-1.0-5
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9299536Z   libibus-1.0-dev libice-dev libinstpatch-1.0-2 libinstpatch-dev libjack-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9300284Z   libjack0 libjbig-dev libjpeg-dev libjpeg-turbo8-dev libjpeg8-dev liblerc-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9301100Z   liblzma-dev libmodplug-dev libmodplug1 libmodule-implementation-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9301824Z   libmodule-runtime-perl libmount-dev libmp3lame0 libmpg123-0t64 libmpg123-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9302520Z   libmro-compat-perl libnamespace-autoclean-perl libnamespace-clean-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9303178Z   libogg-dev libopengl-dev libopengl0 libopus-dev libopus0 libopusfile-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9303858Z   libopusfile0 libout123-0t64 libpackage-stash-perl libpackage-stash-xs-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9304774Z   libpadwalker-perl libparams-classify-perl libparams-util-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9305434Z   libparams-validationcompiler-perl libpciaccess-dev libperlio-gzip-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9306195Z   libpipewire-0.3-0t64 libpipewire-0.3-common libpipewire-0.3-dev libpng-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9306925Z   libpng-tools libpthread-stubs0-dev libpulse-dev libpulse-mainloop-glib0
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9307569Z   libpulse0 libreadline-dev libreadonly-perl libref-util-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9308158Z   libref-util-xs-perl librole-tiny-perl libsamplerate0 libsamplerate0-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9308752Z   libsdl2-2.0-0 libsdl2-dev libsdl2-image-2.0-0 libsdl2-image-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9309349Z   libsdl2-mixer-2.0-0 libsdl2-mixer-dev libsdl2-ttf-2.0-0 libsdl2-ttf-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9310000Z   libselinux1-dev libsepol-dev libsharpyuv-dev libsm-dev libsndfile1
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9310816Z   libsndfile1-dev libsndio-dev libsndio7.0 libspa-0.2-dev libspa-0.2-modules
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9311467Z   libspecio-perl libsub-exporter-perl libsub-exporter-progressive-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9312115Z   libsub-identify-perl libsub-install-perl libsub-name-perl libsub-quote-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9312774Z   libsyn123-0t64 libsystemd-dev libtiff-dev libtiffxx6 libtry-tiny-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9313570Z   libudev-dev libutf8proc-dev libutf8proc3 libuv1-dev libvariable-magic-perl
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9314217Z   libvorbis-dev libvorbisenc2 libvulkan-dev libwayland-bin libwayland-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9314870Z   libwayland-server0 libwebp-dev libwebpdecoder3 libwebrtc-audio-processing1
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9315524Z   libx11-dev libxau-dev libxcb1-dev libxcursor-dev libxdmcp-dev libxext-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9316139Z   libxfixes-dev libxi-dev libxinerama-dev libxkbcommon-dev libxrandr-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9316740Z   libxrender-dev libxss-dev libxstring-perl libxt-dev libxv-dev libxv1
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9317373Z   libxxf86vm-dev timgm6mb-soundfont uuid-dev x11proto-dev xorg-sgml-doctools
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9317861Z   xtrans-dev
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9318141Z The following packages will be upgraded:
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9318499Z   libfreetype6 libpng16-16t64
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9500123Z 2 upgraded, 213 newly installed, 0 to remove and 21 not upgraded.
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9500538Z Need to get 39.1 MB of archives.
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9500974Z After this operation, 192 MB of additional disk space will be used.
+Code Coverage	Install dependencies	2026-10-08T20:09:40.9501300Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+Code Coverage	Install dependencies	2026-10-08T20:09:44.5309619Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libpng16-16t64 amd64 1.6.43-5ubuntu0.7 [189 kB]
+Code Coverage	Install dependencies	2026-10-08T20:09:46.5115379Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 build-essential amd64 12.10ubuntu1 [4928 B]
+Code Coverage	Install dependencies	2026-10-08T20:09:46.7736991Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 bzip2-doc all 1.0.8-5.1ubuntu0.1 [499 kB]
+Code Coverage	Install dependencies	2026-10-08T20:09:51.3431756Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libglut3.12 amd64 3.4.0-1build1 [98.0 kB]
+Code Coverage	Install dependencies	2026-10-08T20:09:52.3903283Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xorg-sgml-doctools all 1:1.11-1.1 [10.9 kB]
+Code Coverage	Install dependencies	2026-10-08T20:09:52.7653636Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 x11proto-dev all 2023.2-1 [602 kB]
+Code Coverage	Install dependencies	2026-10-08T20:09:57.7846316Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxau-dev amd64 1:1.0.9-1build6 [9570 B]
+Code Coverage	Install dependencies	2026-10-08T20:09:58.2144605Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxdmcp-dev amd64 1:1.1.3-0ubuntu6 [26.5 kB]
+Code Coverage	Install dependencies	2026-10-08T20:09:58.7019940Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xtrans-dev all 1.4.0-1 [68.9 kB]
+Code Coverage	Install dependencies	2026-10-08T20:09:59.4417846Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libpthread-stubs0-dev amd64 0.4-1build3 [4746 B]
+Code Coverage	Install dependencies	2026-10-08T20:09:59.7558613Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxcb1-dev amd64 1.15-1ubuntu2 [85.8 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:00.6407534Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libx11-dev amd64 2:1.8.7-1build1 [732 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:06.7332919Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libglx-dev amd64 1.7.0-1build1 [14.2 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:07.1000952Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libgl-dev amd64 1.7.0-1build1 [102 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:08.2779996Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libglvnd-core-dev amd64 1.7.0-1build1 [13.6 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:08.5955135Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libegl-mesa0 amd64 25.2.8-0ubuntu0.24.04.4 [117 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:09.7591798Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libegl1 amd64 1.7.0-1build1 [28.7 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:10.2899796Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libegl-dev amd64 1.7.0-1build1 [18.2 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:10.6269345Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libgles1 amd64 1.7.0-1build1 [11.6 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:10.9066516Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libgles2 amd64 1.7.0-1build1 [17.1 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:11.2649904Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libgles-dev amd64 1.7.0-1build1 [50.5 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:11.8599633Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libopengl0 amd64 1.7.0-1build1 [32.8 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:12.3395581Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libopengl-dev amd64 1.7.0-1build1 [3454 B]
+Code Coverage	Install dependencies	2026-10-08T20:10:12.5630512Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libglvnd-dev amd64 1.7.0-1build1 [3198 B]
+Code Coverage	Install dependencies	2026-10-08T20:10:12.8034856Z Get:26 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libgl1-mesa-dev amd64 25.2.8-0ubuntu0.24.04.4 [22.8 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:13.1921702Z Get:27 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libglu1-mesa amd64 9.0.2-1.1build1 [152 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:14.7210269Z Get:28 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libglu1-mesa-dev amd64 9.0.2-1.1build1 [237 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:17.1390147Z Get:29 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxext-dev amd64 2:1.3.4-1build2 [83.5 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:18.0505316Z Get:30 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libice-dev amd64 2:1.0.10-1build3 [51.0 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:18.7011221Z Get:31 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libsm-dev amd64 2:1.2.3-1build3 [17.8 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:19.1962323Z Get:32 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxt-dev amd64 1:1.2.1-1.2build1 [394 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:22.5966509Z Get:33 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libglut-dev amd64 3.4.0-1build1 [125 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:23.8120925Z Get:34 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 freeglut3-dev amd64 3.4.0-1build1 [2022 B]
+Code Coverage	Install dependencies	2026-10-08T20:10:24.0918712Z Get:35 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 gforth-common all 0.7.3+dfsg-9build4.1 [329 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:27.1276672Z Get:36 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 gforth-lib amd64 0.7.3+dfsg-9build4.1 [150 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:28.5281069Z Get:37 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 gforth amd64 0.7.3+dfsg-9build4.1 [139 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:29.7823683Z Get:38 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 gir1.2-freedesktop amd64 1.80.1-1 [49.7 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:30.4045738Z Get:39 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 gir1.2-glib-2.0-dev amd64 2.80.0-6ubuntu3.9 [848 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:37.8493005Z Get:40 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 gir1.2-freedesktop-dev amd64 1.80.1-1 [28.8 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:38.2644411Z Get:41 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libharfbuzz-gobject0 amd64 8.3.0-2build2 [34.3 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:38.7234988Z Get:42 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 gir1.2-harfbuzz-0.0 amd64 8.3.0-2build2 [44.5 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:39.2619403Z Get:43 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libibus-1.0-5 amd64 1.5.29-2 [181 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:40.7485195Z Get:44 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 gir1.2-ibus-1.0 amd64 1.5.29-2 [86.3 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:41.8515200Z Get:45 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libcapture-tiny-perl all 0.48-2 [20.2 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:42.3229219Z Get:46 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libclass-inspector-perl all 1.36-3 [15.4 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:42.6737768Z Get:47 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libfile-sharedir-perl all 1.118-3 [14.0 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:42.9884471Z Get:48 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libb-hooks-op-check-perl amd64 0.22-3build1 [9518 B]
+Code Coverage	Install dependencies	2026-10-08T20:10:43.2745042Z Get:49 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libdynaloader-functions-perl all 0.003-3 [12.1 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:43.5434979Z Get:50 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libdevel-callchecker-perl amd64 0.008-2build3 [13.2 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:43.9194803Z Get:51 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libparams-classify-perl amd64 0.015-2build5 [20.1 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:44.2546809Z Get:52 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libmodule-runtime-perl all 0.016-2 [16.4 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:44.6058975Z Get:53 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libtry-tiny-perl all 0.31-2 [20.8 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:45.0777187Z Get:54 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libmodule-implementation-perl all 0.09-2 [12.0 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:45.4629161Z Get:55 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libsub-exporter-progressive-perl all 0.001013-3 [6718 B]
+Code Coverage	Install dependencies	2026-10-08T20:10:45.6913883Z Get:56 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libvariable-magic-perl amd64 0.63-1build3 [35.1 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:46.1249710Z Get:57 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libb-hooks-endofscope-perl all 0.28-1 [15.8 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:46.4018404Z Get:58 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libpackage-stash-perl all 0.40-1 [19.5 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:46.8167429Z Get:59 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libsub-identify-perl amd64 0.14-3build3 [9786 B]
+Code Coverage	Install dependencies	2026-10-08T20:10:47.1711538Z Get:60 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libsub-name-perl amd64 0.27-1build3 [10.8 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:47.4985578Z Get:61 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libnamespace-clean-perl all 0.27-2 [14.0 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:47.7760166Z Get:62 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libnamespace-autoclean-perl all 0.29-2 [11.7 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:48.0239483Z Get:63 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libparams-util-perl amd64 1.102-2build3 [21.2 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:48.4245532Z Get:64 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libsub-install-perl all 0.929-1 [9764 B]
+Code Coverage	Install dependencies	2026-10-08T20:10:48.6631592Z Get:65 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libdata-optlist-perl all 0.114-1 [9708 B]
+Code Coverage	Install dependencies	2026-10-08T20:10:48.9996555Z Get:66 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libsub-exporter-perl all 0.990-1 [49.0 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:49.5055433Z Get:67 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libeval-closure-perl all 0.14-3 [10.1 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:49.7841393Z Get:68 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libclass-data-inheritable-perl all 0.08-3 [8084 B]
+Code Coverage	Install dependencies	2026-10-08T20:10:50.1260832Z Get:69 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libdevel-stacktrace-perl all 2.0500-1 [22.1 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:50.5715456Z Get:70 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libexception-class-perl all 1.45-1 [28.6 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:50.9679380Z Get:71 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libparams-validationcompiler-perl all 0.31-1 [28.3 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:51.3535189Z Get:72 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libalgorithm-c3-perl all 0.11-2 [10.2 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:51.6114089Z Get:73 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libclass-c3-perl all 0.35-2 [18.4 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:51.9751710Z Get:74 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libmro-compat-perl all 0.15-2 [10.1 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:52.2389818Z Get:75 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libclass-method-modifiers-perl all 2.15-1 [16.1 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:52.5189892Z Get:76 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 librole-tiny-perl all 2.002004-1 [16.3 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:52.8048490Z Get:77 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libsub-quote-perl all 2.006008-1ubuntu1 [20.7 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:53.1405273Z Get:78 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libxstring-perl amd64 0.005-2build3 [7852 B]
+Code Coverage	Install dependencies	2026-10-08T20:10:53.4156875Z Get:79 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libspecio-perl all 0.48-1 [137 kB]
+Code Coverage	Install dependencies	2026-10-08T20:10:54.6925339Z Get:80 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libdatetime-locale-perl all 1:1.37-1 [2833 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:15.8325635Z Get:81 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libclass-singleton-perl all 1.6-2 [11.5 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:16.1269597Z Get:82 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libdatetime-timezone-perl all 1:2.62-1+2024a [262 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:18.2911680Z Get:83 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libdatetime-perl amd64 2:1.65-1build2 [95.8 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:19.4463204Z Get:84 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libperlio-gzip-perl amd64 0.20-1build4 [14.6 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:19.7634791Z Get:85 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 lcov all 2.0-4ubuntu2 [223 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:21.8589673Z Get:86 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libasound2-dev amd64 1.2.11-1ubuntu0.3 [115 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:23.0937704Z Get:87 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libasyncns0 amd64 0.8-6build4 [11.3 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:23.4012696Z Get:88 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libbrotli-dev amd64 1.1.0-2build2 [353 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:26.3951176Z Get:89 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libbullet3.24t64 amd64 3.24+dfsg-2.1build1 [1802 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:40.8668131Z Get:90 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libbz2-dev amd64 1.0.8-5.1ubuntu0.1 [33.6 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:41.4107898Z Get:91 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libclass-c3-xs-perl amd64 0.15-1build6 [16.3 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:41.8011827Z Get:92 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libclass-xsaccessor-perl amd64 1.19-4build4 [33.1 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:42.3242582Z Get:93 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libdbus-1-dev amd64 1.14.10-4ubuntu4.1 [190 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:43.9982979Z Get:94 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libdecor-0-0 amd64 0.2.2-1build2 [16.5 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:44.3973393Z Get:95 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libwayland-server0 amd64 1.22.0-2.1build1 [33.9 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:44.8654270Z Get:96 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libwayland-bin amd64 1.22.0-2.1build1 [20.6 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:45.2298189Z Get:97 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libwayland-dev amd64 1.22.0-2.1build1 [71.3 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:45.9872551Z Get:98 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libdecor-0-dev amd64 0.2.2-1build2 [5726 B]
+Code Coverage	Install dependencies	2026-10-08T20:11:46.2678753Z Get:99 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libdecor-0-plugin-1-gtk amd64 0.2.2-1build2 [22.2 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:46.7095574Z Get:100 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libdeflate-dev amd64 1.19-1build1.1 [50.9 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:47.4025479Z Get:101 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libpadwalker-perl amd64 2.5-1build6 [15.5 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:47.9773249Z Get:102 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libdevel-caller-perl amd64 2.07-1build3 [9766 B]
+Code Coverage	Install dependencies	2026-10-08T20:11:48.5208528Z Get:103 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libdevel-lexalias-perl amd64 0.05-3build4 [8014 B]
+Code Coverage	Install dependencies	2026-10-08T20:11:48.7685718Z Get:104 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libdrm-radeon1 amd64 2.4.125-1ubuntu0.1~24.04.2 [20.8 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:49.1288616Z Get:105 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libdrm-nouveau2 amd64 2.4.125-1ubuntu0.1~24.04.2 [17.6 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:49.4696276Z Get:106 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libpciaccess-dev amd64 0.17-3ubuntu0.24.04.3 [22.0 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:49.8307444Z Get:107 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libdrm-dev amd64 2.4.125-1ubuntu0.1~24.04.2 [314 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:52.6785550Z Get:108 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libegl1-mesa-dev amd64 25.2.8-0ubuntu0.24.04.4 [26.8 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:53.1287517Z Get:109 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libevent-2.1-7t64 amd64 2.1.12-stable-9ubuntu2.2 [146 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:54.6290845Z Get:110 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libevent-extra-2.1-7t64 amd64 2.1.12-stable-9ubuntu2.2 [64.6 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:55.4514395Z Get:111 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libevent-openssl-2.1-7t64 amd64 2.1.12-stable-9ubuntu2.2 [15.8 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:55.9191363Z Get:112 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libevent-dev amd64 2.1.12-stable-9ubuntu2.2 [274 kB]
+Code Coverage	Install dependencies	2026-10-08T20:11:58.6533777Z Get:113 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libflac12t64 amd64 1.4.3+ds-2.1ubuntu2 [197 kB]
+Code Coverage	Install dependencies	2026-10-08T20:12:00.8455995Z Get:114 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libogg-dev amd64 1.3.5-3build1 [161 kB]
+Code Coverage	Install dependencies	2026-10-08T20:12:02.6549717Z Get:115 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libflac-dev amd64 1.4.3+ds-2.1ubuntu2 [247 kB]
+Code Coverage	Install dependencies	2026-10-08T20:12:05.2133413Z Get:116 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libmp3lame0 amd64 3.100-6build1 [142 kB]
+Code Coverage	Install dependencies	2026-10-08T20:12:07.0826396Z Get:117 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libmpg123-0t64 amd64 1.32.5-1ubuntu1.1 [169 kB]
+Code Coverage	Install dependencies	2026-10-08T20:12:08.8389566Z Get:118 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libopus0 amd64 1.4-1build1 [208 kB]
+Code Coverage	Install dependencies	2026-10-08T20:12:10.7422258Z Get:119 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libvorbisenc2 amd64 1.3.7-1build3 [80.8 kB]
+Code Coverage	Install dependencies	2026-10-08T20:12:11.6372283Z Get:120 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libsndfile1 amd64 1.2.2-1ubuntu5.24.04.1 [209 kB]
+Code Coverage	Install dependencies	2026-10-08T20:12:13.8291700Z Get:121 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libinstpatch-1.0-2 amd64 1.1.6-1build2 [251 kB]
+Code Coverage	Install dependencies	2026-10-08T20:12:16.2448313Z Get:122 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libjack0 amd64 1:0.126.0-2build3 [101 kB]
+Code Coverage	Install dependencies	2026-10-08T20:12:17.3944150Z Get:123 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libwebrtc-audio-processing1 amd64 0.3.1-0ubuntu6 [290 kB]
+Code Coverage	Install dependencies	2026-10-08T20:12:19.9874416Z Get:124 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libspa-0.2-modules amd64 1.0.5-1ubuntu3.3 [628 kB]
+Code Coverage	Install dependencies	2026-10-08T20:12:25.0762031Z apt attempt 1 failed (exit 137)
+Code Coverage	Install dependencies	2026-10-08T20:12:30.1161544Z apt install attempt 2/3 (timeout 180s): build-essential lcov bc pkg-config libssl-dev libffi-dev libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev libncurses-dev libreadline-dev libevent-dev libuv1-dev libbullet-dev libglfw3-dev libglew-dev freeglut3-dev gforth
+Code Coverage	Install dependencies	2026-10-08T20:12:45.2882279Z Reading package lists...
+Code Coverage	Install dependencies	2026-10-08T20:12:45.4670529Z Building dependency tree...
+Code Coverage	Install dependencies	2026-10-08T20:12:45.4677240Z Reading state information...
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6027811Z bc is already the newest version (1.07.1-3ubuntu4).
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6028400Z bc set to manually installed.
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6028843Z pkg-config is already the newest version (1.8.1-2build1).
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6029325Z libssl-dev is already the newest version (3.0.13-0ubuntu3.16).
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6029981Z libffi-dev is already the newest version (3.4.6-1build1).
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6030370Z libffi-dev set to manually installed.
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6030900Z libsqlite3-dev is already the newest version (3.45.1-1ubuntu2.8).
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6031284Z libncurses-dev is already the newest version (6.4+20240113-1ubuntu2.2).
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6031784Z libncurses-dev set to manually installed.
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6032161Z The following additional packages will be installed:
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6032517Z   bzip2-doc gforth-common gforth-lib gir1.2-freedesktop gir1.2-freedesktop-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6032910Z   gir1.2-glib-2.0-dev gir1.2-harfbuzz-0.0 gir1.2-ibus-1.0 libalgorithm-c3-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6033260Z   libasound2-dev libasyncns0 libb-hooks-endofscope-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6033592Z   libb-hooks-op-check-perl libblkid-dev libbrotli-dev libbullet3.24t64
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6033961Z   libbz2-dev libcapture-tiny-perl libclass-c3-perl libclass-c3-xs-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6034902Z   libclass-data-inheritable-perl libclass-inspector-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6035200Z   libclass-method-modifiers-perl libclass-singleton-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6035536Z   libclass-xsaccessor-perl libdata-optlist-perl libdatetime-locale-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6035910Z   libdatetime-perl libdatetime-timezone-perl libdbus-1-dev libdecor-0-0
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6036231Z   libdecor-0-dev libdecor-0-plugin-1-gtk libdeflate-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6036553Z   libdevel-callchecker-perl libdevel-caller-perl libdevel-lexalias-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6036913Z   libdevel-stacktrace-perl libdrm-dev libdrm-nouveau2 libdrm-radeon1
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6037254Z   libdynaloader-functions-perl libegl-dev libegl-mesa0 libegl1
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6037574Z   libegl1-mesa-dev libeval-closure-perl libevent-2.1-7t64
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6037915Z   libevent-extra-2.1-7t64 libevent-openssl-2.1-7t64 libexception-class-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6038280Z   libfile-sharedir-perl libflac-dev libflac12t64 libfluidsynth-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6038628Z   libfluidsynth3 libfreetype-dev libfreetype6 libgbm-dev libgd-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6038979Z   libgirepository-2.0-0 libgl-dev libgl1-mesa-dev libgles-dev libgles1
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6039347Z   libgles2 libglew2.2 libglfw3 libglib2.0-dev libglib2.0-dev-bin libglu1-mesa
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6039835Z   libglu1-mesa-dev libglut-dev libglut3.12 libglvnd-core-dev libglvnd-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6040197Z   libglx-dev libgraphite2-dev libharfbuzz-cairo0 libharfbuzz-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6040558Z   libharfbuzz-gobject0 libharfbuzz-icu0 libharfbuzz-subset0 libibus-1.0-5
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6041117Z   libibus-1.0-dev libice-dev libinstpatch-1.0-2 libinstpatch-dev libjack-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6041512Z   libjack0 libjbig-dev libjpeg-dev libjpeg-turbo8-dev libjpeg8-dev liblerc-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6041888Z   liblzma-dev libmodplug-dev libmodplug1 libmodule-implementation-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6042266Z   libmodule-runtime-perl libmount-dev libmp3lame0 libmpg123-0t64 libmpg123-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6042659Z   libmro-compat-perl libnamespace-autoclean-perl libnamespace-clean-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6043034Z   libogg-dev libopengl-dev libopengl0 libopus-dev libopus0 libopusfile-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6043411Z   libopusfile0 libout123-0t64 libpackage-stash-perl libpackage-stash-xs-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6043772Z   libpadwalker-perl libparams-classify-perl libparams-util-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6044143Z   libparams-validationcompiler-perl libpciaccess-dev libperlio-gzip-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6044526Z   libpipewire-0.3-0t64 libpipewire-0.3-common libpipewire-0.3-dev libpng-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6044877Z   libpng-tools libpng16-16t64 libpthread-stubs0-dev libpulse-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6045376Z   libpulse-mainloop-glib0 libpulse0 libreadonly-perl libref-util-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6045756Z   libref-util-xs-perl librole-tiny-perl libsamplerate0 libsamplerate0-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6046121Z   libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 libsdl2-ttf-2.0-0
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6046492Z   libselinux1-dev libsepol-dev libsharpyuv-dev libsm-dev libsndfile1
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6046853Z   libsndfile1-dev libsndio-dev libsndio7.0 libspa-0.2-dev libspa-0.2-modules
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6047234Z   libspecio-perl libsub-exporter-perl libsub-exporter-progressive-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6047617Z   libsub-identify-perl libsub-install-perl libsub-name-perl libsub-quote-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6048000Z   libsyn123-0t64 libsystemd-dev libtiff-dev libtiffxx6 libtry-tiny-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6048384Z   libudev-dev libutf8proc3 libvariable-magic-perl libvorbis-dev libvorbisenc2
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6048770Z   libvulkan-dev libwayland-bin libwayland-dev libwayland-server0 libwebp-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6049141Z   libwebpdecoder3 libwebrtc-audio-processing1 libx11-dev libxau-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6049504Z   libxcb1-dev libxcursor-dev libxdmcp-dev libxext-dev libxfixes-dev libxi-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6049880Z   libxinerama-dev libxkbcommon-dev libxrandr-dev libxrender-dev libxss-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6050367Z   libxstring-perl libxt-dev libxv-dev libxv1 libxxf86vm-dev timgm6mb-soundfont
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6050788Z   uuid-dev x11proto-dev xorg-sgml-doctools xtrans-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6051031Z Suggested packages:
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6051266Z   libasound2-doc freetype2-doc glew-utils libosmesa6 libglfw3-doc
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6051611Z   libglib2.0-doc libgdk-pixbuf2.0-bin libxml2-utils libgraphite2-utils
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6051973Z   libice-doc jackd1 liblzma-doc opus-tools libscalar-number-perl pipewire
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6052346Z   pipewire-doc pulseaudio readline-doc libsm-doc sndiod libtest-fatal-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6052689Z   libwayland-doc libx11-doc libxcb-doc libxext-doc libxt-doc
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6052945Z   fluid-soundfont-gm
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6619129Z The following NEW packages will be installed:
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6621362Z   build-essential bzip2-doc freeglut3-dev gforth gforth-common gforth-lib
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6622367Z   gir1.2-freedesktop gir1.2-freedesktop-dev gir1.2-glib-2.0-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6623054Z   gir1.2-harfbuzz-0.0 gir1.2-ibus-1.0 lcov libalgorithm-c3-perl libasound2-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6623835Z   libasyncns0 libb-hooks-endofscope-perl libb-hooks-op-check-perl libblkid-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6624586Z   libbrotli-dev libbullet-dev libbullet3.24t64 libbz2-dev libcapture-tiny-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6625272Z   libclass-c3-perl libclass-c3-xs-perl libclass-data-inheritable-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6625902Z   libclass-inspector-perl libclass-method-modifiers-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6626551Z   libclass-singleton-perl libclass-xsaccessor-perl libdata-optlist-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6627263Z   libdatetime-locale-perl libdatetime-perl libdatetime-timezone-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6627933Z   libdbus-1-dev libdecor-0-0 libdecor-0-dev libdecor-0-plugin-1-gtk
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6628555Z   libdeflate-dev libdevel-callchecker-perl libdevel-caller-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6629178Z   libdevel-lexalias-perl libdevel-stacktrace-perl libdrm-dev libdrm-nouveau2
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6629828Z   libdrm-radeon1 libdynaloader-functions-perl libegl-dev libegl-mesa0 libegl1
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6630451Z   libegl1-mesa-dev libeval-closure-perl libevent-2.1-7t64 libevent-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6631258Z   libevent-extra-2.1-7t64 libevent-openssl-2.1-7t64 libexception-class-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6631878Z   libfile-sharedir-perl libflac-dev libflac12t64 libfluidsynth-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6632518Z   libfluidsynth3 libfreetype-dev libgbm-dev libgd-perl libgirepository-2.0-0
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6633168Z   libgl-dev libgl1-mesa-dev libgles-dev libgles1 libgles2 libglew-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6633786Z   libglew2.2 libglfw3 libglfw3-dev libglib2.0-dev libglib2.0-dev-bin
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6634778Z   libglu1-mesa libglu1-mesa-dev libglut-dev libglut3.12 libglvnd-core-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6635482Z   libglvnd-dev libglx-dev libgraphite2-dev libharfbuzz-cairo0 libharfbuzz-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6636218Z   libharfbuzz-gobject0 libharfbuzz-icu0 libharfbuzz-subset0 libibus-1.0-5
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6636932Z   libibus-1.0-dev libice-dev libinstpatch-1.0-2 libinstpatch-dev libjack-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6637652Z   libjack0 libjbig-dev libjpeg-dev libjpeg-turbo8-dev libjpeg8-dev liblerc-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6638332Z   liblzma-dev libmodplug-dev libmodplug1 libmodule-implementation-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6639015Z   libmodule-runtime-perl libmount-dev libmp3lame0 libmpg123-0t64 libmpg123-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6639676Z   libmro-compat-perl libnamespace-autoclean-perl libnamespace-clean-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6640328Z   libogg-dev libopengl-dev libopengl0 libopus-dev libopus0 libopusfile-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6641141Z   libopusfile0 libout123-0t64 libpackage-stash-perl libpackage-stash-xs-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6641778Z   libpadwalker-perl libparams-classify-perl libparams-util-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6642479Z   libparams-validationcompiler-perl libpciaccess-dev libperlio-gzip-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6643169Z   libpipewire-0.3-0t64 libpipewire-0.3-common libpipewire-0.3-dev libpng-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6644070Z   libpng-tools libpthread-stubs0-dev libpulse-dev libpulse-mainloop-glib0
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6644660Z   libpulse0 libreadline-dev libreadonly-perl libref-util-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6645236Z   libref-util-xs-perl librole-tiny-perl libsamplerate0 libsamplerate0-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6645873Z   libsdl2-2.0-0 libsdl2-dev libsdl2-image-2.0-0 libsdl2-image-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6646474Z   libsdl2-mixer-2.0-0 libsdl2-mixer-dev libsdl2-ttf-2.0-0 libsdl2-ttf-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6647118Z   libselinux1-dev libsepol-dev libsharpyuv-dev libsm-dev libsndfile1
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6647768Z   libsndfile1-dev libsndio-dev libsndio7.0 libspa-0.2-dev libspa-0.2-modules
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6648343Z   libspecio-perl libsub-exporter-perl libsub-exporter-progressive-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6648948Z   libsub-identify-perl libsub-install-perl libsub-name-perl libsub-quote-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6649551Z   libsyn123-0t64 libsystemd-dev libtiff-dev libtiffxx6 libtry-tiny-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6650138Z   libudev-dev libutf8proc-dev libutf8proc3 libuv1-dev libvariable-magic-perl
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6650949Z   libvorbis-dev libvorbisenc2 libvulkan-dev libwayland-bin libwayland-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6651549Z   libwayland-server0 libwebp-dev libwebpdecoder3 libwebrtc-audio-processing1
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6652135Z   libx11-dev libxau-dev libxcb1-dev libxcursor-dev libxdmcp-dev libxext-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6652698Z   libxfixes-dev libxi-dev libxinerama-dev libxkbcommon-dev libxrandr-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6653254Z   libxrender-dev libxss-dev libxstring-perl libxt-dev libxv-dev libxv1
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6653850Z   libxxf86vm-dev timgm6mb-soundfont uuid-dev x11proto-dev xorg-sgml-doctools
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6654296Z   xtrans-dev
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6654547Z The following packages will be upgraded:
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6654892Z   libfreetype6 libpng16-16t64
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6812091Z 2 upgraded, 213 newly installed, 0 to remove and 21 not upgraded.
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6812622Z Need to get 23.5 MB/39.1 MB of archives.
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6813044Z After this operation, 192 MB of additional disk space will be used.
+Code Coverage	Install dependencies	2026-10-08T20:12:45.6813525Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+Code Coverage	Install dependencies	2026-10-08T20:12:59.9535673Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libspa-0.2-modules amd64 1.0.5-1ubuntu3.3 [628 kB]
+Code Coverage	Install dependencies	2026-10-08T20:13:05.5412438Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libpipewire-0.3-0t64 amd64 1.0.5-1ubuntu3.3 [252 kB]
+Code Coverage	Install dependencies	2026-10-08T20:13:08.0399527Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libpulse0 amd64 1:16.1+dfsg1-2ubuntu10.1 [292 kB]
+Code Coverage	Install dependencies	2026-10-08T20:13:10.8793125Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libsamplerate0 amd64 0.2.2-4build1 [1344 kB]
+Code Coverage	Install dependencies	2026-10-08T20:13:23.0961606Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libsdl2-2.0-0 amd64 2.30.0+dfsg-1ubuntu3.1 [686 kB]
+Code Coverage	Install dependencies	2026-10-08T20:13:29.5305471Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 timgm6mb-soundfont all 1.3-5 [5427 kB]
+Code Coverage	Install dependencies	2026-10-08T20:15:30.1181661Z apt attempt 2 failed (exit 137)
+Code Coverage	Install dependencies	2026-10-08T20:15:40.1287035Z apt install attempt 3/3 (timeout 180s): build-essential lcov bc pkg-config libssl-dev libffi-dev libsqlite3-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libutf8proc-dev libncurses-dev libreadline-dev libevent-dev libuv1-dev libbullet-dev libglfw3-dev libglew-dev freeglut3-dev gforth
+Code Coverage	Install dependencies	2026-10-08T20:15:41.2513345Z Reading package lists...
+Code Coverage	Install dependencies	2026-10-08T20:15:41.4583899Z Building dependency tree...
+Code Coverage	Install dependencies	2026-10-08T20:15:41.4590173Z Reading state information...
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6187129Z bc is already the newest version (1.07.1-3ubuntu4).
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6187665Z bc set to manually installed.
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6188034Z pkg-config is already the newest version (1.8.1-2build1).
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6188507Z libssl-dev is already the newest version (3.0.13-0ubuntu3.16).
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6189455Z libffi-dev is already the newest version (3.4.6-1build1).
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6189864Z libffi-dev set to manually installed.
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6190311Z libsqlite3-dev is already the newest version (3.45.1-1ubuntu2.8).
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6191074Z libncurses-dev is already the newest version (6.4+20240113-1ubuntu2.2).
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6191574Z libncurses-dev set to manually installed.
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6191964Z The following additional packages will be installed:
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6192507Z   bzip2-doc gforth-common gforth-lib gir1.2-freedesktop gir1.2-freedesktop-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6193154Z   gir1.2-glib-2.0-dev gir1.2-harfbuzz-0.0 gir1.2-ibus-1.0 libalgorithm-c3-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6201398Z   libasound2-dev libasyncns0 libb-hooks-endofscope-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6201917Z   libb-hooks-op-check-perl libblkid-dev libbrotli-dev libbullet3.24t64
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6202426Z   libbz2-dev libcapture-tiny-perl libclass-c3-perl libclass-c3-xs-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6202879Z   libclass-data-inheritable-perl libclass-inspector-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6203348Z   libclass-method-modifiers-perl libclass-singleton-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6203872Z   libclass-xsaccessor-perl libdata-optlist-perl libdatetime-locale-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6204482Z   libdatetime-perl libdatetime-timezone-perl libdbus-1-dev libdecor-0-0
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6205005Z   libdecor-0-dev libdecor-0-plugin-1-gtk libdeflate-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6205523Z   libdevel-callchecker-perl libdevel-caller-perl libdevel-lexalias-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6206120Z   libdevel-stacktrace-perl libdrm-dev libdrm-nouveau2 libdrm-radeon1
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6206663Z   libdynaloader-functions-perl libegl-dev libegl-mesa0 libegl1
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6207053Z   libegl1-mesa-dev libeval-closure-perl libevent-2.1-7t64
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6207403Z   libevent-extra-2.1-7t64 libevent-openssl-2.1-7t64 libexception-class-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6207770Z   libfile-sharedir-perl libflac-dev libflac12t64 libfluidsynth-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6208122Z   libfluidsynth3 libfreetype-dev libfreetype6 libgbm-dev libgd-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6208480Z   libgirepository-2.0-0 libgl-dev libgl1-mesa-dev libgles-dev libgles1
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6208849Z   libgles2 libglew2.2 libglfw3 libglib2.0-dev libglib2.0-dev-bin libglu1-mesa
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6209241Z   libglu1-mesa-dev libglut-dev libglut3.12 libglvnd-core-dev libglvnd-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6209596Z   libglx-dev libgraphite2-dev libharfbuzz-cairo0 libharfbuzz-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6209970Z   libharfbuzz-gobject0 libharfbuzz-icu0 libharfbuzz-subset0 libibus-1.0-5
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6210365Z   libibus-1.0-dev libice-dev libinstpatch-1.0-2 libinstpatch-dev libjack-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6210974Z   libjack0 libjbig-dev libjpeg-dev libjpeg-turbo8-dev libjpeg8-dev liblerc-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6211617Z   liblzma-dev libmodplug-dev libmodplug1 libmodule-implementation-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6212001Z   libmodule-runtime-perl libmount-dev libmp3lame0 libmpg123-0t64 libmpg123-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6212390Z   libmro-compat-perl libnamespace-autoclean-perl libnamespace-clean-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6212795Z   libogg-dev libopengl-dev libopengl0 libopus-dev libopus0 libopusfile-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6213182Z   libopusfile0 libout123-0t64 libpackage-stash-perl libpackage-stash-xs-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6213548Z   libpadwalker-perl libparams-classify-perl libparams-util-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6213915Z   libparams-validationcompiler-perl libpciaccess-dev libperlio-gzip-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6214303Z   libpipewire-0.3-0t64 libpipewire-0.3-common libpipewire-0.3-dev libpng-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6214658Z   libpng-tools libpng16-16t64 libpthread-stubs0-dev libpulse-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6215000Z   libpulse-mainloop-glib0 libpulse0 libreadonly-perl libref-util-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6215371Z   libref-util-xs-perl librole-tiny-perl libsamplerate0 libsamplerate0-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6215732Z   libsdl2-2.0-0 libsdl2-image-2.0-0 libsdl2-mixer-2.0-0 libsdl2-ttf-2.0-0
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6216075Z   libselinux1-dev libsepol-dev libsharpyuv-dev libsm-dev libsndfile1
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6216599Z   libsndfile1-dev libsndio-dev libsndio7.0 libspa-0.2-dev libspa-0.2-modules
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6216968Z   libspecio-perl libsub-exporter-perl libsub-exporter-progressive-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6217357Z   libsub-identify-perl libsub-install-perl libsub-name-perl libsub-quote-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6217741Z   libsyn123-0t64 libsystemd-dev libtiff-dev libtiffxx6 libtry-tiny-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6218111Z   libudev-dev libutf8proc3 libvariable-magic-perl libvorbis-dev libvorbisenc2
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6218493Z   libvulkan-dev libwayland-bin libwayland-dev libwayland-server0 libwebp-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6218860Z   libwebpdecoder3 libwebrtc-audio-processing1 libx11-dev libxau-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6219230Z   libxcb1-dev libxcursor-dev libxdmcp-dev libxext-dev libxfixes-dev libxi-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6219603Z   libxinerama-dev libxkbcommon-dev libxrandr-dev libxrender-dev libxss-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6219987Z   libxstring-perl libxt-dev libxv-dev libxv1 libxxf86vm-dev timgm6mb-soundfont
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6220324Z   uuid-dev x11proto-dev xorg-sgml-doctools xtrans-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6220566Z Suggested packages:
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6220993Z   libasound2-doc freetype2-doc glew-utils libosmesa6 libglfw3-doc
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6221339Z   libglib2.0-doc libgdk-pixbuf2.0-bin libxml2-utils libgraphite2-utils
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6221695Z   libice-doc jackd1 liblzma-doc opus-tools libscalar-number-perl pipewire
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6222063Z   pipewire-doc pulseaudio readline-doc libsm-doc sndiod libtest-fatal-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6222421Z   libwayland-doc libx11-doc libxcb-doc libxext-doc libxt-doc
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6222676Z   fluid-soundfont-gm
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6806343Z The following NEW packages will be installed:
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6806959Z   build-essential bzip2-doc freeglut3-dev gforth gforth-common gforth-lib
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6807446Z   gir1.2-freedesktop gir1.2-freedesktop-dev gir1.2-glib-2.0-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6808083Z   gir1.2-harfbuzz-0.0 gir1.2-ibus-1.0 lcov libalgorithm-c3-perl libasound2-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6808717Z   libasyncns0 libb-hooks-endofscope-perl libb-hooks-op-check-perl libblkid-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6809361Z   libbrotli-dev libbullet-dev libbullet3.24t64 libbz2-dev libcapture-tiny-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6809967Z   libclass-c3-perl libclass-c3-xs-perl libclass-data-inheritable-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6810501Z   libclass-inspector-perl libclass-method-modifiers-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6811163Z   libclass-singleton-perl libclass-xsaccessor-perl libdata-optlist-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6811687Z   libdatetime-locale-perl libdatetime-perl libdatetime-timezone-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6812054Z   libdbus-1-dev libdecor-0-0 libdecor-0-dev libdecor-0-plugin-1-gtk
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6814736Z   libdeflate-dev libdevel-callchecker-perl libdevel-caller-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6815118Z   libdevel-lexalias-perl libdevel-stacktrace-perl libdrm-dev libdrm-nouveau2
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6815560Z   libdrm-radeon1 libdynaloader-functions-perl libegl-dev libegl-mesa0 libegl1
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6815947Z   libegl1-mesa-dev libeval-closure-perl libevent-2.1-7t64 libevent-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6816322Z   libevent-extra-2.1-7t64 libevent-openssl-2.1-7t64 libexception-class-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6816687Z   libfile-sharedir-perl libflac-dev libflac12t64 libfluidsynth-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6817058Z   libfluidsynth3 libfreetype-dev libgbm-dev libgd-perl libgirepository-2.0-0
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6817437Z   libgl-dev libgl1-mesa-dev libgles-dev libgles1 libgles2 libglew-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6817987Z   libglew2.2 libglfw3 libglfw3-dev libglib2.0-dev libglib2.0-dev-bin
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6818533Z   libglu1-mesa libglu1-mesa-dev libglut-dev libglut3.12 libglvnd-core-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6818982Z   libglvnd-dev libglx-dev libgraphite2-dev libharfbuzz-cairo0 libharfbuzz-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6819377Z   libharfbuzz-gobject0 libharfbuzz-icu0 libharfbuzz-subset0 libibus-1.0-5
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6819908Z   libibus-1.0-dev libice-dev libinstpatch-1.0-2 libinstpatch-dev libjack-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6820293Z   libjack0 libjbig-dev libjpeg-dev libjpeg-turbo8-dev libjpeg8-dev liblerc-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6820857Z   liblzma-dev libmodplug-dev libmodplug1 libmodule-implementation-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6821256Z   libmodule-runtime-perl libmount-dev libmp3lame0 libmpg123-0t64 libmpg123-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6821654Z   libmro-compat-perl libnamespace-autoclean-perl libnamespace-clean-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6822030Z   libogg-dev libopengl-dev libopengl0 libopus-dev libopus0 libopusfile-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6822416Z   libopusfile0 libout123-0t64 libpackage-stash-perl libpackage-stash-xs-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6822973Z   libpadwalker-perl libparams-classify-perl libparams-util-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6823557Z   libparams-validationcompiler-perl libpciaccess-dev libperlio-gzip-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6824096Z   libpipewire-0.3-0t64 libpipewire-0.3-common libpipewire-0.3-dev libpng-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6824642Z   libpng-tools libpthread-stubs0-dev libpulse-dev libpulse-mainloop-glib0
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6825143Z   libpulse0 libreadline-dev libreadonly-perl libref-util-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6825657Z   libref-util-xs-perl librole-tiny-perl libsamplerate0 libsamplerate0-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6826211Z   libsdl2-2.0-0 libsdl2-dev libsdl2-image-2.0-0 libsdl2-image-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6826679Z   libsdl2-mixer-2.0-0 libsdl2-mixer-dev libsdl2-ttf-2.0-0 libsdl2-ttf-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6827179Z   libselinux1-dev libsepol-dev libsharpyuv-dev libsm-dev libsndfile1
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6827690Z   libsndfile1-dev libsndio-dev libsndio7.0 libspa-0.2-dev libspa-0.2-modules
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6828244Z   libspecio-perl libsub-exporter-perl libsub-exporter-progressive-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6828798Z   libsub-identify-perl libsub-install-perl libsub-name-perl libsub-quote-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6829326Z   libsyn123-0t64 libsystemd-dev libtiff-dev libtiffxx6 libtry-tiny-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6829898Z   libudev-dev libutf8proc-dev libutf8proc3 libuv1-dev libvariable-magic-perl
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6830506Z   libvorbis-dev libvorbisenc2 libvulkan-dev libwayland-bin libwayland-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6831287Z   libwayland-server0 libwebp-dev libwebpdecoder3 libwebrtc-audio-processing1
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6831848Z   libx11-dev libxau-dev libxcb1-dev libxcursor-dev libxdmcp-dev libxext-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6832215Z   libxfixes-dev libxi-dev libxinerama-dev libxkbcommon-dev libxrandr-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6832567Z   libxrender-dev libxss-dev libxstring-perl libxt-dev libxv-dev libxv1
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6832942Z   libxxf86vm-dev timgm6mb-soundfont uuid-dev x11proto-dev xorg-sgml-doctools
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6833229Z   xtrans-dev
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6833696Z The following packages will be upgraded:
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6833921Z   libfreetype6 libpng16-16t64
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6997582Z 2 upgraded, 213 newly installed, 0 to remove and 21 not upgraded.
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6998114Z Need to get 20.3 MB/39.1 MB of archives.
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6998479Z After this operation, 192 MB of additional disk space will be used.
+Code Coverage	Install dependencies	2026-10-08T20:15:41.6998803Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+Code Coverage	Install dependencies	2026-10-08T20:15:42.0747682Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 timgm6mb-soundfont all 1.3-5 [5427 kB]
+Code Coverage	Install dependencies	2026-10-08T20:18:40.1307533Z apt install failed after 3 attempts
+Code Coverage	Install dependencies	2026-10-08T20:18:40.1308004Z apt attempt 3 failed (exit 137)
+Code Coverage	Install dependencies	2026-10-08T20:18:45.1345803Z ##[error]Process completed with exit code 1.

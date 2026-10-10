@@ -1,0 +1,22 @@
+struct Item { value:int, text:string }
+fn main()->int {
+ let xs:List<Item> = (list_Item_new)
+ let alias:List<Item> = xs
+ (list_Item_push xs Item { value:7, text:"first" })
+ (list_Item_push xs Item { value:9, text:"middle" })
+ (list_Item_push xs Item { value:11, text:"last" })
+ let indices:array<int> = [1]
+ (list_Item_remove xs (at indices 0))
+ let last:Item = (list_Item_get alias 1)
+ assert (== last.value 11) assert (== last.text "last")
+ (list_Item_remove xs 0)
+ assert (== (list_Item_length alias) 1)
+ (list_Item_remove alias 0)
+ assert (== (list_Item_length xs) 0)
+ let numbers:List<int> = (list_int_new)
+ (list_int_push numbers 42)
+ assert (== (list_int_remove numbers 0) 42)
+ assert (== (list_int_length numbers) 0)
+ return 0
+}
+shadow main { assert (== (main) 0) }

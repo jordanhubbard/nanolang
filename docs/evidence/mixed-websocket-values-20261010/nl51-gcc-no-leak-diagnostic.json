@@ -1,0 +1,32 @@
+{
+  "diagnostic_only": true,
+  "ASAN_OPTIONS": "detect_leaks=0:halt_on_error=1",
+  "results": [
+    {
+      "command": [
+        "/private/tmp/nl51-gcc-sanitizer-control"
+      ],
+      "exit": 0,
+      "stdout": "I entered main\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-kgo7lp86/controlled-False"
+      ],
+      "exit": 0,
+      "stdout": "PASS 510 mixed WebSocket value checks with controlled transport\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-mixed-websocket-values-kgo7lp86/real",
+        "ws://127.0.0.1:1",
+        "denied"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   probe  /Users/jordanh/Src/nanolang/tests/service_ownership.nano:39:9
+I could not execute the module: Assertion failed
+  Assertion failed
+STATUS 0 FUNCTIONS 3 SHADOWS 0

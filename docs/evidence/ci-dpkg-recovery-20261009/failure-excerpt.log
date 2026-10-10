@@ -1,0 +1,9 @@
+2026-10-10T02:05:37.2399636Z apt install attempt 1/3 (timeout 180s): build-essential pkg-config libssl-dev libffi-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libncurses-dev libreadline-dev libevent-dev libuv1-dev libbullet-dev libglfw3-dev libglew-dev freeglut3-dev
+2026-10-10T02:08:37.2420227Z apt attempt 1 failed (exit 137)
+2026-10-10T02:08:42.3030282Z apt install attempt 2/3 (timeout 180s): build-essential pkg-config libssl-dev libffi-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libncurses-dev libreadline-dev libevent-dev libuv1-dev libbullet-dev libglfw3-dev libglew-dev freeglut3-dev
+2026-10-10T02:08:43.1878303Z E: dpkg was interrupted, you must manually run 'sudo dpkg --configure -a' to correct the problem. 
+2026-10-10T02:08:43.1890292Z apt attempt 2 failed (exit 100)
+2026-10-10T02:08:53.1975018Z apt install attempt 3/3 (timeout 180s): build-essential pkg-config libssl-dev libffi-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libncurses-dev libreadline-dev libevent-dev libuv1-dev libbullet-dev libglfw3-dev libglew-dev freeglut3-dev
+2026-10-10T02:08:54.0765763Z E: dpkg was interrupted, you must manually run 'sudo dpkg --configure -a' to correct the problem. 
+2026-10-10T02:08:54.0777298Z apt attempt 3 failed (exit 100)
+2026-10-10T02:08:54.0793080Z ##[error]Process completed with exit code 1.

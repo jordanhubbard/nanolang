@@ -1,0 +1,3 @@
+service "nsi:nanolang/filesystem" catalog 1 from "interface.nsi.json"
+fn consumed(file:File)->bool { let c:CloseResult=(close file) return true } fn exercise(file:File)->void {let skipped:bool=(and false (consumed file))}
+fn main()->int{return 0}

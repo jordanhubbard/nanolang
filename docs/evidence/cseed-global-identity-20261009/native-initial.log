@@ -1,0 +1,82 @@
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -c src/nanovirt/codegen.c -o obj/nanovirt/codegen.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -MMD -MP -DNANO_WRAPPER_CRYPTO_DIR='"/opt/homebrew/Cellar/openssl@3/3.6.5/lib"' -DNANO_WRAPPER_INSTRUMENT_FLAGS='""' -c src/nanovirt/wrapper_gen.c -o obj/nanovirt/wrapper_gen.o
+cc -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -o bin/nano_virt obj/nanovirt/codegen.o obj/nanovirt/wrapper_gen.o obj/nanovirt/shadow_runner.o obj/nanovm/value.o obj/nanovm/heap.o obj/nanovm/heap_cycles.o obj/nanovm/vm.o obj/nanovm/vm_callback.o obj/nanovm/vm_ffi.o obj/nanovm/vm_builtins.o obj/nanovm/cop_protocol.o obj/nanovm/vm_ffi_arrays.o obj/runtime/callback_runtime.o obj/nanoisa/file_flow.o obj/nanoisa/service_file_nominal.o obj/nanoisa/service_file_nominal_plan.o obj/nanoisa/service_bindings.o obj/nanoisa/service_bindings_module.o obj/nanoisa/mixed_float_proof.o obj/nanoisa/managed_array_shapes.o obj/nanoisa/local_bindings.o obj/nanoisa/affine_bytecode.o obj/nanoisa/affine_state.o obj/nanoisa/ownership_contracts.o obj/nanoisa/retained_layouts.o obj/nanoisa/reference_places.o obj/nanoisa/passive.o obj/nanoisa/isa.o obj/nanoisa/verifier_types.o obj/nanoisa/nvm_format.o obj/nanoisa/nvm_format_v2.o obj/nanoisa/nvm_v2_cursor.o obj/nanoisa/nvm_v2_constants.o obj/nanoisa/nvm_v2_signatures.o obj/nanoisa/nvm_v2_layouts.o obj/nanoisa/nvm_v2_functions.o obj/nanoisa/nvm_v2_imports.o obj/nanoisa/nvm_v2_module.o obj/nanoisa/nvm_v2_convert.o obj/nanoisa/assembler.o obj/nanoisa/disassembler.o obj/nanoisa/verifier.o obj/nanoisa/nvm2c.o obj/nanoisa/nvm2c_shape.o obj/nanoisa/nvm2c_callables.o obj/nanoisa/frontend.o obj/nanoisa/nanoisa_facade.o obj/nanovm/vm_decode.o obj/nanovm/vm_dispatch.o obj/nsi_file_plan.o \
+		obj/lexer.o obj/parser.o obj/typechecker.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/nominal_types.o obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o obj/nanovirt/main.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+python3 scripts/embed_binary64_parser.py --check
+python3 -m unittest -v tests.test_cseed_global_identity
+test_distinct_types_and_root_binding (tests.test_cseed_global_identity.CSeedGlobalIdentity.test_distinct_types_and_root_binding) ... FAIL
+test_initializer_context_and_repeated_import (tests.test_cseed_global_identity.CSeedGlobalIdentity.test_initializer_context_and_repeated_import) ... FAIL
+
+======================================================================
+FAIL: test_distinct_types_and_root_binding (tests.test_cseed_global_identity.CSeedGlobalIdentity.test_distinct_types_and_root_binding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_cseed_global_identity.py", line 28, in test_distinct_types_and_root_binding
+    self.check({
+    ~~~~~~~~~~^^
+        'a.nano':'let answer: int = 41\npub fn read_answer()->int{return answer}\nshadow read_answer {assert (== (read_answer) 41)}\n',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'b.nano':'let answer: string = "second"\npub fn read_answer()->string{return answer}\nshadow read_answer {assert (== (read_answer) "second")}\n',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'main.nano':'module "a.nano" as first\nmodule "b.nano" as second\nlet answer: int = 100\nfn main()->int{assert (== answer 100) assert (== (first.read_answer) 41) assert (== (second.read_answer) "second") return 0}\nshadow main {assert (== (main) 0)}\n'})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_cseed_global_identity.py", line 25, in check
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-identity-jj3onnnv/main.c:857:21: error: conflicting types for 'nl_read_answer'
+  857 | static const char * nl_read_answer(void);
+      |                     ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-identity-jj3onnnv/main.c:856:16: note: previous declaration is here
+  856 | static int64_t nl_read_answer(void);
+      |                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-identity-jj3onnnv/main.c:886:21: error: conflicting types for 'nl_read_answer'
+  886 | static const char * nl_read_answer(void) {
+      |                     ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-identity-jj3onnnv/main.c:861:16: note: previous definition is here
+  861 | static int64_t nl_read_answer(void) {
+      |                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-identity-jj3onnnv/main.c:938:10: error: incompatible integer to pointer conversion assigning to 'const char *' from 'int64_t' (aka 'long long') [-Wint-conversion]
+  938 |     s[0] = nl_read_answer();
+      |          ^ ~~~~~~~~~~~~~~~~
+3 errors generated.
+
+
+======================================================================
+FAIL: test_initializer_context_and_repeated_import (tests.test_cseed_global_identity.CSeedGlobalIdentity.test_initializer_context_and_repeated_import)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_cseed_global_identity.py", line 34, in test_initializer_context_and_repeated_import
+    self.check({
+    ~~~~~~~~~~^^
+        'a.nano':'let seed: int = 41\nlet answer: int = (+ seed 1)\npub fn read_answer()->int{return answer}\nshadow read_answer {assert (== (read_answer) 42)}\n',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'b.nano':'let seed: string = "second"\nlet answer: string = seed\npub fn read_answer()->string{return answer}\nshadow read_answer {assert (== (read_answer) "second")}\n',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'main.nano':'module "a.nano" as first\nmodule "b.nano" as second\nmodule "a.nano" as again\nfn main()->int{assert (== (first.read_answer) 42) assert (== (again.read_answer) 42) assert (== (second.read_answer) "second") return 0}\nshadow main {assert (== (main) 0)}\n'})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nanolang-match-guards-20261009/tests/test_cseed_global_identity.py", line 25, in check
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-identity-7udlahi_/main.c:857:21: error: conflicting types for 'nl_read_answer'
+  857 | static const char * nl_read_answer(void);
+      |                     ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-identity-7udlahi_/main.c:856:16: note: previous declaration is here
+  856 | static int64_t nl_read_answer(void);
+      |                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-identity-7udlahi_/main.c:886:21: error: conflicting types for 'nl_read_answer'
+  886 | static const char * nl_read_answer(void) {
+      |                     ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-identity-7udlahi_/main.c:861:16: note: previous definition is here
+  861 | static int64_t nl_read_answer(void) {
+      |                ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-global-identity-7udlahi_/main.c:937:10: error: incompatible integer to pointer conversion assigning to 'const char *' from 'int64_t' (aka 'long long') [-Wint-conversion]
+  937 |     s[0] = nl_read_answer();
+      |          ^ ~~~~~~~~~~~~~~~~
+3 errors generated.
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.438s
+
+FAILED (failures=2)
+make: *** [test-cseed-global-identity] Error 1

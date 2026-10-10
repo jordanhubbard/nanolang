@@ -9,7 +9,7 @@ description: >-
 
 # Roadmap Execution
 
-`docs/ROADMAP.md` is my product execution order. MAC is my task ledger. They
+`docs/ROADMAP.md` is my product execution order. GitHub Issues is my task ledger. They
 serve different purposes and I keep both consistent.
 
 ## Before Implementation
@@ -20,7 +20,7 @@ serve different purposes and I keep both consistent.
 3. Put dependencies before dependents. Put measurement before optimization and
    semantic foundations before surface features.
 4. Mark an existing item `- [x]` only when repository evidence verifies it.
-5. Create or update MAC tasks for ownership and execution when appropriate.
+5. Create or update GitHub issues for ownership and execution when appropriate.
 
 Small fixes that restore already documented behavior may use an existing
 roadmap item. If no item describes the work, add one first. Do not turn every
@@ -32,7 +32,7 @@ or required work during a session, I add a concrete checkbox in
 `docs/ROADMAP.md` at the correct dependency position before I continue. I do
 not leave defects in chat-only notes. A defect I already fixed in the same
 session still gets an `[x]` item so it stays in product history. I file or
-update a MAC task for ownership. Chat is not the ledger.
+update a GitHub issue for ownership. Chat is not the ledger.
 
 ## During Implementation
 
@@ -51,5 +51,5 @@ An item becomes `- [x]` only after its required code, tests, quality gates, and
 documentation are complete. A partial implementation stays unchecked or is
 split into smaller honest items.
 
-Before ending the session, update roadmap state, update the corresponding MAC
-task, and follow `skills/session-completion/SKILL.md`.
+Before ending the session, update roadmap state, update the corresponding GitHub
+issue, and follow `skills/session-completion/SKILL.md`.

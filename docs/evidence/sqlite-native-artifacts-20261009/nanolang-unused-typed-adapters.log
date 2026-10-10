@@ -1,0 +1,29 @@
+I retain SQLite artifact evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-cumurizi
+SIGNATURE "nl_sqlite3_version" string
+['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-cumurizi/input.c', '/private/tmp/nanolang-match-guards-20261009/bin/nano_aot_runtime.o', '-ldl', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-cumurizi/input.native']: 1
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-cumurizi/input.c:708:28: error: unused function 'nhost_sqlite_0' [-Werror,-Wunused-function]
+  708 | static inline const char * nhost_sqlite_0(void) {
+      |                            ^~~~~~~~~~~~~~
+1 error generated.
+
+SIGNATURE "nl_sqlite3_version_number" int
+['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-cumurizi/input.c', '/private/tmp/nanolang-match-guards-20261009/bin/nano_aot_runtime.o', '-ldl', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-cumurizi/input.native']: 1
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-cumurizi/input.c:36:23: error: unused function 'nhost_sqlite_0' [-Werror,-Wunused-function]
+   36 | static inline int64_t nhost_sqlite_0(void) {
+      |                       ^~~~~~~~~~~~~~
+1 error generated.
+
+SIGNATURE "nl_json_parse" opaque string
+['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-cumurizi/input.c', '/private/tmp/nanolang-match-guards-20261009/bin/nano_aot_runtime.o', '-ldl', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-cumurizi/input.native']: 1
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-cumurizi/input.c:36:15: error: unknown type name 'nmap_value'
+   36 | static inline nmap_value nhost_json_0(const char * a0) {
+      |               ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-sqlite-artifacts-cumurizi/input.c:46:13: error: use of undeclared identifier 'nmap_value'
+   46 |     return (nmap_value){14, 0, (char *)value};
+      |             ^~~~~~~~~~
+2 errors generated.
+
+SIGNATURE "nl_json_object_keys" array opaque

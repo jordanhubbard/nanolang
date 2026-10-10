@@ -2,15 +2,26 @@
 
 ## Issue Tracking
 
-**DO NOT create markdown planning files.** Issues are tracked in the MAC hub
-task ledger — use `mac task` (not bd/beads):
+I track all new and resumed project work in [GitHub Issues](https://github.com/jordanhubbard/nanolang/issues).
+GitHub Issues is my task ledger; `docs/ROADMAP.md` remains my ordered product
+contract and evidence index. I do not use MAC, bd/beads, or local TODO files as
+an alternative task ledger. Historical MAC IDs remain provenance only.
 
 ```bash
-mac task ready --limit 10            # show ready-to-work issues
-mac task show <id>                   # view an issue
-mac task claim <id> <agent_id>       # claim work
-mac task close <id> --reason="..."   # complete work
+gh issue list --repo jordanhubbard/nanolang --state open
+gh issue view <number> --repo jordanhubbard/nanolang --comments
+gh issue edit <number> --repo jordanhubbard/nanolang --add-assignee @me
+gh issue create --repo jordanhubbard/nanolang --title "<title>" --body-file /tmp/issue.md
+gh issue comment <number> --repo jordanhubbard/nanolang --body-file /tmp/update.md
+gh issue close <number> --repo jordanhubbard/nanolang --reason completed
 ```
+
+I search before creating an issue, record branch/file ownership in an issue
+comment, and link commits, PRs and test evidence before closing it. Assignment
+is not an atomic worker lease; I coordinate overlapping work explicitly. When
+resuming an old MAC task, I create or reuse a GitHub issue and link the old ID.
+If GitHub is unavailable, I preserve my work and report the unfiled issue; I do
+not fall back to MAC or claim that tracking succeeded.
 
 ## Code Standards
 
@@ -44,7 +55,7 @@ mac task close <id> --reason="..."   # complete work
 4. **⚠️ Shadow Tests MANDATORY**: Required for ALL functions (including examples) - NO EXCEPTIONS except `extern`
 5. **Minimal Comments**: Code should be self-documenting
 6. **⚠️ LLM-First**: ONE canonical way per operation - see `docs/CANONICAL_STYLE.md`
-7. **⚠️ Discovered bugs go on `docs/ROADMAP.md`**: add a concrete checkbox (and a MAC task) in the same session. Chat is not the ledger.
+7. **⚠️ Discovered bugs go on `docs/ROADMAP.md`**: add a concrete checkbox (and a GitHub issue) in the same session. Chat is not the ledger.
 
 ### Dual Implementation Constraint (CRITICAL)
 **Every language feature requires 2× implementation effort:**
@@ -110,7 +121,7 @@ Never use `head` or `tail` on compile output - they hide loops. Always:
 - Docs: `docs/`
 - Examples: `examples/`
 - Modules: `modules/`
-- Legacy planning: `planning/` (read-only, create new issues via `mac task`)
+- Legacy planning: `planning/` (read-only, create new GitHub issues)
 
 ## Git Workflow
 

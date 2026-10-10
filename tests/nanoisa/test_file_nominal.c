@@ -122,7 +122,9 @@ static void query(bool permutation){
  m->struct_count++;reject(m);m->struct_count--;m->function_count++;reject(m);m->function_count--;
  m->functions[0].arity++;reject(m);m->functions[0].arity--;m->functions[0].local_count++;reject(m);m->functions[0].local_count--;
  m->functions[0].result_count=2;reject(m);m->functions[0].result_count=1;m->function_param_types[0][0]=TAG_FLOAT;reject(m);m->function_param_types[0][0]=TAG_INT;
- m->ownership_data[45]=1;reject(m);m->ownership_data[45]=2;m->ownership_data[53]=2;reject(m);m->ownership_data[53]=0;
+ m->ownership_data[45]=1;NvmFileNominalPlan *shared=NULL;
+ CHECK(nvm_file_nominal_plan(m,&shared)==NVM_FILE_NOMINAL_DESCRIBED && shared);nvm_file_nominal_plan_free(shared);
+ m->ownership_data[45]=3;reject(m);m->ownership_data[45]=2;m->ownership_data[53]=2;reject(m);m->ownership_data[53]=0;
  m->ownership_data[0]=2;reject(m);m->ownership_data[0]=1;
  uint32_t imported=b.imports[1];m->imports[imported].kind=NVM_IMPORT_FFI;reject(m);m->imports[imported].kind=NVM_IMPORT_SERVICE;
  m->import_param_types[imported][1]=TAG_U8;reject(m);m->import_param_types[imported][1]=TAG_INT;

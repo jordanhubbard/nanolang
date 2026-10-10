@@ -1,0 +1,8 @@
+test_binary64_payloads (tests.test_native_array_pop.NativeArrayPop.test_binary64_payloads) ... ok
+test_popped_closure_survives_owner_reuse_and_collection (tests.test_native_array_pop.NativeArrayPop.test_popped_closure_survives_owner_reuse_and_collection) ... ok
+test_scalar_values_aliases_and_empty_results (tests.test_native_array_pop.NativeArrayPop.test_scalar_values_aliases_and_empty_results) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.037s
+
+OK

@@ -1,0 +1,6 @@
+test_vm_native_semantics_and_no_per_lookup_map (tests.test_field_metadata_lookup.FieldMetadataLookup.test_vm_native_semantics_and_no_per_lookup_map) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 20.628s
+
+OK

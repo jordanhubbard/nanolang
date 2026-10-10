@@ -1,0 +1,6 @@
+test_executable_closure_preserves_calls_and_refuses_unlowered_roots (tests.test_nanoisa_flat_records.FlatRecordEmitter.test_executable_closure_preserves_calls_and_refuses_unlowered_roots) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 76.245s
+
+OK

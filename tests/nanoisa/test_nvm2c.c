@@ -39,7 +39,7 @@ static NvmModule *assemble_ok(const char *src, const char *label) {
     return m;
 }
 
-static int compile_and_run_with_args(const char *c_src, int *status_out, const char *args) {
+static int compile_and_run_scoped(const char *c_src, int *status_out, const char *args, bool runtime_tmpdir) {
     char dir[] = "/tmp/nvm2cXXXXXX";
     if (!mkdtemp(dir)) return -1;
     char src_path[128];
@@ -59,8 +59,8 @@ static int compile_and_run_with_args(const char *c_src, int *status_out, const c
     if (!cc || !cc[0]) cc = "cc";
     char cmd[512];
     snprintf(cmd, sizeof cmd,
-             "perl -e 'alarm 30; exec @ARGV' %s -std=c11 -O0 -fno-optimize-sibling-calls -Wall -Wextra -Werror -o %s %s" TEST_DL_LIB,
-             cc, bin_path, src_path);
+             "%sperl -e 'alarm 30; exec @ARGV' %s -std=c11 -O0 -fno-optimize-sibling-calls -Wall -Wextra -Werror -o %s %s" TEST_DL_LIB,
+             runtime_tmpdir ? "TMPDIR=/tmp " : "", cc, bin_path, src_path);
     int rc = system(cmd);
     if (rc != 0) {
         fprintf(stderr, "---- generated C (cc failed) ----\n%s\n----\n", c_src);
@@ -79,6 +79,10 @@ static int compile_and_run_with_args(const char *c_src, int *status_out, const c
     unlink(bin_path);
     rmdir(dir);
     return 0;
+}
+
+static int compile_and_run_with_args(const char *c_src, int *status_out, const char *args) {
+    return compile_and_run_scoped(c_src,status_out,args,false);
 }
 
 static int compile_and_run(const char *c_src, int *status_out) {
@@ -281,6 +285,30 @@ static void test_artifact_array_import_is_not_a_builtin(void) {
         free(source);
         module->imports[0] = original;
     }
+    nvm_module_free(module);
+}
+
+static void test_websocket_product_artifact_signature(void) {
+    NvmModule *module=assemble_ok(
+        ".import \"\" \"nl_file_product_websocket\" int opaque int string\n"
+        ".entry 0\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n",
+        "WebSocket product policy artifact ABI");
+    if(!module)return;
+    module->imports[0].kind=NVM_IMPORT_ARTIFACT;
+    const char *path="/retained/file_product.so";
+    module->imports[0].module_name_idx=nvm_add_string(module,path,(uint32_t)strlen(path));
+    char error[256],*source=nvm2c_emit(module,error,sizeof error);
+    CHECK(source!=NULL,"I emit the exact opaque/int/string policy setter");free(source);
+    for(unsigned i=0;i<3;i++) {
+        uint8_t tag=module->import_param_types[0][i];
+        module->import_param_types[0][i]=TAG_BOOL;
+        source=nvm2c_emit(module,error,sizeof error);
+        CHECK(source==NULL,"I refuse a wrong policy setter parameter type");free(source);
+        module->import_param_types[0][i]=tag;
+    }
+    module->imports[0].return_type=TAG_OPAQUE;
+    source=nvm2c_emit(module,error,sizeof error);
+    CHECK(source==NULL,"I refuse a wrong policy setter result type");free(source);
     nvm_module_free(module);
 }
 
@@ -504,7 +532,9 @@ static void test_builtin_text_reader(void) {
                 free(source); source = injected;
             }
             int status = -1;
-            CHECK(compile_and_run(source, &status) == 0 && status == 0,
+            int compiled=compile_and_run(source, &status);
+            if(compiled || status)fprintf(stderr,"I fail text reader variant %d (compiler %d, exit %d).\n",variant,compiled,status);
+            CHECK(compiled == 0 && status == 0,
                   "I preserve text and reject invalid or unavailable input");
         }
         if (writer > 0) {
@@ -917,7 +947,8 @@ static void test_builtin_temp_directory(void) {
         CHECK(source != NULL, "I emit the temporary-directory adapter");
         if (source) {
             int status = -1;
-            CHECK(compile_and_run(source, &status) == 0 && status == 0,
+            /* I keep compiler SDK caches outside my runtime fixture directory. */
+            CHECK(compile_and_run_scoped(source, &status, "", true) == 0 && status == 0,
                   "I create distinct owned directories or return empty on failure");
         } else fprintf(stderr, "%s\n", error);
         free(source);
@@ -942,25 +973,27 @@ static void test_tagged_record_array(void) {
         ".string text \"direct\"\n.entry 0\n.function main 0 0 0 int 1\n"
         "ARR_NEW 8\nPUSH_I64 9\nPUSH_STR text\nAGG_PACK 0 0 0 2\nARR_PUSH\n"
         "PUSH_I64 0\nARR_GET\nAGG_GET 1\nPUSH_STR text\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n",
+        ".entry 0\n.function main 0 0 0 int 1\nARR_NEW 7\nARR_LEN\nRET\n.end\n",
     };
     for (size_t i = 0; i < sizeof programs / sizeof programs[0]; ++i) {
         NvmModule *module = assemble_ok(programs[i], "explicit struct-array construction");
         if (!module) continue;
         char error[256];
         char *source = nvm2c_emit(module, error, sizeof error);
-        CHECK(source != NULL, "I emit explicitly tagged record arrays");
+        CHECK(source != NULL, "I emit explicitly tagged record and nested arrays");
         if (source) {
             if (i == 0) CHECK(strstr(source, "(void)nrarr_new; (void)nrarr_reserve;") != NULL,
                               "I keep optional record-array helpers referenced for strict C compilers");
             int status = -1;
             CHECK(compile_and_run(source, &status) == 0 && status == 0,
-                  "I preserve empty and mixed-field record arrays through stack/local flow");
+                  "I preserve empty arrays and mixed-field record arrays through stack/local flow");
         } else fprintf(stderr, "%s\n", error);
         free(source); nvm_module_free(module);
     }
     const char *rejected[] = {
+        ".entry 0\n.function main 0 0 0 int 1\nARR_NEW 8\nARR_NEW 7\nARR_PUSH\nARR_LEN\nRET\n.end\n",
+        ".entry 0\n.function main 0 0 0 int 1\nARR_NEW 7\nPUSH_I64 1\nARR_PUSH\nARR_LEN\nRET\n.end\n",
         ".entry 0\n.function main 0 0 0 int 1\nARR_NEW 8\nPUSH_I64 1\nARR_PUSH\nARR_LEN\nRET\n.end\n",
-        ".entry 0\n.function main 0 0 0 int 1\nARR_NEW 7\nARR_LEN\nRET\n.end\n",
         ".string text \"text\"\n.entry 0\n.function main 0 0 0 int 1\n"
         "ARR_NEW 8\nPUSH_STR text\nAGG_PACK 0 0 0 1\nARR_PUSH\n"
         "PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_PUSH\nARR_LEN\nRET\n.end\n",
@@ -970,7 +1003,7 @@ static void test_tagged_record_array(void) {
         if (!module) continue;
         char error[256];
         char *source = nvm2c_emit(module, error, sizeof error);
-        CHECK(source == NULL, "I refuse scalar, nested-array and mixed-field record construction");
+        CHECK(source == NULL, "I refuse scalar and incompatible nested-array or mixed-field record construction");
         free(source); nvm_module_free(module);
     }
 }
@@ -1188,6 +1221,7 @@ static void test_globals_cross_functions_and_preserve_identity(void) {
 static void test_projected_global_stores(void) {
     const struct { const char *value, *check; } cases[] = {
         {"PUSH_I64 42", "PUSH_I64 42\nEQ\nASSERT"},
+        {"PUSH_I64 1\nAGG_PACK 0 0 0 1", "AGG_GET 0\nPUSH_I64 1\nEQ\nASSERT"},
         {"PUSH_F64 1.5", "PUSH_F64 1.5\nF64_EQ\nASSERT"},
         {"PUSH_I64 1\nAGG_PACK 0 0 0 1\nARR_LITERAL 8 1",
          "PUSH_I64 0\nARR_GET\nAGG_GET 0\nPUSH_I64 1\nEQ\nASSERT"},
@@ -1213,26 +1247,11 @@ static void test_projected_global_stores(void) {
             if (c) {
                 int status = -1;
                 CHECK(compile_and_run(c, &status) == 0 && status == 0,
-                      "I preserve scalar and primitive-array values across nested-record global stores");
+                      "I preserve scalar, array and record values across nested-record global stores");
                 free(c);
             }
             nvm_module_free(m);
         }
-    }
-    const char *unsupported[] = {
-        "PUSH_I64 1\nAGG_PACK 0 0 0 1"
-    };
-    for (size_t i = 0; i < sizeof unsupported / sizeof unsupported[0]; ++i) {
-        char source[2048];
-        snprintf(source, sizeof source, ".entry main\n.function main 0 0 0 int 1\n%s\n"
-            "AGG_PACK 0 0 0 1\nAGG_PACK 0 0 0 1\nCALL store\nPUSH_I64 0\nRET\n.end\n%s",
-            unsupported[i], store);
-        NvmModule *m = assemble_ok(source, "unsupported projected global storage");
-        if (!m) continue;
-        char error[256] = {0};
-        char *c = nvm2c_emit(m, error, sizeof error);
-        CHECK(c == NULL, "I reject unsupported global storage after resolving nested fields");
-        free(c); nvm_module_free(m);
     }
 }
 
@@ -2803,7 +2822,7 @@ static void test_diff_runs_without_nano_vm(void) {
     nvm_module_free(m);
 }
 
-static void test_eq_array_is_refused(void) {
+static void test_eq_array_preserves_identity(void) {
     const char *src =
         ".entry 0\n"
         ".function main 0 0 0 int 1\n"
@@ -2820,8 +2839,12 @@ static void test_eq_array_is_refused(void) {
     if (!m) return;
     char err[256];
     char *c = nvm2c_emit(m, err, sizeof err);
-    CHECK(c == NULL, "EQ of arrays stays outside the closed subset");
-    CHECK(strstr(err, "EQ") != NULL, "error names EQ");
+    CHECK(c != NULL, "EQ of exact arrays retains pointer identity");
+    if (c) {
+        int status = -1;
+        CHECK(compile_and_run(c, &status) == 0, "array identity C compiles and runs");
+        CHECK(status == 0, "independent arrays with equal elements compare unequal");
+    }
     free(c);
     nvm_module_free(m);
 }
@@ -6699,6 +6722,7 @@ int main(int argc, char **argv) {
     test_builtin_temp_directory();
     test_tagged_record_array();
     test_artifact_array_import_is_not_a_builtin();
+    test_websocket_product_artifact_signature();
     test_owned_artifact_execution();
     test_real_walk_artifact();
     test_call_extern_is_refused();
@@ -6742,7 +6766,7 @@ int main(int argc, char **argv) {
     test_same_then_runs_without_nano_vm();
     test_same_else_runs_without_nano_vm();
     test_diff_runs_without_nano_vm();
-    test_eq_array_is_refused();
+    test_eq_array_preserves_identity();
     test_via_at_runs_without_nano_vm();
     test_slen_runs_without_nano_vm();
     test_slice_runs_without_nano_vm();

@@ -1,0 +1,4 @@
+Error at line 3, column 16: Tuple index 0 out of bounds (tuple has 0 elements)
+Error at line 3, column 16: Tuple index 1 out of bounds (tuple has 0 elements)
+Error at line 3, column 77: Assert condition must be bool
+error: type check failed

@@ -1,0 +1,2 @@
+I pass the unchanged eight signature-refusal cases and shadowed-callback refusal with exact diagnostic, exit 1 and preserved prior output.
+I invoke this method directly because it does not use the class shadow-driver fixture; the other seven methods already passed with that real fixture.

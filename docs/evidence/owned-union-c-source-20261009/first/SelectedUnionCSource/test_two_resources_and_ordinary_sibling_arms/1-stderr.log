@@ -1,0 +1,2 @@
+Warning at line 5, column 36: Unused variable 'payload'
+I could not compile shadows at line 5: I require exact mode-zero scalar/owner or separate borrowed parameters in my source borrow profile

@@ -1,7 +1,8 @@
-"""I compile and execute my self-hosted shadow emitter's C output."""
+"""I execute my self-hosted NanoISA shadow modules in VM and native products."""
 import os
 from pathlib import Path
 import signal
+import sys
 import subprocess
 import tempfile
 import unittest
@@ -43,28 +44,62 @@ class NativeShadowEmitter(unittest.TestCase):
         for emitter in self.emitters:
             with self.subTest(compiler=emitter.name):
                 path = self.directory / "fixture.nano"
-                output = self.directory / "fixture.c"
+                output = self.directory / "fixture.nasm"
+                module = self.directory / "fixture.nvm"
+                c_source = self.directory / "fixture.c"
                 binary = self.directory / "fixture"
                 path.write_text(source)
                 result = self.run_command([emitter, path, output, first])
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-                code = output.read_text()
-                self.assertEqual("__nano_shadow_" in code, first >= 0 and "shadow " in source)
-                # I discard unused runtime helpers in this runtime-free fixture.
-                result = self.run_command(["cc", "-O2", "-std=gnu11", "-I", ROOT / "src", "-I", ROOT / "modules/std",
-                                           *(["-DNDEBUG"] if ndebug else []), output, "-lm", "-o", binary])
-                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-                result = self.run_command([binary], 5)
-                if expected is None:
-                    self.assertNotEqual(result.returncode, 0)
+                assembly = output.read_text()
+                self.assertEqual("CALL __nanoisa_shadow_" in assembly, first >= 0 and "shadow " in source)
+                commands = [
+                    [ROOT / "bin/nanoisa", "asm", output, "-o", module],
+                    [ROOT / "bin/nano_vm", "--verify-only", module],
+                    [ROOT / "bin/nvm2c", module, "-o", c_source],
+                    ["cc", "-O2", "-std=c11", "-Wall", "-Wextra", "-Werror",
+                     *(["-DNDEBUG"] if ndebug else []), c_source,
+                     ROOT / "bin/nano_aot_runtime.o", "-lm",
+                     *(["-Wl,--export-dynamic", "-ldl"] if sys.platform.startswith("linux") else []),
+                     "-o", binary],
+                ]
+                for command in commands:
+                    result = self.run_command(command)
+                    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                for backend, command in (("vm", [ROOT / "bin/nano_vm", module]), ("native", [binary])):
+                    with self.subTest(backend=backend):
+                        result = self.run_command(command, 5)
+                        if expected is None:
+                            self.assertNotEqual(result.returncode, 0)
+                        else:
+                            self.assertEqual(result.returncode, expected, result.stderr)
+                        self.assertEqual(result.stdout, stdout)
+
+    def test_compiler_drivers_isolate_shadow_output(self):
+        source = self.directory / "isolated.nano"
+        source.write_text('fn main()->int { (println "product") return 7 } '
+                          'shadow main { assert (== (main) 7) }')
+        for compiler in ("nanoc_c", "nanoc_stage2"):
+            with self.subTest(compiler=compiler):
+                binary = self.directory / ("isolated-" + compiler)
+                compiled = self.run_command([ROOT / "bin" / compiler, source, "-o", binary], 90)
+                self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
+                self.assertEqual(compiled.stdout, "")
+                if compiler == "nanoc_stage2":
+                    self.assertIn("product\n", compiled.stderr)
                 else:
-                    self.assertEqual(result.returncode, expected, result.stderr)
-                if first >= 0:
-                    self.assertEqual(result.stdout, "")
-                    if stdout:
-                        self.assertIn(stdout, result.stderr)
-                else:
-                    self.assertEqual(result.stdout, stdout)
+                    # I suppress passing interpreter shadow output unless verbose.
+                    self.assertEqual(compiled.stderr, "")
+                executed = self.run_command([binary], 5)
+                self.assertEqual(executed.returncode, 7, executed.stderr)
+                self.assertEqual(executed.stdout, "product\n")
+                previous = binary.read_bytes()
+                source.write_text('fn main()->int { return 7 } shadow main { assert false }')
+                refused = self.run_command([ROOT / "bin" / compiler, source, "-o", binary], 90)
+                self.assertNotEqual(refused.returncode, 0)
+                self.assertEqual(binary.read_bytes(), previous)
+                source.write_text('fn main()->int { (println "product") return 7 } '
+                                  'shadow main { assert (== (main) 7) }')
 
     def test_failing_assertion_with_ndebug(self):
         self.check("fn f() -> int { return 7 } shadow f { assert false }", expected=None, ndebug=True)
@@ -94,14 +129,34 @@ class NativeShadowEmitter(unittest.TestCase):
         self.check("opaque type SDL_Window\n"
                    "fn is_null(value: SDL_Window) -> bool { return (== value 0) }\n"
                    "shadow is_null { assert (is_null 0) }\n"
+                   "fn relay(value: SDL_Window) -> bool { return (is_null value) }\n"
+                   "shadow relay { assert (relay 0) }\n"
                    "fn main() -> int { assert (is_null 0) return 0 }\n"
                    "shadow main { assert (== (main) 0) }")
+
+    def test_opaque_arguments_reject_nonzero_and_wrong_declared_handles(self):
+        fixtures = [
+            'opaque type Handle fn accept(h:Handle)->void{} shadow accept { (accept 1) }',
+            'opaque type Handle fn accept(h:Handle)->void{} shadow accept { (accept true) }',
+            'opaque type First opaque type Second fn accept(h:First)->void{} '
+            'fn relay(h:Second)->void{ (accept h) } shadow relay { (relay 0) }',
+        ]
+        for emitter in self.emitters:
+            for text in fixtures:
+                with self.subTest(compiler=emitter.name, source=text):
+                    source = self.directory / "refused.nano"
+                    output = self.directory / "refused.nasm"
+                    source.write_text(text)
+                    output.write_text("preserve me")
+                    result = self.run_command([emitter, source, output, 0])
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertEqual(output.read_text(), "preserve me")
 
     def test_invalid_selection_does_not_emit(self):
         for emitter in self.emitters:
             with self.subTest(compiler=emitter.name):
                 path = self.directory / "invalid.nano"
-                output = self.directory / "preserved.c"
+                output = self.directory / "preserved.nasm"
                 path.write_text("fn f() -> int { return 1 } shadow f { assert true }")
                 output.write_text("preserve me")
                 result = self.run_command([emitter, path, output, 2])

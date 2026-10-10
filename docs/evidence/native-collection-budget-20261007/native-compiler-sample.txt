@@ -1,0 +1,34 @@
+Analysis of sampling nanolang-record-final (pid 61982) every 1 millisecond
+Process:         nanolang-record-final [61982]
+Path:            /private/tmp/nanolang-record-final
+Load Address:    0x104ed0000
+Identifier:      nanolang-record-final
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  bash [61925]
+Target Type:     live task
+
+Date/Time:       2026-10-07 19:28:54.591 -0700
+Launch Time:     2026-10-07 19:18:52.220 -0700
+OS Version:      macOS 26.7.1 (25G241)
+Report Version:  7
+Analysis Tool:   /usr/bin/sample
+
+Physical footprint:         3.3G
+Physical footprint (peak):  4.8G
+Idle exit:                  untracked
+----
+
+Sort by top of stack, same collapsed (when >= 5):
+        nroot_slot  (in nanolang-record-final)        782
+        nroot_trace  (in nanolang-record-final)        433
+        nroot_hash  (in nanolang-record-final)        113
+        nroot_add  (in nanolang-record-final)        81
+        nroot_contains  (in nanolang-record-final)        32
+        _platform_memmove  (in libsystem_platform.dylib)        17
+        __bzero  (in libsystem_platform.dylib)        14
+        madvise  (in libsystem_kernel.dylib)        12
+        nroot_value  (in nanolang-record-final)        8
+        mach_msg2_trap  (in libsystem_kernel.dylib)        5
+

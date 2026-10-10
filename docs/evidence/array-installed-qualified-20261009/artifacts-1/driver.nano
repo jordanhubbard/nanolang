@@ -1,0 +1,42 @@
+# I expose classification separately from my whole-source checked publication.
+import "src_nano/compiler/nanoisa_codegen.nano"
+import "src_nano/compiler/owner_selection.nano"
+import "src_nano/typecheck.nano"
+import "src_nano/parser.nano"
+import "src_nano/compiler/lexer.nano"
+import "src_nano/compiler/module_bindings.nano"
+from "src_nano/compiler/diagnostics.nano" import diag_list_new
+extern fn get_argc() -> int
+extern fn get_argv(index: int) -> string
+extern fn file_read(path: string) -> string
+extern fn file_write(path: string, content: string) -> int
+fn main() -> int {
+    if (!= (get_argc) 5) { return 0 }
+    let path: string = (get_argv 1)
+    let mode: string = (get_argv 2)
+    let first: int = (string_to_int (get_argv 3))
+    let diagnostics: List<CompilerDiagnostic> = (diag_list_new)
+    let tokens: List<LexerToken> = (tokenize_string (file_read path) path diagnostics)
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) path)
+    if (parser_has_error parser) { (println "PARSE") return 1 }
+    (mb_reset [])
+    if (or (== mode "classify") (== mode "classify-shadows")) {
+        (println (int_to_string (nanoisa_selected_ownership parser (== mode "classify-shadows") first)))
+        return 0
+    }
+    let checked: TypecheckPhaseOutput = (typecheck_phase_with_shadows parser path [] first)
+    if checked.had_error {
+        (println "TYPECHECK")
+        return 1
+    }
+    let mut assembly: string = ""
+    if (== mode "whole") { set assembly (nanoisa_emit_parser_nasm parser) }
+    else {
+        if (== mode "shadows") { set assembly (nanoisa_emit_shadows_nasm parser first) }
+        else { set assembly (nanoisa_emit_program_nasm parser) }
+    }
+    if (== assembly "") { (println "LOWERING") return 1 }
+    let result: int = (file_write (get_argv 4) assembly)
+    return 0
+}
+shadow main { assert (== (main) 0) }

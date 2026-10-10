@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "/usr/bin/cc",
+    "-dynamiclib",
+    "-fPIC",
+    "-std=c11",
+    "-Werror",
+    "-I",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-as-search-a8oywo4o/foreign/C headers",
+    "-Wa,-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-as-search-a8oywo4o/foreign/early includes,-I/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-as-search-a8oywo4o/foreign/late includes",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-as-search-a8oywo4o/foreign/answer.c",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-as-search-a8oywo4o/foreign/payload.s",
+    "-o",
+    "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-as-search-a8oywo4o/direct.dylib"
+  ],
+  "timeout": 20,
+  "seconds": 0.060554875002708286,
+  "exit": 0,
+  "error": null
+}

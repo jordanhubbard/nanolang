@@ -1,0 +1,53 @@
+{
+  "base_commit": "0eba3e4e1",
+  "sources": {
+    "src_nano/compiler/nanoisa_codegen.nano": "2caf0ef5e48ab20a92df307922ffb8720e1e633afbd0342d1ffb2a7651dbeb24",
+    "src_nano/compiler/function_signature.nano": "f1a1f99f5b174e1435a27829a1ff3e5f4b57aadf4a2c32ce4993b2bc3762995c",
+    "src_nano/nanoc_v06.nano": "dc027cd58b648a6a64431cdc701ef63fe0a3a296bbd9d914bed60f301e4c6580",
+    "tests/test_selfhost_function_values.py": "5223f66eb0b0d793b367267fe392534980ae1a8035bbcf595658570bf3c60834",
+    "tests/test_selfhost_returned_calls.py": "9854c40c12bdfd01bc6d24d553cf9a96df8dc2fa8dd5204a5e6764f32b2e6c44"
+  },
+  "compiler_binary": {
+    "path": "/private/tmp/nanolang-computed-calls-final",
+    "sha256": "ee90babd2ae876b062573ccb1e2e416237fae11a80551b3fef53bfe215aca50d"
+  },
+  "commands": [
+    [
+      "/private/tmp/nanolang-computed-calls-final",
+      "tests/selfhost/test_returned_function_calls.nano",
+      "--emit-nvm",
+      "-o",
+      "/Users/jordanh/Src/nanolang/docs/evidence/computed-call-lowering-20261007/returned-functions.nvm"
+    ],
+    [
+      "bin/nano_vm",
+      "--verify-only",
+      "/Users/jordanh/Src/nanolang/docs/evidence/computed-call-lowering-20261007/returned-functions.nvm"
+    ],
+    [
+      "bin/nano_vm",
+      "/Users/jordanh/Src/nanolang/docs/evidence/computed-call-lowering-20261007/returned-functions.nvm"
+    ]
+  ],
+  "artifacts": {
+    "representative-2.log": "cf9dcdb62d6c86528ea2e7244d6da88dcdbb5e67def178ba26094d7f33bec58f",
+    "representative-1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "returned-functions.nvm": "2e8e100c0c53eec24612026803710a5ad3cb06a4e31176efadd4e86d95864700",
+    "representative-0.log": "b44f624b5b25a42703c475477312dab7215f8d5e8e3b85c1e5509702112e303b",
+    "initial-shadow.log": "fa926ae2f3a151097308a8839dd762f10bd17fa5aebc7e8440f107f075355131",
+    "vm-and-cli.log": "b28a0157c62486af7631462ac9a351e8539a9e5376898586c5f133467407b2a5",
+    "seed-shadows.log": "d0c06170be8a3a59dac6b7dee051d11f2ff8a45312413ed9bb99b1d8f138d047",
+    "returned-functions.nasm": "6396aa110cf98a701f78973a103f57ae8f9a21d78a7f2cab9b539283ac43be67",
+    "initial-native.log": "9589401193ad9b0e26c9867f7a8499bc8641edc28d112deca02a46dd1b5e1dcf",
+    "native-open.log": "af2e3ce50b4e9b979a1eb6c53119f62d7a5dd7064fbcaafd86bd55cf408ac563"
+  },
+  "checks": {
+    "vm_function_values": 8,
+    "adjacent_cli_product": 24,
+    "native_returned_calls": {
+      "passed": 0,
+      "failed": 3
+    }
+  },
+  "boundary": "I lower and execute these calls in NanoVM. Native callable representation and dispatch remain unimplemented; the original native gate remains required."
+}

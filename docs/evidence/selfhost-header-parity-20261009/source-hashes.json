@@ -1,0 +1,16 @@
+{
+  "Makefile.gnu": "88a9ce14bb45cc36f079cf60173c193ceb793914c6dfcc0d78d932bae15d821c",
+  "src/module.c": "173739871b807f50829fe509f5a59e68c68ba075b277f05db3f542583e2dfc19",
+  "src/module_builder.c": "7942be1d808122652d0b42189ba7cbef48a5712be31cb2884dbcc28178f18ac1",
+  "src/module_builder.h": "deecb931e3a84f6a014666f8c20f0d320afb8955d4334ea271c81330a273e53b",
+  "src/nanoisa/nvm2c.c": "7c7bf12cd4a3f69419e71ac46038b6c6164ab3b94360e9b73983d24e01a4423b",
+  "modules/compiler_support/compiler_support.c": "8717ad8884536f56ca4ecc39567b6c922a1cefb8119c2954d4e304167ff12137",
+  "modules/compiler_support/compiler_support.h": "db4d4154d54c663bee76dd508dad828e30fd6d47d562c3f1c9b647692e3161ad",
+  "modules/compiler_support/compiler_support.nano": "9778e58a2482ef0084f2f994e0753c1ce335969fd9aaf25f0c7337bbc3ecd010",
+  "src_nano/compiler/module_bindings.nano": "c9113671304e84bfb5db7009d5b57a5b354bd43418c387bcd6eda7484e5560eb",
+  "src_nano/typecheck.nano": "7608d923c8215b58ffe999c4716099df5effc37e7a767dbd4d2306e2b13dfa8e",
+  "src_nano/compiler/nanoisa_codegen.nano": "3389474ac332aeec94cec056f1d60e37b6408f5f5ed2c65115a119d9e2c174c7",
+  "src_nano/nanoc_v06.nano": "32a5480e18b1f3f5edb6487b007959e34f71a13b5cbd676cb61b056c3903e114",
+  "tests/test_header_constant_functions.py": "2398e5d3d7e2889f2cdd8ab87cb5bca510075346e09fd76966801a582a661af2",
+  "tests/test_selfhost_header_constants.py": "d0cfb541092d0e29ba009c95d03a772e5cc8f375b60e192baff55712b3250c6b"
+}

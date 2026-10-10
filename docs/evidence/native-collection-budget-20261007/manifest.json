@@ -1,0 +1,35 @@
+{
+  "base_commit": "ffe819332687525b291cc234aea44782468b4bde",
+  "source_sha256": {
+    "src/nanoisa/nvm2c.c": "ed54f1c189a72d88a85807a9b6e2d1f48959d12cb9a542e0bc30b487197c8d4a",
+    "tests/test_native_map_byte_debt.py": "b2d6fde85026f0f4e1637ee738af5dd32d35f229f65f68fe7eecdda676402c76"
+  },
+  "full_sample_sha256": "424d863a15205ea14d40118fff0f4f5b469af7768cbf253ba09aab13b91dd268",
+  "translator_sha256": "d76a563fc51a790077b41dfb92f549fc3777800db3049d8fa753ad1f48505f30",
+  "evidence_sha256": {
+    "native-compiler-sample.txt": "07a0b82ead987dadac7d64e2b5391e17b465735a064fbcc3a95b4dadfd802c0c",
+    "scheduling.log": "404ce6c1cd67b7fd42c046083233afc60f02092278242f32322e71dda5b0cda6",
+    "prior-product-timeout.log": "f4fed53f41d32c19966fdd11c339cd59b0900f4ca3231e2b75e104d78052899f",
+    "adjacent.log": "e2dc99ffa1488f838ea8035b3c0a77ea12a5950eadfea0a23959b9a487bd8f97",
+    "full-source-native.log": "9e76f8577880f5608cb18b9673bd4346c172144199316daf31586c61aaed19d9",
+    "README.md": "38a77573152d583a5131e319495adfddf278907a8632d8911d595f016e34a4bf",
+    "full-source-native.json": "e60da01cca8dcc34489d68770c6a750e7978755ca71da75e0b3b2bc25b48a846",
+    "full-source-native.nvm.gz": "507c7d784e0b8c1c06cc43761615f8523e5eb55ff4077a2437c7811fc838c8fc",
+    "mixed-baseline.log": "c4265438586c15b136b8cc44eb9dcbb1d6937699366dd3f8e2b958da5b2b7f19",
+    "focused.log": "7b2a9277b9925806beb5794611cc2fdf5b2df2938fee4e9fa1b4ddb4cc0c49e9"
+  },
+  "full_source_native": {
+    "input_module_sha256": "8ee99fac157024779c242e0f0de367271f922a0179b25ae849d024f02ca20f68",
+    "generated_c_sha256": "8780aa34ee14553749039c943ab7c1d174a896df744f7f4ab504b0d09762fbc4",
+    "binary_sha256": "63ca93028818b844619f3cbda9449c5ab5329e809ca733937cb9ed2b07fef91c",
+    "output_module_sha256": "2884576118d859f36b39b5949eca8483fafa7c83cb0237651cb5940e3de5875c",
+    "output_verified": true,
+    "elapsed_seconds": 580.5370730420109,
+    "deadline_seconds": 900,
+    "source_tree_before_field_lookup_change": "0a16bd8a4",
+    "flags": [
+      "-std=c11",
+      "-O0"
+    ]
+  }
+}

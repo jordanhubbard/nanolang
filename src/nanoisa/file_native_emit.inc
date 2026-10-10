@@ -47,10 +47,10 @@ static bool fne_supported(uint8_t op) {
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
     case OP_DUP: case OP_POP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL:
-    case OP_REGION_BEGIN: case OP_REGION_END: case OP_BORROW_LOCAL_EXCLUSIVE:
+    case OP_REGION_BEGIN: case OP_REGION_END: case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:
     case OP_FILE_SERVICE: case OP_FILE_RESULT_BRANCH: case OP_FILE_RESULT_TAKE:
     case OP_FILE_DROP_LOCAL: case OP_FILE_DROP_STACK: case OP_FILE_END_BORROW:
-    case OP_CALL: case OP_CALL_REF: case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE:
+    case OP_CALL: case OP_CALL_REF:case OP_FILE_CALL_REFS: case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE:
     case OP_RET: case OP_ASSERT:
     case OP_ADD: case OP_SUB: case OP_MUL: case OP_DIV: case OP_MOD: case OP_NEG:
     case OP_I64_ADD: case OP_I64_SUB: case OP_I64_MUL: case OP_I64_DIV_S:
@@ -74,14 +74,14 @@ static bool fne_fact(const NvmFileHostedPlan *p,const NvmFileCodeInstruction *in
     case OP_FILE_DROP_STACK:cleanup=NVM_FILE_BODY_CLEANUP_DROP_STACK;break;
     case OP_ASSERT:cleanup=NVM_FILE_BODY_CLEANUP_ASSERT;break;
     case OP_RET:cleanup=NVM_FILE_BODY_CLEANUP_RETURN;break;
-    case OP_CALL:case OP_CALL_REF:cleanup=NVM_FILE_BODY_CLEANUP_CALL;break;
+    case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:cleanup=NVM_FILE_BODY_CLEANUP_CALL;break;
     case OP_FILE_SERVICE:cleanup=NVM_FILE_BODY_CLEANUP_SERVICE;break;
     default:break;
     }
     if(fact->cleanup!=cleanup || fact->refinement!=(op==OP_FILE_RESULT_BRANCH) ||
        fact->exit_checked!=(op==OP_RET))return false;
     uint32_t checks=NVM_FILE_FLOW_CHECK_CLEANUP,discharged=0;
-    bool service=op==OP_FILE_SERVICE,call=op==OP_CALL || op==OP_CALL_REF;
+    bool service=op==OP_FILE_SERVICE,call=op==OP_CALL || (op==OP_CALL_REF || op==OP_FILE_CALL_REFS);
     if(fact->has_obligation!=(service || call))return false;
     if(service || call) {
         const NvmFileFlowObligation *o=&fact->obligation;
@@ -186,6 +186,12 @@ static void fn_agreement(Fne *b,const NvmFileHostedPlan *p,NvmFileHostedStartup 
                 fn_declaration(b,"fact.obligation.result.",fact.obligation.result);
             }
 #undef FACT
+            if(in.decoded.opcode==OP_CALL || in.decoded.opcode==OP_CALL_REF || in.decoded.opcode==OP_FILE_CALL_REFS) {
+                NvmFileHostedFunction callee;
+                if(!nvm_file_hosted_function(p,in.decoded.operands[0].u32,&callee)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
+                for(uint16_t k=0;k<callee.code.declaration.parameters;k++)
+                    fn_text(b,"if(in.call_references[%u]!=%u)return false;\n",k,in.call_references[k]);
+            }
             if(in.decoded.opcode==OP_FILE_SERVICE) {
                 fn_text(b,"if(!nvm_file_hosted_import(p,%u,&ordinal) || ordinal!=%u)return false;\n",in.decoded.operands[0].u32,in.catalog_ordinal);
             }
@@ -281,7 +287,7 @@ static void fn_instruction(Fne *b,uint32_t function,const NvmFileCodeInstruction
     case OP_STORE_LOCAL:case OP_OWN_STORE_LOCAL:fn_text(b,"NF_TRY(nvm_file_runtime_frame_store(c));\n");break;
     case OP_REGION_BEGIN:fn_text(b,"NF_TRY(nvm_file_runtime_frame_region_begin(c));\n");break;
     case OP_REGION_END:fn_text(b,"NF_TRY(nvm_file_runtime_frame_region_end(c));\n");break;
-    case OP_BORROW_LOCAL_EXCLUSIVE:fn_text(b,"NF_TRY(nvm_file_runtime_frame_borrow(c));\n");break;
+    case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:fn_text(b,"NF_TRY(nvm_file_runtime_frame_borrow(c));\n");break;
     case OP_FILE_END_BORROW:fn_text(b,"NF_TRY(nvm_file_runtime_frame_end_reference(c));\n");break;
     case OP_FILE_DROP_LOCAL:
         fn_text(b,"if(!nvm_file_runtime_frame_local(c,%u,&src))return nf_bad(c);\nNF_TRY(nvm_file_runtime_drop(c,src));\n",d->operands[0].u16);break;
@@ -322,7 +328,7 @@ static void fn_instruction(Fne *b,uint32_t function,const NvmFileCodeInstruction
             "NF_TRY(nvm_file_runtime_result_arm(c,src,&arm));\nNF_TRY(nvm_file_runtime_drop(c,src));\n"
             "NF_TRY(nvm_file_runtime_scalar(c,src,TAG_INT,arm==NVM_FILE_FLOW_ARM_ERROR));\n");
         break;
-    case OP_CALL:case OP_CALL_REF:
+    case OP_CALL:case OP_CALL_REF:case OP_FILE_CALL_REFS:
         if(in->successor_count!=1){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
         fn_text(b,"NF_TRY(nvm_file_runtime_frame_call(c));\nNF_TRY(nf_function_%u(c,steps));\ngoto nf_label_%u;\n",d->operands[0].u32,in->successors[0]);return;
     case OP_RET:fn_text(b,"return nvm_file_runtime_frame_return(c);\n");return;

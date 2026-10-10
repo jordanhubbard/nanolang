@@ -1,0 +1,18 @@
+test_declared_single_letter_record_is_nominal (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_declared_single_letter_record_is_nominal) ... ok
+test_direct_array_type_binding (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_direct_array_type_binding) ... ok
+test_distinct_record_specializations (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_distinct_record_specializations) ... ok
+test_finite_polymorphic_recursion (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_finite_polymorphic_recursion) ... ok
+test_generated_names_do_not_collide (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_generated_names_do_not_collide) ... ok
+test_growing_polymorphic_recursion_is_bounded (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_growing_polymorphic_recursion_is_bounded) ... ok
+test_many_independent_bindings_are_not_recursive_depth (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_many_independent_bindings_are_not_recursive_depth) ... ok
+test_primitive_generic_fixture (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_primitive_generic_fixture) ... ok
+test_repeated_type_variable_refusals (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_repeated_type_variable_refusals) ... ok
+test_retained_record_result_regression (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_retained_record_result_regression) ... ok
+test_typed_locals_transitive_calls_and_recursion (tests.test_selfhost_generic_functions.SelfhostGenericFunctions.test_typed_locals_transitive_calls_and_recursion) ... ok
+test_finite_polymorphic_recursion_publishes_verified_module (tests.test_generic_specialization_budget.GenericSpecializationBudget.test_finite_polymorphic_recursion_publishes_verified_module) ... ok
+test_growth_refusal_preserves_assembly_and_binary_outputs (tests.test_generic_specialization_budget.GenericSpecializationBudget.test_growth_refusal_preserves_assembly_and_binary_outputs) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 14.153s
+
+OK

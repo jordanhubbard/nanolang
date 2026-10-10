@@ -1,0 +1,6 @@
+Error at line 8, column 5: Expected variable name
+Error at line 8, column 15: Unexpected token in expression: COLON (type=14)
+Error at line 8, column 24: Unexpected token in expression: ASSIGN (type=17)
+Error at line 10, column 5: Unexpected token in expression: ASSERT (type=37)
+Error at line 10, column 5: Expected expression after 'handle'
+error: parser failed

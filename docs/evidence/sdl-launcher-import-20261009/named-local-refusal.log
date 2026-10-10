@@ -1,0 +1,2 @@
+I cannot bind global SDL_BLENDMODE_NONE from /private/tmp/nanolang-match-guards-20261009/modules/sdl_image/sdl_image.nano into examples/sdl_example_launcher.nano.
+error: module loading failed
