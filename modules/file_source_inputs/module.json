@@ -1,7 +1,7 @@
 {
   "name": "file_source_inputs",
   "version": "0.1.0",
-  "description": "I expose checked File and TCP source data without execution authority",
+  "description": "I expose checked File, TCP and WebSocket companion bytes without execution authority",
   "headers": [
     "file_source_inputs.h"
   ],
@@ -17,7 +17,9 @@
     "../../src/cJSON.c",
     "../../src/nsi_socket_binding.c",
     "../../src/nsi_file_plan.c",
-    "../../src/nsi_socket_plan.c"
+    "../../src/nsi_socket_plan.c",
+    "../../src/nsi_websocket_binding.c",
+    "../../src/nsi_websocket_plan.c"
   ],
   "shared_c_sources": [
     "../../src/utf8.c"

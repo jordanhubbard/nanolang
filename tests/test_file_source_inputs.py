@@ -27,6 +27,7 @@ class FileSourceInputs(unittest.TestCase):
             origin.write_text("# original source identity\n")
             shutil.copyfile(ROOT / "tests/fixtures/nsi_file_plan.json", work / "interface.nsi.json")
             shutil.copyfile(ROOT / "tests/fixtures/nsi_socket_plan.json", work / "tcp.nsi.json")
+            shutil.copyfile(ROOT / "tests/fixtures/nsi_websocket_plan.json", work / "websocket.nsi.json")
             cc = shlex.split(os.environ.get("NANO_NATIVE_TEST_CC", "cc"))
             catalog = work / "catalog"
             self.checked([*cc,"-std=c99","-Wall","-Wextra","-Werror","-Isrc",

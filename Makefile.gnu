@@ -220,7 +220,7 @@ EXAMPLES_EFFECTIVE_BIN_SUFFIX = $(if $(EXAMPLES_BIN_SUFFIX),$(EXAMPLES_BIN_SUFFI
 # Source files
 COMMON_SOURCES = $(SRC_DIR)/lexer.c $(SRC_DIR)/parser.c $(SRC_DIR)/typechecker.c $(SRC_DIR)/transpiler.c $(SRC_DIR)/stdlib_runtime.c $(SRC_DIR)/env.c $(SRC_DIR)/builtins_registry.c $(SRC_DIR)/module.c $(SRC_DIR)/module_metadata.c $(SRC_DIR)/cJSON.c $(SRC_DIR)/toon_output.c $(SRC_DIR)/module_builder.c $(SRC_DIR)/resource_tracking.c $(SRC_DIR)/eval.c $(SRC_DIR)/eval/eval_hashmap.c $(SRC_DIR)/eval/eval_math.c $(SRC_DIR)/eval/eval_string.c $(SRC_DIR)/eval/eval_io.c $(SRC_DIR)/interpreter_ffi.c $(SRC_DIR)/json_diagnostics.c $(SRC_DIR)/reflection.c $(SRC_DIR)/nanocore_subset.c $(SRC_DIR)/nanocore_export.c $(SRC_DIR)/emit_typed_ast.c $(SRC_DIR)/type_infer.c $(SRC_DIR)/effects.c $(SRC_DIR)/fold_constants.c $(SRC_DIR)/dce_pass.c $(SRC_DIR)/par_let_pass.c $(SRC_DIR)/ptx_backend.c $(SRC_DIR)/opencl_backend.c $(SRC_DIR)/tco_pass.c $(SRC_DIR)/cps_pass.c $(SRC_DIR)/coroutine.c $(SRC_DIR)/pgo_pass.c $(SRC_DIR)/c_backend.c $(SRC_DIR)/bench.c $(SRC_DIR)/bench_native.c $(SRC_DIR)/riscv_backend.c $(SRC_DIR)/dwarf_info.c $(SRC_DIR)/docgen_md.c $(SRC_DIR)/docgen.c $(SRC_DIR)/fmt.c $(SRC_DIR)/channel.c $(SRC_DIR)/bcp47.c $(SRC_DIR)/locale.c $(SRC_DIR)/utf8.c $(SRC_DIR)/diag_id.c $(SRC_DIR)/catalog.c
 COMMON_SOURCES += $(SRC_DIR)/resource_flow.c $(SRC_DIR)/nominal_types.c $(SRC_DIR)/service_namespace.c $(SRC_DIR)/service_bodies.c $(SRC_DIR)/service_ownership.c
-COMPILER_INPUT_OBJECTS = $(OBJ_DIR)/nanoisa/service_multi_nominal.o $(OBJ_DIR)/nanoisa/service_multi_nominal_plan.o $(OBJ_DIR)/nanoisa/service_socket_nominal.o $(OBJ_DIR)/nanoisa/service_socket_nominal_plan.o $(OBJ_DIR)/nsi_socket_binding.o $(OBJ_DIR)/nsi_socket_plan.o $(OBJ_DIR)/nanoisa/file_source_snapshot.o $(OBJ_DIR)/nanoisa/file_source_plan.o $(OBJ_DIR)/nanoisa/file_source_catalog.o $(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi.o $(OBJ_DIR)/nsi_file_plan.o
+COMPILER_INPUT_OBJECTS = $(OBJ_DIR)/nsi_websocket_binding.o $(OBJ_DIR)/nsi_websocket_plan.o $(OBJ_DIR)/nanoisa/service_multi_nominal.o $(OBJ_DIR)/nanoisa/service_multi_nominal_plan.o $(OBJ_DIR)/nanoisa/service_socket_nominal.o $(OBJ_DIR)/nanoisa/service_socket_nominal_plan.o $(OBJ_DIR)/nsi_socket_binding.o $(OBJ_DIR)/nsi_socket_plan.o $(OBJ_DIR)/nanoisa/file_source_snapshot.o $(OBJ_DIR)/nanoisa/file_source_plan.o $(OBJ_DIR)/nanoisa/file_source_catalog.o $(OBJ_DIR)/nsi_file_binding.o $(OBJ_DIR)/nsi.o $(OBJ_DIR)/nsi_file_plan.o
 COMPILER_INPUT_ARCHIVE = lib/libnano_compiler_inputs.a
 COMMON_OBJECTS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(COMMON_SOURCES)) $(COMPILER_INPUT_ARCHIVE)
 RUNTIME_SOURCES = $(RUNTIME_DIR)/list_int.c $(RUNTIME_DIR)/list_bool.c $(RUNTIME_DIR)/list_string.c \
@@ -6163,7 +6163,7 @@ test-units: test-c-service-inputs
 
 .PHONY: test-c-service-inputs-sanitize
 test-c-service-inputs-sanitize: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
-	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $(OBJ_DIR)/test_service_inputs_sanitize tests/test_service_origins.c src/module.c src/env.c src/nanoisa/file_source_plan.c src/nanoisa/file_source_catalog.c src/nanoisa/file_source_snapshot.c src/nsi_socket_binding.c src/nsi_socket_plan.c src/nsi_file_binding.c src/nsi.c src/nsi_file_plan.c src/cJSON.c src/utf8.c $(filter-out $(COMPILER_INPUT_ARCHIVE) $(OBJ_DIR)/module.o $(OBJ_DIR)/env.o $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $(OBJ_DIR)/test_service_inputs_sanitize tests/test_service_origins.c src/module.c src/env.c src/nanoisa/file_source_plan.c src/nanoisa/file_source_catalog.c src/nanoisa/file_source_snapshot.c src/nsi_websocket_binding.c src/nsi_websocket_plan.c src/nsi_socket_binding.c src/nsi_socket_plan.c src/nsi_file_binding.c src/nsi.c src/nsi_file_plan.c src/cJSON.c src/utf8.c $(filter-out $(COMPILER_INPUT_ARCHIVE) $(OBJ_DIR)/module.o $(OBJ_DIR)/env.o $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
 	ASAN_OPTIONS=detect_leaks=1 NANO_C_SERVICE_ORIGIN_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_inputs_sanitize" python3 -m unittest -v tests.test_service_origins.ServiceOrigins.test_c_loader_canonical_origin_lifetime
 
 .PHONY: test-service-namespace
@@ -6632,3 +6632,12 @@ test-units: test-websocket-public
 # I rebuild my providers when their included service implementations change.
 $(OBJ_DIR)/nanoisa/websocket_runtime.o: $(wildcard $(NANOISA_DIR)/service_*runtime*.inc) $(wildcard $(NANOISA_DIR)/websocket_runtime*.inc) $(NANOISA_DIR)/websocket_runtime_config.h
 $(OBJ_DIR)/nanoisa/websocket_flow.o: $(wildcard $(NANOISA_DIR)/service_*.inc) $(wildcard $(NANOISA_DIR)/websocket_*.h)
+
+$(OBJ_DIR)/nsi_websocket_binding.o: $(SRC_DIR)/nsi_binding.h $(SRC_DIR)/nsi_binding_impl.inc $(SRC_DIR)/nsi_websocket_binding.h $(SRC_DIR)/nsi_websocket_plan.h $(SRC_DIR)/nsi_internal.h $(SRC_DIR)/utf8.h
+.PHONY: test-websocket-source-binding
+test-websocket-source-binding:
+	NANO_FILE_BINDING_CC="$(CC)" NANO_FILE_BINDING_CFLAGS="$(CFLAGS)" NANO_FILE_BINDING_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_nsi_websocket_binding
+
+test-units: test-websocket-source-binding
+
+$(OBJ_DIR)/nanoisa/file_source_snapshot.o: $(SRC_DIR)/nsi_websocket_binding.h $(NANOISA_DIR)/service_source_catalog.h

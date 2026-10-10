@@ -1,0 +1,13 @@
+#include "nsi_websocket_binding.h"
+#define BindingPlan NlWebSocketBindingPlan
+#define binding_interface_bytes nl_websocket_binding_interface_bytes
+#define binding_source_bytes nl_websocket_binding_source_bytes
+#define binding_peak_bound nl_websocket_binding_peak_bound
+#define binding_storage_size nl_websocket_binding_storage_size
+#define binding_prepare nl_websocket_binding_prepare
+#define binding_free nl_websocket_binding_free
+#define binding_allocation_bound nl_websocket_binding_allocation_bound
+#define BINDING_INTERFACE "nsi:nanolang/websocket"
+#define BINDING_NAME "websocket"
+#define BINDING_LABEL "Websocket"
+#include "nsi_binding_cases.inc"

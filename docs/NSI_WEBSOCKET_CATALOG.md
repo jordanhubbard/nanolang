@@ -174,6 +174,22 @@ exhaustion and failed close cleanup. Altered import/argument calls refuse before
 socket acquisition. These private paths do not register public source selection
 or grant authority from service declarations.
 
+## Immutable source companions
+
+My `nl_websocket_binding_prepare` validates the complete counted document,
+compares the exact catalog and retains canonical interface bytes plus a source
+service declaration. Canonical output preserves both connection and lookup
+capabilities. The shared parser rejects malformed/extra data before publication;
+failed preparation preserves output. Successful plans own their bytes.
+
+My shared source-snapshot API accepts explicit catalog identity 3, reads a
+companion relative to an absolute source origin and keeps copied bytes after the
+file changes or disappears. The `file_source_inputs` module carries these views
+through C-seed, NanoVirt, Stage 1 and Stage 2 consumer programs, including VM and
+native products. This supplies compiler input storage; it does not resolve
+WebSocket source names or lower service calls. Catalog queries, namespaces and
+paired lowering remain required.
+
 ## Explicit public providers
 
 I expose `nvm_websocket_execute_indirect_bytes` and

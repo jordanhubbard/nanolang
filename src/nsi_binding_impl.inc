@@ -293,8 +293,12 @@ static void fb_render_interface(BindingWriter *w, const NlNsi *n) {
     fb_named(w, n->errors[0].id, n->errors[0].name);
     fb_write(w, ",\"version\":"); fb_quote(w, n->errors[0].version);
     fb_write(w, "}],\"capabilities\":[");
-    fb_named(w, n->capabilities[0].id, n->capabilities[0].name);
-    fb_write(w, "}]}\n");
+    for (size_t i = 0; i < n->capability_count; i++) {
+        if (i) fb_write(w, ",");
+        fb_named(w, n->capabilities[i].id, n->capabilities[i].name);
+        fb_write(w, "}");
+    }
+    fb_write(w, "]}\n");
 }
 static void fb_render_source(BindingWriter *, const NlNsi *);
 NlBindingStatus binding_prepare(const unsigned char *bytes, size_t size,
