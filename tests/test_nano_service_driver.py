@@ -18,3 +18,11 @@ class NanoServiceDriver(ServiceDrivers):
             wrapper.write_text('#!/bin/sh\nexec '+shlex.join(list(map(str,command)))+' "$@"\n')
             wrapper.chmod(0o700)
             self.drivers.append(wrapper)
+
+    def check_indirect_source(self, source, result, shadows):
+        super().check_indirect_source(source, result, shadows)
+        reference=self.work/'c-reference.nvm'
+        self.run_command([ROOT/'bin/nanoc_c',self.source,'--allow-temporary-files',
+                          '--emit-nvm','-o',reference])
+        self.assertEqual(reference.read_bytes(),
+                         (self.work/(self.drivers[0].name+'.indirect.nvm')).read_bytes())

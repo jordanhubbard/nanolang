@@ -68,6 +68,7 @@ static void so_same(SoCheck *c, const ASTNode *node, const SoState *a, const SoS
 }
 static void so_expr(SoCheck *, SoState *, const ASTNode *, bool);
 static void so_call(SoCheck *c, SoState *s, const ASTNode *node, ASTNode **args, int count, bool move) {
+    if(node->type==AST_CALL && node->as.call.func_expr)so_expr(c,s,node->as.call.func_expr,false);
     SoHold *holds=count?calloc((size_t)count,sizeof *holds):NULL;
     if(count && !holds) { so_fail(c,node,3,"I cannot allocate service call borrow state."); return; }
     size_t held=0;
@@ -132,7 +133,11 @@ static void so_impl(SoCheck *c, SoState *s, const ASTNode *node, bool move) {
     case AST_NUMBER: case AST_BOOL: return;
     case AST_IDENTIFIER: {
         int index=so_find(s,node->as.identifier);
-        if(index<0) { so_fail(c,node,2,"I require a retained lexical service value."); return; }
+        if(index<0) {
+            const NlServiceBodyFact *fact=so_type(c,node);
+            if(fact && fact->type.base_type==TYPE_FUNCTION && fact->declaration)return;
+            so_fail(c,node,2,"I require a retained lexical service value."); return;
+        }
         SoLocal *v=&s->locals[index];
         if(!so_owned(v->category)) return;
         if(v->moved || v->exclusive || (move && (v->mode || v->shared))) {
@@ -157,7 +162,11 @@ static void so_impl(SoCheck *c, SoState *s, const ASTNode *node, bool move) {
         }
         for(int i=0;i<node->as.prefix_op.arg_count;++i) so_expr(c,s,node->as.prefix_op.args[i],false);
         return;
-    case AST_FIELD_ACCESS: so_expr(c,s,node->as.field_access.object,false); return;
+    case AST_FIELD_ACCESS: {
+        const NlServiceBodyFact *fact=so_type(c,node);
+        if(fact && fact->type.base_type==TYPE_FUNCTION && fact->declaration)return;
+        so_expr(c,s,node->as.field_access.object,false); return;
+    }
     case AST_LET: {
         so_expr(c,s,node->as.let.value,true);
         if(!s->next || c->out->status) return;

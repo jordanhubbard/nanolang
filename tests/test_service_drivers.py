@@ -71,6 +71,82 @@ class ServiceDrivers(unittest.TestCase):
                 self.run_command([driver,self.source,'--allow-temporary-files'])
                 self.run_command([self.work/'a.out','--allow-temporary-files'],7)
 
+    def check_indirect_source(self, source, result, shadows):
+        self.source.write_text(source)
+        modules=[]
+        for driver in self.drivers:
+            bytecode=self.work/(driver.name+'.indirect.nvm')
+            run=self.run_command([driver,self.source,'--allow-temporary-files','--emit-nvm','-o',bytecode])
+            records=run.stderr.splitlines()
+            selected=[line[7:] for line in records if line.startswith('SELECT ')]
+            self.assertEqual(len(selected),shadows)
+            self.assertEqual(selected,[line[6:] for line in records if line.startswith('START ')])
+            self.assertEqual(selected,[line[5:] for line in records if line.startswith('DONE ')])
+            modules.append(bytecode.read_bytes())
+            self.run_command([ROOT/'bin/nano_vm','--allow-temporary-files','--file-indirect',
+                              '--file-instruction-limit','1000000',bytecode],result)
+            self.run_command([ROOT/'bin/nano_vm','--allow-temporary-files','--file-cyclic',
+                              '--file-instruction-limit','1000000',bytecode],1)
+            native=self.work/(driver.name+'.indirect')
+            self.run_command([driver,self.source,'--allow-temporary-files','-o',native])
+            self.run_command([native],1)
+            self.run_command([native,'--allow-temporary-files'],result)
+            symbols=subprocess.run(['nm',str(native)],capture_output=True,text=True,check=True).stdout
+            self.assertNotIn('vm_execute',symbols)
+            self.assertNotIn('nvm_file_execute_indirect_bytes',symbols)
+        self.assertEqual(modules[0],modules[1])
+
+    def test_indirect_helpers_borrows_and_higher_order_results(self):
+        generated=(ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()
+        fixture=(ROOT/'tests/fixtures/file_indirect_source.nano').read_text()
+        self.check_indirect_source(generated+fixture,23,17)
+
+    def test_indirect_imported_helper_value(self):
+        (self.work/'helper.nano').write_text('module Helpers\npub fn bump(x:int)->int{return (+ x 5)}\nshadow bump{assert (== (bump 1) 6)}\n')
+        generated=(ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()
+        root='module "helper.nano" as H\n'+generated+'''
+fn run_import()->int {let selected:fn(int)->int=H.bump return (selected 4)}
+shadow run_import {assert (== (run_import) 9)}
+fn main()->int{return (run_import)}
+'''
+        self.check_indirect_source(root,9,7)
+
+    def test_indirect_signature_ownership_and_recursion_refusals(self):
+        generated=(ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()
+        fixture=(ROOT/'tests/fixtures/file_indirect_source.nano').read_text()
+        cases=['pure fn invoke(f:fn(int)->int)->int{return (f 1)}\nfn main()->int{return 0}',
+               fixture.replace('let mut selected:fn(int)->int=plus_one','let mut selected:fn(bool)->int=plus_one'),
+               fixture.replace('let writer:fn(&mut File,int)->int=write_selected','let writer:fn(&File,int)->int=write_selected'),
+               fixture.replace('return (f x)','return (f true)'),
+               fixture.replace('return (f x)','return (f x x)'),
+               fixture.replace('let moved:File=(identity file)','let moved:File=(identity file) let duplicate:File=(identity file)'),
+               'fn recur(x:int)->int{let selected:fn(int)->int=recur return (selected x)}\nfn main()->int{return 0}',
+               '''fn borrowed(a:&mut File,b:&mut File)->int{return 1}
+fn main()->int {match (temp) {Error(e)=>{return -1} Ok(f)=>{
+let mut file:File=f let operation:fn(&mut File,&mut File)->int=borrowed
+let result:int=(operation &mut file &mut file)
+match (close file) {Ok()=>{return result} Error(e)=>{return -2}}
+}}}''']
+        for index,case in enumerate(cases):
+            with self.subTest(case=index):
+                self.source.write_text(generated+case)
+                for driver in self.drivers:
+                    for flags in (['--emit-nvm'],[]):
+                        output=self.work/'preserved-output';output.write_bytes(b'prior output\n')
+                        self.run_command([driver,self.source,'--allow-temporary-files',*flags,'-o',output],1)
+                        self.assertEqual(output.read_bytes(),b'prior output\n')
+
+    def test_indirect_shadow_failure_preserves_output(self):
+        generated=(ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()
+        fixture=(ROOT/'tests/fixtures/file_indirect_source.nano').read_text()
+        self.source.write_text(generated+fixture.replace('assert (== (run_indirect) 23)','assert (== (run_indirect) 24)'))
+        for driver in self.drivers:
+            for flags in (['--emit-nvm'],[]):
+                output=self.work/'preserved-output';output.write_bytes(b'prior output\n')
+                run=self.run_command([driver,self.source,'--allow-temporary-files',*flags,'-o',output],1)
+                self.assertIn('File shadow failure',run.stderr)
+                self.assertEqual(output.read_bytes(),b'prior output\n')
+
     def test_cyclic_owners_helpers_and_selected_shadows(self):
         generated=(ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()
         self.source.write_text(generated+"""

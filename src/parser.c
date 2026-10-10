@@ -268,7 +268,19 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
             char *struct_name = NULL;
             FunctionSignature *nested_fn_sig = NULL;
             TypeInfo *param_info = NULL;
+            Type borrow_type=TYPE_UNKNOWN;
+            if(match(p,TOKEN_AMPERSAND)) {
+                advance(p);borrow_type=TYPE_BORROW_SHARED;
+                if(match(p,TOKEN_MUT)){advance(p);borrow_type=TYPE_BORROW_MUT;}
+            }
             Type param_type = parse_type_with_element(p, NULL, &struct_name, &nested_fn_sig, &param_info);
+            if(param_type!=TYPE_UNKNOWN && borrow_type!=TYPE_UNKNOWN) {
+                if(!param_info){param_info=calloc(1,sizeof *param_info);param_info->base_type=param_type;
+                    param_info->generic_name=struct_name?strdup(struct_name):NULL;}
+                if(nested_fn_sig){param_info->fn_sig=nested_fn_sig;nested_fn_sig=NULL;}
+                TypeInfo *wrapper=calloc(1,sizeof *wrapper);wrapper->base_type=borrow_type;
+                wrapper->element_type=param_info;param_info=wrapper;param_type=borrow_type;
+            }
             
             if (param_type == TYPE_UNKNOWN) {
                 /* Error already reported */
@@ -296,14 +308,7 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
             }
             sig->param_type_info[sig->param_count - 1] = param_info;
             
-            /* TODO: Handle nested function signatures in function parameters */
-            /* For now, we don't support fn(fn(int)->int)->int */
-            if (nested_fn_sig) {
-                parser_error(p, 0, 0, "Error: Nested function types not yet supported\n");
-                free_function_signature(nested_fn_sig);
-                free_function_signature(sig);
-                return NULL;
-            }
+            if(nested_fn_sig)param_info->fn_sig=nested_fn_sig;
             
             tok = current_token(p);
             if (!tok) {

@@ -9,6 +9,9 @@ struct ServiceBodyValue { type: ServiceType, borrow_mode: int, returns: bool }
 struct ServiceBodyLocal { name: string, value: ServiceBodyValue, mutable: bool }
 struct ServiceBodyFact { node_kind: int, node_id: int, type: ServiceType, borrow_mode: int, declaration: int }
 struct ServiceBodyCheck { status: int, diagnostic: string, facts: array<ServiceBodyFact>, functions: int, shadows: int }
+struct ServiceBodySignature { parameters: array<ServiceBodyValue>, result: ServiceBodyValue }
+let mut sb_signatures: array<ServiceBodySignature> = []
+let mut sb_type_depth: int = 0
 let mut sb_status: int = 0
 let mut sb_diagnostic: string = ""
 let mut sb_locals: array<ServiceBodyLocal> = []
@@ -61,10 +64,86 @@ shadow sb_require {
     let terminal: ServiceBodyValue = (sb_require (sb_returned (sb_value 3) true) (sb_value 1))
     assert terminal.returns assert (== sb_status 0)
 }
+fn sb_signature(parameters: array<ServiceBodyValue>, result: ServiceBodyValue) -> ServiceBodyValue {
+    let mut i: int = 0
+    while (< i (array_length sb_signatures)) {
+        let prior: ServiceBodySignature = (at sb_signatures i)
+        let mut same: bool = (and (== (array_length prior.parameters) (array_length parameters)) (sb_equal prior.result result))
+        let mut j: int = 0
+        while (and same (< j (array_length parameters))) { set same (sb_equal (at prior.parameters j) (at parameters j)) set j (+ j 1) }
+        if same { return ServiceBodyValue { type: ServiceType { kind: 7, declaration: 0, owner: -1, ordinal: i, category: 0 }, borrow_mode: 0, returns: false } }
+        set i (+ i 1)
+    }
+    if (== i 1024) { return (sb_fail 3 "I exceeded my callable signature bound.") }
+    set sb_signatures (array_push sb_signatures ServiceBodySignature { parameters: parameters, result: result })
+    return ServiceBodyValue { type: ServiceType { kind: 7, declaration: 0, owner: -1, ordinal: i, category: 0 }, borrow_mode: 0, returns: false }
+}
+shadow sb_signature {
+    set sb_signatures []
+    let first: ServiceBodyValue = (sb_signature [(sb_value 1)] (sb_value 2))
+    assert (sb_equal first (sb_signature [(sb_value 1)] (sb_value 2)))
+    assert (not (sb_equal first (sb_signature [(sb_value 2)] (sb_value 2))))
+    set sb_signatures []
+}
 fn sb_annotation(space: ServiceNamespace, owner: int, spelling: string) -> ServiceBodyValue {
+    set sb_type_depth (+ sb_type_depth 1)
+    if (> sb_type_depth 128) { set sb_type_depth (- sb_type_depth 1) return (sb_fail 3 "I exceeded my callable type nesting bound.") }
+    let result: ServiceBodyValue = (sb_annotation_impl space owner spelling)
+    set sb_type_depth (- sb_type_depth 1) return result
+}
+shadow sb_annotation {
+    set sb_signatures [] set sb_status 0
+    let a: ServiceBodyValue = (sb_annotation (sb_empty) 0 "fn(int)->bool")
+    assert (== a.type.kind 7) assert (== (array_length (at sb_signatures a.type.ordinal).parameters) 1)
+    assert (not (sb_equal a (sb_annotation (sb_empty) 0 "fn(bool)->bool")))
+    let nested: ServiceBodyValue = (sb_annotation (sb_empty) 0 "fn(fn(int)->bool)->fn()->int")
+    assert (== nested.type.kind 7)
+    set sb_signatures [] set sb_status 0 set sb_diagnostic ""
+}
+fn sb_type_token(token: LexerToken) -> string {
+    if (== token.token_type LexerTokenType.TOKEN_LPAREN) { return "(" }
+    if (== token.token_type LexerTokenType.TOKEN_RPAREN) { return ")" }
+    if (== token.token_type LexerTokenType.TOKEN_COMMA) { return "," }
+    if (== token.token_type LexerTokenType.TOKEN_ARROW) { return "->" }
+    if (== token.token_type LexerTokenType.TOKEN_AMPERSAND) { return "&" }
+    if (== token.token_type LexerTokenType.TOKEN_DOT) { return "." }
+    if (!= token.value "") { return token.value }
+    return "?"
+}
+shadow sb_type_token {
+    let tokens: List<LexerToken> = (tokenize_string "( )->&" "test" (list_CompilerDiagnostic_new))
+    assert (== (sb_type_token (list_LexerToken_get tokens 0)) "(")
+    assert (== (sb_type_token (list_LexerToken_get tokens 2)) "->")
+    assert (== (sb_type_token (list_LexerToken_get tokens 3)) "&")
+}
+fn sb_annotation_impl(space: ServiceNamespace, owner: int, spelling: string) -> ServiceBodyValue {
     if (or (== spelling "") (== spelling "unknown")) { return (sb_value 0) }
     let tokens: List<LexerToken> = (tokenize_string spelling "<service-type>" (list_CompilerDiagnostic_new))
     let count: int = (list_LexerToken_length tokens)
+    if (== (list_LexerToken_get tokens 0).token_type LexerTokenType.TOKEN_FN) {
+        if (or (< count 5) (!= (list_LexerToken_get tokens 1).token_type LexerTokenType.TOKEN_LPAREN)) { return (sb_fail 1 "I require a complete callable signature.") }
+        let mut parameters: array<ServiceBodyValue> = [] let mut part: string = "" let mut nesting: int = 0 let mut at_token: int = 2
+        while (< at_token count) {
+            let token: LexerToken = (list_LexerToken_get tokens at_token)
+            if (and (== nesting 0) (or (== token.token_type LexerTokenType.TOKEN_COMMA) (== token.token_type LexerTokenType.TOKEN_RPAREN))) {
+                if (!= part "") { set parameters (array_push parameters (sb_annotation space owner part)) set part "" }
+                else if (or (== token.token_type LexerTokenType.TOKEN_COMMA) (> (array_length parameters) 0)) { return (sb_fail 1 "I require each callable parameter type.") }
+                if (> (array_length parameters) 256) { return (sb_fail 3 "I exceeded my callable parameter bound.") }
+                if (== token.token_type LexerTokenType.TOKEN_RPAREN) { break }
+            } else {
+                if (== token.token_type LexerTokenType.TOKEN_LPAREN) { set nesting (+ nesting 1) }
+                if (== token.token_type LexerTokenType.TOKEN_RPAREN) { set nesting (- nesting 1) }
+                set part (+ part (+ " " (sb_type_token token)))
+            }
+            set at_token (+ at_token 1)
+        }
+        if (or (>= (+ at_token 2) count) (!= (list_LexerToken_get tokens (+ at_token 1)).token_type LexerTokenType.TOKEN_ARROW)) { return (sb_fail 1 "I require the callable return type.") }
+        set part "" set at_token (+ at_token 2)
+        while (< at_token (- count 1)) { set part (+ part (+ " " (sb_type_token (list_LexerToken_get tokens at_token)))) set at_token (+ at_token 1) }
+        let result: ServiceBodyValue = (sb_annotation space owner part)
+        if (or (== result.type.kind 0) (!= result.borrow_mode 0)) { return (sb_fail 1 "I require a complete nonborrowed callable result.") }
+        return (sb_signature parameters result)
+    }
     let mut i: int = 0
     let mut mode: int = 0
     if (== (list_LexerToken_get tokens 0).token_type LexerTokenType.TOKEN_AMPERSAND) {
@@ -86,7 +165,7 @@ fn sb_annotation(space: ServiceNamespace, owner: int, spelling: string) -> Servi
     if (== result.type.kind 0) { return (sb_fail 2 "I have not checked this ordinary type in my service body path.") }
     return result
 }
-shadow sb_annotation {
+shadow sb_annotation_impl {
     let space: ServiceNamespace = (sb_empty)
     assert (== (sb_annotation space 0 "int").type.kind 1)
     assert (== (sb_annotation space 0 "bool").type.kind 2)
@@ -122,8 +201,47 @@ shadow sb_remember {
     set sb_facts [] let _: ServiceBodyValue = (sb_remember 0 7 (sb_value 1) 0)
     assert (== (at sb_facts 0).node_id 7) set sb_facts []
 }
+fn sb_callable(parser: Parser, space: ServiceNamespace, row: ServiceName) -> ServiceBodyValue {
+    if (!= row.kind 1) { return (sb_fail 2 "I require a noncapturing helper value.") }
+    let function: ASTFunction = (parser_get_function parser row.node_id)
+    if (< function.body 0) { return (sb_fail 2 "I require a noncapturing helper value.") }
+    let mut parameters: array<ServiceBodyValue> = [] let mut i: int = 0
+    while (< i function.param_count) {
+        let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
+        set parameters (array_push parameters (sb_annotation space row.target_owner parameter.var_type)) set i (+ i 1)
+    }
+    return (sb_signature parameters (sb_annotation space row.target_owner function.return_type))
+}
+shadow sb_callable {
+    let tokens: List<LexerToken> = (tokenize_string "fn f(x:int)->int{return x}" "test" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "test")
+    set sb_signatures []
+    let row: ServiceName = ServiceName { name: "f", id: 1, target: 1, owner: 0, target_owner: 0, kind: 1, ordinal: -1, request: -1, exported: true, immutable: true, node_id: 0 }
+    let result: ServiceBodyValue = (sb_callable p (sb_empty) row)
+    assert (== result.type.kind 7)
+    assert (== (array_length (at sb_signatures result.type.ordinal).parameters) 1)
+    assert (== (at sb_signatures result.type.ordinal).result.type.kind 1)
+    set sb_signatures []
+}
 fn sb_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, name: string, start: int, count: int) -> ServiceBodyValue {
-    if (or (== name "") (>= (sb_local name) 0)) { return (sb_fail 2 "I have not checked an indirect service call.") }
+    let binding: int = (sb_local name)
+    if (or (== name "") (>= binding 0)) {
+        let node: ASTCall = (parser_get_call parser id)
+        let mut callee: ServiceBodyValue = (sb_value 0)
+        if (>= binding 0) { set callee (sb_expression parser space node.function_type node.function) }
+        else { set callee (sb_expression parser space node.function_type node.function) }
+        if (or (!= callee.type.kind 7) (or (!= callee.borrow_mode 0) (or (< callee.type.ordinal 0) (>= callee.type.ordinal (array_length sb_signatures))))) { return (sb_fail 1 "I require a callable value with a complete signature.") }
+        if sb_pure { return (sb_fail 1 "I cannot infer purity from an ordinary callable type.") }
+        let signature: ServiceBodySignature = (at sb_signatures callee.type.ordinal)
+        if (!= count (array_length signature.parameters)) { return (sb_fail 1 "I require the callable argument count.") }
+        let mut i: int = 0
+        while (< i count) {
+            let argument: ASTStmtRef = (parser_get_call_arg parser (+ start i))
+            let _: ServiceBodyValue = (sb_require (sb_expression parser space argument.node_type argument.node_id) (at signature.parameters i))
+            set i (+ i 1)
+        }
+        return (sb_remember kind id signature.result 0)
+    }
     let found: int = (service_namespace_lookup space sb_owner name)
     if (and (< found 0) (== name "not")) {
         if (!= count 1) { return (sb_fail 1 "I require the operator argument count.") }
@@ -222,7 +340,8 @@ fn sb_expression_impl(parser: Parser, space: ServiceNamespace, kind: int, id: in
         let name: string = (parser_get_identifier parser id).name
         let index: int = (sb_local name)
         if (>= index 0) { return (at sb_locals index).value }
-        if (>= (service_namespace_lookup space sb_owner name) 0) { return (sb_fail 2 "I have not checked this non-local value in my service body path.") }
+        let found: int = (service_namespace_lookup space sb_owner name)
+        if (>= found 0) { let row: ServiceName = (at space.names found) return (sb_remember kind id (sb_callable parser space row) row.target) }
         return (sb_fail 1 "I require a bound service body value.")
     }
     if (== kind ParseNodeType.PNODE_CALL) {
@@ -272,6 +391,13 @@ fn sb_expression_impl(parser: Parser, space: ServiceNamespace, kind: int, id: in
     }
     if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
         let node: ASTFieldAccess = (parser_get_field_access parser id)
+        if (== node.object_type ParseNodeType.PNODE_IDENTIFIER) {
+            let root: string = (parser_get_identifier parser node.object).name
+            if (< (sb_local root) 0) {
+                let found: int = (service_namespace_lookup space sb_owner (+ root (+ "." node.field_name)))
+                if (>= found 0) { let row: ServiceName = (at space.names found) return (sb_remember kind id (sb_callable parser space row) row.target) }
+            }
+        }
         let object: ServiceBodyValue = (sb_expression parser space node.object_type node.object)
         if (== object.type.kind 0) { return object }
         let field: ServiceType = (service_member_type space object.type node.field_name)
@@ -365,7 +491,7 @@ shadow sb_expression {
 }
 
 pub fn check_service_bodies(parser: Parser, files: array<string>, sources: array<string>, space: ServiceNamespace) -> ServiceBodyCheck {
-    set sb_status 0 set sb_diagnostic "" set sb_count 0 set sb_locals [] set sb_facts [] set sb_depth 0
+    set sb_status 0 set sb_diagnostic "" set sb_count 0 set sb_locals [] set sb_facts [] set sb_depth 0 set sb_signatures [] set sb_type_depth 0
     let mut functions: int = 0 let mut shadows: int = 0
     if (> parser.services_count 0) {
         if (!= space.status 0) { let _: ServiceBodyValue = (sb_fail 1 "I require a complete service namespace.") }

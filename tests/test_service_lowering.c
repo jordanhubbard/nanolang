@@ -153,9 +153,18 @@ int main(int argc,char **argv) {
     if(result.status)fprintf(stderr,"SERIALIZE %u %s\n",result.status,result.diagnostic);
     assert(!result.status);
     uint8_t *prior=bytes;size_t prior_size=length;
-    fail_after=0;
-    assert(nl_service_serialize(module,&prior,&prior_size).status==4 && prior==bytes && prior_size==length);
-    fail_after=-1;
+    recovered=false;
+    for(long allocation=0;allocation<16;allocation++) {
+        fail_after=allocation;
+        NlServiceLoweringResult attempt=nl_service_serialize(module,&prior,&prior_size);
+        fail_after=-1;
+        if(!attempt.status) {
+            assert(prior!=bytes && prior_size==length && !memcmp(prior,bytes,length));
+            free(prior);recovered=true;break;
+        }
+        assert(attempt.status==4 && prior==bytes && prior_size==length);
+    }
+    assert(recovered);
     NvmFileHostGrant *grant=NULL;assert(nvm_file_host_grant_create_temporary_files(&grant)==NVM_FILE_HOST_OK);
     NvmFileCyclicOptions options={NVM_FILE_CYCLIC_RUNTIME_REVISION,100000};NvmFileScalar scalar={0};
     unsigned descriptors=descriptor_count();

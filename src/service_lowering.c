@@ -3,7 +3,7 @@
 #include "nanoisa/isa.h"
 #include "nanoisa/retained_layouts.h"
 #include "nanoisa/service_file_nominal.h"
-#include "nanoisa/file_cyclic.h"
+#include "nanoisa/file_indirect_flow.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -64,6 +64,7 @@ static SlType sl_type(Sl *c,Type type,const TypeInfo *info) {
     } else if(type==TYPE_INT)out.tag=TAG_INT;
     else if(type==TYPE_BOOL)out.tag=TAG_BOOL;
     else if(type==TYPE_VOID)out.tag=TAG_VOID;
+    else if(type==TYPE_FUNCTION)out.tag=TAG_FUNCTION;
     else sl_fail(c,NULL,2,"I have not lowered this ordinary service body type.");
     return out;
 }
@@ -183,9 +184,17 @@ static void sl_call(Sl *c,const ASTNode *node,ASTNode **args,int count,bool want
         const NlServiceName *row=nl_service_namespace_name(c->space,i);
         if(row->id==fact->declaration && row->id==row->target){target=row;break;}
     }
-    if(!target){sl_fail(c,node,1,"I require an original callable identity.");return;}
+    bool indirect=!fact->declaration && node->type==AST_CALL;
+    if(!target && !indirect){sl_fail(c,node,1,"I require an original callable identity.");return;}
+    uint16_t callable_slot=0,base_pending=c->pending_count;
+    if(indirect) {
+        if(node->as.call.func_expr)sl_expr(c,node->as.call.func_expr,true);
+        else sl_load(c,sl_lookup(c,node,node->as.call.name));
+        if(!c->next || c->result.status)return;
+        callable_slot=sl_stage(c,(SlType){.tag=TAG_FUNCTION,.layout=NVM_V2_NO_INDEX});
+    }
     uint16_t reference=UINT16_MAX,loans=c->loan_count,borrowed=0,references[SL_LOCALS];
-    uint16_t pending=c->pending_count,staged[SL_LOCALS],staged_count=0;
+    uint16_t pending=base_pending,staged[SL_LOCALS],staged_count=0;
     bool stage=sl_terminal_operand(node,0);
     if(count<0 || count>(int)SL_LOCALS){sl_fail(c,node,3,"I exceeded my call operand bound.");return;}
     for(int i=0;i<count && c->next && !c->result.status;i++) {
@@ -213,7 +222,18 @@ static void sl_call(Sl *c,const ASTNode *node,ASTNode **args,int count,bool want
     if(!c->next || c->result.status)return;
     for(uint16_t i=0;i<staged_count;i++){sl_load(c,staged[i]);sl_clear(c,staged[i]);}
     c->pending_count=pending;
-    if(target->kind==NL_SERVICE_METHOD) {
+    if(indirect) {
+        sl_load(c,callable_slot);sl_clear(c,callable_slot);
+        sl_op(c,borrowed?OP_FILE_CALL_INDIRECT_REFS:OP_CALL_INDIRECT);
+        sl_u16(c,(uint16_t)count);sl_u16(c,fact->type.base_type!=TYPE_VOID);
+        if(borrowed) {
+            uint8_t map[SL_LOCALS*2];
+            for(int i=0;i<count;i++){map[2*i]=(uint8_t)references[i];map[2*i+1]=(uint8_t)(references[i]>>8);}
+            uint32_t index=nvm_add_string(c->module,(const char *)map,(uint32_t)count*2u);
+            if(index==UINT32_MAX){sl_fail(c,node,4,"I cannot retain an indirect File reference map.");return;}
+            sl_u32(c,index);
+        }
+    } else if(target->kind==NL_SERVICE_METHOD) {
         sl_op(c,OP_FILE_SERVICE);sl_u32(c,c->catalog.imports[target->ordinal]);sl_u16(c,reference);
     } else {
         uint32_t callee=0;while(callee<c->count && c->functions[callee].declaration!=target->id)callee++;
@@ -272,6 +292,14 @@ static void sl_match(Sl *c,const ASTNode *node,bool want) {
 }
 static void sl_expr_impl(Sl *c,const ASTNode *n,bool want) {
     if(!n){if(want)sl_op(c,OP_PUSH_VOID);return;}
+    if(n->type==AST_IDENTIFIER || n->type==AST_FIELD_ACCESS) {
+        const NlServiceBodyFact *value=sl_fact(c,n);
+        if(value && value->type.base_type==TYPE_FUNCTION && value->declaration) {
+            uint32_t target=0;while(target<c->count && c->functions[target].declaration!=value->declaration)target++;
+            if(target==c->count){sl_fail(c,n,1,"I require a retained helper value.");return;}
+            if(want){sl_op(c,OP_FUNCREF);sl_u32(c,target);}return;
+        }
+    }
     switch(n->type) {
     case AST_NUMBER: {
         sl_op(c,OP_PUSH_I64);uint64_t v=(uint64_t)n->as.number;
@@ -280,6 +308,7 @@ static void sl_expr_impl(Sl *c,const ASTNode *n,bool want) {
     }
     case AST_BOOL:sl_op(c,OP_PUSH_BOOL);sl_op(c,n->as.bool_val?1:0);break;
     case AST_IDENTIFIER: {
+
         uint16_t slot=sl_lookup(c,n,n->as.identifier);
         sl_load(c,slot);break;
     }
@@ -430,11 +459,13 @@ NlServiceLoweringResult nl_service_lower(const NlServiceNamespace *space,
     uint32_t selected=UINT32_MAX,root_module=0;
     while(nl_service_namespace_program(space,root_module+1))root_module++;
     if(c->module && !sl_catalog(c) && !c->result.status)sl_fail(c,NULL,1,"I require a complete File catalog plan.");
+    /* I order named functions before shadows, matching my independent Nano parser. */
+    for(unsigned pass=0;pass<2 && !c->result.status;pass++)
     for(uint32_t module=0;!c->result.status && nl_service_namespace_program(space,module);module++) {
         const ASTNode *program=nl_service_namespace_program(space,module);
         for(int i=0;i<program->as.program.count && !c->result.status;i++) {
             const ASTNode *node=program->as.program.items[i];
-            if(node->type!=AST_FUNCTION && node->type!=AST_SHADOW)continue;
+            if(node->type!=(pass==0?AST_FUNCTION:AST_SHADOW))continue;
             if(c->count==SL_FUNCTIONS-1){sl_fail(c,node,3,"I exceeded my File function bound.");break;}
             SlFunction *fn=&c->functions[c->count];fn->node=node;fn->module=module;
             const char *name=node->type==AST_FUNCTION?node->as.function.name:node->as.shadow.function_name;
@@ -495,36 +526,95 @@ NlServiceLoweringResult nl_service_lower(const NlServiceNamespace *space,
     if(result.status)nvm_module_free(c->module);else *out=c->module;
     free(c);return result;
 }
+/* I canonicalize only my checked File source product: reference maps, catalog
+ * names, function names; import signatures precede helper signatures. */
+static uint32_t sl_order(uint32_t *order,uint32_t count,uint32_t *next,uint32_t old) {
+    if(old>=count)return old;
+    if(order[old]==UINT32_MAX)order[old]=(*next)++;
+    return order[old];
+}
+static NvmV2Result sl_canonical_wire(NvmV2Module *wire,uint8_t **owned_code) {
+    uint32_t nc=wire->constants.count,ns=wire->signatures.count,cn=0,sn=0;
+    uint32_t *constants=malloc((size_t)nc*sizeof *constants),*signatures=malloc((size_t)ns*sizeof *signatures);
+    NvmV2Constant *pool=calloc(nc,sizeof *pool);
+    NvmV2Signature *types=calloc(ns,sizeof *types);
+    uint8_t *code=malloc((size_t)wire->code_size);
+    NvmV2Result result=NVM_V2_ERR_TRUNCATED;
+    if(!constants || !signatures || !pool || !types || !code)goto done;
+    result=NVM_V2_ERR_INDEX_RANGE;
+    for(uint32_t i=0;i<nc;i++)constants[i]=UINT32_MAX;
+    for(uint32_t i=0;i<ns;i++)signatures[i]=UINT32_MAX;
+    memcpy(code,wire->code,(size_t)wire->code_size);
+    for(uint64_t pc=0;pc<wire->code_size;) {
+        DecodedInstruction d;
+        if(!isa_decode(code+pc,(uint32_t)(wire->code_size-pc),&d))goto done;
+        if(d.opcode==OP_FILE_CALL_REFS || d.opcode==OP_FILE_CALL_INDIRECT_REFS) {
+            uint32_t old=d.operands[d.opcode==OP_FILE_CALL_REFS?1:2].u32;
+            if(old>=nc)goto done;
+            sl_wr32(code+pc+5,sl_order(constants,nc,&cn,old));
+        }
+        pc+=d.byte_length;
+    }
+    for(uint32_t i=0;i<wire->layouts.count;i++) {
+        NvmV2Layout *layout=&wire->layouts.items[i];
+        layout->name_idx=sl_order(constants,nc,&cn,layout->name_idx);
+        for(uint16_t j=0;j<layout->field_count;j++)
+            layout->fields[j].name_idx=sl_order(constants,nc,&cn,layout->fields[j].name_idx);
+    }
+    for(uint32_t i=0;i<wire->imports.count;i++) {
+        NvmV2Import *import=&wire->imports.items[i];
+        import->module_name_idx=sl_order(constants,nc,&cn,import->module_name_idx);
+        import->symbol_name_idx=sl_order(constants,nc,&cn,import->symbol_name_idx);
+        import->signature_idx=sl_order(signatures,ns,&sn,import->signature_idx);
+    }
+    for(uint32_t i=0;i<wire->functions.count;i++) {
+        NvmV2Function *fn=&wire->functions.items[i];
+        fn->name_idx=sl_order(constants,nc,&cn,fn->name_idx);
+        fn->signature_idx=sl_order(signatures,ns,&sn,fn->signature_idx);
+    }
+    for(uint32_t i=0;i<nc;i++)pool[sl_order(constants,nc,&cn,i)]=wire->constants.items[i];
+    for(uint32_t i=0;i<ns;i++)types[sl_order(signatures,ns,&sn,i)]=wire->signatures.items[i];
+    free(wire->constants.items);wire->constants.items=pool;pool=NULL;
+    free(wire->signatures.items);wire->signatures.items=types;types=NULL;
+    wire->code=code;*owned_code=code;code=NULL;result=NVM_V2_OK;
+done:
+    free(constants);free(signatures);free(pool);free(types);free(code);return result;
+}
 NlServiceLoweringResult nl_service_serialize(const NvmModule *module,uint8_t **out,size_t *size) {
     if(!module || !out || !size)return (NlServiceLoweringResult){1,0,0,"I require module and output storage."};
-    NvmFileCyclicReport *report=NULL;
-    NvmFileFlowStatus status=nvm_file_cyclic_analyze(module,&report);
+    NvmFileIndirectFlow *report=NULL;
+    NvmFileFlowStatus status=nvm_file_indirect_flow_analyze(module,&report);
     if(status!=NVM_FILE_FLOW_OK)return (NlServiceLoweringResult){status==NVM_FILE_FLOW_MEMORY?4:status==NVM_FILE_FLOW_LIMIT?3:2,0,0,"I cannot validate my lowered File bodies."};
     NvmV2Module wire={0};NvmV2Result result=nvm_v2_from_nvm_module(module,&wire);
     if(result==NVM_V2_OK)for(uint32_t f=0;f<module->function_count;f++) {
         NvmFileCodeFunction function;
-        if(!nvm_file_cyclic_function(report,f,&function)){result=NVM_V2_ERR_INDEX_RANGE;break;}
+        if(!nvm_file_indirect_flow_function(report,f,&function)){result=NVM_V2_ERR_INDEX_RANGE;break;}
         uint16_t peak=0;
         for(uint16_t i=0;i<function.instruction_count;i++) {
             uint8_t count=0;
-            if(!nvm_file_cyclic_variant_count(report,f,i,&count)){result=NVM_V2_ERR_INDEX_RANGE;break;}
+            if(!nvm_file_indirect_flow_variant_count(report,f,i,&count)){result=NVM_V2_ERR_INDEX_RANGE;break;}
             for(uint8_t j=0;j<count;j++) {
                 NvmFileCyclicVariant fact;
-                if(!nvm_file_cyclic_variant(report,f,i,j,&fact)){result=NVM_V2_ERR_INDEX_RANGE;break;}
+                if(!nvm_file_indirect_flow_variant(report,f,i,j,&fact)){result=NVM_V2_ERR_INDEX_RANGE;break;}
                 if(fact.input.stack>peak)peak=fact.input.stack;
                 if(fact.output.stack>peak)peak=fact.output.stack;
             }
         }
         wire.functions.items[f].max_stack=peak;
     }
-    nvm_file_cyclic_free(report);size_t count=0;uint8_t *bytes=NULL;bool memory_failure=false;
+    nvm_file_indirect_flow_free(report);size_t count=0;uint8_t *bytes=NULL;bool memory_failure=false;
+    uint8_t *canonical_code=NULL;
+    if(result==NVM_V2_OK) {
+        result=sl_canonical_wire(&wire,&canonical_code);
+        memory_failure=result==NVM_V2_ERR_TRUNCATED;
+    }
     if(result==NVM_V2_OK)result=nvm_v2_module_serialize(&wire,NULL,0,&count);
     if(result==NVM_V2_OK) {
         bytes=malloc(count);
         if(!bytes){memory_failure=true;result=NVM_V2_ERR_TRUNCATED;}
         else result=nvm_v2_module_serialize(&wire,bytes,count,&count);
     }
-    nvm_v2_module_free(&wire);
+    nvm_v2_module_free(&wire);free(canonical_code);
     if(result!=NVM_V2_OK){free(bytes);return (NlServiceLoweringResult){memory_failure?4u:2u,0,0,"I cannot serialize my checked File module."};}
     *out=bytes;*size=count;return (NlServiceLoweringResult){0};
 }

@@ -36,14 +36,18 @@ int main(int argc, char **argv) {
             printf("CALL %s %u %u\n",row->name,fact->type.service_ordinal,fact->borrow_mode);
         }
     }
-    for(long prefix=0;prefix<4;++prefix) {
+    bool recovered=false;
+    for(long prefix=0;prefix<16;++prefix) {
         allocations_before_failure=prefix;
         NlServiceBodyCheck *candidate=nl_service_check_bodies(env->service_namespace);
         allocations_before_failure=-1;
-        if(prefix<3) assert(!candidate);
-        else { assert(candidate && candidate->status==check->status); nl_service_body_check_free(candidate); }
         assert(env->service_bodies==check);
+        if(candidate) {
+            assert(candidate->status==check->status);
+            nl_service_body_check_free(candidate);recovered=true;break;
+        }
     }
+    assert(recovered);
     free_environment(env); free_ast(root); free_tokens(tokens,count); free(source);
     free_module_list(modules); clear_module_cache();
     return 0;

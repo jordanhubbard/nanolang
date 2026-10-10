@@ -230,7 +230,11 @@ fn so_impl(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, ki
     if (or (== kind ParseNodeType.PNODE_NUMBER) (== kind ParseNodeType.PNODE_BOOL)) { return flow }
     if (== kind ParseNodeType.PNODE_IDENTIFIER) {
         let index: int = (so_find flow (parser_get_identifier parser id).name)
-        if (< index 0) { (so_fail 2 "I require a retained lexical service value.") return flow }
+        if (< index 0) {
+            let fact: ServiceBodyFact = (so_type bodies kind id)
+            if (and (== fact.type.kind 7) (> fact.declaration 0)) { return flow }
+            (so_fail 2 "I require a retained lexical service value.") return flow
+        }
         let value: ServiceOwner = (at flow.locals index)
         if (not (so_owned value.category)) { return flow }
         if (or value.moved (or value.exclusive (and move (or (> value.mode 0) (> value.shared 0))))) {
@@ -242,6 +246,7 @@ fn so_impl(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, ki
     if (== kind ParseNodeType.PNODE_CALL) {
         let node: ASTCall = (parser_get_call parser id)
         if (> node.borrow_mode 0) { (so_fail 1 "I cannot store or escape a File borrow.") return flow }
+        if (!= node.function_type ParseNodeType.PNODE_IDENTIFIER) { set flow (so_expr parser space bodies node.function_type node.function flow false) }
         return (so_call parser space bodies kind id node.arg_start node.arg_count flow move)
     }
     if (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
@@ -260,6 +265,8 @@ fn so_impl(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, ki
         return (so_expr parser space bodies node.right_type node.right flow false)
     }
     if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
+        let fact: ServiceBodyFact = (so_type bodies kind id)
+        if (and (== fact.type.kind 7) (> fact.declaration 0)) { return flow }
         let node: ASTFieldAccess = (parser_get_field_access parser id)
         return (so_expr parser space bodies node.object_type node.object flow false)
     }

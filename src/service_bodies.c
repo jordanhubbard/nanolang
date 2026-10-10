@@ -14,7 +14,7 @@ typedef struct {
     BodyValue result;
     BodyLocal locals[SB_LOCALS];
     size_t count;
-    unsigned depth;
+    unsigned depth, type_depth;
     bool pure;
 } BodyCheck;
 static BodyValue value(Type type) { return (BodyValue){.type = {.base_type = type}}; }
@@ -29,7 +29,8 @@ static bool equal(BodyValue a, BodyValue b) {
     return a.type.base_type != TYPE_UNKNOWN && b.type.base_type != TYPE_UNKNOWN &&
         a.borrow == b.borrow && type_infos_equal(&a.type, &b.type);
 }
-static BodyValue annotation(BodyCheck *c, const ASTNode *node, Type type, const TypeInfo *info) {
+static BodyValue annotation(BodyCheck *, const ASTNode *, Type, const TypeInfo *);
+static BodyValue annotation_impl(BodyCheck *c, const ASTNode *node, Type type, const TypeInfo *info) {
     BodyValue v = value(type);
     if (type == TYPE_BORROW_SHARED || type == TYPE_BORROW_MUT) {
         if (!info || !info->element_type) return fail(c,node,1,"I require a retained borrow referent.");
@@ -44,8 +45,52 @@ static BodyValue annotation(BodyCheck *c, const ASTNode *node, Type type, const 
         v.type.service_category = info->service_category;
         return v;
     }
+    if(type==TYPE_FUNCTION) {
+        const FunctionSignature *sig=info?info->fn_sig:NULL;
+        if(!sig || sig->param_count<0 || sig->param_count>256 || (sig->param_count && !sig->param_types))
+            return fail(c,node,1,"I require a complete bounded callable signature.");
+        for(int i=0;i<sig->param_count;i++)
+            (void)annotation(c,node,sig->param_types[i],sig->param_type_info?sig->param_type_info[i]:NULL);
+        TypeInfo result=sig->return_type_info?*sig->return_type_info:(TypeInfo){.base_type=sig->return_type};
+        if(sig->return_type==TYPE_FUNCTION && !result.fn_sig)result.fn_sig=sig->return_fn_sig;
+        BodyValue returned=annotation(c,node,sig->return_type,&result);
+        if(returned.borrow)return fail(c,node,1,"I cannot return a call-scoped File borrow.");
+        v.type.fn_sig=info->fn_sig;return v;
+    }
     if (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_VOID || type == TYPE_UNKNOWN) return v;
     return fail(c,node,2,"I have not checked this ordinary type in my service body path.");
+}
+static BodyValue annotation(BodyCheck *c,const ASTNode *node,Type type,const TypeInfo *info) {
+    if(++c->type_depth>128){--c->type_depth;return fail(c,node,3,"I exceeded my callable type nesting bound.");}
+    BodyValue result=annotation_impl(c,node,type,info);--c->type_depth;return result;
+}
+static BodyValue function_annotation(BodyCheck *c,const ASTNode *node,Type type,const TypeInfo *info,FunctionSignature *sig) {
+    TypeInfo fallback=info?*info:(TypeInfo){.base_type=type};
+    if(type==TYPE_FUNCTION && !fallback.fn_sig)fallback.fn_sig=sig;
+    return annotation(c,node,type,&fallback);
+}
+static BodyValue callable(BodyCheck *c,const ASTNode *node,const NlServiceName *row) {
+    if(!row || row->kind!=NL_SERVICE_FUNCTION || !row->declaration || row->declaration->as.function.is_extern || row->declaration->as.function.is_anonymous)
+        return fail(c,node,2,"I require a noncapturing helper value.");
+    if(c->out->callable_count==SB_LOCALS)return fail(c,node,3,"I exceeded my retained callable signature bound.");
+    const ASTNode *fn=row->declaration;
+    Function definition={.param_count=fn->as.function.param_count,.params=fn->as.function.params,
+        .return_type=fn->as.function.return_type,.return_type_info=fn->as.function.return_type_info,
+        .return_fn_sig=fn->as.function.return_fn_sig,.return_struct_type_name=fn->as.function.return_struct_type_name};
+    Parameter parameters[256];TypeInfo infos[256];
+    if(definition.param_count<0 || definition.param_count>256)return fail(c,node,3,"I exceeded my callable parameter bound.");
+    for(int i=0;i<definition.param_count;i++) {
+        parameters[i]=definition.params[i];
+        if(parameters[i].type==TYPE_FUNCTION && (!parameters[i].type_info || !parameters[i].type_info->fn_sig)) {
+            infos[i]=parameters[i].type_info?*parameters[i].type_info:(TypeInfo){.base_type=TYPE_FUNCTION};
+            infos[i].fn_sig=parameters[i].fn_sig;parameters[i].type_info=&infos[i];
+        }
+    }
+    definition.params=parameters;
+    FunctionSignature *sig=function_signature_from_function(&definition);
+    if(!sig)return fail(c,node,3,"I cannot retain a callable signature.");
+    c->out->callables[c->out->callable_count++]=sig;
+    return function_annotation(c,node,TYPE_FUNCTION,NULL,sig);
 }
 static int local(BodyCheck *c, const char *name) {
     for (size_t i=c->count; i>0; --i) if (!strcmp(c->locals[i-1].name,name)) return (int)i-1;
@@ -69,7 +114,18 @@ static BodyValue require(BodyCheck *c, const ASTNode *node, BodyValue actual, Bo
     return actual;
 }
 static BodyValue call(BodyCheck *c, const ASTNode *node, const char *name, ASTNode **args, int count) {
-    if (!name || local(c,name) >= 0) return fail(c,node,2,"I have not checked an indirect service call.");
+    int binding=name?local(c,name):-1;
+    if(!name || binding>=0) {
+        BodyValue callee=binding>=0?c->locals[binding].value:expression(c,node->as.call.func_expr);
+        FunctionSignature *sig=callee.type.fn_sig;
+        if(callee.type.base_type!=TYPE_FUNCTION || callee.borrow || !sig)
+            return fail(c,node,1,"I require a callable value with a complete signature.");
+        if(c->pure)return fail(c,node,1,"I cannot infer purity from an ordinary callable type.");
+        if(count!=sig->param_count)return fail(c,node,1,"I require the callable argument count.");
+        for(int i=0;i<count;i++)
+            require(c,args[i],expression(c,args[i]),annotation(c,node,sig->param_types[i],sig->param_type_info?sig->param_type_info[i]:NULL));
+        return remember(c,node,function_annotation(c,node,sig->return_type,sig->return_type_info,sig->return_fn_sig),0);
+    }
     const NlServiceName *row=nl_service_namespace_lookup(c->space,c->source,name);
     if (!row) return fail(c,node,1,"I require a declared service or helper call.");
     if (row->kind == NL_SERVICE_METHOD) {
@@ -91,9 +147,9 @@ static BodyValue call(BodyCheck *c, const ASTNode *node, const char *name, ASTNo
     if (c->pure && !fn->as.function.is_pure) return fail(c,node,1,"I require a pure helper in a pure function.");
     for(int i=0;i<count;++i) {
         const Parameter *p=&fn->as.function.params[i];
-        require(c,args[i],expression(c,args[i]),annotation(c,fn,p->type,p->type_info));
+        require(c,args[i],expression(c,args[i]),function_annotation(c,fn,p->type,p->type_info,p->fn_sig));
     }
-    return remember(c,node,annotation(c,fn,fn->as.function.return_type,fn->as.function.return_type_info),row->target);
+    return remember(c,node,function_annotation(c,fn,fn->as.function.return_type,fn->as.function.return_type_info,fn->as.function.return_fn_sig),row->target);
 }
 static BodyValue match(BodyCheck *c, const ASTNode *node) {
     BodyValue input=expression(c,node->as.match_expr.expr);
@@ -138,8 +194,8 @@ static BodyValue expression_impl(BodyCheck *c, const ASTNode *node) {
     case AST_IDENTIFIER: {
         int index=local(c,node->as.identifier);
         if (index>=0) return c->locals[index].value;
-        if (nl_service_namespace_lookup(c->space,c->source,node->as.identifier))
-            return fail(c,node,2,"I have not checked this non-local value in my service body path.");
+        const NlServiceName *row=nl_service_namespace_lookup(c->space,c->source,node->as.identifier);
+        if(row)return remember(c,node,callable(c,node,row),row->target);
         return fail(c,node,1,"I require a bound service body value.");
     }
     case AST_CALL:
@@ -182,6 +238,13 @@ static BodyValue expression_impl(BodyCheck *c, const ASTNode *node) {
         BodyValue result=value(logical||compare?TYPE_BOOL:TYPE_INT);result.returns=returns;return result;
     }
     case AST_FIELD_ACCESS: {
+        const ASTNode *object_node=node->as.field_access.object;
+        if(object_node && object_node->type==AST_IDENTIFIER && local(c,object_node->as.identifier)<0) {
+            char name[4096];int length=snprintf(name,sizeof name,"%s.%s",object_node->as.identifier,node->as.field_access.field_name);
+            if(length<0 || (size_t)length>=sizeof name)return fail(c,node,3,"I exceeded my qualified callable name bound.");
+            const NlServiceName *row=nl_service_namespace_lookup(c->space,c->source,name);
+            if(row)return remember(c,node,callable(c,node,row),row->target);
+        }
         BodyValue object=expression(c,node->as.field_access.object); TypeInfo field;
         if (object.type.base_type==TYPE_UNKNOWN) return object;
         if (object.borrow || object.type.service_category!=3 ||
@@ -191,7 +254,7 @@ static BodyValue expression_impl(BodyCheck *c, const ASTNode *node) {
     }
     case AST_LET: {
         BodyValue actual=expression(c,node->as.let.value);
-        BodyValue declared=annotation(c,node,node->as.let.var_type,node->as.let.type_info);
+        BodyValue declared=function_annotation(c,node,node->as.let.var_type,node->as.let.type_info,node->as.let.fn_sig);
         if (node->as.let.var_type!=TYPE_UNKNOWN) require(c,node,actual,declared);
         if (actual.borrow) return fail(c,node,1,"I cannot store a call-scoped File borrow.");
         bind(c,node,node->as.let.name,actual,node->as.let.is_mut);
@@ -249,7 +312,8 @@ NlServiceBodyCheck *nl_service_check_bodies(const NlServiceNamespace *space) {
     BodyCheck *c=calloc(1,sizeof *c);
     if (!out || !c) { free(out); free(c); return NULL; }
     out->facts=calloc(SB_FACTS,sizeof *out->facts);
-    if (!out->facts) { free(out); free(c); return NULL; }
+    out->callables=calloc(SB_LOCALS,sizeof *out->callables);
+    if (!out->facts || !out->callables) { free(out->facts);free(out->callables);free(out); free(c); return NULL; }
     c->space=space; c->out=out;
     if (!space) { fail(c,NULL,1,"I require a complete service namespace."); }
     for(uint32_t module=0; space && nl_service_namespace_program(space,module); ++module) {
@@ -262,11 +326,11 @@ NlServiceBodyCheck *nl_service_check_bodies(const NlServiceNamespace *space) {
             if (node->type==AST_FUNCTION) {
                 ++out->functions; body=node->as.function.body; c->pure=node->as.function.is_pure;
                 if(node->as.function.is_extern || node->as.function.is_anonymous) { fail(c,node,2,"I have not checked this callable in my service body path."); continue; }
-                c->result=annotation(c,node,node->as.function.return_type,node->as.function.return_type_info);
+                c->result=function_annotation(c,node,node->as.function.return_type,node->as.function.return_type_info,node->as.function.return_fn_sig);
                 for(int j=0;j<node->as.function.param_count;++j) {
                     const Parameter *p=&node->as.function.params[j];
                     for(int k=0;k<j;++k) if(!strcmp(p->name,node->as.function.params[k].name)) fail(c,node,1,"I require distinct parameter names.");
-                    bind(c,node,p->name,annotation(c,node,p->type,p->type_info),false);
+                    bind(c,node,p->name,function_annotation(c,node,p->type,p->type_info,p->fn_sig),false);
                 }
             } else if(node->type==AST_SHADOW) { ++out->shadows; body=node->as.shadow.body; }
             else if(node->type!=AST_SERVICE_DECL && node->type!=AST_IMPORT && node->type!=AST_MODULE_DECL)
@@ -281,5 +345,5 @@ NlServiceBodyCheck *nl_service_check_bodies(const NlServiceNamespace *space) {
     free(c); return out;
 }
 void nl_service_body_check_free(NlServiceBodyCheck *check) {
-    if(check) { free(check->facts); free(check); }
+    if(check) { for(size_t i=0;i<check->callable_count;i++)free_function_signature(check->callables[i]);free(check->callables);free(check->facts); free(check); }
 }

@@ -43,6 +43,7 @@ fn sl_wire_type(typ: ServiceType, mode: int) -> ServiceWireType {
     if (== typ.kind 1) { set tag 1 }
     else if (== typ.kind 2) { set tag 4 }
     else if (== typ.kind 3) { set tag 0 }
+    else if (== typ.kind 7) { set tag 11 }
     else if (and (>= typ.kind 4) (and (> typ.declaration 0) (and (>= typ.ordinal 0) (< typ.ordinal 8)))) {
         set layout typ.ordinal set tag 10 if (< layout 3) { set tag 8 }
     } else { (sl_fail 2 "I have not lowered this checked service type.") }
@@ -59,6 +60,7 @@ shadow sl_wire_type {
 
 fn sl_annotation(space: ServiceNamespace, owner: int, spelling: string) -> ServiceWireType {
     let tokens: List<LexerToken> = (tokenize_string spelling "<lower-type>" (list_CompilerDiagnostic_new))
+    if (== (list_LexerToken_get tokens 0).token_type LexerTokenType.TOKEN_FN) { return (service_wire_scalar 11) }
     let mut i: int = 0 let mut mode: int = 0
     if (== (list_LexerToken_get tokens i).token_type LexerTokenType.TOKEN_AMPERSAND) {
         set mode 1 set i 1
@@ -410,19 +412,25 @@ fn sl_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bo
                 return
             }
         }
-        (sl_fail 1 "I require an original callable identity.") return
     }
+    let indirect: bool = (and (== fact.declaration 0) (== kind ParseNodeType.PNODE_CALL))
     let mut target: int = -1 let mut i: int = 0
     while (< i (array_length space.names)) {
         let row: ServiceName = (at space.names i)
         if (and (== row.id fact.declaration) (== row.id row.target)) { set target i }
         set i (+ i 1)
     }
-    if (< target 0) { (sl_fail 1 "I require an original callable identity.") return }
-    let row: ServiceName = (at space.names target)
+    if (and (< target 0) (not indirect)) { (sl_fail 1 "I require an original callable identity.") return }
+    let pending: int = (array_length sl_pending) let mut callable_slot: int = -1
+    if indirect {
+        let node: ASTCall = (parser_get_call parser id)
+        (sl_expr parser space node.function_type node.function true)
+        if (or (not sl_next) (!= sl_status 0)) { return }
+        set callable_slot (sl_stage (service_wire_scalar 11))
+    }
     let mut reference: int = 65535 let mut values: int = 0
     let mut references: array<int> = [] let mut borrowed: int = 0
-    let loans: int = (array_length sl_loans) let pending: int = (array_length sl_pending)
+    let loans: int = (array_length sl_loans)
     let stage: bool = (sl_terminal parser kind id 0) let mut staged: array<int> = []
     if (> (array_length args) 256) { (sl_fail 3 "I exceeded my call operand bound.") return }
     set i 0
@@ -458,6 +466,13 @@ fn sl_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bo
     while (< i (array_length staged)) { (sl_load (at staged i)) (sl_clear (at staged i)) set i (+ i 1) }
     set sl_pending (sl_prefix sl_pending pending)
     let mut produces: int = 1 if (== fact.type.kind 3) { set produces 0 }
+    if indirect {
+        (sl_load callable_slot) (sl_clear callable_slot)
+        let mut op: int = 60 if (> borrowed 0) { set op 152 }
+        (sl_op op (+ values 1) produces) (sl_integer (array_length args) 2) (sl_integer produces 2)
+        if (> borrowed 0) { (sl_integer (sl_reference_map references) 4) }
+    } else {
+    let row: ServiceName = (at space.names target)
     if (== row.kind 9) { (sl_op 145 values produces) (sl_integer row.ordinal 4) (sl_integer reference 2) }
     else {
         let mut callee: int = -1 set i 0
@@ -470,6 +485,7 @@ fn sl_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bo
             (sl_op op values produces) (sl_integer callee 4)
             if (!= reference 65535) { (sl_integer reference 2) }
         }
+    }
     }
     (sl_end_loans loans)
     if (and (!= produces 0) (not want)) { (sl_op 8 1 0) }
@@ -563,10 +579,22 @@ shadow sl_match {
 
 fn sl_expr_impl(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bool) -> void {
     if (< id 0) { if want { (sl_op 5 0 1) } return }
+    if (or (== kind ParseNodeType.PNODE_IDENTIFIER) (== kind ParseNodeType.PNODE_FIELD_ACCESS)) {
+        let fact: ServiceBodyFact = (sl_fact kind id)
+        if (and (== fact.type.kind 7) (> fact.declaration 0)) {
+            let mut target: int = -1 let mut i: int = 0
+            while (< i (array_length sl_functions)) { if (== (at sl_functions i).declaration fact.declaration) { set target i } set i (+ i 1) }
+            if (< target 0) { (sl_fail 1 "I require a retained helper value.") return }
+            if want { (sl_op 250 0 1) (sl_integer target 4) }
+            return
+        }
+    }
     if (== kind ParseNodeType.PNODE_NUMBER) { (sl_op 1 0 1) (sl_integer (string_to_int (parser_get_number parser id).value) 8) }
     else if (== kind ParseNodeType.PNODE_BOOL) {
         (sl_op 3 0 1) let mut value: int = 0 if (parser_get_bool parser id).value { set value 1 } (sl_integer value 1)
-    } else if (== kind ParseNodeType.PNODE_IDENTIFIER) { (sl_load (sl_lookup (parser_get_identifier parser id).name)) }
+    } else if (== kind ParseNodeType.PNODE_IDENTIFIER) {
+        (sl_load (sl_lookup (parser_get_identifier parser id).name))
+    }
     else if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) { (sl_call parser space kind id want) return }
     else if (== kind ParseNodeType.PNODE_BINARY_OP) { (sl_binary parser space id want) return }
     else if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {

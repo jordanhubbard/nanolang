@@ -1,0 +1,6 @@
+test_indirect_imported_helper_value (tests.test_nano_service_driver.NanoServiceDriver.test_indirect_imported_helper_value) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 20.873s
+
+OK

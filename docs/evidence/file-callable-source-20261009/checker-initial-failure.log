@@ -1,0 +1,12 @@
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   $shadow_378_sb_annotation  /private/tmp/nanolang-callable-body-probe.nano:101:5
+  #1   $shadow_entry  /private/tmp/nanolang-callable-body-probe.nano:?
+I failed a shadow: Assertion failed
+Stack trace (most recent call first):
+  #0   $shadow_378_sb_annotation  /private/tmp/nanolang-callable-body-probe.nano:101:5
+  #1   $shadow_entry  /private/tmp/nanolang-callable-body-probe.nano:?
+0
+I require a complete callable signature.
+I will not publish output after failed shadow execution

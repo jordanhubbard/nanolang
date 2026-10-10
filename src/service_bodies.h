@@ -16,6 +16,9 @@ typedef struct NlServiceBodyCheck {
     const char *diagnostic;
     size_t count, functions, shadows;
     NlServiceBodyFact *facts;
+    /* I own signatures synthesized for helper values; AST annotations stay borrowed. */
+    FunctionSignature **callables;
+    size_t callable_count;
 } NlServiceBodyCheck;
 NlServiceBodyCheck *nl_service_check_bodies(const NlServiceNamespace *);
 void nl_service_body_check_free(NlServiceBodyCheck *);

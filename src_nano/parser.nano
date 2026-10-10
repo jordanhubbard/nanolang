@@ -984,7 +984,7 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
                             set type_name (+ type_name ")")
                             set cur2 (parser_advance cur2)
                         } else {
-                            let arg1: TypeParseResult = (parse_type_string cur2)
+                            let arg1: TypeParseResult = (parse_parameter_type cur2)
                             if (not arg1.ok) {
                                 return TypeParseResult { p: arg1.p, type_name: type_name, ok: false }
                             } else {
@@ -998,7 +998,7 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
                                 if (== tc.token_type (token_comma)) {
                                     set type_name (+ type_name ",")
                                     set cur2 (parser_advance cur2)
-                                    let argn: TypeParseResult = (parse_type_string cur2)
+                                    let argn: TypeParseResult = (parse_parameter_type cur2)
                                     if (not argn.ok) {
                                         return TypeParseResult { p: argn.p, type_name: type_name, ok: false }
                                     } else {
@@ -1162,6 +1162,11 @@ shadow parse_type_string {
     let qualified_result: TypeParseResult = (parse_type_string qualified_parser)
     assert qualified_result.ok
     assert (== qualified_result.type_name "array<owned.Handle>")
+
+    let callable_tokens: List<LexerToken> = (tokenize_string "fn(&mut File,fn(&File)->int)->int" "type.nano" (list_CompilerDiagnostic_new))
+    let callable: TypeParseResult = (parse_type_string (parser_new callable_tokens (list_LexerToken_length callable_tokens) "type.nano"))
+    assert callable.ok
+    assert (== callable.type_name "fn(&mut File,fn(&File)->int)->int")
 
 }
 
