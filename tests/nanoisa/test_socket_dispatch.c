@@ -57,7 +57,10 @@ static void capture(const char *directory,int port4,int port6){
  }
  CHECK(!dispatch_opens && !dispatch_closes);puts("PASS TCP emission without host acquisition");
 }
-int main(int argc,char **argv){
+#ifndef SOCKET_DISPATCH_MAIN
+#define SOCKET_DISPATCH_MAIN main
+#endif
+int SOCKET_DISPATCH_MAIN(int argc,char **argv){
  if(argc==5 && !strcmp(argv[1],"emit")){capture(argv[2],atoi(argv[3]),atoi(argv[4]));return 0;}
  CHECK(argc==5 && !strcmp(argv[1],"vm"));FILE *f=fopen(argv[2],"rb");CHECK(f && fseek(f,0,SEEK_END)==0);long n=ftell(f);CHECK(n>0 && fseek(f,0,SEEK_SET)==0);
  uint8_t *bytes=malloc((size_t)n);CHECK(bytes && fread(bytes,1,(size_t)n,f)==(size_t)n && fclose(f)==0);

@@ -8,3 +8,4 @@
 #define SERVICE_EMITTER_TEXT "nvm2c_file_"
 #define SERVICE_PUBLIC_HEADER_TEXT "file_indirect_native_public.h"
 #define SERVICE_NAME_TEXT "File"
+#define SERVICE_INSTALL_TEXT "file"

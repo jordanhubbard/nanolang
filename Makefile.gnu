@@ -6267,3 +6267,66 @@ test-socket-dispatch: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	NANO_SOCKET_DISPATCH_CC="$(CC)" SOCKET_DISPATCH_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_DISPATCH_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_socket_dispatch
 
 test-units: test-socket-dispatch
+
+# I package explicit TCP policy, checked execution and generated-native providers.
+SOCKET_PUBLIC_LIBRARY = lib/libnano_socket_runtime.a
+SOCKET_PUBLIC_STEMS = $(FILE_PUBLIC_QUERY_STEMS) nanoisa/socket_flow nanoisa/socket_runtime \
+ nanoisa/file_host_grant nanoisa/socket_host_grant nanoisa/socket_indirect_public_native \
+ nanoisa/socket_indirect_public_abi nanovm/socket_indirect_public_vm nsi_cap nsi_socket nsi_socket_values
+SOCKET_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(SOCKET_PUBLIC_STEMS)))
+SOCKET_PUBLIC_HEADERS = nanoisa/generated_schema.h \
+ nanoisa/isa.h \
+ nanoisa/nvm_format.h \
+ nanoisa/nvm_format_v2.h \
+ nanoisa/nvm_v2_sections.h \
+ nanoisa/service_bindings.h \
+ nanoisa/service_socket_nominal.h \
+ nanoisa/socket_body.h \
+ nanoisa/socket_code.h \
+ nanoisa/socket_cyclic.h \
+ nanoisa/socket_flow.h \
+ nanoisa/socket_host_grant.h \
+ nanoisa/socket_host_grant_internal.h \
+ nanoisa/socket_hosted.h \
+ nanoisa/socket_indirect_flow.h \
+ nanoisa/socket_indirect_hosted.h \
+ nanoisa/socket_indirect_native_abi.h \
+ nanoisa/socket_indirect_native_public.h \
+ nanoisa/socket_indirect_public.h \
+ nanoisa/socket_indirect_public_internal.h \
+ nanoisa/socket_indirect_report.h \
+ nanoisa/socket_indirect_runtime.h \
+ nanoisa/socket_indirect_targets.h \
+ nanoisa/socket_public.h \
+ nanoisa/socket_public_internal.h \
+ nanoisa/socket_runtime.h \
+ nanoisa/socket_runtime_frames.h \
+ nsi_cap.h \
+ nsi_socket.h \
+ nsi_socket_values.h
+.PHONY: socket-public-runtime install-socket-public-runtime
+socket-public-runtime: $(SOCKET_PUBLIC_LIBRARY) $(addprefix $(SRC_DIR)/,$(SOCKET_PUBLIC_HEADERS))
+$(SOCKET_PUBLIC_OBJECTS): $(addprefix $(SRC_DIR)/,$(SOCKET_PUBLIC_HEADERS))
+$(SOCKET_PUBLIC_LIBRARY): $(SOCKET_PUBLIC_OBJECTS)
+	@mkdir -p "$(@D)"
+	@set -e; socket_archive_dir=$$(mktemp -d "$(@D)/.socket-runtime.XXXXXX"); \
+	trap 'rm -rf "$$socket_archive_dir"' EXIT; \
+	$(AR) rcs "$$socket_archive_dir/runtime.a" $^; \
+	mv "$$socket_archive_dir/runtime.a" "$@"
+$(OBJ_DIR)/nanovm/socket_indirect_public_vm.o: $(SRC_DIR)/nanovm/socket_vm_indirect_engine.inc $(SRC_DIR)/nanovm/service_vm_indirect_engine.inc $(NANOISA_DIR)/service_indirect_dispatch.inc $(NANOISA_DIR)/socket_dispatch_config.h
+$(OBJ_DIR)/nanoisa/socket_indirect_public_native.o: $(NANOISA_DIR)/socket_indirect_native_emit.inc $(NANOISA_DIR)/service_indirect_native_emit.inc $(NANOISA_DIR)/service_indirect_dispatch.inc $(NANOISA_DIR)/socket_dispatch_config.h
+install-socket-public-runtime: socket-public-runtime
+	install -d "$(PREFIX)/lib"
+	install -m 644 "$(SOCKET_PUBLIC_LIBRARY)" "$(PREFIX)/lib/libnano_socket_runtime.a"
+	@set -e; for header in $(SOCKET_PUBLIC_HEADERS); do \
+		install -d "$(PREFIX)/include/nanolang/socket/$$(dirname "$$header")"; \
+		install -m 644 "$(SRC_DIR)/$$header" "$(PREFIX)/include/nanolang/socket/$$header"; \
+	done
+
+SOCKET_PUBLIC_TEST_PREFIX ?= $(CURDIR)/obj/socket-public-test-install
+.PHONY: test-socket-public
+test-socket-public: $(NANOISA_OBJECTS) $(NANOISA_UTF8) socket-public-runtime
+	$(MAKE) -f Makefile.gnu CC="$(CC)" PREFIX="$(SOCKET_PUBLIC_TEST_PREFIX)" install-socket-public-runtime
+	NANO_SOCKET_DISPATCH_CC="$(CC)" SOCKET_DISPATCH_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_DISPATCH_LDFLAGS="$(LDFLAGS)" SOCKET_PUBLIC_TEST_PREFIX="$(SOCKET_PUBLIC_TEST_PREFIX)" python3 -m unittest -f -v tests.test_socket_public
+
+test-units: test-socket-public

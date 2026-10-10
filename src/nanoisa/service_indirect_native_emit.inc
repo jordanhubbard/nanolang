@@ -228,7 +228,7 @@ static void fn_agreement(Fne *b,const SERVICE_TYPE(IndirectHostedPlan) *p,SERVIC
 
 static void fn_preamble(Fne *b,FileIndirectNativeSurface surface) {
     if(surface==FNE_PUBLIC) {
-        fn_text(b,"%s","#include <nanolang/file/nanoisa/" SERVICE_PUBLIC_HEADER_TEXT ">\n#include <limits.h>\n#include <string.h>\n");
+        fn_text(b,"%s","#include <nanolang/" SERVICE_INSTALL_TEXT "/nanoisa/" SERVICE_PUBLIC_HEADER_TEXT ">\n#include <limits.h>\n#include <string.h>\n");
         fn_text(b,"%s","#if " SERVICE_CONST_TEXT "INDIRECT_PUBLIC_ABI != 1u || " SERVICE_CONST_TEXT "INDIRECT_NATIVE_ABI != 1u\n#error I require indirect public and native ABI revision 1\n#endif\n");
     } else {
     fn_text(b,"%s","#include \"src/nanoisa/" SERVICE_EMITTER_TEXT "indirect_private.h\"\n#include \"src/nanoisa/nvm_v2_sections.h\"\n#include <limits.h>\n#include <string.h>\n");

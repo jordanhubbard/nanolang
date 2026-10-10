@@ -13,9 +13,17 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 
 class SocketDispatch(unittest.TestCase):
-    def command(self, name, args):
+    fixture_source = "tests/nanoisa/test_socket_dispatch.c"
+    dispatch_sources = ["src/nanovm/socket_vm_indirect_private.c", "src/nanoisa/nvm2c_socket_indirect_private.c"]
+    extra_sources = []
+    include_flags = []
+
+    def check_public_boundaries(self, native, fixture, wire, case):
+        pass
+
+    def command(self, name, args, cwd=ROOT):
         (self.artifacts / f"{name}-command.txt").write_text(shlex.join(args) + "\n")
-        result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True, timeout=180,
+        result = subprocess.run(args, cwd=cwd, capture_output=True, text=True, timeout=180,
                                 env=dict(os.environ, ASAN_OPTIONS="detect_leaks=1:halt_on_error=1",
                                          UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1"))
         (self.artifacts / f"{name}.log").write_text(result.stdout + result.stderr)
@@ -65,11 +73,12 @@ class SocketDispatch(unittest.TestCase):
                  "-DNVM_SOCKET_INDIRECT_VM_PRIVATE", "-DNVM_SOCKET_INDIRECT_NATIVE_PRIVATE"]
         if os.environ.get("NANO_SOCKET_DISPATCH_SANITIZERS", "1") != "0":
             flags += ["-fsanitize=address,undefined", "-fno-omit-frame-pointer"]
+        flags += self.include_flags
         ordinary = shlex.split(os.environ["SOCKET_DISPATCH_OBJECTS"])
         ldflags = shlex.split(os.environ.get("SOCKET_DISPATCH_LDFLAGS", "-lm -lcrypto"))
         sources = ["src/nanoisa/service_socket_nominal.c", "src/nanoisa/service_socket_nominal_plan.c",
                    "src/nsi_file_plan.c", "src/nsi_socket_plan.c", "src/nanoisa/socket_flow.c",
-                   "src/nanoisa/socket_runtime.c", "src/nsi_cap.c", "src/nsi_socket_values.c", "src/nsi_socket.c"]
+                   "src/nanoisa/socket_runtime.c", "src/nsi_cap.c", "src/nsi_socket_values.c", "src/nsi_socket.c", *self.extra_sources]
         providers = []
         for source in sources:
             out = self.artifacts / (Path(source).stem + ".o")
@@ -78,8 +87,7 @@ class SocketDispatch(unittest.TestCase):
             self.command(out.stem + "-build", [*compiler, *flags, "-O1", *hooks, "-c", source, "-o", str(out)])
             providers.append(str(out))
         fixture = self.artifacts / "fixture"
-        self.command("fixture-build", [*compiler, *flags, "-O1", "tests/nanoisa/test_socket_dispatch.c",
-                     "src/nanovm/socket_vm_indirect_private.c", "src/nanoisa/nvm2c_socket_indirect_private.c",
+        self.command("fixture-build", [*compiler, *flags, "-O1", self.fixture_source, *self.dispatch_sources,
                      *providers, *ordinary, *ldflags, "-o", str(fixture)])
         port4, received4 = self.server(socket.AF_INET)
         port6, received6 = self.server(socket.AF_INET6)
@@ -95,22 +103,14 @@ class SocketDispatch(unittest.TestCase):
             reference = json.loads(self.command(f"vm-{case}", [str(fixture), "vm", str(wire), "100000", "0"]))
             self.validate(reference, expected[case], case)
             driver = self.artifacts / f"driver-{case}.c"
-            driver.write_text('''#include "src/nanoisa/nvm2c_socket_indirect_private.h"
-#include "tests/nanoisa/socket_dispatch_host.h"
-int main(int argc,char **argv){
- if(argc!=3)return 2;
- NvmSocketIndirectOptions options={1,strtoull(argv[1],NULL,10)};
- dispatch_close_fault=atoi(argv[2])!=0;
- NvmSocketRuntimeView out={.fields=99,.values={12345}};
- NvmSocketIndirectExecutionReport r=nvm_socket_native_indirect_execute(&options,&out);
- dispatch_report(r,out);return 0;}
-''')
+            driver.write_text(self.driver_source())
             for opt in ("-O0", "-O2"):
                 native = self.artifacts / f"native-{case}-{opt[1:]}"
                 self.command(native.name + "-build", [*compiler, *flags, opt, str(self.artifacts / f"case-{case}.c"),
                              str(driver), *providers, *ordinary, *ldflags, "-o", str(native)])
                 symbols = self.command(native.name + "-symbols", ["nm", str(native)])
                 self.assertNotRegex(symbols, r"\b_?(nvm_socket_vm_indirect_execute|nvm2c_socket_indirect_private_emit|vm_execute|vm_core_execute)\b")
+                self.check_public_boundaries(native, fixture, wire, case)
                 actual = json.loads(self.command(native.name + "-run", [str(native), "100000", "0"]))
                 self.validate(actual, expected[case], case)
                 # Connection readiness can change iteration counts across executions.
@@ -142,6 +142,18 @@ int main(int argc,char **argv){
         self.assertEqual((bad["acquired"], bad["opens"], bad["closes"], bad["fields"]), (0, 0, 0, 99))
         self.assertTrue(received4 and received6)
         self.assertTrue(all(byte == b"\xa5" for byte in received4 + received6))
+
+    def driver_source(self):
+        return '''#include "src/nanoisa/nvm2c_socket_indirect_private.h"
+#include "tests/nanoisa/socket_dispatch_host.h"
+int main(int argc,char **argv){
+ if(argc!=3)return 2;
+ NvmSocketIndirectOptions options={1,strtoull(argv[1],NULL,10)};
+ dispatch_close_fault=atoi(argv[2])!=0;
+ NvmSocketRuntimeView out={.fields=99,.values={12345}};
+ NvmSocketIndirectExecutionReport r=nvm_socket_native_indirect_execute(&options,&out);
+ dispatch_report(r,out);return 0;}
+'''
 
     def validate(self, report, expected, case):
         self.assertEqual(report["status"], 9 if case == 3 else 0)
