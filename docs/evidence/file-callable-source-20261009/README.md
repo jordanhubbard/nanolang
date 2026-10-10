@@ -45,8 +45,7 @@ common/runtime objects. The lowerer test instruments its included implementation
 and explicit File runtime sources; this is not a claim that every linked object
 was instrumented. I record changed source hashes in `source-sha256.json`.
 
-My fresh bootstrap is a separate running gate, started after assembling this
-batch. These logs do not establish Stage1/Stage2 equality or exact Linux/Darwin
+My fresh bootstrap compiled and verified Stage1 but refused its host closure: three modules resolved to different immutable cache generations than the seed while body-checker tests built against the shared cache. I retain the manifest and exact path/hash differences under `bootstrap-closure-failure`. A fresh run uses a dedicated module cache, with exact closure checks unchanged. These logs do not establish Stage1/Stage2 equality or exact Linux/Darwin
 release acceptance. Full5.1, mixed profiles and remaining service/backend gates
 stay open. My user's untracked guide fixture retains SHA256
 `c739aeb158c5b3e94c15d8de1232e4e1415a3f20b2e80fcf96fba39f1dedb976`.
