@@ -1,0 +1,53 @@
+test_imported_generic_array_results_keep_complete_types (tests.test_cseed_generic_functions.CseedGenericFunctions.test_imported_generic_array_results_keep_complete_types) ... FAIL
+
+======================================================================
+FAIL: test_imported_generic_array_results_keep_complete_types (tests.test_cseed_generic_functions.CseedGenericFunctions.test_imported_generic_array_results_keep_complete_types)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 165, in test_imported_generic_array_results_keep_complete_types
+            self.execute('''module "a.nano" as source
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    from "a.nano" import identity as copied
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    shadow main {assert (== (main) 0)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''', {'a.nano':'pub fn identity(value:T)->T{let copy:T = value return copy}\nshadow identity {assert (== (identity 1) 1)}\n'})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 26, in execute
+    self.run_command([ROOT / 'bin/nano_virt', path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 16, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-7vx08vw3/main.nano
+I require a complete generic argument type.
+
+7|  let nested:array<array<int>> = (identity (source.identity [[3,5]]))
+                                   ^
+Hint: Declare the argument's complete type.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-7vx08vw3/main.nano
+I require a complete generic argument type.
+
+7|  let nested:array<array<int>> = (identity (source.identity [[3,5]]))
+                                   ^
+Hint: Declare the argument's complete type.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-7vx08vw3/main.nano
+I require the declared nominal record type for this array.
+
+9|  let records:array<Item> = (source.identity [Item {value:19}])
+                              ^
+Hint: Match the array element declaration, including its module identity.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-7vx08vw3/main.nano
+I require the declared nominal record type for this array.
+
+9|  let records:array<Item> = (source.identity [Item {value:19}])
+                              ^
+Hint: Match the array element declaration, including its module identity.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.017s
+
+FAILED (failures=1)

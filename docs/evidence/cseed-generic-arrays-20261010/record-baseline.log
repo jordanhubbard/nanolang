@@ -1,0 +1,50 @@
+test_array_binding_parity (tests.test_cseed_generic_functions.CseedGenericFunctions.test_array_binding_parity) ... ok
+test_distinct_record_specializations (tests.test_cseed_generic_functions.CseedGenericFunctions.test_distinct_record_specializations) ... ok
+test_generic_array_mutation_preserves_aliases_and_empty_types (tests.test_cseed_generic_functions.CseedGenericFunctions.test_generic_array_mutation_preserves_aliases_and_empty_types) ... ok
+test_imported_qualified_and_selective_owners (tests.test_cseed_generic_functions.CseedGenericFunctions.test_imported_qualified_and_selective_owners) ... ok
+test_nested_array_calls_and_record_elements (tests.test_cseed_generic_functions.CseedGenericFunctions.test_nested_array_calls_and_record_elements) ... FAIL
+test_primitive_generic_fixture (tests.test_cseed_generic_functions.CseedGenericFunctions.test_primitive_generic_fixture) ... ok
+test_repeated_generic_array_types_must_match (tests.test_cseed_generic_functions.CseedGenericFunctions.test_repeated_generic_array_types_must_match) ... ok
+test_repeated_type_variable_rejects_distinct_records (tests.test_cseed_generic_functions.CseedGenericFunctions.test_repeated_type_variable_rejects_distinct_records) ... ok
+test_retained_record_result_regression (tests.test_cseed_generic_functions.CseedGenericFunctions.test_retained_record_result_regression) ... ok
+test_typed_locals_transitive_calls_and_recursion (tests.test_cseed_generic_functions.CseedGenericFunctions.test_typed_locals_transitive_calls_and_recursion) ... ok
+
+======================================================================
+FAIL: test_nested_array_calls_and_record_elements (tests.test_cseed_generic_functions.CseedGenericFunctions.test_nested_array_calls_and_record_elements)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 105, in test_nested_array_calls_and_record_elements
+            self.execute('''struct First { value:int }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    struct Second { text:string }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<21 lines>...
+    shadow main {assert (== (main) 0)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 26, in execute
+    self.run_command([ROOT / 'bin/nano_virt', path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 16, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-60jimsz1/main.nano
+I require the declared nominal record type for this array.
+
+13|  let records:array<First> = (identity [First {value:17}])
+                                ^
+Hint: Match the array element declaration, including its module identity.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-60jimsz1/main.nano
+I require the declared nominal record type for this array.
+
+14|  let others:array<Second> = (relay [Second {text:"other"}])
+                                ^
+Hint: Match the array element declaration, including its module identity.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.758s
+
+FAILED (failures=1)

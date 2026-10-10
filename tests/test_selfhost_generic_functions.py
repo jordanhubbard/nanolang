@@ -63,6 +63,8 @@ class SelfhostGenericFunctions(unittest.TestCase):
     test_primitive_generic_fixture = cases.CseedGenericFunctions.test_primitive_generic_fixture
     test_typed_locals_transitive_calls_and_recursion = cases.CseedGenericFunctions.test_typed_locals_transitive_calls_and_recursion
     test_distinct_record_specializations = cases.CseedGenericFunctions.test_distinct_record_specializations
+    test_nested_array_calls_and_record_elements = cases.CseedGenericFunctions.test_nested_array_calls_and_record_elements
+    test_generic_array_mutation_preserves_aliases_and_empty_types = cases.CseedGenericFunctions.test_generic_array_mutation_preserves_aliases_and_empty_types
 
     def test_generated_names_do_not_collide(self):
         self.execute('''fn __nanoisa_generic_0() -> int { return 13 }

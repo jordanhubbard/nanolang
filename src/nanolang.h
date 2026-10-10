@@ -303,6 +303,7 @@ struct ASTNode {
             ASTNode **args;
             int arg_count;
             char *return_struct_type_name;  /* For calls that return struct types */
+            FunctionSignature *checked_signature; /* Owned concrete qualified-call context. */
         } module_qualified_call;
         struct {
             ASTNode **elements;

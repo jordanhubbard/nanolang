@@ -5237,7 +5237,16 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
         env_set_current_file(env,instance->source);
         cg.current_program=instance->program;
         cg.generic_active=instance;
+        int first_symbol = env->symbol_count;
         compile_function_at(&cg,&instance->declaration,(int32_t)instance->index);
+        /* I discard emission-only dummy bindings before freeing their owned
+         * specialization annotations. Later modules must see source bindings. */
+        env_symbol_index_invalidate(env);
+        for (int i = first_symbol; i < env->symbol_count; ++i) {
+            free(env->symbols[i].name);
+            free(env->symbols[i].struct_type_name);
+        }
+        env->symbol_count = first_symbol;
     }
     env_set_current_file(env,outer_file);
     cg.current_program=program;

@@ -7,6 +7,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+COMPILER = Path(os.environ.get("NANO_GENERIC_CSEED_COMPILER", ROOT / "bin/nano_virt"))
 
 
 class CseedGenericFunctions(unittest.TestCase):
@@ -23,7 +24,7 @@ class CseedGenericFunctions(unittest.TestCase):
                 (work / name).write_text(contents)
             path, module, c, binary = [work / name for name in ('main.nano', 'main.nvm', 'main.c', 'main')]
             path.write_text(source)
-            self.run_command([ROOT / 'bin/nano_virt', path, '--emit-nvm', '-o', module])
+            self.run_command([COMPILER, path, '--emit-nvm', '-o', module])
             self.run_command([ROOT / 'bin/nano_vm', '--verify-only', module])
             self.run_command([ROOT / 'bin/nano_vm', module])
             self.run_command([ROOT / 'bin/nvm2c', module, '-o', c])
@@ -91,12 +92,121 @@ fn main() -> int {
 shadow main { assert true }
 ''')
             module.write_bytes(b'prior-output')
-            result = subprocess.run([str(ROOT / 'bin/nano_virt'), str(path),
+            result = subprocess.run([str(COMPILER), str(path),
                 '--emit-nvm', '-o', str(module)], cwd=ROOT, capture_output=True,
                 text=True, timeout=120)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn('one concrete identity', result.stdout + result.stderr)
             self.assertEqual(module.read_bytes(), b'prior-output')
+
+    def test_array_binding_parity(self):
+        self.execute((ROOT / 'docs/evidence/generic-specialization-budget-20261010/array-parity.nano').read_text())
+
+    def test_nested_array_calls_and_record_elements(self):
+        self.execute('''struct First { value:int }
+struct Second { text:string }
+fn identity(value:T)->T{let copy:T = value return copy}
+shadow identity {assert (== (identity 1) 1)}
+fn relay(value:T)->T{return (identity value)}
+shadow relay {assert (== (relay true) true)}
+fn make()->array<float>{return [1.25,2.5]}
+shadow make {assert (== (at (make) 1) 2.5)}
+fn main()->int{
+ let nested:array<array<int>> = (relay (identity [[3,5],[7,9]]))
+ assert (== (at (at nested 1) 0) 7)
+ assert (== (at (at (identity [[11,13]]) 0) 1) 13)
+ let records:array<First> = (identity [First {value:17}])
+ let others:array<Second> = (relay [Second {text:"other"}])
+ assert (== (at records 0).value 17)
+ assert (== (at others 0).text "other")
+ let floats:array<float> = (identity (make))
+ (array_set floats 0 3.5)
+ assert (== (at floats 0) 3.5)
+ let strings:array<string> = (identity ["a","b"])
+ assert (== (at strings 1) "b")
+ return 0
+}
+shadow main {assert (== (main) 0)}
+''')
+
+    def test_generic_array_mutation_preserves_aliases_and_empty_types(self):
+        self.execute('''fn identity(value:T)->T{let copy:T = value return copy}
+shadow identity {assert (== (identity 1) 1)}
+fn main()->int{
+ let values:array<int> = [1,2]
+ let alias:array<int> = (identity values)
+ (array_set alias 0 9)
+ assert (== (at values 0) 9)
+ let empty:array<bool> = []
+ let copied:array<bool> = (identity empty)
+ assert (== (array_length copied) 0)
+ return 0
+}
+shadow main {assert (== (main) 0)}
+''')
+
+    def test_repeated_generic_array_types_must_match(self):
+        for left, right, result_type in [('[1]', '[true]', 'array<int>'),
+                ('[[1]]', '[[true]]', 'array<array<int>>'),
+                ('[First {value:1}]', '[Second {value:2}]', 'array<First>')]:
+            with self.subTest(left=left, right=right), tempfile.TemporaryDirectory() as tmp:
+                source, module = Path(tmp)/'main.nano', Path(tmp)/'main.nvm'
+                source.write_text('struct First {value:int}\nstruct Second {value:int}\n'
+                    'fn choose(a:T,b:T)->T{return a}\nshadow choose {assert (== (choose 1 2) 1)}\n'
+                    'fn main()->int{let result:' + result_type + ' = (choose ' + left + ' ' + right + ') return 0}\n'
+                    'shadow main {assert (== (main) 0)}\n')
+                module.write_bytes(b'prior-output')
+                result = subprocess.run([str(COMPILER), str(source), '--emit-nvm', '-o', str(module)],
+                    cwd=ROOT, capture_output=True, text=True, timeout=120)
+                self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+                self.assertIn('one concrete identity', result.stdout+result.stderr)
+                self.assertEqual(module.read_bytes(), b'prior-output')
+
+    def test_generic_array_contexts_reject_wrong_elements(self):
+        for body in ['let flags:array<bool> = (identity [1]) return 0',
+                     '(consume (identity [1])) return 0',
+                     'let value:array<int> = (fixed [1] true) return 0']:
+            with self.subTest(body=body), tempfile.TemporaryDirectory() as tmp:
+                path, module = Path(tmp)/'main.nano', Path(tmp)/'main.nvm'
+                path.write_text('fn identity(value:T)->T{return value}\n'
+                    'shadow identity {assert (== (identity 1) 1)}\n'
+                    'fn consume(value:array<bool>)->void{}\nshadow consume {(consume [true])}\n'
+                    'fn fixed(value:T, count:int)->T{return value}\nshadow fixed {assert (== (fixed 1 0) 1)}\n'
+                    'fn main()->int{' + body + '}\nshadow main {assert (== (main) 0)}\n')
+                module.write_bytes(b'prior-output')
+                result = subprocess.run([str(COMPILER),str(path),'--emit-nvm','-o',str(module)],
+                    cwd=ROOT,capture_output=True,text=True,timeout=120)
+                self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+                self.assertEqual(module.read_bytes(),b'prior-output')
+
+    def test_growing_array_specializations_preserve_output(self):
+        source = ROOT/'docs/evidence/generic-specialization-budget-20261010/growing.nano'
+        with tempfile.TemporaryDirectory() as tmp:
+            module = Path(tmp)/'prior.nvm'
+            module.write_bytes(b'prior-output')
+            result = subprocess.run([str(COMPILER),str(source),'--emit-nvm','-o',str(module)],
+                cwd=ROOT,capture_output=True,text=True,timeout=120)
+            self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+            self.assertIn('generic specialization budget',result.stdout+result.stderr)
+            self.assertEqual(module.read_bytes(),b'prior-output')
+
+    def test_imported_generic_array_results_keep_complete_types(self):
+        self.execute('''module "a.nano" as source
+from "a.nano" import identity as copied
+struct Item {value:int}
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 7) 7)}
+fn main()->int{
+ let nested:array<array<int>> = (identity (source.identity [[3,5]]))
+ assert (== (at (at nested 0) 1) 5)
+ let records:array<Item> = (source.identity [Item {value:19}])
+ assert (== (at records 0).value 19)
+ let flags:array<bool> = (copied [true,false])
+ assert (== (at flags 1) false)
+ return 0
+}
+shadow main {assert (== (main) 0)}
+''', {'a.nano':'pub fn identity(value:T)->T{let copy:T = value return copy}\nshadow identity {assert (== (identity 1) 1)}\n'})
 
     def test_imported_qualified_and_selective_owners(self):
         self.execute('''module "a.nano" as first

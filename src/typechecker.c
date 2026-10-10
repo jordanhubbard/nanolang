@@ -397,7 +397,16 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
                     return record->field_type_info[i];
         }
     }
+    if (expr->type == AST_MODULE_QUALIFIED_CALL) {
+        if (!expr->as.module_qualified_call.checked_signature) check_expression(expr, env);
+        FunctionSignature *signature = expr->as.module_qualified_call.checked_signature;
+        return signature ? signature->return_type_info : NULL;
+    }
     if (expr->type == AST_CALL) {
+        if (!expr->as.call.checked_signature && expr->as.call.name) {
+            Function *function = env_get_function(env, expr->as.call.name);
+            if (function && func_is_generic(function)) check_expression(expr, env);
+        }
         if (expr->as.call.checked_signature)
             return expr->as.call.checked_signature->return_type_info;
         if (expr->as.call.func_expr) {
@@ -1025,6 +1034,14 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             return NULL;
         }
         
+        case AST_MODULE_QUALIFIED_CALL: {
+            TypeInfo *info = try_get_expr_type_info(expr, env);
+            if (info && (info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION))
+                return info->generic_name;
+            FunctionSignature *signature = expr->as.module_qualified_call.checked_signature;
+            return signature ? signature->return_struct_name : NULL;
+        }
+
         case AST_CALL: {
             if (!expr->as.call.func_expr && expr->as.call.name && expr->as.call.arg_count == 2 &&
                 (!strcmp(expr->as.call.name, "at") || !strcmp(expr->as.call.name, "array_get")))
@@ -1293,6 +1310,51 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     }
 
     return TYPE_UNKNOWN;
+}
+
+/* I own complete generic argument annotations, including nested array identity. */
+static TypeInfo *copy_generic_argument_info(ASTNode *expr, Environment *env, unsigned depth) {
+    if (!expr || depth > 128) return NULL;
+    Type type = check_expression(expr, env);
+    TypeInfo *known = try_get_expr_type_info(expr, env);
+    if (known && known->base_type == type) return copy_payload_type_info(known);
+    TypeInfo *info = calloc(1, sizeof *info);
+    if (!info) return NULL;
+    info->base_type = type;
+    if (type == TYPE_ARRAY) {
+        if (expr->type == AST_ARRAY_LITERAL && expr->as.array_literal.element_count > 0) {
+            info->element_type = copy_generic_argument_info(expr->as.array_literal.elements[0], env, depth + 1);
+            for (int i = 1; info->element_type && i < expr->as.array_literal.element_count; ++i) {
+                TypeInfo *other = copy_generic_argument_info(expr->as.array_literal.elements[i], env, depth + 1);
+                bool same = other && type_infos_equal(info->element_type, other);
+                free_payload_type_info(other);
+                if (!same) { free_payload_type_info(info); return NULL; }
+            }
+            if (info->element_type && expr->as.array_literal.has_element_annotation &&
+                expr->as.array_literal.element_type == TYPE_U8 && info->element_type->base_type == TYPE_INT)
+                info->element_type->base_type = TYPE_U8;
+        } else if (expr->type == AST_CALL && !expr->as.call.func_expr && expr->as.call.name &&
+                   expr->as.call.arg_count == 2 && !strcmp(expr->as.call.name, "array_new")) {
+            info->element_type = copy_generic_argument_info(expr->as.call.args[1], env, depth + 1);
+        } else {
+            Type element = infer_array_element_type(expr, env);
+            if (element != TYPE_UNKNOWN && element != TYPE_ARRAY) {
+                info->element_type = calloc(1, sizeof *info->element_type);
+                if (info->element_type) {
+                    info->element_type->base_type = element;
+                    if (element == TYPE_STRUCT) {
+                        const char *name = array_record_name(expr, env);
+                        info->element_type->generic_name = name ? strdup(name) : NULL;
+                    }
+                }
+            }
+        }
+        if (!info->element_type) { free_payload_type_info(info); return NULL; }
+    } else if (type == TYPE_STRUCT || type == TYPE_UNION || type == TYPE_ENUM) {
+        const char *name = get_struct_type_name(expr, env);
+        info->generic_name = name ? strdup(name) : NULL;
+    }
+    return info;
 }
 
 /* Internal implementation - do not call directly */
@@ -3185,10 +3247,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
              * the concrete types from the call site, register a monomorphized
              * instance, and store the concrete function name on the call node.   */
             if (func_is_generic(func)) {
+                Function retained_function = *func;
+                func = &retained_function;
                 /* Collect unique type variables in first-appearance order */
                 char *var_names_buf[16];
                 Type  bound_types_buf[16];
                 char *bound_names_buf[16];
+                TypeInfo *bound_info[16] = {0};
+                bool valid_bindings = true;
                 int   binding_count = 0;
 
                 for (int i = 0; i < func->param_count && binding_count < 16; i++) {
@@ -3207,31 +3273,47 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                 }
 
-                /* Resolve each type variable from the argument types */
+                /* I retain exact argument shapes instead of merging all arrays. */
                 for (int i = 0; i < func->param_count && i < expr->as.call.arg_count; i++) {
                     if (func->params[i].type != TYPE_STRUCT ||
-                        !is_type_variable_name(func->params[i].struct_type_name)) continue;
+                        !is_type_variable_name(func->params[i].struct_type_name)) {
+                        if (!indirect_argument_matches(expr->as.call.args[i], env,
+                                func->params[i].type_info, func->params[i].type, 0)) {
+                            emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                                "I require the declared argument type in this generic function.",
+                                "Match the parameter's complete type.");
+                            valid_bindings = false;
+                        }
+                        continue;
+                    }
                     const char *var = func->params[i].struct_type_name;
                     Type arg_type = check_expression(expr->as.call.args[i], env);
+                    TypeInfo *actual = copy_generic_argument_info(expr->as.call.args[i], env, 0);
                     for (int k = 0; k < binding_count; k++) {
-                        if (strcmp(var_names_buf[k], var) == 0) {
-                            if (bound_types_buf[k] == TYPE_UNKNOWN) {
-                                bound_types_buf[k] = arg_type;
-                                /* Capture struct name for struct-typed args */
-                                if (arg_type == TYPE_STRUCT) {
-                                    bound_names_buf[k] = (char *)get_struct_type_name(expr->as.call.args[i], env);
-                                }
-                            } else if (bound_types_buf[k] != arg_type) {
-                                char message[256];
-                                snprintf(message, sizeof(message),
-                                        "Type variable `%s` is bound to %s but argument %d has type %s.",
-                                        var, type_to_string(bound_types_buf[k]), i + 1, type_to_string(arg_type));
-                                emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1, message,
-                                        "All uses of the same type variable must have the same concrete type.");
-                            }
-                            break;
+                        if (strcmp(var_names_buf[k], var)) continue;
+                        if (bound_types_buf[k] == TYPE_UNKNOWN) {
+                            bound_types_buf[k] = arg_type;
+                            bound_info[k] = actual;
+                            if (arg_type == TYPE_STRUCT && actual)
+                                bound_names_buf[k] = actual->generic_name;
+                            actual = NULL;
+                            if (!bound_info[k]) valid_bindings = false;
+                        } else if (bound_types_buf[k] != arg_type || !actual || !bound_info[k] ||
+                                   !type_infos_equal(bound_info[k], actual)) {
+                            emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                                "I require one concrete identity for each generic type variable.",
+                                "Use the same complete type for each occurrence of a type variable.");
+                            valid_bindings = false;
                         }
+                        break;
                     }
+                    free_payload_type_info(actual);
+                }
+                if (!valid_bindings) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require a complete generic argument type.", "Declare the argument's complete type.");
+                    for (int k = 0; k < binding_count; ++k) free_payload_type_info(bound_info[k]);
+                    return TYPE_UNKNOWN;
                 }
 
                 /* Build monomorphized name and register instance */
@@ -3246,21 +3328,35 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 if (expr->as.call.concrete_func_name) free(expr->as.call.concrete_func_name);
                 expr->as.call.concrete_func_name = strdup(mono_name);
 
-                /* Determine return type — substitute type variable if needed */
-                if (func->return_type == TYPE_STRUCT && is_type_variable_name(func->return_struct_type_name)) {
-                    for (int k = 0; k < binding_count; k++) {
-                        if (strcmp(var_names_buf[k], func->return_struct_type_name) == 0) {
-                            /* I retain the concrete identity for an enclosing
-                             * call, field projection or inferred local. */
-                            char *result_name = bound_types_buf[k] == TYPE_STRUCT && bound_names_buf[k]
-                                ? strdup(bound_names_buf[k]) : NULL;
-                            free(expr->as.call.return_struct_type_name);
-                            expr->as.call.return_struct_type_name = result_name;
-                            return bound_types_buf[k];
-                        }
+                FunctionSignature *signature = function_signature_from_function(func);
+                for (int p = 0; p < func->param_count; ++p) {
+                    if (func->params[p].type != TYPE_STRUCT ||
+                        !is_type_variable_name(func->params[p].struct_type_name)) continue;
+                    for (int k = 0; k < binding_count; ++k) {
+                        if (strcmp(func->params[p].struct_type_name, var_names_buf[k])) continue;
+                        signature->param_types[p] = bound_types_buf[k];
+                        free(signature->param_struct_names[p]);
+                        signature->param_struct_names[p] = bound_names_buf[k] ? strdup(bound_names_buf[k]) : NULL;
+                        free_payload_type_info(signature->param_type_info[p]);
+                        signature->param_type_info[p] = copy_payload_type_info(bound_info[k]);
                     }
                 }
-                return func->return_type;
+                if (func->return_type == TYPE_STRUCT && is_type_variable_name(func->return_struct_type_name)) {
+                    for (int k = 0; k < binding_count; ++k) {
+                        if (strcmp(var_names_buf[k], func->return_struct_type_name)) continue;
+                        signature->return_type = bound_types_buf[k];
+                        free(signature->return_struct_name);
+                        signature->return_struct_name = bound_names_buf[k] ? strdup(bound_names_buf[k]) : NULL;
+                        free_payload_type_info(signature->return_type_info);
+                        signature->return_type_info = copy_payload_type_info(bound_info[k]);
+                    }
+                }
+                for (int k = 0; k < binding_count; ++k) free_payload_type_info(bound_info[k]);
+                free_function_signature(expr->as.call.checked_signature);
+                expr->as.call.checked_signature = signature;
+                free(expr->as.call.return_struct_type_name);
+                expr->as.call.return_struct_type_name = signature->return_struct_name ? strdup(signature->return_struct_name) : NULL;
+                return signature->return_type;
             }
 
             /* Check argument types (skip for built-ins with NULL params like range) */
@@ -3663,9 +3759,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             call.as.call.args = expr->as.module_qualified_call.args;
             call.as.call.arg_count = expr->as.module_qualified_call.arg_count;
             Type result = check_expression(&call, env);
-            free(call.as.call.return_struct_type_name);
+            if (!call.as.call.checked_signature)
+                call.as.call.checked_signature = function_signature_from_function(env_get_function(env, qualified_name));
+            free_function_signature(expr->as.module_qualified_call.checked_signature);
+            expr->as.module_qualified_call.checked_signature = call.as.call.checked_signature;
+            free(expr->as.module_qualified_call.return_struct_type_name);
+            expr->as.module_qualified_call.return_struct_type_name = call.as.call.return_struct_type_name;
             free(call.as.call.concrete_func_name);
-            free_function_signature(call.as.call.checked_signature);
             free(qualified_name);
             return result;
         }

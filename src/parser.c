@@ -2165,6 +2165,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                         node->as.module_qualified_call.args = NULL;
                         node->as.module_qualified_call.arg_count = 0;
                         node->as.module_qualified_call.return_struct_type_name = NULL;
+                        node->as.module_qualified_call.checked_signature = NULL;
                         
                         /* Free the field_access node */
                         free_ast(first_expr);
@@ -2282,6 +2283,7 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     node->as.module_qualified_call.args = args;
                     node->as.module_qualified_call.arg_count = count;
                     node->as.module_qualified_call.return_struct_type_name = NULL;
+                    node->as.module_qualified_call.checked_signature = NULL;
                 } else {
                     /* Create regular call node */
                     node = create_node(AST_CALL, line, column);
@@ -6015,6 +6017,7 @@ void free_ast(ASTNode *node) {
             free(node->as.call.args);
             break;
         case AST_MODULE_QUALIFIED_CALL:
+            free_function_signature(node->as.module_qualified_call.checked_signature);
             free(node->as.module_qualified_call.module_alias);
             free(node->as.module_qualified_call.function_name);
             if (node->as.module_qualified_call.return_struct_type_name) {
