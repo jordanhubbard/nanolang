@@ -11,6 +11,7 @@ typedef struct {
     uint8_t layouts[1024],ownership[256],service[104];size_t offsets[7];
 } Fixture;
 static uint32_t name(Fixture *f,const char *text) {
+    for(uint32_t i=0;i<f->module.string_count;i++)if(!strcmp(f->strings[i],text))return i;
     uint32_t n=f->module.string_count++;CHECK(n<96 && strlen(text)<128);
     strcpy(f->names[n],text);f->strings[n]=f->names[n];f->lengths[n]=(uint32_t)strlen(text);return n;
 }

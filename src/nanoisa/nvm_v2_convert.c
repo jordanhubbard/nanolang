@@ -33,16 +33,18 @@
 #include "retained_layouts.h"
 #include "ownership_contracts.h"
 #include "service_bindings_module.h"
+#include "service_codec_internal.h"
 #include "mixed_samples_internal.h"
 #include "owned_array_admission.h"
 
 /* Nominal service transport preserves exact declaration bytes without admission.
  * Mixed and owner ARRAY transport require their full checked profiles; other paths
  * retains the old shared ownership validator. */
-static NvmV2Result conversion_ownership(const NvmModule *module,bool *needs,uint16_t *checked_depths,NvmOwnerSignature *owner_signatures) {
+static NvmV2Result conversion_ownership(const NvmModule *module,bool *needs,uint16_t *checked_depths,NvmOwnerSignature *owner_signatures,const NvmPrivateServiceCodec *codec) {
     if(nvm_service_bindings_present(module)) {
-        NvmV2Result service=nvm_service_bindings_validate(module);
+        NvmV2Result service=nvm_private_service_module(module,codec);
         if(service!=NVM_V2_OK)return service;
+        if(codec){*needs=true;return NVM_V2_OK;}
         NvmFileNominalBindings nominal;
         NvmSocketNominalBindings tcp;
         NvmMultiNominalBindings multi;
@@ -107,11 +109,11 @@ static uint32_t intern_signature(NvmV2Signatures *sigs, const NvmV2Signature *si
     return sigs->count++;
 }
 
-NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
+NvmV2Result nvm_private_from_module(const NvmModule *mod, NvmV2Module *out,const NvmPrivateServiceCodec *codec) {
     if (!mod || !out) return NVM_V2_ERR_INDEX_RANGE;
     memset(out, 0, sizeof *out);
     out->isa_version = NVM_V2_ISA_VERSION;
-    NvmV2Result service = nvm_service_bindings_validate(mod);
+    NvmV2Result service = nvm_private_service_module(mod,codec);
     if (service != NVM_V2_OK) return service;
     out->service_data = mod->service_data;
     out->service_size = mod->service_size;
@@ -121,7 +123,7 @@ NvmV2Result nvm_v2_from_nvm_module(const NvmModule *mod, NvmV2Module *out) {
     bool owner_array=nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED;
     bool checked_profile=owner_array || nvm_mixed_samples_candidate(mod);
     uint16_t checked_depths[8]={0};NvmOwnerSignature owner_signatures[8]={0};
-    NvmV2Result ownership = conversion_ownership(mod, &needs_ownership, checked_profile?checked_depths:NULL,owner_array?owner_signatures:NULL);
+    NvmV2Result ownership = conversion_ownership(mod, &needs_ownership, checked_profile?checked_depths:NULL,owner_array?owner_signatures:NULL,codec);
     if (ownership != NVM_V2_OK) return ownership;
     out->ownership_data = mod->ownership_data;
     out->ownership_size = mod->ownership_size;
@@ -386,10 +388,10 @@ oom:
 
 /* ── v2 -> v1 ───────────────────────────────────────────────────────────── */
 
-NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
+NvmV2Result nvm_private_to_module(const NvmV2Module *m, NvmModule **out,const NvmPrivateServiceCodec *codec) {
     if (!m || !out) return NVM_V2_ERR_INDEX_RANGE;
     *out = NULL;
-    NvmV2Result service = nvm_v2_service_bindings_validate(m);
+    NvmV2Result service = nvm_private_service_wire(m,codec);
     if (service != NVM_V2_OK) return service;
 
     NvmModule *mod = nvm_module_new();
@@ -570,7 +572,7 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
     bool needs_ownership = false;
     bool owner_array=nvm_owned_array_route(mod)!=NVM_OWNER_ARRAY_NOT_SELECTED;
     uint16_t owner_depths[8]={0};
-    NvmV2Result ownership = conversion_ownership(mod, &needs_ownership,owner_array?owner_depths:NULL,NULL);
+    NvmV2Result ownership = conversion_ownership(mod, &needs_ownership,owner_array?owner_depths:NULL,NULL,codec);
     if (ownership != NVM_V2_OK) { nvm_module_free(mod); return ownership; }
     if(owner_array)for(uint32_t f=0;f<mod->function_count;f++) {
         uint16_t declared=m->functions.items[f].max_stack;
@@ -580,3 +582,6 @@ NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m, NvmModule **out) {
     *out = mod;
     return NVM_V2_OK;
 }
+
+NvmV2Result nvm_v2_from_nvm_module(const NvmModule *m,NvmV2Module *out) {return nvm_private_from_module(m,out,NULL);}
+NvmV2Result nvm_v2_to_nvm_module(const NvmV2Module *m,NvmModule **out) {return nvm_private_to_module(m,out,NULL);}

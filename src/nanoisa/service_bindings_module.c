@@ -1,3 +1,4 @@
+#include "service_codec_internal.h"
 #include "service_bindings_module.h"
 #include "service_classification_private.h"
 #include "../nsi_file_catalog.h"
@@ -107,10 +108,11 @@ static bool table_bytes(size_t count,size_t width,size_t *bytes) {
     if(width && count>SIZE_MAX/width)return false;
     *bytes=count*width;return true;
 }
-/* I adapt only metadata. No bridge/verifier callback, renumbering or ownership
- * flag projection is involved. All pointer-array views die before return. */
-static NvmV2Result nominal_v2(const NvmV2Module *m) {
-    if(m->imports.count<NVM_SERVICE_BINDING_COUNT || m->imports.count>NVM_MULTI_NOMINAL_MAX_IMPORTS || !m->imports.items ||
+/* I adapt only metadata for the selected exact nominal validator. No execution
+ * verifier, renumbering or ownership flag projection is involved. Temporary
+ * pointer-array views die before return. Ordinary callers select nominal_module. */
+NvmV2Result nvm_private_nominal_wire(const NvmV2Module *m,uint32_t minimum_imports,NvmV2Result (*validate)(const NvmModule *)) {
+    if(!m || !validate || !minimum_imports || m->imports.count<minimum_imports || m->imports.count>NVM_MULTI_NOMINAL_MAX_IMPORTS || !m->imports.items ||
        m->links.count || m->callbacks.count || !m->ownership_data || !m->ownership_size ||
        m->layouts.count<NVM_FILE_NOMINAL_TYPES || m->layouts.count>NVM_FILE_NOMINAL_MAX_LAYOUTS ||
        !m->layouts.items || (m->constants.count && !m->constants.items) ||
@@ -186,7 +188,7 @@ static NvmV2Result nominal_v2(const NvmV2Module *m) {
     if(result!=NVM_V2_OK)goto done;
     view.service_data=(uint8_t *)m->service_data;view.service_size=m->service_size;
     view.ownership_data=(uint8_t *)m->ownership_data;view.ownership_size=m->ownership_size;
-    result=nominal_module(&view);
+    result=validate(&view);
 done:
     free(view.layout_data);free(view.strings);free(view.string_lengths);
     free(view.functions);free(view.function_param_types);return result;
@@ -221,7 +223,7 @@ NvmV2Result nvm_v2_service_bindings_validate(const NvmV2Module *m) {
     if (nvm_v2_file_instructions_present(m) && !nominal_version(m->service_data,m->service_size))
         return NVM_V2_ERR_SECTION_TYPE;
     if (!nvm_v2_service_bindings_present(m)) return NVM_V2_OK;
-    if (nominal_version(m->service_data,m->service_size)) return nominal_v2(m);
+    if (nominal_version(m->service_data,m->service_size)) return nvm_private_nominal_wire(m,NVM_SERVICE_BINDING_COUNT,nominal_module);
     NvmServiceBindings value;
     if (nvm_service_bindings_decode(m->service_data,m->service_size,&value)!=NVM_SERVICE_OK)
         return NVM_V2_ERR_SECTION_TYPE;

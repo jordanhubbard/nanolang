@@ -117,7 +117,15 @@ static void refusals(void){
     CHECK(completed);
 #endif
 }
+
+#ifdef WEBSOCKET_BODY_FIXTURE
+#define main websocket_body_fixture_main
+#endif
 int main(void){
     for(unsigned permute=0;permute<2;permute++)for(unsigned indirect=0;indirect<2;indirect++)for(unsigned loop=0;loop<2;loop++)checked(indirect,loop,permute);
     refusals();printf("I passed %u WebSocket bytecode/body checks.\n",checks);return 0;
 }
+
+#ifdef WEBSOCKET_BODY_FIXTURE
+#undef main
+#endif

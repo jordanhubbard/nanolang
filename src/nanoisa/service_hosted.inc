@@ -1,3 +1,7 @@
+#ifndef HOSTED_DESERIALIZE
+#define HOSTED_DESERIALIZE nvm_v2_module_deserialize
+#define HOSTED_TO_MODULE nvm_v2_to_nvm_module
+#endif
 struct SERVICE_TYPE(HostedPlan) {
     SERVICE_TYPE(BodyReport) *body;
     SERVICE_TYPE(HostedStartup) startup;
@@ -234,9 +238,9 @@ SERVICE_TYPE(FlowStatus) SERVICE_FN(hosted_prepare)(const uint8_t *data,size_t s
     if(status!=SERVICE_CONST(FLOW_OK))return status;
     uint8_t *copy=malloc(size);if(!copy)return SERVICE_CONST(FLOW_MEMORY);memcpy(copy,data,size);
     NvmV2Module wire={0};NvmModule *module=NULL;SERVICE_TYPE(HostedPlan) *plan=NULL;
-    NvmV2Result decoded=nvm_v2_module_deserialize(copy,size,&wire);
+    NvmV2Result decoded=HOSTED_DESERIALIZE(copy,size,&wire);
     if(decoded!=NVM_V2_OK){status=file_hosted_codec_status(decoded);goto done;}
-    decoded=nvm_v2_to_nvm_module(&wire,&module);
+    decoded=HOSTED_TO_MODULE(&wire,&module);
     if(decoded!=NVM_V2_OK){status=file_hosted_codec_status(decoded);goto done;}
     /* The legacy bridge may lose CODE after a failed buffer growth.  I do not
      * certify its partial publication or reinterpret that failure as INVALID. */

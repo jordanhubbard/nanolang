@@ -10,6 +10,7 @@ static bool file_ch_member(const SERVICE_TYPE(CyclicReport) *r,uint32_t context,
     if(!id){*out=scalar_type(TAG_VOID);return true;}
     if(!strcmp(id,"nsi:core/int")){*out=scalar_type(TAG_INT);return true;}
     if(!strcmp(id,"nsi:core/bool")){*out=scalar_type(TAG_BOOL);return true;}
+    if(!strcmp(id,"nsi:core/string")){*out=scalar_type(TAG_STRING);return true;}
     for(uint32_t i=FLOW_TYPE_BASE(context);i<FLOW_TYPE_BASE(context)+FLOW_TYPE_COUNT(r->plan->declarations->nominal,context);i++) {
         const NlServicePlanType *type=FLOW_CATALOG_TYPE(r->plan->declarations->nominal,i);SERVICE_TYPE(NominalLayout) layout;
         if(type && !strcmp(type->id,id) && SERVICE_FN(cyclic_type)(r,i,&layout)) {
@@ -68,9 +69,10 @@ static bool file_ch_fact(const SERVICE_TYPE(CyclicReport) *r,const SERVICE_TYPE(
                 SERVICE_CONST(FLOW_CHECK_LIVENESS)|SERVICE_CONST(FLOW_CHECK_RIGHTS)|SERVICE_CONST(FLOW_CHECK_RESULT);
         if(method->input_mode==NL_SERVICE_INPUT_EXCLUSIVE) {
             expected.borrowed_inputs=1;checks|=SERVICE_CONST(FLOW_CHECK_BORROW);
-            if(FLOW_METHOD_LOCAL(in->catalog_ordinal)==1)checks|=SERVICE_CONST(FLOW_CHECK_BYTE);
         } else if(method->input_mode==NL_SERVICE_INPUT_CONSUME)expected.owned_inputs=1;
         for(size_t i=0;i+1<method->param_count;i++) {
+            if(method->params[i].domain==NL_SERVICE_DOMAIN_BYTE_INT)checks|=SERVICE_CONST(FLOW_CHECK_BYTE);
+            if(method->params[i].domain==NL_SERVICE_DOMAIN_TIMEOUT_MS)checks|=FLOW_TIMEOUT_CHECK;
             SERVICE_TYPE(FlowDeclaration) argument;
             if(!file_ch_member(r,FLOW_METHOD_OWNER(in->catalog_ordinal),method->params[i].type_id,&argument))return false;
             if(FLOW_IS_ENDPOINT(r->plan->declarations->nominal,argument.catalog_ordinal) && argument.category==SERVICE_CONST(CATEGORY_RECORD))
@@ -198,9 +200,9 @@ SERVICE_TYPE(FlowStatus) SERVICE_FN(cyclic_hosted_prepare)(const uint8_t *data,s
     uint8_t *copy=malloc(size);if(!copy)return SERVICE_CONST(FLOW_MEMORY);
     memcpy(copy,data,size);
     NvmV2Module wire={0};NvmModule *module=NULL;SERVICE_TYPE(CyclicHostedPlan) *plan=NULL;
-    NvmV2Result decoded=nvm_v2_module_deserialize(copy,size,&wire);
+    NvmV2Result decoded=HOSTED_DESERIALIZE(copy,size,&wire);
     if(decoded!=NVM_V2_OK){status=file_hosted_codec_status(decoded);goto done;}
-    decoded=nvm_v2_to_nvm_module(&wire,&module);
+    decoded=HOSTED_TO_MODULE(&wire,&module);
     if(decoded!=NVM_V2_OK){status=file_hosted_codec_status(decoded);goto done;}
     if(!module || module->code_size!=wire.code_size || !module->code ||
        memcmp(module->code,wire.code,wire.code_size)) {

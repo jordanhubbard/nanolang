@@ -175,9 +175,9 @@ SERVICE_TYPE(FlowStatus) SERVICE_FN(indirect_hosted_prepare)(const uint8_t *data
     uint8_t *copy=malloc(size);if(!copy)return SERVICE_CONST(FLOW_MEMORY);
     memcpy(copy,data,size);
     NvmV2Module wire={0};NvmModule *module=NULL;SERVICE_TYPE(IndirectHostedPlan) *plan=NULL;
-    NvmV2Result decoded=nvm_v2_module_deserialize(copy,size,&wire);
+    NvmV2Result decoded=HOSTED_DESERIALIZE(copy,size,&wire);
     if(decoded!=NVM_V2_OK){status=file_hosted_codec_status(decoded);goto done;}
-    decoded=nvm_v2_to_nvm_module(&wire,&module);
+    decoded=HOSTED_TO_MODULE(&wire,&module);
     if(decoded!=NVM_V2_OK){status=file_hosted_codec_status(decoded);goto done;}
     if(!module || module->code_size!=wire.code_size || !module->code ||
        memcmp(module->code,wire.code,wire.code_size)) {

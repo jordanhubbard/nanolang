@@ -123,9 +123,24 @@ or metadata. Their runtime-admitted flags remain false.
 
 I test complete connection lifecycles in these profiles, permuted nominal maps,
 malformed operands, input destruction and failed allocation prefixes. Timeout,
-rights, liveness and cleanup obligations remain pending. Hosted qualification,
-runtime obligation discharge and matched dispatch must follow before public
-admission.
+rights, liveness and cleanup obligations remain pending. Runtime obligation
+discharge and matched dispatch must follow before public admission.
+
+## Private wire preparation
+
+My `websocket_codec` entrypoints now transport the exact 104-byte nominal map
+through the ordinary v2 section and bridge machinery with explicitly selected
+WebSocket metadata validators. I keep that selection in trusted native code;
+serialized input cannot choose it. Ordinary codec entrypoints retain their
+original validators and refuse this same catalog. I preserve section checks,
+layout indices, signatures and ownership flags in both directions.
+
+My WebSocket hosted plans retain copied wire and complete checked body facts,
+match each pending obligation against the immutable catalog, and compute frame,
+operand, reference and region bounds. The indirect plan retains literal strings
+and exact same-module call targets. Its preparation tests survive destruction of
+the original inputs and reject missing timeout obligations. These plans still
+have `runtime_admitted=false`: they neither grant host policy nor execute a call.
 
 ## Admission boundary
 

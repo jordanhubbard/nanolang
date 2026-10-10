@@ -18,6 +18,7 @@
 #include "nvm_v2_sections.h"
 #include "retained_layouts.h"
 #include "service_bindings_module.h"
+#include "service_codec_internal.h"
 #include "isa.h"
 #include "nvm_format.h"   /* nvm_crc32 */
 
@@ -92,13 +93,13 @@ static size_t build_plan(const NvmV2Module *m, SectionPlan *plan) {
     return n;
 }
 
-static NvmV2Result validate_cross_section(const NvmV2Module *m, uint32_t declared_features);
+static NvmV2Result validate_cross_section(const NvmV2Module *m, uint32_t declared_features,const NvmPrivateServiceCodec *codec);
 
-NvmV2Result nvm_v2_module_serialize(const NvmV2Module *m,
+NvmV2Result nvm_private_serialize(const NvmV2Module *m,
                                     uint8_t *out, size_t capacity,
-                                    size_t *out_size) {
+                                    size_t *out_size,const NvmPrivateServiceCodec *codec) {
     if (!m) return NVM_V2_ERR_INDEX_RANGE;
-    NvmV2Result service = nvm_v2_service_bindings_validate(m);
+    NvmV2Result service = nvm_private_service_wire(m,codec);
     if (service != NVM_V2_OK) return service;
     if ((m->passive_size && !m->passive_data) ||
         (!m->passive_size && (m->extra_features & NVM_V2_FEATURE_PASSIVE)))
@@ -107,10 +108,10 @@ NvmV2Result nvm_v2_module_serialize(const NvmV2Module *m,
         (!m->ownership_size && (m->extra_features & NVM_V2_FEATURE_OWNERSHIP)))
         return NVM_V2_ERR_FEATURE_MISMATCH;
     if (m->passive_size || m->ownership_size || nvm_v2_service_bindings_present(m)) {
-        NvmV2Result result = validate_cross_section(m, required_features(m) | m->extra_features);
+        NvmV2Result result = validate_cross_section(m, required_features(m) | m->extra_features,codec);
         if (result != NVM_V2_OK) return result;
         NvmModule *checked = NULL;
-        result = nvm_v2_to_nvm_module(m, &checked);
+        result = nvm_private_to_module(m, &checked,codec);
         nvm_module_free(checked);
         if (result != NVM_V2_OK) return result;
     }
@@ -245,8 +246,8 @@ static NvmV2Result validate_callbacks(const NvmV2Module *m) {
 }
 
 static NvmV2Result validate_cross_section(const NvmV2Module *m,
-                                          uint32_t declared_features) {
-    NvmV2Result service = nvm_v2_service_bindings_validate(m);
+                                          uint32_t declared_features,const NvmPrivateServiceCodec *codec) {
+    NvmV2Result service = nvm_private_service_wire(m,codec);
     if (service != NVM_V2_OK) return service;
     if (((declared_features & NVM_V2_FEATURE_SERVICE_BINDINGS) != 0) !=
         (m->service_size != 0)) return NVM_V2_ERR_FEATURE_MISMATCH;
@@ -331,8 +332,8 @@ static NvmV2Result validate_cross_section(const NvmV2Module *m,
     return NVM_V2_OK;
 }
 
-NvmV2Result nvm_v2_module_deserialize(const uint8_t *data, size_t size,
-                                      NvmV2Module *out) {
+NvmV2Result nvm_private_deserialize(const uint8_t *data, size_t size,
+                                      NvmV2Module *out,const NvmPrivateServiceCodec *codec) {
     memset(out, 0, sizeof *out);
 
     NvmV2Result r = nvm_v2_validate(data, size);
@@ -367,9 +368,10 @@ NvmV2Result nvm_v2_module_deserialize(const uint8_t *data, size_t size,
         case NVM_V2_SECTION_LINKS:      r = nvm_v2_links_decode(p, z, &out->links); break;
         case NVM_V2_SECTION_CALLBACKS:  r = nvm_v2_callbacks_decode(p, z, &out->callbacks); break;
         case NVM_V2_SECTION_SERVICE_BINDINGS:
-            if (z != NVM_SERVICE_BINDING_BYTES && z != NVM_FILE_NOMINAL_BYTES &&
+            if (codec ? (!codec->service_bytes || z!=codec->service_bytes) :
+                (z != NVM_SERVICE_BINDING_BYTES && z != NVM_FILE_NOMINAL_BYTES &&
                 z != NVM_SOCKET_NOMINAL_BYTES &&
-                !(z>=80 && z<=NVM_MULTI_NOMINAL_MAX_BYTES && p[0]==NVM_MULTI_NOMINAL_VERSION && !p[1])) {
+                !(z>=80 && z<=NVM_MULTI_NOMINAL_MAX_BYTES && p[0]==NVM_MULTI_NOMINAL_VERSION && !p[1]))) {
                 r = NVM_V2_ERR_SECTION_RANGE; break;
             }
             out->service_data = p; out->service_size = (uint32_t)z; break;
@@ -388,7 +390,7 @@ NvmV2Result nvm_v2_module_deserialize(const uint8_t *data, size_t size,
         if (r != NVM_V2_OK) goto fail;
     }
 
-    r = validate_cross_section(out, h.feature_bits);
+    r = validate_cross_section(out, h.feature_bits,codec);
     if (r != NVM_V2_OK) goto fail;
     if (((h.feature_bits & NVM_V2_FEATURE_PASSIVE) != 0) != (out->passive_size != 0)) {
         r = NVM_V2_ERR_FEATURE_MISMATCH; goto fail;
@@ -398,7 +400,7 @@ NvmV2Result nvm_v2_module_deserialize(const uint8_t *data, size_t size,
     }
     if (out->passive_size || out->ownership_size || out->service_size) {
         NvmModule *checked = NULL;
-        r = nvm_v2_to_nvm_module(out, &checked);
+        r = nvm_private_to_module(out, &checked,codec);
         nvm_module_free(checked);
         if (r != NVM_V2_OK) goto fail;
     }
@@ -432,3 +434,6 @@ void nvm_v2_module_free(NvmV2Module *m) {
     m->passive_size = 0;
     m->has_debug = false;
 }
+
+NvmV2Result nvm_v2_module_serialize(const NvmV2Module *m,uint8_t *out,size_t capacity,size_t *size) {return nvm_private_serialize(m,out,capacity,size,NULL);}
+NvmV2Result nvm_v2_module_deserialize(const uint8_t *data,size_t size,NvmV2Module *out) {return nvm_private_deserialize(data,size,out,NULL);}
