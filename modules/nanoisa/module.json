@@ -25,6 +25,7 @@
     "../../src/nanoisa/service_socket_nominal.c",
     "../../src/nanoisa/service_socket_nominal_plan.c",
     "../../src/nsi_socket_plan.c",
+    "../../src/nsi_websocket_plan.c",
     "../../src/nsi_file_plan.c",
     "../../src/nanoisa/nvm_format.c",
     "../../src/nanoisa/nvm_format_v2.c",

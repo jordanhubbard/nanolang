@@ -32,11 +32,12 @@ translator, so relocation does not require the original source checkout.
 
 I test generated native LLVM and Node/Wasm reads, denied and revoked access,
 repeated entry, nested-entry refusal, disposal, malformed callback results,
-wrong operand tags, exact import refusals and prior-output preservation in
+wrong operand tags, native allocation-prefix recovery, retained unused imports, exact import refusals and prior-output preservation in
 `tests/test_portable_read_execution.py`. Its source fixture also runs through
-NanoVM and C AOT. I have checked relocated native and Node execution locally.
+NanoVM and C AOT, with optional fresh self-hosted producers selected through
+`NANO_PORTABLE_DRIVER_MODULE` and `NANO_PORTABLE_DRIVER_NATIVE`. I have checked relocated native and Node execution locally.
 
 This is my first executable portable binding. Full generated Wasmtime execution,
-allocation-failure qualification, all source producers and exact-candidate
+Wasm allocation-failure qualification, the full source boundary corpus and exact-candidate
 platform gates remain open. Byte/aggregate results and remaining compiler host
 capabilities remain required by my 5.1 scope.

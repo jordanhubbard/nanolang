@@ -23,6 +23,10 @@ uint32_t npr_module_host_status(void) { return npr_module_error; }
 void npr_module_reset(void) {
     if(!nms_module_host_runtime()->active)npr_module_error=NPR_OK;
 }
+/* I retain the declared Wasm import even when the program never calls it. */
+#ifdef __wasm32__
+__attribute__((used, retain))
+#endif
 uint64_t npr_module_read_text(uint64_t argument) {
     if(nms_module_status()!=NMS_OK)return 0;
     NmsRuntime *runtime=nms_module_host_runtime();

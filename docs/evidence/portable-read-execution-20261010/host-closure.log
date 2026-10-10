@@ -1,0 +1,8 @@
+test_examples_shared_library_loads (tests.test_nanoisa_host_closure.NanoisaHostClosure.test_examples_shared_library_loads) ... ok
+test_forth_see_native_import (tests.test_nanoisa_host_closure.NanoisaHostClosure.test_forth_see_native_import) ... ok
+test_manifest_libraries_load_in_isolation (tests.test_nanoisa_host_closure.NanoisaHostClosure.test_manifest_libraries_load_in_isolation) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 18.238s
+
+OK
