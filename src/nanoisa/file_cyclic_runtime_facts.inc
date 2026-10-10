@@ -2,28 +2,60 @@
  * never convert cyclic authority into an old hosted plan. */
 static bool fr_function(const NvmFileRuntime *c,uint32_t f,NvmFileHostedFunction *out) {
     if(c->kind==FR_ACYCLIC)return nvm_file_hosted_function(c->plan,f,out);
+    if(c->kind==FR_INDIRECT) {
+        NvmFileIndirectHostedFunction v;
+        if(!nvm_file_indirect_hosted_function(c->indirect_plan,f,&v) || v.entry_variant!=0)return false;
+        *out=(NvmFileHostedFunction){v.code,v.declared_stack,v.operand_peak,v.locals,
+            v.staging_slots,v.frames,v.reference_slots,v.region_slots,v.vm_value_slots,v.native_value_slots};return true;
+    }
     NvmFileCyclicHostedFunction v;
     if(!nvm_file_cyclic_hosted_function(c->cyclic_plan,f,&v) || v.entry_variant!=0)return false;
     *out=(NvmFileHostedFunction){v.code,v.declared_stack,v.operand_peak,v.locals,
         v.staging_slots,v.frames,v.reference_slots,v.region_slots,v.vm_value_slots,v.native_value_slots};return true;
 }
 static bool fr_local(const NvmFileRuntime *c,uint32_t f,uint16_t local,NvmFileFlowDeclaration *out) {
+    if(c->kind==FR_INDIRECT)return nvm_file_indirect_hosted_local(c->indirect_plan,f,local,out);
     return c->kind==FR_ACYCLIC?nvm_file_hosted_local(c->plan,f,local,out):
         nvm_file_cyclic_hosted_local(c->cyclic_plan,f,local,out);
+}
+static bool fr_variant(const NvmFileRuntime *c,uint32_t f,uint16_t i,uint8_t v,NvmFileCyclicVariant *out) {
+    return c->kind==FR_INDIRECT?nvm_file_indirect_hosted_variant(c->indirect_plan,f,i,v,out):
+        nvm_file_cyclic_hosted_variant(c->cyclic_plan,f,i,v,out);
+}
+static bool fr_input_local(const NvmFileRuntime *c,uint32_t f,uint16_t i,uint8_t v,uint16_t n,NvmFileFlowValue *out) {
+    return c->kind==FR_INDIRECT?nvm_file_indirect_hosted_input_local(c->indirect_plan,f,i,v,n,out):
+        nvm_file_cyclic_hosted_input_local(c->cyclic_plan,f,i,v,n,out);
+}
+static bool fr_input_stack(const NvmFileRuntime *c,uint32_t f,uint16_t i,uint8_t v,uint16_t n,NvmFileFlowValue *out) {
+    return c->kind==FR_INDIRECT?nvm_file_indirect_hosted_input_stack(c->indirect_plan,f,i,v,n,out):
+        nvm_file_cyclic_hosted_input_stack(c->cyclic_plan,f,i,v,n,out);
+}
+static bool fr_input_reference(const NvmFileRuntime *c,uint32_t f,uint16_t i,uint8_t v,uint16_t n,NvmFileFlowReference *out) {
+    return c->kind==FR_INDIRECT?nvm_file_indirect_hosted_input_reference(c->indirect_plan,f,i,v,n,out):
+        nvm_file_cyclic_hosted_input_reference(c->cyclic_plan,f,i,v,n,out);
+}
+static bool fr_input_region(const NvmFileRuntime *c,uint32_t f,uint16_t i,uint8_t v,uint16_t n,uint64_t *out) {
+    return c->kind==FR_INDIRECT?nvm_file_indirect_hosted_input_region(c->indirect_plan,f,i,v,n,out):
+        nvm_file_cyclic_hosted_input_region(c->cyclic_plan,f,i,v,n,out);
+}
+static bool fr_code(const NvmFileRuntime *c,uint32_t f,uint16_t i,NvmFileCodeInstruction *out) {
+    return c->kind==FR_INDIRECT?nvm_file_indirect_hosted_instruction(c->indirect_plan,f,i,out):
+        nvm_file_cyclic_hosted_instruction(c->cyclic_plan,f,i,out);
 }
 static bool fr_instruction(const NvmFileRuntime *c,uint32_t f,uint16_t i,uint8_t variant,
                             NvmFileCodeInstruction *in,NvmFileBodyInstruction *fact) {
     if(c->kind==FR_ACYCLIC)return nvm_file_hosted_instruction(c->plan,f,i,in,fact);
     NvmFileCyclicVariant v;
-    if(!nvm_file_cyclic_hosted_instruction(c->cyclic_plan,f,i,in) ||
-       !nvm_file_cyclic_hosted_variant(c->cyclic_plan,f,i,variant,&v))return false;
+    if(!fr_code(c,f,i,in) ||
+       !fr_variant(c,f,i,variant,&v))return false;
     *fact=v.body;return true;
 }
 static bool fr_import(const NvmFileRuntime *c,uint32_t original,uint32_t *ordinal) {
     if(c->kind==FR_ACYCLIC)return nvm_file_hosted_import(c->plan,original,ordinal);
     for(uint32_t i=0;i<NVM_SERVICE_BINDING_COUNT;i++) {
         uint32_t value;
-        if(!nvm_file_cyclic_hosted_import(c->cyclic_plan,i,&value))return false;
+        if(!(c->kind==FR_INDIRECT?nvm_file_indirect_hosted_import(c->indirect_plan,i,&value):
+             nvm_file_cyclic_hosted_import(c->cyclic_plan,i,&value)))return false;
         if(value==original){*ordinal=i;return true;}
     }
     return false;
@@ -31,10 +63,21 @@ static bool fr_import(const NvmFileRuntime *c,uint32_t original,uint32_t *ordina
 static bool frc_edge(const NvmFileRuntime *c,const FileRuntimeFrame *f,uint8_t edge,uint8_t *out) {
     if(c->kind==FR_ACYCLIC){*out=0;return true;}
     NvmFileCyclicVariant v;
-    if(edge>=2 || !nvm_file_cyclic_hosted_variant(c->cyclic_plan,f->function,
+    if(edge>=2 || !fr_variant(c,f->function,
        (uint16_t)f->instruction,f->variant,&v) || !(v.edge_mask&(1u<<edge)) ||
        v.edge_variants[edge]==NVM_FILE_CYCLIC_NO_VARIANT)return false;
     *out=v.edge_variants[edge];return true;
+}
+static bool fr_call_target(const NvmFileRuntime *c,const FileRuntimeFrame *f,
+                           const NvmFileCodeInstruction *in,uint32_t target) {
+    if(in->decoded.opcode!=OP_CALL_INDIRECT)
+        return (in->decoded.opcode==OP_CALL || in->decoded.opcode==OP_CALL_REF ||
+                in->decoded.opcode==OP_FILE_CALL_REFS) && in->decoded.operands[0].u32==target;
+    NvmFileIndirectFlowCall call;
+    return c->kind==FR_INDIRECT && target<NVM_FILE_FLOW_FUNCTIONS &&
+        nvm_file_indirect_hosted_call(c->indirect_plan,f->function,(uint16_t)f->instruction,f->variant,&call) &&
+        call.candidates && call.candidates==call.checked_candidates &&
+        (call.candidates&(UINT64_C(1)<<target)) && call.common.target==NVM_V2_NO_INDEX;
 }
 static NvmFileRuntimeStatus frc_validate(NvmFileRuntime *,const FileRuntimeFrame *);
 NvmFileRuntimeStatus nvm_file_runtime_cyclic_create(const uint8_t *bytes,size_t size,

@@ -125,12 +125,12 @@ jobs:
       - name: Build - Stage 3 (Bootstrap Validation)
         run: make stage3
 
-      - name: Check indirect File target, ownership and hosted plans
+      - name: Check indirect File plans and carriers
         env:
           TMPDIR: ${{ github.workspace }}/.test_output/file-indirect
         run: |
           mkdir -p "$TMPDIR"
-          make -f Makefile.gnu test-file-indirect-queries
+          make -f Makefile.gnu test-file-indirect-queries test-file-indirect-runtime
 
       - name: Run test suite
         env:

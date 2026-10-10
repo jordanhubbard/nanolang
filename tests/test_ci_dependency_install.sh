@@ -64,13 +64,25 @@ ATTEMPTS_FILE="$STUB_DIR/attempts"
 
 cat >"$STUB_DIR/apt-get" <<'STUB'
 #!/usr/bin/env bash
+for arg in "$@"; do
+  if [ "$arg" = "--fix-broken" ]; then
+    [ "$(cat "$ATTEMPTS_FILE.pending")" -eq 0 ] || exit 100
+    exit "${STUB_RECOVERY_STATUS:-0}"
+  fi
+done
 # `update` is the quiet half of the helper's attempt; only `install` counts.
 [ "${1:-}" = "update" ] && exit 0
 for arg in "$@"; do
   if [ "$arg" = "install" ]; then
+    [ "$(cat "$ATTEMPTS_FILE.pending")" -eq 0 ] || exit 100
     n=$(( $(cat "$ATTEMPTS_FILE") + 1 ))
     echo "$n" >"$ATTEMPTS_FILE"
     if [ "$n" -le "${STUB_FAIL_UNTIL:-0}" ]; then
+      if [ "${STUB_INTERRUPTED:-0}" -eq 1 ]; then
+        echo 1 >"$ATTEMPTS_FILE.pending"
+        echo "stub apt-get: interrupted unpacking" >&2
+        exit 137
+      fi
       echo "stub apt-get: simulated mirror failure (attempt $n)" >&2
       exit 100
     fi
@@ -78,6 +90,15 @@ for arg in "$@"; do
   fi
 done
 exit 0
+STUB
+
+cat >"$STUB_DIR/dpkg" <<'STUB'
+#!/usr/bin/env bash
+[ "$*" = "--configure -a" ] || exit 2
+n=$(( $(cat "$ATTEMPTS_FILE.repairs") + 1 ))
+echo "$n" >"$ATTEMPTS_FILE.repairs"
+echo 0 >"$ATTEMPTS_FILE.pending"
+exit "${STUB_CONFIGURE_STATUS:-0}"
 STUB
 
 cat >"$STUB_DIR/sudo" <<'STUB'
@@ -121,7 +142,7 @@ esac
 exit 0
 STUB
 
-chmod +x "$STUB_DIR"/apt-get "$STUB_DIR"/sudo "$STUB_DIR"/killall "$STUB_DIR"/brew
+chmod +x "$STUB_DIR"/apt-get "$STUB_DIR"/dpkg "$STUB_DIR"/sudo "$STUB_DIR"/killall "$STUB_DIR"/brew
 
 # A PATH that models a macOS runner: the stubs plus only the utilities the
 # helpers actually reach for, and deliberately no `timeout`/`gtimeout`. It has
@@ -129,7 +150,7 @@ chmod +x "$STUB_DIR"/apt-get "$STUB_DIR"/sudo "$STUB_DIR"/killall "$STUB_DIR"/br
 # point is to guarantee the timeout binaries are absent.
 NO_TIMEOUT_DIR="$STUB_DIR/no-timeout"
 mkdir -p "$NO_TIMEOUT_DIR"
-for stub in apt-get sudo killall brew; do
+for stub in apt-get dpkg sudo killall brew; do
     ln -s "$STUB_DIR/$stub" "$NO_TIMEOUT_DIR/$stub"
 done
 for tool in bash sleep cat; do
@@ -141,11 +162,16 @@ done
 run_helper() {
     local helper="$1"; shift
     echo 0 >"$ATTEMPTS_FILE"
+    echo 0 >"$ATTEMPTS_FILE.pending"
+    echo 0 >"$ATTEMPTS_FILE.repairs"
     PATH="${HELPER_PATH:-$STUB_DIR:$PATH}" \
     ATTEMPTS_FILE="$ATTEMPTS_FILE" \
     CI_APT_ATTEMPTS=3 CI_APT_BACKOFF_SECS=0 CI_APT_TIMEOUT_SECS=30 \
     CI_BREW_ATTEMPTS=3 CI_BREW_BACKOFF_SECS=0 CI_BREW_TIMEOUT_SECS=30 \
     STUB_FAIL_UNTIL="${STUB_FAIL_UNTIL:-0}" \
+    STUB_INTERRUPTED="${STUB_INTERRUPTED:-0}" \
+    STUB_CONFIGURE_STATUS="${STUB_CONFIGURE_STATUS:-0}" \
+    STUB_RECOVERY_STATUS="${STUB_RECOVERY_STATUS:-0}" \
     STUB_PREINSTALLED="${STUB_PREINSTALLED:-}" \
         bash "$helper" "$@" >"$STUB_DIR/out" 2>&1
 }
@@ -171,6 +197,23 @@ if [ "$?" -eq 0 ] && [ "$(attempts_made)" -eq 3 ]; then
     pass "brew helper retries a failing download and succeeds within budget"
 else
     fail "brew helper did not recover from a transient failure (attempts=$(attempts_made))"
+    cat "$STUB_DIR/out"
+fi
+
+# I model the retained exit137 -> interrupted dpkg -> exit100 sequence.
+STUB_INTERRUPTED=1 STUB_FAIL_UNTIL=1 STUB_CONFIGURE_STATUS=1 run_helper "$APT_HELPER" build-essential
+if [ "$?" -eq 0 ] && [ "$(attempts_made)" -eq 2 ] && [ "$(cat "$ATTEMPTS_FILE.repairs")" -eq 1 ] && grep -q "failed (exit 137)" "$STUB_DIR/out"; then
+    pass "apt helper recovers interrupted unpacking and missing dependencies"
+else
+    fail "apt helper did not repair interrupted package state"
+    cat "$STUB_DIR/out"
+fi
+
+STUB_INTERRUPTED=1 STUB_FAIL_UNTIL=1 STUB_RECOVERY_STATUS=100 run_helper "$APT_HELPER" build-essential
+if [ "$?" -ne 0 ] && [ "$(attempts_made)" -eq 1 ] && [ "$(cat "$ATTEMPTS_FILE.repairs")" -eq 2 ]; then
+    pass "apt helper bounds recovery failures without claiming installation"
+else
+    fail "apt helper lost the attempt budget during dependency repair"
     cat "$STUB_DIR/out"
 fi
 

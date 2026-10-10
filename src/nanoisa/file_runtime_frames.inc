@@ -12,7 +12,7 @@ static bool frf_current(const NvmFileRuntime *c,NvmFileHostedFunction *fn,
 static NvmFileRuntimeStatus frf_ready(NvmFileRuntime *c,NvmFileHostedFunction *fn,
                                       NvmFileCodeInstruction *in,NvmFileBodyInstruction *fact) {
     NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
-    if(!frf_current(c,fn,in,fact) || (c->kind==FR_CYCLIC &&
+    if(!frf_current(c,fn,in,fact) || (c->kind!=FR_ACYCLIC &&
        !c->frames[c->frame_count-1].instruction_open))return fr_error(c,NVM_FILE_RUNTIME_STATE,NL_FILE_VALUE_STATE);
     c->report.function=c->frames[c->frame_count-1].function;
     c->report.instruction=in->byte_offset;return NVM_FILE_RUNTIME_OK;
@@ -76,7 +76,7 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_start(NvmFileRuntime *c) {
        !frf_next_fact(c,c->current_root,0,0,0) || !frf_empty_range(c,0,c->storage.values))return frf_bad(c);
     for(uint32_t i=0;i<c->storage.references;i++)if(c->references[i].live)return frf_bad(c);
     c->frames[0]=frame;c->frame_count=1;
-    if(c->kind==FR_CYCLIC && frc_validate(c,&frame)!=NVM_FILE_RUNTIME_OK)return c->report.status;
+    if(c->kind!=FR_ACYCLIC && frc_validate(c,&frame)!=NVM_FILE_RUNTIME_OK)return c->report.status;
     return nvm_file_runtime_site(c,frame.function,0);
 }
 bool nvm_file_runtime_frame_view(const NvmFileRuntime *c,NvmFileRuntimeFrameView *out) {
@@ -145,12 +145,12 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_next(NvmFileRuntime *c,uint8_t succe
     NvmFileRuntimeStatus status=frf_ready(c,&fn,&in,&fact);if(status!=NVM_FILE_RUNTIME_OK)return status;
     FileRuntimeFrame *f=&c->frames[c->frame_count-1];
     uint8_t next;
-    if(!frc_edge(c,f,successor,&next) || in.decoded.opcode==OP_CALL || (in.decoded.opcode==OP_CALL_REF || in.decoded.opcode==OP_FILE_CALL_REFS) || in.decoded.opcode==OP_RET ||
+    if(!frc_edge(c,f,successor,&next) || in.decoded.opcode==OP_CALL_INDIRECT || in.decoded.opcode==OP_CALL || (in.decoded.opcode==OP_CALL_REF || in.decoded.opcode==OP_FILE_CALL_REFS) || in.decoded.opcode==OP_RET ||
        successor>=in.successor_count || !frf_stack(c,f,&fn,fact.output_stack) ||
        !frf_next_fact(c,f->function,in.successors[successor],next,fact.output_stack))return frf_bad(c);
     FileRuntimeFrame completed=*f;completed.stack_count=fact.output_stack;
     completed.instruction=in.successors[successor];completed.variant=next;completed.instruction_open=false;
-    if(c->kind==FR_CYCLIC && frc_validate(c,&completed)!=NVM_FILE_RUNTIME_OK)return c->report.status;
+    if(c->kind!=FR_ACYCLIC && frc_validate(c,&completed)!=NVM_FILE_RUNTIME_OK)return c->report.status;
     *f=completed;
     return nvm_file_runtime_site(c,f->function,(uint16_t)f->instruction);
 }
@@ -159,8 +159,20 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_call(NvmFileRuntime *c) {
     NvmFileRuntimeStatus status=frf_ready(c,&fn,&in,&fact);if(status!=NVM_FILE_RUNTIME_OK)return status;
     FileRuntimeFrame *f=&c->frames[c->frame_count-1],child;
     uint32_t target=in.decoded.operands[0].u32;
-    if((in.decoded.opcode!=OP_CALL && (in.decoded.opcode!=OP_CALL_REF && in.decoded.opcode!=OP_FILE_CALL_REFS)) || in.successor_count!=1 ||
-       !fact.has_obligation || fact.obligation.kind!=NVM_FILE_FLOW_CALL || fact.obligation.target!=target ||
+    bool indirect=in.decoded.opcode==OP_CALL_INDIRECT;
+    uint32_t callable=NVM_FILE_RUNTIME_NO_SLOT;
+    if(indirect) {
+        if(c->kind!=FR_INDIRECT || !f->stack_count)return frf_bad(c);
+        callable=f->stack_base+f->stack_count-1;
+        if(!fr_live(c,callable))return frf_bad(c);
+        const FileRuntimeValue *v=&c->values[callable];
+        if(!frf_matches(v->view,fr_scalar_type(TAG_FUNCTION)) || v->view.fields ||
+           v->callable_plan!=c->indirect_plan)return frf_bad(c);
+        target=v->callable_target;
+        if(!fr_call_target(c,f,&in,target))return frf_bad(c);
+    }
+    if((!indirect && in.decoded.opcode!=OP_CALL && (in.decoded.opcode!=OP_CALL_REF && in.decoded.opcode!=OP_FILE_CALL_REFS)) || in.successor_count!=1 ||
+       !fact.has_obligation || fact.obligation.kind!=NVM_FILE_FLOW_CALL || fact.obligation.target!=(indirect?NVM_V2_NO_INDEX:target) ||
        fact.obligation.site!=in.byte_offset || !(fact.discharged_checks&NVM_FILE_FLOW_CHECK_CALLEE) ||
        !frf_stack(c,f,&fn,f->stack_count) || !fr_function(c,target,&callee))return frf_bad(c);
     uint16_t parameters=callee.code.declaration.parameters,borrowed=0,values=0;
@@ -169,7 +181,7 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_call(NvmFileRuntime *c) {
         NvmFileFlowDeclaration type;
         if(!fr_local(c,target,i,&type))return frf_bad(c);
         if(type.mode) {
-            if((type.mode!=1 && type.mode!=2) || ++borrowed>NVM_FILE_FLOW_REFERENCES || (in.decoded.opcode!=OP_CALL_REF && in.decoded.opcode!=OP_FILE_CALL_REFS) ||
+            if(indirect || (type.mode!=1 && type.mode!=2) || ++borrowed>NVM_FILE_FLOW_REFERENCES || (in.decoded.opcode!=OP_CALL_REF && in.decoded.opcode!=OP_FILE_CALL_REFS) ||
                in.call_references[i]>=NVM_FILE_FLOW_REFERENCES ||
                (in.decoded.opcode==OP_CALL_REF && in.call_references[i]!=in.decoded.operands[1].u16))return frf_bad(c);
             uint32_t reference=f->reference_base+in.call_references[i];
@@ -184,17 +196,17 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_call(NvmFileRuntime *c) {
                     return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
             }
         } else {
-            if(in.call_references[i]!=NVM_FILE_FLOW_NO_REFERENCE)return frf_bad(c);
+            if(!indirect && in.call_references[i]!=NVM_FILE_FLOW_NO_REFERENCE)return frf_bad(c);
             values++;
         }
     }
     if((in.decoded.opcode==OP_CALL_REF && borrowed!=1) ||
        (in.decoded.opcode==OP_FILE_CALL_REFS && !borrowed) ||
        parameters!=fact.obligation.parameters || borrowed!=fact.obligation.borrowed_inputs ||
-       values>f->stack_count || fn.staging_slots<parameters+1u ||
+       (uint32_t)values+(indirect?1u:0u)>f->stack_count || fn.staging_slots<parameters+1u+(indirect?1u:0u) ||
        callee.code.declaration.result_count!=fact.obligation.result_count ||
        (callee.code.declaration.result_count && !fr_same(callee.code.declaration.result,fact.obligation.result)))return frf_bad(c);
-    uint32_t prefix=f->stack_count-values;uint8_t next;
+    uint32_t prefix=f->stack_count-values-(indirect?1u:0u);uint8_t next;
     if(!frc_edge(c,f,0,&next))return frf_bad(c);
     if((uint32_t)prefix+callee.code.declaration.result_count!=fact.output_stack ||
        fact.output_stack>fn.operand_peak || !frf_next_fact(c,f->function,in.successors[0],next,fact.output_stack))return frf_bad(c);
@@ -220,6 +232,7 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_call(NvmFileRuntime *c) {
     if(owned!=fact.obligation.owned_inputs)return frf_bad(c);
     /* Complete ALL staging before installing ANY local: VM child locals may
      * cover a later argument's original operand position. No reverse moves. */
+    if(indirect)fr_clear(c,callable);
     arg=f->stack_base+prefix;
     for(uint16_t i=0;i<parameters;i++) {
         NvmFileFlowDeclaration type;
@@ -234,8 +247,8 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_call(NvmFileRuntime *c) {
         else status=nvm_file_runtime_move(c,f->staging_base+i,child.locals_base+i);
         if(status!=NVM_FILE_RUNTIME_OK)return status;
     }
-    f->stack_count=prefix;f->waiting=true;f->instruction_open=false;c->frames[c->frame_count++]=child;
-    if(c->kind==FR_CYCLIC && frc_validate(c,&child)!=NVM_FILE_RUNTIME_OK)return c->report.status;
+    f->stack_count=prefix;f->selected_target=target;f->waiting=true;f->instruction_open=false;c->frames[c->frame_count++]=child;
+    if(c->kind!=FR_ACYCLIC && frc_validate(c,&child)!=NVM_FILE_RUNTIME_OK)return c->report.status;
     return nvm_file_runtime_site(c,child.function,0);
 }
 NvmFileRuntimeStatus nvm_file_runtime_frame_return(NvmFileRuntime *c) {
@@ -272,8 +285,8 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_return(NvmFileRuntime *c) {
         parent=&c->frames[c->frame_count-2];
         if(!parent->waiting || !fr_function(c,parent->function,&caller) ||
            !fr_instruction(c,parent->function,(uint16_t)parent->instruction,parent->variant,&call,&call_fact) ||
-           (call.decoded.opcode!=OP_CALL && (call.decoded.opcode!=OP_CALL_REF && call.decoded.opcode!=OP_FILE_CALL_REFS)) || call.successor_count!=1 ||
-           call.decoded.operands[0].u32!=f->function || !call_fact.has_obligation ||
+           call.successor_count!=1 || !fr_call_target(c,parent,&call,f->function) ||
+           parent->selected_target!=f->function || !call_fact.has_obligation ||
            !frf_empty_range(c,parent->staging_base,caller.staging_slots) ||
            call_fact.output_stack!=parent->stack_count+results ||
            !frc_edge(c,parent,0,&next) ||
@@ -302,8 +315,8 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_return(NvmFileRuntime *c) {
     c->transfer_active=false;
     if(!frf_stack(c,parent,&caller,call_fact.output_stack))return frf_bad(c);
     parent->stack_count=call_fact.output_stack;parent->waiting=false;parent->instruction=call.successors[0];
-    parent->variant=next;parent->instruction_open=false;
-    if(c->kind==FR_CYCLIC && frc_validate(c,parent)!=NVM_FILE_RUNTIME_OK)return c->report.status;
+    parent->variant=next;parent->instruction_open=false;parent->selected_target=0;
+    if(c->kind!=FR_ACYCLIC && frc_validate(c,parent)!=NVM_FILE_RUNTIME_OK)return c->report.status;
     return nvm_file_runtime_site(c,parent->function,(uint16_t)parent->instruction);
 }
 NvmFileRuntimeStatus nvm_file_runtime_frame_region_begin(NvmFileRuntime *c) {

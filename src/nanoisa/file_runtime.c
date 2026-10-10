@@ -1,6 +1,7 @@
 #include "file_runtime.h"
 #include "file_runtime_frames.h"
 #include "file_cyclic_runtime.h"
+#include "file_indirect_runtime.h"
 #include "../nsi_file_values_internal.h"
 #include "nvm_v2_sections.h"
 #include "../nsi_file_catalog.h"
@@ -12,6 +13,8 @@ typedef struct {
     NvmFileRuntimeView view;
     NlFileValue owner;
     uint32_t reference;
+    const NvmFileIndirectHostedPlan *callable_plan;
+    uint32_t callable_target;
 } FileRuntimeValue;
 typedef struct {
     bool live, formal, shared;
@@ -25,13 +28,15 @@ typedef struct {
     uint32_t staging_base, reference_base, region_base;
     bool waiting, instruction_open;
     uint8_t variant;
+    uint32_t selected_target;
 } FileRuntimeFrame;
-typedef enum { FR_ACYCLIC, FR_CYCLIC } FileRuntimeKind;
+typedef enum { FR_ACYCLIC, FR_CYCLIC, FR_INDIRECT } FileRuntimeKind;
 typedef struct { NlFileValue owners[NVM_FILE_FLOW_OWNERS]; uint32_t roots[NVM_FILE_FLOW_OWNERS]; } FileRuntimeWitness;
 typedef enum { FR_READY, FR_ACTIVE, FR_TERMINAL } FileRuntimePhase;
 struct NvmFileRuntime {
     NvmFileHostedPlan *plan;
     NvmFileCyclicHostedPlan *cyclic_plan;
+    NvmFileIndirectHostedPlan *indirect_plan;
     FileRuntimeKind kind;
     FileRuntimeWitness *witness;
     uint64_t instruction_limit, instructions_started;
@@ -76,7 +81,7 @@ static NvmFileRuntimeStatus fr_ready(NvmFileRuntime *c) {
 }
 static NvmFileRuntimeStatus fr_effect(NvmFileRuntime *c) {
     NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
-    if(c->kind==FR_CYCLIC && !c->transfer_active &&
+    if(c->kind!=FR_ACYCLIC && !c->transfer_active &&
        (!c->frame_count || c->frames[c->frame_count-1].waiting ||
         !c->frames[c->frame_count-1].instruction_open))
         return fr_error(c,NVM_FILE_RUNTIME_STATE,NL_FILE_VALUE_STATE);
@@ -139,6 +144,7 @@ static bool fr_error_payload(NlFileResult r,int64_t out[NVM_FILE_RUNTIME_FIELDS]
     out[4]=r.eof;out[5]=r.consumed;out[6]=r.cleanup_failed;return true;
 }
 #include "file_cyclic_runtime_facts.inc"
+#include "file_indirect_runtime_create.inc"
 
 NvmFileRuntimeStatus nvm_file_runtime_create(const uint8_t *bytes,size_t size,NvmFileRuntimeMode mode,NvmFileRuntime **out) {
     if(!out || (mode!=NVM_FILE_RUNTIME_VM && mode!=NVM_FILE_RUNTIME_NATIVE))return NVM_FILE_RUNTIME_INVALID;
@@ -197,7 +203,7 @@ NvmFileRuntimeStatus nvm_file_runtime_site(NvmFileRuntime *c,uint32_t function,u
     NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     NvmFileCodeInstruction in;NvmFileBodyInstruction fact;
     uint8_t variant=0;
-    if(c->kind==FR_CYCLIC) {
+    if(c->kind!=FR_ACYCLIC) {
         if(!c->frame_count || c->frames[c->frame_count-1].function!=function ||
            c->frames[c->frame_count-1].instruction!=instruction)
             return fr_error(c,NVM_FILE_RUNTIME_STATE,NL_FILE_VALUE_STATE);
@@ -232,7 +238,7 @@ NvmFileRuntimeStatus nvm_file_runtime_copy(NvmFileRuntime *c,uint32_t src,uint32
     NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(!fr_live(c,src) || !fr_empty(c,dst) || c->values[src].view.owning || c->values[src].view.formal)
         return fr_error(c,NVM_FILE_RUNTIME_TYPE,NL_FILE_VALUE_TYPE);
-    c->values[dst].view=c->values[src].view;return NVM_FILE_RUNTIME_OK;
+    c->values[dst]=c->values[src];return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_move(NvmFileRuntime *c,uint32_t src,uint32_t dst) {
     NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
@@ -242,7 +248,9 @@ NvmFileRuntimeStatus nvm_file_runtime_move(NvmFileRuntime *c,uint32_t src,uint32
         c->busy=true;NlFileValueStatus core=nl_file_value_move(c->files,&c->values[src].owner,&c->values[dst].owner);c->busy=false;
         if(core!=NL_FILE_VALUE_OK)return fr_core(c,core);
     }
-    c->values[dst].view=c->values[src].view;fr_clear(c,src);return NVM_FILE_RUNTIME_OK;
+    c->values[dst].view=c->values[src].view;
+    c->values[dst].callable_plan=c->values[src].callable_plan;
+    c->values[dst].callable_target=c->values[src].callable_target;fr_clear(c,src);return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_drop(NvmFileRuntime *c,uint32_t root) {
     NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
@@ -485,7 +493,7 @@ NvmFileRuntimeStatus nvm_file_runtime_service(NvmFileRuntime *c,uint32_t import,
 }
 NvmFileRuntimeStatus nvm_file_runtime_complete_root(NvmFileRuntime *c,uint32_t root) {
     NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
-    if(c->kind==FR_CYCLIC) {
+    if(c->kind!=FR_ACYCLIC) {
         NvmFileCodeInstruction in;NvmFileBodyInstruction fact;
         FileRuntimeFrame *f=&c->frames[c->frame_count-1];
         if(c->frame_count!=1 || !fr_instruction(c,f->function,(uint16_t)f->instruction,f->variant,&in,&fact) ||
@@ -582,6 +590,7 @@ NvmFileRuntimeReport nvm_file_runtime_destroy(NvmFileRuntime **address,NvmFileRu
 
 #include "file_runtime_frames.inc"
 #include "file_cyclic_runtime.inc"
+#include "file_indirect_runtime.inc"
 
 #if defined(NVM_FILE_NATIVE_PRIVATE) || defined(NVM_FILE_PUBLIC_ENGINE)
 #include "file_native_abi.h"

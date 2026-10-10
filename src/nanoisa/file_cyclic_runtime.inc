@@ -6,8 +6,14 @@ static bool frc_zero(NlFileValue a) { return !a.invocation && !a.generation && !
 static NvmFileRuntimeStatus frc_bad(NvmFileRuntime *c) {
     return fr_error(c,NVM_FILE_RUNTIME_STATE,NL_FILE_VALUE_STATE);
 }
-static bool frc_payload(const FileRuntimeValue *v) {
+static bool frc_payload(const NvmFileRuntime *c,const FileRuntimeValue *v) {
     const NvmFileRuntimeView *p=&v->view;
+    if(p->initialized && p->type.tag==TAG_FUNCTION)
+        return c->kind==FR_INDIRECT && !p->owning && !p->formal && !p->fields &&
+            p->arm==NVM_FILE_FLOW_ARM_NONE && fr_same(p->type,fr_scalar_type(TAG_FUNCTION)) &&
+            !v->reference && frc_zero(v->owner) && v->callable_plan==c->indirect_plan &&
+            v->callable_target<c->startup.functions;
+    if(v->callable_plan || v->callable_target)return false;
     if(!p->initialized) {
         if(!frc_zero(v->owner) || v->reference || p->owning || p->formal || p->fields ||
            p->arm || p->type.tag || p->type.mode || p->type.global_index ||
@@ -48,7 +54,7 @@ static bool frc_payload(const FileRuntimeValue *v) {
 static bool frc_value(NvmFileRuntime *c,uint32_t root,NvmFileFlowValue expected) {
     if(root>=c->storage.values)return false;
     const FileRuntimeValue *v=&c->values[root];
-    if(!frc_payload(v) || v->view.initialized!=expected.initialized)return false;
+    if(!frc_payload(c,v) || v->view.initialized!=expected.initialized)return false;
     if(!expected.initialized)return !expected.owner;
     if(!frf_matches(v->view,expected.type))return false;
     NvmFileFlowArm actual=v->view.arm;
@@ -77,7 +83,7 @@ static bool frc_reference_empty(const FileRuntimeReference *r) {
 static bool frc_frame(NvmFileRuntime *c,const FileRuntimeFrame *f,uint32_t region_end) {
     NvmFileCyclicVariant fact;NvmFileHostedFunction fn;
     if(!fr_function(c,f->function,&fn) || f->instruction>UINT16_MAX ||
-       !nvm_file_cyclic_hosted_variant(c->cyclic_plan,f->function,(uint16_t)f->instruction,f->variant,&fact) ||
+       !fr_variant(c,f->function,(uint16_t)f->instruction,f->variant,&fact) ||
        !fact.body.reachable || fact.input.locals!=fn.locals || f->stack_count>fn.operand_peak ||
        (!f->waiting && f->stack_count!=fact.input.stack) ||
        (f->waiting && f->stack_count>fact.input.stack) ||
@@ -88,30 +94,31 @@ static bool frc_frame(NvmFileRuntime *c,const FileRuntimeFrame *f,uint32_t regio
        region_end-f->region_base!=fact.input.regions)return false;
     if(f->waiting) {
         NvmFileCodeInstruction in;
-        if(!nvm_file_cyclic_hosted_instruction(c->cyclic_plan,f->function,(uint16_t)f->instruction,&in) ||
-           (in.decoded.opcode!=OP_CALL && (in.decoded.opcode!=OP_CALL_REF && in.decoded.opcode!=OP_FILE_CALL_REFS)) || !fact.body.has_obligation ||
-           (uint32_t)f->stack_count+fact.body.obligation.parameters-fact.body.obligation.borrowed_inputs!=fact.input.stack)
+        if(!fr_code(c,f->function,(uint16_t)f->instruction,&in) ||
+           !fr_call_target(c,f,&in,f->selected_target) || !fact.body.has_obligation ||
+           (uint32_t)f->stack_count+fact.body.obligation.parameters-fact.body.obligation.borrowed_inputs+
+               (in.decoded.opcode==OP_CALL_INDIRECT?1u:0u)!=fact.input.stack)
             return false;
     }
     memset(c->witness,0,sizeof *c->witness);
     for(uint16_t i=0;i<fn.locals;i++) {
         NvmFileFlowValue v;
-        if(!nvm_file_cyclic_hosted_input_local(c->cyclic_plan,f->function,(uint16_t)f->instruction,f->variant,i,&v) ||
+        if(!fr_input_local(c,f->function,(uint16_t)f->instruction,f->variant,i,&v) ||
            !frc_value(c,f->locals_base+i,v))return false;
     }
     for(uint16_t i=0;i<f->stack_count;i++) {
         NvmFileFlowValue v;
-        if(!nvm_file_cyclic_hosted_input_stack(c->cyclic_plan,f->function,(uint16_t)f->instruction,f->variant,i,&v) ||
+        if(!fr_input_stack(c,f->function,(uint16_t)f->instruction,f->variant,i,&v) ||
            !frc_value(c,f->stack_base+i,v))return false;
     }
     for(uint16_t i=0;i<fact.input.regions;i++) {
         uint64_t abstract;
-        if(!nvm_file_cyclic_hosted_input_region(c->cyclic_plan,f->function,(uint16_t)f->instruction,f->variant,i,&abstract) ||
+        if(!fr_input_region(c,f->function,(uint16_t)f->instruction,f->variant,i,&abstract) ||
            abstract!=UINT64_C(513)+i || !c->regions[f->region_base+i])return false;
     }
     for(uint16_t i=0;i<NVM_FILE_FLOW_REFERENCES;i++) {
         NvmFileFlowReference expected;const FileRuntimeReference *r=&c->references[f->reference_base+i];
-        if(!nvm_file_cyclic_hosted_input_reference(c->cyclic_plan,f->function,(uint16_t)f->instruction,f->variant,i,&expected))return false;
+        if(!fr_input_reference(c,f->function,(uint16_t)f->instruction,f->variant,i,&expected))return false;
         if(!expected.live){if(!frc_reference_empty(r))return false;continue;}
         if(!r->live || expected.formal!=r->formal || expected.shared!=r->shared || !fr_reference(c,f->reference_base+i) ||
            nl_file_value_borrow_validate(c->files,&r->borrow)!=NL_FILE_VALUE_OK ||
@@ -136,14 +143,14 @@ static bool frc_frame(NvmFileRuntime *c,const FileRuntimeFrame *f,uint32_t regio
     return true;
 }
 static NvmFileRuntimeStatus frc_validate(NvmFileRuntime *c,const FileRuntimeFrame *current) {
-    if(c->kind!=FR_CYCLIC || !c->witness || !c->frame_count ||
+    if(c->kind==FR_ACYCLIC || !c->witness || !c->frame_count ||
        c->frame_count>c->storage.frames || c->region_count>c->storage.regions || !c->acquired || !c->files)return frc_bad(c);
     bool slots[NL_FILE_VALUE_SLOTS]={0};uint64_t rooted=0,borrowed=0;
     /* Every owning root, including waiting callers, has a unique live core slot.
      * The full generation/type check prevents stale same-slot aliases. */
     for(uint32_t root=0;root<c->storage.values;root++) {
         FileRuntimeValue *v=&c->values[root];
-        if(!frc_payload(v))return frc_bad(c);
+        if(!frc_payload(c,v))return frc_bad(c);
         if(v->view.initialized) {
             bool covered=false;
             for(uint16_t d=0;d<c->frame_count;d++) {
@@ -190,8 +197,9 @@ static NvmFileRuntimeStatus frc_validate(NvmFileRuntime *c,const FileRuntimeFram
            f->reference_base!=layout.reference_base || (d==0 && f->region_base))return frc_bad(c);
         if(d+1<c->frame_count) {
             NvmFileCodeInstruction call;
-            if(!nvm_file_cyclic_hosted_instruction(c->cyclic_plan,f->function,(uint16_t)f->instruction,&call) ||
-               call.decoded.operands[0].u32!=c->frames[d+1].function)return frc_bad(c);
+            if(!fr_code(c,f->function,(uint16_t)f->instruction,&call) ||
+               !fr_call_target(c,f,&call,c->frames[d+1].function) ||
+               f->selected_target!=c->frames[d+1].function)return frc_bad(c);
         }
         base=(uint64_t)f->stack_base+(c->mode==NVM_FILE_RUNTIME_VM?f->stack_count:fn.operand_peak);
         uint32_t end=d+1==c->frame_count?c->region_count:c->frames[d+1].region_base;
@@ -208,8 +216,7 @@ bool nvm_file_runtime_cyclic_frame_view(const NvmFileRuntime *c,NvmFileCyclicFra
     const FileRuntimeFrame *f=&c->frames[c->frame_count-1];
     *out=(NvmFileCyclicFrameView){NVM_FILE_CYCLIC_RUNTIME_REVISION,frame,f->variant,f->instruction_open};return true;
 }
-NvmFileRuntimeStatus nvm_file_runtime_cyclic_enter(NvmFileRuntime *c) {
-    if(!c || c->kind!=FR_CYCLIC)return NVM_FILE_RUNTIME_INVALID;
+static NvmFileRuntimeStatus frc_enter(NvmFileRuntime *c) {
     NvmFileRuntimeStatus status=fr_ready(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     NvmFileHostedFunction fn;NvmFileCodeInstruction in;NvmFileBodyInstruction fact;
     if(!frf_current(c,&fn,&in,&fact))return frc_bad(c);
@@ -222,6 +229,10 @@ NvmFileRuntimeStatus nvm_file_runtime_cyclic_enter(NvmFileRuntime *c) {
         c->fuel_exhausted=true;return fr_error(c,NVM_FILE_RUNTIME_LIMIT,NL_FILE_VALUE_LIMIT);
     }
     c->instructions_started++;f->instruction_open=true;return NVM_FILE_RUNTIME_OK;
+}
+NvmFileRuntimeStatus nvm_file_runtime_cyclic_enter(NvmFileRuntime *c) {
+    if(!c || c->kind!=FR_CYCLIC)return NVM_FILE_RUNTIME_INVALID;
+    return frc_enter(c);
 }
 static NvmFileCyclicExecutionReport frc_report(const NvmFileRuntime *c,NvmFileRuntimeReport r) {
     return (NvmFileCyclicExecutionReport){NVM_FILE_CYCLIC_RUNTIME_REVISION,r,
