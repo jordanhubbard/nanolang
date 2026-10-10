@@ -1,4 +1,4 @@
-from "src_nano/compiler/generic_types.nano" import generic_type_variable
+import "src_nano/compiler/generic_types.nano"
 from "src_nano/compiler/passive_graph.nano" import passive_order
 from "src_nano/compiler/passive_purity.nano" import par_closed_call
 /* =============================================================================
@@ -4628,7 +4628,7 @@ shadow check_callable_value_call {
 fn tc_generic_function(parser: Parser, sym: Symbol) -> bool {
     let mut i: int = 0
     while (< i sym.param_count) {
-        if (generic_type_variable parser (type_to_string (at sym.param_types i))) { return true }
+        if (generic_type_contains_variable parser (type_to_string (at sym.param_types i))) { return true }
         set i (+ i 1)
     }
     return false
@@ -4653,21 +4653,15 @@ fn tc_generic_call(parser: Parser, sym: Symbol, start: int, count: int, line: in
         let spelling: string = (type_to_string expected)
         let argument: ASTStmtRef = (parser_get_call_arg parser (+ start i))
         let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
-        if (generic_type_variable parser spelling) {
+        if (generic_type_contains_variable parser spelling) {
             let actual: string = (type_to_string raw)
-            let mut binding: int = -1
-            let mut j: int = 0
-            while (< j (array_length names)) {
-                if (== (at names j) spelling) { set binding j }
-                set j (+ j 1)
-            }
-            if (== raw.kind TypeKind.TYPE_UNKNOWN) {
-                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a known generic argument type." location))
-            } else if (< binding 0) {
-                set names (array_push names spelling)
-                set types (array_push types actual)
-            } else if (!= (at types binding) actual) {
-                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one concrete identity for each generic type variable." location))
+            let prior: GenericBindings = GenericBindings {names: names, types: types, valid: true}
+            let bound: GenericBindings = (generic_bind_type parser spelling actual prior)
+            if (or (== raw.kind TypeKind.TYPE_UNKNOWN) (not bound.valid)) {
+                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one concrete identity and matching structure for each generic type variable." location))
+            } else {
+                set names bound.names
+                set types bound.types
             }
         } else {
             let hinted: NSType = (apply_value_type_hint parser argument.node_id argument.node_type raw expected)

@@ -1,0 +1,14 @@
+seed:
+/Users/jordanh/Src/nanolang/modules/compiler_support/.build/.nano-gen-kj9zG9/libcompiler_support.dylib
+/Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-SiCqQF/libfile_product.dylib
+/Users/jordanh/Src/nanolang/modules/file_source_catalog/.build/.nano-gen-yysFHF/libfile_source_catalog.dylib
+/Users/jordanh/Src/nanolang/modules/file_source_inputs/.build/.nano-gen-kULCM0/libfile_source_inputs.dylib
+/Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-3knt0o/libnanoisa.dylib
+/Users/jordanh/Src/nanolang/modules/std/.build/.nano-gen-QMeD6V/libstd.dylib
+stage1:
+/Users/jordanh/Src/nanolang/modules/compiler_support/.build/.nano-gen-kj9zG9/libcompiler_support.dylib
+/Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-SiCqQF/libfile_product.dylib
+/Users/jordanh/Src/nanolang/modules/file_source_catalog/.build/.nano-gen-yysFHF/libfile_source_catalog.dylib
+/Users/jordanh/Src/nanolang/modules/file_source_inputs/.build/.nano-gen-kULCM0/libfile_source_inputs.dylib
+/Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-3knt0o/libnanoisa.dylib
+/Users/jordanh/Src/nanolang/modules/std/.build/.nano-gen-074Huh/libstd.dylib

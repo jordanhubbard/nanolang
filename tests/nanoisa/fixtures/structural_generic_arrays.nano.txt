@@ -1,0 +1,22 @@
+struct Box { value:int }
+fn first(values:array<T>)->T{return (at values 0)}
+shadow first {assert (== (first [3]) 3)}
+fn copy(values:array<T>)->array<T>{let result:array<T> = values return result}
+shadow copy {assert (== (at (copy [3]) 0) 3)}
+fn combine(values:array<T>, value:T)->T{return value}
+shadow combine {assert (== (combine [1] 2) 2)}
+fn second(left:array<T>, right:array<E>)->E{return (at right 0)}
+shadow second {assert (== (second [true] [9]) 9)}
+fn main()->int {
+ assert (== (first [3,4]) 3)
+ assert (== (first [true,false]) true)
+ assert (== (first ["one","two"]) "one")
+ assert (== (first (first (first [[[7]]]))) 7)
+ let box:Box = (first [Box {value:11}])
+ assert (== box.value 11)
+ assert (== (at (copy [2.5]) 0) 2.5)
+ assert (== (combine [false] true) true)
+ assert (== (second [1] ["text"]) "text")
+ return 0
+}
+shadow main {assert (== (main) 0)}

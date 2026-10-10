@@ -59,6 +59,25 @@ class SelfhostGenericFunctions(unittest.TestCase):
                     c, ROOT / 'bin/nano_aot_runtime.o', '-lm', '-o', binary])
                 self.command([binary])
 
+    def test_structural_callable_parameters(self):
+        self.execute((ROOT/'tests/nanoisa/fixtures/structural_generic_callable.nano.txt').read_text())
+
+    def test_structural_array_parameters(self):
+        self.execute((ROOT/'tests/nanoisa/fixtures/structural_generic_arrays.nano.txt').read_text())
+    def test_structural_array_minimum(self):
+        self.execute((ROOT/'docs/evidence/structural-generic-baseline-20261010/array-parameter.nano').read_text())
+    def test_structural_shape_and_identity_refusals(self):
+        for argument in ('true','[true]'):
+            source='fn combine(values:array<T>,value:T)->T{return value}\nshadow combine {assert (== (combine [1] 2) 2)}\nfn main()->int{return (combine [1] '+argument+')}\nshadow main {assert (== (main) 0)}\n'
+            with self.subTest(argument=argument), tempfile.TemporaryDirectory() as tmp:
+                path=Path(tmp)/'main.nano';path.write_text(source)
+                result=subprocess.run([self.drivers['checker'],path],capture_output=True,text=True,timeout=120)
+                self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+                for mode in ('whole','program','raw'):
+                    result=subprocess.run([self.drivers['emitter'],path,'0',mode],capture_output=True,text=True,timeout=120)
+                    self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+                    self.assertIn('one concrete identity',result.stdout+result.stderr)
+
     test_retained_record_result_regression = cases.CseedGenericFunctions.test_retained_record_result_regression
     test_primitive_generic_fixture = cases.CseedGenericFunctions.test_primitive_generic_fixture
     test_typed_locals_transitive_calls_and_recursion = cases.CseedGenericFunctions.test_typed_locals_transitive_calls_and_recursion

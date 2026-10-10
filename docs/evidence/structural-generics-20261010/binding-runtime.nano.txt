@@ -169,3 +169,24 @@ shadow generic_bind_type {
     assert (not (generic_bind_type parser "T" "int,bool" empty).valid)
     assert (generic_bind_type parser "T" "fn(int)->array<bool>" empty).valid
 }
+
+fn main() -> int {
+    let tokens: List<LexerToken> = (tokenize_string "struct A {value:int}" "generic.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "generic.nano")
+    let empty: GenericBindings = GenericBindings { names: [], types: [], valid: true }
+    let nested: GenericBindings = (generic_bind_type parser "Pair<T,array<E>>" "Pair<array<int>,array<bool>>" empty)
+    assert nested.valid
+    assert (== (array_length empty.names) 0)
+    assert (== (array_length empty.types) 0)
+    assert (== (at nested.types 0) "array<int>")
+    assert (== (at nested.types 1) "bool")
+    let callback: GenericBindings = (generic_bind_type parser "fn(T)->array<T>" "fn(int)->array<int>" empty)
+    assert callback.valid
+    assert (not (generic_bind_type parser "fn(T)->T" "fn(int)->bool" empty).valid)
+    assert (not (generic_bind_type parser "array<T>" "List<int>" empty).valid)
+    assert (not (generic_bind_type parser "array<A>" "array<int>" empty).valid)
+    assert (not (generic_bind_type parser "T" "int,bool" empty).valid)
+    assert (generic_bind_type parser "T" "fn(int)->array<bool>" empty).valid
+ return 0
+}
+shadow main { assert (== (main) 0) }

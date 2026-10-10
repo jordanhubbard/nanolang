@@ -1,4 +1,4 @@
-from "src_nano/compiler/generic_types.nano" import generic_type_variable
+import "src_nano/compiler/generic_types.nano"
 from "src_nano/compiler/function_signature.nano" import function_type_parts
 from "src_nano/compiler/owner_selection.nano" import nanoisa_selected_ownership
 from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
@@ -57,7 +57,7 @@ fn nisa_generic_function(parser: Parser, function: ASTFunction) -> bool {
     if (< function.body 0) { return false }
     let mut i: int = 0
     while (< i function.param_count) {
-        if (generic_type_variable parser (parser_get_let parser (+ function.param_start i)).var_type) { return true }
+        if (generic_type_contains_variable parser (parser_get_let parser (+ function.param_start i)).var_type) { return true }
         set i (+ i 1)
     }
     return false
@@ -94,26 +94,21 @@ fn nisa_generic_bind(parser: Parser, call: ASTCall, index: int) -> int {
     let mut i: int = 0
     while (< i function.param_count) {
         let formal: string = (parser_get_let parser (+ function.param_start i)).var_type
-        if (generic_type_variable parser formal) {
+        if (generic_type_contains_variable parser formal) {
             let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
             let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
             if (or (== actual "void") (not (nisa_type_ok parser actual))) {
                 let _: string = (nisa_fail "I require a concrete supported generic argument")
                 return -1
             }
-            let mut prior: int = -1
-            let mut j: int = 0
-            while (< j (array_length variables)) {
-                if (== (at variables j) formal) { set prior j }
-                set j (+ j 1)
-            }
-            if (< prior 0) {
-                set variables (array_push variables formal)
-                set types (array_push types actual)
-            } else if (!= (at types prior) actual) {
-                let _: string = (nisa_fail "I require one concrete identity for each generic type variable")
+            let prior: GenericBindings = GenericBindings {names: variables, types: types, valid: true}
+            let bound: GenericBindings = (generic_bind_type parser formal actual prior)
+            if (not bound.valid) {
+                let _: string = (nisa_fail "I require one concrete identity and matching structure for each generic type variable")
                 return -1
             }
+            set variables bound.names
+            set types bound.types
         }
         set i (+ i 1)
     }
