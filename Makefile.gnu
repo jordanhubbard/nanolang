@@ -4191,7 +4191,7 @@ coverage-check: coverage.info
 	fi
 
 # Install binaries
-install: $(COMPILER) vm nvm2c install-resolver install-file-public-runtime install-socket-public-runtime install-services-public-runtime
+install: $(COMPILER) vm nvm2c install-resolver install-websocket-public-runtime install-file-public-runtime install-socket-public-runtime install-services-public-runtime
 	install -d $(PREFIX)/bin
 	install -m 755 $(COMPILER) $(PREFIX)/bin/nanoc
 	install -m 755 bin/nano_virt $(PREFIX)/bin/nano_virt
@@ -6562,3 +6562,73 @@ test-service-strings: $(COMPILER_C) nano_virt nano_vm nvm2c
 	NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_service_strings
 
 test-units: test-service-strings
+
+# I install my explicit WebSocket grants and matched public providers.
+WEBSOCKET_PUBLIC_LIBRARY = lib/libnano_websocket_runtime.a
+WEBSOCKET_PUBLIC_STEMS = $(FILE_PUBLIC_QUERY_STEMS) utf8 nanoisa/websocket_flow nanoisa/websocket_codec \
+ nanoisa/service_websocket_nominal nanoisa/service_websocket_nominal_plan nanoisa/websocket_runtime \
+ nanoisa/file_host_grant nanoisa/websocket_host_grant nanoisa/websocket_indirect_public_native \
+ nanoisa/websocket_indirect_public_abi nanovm/websocket_indirect_public_vm nsi_cap nsi_socket \
+ nsi_socket_resolver nsi_websocket_plan nsi_websocket_values nsi_websocket_transport nsi_websocket_protocol
+WEBSOCKET_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(WEBSOCKET_PUBLIC_STEMS)))
+WEBSOCKET_PUBLIC_HEADERS = nanoisa/generated_schema.h \
+ nanoisa/isa.h \
+ nanoisa/nvm_format.h \
+ nanoisa/nvm_format_v2.h \
+ nanoisa/nvm_v2_sections.h \
+ nanoisa/service_bindings.h \
+ nanoisa/service_websocket_nominal.h \
+ nanoisa/websocket_body.h \
+ nanoisa/websocket_code.h \
+ nanoisa/websocket_cyclic.h \
+ nanoisa/websocket_flow.h \
+ nanoisa/websocket_host_grant.h \
+ nanoisa/websocket_host_grant_internal.h \
+ nanoisa/websocket_hosted.h \
+ nanoisa/websocket_indirect_flow.h \
+ nanoisa/websocket_indirect_hosted.h \
+ nanoisa/websocket_indirect_native_abi.h \
+ nanoisa/websocket_indirect_native_public.h \
+ nanoisa/websocket_indirect_public.h \
+ nanoisa/websocket_indirect_public_internal.h \
+ nanoisa/websocket_indirect_report.h \
+ nanoisa/websocket_indirect_runtime.h \
+ nanoisa/websocket_indirect_targets.h \
+ nanoisa/websocket_public.h \
+ nanoisa/websocket_public_internal.h \
+ nanoisa/websocket_runtime.h \
+ nanoisa/websocket_runtime_frames.h \
+ nsi_websocket_transport.h \
+ nsi_websocket_values.h
+.PHONY: websocket-public-runtime install-websocket-public-runtime
+websocket-public-runtime: $(WEBSOCKET_PUBLIC_LIBRARY) $(addprefix $(SRC_DIR)/,$(WEBSOCKET_PUBLIC_HEADERS))
+$(WEBSOCKET_PUBLIC_OBJECTS): $(addprefix $(SRC_DIR)/,$(WEBSOCKET_PUBLIC_HEADERS))
+$(WEBSOCKET_PUBLIC_LIBRARY): $(WEBSOCKET_PUBLIC_OBJECTS) Makefile.gnu
+	@mkdir -p "$(@D)"
+	@set -e; websocket_archive_dir=$$(mktemp -d "$(@D)/.websocket-runtime.XXXXXX"); \
+	trap 'rm -rf "$$websocket_archive_dir"' EXIT; \
+	$(AR) rcs "$$websocket_archive_dir/runtime.a" $(WEBSOCKET_PUBLIC_OBJECTS); \
+	mv "$$websocket_archive_dir/runtime.a" "$@"
+$(OBJ_DIR)/nanovm/websocket_indirect_public_vm.o: $(SRC_DIR)/nanovm/service_vm_indirect_engine.inc $(NANOISA_DIR)/service_indirect_dispatch.inc $(NANOISA_DIR)/websocket_dispatch_config.h
+$(OBJ_DIR)/nanoisa/websocket_indirect_public_native.o: $(NANOISA_DIR)/service_indirect_native_emit.inc $(NANOISA_DIR)/service_indirect_dispatch.inc $(NANOISA_DIR)/websocket_dispatch_config.h
+install-websocket-public-runtime: websocket-public-runtime
+	install -d "$(PREFIX)/lib"
+	install -m 644 "$(WEBSOCKET_PUBLIC_LIBRARY)" "$(PREFIX)/lib/libnano_websocket_runtime.a"
+	@set -e; for header in $(WEBSOCKET_PUBLIC_HEADERS); do \
+		install -d "$(PREFIX)/include/nanolang/websocket/$$(dirname "$$header")"; \
+		install -m 644 "$(SRC_DIR)/$$header" "$(PREFIX)/include/nanolang/websocket/$$header"; \
+	done
+
+WEBSOCKET_PUBLIC_TEST_PREFIX ?= $(CURDIR)/obj/websocket-public-test-install
+.PHONY: test-websocket-public
+test-websocket-public: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(BIN_DIR)/nano-resolver websocket-public-runtime
+	$(MAKE) -f Makefile.gnu CC="$(CC)" PREFIX="$(WEBSOCKET_PUBLIC_TEST_PREFIX)" install-websocket-public-runtime
+	$(CC) -std=c99 -Wall -Wextra -Werror -I"$(WEBSOCKET_PUBLIC_TEST_PREFIX)/include" tests/nanoisa/test_websocket_public_grant.c "$(WEBSOCKET_PUBLIC_TEST_PREFIX)/lib/libnano_websocket_runtime.a" $(LDFLAGS) -pthread -o $(OBJ_DIR)/test_websocket_public_grant
+	$(OBJ_DIR)/test_websocket_public_grant
+	NANO_WEBSOCKET_CC="$(CC)" NANO_WEBSOCKET_CFLAGS="$(CFLAGS)" WEBSOCKET_DISPATCH_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" WEBSOCKET_DISPATCH_LDFLAGS="$(LDFLAGS)" WEBSOCKET_PUBLIC_TEST_PREFIX="$(WEBSOCKET_PUBLIC_TEST_PREFIX)" python3 -m unittest -f -v tests.test_websocket_public
+
+test-units: test-websocket-public
+
+# I rebuild my providers when their included service implementations change.
+$(OBJ_DIR)/nanoisa/websocket_runtime.o: $(wildcard $(NANOISA_DIR)/service_*runtime*.inc) $(wildcard $(NANOISA_DIR)/websocket_runtime*.inc) $(NANOISA_DIR)/websocket_runtime_config.h
+$(OBJ_DIR)/nanoisa/websocket_flow.o: $(wildcard $(NANOISA_DIR)/service_*.inc) $(wildcard $(NANOISA_DIR)/websocket_*.h)

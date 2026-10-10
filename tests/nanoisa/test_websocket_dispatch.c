@@ -68,7 +68,7 @@ int main(int argc,char **argv) {
         free(bytes);return 0;
     }
     CHECK(argc==6 && !strcmp(argv[1],"vm"));size_t size;uint8_t *bytes=read_file(argv[2],&size);
-    NvmWebSocketIndirectOptions options={1,strtoull(argv[3],NULL,10)};NlWsTransportPolicy policy={atoi(argv[4])!=0,true,getenv("NANOLANG_RESOLVER"),2000};
+    NvmWebSocketIndirectOptions options={1,strtoull(argv[3],NULL,10)};NlWsTransportPolicy policy={atoi(argv[4])!=0,atoi(argv[4])!=2,getenv("NANOLANG_RESOLVER"),2000};
     fail_close=atoi(argv[5])!=0;NvmWebSocketRuntimeView out={.fields=99,.values={12345}};
     NvmWebSocketIndirectExecutionReport r=nvm_websocket_vm_indirect_execute(bytes,size,&options,&out,atoi(argv[4])<0?NULL:&policy);free(bytes);report(r,out);return 0;
 }

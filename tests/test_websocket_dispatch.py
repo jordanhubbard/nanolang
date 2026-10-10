@@ -17,6 +17,15 @@ ROOT = peers.ROOT
 
 
 class WebSocketDispatch(unittest.TestCase):
+    fixture_source = "tests/nanoisa/test_websocket_dispatch.c"
+    dispatch_sources = ["src/nanovm/websocket_vm_indirect_private.c", "src/nanoisa/nvm2c_websocket_indirect_private.c"]
+    extra_sources = []
+    include_flags = []
+    policy_expression = "runtime_policy(c,policy)"
+
+    def driver_source(self, private_source):
+        return private_source
+
     def command(self, name, args):
         (self.artifacts / (name + "-command.txt")).write_text(shlex.join(args) + "\n")
         result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True, timeout=180,
@@ -81,7 +90,7 @@ class WebSocketDispatch(unittest.TestCase):
         self.addCleanup(cleanup)
         return listener.getsockname()[1], messages
 
-    def test_vm_and_generated_native(self):
+    def build_fixture(self):
         self.artifacts = Path(tempfile.mkdtemp(prefix="nano-websocket-dispatch-"))
         print("I retain WebSocket dispatch artifacts at", self.artifacts, flush=True)
         compiler = shlex.split(os.environ.get("NANO_WEBSOCKET_CC", "cc"))
@@ -90,6 +99,7 @@ class WebSocketDispatch(unittest.TestCase):
                   "-DNVM_WEBSOCKET_INDIRECT_VM_PRIVATE", "-DNVM_WEBSOCKET_INDIRECT_NATIVE_PRIVATE"]
         if os.environ.get("NANO_WEBSOCKET_SANITIZERS", "1") != "0":
             flags += ["-fsanitize=address,undefined", "-fno-omit-frame-pointer"]
+        flags += self.include_flags
         flags += shlex.split(subprocess.check_output(["pkg-config", "--cflags", "openssl"], text=True))
         ordinary = shlex.split(os.environ["WEBSOCKET_DISPATCH_OBJECTS"])
         ldflags = shlex.split(os.environ.get("WEBSOCKET_DISPATCH_LDFLAGS", "-lm"))
@@ -98,34 +108,37 @@ class WebSocketDispatch(unittest.TestCase):
         for source in ["src/nanoisa/websocket_flow.c", "src/nanoisa/websocket_codec.c", "src/nanoisa/websocket_runtime.c",
                        "src/nanoisa/service_websocket_nominal.c", "src/nanoisa/service_websocket_nominal_plan.c",
                        "src/nsi_websocket_plan.c", "src/nsi_websocket_values.c", "src/nsi_websocket_transport.c",
-                       "src/nsi_websocket_protocol.c", "src/nsi_socket.c", "src/nsi_socket_resolver.c", "src/nsi_cap.c"]:
+                       "src/nsi_websocket_protocol.c", "src/nsi_socket.c", "src/nsi_socket_resolver.c", "src/nsi_cap.c"] + self.extra_sources:
             obj = self.artifacts / (Path(source).stem + ".o")
             hooks = ["-include", "tests/nanoisa/websocket_dispatch_hooks.h", "-Dsocket=websocket_dispatch_socket", "-Dclose=websocket_dispatch_close"] if Path(source).stem == "nsi_socket" else []
             self.command(obj.stem + "-build", [*compiler, *flags, *hooks, "-c", source, "-o", str(obj)])
             providers.append(str(obj))
         fixture = self.artifacts / "fixture"
-        self.command("fixture-build", [*compiler, *flags, "tests/nanoisa/test_websocket_dispatch.c",
-            "src/nanovm/websocket_vm_indirect_private.c", "src/nanoisa/nvm2c_websocket_indirect_private.c",
+        self.command("fixture-build", [*compiler, *flags, self.fixture_source, *self.dispatch_sources,
             *providers, *ordinary, *ldflags, "-o", str(fixture)])
+        return compiler, flags, ordinary, ldflags, providers, fixture
+
+    def test_vm_and_generated_native(self):
+        compiler, flags, ordinary, ldflags, providers, fixture = self.build_fixture()
         self.bad_reply = False
         port, messages = self.server()
         driver = self.artifacts / "driver.c"
-        driver.write_text('''#include "src/nanoisa/nvm2c_websocket_indirect_private.h"
+        driver.write_text(self.driver_source('''#include "src/nanoisa/nvm2c_websocket_indirect_private.h"
 #include <stdlib.h>
 #include "tests/nanoisa/websocket_dispatch_host.h"
 int main(int argc,char **argv){if(argc!=4)return 2;
  NvmWebSocketIndirectOptions options={1,strtoull(argv[1],NULL,10)};
- NlWsTransportPolicy policy={atoi(argv[2])!=0,true,getenv("NANOLANG_RESOLVER"),2000};
+ NlWsTransportPolicy policy={atoi(argv[2])!=0,atoi(argv[2])!=2,getenv("NANOLANG_RESOLVER"),2000};
  fail_close=atoi(argv[3])!=0;NvmWebSocketRuntimeView out={.fields=99,.values={12345}};
  NvmWebSocketIndirectExecutionReport r=nvm_websocket_native_indirect_execute(&options,&out,atoi(argv[2])<0?NULL:&policy);report(r,out);return 0;}
-''')
+'''))
         for case in range(3):
             self.command("emit-" + str(case), [str(fixture), "emit", str(self.artifacts), str(port), str(case)])
             wire = self.artifacts / f"case-{case}.nvm"
             source = self.artifacts / f"case-{case}.c"
             text = source.read_text()
             self.assertIn("nf_function_", text)
-            self.assertIn("runtime_policy(c,policy)", text)
+            self.assertIn(self.policy_expression, text)
             self.assertNotIn("fvm_step", text)
             vm_cmd = [str(fixture), "vm", str(wire)]
             for optimization in ("-O0", "-O2"):

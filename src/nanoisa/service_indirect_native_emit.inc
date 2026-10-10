@@ -467,7 +467,7 @@ static SERVICE_TYPE(RuntimeStatus) file_indirect_native_emit_serialized(const ui
     for(uint32_t f=0;f<startup.functions;f++)fn_function(&b,plan,f);
     if(surface==FNE_PUBLIC)fn_text(&b,
         "static " SERVICE_TYPE_TEXT "IndirectExecutionReport nf_execute(const " SERVICE_TYPE_TEXT "IndirectOptions *options," SERVICE_TYPE_TEXT "RuntimeView *out%s){\n",
-        SERVICE_PUBLIC_INSTANCE_GRANTS?", " SERVICE_TYPE_TEXT "HostGrant *grant":"");
+        (SERVICE_PUBLIC_INSTANCE_GRANTS || SERVICE_EXPLICIT_POLICY)?", " SERVICE_TYPE_TEXT "HostGrant *grant":"");
     else fn_text(&b,
         "" SERVICE_TYPE_TEXT "IndirectExecutionReport " SERVICE_FN_TEXT "native_indirect_execute(const " SERVICE_TYPE_TEXT "IndirectOptions *options," SERVICE_TYPE_TEXT "RuntimeView *out%s){\n",
         SERVICE_EXPLICIT_POLICY?",const NlWsTransportPolicy *policy":"");
@@ -482,9 +482,13 @@ static SERVICE_TYPE(RuntimeStatus) file_indirect_native_emit_serialized(const ui
     if(surface==FNE_PUBLIC && SERVICE_PUBLIC_INSTANCE_GRANTS)fn_text(&b,"%s",
         "status=" SERVICE_FN_TEXT "public_grant_status(" SERVICE_FN_TEXT "host_authorize(grant," SERVICE_FN_TEXT "runtime_indirect_plan(c)));\n"
         "if(status!=" SERVICE_CONST_TEXT "RUNTIME_OK){(void)" SERVICE_FN_TEXT "runtime_indirect_destroy(&c,NULL);return nf_refused(status,options); }\n");
-    if(SERVICE_EXPLICIT_POLICY)fn_text(&b,"%s",
-        "status=" SERVICE_FN_TEXT "runtime_policy(c,policy);\n"
-        "if(status!=" SERVICE_CONST_TEXT "RUNTIME_OK){(void)" SERVICE_FN_TEXT "runtime_indirect_destroy(&c,NULL);return nf_refused(status,options); }\n");
+    if(SERVICE_EXPLICIT_POLICY) {
+        if(surface==FNE_PUBLIC)fn_text(&b,"%s",
+            "NlWsTransportPolicy policy;status=" SERVICE_FN_TEXT "public_grant_status(" SERVICE_FN_TEXT "host_policy(grant,&policy));\n"
+            "if(status==" SERVICE_CONST_TEXT "RUNTIME_OK)status=" SERVICE_FN_TEXT "runtime_policy(c,&policy);\n");
+        else fn_text(&b,"%s","status=" SERVICE_FN_TEXT "runtime_policy(c,policy);\n");
+        fn_text(&b,"%s","if(status!=" SERVICE_CONST_TEXT "RUNTIME_OK){(void)" SERVICE_FN_TEXT "runtime_indirect_destroy(&c,NULL);return nf_refused(status,options); }\n");
+    }
     fn_text(&b,"%s","status=" SERVICE_FN_TEXT "runtime_begin(c);\n(void)nf_bits;(void)nf_scalar;\n");
     for(uint32_t f=0;f<startup.functions;f++)fn_text(&b,"(void)nf_function_%u;\n",f);
     if(startup.initializer!=NVM_V2_NO_INDEX)fn_text(&b,
@@ -505,7 +509,7 @@ static SERVICE_TYPE(RuntimeStatus) file_indirect_native_emit_serialized(const ui
         "else {" SERVICE_TYPE_TEXT "IndirectOptions copied=*options;" SERVICE_TYPE_TEXT "RuntimeView view={0};\n"
         "if(!" SERVICE_FN_TEXT "runtime_indirect_public_abi(1u,sizeof copied,sizeof report,sizeof *out))report=" SERVICE_FN_TEXT "indirect_public_refused(" SERVICE_CONST_TEXT "RUNTIME_UNRESOLVED,&copied);\n"
         "else {report=nf_execute(&copied,&view%s);report.runtime=" SERVICE_FN_TEXT "public_publish(report.runtime,&view,out);}}\n"
-        "" SERVICE_FN_TEXT "host_leave();return report;}\n",identifier,SERVICE_PUBLIC_INSTANCE_GRANTS?",grant":"");
+        "" SERVICE_FN_TEXT "host_leave();return report;}\n",identifier,(SERVICE_PUBLIC_INSTANCE_GRANTS || SERVICE_EXPLICIT_POLICY)?",grant":"");
     SERVICE_FN(indirect_hosted_free)(plan);
     result=b.status;
     if(result!=SERVICE_CONST(RUNTIME_OK)) {

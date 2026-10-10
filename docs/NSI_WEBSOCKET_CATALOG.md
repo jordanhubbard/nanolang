@@ -174,6 +174,34 @@ exhaustion and failed close cleanup. Altered import/argument calls refuse before
 socket acquisition. These private paths do not register public source selection
 or grant authority from service declarations.
 
+## Explicit public providers
+
+I expose `nvm_websocket_execute_indirect_bytes` and
+`nvm2c_emit_websocket_indirect_bytes` through an explicit catalog-3 provider.
+`make -f Makefile.gnu install-websocket-public-runtime` installs my C99 headers
+under `include/nanolang/websocket` and `lib/libnano_websocket_runtime.a`.
+Consumers link the archive with their OpenSSL crypto and math libraries.
+Generated C takes a host grant, revision-1 fuel options and scalar output.
+It executes emitted functions without linking my VM or emitter entrypoints.
+
+My host grant copies separate connection and lookup permissions, a 0..60000 ms
+ceiling and an optional absolute resolver-helper path. Lookup permission requires
+that path. Creation performs no I/O. A denied lookup does not affect numeric
+addresses. Revocation prevents later invocations; destruction frees the grant.
+Callers retain ordinary C pointer-lifetime and disjoint-storage obligations.
+
+I serialize grants, public execution and emission through the same process-local
+gate as File/TCP/mixed providers. Concurrent or reentrant calls return BUSY before
+reading their arguments. Execution copies policy into the invocation and publishes
+its scalar only after clean teardown. Direct internal APIs still require trusted
+callers and external serialization.
+
+My installed-provider checks cover denial, separate lookup authority, revocation,
+immutable copied policy, malformed bytes and generated-native isolation. My
+public real-peer suite is implemented but remains unqualified in the current
+sandbox, which refuses localhost bind. This does not enable source catalog
+selection or satisfy release/platform acceptance.
+
 ## Admission boundary
 
 My private invocation carrier in `nsi_websocket_values.[ch]` now owns up to 64
@@ -191,13 +219,11 @@ This C API assumes serialized callers and valid native storage. Its identities
 reject stale/cross-invocation values; they do not protect against arbitrary native
 memory access or establish verified source authority. It has no public binding.
 
-The descriptor and its queries are implemented here. The behaviors above are the
-runtime acceptance contract, not claims that service execution already exists.
-I have not registered this catalog in source selection or the executable binding
-registry. My remaining dependencies are string-bearing runtime fields/results,
-integration of owned WebSocket values and per-instance policy into checked
-execution, verified VM/native dispatch and paired frontend lowering. I must exercise real protocol,
-refusal, fault, cleanup and installed Linux/Darwin paths before public admission.
+My descriptor, owned runtime and explicit checked execution providers are
+implemented. I have not registered this catalog in source selection or the
+executable binding registry. Paired frontend lowering and public real-peer,
+fault/cleanup and installed Linux/Darwin qualification remain required before
+source admission and release acceptance.
 
 My legacy WebSocket integer API stays separate. It cannot fabricate a verified
 `Connection`, and its successful tests do not establish this ownership contract.

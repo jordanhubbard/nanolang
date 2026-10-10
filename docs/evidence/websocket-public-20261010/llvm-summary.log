@@ -1,0 +1,7 @@
+test_installed_consumer (tests.test_websocket_public.WebSocketPublic.test_installed_consumer) ... I retain WebSocket dispatch artifacts at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-websocket-dispatch-_bgf3b6k
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 10.913s
+
+OK

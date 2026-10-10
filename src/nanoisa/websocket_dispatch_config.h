@@ -1,7 +1,7 @@
 #include "websocket_flow_config.h"
 #include "websocket_indirect_runtime.h"
 #define SERVICE_HAS_ENDPOINT 0
-#define SERVICE_PUBLIC_SUPPORTED 0
+#define SERVICE_PUBLIC_SUPPORTED 1
 #define SERVICE_TYPE_TEXT "NvmWebSocket"
 #define SERVICE_CONST_TEXT "NVM_WEBSOCKET_"
 #define SERVICE_FN_TEXT "nvm_websocket_"
