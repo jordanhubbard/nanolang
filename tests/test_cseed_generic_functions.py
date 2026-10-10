@@ -34,6 +34,9 @@ class CseedGenericFunctions(unittest.TestCase):
                 c, ROOT / 'bin/nano_aot_runtime.o', '-lm', '-o', binary])
             self.run_command([binary])
 
+    def test_builtin_tail_call_does_not_enter_generic_specialization(self):
+        self.execute('fn size(text: string) -> int { return (str_length text) }\nshadow size { assert (== (size "abc") 3) }\nfn main() -> int { assert (== (size "four") 4) return 0 }\nshadow main { assert (== (main) 0) }\n')
+
     def test_retained_record_result_regression(self):
         self.execute((ROOT / 'docs/evidence/generic-results-global-audit-20261010/generic-producer-repro.nano').read_text())
 

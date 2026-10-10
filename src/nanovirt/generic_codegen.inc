@@ -58,7 +58,8 @@ static bool cg_generic_type_supported(CG *cg, const TypeInfo *info) {
 }
 static int32_t cg_generic_call(CG *cg, ASTNode *call) {
     Function *function=call->as.call.name?env_get_function(cg->env,call->as.call.name):NULL;
-    if(!function || function->is_extern)return -1;
+    /* Builtins have arity but no source body or Parameter array. */
+    if(!function || function->is_extern || !function->body || !function->params)return -1;
     Function retained_function=*function;function=&retained_function;
     bool generic=false;
     for(int p=0;p<function->param_count;p++)
