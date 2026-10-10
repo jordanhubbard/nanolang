@@ -44,7 +44,11 @@ static int vs_listener(NlSocketFamily family, NlSocketAddress *address) {
 }
 static NlSocketValue vs_connection(NlSocketValues *s, const NlSocketAddress *address) {
     NlSocketValue result = {0}, connection = {0};
-    CHECK(nl_socket_values_connect(s, address, &result) == NL_SOCKET_VALUE_OK);
+    int64_t words[4] = {0};
+    for (unsigned i = 0; i < 4; i++)
+        for (unsigned j = 0; j < 4; j++) words[i] = (words[i] << 8) | address->address[4*i+j];
+    NlSocketEndpoint endpoint = {address->family, words[0], words[1], words[2], words[3], address->port, address->scope_id};
+    CHECK(nl_socket_values_begin_connect(s, &endpoint, &result) == NL_SOCKET_VALUE_OK);
     CHECK(nl_socket_value_validate(s, &result, true) == NL_SOCKET_VALUE_OK);
     CHECK(nl_socket_value_validate(s, &result, false) == NL_SOCKET_VALUE_TYPE);
     NlSocketConnectView view;
@@ -200,5 +204,58 @@ static void vs_overlap_controls(void) {
     CHECK(nl_socket_value_finish_connect(s, &overlap.borrow, &overlap.scalar) == NL_SOCKET_VALUE_ARGUMENT);
     CHECK(nl_socket_value_send_byte(s, &overlap.borrow, 0, &overlap.scalar) == NL_SOCKET_VALUE_ARGUMENT);
     CHECK(nl_socket_value_receive_byte(s, &overlap.borrow, &overlap.scalar) == NL_SOCKET_VALUE_ARGUMENT);
+    vs_clean(s);
+}
+
+static void vs_endpoint_domains(void) {
+    NlSocketEndpoint endpoint = {NL_SOCKET_IPV6, 0x01234567, 0x89abcdef, 0xfedcba98, 0x76543210, 65535, UINT32_MAX};
+    NlSocketAddress address;
+    CHECK(nl_socket_endpoint_decode(&endpoint, &address));
+    const uint8_t bytes[] = {1,35,69,103,137,171,205,239,254,220,186,152,118,84,50,16};
+    CHECK(address.family == NL_SOCKET_IPV6 && address.port == 65535 && address.scope_id == UINT32_MAX);
+    CHECK(!memcmp(address.address, bytes, sizeof(bytes)));
+    NlSocketAddress saved = address;
+    int64_t bad_words[] = {-1, INT64_MIN, (int64_t)UINT32_MAX + 1, INT64_MAX};
+    for (unsigned word = 0; word < 5; word++) {
+        for (unsigned i = 0; i < 4; i++) {
+            NlSocketEndpoint bad = endpoint;
+            int64_t *fields[] = {&bad.address0,&bad.address1,&bad.address2,&bad.address3,&bad.scope_id};
+            *fields[word] = bad_words[i];
+            CHECK(!nl_socket_endpoint_decode(&bad, &address) && !memcmp(&saved, &address, sizeof(saved)));
+        }
+    }
+    int64_t bad_ports[] = {-1, 0, 65536, INT64_MAX};
+    for (unsigned i = 0; i < 4; i++) {
+        NlSocketEndpoint bad = endpoint; bad.port = bad_ports[i];
+        CHECK(!nl_socket_endpoint_decode(&bad, &address) && !memcmp(&saved, &address, sizeof(saved)));
+    }
+    int64_t bad_families[] = {-1, 0, 5, 7, INT64_MAX};
+    for (unsigned i = 0; i < 5; i++) {
+        NlSocketEndpoint bad = endpoint; bad.family = bad_families[i];
+        CHECK(!nl_socket_endpoint_decode(&bad, &address) && !memcmp(&saved, &address, sizeof(saved)));
+    }
+    endpoint = (NlSocketEndpoint){.family = NL_SOCKET_IPV4, .address0 = 0x7f000001, .port = 1};
+    CHECK(nl_socket_endpoint_decode(&endpoint, &address));
+    CHECK(address.address[0] == 127 && address.address[3] == 1 && address.port == 1 && !address.scope_id);
+    for (unsigned i = 4; i < 16; i++) CHECK(!address.address[i]);
+    for (unsigned i = 0; i < 4; i++) {
+        NlSocketEndpoint bad = endpoint;
+        int64_t *fields[] = {&bad.address1,&bad.address2,&bad.address3,&bad.scope_id};
+        *fields[i] = 1;
+        CHECK(!nl_socket_endpoint_decode(&bad, &address));
+    }
+    CHECK(!nl_socket_endpoint_decode(NULL, &address) && !nl_socket_endpoint_decode(&endpoint, NULL));
+    union { NlSocketEndpoint endpoint; NlSocketAddress address; NlSocketValue value; } overlap;
+    overlap.endpoint = endpoint;
+    CHECK(!nl_socket_endpoint_decode(&overlap.endpoint, &overlap.address));
+    NlSocketValues *s = vs_create();
+    CHECK(nl_socket_values_begin_connect(s, &overlap.endpoint, &overlap.value) == NL_SOCKET_VALUE_ARGUMENT);
+    NlSocketValue result = {0};
+    CHECK(nl_socket_values_begin_connect(s, NULL, &result) == NL_SOCKET_VALUE_ARGUMENT && vs_empty(result));
+    endpoint.port = 0;
+    CHECK(nl_socket_values_begin_connect(s, &endpoint, &result) == NL_SOCKET_VALUE_OK);
+    NlSocketConnectView view;
+    CHECK(nl_socket_connect_view(s, &result, &view) == NL_SOCKET_VALUE_OK && !view.ok && view.error.status == NL_SOCKET_ARGUMENT);
+    CHECK(nl_socket_value_drop(s, &result) == NL_SOCKET_VALUE_OK);
     vs_clean(s);
 }

@@ -5,6 +5,11 @@
 /* I expose a private serialized value lifetime, not source/dispatch authority.
  * Valid caller objects must be disjoint from opaque context storage. */
 typedef struct NlSocketValues NlSocketValues;
+/* I copy four network-order numeric words, not host-layout address storage.
+ * IPv4 occupies address0; address1..3 and scope_id must then be zero. */
+typedef struct {
+    int64_t family, address0, address1, address2, address3, port, scope_id;
+} NlSocketEndpoint;
 #define NL_SOCKET_VALUE_SLOTS 64u
 typedef enum {
     NL_SOCKET_VALUE_OK, NL_SOCKET_VALUE_ARGUMENT, NL_SOCKET_VALUE_STALE,
@@ -39,6 +44,10 @@ NlSocketValueStatus nl_socket_values_create(NlSocketValues **out);
 /* I publish an owned ConnectResult only on VALUE_OK. Host failure is its Error
  * arm; exhausted value capacity acquires nothing. Address/output must be disjoint. */
 NlSocketValueStatus nl_socket_values_connect(NlSocketValues *, const NlSocketAddress *, NlSocketValue *out);
+/* I check copied Endpoint domains and byte order before acquisition. Invalid
+ * endpoint values publish ConnectResult.Error; invalid C storage publishes nothing. */
+bool nl_socket_endpoint_decode(const NlSocketEndpoint *, NlSocketAddress *out);
+NlSocketValueStatus nl_socket_values_begin_connect(NlSocketValues *, const NlSocketEndpoint *, NlSocketValue *out);
 NlSocketValueStatus nl_socket_connect_view(NlSocketValues *, const NlSocketValue *, NlSocketConnectView *out);
 /* Move and take-Ok require disjoint source/empty output; success clears source
  * and invalidates old copies, retaining the same private adapter owner. */

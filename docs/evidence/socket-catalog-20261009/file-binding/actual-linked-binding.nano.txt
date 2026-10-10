@@ -1,0 +1,129 @@
+# I declare catalog1; this declaration alone grants no host authority.
+service "nsi:nanolang/filesystem" catalog 1 from "interface.nsi.json"
+
+shadow temp {
+    let opened: OpenResult = (temp)
+    match opened {
+        Ok(file) => {
+            let mut owned: File = file
+            let closed: CloseResult = (close owned)
+            match closed {
+                Ok() => {}
+                Error(error) => { assert false }
+            }
+        }
+        Error(error) => { assert false }
+    }
+}
+
+shadow write_byte {
+    let opened: OpenResult = (temp)
+    match opened {
+        Ok(file) => {
+            let mut owned: File = file
+            let zero: WriteResult = (write_byte &mut owned 0)
+            match zero {
+                Ok(count) => { assert (== count 1) }
+                Error(error) => { assert false }
+            }
+            let written: WriteResult = (write_byte &mut owned 255)
+            match written {
+                Ok(count) => { assert (== count 1) }
+                Error(error) => { assert false }
+            }
+            let closed: CloseResult = (close owned)
+            match closed {
+                Ok() => {}
+                Error(error) => { assert false }
+            }
+        }
+        Error(error) => { assert false }
+    }
+}
+
+shadow rewind {
+    let opened: OpenResult = (temp)
+    match opened {
+        Ok(file) => {
+            let mut owned: File = file
+            let written: WriteResult = (write_byte &mut owned 255)
+            match written {
+                Ok(count) => { assert (== count 1) }
+                Error(error) => { assert false }
+            }
+            let positioned: PositionResult = (rewind &mut owned)
+            match positioned {
+                Ok() => {}
+                Error(error) => { assert false }
+            }
+            let read: ReadResult = (read_byte &mut owned)
+            match read {
+                Ok(octet) => {
+                    assert (== octet.value 255)
+                    assert (not octet.eof)
+                }
+                Error(error) => { assert false }
+            }
+            let closed: CloseResult = (close owned)
+            match closed {
+                Ok() => {}
+                Error(error) => { assert false }
+            }
+        }
+        Error(error) => { assert false }
+    }
+}
+
+shadow read_byte {
+    let opened: OpenResult = (temp)
+    match opened {
+        Ok(file) => {
+            let mut owned: File = file
+            let written: WriteResult = (write_byte &mut owned 0)
+            match written {
+                Ok(count) => { assert (== count 1) }
+                Error(error) => { assert false }
+            }
+            let positioned: PositionResult = (rewind &mut owned)
+            match positioned {
+                Ok() => {}
+                Error(error) => { assert false }
+            }
+            let read: ReadResult = (read_byte &mut owned)
+            match read {
+                Ok(octet) => {
+                    assert (== octet.value 0)
+                    assert (not octet.eof)
+                }
+                Error(error) => { assert false }
+            }
+            let ended: ReadResult = (read_byte &mut owned)
+            match ended {
+                Ok(octet) => { assert octet.eof assert (== octet.value 0) }
+                Error(error) => { assert false }
+            }
+            let closed: CloseResult = (close owned)
+            match closed {
+                Ok() => {}
+                Error(error) => { assert false }
+            }
+        }
+        Error(error) => { assert false }
+    }
+}
+
+shadow close {
+    let opened: OpenResult = (temp)
+    match opened {
+        Ok(file) => {
+            let mut owned: File = file
+            let closed: CloseResult = (close owned)
+            match closed {
+                Ok() => {}
+                Error(error) => { assert false }
+            }
+        }
+        Error(error) => { assert false }
+    }
+}
+

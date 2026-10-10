@@ -1618,6 +1618,16 @@ test-units: test-nsi-file-plan
 test-nsi-file-plan-sanitizers:
 	python3 -m unittest -v tests.test_nsi_file_plan
 
+.PHONY: test-nsi-socket-plan
+test-nsi-socket-plan:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DSOCKET_PLAN_INSTRUMENT tests/test_nsi_socket_plan.c src/nsi.c src/utf8.c src/cJSON.c -o $(OBJ_DIR)/test_nsi_socket_plan_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_socket_plan_instrumented tests/fixtures/nsi_socket_plan.json
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket_plan.c src/nsi_socket_plan.c src/nsi.c src/utf8.c src/cJSON.c -o $(OBJ_DIR)/test_nsi_socket_plan_linked $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_socket_plan_linked tests/fixtures/nsi_socket_plan.json
+
+test-units: test-nsi-socket-plan
+
 .PHONY: test-service-bindings test-service-bindings-sanitizers
 test-service-bindings:
 	@mkdir -p $(OBJ_DIR)

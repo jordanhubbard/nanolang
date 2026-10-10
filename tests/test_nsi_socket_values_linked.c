@@ -8,6 +8,7 @@ int main(void) {
     vs_real_lifetime(NL_SOCKET_IPV6);
     vs_errors_and_capacity();
     vs_overlap_controls();
+    vs_endpoint_domains();
     printf("PASS %u separately linked Socket value checks\n", checks);
     return 0;
 }

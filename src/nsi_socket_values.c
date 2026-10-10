@@ -115,6 +115,34 @@ NlSocketValueStatus nl_socket_values_connect(NlSocketValues *s, const NlSocketAd
     *out = sv_handle(s, i);
     return NL_SOCKET_VALUE_OK;
 }
+bool nl_socket_endpoint_decode(const NlSocketEndpoint *endpoint, NlSocketAddress *out) {
+    if (!endpoint || !out || !sv_disjoint(endpoint, sizeof(*endpoint), out, sizeof(*out))) return false;
+    if ((endpoint->family != NL_SOCKET_IPV4 && endpoint->family != NL_SOCKET_IPV6) ||
+        endpoint->port < 1 || endpoint->port > UINT16_MAX ||
+        endpoint->scope_id < 0 || endpoint->scope_id > UINT32_MAX) return false;
+    int64_t words[4] = {endpoint->address0, endpoint->address1, endpoint->address2, endpoint->address3};
+    for (unsigned i = 0; i < 4; i++) if (words[i] < 0 || words[i] > UINT32_MAX) return false;
+    if (endpoint->family == NL_SOCKET_IPV4 &&
+        (words[1] || words[2] || words[3] || endpoint->scope_id)) return false;
+    NlSocketAddress address = {.family = (NlSocketFamily)endpoint->family,
+                              .port = (uint16_t)endpoint->port,
+                              .scope_id = (uint32_t)endpoint->scope_id};
+    for (unsigned i = 0; i < 4; i++)
+        for (unsigned j = 0; j < 4; j++)
+            address.address[4 * i + j] = (uint8_t)((uint32_t)words[i] >> (24 - 8 * j));
+    *out = address;
+    return true;
+}
+NlSocketValueStatus nl_socket_values_begin_connect(NlSocketValues *s, const NlSocketEndpoint *endpoint,
+                                                  NlSocketValue *out) {
+    if (!endpoint || !out || !sv_disjoint(endpoint, sizeof(*endpoint), out, sizeof(*out)))
+        return NL_SOCKET_VALUE_ARGUMENT;
+    NlSocketAddress address = {0};
+    /* Decode failure leaves a deliberately invalid address. The ordinary value
+     * acquisition path publishes its Error arm without acquiring a descriptor. */
+    (void)nl_socket_endpoint_decode(endpoint, &address);
+    return nl_socket_values_connect(s, &address, out);
+}
 static NlSocketValueStatus sv_move(NlSocketValues *s, NlSocketValue *v, NlSocketValue *out, bool take_ok) {
     if (!v || !out || !sv_disjoint(v, sizeof(*v), out, sizeof(*out)) || !sv_empty(*out))
         return NL_SOCKET_VALUE_ARGUMENT;

@@ -173,6 +173,9 @@ int main(void) {
     vs_real_lifetime(NL_SOCKET_IPV4); empty();
     vs_real_lifetime(NL_SOCKET_IPV6); empty();
     vs_errors_and_capacity(); empty(); vs_overlap_controls(); empty();
+    unsigned endpoint_calls = socket_calls;
+    vs_endpoint_domains();
+    CHECK(socket_calls == endpoint_calls); empty();
     vs_faults(); vs_pending_failures(); vs_host_error_results(); vs_limits_and_cleanup();
     printf("PASS %u Socket value checks; tracked real opens=%u closes=%u; harness recovery closes=%u\n",
            checks, host_opens, host_closes, manual_closes);
