@@ -9,8 +9,8 @@ class ServicesFlow(unittest.TestCase):
 
     command = support.ServiceModule.command
 
-    def qualify(self, instrument):
-        name = 'services-allocation' if instrument else 'services-linked'
+    def qualify(self, instrument, websocket=False):
+        name = ('websocket-' if websocket else '') + ('services-allocation' if instrument else 'services-linked')
         objects = list(self.objects)
         for source in ('nvm_format', 'nvm_v2_convert', 'nvm_v2_module',
                        'service_bindings_module', 'service_multi_nominal',
@@ -26,7 +26,8 @@ class ServicesFlow(unittest.TestCase):
         exe = self.artifacts / name
         self.command(f'{name}-build', [*self.compiler, *self.flags,
             *(['-DSERVICE_ALLOC_TEST'] if instrument else []),
-            'tests/nanoisa/test_services_flow.c', *objects, *self.linkflags, '-o', str(exe)])
+            'tests/nanoisa/test_mixed_websocket_flow.c' if websocket else 'tests/nanoisa/test_services_flow.c',
+            *objects, *(['lib/libnano_services_runtime.a'] if websocket else []), *self.linkflags, '-o', str(exe)])
         output = self.command(f'{name}-run', [str(exe)], extra={})
         self.assertIn('PASS', output)
         print(output.strip(), flush=True)
@@ -36,3 +37,9 @@ class ServicesFlow(unittest.TestCase):
 
     def test_allocation_failures(self):
         self.qualify(True)
+
+    def test_websocket_mixed_flow_and_runtime_refusal(self):
+        self.qualify(False, True)
+
+    def test_websocket_allocation_failures(self):
+        self.qualify(True, True)

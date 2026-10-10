@@ -83,7 +83,8 @@ NvmServicesHostStatus nvm_services_host_authorize(const NvmServicesHostGrant *gr
     if(!plan)return NVM_SERVICES_HOST_INVALID;
     NvmServicesNominalLayout type;
     for(uint32_t i=0;i<grant->count;i++) {
-        if(!nvm_services_indirect_hosted_type(plan,i*9,&type))return NVM_SERVICES_HOST_UNRESOLVED;
+        if(!nvm_services_indirect_hosted_type(plan,i*9,&type) ||
+           !nvm_services_indirect_hosted_type(plan,i*9+7,&type))return NVM_SERVICES_HOST_UNRESOLVED;
         NvmServicesHostCatalog catalog=nvm_services_indirect_hosted_type(plan,i*9+8,&type)?NVM_SERVICES_HOST_TCP:NVM_SERVICES_HOST_FILE;
         if(catalog!=grant->policies[i].catalog)return NVM_SERVICES_HOST_UNRESOLVED;
         if(!grant->policies[i].allowed)return NVM_SERVICES_HOST_STATE;

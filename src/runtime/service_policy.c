@@ -35,6 +35,7 @@ bool nl_service_policy_read(const uint8_t *bytes,size_t size,bool files,bool tcp
     policy.allowed=true;
     for(size_t i=0;i<policy.count;i++) {
         unsigned catalog=policy.profile==3?mixed.instances[i].catalog:policy.profile;
+        if(catalog!=1 && catalog!=2)return false;
         bool allowed=catalog==1?files:tcp;
         policy.instances[i]=(NvmServicesHostPolicy){(NvmServicesHostCatalog)catalog,allowed};
         policy.requires_file|=catalog==1;policy.requires_tcp|=catalog==2;policy.allowed&=allowed;

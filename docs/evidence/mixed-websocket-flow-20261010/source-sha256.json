@@ -1,0 +1,14 @@
+{
+  "Makefile.gnu": "54e7fc98001e96735d89b03c3b6730ee6602ed3dce3b38ff8b6adcbf022b3c51",
+  "src/nanoisa/service_code.inc": "5550987bd6a45ef8550e8823d87d75baa207d6aef32b474f9d81ff23a2318d0e",
+  "src/nanoisa/services_flow.h": "793fc48a00a04b56a5b7e8615788aca199cedf5326aeebb6767a986f0e54d0c9",
+  "src/nanoisa/services_flow_config.h": "2ba277e17829cf6a6b748495d1ac324c3797b918ac60a4ad21944ee820b121ce",
+  "src/nanoisa/services_host_grant.c": "210f9dd83a03a2a318c5d6ddb2b0037cbae6613ad577a5c5a73445be882a491b",
+  "src/nanoisa/services_nominal.c": "13cc1bcf9e6fd6203e6382f18fa2302c6297f9ef9d0236a2967e5f8b26b2a981",
+  "src/nanoisa/services_nominal.h": "22885ef20a70d69807bfe5ae6728f2bbcf76f879b2705a06dd9d8a7d9be5738f",
+  "src/nanoisa/services_runtime_config.h": "b968e3c2f00ee92ebfe032f29d84dbffa20040d19422fa0e1d87a66ef4fa3275",
+  "src/runtime/service_policy.c": "c04e552747c771e71dcb44d9c3426a0cfd13e1c404c9d1f5f3538d3014c77f94",
+  "tests/nanoisa/test_multi_nominal.c": "4afd786b3d210b14040c3e00489ef6af3c0f3a86bd4f515205ee3ce23e12fc14",
+  "tests/test_services_flow.py": "994aad1c195d8e46d20bdb1e31ab9baa3adfd0272804ec7e590ef8f5fe55e6c7",
+  "tests/nanoisa/test_mixed_websocket_flow.c": "aac36817b460b753e3d990c7808d013e2df3b31a4740c1b8b75c79c621002e70"
+}

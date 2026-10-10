@@ -18,10 +18,10 @@ typedef struct {
 } NvmServicesNominalLayout;
 typedef NvmMultiNominalPlan NvmServicesNominalPlan;
 typedef NvmMultiNominalBindings NvmServicesNominalBindings;
-#define NVM_SERVICES_NOMINAL_TYPES 8u
+#define NVM_SERVICES_NOMINAL_TYPES 7u
 #define NVM_SERVICES_NOMINAL_MAX_LAYOUTS NVM_MULTI_NOMINAL_MAX_LAYOUTS
 #define NVM_SERVICES_NOMINAL_BYTES NVM_MULTI_NOMINAL_MAX_BYTES
-/* I admit only catalogs supported by the mixed executable flow engine. */
+/* I retain the checked catalog table for logical flow, not host execution. */
 NvmMultiNominalStatus nvm_services_nominal_plan(const NvmModule *,NvmServicesNominalPlan **);
 #define nvm_services_nominal_plan_free nvm_multi_nominal_plan_free
 #define nvm_services_nominal_storage_bound nvm_multi_nominal_storage_bound

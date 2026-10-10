@@ -172,10 +172,10 @@ static void websocket(bool reverse,const uint32_t *catalogs,unsigned count){
  }
  uint32_t index=123;CHECK(!nvm_multi_nominal_import(p,ws,4,&index) && index==123);
  NvmMultiNominalLayout row={0},old=row;CHECK(!nvm_multi_nominal_type(p,ws,7,&row) && !memcmp(&old,&row,sizeof row));
- NvmServicesNominalPlan *flow=(void *)&checks;
- CHECK(nvm_services_nominal_plan(m,&flow)==NVM_MULTI_NOMINAL_INVALID && flow==(void *)&checks);
- NvmServicesFlowDeclarations *declarations=(void *)&checks;
- CHECK(nvm_services_flow_declarations(m,&declarations)!=NVM_SERVICES_FLOW_OK && declarations==(void *)&checks);
+ NvmServicesNominalPlan *flow=NULL;
+ CHECK(nvm_services_nominal_plan(m,&flow)==NVM_MULTI_NOMINAL_DESCRIBED);nvm_services_nominal_plan_free(flow);
+ NvmServicesFlowDeclarations *declarations=NULL;
+ CHECK(nvm_services_flow_declarations(m,&declarations)==NVM_SERVICES_FLOW_OK);nvm_services_flow_declarations_free(declarations);
  CHECK(nvm_service_bindings_validate(m)==NVM_V2_OK);consumers(m);
  NvmV2Module v={0},decoded={0};CHECK(nvm_v2_from_nvm_module(m,&v)==NVM_V2_OK);
  size_t size=0;CHECK(nvm_v2_module_serialize(&v,NULL,0,&size)==NVM_V2_OK);

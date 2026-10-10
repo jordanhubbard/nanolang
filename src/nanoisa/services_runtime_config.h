@@ -55,6 +55,7 @@
     for(uint32_t instance=0;instance<64;instance++) { \
         NominalLayout type;uint32_t base=instance*9; \
         if(!get(p,base,&type))break; \
+        if(!get(p,base+7,&type))goto fail; \
         (c)->catalogs[instance]=get(p,base+8,&type)?NL_SERVICES_TCP:NL_SERVICES_FILE; \
         (c)->instances++; \
         for(uint32_t i=base;i<base+RUNTIME_TYPE_COUNT(c,base);i++) { \

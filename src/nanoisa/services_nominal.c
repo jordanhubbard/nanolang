@@ -1,14 +1,7 @@
 #include "services_nominal.h"
 #include "nvm_v2_sections.h"
+#include "../nsi_websocket_plan.h"
 NvmMultiNominalStatus nvm_services_nominal_plan(const NvmModule *m,NvmServicesNominalPlan **out) {
- if(!m || !out)return NVM_MULTI_NOMINAL_INVALID;
- NvmMultiNominalBindings b;
- if(nvm_multi_nominal_decode(m->service_data,m->service_size,&b)!=NVM_SERVICE_OK)
-  return NVM_MULTI_NOMINAL_INVALID;
- /* I retain WebSocket metadata without claiming its string/deadline flow is
-  * executable through the File/TCP engine. */
- for(uint32_t i=0;i<b.count;i++)if(b.instances[i].catalog!=1 && b.instances[i].catalog!=2)
-  return NVM_MULTI_NOMINAL_INVALID;
  return nvm_multi_nominal_plan(m,out);
 }
 static NvmServicesNominalLayout row(NvmMultiNominalLayout v) {
@@ -46,14 +39,14 @@ static uint32_t catalog(const NvmServicesNominalPlan *p,uint32_t instance) {
 }
 const NlServicePlanType *nvm_services_catalog_type(const NvmServicesNominalPlan *p,uint32_t i) {
  uint32_t c=catalog(p,i/9);
- return c==1?nl_file_catalog_type(i%9):c==2?nl_socket_catalog_type(i%9):NULL;
+ return c==1?nl_file_catalog_type(i%9):c==2?nl_socket_catalog_type(i%9):c==3?nl_websocket_catalog_type(i%9):NULL;
 }
 const NlServicePlanMethod *nvm_services_catalog_method(const NvmServicesNominalPlan *p,uint32_t i) {
  uint32_t c=catalog(p,i/5);
- return c==1?nl_file_catalog_method(i%5):c==2?nl_socket_catalog_method(i%5):NULL;
+ return c==1?nl_file_catalog_method(i%5):c==2?nl_socket_catalog_method(i%5):c==3?nl_websocket_catalog_method(i%5):NULL;
 }
 uint32_t nvm_services_catalog_types(const NvmServicesNominalPlan *p,uint32_t type) {
- uint32_t c=catalog(p,type/9);return c==1?8:c==2?9:0;
+ uint32_t c=catalog(p,type/9);return nvm_multi_nominal_catalog_types(c);
 }
 bool nvm_services_catalog_endpoint(const NvmServicesNominalPlan *p,uint32_t type) {
  return type%9==8 && catalog(p,type/9)==2;

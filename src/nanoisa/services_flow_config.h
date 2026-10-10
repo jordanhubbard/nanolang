@@ -24,9 +24,11 @@
 #define FLOW_IMPORT_COUNT(p) (nvm_multi_nominal_instance_count(p)*5)
 #define FLOW_METHOD_OWNER(i) ((i)/5*9)
 #define FLOW_METHOD_LOCAL(i) ((i)%5)
-#define FLOW_IMPORT_COUNT_VALID(n) ((n)>=5 && (n)<=NVM_MULTI_NOMINAL_MAX_IMPORTS && (n)%5==0)
+#define FLOW_IMPORT_COUNT_VALID(n) ((n)>=4 && (n)<=NVM_MULTI_NOMINAL_MAX_IMPORTS)
 #define FLOW_IS_ENDPOINT(p,i) nvm_services_catalog_endpoint(p,i)
 #define FLOW_ENDPOINT_CHECK NVM_SERVICES_FLOW_CHECK_ENDPOINT
+#define FLOW_TIMEOUT_CHECK NVM_SERVICES_FLOW_CHECK_TIMEOUT
+#define CODE_STRINGS 1
 #define CODE_FN(name) nvm_services_code_##name
 #define CODE_TYPE(name) NvmServicesCode##name
 #define CODE_CONST(name) NVM_SERVICES_CODE_##name

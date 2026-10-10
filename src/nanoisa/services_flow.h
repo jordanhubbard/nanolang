@@ -64,7 +64,8 @@ enum {
     NVM_SERVICES_FLOW_CHECK_LIVENESS=4u, NVM_SERVICES_FLOW_CHECK_RIGHTS=8u,
     NVM_SERVICES_FLOW_CHECK_BORROW=16u, NVM_SERVICES_FLOW_CHECK_BYTE=32u,
     NVM_SERVICES_FLOW_CHECK_CALLEE=64u, NVM_SERVICES_FLOW_CHECK_CLEANUP=128u,
-    NVM_SERVICES_FLOW_CHECK_RESULT=256u, NVM_SERVICES_FLOW_CHECK_ENDPOINT=512u
+    NVM_SERVICES_FLOW_CHECK_RESULT=256u, NVM_SERVICES_FLOW_CHECK_ENDPOINT=512u,
+    NVM_SERVICES_FLOW_CHECK_TIMEOUT=1024u
 };
 typedef struct {
     NvmServicesFlowObligationKind kind;
@@ -114,7 +115,10 @@ NvmServicesFlowStatus nvm_services_flow_take_result(NvmServicesFlowState *, uint
 /* I select the exact instance's catalog method. Byte I/O/progress methods use
  * its live exclusive owner reference; byte writes also consume INT. File temp
  * consumes no value; TCP begin-connect consumes that instance's Endpoint and
- * records a pending domain check. Close consumes that instance's owner.
+ * records a pending domain check. WebSocket connect takes URL/timeout, send
+ * takes Message/timeout, receive takes timeout, and consuming close takes
+ * owner/timeout. I retain a timeout obligation for every WebSocket method.
+ * Close consumes that instance's owner.
  * Acquiring/consuming methods use NO_REFERENCE. */
 NvmServicesFlowStatus nvm_services_flow_service(NvmServicesFlowState *, uint32_t site, uint32_t import,
                                       uint16_t reference);

@@ -11,9 +11,12 @@ struct CODE_TYPE(Plan) {
     uint16_t instruction_order[CODE_CONST(INSTRUCTIONS)];
     uint64_t calls[FLOW_CONST(FUNCTIONS)];
 };
+#ifndef CODE_STRINGS
+#define CODE_STRINGS 0
+#endif
 static bool file_code_supported_mode(uint8_t op,bool indirect) {
-    if(indirect && (op==OP_FUNCREF || isa_is_file_indirect_call(op) ||
-       op==OP_PUSH_STR || op==OP_STR_EQ || op==OP_STR_LEN))return true;
+    if(indirect && (op==OP_FUNCREF || isa_is_file_indirect_call(op)))return true;
+    if((indirect || CODE_STRINGS) && (op==OP_PUSH_STR || op==OP_STR_EQ || op==OP_STR_LEN))return true;
     switch(op) {
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
     case OP_DUP: case OP_POP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:

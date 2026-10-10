@@ -293,7 +293,16 @@ owner/result edges. My wire adapter derives minimum import/layout counts from
 the checked table. A single WebSocket instance with four imports and seven
 layouts can therefore round-trip through version-3 metadata transport.
 
-This is metadata transport only. My mixed executable flow entry refuses
-WebSocket instances until string/deadline flow and per-instance runtime policy
-are implemented. Standalone WebSocket continues through its explicit version-2
+My mixed logical flow, CODE/body, cyclic and indirect queries now accept these
+instances. I retain instance*5+method identifiers with the absent fifth
+WebSocket method refused. Every WebSocket method carries a pending timeout
+check. String literals and string operations are available in direct and
+indirect mixed queries; Message and owner identities remain instance-specific.
+My hosted query owns counted string bytes, including embedded NUL, independently
+of its input module and wire buffers. A checked query grants no host authority.
+
+Mixed runtime creation, native emission and host authorization still refuse
+WebSocket until per-instance policy and value dispatch are implemented. Product
+policy parsing also refuses it instead of treating TCP permission as WebSocket
+permission. Standalone WebSocket continues through its explicit version-2
 catalog-3 provider. Mixed source lowering and VM/native execution remain open.
