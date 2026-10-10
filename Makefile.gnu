@@ -6354,3 +6354,9 @@ test-services-flow: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUN
 	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_services_flow
 
 test-units: test-services-flow
+
+.PHONY: test-services-values
+test-services-values:
+	CC="$(CC)" python3 -m unittest tests.test_services_values -v
+
+test-units: test-services-values

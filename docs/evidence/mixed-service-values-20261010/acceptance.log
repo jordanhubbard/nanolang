@@ -1,0 +1,10 @@
+CC="/opt/homebrew/opt/llvm/bin/clang" python3 -m unittest tests.test_services_values -v
+test_real_lifetimes_and_faults (tests.test_services_values.ServicesValues.test_real_lifetimes_and_faults) ... I retain mixed value evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-services-values-er3ulwf4
+PASS 873 mixed instance value checks
+PASS 1507 mixed instance value checks
+ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.696s
+
+OK

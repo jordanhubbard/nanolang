@@ -114,3 +114,33 @@ wrong-instance calls, service operands, result storage and error constructors,
 failed-transition preservation, query lifetime and allocation failures. These
 are synthetic logical programs; Endpoint values still require runtime domain
 checking. My mixed runtime, grants and paired source product remain open.
+
+## Private mixed value lifetime
+
+I retain one independent File or TCP lifetime core per instance in
+`src/nsi_services_values.{h,c}`. My trusted, serialized host caller supplies a
+copied catalog table of at most 64 entries. This table alone is not a checked
+module, a host grant, or permission to publish source execution.
+
+My value and borrow carriers retain a one-based instance identity, a catalog
+tag, and the corresponding core identity. I check the target instance before
+calling a service. The core still checks invocation, generation, ownership and
+borrow epochs. I retain File and TCP result representations separately; their
+status numbers, cleanup fields and scalar result kinds are not interchangeable.
+Repeated File instances have independent capacity and lifetime state.
+
+I stage result publication after accepted core operations. A failed checked
+operation preserves caller outputs; an accepted host error remains a typed
+Result. Move and take-Ok consume their source, close consumes either host Result
+arm, and a live borrow prevents ordinary move/drop/close. Terminal cleanup
+reclaims every instance, including abandoned borrows and unhandled Results.
+I cache the first finish report and preserve per-instance cleanup records.
+The aggregate cleanup count counts those records, not distinct host closes:
+TCP retains both a close error and its terminal ambiguous-close history.
+
+My [mixed lifetime evidence](evidence/mixed-service-values-20261010/README.md)
+qualifies this private carrier. My next runtime integration must derive the
+catalog table from the retained checked nominal plan, preserve instance IDs
+through frames and VM/native calls, enforce host grants before acquisition, and
+publish scalar results only after clean cleanup. This carrier does not establish
+those dispatch, source, grant or release requirements.

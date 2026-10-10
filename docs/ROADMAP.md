@@ -1,5 +1,8 @@
 # My Roadmap
 
+- [x] Under #990 I retain distinct File/TCP/repeated-File owners in one private runtime value context, dispatch each operation through its originating instance, refuse cross-instance handles and borrows before host calls, and drain all instances on failure. I require real file and loopback TCP lifecycles, stale/borrow/transfer controls and allocation-failure cleanup. My initial fixture build exposed a do/while assertion used in a comma expression; my first Make recipe also referenced an undefined Python variable. The linked fixture then exposed instrumented-only cleanup counters under strict unused-variable checks; I compile those hooks only in the instrumented fixture. My cleanup fixture initially counted host closes as report entries, but the TCP core retains both its close error and terminal ambiguous-close history. I require the exact four retained entries alongside exactly three real close attempts. I retain and correct these test-integration failures. My [mixed lifetime evidence](evidence/mixed-service-values-20261010/README.md) passes real IPv4/IPv6 and File lifecycles, 193 allocation-failure prefixes, distinct capacity, stale/cross-instance refusals and exactly-once cleanup attempts under ASan/UBSan/LSan.
+  - [ ] I connect this carrier to checked VM/native dispatch, per-instance host grants and paired source publication; all remain required for 5.1.
+
 My current compiler integration is `8c1e113ec` on
 `release/5.1-completion-20261007` and `fix/5.1-match-guards-20261009`.
 I use GitHub Issues for task state and worker coordination. I retain older
