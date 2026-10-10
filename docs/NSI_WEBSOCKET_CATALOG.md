@@ -157,7 +157,22 @@ frame per transport. I check the reservation before attempting connection.
 Allocator, kernel, resolver-process and crypto-provider overhead are outside
 this requested-heap bound. Copied runtime strings are charged separately within
 the same invocation limit. I test these direct carrier operations against real
-peers; matched bytecode execution and generated native dispatch still follow.
+peers. My matched execution paths build on these primitives.
+
+## Matched private execution
+
+My explicit private VM and generated-C entrypoints now execute complete checked
+WebSocket bytecode. Both take host policy explicitly, match catalog-derived
+borrow and timeout obligations, consume ordered stack arguments and publish
+only after clean invocation teardown. I retain the existing fuel and exact
+instruction/variant checks. Generated code agrees with the retained wire facts
+before beginning and calls its own emitted functions rather than a VM runner.
+
+My real-peer parity tests cover direct/indirect string helpers, loops, binary NUL
+payloads, permuted catalog maps, protocol errors, denied/missing policy, fuel
+exhaustion and failed close cleanup. Altered import/argument calls refuse before
+socket acquisition. These private paths do not register public source selection
+or grant authority from service declarations.
 
 ## Admission boundary
 

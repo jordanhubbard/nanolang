@@ -333,6 +333,20 @@ static void fn_instruction(Fne *b,const SERVICE_TYPE(IndirectHostedPlan) *p,uint
         fn_text(b,"if(!" SERVICE_FN_TEXT "runtime_frame_local(c,%u,&src) || !" SERVICE_FN_TEXT "runtime_frame_reserve(c,(uint16_t)f.stack_count,&dst))return nf_bad(c);\n"
             "NF_TRY(" SERVICE_FN_TEXT "runtime_take(c,src,%u,dst));\n",d->operands[0].u16,d->operands[1].u8?SERVICE_CONST(FLOW_ARM_ERROR):SERVICE_CONST(FLOW_ARM_OK));break;
     case OP_FILE_SERVICE: {
+#if SERVICE_ORDERED_ARGUMENTS
+        const NlServicePlanMethod *method=DISPATCH_CATALOG_METHOD(p,in->catalog_ordinal);
+        if(!method || !method->param_count){b->status=SERVICE_CONST(RUNTIME_UNRESOLVED);return;}
+        bool borrowed=method->input_mode==NL_SERVICE_INPUT_EXCLUSIVE;
+        size_t count=method->param_count-1-(borrowed?1:0);
+        if(count>2){b->status=SERVICE_CONST(RUNTIME_UNRESOLVED);return;}
+        fn_text(b,"{uint32_t inputs[2];reference=" SERVICE_CONST_TEXT "RUNTIME_NO_SLOT;\n"
+            "if(f.stack_count<%zu || !" SERVICE_FN_TEXT "runtime_frame_scratch(c,&dst))return nf_bad(c);\n",count);
+        for(size_t i=0;i<count;i++)fn_text(b,"if(!" SERVICE_FN_TEXT "runtime_frame_operand(c,(uint16_t)(f.stack_count-%zu),&inputs[%zu]))return nf_bad(c);\n",count-i,i);
+        if(borrowed)fn_text(b,"if(!" SERVICE_FN_TEXT "runtime_frame_reference(c,%u,&reference))return nf_bad(c);\n",d->operands[1].u16);
+        fn_text(b,"NF_TRY(" SERVICE_FN_TEXT "runtime_service(c,%u,reference,inputs,%zu,dst));\n"
+            "if(!" SERVICE_FN_TEXT "runtime_frame_reserve(c,(uint16_t)(f.stack_count-%zu),&output))return nf_bad(c);\n"
+            "NF_TRY(" SERVICE_FN_TEXT "runtime_move(c,dst,output));}\n",d->operands[0].u32,count,count);break;
+#else
         uint32_t ordinal=in->catalog_ordinal,method=DISPATCH_METHOD_LOCAL(ordinal);bool consumes=method==1 || method==4 || (DISPATCH_ENDPOINT(p,ordinal) && method==0);
         fn_text(b,"src=reference=" SERVICE_CONST_TEXT "RUNTIME_NO_SLOT;\nif(!" SERVICE_FN_TEXT "runtime_frame_scratch(c,&dst))return nf_bad(c);\n");
         if(consumes)fn_text(b,"if(!f.stack_count || !" SERVICE_FN_TEXT "runtime_frame_operand(c,(uint16_t)(f.stack_count-1),&src))return nf_bad(c);\n");
@@ -340,6 +354,7 @@ static void fn_instruction(Fne *b,const SERVICE_TYPE(IndirectHostedPlan) *p,uint
         fn_text(b,"NF_TRY(" SERVICE_FN_TEXT "runtime_service(c,%u,reference,src,dst));\n"
             "if(!" SERVICE_FN_TEXT "runtime_frame_reserve(c,(uint16_t)(f.stack_count-%u),&output))return nf_bad(c);\n"
             "NF_TRY(" SERVICE_FN_TEXT "runtime_move(c,dst,output));\n",d->operands[0].u32,consumes?1u:0u);break;
+#endif
     }
     case OP_JMP_TRUE:case OP_JMP_FALSE:case OP_ASSERT:
         fn_text(b,"if(!f.stack_count || !" SERVICE_FN_TEXT "runtime_frame_operand(c,(uint16_t)(f.stack_count-1),&src) || !" SERVICE_FN_TEXT "runtime_view(c,src,&value))return nf_bad(c);\n"
@@ -453,8 +468,9 @@ static SERVICE_TYPE(RuntimeStatus) file_indirect_native_emit_serialized(const ui
     if(surface==FNE_PUBLIC)fn_text(&b,
         "static " SERVICE_TYPE_TEXT "IndirectExecutionReport nf_execute(const " SERVICE_TYPE_TEXT "IndirectOptions *options," SERVICE_TYPE_TEXT "RuntimeView *out%s){\n",
         SERVICE_PUBLIC_INSTANCE_GRANTS?", " SERVICE_TYPE_TEXT "HostGrant *grant":"");
-    else fn_text(&b,"%s",
-        "" SERVICE_TYPE_TEXT "IndirectExecutionReport " SERVICE_FN_TEXT "native_indirect_execute(const " SERVICE_TYPE_TEXT "IndirectOptions *options," SERVICE_TYPE_TEXT "RuntimeView *out){\n");
+    else fn_text(&b,
+        "" SERVICE_TYPE_TEXT "IndirectExecutionReport " SERVICE_FN_TEXT "native_indirect_execute(const " SERVICE_TYPE_TEXT "IndirectOptions *options," SERVICE_TYPE_TEXT "RuntimeView *out%s){\n",
+        SERVICE_EXPLICIT_POLICY?",const NlWsTransportPolicy *policy":"");
     fn_text(&b,
         "if(!out || !options || options->revision!=" SERVICE_CONST_TEXT "INDIRECT_RUNTIME_REVISION || options->instruction_limit>" SERVICE_CONST_TEXT "INDIRECT_FUEL_MAX)return nf_refused(" SERVICE_CONST_TEXT "RUNTIME_INVALID,options);\n"
         "if(!" SERVICE_FN_TEXT "runtime_indirect_native_abi(1u,sizeof(" SERVICE_TYPE_TEXT "IndirectOptions),sizeof(" SERVICE_TYPE_TEXT "IndirectExecutionReport),sizeof(" SERVICE_TYPE_TEXT "IndirectFrameView),sizeof(" SERVICE_TYPE_TEXT "RuntimeFrameView),sizeof(" SERVICE_TYPE_TEXT "RuntimeView)))return nf_refused(" SERVICE_CONST_TEXT "RUNTIME_UNRESOLVED,options);\n"
@@ -465,6 +481,9 @@ static SERVICE_TYPE(RuntimeStatus) file_indirect_native_emit_serialized(const ui
         );
     if(surface==FNE_PUBLIC && SERVICE_PUBLIC_INSTANCE_GRANTS)fn_text(&b,"%s",
         "status=" SERVICE_FN_TEXT "public_grant_status(" SERVICE_FN_TEXT "host_authorize(grant," SERVICE_FN_TEXT "runtime_indirect_plan(c)));\n"
+        "if(status!=" SERVICE_CONST_TEXT "RUNTIME_OK){(void)" SERVICE_FN_TEXT "runtime_indirect_destroy(&c,NULL);return nf_refused(status,options); }\n");
+    if(SERVICE_EXPLICIT_POLICY)fn_text(&b,"%s",
+        "status=" SERVICE_FN_TEXT "runtime_policy(c,policy);\n"
         "if(status!=" SERVICE_CONST_TEXT "RUNTIME_OK){(void)" SERVICE_FN_TEXT "runtime_indirect_destroy(&c,NULL);return nf_refused(status,options); }\n");
     fn_text(&b,"%s","status=" SERVICE_FN_TEXT "runtime_begin(c);\n(void)nf_bits;(void)nf_scalar;\n");
     for(uint32_t f=0;f<startup.functions;f++)fn_text(&b,"(void)nf_function_%u;\n",f);

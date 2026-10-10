@@ -6351,6 +6351,12 @@ test-websocket-runtime: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(BIN_DIR)/nano-resol
 
 test-units: test-websocket-runtime
 
+.PHONY: test-websocket-dispatch
+test-websocket-dispatch: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(BIN_DIR)/nano-resolver
+	NANO_WEBSOCKET_CC="$(CC)" NANO_WEBSOCKET_CFLAGS="$(CFLAGS)" WEBSOCKET_DISPATCH_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" WEBSOCKET_DISPATCH_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_websocket_dispatch
+
+test-units: test-websocket-dispatch
+
 .PHONY: test-websocket-nominal-boundary
 test-websocket-nominal-boundary: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror -DNOMINAL_PUBLIC_TEST tests/nanoisa/test_websocket_nominal.c src/nanoisa/service_websocket_nominal.c src/nanoisa/service_websocket_nominal_plan.c src/nsi_websocket_plan.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS) -o $(OBJ_DIR)/test_websocket_nominal_boundary

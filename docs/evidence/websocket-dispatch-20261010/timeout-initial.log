@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/private/tmp/nl51-websocket-dispatch-timeout.py", line 11, in <module>
+    at=command.index(str(source/'case-1.c'));flags=command[1:at]
+ValueError: list.index(x): x not in list

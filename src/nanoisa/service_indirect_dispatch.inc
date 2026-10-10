@@ -57,8 +57,11 @@ static bool fcd_fact(const SERVICE_TYPE(IndirectHostedPlan) *p,const SERVICE_TYP
                o->acquired_rights!=method->acquired_rights)return false;
             checks|=SERVICE_CONST(FLOW_CHECK_BINDING)|SERVICE_CONST(FLOW_CHECK_INVOCATION)|
                     SERVICE_CONST(FLOW_CHECK_LIVENESS)|SERVICE_CONST(FLOW_CHECK_RIGHTS);
-            if(DISPATCH_METHOD_LOCAL(ordinal)>=1 && DISPATCH_METHOD_LOCAL(ordinal)<=3)checks|=SERVICE_CONST(FLOW_CHECK_BORROW);
-            if(DISPATCH_METHOD_LOCAL(ordinal)==1)checks|=SERVICE_CONST(FLOW_CHECK_BYTE);
+            if(method->input_mode==NL_SERVICE_INPUT_EXCLUSIVE)checks|=SERVICE_CONST(FLOW_CHECK_BORROW);
+            for(size_t i=0;i+1<method->param_count;i++) {
+                if(method->params[i].domain==NL_SERVICE_DOMAIN_BYTE_INT)checks|=SERVICE_CONST(FLOW_CHECK_BYTE);
+                if(method->params[i].domain==NL_SERVICE_DOMAIN_TIMEOUT_MS)checks|=FLOW_TIMEOUT_CHECK;
+            }
             if(DISPATCH_ENDPOINT(p,ordinal) && DISPATCH_METHOD_LOCAL(ordinal)==0)checks|=FLOW_ENDPOINT_CHECK;
         } else { checks|=SERVICE_CONST(FLOW_CHECK_CALLEE);discharged=SERVICE_CONST(FLOW_CHECK_CALLEE); }
         if(o->checks!=checks)return false;

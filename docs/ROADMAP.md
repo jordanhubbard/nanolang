@@ -1,6 +1,8 @@
 # My Roadmap
 
-- [ ] Under #990 I connect WebSocket carrier operations to matched VM and generated-native dispatch, preserving exact checked service sites, ordered arguments/deadlines, pending-mask discharge, strings across calls/loops, fuel and cleanup. I require real-peer complete bytecode lifecycles and parity before public grants and paired source lowering.
+- [ ] Under #990 I expose owned WebSocket execution through explicit public host grants and paired C-seed/Nano source lowering. I require exact catalog selection, separate connection/lookup authority, revocation and serialization, installed standalone providers, counted-string Message/Result paths and real source programs through both VM/native producers before public admission.
+
+- [x] Under #990 I connect WebSocket carrier operations to matched VM and generated-native dispatch, preserving exact checked service sites, ordered arguments/deadlines, pending-mask discharge, strings across calls/loops, fuel and cleanup. I require real-peer complete bytecode lifecycles and parity before public grants and paired source lowering. My [matched execution evidence](evidence/websocket-dispatch-20261010/README.md) passes 48 VM/48 native executions per GCC and LLVM sanitizer toolchain, altered-call/timeout-mask refusals, malformed wire and unchanged File/TCP/mixed dispatch gates. Public grants and paired source admission remain required.
 
 - [x] Under #990 I correct private acyclic runtime import lookup after the permuted WebSocket carrier test dispatches an import as the wrong method: the hosted query maps catalog ordinal to module import, but `fr_import` used it in reverse. I require inverse lookup in all carrier modes, permuted real traffic and unchanged File/TCP/mixed regressions. My [carrier evidence](evidence/websocket-runtime-20261010/README.md) passes the original failing permutation and adjacent carrier/dispatch gates.
 
