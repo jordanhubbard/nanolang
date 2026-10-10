@@ -1,0 +1,4 @@
+  Shadow test 'generic_bind_type' FAILED: 2 failure(s)
+  First failure at line 153, column 5
+I will not publish output after failed shadow execution.
+Shadow tests failed

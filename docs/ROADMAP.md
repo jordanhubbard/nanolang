@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #976 I preserve the language int result of str_length in legacy native C emission. My structural-binding prototype reaches generated C compilation but direct comparisons of int indices against strlen results fail -Werror=sign-compare. Typed local lengths allow the prototype to proceed; they do not fix the producer's unsigned result. I retain the generated diagnostic in the structural-binding evidence and require a direct-comparison regression before closing this gap.
+
 - [ ] Under #976 I infer generic variables inside parameter structures. My [array<T> baseline](evidence/structural-generic-baseline-20261010/README.md) checks but fails self-hosted emission with an unresolved T result. I require recursive binding, exact repeated identities and substituted signatures/bodies through both source producers, with positive execution and output-preserving refusals.
 
 - [ ] Under #976 I fix the integrated C-producer compiler-source crash at 6c01d856e. My fresh bootstrap run `obj/bootstrap-nanoisa/run-fr466iet` terminates the seed step with signal 11 before Stage 1, despite focused generic tests passing. My [diagnostic evidence](evidence/generic-builtin-tail-20261010/README.md) isolates a builtin tail-call lookup dereferencing a missing parameter array. I exclude bodyless functions from specialization; all 14 focused methods pass in ordinary and compiler-component sanitizer runs. A fresh unchanged-input bootstrap remains required before closing this gap.
