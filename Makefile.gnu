@@ -6250,3 +6250,12 @@ test-socket-hosted: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	NANO_SOCKET_HOSTED_CC="$(CC)" SOCKET_HOSTED_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_HOSTED_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_socket_hosted
 
 test-units: test-socket-hosted
+
+# I rebuild both private carriers when shared protocol or value adapters change.
+$(OBJ_DIR)/nanoisa/file_runtime.o $(OBJ_DIR)/nanoisa/file_runtime_public.o $(OBJ_DIR)/nanoisa/socket_runtime.o: $(wildcard $(NANOISA_DIR)/service_*runtime*.inc) $(NANOISA_DIR)/file_runtime_config.h $(NANOISA_DIR)/file_runtime_values.inc $(NANOISA_DIR)/socket_runtime_config.h $(NANOISA_DIR)/socket_runtime_values.inc
+
+.PHONY: test-socket-runtime
+test-socket-runtime: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_SOCKET_RUNTIME_CC="$(CC)" SOCKET_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_socket_runtime
+
+test-units: test-socket-runtime

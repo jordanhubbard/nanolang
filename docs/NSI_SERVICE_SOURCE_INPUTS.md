@@ -76,7 +76,16 @@ I retain [transport and hosted-preparation evidence](evidence/socket-transport-h
 including File adjacency and the updated compiler host dependency closure.
 Preparation still grants no network execution authority.
 
-I have not connected TCP wire metadata to source lowering, service dispatch or selected network
+My separate private TCP runtime carrier now retains Endpoint, Conn and all eleven
+SocketError fields over the existing Socket lifetime core. I share frame storage,
+owner movement, borrowing, fuel and cleanup protocols with File; the catalog
+adapters retain their distinct result kinds and payloads. I test real IPv4/IPv6
+connections, byte transfer, EOF, invalid inputs and close-failure publication.
+The [carrier evidence](evidence/socket-runtime-carrier-20261009/README.md) states
+the tested scope, including manual cyclic/indirect frame checks. A private
+carrier API is not a matched CODE dispatcher or a public network grant.
+
+I have not connected TCP wire metadata to source lowering, matched service dispatch or selected network
 shadow execution. Both lowerers explicitly refuse TCP before wire publication,
 so the File runtime cannot interpret TCP ordinals. My paired source checks,
 mixed namespace fixture and prior-output refusal checks are retained in

@@ -14787,3 +14787,9 @@ I retain [my shared File/TCP flow, CODE and acyclic-body evidence](evidence/sock
 - [x] Under #990 I extend the v2 deserializer's exact service-section lengths for TCP. The first round-trip passes serialization but rejects TCP's 128-byte service section because decoding allows only56/120 bytes. I retain the failure, add the exact128-byte form and require round-trip and malformed-profile checks; I do not accept arbitrary section lengths.
 
 I retain [my TCP transport and hosted-preparation evidence](evidence/socket-transport-hosted-20261009/README.md). Runtime execution, paired source lowering and full platform/release acceptance remain open.
+
+- [x] Under #990 I connect the checked TCP plans to a distinct runtime carrier and frame protocol over the existing Socket lifetime core. I preserve eleven-field error payloads, seven-field Endpoint construction and pre-acquisition domain checking, owned Result moves, exclusive/shared borrows, scalar service results, cyclic/indirect frame identities, fuel and cleanup-before-publication. I require real loopback lifecycle and failure/cleanup controls plus File runtime adjacency. Matched dispatch, native emission, grants and paired source lowering remain required before public TCP execution.
+
+- [x] Under #990 I correct the new runtime fixture's helper-name collision with its included flow corpus and use the common service descriptor type in the shared carrier. I retain the initial compile refusal and require the complete unchanged runtime assertions to build and pass.
+
+I retain [my TCP carrier and File compatibility evidence](evidence/socket-runtime-carrier-20261009/README.md). TCP dispatch/native emission/grants/source integration and the full 5.1 release contract remain open.
