@@ -1,0 +1,6 @@
+test_real_make_links_only_changed_or_missing_tool (tests.test_bootstrap_tools.BootstrapTools.test_real_make_links_only_changed_or_missing_tool) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.789s
+
+OK

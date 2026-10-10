@@ -14,8 +14,11 @@ class BootstrapTools(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='nano-bootstrap-tools-') as directory:
             root = Path(directory)
             shutil.copyfile(ROOT / 'Makefile.gnu', root / 'Makefile.gnu')
+            # I stub the linked providers, including service archives, so
+            # this timestamp test never traverses their source build rules.
             objects = ['obj/probe.o', 'obj/nanovirt/main.o', 'obj/nanovm/main.o',
-                       'obj/nanovm/vmd_protocol.o', 'obj/nanovm/vmd_client.o']
+                       'obj/nanovm/vmd_protocol.o', 'obj/nanovm/vmd_client.o',
+                       'lib/libnano_socket_runtime.a', 'lib/libnano_services_runtime.a']
             binaries = ['bin/nano_virt', 'bin/nano_vm', 'bin/nanoisa', 'bin/nvm2c']
             for name in objects + binaries:
                 path = root / name

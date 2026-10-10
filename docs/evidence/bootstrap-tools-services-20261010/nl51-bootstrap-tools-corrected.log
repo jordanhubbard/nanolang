@@ -1,0 +1,14 @@
+python3 scripts/embed_binary64_parser.py --check
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 48.647s
+
+OK
+...............I run probe-native; I retain its log at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-96wqzvof/obj/bootstrap-nanoisa/run-afp2qb4u/00-probe-native.log.
+I run probe-native; I retain its log at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-96wqzvof/obj/bootstrap-nanoisa/run-nthlugxk/00-probe-native.log.
+..I run deadline; I retain its log at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-bootstrap-boundary-_gxg9mxt/work/00-deadline.log.
+....
+----------------------------------------------------------------------
+Ran 21 tests in 20.325s
+
+OK
