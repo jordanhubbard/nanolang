@@ -1,4 +1,4 @@
-# I serialize checked File lowering records without an assembler or C serializer.
+# I serialize checked File or TCP lowering records without an assembler or C serializer.
 module "modules/file_source_catalog/file_source_catalog.nano" as WireCatalog
 
 struct ServiceWireType { tag: int, mode: int, layout: int }
@@ -8,6 +8,8 @@ struct ServiceWireFunction {
 }
 struct ServiceWireSignature { parameters: array<int>, result: int }
 struct ServiceWireSection { kind: int, bytes: array<int> }
+let mut sw_catalog: int = 1
+let mut sw_types: int = 8
 let mut sw_bytes: array<int> = []
 let mut sw_strings: array<string> = []
 let mut sw_maps: array<ServiceWireSection> = []
@@ -157,9 +159,9 @@ fn sw_catalog_value(id: string) -> ServiceWireType {
     if (== id "nsi:core/int") { return (service_wire_scalar 1) }
     if (== id "nsi:core/bool") { return (service_wire_scalar 4) }
     let mut i: int = 0
-    while (< i 8) {
-        if (== id (WireCatalog.text 1 i 0 0)) {
-            let mut tag: int = 10 if (< i 3) { set tag 8 }
+    while (< i sw_types) {
+        if (== id (WireCatalog.catalog_text sw_catalog 1 i 0 0)) {
+            let mut tag: int = 10 if (or (< i 3) (== i 8)) { set tag 8 }
             return ServiceWireType { tag: tag, mode: 0, layout: i }
         }
         set i (+ i 1)
@@ -169,23 +171,23 @@ fn sw_catalog_value(id: string) -> ServiceWireType {
 }
 shadow sw_catalog_value {
     assert (== (sw_catalog_value "nsi:core/int").tag 1)
-    assert (== (sw_catalog_value (WireCatalog.text 1 3 0 0)).layout 3)
+    assert (== (sw_catalog_value (WireCatalog.catalog_text sw_catalog 1 3 0 0)).layout 3)
     assert (== (sw_catalog_value "").tag 0)
 }
 
 fn sw_layouts() -> array<int> {
-    set sw_bytes [] (sw_integer 8 4)
+    set sw_bytes [] (sw_integer sw_types 4)
     let mut i: int = 0
-    while (< i 8) {
-        let count: int = (WireCatalog.number 1 i 1 0)
-        let mut kind: int = 2 if (< i 3) { set kind 0 }
+    while (< i sw_types) {
+        let count: int = (WireCatalog.catalog_number sw_catalog 1 i 1 0)
+        let mut kind: int = 2 if (or (< i 3) (== i 8)) { set kind 0 }
         (sw_integer kind 1) (sw_integer 0 1) (sw_integer count 2)
-        (sw_integer (sw_string (WireCatalog.text 1 i 0 0)) 4)
+        (sw_integer (sw_string (WireCatalog.catalog_text sw_catalog 1 i 0 0)) 4)
         let mut j: int = 0
         while (< j count) {
-            let typ: ServiceWireType = (sw_catalog_value (WireCatalog.text 1 i 4 j))
+            let typ: ServiceWireType = (sw_catalog_value (WireCatalog.catalog_text sw_catalog 1 i 4 j))
             (sw_integer typ.tag 1) (sw_integer 0 3) (sw_integer typ.layout 4)
-            (sw_integer (sw_string (WireCatalog.text 1 i 2 j)) 4)
+            (sw_integer (sw_string (WireCatalog.catalog_text sw_catalog 1 i 2 j)) 4)
             set j (+ j 1)
         }
         set i (+ i 1)
@@ -200,13 +202,13 @@ shadow sw_layouts {
 
 fn sw_imports() -> array<int> {
     set sw_bytes [] (sw_integer 5 4)
-    let interface: int = (sw_string (WireCatalog.text 0 0 0 0))
+    let interface: int = (sw_string (WireCatalog.catalog_text sw_catalog 0 0 0 0))
     let mut i: int = 0
     while (< i 5) {
         let mut params: array<int> = []
-        if (> i 0) { set params [8] }
+        if (or (> i 0) (== sw_catalog 2)) { set params [8] }
         if (== i 1) { set params [8, 1] }
-        (sw_integer interface 4) (sw_integer (sw_string (WireCatalog.text 2 i 0 0)) 4)
+        (sw_integer interface 4) (sw_integer (sw_string (WireCatalog.catalog_text sw_catalog 2 i 0 0)) 4)
         (sw_integer (sw_signature params 10) 4) (sw_integer 3 1) (sw_integer 0 3)
         set i (+ i 1)
     }
@@ -285,8 +287,10 @@ shadow sw_functions {
 }
 
 fn sw_ownership(functions: array<ServiceWireFunction>) -> array<int> {
-    set sw_bytes [] (sw_integer 1 4) (sw_integer 8 4)
-    (sw_append [3, 1, 1, 3, 1, 1, 1, 1]) (sw_integer (array_length functions) 4)
+    set sw_bytes [] (sw_integer 1 4) (sw_integer sw_types 4)
+    (sw_append [3, 1, 1, 3, 1, 1, 1, 1])
+    if (== sw_catalog 2) { (sw_integer 1 1) }
+    (sw_pad) (sw_integer (array_length functions) 4)
     let mut i: int = 0
     while (< i (array_length functions)) {
         let fnc: ServiceWireFunction = (at functions i)
@@ -304,12 +308,12 @@ shadow sw_ownership {
 }
 
 fn sw_services() -> array<int> {
-    set sw_bytes [] (sw_integer 2 2) (sw_integer 1 2)
-    (sw_integer 5 4) (sw_integer 8 4) (sw_integer 0 4)
+    set sw_bytes [] (sw_integer 2 2) (sw_integer sw_catalog 2)
+    (sw_integer 5 4) (sw_integer sw_types 4) (sw_integer 0 4)
     let mut i: int = 0
     while (< i 5) { (sw_integer i 4) (sw_integer i 4) set i (+ i 1) }
     set i 0
-    while (< i 8) { (sw_integer i 4) (sw_integer i 4) set i (+ i 1) }
+    while (< i sw_types) { (sw_integer i 4) (sw_integer i 4) set i (+ i 1) }
     return sw_bytes
 }
 shadow sw_services {
@@ -352,7 +356,8 @@ shadow sw_container {
 
 # I require checked lowering records; my consumers separately verify the wire.
 # An empty result refuses malformed records before any output publication.
-pub fn service_wire_serialize_refs(functions: array<ServiceWireFunction>, entry: int, maps: array<ServiceWireSection>) -> array<int> {
+pub fn service_wire_serialize_catalog(functions: array<ServiceWireFunction>, entry: int, maps: array<ServiceWireSection>, catalog: int) -> array<int> {
+    if (and (!= catalog 1) (!= catalog 2)) { return [] }
     if (or (< entry 0) (>= entry (array_length functions))) { return [] }
     if (> (array_length functions) 64) { return [] }
     let mut code: array<int> = [] let mut i: int = 0
@@ -381,6 +386,7 @@ pub fn service_wire_serialize_refs(functions: array<ServiceWireFunction>, entry:
         }
         set i (+ i 1)
     }
+    set sw_catalog catalog set sw_types (WireCatalog.count catalog 1)
     set sw_maps maps set sw_strings [] set sw_signatures []
     let layouts: array<int> = (sw_layouts)
     let imports: array<int> = (sw_imports)
@@ -402,7 +408,15 @@ pub fn service_wire_serialize_refs(functions: array<ServiceWireFunction>, entry:
         ServiceWireSection { kind: 13, bytes: ownership },
         ServiceWireSection { kind: 14, bytes: services }
     ] entry)
-    set sw_maps [] return result
+    set sw_maps [] set sw_catalog 1 set sw_types 8 return result
+}
+shadow service_wire_serialize_catalog {
+    assert (== (array_length (service_wire_serialize_catalog [] 0 [] 2)) 0)
+    assert (== (array_length (service_wire_serialize_catalog [] 0 [] 3)) 0)
+    set sw_catalog 1 set sw_types 8
+}
+pub fn service_wire_serialize_refs(functions: array<ServiceWireFunction>, entry: int, maps: array<ServiceWireSection>) -> array<int> {
+    return (service_wire_serialize_catalog functions entry maps 1)
 }
 shadow service_wire_serialize_refs {
     assert (== (array_length (service_wire_serialize_refs [] 0 [])) 0)

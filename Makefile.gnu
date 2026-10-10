@@ -427,7 +427,7 @@ FILE_PUBLIC_LIBRARY = lib/libnano_file_runtime.a
 SERVICE_DRIVER_OBJECTS = $(OBJ_DIR)/service_driver.o $(OBJ_DIR)/service_lowering.o $(OBJ_DIR)/runtime/service_product.o $(OBJ_DIR)/runtime/service_shadows.o
 COMPILER_OBJECTS += $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY)
 $(SERVICE_DRIVER_OBJECTS): src/service_driver.h src/service_lowering.h src/runtime/service_product.h src/runtime/service_shadows.h
-FILE_PUBLIC_QUERY_STEMS = nanoisa/affine_bytecode nanoisa/affine_state nanoisa/file_flow nanoisa/isa \
+FILE_PUBLIC_QUERY_STEMS = nanoisa/affine_bytecode nanoisa/affine_state nanoisa/file_flow nanoisa/socket_flow nanoisa/isa \
 	nanoisa/managed_array_shapes nanoisa/mixed_float_proof nanoisa/nvm_format \
 	nanoisa/nvm_format_v2 nanoisa/nvm_v2_constants nanoisa/nvm_v2_convert \
 	nanoisa/nvm_v2_cursor nanoisa/nvm_v2_functions nanoisa/nvm_v2_imports \
@@ -463,11 +463,11 @@ FILE_CLI_OBJECT = $(OBJ_DIR)/nanoisa/file_cli.o
 .PHONY: file-public-runtime
 file-public-runtime: $(FILE_PUBLIC_LIBRARY) $(addprefix $(SRC_DIR)/,$(FILE_PUBLIC_HEADERS))
 $(FILE_PUBLIC_OBJECTS): $(addprefix $(SRC_DIR)/,$(FILE_PUBLIC_HEADERS))
-$(FILE_PUBLIC_LIBRARY): $(FILE_PUBLIC_OBJECTS)
+$(FILE_PUBLIC_LIBRARY): $(FILE_PUBLIC_OBJECTS) Makefile.gnu
 	@mkdir -p "$(@D)"
 	@set -e; file_archive_dir=$$(mktemp -d "$(@D)/.file-runtime.XXXXXX"); \
 	trap 'rm -rf "$$file_archive_dir"' EXIT; \
-	$(AR) rcs "$$file_archive_dir/runtime.a" $^; \
+	$(AR) rcs "$$file_archive_dir/runtime.a" $(FILE_PUBLIC_OBJECTS); \
 	mv "$$file_archive_dir/runtime.a" "$@"
 $(OBJ_DIR)/nanoisa/file_runtime_public.o: $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(NANOISA_DIR)/file_native_abi.h | $(OBJ_DIR)/nanoisa
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DNVM_FILE_PUBLIC_ENGINE -c $(NANOISA_DIR)/file_runtime.c -o $@
@@ -6120,15 +6120,15 @@ test-service-ownership-sanitize: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(COMPILER
 	ASAN_OPTIONS=detect_leaks=1 NANO_SERVICE_OWNERSHIP_C_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_ownership_sanitize" python3 -m unittest -v tests.test_service_ownership
 test-units: test-service-ownership
 
-$(OBJ_DIR)/test_service_lowering: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h src/runtime/service_shadows.c src/runtime/service_shadows.h $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY)
-	$(CC) $(CFLAGS) -o $@ tests/test_service_lowering.c src/runtime/service_shadows.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS)
+$(OBJ_DIR)/test_service_lowering: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h src/runtime/service_shadows.c src/runtime/service_shadows.h $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a
+	$(CC) $(CFLAGS) -o $@ tests/test_service_lowering.c src/runtime/service_shadows.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a $(LDFLAGS)
 .PHONY: test-service-lowering
 test-service-lowering: $(OBJ_DIR)/test_service_lowering
 	python3 -m unittest -v tests.test_service_lowering
 
 .PHONY: test-service-lowering-sanitize
-$(OBJ_DIR)/test_service_lowering_sanitize: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h src/runtime/service_shadows.c src/runtime/service_shadows.h $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY)
-	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -DNVM_FILE_PUBLIC_ENGINE -o $(OBJ_DIR)/test_service_lowering_sanitize tests/test_service_lowering.c src/runtime/service_shadows.c $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) $(LDFLAGS)
+$(OBJ_DIR)/test_service_lowering_sanitize: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h src/runtime/service_shadows.c src/runtime/service_shadows.h $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a
+	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -DNVM_FILE_PUBLIC_ENGINE -o $(OBJ_DIR)/test_service_lowering_sanitize tests/test_service_lowering.c src/runtime/service_shadows.c $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a $(LDFLAGS)
 test-service-lowering-sanitize: $(OBJ_DIR)/test_service_lowering_sanitize
 	ASAN_OPTIONS=detect_leaks=1 NANO_SERVICE_LOWERING_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_lowering_sanitize" python3 -m unittest -v tests.test_service_lowering
 
@@ -6270,7 +6270,7 @@ test-units: test-socket-dispatch
 
 # I package explicit TCP policy, checked execution and generated-native providers.
 SOCKET_PUBLIC_LIBRARY = lib/libnano_socket_runtime.a
-SOCKET_PUBLIC_STEMS = $(FILE_PUBLIC_QUERY_STEMS) nanoisa/socket_flow nanoisa/socket_runtime \
+SOCKET_PUBLIC_STEMS = $(FILE_PUBLIC_QUERY_STEMS) nanoisa/socket_runtime \
  nanoisa/file_host_grant nanoisa/socket_host_grant nanoisa/socket_indirect_public_native \
  nanoisa/socket_indirect_public_abi nanovm/socket_indirect_public_vm nsi_cap nsi_socket nsi_socket_values
 SOCKET_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(SOCKET_PUBLIC_STEMS)))
@@ -6307,11 +6307,11 @@ SOCKET_PUBLIC_HEADERS = nanoisa/generated_schema.h \
 .PHONY: socket-public-runtime install-socket-public-runtime
 socket-public-runtime: $(SOCKET_PUBLIC_LIBRARY) $(addprefix $(SRC_DIR)/,$(SOCKET_PUBLIC_HEADERS))
 $(SOCKET_PUBLIC_OBJECTS): $(addprefix $(SRC_DIR)/,$(SOCKET_PUBLIC_HEADERS))
-$(SOCKET_PUBLIC_LIBRARY): $(SOCKET_PUBLIC_OBJECTS)
+$(SOCKET_PUBLIC_LIBRARY): $(SOCKET_PUBLIC_OBJECTS) Makefile.gnu
 	@mkdir -p "$(@D)"
 	@set -e; socket_archive_dir=$$(mktemp -d "$(@D)/.socket-runtime.XXXXXX"); \
 	trap 'rm -rf "$$socket_archive_dir"' EXIT; \
-	$(AR) rcs "$$socket_archive_dir/runtime.a" $^; \
+	$(AR) rcs "$$socket_archive_dir/runtime.a" $(SOCKET_PUBLIC_OBJECTS); \
 	mv "$$socket_archive_dir/runtime.a" "$@"
 $(OBJ_DIR)/nanovm/socket_indirect_public_vm.o: $(SRC_DIR)/nanovm/socket_vm_indirect_engine.inc $(SRC_DIR)/nanovm/service_vm_indirect_engine.inc $(NANOISA_DIR)/service_indirect_dispatch.inc $(NANOISA_DIR)/socket_dispatch_config.h
 $(OBJ_DIR)/nanoisa/socket_indirect_public_native.o: $(NANOISA_DIR)/socket_indirect_native_emit.inc $(NANOISA_DIR)/service_indirect_native_emit.inc $(NANOISA_DIR)/service_indirect_dispatch.inc $(NANOISA_DIR)/socket_dispatch_config.h

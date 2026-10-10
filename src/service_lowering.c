@@ -1,5 +1,8 @@
 #include "service_lowering.h"
 #include "nsi_file_catalog.h"
+#include "nsi_socket_plan.h"
+#include "nanoisa/service_socket_nominal.h"
+#include "nanoisa/socket_indirect_flow.h"
 #include "nanoisa/isa.h"
 #include "nanoisa/retained_layouts.h"
 #include "nanoisa/service_file_nominal.h"
@@ -27,7 +30,8 @@ typedef struct {
     const NlServiceBodyCheck *bodies;
     NvmModule *module;
     NlServiceLoweringResult result;
-    NvmFileNominalBindings catalog;
+    NvmSocketNominalBindings catalog;
+    unsigned catalog_id, type_count;
     SlFunction functions[SL_FUNCTIONS];
     SlFunction *fn;
     SlName names[SL_LOCALS];
@@ -58,9 +62,9 @@ static SlType sl_type(Sl *c,Type type,const TypeInfo *info) {
     }
     SlType out={.mode=mode,.layout=NVM_V2_NO_INDEX};
     if(info && info->service_declaration) {
-        if(info->service_ordinal>=8)sl_fail(c,NULL,1,"I require a catalog type ordinal.");
+        if(info->service_ordinal>=c->type_count)sl_fail(c,NULL,1,"I require a catalog type ordinal.");
         else out.layout=c->catalog.layouts[info->service_ordinal];
-        out.tag=info->service_ordinal<3?TAG_STRUCT:TAG_UNION;
+        out.tag=(info->service_ordinal<3 || info->service_ordinal==8)?TAG_STRUCT:TAG_UNION;
     } else if(type==TYPE_INT)out.tag=TAG_INT;
     else if(type==TYPE_BOOL)out.tag=TAG_BOOL;
     else if(type==TYPE_VOID)out.tag=TAG_VOID;
@@ -149,6 +153,9 @@ static bool sl_terminal_operand(const ASTNode *n,unsigned depth) {
     case AST_LET:return sl_terminal_operand(n->as.let.value,depth+1);
     case AST_SET:return sl_terminal_operand(n->as.set.value,depth+1);
     case AST_ASSERT:return sl_terminal_operand(n->as.assert.condition,depth+1);
+    case AST_STRUCT_LITERAL:
+        for(int i=0;i<n->as.struct_literal.field_count;i++)if(sl_terminal_operand(n->as.struct_literal.field_values[i],depth+1))return true;
+        return false;
     case AST_FIELD_ACCESS:return sl_terminal_operand(n->as.field_access.object,depth+1);
     default:return false;
     }
@@ -339,9 +346,30 @@ static void sl_expr_impl(Sl *c,const ASTNode *n,bool want) {
         c->pending_count=pending;
         sl_op(c,sl_operator(n->as.prefix_op.op,n->as.prefix_op.arg_count));break;
     }
+    case AST_STRUCT_LITERAL: {
+        SlType type=sl_node_type(c,n);
+        if(c->catalog_id!=2 || type.layout!=c->catalog.layouts[8] || n->as.struct_literal.field_count!=7) {
+            sl_fail(c,n,2,"I require a checked Endpoint constructor.");return;
+        }
+        uint16_t slots[7],pending=c->pending_count;
+        const NlServicePlanType *endpoint=nl_socket_catalog_type(8);
+        /* I evaluate source order, then load canonical field order. Staging also
+         * gives terminal field expressions the same pending-value cleanup. */
+        for(unsigned i=0;i<7;i++) {
+            unsigned field=0;
+            while(field<7 && strcmp(n->as.struct_literal.field_names[i],endpoint->members[field].name))field++;
+            if(field==7){sl_fail(c,n,1,"I require an exact Endpoint field.");return;}
+            sl_expr(c,n->as.struct_literal.field_values[i],true);
+            if(!c->next || c->result.status)return;
+            slots[field]=sl_stage(c,(SlType){.tag=TAG_INT,.layout=NVM_V2_NO_INDEX});
+        }
+        for(unsigned i=0;i<7;i++){sl_load(c,slots[i]);sl_clear(c,slots[i]);}
+        c->pending_count=pending;
+        sl_op(c,OP_AGG_PACK);sl_op(c,AGG_RECORD);sl_u32(c,3);sl_u16(c,0);sl_u16(c,7);break;
+    }
     case AST_FIELD_ACCESS: {
         const NlServiceBodyFact *object=sl_fact(c,n->as.field_access.object);if(!object)return;
-        const NlFilePlanType *type=nl_file_catalog_type(object->type.service_ordinal);
+        const NlFilePlanType *type=(c->catalog_id==2?nl_socket_catalog_type(object->type.service_ordinal):nl_file_catalog_type(object->type.service_ordinal));
         size_t index=0;while(type && index<type->member_count && strcmp(type->members[index].name,n->as.field_access.field_name))index++;
         if(!type || index==type->member_count){sl_fail(c,n,1,"I require an exact catalog field.");return;}
         sl_expr(c,n->as.field_access.object,true);if(!c->next)return;
@@ -395,52 +423,67 @@ static void sl_expr(Sl *c,const ASTNode *n,bool want) {
     else sl_expr_impl(c,n,want);
     --c->depth;
 }
+static const NlServicePlanType *sl_catalog_type(Sl *c,unsigned i) {
+    return c->catalog_id==2?nl_socket_catalog_type(i):nl_file_catalog_type(i);
+}
 static bool sl_catalog(Sl *c) {
     const NlFileSourcePlan *plan=nl_service_namespace_plan(c->space);
     if(!plan)return false;
+    c->catalog_id=1;
     for(size_t i=0;i<nl_file_source_plan_count(plan);i++) {
         NlFileSourceRow row;if(!nl_file_source_plan_row(plan,i,&row))return false;
-        if(row.request){sl_fail(c,NULL,2,"I have not lowered multiple nominal File catalog declarations together.");return false;}
+        if(row.request){sl_fail(c,NULL,2,"I have not lowered multiple nominal service declarations together.");return false;}
+        c->catalog_id=row.catalog;
     }
-    for(unsigned i=0;i<8;i++)c->catalog.layouts[i]=i;
-    uint32_t module=sl_string(c,nl_file_catalog_interface());
+    c->type_count=c->catalog_id==2?9:8;
+    for(unsigned i=0;i<c->type_count;i++)c->catalog.layouts[i]=i;
+    uint32_t module=sl_string(c,c->catalog_id==2?nl_socket_catalog_interface():nl_file_catalog_interface());
     for(unsigned i=0;i<5;i++) {
-        uint8_t tags[]={TAG_STRUCT,TAG_INT};const NlFilePlanMethod *method=nl_file_catalog_method(i);
-        uint32_t index=nvm_add_import(c->module,module,sl_string(c,method->id),i==0?0:i==1?2:1,TAG_UNION,tags);
-        if(index==UINT32_MAX){sl_fail(c,NULL,4,"I cannot allocate File imports.");return false;}
+        uint8_t tags[2]={TAG_STRUCT,TAG_INT};
+        const NlServicePlanMethod *method=c->catalog_id==2?nl_socket_catalog_method(i):nl_file_catalog_method(i);
+        uint32_t index=nvm_add_import(c->module,module,sl_string(c,method->id),(uint16_t)(method->param_count-1),TAG_UNION,tags);
+        if(index==UINT32_MAX){sl_fail(c,NULL,4,"I cannot allocate service imports.");return false;}
         c->module->imports[index].kind=NVM_IMPORT_SERVICE;c->catalog.imports[i]=index;
     }
-    NvmV2Layout layouts[8]={0};NvmV2LayoutField fields[8][7]={0};
-    for(unsigned i=0;i<8;i++) {
-        const NlFilePlanType *type=nl_file_catalog_type(i);
-        layouts[i]=(NvmV2Layout){.kind=i<3?NVM_V2_LAYOUT_STRUCT:NVM_V2_LAYOUT_UNION,
+    NvmV2Layout layouts[9]={0};NvmV2LayoutField fields[9][11]={0};
+    for(unsigned i=0;i<c->type_count;i++) {
+        const NlServicePlanType *type=sl_catalog_type(c,i);
+        layouts[i]=(NvmV2Layout){.kind=(i<3 || i==8)?NVM_V2_LAYOUT_STRUCT:NVM_V2_LAYOUT_UNION,
             .name_idx=sl_string(c,type->id),.field_count=(uint16_t)type->member_count,.fields=fields[i]};
         for(size_t j=0;j<type->member_count;j++) {
             const char *id=type->members[j].type_id;uint8_t tag=TAG_VOID;uint32_t layout=NVM_V2_NO_INDEX;
             if(id) {
                 if(!strcmp(id,"nsi:core/int"))tag=TAG_INT;
                 else if(!strcmp(id,"nsi:core/bool"))tag=TAG_BOOL;
-                else for(unsigned k=0;k<8;k++)if(!strcmp(id,nl_file_catalog_type(k)->id)){layout=k;tag=k<3?TAG_STRUCT:TAG_UNION;}
+                else for(unsigned k=0;k<c->type_count;k++)if(!strcmp(id,sl_catalog_type(c,k)->id)){layout=k;tag=(k<3 || k==8)?TAG_STRUCT:TAG_UNION;}
             }
             fields[i][j]=(NvmV2LayoutField){tag,layout,sl_string(c,type->members[j].id)};
         }
     }
-    c->module->struct_count=3;c->module->union_count=5;
-    NvmV2Layouts table={layouts,8};
-    if(nvm_retain_layouts(c->module,&table)!=NVM_V2_OK){sl_fail(c,NULL,4,"I cannot retain File layouts.");return false;}
-    c->module->service_data=malloc(NVM_FILE_NOMINAL_BYTES);size_t size=0;
-    if(!c->module->service_data){sl_fail(c,NULL,4,"I cannot retain File service bindings.");return false;}
-    if(nvm_file_nominal_encode(&c->catalog,c->module->service_data,NVM_FILE_NOMINAL_BYTES,&size)!=NVM_SERVICE_OK)return false;
+    c->module->struct_count=c->catalog_id==2?4:3;c->module->union_count=5;
+    NvmV2Layouts table={layouts,c->type_count};
+    if(nvm_retain_layouts(c->module,&table)!=NVM_V2_OK){sl_fail(c,NULL,4,"I cannot retain service layouts.");return false;}
+    size_t capacity=c->catalog_id==2?NVM_SOCKET_NOMINAL_BYTES:NVM_FILE_NOMINAL_BYTES,size=0;
+    c->module->service_data=malloc(capacity);
+    if(!c->module->service_data){sl_fail(c,NULL,4,"I cannot retain service bindings.");return false;}
+    NvmServiceResult status;
+    if(c->catalog_id==2)status=nvm_socket_nominal_encode(&c->catalog,c->module->service_data,capacity,&size);
+    else {
+        NvmFileNominalBindings file={0};
+        memcpy(file.imports,c->catalog.imports,sizeof file.imports);memcpy(file.layouts,c->catalog.layouts,sizeof file.layouts);
+        status=nvm_file_nominal_encode(&file,c->module->service_data,capacity,&size);
+    }
+    if(status!=NVM_SERVICE_OK)return false;
     c->module->service_size=(uint32_t)size;return !c->result.status;
 }
 static void sl_desc(uint8_t *out,SlType type) {out[0]=type.tag;out[1]=type.mode;sl_wr32(out+4,type.layout);}
 static void sl_ownership(Sl *c) {
-    size_t size=20;
+    size_t flags=(c->type_count+3u)&~3u,header=12+flags,size=header;
     for(uint32_t i=0;i<c->count;i++)size+=12+8*c->functions[i].count;
     uint8_t *bytes=calloc(1,size);if(!bytes){sl_fail(c,NULL,4,"I cannot retain File local declarations.");return;}
-    sl_wr32(bytes,1);sl_wr32(bytes+4,8);
-    for(unsigned i=0;i<8;i++)bytes[8+i]=(i==0 || i==3)?3:1;
-    sl_wr32(bytes+16,c->count);size_t at=20;
+    sl_wr32(bytes,1);sl_wr32(bytes+4,c->type_count);
+    for(unsigned i=0;i<c->type_count;i++)bytes[8+i]=(i==0 || i==3)?3:1;
+    sl_wr32(bytes+8+flags,c->count);size_t at=header;
     for(uint32_t i=0;i<c->count;i++) {
         SlFunction *f=&c->functions[i];bytes[at]=(uint8_t)f->count;bytes[at+1]=(uint8_t)(f->count>>8);
         bytes[at+2]=(uint8_t)f->arity;bytes[at+3]=(uint8_t)(f->arity>>8);sl_desc(bytes+at+4,f->result);at+=12;
@@ -453,9 +496,6 @@ NlServiceLoweringResult nl_service_lower(const NlServiceNamespace *space,
     const ASTNode *selection,NvmModule **out) {
     if(!space || !bodies || bodies->status || !owners || owners->status || !out)
         return (NlServiceLoweringResult){1,0,0,"I require complete nominal and ownership checks before lowering."};
-    for(uint32_t module=0;nl_service_namespace_program(space,module);module++)
-        if(nl_service_namespace_catalog(space,module)==2)
-            return (NlServiceLoweringResult){2,0,0,"I have not connected TCP wire and runtime lowering."};
     Sl *c=calloc(1,sizeof *c);if(!c)return (NlServiceLoweringResult){4,0,0,"I cannot allocate File lowering state."};
     c->space=space;c->bodies=bodies;c->module=nvm_module_new();
     if(!c->module)sl_fail(c,NULL,4,"I cannot allocate a File module.");
@@ -583,12 +623,14 @@ static NvmV2Result sl_canonical_wire(NvmV2Module *wire,uint8_t **owned_code) {
 done:
     free(constants);free(signatures);free(pool);free(types);free(code);return result;
 }
-NlServiceLoweringResult nl_service_serialize(const NvmModule *module,uint8_t **out,size_t *size) {
-    if(!module || !out || !size)return (NlServiceLoweringResult){1,0,0,"I require module and output storage."};
+static NvmV2Result sl_file_stack_bounds(const NvmModule *module,NvmV2Module *wire,unsigned *failure) {
     NvmFileIndirectFlow *report=NULL;
     NvmFileFlowStatus status=nvm_file_indirect_flow_analyze(module,&report);
-    if(status!=NVM_FILE_FLOW_OK)return (NlServiceLoweringResult){status==NVM_FILE_FLOW_MEMORY?4:status==NVM_FILE_FLOW_LIMIT?3:2,0,0,"I cannot validate my lowered File bodies."};
-    NvmV2Module wire={0};NvmV2Result result=nvm_v2_from_nvm_module(module,&wire);
+    if(status!=NVM_FILE_FLOW_OK) {
+        *failure=status==NVM_FILE_FLOW_MEMORY?4:status==NVM_FILE_FLOW_LIMIT?3:2;
+        return NVM_V2_ERR_INDEX_RANGE;
+    }
+    NvmV2Result result=NVM_V2_OK;
     if(result==NVM_V2_OK)for(uint32_t f=0;f<module->function_count;f++) {
         NvmFileCodeFunction function;
         if(!nvm_file_indirect_flow_function(report,f,&function)){result=NVM_V2_ERR_INDEX_RANGE;break;}
@@ -603,9 +645,43 @@ NlServiceLoweringResult nl_service_serialize(const NvmModule *module,uint8_t **o
                 if(fact.output.stack>peak)peak=fact.output.stack;
             }
         }
-        wire.functions.items[f].max_stack=peak;
+        wire->functions.items[f].max_stack=peak;
     }
-    nvm_file_indirect_flow_free(report);size_t count=0;uint8_t *bytes=NULL;bool memory_failure=false;
+    nvm_file_indirect_flow_free(report);return result;
+}
+static NvmV2Result sl_socket_stack_bounds(const NvmModule *module,NvmV2Module *wire,unsigned *failure) {
+    NvmSocketIndirectFlow *report=NULL;
+    NvmSocketFlowStatus status=nvm_socket_indirect_flow_analyze(module,&report);
+    if(status!=NVM_SOCKET_FLOW_OK) {
+        *failure=status==NVM_SOCKET_FLOW_MEMORY?4:status==NVM_SOCKET_FLOW_LIMIT?3:2;
+        return NVM_V2_ERR_INDEX_RANGE;
+    }
+    NvmV2Result result=NVM_V2_OK;
+    if(result==NVM_V2_OK)for(uint32_t f=0;f<module->function_count;f++) {
+        NvmSocketCodeFunction function;
+        if(!nvm_socket_indirect_flow_function(report,f,&function)){result=NVM_V2_ERR_INDEX_RANGE;break;}
+        uint16_t peak=0;
+        for(uint16_t i=0;i<function.instruction_count;i++) {
+            uint8_t count=0;
+            if(!nvm_socket_indirect_flow_variant_count(report,f,i,&count)){result=NVM_V2_ERR_INDEX_RANGE;break;}
+            for(uint8_t j=0;j<count;j++) {
+                NvmSocketCyclicVariant fact;
+                if(!nvm_socket_indirect_flow_variant(report,f,i,j,&fact)){result=NVM_V2_ERR_INDEX_RANGE;break;}
+                if(fact.input.stack>peak)peak=fact.input.stack;
+                if(fact.output.stack>peak)peak=fact.output.stack;
+            }
+        }
+        wire->functions.items[f].max_stack=peak;
+    }
+    nvm_socket_indirect_flow_free(report);return result;
+}
+NlServiceLoweringResult nl_service_serialize(const NvmModule *module,uint8_t **out,size_t *size) {
+    if(!module || !out || !size)return (NlServiceLoweringResult){1,0,0,"I require module and output storage."};
+    NvmV2Module wire={0};NvmV2Result result=nvm_v2_from_nvm_module(module,&wire);
+    unsigned failure=2;
+    if(result==NVM_V2_OK)result=module->service_size==NVM_SOCKET_NOMINAL_BYTES?
+        sl_socket_stack_bounds(module,&wire,&failure):sl_file_stack_bounds(module,&wire,&failure);
+    size_t count=0;uint8_t *bytes=NULL;bool memory_failure=false;
     uint8_t *canonical_code=NULL;
     if(result==NVM_V2_OK) {
         result=sl_canonical_wire(&wire,&canonical_code);
@@ -618,6 +694,6 @@ NlServiceLoweringResult nl_service_serialize(const NvmModule *module,uint8_t **o
         else result=nvm_v2_module_serialize(&wire,bytes,count,&count);
     }
     nvm_v2_module_free(&wire);free(canonical_code);
-    if(result!=NVM_V2_OK){free(bytes);return (NlServiceLoweringResult){memory_failure?4u:2u,0,0,"I cannot serialize my checked File module."};}
+    if(result!=NVM_V2_OK){free(bytes);return (NlServiceLoweringResult){memory_failure?4u:failure,0,0,"I cannot serialize my checked File module."};}
     *out=bytes;*size=count;return (NlServiceLoweringResult){0};
 }

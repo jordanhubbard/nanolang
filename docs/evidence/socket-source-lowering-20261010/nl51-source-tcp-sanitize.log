@@ -1,0 +1,8 @@
+I retain source lowering artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-6umngwgy
+I build independent File lowerer with producer 0.
+test_tcp_source_bytes_and_granted_execution (tests.test_service_lowering_nano.ServiceLoweringNano.test_tcp_source_bytes_and_granted_execution) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 73.486s
+
+OK

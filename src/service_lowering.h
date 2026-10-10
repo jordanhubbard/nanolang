@@ -15,7 +15,7 @@ typedef struct {
 NlServiceLoweringResult nl_service_lower(const NlServiceNamespace *,
     const NlServiceBodyCheck *, const NlServiceOwnershipCheck *,
     const ASTNode *selection, NvmModule **out);
-/* I derive exact stack bounds from the complete cyclic File analysis before
+/* I derive exact stack bounds from the selected catalog's complete indirect-capable analysis before
  * serialization. Consumer admission remains a separate required check. */
 NlServiceLoweringResult nl_service_serialize(const NvmModule *, uint8_t **out, size_t *size);
 #endif

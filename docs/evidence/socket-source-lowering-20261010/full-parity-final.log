@@ -1,0 +1,45 @@
+I retain source lowering artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-xb6w13er
+I build independent File lowerer with producer 0.
+test_assertion_drains_live_file (tests.test_service_lowering_nano.ServiceLoweringNano.test_assertion_drains_live_file) ... I finish native compilation in 0.399s
+ok
+test_failed_selected_shadow_drains_live_file (tests.test_service_lowering_nano.ServiceLoweringNano.test_failed_selected_shadow_drains_live_file) ... I finish native compilation in 0.463s
+ok
+test_helpers_loops_fields_and_result_values (tests.test_service_lowering_nano.ServiceLoweringNano.test_helpers_loops_fields_and_result_values) ... I finish native compilation in 2.872s
+ok
+test_limits_preserve_outputs (tests.test_service_lowering_nano.ServiceLoweringNano.test_limits_preserve_outputs) ... ok
+test_multiple_borrow_assertion_drains_owners (tests.test_service_lowering_nano.ServiceLoweringNano.test_multiple_borrow_assertion_drains_owners) ... I finish native compilation in 18.673s
+I finish native compilation in 18.614s
+ok
+test_multiple_forwarded_reference_maps (tests.test_service_lowering_nano.ServiceLoweringNano.test_multiple_forwarded_reference_maps) ... I finish native compilation in 18.582s
+REFERENCE MAPS 2: malformed lengths, slots, value sentinels, overlap and owned copies checked
+EXEC 0 VALUE 129 FUNCTIONS 12 BYTES 7936
+EXEC 0 VALUE 129
+
+ok
+test_nested_argument_borrows_keep_branch_state (tests.test_service_lowering_nano.ServiceLoweringNano.test_nested_argument_borrows_keep_branch_state) ... I finish native compilation in 1.426s
+ok
+test_qualified_reexported_helper (tests.test_service_lowering_nano.ServiceLoweringNano.test_qualified_reexported_helper) ... I finish native compilation in 0.591s
+ok
+test_shared_alias_assertion_cleanup (tests.test_service_lowering_nano.ServiceLoweringNano.test_shared_alias_assertion_cleanup) ... I finish native compilation in 4.376s
+ok
+test_shared_aliases_forwarding_and_loan_release (tests.test_service_lowering_nano.ServiceLoweringNano.test_shared_aliases_forwarding_and_loan_release) ... I finish native compilation in 4.322s
+I finish native compilation in 4.352s
+ok
+test_short_circuit_skips_effects (tests.test_service_lowering_nano.ServiceLoweringNano.test_short_circuit_skips_effects) ... I finish native compilation in 0.369s
+ok
+test_tcp_source_bytes_and_granted_execution (tests.test_service_lowering_nano.ServiceLoweringNano.test_tcp_source_bytes_and_granted_execution) ... ok
+test_terminal_operands_release_pending_values (tests.test_service_lowering_nano.ServiceLoweringNano.test_terminal_operands_release_pending_values) ... I finish native compilation in 0.647s
+I finish native compilation in 0.614s
+I finish native compilation in 0.522s
+ok
+test_unchanged_generated_binding_and_all_shadows (tests.test_service_lowering_nano.ServiceLoweringNano.test_unchanged_generated_binding_and_all_shadows) ... I finish native compilation in 8.138s
+I finish native compilation in 8.123s
+I finish native compilation in 8.526s
+I finish native compilation in 8.396s
+I finish native compilation in 8.087s
+ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 214.432s
+
+OK

@@ -1,6 +1,7 @@
 #include "nanolang.h"
 #include "service_lowering.h"
 #include "nanoisa/file_cyclic_public.h"
+#include "nanoisa/socket_indirect_native_public.h"
 #include "runtime/service_shadows.h"
 #include <assert.h>
 #include <stdio.h>
@@ -148,7 +149,7 @@ int main(int argc,char **argv) {
         assert(attempt.status==4 && sentinel==module);
     }
     assert(recovered);
-    check_reference_maps(module);
+    if(module->service_size!=NVM_SOCKET_NOMINAL_BYTES)check_reference_maps(module);
     uint8_t *bytes=NULL;size_t length=0;result=nl_service_serialize(module,&bytes,&length);
     if(result.status)fprintf(stderr,"SERIALIZE %u %s\n",result.status,result.diagnostic);
     assert(!result.status);
@@ -165,6 +166,23 @@ int main(int argc,char **argv) {
         assert(attempt.status==4 && prior==bytes && prior_size==length);
     }
     assert(recovered);
+    if(module->service_size==NVM_SOCKET_NOMINAL_BYTES) {
+        char wire_path[8192];assert(snprintf(wire_path,sizeof wire_path,"%s.nvm",argv[3])<(int)sizeof wire_path);
+        file=fopen(wire_path,"wb");assert(file);assert(fwrite(bytes,1,length,file)==length);assert(!fclose(file));
+        NvmSocketHostGrant *grant=NULL;assert(nvm_socket_host_grant_create_tcp_connections(&grant)==NVM_SOCKET_HOST_OK);
+        NvmSocketIndirectOptions options={1,100000};NvmSocketScalar scalar={0};
+        unsigned descriptors=descriptor_count();
+        NvmSocketIndirectExecutionReport denied=nvm_socket_execute_indirect_bytes(NULL,bytes,length,&options,&scalar);
+        assert(denied.runtime.status==NVM_SOCKET_RUNTIME_INVALID && !denied.runtime.acquired);
+        NvmSocketIndirectExecutionReport report=nvm_socket_execute_indirect_bytes(grant,bytes,length,&options,&scalar);
+        assert(report.runtime.status==expected && !report.runtime.cleanup.cleanup_failures && descriptors==descriptor_count());
+        printf("EXEC %u VALUE %lld\n",report.runtime.status,(long long)scalar.value);
+        char diagnostic[256],*native=NULL;
+        assert(nvm2c_emit_socket_indirect_bytes(bytes,length,"source",&native,diagnostic,sizeof diagnostic)==NVM_SOCKET_RUNTIME_OK);
+        file=fopen(argv[3],"wb");assert(file);assert(fwrite(native,1,strlen(native),file)==strlen(native));assert(!fclose(file));
+        free(native);free(bytes);nvm_module_free(module);
+        assert(nvm_socket_host_grant_destroy(&grant)==NVM_SOCKET_HOST_OK);goto done;
+    }
     NvmFileHostGrant *grant=NULL;assert(nvm_file_host_grant_create_temporary_files(&grant)==NVM_FILE_HOST_OK);
     NvmFileCyclicOptions options={NVM_FILE_CYCLIC_RUNTIME_REVISION,100000};NvmFileScalar scalar={0};
     unsigned descriptors=descriptor_count();

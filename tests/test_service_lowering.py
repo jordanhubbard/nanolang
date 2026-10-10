@@ -37,9 +37,13 @@ int main(void) {
 class ServiceLowering(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.directory=tempfile.TemporaryDirectory(prefix='nano-service-lowering-')
-        cls.addClassCleanup(cls.directory.cleanup)
-        cls.work=Path(cls.directory.name).resolve()
+        if os.environ.get('NANO_SERVICE_LOWERING_RETAIN'):
+            cls.work=Path(tempfile.mkdtemp(prefix='nano-service-lowering-')).resolve()
+            print(f'I retain source lowering artifacts at {cls.work}',flush=True)
+        else:
+            cls.directory=tempfile.TemporaryDirectory(prefix='nano-service-lowering-')
+            cls.addClassCleanup(cls.directory.cleanup)
+            cls.work=Path(cls.directory.name).resolve()
         (cls.work/'interface.nsi.json').write_bytes((ROOT/'tests/fixtures/nsi_file_plan.json').read_bytes())
         (cls.work/'nanolang').mkdir()
         (cls.work/'nanolang/file').symlink_to(ROOT/'src',target_is_directory=True)

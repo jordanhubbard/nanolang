@@ -14803,3 +14803,17 @@ I retain [my matched TCP VM/native execution evidence](evidence/socket-dispatch-
 - [x] Under #990 I correct the initial public TCP wrappers to call the retained shared engine helper names. Their first strict build reported undeclared socket-prefixed static helpers; I preserve that diagnostic and require both wrappers plus VM/native grant tests to compile and pass.
 
 I retain [my public TCP grant and installed-package evidence](evidence/socket-public-grants-20261010/README.md). Paired source lowering, CLI policy, mixed services and full release qualification remain open.
+
+- [x] Under #990 I connect both C and Nano source lowerers to the checked TCP catalog, including Endpoint construction in source evaluation order, nine nominal layouts, exact import signatures, ownership records and independent serialized bytes. I require C/Nano byte parity, real granted VM/native execution, selected shadows, malformed/refused input preservation and File regression coverage. This single-catalog foundation precedes the separately required mixed File/TCP transport and CLI integration; it does not complete them.
+
+- [x] Under #990 I correct my first Endpoint lowering edit, which placed emission in the terminal-operand scanner and failed strict compilation. I keep emission in the expression dispatcher and teach the scanner to visit constructor fields so enclosing operands are staged before terminal fields.
+
+- [x] Under #990 I make public archives depend on their Makefile object manifest. Adding an already-built Socket flow object otherwise left the File archive stale and produced unresolved Socket analysis symbols when linking the source lowerer. I require both archives to rebuild with exact object-only members after a manifest change.
+
+- [x] Under #990 I exclude the catalog return descriptor when deriving source import parameter counts. My first generalized C lowerer counted it as an argument, causing the File source regression to refuse serialization. I preserve that failing log and require File and TCP parity to pass with the exact input arity.
+
+- [x] Under #990 I correct the TCP source fixture to use `octet` for its parameter; `byte` is a reserved token and the initial parser run refused it before lowering.
+
+- [x] Under #990 I repair the Nano lowering regression harness's missing return report. Its inherited multiple-reference-map test called `assertIn` on `None`, after successful execution, because the Nano override discarded its output and never ran the C fixture that reports those mutation checks. I retain the C mutation checks alongside independent Nano execution and compare scalar/status reports. I require the inherited File assertion and full Nano corpus to run rather than stopping at that harness error.
+
+I retain [my paired TCP source lowering evidence](evidence/socket-source-lowering-20261010/README.md). Mixed-service transport, CLI network policy, supervised network shadows and the full 5.1 release gates remain required.
