@@ -98,6 +98,23 @@ execute methods. The public service validator still refuses catalog 3, and
 execution remains classified as pending. `test-websocket-nominal-boundary`
 checks that separation directly against the actual public validator.
 
+## Private logical flow
+
+My `websocket_flow` checker now uses the actual four-method nominal map. Shared
+service transfer reads ordered arguments from the immutable method descriptor:
+an exclusive receiver comes from a reference; a consuming receiver precedes its
+copied arguments on the value stack. This supports Message plus timeout for send
+and Connection plus timeout for close without changing File/TCP signatures.
+Message construction and projection recognize counted strings as scalar fields.
+
+Every WebSocket call records a distinct pending timeout-domain obligation
+(`CHECK_TIMEOUT`, bit 1024), alongside binding, invocation, liveness, rights,
+result and cleanup checks. Send/receive also require an exclusive borrow.
+Close consumes its owner on both arms; failed logical transitions preserve state.
+My logical checker neither validates timeout values nor executes instructions.
+Body checking, obligation discharge and matched dispatch must follow before
+public admission.
+
 ## Admission boundary
 
 My private invocation carrier in `nsi_websocket_values.[ch]` now owns up to 64

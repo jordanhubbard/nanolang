@@ -351,6 +351,7 @@ static bool member_type(const FLOW_TYPE(State) *s,uint32_t context,const char *i
     if(!id){*out=scalar_type(TAG_VOID);return true;}
     if(!strcmp(id,"nsi:core/int")){*out=scalar_type(TAG_INT);return true;}
     if(!strcmp(id,"nsi:core/bool")){*out=scalar_type(TAG_BOOL);return true;}
+    if(!strcmp(id,"nsi:core/string")){*out=scalar_type(TAG_STRING);return true;}
     for(uint32_t i=FLOW_TYPE_BASE(context);i<FLOW_TYPE_BASE(context)+FLOW_TYPE_COUNT(s->declarations->nominal,context);i++) {
         const NlServicePlanType *t=FLOW_CATALOG_TYPE(s->declarations->nominal,i);
         if(t && !strcmp(t->id,id))return catalog_type(s,i,out);
@@ -553,39 +554,36 @@ FLOW_TYPE(Status) FLOW_FN(service)(FLOW_TYPE(State) *s,uint32_t site,uint32_t im
         FLOW_CONST(CHECK_RIGHTS)|FLOW_CONST(CHECK_RESULT)|FLOW_CONST(CHECK_CLEANUP);
     obligation.outcomes[0]=input_state(method->outcomes[0].input_state);
     obligation.outcomes[1]=input_state(method->outcomes[1].input_state);
-    if(method->input_mode==NL_SERVICE_INPUT_EXCLUSIVE) {
+    size_t inputs=method->param_count-1;
+    bool exclusive=method->input_mode==NL_SERVICE_INPUT_EXCLUSIVE;
+    bool consuming=method->input_mode==NL_SERVICE_INPUT_CONSUME;
+    if((exclusive || consuming) && !inputs)return FLOW_CONST(INVALID);
+    if(exclusive) {
         FLOW_TYPE(Declaration) ref_type;
         if(!live_reference(s,reference,&ref_type))return FLOW_CONST(INVALID);
         file.mode=2;if(!same(file,ref_type))return FLOW_CONST(INVALID);
         obligation.borrowed_inputs=1;obligation.checks|=FLOW_CONST(CHECK_BORROW);
-        if(FLOW_METHOD_LOCAL(ordinal)==1) {
-            if(!s->stack_count || !s->stack[s->stack_count-1].initialized ||
-               !same(s->stack[s->stack_count-1].type,scalar_type(TAG_INT)))return FLOW_CONST(INVALID);
-            consumed=1;obligation.checks|=FLOW_CONST(CHECK_BYTE);
-        }
-    } else {
-        if(reference!=FLOW_CONST(NO_REFERENCE))return FLOW_CONST(INVALID);
-        if(method->input_mode==NL_SERVICE_INPUT_CONSUME) {
-            if(!s->stack_count)return FLOW_CONST(INVALID);
-            FLOW_TYPE(Value) value=s->stack[s->stack_count-1];
-            if(!value.initialized || !value.owner || !same(value.type,file) || held(s,value.owner))return FLOW_CONST(INVALID);
-            consumed=1;obligation.owned_inputs=1;
-        } else {
-            /* I consume exact copy inputs, including TCP's Endpoint, before
-             * creating a new owner. Field domains remain runtime obligations. */
-            size_t inputs=method->param_count-1;
-            if(inputs>s->stack_count)return FLOW_CONST(INVALID);
-            for(size_t i=0;i<inputs;i++) {
-                FLOW_TYPE(Declaration) expected;
-                FLOW_TYPE(Value) value=s->stack[s->stack_count-inputs+i];
-                if(!member_type(s,FLOW_METHOD_OWNER(ordinal),method->params[i].type_id,&expected) || owned(expected) ||
-                   !value.initialized || value.owner || !same(expected,value.type))return FLOW_CONST(INVALID);
-                if(FLOW_IS_ENDPOINT(s->declarations->nominal,expected.catalog_ordinal) && expected.category==NOMINAL_CATEGORY_RECORD)
-                    obligation.checks|=FLOW_ENDPOINT_CHECK;
-            }
-            consumed=(uint16_t)inputs;
-        }
+    } else if(reference!=FLOW_CONST(NO_REFERENCE))return FLOW_CONST(INVALID);
+    /* I check the ordered value suffix from the immutable catalog. An exclusive
+     * receiver comes from a reference; a consuming receiver remains first on
+     * the stack, followed by any copied arguments such as a deadline. */
+    size_t first=exclusive?1:0,values=inputs-first;
+    if(values>s->stack_count)return FLOW_CONST(INVALID);
+    for(size_t i=first;i<inputs;i++) {
+        FLOW_TYPE(Declaration) expected;
+        FLOW_TYPE(Value) value=s->stack[s->stack_count-values+i-first];
+        if(!member_type(s,FLOW_METHOD_OWNER(ordinal),method->params[i].type_id,&expected) ||
+           !value.initialized || !same(expected,value.type))return FLOW_CONST(INVALID);
+        if(consuming && !i) {
+            if(!value.owner || !same(expected,file) || held(s,value.owner))return FLOW_CONST(INVALID);
+            obligation.owned_inputs=1;
+        } else if(owned(expected) || value.owner)return FLOW_CONST(INVALID);
+        if(method->params[i].domain==NL_SERVICE_DOMAIN_BYTE_INT)obligation.checks|=FLOW_CONST(CHECK_BYTE);
+        if(method->params[i].domain==NL_SERVICE_DOMAIN_TIMEOUT_MS)obligation.checks|=FLOW_TIMEOUT_CHECK;
+        if(FLOW_IS_ENDPOINT(s->declarations->nominal,expected.catalog_ordinal) && expected.category==NOMINAL_CATEGORY_RECORD)
+            obligation.checks|=FLOW_ENDPOINT_CHECK;
     }
+    consumed=(uint16_t)values;
     if((uint32_t)s->stack_count-consumed+1>FLOW_CONST(STACK))return FLOW_CONST(LIMIT);
     if(owned(result)) {
         FLOW_TYPE(Counts) counts;FLOW_FN(counts)(s,&counts);
