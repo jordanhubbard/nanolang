@@ -14779,3 +14779,11 @@ I retain [my shared File/TCP nominal wire evidence](evidence/socket-nominal-wire
 - [x] Under #990 I make the new TCP flow fixture loops unambiguous under GCC's strict indentation checks. LLVM passes the assertions, but GCC rejects three unbraced loops followed by same-line assertions. I retain the compiler failure, add explicit loop braces and require the original corpus across both compilers without suppressing warnings.
 
 I retain [my shared File/TCP flow, CODE and acyclic-body evidence](evidence/socket-flow-code-body-20261009/README.md). Runtime obligations, cyclic/indirect TCP support and full release gates remain open.
+
+- [x] Under #990 I carry exact TCP nominal metadata through ordinary v2 module transport before connecting hosted execution. I select catalog2 explicitly, retain ownership bytes without promoting them to generic executable authority, register dependencies in compiler/native host closures, and require round-trip identity, malformed metadata/feature refusal, allocation recovery and continued refusal by generic/File execution consumers.
+
+- [x] Under #990 I connect TCP cyclic/indirect ownership and serialized hosted preparation through shared checked engines. I require Endpoint consumption in target analysis, all candidate callees, loop owner canonicalization, exact pending endpoint obligations, startup/storage bounds and input-lifetime independence. I keep File regressions and all execution refusals; preparation alone grants no runtime authority.
+
+- [x] Under #990 I extend the v2 deserializer's exact service-section lengths for TCP. The first round-trip passes serialization but rejects TCP's 128-byte service section because decoding allows only56/120 bytes. I retain the failure, add the exact128-byte form and require round-trip and malformed-profile checks; I do not accept arbitrary section lengths.
+
+I retain [my TCP transport and hosted-preparation evidence](evidence/socket-transport-hosted-20261009/README.md). Runtime execution, paired source lowering and full platform/release acceptance remain open.

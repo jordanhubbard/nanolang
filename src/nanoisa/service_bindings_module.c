@@ -81,6 +81,16 @@ static NvmV2Result nominal_status(NvmFileNominalStatus status) {
     return status==NVM_FILE_NOMINAL_LIMIT?NVM_V2_ERR_INDEX_RANGE:NVM_V2_ERR_SECTION_TYPE;
 }
 static NvmV2Result nominal_module(const NvmModule *m) {
+    /* I select the exact TCP catalog before validating its complete map.
+     * Unknown or malformed identities still fail the File/TCP validators. */
+    if(m->service_data && m->service_size>=4 && m->service_data[2]==2 && !m->service_data[3]) {
+        NvmSocketNominalPlan *plan=NULL;
+        NvmSocketNominalStatus status=nvm_socket_nominal_plan(m,&plan);
+        nvm_socket_nominal_plan_free(plan);
+        if(status==NVM_SOCKET_NOMINAL_DESCRIBED)return NVM_V2_OK;
+        if(status==NVM_SOCKET_NOMINAL_MEMORY)return NVM_V2_ERR_TRUNCATED;
+        return status==NVM_SOCKET_NOMINAL_LIMIT?NVM_V2_ERR_INDEX_RANGE:NVM_V2_ERR_SECTION_TYPE;
+    }
     NvmFileNominalPlan *plan=NULL;
     NvmV2Result status=nominal_status(nvm_file_nominal_plan(m,&plan));
     nvm_file_nominal_plan_free(plan);return status;
@@ -258,6 +268,30 @@ NvmV2Result nvm_file_nominal_attach(NvmModule *m,const NlFilePlan *plan,
         if(nl_file_plan_type(plan,i)!=nl_file_catalog_type(i))return NVM_V2_ERR_SECTION_TYPE;
     uint8_t staged[NVM_FILE_NOMINAL_BYTES];size_t size=0;
     if(nvm_file_nominal_encode(bindings,staged,sizeof staged,&size)!=NVM_SERVICE_OK)
+        return NVM_V2_ERR_SECTION_TYPE;
+    NvmModule candidate=*m;candidate.service_data=staged;candidate.service_size=(uint32_t)size;
+    NvmV2Result result=nominal_module(&candidate);
+    if(result!=NVM_V2_OK)return result;
+    if(m->service_data || m->service_size)
+        return m->service_data && m->service_size==size && !memcmp(m->service_data,staged,size)
+            ?NVM_V2_OK:NVM_V2_ERR_FEATURE_MISMATCH;
+    uint8_t *owned=malloc(size);
+    if(!owned)return NVM_V2_ERR_TRUNCATED;
+    memcpy(owned,staged,size);m->service_data=owned;m->service_size=(uint32_t)size;
+    return NVM_V2_OK;
+}
+
+NvmV2Result nvm_socket_nominal_attach(NvmModule *m,const NlSocketPlan *plan,
+                                    const NvmSocketNominalBindings *bindings) {
+    if(!m || !plan || nl_socket_plan_type_count(plan)!=NVM_SOCKET_NOMINAL_TYPES ||
+       nl_socket_plan_method_count(plan)!=NVM_SERVICE_BINDING_COUNT ||
+       strcmp(nl_socket_plan_interface(plan),nl_socket_catalog_interface()))return NVM_V2_ERR_SECTION_TYPE;
+    for(uint32_t i=0;i<NVM_SERVICE_BINDING_COUNT;i++)
+        if(nl_socket_plan_method(plan,i)!=nl_socket_catalog_method(i))return NVM_V2_ERR_SECTION_TYPE;
+    for(uint32_t i=0;i<NVM_SOCKET_NOMINAL_TYPES;i++)
+        if(nl_socket_plan_type(plan,i)!=nl_socket_catalog_type(i))return NVM_V2_ERR_SECTION_TYPE;
+    uint8_t staged[NVM_SOCKET_NOMINAL_BYTES];size_t size=0;
+    if(nvm_socket_nominal_encode(bindings,staged,sizeof staged,&size)!=NVM_SERVICE_OK)
         return NVM_V2_ERR_SECTION_TYPE;
     NvmModule candidate=*m;candidate.service_data=staged;candidate.service_size=(uint32_t)size;
     NvmV2Result result=nominal_module(&candidate);

@@ -121,7 +121,7 @@ static void query(bool permutation){
  NvmFileNominalBindings file_map;CHECK(nvm_file_nominal_decode(m->service_data,m->service_size,&file_map)!=NVM_SERVICE_OK);
  NvmFileNominalPlan *file_plan=NULL;CHECK(nvm_file_nominal_plan(m,&file_plan)!=NVM_FILE_NOMINAL_DESCRIBED && !file_plan);
  CHECK(!nvm_verify(m).ok);char error[256];CHECK(nvm2c_emit(m,error,sizeof error)==NULL);
- CHECK(nvm_service_bindings_validate(m)!=NVM_V2_OK);
+ CHECK(nvm_service_bindings_validate(m)==NVM_V2_OK);
  for(uint32_t i=0;i<m->ownership_size;i++){m->ownership_data[i]^=0x80;reject(m);m->ownership_data[i]^=0x80;}
  for(uint32_t i=0;i<m->layout_size;i++){m->layout_data[i]^=0x80;reject(m);m->layout_data[i]^=0x80;}
  for(uint32_t i=0;i<m->service_size;i++){m->service_data[i]^=0x40;reject(m);m->service_data[i]^=0x40;}

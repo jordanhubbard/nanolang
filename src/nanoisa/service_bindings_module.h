@@ -2,6 +2,8 @@
 #define NANOISA_SERVICE_BINDINGS_MODULE_H
 #include "service_bindings.h"
 #include "service_file_nominal.h"
+#include "service_socket_nominal.h"
+#include "../nsi_socket_plan.h"
 #include "nvm_v2_sections.h"
 #include "../nsi_file_plan.h"
 
@@ -28,4 +30,6 @@ NvmV2Result nvm_service_bindings_attach(NvmModule *, const NlFilePlan *,
  * continue refusing either service version. Same atomicity as v1 attach. */
 NvmV2Result nvm_file_nominal_attach(NvmModule *,const NlFilePlan *,
                                    const NvmFileNominalBindings *);
+/* I attach only an exact checked TCP plan; this is transport, not execution. */
+NvmV2Result nvm_socket_nominal_attach(NvmModule *,const NlSocketPlan *,const NvmSocketNominalBindings *);
 #endif

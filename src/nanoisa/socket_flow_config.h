@@ -12,3 +12,6 @@
 #define BODY_FN(name) nvm_socket_body_##name
 #define BODY_TYPE(name) NvmSocketBody##name
 #define BODY_CONST(name) NVM_SOCKET_BODY_##name
+#define SERVICE_FN(name) nvm_socket_##name
+#define SERVICE_TYPE(name) NvmSocket##name
+#define SERVICE_CONST(name) NVM_SOCKET_##name

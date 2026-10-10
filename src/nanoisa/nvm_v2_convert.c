@@ -44,7 +44,9 @@ static NvmV2Result conversion_ownership(const NvmModule *module,bool *needs,uint
         NvmV2Result service=nvm_service_bindings_validate(module);
         if(service!=NVM_V2_OK)return service;
         NvmFileNominalBindings nominal;
-        if(nvm_file_nominal_decode(module->service_data,module->service_size,&nominal)==NVM_SERVICE_OK) {
+        NvmSocketNominalBindings tcp;
+        if(nvm_file_nominal_decode(module->service_data,module->service_size,&nominal)==NVM_SERVICE_OK ||
+           nvm_socket_nominal_decode(module->service_data,module->service_size,&tcp)==NVM_SERVICE_OK) {
             *needs=true;return NVM_V2_OK; /* Exact private transport, never shared authority. */
         }
         return nvm_ownership_contracts_validate(module,needs); /* Unchanged v1. */

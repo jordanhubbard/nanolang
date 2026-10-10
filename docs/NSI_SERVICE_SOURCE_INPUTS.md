@@ -68,6 +68,14 @@ I retain [flow and body evidence](evidence/socket-flow-code-body-20261009/README
 for the synthetic lifecycle, malformed programs and allocation recovery. These
 checks neither execute networking nor authorize the existing File runtime.
 
+I now retain this exact TCP map through v2 module transport and both conversion
+bridges. My separate TCP preparation APIs check serialized acyclic, cyclic and
+indirect-call bodies, including every candidate callee and the pending Endpoint
+domain check. They own their retained inputs independently of the source module.
+I retain [transport and hosted-preparation evidence](evidence/socket-transport-hosted-20261009/README.md),
+including File adjacency and the updated compiler host dependency closure.
+Preparation still grants no network execution authority.
+
 I have not connected TCP wire metadata to source lowering, service dispatch or selected network
 shadow execution. Both lowerers explicitly refuse TCP before wire publication,
 so the File runtime cannot interpret TCP ordinals. My paired source checks,

@@ -12,3 +12,6 @@
 #define BODY_FN(name) nvm_file_body_##name
 #define BODY_TYPE(name) NvmFileBody##name
 #define BODY_CONST(name) NVM_FILE_BODY_##name
+#define SERVICE_FN(name) nvm_file_##name
+#define SERVICE_TYPE(name) NvmFile##name
+#define SERVICE_CONST(name) NVM_FILE_##name
