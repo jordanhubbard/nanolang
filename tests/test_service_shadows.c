@@ -1,6 +1,8 @@
 #define _POSIX_C_SOURCE 200809L
 #define _DARWIN_C_SOURCE 1
 #include "runtime/service_shadows.h"
+#include "runtime/service_policy.h"
+#include "nanoisa/services_indirect_public.h"
 #include "nanoisa/file_indirect_public.h"
 #include "nanoisa/socket_indirect_public.h"
 #include <assert.h>
@@ -90,6 +92,39 @@ NvmSocketIndirectExecutionReport nvm_socket_execute_indirect_bytes(NvmSocketHost
     report.runtime.cleanup.cleanup_failures=result.runtime.cleanup.cleanup_failures;
     scalar->value=value.value;return report;
 }
+bool nl_service_policy_read(const uint8_t *bytes,size_t size,bool files,bool tcp,NlServicePolicy *out) {
+    if(!bytes || size!=1 || *bytes==12)return false;
+    *out=(NlServicePolicy){.profile=3,.count=3,.allowed=files&&tcp,.requires_file=true,.requires_tcp=true,
+        .instances={{NVM_SERVICES_HOST_FILE,files},{NVM_SERVICES_HOST_TCP,tcp},{NVM_SERVICES_HOST_FILE,files}}};
+    return true;
+}
+struct NvmServicesHostGrant { unsigned placeholder; };
+static struct NvmServicesHostGrant mixed_policy;
+NvmServicesHostStatus nvm_services_host_grant_create(const NvmServicesHostPolicy *items,size_t count,NvmServicesHostGrant **out) {
+    assert(count==3 && items[0].catalog==NVM_SERVICES_HOST_FILE && items[1].catalog==NVM_SERVICES_HOST_TCP && items[2].catalog==NVM_SERVICES_HOST_FILE);
+    assert(items[0].allowed && items[1].allowed && items[2].allowed);
+    NvmFileHostGrant *file=NULL;
+    if(nvm_file_host_grant_create_temporary_files(&file)!=NVM_FILE_HOST_OK)return NVM_SERVICES_HOST_MEMORY;
+    *out=&mixed_policy;return NVM_SERVICES_HOST_OK;
+}
+NvmServicesHostStatus nvm_services_host_grant_revoke(NvmServicesHostGrant *grant) {
+    assert(grant==&mixed_policy);
+    return nvm_file_host_grant_revoke(&policy)==NVM_FILE_HOST_OK?NVM_SERVICES_HOST_OK:NVM_SERVICES_HOST_STATE;
+}
+NvmServicesHostStatus nvm_services_host_grant_destroy(NvmServicesHostGrant **grant) {
+    assert(*grant==&mixed_policy);NvmFileHostGrant *file=&policy;
+    if(nvm_file_host_grant_destroy(&file)!=NVM_FILE_HOST_OK)return NVM_SERVICES_HOST_BUSY;
+    *grant=NULL;return NVM_SERVICES_HOST_OK;
+}
+NvmServicesIndirectExecutionReport nvm_services_execute_indirect_bytes(NvmServicesHostGrant *grant,
+    const uint8_t *bytes,size_t size,const NvmServicesIndirectOptions *options,NvmServicesScalar *scalar) {
+    assert(grant==&mixed_policy);
+    NvmFileIndirectOptions file_options={options->revision,options->instruction_limit};NvmFileScalar value={0};
+    NvmFileIndirectExecutionReport result=nvm_file_execute_indirect_bytes(&policy,bytes,size,&file_options,&value);
+    NvmServicesIndirectExecutionReport report={0};report.runtime.status=(NvmServicesRuntimeStatus)result.runtime.status;
+    report.runtime.acquired=result.runtime.acquired;report.runtime.cleanup.cleanup_failures=result.runtime.cleanup.cleanup_failures;
+    scalar->value=value.value;return report;
+}
 static unsigned occurrences(const char *text,const char *needle) {
     unsigned count=0;const char *p=text;
     while((p=strstr(p,needle))) {++count;p+=strlen(needle);}return count;
@@ -149,9 +184,21 @@ int main(void) {
         assert(report.status==expected && report.completed==(code==0?2u:0u));
         assert(unlink(path)==0);
     }
+    fault=0;code=0;
+    assert(nl_service_run_mixed_shadows(suite,2,false,true,path).status==NL_SERVICE_SHADOW_DENIED);
+    assert(nl_service_run_mixed_shadows(suite,2,true,false,path).status==NL_SERVICE_SHADOW_DENIED);
+    assert(access(path,F_OK)!=0);
+    code=12;assert(nl_service_run_mixed_shadows(suite,2,true,true,path).status==NL_SERVICE_SHADOW_INVALID);
+    assert(access(path,F_OK)!=0);
+    for(code=0;code<=11;code++) {
+        fault=code;report=nl_service_run_mixed_shadows(suite,2,true,true,path);
+        NlServiceShadowStatus expected=code==0?NL_SERVICE_SHADOW_OK:code==2?NL_SERVICE_SHADOW_TIMEOUT:
+            (code==3||code==4||code==8)?NL_SERVICE_SHADOW_SYSTEM:NL_SERVICE_SHADOW_FAILED;
+        assert(report.status==expected && report.completed==(code==0?2u:0u));assert(unlink(path)==0);
+    }
     assert(unsetenv("NANO_SHADOW_TIMEOUT_SECONDS")==0);
     assert(rmdir(directory)==0);
 
-    puts("I pass File/TCP shadow supervision, whole-suite timeout and refusal controls.");
+    puts("I pass File/TCP/mixed shadow supervision, whole-suite timeout and refusal controls.");
     return 0;
 }

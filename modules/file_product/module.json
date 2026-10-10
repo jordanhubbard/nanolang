@@ -1,7 +1,7 @@
 {
   "name": "file_product",
   "version": "0.1.0",
-  "description": "I publish independently emitted File bytes after supervised shadows",
+  "description": "I publish independently emitted service bytes after supervised shadows",
   "headers": [
     "file_product.h"
   ],
@@ -66,7 +66,16 @@
     "../../src/nanoisa/socket_indirect_public_abi.c",
     "../../src/nanovm/socket_indirect_public_vm.c",
     "../../src/nsi_socket.c",
-    "../../src/nsi_socket_values.c"
+    "../../src/nsi_socket_values.c",
+    "../../src/runtime/service_policy.c",
+    "../../src/nanoisa/services_nominal.c",
+    "../../src/nanoisa/services_flow.c",
+    "../../src/nanoisa/services_runtime.c",
+    "../../src/nanoisa/services_host_grant.c",
+    "../../src/nanoisa/services_indirect_public_native.c",
+    "../../src/nanoisa/services_indirect_public_abi.c",
+    "../../src/nanovm/services_indirect_public_vm.c",
+    "../../src/nsi_services_values.c"
   ],
   "cflags": [
     "-D_GNU_SOURCE",

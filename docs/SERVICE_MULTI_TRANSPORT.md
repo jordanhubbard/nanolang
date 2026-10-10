@@ -246,6 +246,48 @@ I also recognize a capitalized record type after a lowercase module alias in
 my Nano parser, including `tcp.Endpoint { family: 4, ... }` as a call argument.
 The prior parser treated this as field access although my C parser accepted it.
 
-This source-lowering boundary does not publish mixed programs through my CLI.
-Driver selection, grant options and supervised source-shadow publication remain
-required before mixed source programs become a supported end-to-end product.
+My source-lowering checkpoint alone did not establish CLI publication. The
+following integration connects those bytes to explicit grants, supervised
+shadows and staged product publication.
+
+## CLI publication and invocation
+
+My source drivers select the mixed public runtime when independent lowering
+emits a version-3 instance table. I authorize every declared File instance with
+`--allow-temporary-files` and every declared TCP instance with
+`--allow-tcp-connections`. A File/File graph needs only the File flag; a TCP/TCP
+graph needs only the TCP flag. File/TCP graphs require both. The same rule
+applies even when a declared instance is not used by the selected function.
+
+```sh
+nanoc source.nano --allow-temporary-files --allow-tcp-connections --emit-nvm -o program.nvm
+nano_vm --services --service-instruction-limit 1000000 --allow-temporary-files --allow-tcp-connections program.nvm
+nvm2c --services --entry-name example program.nvm -o program.c
+```
+
+My raw `--services` route selects the multi-instance profile, with an explicit
+decimal instruction limit from zero through 1,000,000. I reject combined
+execution modes and guest arguments. C emission requires a valid entry name
+and no host grant; its generated entry receives an explicit grant from its host.
+Existing single-catalog routes remain separate.
+
+Source publication validates the main module, then executes the selected
+shadows in the existing supervised child. I describe each shadow's requested
+catalogs before execution and create a fresh per-instance grant for each one.
+The public runtime independently validates the complete plan. My supervisor
+retains the whole-suite deadline, durable SELECT/START/DONE records and process
+group cleanup. A missing permission or failed shadow preserves prior output.
+
+A published native executable requires fresh flags at invocation, in either
+order. It embeds only the ordered catalog policy and independent generated
+execution, not the compiler's grant or VM. No-shadow emission can publish bytes
+or a native program without authority; executing that program still requires
+its declared catalog permissions. `make install` includes File, TCP and mixed
+runtime archives and headers. Source publication also accepts those installed
+headers/archives when the selected product root has no source directory.
+
+The expanded host closure also exposed an 8 KB module-object linker-command
+limit. I now assemble that command dynamically using the existing exact path
+quoting. I still refuse failed allocation or linking before publishing a module
+cache generation. My regression executes a 37-object library built beneath a
+long path containing spaces and quotes.

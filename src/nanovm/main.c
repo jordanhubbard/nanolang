@@ -14,6 +14,8 @@
 #include "../nanoisa/file_cyclic_public.h"
 #include "../nanoisa/file_indirect_public.h"
 #include "../nanoisa/socket_indirect_public.h"
+#include "../nanoisa/services_indirect_public.h"
+#include "../runtime/service_policy.h"
 #include "../nanoisa/file_cli.h"
 #include "vm.h"
 #include "vm_ffi.h"
@@ -150,6 +152,32 @@ static int run_socket_standalone(const char *path,const NvmSocketIndirectOptions
     if(report.runtime.status!=NVM_SOCKET_RUNTIME_OK || !report.runtime.acquired || report.runtime.cleanup.cleanup_failures ||
        revoked!=NVM_SOCKET_HOST_OK || destroyed!=NVM_SOCKET_HOST_OK || grant) {
         fprintf(stderr,"I refuse TCP execution (status %u, limit %llu, started %llu, exhausted %u).\n",
+            (unsigned)report.runtime.status,(unsigned long long)report.instruction_limit,
+            (unsigned long long)report.instructions_started,(unsigned)report.fuel_exhausted);return 1;
+    }
+    return (int)((uint64_t)scalar.value&255u);
+}
+
+static int run_services_standalone(const char *path,const NvmServicesIndirectOptions *options,bool files,bool tcp) {
+    uint8_t *bytes=NULL;size_t size=0;char diagnostic[256]={0};
+    if(!nvm_file_cli_read(path,&bytes,&size,diagnostic,sizeof diagnostic)){fprintf(stderr,"%s\n",diagnostic);return 1;}
+    NlServicePolicy policy;
+    if(!nl_service_policy_read(bytes,size,files,tcp,&policy) || policy.profile!=3){free(bytes);return 1;}
+    if(!policy.allowed) {
+        if(policy.requires_file && !files)fputs("I require --allow-temporary-files for these service instances.\n",stderr);
+        if(policy.requires_tcp && !tcp)fputs("I require --allow-tcp-connections for these service instances.\n",stderr);
+        free(bytes);return 1;
+    }
+    NvmServicesHostGrant *grant=NULL;
+    if(nvm_services_host_grant_create(policy.instances,policy.count,&grant)!=NVM_SERVICES_HOST_OK){free(bytes);return 1;}
+    NvmServicesScalar scalar={0};
+    NvmServicesIndirectExecutionReport report=nvm_services_execute_indirect_bytes(grant,bytes,size,options,&scalar);
+    free(bytes);
+    NvmServicesHostStatus revoked=nvm_services_host_grant_revoke(grant);
+    NvmServicesHostStatus destroyed=nvm_services_host_grant_destroy(&grant);
+    if(report.runtime.status!=NVM_SERVICES_RUNTIME_OK || !report.runtime.acquired || report.runtime.cleanup.cleanup_failures ||
+       revoked!=NVM_SERVICES_HOST_OK || destroyed!=NVM_SERVICES_HOST_OK || grant) {
+        fprintf(stderr,"I refuse mixed-service execution (status %u, limit %llu, started %llu, exhausted %u).\n",
             (unsigned)report.runtime.status,(unsigned long long)report.instruction_limit,
             (unsigned long long)report.instructions_started,(unsigned)report.fuel_exhausted);return 1;
     }
@@ -333,6 +361,7 @@ static int run_shadow_module(void) {
 int main(int argc, char *argv[]) {
     bool allow_temporary_files = false, allow_tcp_connections = false, socket_limit_set = false;
     NvmSocketIndirectOptions socket_options={1,0};
+    bool services=false,service_limit_set=false;NvmServicesIndirectOptions service_options={1,0};
     bool file_cyclic = false, file_indirect = false, file_limit_set = false;
     NvmFileCyclicOptions file_options = {NVM_FILE_CYCLIC_RUNTIME_REVISION, 0};
     g_argc = argc;
@@ -340,6 +369,7 @@ int main(int argc, char *argv[]) {
 
     if (argc < 2) {
         fprintf(stderr, "Usage: %s [--verify-only | --daemon | --check-shadows | --allow-temporary-files] [--debug] [--profile-isa FILE] <file.nvm> [-- guest-args...]\n", argv[0]);
+        fprintf(stderr, "For mixed services I require --services, --service-instruction-limit N, and opt-ins for each declared catalog.\n");
         fprintf(stderr, "For TCP execution I require --allow-tcp-connections and --socket-instruction-limit N.\n");
         fprintf(stderr, "For cyclic or indirect File execution I require --allow-temporary-files, one of --file-cyclic/--file-indirect, and --file-instruction-limit N.\n");
         return 1;
@@ -364,6 +394,12 @@ int main(int argc, char *argv[]) {
             }
             guest_start = i;
             break;
+        } else if (strcmp(argv[i], "--services") == 0) {
+            if(services)return 1;
+            services=true;
+        } else if (strcmp(argv[i], "--service-instruction-limit") == 0) {
+            if(service_limit_set || i+1>=argc || !file_instruction_limit(argv[++i],&service_options.instruction_limit))return 1;
+            service_limit_set=true;
         } else if (strcmp(argv[i], "--allow-tcp-connections") == 0) {
             if(allow_tcp_connections)return 1;
             allow_tcp_connections=true;
@@ -425,6 +461,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    if(services || service_limit_set) {
+        if(!services || !service_limit_set || socket_limit_set || file_cyclic || file_indirect || file_limit_set ||
+           check_shadows || verify_only || daemon_mode || repeat_requested || g_profile_path || g_isolate_ffi || g_debug_mode || guest_start) {
+            fputs("I require --services and --service-instruction-limit together, without other execution modes.\n",stderr);return 1;
+        }
+        return run_services_standalone(nvm_path,&service_options,allow_temporary_files,allow_tcp_connections);
+    }
     if(allow_tcp_connections || socket_limit_set) {
         if(!allow_tcp_connections || !socket_limit_set || allow_temporary_files || file_cyclic || file_indirect || file_limit_set ||
            check_shadows || verify_only || daemon_mode || repeat_requested || g_profile_path || g_isolate_ffi || g_debug_mode || guest_start) {

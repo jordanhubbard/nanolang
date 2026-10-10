@@ -31,4 +31,8 @@ NlServiceShadowReport nl_service_run_shadows(const NlServiceShadow *, size_t,
  * independently checks every module; the boolean grants only this catalog. */
 NlServiceShadowReport nl_service_run_catalog_shadows(const NlServiceShadow *, size_t,
     unsigned catalog, bool allowed, const char *log_path);
+/* I authorize each declared mixed instance independently, then create a fresh
+ * grant in the supervised child for each selected shadow. */
+NlServiceShadowReport nl_service_run_mixed_shadows(const NlServiceShadow *,size_t,
+    bool allow_temporary_files,bool allow_tcp_connections,const char *log_path);
 #endif

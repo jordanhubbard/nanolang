@@ -425,8 +425,8 @@ NANOISA_UTF8 = $(OBJ_DIR)/utf8.o
 # I link exactly one explicit File runtime owner; generic consumers still refuse.
 FILE_PUBLIC_LIBRARY = lib/libnano_file_runtime.a
 SERVICE_DRIVER_OBJECTS = $(OBJ_DIR)/service_driver.o $(OBJ_DIR)/service_lowering.o $(OBJ_DIR)/runtime/service_product.o $(OBJ_DIR)/runtime/service_shadows.o
-COMPILER_OBJECTS += $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a
-$(SERVICE_DRIVER_OBJECTS): src/service_driver.h src/service_lowering.h src/runtime/service_product.h src/runtime/service_shadows.h
+COMPILER_OBJECTS += $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a
+$(SERVICE_DRIVER_OBJECTS): src/runtime/service_policy.h src/service_driver.h src/service_lowering.h src/runtime/service_product.h src/runtime/service_shadows.h
 FILE_PUBLIC_QUERY_STEMS = nanoisa/affine_bytecode nanoisa/affine_state nanoisa/file_flow nanoisa/socket_flow nanoisa/services_flow nanoisa/services_nominal nanoisa/isa \
 	nanoisa/managed_array_shapes nanoisa/mixed_float_proof nanoisa/nvm_format \
 	nanoisa/nvm_format_v2 nanoisa/nvm_v2_constants nanoisa/nvm_v2_convert \
@@ -647,8 +647,8 @@ check-binary64-parser:
 
 nvm2c: check-binary64-parser $(BIN_DIR)/nvm2c
 
-$(BIN_DIR)/nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a | $(BIN_DIR)
-	$(CC) $(CFLAGS) -o $(BIN_DIR)/nvm2c $(NVM2C_MAIN_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a $(LDFLAGS)
+$(BIN_DIR)/nvm2c: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $(BIN_DIR)/nvm2c $(NVM2C_MAIN_OBJECT) $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a $(LDFLAGS)
 
 .PHONY: nvm2hl test-scalar-reconstruction
 nvm2hl: $(NANOISA_OBJECTS) $(NANOISA_UTF8) | $(BIN_DIR)
@@ -978,10 +978,10 @@ VMD_OBJECTS = $(patsubst $(NANOVM_DIR)/%.c,$(OBJ_DIR)/nanovm/%.o,$(VMD_SOURCES))
 
 nano_vm: $(BIN_DIR)/nano_vm
 
-$(BIN_DIR)/nano_vm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o $(OBJ_DIR)/nanovm/main.o $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a | bin
+$(BIN_DIR)/nano_vm: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o $(OBJ_DIR)/nanovm/main.o $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a | bin
 	$(CC) $(CFLAGS) -o $@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) \
 		$(OBJ_DIR)/nanovm/vmd_protocol.o $(OBJ_DIR)/nanovm/vmd_client.o \
-		$(OBJ_DIR)/nanovm/main.o $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS)
+		$(OBJ_DIR)/nanovm/main.o $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a $(LDFLAGS) $(EXPORT_DYNAMIC_LDFLAGS)
 
 nano_vmd: $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(VMD_OBJECTS) $(OBJ_DIR)/nanovm/vmd_main.o | bin
 	$(CC) $(CFLAGS) -o bin/$@ $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) \
@@ -1158,9 +1158,9 @@ test-units: test-borrow-contract-allocation
 
 nano_virt: $(BIN_DIR)/nano_virt
 
-$(BIN_DIR)/nano_virt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a | bin
+$(BIN_DIR)/nano_virt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a | bin
 	$(CC) $(CFLAGS) -o $@ $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) \
-		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a $(LDFLAGS)
+		$(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(OBJ_DIR)/nanovirt/main.o $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a $(LDFLAGS)
 
 $(OBJ_DIR)/nanovirt/main.o: $(NANOVIRT_DIR)/main.c $(NANOVIRT_DIR)/codegen.h | $(OBJ_DIR)/nanovirt
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -4112,7 +4112,7 @@ coverage-check: coverage.info
 	fi
 
 # Install binaries
-install: $(COMPILER) vm nvm2c install-file-public-runtime
+install: $(COMPILER) vm nvm2c install-file-public-runtime install-socket-public-runtime install-services-public-runtime
 	install -d $(PREFIX)/bin
 	install -m 755 $(COMPILER) $(PREFIX)/bin/nanoc
 	install -m 755 bin/nano_virt $(PREFIX)/bin/nano_virt
@@ -6143,7 +6143,7 @@ test-service-lowering-nano: $(OBJ_DIR)/test_service_lowering $(BIN_DIR)/nano_vir
 test-units: test-service-wire test-service-lowering-nano test-service-shadows
 
 .PHONY: test-service-shadows
-$(OBJ_DIR)/test_service_shadows: tests/test_service_shadows.c src/runtime/service_shadows.c src/runtime/service_shadows.h
+$(OBJ_DIR)/test_service_shadows: tests/test_service_shadows.c src/runtime/service_shadows.c src/runtime/service_shadows.h src/runtime/service_policy.h
 	$(CC) $(CFLAGS) -o $@ tests/test_service_shadows.c src/runtime/service_shadows.c
 test-service-shadows: $(OBJ_DIR)/test_service_shadows
 	./$(OBJ_DIR)/test_service_shadows
@@ -6154,8 +6154,8 @@ test-service-drivers: $(COMPILER_C) $(BIN_DIR)/nano_virt $(BIN_DIR)/nano_vm
 test-units: test-service-drivers
 
 .PHONY: test-service-drivers-sanitize
-$(OBJ_DIR)/nano_virt_file_sanitize: src/nanovirt/main.c src/module.c src/service_driver.c src/service_lowering.c src/runtime/service_product.c src/runtime/service_shadows.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a
-	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $@ src/nanovirt/main.c src/module.c src/service_driver.c src/service_lowering.c src/runtime/service_product.c src/runtime/service_shadows.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(filter-out $(OBJ_DIR)/module.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a $(LDFLAGS)
+$(OBJ_DIR)/nano_virt_file_sanitize: src/nanovirt/main.c src/module.c src/service_driver.c src/service_lowering.c src/runtime/service_product.c src/runtime/service_policy.c src/runtime/service_shadows.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a
+	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $@ src/nanovirt/main.c src/module.c src/service_driver.c src/service_lowering.c src/runtime/service_product.c src/runtime/service_policy.c src/runtime/service_shadows.c $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(filter-out $(OBJ_DIR)/module.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a $(LDFLAGS)
 test-service-drivers-sanitize: $(OBJ_DIR)/nano_virt_file_sanitize $(COMPILER_C) $(BIN_DIR)/nano_vm
 	NANO_SERVICE_DRIVER_VIRT="$(CURDIR)/$(OBJ_DIR)/nano_virt_file_sanitize" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_service_drivers
 
@@ -6167,14 +6167,16 @@ test-file-product-bridge: $(OBJ_DIR)/test_file_product_bridge
 test-units: test-file-product-bridge
 
 .PHONY: test-nano-service-driver
-test-nano-service-driver: bootstrap3 $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a
+test-nano-service-driver: bootstrap3 $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a
+	$(MAKE) -f Makefile.gnu CC="$(CC)" PREFIX="$(MIXED_SERVICE_TEST_PREFIX)" install-services-public-runtime
 	@set -e; for generation in 1 2; do \
 	  NANO_FILE_DRIVER_MODULE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}.nvm" NANO_FILE_DRIVER_NATIVE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_nano_service_driver.NanoServiceDriver; \
 	  NANO_TCP_DRIVER_MODULE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}.nvm" NANO_TCP_DRIVER_NATIVE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_socket_service_drivers.SocketServiceDrivers; \
+	  NANO_TCP_DRIVER_MODULE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}.nvm" NANO_TCP_DRIVER_NATIVE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}" NANO_MIXED_INSTALL_PREFIX="$(MIXED_SERVICE_TEST_PREFIX)" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_mixed_service_drivers.MixedServiceDrivers; \
 	done
 
-$(OBJ_DIR)/nvm2c_artifact_sanitize: $(NANOISA_DIR)/nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a
-	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $@ $(NANOISA_DIR)/nvm2c.c $(filter-out $(OBJ_DIR)/nanoisa/nvm2c.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a $(LDFLAGS)
+$(OBJ_DIR)/nvm2c_artifact_sanitize: $(NANOISA_DIR)/nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a
+	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $@ $(NANOISA_DIR)/nvm2c.c $(filter-out $(OBJ_DIR)/nanoisa/nvm2c.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a $(LDFLAGS)
 
 $(OBJ_DIR)/nanovm/file_indirect_public_vm.o: $(SRC_DIR)/nanovm/file_vm_indirect_engine.inc $(NANOISA_DIR)/file_indirect_dispatch.inc
 $(OBJ_DIR)/nanoisa/file_indirect_public_native.o: $(NANOISA_DIR)/file_indirect_native_emit.inc $(NANOISA_DIR)/file_indirect_dispatch.inc
@@ -6374,7 +6376,7 @@ test-units: test-services-dispatch
 SERVICES_PUBLIC_HEADERS = nanoisa/generated_schema.h nanoisa/isa.h nanoisa/nvm_format.h nanoisa/nvm_format_v2.h nanoisa/nvm_v2_sections.h nanoisa/service_bindings.h nanoisa/service_multi_nominal.h nanoisa/services_body.h nanoisa/services_code.h nanoisa/services_cyclic.h nanoisa/services_flow.h nanoisa/services_host_grant.h nanoisa/services_host_grant_internal.h nanoisa/services_hosted.h nanoisa/services_indirect_flow.h nanoisa/services_indirect_hosted.h nanoisa/services_indirect_native_abi.h nanoisa/services_indirect_native_public.h nanoisa/services_indirect_public.h nanoisa/services_indirect_public_internal.h nanoisa/services_indirect_report.h nanoisa/services_indirect_runtime.h nanoisa/services_indirect_targets.h nanoisa/services_nominal.h nanoisa/services_public.h nanoisa/services_public_internal.h nanoisa/services_runtime.h nanoisa/services_runtime_frames.h nsi.h nsi_cap.h nsi_file.h nsi_file_catalog.h nsi_file_plan.h nsi_file_values.h nsi_service_catalog.h nsi_services_values.h nsi_socket.h nsi_socket_plan.h nsi_socket_values.h
 # I package the mixed runtime with its single shared public-call gate.
 SERVICES_PUBLIC_LIBRARY = lib/libnano_services_runtime.a
-SERVICES_PUBLIC_STEMS = $(FILE_PUBLIC_QUERY_STEMS) nanoisa/services_runtime \
+SERVICES_PUBLIC_STEMS = $(FILE_PUBLIC_QUERY_STEMS) runtime/service_policy nanoisa/services_runtime \
  nanoisa/file_host_grant nanoisa/services_host_grant nanoisa/services_indirect_public_native \
  nanoisa/services_indirect_public_abi nanovm/services_indirect_public_vm nsi_cap nsi_file nsi_file_values nsi_socket nsi_socket_values nsi_services_values
 SERVICES_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(SERVICES_PUBLIC_STEMS)))
@@ -6403,3 +6405,10 @@ test-services-public: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOVM_OBJECTS) $(COM
 	NANO_SOCKET_DISPATCH_CC="$(CC)" SOCKET_DISPATCH_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_DISPATCH_LDFLAGS="$(LDFLAGS)" SERVICES_VM_OBJECTS="$(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICES_PUBLIC_TEST_PREFIX="$(SERVICES_PUBLIC_TEST_PREFIX)" python3 -m unittest -f -v tests.test_services_public
 
 test-units: test-services-public
+
+.PHONY: test-mixed-service-drivers
+MIXED_SERVICE_TEST_PREFIX ?= $(CURDIR)/obj/mixed-service-test-install
+test-mixed-service-drivers: $(COMPILER_C) $(BIN_DIR)/nano_virt $(BIN_DIR)/nano_vm $(BIN_DIR)/nvm2c $(SERVICES_PUBLIC_LIBRARY)
+	$(MAKE) -f Makefile.gnu CC="$(CC)" PREFIX="$(MIXED_SERVICE_TEST_PREFIX)" install-services-public-runtime
+	NANO_MIXED_INSTALL_PREFIX="$(MIXED_SERVICE_TEST_PREFIX)" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -f -v tests.test_mixed_service_drivers
+test-units: test-mixed-service-drivers

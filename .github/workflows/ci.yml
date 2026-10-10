@@ -147,6 +147,11 @@ jobs:
             NANO_TCP_DRIVER_MODULE="$PWD/bin/nanoc_stage${generation}.nvm" \
             NANO_TCP_DRIVER_NATIVE="$PWD/bin/nanoc_stage${generation}" \
               python3 -m unittest -v tests.test_socket_service_drivers.SocketServiceDrivers
+            make -f Makefile.gnu PREFIX="$PWD/obj/mixed-service-ci-install" install-services-public-runtime
+            NANO_TCP_DRIVER_MODULE="$PWD/bin/nanoc_stage${generation}.nvm" \
+              NANO_TCP_DRIVER_NATIVE="$PWD/bin/nanoc_stage${generation}" \
+              NANO_MIXED_INSTALL_PREFIX="$PWD/obj/mixed-service-ci-install" \
+              python3 -m unittest -v tests.test_mixed_service_drivers.MixedServiceDrivers
           done
 
       - name: Run test suite

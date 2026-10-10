@@ -5634,28 +5634,28 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
                 }
             }
 
-            char combine_cmd[8192] = {0};
+            /* I retain every object path even when a large module closure
+             * exceeds the former fixed command buffer. Quoting remains exact. */
+            char *combine_cmd = NULL;
+            command_ok &= module_append_fragment(&combine_cmd, cc);
 #ifdef __APPLE__
-            /* I am producing one relocatable object, not a runnable image.
-             * Apple Clang otherwise adds -lSystem and compiler-rt to `cc -r`;
-             * ld then warns that libSystem is an unexpected dylib. I retain
-             * the selected compiler driver and its target selection, but keep
-             * default libraries for the later shared/product link. */
-            command_ok &= module_build_append(combine_cmd, sizeof(combine_cmd),
-                                               "%s -nostdlib -r", cc);
+            command_ok &= module_append_fragment(&combine_cmd, "-nostdlib -r");
 #else
-            command_ok &= module_build_append(combine_cmd, sizeof(combine_cmd), "%s -r", cc);
+            command_ok &= module_append_fragment(&combine_cmd, "-r");
 #endif
-            command_ok &= module_append_path_flag(combine_cmd, sizeof(combine_cmd), "-o ", object_file);
+            char *quoted_output = module_quote_path(object_file);
+            command_ok &= quoted_output && module_append_fragment(&combine_cmd, "-o") &&
+                          module_append_fragment(&combine_cmd, quoted_output);
+            free(quoted_output);
             for (size_t i = 0; i < meta->c_sources_count; i++) {
-                command_ok &= src_objects[i] && module_append_path_flag(combine_cmd, sizeof(combine_cmd), "", src_objects[i]);
+                char *quoted = src_objects[i] ? module_quote_path(src_objects[i]) : NULL;
+                command_ok &= quoted && module_append_fragment(&combine_cmd, quoted);
+                free(quoted);
             }
-
-            if (module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) {
+            if ((module_builder_verbose || getenv("NANO_VERBOSE_BUILD")) && combine_cmd)
                 printf("[Module] %s\n", combine_cmd);
-            }
-
             int combine_result = command_ok ? system(combine_cmd) : -1;
+            free(combine_cmd);
             for (size_t i = 0; i < meta->c_sources_count; i++) free(src_objects[i]);
             free(src_objects);
 
