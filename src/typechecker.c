@@ -342,6 +342,13 @@ static FunctionSignature *function_result_signature(ASTNode *call, Environment *
 static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
     if (expr->type == AST_UNION_CONSTRUCT) return expr->as.union_construct.type_info;
+    if (expr->type == AST_TUPLE_LITERAL) return expr->as.tuple_literal.type_info;
+    if (expr->type == AST_TUPLE_INDEX) {
+        TypeInfo *tuple = try_get_expr_type_info(expr->as.tuple_index.tuple, env);
+        int index = expr->as.tuple_index.index;
+        if (tuple && tuple->tuple_elements && index >= 0 && index < tuple->tuple_element_count)
+            return tuple->tuple_elements[index];
+    }
     if (expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
         if (sym) return sym->type_info;
@@ -1021,6 +1028,10 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             return NULL;
         }
         
+        case AST_TUPLE_INDEX: {
+            TypeInfo *info = try_get_expr_type_info(expr,env);
+            return info ? info->generic_name : NULL;
+        }
         case AST_MODULE_QUALIFIED_CALL: {
             TypeInfo *info = try_get_expr_type_info(expr, env);
             if (info && (info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION || info->base_type == TYPE_ENUM))
@@ -1345,6 +1356,8 @@ static TypeInfo *copy_generic_argument_info(ASTNode *expr, Environment *env, uns
             }
         }
         if (!info->element_type) { free_payload_type_info(info); return NULL; }
+    } else if (type == TYPE_TUPLE) {
+        free_payload_type_info(info); return NULL;
     } else if (type == TYPE_FUNCTION) {
         info->fn_sig = copy_callable_signature(expr, env);
         if (!info->fn_sig) { free_payload_type_info(info); return NULL; }
@@ -1353,6 +1366,20 @@ static TypeInfo *copy_generic_argument_info(ASTNode *expr, Environment *env, uns
         info->generic_name = name ? strdup(name) : NULL;
     }
     return info;
+}
+
+/* I compare tuple contents at each declared value boundary. */
+static bool check_tuple_contract(Environment *env, const TypeInfo *expected, ASTNode *value) {
+    TypeInfo *declared = copy_payload_type_info(expected);
+    TypeInfo *actual = copy_generic_argument_info(value,env,0);
+    bool matches = declared && actual && actual->base_type == TYPE_TUPLE &&
+        generic_normalize_nominals(env,declared,0) && generic_normalize_nominals(env,actual,0) &&
+        type_infos_equal(declared,actual);
+    free_payload_type_info(declared); free_payload_type_info(actual);
+    if (!matches) emit_context_error("E001 TYPE MISMATCH",value ? value->line : 0,
+        value ? value->column : 0,1,"I require one complete tuple shape.",
+        "Match every nested element to its declared type.");
+    return matches;
 }
 
 /* Internal implementation - do not call directly */
@@ -1747,12 +1774,8 @@ static bool reduce_types_exact(const TypeInfo *a, const TypeInfo *b,
             if (a->tuple_element_count != b->tuple_element_count || a->tuple_element_count < 0)
                 return false;
             for (int i = 0; i < a->tuple_element_count; ++i) {
-                if (!a->tuple_types || !b->tuple_types) return false;
-                TypeInfo left = reduce_type_view(a->tuple_types[i],
-                    a->tuple_type_names ? a->tuple_type_names[i] : NULL, NULL);
-                TypeInfo right = reduce_type_view(b->tuple_types[i],
-                    b->tuple_type_names ? b->tuple_type_names[i] : NULL, NULL);
-                if (!reduce_types_exact(&left, &right, env, depth + 1)) return false;
+                TypeInfo left, right;
+                if (!reduce_types_exact(tuple_element_info(a,i,&left),tuple_element_info(b,i,&right),env,depth+1)) return false;
             }
             return true;
         case TYPE_FUNCTION: {
@@ -3343,6 +3366,8 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                         /* Regular argument type checking */
                         check_concrete_union_arrays(env, func->params[i].type_info, arg, 0);
                         Type arg_type = check_expression(arg, env);
+                        if (func->params[i].type == TYPE_TUPLE &&
+                            !check_tuple_contract(env,func->params[i].type_info,arg)) return TYPE_UNKNOWN;
                         if (arg->type == AST_ARRAY_LITERAL &&
                             func->params[i].type == TYPE_ARRAY &&
                             func->params[i].element_type != TYPE_UNKNOWN) {
@@ -4557,83 +4582,51 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
         }
 
         case AST_TUPLE_LITERAL: {
-            /* Type check tuple literal: (expr1, expr2, expr3) */
-            int element_count = expr->as.tuple_literal.element_count;
-            
-            /* Empty tuple is valid */
-            if (element_count == 0) {
-                expr->as.tuple_literal.element_types = NULL;
-                return TYPE_TUPLE;
+            int count = expr->as.tuple_literal.element_count;
+            TypeInfo *info = calloc(1,sizeof *info);
+            if (!info) return TYPE_UNKNOWN;
+            info->base_type = TYPE_TUPLE;
+            info->tuple_element_count = count;
+            info->tuple_elements = calloc((size_t)count,sizeof(TypeInfo *));
+            info->tuple_types = calloc((size_t)count,sizeof(Type));
+            info->tuple_type_names = calloc((size_t)count,sizeof(char *));
+            if (count && (!info->tuple_elements || !info->tuple_types || !info->tuple_type_names)) {
+                free_payload_type_info(info); return TYPE_UNKNOWN;
             }
-            
-            /* Allocate space for element types */
-            expr->as.tuple_literal.element_types = malloc(sizeof(Type) * element_count);
-            
-            /* Type check each element */
-            for (int i = 0; i < element_count; i++) {
-                Type elem_type = check_expression(expr->as.tuple_literal.elements[i], env);
-                if (elem_type == TYPE_UNKNOWN) {
-                    fprintf(stderr, "Error at line %d, column %d: Tuple element %d has unknown type\n",
-                            expr->line, expr->column, i);
-                    return TYPE_UNKNOWN;
+            for (int i=0; i<count; ++i) {
+                TypeInfo *element = copy_generic_argument_info(expr->as.tuple_literal.elements[i],env,0);
+                info->tuple_elements[i] = element;
+                if (!element || element->base_type == TYPE_UNKNOWN) {
+                    free_payload_type_info(info); return TYPE_UNKNOWN;
                 }
-                expr->as.tuple_literal.element_types[i] = elem_type;
+                info->tuple_types[i] = element->base_type;
+                info->tuple_type_names[i] = element->generic_name ? strdup(element->generic_name) : NULL;
             }
-            
+            free_payload_type_info(expr->as.tuple_literal.type_info);
+            expr->as.tuple_literal.type_info = info;
+            free(expr->as.tuple_literal.element_types);
+            expr->as.tuple_literal.element_types = count ? malloc((size_t)count*sizeof(Type)) : NULL;
+            if (count && !expr->as.tuple_literal.element_types) return TYPE_UNKNOWN;
+            if (count) memcpy(expr->as.tuple_literal.element_types,info->tuple_types,(size_t)count*sizeof(Type));
             return TYPE_TUPLE;
         }
 
         case AST_TUPLE_INDEX: {
-            /* Type check tuple index access: tuple.0, tuple.1 */
-            Type tuple_type = check_expression(expr->as.tuple_index.tuple, env);
-            
-            if (tuple_type != TYPE_TUPLE) {
-                fprintf(stderr, "Error at line %d, column %d: Tuple index access on non-tuple type\n",
-                        expr->line, expr->column);
+            ASTNode *tuple = expr->as.tuple_index.tuple;
+            if (check_expression(tuple,env) != TYPE_TUPLE) {
+                emit_context_error("E001 TYPE MISMATCH",expr->line,expr->column,1,
+                    "I require a tuple before projecting an element.","Project an element of a tuple value.");
                 return TYPE_UNKNOWN;
             }
-            
-            /* Get the tuple expression to check bounds */
-            ASTNode *tuple_expr = expr->as.tuple_index.tuple;
-            int index = expr->as.tuple_index.index;
-            
-            /* If the tuple is a literal, we can check bounds and get exact type */
-            if (tuple_expr->type == AST_TUPLE_LITERAL) {
-                int element_count = tuple_expr->as.tuple_literal.element_count;
-                if (index < 0 || index >= element_count) {
-                    fprintf(stderr, "Error at line %d, column %d: Tuple index %d out of bounds (tuple has %d elements)\n",
-                            expr->line, expr->column, index, element_count);
-                    return TYPE_UNKNOWN;
-                }
-                
-                /* Return the type of the indexed element */
-                if (tuple_expr->as.tuple_literal.element_types) {
-                    return tuple_expr->as.tuple_literal.element_types[index];
-                }
+            TypeInfo *info = try_get_expr_type_info(tuple,env);
+            TypeInfo view;
+            const TypeInfo *element = tuple_element_info(info,expr->as.tuple_index.index,&view);
+            if (!element) {
+                emit_context_error("E001 TYPE MISMATCH",expr->line,expr->column,1,
+                    "I require complete tuple metadata and an in-bounds index.","Use an index within the declared tuple shape.");
+                return TYPE_UNKNOWN;
             }
-            /* If the tuple is a variable, look up TypeInfo */
-            else if (tuple_expr->type == AST_IDENTIFIER) {
-                Symbol *sym = env_get_var_visible_at(env, tuple_expr->as.identifier, tuple_expr->line, tuple_expr->column);
-                if (sym && sym->type == TYPE_TUPLE && sym->type_info) {
-                    TypeInfo *type_info = sym->type_info;
-                    
-                    /* Check bounds */
-                    if (index < 0 || index >= type_info->tuple_element_count) {
-                        fprintf(stderr, "Error at line %d, column %d: Tuple index %d out of bounds (tuple has %d elements)\n",
-                                expr->line, expr->column, index, type_info->tuple_element_count);
-                        return TYPE_UNKNOWN;
-                    }
-                    
-                    /* Return the type of the indexed element */
-                    return type_info->tuple_types[index];
-                }
-            }
-            
-            /* For function returns or other complex expressions, we can't statically determine the type.
-             * Return TYPE_INT as a conservative estimate.
-             * TODO: Store TypeInfo in function return types for complete type checking.
-             */
-            return TYPE_INT;
+            return element->base_type;
         }
 
         case AST_TRY_OP: {
@@ -5340,36 +5333,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             /* Create TypeInfo for tuples or use existing from parser for generic types */
             if (!retain_let_function_type(tc, stmt, declared_type)) return TYPE_UNKNOWN;
             TypeInfo *type_info = stmt->as.let.type_info;  /* Use parser's TypeInfo if available */
-            if (!type_info && declared_type == TYPE_TUPLE && stmt->as.let.value->type == AST_TUPLE_LITERAL) {
-                /* Create TypeInfo from tuple literal */
-                ASTNode *tuple_lit = stmt->as.let.value;
-                type_info = calloc(1, sizeof(TypeInfo));
-                type_info->base_type = TYPE_TUPLE;
-                type_info->element_type = NULL;
-                type_info->generic_name = NULL;
-                type_info->type_params = NULL;
-                type_info->type_param_count = 0;
-                type_info->tuple_element_count = tuple_lit->as.tuple_literal.element_count;
-                
-                /* Copy tuple element types */
-                if (type_info->tuple_element_count > 0) {
-                    type_info->tuple_types = malloc(sizeof(Type) * type_info->tuple_element_count);
-                    type_info->tuple_type_names = malloc(sizeof(char*) * type_info->tuple_element_count);
-                    
-                    for (int i = 0; i < type_info->tuple_element_count; i++) {
-                        if (tuple_lit->as.tuple_literal.element_types) {
-                            type_info->tuple_types[i] = tuple_lit->as.tuple_literal.element_types[i];
-                        } else {
-                            type_info->tuple_types[i] = TYPE_UNKNOWN;
-                        }
-                        type_info->tuple_type_names[i] = NULL;  /* TODO: Handle struct/union types */
-                    }
-                } else {
-                    type_info->tuple_types = NULL;
-                    type_info->tuple_type_names = NULL;
-                }
+            if (!type_info && declared_type == TYPE_TUPLE) {
+                type_info = copy_payload_type_info(try_get_expr_type_info(stmt->as.let.value,tc->env));
+                stmt->as.let.type_info = type_info;
             }
-            
+
+            if (declared_type == TYPE_TUPLE && !check_tuple_contract(tc->env,type_info,stmt->as.let.value))
+                tc->has_error = true;
+
             /* Add to environment */
             /* Use declared_type which has been corrected for unions and enums */
             Type env_type = declared_type;
@@ -5484,6 +5455,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
             check_concrete_union_arrays(tc->env, sym->type_info, stmt->as.set.value, 0);
             Type value_type = check_expression(stmt->as.set.value, tc->env);
+            if (sym->type == TYPE_TUPLE && !check_tuple_contract(tc->env,sym->type_info,stmt->as.set.value))
+                tc->has_error = true;
             if(sym->is_global && sym->type==TYPE_UNION &&
                !check_global_union_value(tc->env,sym->struct_type_name,sym->type_info,stmt->as.set.value))
                 tc->has_error=true;
@@ -5648,6 +5621,9 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 
                 check_concrete_union_arrays(tc->env, tc->current_function_return_info, stmt->as.return_stmt.value, 0);
                 Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
+                if (tc->current_function_return_type == TYPE_TUPLE &&
+                    !check_tuple_contract(tc->env,tc->current_function_return_info,stmt->as.return_stmt.value))
+                    tc->has_error = true;
                 /* I use the same literal-null rule at return as at opaque
                  * initialization and calls; arbitrary integers stay invalid. */
                 if (tc->current_function_return_type == TYPE_STRUCT &&

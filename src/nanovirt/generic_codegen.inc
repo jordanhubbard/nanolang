@@ -73,6 +73,14 @@ static bool cg_generic_type_supported(CG *cg, const TypeInfo *info) {
             if (!cg_generic_type_supported(cg,generic_signature_param(info->fn_sig,p,&view))) return false;
         return cg_generic_type_supported(cg,generic_signature_result(info->fn_sig,&view));
     }
+    if (info->base_type == TYPE_TUPLE) {
+        if (info->tuple_element_count < 0) return false;
+        for (int i=0; i<info->tuple_element_count; ++i) {
+            TypeInfo view;
+            if (!cg_generic_type_supported(cg,tuple_element_info(info,i,&view))) return false;
+        }
+        return true;
+    }
     if (info->base_type == TYPE_ARRAY) return cg_generic_type_supported(cg, info->element_type);
     if (info->base_type == TYPE_ENUM)
         return info->generic_name && env_get_enum(cg->env,info->generic_name);

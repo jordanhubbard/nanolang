@@ -127,6 +127,7 @@ typedef struct TypeInfo {
     
     /* For tuple types: (int, string, bool) */
     Type *tuple_types;               /* Array of tuple element types */
+    struct TypeInfo **tuple_elements; /* I own complete element annotations. */
     char **tuple_type_names;         /* For struct/enum/union tuple elements */
     int tuple_element_count;         /* Number of tuple elements */
     
@@ -504,6 +505,7 @@ struct ASTNode {
             ASTNode **elements;    /* Array of element expressions */
             int element_count;     /* Number of elements */
             Type *element_types;   /* Types of each element (filled by type checker) */
+            TypeInfo *type_info;   /* I own the checked recursive tuple shape. */
         } tuple_literal;
         /* Tuple index access: tuple.0, tuple.1 */
         struct {
@@ -1067,6 +1069,7 @@ bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2)
 bool type_infos_equal(const TypeInfo *left, const TypeInfo *right);
 void free_type_info(TypeInfo *info);
 TypeInfo *copy_payload_type_info(const TypeInfo *info);
+const TypeInfo *tuple_element_info(const TypeInfo *info, int index, TypeInfo *fallback);
 void free_payload_type_info(TypeInfo *info);
 TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int field, const TypeInfo *arguments);
 

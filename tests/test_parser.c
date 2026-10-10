@@ -1035,6 +1035,24 @@ static void test_owned_generic_function_annotations(void) {
     free_payload_type_info(copy);
 }
 
+static void test_recursive_tuple_annotations(void) {
+    ASTNode *program = parse_ok("fn pass(value: ((int,bool),array<string>,fn(int)->bool)) -> (array<int>,(bool,string)) { return value }");
+    ASSERT_NOT_NULL(program);
+    TypeInfo *info = program->as.program.items[0]->as.function.params[0].type_info;
+    ASSERT_NOT_NULL(info);
+    ASSERT_EQ(info->tuple_element_count,3);
+    ASSERT_EQ(info->tuple_elements[0]->tuple_elements[1]->base_type,TYPE_BOOL);
+    ASSERT_EQ(info->tuple_elements[1]->element_type->base_type,TYPE_STRING);
+    ASSERT_EQ(info->tuple_elements[2]->fn_sig->return_type,TYPE_BOOL);
+    TypeInfo *copy = copy_payload_type_info(info);
+    ASSERT(type_infos_equal(info,copy));
+    copy->tuple_elements[0]->tuple_elements[1]->base_type = TYPE_INT;
+    ASSERT(!type_infos_equal(info,copy));
+    free_ast(program);
+    ASSERT_EQ(copy->tuple_elements[1]->element_type->base_type,TYPE_STRING);
+    free_payload_type_info(copy);
+}
+
 static void test_borrow_annotation_retention(void) {
     ASTNode *program = parse_ok("extern fn observe(a: &owned.Handle, b: &mut Box<array<int>>, callback: &fn(array<int>)->string) -> int");
     ASSERT_NOT_NULL(program);
@@ -1196,6 +1214,7 @@ int main(void) {
     TEST(parse_infix_operators);
     TEST(parse_type_annotations);
     TEST(owned_generic_function_annotations);
+    TEST(recursive_tuple_annotations);
 
     printf("\n✓ All parser tests passed!\n");
     return 0;

@@ -559,7 +559,10 @@ static void test_recursive_signature_roundtrip(void) {
     Type row_types[] = {TYPE_UNION};
     char *row_type_names[] = {"Box<int>"};
     char *variables[] = {"T", "U"};
+    TypeInfo tuple_integer = {.base_type = TYPE_INT};
+    TypeInfo *tuple_elements[] = {&tuple_integer, &generic};
     TypeInfo tuple = {.base_type = TYPE_TUPLE, .tuple_types = tuple_types,
+        .tuple_elements = tuple_elements,
         .tuple_type_names = tuple_names, .tuple_element_count = 2,
         .opaque_type_name = "opaque\"\\\n", .is_open_row = true,
         .row_var_name = "r", .row_field_names = row_names,
@@ -622,6 +625,8 @@ static void test_recursive_signature_roundtrip(void) {
         " assert(a->service_declaration == 0);\n"
         " TypeInfo *t = f->params[2].type_info;\n"
         " assert(t->tuple_element_count == 2 && t->tuple_types[1] == TYPE_UNION);\n"
+        " assert(t->tuple_elements[0]->base_type == TYPE_INT);\n"
+        " assert(t->tuple_elements[1]->type_params[0]->element_type->element_type->base_type == TYPE_INT);\n"
         " assert(t->tuple_type_names[0] == NULL && !strcmp(t->tuple_type_names[1], \"Box<int>\"));\n"
         " assert(!strcmp(t->opaque_type_name, \"opaque\\\"\\\\\\n\"));\n"
         " assert(t->is_open_row && !strcmp(t->row_var_name, \"r\"));\n"

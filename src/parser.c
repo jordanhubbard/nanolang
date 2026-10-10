@@ -858,6 +858,7 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             int count = 0;
             Type *tuple_types = malloc(sizeof(Type) * capacity);
             char **tuple_type_names = malloc(sizeof(char*) * capacity);
+            TypeInfo **tuple_elements = calloc((size_t)capacity, sizeof(TypeInfo *));
             
             /* Parse first type */
             if (!match(p, TOKEN_RPAREN)) {
@@ -866,12 +867,19 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                         capacity *= 2;
                         tuple_types = realloc(tuple_types, sizeof(Type) * capacity);
                         tuple_type_names = realloc(tuple_type_names, sizeof(char*) * capacity);
+                        tuple_elements = realloc(tuple_elements, sizeof(TypeInfo *) * capacity);
                     }
                     
                     char *elem_type_name = NULL;
                     TypeInfo *elem_type_info = NULL;
-                    Type elem_type = parse_type_with_element(p, NULL, &elem_type_name, NULL, &elem_type_info);
+                    FunctionSignature *signature = NULL;
+                    Type elem_type = parse_type_with_element(p, NULL, &elem_type_name, &signature, &elem_type_info);
                     if (elem_type == TYPE_UNKNOWN) {
+                        if (!elem_type_info || signature != elem_type_info->fn_sig) free_function_signature(signature);
+                        free_payload_type_info(elem_type_info);
+                        free(elem_type_name);
+                        for (int e = 0; e < count; ++e) free_payload_type_info(tuple_elements[e]);
+                        free(tuple_elements);
                         free(tuple_types);
                         for (int i = 0; i < count; i++) {
                             if (tuple_type_names[i]) free(tuple_type_names[i]);
@@ -880,6 +888,14 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                         return TYPE_UNKNOWN;
                     }
                     
+                    if (!elem_type_info) {
+                        elem_type_info = calloc(1, sizeof *elem_type_info);
+                        elem_type_info->base_type = elem_type;
+                        elem_type_info->generic_name = elem_type_name ? strdup(elem_type_name) : NULL;
+                    }
+                    if (!elem_type_info->fn_sig) elem_type_info->fn_sig = signature;
+                    else if (signature != elem_type_info->fn_sig) free_function_signature(signature);
+                    tuple_elements[count] = elem_type_info;
                     tuple_types[count] = elem_type;
                     tuple_type_names[count] = elem_type_name;  /* May be NULL for primitive types */
                     count++;
@@ -893,6 +909,8 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             }
             
             if (!expect(p, TOKEN_RPAREN, "Expected ')' after tuple types")) {
+                for (int e = 0; e < count; ++e) free_payload_type_info(tuple_elements[e]);
+                free(tuple_elements);
                 free(tuple_types);
                 for (int i = 0; i < count; i++) {
                     if (tuple_type_names[i]) free(tuple_type_names[i]);
@@ -906,12 +924,15 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
                 /* Must zero-init so unused pointer fields (e.g., generic_name) are NULL. */
                 TypeInfo *info = calloc(1, sizeof(TypeInfo));
                 info->base_type = TYPE_TUPLE;
+                info->tuple_elements = tuple_elements;
                 info->tuple_types = tuple_types;
                 info->tuple_type_names = tuple_type_names;
                 info->tuple_element_count = count;
                 *type_info_out = info;
             } else {
                 /* Free if not needed */
+                for (int e = 0; e < count; ++e) free_payload_type_info(tuple_elements[e]);
+                free(tuple_elements);
                 free(tuple_types);
                 for (int i = 0; i < count; i++) {
                     if (tuple_type_names[i]) free(tuple_type_names[i]);
@@ -6167,6 +6188,7 @@ void free_ast(ASTNode *node) {
                 free_ast(node->as.tuple_literal.elements[i]);
             }
             free(node->as.tuple_literal.elements);
+            free_payload_type_info(node->as.tuple_literal.type_info);
             if (node->as.tuple_literal.element_types) {
                 free(node->as.tuple_literal.element_types);
             }

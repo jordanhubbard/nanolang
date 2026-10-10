@@ -94,8 +94,12 @@ static bool nominal_scoped_info(ASTNode *program, Environment *env, TypeInfo *in
         !nominal_scoped_signature(program, env, info->fn_sig, formals, count)) return false;
     for (int i = 0; i < info->type_param_count; ++i)
         if (info->type_params && !nominal_scoped_info(program, env, info->type_params[i], formals, count)) return false;
-    for (int i = 0; i < info->tuple_element_count; ++i)
+    for (int i = 0; i < info->tuple_element_count; ++i) {
+        if (info->tuple_elements && !nominal_scoped_info(program,env,info->tuple_elements[i],formals,count)) return false;
         if (info->tuple_type_names && !nominal_scoped_slot(program, env, &info->tuple_type_names[i], formals, count)) return false;
+        if (info->tuple_elements && info->tuple_elements[i] && info->tuple_types)
+            info->tuple_types[i] = info->tuple_elements[i]->base_type;
+    }
     for (int i = 0; i < info->row_field_count; ++i)
         if (info->row_field_type_names && !nominal_scoped_slot(program, env, &info->row_field_type_names[i], formals, count)) return false;
     return true;

@@ -124,8 +124,10 @@ static bool own_info_resource(OwnFlow *flow, ASTNode *at, const TypeInfo *info, 
     if (own_info_resource(flow, at, info->element_type, depth + 1)) return true;
     for (int i = 0; i < info->type_param_count; ++i)
         if (info->type_params && own_info_resource(flow, at, info->type_params[i], depth + 1)) return true;
-    for (int i = 0; i < info->tuple_element_count; ++i)
+    for (int i = 0; i < info->tuple_element_count; ++i) {
+        if (info->tuple_elements && own_info_resource(flow,at,info->tuple_elements[i],depth+1)) return true;
         if (info->tuple_type_names && own_resource(flow, info->tuple_type_names[i])) return true;
+    }
     return false;
 }
 

@@ -1,0 +1,15 @@
+test_distinct_enum_bindings_refuse_during_checking (tests.test_module_enum_generics.EnumGenerics.test_distinct_enum_bindings_refuse_during_checking) ... ok
+test_enum_array_identity (tests.test_module_enum_generics.EnumGenerics.test_enum_array_identity) ... ok
+test_enum_literal_return_local_and_field (tests.test_module_enum_generics.EnumGenerics.test_enum_literal_return_local_and_field) ... ok
+test_imported_enum_results (tests.test_module_enum_generics.EnumGenerics.test_imported_enum_results) ... ok
+test_local_record_shadows_enum_receiver (tests.test_module_enum_generics.EnumGenerics.test_local_record_shadows_enum_receiver) ... ok
+test_qualified_result_annotations_and_selective_alias (tests.test_module_enum_generics.EnumGenerics.test_qualified_result_annotations_and_selective_alias) ... ok
+test_root_and_imported_enum_bindings_refuse (tests.test_module_enum_generics.EnumGenerics.test_root_and_imported_enum_bindings_refuse) ... ok
+test_root_and_imported_enums_remain_separate (tests.test_module_enum_generics.EnumGenerics.test_root_and_imported_enums_remain_separate) ... ok
+test_same_alias_in_separate_importers (tests.test_module_enum_generics.EnumGenerics.test_same_alias_in_separate_importers) ... ok
+test_same_named_imported_enums_remain_distinct (tests.test_module_enum_generics.EnumGenerics.test_same_named_imported_enums_remain_distinct) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 1.655s
+
+OK

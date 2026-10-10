@@ -68,6 +68,8 @@ static bool metadata_graph_collect(MetadataGraph *graph, const ModuleMetadata *m
                 !metadata_add(&graph->signatures, t->fn_sig)) return false;
             for (int j = 0; j < t->type_param_count; j++)
                 if (!metadata_add(&graph->types, t->type_params[j])) return false;
+            for (int j = 0; t->tuple_elements && j < t->tuple_element_count; ++j)
+                if (!metadata_add(&graph->types, t->tuple_elements[j])) return false;
         }
         while (si < graph->signatures.count) {
             const FunctionSignature *sig = graph->signatures.items[si++];
@@ -261,6 +263,19 @@ static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capa
         snprintf(temp, sizeof(temp), "    _type_infos[%d].type_params = _type_info_%d_params;\n    _type_infos[%d].type_param_count = %d;\n",
                  info_idx, info_idx, info_idx, type_info->type_param_count);
         APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    }
+
+    if (type_info->tuple_element_count && type_info->tuple_elements) {
+        snprintf(temp,sizeof(temp),"    static TypeInfo* _type_info_%d_tuple_elements[%d];\n",info_idx,type_info->tuple_element_count);
+        APPEND_TO_BUFFER(buffer_ptr,pos_ptr,capacity_ptr,temp);
+        for (int i=0;i<type_info->tuple_element_count;++i) {
+            if (!type_info->tuple_elements[i]) continue;
+            snprintf(temp,sizeof(temp),"    _type_info_%d_tuple_elements[%d] = &_type_infos[%d];\n",
+                info_idx,i,metadata_index(&graph->types,type_info->tuple_elements[i]));
+            APPEND_TO_BUFFER(buffer_ptr,pos_ptr,capacity_ptr,temp);
+        }
+        snprintf(temp,sizeof(temp),"    _type_infos[%d].tuple_elements = _type_info_%d_tuple_elements;\n",info_idx,info_idx);
+        APPEND_TO_BUFFER(buffer_ptr,pos_ptr,capacity_ptr,temp);
     }
 
     /* Tuple types */

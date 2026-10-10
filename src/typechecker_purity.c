@@ -46,7 +46,8 @@ static unsigned purity_type(PurityWalk *p, Type type, const char *name, TypeInfo
             if (info->type_params && info->type_params[i]) result|=purity_type(p,info->type_params[i]->base_type,NULL,info->type_params[i],depth+1);
         for (int i=0;i<info->tuple_element_count;++i)
             result|=purity_type(p,info->tuple_types ? info->tuple_types[i] : TYPE_UNKNOWN,
-                                info->tuple_type_names ? info->tuple_type_names[i] : NULL,NULL,depth+1);
+                                info->tuple_type_names ? info->tuple_type_names[i] : NULL,
+                                info->tuple_elements ? info->tuple_elements[i] : NULL,depth+1);
     }
     return result;
 }

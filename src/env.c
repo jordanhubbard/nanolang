@@ -1877,6 +1877,15 @@ void free_function_signature(FunctionSignature *sig) {
     free(sig);
 }
 
+const TypeInfo *tuple_element_info(const TypeInfo *info, int index, TypeInfo *fallback) {
+    if (!info || index < 0 || index >= info->tuple_element_count) return NULL;
+    if (info->tuple_elements && info->tuple_elements[index]) return info->tuple_elements[index];
+    if (!info->tuple_types || !fallback) return NULL;
+    *fallback = (TypeInfo){.base_type = info->tuple_types[index],
+        .generic_name = info->tuple_type_names ? info->tuple_type_names[index] : NULL};
+    return fallback;
+}
+
 void free_type_info(TypeInfo *info) {
     if (!info) return;
 
@@ -1892,6 +1901,9 @@ void free_type_info(TypeInfo *info) {
         }
         free(info->type_params);
     }
+    for (int i = 0; info->tuple_elements && i < info->tuple_element_count; ++i)
+        free_payload_type_info(info->tuple_elements[i]);
+    free(info->tuple_elements);
     if (info->tuple_types) {
         free(info->tuple_types);
     }
@@ -1993,6 +2005,14 @@ static TypeInfo *payload_copy(const TypeInfo *source, unsigned depth) {
         memcpy(copy->tuple_types, source->tuple_types, (size_t)source->tuple_element_count * sizeof(Type));
     }
     copy->tuple_type_names = payload_names(source->tuple_type_names, source->tuple_element_count);
+    copy->tuple_elements = NULL;
+    if (source->tuple_element_count > 0) {
+        copy->tuple_elements = payload_alloc((size_t)source->tuple_element_count, sizeof(TypeInfo *));
+        for (int i = 0; i < source->tuple_element_count; ++i) {
+            TypeInfo view;
+            copy->tuple_elements[i] = payload_copy(tuple_element_info(source, i, &view), depth + 1);
+        }
+    }
     copy->fn_sig = payload_signature(source->fn_sig, depth + 1);
     copy->row_var_name = payload_name(source->row_var_name);
     copy->row_field_names = payload_names(source->row_field_names, source->row_field_count);
@@ -2014,6 +2034,9 @@ void free_payload_type_info(TypeInfo *info) {
     free(info->type_params);
     free(info->generic_name);
     free(info->opaque_type_name);
+    for (int i = 0; info->tuple_elements && i < info->tuple_element_count; ++i)
+        free_payload_type_info(info->tuple_elements[i]);
+    free(info->tuple_elements);
     free(info->tuple_types);
     payload_free_names(info->tuple_type_names, info->tuple_element_count);
     free_function_signature(info->fn_sig);
@@ -2106,10 +2129,10 @@ static bool annotations_equal(const TypeInfo *a, const TypeInfo *b, unsigned dep
     for (int i = 0; i < a->type_param_count; ++i)
         if (!a->type_params || !b->type_params ||
             !annotations_equal(a->type_params[i], b->type_params[i], depth + 1)) return false;
-    for (int i = 0; i < a->tuple_element_count; ++i)
-        if (!a->tuple_types || !b->tuple_types || a->tuple_types[i] != b->tuple_types[i] ||
-            !annotation_names_equal(a->tuple_type_names ? a->tuple_type_names[i] : NULL,
-                                    b->tuple_type_names ? b->tuple_type_names[i] : NULL)) return false;
+    for (int i = 0; i < a->tuple_element_count; ++i) {
+        TypeInfo av, bv;
+        if (!annotations_equal(tuple_element_info(a, i, &av), tuple_element_info(b, i, &bv), depth + 1)) return false;
+    }
     for (int i = 0; i < a->row_field_count; ++i)
         if (!a->row_field_types || !b->row_field_types ||
             a->row_field_types[i] != b->row_field_types[i] ||

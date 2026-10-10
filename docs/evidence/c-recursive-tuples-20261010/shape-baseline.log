@@ -1,0 +1,38 @@
+test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) ... 
+  test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn bad()->(int,bool){return (1,2)}\nshadow bad {assert true}\nfn main()->int{return 0}') ... FAIL
+  test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn main()->int{let value:(int,bool)=(1,2) return 0}') ... FAIL
+  test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn main()->int{let mut value:(int,bool)=(1,true) set value (1,2) return 0}') ... FAIL
+
+======================================================================
+FAIL: test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn bad()->(int,bool){return (1,2)}\nshadow bad {assert true}\nfn main()->int{return 0}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 81, in test_declared_tuple_shapes_preserve_output
+    self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : 
+
+======================================================================
+FAIL: test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn main()->int{let value:(int,bool)=(1,2) return 0}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 81, in test_declared_tuple_shapes_preserve_output
+    self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : Warning at line 1, column 16: Unused variable 'value'
+
+
+======================================================================
+FAIL: test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) (program='fn main()->int{let mut value:(int,bool)=(1,true) set value (1,2) return 0}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 81, in test_declared_tuple_shapes_preserve_output
+    self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : Warning at line 1, column 16: Unused variable 'value'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.070s
+
+FAILED (failures=3)

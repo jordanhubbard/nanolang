@@ -38,6 +38,10 @@ static inline bool generic_contains(Environment *env, const TypeInfo *info, unsi
     if (generic_contains(env, info->element_type, depth+1)) return true;
     for (int p=0; p<info->type_param_count; ++p)
         if (generic_contains(env, info->type_params[p], depth+1)) return true;
+    for (int i=0; i<info->tuple_element_count; ++i) {
+        TypeInfo view;
+        if (generic_contains(env,tuple_element_info(info,i,&view),depth+1)) return true;
+    }
     if (info->fn_sig) {
         TypeInfo view;
         for (int p=0; p<info->fn_sig->param_count; ++p)
@@ -72,6 +76,14 @@ static inline bool generic_normalize_nominals(Environment *env, TypeInfo *info, 
     if (info->element_type && !generic_normalize_nominals(env,info->element_type,depth+1)) return false;
     for (int i=0;i<info->type_param_count;++i)
         if (!generic_normalize_nominals(env,info->type_params[i],depth+1)) return false;
+    for (int i=0; i<info->tuple_element_count; ++i) {
+        if (!info->tuple_elements || !generic_normalize_nominals(env,info->tuple_elements[i],depth+1)) return false;
+        if (info->tuple_types) info->tuple_types[i]=info->tuple_elements[i]->base_type;
+        if (info->tuple_type_names) {
+            free(info->tuple_type_names[i]);
+            info->tuple_type_names[i]=info->tuple_elements[i]->generic_name?strdup(info->tuple_elements[i]->generic_name):NULL;
+        }
+    }
     FunctionSignature *sig=info->fn_sig;
     if (sig) {
         if (sig->param_count && !sig->param_type_info) sig->param_type_info=calloc((size_t)sig->param_count,sizeof(TypeInfo *));
@@ -114,6 +126,11 @@ static inline bool generic_bind_normalized(Environment *env, const TypeInfo *for
         if (!formal->generic_name || !actual->generic_name || strcmp(formal->generic_name,actual->generic_name)) return false;
         for (int p=0;p<formal->type_param_count;++p)
             if (!generic_bind_normalized(env,formal->type_params[p],actual->type_params[p],bindings,depth+1)) return false;
+    }
+    if (formal->tuple_element_count != actual->tuple_element_count) return false;
+    for (int i=0; i<formal->tuple_element_count; ++i) {
+        TypeInfo fv,av;
+        if (!generic_bind_normalized(env,tuple_element_info(formal,i,&fv),tuple_element_info(actual,i,&av),bindings,depth+1)) return false;
     }
     if (formal->fn_sig || actual->fn_sig) {
         const FunctionSignature *f=formal->fn_sig,*a=actual->fn_sig;
@@ -173,6 +190,12 @@ static inline TypeInfo *generic_substitute(Environment *env, const TypeInfo *for
         free_payload_type_info(copy->type_params[p]);
         copy->type_params[p]=generic_substitute(env,formal->type_params[p],bindings,depth+1);
         if (!copy->type_params[p]) { free_payload_type_info(copy); return NULL; }
+    }
+    for (int i=0; i<copy->tuple_element_count; ++i) {
+        TypeInfo view;
+        free_payload_type_info(copy->tuple_elements[i]);
+        copy->tuple_elements[i]=generic_substitute(env,tuple_element_info(formal,i,&view),bindings,depth+1);
+        if (!copy->tuple_elements[i]) { free_payload_type_info(copy); return NULL; }
     }
     if (copy->fn_sig && !generic_substitute_signature(env,copy->fn_sig,bindings,depth+1)) { free_payload_type_info(copy); return NULL; }
     if (!generic_normalize_nominals(env,copy,depth)) { free_payload_type_info(copy); return NULL; }

@@ -1,0 +1,150 @@
+test_array_binding_parity (tests.test_cseed_tuple_generics.TupleGenerics.test_array_binding_parity) ... ok
+test_builtin_tail_call_does_not_enter_generic_specialization (tests.test_cseed_tuple_generics.TupleGenerics.test_builtin_tail_call_does_not_enter_generic_specialization) ... ok
+test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) ... ok
+test_distinct_record_specializations (tests.test_cseed_tuple_generics.TupleGenerics.test_distinct_record_specializations) ... ok
+test_generic_array_contexts_reject_wrong_elements (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_array_contexts_reject_wrong_elements) ... ok
+test_generic_array_mutation_preserves_aliases_and_empty_types (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_array_mutation_preserves_aliases_and_empty_types) ... ok
+test_growing_array_specializations_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_growing_array_specializations_preserve_output) ... ok
+test_imported_generic_array_results_keep_complete_types (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_generic_array_results_keep_complete_types) ... ok
+test_imported_qualified_and_selective_owners (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_qualified_and_selective_owners) ... ok
+test_imported_structural_generic_parameters (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_structural_generic_parameters) ... ok
+test_imported_tuple_result (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_result) ... FAIL
+test_nested_array_calls_and_record_elements (tests.test_cseed_tuple_generics.TupleGenerics.test_nested_array_calls_and_record_elements) ... ok
+test_nested_tuple_and_array_results (tests.test_cseed_tuple_generics.TupleGenerics.test_nested_tuple_and_array_results) ... FAIL
+test_primitive_generic_fixture (tests.test_cseed_tuple_generics.TupleGenerics.test_primitive_generic_fixture) ... ok
+test_repeated_generic_array_types_must_match (tests.test_cseed_tuple_generics.TupleGenerics.test_repeated_generic_array_types_must_match) ... ok
+test_repeated_type_variable_rejects_distinct_records (tests.test_cseed_tuple_generics.TupleGenerics.test_repeated_type_variable_rejects_distinct_records) ... ok
+test_retained_record_result_regression (tests.test_cseed_tuple_generics.TupleGenerics.test_retained_record_result_regression) ... ok
+test_structural_array_minimum (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_array_minimum) ... ok
+test_structural_array_parameters (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_array_parameters) ... ok
+test_structural_callable_local_and_nominal_letter (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_callable_local_and_nominal_letter) ... ok
+test_structural_callable_parameters (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_callable_parameters) ... ok
+test_structural_generic_refusals_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_generic_refusals_preserve_output) ... ok
+test_structural_tuple_parameter (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_parameter) ... FAIL
+test_structural_tuple_result_substitution (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_result_substitution) ... FAIL
+test_tuple_binding_mismatches_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_binding_mismatches_preserve_output) ... ok
+test_tuple_identity_and_destructuring (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_identity_and_destructuring) ... ok
+test_tuple_nominal_and_callback_elements (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_nominal_and_callback_elements) ... FAIL
+test_tuple_projection_bounds_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_projection_bounds_preserve_output) ... ok
+test_typed_locals_transitive_calls_and_recursion (tests.test_cseed_tuple_generics.TupleGenerics.test_typed_locals_transitive_calls_and_recursion) ... ok
+test_unbound_structural_result_preserves_output (tests.test_cseed_tuple_generics.TupleGenerics.test_unbound_structural_result_preserves_output) ... ok
+
+======================================================================
+FAIL: test_imported_tuple_result (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 100, in test_imported_tuple_result
+            self.execute('module "pair.nano" as pair\n'+IDENTITY+'''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let value = (identity (pair.make))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    shadow make {let value = (make) assert value.1}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    '''})
+    ^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 27, in execute
+    self.run_command([COMPILER, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 17, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type (Box,bool)
+
+
+======================================================================
+FAIL: test_nested_tuple_and_array_results (tests.test_cseed_tuple_generics.TupleGenerics.test_nested_tuple_and_array_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 21, in test_nested_tuple_and_array_results
+            self.execute(IDENTITY+'''fn make()->((int,bool),array<string>){return ((7,true),["kept"])}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow make {let value = (make) assert (value.0).1}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 27, in execute
+    self.run_command([COMPILER, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 17, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type ((int,bool),array<string>)
+
+
+======================================================================
+FAIL: test_structural_tuple_parameter (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_parameter)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 32, in test_structural_tuple_parameter
+            self.execute('''fn first(value:(T,E))->T{return value.0}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow first {assert (== (first (7,true)) 7)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 27, in execute
+    self.run_command([COMPILER, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 17, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require a concrete supported generic argument
+
+
+======================================================================
+FAIL: test_structural_tuple_result_substitution (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_result_substitution)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 87, in test_structural_tuple_result_substitution
+            self.execute('''fn swap(value:(T,E))->(E,T){return (value.1,value.0)}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow swap {let value=(swap (7,true)) assert value.0 assert (== value.1 7)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 27, in execute
+    self.run_command([COMPILER, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 17, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type (bool,array<int>)
+
+
+======================================================================
+FAIL: test_tuple_nominal_and_callback_elements (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_nominal_and_callback_elements)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 41, in test_tuple_nominal_and_callback_elements
+            self.execute(IDENTITY+'''enum Shade {Dark=2}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    struct Box {value:int}
+    ^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 27, in execute
+    self.run_command([COMPILER, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 17, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type (Box,Shade,fn(int)->int)
+
+
+----------------------------------------------------------------------
+Ran 30 tests in 18.965s
+
+FAILED (failures=5)
