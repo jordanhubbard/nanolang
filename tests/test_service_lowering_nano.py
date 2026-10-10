@@ -84,6 +84,22 @@ class ServiceLoweringNano(corpus.ServiceLowering):
         self.assertEqual(re.search(pattern, vm).groups(), re.search(pattern, actual).groups())
         self.assertEqual(re.search(pattern, actual).groups(), (str(status), str(expected)))
 
+    def test_tcp_checked_source_stops_before_wire_publication(self):
+        from tests.test_socket_service_source import source, tcp
+        from tests.test_service_bodies import POSITIVE
+        companion=self.work/'interface.nsi.json'
+        previous=companion.read_bytes()
+        try:
+            companion.write_bytes((ROOT/'tests/fixtures/nsi_socket_plan.json').read_bytes())
+            path=self.work/'tcp.nano';path.write_text(source(tcp(POSITIVE)))
+            output=self.work/'prior.c';output.write_bytes(b'prior-output')
+            report=self.command([os.environ.get('NANO_SERVICE_LOWERING_RUNNER',ROOT/'obj/test_service_lowering'),path,'main',output,'lower:2'])
+            self.assertIn('REFUSAL 2',report)
+            self.assertEqual(output.read_bytes(),b'prior-output')
+            self.lower(path,expected=2)
+        finally:
+            companion.write_bytes(previous)
+
     def test_limits_preserve_outputs(self):
         super().test_limits_preserve_outputs()
         cases = [

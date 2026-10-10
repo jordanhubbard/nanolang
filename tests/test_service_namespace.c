@@ -58,8 +58,7 @@ int main(int argc, char **argv) {
             const char *source = nl_service_namespace_module(space, row->module);
             int64_t catalog=nl_service_namespace_catalog(space,row->target_module);
             if(catalog==2) {
-                assert(env->service_bodies && env->service_bodies->status==2);
-                assert(!strcmp(env->service_bodies->diagnostic,"I have not connected TCP body checking and lowering."));
+                assert(env->service_bodies && env->service_bodies->status==0);
             }
             if (row->kind == NL_SERVICE_TYPE) {
                 TypeInfo type;

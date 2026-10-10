@@ -1,0 +1,7 @@
+I build independent File lowerer with producer 0.
+test_tcp_checked_source_stops_before_wire_publication (tests.test_service_lowering_nano.ServiceLoweringNano.test_tcp_checked_source_stops_before_wire_publication) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 45.423s
+
+OK

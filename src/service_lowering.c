@@ -453,6 +453,9 @@ NlServiceLoweringResult nl_service_lower(const NlServiceNamespace *space,
     const ASTNode *selection,NvmModule **out) {
     if(!space || !bodies || bodies->status || !owners || owners->status || !out)
         return (NlServiceLoweringResult){1,0,0,"I require complete nominal and ownership checks before lowering."};
+    for(uint32_t module=0;nl_service_namespace_program(space,module);module++)
+        if(nl_service_namespace_catalog(space,module)==2)
+            return (NlServiceLoweringResult){2,0,0,"I have not connected TCP wire and runtime lowering."};
     Sl *c=calloc(1,sizeof *c);if(!c)return (NlServiceLoweringResult){4,0,0,"I cannot allocate File lowering state."};
     c->space=space;c->bodies=bodies;c->module=nvm_module_new();
     if(!c->module)sl_fail(c,NULL,4,"I cannot allocate a File module.");

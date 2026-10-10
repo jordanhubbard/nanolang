@@ -14757,3 +14757,11 @@ I retain [my File/TCP input and fresh-generation evidence](evidence/service-sour
 - [x] Under #990 I give the new TCP namespace fixture explicit imports for its parser/acquisition calls. I retain the Stage2 undefined-tokenizer refusal caused by relying on transitive imports accepted by the C producer, and require both producers to compile the same corrected fixture.
 
 I retain [my paired source-plan and namespace evidence](evidence/service-source-namespace-20261009/README.md), including the original File corpus, mixed catalog and exact TCP budget checks, both namespace/type implementations, selected shadows, allocation/ownership checks and preserved fixture/configuration failures. TCP body/lowering/runtime and fresh full-generation/platform release acceptance remain open.
+
+- [x] Under #990 I check TCP bodies and affine ownership through both source implementations: exact seven-field Endpoint construction, nominal calls/Results/field access, owned Conn and ConnectResult moves, exclusive borrows, branches/loops, callable transport and selected/unselected shadows. I compare C/Nano body and ownership facts on positive and refusal corpora, preserve File adjacency, and keep an explicit TCP lowering refusal until wire/runtime support is connected.
+
+- [x] Under #989/#990 I align ownership fact ordering across the C and Nano checkers. The new TCP fixture places a scalar shadow before later functions, exposing that C visited source order while Nano visits all functions before shadows; binding IDs differed despite matching decisions. I preserve the failed fact comparisons, use the same functions-then-shadows order in C, and add a File regression with interleaved shadows rather than weakening exact fact equality.
+
+- [x] Under #990 I correct the new callable fixture to use a legal helper name: `use` is an import keyword. I preserve the parser failure and require owned Conn/ConnectResult callable transport plus an indirect borrowed signature in the corrected corpus.
+
+I retain [my TCP source-checking evidence](evidence/socket-source-checking-20261009/README.md). TCP wire/runtime execution, network shadows and full 5.1 qualification remain open.

@@ -6195,3 +6195,10 @@ test-nsi-socket-binding:
 	NANO_FILE_BINDING_CC="$(CC)" NANO_FILE_BINDING_CFLAGS="$(CFLAGS)" NANO_FILE_BINDING_LDFLAGS="$(LDFLAGS)" python3 -m unittest tests.test_nsi_socket_binding
 
 test-units: test-nsi-socket-binding
+
+# I compare TCP body/ownership facts before admitting its wire/runtime profile.
+.PHONY: test-socket-service-source
+test-socket-service-source: $(OBJ_DIR)/test_service_bodies $(OBJ_DIR)/test_service_ownership $(COMPILER_C) nano_virt nano_vm nvm2c
+	NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_socket_service_source
+
+test-units: test-socket-service-source

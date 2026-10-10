@@ -687,6 +687,7 @@ pub fn lower_service_source(parser: Parser, files: array<string>, sources: array
     if (or (== count 0) (> count 63)) { (sl_fail 3 "I exceeded my File function bound.") }
     let mut i: int = 0
     while (< i (array_length space.plan.rows)) {
+        if (!= (at space.plan.rows i).catalog 1) { (sl_fail 2 "I have not connected TCP wire and runtime lowering.") }
         if (!= (at space.plan.rows i).request 0) { (sl_fail 2 "I have not lowered multiple nominal File catalog declarations together.") }
         set i (+ i 1)
     }

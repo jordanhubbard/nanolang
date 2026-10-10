@@ -1,0 +1,4 @@
+/opt/homebrew/bin/gcc-16 -std=c99 -Wall -Wextra -Werror -D_GNU_SOURCE -Isrc -c src/service_bodies.c -o /private/tmp/nl51-service_bodies-gcc.o
+exit: 0
+/opt/homebrew/bin/gcc-16 -std=c99 -Wall -Wextra -Werror -D_GNU_SOURCE -Isrc -c src/service_ownership.c -o /private/tmp/nl51-service_ownership-gcc.o
+exit: 0

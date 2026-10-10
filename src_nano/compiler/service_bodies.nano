@@ -256,7 +256,7 @@ fn sb_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, name: st
         if (or (not signature.ok) (!= count (array_length signature.parameters))) {
             return (sb_fail 1 "I require the catalog method argument count.")
         }
-        if sb_pure { return (sb_fail 1 "I cannot call a File service from a pure function.") }
+        if sb_pure { return (sb_fail 1 "I cannot call a service from a pure function.") }
         let mut i: int = 0
         while (< i count) {
             let argument: ASTStmtRef = (parser_get_call_arg parser (+ start i))
@@ -348,13 +348,13 @@ fn sb_expression_impl(parser: Parser, space: ServiceNamespace, kind: int, id: in
         let node: ASTCall = (parser_get_call parser id)
         if (!= node.borrow_mode 0) {
             let root: ASTStmtRef = (parser_get_call_arg parser node.arg_start)
-            if (or (!= node.arg_count 1) (!= root.node_type ParseNodeType.PNODE_IDENTIFIER)) { return (sb_fail 1 "I require a named File borrow root.") }
+            if (or (!= node.arg_count 1) (!= root.node_type ParseNodeType.PNODE_IDENTIFIER)) { return (sb_fail 1 "I require a named service borrow root.") }
             let index: int = (sb_local (parser_get_identifier parser root.node_id).name)
-            if (< index 0) { return (sb_fail 1 "I require a bound File borrow root.") }
+            if (< index 0) { return (sb_fail 1 "I require a bound service borrow root.") }
             let variable: ServiceBodyLocal = (at sb_locals index)
             let mut value: ServiceBodyValue = variable.value
             if (or (!= value.type.category 1) (or (and (== node.borrow_mode 2) (not (or variable.mutable (== value.borrow_mode 2)))) (and (== value.borrow_mode 1) (== node.borrow_mode 2)))) {
-                return (sb_fail 1 "I require a mutable File root for an exclusive borrow.")
+                return (sb_fail 1 "I require a mutable service root for an exclusive borrow.")
             }
             return (sb_mode value node.borrow_mode)
         }
@@ -409,7 +409,7 @@ fn sb_expression_impl(parser: Parser, space: ServiceNamespace, kind: int, id: in
         let actual: ServiceBodyValue = (sb_expression parser space node.value_type node.value)
         let declared: ServiceBodyValue = (sb_annotation space sb_owner node.var_type)
         let _: ServiceBodyValue = (sb_require actual declared)
-        if (!= actual.borrow_mode 0) { return (sb_fail 1 "I cannot store a call-scoped File borrow.") }
+        if (!= actual.borrow_mode 0) { return (sb_fail 1 "I cannot store a call-scoped service borrow.") }
         let _: bool = (sb_bind node.name actual node.is_mut)
         let _: ServiceBodyValue = (sb_remember kind id actual 0) return (sb_value 3)
     }
@@ -460,7 +460,30 @@ fn sb_expression_impl(parser: Parser, space: ServiceNamespace, kind: int, id: in
         let mut name: string = ""
         if (== kind ParseNodeType.PNODE_STRUCT_LITERAL) { set name (parser_get_struct_literal parser id).struct_name }
         else { set name (parser_get_union_construct parser id).union_name }
-        if (== (service_named_type space sb_owner name).category 1) { return (sb_fail 1 "I cannot fabricate a catalog File value.") }
+        let typ: ServiceType = (service_named_type space sb_owner name)
+        if (or (== typ.category 1) (== typ.category 2)) { return (sb_fail 1 "I cannot fabricate an owned catalog value.") }
+        if (and (== kind ParseNodeType.PNODE_STRUCT_LITERAL) (and (== typ.ordinal 8) (== (service_namespace_catalog space typ.owner) 2))) {
+            let node: ASTStructLiteral = (parser_get_struct_literal parser id)
+            if (or (!= node.field_count 7) (or (!= (array_length node.field_names) 7) (or (!= (array_length node.field_value_ids) 7) (!= (array_length node.field_value_types) 7)))) {
+                return (sb_fail 1 "I require all seven Endpoint fields exactly once.")
+            }
+            let mut returned: bool = false
+            let mut i: int = 0
+            while (< i node.field_count) {
+                let field: string = (at node.field_names i)
+                let expected: ServiceType = (service_member_type space typ field)
+                if (== expected.kind 0) { return (sb_fail 1 "I require a declared Endpoint field.") }
+                let mut j: int = 0
+                while (< j i) {
+                    if (== field (at node.field_names j)) { return (sb_fail 1 "I require distinct Endpoint fields.") }
+                    set j (+ j 1)
+                }
+                let actual: ServiceBodyValue = (sb_require (sb_expression parser space (at node.field_value_types i) (at node.field_value_ids i)) ServiceBodyValue { type: expected, borrow_mode: 0, returns: false })
+                set returned (or returned actual.returns)
+                set i (+ i 1)
+            }
+            return ServiceBodyValue { type: typ, borrow_mode: 0, returns: returned }
+        }
         return (sb_fail 2 "I have not checked this ordinary constructor in my service body path.")
     }
     return (sb_fail 2 "I have not checked this source form in my service body path.")
@@ -497,13 +520,6 @@ pub fn check_service_bodies(parser: Parser, files: array<string>, sources: array
         if (!= space.status 0) { let _: ServiceBodyValue = (sb_fail 1 "I require a complete service namespace.") }
         if (or (> parser.structs_count 0) (or (> parser.unions_count 0) (or (> parser.enums_count 0) (> parser.opaque_types_count 0)))) {
             let _: ServiceBodyValue = (sb_fail 2 "I have not checked this declaration beside service bodies.")
-        }
-        let mut owner: int = 0
-        while (< owner (array_length files)) {
-            if (== (service_namespace_catalog space owner) 2) {
-                let _: ServiceBodyValue = (sb_fail 2 "I have not connected TCP body checking and lowering.")
-            }
-            set owner (+ owner 1)
         }
         let mut declaration: int = 0
         while (< declaration (array_length space.names)) {

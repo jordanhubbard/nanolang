@@ -1,0 +1,6 @@
+test_callable_transport_and_borrowed_signatures (tests.test_socket_service_source.SocketOwnership.test_callable_transport_and_borrowed_signatures) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 37.804s
+
+OK

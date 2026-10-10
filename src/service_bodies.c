@@ -54,7 +54,7 @@ static BodyValue annotation_impl(BodyCheck *c, const ASTNode *node, Type type, c
         TypeInfo result=sig->return_type_info?*sig->return_type_info:(TypeInfo){.base_type=sig->return_type};
         if(sig->return_type==TYPE_FUNCTION && !result.fn_sig)result.fn_sig=sig->return_fn_sig;
         BodyValue returned=annotation(c,node,sig->return_type,&result);
-        if(returned.borrow)return fail(c,node,1,"I cannot return a call-scoped File borrow.");
+        if(returned.borrow)return fail(c,node,1,"I cannot return a call-scoped service borrow.");
         v.type.fn_sig=info->fn_sig;return v;
     }
     if (type == TYPE_INT || type == TYPE_BOOL || type == TYPE_VOID || type == TYPE_UNKNOWN) return v;
@@ -132,7 +132,7 @@ static BodyValue call(BodyCheck *c, const ASTNode *node, const char *name, ASTNo
         NlServiceSignature sig;
         if (!nl_service_method_type(c->space,c->source,name,&sig) || count != (int)sig.parameter_count)
             return fail(c,node,1,"I require the catalog method argument count.");
-        if (c->pure) return fail(c,node,1,"I cannot call a File service from a pure function.");
+        if (c->pure) return fail(c,node,1,"I cannot call a service from a pure function.");
         for (int i=0;i<count;++i) {
             BodyValue expected={.type=sig.parameters[i],.borrow=i==0 && sig.input_mode==1 ? 2u:0u};
             require(c,args[i],expression(c,args[i]),expected);
@@ -201,13 +201,13 @@ static BodyValue expression_impl(BodyCheck *c, const ASTNode *node) {
     case AST_CALL:
         if (node->as.call.borrow_mode) {
             if (node->as.call.arg_count!=1 || node->as.call.args[0]->type!=AST_IDENTIFIER)
-                return fail(c,node,1,"I require a named File borrow root.");
+                return fail(c,node,1,"I require a named service borrow root.");
             int index=local(c,node->as.call.args[0]->as.identifier);
-            if (index<0) return fail(c,node,1,"I require a bound File borrow root.");
+            if (index<0) return fail(c,node,1,"I require a bound service borrow root.");
             BodyValue v=c->locals[index].value;
             if (v.type.service_category!=1 || (node->as.call.borrow_mode==2 &&
                 !(c->locals[index].mutable || v.borrow==2)) || (v.borrow==1 && node->as.call.borrow_mode==2))
-                return fail(c,node,1,"I require a mutable File root for an exclusive borrow.");
+                return fail(c,node,1,"I require a mutable service root for an exclusive borrow.");
             v.borrow=(unsigned)node->as.call.borrow_mode; return v;
         }
         return call(c,node,node->as.call.name,node->as.call.args,node->as.call.arg_count);
@@ -256,7 +256,7 @@ static BodyValue expression_impl(BodyCheck *c, const ASTNode *node) {
         BodyValue actual=expression(c,node->as.let.value);
         BodyValue declared=function_annotation(c,node,node->as.let.var_type,node->as.let.type_info,node->as.let.fn_sig);
         if (node->as.let.var_type!=TYPE_UNKNOWN) require(c,node,actual,declared);
-        if (actual.borrow) return fail(c,node,1,"I cannot store a call-scoped File borrow.");
+        if (actual.borrow) return fail(c,node,1,"I cannot store a call-scoped service borrow.");
         bind(c,node,node->as.let.name,actual,node->as.let.is_mut);
         remember(c,node,actual,0); return value(TYPE_VOID);
     }
@@ -293,8 +293,26 @@ static BodyValue expression_impl(BodyCheck *c, const ASTNode *node) {
     case AST_STRUCT_LITERAL: case AST_UNION_CONSTRUCT: {
         const char *name=node->type==AST_STRUCT_LITERAL ? node->as.struct_literal.struct_name : node->as.union_construct.union_name;
         TypeInfo type;
-        if(nl_service_type(c->space,c->source,name,&type) && type.service_category==1)
-            return fail(c,node,1,"I cannot fabricate a catalog File value.");
+        if(nl_service_type(c->space,c->source,name,&type)) {
+            if(type.service_category==1 || type.service_category==2)
+                return fail(c,node,1,"I cannot fabricate an owned catalog value.");
+            if(node->type==AST_STRUCT_LITERAL && type.service_ordinal==8 &&
+               nl_service_namespace_catalog(c->space,type.service_module)==2) {
+                if(node->as.struct_literal.spread_source || node->as.struct_literal.field_count!=7)
+                    return fail(c,node,1,"I require all seven Endpoint fields exactly once.");
+                bool returns=false;
+                for(int i=0;i<node->as.struct_literal.field_count;i++) {
+                    const char *field=node->as.struct_literal.field_names[i];TypeInfo expected;
+                    if(!field || !nl_service_member_type(c->space,&type,field,&expected))
+                        return fail(c,node,1,"I require a declared Endpoint field.");
+                    for(int j=0;j<i;j++)if(!strcmp(field,node->as.struct_literal.field_names[j]))
+                        return fail(c,node,1,"I require distinct Endpoint fields.");
+                    BodyValue actual=require(c,node,expression(c,node->as.struct_literal.field_values[i]),(BodyValue){.type=expected});
+                    returns |= actual.returns;
+                }
+                return (BodyValue){.type=type,.returns=returns};
+            }
+        }
         return fail(c,node,2,"I have not checked this ordinary constructor in my service body path.");
     }
     default: return fail(c,node,2,"I have not checked this source form in my service body path.");
@@ -317,9 +335,6 @@ NlServiceBodyCheck *nl_service_check_bodies(const NlServiceNamespace *space) {
     c->space=space; c->out=out;
     if (!space) { fail(c,NULL,1,"I require a complete service namespace."); }
     for(uint32_t module=0; space && nl_service_namespace_program(space,module); ++module) {
-        if(nl_service_namespace_catalog(space,module)==2) {
-            fail(c,NULL,2,"I have not connected TCP body checking and lowering.");break;
-        }
         const ASTNode *program=nl_service_namespace_program(space,module);
         c->source=nl_service_namespace_module(space,module);
         for(int i=0;i<program->as.program.count;++i) {

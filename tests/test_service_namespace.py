@@ -107,7 +107,7 @@ class ServiceNamespace(unittest.TestCase):
                         if compiler=="nano_virt":command.append("--emit-nvm")
                         run=subprocess.run(list(map(str,command)),cwd=ROOT,capture_output=True,text=True,timeout=90)
                         self.assertNotEqual(run.returncode,0)
-                        self.assertIn("I have not resolved File service declarations for this consumer",run.stdout+run.stderr)
+                        self.assertIn("I have not connected TCP wire and runtime lowering",run.stdout+run.stderr)
                         self.assertEqual(output.read_bytes(),b"prior")
             for compiler in ("nano_virt","nanoc_stage2"):
                 module=work/(compiler+".nvm")

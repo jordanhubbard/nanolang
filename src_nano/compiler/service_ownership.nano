@@ -1,4 +1,4 @@
-# I retain File moves and borrows independently from the C ownership checker.
+# I retain service moves and borrows independently from the C ownership checker.
 import "src_nano/compiler/service_bodies.nano"
 import "src_nano/compiler/service_types.nano"
 import "src_nano/compiler/service_namespace.nano"
@@ -116,7 +116,7 @@ fn so_exit(state: ServiceOwnershipState, first: int) -> void {
     while (< i (array_length state.locals)) {
         let value: ServiceOwner = (at state.locals i)
         if (and (so_owned value.category) (and (== value.mode 0) (not value.moved))) {
-            (so_fail 1 "I require every File owner to be consumed before scope exit.")
+            (so_fail 1 "I require every service owner to be consumed before scope exit.")
         }
         set i (+ i 1)
     }
@@ -131,7 +131,7 @@ fn so_same(a: ServiceOwnershipState, b: ServiceOwnershipState) -> void {
     while (< i (array_length a.locals)) {
         let left: ServiceOwner = (at a.locals i) let right: ServiceOwner = (at b.locals i)
         if (and (so_owned left.category) (or (!= left.moved right.moved) (or (!= left.shared right.shared) (!= left.exclusive right.exclusive)))) {
-            (so_fail 1 "I require branches and loop edges to agree on File ownership.")
+            (so_fail 1 "I require branches and loop edges to agree on service ownership.")
         }
         set i (+ i 1)
     }
@@ -157,12 +157,12 @@ fn so_call(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, ki
             }
             let mut index: int = -1
             if (== root.node_type ParseNodeType.PNODE_IDENTIFIER) { set index (so_find flow (parser_get_identifier parser root.node_id).name) }
-            if (< index 0) { (so_fail 1 "I require a lexical File borrow root.") }
+            if (< index 0) { (so_fail 1 "I require a lexical service borrow root.") }
             else {
                 let value: ServiceOwner = (at flow.locals index)
                 let mode: int = fact.borrow_mode
                 if (or value.moved (or value.exclusive (and (== mode 2) (or (> value.shared 0) (== value.mode 1))))) {
-                    (so_fail 1 "I cannot overlap an exclusive borrow or borrow a moved File.")
+                    (so_fail 1 "I cannot overlap an exclusive borrow or borrow a moved service owner.")
                 } else {
                     let mut shared: int = value.shared if (== mode 1) { set shared (+ shared 1) }
                     set flow (so_set flow index (so_update value value.moved shared (== mode 2)))
@@ -183,7 +183,7 @@ fn so_call(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, ki
     }
     let result: ServiceBodyFact = (so_type bodies kind id)
     if (< result.node_id 0) { (so_fail 2 "I require retained service call result facts.") }
-    if (and flow.next (and (so_owned result.type.category) (not move))) { (so_fail 1 "I require an owner for a File service or helper result.") }
+    if (and flow.next (and (so_owned result.type.category) (not move))) { (so_fail 1 "I require an owner for a service or helper result.") }
     return flow
 }
 shadow so_call {
@@ -238,14 +238,14 @@ fn so_impl(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, ki
         let value: ServiceOwner = (at flow.locals index)
         if (not (so_owned value.category)) { return flow }
         if (or value.moved (or value.exclusive (and move (or (> value.mode 0) (> value.shared 0))))) {
-            (so_fail 1 "I cannot use a moved File or consume a borrowed owner.") return flow
+            (so_fail 1 "I cannot use a moved service owner or consume a borrowed owner.") return flow
         }
         if move { set flow (so_set flow index (so_update value true value.shared value.exclusive)) (so_note kind id 2 value.id 0) }
         return flow
     }
     if (== kind ParseNodeType.PNODE_CALL) {
         let node: ASTCall = (parser_get_call parser id)
-        if (> node.borrow_mode 0) { (so_fail 1 "I cannot store or escape a File borrow.") return flow }
+        if (> node.borrow_mode 0) { (so_fail 1 "I cannot store or escape a service borrow.") return flow }
         if (!= node.function_type ParseNodeType.PNODE_IDENTIFIER) { set flow (so_expr parser space bodies node.function_type node.function flow false) }
         return (so_call parser space bodies kind id node.arg_start node.arg_count flow move)
     }
@@ -270,6 +270,15 @@ fn so_impl(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, ki
         let node: ASTFieldAccess = (parser_get_field_access parser id)
         return (so_expr parser space bodies node.object_type node.object flow false)
     }
+    if (== kind ParseNodeType.PNODE_STRUCT_LITERAL) {
+        let node: ASTStructLiteral = (parser_get_struct_literal parser id)
+        let mut i: int = 0
+        while (and (< i node.field_count) (and flow.next (== so_status 0))) {
+            set flow (so_expr parser space bodies (at node.field_value_types i) (at node.field_value_ids i) flow false)
+            set i (+ i 1)
+        }
+        return flow
+    }
     if (== kind ParseNodeType.PNODE_LET) {
         let node: ASTLet = (parser_get_let parser id)
         set flow (so_expr parser space bodies node.value_type node.value flow true)
@@ -284,7 +293,7 @@ fn so_impl(parser: Parser, space: ServiceNamespace, bodies: ServiceBodyCheck, ki
         if (< index 0) { (so_fail 2 "I require a retained service assignment root.") return flow }
         let value: ServiceOwner = (at flow.locals index)
         if (or (> value.mode 0) (or (> value.shared 0) (or value.exclusive (and (so_owned value.category) (not value.moved))))) {
-            (so_fail 1 "I cannot overwrite a live or borrowed File owner.") return flow
+            (so_fail 1 "I cannot overwrite a live or borrowed service owner.") return flow
         }
         set flow (so_expr parser space bodies node.value_type node.value flow true)
         if (or (not flow.next) (!= so_status 0)) { return flow }

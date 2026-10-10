@@ -44,10 +44,22 @@ SocketError fields and method parameter/result types from the checked original
 module. Aliases and re-exports preserve that identity. The private runtime name
 Socket is not a public Conn alias.
 
-I have not connected TCP body/ownership lowering, wire metadata, service
-dispatch or selected network shadows. I retain an explicit unsupported-body
-boundary in both checkers so the File lowering path cannot interpret TCP
-ordinals. Those integrations and a fresh complete compiler/release qualification
-remain required before Socket source execution. My latest namespace tests
-compile the changed helper sources through the C bytecode producer and the
-previously installed Stage2 driver; they do not constitute a new bootstrap.
+My paired body and ownership checkers accept TCP calls, nominal Results and
+field access. I require every Endpoint constructor to provide its seven integer
+fields exactly once. I visit initializer effects in source order; I reject
+fabricated Conn and affine ConnectResult values. I check owner moves, exclusive
+borrows, branch/loop agreement and owned or borrowed callable signatures.
+These checks do not grant network authority or validate endpoint connectivity.
+
+I retain identical C/Nano ownership facts by visiting functions before shadows
+in both implementations. My interleaved File shadow regression covers the
+binding-ID mismatch first exposed by the TCP corpus.
+
+I have not connected TCP wire metadata, service dispatch or selected network
+shadow execution. Both lowerers explicitly refuse TCP before wire publication,
+so the File runtime cannot interpret TCP ordinals. My paired source checks,
+mixed namespace fixture and prior-output refusal checks are retained in
+[the source-checking evidence](evidence/socket-source-checking-20261009/README.md).
+The mixed fixture compiles through the C bytecode producer and previously
+installed Stage2 driver. These helper checks are not a fresh full bootstrap
+or release/platform qualification.

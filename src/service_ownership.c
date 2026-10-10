@@ -56,7 +56,7 @@ static void so_exit(SoCheck *c, const SoState *s, const ASTNode *node, size_t fi
     for(size_t i=first;i<s->count;++i) {
         const SoLocal *v=&s->locals[i];
         if(so_owned(v->category) && !v->mode && !v->moved)
-            so_fail(c,node,1,"I require every File owner to be consumed before scope exit.");
+            so_fail(c,node,1,"I require every service owner to be consumed before scope exit.");
     }
 }
 static void so_same(SoCheck *c, const ASTNode *node, const SoState *a, const SoState *b) {
@@ -64,7 +64,7 @@ static void so_same(SoCheck *c, const ASTNode *node, const SoState *a, const SoS
     for(size_t i=0;i<a->count;++i) if(so_owned(a->locals[i].category) &&
         (a->locals[i].moved!=b->locals[i].moved || a->locals[i].shared!=b->locals[i].shared ||
          a->locals[i].exclusive!=b->locals[i].exclusive))
-        so_fail(c,node,1,"I require branches and loop edges to agree on File ownership.");
+        so_fail(c,node,1,"I require branches and loop edges to agree on service ownership.");
 }
 static void so_expr(SoCheck *, SoState *, const ASTNode *, bool);
 static void so_call(SoCheck *c, SoState *s, const ASTNode *node, ASTNode **args, int count, bool move) {
@@ -78,10 +78,10 @@ static void so_call(SoCheck *c, SoState *s, const ASTNode *node, ASTNode **args,
             const ASTNode *root=arg;
             if(arg->type==AST_CALL && arg->as.call.borrow_mode && arg->as.call.arg_count==1) root=arg->as.call.args[0];
             int index=root->type==AST_IDENTIFIER?so_find(s,root->as.identifier):-1;
-            if(index<0) { so_fail(c,arg,1,"I require a lexical File borrow root."); break; }
+            if(index<0) { so_fail(c,arg,1,"I require a lexical service borrow root."); break; }
             SoLocal *v=&s->locals[index]; unsigned mode=fact->borrow_mode;
             if(v->moved || v->exclusive || (mode==2 && (v->shared || v->mode==1))) {
-                so_fail(c,arg,1,"I cannot overlap an exclusive borrow or borrow a moved File."); break;
+                so_fail(c,arg,1,"I cannot overlap an exclusive borrow or borrow a moved service owner."); break;
             }
             if(mode==2) v->exclusive=true; else ++v->shared;
             holds[held++]=(SoHold){(size_t)index,mode};
@@ -97,7 +97,7 @@ static void so_call(SoCheck *c, SoState *s, const ASTNode *node, ASTNode **args,
     const NlServiceBodyFact *result=so_type(c,node);
     if(!result) so_fail(c,node,2,"I require retained service call result facts.");
     if(s->next && result && so_owned(result->type.service_category) && !move)
-        so_fail(c,node,1,"I require an owner for a File service or helper result.");
+        so_fail(c,node,1,"I require an owner for a service or helper result.");
 }
 static void so_match(SoCheck *c, SoState *s, const ASTNode *node, bool move) {
     const NlServiceBodyFact *input=so_type(c,node->as.match_expr.expr);
@@ -141,13 +141,13 @@ static void so_impl(SoCheck *c, SoState *s, const ASTNode *node, bool move) {
         SoLocal *v=&s->locals[index];
         if(!so_owned(v->category)) return;
         if(v->moved || v->exclusive || (move && (v->mode || v->shared))) {
-            so_fail(c,node,1,"I cannot use a moved File or consume a borrowed owner."); return;
+            so_fail(c,node,1,"I cannot use a moved service owner or consume a borrowed owner."); return;
         }
         if(move) { v->moved=true; so_note(c,node,NL_SERVICE_MOVE,v->id,0); }
         return;
     }
     case AST_CALL:
-        if(node->as.call.borrow_mode) { so_fail(c,node,1,"I cannot store or escape a File borrow."); return; }
+        if(node->as.call.borrow_mode) { so_fail(c,node,1,"I cannot store or escape a service borrow."); return; }
         so_call(c,s,node,node->as.call.args,node->as.call.arg_count,move); return;
     case AST_MODULE_QUALIFIED_CALL:
         so_call(c,s,node,node->as.module_qualified_call.args,node->as.module_qualified_call.arg_count,move); return;
@@ -167,6 +167,12 @@ static void so_impl(SoCheck *c, SoState *s, const ASTNode *node, bool move) {
         if(fact && fact->type.base_type==TYPE_FUNCTION && fact->declaration)return;
         so_expr(c,s,node->as.field_access.object,false); return;
     }
+    case AST_STRUCT_LITERAL:
+        /* Body checking admits only the scalar Endpoint constructor here.
+         * Its fields may still contain calls and early exits, in source order. */
+        for(int i=0;i<node->as.struct_literal.field_count && s->next && !c->out->status;i++)
+            so_expr(c,s,node->as.struct_literal.field_values[i],false);
+        return;
     case AST_LET: {
         so_expr(c,s,node->as.let.value,true);
         if(!s->next || c->out->status) return;
@@ -179,7 +185,7 @@ static void so_impl(SoCheck *c, SoState *s, const ASTNode *node, bool move) {
         if(index<0) { so_fail(c,node,2,"I require a retained service assignment root."); return; }
         SoLocal *v=&s->locals[index];
         if(v->mode || v->shared || v->exclusive || (so_owned(v->category) && !v->moved)) {
-            so_fail(c,node,1,"I cannot overwrite a live or borrowed File owner."); return;
+            so_fail(c,node,1,"I cannot overwrite a live or borrowed service owner."); return;
         }
         so_expr(c,s,node->as.set.value,true);
         if(!s->next || c->out->status) return;
@@ -242,10 +248,14 @@ NlServiceOwnershipCheck *nl_service_check_ownership(const NlServiceNamespace *sp
     out->facts=calloc(SO_FACTS,sizeof *out->facts);
     SoState state={.locals=calloc(SO_LOCALS,sizeof *state.locals),.next=true};
     if(!out->facts || !state.locals) { free(state.locals); nl_service_ownership_free(out); return NULL; }
+    /* I retain the same function-then-shadow order as the Nano checker and
+     * lowering, independent of where shadow declarations appear in source. */
+    for(unsigned group=0;group<2 && !out->status;group++)
     for(uint32_t module=0;!out->status && nl_service_namespace_program(space,module);++module) {
         const ASTNode *program=nl_service_namespace_program(space,module);
         for(int i=0;i<program->as.program.count && !out->status;++i) {
             const ASTNode *node=program->as.program.items[i],*body=NULL;
+            if(node->type!=(group==0?AST_FUNCTION:AST_SHADOW))continue;
             state.count=0; state.next=true; c.depth=0;
             if(node->type==AST_FUNCTION) {
                 ++out->functions; body=node->as.function.body;

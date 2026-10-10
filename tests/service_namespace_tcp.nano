@@ -2,6 +2,7 @@
 import "src_nano/compiler/service_namespace.nano"
 import "src_nano/compiler/service_types.nano"
 import "src_nano/compiler/service_bodies.nano"
+import "src_nano/compiler/service_ownership.nano"
 import "src_nano/parser.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
 import "src_nano/compiler/service_origins.nano"
@@ -71,7 +72,9 @@ fn check_mixed(one: string, two: string, bridge: string, root: string) -> int {
             set annotation (+ annotation 1)
         }
         let body: ServiceBodyCheck = (check_service_bodies parser files sources space)
-        assert (== body.status 2)
+        assert (== body.status 0)
+        let owners: ServiceOwnershipCheck = (check_service_ownership parser files sources space body)
+        assert (== owners.status 0)
         (nl_source_inputs_free context)
     }
     (println "PASS mixed File TCP namespace identities")

@@ -112,6 +112,11 @@ class ServiceOwnership(unittest.TestCase):
                 self.assertNotIn('I cannot verify File service ownership:',message)
             self.assertEqual(output.read_bytes(),b'prior-output')
 
+    def test_interleaved_shadows_preserve_fact_identity(self):
+        self.check('fn scalar()->int{return 0} shadow scalar {let local:int=1 assert (== local 1)} '
+                   'fn consume(value:File)->void{let closed:CloseResult=(close value)} '
+                   'shadow consume {let local:int=2 assert (== local 2)}',0)
+
     def test_moves_branches_loops_and_borrows(self):
         for name,body in VALID.items():
             with self.subTest(case=name):self.check(body,0)
