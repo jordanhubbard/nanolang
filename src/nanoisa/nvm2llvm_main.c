@@ -10,11 +10,11 @@
 
 int main(int argc, char **argv) {
     const char *input = NULL, *output = NULL, *entry = "main";
-    int entry_seen = 0, target_seen = 0;
+    int entry_seen = 0, target_seen = 0, portable_read = 0;
     NvmLlvmTarget target = NVM_LLVM_NATIVE;
     for (int i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "--help")) {
-            puts("I translate verified scalar NanoISA v2 to LLVM IR.\nUsage: nvm2llvm input.nvm [-o output.ll] [--entry-name main|nano_NAME] [--runtime-target native|wasm32]\nI refuse unsupported profiles; I do not embed NanoVM."); return 0;
+            puts("I translate verified scalar NanoISA v2 to LLVM IR.\nUsage: nvm2llvm input.nvm [-o output.ll] [--entry-name main|nano_NAME] [--runtime-target native|wasm32] [--portable-read-text]\nI refuse unsupported profiles; I do not embed NanoVM."); return 0;
         }
         if (!strcmp(argv[i], "-o") && i + 1 < argc && !output) output = argv[++i];
         else if (!strcmp(argv[i], "--entry-name") && i + 1 < argc && !entry_seen) {
@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
             if (!strcmp(name, "wasm32")) target = NVM_LLVM_WASM32;
             else if (strcmp(name, "native")) { fputs("I require native or wasm32 runtime target\n", stderr); return 2; }
         }
+        else if (!strcmp(argv[i], "--portable-read-text") && !portable_read) portable_read=1;
         else if (argv[i][0] == '-' || input) { fputs("I require one input and an optional -o output\n", stderr); return 2; }
         else input = argv[i];
     }
@@ -61,7 +62,8 @@ int main(int argc, char **argv) {
         free(temporary); nvm_module_free(m); return 1;
     }
     char error[512];
-    int ok = nvm2llvm_emit_target(m, stream, error, sizeof error, entry, target);
+    int ok = portable_read ? nvm2llvm_emit_portable_read_target(m, stream, error, sizeof error, entry, target) :
+        nvm2llvm_emit_target(m, stream, error, sizeof error, entry, target);
     nvm_module_free(m);
     if (!ok) fprintf(stderr, "%s\n", error);
     if (ok && fflush(stream)) ok = 0;

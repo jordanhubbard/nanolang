@@ -6687,3 +6687,25 @@ test-mixed-websocket-source: $(OBJ_DIR)/test_service_lowering $(COMPILER_C) nano
 	NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_mixed_websocket_source
 
 test-units: test-mixed-websocket-source
+
+# I link portable read authority only when the embedding explicitly binds it.
+PORTABLE_READ_RUNTIME_OBJECTS = $(addprefix $(OBJ_DIR)/nanoisa/,portable_read_module.o portable_read_managed.o portable_read_host.o)
+PORTABLE_READ_PACKAGE = portable_read_module.h portable_read_module.c portable_read_wasm.h portable_read_wasm.c portable_read_managed.h portable_read_host.h managed_strings.h
+.PHONY: portable-read-runtime install-portable-read-runtime
+portable-read-runtime: lib/libnano_portable_read.a
+lib/libnano_portable_read.a: $(PORTABLE_READ_RUNTIME_OBJECTS)
+	mkdir -p lib
+	$(AR) rcs $@ $^
+install-portable-read-runtime: portable-read-runtime nvm2wasm
+	install -d "$(PREFIX)/lib" "$(PREFIX)/include/nanolang/nanoisa" "$(PREFIX)/share/nanolang/portable-read" "$(PREFIX)/bin"
+	install -m 644 lib/libnano_portable_read.a "$(PREFIX)/lib/"
+	install -m 644 $(addprefix src/nanoisa/,$(filter %.h,$(PORTABLE_READ_PACKAGE))) "$(PREFIX)/include/nanolang/nanoisa/"
+	install -m 644 $(addprefix src/nanoisa/,$(PORTABLE_READ_PACKAGE)) "$(PREFIX)/share/nanolang/portable-read/"
+	install -m 755 bin/nvm2llvm bin/nvm2wasm "$(PREFIX)/bin/"
+	install -m 644 src/runtime/portable_read_node.mjs src/runtime/portable_read_wasmtime.py "$(PREFIX)/share/nanolang/portable-read/"
+
+.PHONY: test-portable-read-execution
+test-portable-read-execution: portable-read-runtime nvm2wasm nanoisa_dump nano_vm nvm2c nano_virt
+	python3 -m unittest -v tests.test_portable_read_execution
+
+test-nvm2wasm: test-portable-read-execution

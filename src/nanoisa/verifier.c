@@ -10,6 +10,7 @@
 
 #include "service_bindings_module.h"
 #include "verifier.h"
+#include "portable_read_catalog.h"
 #include "managed_array_shapes.h"
 #include "record_array_structure_private.h"
 #include "managed_record_shapes.h"
@@ -1232,15 +1233,22 @@ static int profile_supported(uint8_t op) {
 NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile) {
     if (profile != NVM_PROFILE_GENERAL && profile != NVM_PROFILE_CLOSED_SCALAR &&
         profile != NVM_PROFILE_CLOSED_LITERAL_STRINGS &&
-        profile != NVM_PROFILE_CLOSED_MANAGED_STRINGS)
+        profile != NVM_PROFILE_CLOSED_MANAGED_STRINGS && profile != NVM_PROFILE_PORTABLE_READ_TEXT)
         return fail("I do not recognize verifier profile %d", (int)profile);
     NvmVerifyResult verified = nvm_verify(m);
     if (!verified.ok || profile == NVM_PROFILE_GENERAL) return verified;
     if(nvm_owned_array_route(m)!=NVM_OWNER_ARRAY_NOT_SELECTED)return fail("I keep owner ARRAY candidates outside closed backend profiles");
     if(nvm_mixed_samples_candidate(m))return fail("I keep mixed ownership outside closed backend profiles");
+    const bool portable_read = profile == NVM_PROFILE_PORTABLE_READ_TEXT;
+    if(portable_read) {
+        if(!m->import_count || m->callback_contract_count)
+            return fail("I require explicit portable read-text declarations without callbacks");
+        for(uint32_t i=0;i<m->import_count;i++)
+            if(!nvm_portable_read_import_exact(m,i))return fail("I require exact portable read-text import %u",i);
+    }
     const bool record_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS &&
         (m->struct_count || m->layout_size || m->ownership_size);
-    if (m->import_count || m->module_ref_count || m->union_count || m->passive_size ||
+    if ((!portable_read && m->import_count) || m->module_ref_count || m->union_count || m->passive_size ||
         (!record_profile && (m->struct_count || m->ownership_size || m->layout_size)))
         return fail("I support only closed scalar modules without imports, nominal layouts or ownership/passive contracts");
     if (!(m->header.flags & NVM_FLAG_HAS_MAIN))
@@ -1251,7 +1259,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
         return fail("I require an integer/bool executable entry result");
     if (m->functions[m->header.entry_point].arity)
         return fail("I require a zero-argument scalar entry point");
-    const bool managed_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS;
+    const bool managed_profile = profile == NVM_PROFILE_CLOSED_MANAGED_STRINGS || portable_read;
     const bool literal_profile = profile == NVM_PROFILE_CLOSED_LITERAL_STRINGS || managed_profile;
     bool has_strings = false;
     bool mutable_arrays = false;
@@ -1271,7 +1279,10 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
             return fail("I require zero void results or one admitted closed-profile result and no captures in function %u", i);
         has_strings |= f->result_count && f->result_tag == TAG_STRING;
         for (uint16_t p = 0; p < f->arity; ++p) {
-            if (!m->function_param_types || !m->function_param_types[i]) continue;
+            if (!m->function_param_types || !m->function_param_types[i]) {
+                if(portable_read)return fail("I require explicit portable function parameter tags");
+                continue;
+            }
             uint8_t tag = m->function_param_types[i][p];
             has_strings |= tag == TAG_STRING;
             if (!profile_scalar(tag) && !(literal_profile && tag == TAG_STRING) && !(managed_profile && tag == TAG_ARRAY) && !(record_profile && tag == TAG_STRUCT))
@@ -1293,7 +1304,7 @@ NvmVerifyResult nvm_verify_profile(const NvmModule *m, NvmVerifyProfile profile)
                 ins.opcode == OP_STRUCT_LITERAL || ins.opcode == OP_STRUCT_GET ||
                 ins.opcode == OP_STRUCT_SET || ins.opcode == OP_AGG_PACK ||
                 ins.opcode == OP_AGG_GET || ins.opcode == OP_AGG_SET);
-            if (!width || (!profile_supported(ins.opcode) && !literal_op && !record_op)) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
+            if (!width || (!profile_supported(ins.opcode) && !literal_op && !record_op && !(portable_read && ins.opcode==OP_CALL_EXTERN))) return fail("I do not support opcode 0x%02x at function %u offset %u in my scalar LLVM profile", ins.opcode, i, pc);
             pc += width;
         }
     }

@@ -18,6 +18,9 @@ static NmsRuntime nms_module_instance;
 static NmsStatus nms_module_error;
 static unsigned nms_module_ready;
 
+/* I lend my exact runtime only to a linked, trusted host adapter. */
+NmsRuntime *nms_module_host_runtime(void) { return &nms_module_instance; }
+
 void nms_module_fail(uint32_t status) {
     if (!nms_module_error && status)
         nms_module_error = status <= NMS_BOUNDS ? (NmsStatus)status : NMS_STATE;

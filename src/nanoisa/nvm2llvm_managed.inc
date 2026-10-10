@@ -299,10 +299,11 @@ static void managed_literals(FILE *out, const NvmModule *m) {
         " %answer = call i64 @nms_module_order(i64 %av, i64 %bv)\n ret i64 %answer\nbad:\n ret i64 0\n}\n", out);
 }
 static void managed_entry(FILE *out, const NvmModule *m, const char *entry,
-                          uint32_t initializer, uint32_t global_count, bool graph_arrays, const NvmRecordPlan *records) {
+                          uint32_t initializer, uint32_t global_count, bool graph_arrays, const NvmRecordPlan *records, bool portable_read) {
     const char *begin = graph_arrays ? "nms_module_graph_begin" : "nms_module_begin";
     const char *finish = graph_arrays ? "nms_module_graph_finish" : "nms_module_finish";
     fputs("define i64 @nano_try_entry() {\nentry:\n", out);
+    if(portable_read)fputs(" call void @npr_module_reset()\n",out);
     if (records) fprintf(out,
         " %%begin_pair = call i64 @nms_module_record_begin(ptr @literal_strings, i32 %u, ptr @record_descriptors, i32 %u)\n"
         " %%begin = trunc i64 %%begin_pair to i32\n"

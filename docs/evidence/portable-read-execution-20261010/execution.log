@@ -1,0 +1,9 @@
+test_default_refusal_and_exact_imports_preserve_output (tests.test_portable_read_execution.PortableReadExecution.test_default_refusal_and_exact_imports_preserve_output) ... ok
+test_native_binding_and_lifecycle (tests.test_portable_read_execution.PortableReadExecution.test_native_binding_and_lifecycle) ... ok
+test_source_vm_c_and_wasm (tests.test_portable_read_execution.PortableReadExecution.test_source_vm_c_and_wasm) ... ok
+test_wasm_permission_repeated_entry_and_type_guard (tests.test_portable_read_execution.PortableReadExecution.test_wasm_permission_repeated_entry_and_type_guard) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 3.086s
+
+OK
