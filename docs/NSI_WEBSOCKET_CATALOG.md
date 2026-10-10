@@ -100,12 +100,27 @@ checks that separation directly against the actual public validator.
 
 ## Admission boundary
 
+My private invocation carrier in `nsi_websocket_values.[ch]` now owns up to 64
+Connection or ConnectResult values. It copies trusted policy and resolver path,
+checks invocation/slot/generation identities, invalidates old copies on moves
+and extraction, and requires one exact exclusive borrow for send/receive.
+Borrow epochs cannot be reused, and exhausted counters refuse further minting.
+Close clears the value before host cleanup, including invalid-deadline outcomes.
+Invocation finish aborts transport I/O and destroys outstanding connections
+without waiting for peer handshakes, including borrowed and unhandled owners.
+I retain cleanup failure details separately from the invocation's first execution
+status. Returned message bytes have independent caller ownership.
+
+This C API assumes serialized callers and valid native storage. Its identities
+reject stale/cross-invocation values; they do not protect against arbitrary native
+memory access or establish verified source authority. It has no public binding.
+
 The descriptor and its queries are implemented here. The behaviors above are the
 runtime acceptance contract, not claims that service execution already exists.
 I have not registered this catalog in source selection or the executable binding
 registry. My remaining dependencies are string-bearing runtime fields/results,
-owned WebSocket transport values and cleanup, per-instance policy, verified
-VM/native dispatch and paired frontend lowering. I must exercise real protocol,
+integration of owned WebSocket values and per-instance policy into checked
+execution, verified VM/native dispatch and paired frontend lowering. I must exercise real protocol,
 refusal, fault, cleanup and installed Linux/Darwin paths before public admission.
 
 My legacy WebSocket integer API stays separate. It cannot fabricate a verified
