@@ -1,0 +1,5 @@
+{
+  "src_nano/compiler/nanoisa_codegen.nano": "9f8da762624e08c2e570663834bcba95934aab34a39fc161cdaf97d3f6faf31f",
+  "tests/test_cseed_tuple_generics.py": "80b057f7db949c870a00414b005b7f8b981fdacb76225e68d57aeed02c7fe989",
+  "/private/tmp/nl51-rich-tuple-seed.nvm": "edbda947b1821f0fae7f655ff580d6a7299258e62a9c0799be3268df70d58752"
+}

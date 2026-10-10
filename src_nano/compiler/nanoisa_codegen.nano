@@ -998,7 +998,7 @@ fn nisa_tuple_elements(t: string) -> array<string> {
             if (< paren_depth 0) { return [] }
         }
         if (== ch "<") { set angle_depth (+ angle_depth 1) }
-        if (== ch ">") {
+        if (and (== ch ">") (!= (str_substring compact (- i 1) 1) "-")) {
             set angle_depth (- angle_depth 1)
             if (< angle_depth 0) { return [] }
         }
@@ -1025,6 +1025,10 @@ shadow nisa_tuple_elements {
     let nested: array<string> = (nisa_tuple_elements "(array<int>,(string,bool))")
     assert (== (array_length nested) 2)
     assert (== (at nested 1) "(string,bool)")
+    let callbacks: array<string> = (nisa_tuple_elements "(fn(Ops)->(int,bool),array<fn(int)->string>)")
+    assert (== (array_length callbacks) 2)
+    assert (== (at callbacks 0) "fn(Ops)->(int,bool)")
+    assert (== (at callbacks 1) "array<fn(int)->string>")
     assert (== (array_length (nisa_tuple_elements "(int)")) 0)
 }
 
@@ -2178,32 +2182,86 @@ shadow nisa_is_pin_record {
     assert (not (nisa_is_int_record p "Tok"))
 }
 
-# I admit tuple elements only when I can preserve their exact scalar or nested
-# tuple representation. Records, arrays and resources keep their own contracts.
-fn nisa_tuple_type_ok(parser: Parser, t: string) -> bool {
+# I keep resource storage out of ordinary tuples, including nested containers.
+fn nisa_tuple_storage_ok(parser: Parser, t: string, ancestors: array<string>) -> bool {
+    if (str_starts_with t "fn(") { return true }
+    let elements: array<string> = (nisa_tuple_elements t)
+    let mut i: int = 0
+    while (< i (array_length elements)) {
+        if (not (nisa_tuple_storage_ok parser (at elements i) ancestors)) { return false }
+        set i (+ i 1)
+    }
+    if (> (array_length elements) 0) { return true }
+    if (and (str_starts_with t "array<") (str_ends_with t ">")) {
+        return (nisa_tuple_storage_ok parser (str_substring t 6 (- (str_length t) 7)) ancestors)
+    }
+    if (and (str_starts_with t "List<") (str_ends_with t ">")) {
+        return (nisa_tuple_storage_ok parser (str_substring t 5 (- (str_length t) 6)) ancestors)
+    }
+    let index: int = (nisa_struct_index parser t)
+    if (< index 0) { return true }
+    let record: ASTStruct = (parser_get_struct_def parser index)
+    if record.is_resource { return false }
+    let mut path: array<string> = []
+    set i 0
+    while (< i (array_length ancestors)) {
+        let name: string = (at ancestors i)
+        if (== name t) { return false }
+        set path (array_push path name)
+        set i (+ i 1)
+    }
+    set path (array_push path t)
+    set i 0
+    while (< i record.field_count) {
+        if (not (nisa_tuple_storage_ok parser (at record.field_types i) path)) { return false }
+        set i (+ i 1)
+    }
+    return true
+}
+shadow nisa_tuple_storage_ok {
+    let tokens: List<LexerToken> = (tokenize_string "resource struct Handle { value: int } struct Box { value: Handle } struct Cycle { next: Cycle } struct Plain { value: int }" "tuple-storage.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "tuple-storage.nano")
+    assert (nisa_tuple_storage_ok parser "(Plain,array<int>)" [])
+    assert (not (nisa_tuple_storage_ok parser "(Box,int)" []))
+    assert (not (nisa_tuple_storage_ok parser "array<Handle>" []))
+    assert (not (nisa_tuple_storage_ok parser "Cycle" []))
+}
+
+# I retain the existing element contracts and callable recursion context.
+fn nisa_tuple_type_ok_seen(parser: Parser, t: string, signatures: array<string>) -> bool {
     let elements: array<string> = (nisa_tuple_elements t)
     if (< (array_length elements) 2) { return false }
     let mut i: int = 0
     while (< i (array_length elements)) {
         let element: string = (at elements i)
-        if (not (or (or (== element "int") (== element "bool"))
-                    (or (== element "string")
-                        (or (== element "float")
-                            (or (>= (nisa_enum_index parser element) 0)
-                                (nisa_tuple_type_ok parser element)))))) {
-            return false
-        }
+        if (not (nisa_tuple_storage_ok parser element [])) { return false }
+        if (not (or (== element "u8")
+                    (or (nisa_field_shape_supported_seen parser element [] signatures)
+                        (nisa_tuple_type_ok_seen parser element signatures)))) { return false }
         set i (+ i 1)
     }
     return true
 }
+shadow nisa_tuple_type_ok_seen {
+    let tokens: List<LexerToken> = (tokenize_string "struct Ops { op: fn(Ops)->(int,bool) }" "tuple-signature.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "tuple-signature.nano")
+    assert (nisa_tuple_type_ok_seen parser "(Ops,fn(Ops)->(int,bool))" [])
+    assert (not (nisa_tuple_type_ok_seen parser "(int,fn(Missing)->int)" []))
+}
 
+fn nisa_tuple_type_ok(parser: Parser, t: string) -> bool {
+    return (nisa_tuple_type_ok_seen parser t [])
+}
 shadow nisa_tuple_type_ok {
-    let tokens: List<LexerToken> = (tokenize_string "enum Mode { Low }" "tuple.nano" (diag_list_new))
+    let tokens: List<LexerToken> = (tokenize_string "enum Mode { Low } struct Box { value: int } resource struct Handle { value: int }" "tuple.nano" (diag_list_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "tuple.nano")
     assert (nisa_tuple_type_ok parser "(int,string,bool)")
     assert (nisa_tuple_type_ok parser "((int,string),float)")
-    assert (not (nisa_tuple_type_ok parser "(int,array<int>)"))
+    assert (nisa_tuple_type_ok parser "(int,array<int>)")
+    assert (nisa_tuple_type_ok parser "(u8,bool)")
+    assert (nisa_tuple_type_ok parser "(Box,Mode,fn(int)->int)")
+    assert (not (nisa_tuple_type_ok parser "(Handle,int)"))
+    assert (not (nisa_tuple_type_ok parser "(int,array<Missing>)"))
     assert (not (nisa_tuple_type_ok parser "(int)"))
 }
 
@@ -2268,7 +2326,7 @@ shadow nisa_function_type {
 fn nisa_type_ok_seen(parser: Parser, t: string, signatures: array<string>) -> bool {
     if (>= (nisa_opaque_index parser t) 0) { return true }
     if (str_starts_with (nisa_compact_type t) "fn(") { return (nisa_function_type_ok_seen parser t signatures) }
-    if (nisa_tuple_type_ok parser t) { return true }
+    if (nisa_tuple_type_ok_seen parser t signatures) { return true }
     if (nisa_union_supported parser t) { return true }
     if (>= (nisa_enum_index parser t) 0) { return true }
     if (and (str_starts_with t "array<") (str_ends_with t ">")) {
@@ -2320,7 +2378,8 @@ shadow nisa_type_ok {
     assert (nisa_type_ok p "List<Box>")
     assert (nisa_type_ok p "array<bool>")
     assert (nisa_type_ok p "(int,string,bool)")
-    assert (not (nisa_type_ok p "(int,array<int>)"))
+    assert (nisa_type_ok p "(int,array<int>)")
+    assert (not (nisa_type_ok p "(int,array<Missing>)"))
 }
 
 fn nisa_fresh() -> string {
@@ -3883,7 +3942,7 @@ fn nisa_emit_tuple_literal(parser: Parser, node_id: int, expected: string) -> st
         return (nisa_fail "I require the declared tuple arity")
     }
     if (not (nisa_tuple_type_ok parser tuple_type)) {
-        return (nisa_fail "I require supported scalar tuple element types")
+        return (nisa_fail "I require supported tuple element types")
     }
     let mut output: string = ""
     let mut i: int = 0

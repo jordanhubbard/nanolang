@@ -9,6 +9,15 @@ MAIN_SHADOW = '\nshadow main {assert (== (main) 0)}\n'
 
 
 class TupleGenerics(base.CseedGenericFunctions):
+    def test_tuple_byte_element(self):
+        self.execute(IDENTITY+'''fn main()->int {
+    let bytes:array<u8> = [7]
+    let bundle:(u8,bool) = (identity ((at bytes 0),true))
+    assert (== bundle.0 7)
+    assert bundle.1
+    return 0
+}'''+MAIN_SHADOW)
+
     def test_tuple_identity_and_destructuring(self):
         self.execute(IDENTITY+'''fn main()->int {
     let (number, flag) = (identity (identity (7, true)))
@@ -113,6 +122,40 @@ shadow make {let value = (make) assert value.1}
             output.write_bytes(b'prior')
             source.write_text('fn pair()->(int,bool){return (1,true)}\nshadow pair {assert true}\n'
                 'fn main()->int{let value=(pair).2 return 0}\nshadow main {assert true}\n')
+            result=subprocess.run([str(base.COMPILER),str(source),'--emit-nvm','-o',str(output)],
+                                  cwd=base.ROOT,capture_output=True,text=True,timeout=120)
+            self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+            self.assertEqual(output.read_bytes(),b'prior')
+
+    def test_tuple_array_alias_is_preserved(self):
+        self.execute(IDENTITY+'''fn main()->int {
+    let values:array<int> = [1]
+    let bundle = (identity (values,true))
+    (array_set bundle.0 0 9)
+    assert (== (at values 0) 9)
+    return 0
+}'''+MAIN_SHADOW)
+
+    def test_tuple_recursive_callback_signature(self):
+        self.execute(IDENTITY+'''struct Ops {op:fn(Ops)->(int,bool)}
+fn answer(value:Ops)->(int,bool){return (7,true)}
+shadow answer {let value=(answer Ops {op:answer}) assert value.1}
+fn main()->int {
+    let bundle:(Ops,bool) = (identity (Ops {op:answer},true))
+    let callback:fn(Ops)->(int,bool) = bundle.0.op
+    let value = (callback bundle.0)
+    assert (== value.0 7)
+    assert value.1
+    return 0
+}'''+MAIN_SHADOW)
+
+    def test_resource_tuple_preserves_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source,output=Path(tmp)/'main.nano',Path(tmp)/'main.nvm'
+            output.write_bytes(b'prior')
+            source.write_text('resource struct Handle {value:int}\n'+IDENTITY+
+                'fn main()->int{let owned:Handle=Handle {value:1} let tuple=(identity (owned,true)) return 0}\n'
+                'shadow main {assert true}\n')
             result=subprocess.run([str(base.COMPILER),str(source),'--emit-nvm','-o',str(output)],
                                   cwd=base.ROOT,capture_output=True,text=True,timeout=120)
             self.assertGreater(result.returncode,0,result.stdout+result.stderr)

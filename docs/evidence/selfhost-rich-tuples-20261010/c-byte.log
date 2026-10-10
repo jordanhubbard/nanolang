@@ -1,0 +1,6 @@
+test_tuple_byte_element (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_byte_element) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.352s
+
+OK
