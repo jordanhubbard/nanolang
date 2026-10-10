@@ -1,0 +1,43 @@
+I retain source lowering artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx
+test_paired_source_bytes (tests.test_mixed_websocket_source.MixedWebSocketLowering.test_paired_source_bytes) ... FAIL
+test_nonexecuting_emission_and_failed_shadow_preserve_output (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_nonexecuting_emission_and_failed_shadow_preserve_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-pag4e9ps
+ok
+test_permissions_shadows_and_native_invocation (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_permissions_shadows_and_native_invocation) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ijm9ftgc
+ok
+test_relocated_native_product (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_relocated_native_product) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-5oemesdc
+ok
+test_required_live_peer (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_required_live_peer) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-cv9zihpf
+ERROR
+
+======================================================================
+ERROR: test_required_live_peer (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_required_live_peer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_mixed_websocket_source.py", line 112, in test_required_live_peer
+    port,messages=self.server()
+                  ~~~~~~~~~~~^^
+  File "/Users/jordanh/Src/nanolang/tests/test_websocket_dispatch.py", line 42, in server
+    listener.bind(("127.0.0.1", 0))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+FAIL: test_paired_source_bytes (tests.test_mixed_websocket_source.MixedWebSocketLowering.test_paired_source_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_mixed_websocket_source.py", line 137, in test_paired_source_bytes
+    report=self.command([ROOT/'obj/test_service_lowering',source,'main',native])
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 65, in command
+    if process.returncode:raise AssertionError(f'{args}\n{process.returncode}\n{stdout}\n{stderr}')
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_lowering'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/source.nano'), 'main', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-u0_vx1hx/source.c')]
+-6
+
+I have not resolved File service declarations for this consumer.
+Assertion failed: (recovered), function main, file test_service_lowering.c, line 153.
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 109.174s
+
+FAILED (failures=1, errors=1)

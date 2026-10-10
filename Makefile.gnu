@@ -6253,7 +6253,7 @@ test-nano-service-driver: bootstrap3 $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_r
 	  NANO_FILE_DRIVER_MODULE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}.nvm" NANO_FILE_DRIVER_NATIVE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_nano_service_driver.NanoServiceDriver; \
 	  NANO_TCP_DRIVER_MODULE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}.nvm" NANO_TCP_DRIVER_NATIVE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_socket_service_drivers.SocketServiceDrivers; \
 	  NANO_TCP_DRIVER_MODULE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}.nvm" NANO_TCP_DRIVER_NATIVE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}" NANO_MIXED_INSTALL_PREFIX="$(MIXED_SERVICE_TEST_PREFIX)" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_mixed_service_drivers.MixedServiceDrivers; \
-	  NANO_WEBSOCKET_DRIVER_MODULE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}.nvm" NANO_WEBSOCKET_DRIVER_NATIVE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_websocket_service_drivers tests.test_websocket_service_network; \
+	  NANO_WEBSOCKET_DRIVER_MODULE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}.nvm" NANO_WEBSOCKET_DRIVER_NATIVE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_websocket_service_drivers tests.test_websocket_service_network tests.test_mixed_websocket_source.MixedWebSocketProducts; \
 	done
 
 $(OBJ_DIR)/nvm2c_artifact_sanitize: $(NANOISA_DIR)/nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a
@@ -6681,3 +6681,9 @@ test-mixed-websocket-runtime: lib/libnano_services_runtime.a $(NANOISA_OBJECTS) 
 	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_mixed_websocket_runtime
 
 test-units: test-mixed-websocket-runtime
+
+.PHONY: test-mixed-websocket-source
+test-mixed-websocket-source: $(OBJ_DIR)/test_service_lowering $(COMPILER_C) nano_virt nano_vm nvm2c $(SERVICES_PUBLIC_LIBRARY) $(BIN_DIR)/nano-resolver
+	NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_mixed_websocket_source
+
+test-units: test-mixed-websocket-source

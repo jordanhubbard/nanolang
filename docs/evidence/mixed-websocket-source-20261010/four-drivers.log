@@ -1,0 +1,27 @@
+test_lookup_policy_is_supplied_at_invocation (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_lookup_policy_is_supplied_at_invocation) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ootzoky5
+ok
+test_nonexecuting_emission_and_failed_shadow_preserve_output (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_nonexecuting_emission_and_failed_shadow_preserve_output) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-wdc6n6gm
+ok
+test_permissions_shadows_and_native_invocation (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_permissions_shadows_and_native_invocation) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-todows0f
+ok
+test_relocated_native_product (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_relocated_native_product) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ap1wumyj
+ok
+test_required_live_peer (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_required_live_peer) ... I retain service driver artifacts at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-_q8oj4o7
+ERROR
+
+======================================================================
+ERROR: test_required_live_peer (tests.test_mixed_websocket_source.MixedWebSocketProducts.test_required_live_peer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_mixed_websocket_source.py", line 137, in test_required_live_peer
+    port,messages=self.server()
+                  ~~~~~~~~~~~^^
+  File "/Users/jordanh/Src/nanolang/tests/test_websocket_dispatch.py", line 42, in server
+    listener.bind(("127.0.0.1", 0))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 1] Operation not permitted
+
+----------------------------------------------------------------------
+Ran 5 tests in 550.444s
+
+FAILED (errors=1)

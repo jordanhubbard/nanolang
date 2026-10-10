@@ -148,8 +148,20 @@ static void ws_facts(NvmServicesIndirectFlow *r,const NvmMultiNominalBindings *b
  CHECK(timeouts);for(unsigned i=0;i<b->count;i++)CHECK(methods[i]==(b->instances[i].catalog==3?4u:5u));
 }
 static void ws_runtime_refusal(const uint8_t *bytes,size_t size,NvmServicesIndirectHostedPlan *p,const NvmMultiNominalBindings *b){
- NlServicePolicy policy={0},saved_policy=policy;
- CHECK(!nl_service_policy_read(bytes,size,true,true,true,&policy) && !memcmp(&policy,&saved_policy,sizeof policy));
+ NlServicePolicy policy={0};
+ CHECK(nl_service_policy_read(bytes,size,true,true,true,&policy) && policy.profile==3 && policy.allowed && policy.requires_websocket);
+ CHECK(policy.count==b->count);
+ CHECK(nl_service_policy_read(bytes,size,true,true,false,&policy) && !policy.allowed && policy.requires_websocket);
+ NvmWebSocketHostPolicy ws_policy={1,true,false,1000,NULL};
+ NvmServicesHostGrant *policy_grant=NULL;
+ CHECK(nl_service_policy_grant(&policy,&ws_policy,&policy_grant)==NVM_SERVICES_HOST_OK);
+ CHECK(nvm_services_host_grant_destroy(&policy_grant)==NVM_SERVICES_HOST_OK);
+ CHECK(nl_service_policy_read(bytes,size,true,true,true,&policy));
+ ws_policy.allow_lookup=true;
+ CHECK(nl_service_policy_grant(&policy,&ws_policy,&policy_grant)==NVM_SERVICES_HOST_INVALID && !policy_grant);
+ ws_policy.resolver_helper="/unused/helper";
+ CHECK(nl_service_policy_grant(&policy,&ws_policy,&policy_grant)==NVM_SERVICES_HOST_OK);
+ CHECK(nvm_services_host_grant_destroy(&policy_grant)==NVM_SERVICES_HOST_OK);
  NvmServicesIndirectOptions options={1,100000};
  for(unsigned mode=0;mode<2;mode++){
   NvmServicesRuntime *runtime=NULL;

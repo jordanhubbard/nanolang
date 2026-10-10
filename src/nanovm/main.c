@@ -178,18 +178,19 @@ static int run_websocket_standalone(const char *path,const NvmWebSocketIndirectO
     return (int)((uint64_t)scalar.value&255u);
 }
 
-static int run_services_standalone(const char *path,const NvmServicesIndirectOptions *options,bool files,bool tcp) {
+static int run_services_standalone(const char *path,const NvmServicesIndirectOptions *options,bool files,bool tcp,const NvmWebSocketHostPolicy *websocket) {
     uint8_t *bytes=NULL;size_t size=0;char diagnostic[256]={0};
     if(!nvm_file_cli_read(path,&bytes,&size,diagnostic,sizeof diagnostic)){fprintf(stderr,"%s\n",diagnostic);return 1;}
     NlServicePolicy policy;
-    if(!nl_service_policy_read(bytes,size,files,tcp,false,&policy) || policy.profile!=3){free(bytes);return 1;}
+    if(!nl_service_policy_read(bytes,size,files,tcp,websocket && websocket->allow_connections,&policy) || policy.profile!=3){free(bytes);return 1;}
     if(!policy.allowed) {
         if(policy.requires_file && !files)fputs("I require --allow-temporary-files for these service instances.\n",stderr);
         if(policy.requires_tcp && !tcp)fputs("I require --allow-tcp-connections for these service instances.\n",stderr);
+        if(policy.requires_websocket && !(websocket && websocket->allow_connections))fputs("I require --allow-websocket-connections for these service instances.\n",stderr);
         free(bytes);return 1;
     }
     NvmServicesHostGrant *grant=NULL;
-    if(nvm_services_host_grant_create(policy.instances,policy.count,&grant)!=NVM_SERVICES_HOST_OK){free(bytes);return 1;}
+    if(nl_service_policy_grant(&policy,websocket,&grant)!=NVM_SERVICES_HOST_OK){free(bytes);return 1;}
     NvmServicesScalar scalar={0};
     NvmServicesIndirectExecutionReport report=nvm_services_execute_indirect_bytes(grant,bytes,size,options,&scalar);
     free(bytes);
@@ -496,6 +497,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    if(services || service_limit_set) {
+        if(!services || !service_limit_set || websocket_limit_set || socket_limit_set || file_cyclic || file_indirect || file_limit_set ||
+           check_shadows || verify_only || daemon_mode || repeat_requested || g_profile_path || g_isolate_ffi || g_debug_mode || guest_start) {
+            fputs("I require --services and --service-instruction-limit together, without other execution modes.\n",stderr);return 1;
+        }
+        return run_services_standalone(nvm_path,&service_options,allow_temporary_files,allow_tcp_connections,&websocket_policy);
+    }
     if(websocket_policy.allow_connections || websocket_policy.allow_lookup || websocket_policy.resolver_helper || websocket_limit_set) {
         if(!websocket_policy.allow_connections || !websocket_limit_set ||
            websocket_policy.allow_lookup!=(websocket_policy.resolver_helper!=NULL) ||
@@ -504,13 +512,6 @@ int main(int argc, char *argv[]) {
             fputs("I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n",stderr);return 1;
         }
         return run_websocket_standalone(nvm_path,&websocket_options,&websocket_policy);
-    }
-    if(services || service_limit_set) {
-        if(!services || !service_limit_set || socket_limit_set || file_cyclic || file_indirect || file_limit_set ||
-           check_shadows || verify_only || daemon_mode || repeat_requested || g_profile_path || g_isolate_ffi || g_debug_mode || guest_start) {
-            fputs("I require --services and --service-instruction-limit together, without other execution modes.\n",stderr);return 1;
-        }
-        return run_services_standalone(nvm_path,&service_options,allow_temporary_files,allow_tcp_connections);
     }
     if(allow_tcp_connections || socket_limit_set) {
         if(!allow_tcp_connections || !socket_limit_set || allow_temporary_files || file_cyclic || file_indirect || file_limit_set ||

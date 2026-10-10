@@ -301,11 +301,22 @@ indirect mixed queries; Message and owner identities remain instance-specific.
 My hosted query owns counted string bytes, including embedded NUL, independently
 of its input module and wire buffers. A checked query grants no host authority.
 
-I now prepare and execute mixed WebSocket bytes through explicit checked VM
-and native providers with per-instance policy installation. Product policy
-parsing still refuses mixed WebSocket instead of treating TCP permission as
-WebSocket permission; paired mixed source integration remains open. Standalone
-WebSocket continues through its explicit version-2 catalog-3 provider.
+I prepare and execute mixed WebSocket bytes through explicit checked VM
+and native providers with per-instance policy installation. Both source
+producers emit each catalog's actual import count and mark absent method slots
+with UINT32_MAX. Mixed source products require separate File, TCP and WebSocket
+connection permissions for every declared catalog, including unused instances.
+Standalone WebSocket continues through its explicit version-2 catalog-3 provider.
+
+I run mixed bytecode with `--services --service-instruction-limit N` plus the
+catalog opt-ins. WebSocket adds `--allow-websocket-connections`; DNS separately
+requires `--allow-websocket-lookup --websocket-resolver-helper /absolute/path`.
+My native mixed launcher accepts the same catalog and DNS opt-ins on each
+invocation. I copy resolver paths into the fresh grant; compilation does not
+embed execution authority or a resolver path into the product. The launcher
+uses a 60000 ms deadline ceiling; each WebSocket operation still supplies its
+own checked timeout. Live-source network and exact-platform release
+qualification remain required.
 
 ## Mixed value ownership
 

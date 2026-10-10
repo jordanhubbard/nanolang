@@ -1,0 +1,2 @@
+I have not resolved File service declarations for this consumer.
+Assertion failed: (recovered), function main, file test_service_lowering.c, line 153.

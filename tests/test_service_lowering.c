@@ -13,12 +13,15 @@
 #include <errno.h>
 #include <unistd.h>
 static long fail_after=-1;
+static long allocation_calls;
 static void *lower_malloc(size_t size) {
+    allocation_calls++;
     if(fail_after==0)return NULL;
     if(fail_after>0)--fail_after;
     return malloc(size);
 }
 static void *lower_calloc(size_t count,size_t size) {
+    allocation_calls++;
     if(fail_after==0)return NULL;
     if(fail_after>0)--fail_after;
     return calloc(count,size);
@@ -127,8 +130,9 @@ int main(int argc,char **argv) {
         if(node->type==AST_SHADOW && !strcmp(node->as.shadow.function_name,argv[2]))selection=node;
     }
     assert(selection || !strcmp(argv[2],"main"));
-    NvmModule *module=NULL;
+    NvmModule *module=NULL;allocation_calls=0;
     NlServiceLoweringResult result=nl_service_lower(env->service_namespace,env->service_bodies,env->service_ownership,selection,&module);
+    long lower_allocations=allocation_calls;
     if(result.status)fprintf(stderr,"LOWER %u %d:%d %s\n",result.status,result.line,result.column,result.diagnostic);
     if(refusal) {
         assert(result.status==expected && !module);
@@ -143,7 +147,7 @@ int main(int argc,char **argv) {
     ASTNode absent={0};
     assert(nl_service_lower(env->service_namespace,env->service_bodies,env->service_ownership,&absent,&sentinel).status==1 && sentinel==module);
     bool recovered=false;
-    for(long prefix=0;prefix<8;prefix++) {
+    for(long prefix=0;prefix<=lower_allocations;prefix++) {
         fail_after=prefix;sentinel=module;
         NlServiceLoweringResult attempt=nl_service_lower(env->service_namespace,env->service_bodies,env->service_ownership,selection,&sentinel);
         fail_after=-1;
@@ -151,6 +155,7 @@ int main(int argc,char **argv) {
         assert(attempt.status==4 && sentinel==module);
     }
     assert(recovered);
+    printf("LOWERING ALLOCATION PREFIXES %ld\n",lower_allocations);
     if(module->service_size==NVM_FILE_NOMINAL_BYTES)check_reference_maps(module);
     uint8_t *bytes=NULL;size_t length=0;result=nl_service_serialize(module,&bytes,&length);
     if(result.status)fprintf(stderr,"SERIALIZE %u %s\n",result.status,result.diagnostic);
@@ -172,9 +177,9 @@ int main(int argc,char **argv) {
         char wire_path[8192];assert(snprintf(wire_path,sizeof wire_path,"%s.nvm",argv[3])<(int)sizeof wire_path);
         file=fopen(wire_path,"wb");assert(file);assert(fwrite(bytes,1,length,file)==length);assert(!fclose(file));
         NvmMultiNominalBindings bindings={0};assert(nvm_multi_nominal_decode(module->service_data,module->service_size,&bindings)==NVM_SERVICE_OK);
-        NvmServicesHostPolicy policies[64];
-        for(uint32_t i=0;i<bindings.count;i++)policies[i]=(NvmServicesHostPolicy){(NvmServicesHostCatalog)bindings.instances[i].catalog,true};
-        NvmServicesHostGrant *grant=NULL;assert(nvm_services_host_grant_create(policies,bindings.count,&grant)==NVM_SERVICES_HOST_OK);
+        NvmServicesHostConfig policies[64];
+        for(uint32_t i=0;i<bindings.count;i++)policies[i]=(NvmServicesHostConfig){1,(NvmServicesHostCatalog)bindings.instances[i].catalog,true,false,bindings.instances[i].catalog==3?2000u:0u,NULL};
+        NvmServicesHostGrant *grant=NULL;assert(nvm_services_host_grant_create_config(policies,bindings.count,&grant)==NVM_SERVICES_HOST_OK);
         NvmServicesIndirectOptions options={1,100000};NvmServicesScalar scalar={0};
         unsigned descriptors=descriptor_count();
         NvmServicesIndirectExecutionReport report=nvm_services_execute_indirect_bytes(grant,bytes,length,&options,&scalar);

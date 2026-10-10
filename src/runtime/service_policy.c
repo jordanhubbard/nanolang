@@ -1,4 +1,5 @@
 #include "service_policy.h"
+#include <string.h>
 #include "../nanoisa/nvm_v2_sections.h"
 #include "../nanoisa/service_file_nominal.h"
 #include "../nanoisa/service_socket_nominal.h"
@@ -35,10 +36,34 @@ bool nl_service_policy_read(const uint8_t *bytes,size_t size,bool files,bool tcp
     policy.allowed=true;
     for(size_t i=0;i<policy.count;i++) {
         unsigned catalog=policy.profile==3?mixed.instances[i].catalog:policy.profile;
-        if(catalog!=1 && catalog!=2)return false;
-        bool allowed=catalog==1?files:tcp;
+        if(catalog!=1 && catalog!=2 && catalog!=3)return false;
+        bool allowed=catalog==1?files:catalog==2?tcp:websocket;
         policy.instances[i]=(NvmServicesHostPolicy){(NvmServicesHostCatalog)catalog,allowed};
-        policy.requires_file|=catalog==1;policy.requires_tcp|=catalog==2;policy.allowed&=allowed;
+        policy.requires_websocket|=catalog==3;policy.requires_file|=catalog==1;policy.requires_tcp|=catalog==2;policy.allowed&=allowed;
     }
     *out=policy;return true;
+}
+
+NvmServicesHostStatus nl_service_policy_grant(const NlServicePolicy *policy,
+    const NvmWebSocketHostPolicy *websocket,NvmServicesHostGrant **out) {
+    if(!policy || policy->profile!=3 || !policy->count || policy->count>NVM_SERVICES_HOST_INSTANCES)
+        return NVM_SERVICES_HOST_INVALID;
+    if(websocket && (websocket->revision!=NVM_WEBSOCKET_HOST_POLICY_REVISION ||
+       websocket->max_timeout_ms>60000 || websocket->allow_lookup!=(websocket->resolver_helper!=NULL) ||
+       (websocket->resolver_helper && (websocket->resolver_helper[0]!='/' || strlen(websocket->resolver_helper)>=4096))))
+        return NVM_SERVICES_HOST_INVALID;
+    NvmServicesHostConfig configs[NVM_SERVICES_HOST_INSTANCES]={0};
+    for(size_t i=0;i<policy->count;i++) {
+        configs[i]=(NvmServicesHostConfig){.revision=NVM_SERVICES_HOST_POLICY_REVISION,
+            .catalog=policy->instances[i].catalog,.allowed=policy->instances[i].allowed};
+        if(configs[i].catalog==NVM_SERVICES_HOST_WEBSOCKET) {
+            configs[i].allowed=configs[i].allowed && websocket && websocket->allow_connections;
+            if(websocket) {
+                configs[i].allow_lookup=websocket->allow_lookup;
+                configs[i].max_timeout_ms=websocket->max_timeout_ms;
+                configs[i].resolver_helper=websocket->resolver_helper;
+            }
+        }
+    }
+    return nvm_services_host_grant_create_config(configs,policy->count,out);
 }

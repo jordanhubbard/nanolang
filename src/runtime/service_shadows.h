@@ -36,6 +36,8 @@ NlServiceShadowReport nl_service_run_catalog_shadows(const NlServiceShadow *, si
  * grant in the supervised child for each selected shadow. */
 NlServiceShadowReport nl_service_run_mixed_shadows(const NlServiceShadow *,size_t,
     bool allow_temporary_files,bool allow_tcp_connections,const char *log_path);
+NlServiceShadowReport nl_service_run_mixed_config_shadows(const NlServiceShadow *,size_t,
+    bool allow_temporary_files,bool allow_tcp_connections,const NvmWebSocketHostPolicy *,const char *log_path);
 /* I create a fresh copied WebSocket policy in each supervised child execution.
  * NULL policy refuses a nonempty suite; an explicit denied policy can test
  * rights errors without granting network or DNS authority. */

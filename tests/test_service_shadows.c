@@ -139,6 +139,11 @@ NvmServicesHostStatus nvm_services_host_grant_create(const NvmServicesHostPolicy
     if(nvm_file_host_grant_create_temporary_files(&file)!=NVM_FILE_HOST_OK)return NVM_SERVICES_HOST_MEMORY;
     *out=&mixed_policy;return NVM_SERVICES_HOST_OK;
 }
+NvmServicesHostStatus nl_service_policy_grant(const NlServicePolicy *configured,
+    const NvmWebSocketHostPolicy *websocket,NvmServicesHostGrant **out) {
+    assert(!websocket);
+    return nvm_services_host_grant_create(configured->instances,configured->count,out);
+}
 NvmServicesHostStatus nvm_services_host_grant_revoke(NvmServicesHostGrant *grant) {
     assert(grant==&mixed_policy);
     return nvm_file_host_grant_revoke(&policy)==NVM_FILE_HOST_OK?NVM_SERVICES_HOST_OK:NVM_SERVICES_HOST_STATE;

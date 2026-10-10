@@ -54,9 +54,9 @@ static NlServiceShadowReport execute(const NlServiceShadow *suite, size_t count,
            revoked!=NVM_WEBSOCKET_HOST_OK || destroyed!=NVM_WEBSOCKET_HOST_OK || grant || scalar.value!=0)return report;
         } else if(catalog==3) {
         NlServicePolicy policy;
-        if(!nl_service_policy_read(suite[i].bytes,suite[i].size,files,tcp,false,&policy) || policy.profile!=3 || !policy.allowed)return report;
+        if(!nl_service_policy_read(suite[i].bytes,suite[i].size,files,tcp,websocket && websocket->allow_connections,&policy) || policy.profile!=3 || !policy.allowed)return report;
         NvmServicesHostGrant *grant=NULL;
-        if(nvm_services_host_grant_create(policy.instances,policy.count,&grant)!=NVM_SERVICES_HOST_OK)return report;
+        if(nl_service_policy_grant(&policy,websocket,&grant)!=NVM_SERVICES_HOST_OK)return report;
         const NvmServicesIndirectOptions mixed_options={1,NVM_SERVICES_INDIRECT_FUEL_MAX};
         NvmServicesScalar scalar={0};
         NvmServicesIndirectExecutionReport result=nvm_services_execute_indirect_bytes(grant,suite[i].bytes,suite[i].size,&mixed_options,&scalar);
@@ -111,7 +111,7 @@ static NlServiceShadowReport run_shadows(const NlServiceShadow *suite, size_t co
     } else if(catalog==3) {
         for(size_t i=0;i<count;i++) {
             NlServicePolicy policy;
-            if(!nl_service_policy_read(suite[i].bytes,suite[i].size,files,tcp,false,&policy) || policy.profile!=3)return report;
+            if(!nl_service_policy_read(suite[i].bytes,suite[i].size,files,tcp,websocket && websocket->allow_connections,&policy) || policy.profile!=3)return report;
             if(!policy.allowed){report.status=NL_SERVICE_SHADOW_DENIED;return report;}
         }
     } else if (!(catalog==1?files:tcp) && count) { report.status = NL_SERVICE_SHADOW_DENIED; return report; }
@@ -219,4 +219,9 @@ NlServiceShadowReport nl_service_run_mixed_shadows(const NlServiceShadow *suite,
 NlServiceShadowReport nl_service_run_websocket_shadows(const NlServiceShadow *suite,size_t count,
     const NvmWebSocketHostPolicy *policy,const char *path) {
     return run_shadows(suite,count,4,false,false,policy,path);
+}
+
+NlServiceShadowReport nl_service_run_mixed_config_shadows(const NlServiceShadow *suite,size_t count,
+    bool files,bool tcp,const NvmWebSocketHostPolicy *policy,const char *path) {
+    return run_shadows(suite,count,3,files,tcp,policy,path);
 }

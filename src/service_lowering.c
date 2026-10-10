@@ -482,10 +482,11 @@ static bool sl_catalog(Sl *c) {
     for(uint32_t r=0;r<c->catalogs.count;r++) {
         NvmServiceInstance *instance=&c->catalogs.instances[r];
         unsigned catalog=instance->catalog,types=catalog==3?7:catalog==2?9:8,base=c->type_count;
-        if((catalog!=1 && catalog!=2 && catalog!=3) || (catalog==3 && c->catalogs.count!=1))return false;
+        if((catalog!=1 && catalog!=2 && catalog!=3))return false;
         c->struct_base[r]=c->module->struct_count;
         c->module->struct_count+=catalog==2?4:3;c->module->union_count+=catalog==3?4:5;
         for(unsigned i=0;i<9;i++)instance->layouts[i]=i<types?base+i:UINT32_MAX;
+        for(unsigned i=0;i<5;i++)instance->imports[i]=UINT32_MAX;
         uint32_t module=sl_string(c,catalog==3?nl_websocket_catalog_interface():catalog==2?nl_socket_catalog_interface():nl_file_catalog_interface());
         for(unsigned i=0;i<(catalog==3?4u:5u);i++) {
             uint8_t tags[3]={0};

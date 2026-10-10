@@ -133,27 +133,34 @@ static bool write_mixed_launcher(int fd,const NlServicePolicy *policy) {
     }
     static const char prefix[]="\n#include <stdio.h>\nstatic const unsigned product_catalogs[]={";
     static const char suffix[]=
-"};\nint main(int argc,char **argv) {\n"
-" bool files=false,tcp=false;\n"
+"};\n"
+"int main(int argc,char **argv) {\n"
+" bool files=false,tcp=false,websocket=false,lookup=false;const char *helper=NULL;\n"
 " for(int i=1;i<argc;i++) {\n"
 "  if(!strcmp(argv[i],\"--allow-temporary-files\") && !files)files=true;\n"
 "  else if(!strcmp(argv[i],\"--allow-tcp-connections\") && !tcp)tcp=true;\n"
+"  else if(!strcmp(argv[i],\"--allow-websocket-connections\") && !websocket)websocket=true;\n"
+"  else if(!strcmp(argv[i],\"--allow-websocket-lookup\") && !lookup)lookup=true;\n"
+"  else if(!strcmp(argv[i],\"--websocket-resolver-helper\") && !helper && i+1<argc)helper=argv[++i];\n"
 "  else return 1;\n"
 " }\n"
-" NvmServicesHostPolicy policies[sizeof product_catalogs/sizeof product_catalogs[0]];\n"
+" if(lookup!=(helper!=NULL) || (helper && (helper[0]!='/' || strlen(helper)>=4096)))return 1;\n"
+" NvmServicesHostConfig policies[sizeof product_catalogs/sizeof product_catalogs[0]];\n"
 " for(size_t i=0;i<sizeof policies/sizeof policies[0];i++) {\n"
-"  bool allowed=product_catalogs[i]==1?files:tcp;\n"
-"  if(!allowed){fprintf(stderr,\"I require %s for this invocation.\\n\",product_catalogs[i]==1?\"--allow-temporary-files\":\"--allow-tcp-connections\");return 1;}\n"
-"  policies[i]=(NvmServicesHostPolicy){(NvmServicesHostCatalog)product_catalogs[i],allowed};\n"
+"  unsigned catalog=product_catalogs[i];\n"
+"  bool allowed=catalog==1?files:catalog==2?tcp:websocket;\n"
+"  if(!allowed){fprintf(stderr,\"I require %s for this invocation.\\n\",catalog==1?\"--allow-temporary-files\":catalog==2?\"--allow-tcp-connections\":\"--allow-websocket-connections\");return 1;}\n"
+"  policies[i]=(NvmServicesHostConfig){NVM_SERVICES_HOST_POLICY_REVISION,(NvmServicesHostCatalog)catalog,allowed,catalog==3&&lookup,catalog==3?60000u:0u,catalog==3?helper:NULL};\n"
 " }\n"
 " NvmServicesHostGrant *grant=NULL;\n"
-" if(nvm_services_host_grant_create(policies,sizeof policies/sizeof policies[0],&grant)!=NVM_SERVICES_HOST_OK)return 1;\n"
+" if(nvm_services_host_grant_create_config(policies,sizeof policies/sizeof policies[0],&grant)!=NVM_SERVICES_HOST_OK)return 1;\n"
 " NvmServicesIndirectOptions options={1,NVM_SERVICES_INDIRECT_FUEL_MAX};NvmServicesScalar scalar={0};\n"
 " NvmServicesIndirectExecutionReport result=nvm_services_indirect_program_product(grant,&options,&scalar);\n"
 " NvmServicesHostStatus revoked=nvm_services_host_grant_revoke(grant);\n"
 " NvmServicesHostStatus destroyed=nvm_services_host_grant_destroy(&grant);\n"
 " if(result.runtime.status!=NVM_SERVICES_RUNTIME_OK || !result.runtime.acquired || result.runtime.cleanup.cleanup_failures || revoked!=NVM_SERVICES_HOST_OK || destroyed!=NVM_SERVICES_HOST_OK || grant)return 1;\n"
-" return (int)((uint64_t)scalar.value&255u);\n}\n";
+" return (int)((uint64_t)scalar.value&255u);\n"
+"}\n";
     return write_bytes(fd,prefix,strlen(prefix)) && write_bytes(fd,catalogs,used) && write_bytes(fd,suffix,strlen(suffix));
 }
 
@@ -173,7 +180,7 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
     if((count || options->run) && !allowed) {
         if(policy.requires_file && !options->allow_temporary_files)fputs("I require --allow-temporary-files for selected service shadows or execution.\n",stderr);
         if(policy.requires_tcp && !options->allow_tcp_connections)fputs("I require --allow-tcp-connections for selected service shadows or execution.\n",stderr);
-        if(policy.requires_websocket)fputs("I require --allow-websocket-connections for selected service shadows or execution.\n",stderr);
+        if(policy.requires_websocket && !(options->websocket && options->websocket->allow_connections))fputs("I require --allow-websocket-connections for selected service shadows or execution.\n",stderr);
         return 1;
     }
     /* Translation validates the main module without executing or granting it. */
@@ -207,7 +214,7 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
         if(root){root_source=joined(root,websocket?"include/nanolang/websocket":mixed?"include/nanolang/services":tcp?"include/nanolang/socket":"include/nanolang/file");free(root);}
         if(!root_source || stat(root_source,&headers) || !S_ISDIR(headers.st_mode))goto done;
     }
-    NlServiceShadowReport tested=websocket?nl_service_run_websocket_shadows(shadows,count,options->websocket,log):mixed?nl_service_run_mixed_shadows(shadows,count,options->allow_temporary_files,options->allow_tcp_connections,log):nl_service_run_catalog_shadows(shadows,count,catalog,allowed,log);
+    NlServiceShadowReport tested=websocket?nl_service_run_websocket_shadows(shadows,count,options->websocket,log):mixed?nl_service_run_mixed_config_shadows(shadows,count,options->allow_temporary_files,options->allow_tcp_connections,options->websocket,log):nl_service_run_catalog_shadows(shadows,count,catalog,allowed,log);
     FILE *records=fopen(log,"rb");
     if(records) {
         char buffer[4096];size_t n;
@@ -268,7 +275,7 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
         result=(int)((uint64_t)scalar.value&255u);
         } else if(mixed) {
         NvmServicesHostGrant *grant=NULL;
-        if(nvm_services_host_grant_create(policy.instances,policy.count,&grant)!=NVM_SERVICES_HOST_OK)goto done;
+        if(nl_service_policy_grant(&policy,options->websocket,&grant)!=NVM_SERVICES_HOST_OK)goto done;
         NvmServicesScalar scalar={0};NvmServicesIndirectOptions execution={1,NVM_SERVICES_INDIRECT_FUEL_MAX};
         NvmServicesIndirectExecutionReport report=nvm_services_execute_indirect_bytes(grant,bytes,size,&execution,&scalar);
         NvmServicesHostStatus revoked=nvm_services_host_grant_revoke(grant);
