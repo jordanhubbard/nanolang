@@ -5,7 +5,11 @@ Nano. My callable annotations retain structural parameter/result types, exact
 nominal identities and shared/exclusive borrow modes. I support nested callable
 parameters and results, local reassignment, returned callees, higher-order calls
 and qualified imported helper values. My [source fixture](../tests/fixtures/file_indirect_source.nano)
-combines these with File ownership transfer and actual borrowed writes.
+combines these with File ownership transfer and actual borrowed writes. My
+[affine-result fixture](../tests/fixtures/file_indirect_owners.nano) also carries
+OpenResult through a callable, combines two exclusive borrows with an owned
+argument, and consumes callable Boolean results. Its ordinary error branches
+explicitly consume every live owner.
 
 I evaluate the callee before arguments, retain it in a copy slot, and release
 that slot before invoking it. I emit `FUNCREF`, `CALL_INDIRECT`, or the explicit

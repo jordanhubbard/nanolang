@@ -111,6 +111,11 @@ fn main()->int{return (run_import)}
 '''
         self.check_indirect_source(root,9,7)
 
+    def test_indirect_affine_results_and_multiple_exclusive_borrows(self):
+        generated=(ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()
+        fixture=(ROOT/'tests/fixtures/file_indirect_owners.nano').read_text()
+        self.check_indirect_source(generated+fixture,2,9)
+
     def test_indirect_signature_ownership_and_recursion_refusals(self):
         generated=(ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()
         fixture=(ROOT/'tests/fixtures/file_indirect_source.nano').read_text()

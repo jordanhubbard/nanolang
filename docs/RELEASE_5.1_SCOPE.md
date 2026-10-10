@@ -18,9 +18,10 @@ None of these historical numbers narrows the requirement it identifies.
 - **Required (9559):** Review matched File and Result flow through VM and native dispatch before changing public selection.
 - **Required (9560):** Qualify paired File generation and all shadows through the C seed, Stage 1, and Stage 2 on Linux and Darwin.
 - **Required (9561):** Admit File publicly only after verifier, VM, native, generated-binding, and real-file equivalence passes.
-- **Required (9563):** Qualify one real local Socket lifecycle; service-handle migration requires a tested socket owner.
-- **Required (9564):** Review the private Socket API and close/error policy before host operations.
-- **Required (9565):** Qualify Socket lifecycle, refusal, fault, and adjacent File/capability controls on both hosts.
+- **Done (9563):** Qualify one real local Socket lifecycle; service-handle migration requires a tested socket owner.
+- **Done (9564):** Review the private Socket API and close/error policy before host operations.
+- **Done (9565):** Qualify Socket lifecycle, refusal, fault, and adjacent File/capability controls on both hosts.
+  My [private Socket integration audit](evidence/socket-integration-20261009/README.md) distinguishes the merged Linux/Darwin prerequisite from current Darwin checks and the still-open exact-candidate platform gate.
 - **Required (9566):** Complete public network/WebSocket bindings and paired verified execution; the local pair alone is insufficient.
 - **Deferred-to-later (9567):** Qualify a real CUDA GPU buffer lifecycle; this needs explicit GPU hardware and does not block the portable One IR cut.
 - **Deferred-to-later (9568):** Review CUDA driver/context restoration on qualified hardware as part of the GPU lifecycle.
@@ -41,8 +42,9 @@ None of these historical numbers narrows the requirement it identifies.
 - **Required (10068):** Bind imported globals and selective or qualified aliases in the standalone product.
 - **Required (10153):** Make `--emit-nvm` the self-hosted compiler's only backend and make binary output an explicit `nvm2c` plus `cc` pipeline.
 - **Required (10260):** Finish the self-hosted NanoISA lowering dual for the full compiler subset.
-- **Required (10262):** Compile the compiler to `.nvm` through the C seed and then the self-hosted emitter.
-- **Required (10264):** Compare Stage 1 and Stage 2 module bytes; native binary comparison remains a translator test.
+- **Done (10262):** Compile the compiler to `.nvm` through the C seed and then the self-hosted emitter.
+- **Done (10264):** Compare Stage 1 and Stage 2 module bytes; native binary comparison remains a translator test.
+  My [current local bootstrap evidence](evidence/file-generations-20261009/README.md) records guarded self-compilation and equal raw module bytes; the exact release-candidate Linux/Darwin gates remain below.
 - **Required (10266):** Freeze and remove `transpiler.nano` from the product after the compiler module builds itself.
 - **Required (10269):** Rename the transpiler compiler phase so the language pipeline ends at NanoISA.
 

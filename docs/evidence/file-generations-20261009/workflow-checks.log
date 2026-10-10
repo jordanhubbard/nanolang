@@ -1,0 +1,10 @@
+test_coverage_dependency_retries_fit_setup_budget (tests.test_ci_workflow.CIWorkflowTests.test_coverage_dependency_retries_fit_setup_budget) ... ok
+test_coverage_threshold_is_reported_consistently (tests.test_ci_workflow.CIWorkflowTests.test_coverage_threshold_is_reported_consistently) ... ok
+test_required_test_jobs_use_bounded_suite (tests.test_ci_workflow.CIWorkflowTests.test_required_test_jobs_use_bounded_suite) ... ok
+test_sanitizers_have_instrumented_runtime_budget (tests.test_ci_workflow.CIWorkflowTests.test_sanitizers_have_instrumented_runtime_budget) ... ok
+test_sqlite_headers_are_installed_for_test_jobs (tests.test_ci_workflow.CIWorkflowTests.test_sqlite_headers_are_installed_for_test_jobs) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.018s
+
+OK

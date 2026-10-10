@@ -19,7 +19,8 @@ jobs:
     name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.allow_failure || false }}
-    timeout-minutes: 75
+    # I reserve the additional60-minute paired-source gate without shrinking the existing suite budget.
+    timeout-minutes: 135
     permissions:
       contents: read
       checks: write
@@ -131,6 +132,19 @@ jobs:
         run: |
           mkdir -p "$TMPDIR"
           make -f Makefile.gnu test-file-indirect-queries test-file-indirect-runtime test-file-indirect-dispatch test-file-indirect-public
+
+      - name: Check paired File source across bootstrap generations
+        timeout-minutes: 60
+        shell: bash
+        run: |
+          make -f Makefile.gnu bootstrap3
+          export NANO_SHADOW_TIMEOUT_SECONDS=10
+          python3 -m unittest -v tests.test_service_drivers
+          for generation in 1 2; do
+            NANO_FILE_DRIVER_MODULE="$PWD/bin/nanoc_stage${generation}.nvm" \
+            NANO_FILE_DRIVER_NATIVE="$PWD/bin/nanoc_stage${generation}" \
+              python3 -m unittest -v tests.test_nano_service_driver.NanoServiceDriver
+          done
 
       - name: Run test suite
         env:

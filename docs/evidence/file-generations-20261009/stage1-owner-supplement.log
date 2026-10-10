@@ -1,0 +1,6 @@
+test_indirect_affine_results_and_multiple_exclusive_borrows (tests.test_nano_service_driver.NanoServiceDriver.test_indirect_affine_results_and_multiple_exclusive_borrows) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 33.715s
+
+OK
