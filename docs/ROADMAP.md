@@ -14630,3 +14630,9 @@ I retain the exclusive multi-borrow source, malformed-map/cleanup gates and exac
 - [x] Under #989/#982 I expose selected C-seed VM shadow names through the existing `NANO_SHADOW_TRACE` metadata path. Two compiler rebuilds reach the ten-second dependency-shadow deadline without naming the active shadow; I retain both failures and use trace evidence before changing execution behavior or declaring the optimized publication gate qualified.
 
 I retain this batch's successes, initial nominal/probe failures, compiler and File shadow deadlines, optimized artifact hashes and exact test scope in [my shared File reference evidence](evidence/file-shared-borrows-20261009/README.md). I keep #989 and the full 5.1 release contract open.
+
+- [ ] Under #982 I repair the failed 5003d1590 CI batch before extending File execution. I retain guide run 38009049407 and completed-job failures from CI 38009049399, separate shared build failures from independent defects, fix GCC control-flow diagnostics without weakening warning policy, and qualify each demonstrated failure with focused local checks and a new pinned CI run. I do not restart the still-running sanitizer/quality jobs merely to obtain another observation.
+
+- [x] Under #982 I make File staging failure cleanup explicit: Apple/Ubuntu Clang rejects chained bitwise `&` on boolean results in `src/runtime/service_product.c`. I retain all three removal attempts even if an earlier removal fails, preserve atomic-output/cleanup controls, and keep `-Werror` enabled. The Python installation diagnostics recover via the existing fallback and are not the terminal failures.
+
+I retain both compiler fixes, CI failure excerpts, two local Clang syntax passes and three passing publication/cleanup driver methods in [my CI portability repair evidence](evidence/ci-portability-5003-20261009/README.md). I keep replacement CI acceptance open while GitHub access is unavailable.

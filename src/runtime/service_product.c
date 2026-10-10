@@ -182,7 +182,9 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
 done:
     if(product_fd>=0)close(product_fd);
     if(staged) {
-        bool cleaned=remove_file(source)&remove_file(log)&remove_file(link);
+        bool cleaned=remove_file(source);
+        if(!remove_file(log))cleaned=false;
+        if(!remove_file(link))cleaned=false;
         if(include && rmdir(include) && errno!=ENOENT)cleaned=false;
         if(rmdir(directory))cleaned=false;
         if(!cleaned)fputs("I could not clean private File staging.\n",stderr);

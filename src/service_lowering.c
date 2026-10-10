@@ -275,7 +275,8 @@ static void sl_expr_impl(Sl *c,const ASTNode *n,bool want) {
     switch(n->type) {
     case AST_NUMBER: {
         sl_op(c,OP_PUSH_I64);uint64_t v=(uint64_t)n->as.number;
-        for(unsigned i=0;i<8;i++)sl_op(c,(uint8_t)(v>>(8*i)));break;
+        for(unsigned i=0;i<8;i++)sl_op(c,(uint8_t)(v>>(8*i)));
+        break;
     }
     case AST_BOOL:sl_op(c,OP_PUSH_BOOL);sl_op(c,n->as.bool_val?1:0);break;
     case AST_IDENTIFIER: {
@@ -343,7 +344,8 @@ static void sl_expr_impl(Sl *c,const ASTNode *n,bool want) {
         sl_target(c,other,c->module->code_size);c->next=true;c->loan_count=loans;c->pending_count=pending;
         sl_expr(c,n->as.if_stmt.else_branch,false);
         c->next|=yes;c->loan_count=loans;c->pending_count=pending;if(end!=UINT32_MAX)sl_target(c,end,c->module->code_size);
-        if(c->next && want)sl_op(c,OP_PUSH_VOID);return;
+        if(c->next && want)sl_op(c,OP_PUSH_VOID);
+        return;
     }
     case AST_WHILE: {
         uint32_t start=c->module->code_size;sl_expr(c,n->as.while_stmt.condition,true);if(!c->next)return;
@@ -351,7 +353,8 @@ static void sl_expr_impl(Sl *c,const ASTNode *n,bool want) {
         sl_expr(c,n->as.while_stmt.body,false);
         if(c->next){uint32_t back=sl_branch(c,OP_JMP,0);sl_target(c,back,start);}
         sl_target(c,end,c->module->code_size);c->next=true;c->loan_count=loans;c->pending_count=pending;
-        if(want)sl_op(c,OP_PUSH_VOID);return;
+        if(want)sl_op(c,OP_PUSH_VOID);
+        return;
     }
     default:sl_fail(c,n,2,"I have not lowered this checked service source form.");return;
     }
