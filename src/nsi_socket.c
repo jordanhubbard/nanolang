@@ -57,6 +57,7 @@ static NlSocketStatus socket_cap_status(int status) {
     switch (status) {
     case NL_CAP_OK: return NL_SOCKET_OK;
     case NL_CAP_ERR_RIGHTS: case NL_CAP_ERR_TRANSFER: return NL_SOCKET_RIGHTS;
+    case NL_CAP_ERR_ENTROPY: return NL_SOCKET_IO;
     case NL_CAP_ERR_FULL: return NL_SOCKET_CAPACITY;
     case NL_CAP_PRIVATE_ERR_GENERATION: return NL_SOCKET_LIMIT;
     default: return NL_SOCKET_TOKEN;

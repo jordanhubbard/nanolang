@@ -527,6 +527,13 @@ static const Nvm2cTypedHost typed_artifact_adapters[] = {
     {{"nl_json_new_null", "nhost_json", 0, TAG_VOID, TAG_OPAQUE}, {TAG_VOID}},
     {{"nl_json_object_set", "nhost_json", 3, TAG_VOID, TAG_INT}, {TAG_OPAQUE, TAG_STRING, TAG_OPAQUE}},
     {{"nl_json_array_push", "nhost_json", 2, TAG_VOID, TAG_INT}, {TAG_OPAQUE, TAG_OPAQUE}},
+    {{"nl_ws_connect", "nhost_websocket", 1, TAG_VOID, TAG_INT}, {TAG_STRING}},
+    {{"nl_ws_send", "nhost_websocket", 2, TAG_VOID, TAG_INT}, {TAG_INT, TAG_STRING}},
+    {{"nl_ws_receive", "nhost_websocket", 1, TAG_VOID, TAG_STRING}, {TAG_INT}},
+    {{"nl_ws_receive_timeout", "nhost_websocket", 2, TAG_VOID, TAG_STRING}, {TAG_INT, TAG_INT}},
+    {{"nl_ws_close", "nhost_websocket", 1, TAG_VOID, TAG_INT}, {TAG_INT}},
+    {{"nl_ws_is_connected", "nhost_websocket", 1, TAG_VOID, TAG_INT}, {TAG_INT}},
+    {{"nl_ws_last_error", "nhost_websocket", 1, TAG_VOID, TAG_STRING}, {TAG_INT}},
     {{"nl_sqlite3_version", "nhost_sqlite", 0, TAG_VOID, TAG_STRING}, {TAG_VOID}},
     {{"nl_sqlite3_version_number", "nhost_sqlite", 0, TAG_VOID, TAG_INT}, {TAG_VOID}},
     {{"nl_sqlite3_open", "nhost_sqlite", 1, TAG_VOID, TAG_INT}, {TAG_STRING}},
@@ -562,7 +569,7 @@ static bool context_artifact_adapter(const Nvm2cHost *host) {
 }
 static bool typed_artifact_adapter(const Nvm2cHost *host) {
     return json_artifact_adapter(host) || (host &&
-        (!strcmp(host->c_name, "nhost_sqlite") || !strcmp(host->c_name, "nhost_source_inputs") ||
+        (!strcmp(host->c_name, "nhost_sqlite") || !strcmp(host->c_name, "nhost_websocket") || !strcmp(host->c_name, "nhost_source_inputs") ||
          !strcmp(host->c_name, "nhost_file_catalog") || !strcmp(host->c_name, "nhost_file_product")));
 }
 static uint8_t host_parameter(const Nvm2cHost *host, uint8_t index) {

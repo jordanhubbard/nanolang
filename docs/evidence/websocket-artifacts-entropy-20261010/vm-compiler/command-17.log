@@ -1,0 +1,3 @@
+['bin/nano_vm', '/private/tmp/nl51-ws-compiler.nvm', '--', '/Users/jordanh/Src/nanolang/tests/fixtures/websocket_artifact_client.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-websocket-artifacts-x5n3q88i/nano.nvm']
+
+exit=0

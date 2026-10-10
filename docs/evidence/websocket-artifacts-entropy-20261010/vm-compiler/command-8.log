@@ -1,0 +1,4 @@
+['/Users/jordanh/Src/nanolang/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-websocket-artifacts-x5n3q88i/refusal.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-websocket-artifacts-x5n3q88i/refusal.c']
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-websocket-artifacts-x5n3q88i/refusal.nvm': import 0 (nl_ws_close) is artifact-backed and requires an exact library binding and typed value adapter; nvm2c refuses CALL_EXTERN
+
+exit=1

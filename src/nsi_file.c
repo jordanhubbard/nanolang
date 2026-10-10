@@ -44,6 +44,7 @@ static NlFileStatus file_cap_status(int status) {
     switch (status) {
     case NL_CAP_OK: return NL_FILE_OK;
     case NL_CAP_ERR_RIGHTS: case NL_CAP_ERR_TRANSFER: return NL_FILE_RIGHTS;
+    case NL_CAP_ERR_ENTROPY: return NL_FILE_IO;
     case NL_CAP_ERR_FULL: return NL_FILE_CAPACITY;
     case NL_CAP_PRIVATE_ERR_GENERATION: return NL_FILE_LIMIT;
     default: return NL_FILE_TOKEN;

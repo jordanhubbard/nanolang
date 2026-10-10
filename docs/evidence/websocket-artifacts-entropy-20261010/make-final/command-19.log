@@ -1,0 +1,4 @@
+['/opt/homebrew/opt/llvm/bin/clang', '-std=c11', '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-websocket-artifacts-iqmj8jbp/nano.c', '/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o', '-ldl', '-lm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-websocket-artifacts-iqmj8jbp/nano.native', '-lm', '-lcrypto', '-lffi', '-L/opt/homebrew/Cellar/openssl@3/3.6.5/lib']
+ld: warning: ignoring duplicate libraries: '-lm'
+
+exit=0

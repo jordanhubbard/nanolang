@@ -1579,6 +1579,9 @@ test-nsi-cap:
 		$(SRC_DIR)/nsi_cap.c
 	@./tests/test_nsi_cap
 	@rm -f tests/test_nsi_cap
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -D_DARWIN_C_SOURCE tests/test_nsi_cap_entropy.c -o $(OBJ_DIR)/test_nsi_cap_entropy $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_cap_entropy
 
 .PHONY: test-nsi-file test-nsi-file-sanitizers
 test-nsi-file:
@@ -1664,7 +1667,11 @@ test-websocket-client:
 test-websocket-bindings: $(COMPILER_C) nano_virt nano_vm
 	python3 -m unittest -v tests.test_websocket_bindings
 
-test-units: test-nsi-websocket-protocol test-websocket-client test-websocket-bindings
+.PHONY: test-websocket-artifacts
+test-websocket-artifacts: nvm2c nano_virt nano_vm $(BIN_DIR)/nanoisa
+	NANO_NATIVE_TEST_CC="$(CC)" LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_websocket_artifacts.WebSocketArtifacts
+
+test-units: test-nsi-websocket-protocol test-websocket-client test-websocket-bindings test-websocket-artifacts
 
 .PHONY: test-nsi-socket-network
 test-nsi-socket-network:
