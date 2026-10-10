@@ -17,6 +17,10 @@ sys.path.insert(0, str(ROOT))
 from tests.bootstrap_native_guard import retained_input_names
 
 
+HOST_MODULES = ('compiler_support', 'nanoisa', 'std', 'file_source_inputs',
+                'file_source_catalog', 'file_product')
+
+
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
@@ -33,7 +37,7 @@ def source_inputs(root):
 
 
 class Bootstrap:
-    def __init__(self, root, timeout):
+    def __init__(self, root, timeout, shadow_timeout=None):
         self.root = root.resolve()
         self.timeout = timeout
         self.receipt = self.root / 'bin/nanoc_bootstrap.json'
@@ -41,6 +45,16 @@ class Bootstrap:
                     'NANO_VM': str(self.root / 'bin/nano_vm'),
                     'NANO_MODULE_PATH': str(self.root / 'modules')}
         self.env.pop('NANOLANG_BOOTSTRAP_NO_CC', None)
+        # I budget the complete compiler suite separately from each build stage.
+        # Ordinary compiler invocations retain their own default deadline.
+        selected = str(shadow_timeout) if shadow_timeout is not None else self.env.get(
+            'NANO_SHADOW_TIMEOUT_SECONDS', '30')
+        digits = selected.lstrip('0')
+        if (not selected.isascii() or not selected.isdigit() or len(digits) > 3 or
+                not 1 <= int(digits or '0') <= 300):
+            raise ValueError('I require a bootstrap shadow deadline from 1 to 300 seconds.')
+        self.shadow_timeout = int(digits)
+        self.env['NANO_SHADOW_TIMEOUT_SECONDS'] = str(self.shadow_timeout)
         self.manifest = {}
 
     def save(self):
@@ -166,9 +180,10 @@ class Bootstrap:
                          'tools': self.tool_inputs(), 'compiler': compiler,
                          'cflags': shlex.split(self.env.get('NANO_CFLAGS') or '-O1'),
                          'ldflags': shlex.split(self.env.get('NANO_LDFLAGS') or self.env.get('LDFLAGS') or ''),
-                         'artifacts': {}, 'steps': [], 'stage_timeout_seconds': self.timeout}
+                         'artifacts': {}, 'steps': [], 'stage_timeout_seconds': self.timeout,
+                         'shadow_timeout_seconds': self.shadow_timeout}
         metadata, native_sources, module_roots = {}, [], []
-        for name in ('compiler_support', 'nanoisa', 'std', 'file_source_inputs', 'file_source_catalog'):
+        for name in HOST_MODULES:
             root = self.root / 'modules' / name
             metadata[name] = json.loads((root / 'module.json').read_text())
             native_sources.extend(str((root / source).resolve())
@@ -210,6 +225,9 @@ class Bootstrap:
         self.manifest = json.loads(self.receipt.read_text())
         if self.manifest.get('version') != 1 or self.manifest.get('root') != str(self.root):
             raise RuntimeError('I require a bootstrap receipt for this checkout.')
+        if self.manifest.get('shadow_timeout_seconds') != self.shadow_timeout:
+            raise RuntimeError('I require the recorded bootstrap shadow deadline; '
+                               'use --shadow-timeout with the Stage 1 setting.')
         self.work = Path(self.manifest['work'])
         self.check_inputs()
 
@@ -250,11 +268,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('stage', choices=('stage1', 'stage2', 'verify'))
     parser.add_argument('--timeout', type=int, default=1800)
+    parser.add_argument('--shadow-timeout', type=int,
+                        help='I bound the complete shadow suite to 1–300 seconds '
+                             '(environment override, otherwise 30).')
     args = parser.parse_args()
     if args.timeout <= 0:
         parser.error('I require a positive stage timeout.')
     try:
-        getattr(Bootstrap(ROOT, args.timeout), args.stage)()
+        getattr(Bootstrap(ROOT, args.timeout, args.shadow_timeout), args.stage)()
     except (OSError, ValueError, RuntimeError, subprocess.SubprocessError) as error:
         print(str(error), file=sys.stderr)
         return 1

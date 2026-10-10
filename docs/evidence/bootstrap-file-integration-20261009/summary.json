@@ -1,0 +1,113 @@
+{
+  "source_base": "56f67be84",
+  "shadow_timeout_seconds": 30,
+  "stage_timeout_seconds": 1800,
+  "raw_module_bytes": 630624,
+  "raw_stage1_stage2_equal": true,
+  "generated_native_marker_present": false,
+  "installed_compiler": "/Users/jordanh/Src/nanolang/bin/nanoc_stage2",
+  "steps": [
+    {
+      "label": "seed",
+      "exit_code": 0,
+      "elapsed_seconds": 112.90540804102784,
+      "log_sha256": "61e596cb2c4064861f199c8c71c0795a568631ddd1c40ecf30da7655d307e0ab"
+    },
+    {
+      "label": "seed-verify",
+      "exit_code": 0,
+      "elapsed_seconds": 0.14730470802169293,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1",
+      "exit_code": 0,
+      "elapsed_seconds": 573.5106404169928,
+      "log_sha256": "8ce15baa737b0599bba4055446e23876b4327c49f13ecf6241a9eb5dac6f7f93"
+    },
+    {
+      "label": "stage1-verify",
+      "exit_code": 0,
+      "elapsed_seconds": 0.14310362498508766,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-translate",
+      "exit_code": 0,
+      "elapsed_seconds": 11.302448790986091,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-native",
+      "exit_code": 0,
+      "elapsed_seconds": 39.3094362920383,
+      "log_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3"
+    },
+    {
+      "label": "stage1-hello-compile",
+      "exit_code": 0,
+      "elapsed_seconds": 0.8148751659900881,
+      "log_sha256": "161856b181cb5aabab5a756e5fe5ca3d84148551fe5356d90657698e6a3f4a9d"
+    },
+    {
+      "label": "stage1-hello-execute",
+      "exit_code": 0,
+      "elapsed_seconds": 0.04679383401526138,
+      "log_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    {
+      "label": "stage2",
+      "exit_code": 0,
+      "elapsed_seconds": 796.4375142910285,
+      "log_sha256": "6b3855b23e9463fb7e20d7f0ac6b566968be30df80ac5f8961cead21ca490130"
+    },
+    {
+      "label": "stage2-verify",
+      "exit_code": 0,
+      "elapsed_seconds": 0.07864333299221471,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage2-translate",
+      "exit_code": 0,
+      "elapsed_seconds": 5.239566250005737,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage2-native",
+      "exit_code": 0,
+      "elapsed_seconds": 19.18535795796197,
+      "log_sha256": "1ea04da0efb6a07c8ee77de34bde8529953a1714bd7851a4fccf6fc35bd674e3"
+    },
+    {
+      "label": "stage2-hello-compile",
+      "exit_code": 0,
+      "elapsed_seconds": 0.3494342920021154,
+      "log_sha256": "161856b181cb5aabab5a756e5fe5ca3d84148551fe5356d90657698e6a3f4a9d"
+    },
+    {
+      "label": "stage2-hello-execute",
+      "exit_code": 0,
+      "elapsed_seconds": 0.022403208015020937,
+      "log_sha256": "2f18cf6d69e1480be1a8ee33d142197a2e5d90c2c17325c7de6546034102ab55"
+    },
+    {
+      "label": "seed-final-verify",
+      "exit_code": 0,
+      "elapsed_seconds": 0.07967583305435255,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage1-final-verify",
+      "exit_code": 0,
+      "elapsed_seconds": 0.046583208022639155,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "stage2-final-verify",
+      "exit_code": 0,
+      "elapsed_seconds": 0.04508958297083154,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

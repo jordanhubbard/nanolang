@@ -44,8 +44,10 @@ class BootstrapMessages(unittest.TestCase):
                     b'raw module' if name != 'stage2' or identical else b'different raw module')
             artifacts = ['nanoc_seed.nvm', 'nanoc_stage1.nvm', 'nanoc_stage2.nvm',
                          'nanoc_stage1', 'nanoc_stage2']
+            configuration = Bootstrap(root, 30)
             receipt = {'version': 1, 'root': str(root.resolve()), 'work': str((root / 'work').resolve()),
-                       'phase': 'stage2', 'sources': source_inputs(root), 'tools': Bootstrap(root, 30).tool_inputs(),
+                       'phase': 'stage2', 'sources': source_inputs(root), 'tools': configuration.tool_inputs(),
+                       'shadow_timeout_seconds': configuration.shadow_timeout,
                        'hosts': {}, 'artifacts': {name: digest(root / 'bin' / name) for name in artifacts},
                        'steps': []}
             (root / 'bin/nanoc_bootstrap.json').write_text(json.dumps(receipt))

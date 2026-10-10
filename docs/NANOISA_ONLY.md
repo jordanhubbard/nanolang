@@ -99,6 +99,15 @@ only after the requested stage succeeds. `BOOTSTRAP_NANOISA_TIMEOUT` defaults
 to 1,800 seconds per command. `NANO_CFLAGS` and `NANO_LDFLAGS` configure the
 separate native translation; module equality is always required.
 
+My bootstrap harness gives the complete compiler shadow suite a separate
+30-second deadline. I accept `NANO_SHADOW_TIMEOUT_SECONDS` or the script's
+`--shadow-timeout` option from 1 to 300 seconds; the explicit option takes
+precedence. I record that setting in the receipt and require the same setting
+when continuing or verifying a stage. Ordinary compiler and File-publication
+invocations retain their existing defaults. My declared bootstrap host closure
+includes `file_product`; I still refuse generated NanoLang C during VM
+generations and pin the exact host-library bytes.
+
 The seed `nvm2c` stays C, the way `cc` stays C. I may later write
 `nvm2c` in myself and lower it through NanoISA. The seed translator
 remains a host program. Runtime C (`gc.c`, lists) is the same pattern:
