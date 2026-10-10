@@ -6311,14 +6311,24 @@ test-websocket-nominal:
 test-units: test-websocket-nominal
 
 .PHONY: test-websocket-flow
-test-websocket-flow:
+test-websocket-flow: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) -std=c11 -Wall -Wextra -Werror tests/nanoisa/test_websocket_flow.c src/nanoisa/websocket_flow.c src/nanoisa/service_websocket_nominal.c src/nanoisa/service_websocket_nominal_plan.c src/nanoisa/nvm_v2_cursor.c src/nsi_websocket_plan.c -o $(OBJ_DIR)/test_websocket_flow $(LDFLAGS)
+	$(CC) $(CFLAGS) -std=c11 -Wall -Wextra -Werror tests/nanoisa/test_websocket_flow.c src/nanoisa/websocket_flow.c src/nanoisa/service_websocket_nominal.c src/nanoisa/service_websocket_nominal_plan.c src/nsi_websocket_plan.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) -o $(OBJ_DIR)/test_websocket_flow $(LDFLAGS)
 	@$(OBJ_DIR)/test_websocket_flow
-	$(CC) $(CFLAGS) -std=c11 -Wall -Wextra -Werror -DFLOW_INSTRUMENT tests/nanoisa/test_websocket_flow.c src/nanoisa/service_websocket_nominal.c src/nanoisa/service_websocket_nominal_plan.c src/nanoisa/nvm_v2_cursor.c src/nsi_websocket_plan.c -o $(OBJ_DIR)/test_websocket_flow_instrumented $(LDFLAGS)
+	$(CC) $(CFLAGS) -std=c11 -Wall -Wextra -Werror -DFLOW_INSTRUMENT tests/nanoisa/test_websocket_flow.c src/nanoisa/service_websocket_nominal.c src/nanoisa/service_websocket_nominal_plan.c src/nsi_websocket_plan.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) -o $(OBJ_DIR)/test_websocket_flow_instrumented $(LDFLAGS)
 	@$(OBJ_DIR)/test_websocket_flow_instrumented
 
-test-units: test-websocket-flow
+test-units: test-websocket-flow test-websocket-body
+
+.PHONY: test-websocket-body
+test-websocket-body: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -Wall -Wextra -Werror tests/nanoisa/test_websocket_body.c src/nanoisa/websocket_flow.c src/nanoisa/service_websocket_nominal.c src/nanoisa/service_websocket_nominal_plan.c src/nsi_websocket_plan.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) -o $(OBJ_DIR)/test_websocket_body $(LDFLAGS)
+	@$(OBJ_DIR)/test_websocket_body
+	$(CC) $(CFLAGS) -std=c11 -Wall -Wextra -Werror -DFLOW_INSTRUMENT tests/nanoisa/test_websocket_body.c src/nanoisa/service_websocket_nominal.c src/nanoisa/service_websocket_nominal_plan.c src/nsi_websocket_plan.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) -o $(OBJ_DIR)/test_websocket_body_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_websocket_body_instrumented
+
+
 
 .PHONY: test-websocket-nominal-boundary
 test-websocket-nominal-boundary: $(NANOISA_OBJECTS) $(NANOISA_UTF8)

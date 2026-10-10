@@ -9,8 +9,8 @@ static unsigned checks;
 #define CHECK(x) do {checks++;if(!(x)){fprintf(stderr,"FAIL %d: %s\n",__LINE__,#x);exit(1);}}while(0)
 #define OK(x) CHECK((x)==NVM_WEBSOCKET_FLOW_OK)
 #ifdef FLOW_INSTRUMENT
-static bool refuse;static unsigned live;
-static void *flow_malloc(size_t n){if(refuse)return NULL;void *p=malloc(n);if(p)live++;return p;}
+static bool refuse;static unsigned live;static int allocation_budget=-1;
+static void *flow_malloc(size_t n){if(refuse || allocation_budget==0)return NULL;if(allocation_budget>0)allocation_budget--;void *p=malloc(n);if(p)live++;return p;}
 static void *flow_calloc(size_t n,size_t z){if(n && z>SIZE_MAX/n)return NULL;void *p=flow_malloc(n*z);if(p)memset(p,0,n*z);return p;}
 static void flow_free(void *p){if(p){CHECK(live);live--;}free(p);}
 #define malloc flow_malloc

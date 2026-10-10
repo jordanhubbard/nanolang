@@ -112,8 +112,20 @@ Every WebSocket call records a distinct pending timeout-domain obligation
 result and cleanup checks. Send/receive also require an exclusive borrow.
 Close consumes its owner on both arms; failed logical transitions preserve state.
 My logical checker neither validates timeout values nor executes instructions.
-Body checking, obligation discharge and matched dispatch must follow before
-public admission.
+
+My private CODE/body checkers now apply these transfers to decoded instructions,
+result branches, Message construction/projection and complete function exits.
+The acyclic checker refuses loops; the separate cyclic checker computes bounded
+ownership states across backedges. The indirect checker combines exact
+same-module callable targets with ownership analysis, including strings returned
+through helpers. Reports own their retained facts and do not borrow input CODE
+or metadata. Their runtime-admitted flags remain false.
+
+I test complete connection lifecycles in these profiles, permuted nominal maps,
+malformed operands, input destruction and failed allocation prefixes. Timeout,
+rights, liveness and cleanup obligations remain pending. Hosted qualification,
+runtime obligation discharge and matched dispatch must follow before public
+admission.
 
 ## Admission boundary
 

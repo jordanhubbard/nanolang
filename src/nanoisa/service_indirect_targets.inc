@@ -39,6 +39,7 @@ static bool fi_member(const SERVICE_TYPE(CodePlan) *p,uint32_t context,const cha
     if(!id){*out=scalar_type(TAG_VOID);return true;}
     if(!strcmp(id,"nsi:core/int")){*out=scalar_type(TAG_INT);return true;}
     if(!strcmp(id,"nsi:core/bool")){*out=scalar_type(TAG_BOOL);return true;}
+    if(!strcmp(id,"nsi:core/string")){*out=scalar_type(TAG_STRING);return true;}
     for(uint32_t i=FLOW_TYPE_BASE(context);i<FLOW_TYPE_BASE(context)+FLOW_TYPE_COUNT(p->declarations->nominal,context);i++) {
         const NlServicePlanType *t=FLOW_CATALOG_TYPE(p->declarations->nominal,i);
         if(t && !strcmp(t->id,id))return fi_catalog(p,i,out);
