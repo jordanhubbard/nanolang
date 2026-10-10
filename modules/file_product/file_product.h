@@ -8,6 +8,10 @@ typedef struct NlFileProduct NlFileProduct;
  * I accept no AST or source-resolution facts. Calls are serialized. */
 NlFileProduct *nl_file_product_new(const char *,const char *,int64_t);
 int64_t nl_file_product_valid(NlFileProduct *);
+/* I copy WebSocket connection (1) and lookup (2) authority before staging bytes.
+ * Lookup requires an absolute helper path; otherwise helper is empty. I accept
+ * one configuration, bounded to 4095 path bytes and a 60000 ms ceiling. */
+int64_t nl_file_product_websocket(NlFileProduct *,int64_t,const char *);
 /* I append 1..4096 bytes as lowercase hex, bounded to 64 MiB across all modules.
  * Seal first records main (empty name), then at most 64 named shadows. Paths
  * and names are at most 4096 bytes. Failure poisons the context; no partial

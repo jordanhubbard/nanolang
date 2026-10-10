@@ -1,0 +1,1791 @@
+[
+  {
+    "argv": [
+      "make",
+      "-f",
+      "Makefile.gnu",
+      "-C",
+      "/Users/jordanh/Src/nanolang",
+      "PREFIX=/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ez1s3cw5/installed",
+      "install-websocket-public-runtime"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "install -d \"/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ez1s3cw5/installed/lib\"\ninstall -m 644 \"lib/libnano_websocket_runtime.a\" \"/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ez1s3cw5/installed/lib/libnano_websocket_runtime.a\"\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ez1s3cw5/relocated/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ez1s3cw5/source.nano",
+      "--allow-websocket-connections",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ez1s3cw5/nanoc_c.installed"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d657a3173336377352f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d657a3173336377352f736f757263652e6e616e6f 7061796c6f6164\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d657a3173336377352f736f757263652e6e616e6f 7061796c6f6164\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ez1s3cw5/nanoc_c.installed",
+      "--allow-websocket-connections"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ez1s3cw5/relocated/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ez1s3cw5/source.nano",
+      "--allow-websocket-connections",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ez1s3cw5/nano_virt.installed"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d657a3173336377352f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d657a3173336377352f736f757263652e6e616e6f 7061796c6f6164\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d657a3173336377352f736f757263652e6e616e6f 7061796c6f6164\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-ez1s3cw5/nano_virt.installed",
+      "--allow-websocket-connections"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/source.nano",
+      "--allow-websocket-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nanoc_c.nvm"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100000",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nanoc_c.nvm"
+    ],
+    "status": 2,
+    "expected": 2,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/source.nano",
+      "--allow-websocket-connections",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nanoc_c.native"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nanoc_c.native",
+      "--allow-websocket-connections"
+    ],
+    "status": 2,
+    "expected": 2,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/source.nano",
+      "--allow-websocket-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nano_virt.nvm"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100000",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nano_virt.nvm"
+    ],
+    "status": 2,
+    "expected": 2,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/source.nano",
+      "--allow-websocket-connections",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nano_virt.native"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nano_virt.native",
+      "--allow-websocket-connections"
+    ],
+    "status": 2,
+    "expected": 2,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/source.nano",
+      "--allow-websocket-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nano_driver_vm.nvm"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100000",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nano_driver_vm.nvm"
+    ],
+    "status": 2,
+    "expected": 2,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/source.nano",
+      "--allow-websocket-connections",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nano_driver_vm.native"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nano_driver_vm.native",
+      "--allow-websocket-connections"
+    ],
+    "status": 2,
+    "expected": 2,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/source.nano",
+      "--allow-websocket-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nl51-ws-driver-typed.native.nvm"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100000",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nl51-ws-driver-typed.native.nvm"
+    ],
+    "status": 2,
+    "expected": 2,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/source.nano",
+      "--allow-websocket-connections",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nl51-ws-driver-typed.native.native"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d69317379707579352f736f757263652e6e616e6f 70726f6265\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-i1sypuy5/nl51-ws-driver-typed.native.native",
+      "--allow-websocket-connections"
+    ],
+    "status": 2,
+    "expected": 2,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nanoc_c.nvm"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nanoc_c.nvm"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I will not replace a File source input.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/interface.nsi.json"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I will not replace a File companion input.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "--socket-tcp",
+      "--entry-name",
+      "wrong",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nanoc_c.nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/prior.c"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I cannot emit the selected service profile (3): I refuse indirect Socket preparation (3)\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nano_virt.nvm"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nano_virt.nvm"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I will not replace a File source input.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/interface.nsi.json"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I will not replace a File companion input.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "--socket-tcp",
+      "--entry-name",
+      "wrong",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nano_virt.nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/prior.c"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I cannot emit the selected service profile (3): I refuse indirect Socket preparation (3)\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nano_driver_vm.nvm"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nano_driver_vm.nvm"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "I will not overwrite a source file: /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/interface.nsi.json"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "I will not overwrite a source file: /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/interface.nsi.json\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "--socket-tcp",
+      "--entry-name",
+      "wrong",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nano_driver_vm.nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/prior.c"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I cannot emit the selected service profile (3): I refuse indirect Socket preparation (3)\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nl51-ws-driver-typed.native.nvm"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nl51-ws-driver-typed.native.nvm"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "I will not overwrite a source file: /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/interface.nsi.json"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "I will not overwrite a source file: /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/interface.nsi.json\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "--socket-tcp",
+      "--entry-name",
+      "wrong",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/nl51-ws-driver-typed.native.nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-7s7q4zuh/prior.c"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I cannot emit the selected service profile (3): I refuse indirect Socket preparation (3)\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for selected service shadows or execution.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-tcp-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for selected service shadows or execution.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-temporary-files",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for selected service shadows or execution.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--allow-websocket-lookup",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--allow-websocket-lookup",
+      "--websocket-resolver-helper",
+      "relative",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--websocket-resolver-helper",
+      "/unused",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--websocket-resolver-helper",
+      "",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d616c71636a3463742f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d616c71636a3463742f736f757263652e6e616e6f 7061796c6f6164\nI will not publish after WebSocket shadow failure (status 3).\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for selected service shadows or execution.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-tcp-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for selected service shadows or execution.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-temporary-files",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for selected service shadows or execution.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--allow-websocket-lookup",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--allow-websocket-lookup",
+      "--websocket-resolver-helper",
+      "relative",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--websocket-resolver-helper",
+      "/unused",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--websocket-resolver-helper",
+      "",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d616c71636a3463742f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d616c71636a3463742f736f757263652e6e616e6f 7061796c6f6164\nI will not publish after WebSocket shadow failure (status 3).\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for selected service shadows or execution.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-tcp-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for selected service shadows or execution.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-temporary-files",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for selected service shadows or execution.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--allow-websocket-lookup",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--allow-websocket-lookup",
+      "--websocket-resolver-helper",
+      "relative",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--websocket-resolver-helper",
+      "/unused",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--websocket-resolver-helper",
+      "",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "I require a nonempty WebSocket resolver helper path.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d616c71636a3463742f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d616c71636a3463742f736f757263652e6e616e6f 7061796c6f6164\nI will not publish after WebSocket shadow failure (status 3).\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for selected service shadows or execution.\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-tcp-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for selected service shadows or execution.\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-temporary-files",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for selected service shadows or execution.\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--allow-websocket-lookup",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--allow-websocket-lookup",
+      "--websocket-resolver-helper",
+      "relative",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--websocket-resolver-helper",
+      "/unused",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "I require separate WebSocket lookup permission and an absolute resolver helper together.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--websocket-resolver-helper",
+      "",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "I require a nonempty WebSocket resolver helper path.\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/source.nano",
+      "--allow-websocket-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-alqcj4ct/prior.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d616c71636a3463742f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d616c71636a3463742f736f757263652e6e616e6f 7061796c6f6164\nI will not publish after WebSocket shadow failure (status 3).\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/source.nano",
+      "--allow-websocket-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.nvm"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100000",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.nvm"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "0",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I refuse WebSocket execution (status 3, limit 0, started 0, exhausted 1).\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.nvm': Invalid NVM v2 module: section-out-of-range\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--websocket-instruction-limit",
+      "100",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "1000001",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100",
+      "--services",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100",
+      "--allow-websocket-lookup",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/source.nano",
+      "--allow-websocket-connections",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.native"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.native"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for this invocation.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.native",
+      "--allow-tcp-connections"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I refuse an unknown or repeated WebSocket invocation option.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.native",
+      "--allow-websocket-connections"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.native",
+      "--allow-websocket-connections",
+      "--allow-websocket-connections"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I refuse an unknown or repeated WebSocket invocation option.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.native",
+      "--allow-websocket-connections",
+      "--allow-websocket-lookup"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require separate lookup permission and an absolute resolver helper together.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "--websocket",
+      "--entry-name",
+      "source",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nanoc_c.c"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/source.nano",
+      "--allow-websocket-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.nvm"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100000",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.nvm"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "0",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I refuse WebSocket execution (status 3, limit 0, started 0, exhausted 1).\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.nvm': Invalid NVM v2 module: section-out-of-range\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--websocket-instruction-limit",
+      "100",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "1000001",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100",
+      "--services",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100",
+      "--allow-websocket-lookup",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/source.nano",
+      "--allow-websocket-connections",
+      "--run"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/source.nano",
+      "--allow-websocket-connections",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.native"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.native"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for this invocation.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.native",
+      "--allow-tcp-connections"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I refuse an unknown or repeated WebSocket invocation option.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.native",
+      "--allow-websocket-connections"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.native",
+      "--allow-websocket-connections",
+      "--allow-websocket-connections"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I refuse an unknown or repeated WebSocket invocation option.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.native",
+      "--allow-websocket-connections",
+      "--allow-websocket-lookup"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require separate lookup permission and an absolute resolver helper together.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "--websocket",
+      "--entry-name",
+      "source",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_virt.c"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/source.nano",
+      "--allow-websocket-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.nvm"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100000",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.nvm"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "0",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I refuse WebSocket execution (status 3, limit 0, started 0, exhausted 1).\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.nvm': Invalid NVM v2 module: section-out-of-range\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--websocket-instruction-limit",
+      "100",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "1000001",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100",
+      "--services",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100",
+      "--allow-websocket-lookup",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/source.nano",
+      "--allow-websocket-connections",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.native"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.native"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for this invocation.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.native",
+      "--allow-tcp-connections"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I refuse an unknown or repeated WebSocket invocation option.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.native",
+      "--allow-websocket-connections"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.native",
+      "--allow-websocket-connections",
+      "--allow-websocket-connections"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I refuse an unknown or repeated WebSocket invocation option.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.native",
+      "--allow-websocket-connections",
+      "--allow-websocket-lookup"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require separate lookup permission and an absolute resolver helper together.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "--websocket",
+      "--entry-name",
+      "source",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nano_driver_vm.c"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/source.nano",
+      "--allow-websocket-connections",
+      "--emit-nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.nvm"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100000",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.nvm"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "0",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I refuse WebSocket execution (status 3, limit 0, started 0, exhausted 1).\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "Error: Failed to load '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.nvm': Invalid NVM v2 module: section-out-of-range\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--websocket-instruction-limit",
+      "100",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "1000001",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100",
+      "--services",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--allow-websocket-connections",
+      "--websocket-instruction-limit",
+      "100",
+      "--allow-websocket-lookup",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.nvm"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require WebSocket connection permission and an instruction limit, with separate lookup/helper options and no other execution mode.\n"
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-ws-driver-typed.native",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/source.nano",
+      "--allow-websocket-connections",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.native"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": "SELECT 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nSTART 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\nDONE 0 2f707269766174652f7661722f666f6c646572732f397a2f78706d666777386a30396c3467367777787278747439377730303030676e2f542f6e616e6f2d736572766963652d647269766572732d3376666e3277346b2f736f757263652e6e616e6f 7061796c6f6164\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.native"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require --allow-websocket-connections for this invocation.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.native",
+      "--allow-tcp-connections"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I refuse an unknown or repeated WebSocket invocation option.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.native",
+      "--allow-websocket-connections"
+    ],
+    "status": 7,
+    "expected": 7,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.native",
+      "--allow-websocket-connections",
+      "--allow-websocket-connections"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I refuse an unknown or repeated WebSocket invocation option.\n"
+  },
+  {
+    "argv": [
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.native",
+      "--allow-websocket-connections",
+      "--allow-websocket-lookup"
+    ],
+    "status": 1,
+    "expected": 1,
+    "stdout": "",
+    "stderr": "I require separate lookup permission and an absolute resolver helper together.\n"
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "--websocket",
+      "--entry-name",
+      "source",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.nvm",
+      "-o",
+      "/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-drivers-3vfn2w4k/nl51-ws-driver-typed.native.c"
+    ],
+    "status": 0,
+    "expected": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

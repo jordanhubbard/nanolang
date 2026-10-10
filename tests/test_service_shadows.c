@@ -5,6 +5,7 @@
 #include "nanoisa/services_indirect_public.h"
 #include "nanoisa/file_indirect_public.h"
 #include "nanoisa/socket_indirect_public.h"
+#include "nanoisa/websocket_indirect_public.h"
 #include <assert.h>
 #include <signal.h>
 #include <stdio.h>
@@ -92,7 +93,38 @@ NvmSocketIndirectExecutionReport nvm_socket_execute_indirect_bytes(NvmSocketHost
     report.runtime.cleanup.cleanup_failures=result.runtime.cleanup.cleanup_failures;
     scalar->value=value.value;return report;
 }
-bool nl_service_policy_read(const uint8_t *bytes,size_t size,bool files,bool tcp,NlServicePolicy *out) {
+struct NvmWebSocketHostGrant { unsigned placeholder; };
+static struct NvmWebSocketHostGrant ws_policy;
+NvmWebSocketHostStatus nvm_websocket_host_grant_create(const NvmWebSocketHostPolicy *configured,NvmWebSocketHostGrant **out) {
+    assert(configured && configured->revision==1 && !configured->allow_connections && !configured->allow_lookup && configured->max_timeout_ms==2000);
+    NvmFileHostGrant *file=NULL;
+    NvmFileHostStatus status=nvm_file_host_grant_create_temporary_files(&file);
+    if(status!=NVM_FILE_HOST_OK)return NVM_WEBSOCKET_HOST_MEMORY;
+    *out=&ws_policy;return NVM_WEBSOCKET_HOST_OK;
+}
+NvmWebSocketHostStatus nvm_websocket_host_grant_revoke(NvmWebSocketHostGrant *grant) {
+    assert(grant==&ws_policy);
+    return nvm_file_host_grant_revoke(&policy)==NVM_FILE_HOST_OK?NVM_WEBSOCKET_HOST_OK:NVM_WEBSOCKET_HOST_STATE;
+}
+NvmWebSocketHostStatus nvm_websocket_host_grant_destroy(NvmWebSocketHostGrant **grant) {
+    assert(*grant==&ws_policy);NvmFileHostGrant *file=&policy;
+    if(nvm_file_host_grant_destroy(&file)!=NVM_FILE_HOST_OK)return NVM_WEBSOCKET_HOST_BUSY;
+    *grant=NULL;return NVM_WEBSOCKET_HOST_OK;
+}
+NvmWebSocketIndirectExecutionReport nvm_websocket_execute_indirect_bytes(NvmWebSocketHostGrant *grant,
+    const uint8_t *bytes,size_t size,const NvmWebSocketIndirectOptions *options,NvmWebSocketScalar *scalar) {
+    assert(grant==&ws_policy);
+    NvmFileIndirectOptions file_options={options->revision,options->instruction_limit};
+    NvmFileScalar value={0};
+    NvmFileIndirectExecutionReport result=nvm_file_execute_indirect_bytes(&policy,bytes,size,&file_options,&value);
+    NvmWebSocketIndirectExecutionReport report={0};
+    report.runtime.status=(NvmWebSocketRuntimeStatus)result.runtime.status;
+    report.runtime.acquired=result.runtime.acquired;
+    report.runtime.cleanup.cleanup_failures=result.runtime.cleanup.cleanup_failures;
+    scalar->value=value.value;return report;
+}
+bool nl_service_policy_read(const uint8_t *bytes,size_t size,bool files,bool tcp,bool websocket,NlServicePolicy *out) {
+    (void)websocket;
     if(!bytes || size!=1 || *bytes==12)return false;
     *out=(NlServicePolicy){.profile=3,.count=3,.allowed=files&&tcp,.requires_file=true,.requires_tcp=true,
         .instances={{NVM_SERVICES_HOST_FILE,files},{NVM_SERVICES_HOST_TCP,tcp},{NVM_SERVICES_HOST_FILE,files}}};
@@ -196,9 +228,19 @@ int main(void) {
             (code==3||code==4||code==8)?NL_SERVICE_SHADOW_SYSTEM:NL_SERVICE_SHADOW_FAILED;
         assert(report.status==expected && report.completed==(code==0?2u:0u));assert(unlink(path)==0);
     }
+    fault=0;code=0;
+    NvmWebSocketHostPolicy websocket={1,false,false,2000,NULL};
+    assert(nl_service_run_websocket_shadows(suite,2,NULL,path).status==NL_SERVICE_SHADOW_DENIED);
+    assert(access(path,F_OK)!=0);
+    for(code=0;code<=11;code++) {
+        fault=code;report=nl_service_run_websocket_shadows(suite,2,&websocket,path);
+        NlServiceShadowStatus expected=code==0?NL_SERVICE_SHADOW_OK:code==2?NL_SERVICE_SHADOW_TIMEOUT:
+            (code==3||code==4||code==8)?NL_SERVICE_SHADOW_SYSTEM:NL_SERVICE_SHADOW_FAILED;
+        assert(report.status==expected && report.completed==(code==0?2u:0u));assert(unlink(path)==0);
+    }
     assert(unsetenv("NANO_SHADOW_TIMEOUT_SECONDS")==0);
     assert(rmdir(directory)==0);
 
-    puts("I pass File/TCP/mixed shadow supervision, whole-suite timeout and refusal controls.");
+    puts("I pass File/TCP/mixed/WebSocket shadow supervision, whole-suite timeout and refusal controls.");
     return 0;
 }

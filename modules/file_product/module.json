@@ -75,7 +75,22 @@
     "../../src/nanoisa/services_indirect_public_native.c",
     "../../src/nanoisa/services_indirect_public_abi.c",
     "../../src/nanovm/services_indirect_public_vm.c",
-    "../../src/nsi_services_values.c"
+    "../../src/nsi_services_values.c",
+    "../../src/utf8.c",
+    "../../src/nanoisa/websocket_flow.c",
+    "../../src/nanoisa/websocket_codec.c",
+    "../../src/nanoisa/service_websocket_nominal.c",
+    "../../src/nanoisa/service_websocket_nominal_plan.c",
+    "../../src/nanoisa/websocket_runtime.c",
+    "../../src/nanoisa/websocket_host_grant.c",
+    "../../src/nanoisa/websocket_indirect_public_native.c",
+    "../../src/nanoisa/websocket_indirect_public_abi.c",
+    "../../src/nanovm/websocket_indirect_public_vm.c",
+    "../../src/nsi_socket_resolver.c",
+    "../../src/nsi_websocket_plan.c",
+    "../../src/nsi_websocket_values.c",
+    "../../src/nsi_websocket_transport.c",
+    "../../src/nsi_websocket_protocol.c"
   ],
   "cflags": [
     "-D_GNU_SOURCE",
@@ -85,5 +100,8 @@
   ],
   "system_libs": [
     "m"
+  ],
+  "pkg_config": [
+    "libcrypto"
   ]
 }

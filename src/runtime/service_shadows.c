@@ -6,6 +6,7 @@
 #include "../nanoisa/services_indirect_public.h"
 #include "../nanoisa/file_indirect_public.h"
 #include "../nanoisa/socket_indirect_public.h"
+#include "../nanoisa/websocket_indirect_public.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -35,15 +36,25 @@ static bool elapsed(struct timespec start, unsigned seconds, bool *failed) {
         (now.tv_sec - start.tv_sec == seconds && now.tv_nsec >= start.tv_nsec);
 }
 
-static NlServiceShadowReport execute(const NlServiceShadow *suite, size_t count, unsigned catalog, bool files, bool tcp, FILE *log) {
+static NlServiceShadowReport execute(const NlServiceShadow *suite, size_t count, unsigned catalog, bool files, bool tcp, const NvmWebSocketHostPolicy *websocket, FILE *log) {
     NlServiceShadowReport report = {NL_SERVICE_SHADOW_FAILED, 0};
     const NvmFileIndirectOptions options = {NVM_FILE_INDIRECT_RUNTIME_REVISION,
                                          NVM_FILE_INDIRECT_FUEL_MAX};
     for (size_t i = 0; i < count; ++i) {
         if (!record(log, "START", i, &suite[i])) return report;
-        if(catalog==3) {
+        if(catalog==4) {
+        NvmWebSocketHostGrant *grant=NULL;
+        if(nvm_websocket_host_grant_create(websocket,&grant)!=NVM_WEBSOCKET_HOST_OK)return report;
+        const NvmWebSocketIndirectOptions ws_options={1,NVM_WEBSOCKET_INDIRECT_FUEL_MAX};
+        NvmWebSocketScalar scalar={0};
+        NvmWebSocketIndirectExecutionReport result=nvm_websocket_execute_indirect_bytes(grant,suite[i].bytes,suite[i].size,&ws_options,&scalar);
+        NvmWebSocketHostStatus revoked=nvm_websocket_host_grant_revoke(grant);
+        NvmWebSocketHostStatus destroyed=nvm_websocket_host_grant_destroy(&grant);
+        if(result.runtime.status!=NVM_WEBSOCKET_RUNTIME_OK || !result.runtime.acquired || result.runtime.cleanup.cleanup_failures ||
+           revoked!=NVM_WEBSOCKET_HOST_OK || destroyed!=NVM_WEBSOCKET_HOST_OK || grant || scalar.value!=0)return report;
+        } else if(catalog==3) {
         NlServicePolicy policy;
-        if(!nl_service_policy_read(suite[i].bytes,suite[i].size,files,tcp,&policy) || policy.profile!=3 || !policy.allowed)return report;
+        if(!nl_service_policy_read(suite[i].bytes,suite[i].size,files,tcp,false,&policy) || policy.profile!=3 || !policy.allowed)return report;
         NvmServicesHostGrant *grant=NULL;
         if(nvm_services_host_grant_create(policy.instances,policy.count,&grant)!=NVM_SERVICES_HOST_OK)return report;
         const NvmServicesIndirectOptions mixed_options={1,NVM_SERVICES_INDIRECT_FUEL_MAX};
@@ -87,18 +98,20 @@ static NlServiceShadowReport execute(const NlServiceShadow *suite, size_t count,
 }
 
 static NlServiceShadowReport run_shadows(const NlServiceShadow *suite, size_t count,
-                                            unsigned catalog, bool files, bool tcp, const char *path) {
+                                            unsigned catalog, bool files, bool tcp, const NvmWebSocketHostPolicy *websocket, const char *path) {
     NlServiceShadowReport report = {NL_SERVICE_SHADOW_INVALID, 0};
-    if ((catalog!=1 && catalog!=2 && catalog!=3) || (!suite && count) || count > 4096 || !path || !*path) return report;
+    if ((catalog!=1 && catalog!=2 && catalog!=3 && catalog!=4) || (!suite && count) || count > 4096 || !path || !*path) return report;
     for (size_t i = 0; i < count; ++i)
         if (!suite[i].bytes || !suite[i].size || !suite[i].origin || !suite[i].name ||
             !*suite[i].origin || !*suite[i].name ||
             strnlen(suite[i].origin, 4097) > 4096 || strnlen(suite[i].name, 4097) > 4096)
             return report;
-    if(catalog==3) {
+    if(catalog==4) {
+        if(!websocket && count){report.status=NL_SERVICE_SHADOW_DENIED;return report;}
+    } else if(catalog==3) {
         for(size_t i=0;i<count;i++) {
             NlServicePolicy policy;
-            if(!nl_service_policy_read(suite[i].bytes,suite[i].size,files,tcp,&policy) || policy.profile!=3)return report;
+            if(!nl_service_policy_read(suite[i].bytes,suite[i].size,files,tcp,false,&policy) || policy.profile!=3)return report;
             if(!policy.allowed){report.status=NL_SERVICE_SHADOW_DENIED;return report;}
         }
     } else if (!(catalog==1?files:tcp) && count) { report.status = NL_SERVICE_SHADOW_DENIED; return report; }
@@ -133,7 +146,7 @@ static NlServiceShadowReport run_shadows(const NlServiceShadow *suite, size_t co
         if (dup2(fd, STDOUT_FILENO) < 0 || dup2(fd, STDERR_FILENO) < 0) {
             dprintf(fd,"I cannot redirect my shadow log: %s.\n",strerror(errno));_exit(1);
         }
-        NlServiceShadowReport result = execute(suite, count, catalog, files, tcp, log);
+        NlServiceShadowReport result = execute(suite, count, catalog, files, tcp, websocket, log);
         if (fclose(log)) result.status = NL_SERVICE_SHADOW_SYSTEM;
         ssize_t sent;
         do { sent = write(channel[1], &result, sizeof result); } while (sent < 0 && errno == EINTR);
@@ -196,9 +209,14 @@ NlServiceShadowReport nl_service_run_shadows(const NlServiceShadow *suite,size_t
 NlServiceShadowReport nl_service_run_catalog_shadows(const NlServiceShadow *suite,size_t count,
     unsigned catalog,bool allowed,const char *path) {
     if(catalog!=1 && catalog!=2)return (NlServiceShadowReport){NL_SERVICE_SHADOW_INVALID,0};
-    return run_shadows(suite,count,catalog,catalog==1&&allowed,catalog==2&&allowed,path);
+    return run_shadows(suite,count,catalog,catalog==1&&allowed,catalog==2&&allowed,NULL,path);
 }
 NlServiceShadowReport nl_service_run_mixed_shadows(const NlServiceShadow *suite,size_t count,
     bool files,bool tcp,const char *path) {
-    return run_shadows(suite,count,3,files,tcp,path);
+    return run_shadows(suite,count,3,files,tcp,NULL,path);
+}
+
+NlServiceShadowReport nl_service_run_websocket_shadows(const NlServiceShadow *suite,size_t count,
+    const NvmWebSocketHostPolicy *policy,const char *path) {
+    return run_shadows(suite,count,4,false,false,policy,path);
 }

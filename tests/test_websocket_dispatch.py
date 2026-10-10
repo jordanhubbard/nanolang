@@ -38,6 +38,7 @@ class WebSocketDispatch(unittest.TestCase):
 
     def server(self):
         listener = socket.socket()
+        self.addCleanup(listener.close)
         listener.bind(("127.0.0.1", 0))
         listener.listen(32)
         listener.settimeout(0.2)

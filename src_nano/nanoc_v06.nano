@@ -71,6 +71,9 @@ struct CompileOptions {
     test_imports: bool,
     allow_temporary_files: bool,
     allow_tcp_connections: bool,
+    allow_websocket_connections: bool,
+    allow_websocket_lookup: bool,
+    websocket_resolver_helper: string,
     implicit_module: bool,
     error: string
 }
@@ -136,6 +139,9 @@ fn parse_options(args: array<string>) -> CompileOptions {
     let mut test_imports: bool = true
     let mut allow_temporary_files: bool = false
     let mut allow_tcp_connections: bool = false
+    let mut allow_websocket_connections: bool = false
+    let mut allow_websocket_lookup: bool = false
+    let mut websocket_resolver_helper: string = ""
     let mut error: string = ""
     let mut positional_only: bool = false
     let count: int = (array_length args)
@@ -152,6 +158,17 @@ fn parse_options(args: array<string>) -> CompileOptions {
             set keep_c true
         } else if (and (not positional_only) (== arg "--emit-nvm")) {
             set emit_nvm true
+        } else if (and (not positional_only) (== arg "--allow-websocket-connections")) {
+            if allow_websocket_connections { set error "I refuse a repeated WebSocket connection option." }
+            set allow_websocket_connections true
+        } else if (and (not positional_only) (== arg "--allow-websocket-lookup")) {
+            if allow_websocket_lookup { set error "I refuse a repeated WebSocket lookup option." }
+            set allow_websocket_lookup true
+        } else if (and (not positional_only) (== arg "--websocket-resolver-helper")) {
+            if (or (!= websocket_resolver_helper "") (>= (+ i 1) (array_length args))) { set error "I require one WebSocket resolver helper path." }
+            else { set i (+ i 1) set websocket_resolver_helper (at args i)
+                if (== websocket_resolver_helper "") { set error "I require a nonempty WebSocket resolver helper path." }
+            }
         } else if (and (not positional_only) (== arg "--allow-tcp-connections")) {
             set allow_tcp_connections true
         } else if (and (not positional_only) (== arg "--allow-temporary-files")) {
@@ -209,7 +226,7 @@ fn parse_options(args: array<string>) -> CompileOptions {
     return CompileOptions {
         input_file: input, output_file: output, verbose: verbose,
         keep_c: keep_c, show_intermediate_code: show_code,
-        llm_diags_json_path: diags, show_help: help, emit_c: emit_c, emit_nvm: emit_nvm, test_imports: test_imports, allow_temporary_files: allow_temporary_files, allow_tcp_connections: allow_tcp_connections, implicit_module: implicit_module, error: error
+        llm_diags_json_path: diags, show_help: help, emit_c: emit_c, emit_nvm: emit_nvm, test_imports: test_imports, allow_temporary_files: allow_temporary_files, allow_tcp_connections: allow_tcp_connections, allow_websocket_connections: allow_websocket_connections, allow_websocket_lookup: allow_websocket_lookup, websocket_resolver_helper: websocket_resolver_helper, implicit_module: implicit_module, error: error
     }
 }
 
@@ -217,6 +234,10 @@ shadow parse_options {
     let implicit: CompileOptions = (parse_options ["file.nano"])
     assert implicit.emit_nvm
     assert implicit.implicit_module
+    assert (not implicit.allow_websocket_connections) assert (not implicit.allow_websocket_lookup)
+    assert (parse_options ["net.nano", "--allow-websocket-connections"]).allow_websocket_connections
+    assert (!= (parse_options ["net.nano", "--websocket-resolver-helper"]).error "")
+    assert (== (parse_options ["net.nano", "--allow-websocket-lookup", "--websocket-resolver-helper", "/helper"]).websocket_resolver_helper "/helper")
     assert (not implicit.allow_tcp_connections)
     assert (parse_options ["net.nano", "--allow-tcp-connections"]).allow_tcp_connections
     assert (not implicit.allow_temporary_files)
@@ -1676,7 +1697,7 @@ shadow outputs_preserve_sources {
     }
 }
 
-fn compile_program_inputs(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, allow_temporary_files: bool, allow_tcp_connections: bool, implicit_module: bool, service_context: NlFileSourceSnapshots) -> int {
+fn compile_program_inputs(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, allow_temporary_files: bool, allow_tcp_connections: bool, allow_websocket_connections: bool, allow_websocket_lookup: bool, websocket_resolver_helper: string, implicit_module: bool, service_context: NlFileSourceSnapshots) -> int {
     if (== input_file "") { return 1 }
     if verbose {
         (println "")
@@ -1884,7 +1905,7 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
                 let mut first_service_shadow: int = 0
                 if (not test_imports) { set first_service_shadow (native_shadow_start parser merge_result.root_line) }
                 return (publish_service_source parser merged_files source_files service_namespace service_bodies ownership
-                    first_service_shadow product_output merge_result.repo_root (and emit_nvm (not implicit_module)) allow_temporary_files allow_tcp_connections)
+                    first_service_shadow product_output merge_result.repo_root (and emit_nvm (not implicit_module)) allow_temporary_files allow_tcp_connections allow_websocket_connections allow_websocket_lookup websocket_resolver_helper)
             }
 
             if (not (bind_merged_functions parser merge_result)) {
@@ -2039,14 +2060,14 @@ fn compile_program_inputs(input_file: string, output_file: string, verbose: bool
  * MAIN ENTRY POINT
  * ============================================================================= */
 
-fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, allow_temporary_files: bool, allow_tcp_connections: bool, implicit_module: bool) -> int {
+fn compile_program(input_file: string, output_file: string, verbose: bool, keep_c: bool, show_intermediate_code: bool, llm_diags_json_path: string, emit_c: bool, emit_nvm: bool, test_imports: bool, allow_temporary_files: bool, allow_tcp_connections: bool, allow_websocket_connections: bool, allow_websocket_lookup: bool, websocket_resolver_helper: string, implicit_module: bool) -> int {
     unsafe {
         let context: NlFileSourceSnapshots = (nl_source_inputs_new)
         if (== (nl_source_inputs_valid context) 0) {
             (println "I cannot allocate my compiler-input snapshot context.")
             return 1
         }
-        let status: int = (compile_program_inputs input_file output_file verbose keep_c show_intermediate_code llm_diags_json_path emit_c emit_nvm test_imports allow_temporary_files allow_tcp_connections implicit_module context)
+        let status: int = (compile_program_inputs input_file output_file verbose keep_c show_intermediate_code llm_diags_json_path emit_c emit_nvm test_imports allow_temporary_files allow_tcp_connections allow_websocket_connections allow_websocket_lookup websocket_resolver_helper implicit_module context)
         (nl_source_inputs_free context)
         return status
     }
@@ -2056,14 +2077,14 @@ shadow compile_program_inputs {
     unsafe {
         let context: NlFileSourceSnapshots = (nl_source_inputs_new)
         assert (== (nl_source_inputs_valid context) 1)
-        assert (== (compile_program_inputs "" "" false false false "" false false true false false false context) 1)
+        assert (== (compile_program_inputs "" "" false false false "" false false true false false false false "" false context) 1)
         assert (== (nl_source_inputs_count context) 0)
         (nl_source_inputs_free context)
     }
 }
 
 shadow compile_program {
-    assert (== (compile_program "" "" false false false "" false false true false false false) 1)
+    assert (== (compile_program "" "" false false false "" false false true false false false false "" false) 1)
 }
 
 fn show_usage() -> int {
@@ -2082,6 +2103,8 @@ fn show_usage() -> int {
     (println "  --emit-nvm     I publish verified NanoISA after VM shadow checks; requires -o")
     (println "  --test-imports  I run dependency shadows before root shadows (default)")
     (println "  --root-shadows-only  I run only root-file shadows")
+    (println "  --allow-websocket-connections I grant WebSocket shadows outbound connections")
+    (println "  --allow-websocket-lookup I separately grant DNS with --websocket-resolver-helper PATH")
     (println "  --allow-tcp-connections I grant selected TCP shadows outbound connections")
     (println "  --allow-temporary-files  I grant selected File shadows temporary-file access")
     (println "  File graphs default to native output (a.out without -o); runtime grants are separate")
@@ -2140,7 +2163,7 @@ fn main() -> int {
         (print "")
     }
     
-    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path opts.emit_c opts.emit_nvm opts.test_imports opts.allow_temporary_files opts.allow_tcp_connections opts.implicit_module)
+    return (compile_program opts.input_file opts.output_file opts.verbose opts.keep_c opts.show_intermediate_code opts.llm_diags_json_path opts.emit_c opts.emit_nvm opts.test_imports opts.allow_temporary_files opts.allow_tcp_connections opts.allow_websocket_connections opts.allow_websocket_lookup opts.websocket_resolver_helper opts.implicit_module)
 }
 
 shadow main {

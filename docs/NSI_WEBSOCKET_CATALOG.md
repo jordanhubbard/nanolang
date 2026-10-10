@@ -250,11 +250,31 @@ This C API assumes serialized callers and valid native storage. Its identities
 reject stale/cross-invocation values; they do not protect against arbitrary native
 memory access or establish verified source authority. It has no public binding.
 
-My descriptor, owned runtime and explicit checked execution providers are
-implemented. My descriptive source catalog and paired checkers now recognize
-WebSocket; executable binding selection remains pending. Paired frontend lowering and public real-peer,
-fault/cleanup and installed Linux/Darwin qualification remain required before
-source admission and release acceptance.
+My descriptor, owned runtime, paired source lowerers and explicit checked execution
+providers are implemented. I publish standalone WebSocket source through my C and
+Nano compiler paths. I require explicit connection permission for selected shadows;
+compilation grants never become invocation grants. My Message/string and
+lookup-denial paths pass through VM and native products. My real source network
+lifecycle suite still requires a host permitting local listeners, and mixed
+WebSocket instances and installed Linux/Darwin release qualification remain open.
+
+I accept these explicit product routes for a source with its companion contract:
+
+```sh
+nanoc app.nano --allow-websocket-connections --emit-nvm -o app.nvm
+nano_vm --allow-websocket-connections --websocket-instruction-limit 100000 app.nvm
+nanoc app.nano --allow-websocket-connections -o app
+./app --allow-websocket-connections
+nvm2c --websocket --entry-name app app.nvm -o app.c
+```
+
+I grant numeric connections independently of DNS. Hostname connections additionally
+require `--allow-websocket-lookup --websocket-resolver-helper /absolute/path/to/nano-resolver`
+on each executing invocation, including compilation when selected shadows perform
+lookup. My FFI publication context copies the helper path. My CLI policy caps each
+operation deadline at 60000 milliseconds, while source operations supply their own
+deadline. Native publication requires `pkg-config --libs libcrypto`; I never
+embed compile-time host permission or a resolver path into the executable.
 
 My legacy WebSocket integer API stays separate. It cannot fabricate a verified
 `Connection`, and its successful tests do not establish this ownership contract.

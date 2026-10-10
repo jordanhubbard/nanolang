@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "../nanoisa/websocket_host_grant.h"
 
 /* I accept independently emitted bytes, never frontend facts. Callers retain
  * immutable storage until return and select the complete required suite.
@@ -35,4 +36,9 @@ NlServiceShadowReport nl_service_run_catalog_shadows(const NlServiceShadow *, si
  * grant in the supervised child for each selected shadow. */
 NlServiceShadowReport nl_service_run_mixed_shadows(const NlServiceShadow *,size_t,
     bool allow_temporary_files,bool allow_tcp_connections,const char *log_path);
+/* I create a fresh copied WebSocket policy in each supervised child execution.
+ * NULL policy refuses a nonempty suite; an explicit denied policy can test
+ * rights errors without granting network or DNS authority. */
+NlServiceShadowReport nl_service_run_websocket_shadows(const NlServiceShadow *,size_t,
+    const NvmWebSocketHostPolicy *,const char *log_path);
 #endif

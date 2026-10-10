@@ -482,6 +482,7 @@ static const Nvm2cHost artifact_adapters[] = {
 typedef struct { Nvm2cHost host; uint8_t parameters[6]; } Nvm2cTypedHost;
 static const Nvm2cTypedHost typed_artifact_adapters[] = {
     {{"nl_file_product_new", "nhost_file_product", 3, TAG_VOID, TAG_OPAQUE}, {TAG_STRING, TAG_STRING, TAG_INT}},
+    {{"nl_file_product_websocket", "nhost_file_product", 3, TAG_VOID, TAG_INT}, {TAG_OPAQUE, TAG_INT, TAG_STRING}},
     {{"nl_file_product_valid", "nhost_file_product", 1, TAG_VOID, TAG_INT}, {TAG_OPAQUE}},
     {{"nl_file_product_append", "nhost_file_product", 2, TAG_VOID, TAG_INT}, {TAG_OPAQUE, TAG_STRING}},
     {{"nl_file_product_seal", "nhost_file_product", 3, TAG_VOID, TAG_INT}, {TAG_OPAQUE, TAG_STRING, TAG_STRING}},

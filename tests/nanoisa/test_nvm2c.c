@@ -39,7 +39,7 @@ static NvmModule *assemble_ok(const char *src, const char *label) {
     return m;
 }
 
-static int compile_and_run_with_args(const char *c_src, int *status_out, const char *args) {
+static int compile_and_run_scoped(const char *c_src, int *status_out, const char *args, bool runtime_tmpdir) {
     char dir[] = "/tmp/nvm2cXXXXXX";
     if (!mkdtemp(dir)) return -1;
     char src_path[128];
@@ -59,8 +59,8 @@ static int compile_and_run_with_args(const char *c_src, int *status_out, const c
     if (!cc || !cc[0]) cc = "cc";
     char cmd[512];
     snprintf(cmd, sizeof cmd,
-             "perl -e 'alarm 30; exec @ARGV' %s -std=c11 -O0 -fno-optimize-sibling-calls -Wall -Wextra -Werror -o %s %s" TEST_DL_LIB,
-             cc, bin_path, src_path);
+             "%sperl -e 'alarm 30; exec @ARGV' %s -std=c11 -O0 -fno-optimize-sibling-calls -Wall -Wextra -Werror -o %s %s" TEST_DL_LIB,
+             runtime_tmpdir ? "TMPDIR=/tmp " : "", cc, bin_path, src_path);
     int rc = system(cmd);
     if (rc != 0) {
         fprintf(stderr, "---- generated C (cc failed) ----\n%s\n----\n", c_src);
@@ -79,6 +79,10 @@ static int compile_and_run_with_args(const char *c_src, int *status_out, const c
     unlink(bin_path);
     rmdir(dir);
     return 0;
+}
+
+static int compile_and_run_with_args(const char *c_src, int *status_out, const char *args) {
+    return compile_and_run_scoped(c_src,status_out,args,false);
 }
 
 static int compile_and_run(const char *c_src, int *status_out) {
@@ -281,6 +285,30 @@ static void test_artifact_array_import_is_not_a_builtin(void) {
         free(source);
         module->imports[0] = original;
     }
+    nvm_module_free(module);
+}
+
+static void test_websocket_product_artifact_signature(void) {
+    NvmModule *module=assemble_ok(
+        ".import \"\" \"nl_file_product_websocket\" int opaque int string\n"
+        ".entry 0\n.function main 0 0 0 int 1\nPUSH_I64 0\nRET\n.end\n",
+        "WebSocket product policy artifact ABI");
+    if(!module)return;
+    module->imports[0].kind=NVM_IMPORT_ARTIFACT;
+    const char *path="/retained/file_product.so";
+    module->imports[0].module_name_idx=nvm_add_string(module,path,(uint32_t)strlen(path));
+    char error[256],*source=nvm2c_emit(module,error,sizeof error);
+    CHECK(source!=NULL,"I emit the exact opaque/int/string policy setter");free(source);
+    for(unsigned i=0;i<3;i++) {
+        uint8_t tag=module->import_param_types[0][i];
+        module->import_param_types[0][i]=TAG_BOOL;
+        source=nvm2c_emit(module,error,sizeof error);
+        CHECK(source==NULL,"I refuse a wrong policy setter parameter type");free(source);
+        module->import_param_types[0][i]=tag;
+    }
+    module->imports[0].return_type=TAG_OPAQUE;
+    source=nvm2c_emit(module,error,sizeof error);
+    CHECK(source==NULL,"I refuse a wrong policy setter result type");free(source);
     nvm_module_free(module);
 }
 
@@ -504,7 +532,9 @@ static void test_builtin_text_reader(void) {
                 free(source); source = injected;
             }
             int status = -1;
-            CHECK(compile_and_run(source, &status) == 0 && status == 0,
+            int compiled=compile_and_run(source, &status);
+            if(compiled || status)fprintf(stderr,"I fail text reader variant %d (compiler %d, exit %d).\n",variant,compiled,status);
+            CHECK(compiled == 0 && status == 0,
                   "I preserve text and reject invalid or unavailable input");
         }
         if (writer > 0) {
@@ -917,7 +947,8 @@ static void test_builtin_temp_directory(void) {
         CHECK(source != NULL, "I emit the temporary-directory adapter");
         if (source) {
             int status = -1;
-            CHECK(compile_and_run(source, &status) == 0 && status == 0,
+            /* I keep compiler SDK caches outside my runtime fixture directory. */
+            CHECK(compile_and_run_scoped(source, &status, "", true) == 0 && status == 0,
                   "I create distinct owned directories or return empty on failure");
         } else fprintf(stderr, "%s\n", error);
         free(source);
@@ -6691,6 +6722,7 @@ int main(int argc, char **argv) {
     test_builtin_temp_directory();
     test_tagged_record_array();
     test_artifact_array_import_is_not_a_builtin();
+    test_websocket_product_artifact_signature();
     test_owned_artifact_execution();
     test_real_walk_artifact();
     test_call_extern_is_refused();

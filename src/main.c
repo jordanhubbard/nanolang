@@ -85,6 +85,8 @@ typedef struct {
     bool show_intermediate_code;
     bool test_imports;
     bool allow_temporary_files, allow_tcp_connections;
+    bool allow_websocket_connections, allow_websocket_lookup;
+    const char *websocket_resolver_helper;
     bool emit_nvm;
     bool save_asm;            /* -S flag: save generated C to .genC file */
     bool json_errors;         /* Output errors in JSON format for tooling */
@@ -691,8 +693,9 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         int result=1;
         const char *cc=getenv("NANO_CC");if(!cc || !*cc)cc=getenv("CC");
         char *product_root=nl_service_product_root(g_argv[0]);
+        NvmWebSocketHostPolicy websocket={1,opts->allow_websocket_connections,opts->allow_websocket_lookup,60000,opts->websocket_resolver_helper};
         NlServiceProductOptions product={output_file,product_root,cc,getenv("NANO_CFLAGS"),getenv("NANO_LDFLAGS"),
-            opts->emit_nvm,opts->allow_temporary_files,false,opts->allow_tcp_connections};
+            opts->emit_nvm,opts->allow_temporary_files,false,opts->allow_tcp_connections,&websocket};
         bool unsupported=opts->target && strcmp(opts->target,"native");
         unsupported=unsupported || opts->keep_c || opts->show_intermediate_code || opts->save_asm ||
             opts->profile || opts->trace || opts->coverage || opts->profile_gprof || opts->profile_runtime ||
@@ -1832,6 +1835,8 @@ int main(int argc, char *argv[]) {
         printf("  --keep-c       Keep generated C file (saves to output dir instead of /tmp)\n");
         printf("  --emit-nvm     I emit checked File bytecode instead of a native executable\n");
         printf("  --allow-tcp-connections I grant selected TCP shadows outbound connections\n");
+        printf("  --allow-websocket-connections I grant WebSocket connections\n");
+        printf("  --allow-websocket-lookup I separately grant DNS with --websocket-resolver-helper PATH\n");
         printf("  --allow-temporary-files I grant selected File shadows temporary-file access\n");
         printf("  -fshow-intermediate-code  Print generated C to stdout\n");
         printf("  -S             Save generated C to <input>.genC (for inspection)\n");
@@ -2054,6 +2059,15 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--profile") == 0) {
             opts.profile = true;
 
+        } else if (strcmp(argv[i], "--allow-websocket-connections") == 0) {
+            if(opts.allow_websocket_connections)return 1;
+            opts.allow_websocket_connections=true;
+        } else if (strcmp(argv[i], "--allow-websocket-lookup") == 0) {
+            if(opts.allow_websocket_lookup)return 1;
+            opts.allow_websocket_lookup=true;
+        } else if (strcmp(argv[i], "--websocket-resolver-helper") == 0) {
+            if(opts.websocket_resolver_helper || i+1>=argc)return 1;
+            opts.websocket_resolver_helper=argv[++i];
         } else if (strcmp(argv[i], "--allow-tcp-connections") == 0) {
             opts.allow_tcp_connections = true;
         } else if (strcmp(argv[i], "--allow-temporary-files") == 0) {

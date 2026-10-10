@@ -2674,12 +2674,16 @@ shadow nisa_source_inputs_signature {
 fn nisa_file_product_signature(name: string) -> array<string> {
     if (== name "nl_file_product_new") { return ["NlFileProduct", "string", "string", "int"] }
     if (or (== name "nl_file_product_valid") (== name "nl_file_product_publish")) { return ["int", "NlFileProduct"] }
+    if (== name "nl_file_product_websocket") { return ["int", "NlFileProduct", "int", "string"] }
     if (== name "nl_file_product_append") { return ["int", "NlFileProduct", "string"] }
     if (== name "nl_file_product_seal") { return ["int", "NlFileProduct", "string", "string"] }
     if (== name "nl_file_product_free") { return ["void", "NlFileProduct"] }
     return []
 }
 shadow nisa_file_product_signature {
+    assert (== (at (nisa_file_product_signature "nl_file_product_websocket") 1) "NlFileProduct")
+    assert (== (at (nisa_file_product_signature "nl_file_product_websocket") 2) "int")
+    assert (== (at (nisa_file_product_signature "nl_file_product_websocket") 3) "string")
     assert (== (at (nisa_file_product_signature "nl_file_product_new") 0) "NlFileProduct")
     assert (== (at (nisa_file_product_signature "nl_file_product_new") 3) "int")
     assert (== (array_length (nisa_file_product_signature "nl_file_product_seal")) 4)
@@ -2934,7 +2938,9 @@ shadow nisa_register_artifact {
         "opaque type NlFileSourceSnapshots\nextern fn nl_source_inputs_open(context: int, origin: string, count: int, path: string, size: int) -> int",
         "opaque type NlFileProduct\nextern fn nl_file_product_new(output: string, root: string, flags: int) -> NlFileProduct",
         "extern fn nl_file_product_new(output: string, root: string, flags: int) -> NlFileProduct",
-        "opaque type NlFileProduct\nextern fn nl_file_product_seal(context: int, origin: string, name: string) -> int"
+        "opaque type NlFileProduct\nextern fn nl_file_product_seal(context: int, origin: string, name: string) -> int",
+        "opaque type NlFileProduct\nextern fn nl_file_product_websocket(context: int, flags: int, helper: string) -> int",
+        "opaque type NlFileProduct\nextern fn nl_file_product_websocket(context: NlFileProduct, flags: int, helper: string) -> int"
     ]
     let mut sample: int = 0
     while (< sample (array_length inputs)) {
@@ -2945,10 +2951,11 @@ shadow nisa_register_artifact {
         set nisa_artifact_owners [0]
         set nisa_artifact_paths ["/retained/inputs.so"]
         let imported: int = (nisa_register_artifact ps (parser_get_function ps 0))
-        if (or (== sample 0) (== sample 3)) {
+        if (or (== sample 0) (or (== sample 3) (== sample 7))) {
             assert (== imported 0)
             if (== sample 0) { assert (str_contains nisa_import_text "\"nl_source_inputs_new\" opaque") }
-            else { assert (str_contains nisa_import_text "\"nl_file_product_new\" opaque string string int") }
+            else if (== sample 3) { assert (str_contains nisa_import_text "\"nl_file_product_new\" opaque string string int") }
+            else { assert (str_contains nisa_import_text "\"nl_file_product_websocket\" int opaque int string") }
         } else {
             assert (== imported -1)
             assert (== nisa_import_text "")

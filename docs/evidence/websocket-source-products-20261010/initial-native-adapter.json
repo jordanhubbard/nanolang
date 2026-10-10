@@ -1,0 +1,3 @@
+{
+  "log": "I cannot translate '/private/tmp/nl51-ws-driver-final.nvm': import 51 (nl_file_product_websocket) is artifact-backed and requires an exact library binding and typed value adapter; nvm2c refuses CALL_EXTERN\nclang: error: no such file or directory: '/private/tmp/nl51-ws-driver-final.c'\n"
+}

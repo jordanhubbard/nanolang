@@ -45,6 +45,7 @@ shadow product_stage {
     unsafe {
         let context: NlFileProduct = (nl_file_product_new "unused-product" "." 1)
         assert (== (nl_file_product_valid context) 1)
+        assert (== (nl_file_product_websocket context 3 "/resolver") 0)
         assert (not (product_stage context [] "source.nano" ""))
         assert (product_stage context [0, 1, 255] "source.nano" "")
         assert (product_stage context [2, 3] "import.nano" "shadow")
@@ -85,7 +86,7 @@ shadow product_lower {
 
 pub fn publish_service_source(parser: Parser, files: array<string>, sources: array<string>,
     space: ServiceNamespace, bodies: ServiceBodyCheck, owners: ServiceOwnershipCheck,
-    first_shadow: int, output: string, root: string, emit_nvm: bool, allow: bool, allow_tcp: bool) -> int {
+    first_shadow: int, output: string, root: string, emit_nvm: bool, allow: bool, allow_tcp: bool, allow_websocket: bool, allow_lookup: bool, resolver: string) -> int {
     let mut flags: int = 0
     if emit_nvm { set flags 1 }
     if allow { set flags (+ flags 2) }
@@ -93,6 +94,12 @@ pub fn publish_service_source(parser: Parser, files: array<string>, sources: arr
     unsafe {
         let context: NlFileProduct = (nl_file_product_new output root flags)
         if (== (nl_file_product_valid context) 0) { (println "I cannot allocate File publication staging.") return 1 }
+        let mut websocket: int = 0
+        if allow_websocket { set websocket 1 }
+        if allow_lookup { set websocket (+ websocket 2) }
+        if (!= (nl_file_product_websocket context websocket resolver) 0) {
+            (nl_file_product_free context) (println "I require separate WebSocket lookup permission and an absolute resolver helper together.") return 1
+        }
         let mut status: int = 1
         if (product_lower context parser files sources space bodies owners first_shadow) {
             set status (nl_file_product_publish context)
@@ -107,5 +114,5 @@ shadow publish_service_source {
     let space: ServiceNamespace = ServiceNamespace { status: 1, names: [], plan: FileSourcePlan { status: 0, rows: [], logical_bytes: 0 }, text_bytes: 0, ordinary_count: 0, alias_count: 0 }
     let bodies: ServiceBodyCheck = ServiceBodyCheck { status: 0, diagnostic: "", facts: [], functions: 0, shadows: 0 }
     let owners: ServiceOwnershipCheck = ServiceOwnershipCheck { status: 0, diagnostic: "", facts: [], functions: 0, shadows: 0 }
-    assert (== (publish_service_source parser [] [] space bodies owners 0 "" "." false false false) 1)
+    assert (== (publish_service_source parser [] [] space bodies owners 0 "" "." false false false false false "") 1)
 }

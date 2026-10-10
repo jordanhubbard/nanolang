@@ -1,6 +1,7 @@
 # I transfer independently emitted bytes to one owned publication context.
 opaque type NlFileProduct
 pub extern fn nl_file_product_new(output: string, root: string, flags: int) -> NlFileProduct
+pub extern fn nl_file_product_websocket(context: NlFileProduct, flags: int, helper: string) -> int
 pub extern fn nl_file_product_valid(context: NlFileProduct) -> int
 pub extern fn nl_file_product_append(context: NlFileProduct, hex: string) -> int
 pub extern fn nl_file_product_seal(context: NlFileProduct, origin: string, name: string) -> int

@@ -6,7 +6,9 @@
 #define PRODUCT_BYTES (64u*1024u*1024u)
 #define PRODUCT_SHADOWS 64u
 struct NlFileProduct {
-    char *output,*root;
+    char *output,*root,*resolver;
+    bool websocket_configured;
+    NvmWebSocketHostPolicy websocket;
     uint8_t *pending,*main;
     size_t used,capacity,total,main_size,count;
     NlServiceShadow shadows[PRODUCT_SHADOWS];
@@ -28,6 +30,16 @@ NlFileProduct *nl_file_product_new(const char *output,const char *root,int64_t f
     return p;
 }
 int64_t nl_file_product_valid(NlFileProduct *p){return p && !p->failed && !p->finished;}
+int64_t nl_file_product_websocket(NlFileProduct *p,int64_t flags,const char *helper) {
+    if(!nl_file_product_valid(p))return 1;
+    if(p->websocket_configured || p->used || p->main || flags<0 || flags>3 || !helper ||
+       strlen(helper)>=4096 || ((flags&2)!=0)!=(*helper!=0) || (*helper && *helper!='/'))goto failed;
+    if(*helper && !(p->resolver=copy_text(helper)))goto failed;
+    p->websocket=(NvmWebSocketHostPolicy){1,(flags&1)!=0,(flags&2)!=0,60000,p->resolver};
+    p->websocket_configured=true;return 0;
+failed:
+    p->failed=true;return 1;
+}
 static int hex(unsigned char c) {
     if(c>='0' && c<='9')return c-'0';
     if(c>='a' && c<='f')return c-'a'+10;
@@ -72,12 +84,12 @@ int64_t nl_file_product_publish(NlFileProduct *p) {
     if(!p->main || p->used)return 1;
     const char *cc=getenv("NANO_CC");if(!cc || !*cc)cc=getenv("CC");
     NlServiceProductOptions options={p->output,p->root,cc,getenv("NANO_CFLAGS"),getenv("NANO_LDFLAGS"),
-        (p->flags&1)!=0,(p->flags&2)!=0,false,(p->flags&4)!=0};
+        (p->flags&1)!=0,(p->flags&2)!=0,false,(p->flags&4)!=0,p->websocket_configured?&p->websocket:NULL};
     return nl_service_publish(p->main,p->main_size,p->shadows,p->count,&options);
 }
 void nl_file_product_free(NlFileProduct *p) {
     if(!p)return;
-    free(p->pending);free(p->main);free(p->output);free(p->root);
+    free(p->pending);free(p->main);free(p->output);free(p->root);free(p->resolver);
     for(size_t i=0;i<p->count;i++) {
         free((void *)p->shadows[i].bytes);free((void *)p->shadows[i].origin);free((void *)p->shadows[i].name);
     }

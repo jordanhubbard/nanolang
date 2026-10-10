@@ -73,6 +73,8 @@ static void usage(const char *prog) {
     fprintf(stderr, "  --test-imports     I run dependency shadows before root shadows (default)\n");
     fprintf(stderr, "  --root-shadows-only I run only root-file shadows\n");
     fprintf(stderr, "  --allow-tcp-connections I grant TCP shadows and --run outbound connections\n");
+    fprintf(stderr, "  --allow-websocket-connections I grant WebSocket connections\n");
+    fprintf(stderr, "  --allow-websocket-lookup I separately grant DNS with --websocket-resolver-helper PATH\n");
     fprintf(stderr, "  --allow-temporary-files I grant File shadows and --run temporary-file access\n");
     fprintf(stderr, "                     I publish File graphs as native executables unless --emit-nvm\n");
     fprintf(stderr, "  --daemon-wrapper   Generate thin daemon-mode binary (needs nano_vmd at runtime)\n");
@@ -99,10 +101,21 @@ int main(int argc, char **argv) {
     bool verbose = false;
     bool test_imports = true;
     bool allow_temporary_files = false, allow_tcp_connections = false;
+    bool allow_websocket_connections=false,allow_websocket_lookup=false;
+    const char *websocket_resolver_helper=NULL;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
             output = argv[++i];
+        } else if (strcmp(argv[i], "--allow-websocket-connections") == 0) {
+            if(allow_websocket_connections)return 1;
+            allow_websocket_connections=true;
+        } else if (strcmp(argv[i], "--allow-websocket-lookup") == 0) {
+            if(allow_websocket_lookup)return 1;
+            allow_websocket_lookup=true;
+        } else if (strcmp(argv[i], "--websocket-resolver-helper") == 0) {
+            if(websocket_resolver_helper || i+1>=argc)return 1;
+            websocket_resolver_helper=argv[++i];
         } else if (strcmp(argv[i], "--allow-tcp-connections") == 0) {
             allow_tcp_connections = true;
         } else if (strcmp(argv[i], "--allow-temporary-files") == 0) {
@@ -181,8 +194,9 @@ int main(int argc, char **argv) {
         int result=1;
         char *root=nl_service_product_root(argv[0]);
         const char *cc=getenv("NANO_CC");if(!cc || !*cc)cc=getenv("CC");
+        NvmWebSocketHostPolicy websocket={1,allow_websocket_connections,allow_websocket_lookup,60000,websocket_resolver_helper};
         NlServiceProductOptions options={output,root,cc,getenv("NANO_CFLAGS"),getenv("NANO_LDFLAGS"),
-            emit_nvm || (output && has_nvm_extension(output)),allow_temporary_files,run,allow_tcp_connections};
+            emit_nvm || (output && has_nvm_extension(output)),allow_temporary_files,run,allow_tcp_connections,&websocket};
         if(daemon_wrapper || strip_debug)fputs("I do not support these output options for File source.\n",stderr);
         else if(root)result=nl_service_compile(program,env,test_imports,&options);
         free(root);free_environment(env);free_ast(program);free_module_list(modules);
