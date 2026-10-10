@@ -1,0 +1,17 @@
+test_root_and_imported_enum_bindings_refuse (__main__.EnumGenerics.test_root_and_imported_enum_bindings_refuse) ... FAIL
+
+======================================================================
+FAIL: test_root_and_imported_enum_bindings_refuse (__main__.EnumGenerics.test_root_and_imported_enum_bindings_refuse)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_enum_generics.py", line 135, in test_root_and_imported_enum_bindings_refuse
+    self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : Warning at line 3, column 1: Unused variable 'b'
+Warning at line 5, column 16: Unused variable 'value'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.040s
+
+FAILED (failures=1)

@@ -1224,7 +1224,7 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                     } else if (node->type == AST_STRUCT_DEF) {
                         struct_names[s_idx++] = strdup(node->as.struct_def.original_name ? node->as.struct_def.original_name : node->as.struct_def.name);
                     } else if (node->type == AST_ENUM_DEF) {
-                        enum_names[e_idx++] = strdup(node->as.enum_def.name);
+                        enum_names[e_idx++] = strdup(node->as.enum_def.original_name ? node->as.enum_def.original_name : node->as.enum_def.name);
                     } else if (node->type == AST_UNION_DEF) {
                         union_names[u_idx++] = strdup(node->as.union_def.name);
                     }
@@ -1310,6 +1310,22 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                         return false;
                     }
                     
+                    bool enum_alias = false;
+                    for (int e = 0; e < env->enum_count; ++e) {
+                        EnumDef *definition = &env->enums[e];
+                        const char *source_name = definition->original_name ? definition->original_name : definition->name;
+                        if (!definition->is_pub || !definition->module_name ||
+                            strcmp(definition->module_name, module_name_for_alias) || strcmp(source_name, symbol)) continue;
+                        if (!env_import_enum(env, alias, definition)) {
+                            fprintf(stderr, "I cannot bind conflicting enum import alias: %s\n", alias);
+                            free(module_name_for_alias); free(module_path);
+                            for (int k = 0; k < unpacked_count; ++k) free(unpacked_dirs[k]);
+                            free(unpacked_dirs); return false;
+                        }
+                        enum_alias = true; break;
+                    }
+                    if (enum_alias) continue;
+
                     Function *func = find_module_function(env, module_name_for_alias, symbol);
                     if (!func && env_lookup_global_import_at(env, current_file, alias)) continue;
                     if (!func) {
@@ -2316,6 +2332,7 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
         meta->enums = malloc(sizeof(EnumDef) * meta->enum_count);
         for (int i = 0; i < meta->enum_count; i++) {
             meta->enums[i] = env->enums[i];
+            meta->enums[i].original_name = env->enums[i].original_name ? strdup(env->enums[i].original_name) : NULL;
             if (env->enums[i].name) {
                 meta->enums[i].name = strdup(env->enums[i].name);
             }
@@ -2732,6 +2749,7 @@ void free_module_metadata(ModuleMetadata *meta) {
     if (meta->enums) {
         for (int i = 0; i < meta->enum_count; i++) {
             if (meta->enums[i].name) free(meta->enums[i].name);
+            free(meta->enums[i].original_name);
             if (meta->enums[i].variant_names) {
                 for (int j = 0; j < meta->enums[i].variant_count; j++) {
                     if (meta->enums[i].variant_names[j]) free(meta->enums[i].variant_names[j]);

@@ -2817,9 +2817,12 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             /* Check if this is an enum variant (Enum.Variant) */
             if (expr->as.field_access.object->type == AST_IDENTIFIER) {
                 const char *object_name = expr->as.field_access.object->as.identifier;
-                if (env_get_enum(env, object_name)) {
-                    /* It's an enum - generate prefixed variant name */
-                    const char *prefixed = get_prefixed_variant_name(object_name, expr->as.field_access.field_name);
+                EnumDef *enumeration = env_get_var_visible_at(env, object_name,
+                    expr->as.field_access.object->line, expr->as.field_access.object->column)
+                    ? NULL : env_get_enum(env, object_name);
+                if (enumeration) {
+                    /* I emit the variant from its canonical declaration. */
+                    const char *prefixed = get_prefixed_variant_name(enumeration->name, expr->as.field_access.field_name);
                     emit_literal(list, prefixed);
                     break;
                 }

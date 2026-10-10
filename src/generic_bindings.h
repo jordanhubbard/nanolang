@@ -4,7 +4,7 @@
 
 /* I share structural inference and owned substitution between checking and emission. */
 typedef struct {
-    const char *names[26];
+    char *names[26];
     TypeInfo *types[26];
     int count;
 } GenericBindings;
@@ -55,10 +55,44 @@ static inline bool generic_function(Environment *env, const Function *function) 
     return false;
 }
 static inline void generic_bindings_free(GenericBindings *bindings) {
-    for (int i=0; i<bindings->count; ++i) free_payload_type_info(bindings->types[i]);
+    for (int i=0; i<bindings->count; ++i) { free(bindings->names[i]); free_payload_type_info(bindings->types[i]); }
     *bindings=(GenericBindings){0};
 }
-static inline bool generic_bind(Environment *env, const TypeInfo *formal,
+/* I normalize legacy enum-as-struct annotations before exact generic comparison. */
+static inline bool generic_normalize_nominals(Environment *env, TypeInfo *info, unsigned depth) {
+    if (!info || depth>128) return false;
+    if (info->generic_name && (info->base_type==TYPE_STRUCT || info->base_type==TYPE_ENUM || info->base_type==TYPE_INT)) {
+        EnumDef *enumeration=env_get_enum(env,info->generic_name);
+        if (enumeration) {
+            char *name=strdup(enumeration->name);
+            if (!name) return false;
+            free(info->generic_name);info->generic_name=name;info->base_type=TYPE_ENUM;
+        }
+    }
+    if (info->element_type && !generic_normalize_nominals(env,info->element_type,depth+1)) return false;
+    for (int i=0;i<info->type_param_count;++i)
+        if (!generic_normalize_nominals(env,info->type_params[i],depth+1)) return false;
+    FunctionSignature *sig=info->fn_sig;
+    if (sig) {
+        if (sig->param_count && !sig->param_type_info) sig->param_type_info=calloc((size_t)sig->param_count,sizeof(TypeInfo *));
+        if (sig->param_count && !sig->param_struct_names) sig->param_struct_names=calloc((size_t)sig->param_count,sizeof(char *));
+        if (sig->param_count && (!sig->param_type_info || !sig->param_struct_names)) return false;
+        TypeInfo view;
+        for (int p=0;p<sig->param_count;++p) {
+            if (!sig->param_type_info[p]) sig->param_type_info[p]=copy_payload_type_info(generic_signature_param(sig,p,&view));
+            if (!generic_normalize_nominals(env,sig->param_type_info[p],depth+1)) return false;
+            sig->param_types[p]=sig->param_type_info[p]->base_type;
+            free(sig->param_struct_names[p]);sig->param_struct_names[p]=sig->param_type_info[p]->generic_name?strdup(sig->param_type_info[p]->generic_name):NULL;
+        }
+        if (!sig->return_type_info) sig->return_type_info=copy_payload_type_info(generic_signature_result(sig,&view));
+        if (!generic_normalize_nominals(env,sig->return_type_info,depth+1)) return false;
+        sig->return_type=sig->return_type_info->base_type;
+        free(sig->return_struct_name);sig->return_struct_name=sig->return_type_info->generic_name?strdup(sig->return_type_info->generic_name):NULL;
+        free_function_signature(sig->return_fn_sig);sig->return_fn_sig=copy_function_signature(sig->return_type_info->fn_sig);
+    }
+    return true;
+}
+static inline bool generic_bind_normalized(Environment *env, const TypeInfo *formal,
         const TypeInfo *actual, GenericBindings *bindings, unsigned depth) {
     if (!formal || !actual || depth>128 || actual->base_type==TYPE_UNKNOWN) return false;
     if (generic_variable(env,formal)) {
@@ -67,29 +101,37 @@ static inline bool generic_bind(Environment *env, const TypeInfo *formal,
                 return type_infos_equal(bindings->types[i],actual);
         if (bindings->count==26) return false;
         int i=bindings->count++;
-        bindings->names[i]=formal->generic_name;
+        bindings->names[i]=strdup(formal->generic_name);
         bindings->types[i]=copy_payload_type_info(actual);
-        return bindings->types[i]!=NULL;
+        return bindings->names[i] && bindings->types[i];
     }
     if (!generic_contains(env,formal,depth)) return type_infos_equal(formal,actual);
     if (formal->base_type!=actual->base_type || formal->type_param_count!=actual->type_param_count) return false;
     if (formal->element_type || actual->element_type) {
-        if (!generic_bind(env,formal->element_type,actual->element_type,bindings,depth+1)) return false;
+        if (!generic_bind_normalized(env,formal->element_type,actual->element_type,bindings,depth+1)) return false;
     }
     if (formal->type_param_count) {
         if (!formal->generic_name || !actual->generic_name || strcmp(formal->generic_name,actual->generic_name)) return false;
         for (int p=0;p<formal->type_param_count;++p)
-            if (!generic_bind(env,formal->type_params[p],actual->type_params[p],bindings,depth+1)) return false;
+            if (!generic_bind_normalized(env,formal->type_params[p],actual->type_params[p],bindings,depth+1)) return false;
     }
     if (formal->fn_sig || actual->fn_sig) {
         const FunctionSignature *f=formal->fn_sig,*a=actual->fn_sig;
         if (!f || !a || f->param_count!=a->param_count) return false;
         TypeInfo fv,av;
         for (int p=0;p<f->param_count;++p)
-            if (!generic_bind(env,generic_signature_param(f,p,&fv),generic_signature_param(a,p,&av),bindings,depth+1)) return false;
-        if (!generic_bind(env,generic_signature_result(f,&fv),generic_signature_result(a,&av),bindings,depth+1)) return false;
+            if (!generic_bind_normalized(env,generic_signature_param(f,p,&fv),generic_signature_param(a,p,&av),bindings,depth+1)) return false;
+        if (!generic_bind_normalized(env,generic_signature_result(f,&fv),generic_signature_result(a,&av),bindings,depth+1)) return false;
     }
     return true;
+}
+static inline bool generic_bind(Environment *env, const TypeInfo *formal,
+        const TypeInfo *actual, GenericBindings *bindings, unsigned depth) {
+    TypeInfo *f=copy_payload_type_info(formal), *a=copy_payload_type_info(actual);
+    bool valid=generic_normalize_nominals(env,f,depth) && generic_normalize_nominals(env,a,depth) &&
+        generic_bind_normalized(env,f,a,bindings,depth);
+    free_payload_type_info(f);free_payload_type_info(a);
+    return valid;
 }
 static inline TypeInfo *generic_substitute(Environment *,const TypeInfo *,const GenericBindings *,unsigned);
 static inline bool generic_substitute_signature(Environment *env, FunctionSignature *sig,
@@ -133,6 +175,7 @@ static inline TypeInfo *generic_substitute(Environment *env, const TypeInfo *for
         if (!copy->type_params[p]) { free_payload_type_info(copy); return NULL; }
     }
     if (copy->fn_sig && !generic_substitute_signature(env,copy->fn_sig,bindings,depth+1)) { free_payload_type_info(copy); return NULL; }
+    if (!generic_normalize_nominals(env,copy,depth)) { free_payload_type_info(copy); return NULL; }
     return copy;
 }
 #endif

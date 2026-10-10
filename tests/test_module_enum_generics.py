@@ -1,4 +1,4 @@
-"""I retain module-owned enums through self-hosted generic checking and execution."""
+"""I retain module-owned enums through generic checking and execution."""
 import os,shlex,sys,unittest,subprocess,tempfile
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
@@ -96,5 +96,44 @@ shadow main {assert (== (main) 0)}
             'shadow main {assert (== (main) 0)}\n', files={
             'a.nano':'pub enum Shade {VALUE=1}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 1)}\n',
             'b.nano':'pub enum Shade {VALUE=2}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 2)}\n'})
+
+    def test_local_record_shadows_enum_receiver(self):
+        self.execute("""enum Shade {VALUE=1}
+struct Box {VALUE:int}
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 1) 1)}
+fn main()->int{let Shade:Box = Box {VALUE:8} assert (== (identity Shade.VALUE) 8) return 0}
+shadow main {assert (== (main) 0)}
+""")
+
+    def test_same_alias_in_separate_importers(self):
+        self.execute('module "c.nano" as c\nmodule "d.nano" as d\n'
+            'fn main()->int{assert (== (c.get) 1) assert (== (d.get) 2) return 0}\n'
+            'shadow main {assert (== (main) 0)}\n', files={
+            'a.nano':'pub enum Shade {VALUE=1}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 1)}\n',
+            'b.nano':'pub enum Shade {VALUE=2}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 2)}\n',
+            'c.nano':'module "a.nano" as lib\nfrom "a.nano" import Shade as Chosen\npub fn get()->Chosen{return (lib.make)}\nshadow get {assert (== (get) 1)}\n',
+            'd.nano':'module "b.nano" as lib\nfrom "b.nano" import Shade as Chosen\npub fn get()->Chosen{return (lib.make)}\nshadow get {assert (== (get) 2)}\n'})
+
+    def test_root_and_imported_enums_remain_separate(self):
+        self.execute('module "a.nano" as a\nenum Shade {VALUE=9}\nenum A {VALUE=7}\n'
+            'fn identity(value:T)->T{return value}\nshadow identity {assert (== (identity 1) 1)}\n'
+            'fn main()->int{assert (== (identity Shade.VALUE) 9) assert (== (identity (a.make)) 1) assert (== (identity A.VALUE) 7) return 0}\n'
+            'shadow main {assert (== (main) 0)}\n', files={
+            'a.nano':'pub enum Shade {VALUE=1}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 1)}\n'})
+
+    def test_root_and_imported_enum_bindings_refuse(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            (work/'a.nano').write_text('pub enum Shade {VALUE=1}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 1)}\n')
+            source, output = work/'main.nano', work/'main.nvm'
+            output.write_bytes(b'prior')
+            source.write_text('module "a.nano" as a\nenum Shade {VALUE=1}\n'
+                'fn choose(a:T,b:T)->T{return a}\nshadow choose {assert (== (choose 1 2) 1)}\n'
+                'fn main()->int{let value = (choose (a.make) Shade.VALUE) return 0}\nshadow main {assert (== (main) 0)}\n')
+            result = subprocess.run([str(COMPILER),str(source),'--emit-nvm','-o',str(output)],capture_output=True,text=True,cwd=ROOT,timeout=120)
+            self.assertGreater(result.returncode,0,result.stdout+result.stderr)
+            self.assertIn('one concrete identity',result.stdout+result.stderr)
+            self.assertEqual(output.read_bytes(),b'prior')
 
 if __name__=='__main__': unittest.main()

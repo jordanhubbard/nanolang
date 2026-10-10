@@ -1,0 +1,67 @@
+test_distinct_enum_bindings_refuse_during_checking (__main__.EnumGenerics.test_distinct_enum_bindings_refuse_during_checking) ... ok
+test_enum_array_identity (__main__.EnumGenerics.test_enum_array_identity) ... ok
+test_enum_literal_return_local_and_field (__main__.EnumGenerics.test_enum_literal_return_local_and_field) ... ok
+test_imported_enum_results (__main__.EnumGenerics.test_imported_enum_results) ... FAIL
+test_qualified_result_annotations_and_selective_alias (__main__.EnumGenerics.test_qualified_result_annotations_and_selective_alias) ... FAIL
+test_same_named_imported_enums_remain_distinct (__main__.EnumGenerics.test_same_named_imported_enums_remain_distinct) ... ok
+
+======================================================================
+FAIL: test_imported_enum_results (__main__.EnumGenerics.test_imported_enum_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_enum_generics.py", line 71, in test_imported_enum_results
+    self.execute('module "a.nano" as a\nmodule "b.nano" as b\n'
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'fn identity(value:T)->T{return value}\nshadow identity {assert (== (identity 1) 1)}\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        'a.nano':'pub enum Shade {VALUE=1}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 1)}\n',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'b.nano':'pub enum Shade {VALUE=2}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 2)}\n'})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_module_enum_generics.py", line 21, in execute
+    self.run_command([COMPILER, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_module_enum_generics.py", line 11, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   $shadow_1_make  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-y6xkd4th/main.nano:3:14
+  #1   $shadow_entry  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-y6xkd4th/main.nano:?
+I failed a shadow: Assertion failed
+Stack trace (most recent call first):
+  #0   $shadow_1_make  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-y6xkd4th/main.nano:3:14
+  #1   $shadow_entry  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-y6xkd4th/main.nano:?
+I will not publish output after failed shadow execution
+
+
+======================================================================
+FAIL: test_qualified_result_annotations_and_selective_alias (__main__.EnumGenerics.test_qualified_result_annotations_and_selective_alias)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_enum_generics.py", line 93, in test_qualified_result_annotations_and_selective_alias
+    self.execute('module "a.nano" as a\nfrom "b.nano" import Shade as Other, make as other_make\n'
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'fn identity(value:T)->T{return value}\nshadow identity {assert (== (identity 1) 1)}\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        'a.nano':'pub enum Shade {VALUE=1}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 1)}\n',
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'b.nano':'pub enum Shade {VALUE=2}\npub fn make()->Shade{return Shade.VALUE}\nshadow make {assert (== (make) 2)}\n'})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_module_enum_generics.py", line 21, in execute
+    self.run_command([COMPILER, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_module_enum_generics.py", line 11, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 2, column 1: Symbol 'Shade' not found in module for alias 'Other'
+error: module loading failed
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 1.009s
+
+FAILED (failures=2)

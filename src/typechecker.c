@@ -1015,7 +1015,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             
         case AST_IDENTIFIER: {
             Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
-            if (sym && (sym->type == TYPE_STRUCT || sym->type == TYPE_UNION)) {
+            if (sym && (sym->type == TYPE_STRUCT || sym->type == TYPE_UNION || sym->type == TYPE_ENUM)) {
                 return sym->struct_type_name;
             }
             return NULL;
@@ -1023,7 +1023,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
         
         case AST_MODULE_QUALIFIED_CALL: {
             TypeInfo *info = try_get_expr_type_info(expr, env);
-            if (info && (info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION))
+            if (info && (info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION || info->base_type == TYPE_ENUM))
                 return info->generic_name;
             FunctionSignature *signature = expr->as.module_qualified_call.checked_signature;
             return signature ? signature->return_struct_name : NULL;
@@ -1040,7 +1040,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             
             /* Check if function returns a struct */
             Function *func = env_get_function(env, expr->as.call.name);
-            if (func && (func->return_type == TYPE_STRUCT || func->return_type == TYPE_UNION)) {
+            if (func && (func->return_type == TYPE_STRUCT || func->return_type == TYPE_UNION || func->return_type == TYPE_ENUM)) {
                 return func->return_struct_type_name;
             }
             
@@ -1074,6 +1074,12 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
         }
         
         case AST_FIELD_ACCESS: {
+            ASTNode *receiver=expr->as.field_access.object;
+            if (receiver && receiver->type==AST_IDENTIFIER &&
+                !env_get_var_visible_at(env,receiver->as.identifier,receiver->line,receiver->column)) {
+                EnumDef *enumeration=env_get_enum(env,receiver->as.identifier);
+                if (enumeration) return enumeration->name;
+            }
             /* Get the struct type of the object */
             const char *object_struct_name = get_struct_type_name(expr->as.field_access.object, env);
             if (!object_struct_name) return NULL;
@@ -1128,7 +1134,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                             }
 
                             /* Non-generic union (or unresolved generic): return declared struct/union name when available */
-                            if ((field_type == TYPE_STRUCT || field_type == TYPE_UNION) && field_type_name) {
+                            if ((field_type == TYPE_STRUCT || field_type == TYPE_UNION || field_type == TYPE_ENUM) && field_type_name) {
                                 free(union_name);
                                 return strdup(field_type_name);
                             }
@@ -1150,7 +1156,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
                     if (info && info->generic_name && env_get_union(env, info->generic_name))
                         return info->generic_name;
                     /* Check if this field is a struct/union type */
-                    if ((sdef->field_types[i] == TYPE_STRUCT || sdef->field_types[i] == TYPE_UNION) &&
+                    if ((sdef->field_types[i] == TYPE_STRUCT || sdef->field_types[i] == TYPE_UNION || sdef->field_types[i] == TYPE_ENUM) &&
                         sdef->field_type_names && sdef->field_type_names[i]) {
                         /* Return the struct type name for this field */
                         return strdup(sdef->field_type_names[i]);
@@ -4060,7 +4066,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
             
             /* Special case: Check if this is an enum variant access */
-            if (expr->as.field_access.object->type == AST_IDENTIFIER) {
+            if (expr->as.field_access.object->type == AST_IDENTIFIER &&
+                !env_get_var_visible_at(env, expr->as.field_access.object->as.identifier,
+                    expr->as.field_access.object->line, expr->as.field_access.object->column)) {
                 const char *enum_name = expr->as.field_access.object->as.identifier;
                 assert(enum_name != NULL);
                 if (!enum_name) {
@@ -7878,7 +7886,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             }
             
             /* Register the enum */
-            EnumDef edef;
+            EnumDef edef = {0};
             edef.name = enum_name ? strdup(enum_name) : NULL;
             if (!edef.name) {
                 fprintf(stderr, "Error: Failed to allocate memory for enum name\n");
@@ -7954,6 +7962,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             }
             
             /* Set module visibility */
+            edef.original_name = item->as.enum_def.original_name ? strdup(item->as.enum_def.original_name) : NULL;
             edef.is_pub = item->as.enum_def.is_pub;
             edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
             edef.is_extern = item->as.enum_def.is_extern;
@@ -8733,7 +8742,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             }
             
             /* Register the enum */
-            EnumDef edef;
+            EnumDef edef = {0};
             edef.name = enum_name ? strdup(enum_name) : NULL;
             if (!edef.name) {
                 fprintf(stderr, "Error: Failed to allocate memory for enum name\n");
@@ -8798,6 +8807,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             }
             
             /* Set module visibility */
+            edef.original_name = item->as.enum_def.original_name ? strdup(item->as.enum_def.original_name) : NULL;
             edef.is_pub = item->as.enum_def.is_pub;
             edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
             edef.is_extern = item->as.enum_def.is_extern;
@@ -8876,6 +8886,8 @@ register_function_pass2:;
                 f.params[j].fn_sig = item->as.function.params[j].fn_sig;
             }
             f.return_type = item->as.function.return_type;
+            if (f.return_type==TYPE_STRUCT && item->as.function.return_struct_type_name &&
+                env_get_enum(env,item->as.function.return_struct_type_name)) f.return_type=TYPE_ENUM;
             f.return_element_type = item->as.function.return_element_type;
             f.return_struct_type_name = item->as.function.return_struct_type_name ? 
                 env_own_checker_allocation(env, strdup(item->as.function.return_struct_type_name)) : NULL;
@@ -9036,6 +9048,8 @@ register_function_pass2:;
             
             /* Set current function return type for return statement checking */
             tc.current_function_return_type = item->as.function.return_type;
+            if (tc.current_function_return_type==TYPE_STRUCT && item->as.function.return_struct_type_name &&
+                env_get_enum(env,item->as.function.return_struct_type_name)) tc.current_function_return_type=TYPE_ENUM;
             tc.current_function_return_element_type = item->as.function.return_element_type;
             tc.current_function_return_info = item->as.function.return_type_info;
             tc.current_function_return_struct_name = item->as.function.return_struct_type_name;

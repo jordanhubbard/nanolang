@@ -74,6 +74,8 @@ static bool cg_generic_type_supported(CG *cg, const TypeInfo *info) {
         return cg_generic_type_supported(cg,generic_signature_result(info->fn_sig,&view));
     }
     if (info->base_type == TYPE_ARRAY) return cg_generic_type_supported(cg, info->element_type);
+    if (info->base_type == TYPE_ENUM)
+        return info->generic_name && env_get_enum(cg->env,info->generic_name);
     if (info->base_type == TYPE_STRUCT)
         return info->generic_name && env_get_struct(cg->env, info->generic_name);
     return info->base_type == TYPE_VOID || info->base_type == TYPE_INT || info->base_type == TYPE_U8 ||

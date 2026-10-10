@@ -212,6 +212,32 @@ static void test_import_alias_owners(void) {
     free_environment(env);
 }
 
+static void test_enum_import_identity(void) {
+    Environment *env = create_environment();
+    EnumDef left = {0}, right = {0};
+    left.name = strdup("owned_left_Shade");
+    right.name = strdup("owned_right_Shade");
+    left.original_name = strdup("Shade");
+    right.original_name = strdup("Shade");
+    left.module_name = "Left";
+    right.module_name = "Right";
+    env_define_enum(env, left);
+    env_define_enum(env, right);
+    env->current_module = "Wrapper";
+    CHECK(env_import_enum(env, "Chosen", &left), "I bind an enum alias to its declaration");
+    CHECK(env_import_enum(env, "Chosen", &left), "I allow the same declaration to be imported twice");
+    CHECK(!env_import_enum(env, "Chosen", &right), "I refuse conflicting enum aliases in one owner");
+    CHECK(!strcmp(env_get_enum(env, "Chosen")->name, left.name), "I retain the first declaration after refusal");
+    env_register_namespace(env, "lib", "Right", NULL, 0, NULL, 0, one_export("Shade"), 1, NULL, 0);
+    CHECK(!strcmp(env_get_enum(env, "lib.Shade")->name, right.name), "I resolve a qualified source enum name by owner");
+    env->current_module = "OtherWrapper";
+    CHECK(env_get_enum(env, "Chosen") == NULL, "I do not leak a selective enum alias into another module");
+    CHECK(env_import_enum(env, "Chosen", &right), "I allow the same enum alias in another owner");
+    CHECK(!strcmp(env_get_enum(env, "Chosen")->name, right.name), "I resolve the second owner's enum alias");
+    env->current_module = NULL;
+    free_environment(env);
+}
+
 static void test_import_owner_restoration(void) {
     const char *sources[] = {
         "module Declared\n",
@@ -339,6 +365,7 @@ int main(void) {
     test_redefinition_does_not_inherit_across_files();
     test_same_name_in_many_files();
     test_import_alias_owners();
+    test_enum_import_identity();
     test_public_global_import_identity();
     test_import_owner_restoration();
     test_retained_block_bounds();

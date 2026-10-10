@@ -5425,7 +5425,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             }
             
             /* Special case: Check if this is an enum variant access */
-            if (expr->as.field_access.object->type == AST_IDENTIFIER) {
+            if (expr->as.field_access.object->type == AST_IDENTIFIER &&
+                !env_get_var_visible_at(env, expr->as.field_access.object->as.identifier,
+                    expr->as.field_access.object->line, expr->as.field_access.object->column)) {
                 const char *enum_name = expr->as.field_access.object->as.identifier;
                 assert(enum_name != NULL);
                 if (!enum_name) {
@@ -6200,7 +6202,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 return create_void();
             }
             
-            EnumDef edef;
+            EnumDef edef = {0};
             edef.name = strdup(stmt->as.enum_def.name);
             edef.variant_count = stmt->as.enum_def.variant_count;
             
@@ -6254,6 +6256,10 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                 }
             }
             
+            edef.original_name = stmt->as.enum_def.original_name ? strdup(stmt->as.enum_def.original_name) : NULL;
+            edef.module_name = env->current_module ? strdup(env->current_module) : NULL;
+            edef.is_pub = stmt->as.enum_def.is_pub;
+            edef.is_extern = stmt->as.enum_def.is_extern;
             env_define_enum(env, edef);
             return create_void();
         }

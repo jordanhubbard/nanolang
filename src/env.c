@@ -443,8 +443,14 @@ void free_environment(Environment *env) {
     }
     free(env->structs);
     
+    while (env->enum_imports) {
+        EnumImport *item = env->enum_imports;
+        env->enum_imports = item->next;
+        free(item->name); free(item->owner_module); free(item->target_name); free(item);
+    }
     for (int i = 0; i < env->enum_count; i++) {
         free(env->enums[i].name);
+        free(env->enums[i].original_name);
         for (int j = 0; j < env->enums[i].variant_count; j++) {
             free(env->enums[i].variant_names[j]);
         }
@@ -1336,6 +1342,26 @@ void env_define_enum(Environment *env, EnumDef enum_def) {
     env->enums[env->enum_count++] = enum_def;
 }
 
+/* I scope aliases to their importer and retain the canonical declaration. */
+bool env_import_enum(Environment *env, const char *alias, const EnumDef *target) {
+    if (!env || !alias || !target || !target->name) return false;
+    for (EnumImport *item = env->enum_imports; item; item = item->next) {
+        bool same_owner = (!item->owner_module && !env->current_module) ||
+            (item->owner_module && env->current_module && !strcmp(item->owner_module, env->current_module));
+        if (same_owner && !strcmp(item->name, alias)) return !strcmp(item->target_name, target->name);
+    }
+    EnumImport *item = calloc(1, sizeof *item);
+    if (!item) return false;
+    item->name = strdup(alias);
+    item->target_name = strdup(target->name);
+    item->owner_module = env->current_module ? strdup(env->current_module) : NULL;
+    if (!item->name || !item->target_name || (env->current_module && !item->owner_module)) {
+        free(item->name); free(item->target_name); free(item->owner_module); free(item); return false;
+    }
+    item->next = env->enum_imports; env->enum_imports = item;
+    return true;
+}
+
 /* Get enum definition */
 EnumDef *env_get_enum(Environment *env, const char *name) {
     if (!env || !name) return NULL;
@@ -1347,6 +1373,16 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
         return NULL;
     }
     
+    for (EnumImport *item = env->enum_imports; item; item = item->next) {
+        bool same_owner = (!item->owner_module && !env->current_module) ||
+            (item->owner_module && env->current_module && !strcmp(item->owner_module, env->current_module));
+        if (same_owner && !strcmp(item->name, name)) {
+            for (int i = 0; i < env->enum_count; ++i)
+                if (!strcmp(env->enums[i].name, item->target_name)) return &env->enums[i];
+            return NULL;
+        }
+    }
+
     /* Check for Module.Type pattern */
     const char *dot = strchr(name, '.');
     if (dot) {
@@ -1367,9 +1403,9 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
                         /* Look up the actual enum by its original name AND module name */
                         const char *orig_mod = env->namespaces[i].module_name;
                         for (int k = 0; k < env->enum_count; k++) {
-                            if (safe_strcmp(env->enums[k].name, type_name) == 0) {
-                                if (!orig_mod || !env->enums[k].module_name ||
-                                    strcmp(env->enums[k].module_name, orig_mod) == 0) {
+                            if ((safe_strcmp(env->enums[k].name, type_name) == 0 || (env->enums[k].original_name && strcmp(env->enums[k].original_name, type_name) == 0))) {
+                                if ((!orig_mod && !env->enums[k].module_name) ||
+                                    (orig_mod && env->enums[k].module_name && strcmp(env->enums[k].module_name, orig_mod) == 0)) {
                                     return &env->enums[k];
                                 }
                             }
@@ -1383,11 +1419,11 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
     }
     
     /* First pass: prefer enums in the current module */
-    if (env->current_module) {
+    {
         for (int i = 0; i < env->enum_count; i++) {
-            if (env->enums[i].name && safe_strcmp(env->enums[i].name, name) == 0) {
-                if (env->enums[i].module_name && 
-                    strcmp(env->enums[i].module_name, env->current_module) == 0) {
+            if (env->enums[i].name && (safe_strcmp(env->enums[i].name, name) == 0 || (env->enums[i].original_name && strcmp(env->enums[i].original_name, name) == 0))) {
+                if ((!env->current_module && !env->enums[i].module_name) ||
+                    (env->current_module && env->enums[i].module_name && strcmp(env->enums[i].module_name, env->current_module) == 0)) {
                     return &env->enums[i];
                 }
             }
@@ -1396,7 +1432,7 @@ EnumDef *env_get_enum(Environment *env, const char *name) {
 
     for (int i = 0; i < env->enum_count; i++) {
         /* Use safe_strcmp which handles NULL pointers */
-        if (safe_strcmp(env->enums[i].name, name) == 0) {
+        if ((safe_strcmp(env->enums[i].name, name) == 0 || (env->enums[i].original_name && strcmp(env->enums[i].original_name, name) == 0))) {
             return &env->enums[i];
         }
     }

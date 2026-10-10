@@ -824,7 +824,7 @@ static const char *resolve_generic_param_c(Type type, const char *struct_name,
                 if (inst->bound_types[i] == TYPE_FLOAT)  return "double";
                 if (inst->bound_types[i] == TYPE_BOOL)   return "bool";
                 if (inst->bound_types[i] == TYPE_STRING) return "const char*";
-                if (inst->bound_types[i] == TYPE_STRUCT && inst->bound_type_names[i]) {
+                if ((inst->bound_types[i] == TYPE_STRUCT || inst->bound_types[i] == TYPE_ENUM) && inst->bound_type_names[i]) {
                     static _Thread_local char buf[256];
                     snprintf(buf, sizeof(buf), "%s", get_prefixed_type_name(inst->bound_type_names[i]));
                     return buf;
@@ -834,7 +834,7 @@ static const char *resolve_generic_param_c(Type type, const char *struct_name,
         }
     }
     /* Not a type variable: fall through to regular type_to_c */
-    if (type == TYPE_STRUCT && struct_name) {
+    if ((type == TYPE_STRUCT || type == TYPE_ENUM) && struct_name) {
         static _Thread_local char sbuf[256];
         snprintf(sbuf, sizeof(sbuf), "%s", get_prefixed_type_name(struct_name));
         return sbuf;
@@ -3304,7 +3304,7 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
             sb_append(sb, "extern ");
 
             /* Return type */
-            if (mi->as.function.return_type == TYPE_STRUCT && mi->as.function.return_struct_type_name) {
+            if ((mi->as.function.return_type == TYPE_STRUCT || mi->as.function.return_type == TYPE_ENUM) && mi->as.function.return_struct_type_name) {
                 OpaqueTypeDef *opaque = env ? env_get_opaque_type(env, mi->as.function.return_struct_type_name) : NULL;
                 if (opaque) {
                     sb_append(sb, "void*");
@@ -3365,7 +3365,7 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                 Parameter *param = &mi->as.function.params[p];
                 if ((param->type == TYPE_BORROW_SHARED || param->type == TYPE_BORROW_MUT)) {
                     sb_appendf(sb, "%s%s*", param->type == TYPE_BORROW_SHARED ? "const " : "", get_prefixed_type_name(param->struct_type_name));
-                } else if (param->type == TYPE_STRUCT && param->struct_type_name) {
+                } else if ((param->type == TYPE_STRUCT || param->type == TYPE_ENUM) && param->struct_type_name) {
                     OpaqueTypeDef *opaque = env ? env_get_opaque_type(env, param->struct_type_name) : NULL;
                     if (opaque) {
                         sb_append(sb, "void*");
@@ -3488,7 +3488,7 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                 } else {
                     sb_append(sb, "void*");
                 }
-            } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
+            } else if ((item->as.function.return_type == TYPE_STRUCT || item->as.function.return_type == TYPE_ENUM) && item->as.function.return_struct_type_name) {
                 /* Check if this is an opaque type */
                 OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.return_struct_type_name);
                 if (opaque) {
@@ -3578,7 +3578,7 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
                     }
                 } else if ((item->as.function.params[j].type == TYPE_BORROW_SHARED || item->as.function.params[j].type == TYPE_BORROW_MUT)) {
                     sb_appendf(sb, "%s%s* %s", item->as.function.params[j].type == TYPE_BORROW_SHARED ? "const " : "", get_prefixed_type_name(item->as.function.params[j].struct_type_name), item->as.function.params[j].name);
-                } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
+                } else if ((item->as.function.params[j].type == TYPE_STRUCT || item->as.function.params[j].type == TYPE_ENUM) && item->as.function.params[j].struct_type_name) {
                     /* Check if this is an opaque type */
                     OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
                     if (opaque) {
@@ -3760,7 +3760,7 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                 } else {
                     sb_append(sb, "void*");
                 }
-            } else if (item->as.function.return_type == TYPE_STRUCT && item->as.function.return_struct_type_name) {
+            } else if ((item->as.function.return_type == TYPE_STRUCT || item->as.function.return_type == TYPE_ENUM) && item->as.function.return_struct_type_name) {
                 /* Check if this is an opaque type */
                 OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.return_struct_type_name);
                 if (opaque) {
@@ -3850,7 +3850,7 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
                     }
                 } else if ((item->as.function.params[j].type == TYPE_BORROW_SHARED || item->as.function.params[j].type == TYPE_BORROW_MUT)) {
                     sb_appendf(sb, "%s%s* %s", item->as.function.params[j].type == TYPE_BORROW_SHARED ? "const " : "", get_prefixed_type_name(item->as.function.params[j].struct_type_name), item->as.function.params[j].name);
-                } else if (item->as.function.params[j].type == TYPE_STRUCT && item->as.function.params[j].struct_type_name) {
+                } else if ((item->as.function.params[j].type == TYPE_STRUCT || item->as.function.params[j].type == TYPE_ENUM) && item->as.function.params[j].struct_type_name) {
                     /* Check if this is an opaque type */
                     OpaqueTypeDef *opaque = env_get_opaque_type(env, item->as.function.params[j].struct_type_name);
                     if (opaque) {
@@ -4449,7 +4449,7 @@ static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *prog
             const char *sdl_ret_type = get_sdl_c_type(func->name, -1, true);
             if (sdl_ret_type) {
                 sb_append(sb, sdl_ret_type);
-            } else if (func->return_type == TYPE_STRUCT && func->return_struct_type_name) {
+            } else if ((func->return_type == TYPE_STRUCT || func->return_type == TYPE_ENUM) && func->return_struct_type_name) {
                 /* Check if this is an opaque type */
                 OpaqueTypeDef *opaque = env_get_opaque_type(env, func->return_struct_type_name);
                 if (opaque) {
@@ -4475,7 +4475,7 @@ static void generate_module_extern_declarations(StringBuilder *sb, ASTNode *prog
                     sb_append(sb, sdl_param_type);
                 } else if ((func->params[j].type == TYPE_BORROW_SHARED || func->params[j].type == TYPE_BORROW_MUT)) {
                     sb_appendf(sb, "%s%s*", func->params[j].type == TYPE_BORROW_SHARED ? "const " : "", get_prefixed_type_name(func->params[j].struct_type_name));
-                } else if (func->params[j].type == TYPE_STRUCT && func->params[j].struct_type_name) {
+                } else if ((func->params[j].type == TYPE_STRUCT || func->params[j].type == TYPE_ENUM) && func->params[j].struct_type_name) {
                     /* Check if this is an opaque type */
                     OpaqueTypeDef *opaque = env_get_opaque_type(env, func->params[j].struct_type_name);
                     if (opaque) {
@@ -4674,7 +4674,7 @@ static void generate_extern_declarations(StringBuilder *sb, ASTNode *program, En
                 sb_append(sb, sdl_param_type); \
             } else if (((_params)[j].type == TYPE_BORROW_SHARED || (_params)[j].type == TYPE_BORROW_MUT)) { \
                 sb_appendf(sb, "%s%s*", (_params)[j].type == TYPE_BORROW_SHARED ? "const " : "", get_prefixed_type_name((_params)[j].struct_type_name)); \
-            } else if ((_params)[j].type == TYPE_STRUCT && (_params)[j].struct_type_name) { \
+            } else if (((_params)[j].type == TYPE_STRUCT || (_params)[j].type == TYPE_ENUM) && (_params)[j].struct_type_name) { \
                 OpaqueTypeDef *opaque = env_get_opaque_type(env, (_params)[j].struct_type_name); \
                 if (opaque) { \
                     sb_append(sb, "void*"); \

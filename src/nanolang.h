@@ -418,6 +418,7 @@ struct ASTNode {
         } field_access;
         struct {
             char *name;               // Enum name
+            char *original_name;      /* I retain the source spelling after module binding. */
             char **variant_names;     // Array of variant names
             int *variant_values;      // Array of variant values (or NULL for auto)
             int variant_count;        // Number of variants
@@ -686,6 +687,7 @@ typedef struct {
 /* Enum definition entry */
 typedef struct {
     char *name;
+    char *original_name;
     char **variant_names;
     int *variant_values;
     int variant_count;
@@ -804,6 +806,14 @@ typedef struct {
     int import_capacity;
 } ImportTracker;
 
+/* I keep imported enum names as references, not duplicate declarations. */
+typedef struct EnumImport {
+    char *name;
+    char *owner_module;
+    char *target_name;
+    struct EnumImport *next;
+} EnumImport;
+
 typedef struct GlobalImport {
     const char *owner_file;
     const char *name;
@@ -843,6 +853,7 @@ typedef struct {
     GenericFuncInstance *generic_func_instances;   /* User-defined generic function instances */
     int generic_func_instance_count;
     int generic_func_instance_capacity;
+    EnumImport *enum_imports;
     ModuleNamespace *namespaces;  /* Module alias → symbols mapping */
     int namespace_count;
     int namespace_capacity;
@@ -1007,6 +1018,7 @@ void env_add_module_exported_function(Environment *env, const char *module_name,
 void env_add_module_exported_struct(Environment *env, const char *module_name, const char *struct_name);
 void env_define_enum(Environment *env, EnumDef enum_def);
 EnumDef *env_get_enum(Environment *env, const char *name);
+bool env_import_enum(Environment *env, const char *alias, const EnumDef *target);
 void env_register_list_instantiation(Environment *env, const char *element_type);
 void env_register_hashmap_instantiation(Environment *env, const char *key_type, const char *value_type);
 /* I return an owned recursive C specialization spelling. */

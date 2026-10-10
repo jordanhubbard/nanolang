@@ -6286,6 +6286,7 @@ void free_ast(ASTNode *node) {
             break;
         case AST_ENUM_DEF:
             free(node->as.enum_def.name);
+            free(node->as.enum_def.original_name);
             for (int i = 0; i < node->as.enum_def.variant_count; i++) {
                 free(node->as.enum_def.variant_names[i]);
             }

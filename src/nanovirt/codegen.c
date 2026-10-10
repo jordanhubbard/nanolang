@@ -3104,8 +3104,10 @@ static void compile_expr(CG *cg, ASTNode *node) {
         }
 
         /* Check if this is EnumType.Variant (obj is an identifier naming an enum) */
-        if (obj->type == AST_IDENTIFIER) {
-            CgEnumDef *ed = enum_find(cg, obj->as.identifier);
+        if (obj->type == AST_IDENTIFIER && local_find(cg, obj->as.identifier) < 0 &&
+            upvalue_resolve(cg, obj->as.identifier) < 0 && global_find(cg, obj->as.identifier) < 0) {
+            EnumDef *declaration = env_get_enum(cg->env, obj->as.identifier);
+            CgEnumDef *ed = enum_find(cg, declaration ? declaration->name : obj->as.identifier);
             if (ed) {
                 int16_t vi = enum_variant_index(ed, field);
                 if (vi < 0) {
