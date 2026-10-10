@@ -1683,6 +1683,18 @@ test-nsi-socket-network:
 
 test-units: test-nsi-socket-network
 
+$(BIN_DIR)/nano-resolver: src/nsi_socket_resolver_main.c src/nsi_socket_resolver_wire.h src/nsi_socket_resolver.h src/nsi_socket.c src/nsi_socket.h src/nsi_cap.c
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror src/nsi_socket_resolver_main.c src/nsi_socket.c src/nsi_cap.c -o $@ $(LDFLAGS)
+
+.PHONY: test-nsi-socket-resolver
+test-nsi-socket-resolver: $(BIN_DIR)/nano-resolver
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket_resolver.c src/nsi_socket_resolver.c src/nsi_socket.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_socket_resolver $(LDFLAGS)
+	$(CURDIR)/$(OBJ_DIR)/test_nsi_socket_resolver $(CURDIR)/$(BIN_DIR)/nano-resolver
+
+test-units: test-nsi-socket-resolver
+
 test-units: test-nsi-socket
 
 .PHONY: test-nsi-socket-values

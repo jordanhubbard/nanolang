@@ -1,0 +1,17 @@
+{
+  "Makefile.gnu": "b60b44cc41c03501cc1c6f719599d7bf1a862c92f8977658eb31c6a855a3ac53",
+  "src/nsi_socket_resolver.c": "98c8a506a65922e5c552f72abbee003c8cac121622be30ea51235c448bf09d50",
+  "src/nsi_socket_resolver.h": "ca1a1d1d9b004cc2c422848c0b827e39344c81372f138a31d1eee5f1c79d7f3f",
+  "src/nsi_socket_resolver_main.c": "1f065c46d270d247d5f2bef4f8cf5bbee0ec8b90f621dc6e8f2dc080ba361e66",
+  "src/nsi_socket_resolver_wire.h": "4fc7b46d4508db7140d1f800d0ca506366f7ba1756a0d09dc185bd14df1b622c",
+  "src/nsi_socket.c": "aadf3b956ce63bf3e34283764e804487e359568b402022ea011e0391983adf2d",
+  "src/nsi_socket.h": "9d2179c12fcb0dbb2ddca80d36b5d8fb2cc96908e953d964edd29fd450b7ee9d",
+  "src/nsi_cap.c": "1cf4fade2477514e8d92cad51ef4a7f0c7128255f279e6151725d3594bdfa937",
+  "tests/test_nsi_socket_resolver.c": "b256894a120c39be111c5d03776d1378464abc7d072853b2479b08269f254fb2",
+  "/private/tmp/nl51-dns-helper-clang": "c99468e21075e79ff1cd65420d12ad3ad154f854faea68ef2c4d747018521680",
+  "/private/tmp/nl51-dns-helper-gcc": "498138668ed8130359a7cbc57ace9d28701ad5c6782186445fe4a8dfd1d6eaaa",
+  "/private/tmp/nl51-dns-helper-sanitizer": "9da439ab110238989bc43acb0e9ee65090fdf98bcbd4a6ba4036bd6993ca13b9",
+  "/private/tmp/nl51-dns-test-clang": "c84e01cac54e9cc1ecbe7d90881b6fbd5bcc69dabc8173971b5462228b3c2fe4",
+  "/private/tmp/nl51-dns-test-gcc": "53c8d3719ce3df3d3d86539a58da091bc7ad81ac1bedf9ac388d05512de7580f",
+  "/private/tmp/nl51-dns-test-sanitizer": "7a6f5aa2c4f41b7e841dd49422e9abfa714dc66183eb245f51715a0b3cc59263"
+}
