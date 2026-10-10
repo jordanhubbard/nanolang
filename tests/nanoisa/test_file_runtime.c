@@ -136,6 +136,39 @@ static void carrier_lifecycle(void){
   ROK(nvm_file_runtime_service(c,b.imports[4],NS,2,6));CHECK(!view(c,2).initialized);arm(c,6,NVM_FILE_FLOW_ARM_OK);ROK(nvm_file_runtime_drop(c,6));finish_ok(&c,255);
  }
 }
+static void shared_lifecycle(void){
+ for(unsigned mode=0;mode<2;mode++)for(unsigned order=0;order<2;order++){
+  NvmFileNominalBindings b;NvmFileRuntime *c=context(&b,(NvmFileRuntimeMode)mode,false,false,true);
+  file(c,b,1);ROK(nvm_file_runtime_region_begin(c));
+  ROK(nvm_file_runtime_borrow_shared(c,1,0));ROK(nvm_file_runtime_borrow_shared(c,1,1));
+  ROK(nvm_file_runtime_bind_formal(c,0,3,2));CHECK(view(c,3).type.mode==1);
+  ROK(nvm_file_runtime_end_reference(c,order));
+  ROK(nvm_file_runtime_bind_formal(c,2,4,3));CHECK(view(c,4).type.mode==1);
+  ROK(nvm_file_runtime_end_reference(c,2));ROK(nvm_file_runtime_end_reference(c,3));
+  ROK(nvm_file_runtime_end_reference(c,1-order));ROK(nvm_file_runtime_region_end(c));
+  ROK(nvm_file_runtime_region_begin(c));ROK(nvm_file_runtime_borrow(c,1,0));
+  scalar(c,2,81);ROK(nvm_file_runtime_service(c,b.imports[1],0,2,3));ROK(nvm_file_runtime_drop(c,3));
+  ROK(nvm_file_runtime_end_reference(c,0));ROK(nvm_file_runtime_region_end(c));
+  ROK(nvm_file_runtime_service(c,b.imports[4],NS,1,3));ROK(nvm_file_runtime_drop(c,3));finish_ok(&c,81);
+ }
+ for(unsigned fault=0;fault<7;fault++){
+  NvmFileNominalBindings b;NvmFileRuntime *c=context(&b,NVM_FILE_RUNTIME_VM,false,false,true);
+  file(c,b,1);ROK(nvm_file_runtime_region_begin(c));
+  ROK(nvm_file_runtime_borrow_shared(c,1,0));ROK(nvm_file_runtime_borrow_shared(c,1,1));
+  NvmFileRuntimeStatus status=NVM_FILE_RUNTIME_BORROWED;
+  if(fault==0)CHECK(nvm_file_runtime_borrow(c,1,2)==status);
+  if(fault==1)CHECK(nvm_file_runtime_move(c,1,2)==status);
+  if(fault==2)CHECK(nvm_file_runtime_drop(c,1)==status);
+  if(fault==3)CHECK(nvm_file_runtime_service(c,b.imports[4],NS,1,2)==status);
+  if(fault==4)CHECK(nvm_file_runtime_service(c,b.imports[2],0,NS,2)==status);
+  if(fault==5){
+   ROK(nvm_file_runtime_bind_formal(c,0,3,2));ROK(nvm_file_runtime_end_reference(c,0));
+   CHECK(nvm_file_runtime_end_reference(c,1)==status);
+  }
+  if(fault==6){status=NVM_FILE_RUNTIME_ASSERT;CHECK(nvm_file_runtime_fail(c,status)==status);}
+  NvmFileRuntimeReport report=finish_bad(&c,status);CHECK(!report.cleanup.cleanup_failures);
+ }
+}
 static void passive(void){
  NvmFileNominalBindings b;NvmFileRuntime *c=context(&b,NVM_FILE_RUNTIME_VM,true,false,true);uint32_t inputs[7];
  for(unsigned i=0;i<7;i++){inputs[i]=i;ROK(nvm_file_runtime_scalar(c,i,i<4?TAG_INT:TAG_BOOL,i<4?(int64_t)(100+i):1));}
@@ -338,7 +371,7 @@ static void allocation_controls(void){
 #endif
 int FILE_RUNTIME_MAIN(void){
  FILE *sentinel=tmpfile();CHECK(sentinel);int sentinel_fd=fileno(sentinel);CHECK(sentinel_fd>=0);
- carrier_lifecycle();passive();invalid_and_partial();invalid_passive();scalar_and_limits();initializer();public_refusal();
+ carrier_lifecycle();shared_lifecycle();passive();invalid_and_partial();invalid_passive();scalar_and_limits();initializer();public_refusal();
 #ifdef HOSTED_INSTRUMENT
  modeled_progress_errors();faults();allocation_controls();CHECK(!tracked_live && !tracked_bytes);
 #endif

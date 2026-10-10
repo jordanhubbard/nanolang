@@ -22,7 +22,7 @@ static NvmFileRuntimeStatus frf_bad(NvmFileRuntime *c) {
 }
 static bool frf_matches(NvmFileRuntimeView v,NvmFileFlowDeclaration type) {
     bool owner=type.category==NVM_FILE_CATEGORY_FILE || type.category==NVM_FILE_CATEGORY_OPEN_RESULT;
-    return v.initialized && fr_same(v.type,type) && v.formal==(type.mode==2) &&
+    return v.initialized && fr_same(v.type,type) && v.formal==(type.mode!=0) &&
            v.owning==(owner && !type.mode);
 }
 static bool frf_range(const NvmFileRuntime *c,uint64_t base,uint64_t count) {
@@ -169,18 +169,18 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_call(NvmFileRuntime *c) {
         NvmFileFlowDeclaration type;
         if(!fr_local(c,target,i,&type))return frf_bad(c);
         if(type.mode) {
-            if(type.mode!=2 || ++borrowed>NVM_FILE_FLOW_REFERENCES || (in.decoded.opcode!=OP_CALL_REF && in.decoded.opcode!=OP_FILE_CALL_REFS) ||
+            if((type.mode!=1 && type.mode!=2) || ++borrowed>NVM_FILE_FLOW_REFERENCES || (in.decoded.opcode!=OP_CALL_REF && in.decoded.opcode!=OP_FILE_CALL_REFS) ||
                in.call_references[i]>=NVM_FILE_FLOW_REFERENCES ||
                (in.decoded.opcode==OP_CALL_REF && in.call_references[i]!=in.decoded.operands[1].u16))return frf_bad(c);
             uint32_t reference=f->reference_base+in.call_references[i];
             references[i]=reference;
-            NvmFileFlowDeclaration wanted=c->types[0];wanted.mode=2;
-            if(!fr_same(type,wanted) || !fr_reference(c,reference))
+            NvmFileFlowDeclaration wanted=c->types[0];wanted.mode=type.mode;
+            if(!fr_same(type,wanted) || !fr_reference(c,reference) || c->references[reference].shared!=(type.mode==1))
                 return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
             for(uint16_t j=0;j<i;j++) {
                 NvmFileFlowDeclaration prior;
                 if(!fr_local(c,target,j,&prior))return frf_bad(c);
-                if(prior.mode && c->references[references[j]].owner_root==c->references[reference].owner_root)
+                if(prior.mode && (prior.mode!=1 || type.mode!=1) && c->references[references[j]].owner_root==c->references[reference].owner_root)
                     return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
             }
         } else {
@@ -325,9 +325,11 @@ NvmFileRuntimeStatus nvm_file_runtime_frame_borrow(NvmFileRuntime *c) {
     NvmFileRuntimeStatus status=frf_ready(c,&fn,&in,&fact);if(status!=NVM_FILE_RUNTIME_OK)return status;
     FileRuntimeFrame *f=&c->frames[c->frame_count-1];
     uint16_t reference=in.decoded.operands[0].u16,local=in.decoded.operands[1].u16;
-    if(in.decoded.opcode!=OP_BORROW_LOCAL_EXCLUSIVE || reference>=NVM_FILE_FLOW_REFERENCES ||
+    if((in.decoded.opcode!=OP_BORROW_LOCAL_EXCLUSIVE && in.decoded.opcode!=OP_BORROW_LOCAL_SHARED) || reference>=NVM_FILE_FLOW_REFERENCES ||
        local>=fn.locals || c->region_count<=f->region_base)return frf_bad(c);
-    return nvm_file_runtime_borrow(c,f->locals_base+local,f->reference_base+reference);
+    return in.decoded.opcode==OP_BORROW_LOCAL_SHARED?
+        nvm_file_runtime_borrow_shared(c,f->locals_base+local,f->reference_base+reference):
+        nvm_file_runtime_borrow(c,f->locals_base+local,f->reference_base+reference);
 }
 NvmFileRuntimeStatus nvm_file_runtime_frame_end_reference(NvmFileRuntime *c) {
     NvmFileHostedFunction fn;NvmFileCodeInstruction in;NvmFileBodyInstruction fact;

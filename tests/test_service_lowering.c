@@ -55,7 +55,17 @@ static void check_reference_maps(NvmModule *module) {
                     else {
                         map[2*i]=0;map[2*i+1]=1;reject_reference_map(module);
                         map[2*i]=255;map[2*i+1]=255;reject_reference_map(module);
-                        if(first>=0){map[2*i]=saved[2*first];map[2*i+1]=saved[2*first+1];reject_reference_map(module);}
+                        if(first>=0){
+                            map[2*i]=saved[2*first];map[2*i+1]=saved[2*first+1];
+                            NvmFileFlowDeclaration a,b;
+                            assert(nvm_file_cyclic_local(query,decoded.operands[0].u32,(uint16_t)first,&a));
+                            assert(nvm_file_cyclic_local(query,decoded.operands[0].u32,(uint16_t)i,&b));
+                            if(a.mode==1 && b.mode==1){
+                                NvmFileCyclicReport *alias=NULL;
+                                assert(nvm_file_cyclic_analyze(module,&alias)==NVM_FILE_FLOW_OK);
+                                nvm_file_cyclic_free(alias);
+                            } else reject_reference_map(module);
+                        }
                         else first=(int)i;
                     }
                     memcpy(map,saved,size);

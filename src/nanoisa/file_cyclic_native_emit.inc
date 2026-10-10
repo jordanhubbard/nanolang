@@ -90,18 +90,18 @@ static void fn_variant(Fne *b,const NvmFileCyclicHostedPlan *p,uint32_t f,uint16
         NvmFileFlowReference reference;
         if(!nvm_file_cyclic_hosted_input_reference(p,f,i,v,n,&reference)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
         if(!reference.live) {
-            if(reference.formal || reference.local || reference.owner || reference.identity || reference.region) {
+            if(reference.formal || reference.local || reference.owner || reference.identity || reference.region || reference.shared) {
                 b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;
             }
             continue;
         }
         fn_text(b,"case %u:\n",n);
 #define REF(m) FN_FIELD(b,"reference.",reference,m)
-        REF(live);REF(formal);REF(local);REF(owner);REF(identity);REF(region);
+        REF(live);REF(formal);REF(local);REF(owner);REF(identity);REF(region);REF(shared);
 #undef REF
         fn_text(b,"break;\n");
     }
-    fn_text(b,"default:if(reference.live || reference.formal || reference.local || reference.owner || reference.identity || reference.region)return false;break;}}\n");
+    fn_text(b,"default:if(reference.live || reference.formal || reference.local || reference.owner || reference.identity || reference.region || reference.shared)return false;break;}}\n");
     for(uint16_t n=0;n<variant.input.regions;n++) {
         uint64_t region;
         if(!nvm_file_cyclic_hosted_input_region(p,f,i,v,n,&region)){b->status=NVM_FILE_RUNTIME_UNRESOLVED;return;}
@@ -285,7 +285,7 @@ static void fn_instruction(Fne *b,uint32_t function,const NvmFileCodeInstruction
     case OP_STORE_LOCAL:case OP_OWN_STORE_LOCAL:fn_text(b,"NF_TRY(nvm_file_runtime_frame_store(c));\n");break;
     case OP_REGION_BEGIN:fn_text(b,"NF_TRY(nvm_file_runtime_frame_region_begin(c));\n");break;
     case OP_REGION_END:fn_text(b,"NF_TRY(nvm_file_runtime_frame_region_end(c));\n");break;
-    case OP_BORROW_LOCAL_EXCLUSIVE:fn_text(b,"NF_TRY(nvm_file_runtime_frame_borrow(c));\n");break;
+    case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:fn_text(b,"NF_TRY(nvm_file_runtime_frame_borrow(c));\n");break;
     case OP_FILE_END_BORROW:fn_text(b,"NF_TRY(nvm_file_runtime_frame_end_reference(c));\n");break;
     case OP_FILE_DROP_LOCAL:
         fn_text(b,"if(!nvm_file_runtime_frame_local(c,%u,&src))return nf_bad(c);\nNF_TRY(nvm_file_runtime_drop(c,src));\n",d->operands[0].u16);break;

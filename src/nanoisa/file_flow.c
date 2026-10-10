@@ -51,7 +51,7 @@ static NvmFileFlowStatus read_declaration(NvmV2Cursor *c,const NvmFileNominalPla
         if(!nvm_file_nominal_layout(p,index,&layout))return NVM_FILE_FLOW_INVALID;
         if(layout.category==NVM_FILE_CATEGORY_UNKNOWN)return NVM_FILE_FLOW_UNRESOLVED;
         d.catalog_ordinal=layout.catalog_ordinal;d.category=layout.category;
-        if((mode && (mode!=2 || d.category!=NVM_FILE_CATEGORY_FILE)) ||
+        if((mode && ((mode!=1 && mode!=2) || d.category!=NVM_FILE_CATEGORY_FILE)) ||
            tag!=(layout.layout_kind==NVM_V2_LAYOUT_STRUCT?TAG_STRUCT:TAG_UNION))
             return NVM_FILE_FLOW_INVALID;
     }
@@ -160,7 +160,7 @@ NvmFileFlowStatus nvm_file_flow_state(NvmFileFlowDeclarations *d,uint32_t functi
         s->locals[i]=initial_value(type,parameter,parameter && owned(type)?d->next_identity++:0);
         if(parameter && type.mode) {
             uint64_t identity=d->next_identity++;
-            s->references[i]=(NvmFileFlowReference){true,true,i,identity,identity,0};
+            s->references[i]=(NvmFileFlowReference){true,true,i,identity,identity,0,type.mode==1};
         }
     }
     d->references++;*out=s;return NVM_FILE_FLOW_OK;
@@ -297,14 +297,24 @@ NvmFileFlowStatus nvm_file_flow_region_end(NvmFileFlowState *s) {
             s->references[i]=(NvmFileFlowReference){0};
     s->regions[--s->region_count]=0;return NVM_FILE_FLOW_OK;
 }
-NvmFileFlowStatus nvm_file_flow_borrow(NvmFileFlowState *s,uint16_t local,uint16_t reference) {
+static NvmFileFlowStatus file_flow_borrow_mode(NvmFileFlowState *s,uint16_t local,uint16_t reference,bool shared) {
     if(s && !s->reachable)return NVM_FILE_FLOW_UNRESOLVED;
-    if(!live_owner(s,local) || s->locals[local].type.category!=NVM_FILE_CATEGORY_FILE ||
+    if(!local_valid(s,local) || !s->locals[local].initialized || !s->locals[local].owner ||
+       s->locals[local].type.mode || s->locals[local].type.category!=NVM_FILE_CATEGORY_FILE ||
        reference>=NVM_FILE_FLOW_REFERENCES || s->references[reference].live || !s->region_count)
         return NVM_FILE_FLOW_INVALID;
+    for(uint16_t i=0;i<NVM_FILE_FLOW_REFERENCES;i++)
+        if(s->references[i].live && s->references[i].owner==s->locals[local].owner &&
+           (!shared || !s->references[i].shared))return NVM_FILE_FLOW_INVALID;
     if(s->declarations->next_identity==UINT64_MAX)return NVM_FILE_FLOW_LIMIT;
     s->references[reference]=(NvmFileFlowReference){true,false,local,s->locals[local].owner,
-        s->declarations->next_identity++,s->regions[s->region_count-1]};return NVM_FILE_FLOW_OK;
+        s->declarations->next_identity++,s->regions[s->region_count-1],shared};return NVM_FILE_FLOW_OK;
+}
+NvmFileFlowStatus nvm_file_flow_borrow(NvmFileFlowState *s,uint16_t local,uint16_t reference) {
+    return file_flow_borrow_mode(s,local,reference,false);
+}
+NvmFileFlowStatus nvm_file_flow_borrow_shared(NvmFileFlowState *s,uint16_t local,uint16_t reference) {
+    return file_flow_borrow_mode(s,local,reference,true);
 }
 NvmFileFlowStatus nvm_file_flow_end_borrow(NvmFileFlowState *s,uint16_t reference) {
     if(s && !s->reachable)return NVM_FILE_FLOW_UNRESOLVED;
@@ -352,7 +362,7 @@ static bool value_same(NvmFileFlowValue a,NvmFileFlowValue b) {
 }
 static bool reference_same(NvmFileFlowReference a,NvmFileFlowReference b) {
     return a.live==b.live && (!a.live || (a.formal==b.formal && a.local==b.local &&
-        a.owner==b.owner && a.identity==b.identity && a.region==b.region));
+        a.owner==b.owner && a.identity==b.identity && a.region==b.region && a.shared==b.shared));
 }
 static bool obligation_same(NvmFileFlowObligation a,NvmFileFlowObligation b) {
     return a.kind==b.kind && a.site==b.site && a.target==b.target && a.checks==b.checks &&
@@ -508,14 +518,14 @@ static bool live_reference(const NvmFileFlowState *s,uint16_t index,NvmFileFlowD
     NvmFileFlowValue value=s->locals[r.local];
     if(!value.initialized || value.type.category!=NVM_FILE_CATEGORY_FILE)return false;
     if(r.formal) {
-        if(index!=r.local || value.type.mode!=2 || value.owner)return false;
+        if(index!=r.local || value.type.mode!=(r.shared?1:2) || value.owner)return false;
     } else {
         if(value.type.mode || value.owner!=r.owner)return false;
         bool found=false;
         for(uint16_t i=0;i<s->region_count;i++)found|=s->regions[i]==r.region;
         if(!found)return false;
     }
-    value.type.mode=2;*out=value.type;return true;
+    value.type.mode=r.shared?1:2;*out=value.type;return true;
 }
 static NvmFileFlowInputState input_state(NlFileOwnerState state) {
     return state==NL_FILE_OWNER_PRESERVED?NVM_FILE_FLOW_INPUT_PRESERVED:
@@ -589,7 +599,8 @@ NvmFileFlowStatus nvm_file_flow_call(NvmFileFlowState *s,uint32_t site,uint32_t 
             NvmFileFlowDeclaration actual;
             if(!live_reference(s,references[i],&actual) || !same(params[i],actual))return NVM_FILE_FLOW_INVALID;
             for(uint16_t j=0;j<i;j++)if(params[j].mode &&
-                s->references[references[j]].owner==s->references[references[i]].owner)return NVM_FILE_FLOW_INVALID;
+                s->references[references[j]].owner==s->references[references[i]].owner &&
+                (params[j].mode!=1 || params[i].mode!=1))return NVM_FILE_FLOW_INVALID;
         } else {
             if(references[i]!=NVM_FILE_FLOW_NO_REFERENCE)return NVM_FILE_FLOW_INVALID;
             NvmFileFlowValue actual=s->stack[value_index++];

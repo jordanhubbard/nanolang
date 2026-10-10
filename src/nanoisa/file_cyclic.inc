@@ -80,7 +80,7 @@ static bool file_cyclic_stored_equal(const FileCyclicStoredState *a,const FileCy
 }
 static NvmFileFlowStatus file_cyclic_value(FileCyclicWorkspace *w,NvmFileFlowValue v,
                                           NvmFileFlowValue *out,bool local) {
-    if(v.type.mode && (!local || v.type.mode!=2 || v.type.category!=NVM_FILE_CATEGORY_FILE))
+    if(v.type.mode && (!local || (v.type.mode!=1 && v.type.mode!=2) || v.type.category!=NVM_FILE_CATEGORY_FILE))
         return NVM_FILE_FLOW_INVALID;
     if(!v.initialized) {
         if(v.owner || v.type.mode)return NVM_FILE_FLOW_INVALID;
@@ -131,7 +131,7 @@ static NvmFileFlowStatus file_cyclic_canonicalize(FileCyclicWorkspace *w) {
         NvmFileFlowDeclaration actual;
         if(!ref.owner || !ref.identity || !live_reference(s,i,&actual))return NVM_FILE_FLOW_INVALID;
         for(uint16_t j=0;j<i;j++)if(s->references[j].live &&
-            (s->references[j].owner==ref.owner || s->references[j].identity==ref.identity))
+            ((s->references[j].owner==ref.owner && (!ref.shared || !s->references[j].shared)) || s->references[j].identity==ref.identity))
             return NVM_FILE_FLOW_INVALID;
         if(ref.formal) {
             if(i>=s->declarations->functions[s->function].parameters || ref.local!=i || ref.region ||
@@ -231,7 +231,7 @@ static NvmFileFlowStatus file_cyclic_function_analyze(NvmFileCyclicReport *r,Fil
         NvmFileFlowDeclaration d=scratch->locals[scratch->offsets[f]+i];bool initialized=i<fn->parameters;
         w->canonical.locals[i]=initial_value(d,initialized,initialized && owned(d)?next++:0);
         if(initialized && d.mode)w->canonical.references[i]=(NvmFileFlowReference){true,true,i,
-            UINT64_C(257)+i,UINT64_C(257)+i,0};
+            UINT64_C(257)+i,UINT64_C(257)+i,0,d.mode==1};
     }
     file_cyclic_scratch(w,scratch,f,&w->canonical);
     NvmFileFlowStatus status=file_cyclic_canonicalize(w);if(status!=NVM_FILE_FLOW_OK)return status;

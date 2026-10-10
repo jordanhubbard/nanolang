@@ -47,7 +47,7 @@ static bool fne_supported(uint8_t op) {
     case OP_NOP: case OP_PUSH_I64: case OP_PUSH_BOOL: case OP_PUSH_VOID:
     case OP_DUP: case OP_POP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL:
-    case OP_REGION_BEGIN: case OP_REGION_END: case OP_BORROW_LOCAL_EXCLUSIVE:
+    case OP_REGION_BEGIN: case OP_REGION_END: case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:
     case OP_FILE_SERVICE: case OP_FILE_RESULT_BRANCH: case OP_FILE_RESULT_TAKE:
     case OP_FILE_DROP_LOCAL: case OP_FILE_DROP_STACK: case OP_FILE_END_BORROW:
     case OP_CALL: case OP_CALL_REF:case OP_FILE_CALL_REFS: case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE:
@@ -287,7 +287,7 @@ static void fn_instruction(Fne *b,uint32_t function,const NvmFileCodeInstruction
     case OP_STORE_LOCAL:case OP_OWN_STORE_LOCAL:fn_text(b,"NF_TRY(nvm_file_runtime_frame_store(c));\n");break;
     case OP_REGION_BEGIN:fn_text(b,"NF_TRY(nvm_file_runtime_frame_region_begin(c));\n");break;
     case OP_REGION_END:fn_text(b,"NF_TRY(nvm_file_runtime_frame_region_end(c));\n");break;
-    case OP_BORROW_LOCAL_EXCLUSIVE:fn_text(b,"NF_TRY(nvm_file_runtime_frame_borrow(c));\n");break;
+    case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:fn_text(b,"NF_TRY(nvm_file_runtime_frame_borrow(c));\n");break;
     case OP_FILE_END_BORROW:fn_text(b,"NF_TRY(nvm_file_runtime_frame_end_reference(c));\n");break;
     case OP_FILE_DROP_LOCAL:
         fn_text(b,"if(!nvm_file_runtime_frame_local(c,%u,&src))return nf_bad(c);\nNF_TRY(nvm_file_runtime_drop(c,src));\n",d->operands[0].u16);break;

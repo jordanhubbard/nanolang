@@ -17,7 +17,7 @@ static bool frc_payload(const FileRuntimeValue *v) {
     }
     if(p->owning)return !p->formal && !p->fields && !v->reference;
     if(!frc_zero(v->owner))return false;
-    if(p->formal)return p->type.mode==2 && !p->fields;
+    if(p->formal)return (p->type.mode==1 || p->type.mode==2) && !p->fields;
     if(v->reference || p->type.mode)return false;
     if(p->type.tag==TAG_INT)return p->fields==1 && p->arm==NVM_FILE_FLOW_ARM_NONE;
     if(p->type.tag==TAG_BOOL)return p->fields==1 && p->arm==NVM_FILE_FLOW_ARM_NONE &&
@@ -71,7 +71,7 @@ static bool frc_value(NvmFileRuntime *c,uint32_t root,NvmFileFlowValue expected)
         (actual==NVM_FILE_FLOW_ARM_OK || actual==NVM_FILE_FLOW_ARM_ERROR):actual==expected.arm;
 }
 static bool frc_reference_empty(const FileRuntimeReference *r) {
-    return !r->live && !r->formal && !r->owner_root && !r->origin && !r->formal_root &&
+    return !r->live && !r->formal && !r->shared && !r->owner_root && !r->origin && !r->formal_root &&
         !r->region && !r->borrow.epoch && frc_zero(r->borrow.value);
 }
 static bool frc_frame(NvmFileRuntime *c,const FileRuntimeFrame *f,uint32_t region_end) {
@@ -113,7 +113,7 @@ static bool frc_frame(NvmFileRuntime *c,const FileRuntimeFrame *f,uint32_t regio
         NvmFileFlowReference expected;const FileRuntimeReference *r=&c->references[f->reference_base+i];
         if(!nvm_file_cyclic_hosted_input_reference(c->cyclic_plan,f->function,(uint16_t)f->instruction,f->variant,i,&expected))return false;
         if(!expected.live){if(!frc_reference_empty(r))return false;continue;}
-        if(!r->live || expected.formal!=r->formal || !fr_reference(c,f->reference_base+i) ||
+        if(!r->live || expected.formal!=r->formal || expected.shared!=r->shared || !fr_reference(c,f->reference_base+i) ||
            nl_file_value_borrow_validate(c->files,&r->borrow)!=NL_FILE_VALUE_OK ||
            !frc_identity(r->borrow.value,c->values[r->owner_root].owner))return false;
         const FileRuntimeReference *origin=&c->references[r->origin];
@@ -126,7 +126,7 @@ static bool frc_frame(NvmFileRuntime *c,const FileRuntimeFrame *f,uint32_t regio
         } else {
             if(!expected.owner || expected.owner>NVM_FILE_FLOW_OWNERS || expected.local>=fn.locals ||
                expected.identity!=UINT64_C(769)+i || expected.region<513 ||
-               expected.region-513>=fact.input.regions || r->origin!=f->reference_base+i ||
+               expected.region-513>=fact.input.regions || (!r->shared && r->origin!=f->reference_base+i) ||
                r->formal_root!=NVM_FILE_RUNTIME_NO_SLOT || r->owner_root!=f->locals_base+expected.local ||
                c->witness->roots[expected.owner-1]!=r->owner_root ||
                !frc_identity(c->witness->owners[expected.owner-1],r->borrow.value) ||
@@ -171,7 +171,7 @@ static NvmFileRuntimeStatus frc_validate(NvmFileRuntime *c,const FileRuntimeFram
         if(!frc_reference_empty(&c->references[i]))return frc_bad(c);
     for(uint32_t i=0;i<c->storage.references;i++) {
         const FileRuntimeReference *r=&c->references[i];
-        if(r->live && !r->formal) {
+        if(r->live && !r->formal && r->origin==i) {
             if(r->borrow.value.slot>=NL_FILE_VALUE_SLOTS ||
                (borrowed&(UINT64_C(1)<<r->borrow.value.slot)))return frc_bad(c);
             borrowed|=UINT64_C(1)<<r->borrow.value.slot;

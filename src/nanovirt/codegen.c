@@ -5169,7 +5169,20 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
             cg.loop_depth = 0;
             cg.upvalue_count = 0;
             cg.current_fn_idx = index;
-            for (int i = 0; i < shadow_count; i++) emit_op(&cg, OP_CALL, shadow_functions[i]);
+            for (int i = 0; i < shadow_count; i++) {
+                if (getenv("NANO_SHADOW_TRACE")) {
+                    char key[64];
+                    snprintf(key, sizeof key, "nanolang.shadow.offset.%u", cg.module->code_size + cg.code_size);
+                    uint32_t key_idx = nvm_add_string(cg.module, key, (uint32_t)strlen(key));
+                    if (key_idx == UINT32_MAX || !nvm_add_metadata(cg.module, key_idx,
+                            cg.module->functions[shadow_functions[i]].name_idx)) {
+                        cg_error(&cg, 0, "I cannot retain my selected shadow trace.");
+                        break;
+                    }
+                    emit_op(&cg, OP_NOP);
+                }
+                emit_op(&cg, OP_CALL, shadow_functions[i]);
+            }
             emit_op(&cg, OP_PUSH_I64, (int64_t)0);
             emit_op(&cg, OP_RET);
             uint32_t offset = nvm_append_code(cg.module, cg.code, cg.code_size);

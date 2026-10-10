@@ -196,10 +196,17 @@ fn exercise(file:File)->int {
         for body in (scalar,owned,operator):
             with self.subTest(body=body):self.check(body+main,expected=7)
 
-    def test_limits_and_unimplemented_reference_calls_preserve_outputs(self):
-        from tests.test_service_ownership import VALID
+    def test_shared_aliases_forwarding_and_loan_release(self):
+        fixture=(ROOT/'tests/fixtures/file_shared_borrow.nano').read_text()
+        self.check(fixture,expected=43)
+        self.check(fixture,selection='exercise')
+
+    def test_shared_alias_assertion_cleanup(self):
+        fixture=(ROOT/'tests/fixtures/file_shared_borrow.nano').read_text()
+        self.check(fixture.replace('return (+ n 1)', 'assert false return (+ n 1)'),status=9)
+
+    def test_limits_preserve_outputs(self):
         cases = [
-            (VALID['shared-call']+'fn main()->int{return 0}',2),
             ('fn main()->int{'+''.join(f'let n{i}:int={i} ' for i in range(257))+'return 0}',3),
             (''.join(f'fn f{i}()->int{{return {i}}} ' for i in range(63))+'fn main()->int{return 0}',3),
         ]

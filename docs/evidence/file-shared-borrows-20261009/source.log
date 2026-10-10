@@ -1,0 +1,46 @@
+test_shared_aliases_forwarding_and_loan_release (tests.test_service_lowering.ServiceLowering.test_shared_aliases_forwarding_and_loan_release) ... FAIL
+test_shared_alias_assertion_cleanup (tests.test_service_lowering.ServiceLowering.test_shared_alias_assertion_cleanup) ... FAIL
+test_limits_preserve_outputs (tests.test_service_lowering.ServiceLowering.test_limits_preserve_outputs) ... ok
+
+======================================================================
+FAIL: test_shared_aliases_forwarding_and_loan_release (tests.test_service_lowering.ServiceLowering.test_shared_aliases_forwarding_and_loan_release)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 201, in test_shared_aliases_forwarding_and_loan_release
+    self.check(fixture,expected=43)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 69, in check
+    vm=self.command([os.environ.get('NANO_SERVICE_LOWERING_RUNNER',ROOT/'obj/test_service_lowering'),path,selection,native_c,status])
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 61, in command
+    if process.returncode:raise AssertionError(f'{args}\n{process.returncode}\n{stdout}\n{stderr}')
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_lowering'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-qezojrj5/source.nano'), 'main', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-qezojrj5/source.c'), 0]
+-6
+
+I have not resolved File service declarations for this consumer.
+Assertion failed: (nvm_file_cyclic_analyze(module,&query)==NVM_FILE_FLOW_OK), function check_reference_maps, file test_service_lowering.c, line 48.
+
+
+======================================================================
+FAIL: test_shared_alias_assertion_cleanup (tests.test_service_lowering.ServiceLowering.test_shared_alias_assertion_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 206, in test_shared_alias_assertion_cleanup
+    self.check(fixture.replace('return (+ n 1)', 'assert false return (+ n 1)'),status=9)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 69, in check
+    vm=self.command([os.environ.get('NANO_SERVICE_LOWERING_RUNNER',ROOT/'obj/test_service_lowering'),path,selection,native_c,status])
+  File "/Users/jordanh/Src/nanolang/tests/test_service_lowering.py", line 61, in command
+    if process.returncode:raise AssertionError(f'{args}\n{process.returncode}\n{stdout}\n{stderr}')
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [PosixPath('/Users/jordanh/Src/nanolang/obj/test_service_lowering'), PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-qezojrj5/source.nano'), 'main', PosixPath('/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-service-lowering-qezojrj5/source.c'), 9]
+-6
+
+I have not resolved File service declarations for this consumer.
+Assertion failed: (nvm_file_cyclic_analyze(module,&query)==NVM_FILE_FLOW_OK), function check_reference_maps, file test_service_lowering.c, line 48.
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.531s
+
+FAILED (failures=2)

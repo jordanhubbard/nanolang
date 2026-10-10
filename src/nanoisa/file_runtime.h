@@ -61,6 +61,7 @@ NvmFileRuntimeStatus nvm_file_runtime_take(NvmFileRuntime *,uint32_t,NvmFileFlow
 NvmFileRuntimeStatus nvm_file_runtime_region_begin(NvmFileRuntime *);
 NvmFileRuntimeStatus nvm_file_runtime_region_end(NvmFileRuntime *);
 NvmFileRuntimeStatus nvm_file_runtime_borrow(NvmFileRuntime *,uint32_t owner,uint32_t reference);
+NvmFileRuntimeStatus nvm_file_runtime_borrow_shared(NvmFileRuntime *,uint32_t owner,uint32_t reference);
 NvmFileRuntimeStatus nvm_file_runtime_bind_formal(NvmFileRuntime *,uint32_t source_reference,uint32_t formal_root,uint32_t formal_reference);
 NvmFileRuntimeStatus nvm_file_runtime_end_reference(NvmFileRuntime *,uint32_t);
 /* Exact checked module import, with original core receiver/domain semantics.

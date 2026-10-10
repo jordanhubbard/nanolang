@@ -46,13 +46,15 @@ fn sl_wire_type(typ: ServiceType, mode: int) -> ServiceWireType {
     else if (and (>= typ.kind 4) (and (> typ.declaration 0) (and (>= typ.ordinal 0) (< typ.ordinal 8)))) {
         set layout typ.ordinal set tag 10 if (< layout 3) { set tag 8 }
     } else { (sl_fail 2 "I have not lowered this checked service type.") }
-    if (== mode 1) { (sl_fail 2 "I have not lowered shared File reference calls.") }
     return ServiceWireType { tag: tag, mode: mode, layout: layout }
 }
 shadow sl_wire_type {
     let typ: ServiceType = ServiceType { kind: 1, declaration: 0, owner: -1, ordinal: -1, category: 0 }
     assert (== (sl_wire_type typ 0).tag 1)
     assert (== (sl_wire_type typ 0).layout 4294967295)
+    let file: ServiceType = ServiceType { kind: 4, declaration: 1, owner: 0, ordinal: 0, category: 1 }
+    assert (== (sl_wire_type file 1).mode 1)
+    assert (== (sl_wire_type file 1).layout 0)
 }
 
 fn sl_annotation(space: ServiceNamespace, owner: int, spelling: string) -> ServiceWireType {
@@ -427,7 +429,7 @@ fn sl_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bo
     while (and sl_next (and (== sl_status 0) (< i (array_length args)))) {
         let arg: ASTStmtRef = (at args i) let checked: ServiceBodyFact = (sl_fact arg.node_type arg.node_id)
         if (!= checked.borrow_mode 0) {
-            if (!= checked.borrow_mode 2) { (sl_fail 2 "I have not lowered this multi-reference call.") return }
+            if (and (!= checked.borrow_mode 1) (!= checked.borrow_mode 2)) { (sl_fail 2 "I have not lowered this multi-reference call.") return }
             let mut root: ASTStmtRef = arg
             if (== root.node_type ParseNodeType.PNODE_CALL) {
                 let borrow: ASTCall = (parser_get_call parser root.node_id)
@@ -435,11 +437,12 @@ fn sl_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bo
             }
             if (!= root.node_type ParseNodeType.PNODE_IDENTIFIER) { (sl_fail 2 "I require a named File reference root.") return }
             let slot: int = (sl_lookup (parser_get_identifier parser root.node_id).name)
-            if (== (at sl_locals slot).mode 2) { set reference slot }
+            if (!= (at sl_locals slot).mode 0) { set reference slot }
             else {
                 if (>= sl_next_ref 256) { (sl_fail 3 "I exceeded my File reference bound.") return }
                 set reference sl_next_ref set sl_next_ref (+ sl_next_ref 1)
-                (sl_op 22 0 0) (sl_local_op 25 reference 0 0) (sl_integer slot 2)
+                let mut op: int = 25 if (== checked.borrow_mode 1) { set op 24 }
+                (sl_op 22 0 0) (sl_local_op op reference 0 0) (sl_integer slot 2)
                 set sl_loans (array_push sl_loans reference)
             }
             set references (array_push references reference) set borrowed (+ borrowed 1)

@@ -1,4 +1,4 @@
-# My exclusive multi-borrow File calls
+# My File calls with multiple borrows
 
 I retain legacy `CALL_REF` for one borrowed formal. `FILE_CALL_REFS` (`0x97`)
 encodes a little-endian `u32` callee and `u32` constant-pool index. The constant
@@ -31,5 +31,22 @@ publication bridge.
 The source gate uses three forwarded and reordered references with a scalar
 between them, repeated calls in a loop, real writes/rewinds/reads/closes and
 all generated shadows. Separate malformed-map controls preserve failed outputs
-and check copied facts after input mutation. Shared references and indirect
-calls remain separate release requirements.
+and check copied facts after input mutation. Indirect source calls remain a separate release requirement.
+
+## Shared helper references
+
+My shared-reference implementation retains mode 1 in declaration and loan facts.
+`BORROW_LOCAL_SHARED` acquires a frozen File lease or joins an existing shared
+lease for the same owner. A same-owner argument pair is valid only when both
+formals are shared. An exclusive loan conflicts with every other loan.
+Shared formals cannot call my current File methods, whose signatures remain
+exclusive; even reading advances mutable stream state.
+
+All roots in a shared group retain the same physical epoch. Retiring the origin
+promotes another live shared root and updates forwarded aliases. The last root
+cannot end while a formal alias remains. Failure cleanup releases each physical
+lease once before dropping its owner. Runtime frame checks and emitted native
+agreement include the shared bit. My private host value API remains exclusive.
+
+I retain current qualification and remaining gates in
+[my shared-reference evidence](evidence/file-shared-borrows-20261009/README.md).

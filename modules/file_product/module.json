@@ -55,7 +55,8 @@
   "cflags": [
     "-D_GNU_SOURCE",
     "-D_DARWIN_C_SOURCE",
-    "-DNVM_FILE_PUBLIC_ENGINE"
+    "-DNVM_FILE_PUBLIC_ENGINE",
+    "-O2"
   ],
   "system_libs": [
     "m"

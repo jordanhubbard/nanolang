@@ -130,7 +130,7 @@ static NvmFileFlowStatus fi_transfer(const NvmFileCodePlan *p,uint32_t f,FileInd
     case OP_FILE_RESULT_BRANCH:
         value=s->locals[local];
         return value.initialized==2 && value.arms?NVM_FILE_FLOW_OK:NVM_FILE_FLOW_INVALID;
-    case OP_BORROW_LOCAL_EXCLUSIVE:
+    case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE:
         value=s->locals[d->operands[1].u16];
         return value.initialized==2 && value.type.category==NVM_FILE_CATEGORY_FILE?NVM_FILE_FLOW_OK:NVM_FILE_FLOW_INVALID;
     case OP_PUSH_I64:return fi_push(s,fi_value(scalar_type(TAG_INT),2));

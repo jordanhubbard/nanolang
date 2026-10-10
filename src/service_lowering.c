@@ -65,7 +65,6 @@ static SlType sl_type(Sl *c,Type type,const TypeInfo *info) {
     else if(type==TYPE_BOOL)out.tag=TAG_BOOL;
     else if(type==TYPE_VOID)out.tag=TAG_VOID;
     else sl_fail(c,NULL,2,"I have not lowered this ordinary service body type.");
-    if(mode==1)sl_fail(c,NULL,2,"I have not lowered shared File reference calls.");
     return out;
 }
 static SlType sl_node_type(Sl *c,const ASTNode *node) {
@@ -193,16 +192,16 @@ static void sl_call(Sl *c,const ASTNode *node,ASTNode **args,int count,bool want
         const NlServiceBodyFact *arg=sl_fact(c,args[i]);if(!arg)break;
         references[i]=UINT16_MAX;
         if(arg->borrow_mode) {
-            if(arg->borrow_mode!=2) {sl_fail(c,node,2,"I have not lowered this multi-reference call.");break;}
+            if(arg->borrow_mode!=1 && arg->borrow_mode!=2) {sl_fail(c,node,2,"I have not lowered this multi-reference call.");break;}
             const ASTNode *root=args[i];
             if(root->type==AST_CALL && root->as.call.borrow_mode)root=root->as.call.args[0];
             if(root->type!=AST_IDENTIFIER){sl_fail(c,root,2,"I require a named File reference root.");break;}
             uint16_t slot=sl_lookup(c,root,root->as.identifier);
-            if(c->fn->locals[slot].mode==2)reference=slot;
+            if(c->fn->locals[slot].mode)reference=slot;
             else {
                 if(c->next_ref==SL_LOCALS || c->loan_count==SL_LOCALS) {sl_fail(c,node,3,"I exceeded my File reference bound.");break;}
                 reference=c->next_ref++;sl_op(c,OP_REGION_BEGIN);
-                sl_local_op(c,OP_BORROW_LOCAL_EXCLUSIVE,reference);sl_u16(c,slot);
+                sl_local_op(c,arg->borrow_mode==1?OP_BORROW_LOCAL_SHARED:OP_BORROW_LOCAL_EXCLUSIVE,reference);sl_u16(c,slot);
                 c->loans[c->loan_count++]=reference;
             }
             references[i]=reference;borrowed++;

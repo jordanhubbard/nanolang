@@ -126,6 +126,9 @@ fn main()->int {return (cycle)}
             self.run_command([native,'--allow-temporary-files'],60)
         self.assertEqual(modules[0],modules[1])
 
+    def test_shared_aliases_and_forwarded_loans(self):
+        self.check_multiple_borrows('file_shared_borrow.nano',10,43)
+
     def test_multiple_forwarded_reordered_file_borrows(self):
         self.check_multiple_borrows('file_multiborrow.nano',8)
 
@@ -141,7 +144,16 @@ fn main()->int {return (cycle)}
             self.assertIn('File shadow failure',run.stderr)
             self.assertEqual(output.read_bytes(),b'prior')
 
-    def check_multiple_borrows(self,fixture,shadows):
+    def test_shared_borrow_shadow_failure_preserves_output(self):
+        body=(ROOT/'tests/fixtures/file_shared_borrow.nano').read_text().replace('return (+ n 1)','assert false return (+ n 1)')
+        self.source.write_text((ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()+body)
+        for driver in self.drivers:
+            output=self.work/'prior.nvm';output.write_bytes(b'prior')
+            run=self.run_command([driver,self.source,'--allow-temporary-files','--emit-nvm','-o',output],1)
+            self.assertIn('File shadow failure',run.stderr)
+            self.assertEqual(output.read_bytes(),b'prior')
+
+    def check_multiple_borrows(self,fixture,shadows,expected=129):
         self.source.write_text((ROOT/'tests/fixtures/nsi_file_binding_expected.nano.txt').read_text()+
                                (ROOT/'tests/fixtures'/fixture).read_text())
         modules=[]
@@ -155,10 +167,10 @@ fn main()->int {return (cycle)}
             self.assertEqual(selected,[x[5:] for x in records if x.startswith('DONE ')])
             modules.append(bytecode.read_bytes())
             self.run_command([ROOT/'bin/nano_vm','--allow-temporary-files','--file-cyclic',
-                              '--file-instruction-limit','1000000',bytecode],129)
+                              '--file-instruction-limit','1000000',bytecode],expected)
             native=self.work/(driver.name+'.borrows')
             self.run_command([driver,self.source,'--allow-temporary-files','-o',native])
-            self.run_command([native,'--allow-temporary-files'],129)
+            self.run_command([native,'--allow-temporary-files'],expected)
         self.assertEqual(modules[0],modules[1])
 
     def test_cyclic_and_overlapping_owner_refusals_preserve_output(self):
@@ -168,6 +180,12 @@ fn main()->int {return (cycle)}
             'fn pair(a:&mut File,b:&mut File)->int{return 0} fn main()->int {'
             'match (temp) {Error(e)=>{return -1} Ok(f)=>{let mut file:File=f '
             'let n:int=(pair &mut file &mut file) let c:CloseResult=(close file) return n}}}',
+            'fn pair(a:&File,b:&mut File)->int{return 0} fn main()->int {'
+            'match (temp) {Error(e)=>{return -1} Ok(f)=>{let mut file:File=f '
+            'let n:int=(pair &file &mut file) let c:CloseResult=(close file) return n}}}',
+            'fn mutate(a:&File)->int{let result:PositionResult=(rewind &mut a) return 0} '
+            'fn main()->int{return 0}',
+
         ]
         for body in cases:
             self.source.write_text(DECL+body)
@@ -177,7 +195,7 @@ fn main()->int {return (cycle)}
                     run=self.run_command([driver,self.source,'--allow-temporary-files','--emit-nvm','-o',output],1)
                     self.assertEqual(output.read_bytes(),b'prior')
                     self.assertNotIn('START ',run.stderr)
-                    self.assertIn('ownership',run.stdout+run.stderr)
+                    self.assertIn('mutable File root' if body.startswith('fn mutate') else 'ownership',run.stdout+run.stderr)
 
     def test_required_import_shadows_and_root_only_selection(self):
         (self.work/'binding.nano').write_text(DECL+'''pub fn broken()->void {}

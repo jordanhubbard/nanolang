@@ -73,6 +73,7 @@ static NvmFileFlowStatus file_body_transfer(NvmFileBodyReport *r,NvmFileFlowStat
     case OP_OWN_STORE_LOCAL:return nvm_file_flow_put(s,local);
     case OP_REGION_BEGIN:return nvm_file_flow_region_begin(s);
     case OP_REGION_END:return nvm_file_flow_region_end(s);
+    case OP_BORROW_LOCAL_SHARED:return nvm_file_flow_borrow_shared(s,d->operands[1].u16,local);
     case OP_BORROW_LOCAL_EXCLUSIVE:return nvm_file_flow_borrow(s,d->operands[1].u16,local);
     case OP_FILE_END_BORROW:return nvm_file_flow_end_borrow(s,local);
     case OP_FILE_RESULT_TAKE:return nvm_file_flow_take_result(s,local,

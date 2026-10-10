@@ -133,7 +133,7 @@ static bool descriptor_read(NvmV2Cursor *c,const NvmFileNominalBindings *b,
        (signature_tag>=0 && tag!=signature_tag))return false;
     uint32_t ordinal=layout==NVM_V2_NO_INDEX?NVM_V2_NO_INDEX:catalog_at(b,layout);
     if(layout!=NVM_V2_NO_INDEX && (ordinal==NVM_V2_NO_INDEX || tag!=type_tag(ordinal)))return false;
-    if(mode && (mode!=2 || ordinal!=0))return false;
+    if(mode && ordinal!=0)return false;
     /* A bare STRUCT/UNION tag with NO_INDEX remains unresolved. No catalog
      * authority or initialized/live-owner claim is inferred from that tag. */
     return true;

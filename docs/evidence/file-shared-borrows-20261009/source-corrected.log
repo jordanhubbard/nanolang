@@ -1,0 +1,11 @@
+test_shared_aliases_forwarding_and_loan_release (tests.test_service_lowering.ServiceLowering.test_shared_aliases_forwarding_and_loan_release) ... I finish native compilation in 23.972s
+I finish native compilation in 19.740s
+ok
+test_shared_alias_assertion_cleanup (tests.test_service_lowering.ServiceLowering.test_shared_alias_assertion_cleanup) ... I finish native compilation in 19.255s
+ok
+test_limits_preserve_outputs (tests.test_service_lowering.ServiceLowering.test_limits_preserve_outputs) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 73.234s
+
+OK

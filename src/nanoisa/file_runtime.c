@@ -14,7 +14,7 @@ typedef struct {
     uint32_t reference;
 } FileRuntimeValue;
 typedef struct {
-    bool live, formal;
+    bool live, formal, shared;
     uint32_t owner_root, origin, formal_root;
     uint64_t region;
     NlFileValueBorrow borrow;
@@ -346,7 +346,7 @@ static bool fr_reference(const NvmFileRuntime *c,uint32_t index) {
     if(!r->live || r->origin>=c->storage.references)return false;
     const FileRuntimeReference *origin=&c->references[r->origin];
     return origin->live && !origin->formal && origin->origin==r->origin &&
-           origin->borrow.epoch==r->borrow.epoch && origin->owner_root==r->owner_root &&
+           origin->shared==r->shared && origin->borrow.epoch==r->borrow.epoch && origin->owner_root==r->owner_root &&
            fr_live(c,r->owner_root) && c->values[r->owner_root].view.owning &&
            c->values[r->owner_root].view.type.category==NVM_FILE_CATEGORY_FILE;
 }
@@ -359,23 +359,37 @@ NvmFileRuntimeStatus nvm_file_runtime_region_begin(NvmFileRuntime *c) {
     if(c->region_count==c->storage.regions || c->next_region==UINT64_MAX)return fr_error(c,NVM_FILE_RUNTIME_LIMIT,NL_FILE_VALUE_LIMIT);
     c->regions[c->region_count++]=c->next_region++;return NVM_FILE_RUNTIME_OK;
 }
-NvmFileRuntimeStatus nvm_file_runtime_borrow(NvmFileRuntime *c,uint32_t owner,uint32_t reference) {
+static NvmFileRuntimeStatus file_runtime_borrow_mode(NvmFileRuntime *c,uint32_t owner,uint32_t reference,bool shared) {
     NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(!fr_live(c,owner) || c->values[owner].view.type.category!=NVM_FILE_CATEGORY_FILE ||
        !c->values[owner].view.owning || !c->region_count || reference>=c->storage.references || c->references[reference].live)
         return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
     FileRuntimeReference r={0};r.owner_root=owner;r.origin=reference;r.formal_root=NVM_FILE_RUNTIME_NO_SLOT;
-    r.region=c->regions[c->region_count-1];c->busy=true;
+    r.region=c->regions[c->region_count-1];r.shared=shared;
+    if(shared)for(uint32_t i=0;i<c->storage.references;i++) {
+        const FileRuntimeReference *prior=&c->references[i];
+        if(!prior->live || prior->owner_root!=owner)continue;
+        if(!prior->shared || !fr_reference(c,i))return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
+        r.origin=prior->origin;r.borrow=prior->borrow;r.live=true;
+        c->references[reference]=r;return NVM_FILE_RUNTIME_OK;
+    }
+    c->busy=true;
     NlFileValueStatus core=nl_file_value_borrow(c->files,&c->values[owner].owner,&r.borrow);c->busy=false;
     if(core!=NL_FILE_VALUE_OK)return fr_core(c,core);
     r.live=true;c->references[reference]=r;return NVM_FILE_RUNTIME_OK;
+}
+NvmFileRuntimeStatus nvm_file_runtime_borrow(NvmFileRuntime *c,uint32_t owner,uint32_t reference) {
+    return file_runtime_borrow_mode(c,owner,reference,false);
+}
+NvmFileRuntimeStatus nvm_file_runtime_borrow_shared(NvmFileRuntime *c,uint32_t owner,uint32_t reference) {
+    return file_runtime_borrow_mode(c,owner,reference,true);
 }
 NvmFileRuntimeStatus nvm_file_runtime_bind_formal(NvmFileRuntime *c,uint32_t source,uint32_t root,uint32_t reference) {
     NvmFileRuntimeStatus status=fr_effect(c);if(status!=NVM_FILE_RUNTIME_OK)return status;
     if(!fr_reference(c,source) || !fr_empty(c,root) || reference>=c->storage.references || c->references[reference].live)
         return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
     FileRuntimeReference r=c->references[source];r.formal=true;r.formal_root=root;r.region=0;
-    NvmFileRuntimeView value=fr_view(c->types[0]);value.type.mode=2;value.owning=false;value.formal=true;
+    NvmFileRuntimeView value=fr_view(c->types[0]);value.type.mode=r.shared?1:2;value.owning=false;value.formal=true;
     c->references[reference]=r;c->values[root].view=value;c->values[root].reference=reference;return NVM_FILE_RUNTIME_OK;
 }
 NvmFileRuntimeStatus nvm_file_runtime_end_reference(NvmFileRuntime *c,uint32_t reference) {
@@ -387,9 +401,18 @@ NvmFileRuntimeStatus nvm_file_runtime_end_reference(NvmFileRuntime *c,uint32_t r
             return fr_error(c,NVM_FILE_RUNTIME_STATE,NL_FILE_VALUE_STATE);
         fr_clear(c,r->formal_root);
     } else {
-        if(fr_aliases(c,reference))return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
-        c->busy=true;NlFileValueStatus core=nl_file_value_end_borrow(c->files,&r->borrow);c->busy=false;
-        if(core!=NL_FILE_VALUE_OK)return fr_core(c,core);
+        uint32_t replacement=NVM_FILE_RUNTIME_NO_SLOT;
+        if(r->shared)for(uint32_t i=0;i<c->storage.references;i++)
+            if(i!=reference && c->references[i].live && !c->references[i].formal &&
+               c->references[i].shared && c->references[i].origin==r->origin) {replacement=i;break;}
+        if(replacement!=NVM_FILE_RUNTIME_NO_SLOT) {
+            if(r->origin==reference)for(uint32_t i=0;i<c->storage.references;i++)
+                if(c->references[i].live && c->references[i].origin==reference)c->references[i].origin=replacement;
+        } else {
+            if(fr_aliases(c,r->origin))return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
+            c->busy=true;NlFileValueStatus core=nl_file_value_end_borrow(c->files,&r->borrow);c->busy=false;
+            if(core!=NL_FILE_VALUE_OK)return fr_core(c,core);
+        }
     }
     *r=(FileRuntimeReference){0};return NVM_FILE_RUNTIME_OK;
 }
@@ -427,7 +450,7 @@ NvmFileRuntimeStatus nvm_file_runtime_service(NvmFileRuntime *c,uint32_t import,
     if(!fr_empty(c,output) || !fr_import(c,import,&ordinal) || ordinal>=NVM_SERVICE_BINDING_COUNT)
         return fr_error(c,NVM_FILE_RUNTIME_INVALID,NL_FILE_VALUE_ARGUMENT);
     bool borrows=ordinal>=1 && ordinal<=3;
-    if((borrows && !fr_reference(c,reference)) || (!borrows && reference!=NVM_FILE_RUNTIME_NO_SLOT))
+    if((borrows && (!fr_reference(c,reference) || c->references[reference].shared)) || (!borrows && reference!=NVM_FILE_RUNTIME_NO_SLOT))
         return fr_error(c,NVM_FILE_RUNTIME_BORROWED,NL_FILE_VALUE_BORROWED);
     if(ordinal==1) {
         if(!fr_live(c,input) || !fr_same(c->values[input].view.type,fr_scalar_type(TAG_INT)))
@@ -518,8 +541,10 @@ static NvmFileRuntimeReport fr_finish(NvmFileRuntime *c,NvmFileRuntimeView *out)
     }
     if(c->acquired) {
         for(uint32_t i=0;i<c->storage.references;i++)if(c->references[i].live) {
-            NlFileValueStatus core=nl_file_value_end_borrow(c->files,&c->references[i].borrow);
-            if(core!=NL_FILE_VALUE_OK)fr_core(c,core);
+            if(!c->references[i].shared || c->references[i].origin==i) {
+                NlFileValueStatus core=nl_file_value_end_borrow(c->files,&c->references[i].borrow);
+                if(core!=NL_FILE_VALUE_OK)fr_core(c,core);
+            }
             c->references[i]=(FileRuntimeReference){0};
         }
         for(uint32_t i=0;i<c->storage.values;i++) {

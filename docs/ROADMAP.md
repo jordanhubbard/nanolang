@@ -14615,4 +14615,18 @@ I retain the cyclic source failure, compact storage change, paired CLI results a
 
 - [x] Under #989/#982 I pass the selected compiler and platform flags into the File opcode sanitizer runner. Its Make target currently drops CC/CFLAGS, selecting AppleClang and failing before tests because leak detection is unsupported. I retain the first terminal and qualify the complete opcode/refusal matrix with the explicit LLVM provider.
 
-I retain the exclusive multi-borrow source, malformed-map/cleanup gates and exact instrumentation boundaries in [my paired File call evidence](evidence/file-multiple-borrows-20261009/README.md). Shared references, indirect source execution and the full release scope remain open.
+I retain the exclusive multi-borrow source, malformed-map/cleanup gates and exact instrumentation boundaries in [my paired File call evidence](evidence/file-multiple-borrows-20261009/README.md). At that checkpoint, shared references, indirect source execution and the full release scope remained open.
+
+- [x] Under #989 I implement shared File helper references across declarations, logical/cyclic facts, runtime lease groups, native agreement and both source lowerers. I allow aliased shared formals while rejecting shared/exclusive overlap and shared service mutation; one frozen core lease remains until the final shared root ends, including out-of-order root retirement and assertion cleanup. I require paired actual-driver sources, same-owner forwarding, mixed-mode refusal, immutable facts, allocation neighbors and sanitizer lifetime controls.
+
+- [x] Under #989 I admit shared File parameter descriptors in the nominal ownership plan and distinguish legal shared call-map aliases from exclusive overlap in the malformed-map gate. My first shared source gate stops at nominal analysis; I retain that failure before qualifying the complete execution path.
+
+- [x] Under #989 I retain the ten-second dependency-shadow deadline while building the independent Nano File lowerer; my first shared-source Nano gate executes no test methods. Subsequent unchanged selections complete and the corrected probe passes VM/native parity. I preserve the historical failure without claiming its cause is established.
+
+- [x] Under #989 I reserve `main` for the program entry in my independent Nano lowerer probe, matching the C harness. A fixture containing `shadow main` initially selected that shadow and returned zero; I add a selection regression without removing the fixture shadow.
+
+- [x] Under #989/#982 I qualify an optimized File publication artifact. Its module metadata previously supplied no optimization flag, while C driver objects use `-O3`; my initial actual Nano driver checks hit the unchanged ten-second File shadow deadline on both shared and existing exclusive suites. I retain those measured timeout traces, add `-O2` to this artifact, and require both unchanged full suites and failure/refusal controls before claiming the deadline gate.
+
+- [x] Under #989/#982 I expose selected C-seed VM shadow names through the existing `NANO_SHADOW_TRACE` metadata path. Two compiler rebuilds reach the ten-second dependency-shadow deadline without naming the active shadow; I retain both failures and use trace evidence before changing execution behavior or declaring the optimized publication gate qualified.
+
+I retain this batch's successes, initial nominal/probe failures, compiler and File shadow deadlines, optimized artifact hashes and exact test scope in [my shared File reference evidence](evidence/file-shared-borrows-20261009/README.md). I keep #989 and the full 5.1 release contract open.

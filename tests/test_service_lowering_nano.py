@@ -5,7 +5,6 @@ import re
 import sys
 
 from tests import test_service_lowering as corpus
-from tests.test_service_ownership import VALID
 
 ROOT = corpus.ROOT
 CONSUMER = corpus.WRAPPER.replace(
@@ -85,10 +84,9 @@ class ServiceLoweringNano(corpus.ServiceLowering):
         self.assertEqual(re.search(pattern, vm).groups(), re.search(pattern, actual).groups())
         self.assertEqual(re.search(pattern, actual).groups(), (str(status), str(expected)))
 
-    def test_limits_and_unimplemented_reference_calls_preserve_outputs(self):
-        super().test_limits_and_unimplemented_reference_calls_preserve_outputs()
+    def test_limits_preserve_outputs(self):
+        super().test_limits_preserve_outputs()
         cases = [
-            (VALID['shared-call']+'fn main()->int{return 0}', 2),
             ('fn main()->int{'+''.join(f'let n{i}:int={i} ' for i in range(257))+'return 0}', 3),
             (''.join(f'fn f{i}()->int{{return {i}}} ' for i in range(63))+'fn main()->int{return 0}', 3),
         ]
