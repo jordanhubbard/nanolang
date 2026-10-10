@@ -400,7 +400,7 @@ static void test_every_opcode_tooling_roundtrip(void) {
                       "Assembly emits schema opcode");
 
         char *listing = disasm_module(mod);
-        if (schema->opcode >= OP_FILE_SERVICE && schema->opcode <= OP_FILE_END_BORROW) {
+        if (schema->opcode >= OP_FILE_SERVICE && schema->opcode <= OP_FILE_CALL_REFS) {
             ASSERT(listing == NULL, "File fragment module disassembly refuses");
             FILE *raw = tmpfile();
             ASSERT(raw != NULL, "Raw File listing stream opens");

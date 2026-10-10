@@ -66,7 +66,8 @@ static NvmFileRuntimeStatus istep(NvmFileRuntime *c,NvmFileIndirectFrameView f,N
  case OP_FILE_SERVICE:
   CHECK(in.catalog_ordinal==0);CHECK(nvm_file_runtime_frame_scratch(c,&dst));
   s=nvm_file_runtime_service(c,in.decoded.operands[0].u32,NS,NS,dst);
-  if(s==NVM_FILE_RUNTIME_OK)s=nvm_file_runtime_move(c,dst,fout(c,f.frame.stack_count));break;
+  if(s==NVM_FILE_RUNTIME_OK)s=nvm_file_runtime_move(c,dst,fout(c,f.frame.stack_count));
+  break;
  case OP_FILE_RESULT_BRANCH:{
   NvmFileFlowArm arm; s=nvm_file_runtime_result_arm(c,fl(c,in.decoded.operands[0].u16),&arm);
   edge=arm==NVM_FILE_FLOW_ARM_ERROR;break;
