@@ -1,0 +1,23 @@
+I begin bootstrap stage1.
+I run seed; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/00-seed.log.
+I run seed-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/01-seed-verify.log.
+I run stage1; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/02-stage1.log.
+I run stage1-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/03-stage1-verify.log.
+I run stage1-translate; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/04-stage1-translate.log.
+I run stage1-native; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/05-stage1-native.log.
+I run stage1-hello-compile; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/06-stage1-hello-compile.log.
+I run stage1-hello-execute; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/07-stage1-hello-execute.log.
+I begin bootstrap stage2.
+I run stage2; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/08-stage2.log.
+I run stage2-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/09-stage2-verify.log.
+I run stage2-translate; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/10-stage2-translate.log.
+I run stage2-native; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/11-stage2-native.log.
+I run stage2-hello-compile; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/12-stage2-hello-compile.log.
+I run stage2-hello-execute; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/13-stage2-hello-execute.log.
+I begin bootstrap verify.
+I run seed-final-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/14-seed-final-verify.log.
+I run stage1-final-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/15-stage1-final-verify.log.
+I run stage2-final-verify; I retain its log at /Users/jordanh/Src/nanolang/obj/bootstrap-nanoisa/run-7e8e9gef/16-stage2-final-verify.log.
+I compared raw Stage 1 and Stage 2 modules: they are byte-identical in this build.
+I have not established reproducibility across clean environments or proved compiler semantic correctness.
+I completed both generations and final verification.

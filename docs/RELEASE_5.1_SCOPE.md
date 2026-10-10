@@ -44,7 +44,7 @@ None of these historical numbers narrows the requirement it identifies.
 - **Required (10260):** Finish the self-hosted NanoISA lowering dual for the full compiler subset.
 - **Done (10262):** Compile the compiler to `.nvm` through the C seed and then the self-hosted emitter.
 - **Done (10264):** Compare Stage 1 and Stage 2 module bytes; native binary comparison remains a translator test.
-  My [current local bootstrap evidence](evidence/file-generations-20261009/README.md) records guarded self-compilation and equal raw module bytes; the exact release-candidate Linux/Darwin gates remain below.
+  My [current local bootstrap evidence](evidence/structural-bootstrap-0c501dc4b/README.md) records all 17 guarded steps, equal raw module bytes and generic/global execution through both installed stages; the exact release-candidate Linux/Darwin gates remain below.
 - **Required (10266):** Freeze and remove `transpiler.nano` from the product after the compiler module builds itself.
 - **Required (10269):** Rename the transpiler compiler phase so the language pipeline ends at NanoISA.
 
