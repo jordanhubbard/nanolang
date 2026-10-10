@@ -1,5 +1,6 @@
 """I qualify actual C File compiler publication and invocation boundaries."""
 import os
+import json
 from pathlib import Path
 import subprocess
 import tempfile
@@ -17,9 +18,14 @@ MAIN='''fn main()->int {
 
 class ServiceDrivers(unittest.TestCase):
     def setUp(self):
-        self.directory=tempfile.TemporaryDirectory(prefix="nano-file-drivers-")
-        self.addCleanup(self.directory.cleanup)
-        self.work=Path(self.directory.name).resolve()
+        if os.environ.get('NANO_SERVICE_DRIVER_RETAIN'):
+            self.work=Path(tempfile.mkdtemp(prefix="nano-service-drivers-")).resolve()
+            print(f'I retain service driver artifacts at {self.work}',flush=True)
+        else:
+            self.directory=tempfile.TemporaryDirectory(prefix="nano-file-drivers-")
+            self.addCleanup(self.directory.cleanup)
+            self.work=Path(self.directory.name).resolve()
+        self.command_count=0
         self.source=self.work/'source.nano'
         self.catalog=self.work/'interface.nsi.json'
         self.catalog.write_bytes((ROOT/'tests/fixtures/nsi_file_plan.json').read_bytes())
@@ -31,6 +37,11 @@ class ServiceDrivers(unittest.TestCase):
     def run_command(self,args,expected=0,env=None):
         run=subprocess.run(list(map(str,args)),cwd=self.work,env=env or self.env,
                            capture_output=True,text=True,timeout=120)
+        if os.environ.get('NANO_SERVICE_DRIVER_RETAIN'):
+            self.command_count+=1
+            (self.work/f'command-{self.command_count:03d}.json').write_text(json.dumps({
+                'argv':list(map(str,args)), 'status':run.returncode, 'expected':expected,
+                'stdout':run.stdout, 'stderr':run.stderr},indent=2)+'\n')
         self.assertEqual(run.returncode,expected,run.stdout+run.stderr)
         self.assertEqual(list(self.work.glob('.nano-*')),[],run.stdout+run.stderr)
         return run
@@ -277,7 +288,7 @@ fn main()->int {return (cycle)}
                     run=self.run_command([driver,self.source,'--allow-temporary-files','--emit-nvm','-o',output],1)
                     self.assertEqual(output.read_bytes(),b'prior')
                     self.assertNotIn('START ',run.stderr)
-                    self.assertIn('mutable File root' if body.startswith('fn mutate') else 'ownership',run.stdout+run.stderr)
+                    self.assertIn('mutable service root' if body.startswith('fn mutate') else 'ownership',run.stdout+run.stderr)
 
     def test_required_import_shadows_and_root_only_selection(self):
         (self.work/'binding.nano').write_text(DECL+'''pub fn broken()->void {}

@@ -13,6 +13,7 @@
 #include "../nanoisa/file_public.h"
 #include "../nanoisa/file_cyclic_public.h"
 #include "../nanoisa/file_indirect_public.h"
+#include "../nanoisa/socket_indirect_public.h"
 #include "../nanoisa/file_cli.h"
 #include "vm.h"
 #include "vm_ffi.h"
@@ -134,6 +135,25 @@ static int run_file_standalone(const char *path, const NvmFileCyclicOptions *opt
         return 1;
     }
     return (int)((uint64_t)scalar.value & UINT64_C(255));
+}
+
+static int run_socket_standalone(const char *path,const NvmSocketIndirectOptions *options) {
+    uint8_t *bytes=NULL;size_t size=0;char diagnostic[256]={0};
+    if(!nvm_file_cli_read(path,&bytes,&size,diagnostic,sizeof diagnostic)){fprintf(stderr,"%s\n",diagnostic);return 1;}
+    NvmSocketHostGrant *grant=NULL;
+    if(nvm_socket_host_grant_create_tcp_connections(&grant)!=NVM_SOCKET_HOST_OK){free(bytes);return 1;}
+    NvmSocketScalar scalar={0};
+    NvmSocketIndirectExecutionReport report=nvm_socket_execute_indirect_bytes(grant,bytes,size,options,&scalar);
+    free(bytes);
+    NvmSocketHostStatus revoked=nvm_socket_host_grant_revoke(grant);
+    NvmSocketHostStatus destroyed=nvm_socket_host_grant_destroy(&grant);
+    if(report.runtime.status!=NVM_SOCKET_RUNTIME_OK || !report.runtime.acquired || report.runtime.cleanup.cleanup_failures ||
+       revoked!=NVM_SOCKET_HOST_OK || destroyed!=NVM_SOCKET_HOST_OK || grant) {
+        fprintf(stderr,"I refuse TCP execution (status %u, limit %llu, started %llu, exhausted %u).\n",
+            (unsigned)report.runtime.status,(unsigned long long)report.instruction_limit,
+            (unsigned long long)report.instructions_started,(unsigned)report.fuel_exhausted);return 1;
+    }
+    return (int)((uint64_t)scalar.value&255u);
 }
 
 static int run_standalone(const char *path, bool verify_only) {
@@ -311,7 +331,8 @@ static int run_shadow_module(void) {
 }
 
 int main(int argc, char *argv[]) {
-    bool allow_temporary_files = false;
+    bool allow_temporary_files = false, allow_tcp_connections = false, socket_limit_set = false;
+    NvmSocketIndirectOptions socket_options={1,0};
     bool file_cyclic = false, file_indirect = false, file_limit_set = false;
     NvmFileCyclicOptions file_options = {NVM_FILE_CYCLIC_RUNTIME_REVISION, 0};
     g_argc = argc;
@@ -319,6 +340,7 @@ int main(int argc, char *argv[]) {
 
     if (argc < 2) {
         fprintf(stderr, "Usage: %s [--verify-only | --daemon | --check-shadows | --allow-temporary-files] [--debug] [--profile-isa FILE] <file.nvm> [-- guest-args...]\n", argv[0]);
+        fprintf(stderr, "For TCP execution I require --allow-tcp-connections and --socket-instruction-limit N.\n");
         fprintf(stderr, "For cyclic or indirect File execution I require --allow-temporary-files, one of --file-cyclic/--file-indirect, and --file-instruction-limit N.\n");
         return 1;
     }
@@ -342,6 +364,12 @@ int main(int argc, char *argv[]) {
             }
             guest_start = i;
             break;
+        } else if (strcmp(argv[i], "--allow-tcp-connections") == 0) {
+            if(allow_tcp_connections)return 1;
+            allow_tcp_connections=true;
+        } else if (strcmp(argv[i], "--socket-instruction-limit") == 0) {
+            if(socket_limit_set || i+1>=argc || !file_instruction_limit(argv[++i],&socket_options.instruction_limit))return 1;
+            socket_limit_set=true;
         } else if (strcmp(argv[i], "--allow-temporary-files") == 0) {
             allow_temporary_files = true;
         } else if (strcmp(argv[i], "--file-cyclic") == 0) {
@@ -397,6 +425,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    if(allow_tcp_connections || socket_limit_set) {
+        if(!allow_tcp_connections || !socket_limit_set || allow_temporary_files || file_cyclic || file_indirect || file_limit_set ||
+           check_shadows || verify_only || daemon_mode || repeat_requested || g_profile_path || g_isolate_ffi || g_debug_mode || guest_start) {
+            fputs("I require --allow-tcp-connections and --socket-instruction-limit together, without other execution modes.\n",stderr);return 1;
+        }
+        return run_socket_standalone(nvm_path,&socket_options);
+    }
     if ((file_cyclic || file_indirect) != file_limit_set || ((file_cyclic || file_indirect) && !allow_temporary_files)) {
         fprintf(stderr,"I require one of --file-cyclic/--file-indirect, --file-instruction-limit and --allow-temporary-files together.\n");
         return 1;

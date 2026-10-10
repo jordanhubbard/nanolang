@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 static int calls;
+static bool expected_tcp;
 int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *shadows,
                        size_t count,const NlServiceProductOptions *options) {
     ++calls;
@@ -11,6 +12,7 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
     assert(count==1 && shadows[0].size==2 && shadows[0].bytes[1]==1);
     assert(!strcmp(shadows[0].origin,"import.nano") && !strcmp(shadows[0].name,"test"));
     assert(options->emit_nvm && options->allow_temporary_files && !options->run);
+    assert(options->allow_tcp_connections==expected_tcp);
     return 7;
 }
 static long remaining=-1;
@@ -32,7 +34,7 @@ static void *checked_realloc(void *p,size_t size) {
 #undef realloc
 int main(void) {
     assert(!nl_file_product_new("",".",0));
-    assert(!nl_file_product_new("out",".",4));
+    assert(!nl_file_product_new("out",".",8));
     for(long failure=0;failure<10;failure++) {
         remaining=failure;calls=0;
         NlFileProduct *p=nl_file_product_new("out",".",3);
@@ -49,6 +51,11 @@ int main(void) {
         nl_file_product_free(p);
     }
     remaining=-1;
+    expected_tcp=true;
+    NlFileProduct *tcp=nl_file_product_new("out",".",7);assert(tcp);
+    assert(nl_file_product_append(tcp,"0080ff")==0 && nl_file_product_seal(tcp,"root.nano","")==0);
+    assert(nl_file_product_append(tcp,"0001")==0 && nl_file_product_seal(tcp,"import.nano","test")==0);
+    assert(nl_file_product_publish(tcp)==7);nl_file_product_free(tcp);
     const char *bad[]={"","0","gg","FF"};
     for(size_t i=0;i<sizeof bad/sizeof bad[0];i++) {
         NlFileProduct *p=nl_file_product_new("out",".",1);assert(p);

@@ -72,6 +72,7 @@ static void usage(const char *prog) {
     fprintf(stderr, "  --strip-debug      Strip source-map debug info from emitted module\n");
     fprintf(stderr, "  --test-imports     I run dependency shadows before root shadows (default)\n");
     fprintf(stderr, "  --root-shadows-only I run only root-file shadows\n");
+    fprintf(stderr, "  --allow-tcp-connections I grant TCP shadows and --run outbound connections\n");
     fprintf(stderr, "  --allow-temporary-files I grant File shadows and --run temporary-file access\n");
     fprintf(stderr, "                     I publish File graphs as native executables unless --emit-nvm\n");
     fprintf(stderr, "  --daemon-wrapper   Generate thin daemon-mode binary (needs nano_vmd at runtime)\n");
@@ -97,11 +98,13 @@ int main(int argc, char **argv) {
     bool daemon_wrapper = false;
     bool verbose = false;
     bool test_imports = true;
-    bool allow_temporary_files = false;
+    bool allow_temporary_files = false, allow_tcp_connections = false;
 
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
             output = argv[++i];
+        } else if (strcmp(argv[i], "--allow-tcp-connections") == 0) {
+            allow_tcp_connections = true;
         } else if (strcmp(argv[i], "--allow-temporary-files") == 0) {
             allow_temporary_files = true;
         } else if (strcmp(argv[i], "--test-imports") == 0) {
@@ -179,7 +182,7 @@ int main(int argc, char **argv) {
         char *root=nl_service_product_root(argv[0]);
         const char *cc=getenv("NANO_CC");if(!cc || !*cc)cc=getenv("CC");
         NlServiceProductOptions options={output,root,cc,getenv("NANO_CFLAGS"),getenv("NANO_LDFLAGS"),
-            emit_nvm || (output && has_nvm_extension(output)),allow_temporary_files,run};
+            emit_nvm || (output && has_nvm_extension(output)),allow_temporary_files,run,allow_tcp_connections};
         if(daemon_wrapper || strip_debug)fputs("I do not support these output options for File source.\n",stderr);
         else if(root)result=nl_service_compile(program,env,test_imports,&options);
         free(root);free_environment(env);free_ast(program);free_module_list(modules);

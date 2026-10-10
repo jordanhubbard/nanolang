@@ -56,7 +56,15 @@
     "../../src/nsi_file.c",
     "../../src/nsi_file_values.c",
     "../../src/runtime/service_product.c",
-    "../../src/runtime/service_shadows.c"
+    "../../src/runtime/service_shadows.c",
+    "../../src/nanoisa/socket_flow.c",
+    "../../src/nanoisa/socket_runtime.c",
+    "../../src/nanoisa/socket_host_grant.c",
+    "../../src/nanoisa/socket_indirect_public_native.c",
+    "../../src/nanoisa/socket_indirect_public_abi.c",
+    "../../src/nanovm/socket_indirect_public_vm.c",
+    "../../src/nsi_socket.c",
+    "../../src/nsi_socket_values.c"
   ],
   "cflags": [
     "-D_GNU_SOURCE",

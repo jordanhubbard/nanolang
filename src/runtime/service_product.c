@@ -2,6 +2,8 @@
 #define _DARWIN_C_SOURCE 1
 #include "service_product.h"
 #include "../nanoisa/file_indirect_public.h"
+#include "../nanoisa/socket_indirect_public.h"
+#include "../nanoisa/nvm_v2_sections.h"
 #include "../shell_path.h"
 #include <errno.h>
 #include <fcntl.h>
@@ -79,17 +81,43 @@ static const char launcher[] =
 " result.runtime.cleanup.cleanup_failures || revoked!=NVM_FILE_HOST_OK || destroyed!=NVM_FILE_HOST_OK)return 1;\n"
 " return (int)((uint64_t)scalar.value & 255u);\n}\n";
 
+static const char socket_launcher[] =
+"\n#include <stdio.h>\n"
+"int main(int argc,char **argv) {\n"
+" if(argc!=2 || strcmp(argv[1],\"--allow-tcp-connections\")) {\n"
+"  fputs(\"I require --allow-tcp-connections for this invocation.\\n\",stderr); return 1; }\n"
+" NvmSocketHostGrant *grant=NULL;\n"
+" if(nvm_socket_host_grant_create_tcp_connections(&grant)!=NVM_SOCKET_HOST_OK)return 1;\n"
+" NvmSocketIndirectOptions options={NVM_SOCKET_INDIRECT_RUNTIME_REVISION,NVM_SOCKET_INDIRECT_FUEL_MAX};\n"
+" NvmSocketScalar scalar={0};\n"
+" NvmSocketIndirectExecutionReport result=nvm_socket_indirect_program_product(grant,&options,&scalar);\n"
+" NvmSocketHostStatus revoked=nvm_socket_host_grant_revoke(grant);\n"
+" NvmSocketHostStatus destroyed=nvm_socket_host_grant_destroy(&grant);\n"
+" if(result.runtime.status!=NVM_SOCKET_RUNTIME_OK || !result.runtime.acquired ||\n"
+" result.runtime.cleanup.cleanup_failures || revoked!=NVM_SOCKET_HOST_OK || destroyed!=NVM_SOCKET_HOST_OK)return 1;\n"
+" return (int)((uint64_t)scalar.value & 255u);\n}\n";
+
 int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *shadows,
                        size_t count,const NlServiceProductOptions *options) {
     if(!bytes || !size || !options || (!shadows&&count) || !options->root ||
        (options->output && !*options->output))return 1;
-    if((count || options->run) && !options->allow_temporary_files) {
-        fputs("I require --allow-temporary-files for selected File shadows or execution.\n",stderr);return 1;
+    NvmV2Module wire={0};
+    if(nvm_v2_module_deserialize(bytes,size,&wire)!=NVM_V2_OK)return 1;
+    unsigned catalog=wire.service_size==128?2:wire.service_size==120?1:0;
+    nvm_v2_module_free(&wire);
+    if(!catalog)return 1;
+    bool tcp=catalog==2;
+    bool allowed=tcp?options->allow_tcp_connections:options->allow_temporary_files;
+    if((count || options->run) && !allowed) {
+        fprintf(stderr,"I require %s for selected service shadows or execution.\n",
+            tcp?"--allow-tcp-connections":"--allow-temporary-files");return 1;
     }
     /* Translation validates the main module without executing or granting it. */
     char *native=NULL,diagnostic[256];
-    if(nvm2c_emit_file_indirect_bytes(bytes,size,"product",&native,diagnostic,sizeof diagnostic)!=NVM_FILE_RUNTIME_OK) {
-        fprintf(stderr,"I cannot validate File output: %s\n",diagnostic);return 1;
+    unsigned emitted=tcp?(unsigned)nvm2c_emit_socket_indirect_bytes(bytes,size,"product",&native,diagnostic,sizeof diagnostic):
+        (unsigned)nvm2c_emit_file_indirect_bytes(bytes,size,"product",&native,diagnostic,sizeof diagnostic);
+    if(emitted!=0) {
+        fprintf(stderr,"I cannot validate service output: %s\n",diagnostic);return 1;
     }
     char *parent=strdup(options->output?options->output:"/tmp/nano-file-run");
     if(!parent){free(native);return 1;}
@@ -103,20 +131,19 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
     if(!directory || !product || !mkdtemp(directory))goto done;
     staged=true;
     source=joined(directory,"program.c");log=joined(directory,"shadows.log");
-    include=joined(directory,"nanolang");link=include?joined(include,"file"):NULL;
+    include=joined(directory,"nanolang");link=include?joined(include,tcp?"socket":"file"):NULL;
     char *root=realpath(options->root,NULL);
     if(!root)goto done;
-    root_source=joined(root,"src");archive=joined(root,"lib/libnano_file_runtime.a");free(root);
+    root_source=joined(root,"src");archive=joined(root,tcp?"lib/libnano_socket_runtime.a":"lib/libnano_file_runtime.a");free(root);
     if(!source || !log || !include || !link || !root_source || !archive)goto done;
     struct stat headers;
     if(stat(root_source,&headers) || !S_ISDIR(headers.st_mode)) {
         free(root_source);root_source=NULL;
         root=realpath(options->root,NULL);
-        if(root){root_source=joined(root,"include/nanolang/file");free(root);}
+        if(root){root_source=joined(root,tcp?"include/nanolang/socket":"include/nanolang/file");free(root);}
         if(!root_source || stat(root_source,&headers) || !S_ISDIR(headers.st_mode))goto done;
     }
-    NlServiceShadowReport tested=nl_service_run_shadows(shadows,count,
-        options->allow_temporary_files,log);
+    NlServiceShadowReport tested=nl_service_run_catalog_shadows(shadows,count,catalog,allowed,log);
     FILE *records=fopen(log,"rb");
     if(records) {
         char buffer[4096];size_t n;
@@ -126,7 +153,7 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
         if(bad)goto done;
     } else goto done;
     if(tested.status!=NL_SERVICE_SHADOW_OK || tested.completed!=count) {
-        fprintf(stderr,"I will not publish after File shadow failure (status %u).\n",tested.status);goto done;
+        fprintf(stderr,"I will not publish after %s shadow failure (status %u).\n",tcp?"TCP":"File",tested.status);goto done;
     }
     if(options->output) {
         product_fd=mkstemp(product);if(product_fd<0)goto done;
@@ -138,7 +165,7 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
         } else {
             if(close(product_fd)){product_fd=-1;goto done;}product_fd=-1;
             int fd=open(source,O_CREAT|O_EXCL|O_WRONLY,0600);if(fd<0)goto done;
-            bool written=write_bytes(fd,native,strlen(native)) && write_bytes(fd,launcher,strlen(launcher));
+            bool written=write_bytes(fd,native,strlen(native)) && write_bytes(fd,tcp?socket_launcher:launcher,strlen(tcp?socket_launcher:launcher));
             if(close(fd))written=false;
             if(!written || mkdir(include,0700) || symlink(root_source,link))goto done;
             char *qsource=module_quote_path(source),*qproduct=module_quote_path(product);
@@ -164,6 +191,17 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
         }
     }
     if(options->run) {
+        if(tcp) {
+        NvmSocketHostGrant *grant=NULL;
+        if(nvm_socket_host_grant_create_tcp_connections(&grant)!=NVM_SOCKET_HOST_OK)goto done;
+        NvmSocketScalar scalar={0};NvmSocketIndirectOptions execution={1,NVM_SOCKET_INDIRECT_FUEL_MAX};
+        NvmSocketIndirectExecutionReport report=nvm_socket_execute_indirect_bytes(grant,bytes,size,&execution,&scalar);
+        NvmSocketHostStatus revoked=nvm_socket_host_grant_revoke(grant);
+        NvmSocketHostStatus destroyed=nvm_socket_host_grant_destroy(&grant);
+        if(report.runtime.status!=NVM_SOCKET_RUNTIME_OK || !report.runtime.acquired || report.runtime.cleanup.cleanup_failures ||
+           revoked!=NVM_SOCKET_HOST_OK || destroyed!=NVM_SOCKET_HOST_OK || grant)goto done;
+        result=(int)((uint64_t)scalar.value&255u);
+        } else {
         NvmFileHostGrant *grant=NULL;
         if(nvm_file_host_grant_create_temporary_files(&grant)!=NVM_FILE_HOST_OK)goto done;
         NvmFileScalar scalar={0};NvmFileIndirectOptions execution={1,NVM_FILE_INDIRECT_FUEL_MAX};
@@ -173,6 +211,7 @@ int nl_service_publish(const uint8_t *bytes,size_t size,const NlServiceShadow *s
         if(report.runtime.status!=NVM_FILE_RUNTIME_OK || !report.runtime.acquired || report.runtime.cleanup.cleanup_failures ||
            revoked!=NVM_FILE_HOST_OK || destroyed!=NVM_FILE_HOST_OK || grant)goto done;
         result=(int)((uint64_t)scalar.value&255u);
+        }
     } else result=0;
     /* I finish all auxiliary cleanup before the final atomic replacement. */
     if(!remove_file(source) || !remove_file(log) || !remove_file(link) ||
@@ -187,9 +226,9 @@ done:
         if(!remove_file(link))cleaned=false;
         if(include && rmdir(include) && errno!=ENOENT)cleaned=false;
         if(rmdir(directory))cleaned=false;
-        if(!cleaned)fputs("I could not clean private File staging.\n",stderr);
+        if(!cleaned)fputs("I could not clean private service staging.\n",stderr);
     }
-    if(product_created && !remove_file(product))fputs("I could not remove provisional File output.\n",stderr);
+    if(product_created && !remove_file(product))fputs("I could not remove provisional service output.\n",stderr);
     free(source);free(log);free(include);free(link);free(root_source);free(archive);
     free(directory);free(product);free(native);
     return result;

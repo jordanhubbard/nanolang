@@ -84,7 +84,7 @@ typedef struct {
     bool keep_c;
     bool show_intermediate_code;
     bool test_imports;
-    bool allow_temporary_files;
+    bool allow_temporary_files, allow_tcp_connections;
     bool emit_nvm;
     bool save_asm;            /* -S flag: save generated C to .genC file */
     bool json_errors;         /* Output errors in JSON format for tooling */
@@ -692,7 +692,7 @@ static int compile_file(const char *input_file, const char *output_file, Compile
         const char *cc=getenv("NANO_CC");if(!cc || !*cc)cc=getenv("CC");
         char *product_root=nl_service_product_root(g_argv[0]);
         NlServiceProductOptions product={output_file,product_root,cc,getenv("NANO_CFLAGS"),getenv("NANO_LDFLAGS"),
-            opts->emit_nvm,opts->allow_temporary_files,false};
+            opts->emit_nvm,opts->allow_temporary_files,false,opts->allow_tcp_connections};
         bool unsupported=opts->target && strcmp(opts->target,"native");
         unsupported=unsupported || opts->keep_c || opts->show_intermediate_code || opts->save_asm ||
             opts->profile || opts->trace || opts->coverage || opts->profile_gprof || opts->profile_runtime ||
@@ -1831,6 +1831,7 @@ int main(int argc, char *argv[]) {
         printf("                 (also enabled by NANO_VERBOSE_BUILD=1 env var)\n");
         printf("  --keep-c       Keep generated C file (saves to output dir instead of /tmp)\n");
         printf("  --emit-nvm     I emit checked File bytecode instead of a native executable\n");
+        printf("  --allow-tcp-connections I grant selected TCP shadows outbound connections\n");
         printf("  --allow-temporary-files I grant selected File shadows temporary-file access\n");
         printf("  -fshow-intermediate-code  Print generated C to stdout\n");
         printf("  -S             Save generated C to <input>.genC (for inspection)\n");
@@ -2053,6 +2054,8 @@ int main(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--profile") == 0) {
             opts.profile = true;
 
+        } else if (strcmp(argv[i], "--allow-tcp-connections") == 0) {
+            opts.allow_tcp_connections = true;
         } else if (strcmp(argv[i], "--allow-temporary-files") == 0) {
             opts.allow_temporary_files = true;
         } else if (strcmp(argv[i], "--emit-nvm") == 0) {

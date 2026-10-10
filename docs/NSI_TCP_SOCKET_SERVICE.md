@@ -47,5 +47,7 @@ I require real IPv4 and IPv6 loopback connections in included-source and linked
 tests, bounded test waits, bidirectional NUL/byte traffic, EOF, refusal, transfer
 and cleanup. Fault tests cover every setup step, connection/completion errors,
 unpublished outputs, stale/cross-context/rights rejection and exact descriptor
-accounting. Linux/Darwin release qualification and public nominal transport,
-DNS policy, VM/native source execution and WebSocket integration remain required.
+accounting. I expose checked single-catalog source execution through my
+[explicit TCP host API](SOCKET_HOST_API.md). Full Linux/Darwin release
+qualification, mixed File/TCP execution, DNS policy and WebSocket integration
+remain required.

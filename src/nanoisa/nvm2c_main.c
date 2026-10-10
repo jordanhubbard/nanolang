@@ -13,6 +13,7 @@
 #include "file_public.h"
 #include "file_cyclic_public.h"
 #include "file_indirect_public.h"
+#include "socket_indirect_public.h"
 #include "file_cli.h"
 
 #include <stdio.h>
@@ -27,6 +28,7 @@ static void usage(FILE *out) {
             "       nvm2c --file-temporary --entry-name IDENT <file.nvm> [-o out.c]\n"
             "       nvm2c --file-temporary --file-indirect --entry-name IDENT <file.nvm> [-o out.c]\n"
             "       nvm2c --file-temporary --file-cyclic --entry-name IDENT <file.nvm> [-o out.c]\n"
+            "       nvm2c --socket-tcp --entry-name IDENT <file.nvm> [-o out.c]\n"
             "       nvm2c --help\n"
             "Without -o I write C to stdout.\n"
             "For native array/GC artifact imports, link bin/nano_aot_runtime.o\n"
@@ -39,7 +41,7 @@ int main(int argc, char **argv) {
     const char *in = NULL;
     const char *out = NULL;
     const char *file_entry = NULL;
-    bool file_temporary = false;
+    bool file_temporary = false, socket_tcp = false;
     bool file_cyclic = false, file_indirect = false;
     int i;
     NanoisaErr err;
@@ -52,8 +54,12 @@ int main(int argc, char **argv) {
             usage(stdout);
             return 0;
         }
+        if (strcmp(argv[i], "--socket-tcp") == 0) {
+            if(socket_tcp){usage(stderr);return 2;}
+            socket_tcp=true;continue;
+        }
         if (strcmp(argv[i], "--file-temporary") == 0) {
-            if (file_temporary) { usage(stderr); return 2; }
+            if (file_temporary || socket_tcp) { usage(stderr); return 2; }
             file_temporary = true;
             continue;
         }
@@ -92,11 +98,11 @@ int main(int argc, char **argv) {
         return 2;
     }
 
-    if (file_temporary != (file_entry != NULL) || ((file_cyclic || file_indirect) && !file_temporary)) {
-        fprintf(stderr,"I require --file-temporary and --entry-name together.\n");
+    if ((file_temporary || socket_tcp) != (file_entry != NULL) || (file_temporary && socket_tcp) || ((file_cyclic || file_indirect) && !file_temporary)) {
+        fprintf(stderr,"I require one of --file-temporary/--socket-tcp with --entry-name.\n");
         return 2;
     }
-    if (file_temporary) {
+    if (file_temporary || socket_tcp) {
         uint8_t *bytes = NULL;
         size_t size = 0;
         c = NULL;
@@ -105,14 +111,14 @@ int main(int argc, char **argv) {
             fprintf(stderr,"%s\n",emit_err);
             return 1;
         }
-        NvmFileRuntimeStatus status = file_indirect
+        unsigned status = socket_tcp ? (unsigned)nvm2c_emit_socket_indirect_bytes(bytes,size,file_entry,&c,emit_err,sizeof emit_err) : file_indirect
             ? nvm2c_emit_file_indirect_bytes(bytes,size,file_entry,&c,emit_err,sizeof emit_err)
             : file_cyclic
             ? nvm2c_emit_file_cyclic_bytes(bytes,size,file_entry,&c,emit_err,sizeof emit_err)
             : nvm2c_emit_file_bytes(bytes,size,file_entry,&c,emit_err,sizeof emit_err);
         free(bytes);
         if (status != NVM_FILE_RUNTIME_OK) {
-            fprintf(stderr,"I cannot emit the File profile (%u): %s\n",(unsigned)status,emit_err);
+            fprintf(stderr,"I cannot emit the selected service profile (%u): %s\n",(unsigned)status,emit_err);
             return 1;
         }
         bool published;
@@ -120,7 +126,7 @@ int main(int argc, char **argv) {
         else published = fputs(c,stdout) != EOF && fflush(stdout) == 0;
         free(c);
         if (!published) {
-            fprintf(stderr,"I cannot publish File C output%s%s\n",out ? ": " : "",out ? emit_err : "");
+            fprintf(stderr,"I cannot publish service C output%s%s\n",out ? ": " : "",out ? emit_err : "");
             return 1;
         }
         return 0;

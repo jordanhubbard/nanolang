@@ -21,7 +21,7 @@ static char *copy_text(const char *s) {
     if(copy)memcpy(copy,s,size);return copy;
 }
 NlFileProduct *nl_file_product_new(const char *output,const char *root,int64_t flags) {
-    if(!text_ok(output,false) || !text_ok(root,false) || flags<0 || flags>3)return NULL;
+    if(!text_ok(output,false) || !text_ok(root,false) || flags<0 || flags>7)return NULL;
     NlFileProduct *p=calloc(1,sizeof *p);if(!p)return NULL;
     p->output=copy_text(output);p->root=copy_text(root);p->flags=flags;
     if(!p->output || !p->root){nl_file_product_free(p);return NULL;}
@@ -72,7 +72,7 @@ int64_t nl_file_product_publish(NlFileProduct *p) {
     if(!p->main || p->used)return 1;
     const char *cc=getenv("NANO_CC");if(!cc || !*cc)cc=getenv("CC");
     NlServiceProductOptions options={p->output,p->root,cc,getenv("NANO_CFLAGS"),getenv("NANO_LDFLAGS"),
-        (p->flags&1)!=0,(p->flags&2)!=0,false};
+        (p->flags&1)!=0,(p->flags&2)!=0,false,(p->flags&4)!=0};
     return nl_service_publish(p->main,p->main_size,p->shadows,p->count,&options);
 }
 void nl_file_product_free(NlFileProduct *p) {

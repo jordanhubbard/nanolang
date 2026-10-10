@@ -27,4 +27,8 @@ typedef struct {
  * NANO_SHADOW_TIMEOUT_SECONDS override applies. A grant is never persisted. */
 NlServiceShadowReport nl_service_run_shadows(const NlServiceShadow *, size_t,
     bool allow_temporary_files, const char *log_path);
+/* Catalog 1 selects File; catalog 2 selects TCP. The selected public consumer
+ * independently checks every module; the boolean grants only this catalog. */
+NlServiceShadowReport nl_service_run_catalog_shadows(const NlServiceShadow *, size_t,
+    unsigned catalog, bool allowed, const char *log_path);
 #endif

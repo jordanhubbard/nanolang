@@ -3,7 +3,7 @@
 #include <stdint.h>
 typedef struct NlFileProduct NlFileProduct;
 /* I own copied paths, bytes and labels. Flags: 1 bytecode output, 2 explicit
- * shadow grants. New returns NULL on invalid input/allocation failure; free
+ * File shadow grants, 4 explicit TCP shadow grants. New returns NULL on invalid input/allocation failure; free
  * accepts NULL. Callers protect source/companion aliases before publication.
  * I accept no AST or source-resolution facts. Calls are serialized. */
 NlFileProduct *nl_file_product_new(const char *,const char *,int64_t);

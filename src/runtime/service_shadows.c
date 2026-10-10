@@ -3,6 +3,7 @@
 #include "service_shadows.h"
 #include "shadow_timeout.h"
 #include "../nanoisa/file_indirect_public.h"
+#include "../nanoisa/socket_indirect_public.h"
 #include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
@@ -32,12 +33,26 @@ static bool elapsed(struct timespec start, unsigned seconds, bool *failed) {
         (now.tv_sec - start.tv_sec == seconds && now.tv_nsec >= start.tv_nsec);
 }
 
-static NlServiceShadowReport execute(const NlServiceShadow *suite, size_t count, FILE *log) {
+static NlServiceShadowReport execute(const NlServiceShadow *suite, size_t count, unsigned catalog, FILE *log) {
     NlServiceShadowReport report = {NL_SERVICE_SHADOW_FAILED, 0};
     const NvmFileIndirectOptions options = {NVM_FILE_INDIRECT_RUNTIME_REVISION,
                                          NVM_FILE_INDIRECT_FUEL_MAX};
     for (size_t i = 0; i < count; ++i) {
         if (!record(log, "START", i, &suite[i])) return report;
+        if(catalog==2) {
+        const NvmSocketIndirectOptions tcp_options={1,NVM_SOCKET_INDIRECT_FUEL_MAX};
+        NvmSocketHostGrant *grant = NULL;
+        if (nvm_socket_host_grant_create_tcp_connections(&grant) != NVM_SOCKET_HOST_OK)
+            return report;
+        NvmSocketScalar scalar = {0};
+        NvmSocketIndirectExecutionReport result = nvm_socket_execute_indirect_bytes(
+            grant, suite[i].bytes, suite[i].size, &tcp_options, &scalar);
+        NvmSocketHostStatus revoked = nvm_socket_host_grant_revoke(grant);
+        NvmSocketHostStatus destroyed = nvm_socket_host_grant_destroy(&grant);
+        if (result.runtime.status != NVM_SOCKET_RUNTIME_OK || !result.runtime.acquired ||
+            result.runtime.cleanup.cleanup_failures || revoked != NVM_SOCKET_HOST_OK ||
+            destroyed != NVM_SOCKET_HOST_OK || grant || scalar.value != 0) return report;
+        } else {
         NvmFileHostGrant *grant = NULL;
         if (nvm_file_host_grant_create_temporary_files(&grant) != NVM_FILE_HOST_OK)
             return report;
@@ -49,6 +64,7 @@ static NlServiceShadowReport execute(const NlServiceShadow *suite, size_t count,
         if (result.runtime.status != NVM_FILE_RUNTIME_OK || !result.runtime.acquired ||
             result.runtime.cleanup.cleanup_failures || revoked != NVM_FILE_HOST_OK ||
             destroyed != NVM_FILE_HOST_OK || grant || scalar.value != 0) return report;
+        }
         if (!record(log, "DONE", i, &suite[i])) return report;
         ++report.completed;
     }
@@ -56,10 +72,10 @@ static NlServiceShadowReport execute(const NlServiceShadow *suite, size_t count,
     return report;
 }
 
-NlServiceShadowReport nl_service_run_shadows(const NlServiceShadow *suite, size_t count,
-                                            bool allowed, const char *path) {
+NlServiceShadowReport nl_service_run_catalog_shadows(const NlServiceShadow *suite, size_t count,
+                                            unsigned catalog, bool allowed, const char *path) {
     NlServiceShadowReport report = {NL_SERVICE_SHADOW_INVALID, 0};
-    if ((!suite && count) || count > 4096 || !path || !*path) return report;
+    if ((catalog!=1 && catalog!=2) || (!suite && count) || count > 4096 || !path || !*path) return report;
     for (size_t i = 0; i < count; ++i)
         if (!suite[i].bytes || !suite[i].size || !suite[i].origin || !suite[i].name ||
             !*suite[i].origin || !*suite[i].name ||
@@ -88,11 +104,16 @@ NlServiceShadowReport nl_service_run_shadows(const NlServiceShadow *suite, size_
     }
     fflush(NULL);
     pid_t child = fork();
+    int fork_error = errno;
     if (!child) {
         close(channel[0]);
-        if (setpgid(0, 0) || dup2(fd, STDOUT_FILENO) < 0 || dup2(fd, STDERR_FILENO) < 0)
-            _exit(1);
-        NlServiceShadowReport result = execute(suite, count, log);
+        if (setpgid(0, 0)) {
+            dprintf(fd,"I cannot establish my shadow process group: %s.\n",strerror(errno));_exit(1);
+        }
+        if (dup2(fd, STDOUT_FILENO) < 0 || dup2(fd, STDERR_FILENO) < 0) {
+            dprintf(fd,"I cannot redirect my shadow log: %s.\n",strerror(errno));_exit(1);
+        }
+        NlServiceShadowReport result = execute(suite, count, catalog, log);
         if (fclose(log)) result.status = NL_SERVICE_SHADOW_SYSTEM;
         ssize_t sent;
         do { sent = write(channel[1], &result, sizeof result); } while (sent < 0 && errno == EINTR);
@@ -101,7 +122,7 @@ NlServiceShadowReport nl_service_run_shadows(const NlServiceShadow *suite, size_
     }
     close(channel[1]);
     bool close_failed = fclose(log) != 0;
-    if (child < 0) { close(channel[0]); return report; }
+    if (child < 0) { fprintf(stderr,"I cannot start my shadow child: %s.\n",strerror(fork_error));close(channel[0]);return report; }
     /* Both sides establish the group so termination also reaches descendants. */
     (void)setpgid(child, child);
     int status = 0;
@@ -133,11 +154,21 @@ NlServiceShadowReport nl_service_run_shadows(const NlServiceShadow *suite, size_
     ssize_t got;
     do { got = read(channel[0], &received, sizeof received); } while (got < 0 && errno == EINTR);
     close(channel[0]);
-    if (close_failed || kill_failed || clock_failed || waited != child) return report;
+    if (close_failed || kill_failed || clock_failed || waited != child) {
+        fprintf(stderr,"I cannot finish shadow supervision (log %u, cleanup %u, clock %u, waited %ld, child %ld).\n",
+            (unsigned)close_failed,(unsigned)kill_failed,(unsigned)clock_failed,(long)waited,(long)child);return report;
+    }
     if (timeout) { report.status = NL_SERVICE_SHADOW_TIMEOUT; return report; }
-    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0 || got != sizeof received)
-        return report;
+    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0 || got != sizeof received) {
+        fprintf(stderr,"I lost my shadow child report (exit %d, signal %d, bytes %ld).\n",
+            WIFEXITED(status)?WEXITSTATUS(status):-1,WIFSIGNALED(status)?WTERMSIG(status):0,(long)got);return report;
+    }
     if (received.completed > count ||
         (received.status == NL_SERVICE_SHADOW_OK && received.completed != count)) return report;
     return received;
+}
+
+NlServiceShadowReport nl_service_run_shadows(const NlServiceShadow *suite,size_t count,
+    bool allowed,const char *path) {
+    return nl_service_run_catalog_shadows(suite,count,1,allowed,path);
 }
