@@ -1,0 +1,4 @@
+-m unittest -v tests.test_nano_service_driver.NanoServiceDriver File=/Users/jordanh/Src/nanolang/bin/nanoc_stage1.nvm TCP=
+-m unittest -v tests.test_socket_service_drivers.SocketServiceDrivers File= TCP=/Users/jordanh/Src/nanolang/bin/nanoc_stage1.nvm
+-m unittest -v tests.test_nano_service_driver.NanoServiceDriver File=/Users/jordanh/Src/nanolang/bin/nanoc_stage2.nvm TCP=
+-m unittest -v tests.test_socket_service_drivers.SocketServiceDrivers File= TCP=/Users/jordanh/Src/nanolang/bin/nanoc_stage2.nvm

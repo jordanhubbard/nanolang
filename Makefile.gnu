@@ -6168,8 +6168,10 @@ test-units: test-file-product-bridge
 
 .PHONY: test-nano-service-driver
 test-nano-service-driver: bootstrap3 $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a
-	NANO_FILE_DRIVER_MODULE="$(CURDIR)/$(BIN_DIR)/nanoc_stage1.nvm" NANO_FILE_DRIVER_NATIVE="$(CURDIR)/$(BIN_DIR)/nanoc_stage1" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_nano_service_driver.NanoServiceDriver
-	NANO_TCP_DRIVER_MODULE="$(CURDIR)/$(BIN_DIR)/nanoc_stage1.nvm" NANO_TCP_DRIVER_NATIVE="$(CURDIR)/$(BIN_DIR)/nanoc_stage1" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -f -v tests.test_socket_service_drivers.SocketServiceDrivers
+	@set -e; for generation in 1 2; do \
+	  NANO_FILE_DRIVER_MODULE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}.nvm" NANO_FILE_DRIVER_NATIVE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_nano_service_driver.NanoServiceDriver; \
+	  NANO_TCP_DRIVER_MODULE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}.nvm" NANO_TCP_DRIVER_NATIVE="$(CURDIR)/$(BIN_DIR)/nanoc_stage$${generation}" NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -v tests.test_socket_service_drivers.SocketServiceDrivers; \
+	done
 
 $(OBJ_DIR)/nvm2c_artifact_sanitize: $(NANOISA_DIR)/nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a
 	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $@ $(NANOISA_DIR)/nvm2c.c $(filter-out $(OBJ_DIR)/nanoisa/nvm2c.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(NVM2C_MAIN_OBJECT) $(FILE_CLI_OBJECT) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a $(LDFLAGS)
