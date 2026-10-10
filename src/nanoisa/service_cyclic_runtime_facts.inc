@@ -52,7 +52,7 @@ static bool fr_instruction(const SERVICE_TYPE(Runtime) *c,uint32_t f,uint16_t i,
 }
 static bool fr_import(const SERVICE_TYPE(Runtime) *c,uint32_t original,uint32_t *ordinal) {
     if(c->kind==FR_ACYCLIC)return SERVICE_FN(hosted_import)(c->plan,original,ordinal);
-    for(uint32_t i=0;i<NVM_SERVICE_BINDING_COUNT;i++) {
+    for(uint32_t i=0;i<RUNTIME_IMPORTS(c);i++) {
         uint32_t value;
         if(!(c->kind==FR_INDIRECT?SERVICE_FN(indirect_hosted_import)(c->indirect_plan,i,&value):
              SERVICE_FN(cyclic_hosted_import)(c->cyclic_plan,i,&value)))return false;
@@ -89,7 +89,7 @@ SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_cyclic_create)(const uint8_t *byt
     SERVICE_TYPE(FlowStatus) checked=SERVICE_FN(cyclic_hosted_prepare)(bytes,size,&plan);
     if(checked!=SERVICE_CONST(FLOW_OK))return fr_prepare(checked);
     SERVICE_TYPE(CyclicHostedStartup) v;size_t core,total;
-    if(!SERVICE_FN(cyclic_hosted_startup)(plan,&v) || !CORE_FN(values_storage_bound)(&core)) {
+    if(!SERVICE_FN(cyclic_hosted_startup)(plan,&v) || !RUNTIME_BOUND(&core)) {
         SERVICE_FN(cyclic_hosted_free)(plan);return SERVICE_CONST(RUNTIME_INVALID);
     }
     uint64_t values=mode==SERVICE_CONST(RUNTIME_VM)?v.vm_value_slots:v.native_value_slots;
@@ -117,12 +117,7 @@ SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_cyclic_create)(const uint8_t *byt
     SERVICE_TYPE(RuntimeStatus) status=SERVICE_CONST(RUNTIME_MEMORY);
     if(!c->witness || !c->values || !c->references || !c->regions || !c->frames)goto fail;
     status=SERVICE_CONST(RUNTIME_INVALID);
-    for(uint32_t i=0;i<NOMINAL_TYPES;i++) {
-        NominalLayout type;
-        if(!SERVICE_FN(cyclic_hosted_type)(plan,i,&type))goto fail;
-        c->types[i]=(SERVICE_TYPE(FlowDeclaration)){type.layout_kind==NVM_V2_LAYOUT_STRUCT?TAG_STRUCT:TAG_UNION,
-            0,type.global_index,type.catalog_ordinal,type.category};
-    }
+    RUNTIME_LOAD_TYPES(c,SERVICE_FN(cyclic_hosted_type),plan);
     c->report.function=c->report.instruction=NVM_V2_NO_INDEX;
     c->current_root=v.initializer!=NVM_V2_NO_INDEX?v.initializer:v.entry;
     *out=c;return SERVICE_CONST(RUNTIME_OK);

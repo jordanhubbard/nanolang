@@ -279,6 +279,26 @@ NlServicesValueStatus nl_services_value_drop(NlServicesValues *c,NlServicesValue
     if(status==NL_SERVICES_VALUE_OK)*source=(NlServicesValue){0};
     return status;
 }
+bool nl_services_values_report(const NlServicesValues *c,NlServicesFinish *out) {
+    if(!c || !out)return false;
+    if(c->terminal){*out=c->report;return true;}
+    NlServicesFinish report={0};report.count=c->count;
+    for(uint32_t i=0;i<c->count;i++) {
+        report.instances[i].catalog=c->instances[i].catalog;
+        if(c->instances[i].catalog==NL_SERVICES_FILE) {
+            NlFileValuesFinish f;
+            if(!nl_file_values_report(c->instances[i].core.file,&f))return false;
+            report.instances[i].finish.file=f;report.cleanup_failures+=f.cleanup_failures;
+            if(report.execution==NL_SERVICES_VALUE_OK)report.execution=from_file(f.execution);
+        } else {
+            NlSocketValuesFinish f;
+            if(!nl_socket_values_report(c->instances[i].core.tcp,&f))return false;
+            report.instances[i].finish.tcp=f;report.cleanup_failures+=f.cleanup_failures;
+            if(report.execution==NL_SERVICES_VALUE_OK)report.execution=from_socket(f.execution);
+        }
+    }
+    *out=report;return true;
+}
 NlServicesValueStatus nl_services_values_finish(NlServicesValues *c,NlServicesValueStatus execution,NlServicesFinish *out) {
     if(!c || !out || execution<NL_SERVICES_VALUE_OK || execution>NL_SERVICES_VALUE_STATE)return NL_SERVICES_VALUE_ARGUMENT;
     if(!c->terminal) {

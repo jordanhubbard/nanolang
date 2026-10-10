@@ -1,8 +1,8 @@
 /* Private cyclic carrier. No decoded dispatch or public admission. */
 static bool frc_identity(CoreValue a,CoreValue b) {
-    return a.invocation==b.invocation && a.generation==b.generation && a.slot==b.slot;
+    return RUNTIME_IDENTITY(a,b);
 }
-static bool frc_zero(CoreValue a) { return !a.invocation && !a.generation && !a.slot; }
+static bool frc_zero(CoreValue a) { return RUNTIME_ZERO(a); }
 static SERVICE_TYPE(RuntimeStatus) frc_bad(SERVICE_TYPE(Runtime) *c) {
     return fr_error(c,SERVICE_CONST(RUNTIME_STATE),CORE_STATUS(STATE));
 }
@@ -21,7 +21,7 @@ static bool frc_payload(const SERVICE_TYPE(Runtime) *c,const FileRuntimeValue *v
         for(uint8_t i=0;i<SERVICE_CONST(RUNTIME_FIELDS);i++)if(p->values[i])return false;
         return true;
     }
-    if(p->owning)return !p->formal && !p->fields && !v->reference;
+    if(p->owning)return RUNTIME_VALUE_MATCH(c,v->owner,p->type) && !p->formal && !p->fields && !v->reference;
     if(!frc_zero(v->owner))return false;
     if(p->formal)return (p->type.mode==1 || p->type.mode==2) && !p->fields;
     if(v->reference || p->type.mode)return false;
@@ -29,7 +29,7 @@ static bool frc_payload(const SERVICE_TYPE(Runtime) *c,const FileRuntimeValue *v
     if(p->type.tag==TAG_BOOL)return p->fields==1 && p->arm==SERVICE_CONST(FLOW_ARM_NONE) &&
         (p->values[0]==0 || p->values[0]==1);
     if(p->type.tag==TAG_VOID)return !p->fields && p->arm==SERVICE_CONST(FLOW_ARM_NONE);
-    const NlServicePlanType *type=NOMINAL_CATALOG_TYPE(p->type.catalog_ordinal);
+    const NlServicePlanType *type=RUNTIME_CATALOG_TYPE(c,p->type.catalog_ordinal);
     if(!type)return false;
     if(p->type.category==SERVICE_CONST(CATEGORY_RECORD)) {
         if(p->fields!=type->member_count || p->fields>SERVICE_CONST(RUNTIME_FIELDS) ||
@@ -40,7 +40,7 @@ static bool frc_payload(const SERVICE_TYPE(Runtime) *c,const FileRuntimeValue *v
     }
     if(p->type.category!=SERVICE_CONST(CATEGORY_SCALAR_RESULT) ||
        (p->arm!=SERVICE_CONST(FLOW_ARM_OK) && p->arm!=SERVICE_CONST(FLOW_ARM_ERROR)))return false;
-    return fr_scalar_payload(p);
+    return RUNTIME_SCALAR_PAYLOAD(c,p);
 }
 static bool frc_value(SERVICE_TYPE(Runtime) *c,uint32_t root,SERVICE_TYPE(FlowValue) expected) {
     if(root>=c->storage.values)return false;
@@ -69,7 +69,7 @@ static bool frc_value(SERVICE_TYPE(Runtime) *c,uint32_t root,SERVICE_TYPE(FlowVa
 }
 static bool frc_reference_empty(const FileRuntimeReference *r) {
     return !r->live && !r->formal && !r->shared && !r->owner_root && !r->origin && !r->formal_root &&
-        !r->region && !r->borrow.epoch && frc_zero(r->borrow.value);
+        !r->region && !RUNTIME_BORROW_EPOCH(r->borrow) && frc_zero(RUNTIME_BORROW_VALUE(r->borrow));
 }
 static bool frc_frame(SERVICE_TYPE(Runtime) *c,const FileRuntimeFrame *f,uint32_t region_end) {
     SERVICE_TYPE(CyclicVariant) fact;SERVICE_TYPE(HostedFunction) fn;
@@ -113,9 +113,9 @@ static bool frc_frame(SERVICE_TYPE(Runtime) *c,const FileRuntimeFrame *f,uint32_
         if(!expected.live){if(!frc_reference_empty(r))return false;continue;}
         if(!r->live || expected.formal!=r->formal || expected.shared!=r->shared || !fr_reference(c,f->reference_base+i) ||
            CORE_FN(value_borrow_validate)(c->files,&r->borrow)!=CORE_STATUS(OK) ||
-           !frc_identity(r->borrow.value,c->values[r->owner_root].owner))return false;
+           !frc_identity(RUNTIME_BORROW_VALUE(r->borrow),c->values[r->owner_root].owner))return false;
         const FileRuntimeReference *origin=&c->references[r->origin];
-        if(!frc_identity(origin->borrow.value,r->borrow.value) || origin->borrow.epoch!=r->borrow.epoch)return false;
+        if(!frc_identity(RUNTIME_BORROW_VALUE(origin->borrow),RUNTIME_BORROW_VALUE(r->borrow)) || RUNTIME_BORROW_EPOCH(origin->borrow)!=RUNTIME_BORROW_EPOCH(r->borrow))return false;
         if(expected.formal) {
             if(i>=fn.code.declaration.parameters || expected.local!=i || expected.owner!=UINT64_C(257)+i ||
                expected.identity!=expected.owner || expected.region || r->region ||
@@ -127,7 +127,7 @@ static bool frc_frame(SERVICE_TYPE(Runtime) *c,const FileRuntimeFrame *f,uint32_
                expected.region-513>=fact.input.regions || (!r->shared && r->origin!=f->reference_base+i) ||
                r->formal_root!=SERVICE_CONST(RUNTIME_NO_SLOT) || r->owner_root!=f->locals_base+expected.local ||
                c->witness->roots[expected.owner-1]!=r->owner_root ||
-               !frc_identity(c->witness->owners[expected.owner-1],r->borrow.value) ||
+               !frc_identity(c->witness->owners[expected.owner-1],RUNTIME_BORROW_VALUE(r->borrow)) ||
                r->region!=c->regions[f->region_base+(uint32_t)(expected.region-513)])return false;
         }
     }
@@ -136,7 +136,7 @@ static bool frc_frame(SERVICE_TYPE(Runtime) *c,const FileRuntimeFrame *f,uint32_
 static SERVICE_TYPE(RuntimeStatus) frc_validate(SERVICE_TYPE(Runtime) *c,const FileRuntimeFrame *current) {
     if(c->kind==FR_ACYCLIC || !c->witness || !c->frame_count ||
        c->frame_count>c->storage.frames || c->region_count>c->storage.regions || !c->acquired || !c->files)return frc_bad(c);
-    bool slots[CORE_STATUS(SLOTS)]={0};uint64_t rooted=0,borrowed=0;
+    uint64_t rooted[RUNTIME_MAX_INSTANCES]={0},borrowed[RUNTIME_MAX_INSTANCES]={0};
     /* Every owning root, including waiting callers, has a unique live core slot.
      * The full generation/type check prevents stale same-slot aliases. */
     for(uint32_t root=0;root<c->storage.values;root++) {
@@ -153,11 +153,12 @@ static SERVICE_TYPE(RuntimeStatus) frc_validate(SERVICE_TYPE(Runtime) *c,const F
             if(!covered)return frc_bad(c);
         }
         if(v->view.initialized && v->view.owning) {
-            if(v->owner.slot>=CORE_STATUS(SLOTS) || slots[v->owner.slot])return frc_bad(c);
+            uint32_t instance=RUNTIME_CORE_INDEX(v->owner),slot=RUNTIME_CORE_SLOT(v->owner);
+            if(instance>=RUNTIME_INSTANCES(c) || slot>=64 || (rooted[instance]&(UINT64_C(1)<<slot)))return frc_bad(c);
             CoreStatus checked=CORE_FN(value_validate)(c->files,&v->owner,
                 v->view.type.category==NOMINAL_CATEGORY_OWNER_RESULT);
             if(checked!=CORE_STATUS(OK))return fr_core(c,checked);
-            slots[v->owner.slot]=true;rooted|=UINT64_C(1)<<v->owner.slot;
+            rooted[instance]|=UINT64_C(1)<<slot;
         }
     }
     for(uint32_t i=0;i<c->region_count;i++) {
@@ -170,15 +171,18 @@ static SERVICE_TYPE(RuntimeStatus) frc_validate(SERVICE_TYPE(Runtime) *c,const F
     for(uint32_t i=0;i<c->storage.references;i++) {
         const FileRuntimeReference *r=&c->references[i];
         if(r->live && !r->formal && r->origin==i) {
-            if(r->borrow.value.slot>=CORE_STATUS(SLOTS) ||
-               (borrowed&(UINT64_C(1)<<r->borrow.value.slot)))return frc_bad(c);
-            borrowed|=UINT64_C(1)<<r->borrow.value.slot;
+            CoreValue owner=RUNTIME_BORROW_VALUE(r->borrow);
+            uint32_t instance=RUNTIME_CORE_INDEX(owner),slot=RUNTIME_CORE_SLOT(owner);
+            if(instance>=RUNTIME_INSTANCES(c) || slot>=64 || (borrowed[instance]&(UINT64_C(1)<<slot)))return frc_bad(c);
+            borrowed[instance]|=UINT64_C(1)<<slot;
         }
     }
-    uint64_t core_owners,core_borrowed;
-    CoreStatus core=CORE_FN(values_live_slots)(c->files,&core_owners,&core_borrowed);
-    if(core!=CORE_STATUS(OK))return fr_core(c,core);
-    if(rooted!=core_owners || borrowed!=core_borrowed)return frc_bad(c);
+    for(uint32_t i=0;i<RUNTIME_INSTANCES(c);i++) {
+        uint64_t core_owners,core_borrowed;
+        CoreStatus core=RUNTIME_LIVE_SLOTS(c,i,&core_owners,&core_borrowed);
+        if(core!=CORE_STATUS(OK))return fr_core(c,core);
+        if(rooted[i]!=core_owners || borrowed[i]!=core_borrowed)return frc_bad(c);
+    }
     uint64_t base=0;
     for(uint16_t d=0;d<c->frame_count;d++) {
         const FileRuntimeFrame *f=d+1==c->frame_count?current:&c->frames[d];

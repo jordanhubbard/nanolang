@@ -186,8 +186,9 @@ SERVICE_TYPE(RuntimeStatus) SERVICE_FN(runtime_frame_call)(SERVICE_TYPE(Runtime)
                (in.decoded.opcode==OP_CALL_REF && in.call_references[i]!=in.decoded.operands[1].u16))return frf_bad(c);
             uint32_t reference=f->reference_base+in.call_references[i];
             references[i]=reference;
-            SERVICE_TYPE(FlowDeclaration) wanted=c->types[0];wanted.mode=type.mode;
-            if(!fr_same(type,wanted) || !fr_reference(c,reference) || c->references[reference].shared!=(type.mode==1))
+            if(!fr_reference(c,reference))return fr_error(c,SERVICE_CONST(RUNTIME_BORROWED),CORE_STATUS(BORROWED));
+            SERVICE_TYPE(FlowDeclaration) wanted=c->values[c->references[reference].owner_root].view.type;wanted.mode=type.mode;
+            if(!fr_same(type,wanted) || c->references[reference].shared!=(type.mode==1))
                 return fr_error(c,SERVICE_CONST(RUNTIME_BORROWED),CORE_STATUS(BORROWED));
             for(uint16_t j=0;j<i;j++) {
                 SERVICE_TYPE(FlowDeclaration) prior;

@@ -140,8 +140,10 @@ static void lifecycle(bool ipv6,bool abandon) {
     }
     NlServicesValueStatus execution=abandon?NL_SERVICES_VALUE_STATE:NL_SERVICES_VALUE_OK;
     NlServicesFinish first,second;
+    CHECK(nl_services_values_report(c,&first) && first.count==3 && !first.cleanup_failures && first.execution==NL_SERVICES_VALUE_OK);
     OK(nl_services_values_finish(c,execution,&first));CHECK(!first.cleanup_failures);
     OK(nl_services_values_finish(c,NL_SERVICES_VALUE_MEMORY,&second));CHECK(!memcmp(&first,&second,sizeof first));
+    CHECK(nl_services_values_report(c,&second) && !memcmp(&first,&second,sizeof first));
     CHECK(nl_services_value_call(c,1,3,&borrows[1],0,&r)==NL_SERVICES_VALUE_DISPOSED);
     wait=(struct pollfd){.fd=peer,.events=POLLIN};CHECK(poll(&wait,1,2000)==1);
     CHECK(recv(peer,&byte,1,0)==0);CHECK(close(peer)==0 && close(server)==0);

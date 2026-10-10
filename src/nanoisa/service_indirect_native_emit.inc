@@ -187,15 +187,18 @@ static void fn_agreement(Fne *b,const SERVICE_TYPE(IndirectHostedPlan) *p,SERVIC
 #undef START
     fn_text(b,"if(s.input_bytes!=sizeof nf_module)return false;\n"
         "for(size_t n=0;n<sizeof nf_module;n++)if(!" SERVICE_FN_TEXT "indirect_hosted_bytes(p,n,&byte,1) || byte!=nf_module[n])return false;\n");
-    for(uint32_t i=0;i<SERVICE_CONST(NOMINAL_TYPES);i++) {
+    for(uint32_t i=0;i<DISPATCH_TYPE_CAPACITY(p);i++) {
         SERVICE_TYPE(NominalLayout) t;
-        if(!SERVICE_FN(indirect_hosted_type)(p,i,&t)){b->status=SERVICE_CONST(RUNTIME_UNRESOLVED);return;}
+        if(!SERVICE_FN(indirect_hosted_type)(p,i,&t)) {
+            if(!DISPATCH_TYPE_OPTIONAL(i)){b->status=SERVICE_CONST(RUNTIME_UNRESOLVED);return;}
+            fn_text(b,"if(" SERVICE_FN_TEXT "indirect_hosted_type(p,%u,&t))return false;\n",i);continue;
+        }
         fn_text(b,"if(!" SERVICE_FN_TEXT "indirect_hosted_type(p,%u,&t))return false;\n",i);
 #define TYPE(m) FN_FIELD(b,"t.",t,m)
         TYPE(global_index);TYPE(catalog_ordinal);TYPE(source_ordinal);TYPE(layout_kind);TYPE(ownership_flags);TYPE(category);
 #undef TYPE
     }
-    for(uint32_t method=0;method<NVM_SERVICE_BINDING_COUNT;method++) {
+    for(uint32_t method=0;method<DISPATCH_IMPORT_COUNT(p);method++) {
         uint32_t original;
         if(!SERVICE_FN(indirect_hosted_import)(p,method,&original)){b->status=SERVICE_CONST(RUNTIME_UNRESOLVED);return;}
         fn_text(b,"if(!" SERVICE_FN_TEXT "indirect_hosted_import(p,%u,&ordinal) || ordinal!=%u)return false;\n",method,original);
@@ -317,10 +320,10 @@ static void fn_instruction(Fne *b,const SERVICE_TYPE(IndirectHostedPlan) *p,uint
         fn_text(b,"if(!" SERVICE_FN_TEXT "runtime_frame_local(c,%u,&src) || !" SERVICE_FN_TEXT "runtime_frame_reserve(c,(uint16_t)f.stack_count,&dst))return nf_bad(c);\n"
             "NF_TRY(" SERVICE_FN_TEXT "runtime_take(c,src,%u,dst));\n",d->operands[0].u16,d->operands[1].u8?SERVICE_CONST(FLOW_ARM_ERROR):SERVICE_CONST(FLOW_ARM_OK));break;
     case OP_FILE_SERVICE: {
-        uint32_t ordinal=in->catalog_ordinal;bool consumes=ordinal==1 || ordinal==4 || (SERVICE_HAS_ENDPOINT && ordinal==0);
+        uint32_t ordinal=in->catalog_ordinal,method=DISPATCH_METHOD_LOCAL(ordinal);bool consumes=method==1 || method==4 || (DISPATCH_ENDPOINT(p,ordinal) && method==0);
         fn_text(b,"src=reference=" SERVICE_CONST_TEXT "RUNTIME_NO_SLOT;\nif(!" SERVICE_FN_TEXT "runtime_frame_scratch(c,&dst))return nf_bad(c);\n");
         if(consumes)fn_text(b,"if(!f.stack_count || !" SERVICE_FN_TEXT "runtime_frame_operand(c,(uint16_t)(f.stack_count-1),&src))return nf_bad(c);\n");
-        if(ordinal>=1 && ordinal<=3)fn_text(b,"if(!" SERVICE_FN_TEXT "runtime_frame_reference(c,%u,&reference))return nf_bad(c);\n",d->operands[1].u16);
+        if(method>=1 && method<=3)fn_text(b,"if(!" SERVICE_FN_TEXT "runtime_frame_reference(c,%u,&reference))return nf_bad(c);\n",d->operands[1].u16);
         fn_text(b,"NF_TRY(" SERVICE_FN_TEXT "runtime_service(c,%u,reference,src,dst));\n"
             "if(!" SERVICE_FN_TEXT "runtime_frame_reserve(c,(uint16_t)(f.stack_count-%u),&output))return nf_bad(c);\n"
             "NF_TRY(" SERVICE_FN_TEXT "runtime_move(c,dst,output));\n",d->operands[0].u32,consumes?1u:0u);break;

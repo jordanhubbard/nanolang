@@ -217,7 +217,10 @@ static void flow_allocations(void){
  CHECK(success);free(wire);nvm_v2_module_free(&v);nvm_module_free(m);
 }
 #endif
-int main(void){logical();complete();wide_hosted();
+#ifndef SERVICES_FLOW_MAIN
+#define SERVICES_FLOW_MAIN main
+#endif
+int SERVICES_FLOW_MAIN(void){logical();complete();wide_hosted();
 #ifdef SERVICE_ALLOC_TEST
  flow_allocations();
 #endif

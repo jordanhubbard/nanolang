@@ -144,3 +144,36 @@ catalog table from the retained checked nominal plan, preserve instance IDs
 through frames and VM/native calls, enforce host grants before acquisition, and
 publish scalar results only after clean cleanup. This carrier does not establish
 those dispatch, source, grant or release requirements.
+
+## Private mixed checked execution
+
+I connect the mixed lifetime carrier to the shared checked runtime and the
+indirect VM/generated-native engines in `services_runtime.c`,
+`services_vm_indirect_private.c` and `nvm2c_services_indirect_private.c`.
+I derive the immutable instance catalog table from the retained checked plan.
+My current two-catalog schema identifies the optional ninth Endpoint type as
+TCP; an eight-type instance is File. This inference follows complete nominal
+validation, not caller-provided names or unchecked layout counts.
+
+I retain instance-qualified type and method IDs in constructors, Result
+payloads, service arguments and results, borrowed formals and owned calls.
+I compare owner identities and exact live/borrow masks separately for each
+instance. Two instances can both occupy core slot zero without becoming the
+same owner. I reserve a conservative core-storage bound for 64 instances and
+include the concrete runtime arrays in the existing runtime byte limit.
+
+For cyclic and indirect frames, I match every service request to the current
+checked instruction and import before calling a host operation. I retain fuel
+charging before effects, checked call/return staging, and cleanup before scalar
+publication. Generated C embeds and compares the exact input bytes and all
+instance type/import mappings, including absent File Endpoint slots. Its
+execution does not call my VM or native emitter.
+
+I qualify this private path with simultaneous File/TCP/File owners, direct and
+indirect owned/borrowed helpers, Result branches and readiness loops, permuted
+maps, real IPv4/IPv6, failure/fuel cleanup, malformed-input refusal and generated
+provider substitutions. My [execution evidence](evidence/mixed-service-dispatch-20261010/README.md)
+records the exact tested scope. I do not infer full mixed-language acceptance
+from this bytecode fixture: public per-instance grants, installed packaging,
+paired source lowering and source shadows remain required, followed by the
+complete 5.1 platform and release gates.

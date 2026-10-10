@@ -1,3 +1,4 @@
+#include "service_dispatch_catalog.inc"
 /* Shared explicit indirect adapter coverage; old aindirect authority is unchanged. */
 #include "nvm_v2_sections.h"
 static bool fcd_supported(uint8_t op) {
@@ -50,14 +51,14 @@ static bool fcd_fact(const SERVICE_TYPE(IndirectHostedPlan) *p,const SERVICE_TYP
         if(service) {
             uint32_t original,ordinal=in->catalog_ordinal;
             if(!SERVICE_FN(indirect_hosted_import)(p,ordinal,&original) || original!=o->target)return false;
-            const NlServicePlanMethod *method=NOMINAL_CATALOG_METHOD(ordinal);
+            const NlServicePlanMethod *method=DISPATCH_CATALOG_METHOD(p,ordinal);
             if(!method || o->required_rights!=method->required_rights ||
                o->acquired_rights!=method->acquired_rights)return false;
             checks|=SERVICE_CONST(FLOW_CHECK_BINDING)|SERVICE_CONST(FLOW_CHECK_INVOCATION)|
                     SERVICE_CONST(FLOW_CHECK_LIVENESS)|SERVICE_CONST(FLOW_CHECK_RIGHTS);
-            if(ordinal>=1 && ordinal<=3)checks|=SERVICE_CONST(FLOW_CHECK_BORROW);
-            if(ordinal==1)checks|=SERVICE_CONST(FLOW_CHECK_BYTE);
-            if(SERVICE_HAS_ENDPOINT && ordinal==0)checks|=FLOW_ENDPOINT_CHECK;
+            if(DISPATCH_METHOD_LOCAL(ordinal)>=1 && DISPATCH_METHOD_LOCAL(ordinal)<=3)checks|=SERVICE_CONST(FLOW_CHECK_BORROW);
+            if(DISPATCH_METHOD_LOCAL(ordinal)==1)checks|=SERVICE_CONST(FLOW_CHECK_BYTE);
+            if(DISPATCH_ENDPOINT(p,ordinal) && DISPATCH_METHOD_LOCAL(ordinal)==0)checks|=FLOW_ENDPOINT_CHECK;
         } else { checks|=SERVICE_CONST(FLOW_CHECK_CALLEE);discharged=SERVICE_CONST(FLOW_CHECK_CALLEE); }
         if(o->checks!=checks)return false;
     }

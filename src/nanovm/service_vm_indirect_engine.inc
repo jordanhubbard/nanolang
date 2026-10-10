@@ -98,9 +98,10 @@ static SERVICE_TYPE(RuntimeStatus) fvm_step(SERVICE_TYPE(Runtime) *c,SERVICE_TYP
         uint32_t ordinal=in->catalog_ordinal,original,reference=SERVICE_CONST(RUNTIME_NO_SLOT);
         if(!SERVICE_FN(indirect_hosted_import)(SERVICE_FN(runtime_indirect_plan)(c),ordinal,&original) ||
            original!=d->operands[0].u32 || !SERVICE_FN(runtime_frame_scratch)(c,&dst))return fvm_bad(c);
-        bool consumes=ordinal==1 || ordinal==4 || (SERVICE_HAS_ENDPOINT && ordinal==0);
+        uint32_t method=DISPATCH_METHOD_LOCAL(ordinal);
+        bool consumes=method==1 || method==4 || (DISPATCH_ENDPOINT(SERVICE_FN(runtime_indirect_plan)(c),ordinal) && method==0);
         if(consumes && (!f.stack_count || !SERVICE_FN(runtime_frame_operand)(c,(uint16_t)(f.stack_count-1),&src)))return fvm_bad(c);
-        if(ordinal>=1 && ordinal<=3 && !SERVICE_FN(runtime_frame_reference)(c,d->operands[1].u16,&reference))return fvm_bad(c);
+        if(method>=1 && method<=3 && !SERVICE_FN(runtime_frame_reference)(c,d->operands[1].u16,&reference))return fvm_bad(c);
         FVM_TRY(SERVICE_FN(runtime_service)(c,d->operands[0].u32,reference,src,dst));
         uint32_t output;
         if(!SERVICE_FN(runtime_frame_reserve)(c,(uint16_t)(f.stack_count-(consumes?1:0)),&output))return fvm_bad(c);

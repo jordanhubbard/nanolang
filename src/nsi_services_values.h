@@ -71,6 +71,7 @@ NlServicesValueStatus nl_services_value_drop(NlServicesValues *,NlServicesValue 
 /* Finish drains every core, including outstanding borrows, and caches the first
  * execution status and every instance's cleanup evidence. Later finish calls
  * return that same report. Destroy clears the pointer after draining. */
+bool nl_services_values_report(const NlServicesValues *,NlServicesFinish *);
 NlServicesValueStatus nl_services_values_finish(NlServicesValues *,NlServicesValueStatus,NlServicesFinish *);
 NlServicesValueStatus nl_services_values_destroy(NlServicesValues **,NlServicesValueStatus,NlServicesFinish *);
 #endif

@@ -6360,3 +6360,13 @@ test-services-values:
 	CC="$(CC)" python3 -m unittest tests.test_services_values -v
 
 test-units: test-services-values
+
+# I rebuild every catalog consumer when shared runtime/dispatch contracts change.
+$(OBJ_DIR)/nanoisa/file_runtime.o $(OBJ_DIR)/nanoisa/socket_runtime.o $(OBJ_DIR)/nanoisa/services_runtime.o: src/nanoisa/service_runtime_catalog.inc
+$(OBJ_DIR)/nanoisa/services_runtime.o: $(wildcard src/nanoisa/service_*runtime*.inc) $(wildcard src/nanoisa/services_*.h) src/nanoisa/services_runtime_values.inc
+$(OBJ_DIR)/nanovm/file_indirect_public_vm.o $(OBJ_DIR)/nanovm/socket_indirect_public_vm.o $(OBJ_DIR)/nanoisa/file_indirect_public_native.o $(OBJ_DIR)/nanoisa/socket_indirect_public_native.o: src/nanoisa/service_dispatch_catalog.inc
+.PHONY: test-services-dispatch
+test-services-dispatch: $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	NANO_SOCKET_DISPATCH_CC="$(CC)" SOCKET_DISPATCH_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_DISPATCH_LDFLAGS="$(LDFLAGS)" SERVICES_VM_OBJECTS="$(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" python3 -m unittest -f -v tests.test_services_dispatch
+
+test-units: test-services-dispatch
