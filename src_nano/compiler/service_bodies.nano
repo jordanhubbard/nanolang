@@ -498,6 +498,13 @@ pub fn check_service_bodies(parser: Parser, files: array<string>, sources: array
         if (or (> parser.structs_count 0) (or (> parser.unions_count 0) (or (> parser.enums_count 0) (> parser.opaque_types_count 0)))) {
             let _: ServiceBodyValue = (sb_fail 2 "I have not checked this declaration beside service bodies.")
         }
+        let mut owner: int = 0
+        while (< owner (array_length files)) {
+            if (== (service_namespace_catalog space owner) 2) {
+                let _: ServiceBodyValue = (sb_fail 2 "I have not connected TCP body checking and lowering.")
+            }
+            set owner (+ owner 1)
+        }
         let mut declaration: int = 0
         while (< declaration (array_length space.names)) {
             if (== (at space.names declaration).kind 6) { let _: ServiceBodyValue = (sb_fail 2 "I have not checked this declaration beside service bodies.") }

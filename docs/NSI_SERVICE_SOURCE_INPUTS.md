@@ -31,7 +31,23 @@ opaque context, catalog identity and counted paths. I preserve wrong-signature
 and missing-artifact refusal. I give the catalog module's internal descriptor
 symbols private names so the C native driver can link it with the input module.
 
-I have not added TCP namespace/type resolution, ownership lowering, wire
-metadata, service dispatch or selected network shadows in this layer. Those
-remain required before Socket source execution. My File namespace validator
-continues to reject a TCP declaration at the later admission boundary.
+My paired source planners accept complete exact File/TCP request sets. I retain
+catalog identity on each row and alias, independently of the visible name.
+`ReadByte` and `CloseResult` from different service modules remain distinct.
+The legacy File planner entry point still accepts only File. My shared builder
+keeps the 16-request, 64-alias, 256-ordinary-name and 1MiB text bounds; TCP adds a
+fourteenth declaration, the scalar Endpoint record, within those bounds.
+
+Both namespace collectors use the retained snapshot's exact catalog identity
+before declaring service names. My nominal queries resolve Conn, Endpoint,
+SocketError fields and method parameter/result types from the checked original
+module. Aliases and re-exports preserve that identity. The private runtime name
+Socket is not a public Conn alias.
+
+I have not connected TCP body/ownership lowering, wire metadata, service
+dispatch or selected network shadows. I retain an explicit unsupported-body
+boundary in both checkers so the File lowering path cannot interpret TCP
+ordinals. Those integrations and a fresh complete compiler/release qualification
+remain required before Socket source execution. My latest namespace tests
+compile the changed helper sources through the C bytecode producer and the
+previously installed Stage2 driver; they do not constitute a new bootstrap.

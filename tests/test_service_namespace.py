@@ -78,6 +78,47 @@ class ServiceNamespace(unittest.TestCase):
                             self.assertRegex(run.stdout + run.stderr, expected + (r"|I require --allow-temporary-files|I cannot lower File source" if accepted else ""))
                             self.assertEqual(output.read_bytes(), b"prior-output")
 
+    def test_mixed_catalog_namespace_and_types(self):
+        with tempfile.TemporaryDirectory(prefix="nano-mixed-namespace-") as directory:
+            work=Path(directory).resolve()
+            args=[work/"one/binding.nano",work/"two/binding.nano",work/"bridge.nano",work/"root.nano"]
+            for path in args:
+                path.parent.mkdir(exist_ok=True)
+            args[0].write_text(SERVICE)
+            args[1].write_text(SERVICE.replace("filesystem","net"))
+            for path,fixture in zip(args[:2],("nsi_file_plan.json","nsi_socket_plan.json")):
+                (path.parent/"interface.nsi.json").write_bytes((ROOT/"tests/fixtures"/fixture).read_bytes())
+            args[2].write_text('pub use "two/binding.nano" as net\n')
+            base='module "one/binding.nano" as files\nmodule "bridge.nano" as bridge\nfrom "two/binding.nano" import Conn as Handle, Endpoint as Address\n'
+            def checked(command):
+                run=subprocess.run(list(map(str,command)),cwd=ROOT,text=True,capture_output=True,timeout=240)
+                self.assertEqual(run.returncode,0,run.stdout+run.stderr)
+                return run.stdout
+            for extra,accepted in (("",True),('struct Address { value: int }\n',False),('from "two/binding.nano" import Socket\n',False)):
+                args[3].write_text(base+extra+'fn main() -> int { return 0 }\nshadow main { assert true }\n')
+                report=checked([os.environ.get("NANO_C_SERVICE_NAMESPACE_RUNNER",str(ROOT/"obj/test_service_namespace")),args[3],
+                    "accept" if accepted else "reject","Handle","Address","bridge.net.Conn","files.File","bridge.net.Socket"])
+                if accepted:
+                    self.assertIn("PLAN 29",report)
+                    self.assertIn("MISSING bridge.net.Socket",report)
+                    for compiler in ("nanoc_c","nano_virt"):
+                        output=work/(compiler+".out");output.write_bytes(b"prior")
+                        command=[ROOT/"bin"/compiler,args[3],"-o",output,"--allow-temporary-files"]
+                        if compiler=="nano_virt":command.append("--emit-nvm")
+                        run=subprocess.run(list(map(str,command)),cwd=ROOT,capture_output=True,text=True,timeout=90)
+                        self.assertNotEqual(run.returncode,0)
+                        self.assertIn("I have not resolved File service declarations for this consumer",run.stdout+run.stderr)
+                        self.assertEqual(output.read_bytes(),b"prior")
+            for compiler in ("nano_virt","nanoc_stage2"):
+                module=work/(compiler+".nvm")
+                checked([ROOT/"bin"/compiler,ROOT/"tests/service_namespace_tcp.nano","--emit-nvm","-o",module])
+                self.assertIn("PASS mixed File TCP namespace identities",checked([ROOT/"bin/nano_vm",module,"--",*args]))
+                source=module.with_suffix(".c");native=module.with_suffix(".native")
+                checked([ROOT/"bin/nvm2c",module,"-o",source])
+                cc=shlex.split(os.environ.get("CC","cc"))
+                checked([*cc,"-std=c11","-O1","-g","-fsanitize=address,undefined","-fno-sanitize-recover=all",source,"-o",native,"-lm",*(["-ldl"] if sys.platform.startswith("linux") else [])])
+                self.assertIn("PASS mixed File TCP namespace identities",checked([native,*args]))
+
     def test_independent_nano_identity_and_native_catalog_bridge(self):
         with tempfile.TemporaryDirectory(prefix="nano-namespace-identity-") as directory:
             work = Path(directory).resolve()

@@ -1,4 +1,4 @@
-# I collect complete source names before assigning File types or wire authority.
+# I collect complete source names before assigning service types or wire authority.
 import "src_nano/parser.nano"
 from "src_nano/compiler/lexer.nano" import tokenize_string
 import "modules/file_source_inputs/file_source_inputs.nano"
@@ -9,7 +9,7 @@ from "src_nano/compiler/declaration_ownership.nano" import declaration_local_let
 module "modules/file_source_catalog/file_source_catalog.nano" as ServiceCatalog
 
 # Kinds match source identities, not runtime tags: function/record/union/enum/
-# opaque/global/module/File-type/File-method are 1 through 9.
+# opaque/global/module/service-type/service-method are 1 through 9.
 struct ServiceName {
     name: string, id: int, target: int, owner: int, target_owner: int,
     kind: int, ordinal: int, request: int, exported: bool, immutable: bool,
@@ -72,7 +72,7 @@ fn sn_add(space: ServiceNamespace, row: ServiceName) -> ServiceNamespace {
     }
     let alias: bool = (or (!= row.target 0) (== row.kind 7))
     let ordinary: bool = (< row.kind 8)
-    if (or (>= (array_length space.names) 528) (or (and alias (>= space.alias_count 64)) (and ordinary (>= space.ordinary_count 256)))) { return (sn_empty 2) }
+    if (or (>= (array_length space.names) 544) (or (and alias (>= space.alias_count 64)) (and ordinary (>= space.ordinary_count 256)))) { return (sn_empty 2) }
     let bytes: int = (+ space.text_bytes (+ (str_length row.name) 1))
     if (> bytes 1048576) { return (sn_empty 2) }
     let id: int = (+ (array_length space.names) 1)
@@ -159,13 +159,17 @@ fn sn_declarations(parser: Parser, files: array<string>, sources: array<string>)
         while (< r parser.services_count) {
             let service: ASTServiceDecl = (list_ASTServiceDecl_get parser.services r)
             if (== service.origin_index m) {
+                let identity: int = (ServiceCatalog.catalog_id service.interface_id)
+                if (== identity 0) { return (sn_empty 4) }
+                let types: int = (ServiceCatalog.count identity 1)
+                let methods: int = (ServiceCatalog.count identity 2)
                 let mut b: int = 0
-                while (< b 13) {
+                while (< b (+ types methods)) {
                     let mut kind: int = 8
                     let mut ordinal: int = b
                     let mut catalog_kind: int = 1
-                    if (>= b 8) { set kind 9 set ordinal (- b 8) set catalog_kind 2 }
-                    set space (sn_add space ServiceName { name: (ServiceCatalog.text catalog_kind ordinal 1 0),
+                    if (>= b types) { set kind 9 set ordinal (- b types) set catalog_kind 2 }
+                    set space (sn_add space ServiceName { name: (ServiceCatalog.catalog_text identity catalog_kind ordinal 1 0),
                         id: 0, target: 0, owner: m, target_owner: m, kind: kind, ordinal: ordinal, request: r,
                         exported: true, immutable: false, node_id: r })
                     if (!= space.status 0) { return space }
@@ -274,14 +278,17 @@ fn sn_describe(parser: Parser, files: array<string>, origins: ServiceOrigins, in
     let mut requests: array<FileSourceRequest> = []
     let mut aliases: array<FileSourceAlias> = []
     let mut ordinary: array<FileSourceOrdinary> = []
-    let catalog: string = (file_source_catalog_view)
     let mut r: int = 0
     while (< r parser.services_count) {
         let node: ASTServiceDecl = (list_ASTServiceDecl_get parser.services r)
+        let identity: int = (ServiceCatalog.catalog_id node.interface_id)
+        if (== identity 0) { return (sn_empty 4).plan }
+        let catalog: string = (service_source_catalog_view identity)
         let origin: ServiceOrigin = (at origins.locations r)
         if (or (!= node.origin_index origin.file_index) (or (< origin.file_index 0) (>= origin.file_index (array_length files)))) { return (sn_empty 1).plan }
         unsafe {
             let snapshot: int = (at inputs.snapshots r)
+            if (!= (nl_source_inputs_catalog context snapshot) identity) { return (sn_empty 4).plan }
             if (!= snapshot r) { return (sn_empty 1).plan }
             if (or (== (at inputs.paths r) "") (!= (at inputs.paths r) (nl_source_inputs_text context snapshot 0))) { return (sn_empty 1).plan }
             if (== (nl_source_inputs_text context snapshot 2) "") { return (sn_empty 1).plan }
@@ -312,7 +319,7 @@ fn sn_describe(parser: Parser, files: array<string>, origins: ServiceOrigins, in
         }
         set i (+ i 1)
     }
-    return (file_source_plan requests aliases ordinary)
+    return (service_source_plan requests aliases ordinary)
 }
 shadow sn_describe {
     let tokens: List<LexerToken> = (tokenize_string "" "/empty" (list_CompilerDiagnostic_new))
@@ -379,4 +386,27 @@ shadow service_namespace_lookup {
     assert (== (service_namespace_lookup space 1 "files.File") 0)
     assert (== (service_namespace_lookup space 1 "files.Missing") -1)
     assert (== (service_namespace_lookup space 1 "files.") -1)
+}
+
+# I recover catalog identity from checked original declarations and plan rows.
+pub fn service_namespace_catalog(space: ServiceNamespace, owner: int) -> int {
+    if (!= space.status 0) { return 0 }
+    let mut i: int = 0
+    while (< i (array_length space.names)) {
+        let name: ServiceName = (at space.names i)
+        if (and (== name.owner owner) (and (== name.kind 8) (== name.id name.target))) {
+            let mut j: int = 0
+            while (< j (array_length space.plan.rows)) {
+                let row: FileSourceRow = (at space.plan.rows j)
+                if (== row.id name.id) { return row.catalog }
+                set j (+ j 1)
+            }
+        }
+        set i (+ i 1)
+    }
+    return 0
+}
+shadow service_namespace_catalog {
+    assert (== (service_namespace_catalog (sn_empty 0) 0) 0)
+    assert (== (service_namespace_catalog (sn_empty 1) 0) 0)
 }

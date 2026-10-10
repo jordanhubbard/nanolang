@@ -317,6 +317,9 @@ NlServiceBodyCheck *nl_service_check_bodies(const NlServiceNamespace *space) {
     c->space=space; c->out=out;
     if (!space) { fail(c,NULL,1,"I require a complete service namespace."); }
     for(uint32_t module=0; space && nl_service_namespace_program(space,module); ++module) {
+        if(nl_service_namespace_catalog(space,module)==2) {
+            fail(c,NULL,2,"I have not connected TCP body checking and lowering.");break;
+        }
         const ASTNode *program=nl_service_namespace_program(space,module);
         c->source=nl_service_namespace_module(space,module);
         for(int i=0;i<program->as.program.count;++i) {

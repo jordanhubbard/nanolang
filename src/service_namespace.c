@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define NAME_LIMIT (NL_FILE_SOURCE_REQUESTS * NL_FILE_SOURCE_BINDINGS + NL_FILE_SOURCE_ALIASES + NL_FILE_SOURCE_ORDINARY)
+#define NAME_LIMIT (NL_FILE_SOURCE_REQUESTS * NL_SERVICE_SOURCE_BINDINGS + NL_FILE_SOURCE_ALIASES + NL_FILE_SOURCE_ORDINARY)
 #define MODULE_LIMIT 5000u
 #define NONE NL_FILE_SOURCE_NO_INDEX
 typedef struct { char *path; ASTNode *program; } SourceModule;
@@ -93,11 +93,16 @@ static NlFileSourceStatus declarations(NlServiceNamespace *space, Environment *e
                 int64_t origin = node->as.service_decl.origin_index;
                 if (origin < 0 || origin >= env->service_origin_count || !env->service_snapshot_bound[origin] ||
                     strcmp(env->service_origins[origin], space->modules[module].path)) return NL_FILE_SOURCE_INVALID;
-                for (uint32_t binding = 0; binding < 13; ++binding) {
-                    uint32_t ordinal = binding < 8 ? binding : binding - 8;
-                    const char *symbol = nl_file_source_catalog_string(binding < 8 ? 1 : 2, ordinal, 1, 0);
+                int64_t identity=nl_service_source_catalog_id(node->as.service_decl.interface_id);
+                if(!identity || identity!=nl_service_source_snapshot_catalog(env->service_inputs,
+                    env->service_snapshot_indices[origin]))return NL_FILE_SOURCE_UNRESOLVED;
+                uint32_t types=(uint32_t)nl_service_source_catalog_count(identity,1);
+                uint32_t methods=(uint32_t)nl_service_source_catalog_count(identity,2);
+                for (uint32_t binding = 0; binding < types+methods; ++binding) {
+                    uint32_t ordinal = binding < types ? binding : binding - types;
+                    const char *symbol = nl_service_source_catalog_string(identity,binding < types ? 1 : 2, ordinal, 1, 0);
                     NlFileSourceStatus status = add_name(space, module, symbol,
-                        binding < 8 ? NL_SERVICE_TYPE : NL_SERVICE_METHOD, ordinal, (uint32_t)origin,
+                        binding < types ? NL_SERVICE_TYPE : NL_SERVICE_METHOD, ordinal, (uint32_t)origin,
                         0, module, true, false, node);
                     if (status) return status;
                 }
@@ -162,11 +167,11 @@ static NlFileSourceStatus imports(NlServiceNamespace *space, uint32_t owner) {
     return NL_FILE_SOURCE_OK;
 }
 static NlFileSourceStatus describe(NlServiceNamespace *space, Environment *env) {
-    char catalog_view[32768];
-    size_t catalog_size = 0;
-    if (!nl_file_source_catalog_view(catalog_view, sizeof catalog_view, &catalog_size)) return NL_FILE_SOURCE_UNRESOLVED;
+    char catalog_view[2][32768];size_t catalog_size[2]={0};
+    for(int64_t c=1;c<=2;c++)
+        if(!nl_service_source_catalog_view(c,catalog_view[c-1],sizeof catalog_view[0],&catalog_size[c-1]))return NL_FILE_SOURCE_UNRESOLVED;
     NlFileSourceRequest requests[NL_FILE_SOURCE_REQUESTS] = {0};
-    NlFileSourceBinding bindings[NL_FILE_SOURCE_REQUESTS][NL_FILE_SOURCE_BINDINGS] = {0};
+    NlFileSourceBinding bindings[NL_FILE_SOURCE_REQUESTS][NL_SERVICE_SOURCE_BINDINGS] = {0};
     NlFileSourceAlias aliases[NL_FILE_SOURCE_ALIASES];
     NlFileSourceOrdinary ordinary[NL_FILE_SOURCE_ORDINARY];
     size_t counts[NL_FILE_SOURCE_REQUESTS] = {0}, nr = (size_t)env->service_origin_count, na = 0, no = 0;
@@ -181,20 +186,23 @@ static NlFileSourceStatus describe(NlServiceNamespace *space, Environment *env) 
             aliases[na++] = (NlFileSourceAlias){span(space->modules[name->module].path), span(name->name), name->id, name->target};
         } else {
             uint32_t r = name->request;
-            if (r >= nr || counts[r] == NL_FILE_SOURCE_BINDINGS) return NL_FILE_SOURCE_INVALID;
+            if (r >= nr || counts[r] == NL_SERVICE_SOURCE_BINDINGS) return NL_FILE_SOURCE_INVALID;
             bindings[r][counts[r]++] = (NlFileSourceBinding){name->id, name->kind == NL_SERVICE_METHOD, name->ordinal, span(name->name)};
             ASTNode *node = name->declaration;
             size_t length = 0;
             const unsigned char *catalog = nl_file_source_snapshot_bytes(env->service_inputs,
                 env->service_snapshot_indices[r], 2, &length);
             if (!catalog || !length) return NL_FILE_SOURCE_UNRESOLVED;
+            int64_t identity=nl_service_source_snapshot_catalog(env->service_inputs,env->service_snapshot_indices[r]);
+            if(identity<1 || identity>2 || identity!=nl_service_source_catalog_id(node->as.service_decl.interface_id))return NL_FILE_SOURCE_UNRESOLVED;
+            size_t expected=(size_t)(nl_service_source_catalog_count(identity,1)+nl_service_source_catalog_count(identity,2));
             requests[r] = (NlFileSourceRequest){span(space->modules[name->module].path), span(node->as.service_decl.interface_id),
-                {catalog_view, catalog_size - 1}, (uint32_t)node->as.service_decl.catalog_version,
-                (uint32_t)node->line, (uint32_t)node->column, bindings[r], NL_FILE_SOURCE_BINDINGS};
+                {catalog_view[identity-1], catalog_size[identity-1] - 1}, (uint32_t)node->as.service_decl.catalog_version,
+                (uint32_t)node->line, (uint32_t)node->column, bindings[r], expected};
         }
     }
-    for (size_t r = 0; r < nr; ++r) if (counts[r] != NL_FILE_SOURCE_BINDINGS) return NL_FILE_SOURCE_INVALID;
-    return nl_file_source_plan_build(requests, nr, aliases, na, ordinary, no, &space->plan);
+    for (size_t r = 0; r < nr; ++r) if (counts[r] != requests[r].binding_count || !counts[r]) return NL_FILE_SOURCE_INVALID;
+    return nl_service_source_plan_build(requests, nr, aliases, na, ordinary, no, &space->plan);
 }
 
 NlFileSourceStatus nl_service_namespace_build(ASTNode *root, Environment *env, ModuleList *modules,
@@ -273,19 +281,30 @@ const NlServiceName *nl_service_namespace_lookup(const NlServiceNamespace *space
 }
 
 
+int64_t nl_service_namespace_catalog(const NlServiceNamespace *space,uint32_t module) {
+    if(!space || module>=space->module_count)return NL_SOURCE_CATALOG_NONE;
+    for(size_t i=0;i<nl_file_source_plan_count(space->plan);i++) {
+        NlFileSourceRow row;
+        if(nl_file_source_plan_row(space->plan,i,&row) && row.id==row.target &&
+           row.module.size==strlen(space->modules[module].path) &&
+           !memcmp(row.module.data,space->modules[module].path,row.module.size)) return row.catalog;
+    }
+    return NL_SOURCE_CATALOG_NONE;
+}
 static bool catalog_type(const NlServiceNamespace *space, uint32_t module,
                          uint32_t ordinal, TypeInfo *out) {
-    if (!space || !out || module >= space->module_count || ordinal >= 8) return false;
-    const char *name = nl_file_source_catalog_string(1, ordinal, 1, 0);
+    int64_t identity=nl_service_namespace_catalog(space,module);
+    if (!identity || !out || ordinal >= (uint32_t)nl_service_source_catalog_count(identity,1)) return false;
+    const char *name = nl_service_source_catalog_string(identity,1, ordinal, 1, 0);
     const NlServiceName *row = local_name(space, module, name, strlen(name));
     if (!row || row->kind != NL_SERVICE_TYPE || row->id != row->target ||
         row->ordinal != ordinal || row->target_module != module) return false;
     TypeInfo result = {0};
-    result.base_type = ordinal == 0 ? TYPE_OPAQUE : ordinal < 3 ? TYPE_STRUCT : TYPE_UNION;
+    result.base_type = ordinal == 0 ? TYPE_OPAQUE : (ordinal < 3 || (identity==2 && ordinal==8)) ? TYPE_STRUCT : TYPE_UNION;
     result.service_declaration = row->target;
     result.service_module = module;
     result.service_ordinal = ordinal;
-    result.service_category = ordinal == 0 ? 1 : ordinal == 3 ? 2 : ordinal < 3 ? 3 : 4;
+    result.service_category = ordinal == 0 ? 1 : ordinal == 3 ? 2 : (ordinal < 3 || (identity==2 && ordinal==8)) ? 3 : 4;
     *out = result;
     return true;
 }
@@ -299,13 +318,14 @@ bool nl_service_type(const NlServiceNamespace *space, const char *module,
 static bool catalog_value_type(const NlServiceNamespace *space, uint32_t module,
                                const char *id, TypeInfo *out) {
     if (!id || !out) return false;
+    int64_t identity=nl_service_namespace_catalog(space,module);
     TypeInfo scalar = {0};
     if (!*id) scalar.base_type = TYPE_VOID;
     else if (!strcmp(id, "nsi:core/int")) scalar.base_type = TYPE_INT;
     else if (!strcmp(id, "nsi:core/bool")) scalar.base_type = TYPE_BOOL;
     else {
-        for (uint32_t ordinal = 0; ordinal < 8; ++ordinal)
-            if (!strcmp(id, nl_file_source_catalog_string(1, ordinal, 0, 0)))
+        for (uint32_t ordinal = 0; ordinal < (uint32_t)(identity?nl_service_source_catalog_count(identity,1):0); ++ordinal)
+            if (!strcmp(id, nl_service_source_catalog_string(identity,1, ordinal, 0, 0)))
                 return catalog_type(space, module, ordinal, out);
         return false;
     }
@@ -318,11 +338,12 @@ bool nl_service_member_type(const NlServiceNamespace *space, const TypeInfo *own
     TypeInfo expected;
     if (!catalog_type(space, owner->service_module, owner->service_ordinal, &expected) ||
         !type_infos_equal(owner, &expected)) return false;
-    int64_t count = nl_file_source_catalog_number(1, owner->service_ordinal, 1, 0);
+    int64_t identity=nl_service_namespace_catalog(space,owner->service_module);
+    int64_t count = nl_service_source_catalog_number(identity,1, owner->service_ordinal, 1, 0);
     for (int64_t i = 0; i < count; ++i)
-        if (!strcmp(member, nl_file_source_catalog_string(1, owner->service_ordinal, 3, i)))
+        if (!strcmp(member, nl_service_source_catalog_string(identity,1, owner->service_ordinal, 3, i)))
             return catalog_value_type(space, owner->service_module,
-                nl_file_source_catalog_string(1, owner->service_ordinal, 4, i), out);
+                nl_service_source_catalog_string(identity,1, owner->service_ordinal, 4, i), out);
     return false;
 }
 bool nl_service_method_type(const NlServiceNamespace *space, const char *module,
@@ -330,18 +351,20 @@ bool nl_service_method_type(const NlServiceNamespace *space, const char *module,
     if (!out) return false;
     const NlServiceName *row = nl_service_namespace_lookup(space, module, name);
     if (!row || row->kind != NL_SERVICE_METHOD || row->ordinal >= 5) return false;
+    int64_t identity=nl_service_namespace_catalog(space,row->target_module);
+    if(!identity)return false;
     NlServiceSignature result = {0};
     result.declaration = row->target; result.module = row->target_module;
     result.ordinal = row->ordinal;
-    result.input_mode = (uint32_t)nl_file_source_catalog_number(2, row->ordinal, 3, 0);
-    int64_t count = nl_file_source_catalog_number(2, row->ordinal, 4, 0);
+    result.input_mode = (uint32_t)nl_service_source_catalog_number(identity,2, row->ordinal, 3, 0);
+    int64_t count = nl_service_source_catalog_number(identity,2, row->ordinal, 4, 0);
     /* My catalog places the result after its zero, one or two inputs. */
     if (count < 1 || count > 3) return false;
     result.parameter_count = (uint32_t)count - 1;
     for (int64_t i = 0; i < count; ++i) {
         TypeInfo *target = i == count - 1 ? &result.result : &result.parameters[i];
         if (!catalog_value_type(space, row->target_module,
-                nl_file_source_catalog_string(2, row->ordinal, 6, i), target)) return false;
+                nl_service_source_catalog_string(identity,2, row->ordinal, 6, i), target)) return false;
     }
     *out = result;
     return true;

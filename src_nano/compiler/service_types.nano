@@ -33,16 +33,17 @@ shadow service_types_equal {
 }
 
 fn st_catalog_type(space: ServiceNamespace, owner: int, ordinal: int) -> ServiceType {
-    if (or (!= space.status 0) (or (< ordinal 0) (>= ordinal 8))) { return (st_scalar 0) }
+    let identity: int = (service_namespace_catalog space owner)
+    if (or (== identity 0) (or (< ordinal 0) (>= ordinal (TypeCatalog.count identity 1)))) { return (st_scalar 0) }
     let mut i: int = 0
     while (< i (array_length space.names)) {
         let row: ServiceName = (at space.names i)
         if (and (== row.owner owner) (and (== row.kind 8) (and (== row.ordinal ordinal) (== row.id row.target)))) {
-            if (or (<= row.id 0) (or (!= row.target_owner owner) (!= row.name (TypeCatalog.text 1 ordinal 1 0)))) { return (st_scalar 0) }
+            if (or (<= row.id 0) (or (!= row.target_owner owner) (!= row.name (TypeCatalog.catalog_text identity 1 ordinal 1 0)))) { return (st_scalar 0) }
             let mut kind: int = 6
             let mut category: int = 4
             if (== ordinal 0) { set kind 4 set category 1 }
-            else if (< ordinal 3) { set kind 5 set category 3 }
+            else if (or (< ordinal 3) (and (== identity 2) (== ordinal 8))) { set kind 5 set category 3 }
             else if (== ordinal 3) { set category 2 }
             return ServiceType { kind: kind, declaration: row.target, owner: owner, ordinal: ordinal, category: category }
         }
@@ -73,9 +74,10 @@ fn st_value_type(space: ServiceNamespace, owner: int, id: string) -> ServiceType
     if (== id "") { return (st_scalar 3) }
     if (== id "nsi:core/int") { return (st_scalar 1) }
     if (== id "nsi:core/bool") { return (st_scalar 2) }
+    let identity: int = (service_namespace_catalog space owner)
     let mut ordinal: int = 0
-    while (< ordinal 8) {
-        if (== id (TypeCatalog.text 1 ordinal 0 0)) { return (st_catalog_type space owner ordinal) }
+    while (< ordinal (TypeCatalog.count identity 1)) {
+        if (== id (TypeCatalog.catalog_text identity 1 ordinal 0 0)) { return (st_catalog_type space owner ordinal) }
         set ordinal (+ ordinal 1)
     }
     return (st_scalar 0)
@@ -90,11 +92,12 @@ shadow st_value_type {
 pub fn service_member_type(space: ServiceNamespace, owner: ServiceType, name: string) -> ServiceType {
     let expected: ServiceType = (st_catalog_type space owner.owner owner.ordinal)
     if (not (service_types_equal owner expected)) { return (st_scalar 0) }
-    let count: int = (TypeCatalog.number 1 owner.ordinal 1 0)
+    let identity: int = (service_namespace_catalog space owner.owner)
+    let count: int = (TypeCatalog.catalog_number identity 1 owner.ordinal 1 0)
     let mut i: int = 0
     while (< i count) {
-        if (== name (TypeCatalog.text 1 owner.ordinal 3 i)) {
-            return (st_value_type space owner.owner (TypeCatalog.text 1 owner.ordinal 4 i))
+        if (== name (TypeCatalog.catalog_text identity 1 owner.ordinal 3 i)) {
+            return (st_value_type space owner.owner (TypeCatalog.catalog_text identity 1 owner.ordinal 4 i))
         }
         set i (+ i 1)
     }
@@ -112,20 +115,22 @@ pub fn service_method_type(space: ServiceNamespace, owner: int, name: string) ->
     if (< found 0) { return failure }
     let row: ServiceName = (at space.names found)
     if (or (!= row.kind 9) (or (< row.ordinal 0) (>= row.ordinal 5))) { return failure }
-    let count: int = (TypeCatalog.number 2 row.ordinal 4 0)
+    let identity: int = (service_namespace_catalog space row.target_owner)
+    if (== identity 0) { return failure }
+    let count: int = (TypeCatalog.catalog_number identity 2 row.ordinal 4 0)
     if (or (< count 1) (> count 3)) { return failure }
     let mut parameters: array<ServiceType> = []
     let mut result: ServiceType = (st_scalar 0)
     let mut i: int = 0
     while (< i count) {
-        let item: ServiceType = (st_value_type space row.target_owner (TypeCatalog.text 2 row.ordinal 6 i))
+        let item: ServiceType = (st_value_type space row.target_owner (TypeCatalog.catalog_text identity 2 row.ordinal 6 i))
         if (== item.kind 0) { return failure }
         if (== i (- count 1)) { set result item }
         else { set parameters (array_push parameters item) }
         set i (+ i 1)
     }
     return ServiceMethodType { ok: true, declaration: row.target, owner: row.target_owner,
-        ordinal: row.ordinal, input_mode: (TypeCatalog.number 2 row.ordinal 3 0),
+        ordinal: row.ordinal, input_mode: (TypeCatalog.catalog_number identity 2 row.ordinal 3 0),
         parameters: parameters, result: result }
 }
 shadow service_method_type {

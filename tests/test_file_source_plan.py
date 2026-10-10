@@ -14,7 +14,7 @@ import subprocess
 import tempfile
 import time
 import unittest
-from tests.file_source_plan_corpus import corpus, expected, generate_c, generate_nano
+from tests.file_source_plan_corpus import corpus, expected, generate_c, generate_nano, service_corpus
 
 ROOT = Path(__file__).resolve().parents[1]
 PROVIDERS = ['src/nanoisa/file_source_plan.c', 'src/nanoisa/file_source_catalog.c',
@@ -122,10 +122,15 @@ class FileSourcePlan(unittest.TestCase):
             self.assertIn(b'PASS source C ownership ',out)
 
     def test_paired_full_modules_and_selected_shadows(self):
-        cases=corpus()
+        self.paired(corpus(), False)
+
+    def test_paired_mixed_catalogs_and_selected_shadows(self):
+        self.paired(service_corpus(), True)
+
+    def paired(self, cases, services):
         (self.work/'cases.json').write_text(json.dumps(cases,ensure_ascii=False,indent=2)+'\n')
         c=self.work/'corpus.c';nano=self.work/'corpus.nano'
-        c.write_text(generate_c(cases));nano.write_text(generate_nano(cases))
+        c.write_text(generate_c(cases, services));nano.write_text(generate_nano(cases, services))
         executable=self.work/'corpus-c'
         self.command('corpus-c-build',[*self.cc,*self.flags,c,*self.objects,'-o',executable])
         baseline,_=self.command('corpus-c-run',[executable])
@@ -137,8 +142,9 @@ class FileSourcePlan(unittest.TestCase):
         expected_names.update({'emit','nano_extent_case','nano_budget_case',
             'fsp_string','fsp_number','file_source_catalog_view','fsp_text_ok',
             'fsp_value','fsp_equal','fsp_literal','fsp_id_ok','fsp_add',
-            'fsp_failure','fsp_category','file_source_plan','text','number',
+            'fsp_failure','fsp_category','file_source_plan','source_plan_build','service_source_plan','text','number',
             'service_source_catalog_view','catalog_id','count','catalog_text','catalog_number'})
+        if services: expected_names.update({'socket_extent_case','socket_budget_case'})
         # I invoke actual native drivers with dependency shadows selected by default.
         for compiler in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
             output=self.work/compiler

@@ -7,6 +7,7 @@
  * an already validated NSI catalog view. No source parsing or host authority. */
 #define NL_FILE_SOURCE_REQUESTS 16u
 #define NL_FILE_SOURCE_BINDINGS 13u
+#define NL_SERVICE_SOURCE_BINDINGS 14u
 #define NL_FILE_SOURCE_ALIASES 64u
 #define NL_FILE_SOURCE_ORDINARY 256u
 #define NL_FILE_SOURCE_TEXT_BUDGET 1048576u
@@ -25,13 +26,17 @@ typedef struct { NlFileSourceText module,name;uint32_t id; } NlFileSourceOrdinar
 typedef struct NlFileSourcePlan NlFileSourcePlan;
 typedef struct {
  NlFileSourceText module,name;uint32_t id,target,request,kind,ordinal,category;
- uint32_t input_mode,result_ordinal,global_layout,import_index,line,column;
+ uint32_t input_mode,result_ordinal,global_layout,import_index,line,column,catalog;
 } NlFileSourceRow;
-/* kind:0 type,1 method. category:1 File,2 affine OpenResult,3 scalar record,
+/* kind:0 type,1 method. category:1 File/Conn,2 affine OpenResult/ConnectResult,3 scalar record,
  * 4 scalar Result,5 method. Future wire indices are always NO_INDEX.
  * All input spans/arrays are valid immutable storage during the call. Output
  * storage is disjoint from input/plan. Failure preserves *out. */
 NlFileSourceStatus nl_file_source_plan_build(const NlFileSourceRequest *,size_t,
+ const NlFileSourceAlias *,size_t,const NlFileSourceOrdinary *,size_t,NlFileSourcePlan **out);
+/* I retain catalog identity1 File or2 TCP in every row, including aliases.
+ * The legacy builder admits only File; this builder admits both exact catalogs. */
+NlFileSourceStatus nl_service_source_plan_build(const NlFileSourceRequest *,size_t,
  const NlFileSourceAlias *,size_t,const NlFileSourceOrdinary *,size_t,NlFileSourcePlan **out);
 void nl_file_source_plan_free(NlFileSourcePlan *);
 size_t nl_file_source_plan_count(const NlFileSourcePlan *);

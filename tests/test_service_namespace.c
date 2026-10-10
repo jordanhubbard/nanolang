@@ -1,6 +1,7 @@
 /* I inspect the namespace retained by my actual recursive C loader. */
 #include "nanolang.h"
 #include "service_namespace.h"
+#include "service_bodies.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -55,6 +56,11 @@ int main(int argc, char **argv) {
         for (size_t i = 0; i < nl_service_namespace_count(space); ++i) {
             const NlServiceName *row = nl_service_namespace_name(space, i);
             const char *source = nl_service_namespace_module(space, row->module);
+            int64_t catalog=nl_service_namespace_catalog(space,row->target_module);
+            if(catalog==2) {
+                assert(env->service_bodies && env->service_bodies->status==2);
+                assert(!strcmp(env->service_bodies->diagnostic,"I have not connected TCP body checking and lowering."));
+            }
             if (row->kind == NL_SERVICE_TYPE) {
                 TypeInfo type;
                 assert(nl_service_type(space, source, row->name, &type));
@@ -68,12 +74,12 @@ int main(int argc, char **argv) {
                 free_payload_type_info(copy);
                 TypeInfo ordinary = {.base_type = type.base_type};
                 assert(!type_infos_equal(&type, &ordinary));
-                int64_t members = nl_file_source_catalog_number(1, row->ordinal, 1, 0);
+                int64_t members = nl_service_source_catalog_number(catalog,1, row->ordinal, 1, 0);
                 for (int64_t member = 0; member < members; ++member) {
                     TypeInfo payload;
-                    const char *name = nl_file_source_catalog_string(1, row->ordinal, 3, member);
+                    const char *name = nl_service_source_catalog_string(catalog,1, row->ordinal, 3, member);
                     assert(nl_service_member_type(space, &type, name, &payload));
-                    const char *id = nl_file_source_catalog_string(1, row->ordinal, 4, member);
+                    const char *id = nl_service_source_catalog_string(catalog,1, row->ordinal, 4, member);
                     if (!*id) assert(payload.base_type == TYPE_VOID && !payload.service_declaration);
                     else if (!strcmp(id, "nsi:core/int")) assert(payload.base_type == TYPE_INT);
                     else if (!strcmp(id, "nsi:core/bool")) assert(payload.base_type == TYPE_BOOL);
@@ -95,9 +101,9 @@ int main(int argc, char **argv) {
                 assert(nl_service_method_type(space, source, row->name, &signature));
                 assert(signature.declaration == row->target);
                 assert(signature.result.service_module == row->target_module);
-                assert(signature.parameter_count == (row->ordinal == 0 ? 0u : row->ordinal == 1 ? 2u : 1u));
+                assert(signature.parameter_count == (row->ordinal == 0 ? (catalog==2?1u:0u) : row->ordinal == 1 ? 2u : 1u));
                 assert(signature.input_mode == (row->ordinal == 0 ? 0u : row->ordinal == 4 ? 2u : 1u));
-                if (signature.parameter_count) assert(signature.parameters[0].service_ordinal == 0);
+                if (signature.parameter_count) assert(signature.parameters[0].service_ordinal == (catalog==2 && row->ordinal==0?8u:0u));
             } else {
                 if (row->kind == NL_SERVICE_FUNCTION && !strcmp(row->name, "preserve")) {
                     ASTNode *function = row->declaration;

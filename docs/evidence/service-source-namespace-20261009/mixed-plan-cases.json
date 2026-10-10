@@ -1,0 +1,6588 @@
+[
+  {
+    "name": "mixed",
+    "status": 0,
+    "requests": [
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [],
+    "ordinary": []
+  },
+  {
+    "name": "tcp_only",
+    "status": 0,
+    "requests": [
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [],
+    "ordinary": []
+  },
+  {
+    "name": "reordered",
+    "status": 0,
+    "requests": [
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      },
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      }
+    ],
+    "aliases": [],
+    "ordinary": []
+  },
+  {
+    "name": "reordered_bindings",
+    "status": 0,
+    "requests": [
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [],
+    "ordinary": []
+  },
+  {
+    "name": "counted_tcp_prefix",
+    "status": 0,
+    "requests": [
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net_suffix",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [],
+    "ordinary": []
+  },
+  {
+    "name": "private_socket_refused",
+    "status": 1,
+    "requests": [
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Socket",
+              "size": 6
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [],
+    "ordinary": []
+  },
+  {
+    "name": "file_view_for_tcp",
+    "status": 4,
+    "requests": [
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 1
+      }
+    ],
+    "aliases": [],
+    "ordinary": []
+  },
+  {
+    "name": "tcp_view_for_file",
+    "status": 4,
+    "requests": [
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      },
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [],
+    "ordinary": []
+  },
+  {
+    "name": "endpoint_missing",
+    "status": 1,
+    "requests": [
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [],
+    "ordinary": []
+  },
+  {
+    "name": "endpoint_ordinal_invalid",
+    "status": 1,
+    "requests": [
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 9,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [],
+    "ordinary": []
+  },
+  {
+    "name": "tcp_duplicate_id",
+    "status": 1,
+    "requests": [
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [],
+    "ordinary": []
+  },
+  {
+    "name": "same_module",
+    "status": 1,
+    "requests": [
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [],
+    "ordinary": []
+  },
+  {
+    "name": "aliases_retain_catalog",
+    "status": 0,
+    "requests": [
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [
+      {
+        "module": {
+          "data": "user",
+          "size": 4
+        },
+        "name": {
+          "data": "FileHandle",
+          "size": 10
+        },
+        "id": 500,
+        "target": 1
+      },
+      {
+        "module": {
+          "data": "user",
+          "size": 4
+        },
+        "name": {
+          "data": "ConnHandle",
+          "size": 10
+        },
+        "id": 501,
+        "target": 101
+      },
+      {
+        "module": {
+          "data": "user",
+          "size": 4
+        },
+        "name": {
+          "data": "Address",
+          "size": 7
+        },
+        "id": 502,
+        "target": 109
+      },
+      {
+        "module": {
+          "data": "user",
+          "size": 4
+        },
+        "name": {
+          "data": "Connect",
+          "size": 7
+        },
+        "id": 503,
+        "target": 110
+      }
+    ],
+    "ordinary": []
+  },
+  {
+    "name": "aliased_shared_spelling",
+    "status": 0,
+    "requests": [
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [
+      {
+        "module": {
+          "data": "user",
+          "size": 4
+        },
+        "name": {
+          "data": "FileByte",
+          "size": 8
+        },
+        "id": 500,
+        "target": 3
+      },
+      {
+        "module": {
+          "data": "user",
+          "size": 4
+        },
+        "name": {
+          "data": "SocketByte",
+          "size": 10
+        },
+        "id": 501,
+        "target": 103
+      }
+    ],
+    "ordinary": []
+  },
+  {
+    "name": "alias_collision",
+    "status": 1,
+    "requests": [
+      {
+        "module": {
+          "data": "binding",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [
+      {
+        "module": {
+          "data": "user",
+          "size": 4
+        },
+        "name": {
+          "data": "Handle",
+          "size": 6
+        },
+        "id": 500,
+        "target": 1
+      },
+      {
+        "module": {
+          "data": "user",
+          "size": 4
+        },
+        "name": {
+          "data": "Handle",
+          "size": 6
+        },
+        "id": 501,
+        "target": 101
+      }
+    ],
+    "ordinary": []
+  },
+  {
+    "name": "maximum_mixed",
+    "status": 0,
+    "requests": [
+      {
+        "module": {
+          "data": "f0",
+          "size": 2
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 1,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 2,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 3,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 4,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 5,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 6,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 7,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 8,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 9,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 10,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 11,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 12,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 13,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "n1",
+          "size": 2
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 15,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 16,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 17,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 18,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 19,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 20,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 21,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 22,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 23,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 24,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 25,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 26,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 27,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 28,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      },
+      {
+        "module": {
+          "data": "f2",
+          "size": 2
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 29,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 30,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 31,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 32,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 33,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 34,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 35,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 36,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 37,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 38,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 39,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 40,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 41,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "n3",
+          "size": 2
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 43,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 44,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 45,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 46,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 47,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 48,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 49,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 50,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 51,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 52,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 53,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 54,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 55,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 56,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      },
+      {
+        "module": {
+          "data": "f4",
+          "size": 2
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 57,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 58,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 59,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 60,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 61,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 62,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 63,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 64,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 65,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 66,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 67,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 68,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 69,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "n5",
+          "size": 2
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 71,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 72,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 73,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 74,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 75,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 76,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 77,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 78,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 79,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 80,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 81,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 82,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 83,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 84,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      },
+      {
+        "module": {
+          "data": "f6",
+          "size": 2
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 85,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 86,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 87,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 88,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 89,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 90,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 91,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 92,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 93,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 94,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 95,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 96,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 97,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "n7",
+          "size": 2
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 99,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 100,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 108,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 109,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      },
+      {
+        "module": {
+          "data": "f8",
+          "size": 2
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 113,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 114,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 115,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 116,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 117,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 118,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 119,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 120,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 121,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 122,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 123,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 124,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 125,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "n9",
+          "size": 2
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 127,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 128,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 129,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 130,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 131,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 132,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 133,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 134,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 135,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 136,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 137,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 138,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 139,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 140,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      },
+      {
+        "module": {
+          "data": "f10",
+          "size": 3
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 141,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 142,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 143,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 144,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 145,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 146,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 147,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 148,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 149,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 150,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 151,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 152,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 153,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "n11",
+          "size": 3
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 155,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 156,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 157,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 158,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 159,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 160,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 161,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 162,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 163,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 164,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 165,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 166,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 167,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 168,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      },
+      {
+        "module": {
+          "data": "f12",
+          "size": 3
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 169,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 170,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 171,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 172,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 173,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 174,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 175,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 176,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 177,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 178,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 179,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 180,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 181,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "n13",
+          "size": 3
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 183,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 184,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 185,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 186,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 187,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 188,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 189,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 190,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 191,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 192,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 193,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 194,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 195,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 196,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      },
+      {
+        "module": {
+          "data": "f14",
+          "size": 3
+        },
+        "interface": {
+          "data": "nsi:nanolang/filesystem",
+          "size": 23
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 197,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "File",
+              "size": 4
+            }
+          },
+          {
+            "id": 198,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "FileError",
+              "size": 9
+            }
+          },
+          {
+            "id": 199,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 200,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "OpenResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 201,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "WriteResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 202,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "PositionResult",
+              "size": 14
+            }
+          },
+          {
+            "id": 203,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReadResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 204,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 205,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "temp",
+              "size": 4
+            }
+          },
+          {
+            "id": 206,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "write_byte",
+              "size": 10
+            }
+          },
+          {
+            "id": 207,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "rewind",
+              "size": 6
+            }
+          },
+          {
+            "id": 208,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "read_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 209,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ]
+      },
+      {
+        "module": {
+          "data": "n15",
+          "size": 3
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 211,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 212,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 213,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 214,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 215,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 216,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 217,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 218,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 219,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 220,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 221,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 222,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 223,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 224,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [],
+    "ordinary": []
+  },
+  {
+    "name": "legacy_tcp_refused",
+    "status": 1,
+    "requests": [
+      {
+        "module": {
+          "data": "network",
+          "size": 7
+        },
+        "interface": {
+          "data": "nsi:nanolang/net",
+          "size": 16
+        },
+        "catalog": null,
+        "version": 1,
+        "line": 7,
+        "column": 9,
+        "bindings": [
+          {
+            "id": 101,
+            "kind": 0,
+            "ordinal": 0,
+            "name": {
+              "data": "Conn",
+              "size": 4
+            }
+          },
+          {
+            "id": 102,
+            "kind": 0,
+            "ordinal": 1,
+            "name": {
+              "data": "SocketError",
+              "size": 11
+            }
+          },
+          {
+            "id": 103,
+            "kind": 0,
+            "ordinal": 2,
+            "name": {
+              "data": "ReadByte",
+              "size": 8
+            }
+          },
+          {
+            "id": 104,
+            "kind": 0,
+            "ordinal": 3,
+            "name": {
+              "data": "ConnectResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 105,
+            "kind": 0,
+            "ordinal": 4,
+            "name": {
+              "data": "SendResult",
+              "size": 10
+            }
+          },
+          {
+            "id": 106,
+            "kind": 0,
+            "ordinal": 5,
+            "name": {
+              "data": "ConnectStatus",
+              "size": 13
+            }
+          },
+          {
+            "id": 107,
+            "kind": 0,
+            "ordinal": 6,
+            "name": {
+              "data": "ReceiveResult",
+              "size": 13
+            }
+          },
+          {
+            "id": 108,
+            "kind": 0,
+            "ordinal": 7,
+            "name": {
+              "data": "CloseResult",
+              "size": 11
+            }
+          },
+          {
+            "id": 109,
+            "kind": 0,
+            "ordinal": 8,
+            "name": {
+              "data": "Endpoint",
+              "size": 8
+            }
+          },
+          {
+            "id": 110,
+            "kind": 1,
+            "ordinal": 0,
+            "name": {
+              "data": "begin_connect",
+              "size": 13
+            }
+          },
+          {
+            "id": 111,
+            "kind": 1,
+            "ordinal": 1,
+            "name": {
+              "data": "send_byte",
+              "size": 9
+            }
+          },
+          {
+            "id": 112,
+            "kind": 1,
+            "ordinal": 2,
+            "name": {
+              "data": "finish_connect",
+              "size": 14
+            }
+          },
+          {
+            "id": 113,
+            "kind": 1,
+            "ordinal": 3,
+            "name": {
+              "data": "receive_byte",
+              "size": 12
+            }
+          },
+          {
+            "id": 114,
+            "kind": 1,
+            "ordinal": 4,
+            "name": {
+              "data": "close",
+              "size": 5
+            }
+          }
+        ],
+        "identity": 2
+      }
+    ],
+    "aliases": [],
+    "ordinary": [],
+    "legacy": true
+  }
+]
