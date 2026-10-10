@@ -1648,6 +1648,24 @@ test-nsi-socket:
 	$(CC) $(CFLAGS) -std=c11 -D_DEFAULT_SOURCE -Wall -Wextra -Werror tests/test_nsi_socket_linked.c src/nsi_socket.c src/nsi_cap.c -o $(OBJ_DIR)/test_nsi_socket_linked $(LDFLAGS)
 	@$(OBJ_DIR)/test_nsi_socket_linked
 
+.PHONY: test-nsi-websocket-protocol
+test-nsi-websocket-protocol:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -std=c11 -Wall -Wextra -Werror tests/test_nsi_websocket_protocol.c src/nsi_websocket_protocol.c src/utf8.c -o $(OBJ_DIR)/test_nsi_websocket_protocol $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_websocket_protocol
+	$(CC) $(CFLAGS) -std=c11 -Wall -Wextra -Werror -DNL_WS_PROTOCOL_INSTRUMENT tests/test_nsi_websocket_protocol.c src/utf8.c -o $(OBJ_DIR)/test_nsi_websocket_protocol_instrumented $(LDFLAGS)
+	@$(OBJ_DIR)/test_nsi_websocket_protocol_instrumented
+
+.PHONY: test-websocket-client
+test-websocket-client:
+	NANO_WEBSOCKET_CC="$(CC)" NANO_WEBSOCKET_CFLAGS="$(CFLAGS)" python3 -m unittest -v tests.test_websocket_client
+
+.PHONY: test-websocket-bindings
+test-websocket-bindings: $(COMPILER_C) nano_virt nano_vm
+	python3 -m unittest -v tests.test_websocket_bindings
+
+test-units: test-nsi-websocket-protocol test-websocket-client test-websocket-bindings
+
 .PHONY: test-nsi-socket-network
 test-nsi-socket-network:
 	@mkdir -p $(OBJ_DIR)

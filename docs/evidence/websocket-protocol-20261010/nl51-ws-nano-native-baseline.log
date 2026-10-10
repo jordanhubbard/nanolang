@@ -1,0 +1,35 @@
+Undefined symbols for architecture arm64:
+  "_nl_socket_acquire_tcp", referenced from:
+      _ws_connect_socket in websocket.o
+  "_nl_socket_consume_close", referenced from:
+      _ws_connect_socket in websocket.o
+  "_nl_socket_finish_connect", referenced from:
+      _ws_connect_socket in websocket.o
+  "_nl_socket_receive", referenced from:
+      _ws_handshake in websocket.o
+      _ws_receive in websocket.o
+  "_nl_socket_resolve_tcp", referenced from:
+      _ws_connect_socket in websocket.o
+  "_nl_socket_send", referenced from:
+      _ws_send_bytes in websocket.o
+  "_nl_socket_service_create", referenced from:
+      _ws_connect_socket in websocket.o
+  "_nl_socket_service_destroy", referenced from:
+      _ws_release_socket in websocket.o
+  "_nl_ws_client_frame", referenced from:
+      _ws_send_frame in websocket.o
+  "_nl_ws_decoder_create", referenced from:
+      _nl_ws_connect in websocket.o
+  "_nl_ws_decoder_destroy", referenced from:
+      _ws_destroy in websocket.o
+  "_nl_ws_decoder_eof", referenced from:
+      _ws_receive in websocket.o
+  "_nl_ws_decoder_feed", referenced from:
+      _ws_receive in websocket.o
+  "_nl_ws_handshake_key", referenced from:
+      _ws_handshake in websocket.o
+  "_nl_ws_upgrade_validate", referenced from:
+      _ws_handshake in websocket.o
+ld: symbol(s) not found for architecture arm64
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+C compilation failed

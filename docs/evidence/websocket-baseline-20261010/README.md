@@ -45,3 +45,7 @@ These protocol failures violate the linked RFC's client framing requirements.
 The fixture observes real context allocation/destruction, but its mocked I/O
 is not a real-network qualification. No adapter or public binding changes here;
 all listed failures remain required migration regressions.
+
+## Subsequent implementation
+
+I retain these historical failures from before my [protocol replacement](../websocket-protocol-20261010/README.md). The replacement fixes the reproduced framing, upgrade and pointer-handle defects and integrates owned sockets into the legacy module. Affine source service bindings and paired self-hosted acceptance remain open.
