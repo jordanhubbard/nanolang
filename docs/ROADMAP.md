@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [ ] Under #976 I retain enum and tuple identities through C generic checking and NanoISA specialization. My [fresh-seed baseline](evidence/generic-enum-tuple-baseline-20261010/README.md) executes both cases in the self-hosted product, NanoVM and sanitized C AOT. The C producer rejects enums at specialization and loses tuple result elements before destructuring. I require declared enum identity comparisons, complete tuple metadata, nested/returned controls and prior-output-preserving refusals before admitting these cases.
+
 - [ ] Under #976 I complete bootstrap qualification with stable host-library generations. My c56a96552 run builds and verifies Stage 1 in 554 seconds, then refuses a changed std host-library generation. Concurrent prototype builds shared the module cache; I retain both identities, preserve the exact closure guard and require a fresh run without competing native module builds.
 
 - [ ] Under #976 I preserve the language int result of str_length in legacy native C emission. My structural-binding prototype reaches generated C compilation but direct comparisons of int indices against strlen results fail -Werror=sign-compare. Typed local lengths allow the prototype to proceed; they do not fix the producer's unsigned result. I retain the generated diagnostic in the structural-binding evidence and require a direct-comparison regression before closing this gap.
