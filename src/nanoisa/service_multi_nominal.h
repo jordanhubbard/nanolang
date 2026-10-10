@@ -19,10 +19,14 @@ typedef struct {
     uint32_t count;
     NvmServiceInstance instances[NVM_MULTI_NOMINAL_MAX_INSTANCES];
 } NvmMultiNominalBindings;
-/* File uses eight layouts and requires layouts[8]==UINT32_MAX. I require all
+/* I reserve unused slots as UINT32_MAX: File has five imports/eight layouts,
+ * TCP five/nine, and WebSocket four/seven. I require all
  * active import and layout indices to be distinct across the entire table.
  * Failure preserves outputs. Value/byte buffers may overlap; size is disjoint.
  * Null byte output selects checked size-only mode. No pointer is retained. */
+/* Unknown catalogs have no active slots. */
+uint32_t nvm_multi_nominal_catalog_types(uint32_t catalog);
+uint32_t nvm_multi_nominal_catalog_methods(uint32_t catalog);
 NvmServiceResult nvm_multi_nominal_check(const NvmMultiNominalBindings *);
 NvmServiceResult nvm_multi_nominal_decode(const uint8_t *,size_t,NvmMultiNominalBindings *);
 NvmServiceResult nvm_multi_nominal_encode(const NvmMultiNominalBindings *,uint8_t *,size_t,size_t *);

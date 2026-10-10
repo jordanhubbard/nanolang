@@ -2,6 +2,7 @@
 #include "service_multi_nominal.h"
 #include "../nsi_file_catalog.h"
 #include "../nsi_socket_plan.h"
+#include "../nsi_websocket_plan.h"
 #include "nvm_v2_sections.h"
 #include "ownership_contracts.h"
 #include "isa.h"
@@ -13,10 +14,11 @@ struct NvmMultiNominalPlan {
     uint32_t count;
     NvmMultiNominalLayout rows[];
 };
-static uint32_t type_count(const NvmServiceInstance *v) {return v->catalog==1?8:9;}
+static uint32_t type_count(const NvmServiceInstance *v) {return nvm_multi_nominal_catalog_types(v->catalog);}
 static const NlServicePlanType *type_at(const NvmMultiNominalBindings *b,uint32_t ordinal) {
     const NvmServiceInstance *v=&b->instances[ordinal/9];
-    return v->catalog==1?nl_file_catalog_type(ordinal%9):nl_socket_catalog_type(ordinal%9);
+    return v->catalog==1?nl_file_catalog_type(ordinal%9):
+        v->catalog==2?nl_socket_catalog_type(ordinal%9):nl_websocket_catalog_type(ordinal%9);
 }
 static uint32_t catalog_at(const NvmMultiNominalBindings *b,uint32_t global) {
     for(uint32_t i=0;i<b->count;i++)for(uint32_t j=0;j<type_count(&b->instances[i]);j++)
@@ -47,6 +49,7 @@ static bool member_type(const NvmMultiNominalBindings *b,uint32_t instance,const
     if(!id){*tag=TAG_VOID;return true;}
     if(!strcmp(id,"nsi:core/int")){*tag=TAG_INT;return true;}
     if(!strcmp(id,"nsi:core/bool")){*tag=TAG_BOOL;return true;}
+    if(!strcmp(id,"nsi:core/string")){*tag=TAG_STRING;return true;}
     for(uint32_t i=0;i<type_count(&b->instances[instance]);i++) {
         const NlServicePlanType *t=type_at(b,instance*9+i);
         if(!t)return false;
@@ -55,18 +58,22 @@ static bool member_type(const NvmMultiNominalBindings *b,uint32_t instance,const
     return false;
 }
 static bool imports_valid(const NvmModule *m,const NvmMultiNominalBindings *b) {
-    if(m->import_count!=b->count*NVM_SERVICE_BINDING_COUNT || !m->imports ||
+    uint32_t methods=0;
+    for(uint32_t i=0;i<b->count;i++)methods+=nvm_multi_nominal_catalog_methods(b->instances[i].catalog);
+    if(m->import_count!=methods || !m->imports ||
        m->module_ref_count || m->callback_contract_count)return false;
     for(uint32_t instance=0;instance<b->count;instance++)
-    for(uint32_t i=0;i<NVM_SERVICE_BINDING_COUNT;i++) {
+    for(uint32_t i=0;i<nvm_multi_nominal_catalog_methods(b->instances[instance].catalog);i++) {
         const NvmServiceInstance *v=&b->instances[instance];
         uint32_t index=v->imports[i];
         if(index>=m->import_count)return false;
         const NvmImportEntry *im=&m->imports[index];
-        const NlServicePlanMethod *method=(v->catalog==1?nl_file_catalog_method(i):nl_socket_catalog_method(i));
+        const NlServicePlanMethod *method=(v->catalog==1?nl_file_catalog_method(i):
+            v->catalog==2?nl_socket_catalog_method(i):nl_websocket_catalog_method(i));
         if(!method || !method->param_count || method->param_count-1!=im->param_count ||
            im->kind!=NVM_IMPORT_SERVICE || im->return_type!=TAG_UNION ||
-           !text(m,im->module_name_idx,(v->catalog==1?nl_file_catalog_interface():nl_socket_catalog_interface())) ||
+           !text(m,im->module_name_idx,(v->catalog==1?nl_file_catalog_interface():
+               v->catalog==2?nl_socket_catalog_interface():nl_websocket_catalog_interface())) ||
            !text(m,im->function_name_idx,method->id))return false;
         const uint8_t *params=m->import_param_types?m->import_param_types[index]:NULL;
         if(im->param_count && !params)return false;
@@ -92,7 +99,9 @@ static NvmMultiNominalStatus layouts_read(const NvmModule *m,const NvmMultiNomin
     uint32_t count,records=0,enums=0,unions=0;
     if(nvm_v2_u32(&c,&count)!=NVM_V2_OK)return NVM_MULTI_NOMINAL_INVALID;
     if(count>NVM_MULTI_NOMINAL_MAX_LAYOUTS)return NVM_MULTI_NOMINAL_LIMIT;
-    if(count<b->count*8 || count>(c.size-c.pos)/8)return NVM_MULTI_NOMINAL_INVALID;
+    uint32_t minimum=0;
+    for(uint32_t i=0;i<b->count;i++)minimum+=type_count(&b->instances[i]);
+    if(count<minimum || count>(c.size-c.pos)/8)return NVM_MULTI_NOMINAL_INVALID;
     for(uint32_t i=0;i<b->count;i++)for(uint32_t j=0;j<type_count(&b->instances[i]);j++)
         if(b->instances[i].layouts[j]>=count)return NVM_MULTI_NOMINAL_INVALID;
     for(uint32_t i=0;i<count;i++) {
@@ -208,7 +217,8 @@ bool nvm_multi_nominal_type(const NvmMultiNominalPlan *p,uint32_t instance,uint3
         nvm_multi_nominal_layout(p,p->bindings.instances[instance].layouts[ordinal],out);
 }
 bool nvm_multi_nominal_import(const NvmMultiNominalPlan *p,uint32_t instance,uint32_t ordinal,uint32_t *out) {
-    if(!p || !out || instance>=p->bindings.count || ordinal>=5)return false;
+    if(!p || !out || instance>=p->bindings.count ||
+       ordinal>=nvm_multi_nominal_catalog_methods(p->bindings.instances[instance].catalog))return false;
     *out=p->bindings.instances[instance].imports[ordinal];return true;
 }
 uint32_t nvm_multi_nominal_instance_count(const NvmMultiNominalPlan *p) {return p?p->bindings.count:0;}

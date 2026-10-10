@@ -1,0 +1,7 @@
+test_installed_and_relocated_native_publication (tests.test_websocket_service_drivers.WebSocketServiceDrivers.test_installed_and_relocated_native_publication) ... ok
+test_repeated_single_catalog_permissions (tests.test_mixed_service_drivers.MixedServiceDrivers.test_repeated_single_catalog_permissions) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 6.853s
+
+OK

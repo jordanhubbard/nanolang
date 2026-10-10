@@ -435,7 +435,7 @@ FILE_PUBLIC_QUERY_STEMS = nanoisa/affine_bytecode nanoisa/affine_state nanoisa/f
 	nanoisa/ownership_contracts nanoisa/passive nanoisa/reference_places \
 	nanoisa/retained_layouts nanoisa/service_bindings nanoisa/service_bindings_module \
 	nanoisa/service_file_nominal nanoisa/service_file_nominal_plan \
-	nanoisa/service_multi_nominal nanoisa/service_multi_nominal_plan nanoisa/service_socket_nominal nanoisa/service_socket_nominal_plan nsi_socket_plan \
+	nanoisa/service_multi_nominal nanoisa/service_multi_nominal_plan nanoisa/service_socket_nominal nanoisa/service_socket_nominal_plan nsi_socket_plan nsi_websocket_plan \
 	nanoisa/verifier nanoisa/verifier_types nanovm/vm_decode nsi_file_plan
 FILE_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(FILE_PUBLIC_QUERY_STEMS))) \
 	$(OBJ_DIR)/nanoisa/file_host_grant.o $(OBJ_DIR)/nanoisa/file_runtime_public.o \
@@ -6570,7 +6570,7 @@ WEBSOCKET_PUBLIC_STEMS = $(FILE_PUBLIC_QUERY_STEMS) utf8 nanoisa/websocket_flow 
  nanoisa/service_websocket_nominal nanoisa/service_websocket_nominal_plan nanoisa/websocket_runtime \
  nanoisa/file_host_grant nanoisa/websocket_host_grant nanoisa/websocket_indirect_public_native \
  nanoisa/websocket_indirect_public_abi nanovm/websocket_indirect_public_vm nsi_cap nsi_socket \
- nsi_socket_resolver nsi_websocket_plan nsi_websocket_values nsi_websocket_transport nsi_websocket_protocol
+ nsi_socket_resolver nsi_websocket_values nsi_websocket_transport nsi_websocket_protocol
 WEBSOCKET_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(WEBSOCKET_PUBLIC_STEMS)))
 WEBSOCKET_PUBLIC_HEADERS = nanoisa/generated_schema.h \
  nanoisa/isa.h \

@@ -223,7 +223,20 @@ NvmV2Result nvm_v2_service_bindings_validate(const NvmV2Module *m) {
     if (nvm_v2_file_instructions_present(m) && !nominal_version(m->service_data,m->service_size))
         return NVM_V2_ERR_SECTION_TYPE;
     if (!nvm_v2_service_bindings_present(m)) return NVM_V2_OK;
-    if (nominal_version(m->service_data,m->service_size)) return nvm_private_nominal_wire(m,NVM_SERVICE_BINDING_COUNT,NVM_FILE_NOMINAL_TYPES,nominal_module);
+    if (nominal_version(m->service_data,m->service_size)) {
+        uint32_t imports=NVM_SERVICE_BINDING_COUNT,layouts=NVM_FILE_NOMINAL_TYPES;
+        if(m->service_data[0]==NVM_MULTI_NOMINAL_VERSION) {
+            NvmMultiNominalBindings bindings;
+            if(nvm_multi_nominal_decode(m->service_data,m->service_size,&bindings)!=NVM_SERVICE_OK)
+                return NVM_V2_ERR_SECTION_TYPE;
+            imports=0;layouts=0;
+            for(uint32_t i=0;i<bindings.count;i++) {
+                imports+=nvm_multi_nominal_catalog_methods(bindings.instances[i].catalog);
+                layouts+=nvm_multi_nominal_catalog_types(bindings.instances[i].catalog);
+            }
+        }
+        return nvm_private_nominal_wire(m,imports,layouts,nominal_module);
+    }
     NvmServiceBindings value;
     if (nvm_service_bindings_decode(m->service_data,m->service_size,&value)!=NVM_SERVICE_OK)
         return NVM_V2_ERR_SECTION_TYPE;

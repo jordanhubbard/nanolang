@@ -14,7 +14,7 @@ class MultiNominal(unittest.TestCase):
         objects = list(self.objects)
         for source in ('nvm_format', 'nvm_v2_convert', 'nvm_v2_module',
                        'service_bindings_module', 'service_multi_nominal',
-                       'service_multi_nominal_plan', 'retained_layouts', 'nvm_v2_layouts'):
+                       'service_multi_nominal_plan', 'services_nominal', 'services_flow', 'retained_layouts', 'nvm_v2_layouts'):
             objects = [p for p in objects if not p.endswith(f'/nanoisa/{source}.o')]
             obj = self.artifacts / f'{name}-{source}.o'
             hooks = (['-include', 'tests/nanoisa/service_alloc_hooks.h',

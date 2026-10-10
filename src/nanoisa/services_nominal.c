@@ -1,5 +1,16 @@
 #include "services_nominal.h"
 #include "nvm_v2_sections.h"
+NvmMultiNominalStatus nvm_services_nominal_plan(const NvmModule *m,NvmServicesNominalPlan **out) {
+ if(!m || !out)return NVM_MULTI_NOMINAL_INVALID;
+ NvmMultiNominalBindings b;
+ if(nvm_multi_nominal_decode(m->service_data,m->service_size,&b)!=NVM_SERVICE_OK)
+  return NVM_MULTI_NOMINAL_INVALID;
+ /* I retain WebSocket metadata without claiming its string/deadline flow is
+  * executable through the File/TCP engine. */
+ for(uint32_t i=0;i<b.count;i++)if(b.instances[i].catalog!=1 && b.instances[i].catalog!=2)
+  return NVM_MULTI_NOMINAL_INVALID;
+ return nvm_multi_nominal_plan(m,out);
+}
 static NvmServicesNominalLayout row(NvmMultiNominalLayout v) {
  NvmServicesCategory category=NVM_SERVICES_CATEGORY_UNKNOWN;
  uint32_t ordinal=NVM_V2_NO_INDEX;

@@ -278,3 +278,22 @@ embed compile-time host permission or a resolver path into the executable.
 
 My legacy WebSocket integer API stays separate. It cannot fabricate a verified
 `Connection`, and its successful tests do not establish this ownership contract.
+
+## Mixed-instance metadata
+
+I retain File, TCP and WebSocket instances in my version-3 nominal table. Each
+64-byte entry keeps its existing five import slots and nine layout slots.
+WebSocket uses four imports and seven layouts; I require `UINT32_MAX` in its
+remaining import slot and two remaining layout slots. File/TCP encoding is
+unchanged. Active indices are distinct across all instances.
+
+I validate each instance against its immutable catalog, including Message's
+boolean/string members, URL/string parameters and exact same-instance nested
+owner/result edges. My wire adapter derives minimum import/layout counts from
+the checked table. A single WebSocket instance with four imports and seven
+layouts can therefore round-trip through version-3 metadata transport.
+
+This is metadata transport only. My mixed executable flow entry refuses
+WebSocket instances until string/deadline flow and per-instance runtime policy
+are implemented. Standalone WebSocket continues through its explicit version-2
+catalog-3 provider. Mixed source lowering and VM/native execution remain open.

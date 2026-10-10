@@ -3,23 +3,31 @@
 static uint16_t get16(const uint8_t *p) {return (uint16_t)(p[0]|((uint16_t)p[1]<<8));}
 static uint32_t get32(const uint8_t *p) {return p[0]|((uint32_t)p[1]<<8)|((uint32_t)p[2]<<16)|((uint32_t)p[3]<<24);}
 static void put32(uint8_t *p,uint32_t v) {for(unsigned i=0;i<4;i++)p[i]=(uint8_t)(v>>(8*i));}
+uint32_t nvm_multi_nominal_catalog_types(uint32_t catalog) {
+    return catalog==1?8:catalog==2?9:catalog==3?7:0;
+}
+uint32_t nvm_multi_nominal_catalog_methods(uint32_t catalog) {
+    return catalog==1 || catalog==2?5:catalog==3?4:0;
+}
 NvmServiceResult nvm_multi_nominal_check(const NvmMultiNominalBindings *b) {
     if(!b)return NVM_SERVICE_ARGUMENT;
     if(!b->count || b->count>NVM_MULTI_NOMINAL_MAX_INSTANCES)return NVM_SERVICE_COUNT;
     for(uint32_t i=0;i<b->count;i++) {
         const NvmServiceInstance *v=&b->instances[i];
-        if(v->catalog!=1 && v->catalog!=2)return NVM_SERVICE_CATALOG;
-        unsigned types=v->catalog==1?8:9;
-        if(types==8 && v->layouts[8]!=UINT32_MAX)return NVM_SERVICE_RESERVED;
+        unsigned types=nvm_multi_nominal_catalog_types(v->catalog);
+        unsigned methods=nvm_multi_nominal_catalog_methods(v->catalog);
+        if(!types || !methods)return NVM_SERVICE_CATALOG;
+        for(unsigned k=types;k<9;k++)if(v->layouts[k]!=UINT32_MAX)return NVM_SERVICE_RESERVED;
+        for(unsigned k=methods;k<5;k++)if(v->imports[k]!=UINT32_MAX)return NVM_SERVICE_RESERVED;
         for(unsigned table=0;table<2;table++) {
             const uint32_t *indices=table?v->layouts:v->imports;
-            unsigned count=table?types:5;
+            unsigned count=table?types:methods;
             for(unsigned k=0;k<count;k++) {
                 if(indices[k]==UINT32_MAX)return NVM_SERVICE_INDEX;
                 for(uint32_t j=0;j<=i;j++) {
                     const NvmServiceInstance *prior=&b->instances[j];
                     const uint32_t *other=table?prior->layouts:prior->imports;
-                    unsigned end=j==i?k:(table?(prior->catalog==1?8:9):5);
+                    unsigned end=j==i?k:(table?nvm_multi_nominal_catalog_types(prior->catalog):nvm_multi_nominal_catalog_methods(prior->catalog));
                     for(unsigned n=0;n<end;n++)if(indices[k]==other[n])return NVM_SERVICE_INDEX;
                 }
             }

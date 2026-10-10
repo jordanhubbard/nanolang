@@ -7,6 +7,8 @@
 #include "../../src/nanoisa/nvm2c.h"
 #include "../../src/nanovm/vm.h"
 #include "../../src/nsi_file_catalog.h"
+#include "../../src/nsi_websocket_plan.h"
+#include "../../src/nanoisa/services_flow.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,28 +23,31 @@ void *service_test_realloc(void *p,size_t n){if(!budget)return NULL;if(budget>0)
 #endif
 static void wr32(uint8_t *p,uint32_t v){for(unsigned j=0;j<4;j++)p[j]=(uint8_t)(v>>(8*j));}
 static uint32_t rd32(const uint8_t *p){return p[0]|((uint32_t)p[1]<<8)|((uint32_t)p[2]<<16)|((uint32_t)p[3]<<24);}
-static unsigned types(const NvmServiceInstance *v){return v->catalog==1?8:9;}
-static const NlServicePlanType *type(const NvmServiceInstance *v,unsigned j){return v->catalog==1?nl_file_catalog_type(j):nl_socket_catalog_type(j);}
+static unsigned types(const NvmServiceInstance *v){return v->catalog==1?8:v->catalog==2?9:7;}
+static const NlServicePlanType *type(const NvmServiceInstance *v,unsigned j){return v->catalog==1?nl_file_catalog_type(j):v->catalog==2?nl_socket_catalog_type(j):nl_websocket_catalog_type(j);}
 static uint32_t str(NvmModule *m,const char *s){return nvm_add_string(m,s,(uint32_t)strlen(s));}
 static void descriptor(uint8_t *p,uint8_t tag,uint8_t mode,uint32_t layout){p[0]=tag;p[1]=mode;wr32(p+4,layout);}
-static NvmModule *fixture(bool reverse,NvmMultiNominalBindings *b){
+static NvmModule *fixture_catalogs(bool reverse,NvmMultiNominalBindings *b,const uint32_t *catalogs,unsigned instances){
  AsmResult result={0};NvmModule *m=asm_assemble(".function main 0 0 0 int 1\nPUSH_I64 7\nRET\n.end\n.entry main\n",&result);CHECK(m);
- memset(b,0,sizeof *b);b->count=3;unsigned total=1;
- NvmV2Layout layouts[26]={0};NvmV2LayoutField fields[3][9][11]={0};
+ memset(b,0,sizeof *b);b->count=instances;unsigned total=catalogs[0]==3?0:1;
+ CHECK(instances<=5);
+ NvmV2Layout layouts[46]={0};NvmV2LayoutField fields[5][9][11]={0};
  layouts[0].kind=NVM_V2_LAYOUT_TUPLE;layouts[0].name_idx=NVM_V2_NO_INDEX;
- for(unsigned i=0;i<3;i++){
-  NvmServiceInstance *v=&b->instances[i];v->catalog=i==1?2:1;
+ for(unsigned i=0;i<instances;i++){
+  NvmServiceInstance *v=&b->instances[i];v->catalog=catalogs[i];
   for(unsigned j=0;j<9;j++)v->layouts[j]=j<types(v)?total+j:UINT32_MAX;
   if(reverse){uint32_t x=v->layouts[0];v->layouts[0]=v->layouts[1];v->layouts[1]=x;}
   total+=types(v);
-  uint32_t module=str(m,v->catalog==1?nl_file_catalog_interface():nl_socket_catalog_interface());
-  for(unsigned j=0;j<5;j++){
-   unsigned k=reverse?4-j:j;
-   const NlServicePlanMethod *method=v->catalog==1?nl_file_catalog_method(k):nl_socket_catalog_method(k);
-   uint8_t tags[2];unsigned count=(unsigned)method->param_count-1;
-   for(unsigned n=0;n<count;n++)tags[n]=!strcmp(method->params[n].type_id,"nsi:core/int")?TAG_INT:TAG_STRUCT;
+  uint32_t module=str(m,v->catalog==1?nl_file_catalog_interface():v->catalog==2?nl_socket_catalog_interface():nl_websocket_catalog_interface());
+  unsigned methods=v->catalog==3?4:5;
+  for(unsigned j=methods;j<5;j++)v->imports[j]=UINT32_MAX;
+  for(unsigned j=0;j<methods;j++){
+   unsigned k=reverse?methods-1-j:j;
+   const NlServicePlanMethod *method=v->catalog==1?nl_file_catalog_method(k):v->catalog==2?nl_socket_catalog_method(k):nl_websocket_catalog_method(k);
+   uint8_t tags[3];unsigned count=(unsigned)method->param_count-1;
+   for(unsigned n=0;n<count;n++)tags[n]=!strcmp(method->params[n].type_id,"nsi:core/int")?TAG_INT:!strcmp(method->params[n].type_id,"nsi:core/string")?TAG_STRING:TAG_STRUCT;
    uint32_t index=nvm_add_import(m,module,str(m,method->id),(uint16_t)count,TAG_UNION,tags);
-   CHECK(index==i*5+j);m->imports[index].kind=NVM_IMPORT_SERVICE;v->imports[k]=index;
+   CHECK(index!=UINT32_MAX);m->imports[index].kind=NVM_IMPORT_SERVICE;v->imports[k]=index;
   }
   for(unsigned j=0;j<types(v);j++){
    const NlServicePlanType *t=type(v,j);NvmV2Layout *l=&layouts[v->layouts[j]];
@@ -51,25 +56,31 @@ static NvmModule *fixture(bool reverse,NvmMultiNominalBindings *b){
    if(l->kind==NVM_V2_LAYOUT_STRUCT)m->struct_count++;else m->union_count++;
    for(unsigned k=0;k<t->member_count;k++){
     const char *id=t->members[k].type_id;uint8_t tag=TAG_VOID;uint32_t nested=NVM_V2_NO_INDEX;
-    if(id){if(!strcmp(id,"nsi:core/int"))tag=TAG_INT;else if(!strcmp(id,"nsi:core/bool"))tag=TAG_BOOL;
+    if(id){if(!strcmp(id,"nsi:core/int"))tag=TAG_INT;else if(!strcmp(id,"nsi:core/bool"))tag=TAG_BOOL;else if(!strcmp(id,"nsi:core/string"))tag=TAG_STRING;
      else for(unsigned n=0;n<types(v);n++)if(!strcmp(id,type(v,n)->id)){tag=type(v,n)->kind==NL_NSI_TYPE_VARIANT?TAG_UNION:TAG_STRUCT;nested=v->layouts[n];}}
     fields[i][j][k]=(NvmV2LayoutField){tag,nested,str(m,t->members[k].id)};
    }
   }
  }
- CHECK(total==26);NvmV2Layouts table={layouts,total};CHECK(nvm_retain_layouts(m,&table)==NVM_V2_OK);
- m->functions[0].arity=2;m->functions[0].local_count=3;uint8_t params[]={TAG_STRUCT,TAG_STRUCT};CHECK(nvm_set_function_param_types(m,0,params,2));
- m->ownership_size=76;m->ownership_data=calloc(1,76);CHECK(m->ownership_data);uint8_t *o=m->ownership_data;
+ NvmV2Layouts table={layouts,total};CHECK(nvm_retain_layouts(m,&table)==NVM_V2_OK);
+ unsigned locals=instances>=3?3:1,parameters=instances>=3?2:0;
+ m->functions[0].arity=(uint8_t)parameters;m->functions[0].local_count=(uint16_t)locals;
+ uint8_t params[]={TAG_STRUCT,TAG_STRUCT};CHECK(nvm_set_function_param_types(m,0,params,(uint16_t)parameters));
+ unsigned functions=(8+total+3)&~3u;
+ m->ownership_size=functions+16+8*locals;m->ownership_data=calloc(1,m->ownership_size);CHECK(m->ownership_data);uint8_t *o=m->ownership_data;
  wr32(o,1);wr32(o+4,total);
- for(unsigned i=0;i<3;i++)for(unsigned j=0;j<types(&b->instances[i]);j++)o[8+b->instances[i].layouts[j]]=(j==0||j==3)?3:1;
- wr32(o+36,1);o[40]=3;o[42]=2;descriptor(o+44,TAG_INT,0,NVM_V2_NO_INDEX);
- descriptor(o+52,TAG_STRUCT,1,b->instances[0].layouts[0]);descriptor(o+60,TAG_STRUCT,2,b->instances[1].layouts[0]);descriptor(o+68,TAG_STRUCT,0,b->instances[2].layouts[0]);
+ for(unsigned i=0;i<instances;i++)for(unsigned j=0;j<types(&b->instances[i]);j++)o[8+b->instances[i].layouts[j]]=(j==0||j==3)?3:1;
+ wr32(o+functions,1);o[functions+4]=(uint8_t)locals;o[functions+6]=(uint8_t)parameters;descriptor(o+functions+8,TAG_INT,0,NVM_V2_NO_INDEX);
+ for(unsigned i=0;i<locals;i++)descriptor(o+functions+16+8*i,TAG_STRUCT,i<parameters?(uint8_t)(i+1):0,b->instances[i].layouts[0]);
  size_t size=0;CHECK(nvm_multi_nominal_encode(b,NULL,0,&size)==NVM_SERVICE_OK);m->service_data=malloc(size);CHECK(m->service_data);
  CHECK(nvm_multi_nominal_encode(b,m->service_data,size,&size)==NVM_SERVICE_OK);m->service_size=(uint32_t)size;return m;
 }
+static NvmModule *fixture(bool reverse,NvmMultiNominalBindings *b){
+ const uint32_t catalogs[]={1,2,1};return fixture_catalogs(reverse,b,catalogs,3);
+}
 static void raw(void){
  NvmMultiNominalBindings b={0},out;b.count=64;
- for(unsigned i=0;i<64;i++){b.instances[i].catalog=i%2+1;for(unsigned j=0;j<5;j++)b.instances[i].imports[j]=5*i+j;
+ for(unsigned i=0;i<64;i++){b.instances[i].catalog=i%3+1;for(unsigned j=0;j<5;j++)b.instances[i].imports[j]=j<(b.instances[i].catalog==3?4u:5u)?5*i+j:UINT32_MAX;
   for(unsigned j=0;j<9;j++)b.instances[i].layouts[j]=j<types(&b.instances[i])?9*i+j:UINT32_MAX;}
  uint8_t wire[NVM_MULTI_NOMINAL_MAX_BYTES],copy[sizeof wire];size_t n=0;
  CHECK(nvm_multi_nominal_encode(&b,wire,sizeof wire,&n)==NVM_SERVICE_OK && n==sizeof wire);
@@ -146,9 +157,57 @@ static void module(bool reverse){
  nvm_v2_module_free(&decoded);nvm_v2_module_free(&v);free(wire);nvm_module_free(copy);nvm_module_free(m);
  NvmMultiNominalLayout row;CHECK(nvm_multi_nominal_type(p,2,0,&row) && row.instance==2);nvm_multi_nominal_plan_free(p);
 }
+static void websocket(bool reverse,const uint32_t *catalogs,unsigned count){
+ NvmMultiNominalBindings b;NvmModule *m=fixture_catalogs(reverse,&b,catalogs,count);
+ NvmMultiNominalPlan *p=NULL;CHECK(nvm_multi_nominal_plan(m,&p)==NVM_MULTI_NOMINAL_DESCRIBED);
+ unsigned ws=0;while(catalogs[ws]!=3)ws++;
+ for(unsigned i=0;i<count;i++){
+  for(unsigned j=0;j<types(&b.instances[i]);j++){
+   NvmMultiNominalLayout row;CHECK(nvm_multi_nominal_type(p,i,j,&row));
+   CHECK(row.instance==i && row.catalog==catalogs[i] && row.global_index==b.instances[i].layouts[j]);
+  }
+  for(unsigned j=0;j<(catalogs[i]==3?4u:5u);j++){
+   uint32_t index=UINT32_MAX;CHECK(nvm_multi_nominal_import(p,i,j,&index) && index==b.instances[i].imports[j]);
+  }
+ }
+ uint32_t index=123;CHECK(!nvm_multi_nominal_import(p,ws,4,&index) && index==123);
+ NvmMultiNominalLayout row={0},old=row;CHECK(!nvm_multi_nominal_type(p,ws,7,&row) && !memcmp(&old,&row,sizeof row));
+ NvmServicesNominalPlan *flow=(void *)&checks;
+ CHECK(nvm_services_nominal_plan(m,&flow)==NVM_MULTI_NOMINAL_INVALID && flow==(void *)&checks);
+ NvmServicesFlowDeclarations *declarations=(void *)&checks;
+ CHECK(nvm_services_flow_declarations(m,&declarations)!=NVM_SERVICES_FLOW_OK && declarations==(void *)&checks);
+ CHECK(nvm_service_bindings_validate(m)==NVM_V2_OK);consumers(m);
+ NvmV2Module v={0},decoded={0};CHECK(nvm_v2_from_nvm_module(m,&v)==NVM_V2_OK);
+ size_t size=0;CHECK(nvm_v2_module_serialize(&v,NULL,0,&size)==NVM_V2_OK);
+ uint8_t *bytes=malloc(size);CHECK(bytes);CHECK(nvm_v2_module_serialize(&v,bytes,size,&size)==NVM_V2_OK);
+ CHECK(nvm_v2_module_deserialize(bytes,size,&decoded)==NVM_V2_OK);
+ NvmModule *copy=NULL;CHECK(nvm_v2_to_nvm_module(&decoded,&copy)==NVM_V2_OK);
+ CHECK(copy->service_size==m->service_size && !memcmp(copy->service_data,m->service_data,m->service_size));
+ CHECK(copy->layout_size==m->layout_size && !memcmp(copy->layout_data,m->layout_data,m->layout_size));
+ CHECK(copy->ownership_size==m->ownership_size && !memcmp(copy->ownership_data,m->ownership_data,m->ownership_size));
+ consumers(copy);nvm_module_free(copy);nvm_v2_module_free(&decoded);nvm_v2_module_free(&v);free(bytes);
+ /* I reject padding that invents an extra method or layout. */
+ for(unsigned slot=0;slot<3;slot++){
+  uint32_t *value=slot?&b.instances[ws].layouts[6+slot]:&b.instances[ws].imports[4];
+  *value=123;CHECK(nvm_multi_nominal_check(&b)==NVM_SERVICE_RESERVED);*value=UINT32_MAX;
+ }
+ uint8_t *tag=&m->import_param_types[b.instances[ws].imports[0]][0];CHECK(*tag==TAG_STRING);
+ *tag=TAG_INT;refuse(m);*tag=TAG_STRING;
+ size_t pos=4;uint32_t message=b.instances[ws].layouts[2];
+ for(uint32_t i=0;i<message;i++)pos+=8+12*(m->layout_data[pos+2]|((unsigned)m->layout_data[pos+3]<<8));
+ CHECK(m->layout_data[pos+20]==TAG_STRING);m->layout_data[pos+20]=TAG_INT;refuse(m);m->layout_data[pos+20]=TAG_STRING;
+ if(count>1){
+  unsigned last=count-1;uint32_t result=b.instances[last].layouts[3];pos=4;
+  for(uint32_t i=0;i<result;i++)pos+=8+12*(m->layout_data[pos+2]|((unsigned)m->layout_data[pos+3]<<8));
+  uint32_t owner=rd32(m->layout_data+pos+12);wr32(m->layout_data+pos+12,b.instances[0].layouts[0]);refuse(m);wr32(m->layout_data+pos+12,owner);
+ }
+ CHECK(nvm_multi_nominal_check(&b)==NVM_SERVICE_OK);
+ nvm_multi_nominal_plan_free(p);nvm_module_free(m);
+}
 #ifdef SERVICE_ALLOC_TEST
-static void allocations(void){
- NvmMultiNominalBindings b;NvmModule *m=fixture(false,&b);NvmMultiNominalPlan *p=(void *)&checks;
+static void allocations(bool websocket){
+ const uint32_t catalogs[]={3,3,3,3,3};
+ NvmMultiNominalBindings b;NvmModule *m=websocket?fixture_catalogs(false,&b,catalogs,5):fixture(false,&b);NvmMultiNominalPlan *p=(void *)&checks;
  budget=0;CHECK(nvm_multi_nominal_plan(m,&p)==NVM_MULTI_NOMINAL_MEMORY && p==(void *)&checks);budget=-1;
  bool success=false;
  for(int n=0;n<128;n++){NvmV2Module v={0};budget=n;NvmV2Result r=nvm_v2_from_nvm_module(m,&v);budget=-1;
@@ -167,7 +226,11 @@ static void allocations(void){
 }
 #endif
 int main(void){raw();module(false);module(true);
+ const uint32_t one[]={3},mixed[]={1,2,3,3},five[]={3,3,3,3,3};
+ for(unsigned reverse=0;reverse<2;reverse++){
+  websocket(reverse,one,1);websocket(reverse,mixed,4);websocket(reverse,five,5);
+ }
 #ifdef SERVICE_ALLOC_TEST
- allocations();
+ allocations(false);allocations(true);
 #endif
  printf("PASS %u mixed/repeated service transport checks; no host execution\n",checks);return 0;}

@@ -21,7 +21,8 @@ typedef NvmMultiNominalBindings NvmServicesNominalBindings;
 #define NVM_SERVICES_NOMINAL_TYPES 8u
 #define NVM_SERVICES_NOMINAL_MAX_LAYOUTS NVM_MULTI_NOMINAL_MAX_LAYOUTS
 #define NVM_SERVICES_NOMINAL_BYTES NVM_MULTI_NOMINAL_MAX_BYTES
-#define nvm_services_nominal_plan nvm_multi_nominal_plan
+/* I admit only catalogs supported by the mixed executable flow engine. */
+NvmMultiNominalStatus nvm_services_nominal_plan(const NvmModule *,NvmServicesNominalPlan **);
 #define nvm_services_nominal_plan_free nvm_multi_nominal_plan_free
 #define nvm_services_nominal_storage_bound nvm_multi_nominal_storage_bound
 #define nvm_services_nominal_layout_count nvm_multi_nominal_layout_count
