@@ -2080,6 +2080,33 @@ shadow parser_store_array_element {
     assert (== 1 1)
 }
 
+# I classify the type component, independently of a module alias's case.
+fn literal_type_spelling(name: string) -> bool {
+    let mut start: int = (+ (str_last_index_of name ".") 1)
+    let colon: int = (str_last_index_of name "::")
+    if (>= colon start) { set start (+ colon 2) }
+    if (>= start (str_length name)) { return false }
+    let first: int = (char_at name start)
+    return (and (>= first 65) (<= first 90))
+}
+shadow literal_type_spelling {
+    assert (literal_type_spelling "tcp.Endpoint")
+    assert (literal_type_spelling "api.files.Endpoint")
+    assert (literal_type_spelling "api::Endpoint")
+    assert (not (literal_type_spelling "tcp.endpoint"))
+    assert (not (literal_type_spelling ""))
+    let sources: array<string> = ["tcp.Endpoint { family: 4 }", "(tcp.Endpoint { family: 4 })", "(take tcp.Endpoint { family: 4 })"]
+    let mut i: int = 0
+    while (< i (array_length sources)) {
+        let tokens: List<LexerToken> = (tokenize_string (at sources i) "literal.nano" (list_CompilerDiagnostic_new))
+        let parsed: Parser = (parse_primary (parser_new tokens (list_LexerToken_length tokens) "literal.nano"))
+        assert (not parsed.has_error) assert (parser_is_at_end parsed)
+        assert (== parsed.struct_literals_count 1)
+        assert (== (parser_get_struct_literal parsed 0).struct_name "tcp.Endpoint")
+        set i (+ i 1)
+    }
+}
+
 /* I distinguish a declared union variant from a qualified record name. */
 fn parse_named_literal(p: Parser, name: string, line: int, column: int) -> Parser {
     let mut i: int = 0
@@ -2846,6 +2873,14 @@ fn parse_primary(p: Parser) -> Parser {
                 } else {
                     /* Identifier (possibly qualified) or struct literal */
                     if (== tok.token_type (token_identifier)) {
+                        let literal: NameParseResult = (parse_call_name p)
+                        if (and literal.ok (literal_type_spelling literal.name)) {
+                            if (not (parser_is_at_end literal.p)) {
+                                if (== (parser_current literal.p).token_type (token_lbrace)) {
+                                    return (parse_named_literal (parser_advance literal.p) literal.name tok.line tok.column)
+                                }
+                            }
+                        }
                         let name_res: NameParseResult = (parse_qualified_name p)
                         if (not name_res.ok) {
                             return (parser_with_error name_res.p true)
@@ -3291,8 +3326,7 @@ fn parse_parenthesized_head(p: Parser) -> Parser {
     if name.ok {
         if (not (parser_is_at_end name.p)) {
             if (== (parser_current name.p).token_type (token_lbrace)) {
-                let first: int = (char_at name.name 0)
-                if (and (>= first 65) (<= first 90)) {
+                if (literal_type_spelling name.name) {
                     let start: LexerToken = (parser_current p)
                     return (parse_named_literal (parser_advance name.p) name.name start.line start.column)
                 }
@@ -3325,8 +3359,7 @@ fn parenthesized_call_start(p: Parser) -> bool {
     if (== next.token_type (token_comma)) { return false }
     # I parse a named literal as an expression before deciding tuple versus group.
     if (== next.token_type (token_lbrace)) {
-        let first: int = (char_at name.name 0)
-        if (and (>= first 65) (<= first 90)) { return false }
+        if (literal_type_spelling name.name) { return false }
     }
     return true
 }

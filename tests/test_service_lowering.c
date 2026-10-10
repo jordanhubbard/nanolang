@@ -2,6 +2,7 @@
 #include "service_lowering.h"
 #include "nanoisa/file_cyclic_public.h"
 #include "nanoisa/socket_indirect_native_public.h"
+#include "nanoisa/services_indirect_native_public.h"
 #include "runtime/service_shadows.h"
 #include <assert.h>
 #include <stdio.h>
@@ -149,7 +150,7 @@ int main(int argc,char **argv) {
         assert(attempt.status==4 && sentinel==module);
     }
     assert(recovered);
-    if(module->service_size!=NVM_SOCKET_NOMINAL_BYTES)check_reference_maps(module);
+    if(module->service_size==NVM_FILE_NOMINAL_BYTES)check_reference_maps(module);
     uint8_t *bytes=NULL;size_t length=0;result=nl_service_serialize(module,&bytes,&length);
     if(result.status)fprintf(stderr,"SERIALIZE %u %s\n",result.status,result.diagnostic);
     assert(!result.status);
@@ -166,6 +167,24 @@ int main(int argc,char **argv) {
         assert(attempt.status==4 && prior==bytes && prior_size==length);
     }
     assert(recovered);
+    if(module->service_size>NVM_SOCKET_NOMINAL_BYTES) {
+        char wire_path[8192];assert(snprintf(wire_path,sizeof wire_path,"%s.nvm",argv[3])<(int)sizeof wire_path);
+        file=fopen(wire_path,"wb");assert(file);assert(fwrite(bytes,1,length,file)==length);assert(!fclose(file));
+        NvmMultiNominalBindings bindings={0};assert(nvm_multi_nominal_decode(module->service_data,module->service_size,&bindings)==NVM_SERVICE_OK);
+        NvmServicesHostPolicy policies[64];
+        for(uint32_t i=0;i<bindings.count;i++)policies[i]=(NvmServicesHostPolicy){(NvmServicesHostCatalog)bindings.instances[i].catalog,true};
+        NvmServicesHostGrant *grant=NULL;assert(nvm_services_host_grant_create(policies,bindings.count,&grant)==NVM_SERVICES_HOST_OK);
+        NvmServicesIndirectOptions options={1,100000};NvmServicesScalar scalar={0};
+        unsigned descriptors=descriptor_count();
+        NvmServicesIndirectExecutionReport report=nvm_services_execute_indirect_bytes(grant,bytes,length,&options,&scalar);
+        assert(report.runtime.status==expected && !report.runtime.cleanup.cleanup_failures && descriptors==descriptor_count());
+        printf("EXEC %u VALUE %lld\n",report.runtime.status,(long long)scalar.value);
+        char diagnostic[256],*native=NULL;
+        assert(nvm2c_emit_services_indirect_bytes(bytes,length,"source",&native,diagnostic,sizeof diagnostic)==NVM_SERVICES_RUNTIME_OK);
+        file=fopen(argv[3],"wb");assert(file);assert(fwrite(native,1,strlen(native),file)==strlen(native));assert(!fclose(file));
+        free(native);free(bytes);nvm_module_free(module);
+        assert(nvm_services_host_grant_destroy(&grant)==NVM_SERVICES_HOST_OK);goto done;
+    }
     if(module->service_size==NVM_SOCKET_NOMINAL_BYTES) {
         char wire_path[8192];assert(snprintf(wire_path,sizeof wire_path,"%s.nvm",argv[3])<(int)sizeof wire_path);
         file=fopen(wire_path,"wb");assert(file);assert(fwrite(bytes,1,length,file)==length);assert(!fclose(file));

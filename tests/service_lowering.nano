@@ -47,6 +47,10 @@ fn lower_probe(files: array<string>, selection: string, expected: int) -> int {
     let root: string = (at files (- (array_length files) 1))
     let tokens: List<LexerToken> = (tokenize_string source root (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) root)
+    if parser.has_error {
+        let token: LexerToken = (parser_current parser)
+        (println (+ "I could not parse the lowering fixture at " (+ (int_to_string token.line) (+ ":" (+ (int_to_string token.column) (+ " near " token.value))))))
+    }
     assert (not parser.has_error)
     let mut targets: array<int> = [] set i 0
     while (< i parser.imports_count) {

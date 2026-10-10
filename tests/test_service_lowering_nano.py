@@ -152,6 +152,86 @@ fn main()->int {
         finally:
             companion.write_bytes(previous)
 
+    def test_mixed_source_bytes_and_execution(self):
+        import socket
+        from tests.test_socket_dispatch import SocketDispatch
+        (self.work/'nanolang/services').symlink_to(ROOT/'src', target_is_directory=True)
+        (self.work/'tcp.nsi.json').write_bytes((ROOT/'tests/fixtures/nsi_socket_plan.json').read_bytes())
+        file_body = corpus.DECL + """
+pub fn pass(value:File)->File{return value}
+pub fn write(value:&mut File,n:int)->WriteResult{return (write_byte &mut value n)}
+pub fn read(value:&mut File,n:int)->void {
+ match (rewind &mut value) {Ok()=>{} Error(e)=>{assert false}}
+ match (read_byte &mut value) {Ok(b)=>{assert (== b.value n)} Error(e)=>{assert false}}
+}
+"""
+        first=self.work/'first.nano';first.write_text(file_body)
+        tcp=self.work/'tcp.nano';tcp.write_text('service "nsi:nanolang/net" catalog 1 from "tcp.nsi.json"\n'+"""
+pub fn pass(value:Conn)->Conn{return value}
+pub fn write(value:&mut Conn,n:int)->SendResult{return (send_byte &mut value n)}
+pub fn exchange(conn:&mut Conn)->int {
+    let mut ready:bool=false
+    while (not ready) {match (finish_connect &mut conn) {Ok()=>{set ready true} Error(e)=>{assert (== e.status 2)}}}
+    let mut sent:bool=false
+    while (not sent) {match (write &mut conn 165) {Ok(n)=>{assert (== n 1) set sent true} Error(e)=>{assert (== e.status 2)}}}
+    let mut read:bool=false let mut value:int=0
+    while (not read) {match (receive_byte &mut conn) {Ok(b)=>{assert (not b.eof) set value b.value set read true} Error(e)=>{assert (== e.status 2)}}}
+return value
+}
+""")
+        second=self.work/'second.nano';second.write_text(file_body)
+        wrapper=self.work/'mixed-wrapper.c'
+        wrapper.write_text(corpus.WRAPPER.replace('file_cyclic','services_indirect').replace('FileCyclic','ServicesIndirect')
+            .replace('FileHost','ServicesHost').replace('FileScalar','ServicesScalar').replace('nvm_file_','nvm_services_')
+            .replace('NVM_FILE_','NVM_SERVICES_').replace('assert(nvm_services_host_grant_create_temporary_files(&grant)==NVM_SERVICES_HOST_OK);',
+                'NvmServicesHostPolicy policies[]={{NVM_SERVICES_HOST_FILE,true},{NVM_SERVICES_HOST_TCP,true},{NVM_SERVICES_HOST_FILE,true}}; assert(nvm_services_host_grant_create(policies,3,&grant)==NVM_SERVICES_HOST_OK);'))
+        for family in (4,6):
+            port,received=SocketDispatch.server(self,socket.AF_INET if family==4 else socket.AF_INET6)
+            endpoint=f'tcp.Endpoint {{ scope_id: 0, port: {port}, address3: {1 if family==6 else 0}, address2: 0, address1: 0, address0: {2130706433 if family==4 else 0}, family: {family} }}'
+            body="""module "first.nano" as first
+module "tcp.nano" as tcp
+module "second.nano" as second
+fn main()->int {
+ match (first.temp) { Error(e)=>{return e.status} Ok(a)=>{
+  let identity:fn(first.File)->first.File=first.pass
+  let writer:fn(&mut first.File,int)->first.WriteResult=first.write
+  let mut left:first.File=(identity a)
+  match (tcp.begin_connect ENDPOINT) { Error(e)=>{let closed:first.CloseResult=(first.close left) return e.status} Ok(c)=>{
+   let mut conn:tcp.Conn=(tcp.pass c)
+   match (second.temp) { Error(e)=>{let l:first.CloseResult=(first.close left) let c:tcp.CloseResult=(tcp.close conn) return e.status} Ok(b)=>{
+    let mut right:second.File=(second.pass b)
+    match (writer &mut left 17) {Ok(n)=>{assert (== n 1)} Error(e)=>{assert false}}
+    match (second.write &mut right 23) {Ok(n)=>{assert (== n 1)} Error(e)=>{assert false}}
+    (first.read &mut left 17) (second.read &mut right 23)
+    let value:int=(tcp.exchange &mut conn)
+    match (first.close left) {Ok()=>{} Error(e)=>{assert false}}
+    match (tcp.close conn) {Ok()=>{} Error(e)=>{assert false}}
+    match (second.close right) {Ok()=>{} Error(e)=>{assert false}}
+    return value
+   }}
+  }}
+ }}
+}
+shadow main {assert (== (main) 90)}
+""".replace('ENDPOINT',endpoint)
+            for selection in ('main','shadow'):
+                # My probe uses target names; select a distinct shadow target.
+                source=body.replace('shadow main', 'fn exercise()->int{return (main)}\nshadow exercise') if selection=='shadow' else body
+                path=self.work/f'mixed-{family}-{selection}.nano';path.write_text(source)
+                selected='exercise' if selection=='shadow' else 'main'
+                generated=path.with_suffix('.c')
+                report=self.command([os.environ.get('NANO_SERVICE_LOWERING_RUNNER',ROOT/'obj/test_service_lowering'),path,selected,generated,0])
+                wire=self.lower(path,selected,dependencies=[first,tcp,second])
+                self.assertEqual(wire,Path(str(generated)+'.nvm').read_bytes())
+                native=path.with_suffix('.native')
+                self.command([*self.compiler,'-std=c99','-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all',
+                    '-I'+str(self.work),'-Isrc',generated,wrapper,ROOT/'lib/libnano_services_runtime.a','-o',native,'-lm'])
+                expected=0 if selection=='shadow' else 90
+                self.assertIn(f'EXEC 0 VALUE {expected}',report)
+                self.assertIn(f'EXEC 0 VALUE {expected}',self.command([native]))
+            self.assertTrue(received)
+            self.assertTrue(all(value==b'\xa5' for value in received))
+
     def test_limits_preserve_outputs(self):
         super().test_limits_preserve_outputs()
         cases = [

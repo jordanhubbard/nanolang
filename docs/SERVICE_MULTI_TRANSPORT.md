@@ -218,3 +218,34 @@ I install `lib/libnano_services_runtime.a` and the required header closure under
 `<nanolang/services/nanoisa/services_indirect_public.h>` and links that archive
 with its platform math/crypto dependencies. My bytecode/public package tests do
 not establish mixed source lowering or CLI publication; those remain required.
+
+## Paired source lowering
+
+My C and Nano lowerers retain the source plan's ordered declaration instances.
+Each nominal source type resolves through its original declaration identity;
+imports use the originating request and method ordinal. I pack each instance's
+layouts contiguously, retaining catalog-local field/variant references within
+that instance. Owner flags apply to each instance's owner and owner-Result
+layouts. Endpoint construction uses the instance's record ordinal, independently
+of its global layout index, and preserves source-order field evaluation.
+
+I keep the existing single-declaration File/TCP wire format. Graphs containing
+multiple declarations use version 3, including repeated declarations of the
+same catalog. My C serializer validates mixed indirect flow and derives stack
+bounds before canonical serialization. My Nano serializer independently emits
+the same instance table, layouts, imports and ownership declarations.
+
+My source fixture imports File, TCP and a second File from separate modules,
+holds all three owners simultaneously, and passes owners and borrows through
+helpers. It compares C output against Nano lowerers running in both VM and
+native code, then executes the exact checked bytes and generated C through
+public per-instance grants. Selected source shadows use the same lowerers.
+My established per-function instruction and overall profile bounds still apply.
+
+I also recognize a capitalized record type after a lowercase module alias in
+my Nano parser, including `tcp.Endpoint { family: 4, ... }` as a call argument.
+The prior parser treated this as field access although my C parser accepted it.
+
+This source-lowering boundary does not publish mixed programs through my CLI.
+Driver selection, grant options and supervised source-shadow publication remain
+required before mixed source programs become a supported end-to-end product.

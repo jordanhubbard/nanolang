@@ -11,8 +11,8 @@ module "modules/file_source_catalog/file_source_catalog.nano" as LowerCatalog
 struct ServiceLowering { status: int, diagnostic: string, bytes: array<int> }
 struct ServiceLowerName { name: string, slot: int }
 struct ServiceLowerFunction { declaration: int, owner: int, body: int, arity: int, params: int, name: string, result: ServiceWireType }
-let mut sl_catalog: int = 1
-let mut sl_types: int = 8
+let mut sl_catalogs: array<int> = [1]
+let mut sl_service_names: array<ServiceName> = []
 let mut sl_status: int = 0
 let mut sl_diagnostic: string = ""
 let mut sl_code: array<int> = []
@@ -40,14 +40,38 @@ shadow sl_fail {
     assert (== sl_status 2) assert (== sl_diagnostic "first") set sl_status 0 set sl_diagnostic ""
 }
 
+fn sl_instance(declaration: int) -> int {
+    if (== (array_length sl_catalogs) 1) { return 0 }
+    let mut i: int = 0
+    while (< i (array_length sl_service_names)) {
+        let row: ServiceName = (at sl_service_names i)
+        if (and (== row.target declaration) (== row.kind 8)) { return row.request }
+        set i (+ i 1)
+    }
+    (sl_fail 1 "I require the original service instance identity.") return 0
+}
+shadow sl_instance { assert (== (sl_instance 1) 0) }
+
+fn sl_base(instance: int, records: bool) -> int {
+    let mut base: int = 0 let mut i: int = 0
+    while (< i instance) {
+        let catalog: int = (at sl_catalogs i)
+        if records { set base (+ base 3) if (== catalog 2) { set base (+ base 1) } }
+        else { set base (+ base (LowerCatalog.count catalog 1)) }
+        set i (+ i 1)
+    }
+    return base
+}
+shadow sl_base { assert (== (sl_base 0 false) 0) assert (== (sl_base 1 true) 3) }
+
 fn sl_wire_type(typ: ServiceType, mode: int) -> ServiceWireType {
     let mut tag: int = 0 let mut layout: int = 4294967295
     if (== typ.kind 1) { set tag 1 }
     else if (== typ.kind 2) { set tag 4 }
     else if (== typ.kind 3) { set tag 0 }
     else if (== typ.kind 7) { set tag 11 }
-    else if (and (>= typ.kind 4) (and (> typ.declaration 0) (and (>= typ.ordinal 0) (< typ.ordinal sl_types)))) {
-        set layout typ.ordinal set tag 10 if (or (< layout 3) (== layout 8)) { set tag 8 }
+    else if (and (>= typ.kind 4) (and (> typ.declaration 0) (and (>= typ.ordinal 0) (< typ.ordinal (LowerCatalog.count (at sl_catalogs (sl_instance typ.declaration)) 1))))) {
+        set layout (+ (sl_base (sl_instance typ.declaration) false) typ.ordinal) set tag 10 if (or (< typ.ordinal 3) (== typ.ordinal 8)) { set tag 8 }
     } else { (sl_fail 2 "I have not lowered this checked service type.") }
     return ServiceWireType { tag: tag, mode: mode, layout: layout }
 }
@@ -58,11 +82,11 @@ shadow sl_wire_type {
     let file: ServiceType = ServiceType { kind: 4, declaration: 1, owner: 0, ordinal: 0, category: 1 }
     assert (== (sl_wire_type file 1).mode 1)
     assert (== (sl_wire_type file 1).layout 0)
-    set sl_catalog 2 set sl_types 9
+    set sl_catalogs [2]
     let endpoint: ServiceType = ServiceType { kind: 4, declaration: 1, owner: 0, ordinal: 8, category: 4 }
     assert (== (sl_wire_type endpoint 0).tag 8)
     assert (== (sl_wire_type endpoint 0).layout 8)
-    set sl_catalog 1 set sl_types 8
+    set sl_catalogs [1]
 }
 
 fn sl_annotation(space: ServiceNamespace, owner: int, spelling: string) -> ServiceWireType {
@@ -112,7 +136,14 @@ shadow sl_node_type {
 }
 
 fn sl_owner(typ: ServiceWireType) -> bool {
-    return (and (== typ.mode 0) (or (== typ.layout 0) (== typ.layout 3)))
+    if (!= typ.mode 0) { return false }
+    let mut i: int = 0
+    while (< i (array_length sl_catalogs)) {
+        let base: int = (sl_base i false)
+        if (or (== typ.layout base) (== typ.layout (+ base 3))) { return true }
+        set i (+ i 1)
+    }
+    return false
 }
 shadow sl_owner {
     assert (not (sl_owner (service_wire_scalar 1)))
@@ -487,7 +518,7 @@ fn sl_call(parser: Parser, space: ServiceNamespace, kind: int, id: int, want: bo
         if (> borrowed 0) { (sl_integer (sl_reference_map references) 4) }
     } else {
     let row: ServiceName = (at space.names target)
-    if (== row.kind 9) { (sl_op 145 values produces) (sl_integer row.ordinal 4) (sl_integer reference 2) }
+    if (== row.kind 9) { (sl_op 145 values produces) (sl_integer (+ (* row.request 5) row.ordinal) 4) (sl_integer reference 2) }
     else {
         let mut callee: int = -1 set i 0
         while (< i (array_length sl_functions)) { if (== (at sl_functions i).declaration row.id) { set callee i } set i (+ i 1) }
@@ -614,14 +645,15 @@ fn sl_expr_impl(parser: Parser, space: ServiceNamespace, kind: int, id: int, wan
     else if (== kind ParseNodeType.PNODE_STRUCT_LITERAL) {
         let node: ASTStructLiteral = (parser_get_struct_literal parser id)
         let typ: ServiceWireType = (sl_node_type kind id)
-        if (or (!= sl_catalog 2) (or (!= typ.layout 8) (!= node.field_count 7))) {
+        let instance: int = (sl_instance (sl_fact kind id).type.declaration)
+        if (or (!= (at sl_catalogs instance) 2) (or (!= typ.layout (+ (sl_base instance false) 8)) (!= node.field_count 7))) {
             (sl_fail 2 "I require a checked Endpoint constructor.") return
         }
         let mut slots: array<int> = [0, 0, 0, 0, 0, 0, 0]
         let pending: int = (array_length sl_pending) let mut i: int = 0
         while (< i 7) {
             let mut field: int = 0
-            while (and (< field 7) (!= (at node.field_names i) (LowerCatalog.catalog_text sl_catalog 1 8 3 field))) { set field (+ field 1) }
+            while (and (< field 7) (!= (at node.field_names i) (LowerCatalog.catalog_text 2 1 8 3 field))) { set field (+ field 1) }
             if (== field 7) { (sl_fail 1 "I require an exact Endpoint field.") return }
             (sl_expr parser space (at node.field_value_types i) (at node.field_value_ids i) true)
             if (or (not sl_next) (!= sl_status 0)) { return }
@@ -630,12 +662,13 @@ fn sl_expr_impl(parser: Parser, space: ServiceNamespace, kind: int, id: int, wan
         set i 0
         while (< i 7) { (sl_load (at slots i)) (sl_clear (at slots i)) set i (+ i 1) }
         set sl_pending (sl_prefix sl_pending pending)
-        (sl_op 251 7 1) (sl_integer 0 1) (sl_integer 3 4) (sl_integer 0 2) (sl_integer 7 2)
+        (sl_op 251 7 1) (sl_integer 0 1) (sl_integer (+ (sl_base instance true) 3) 4) (sl_integer 0 2) (sl_integer 7 2)
     }
     else if (== kind ParseNodeType.PNODE_FIELD_ACCESS) {
         let node: ASTFieldAccess = (parser_get_field_access parser id) let fact: ServiceBodyFact = (sl_fact node.object_type node.object)
-        let count: int = (LowerCatalog.catalog_number sl_catalog 1 fact.type.ordinal 1 0) let mut field: int = 0
-        while (and (< field count) (!= (LowerCatalog.catalog_text sl_catalog 1 fact.type.ordinal 3 field) node.field_name)) { set field (+ field 1) }
+        let catalog: int = (at sl_catalogs (sl_instance fact.type.declaration))
+        let count: int = (LowerCatalog.catalog_number catalog 1 fact.type.ordinal 1 0) let mut field: int = 0
+        while (and (< field count) (!= (LowerCatalog.catalog_text catalog 1 fact.type.ordinal 3 field) node.field_name)) { set field (+ field 1) }
         if (>= field count) { (sl_fail 1 "I require an exact catalog field.") return }
         (sl_expr parser space node.object_type node.object true) if (not sl_next) { return }
         (sl_local_op 252 field 1 1)
@@ -715,19 +748,21 @@ shadow sl_expr {
 
 pub fn lower_service_source(parser: Parser, files: array<string>, sources: array<string>, space: ServiceNamespace,
     bodies: ServiceBodyCheck, owners: ServiceOwnershipCheck, selection: int) -> ServiceLowering {
-    set sl_catalog 1 set sl_types 8
+    set sl_catalogs [1]
     set sl_status 0 set sl_diagnostic "" set sl_functions [] set sl_facts bodies.facts set sl_maps []
     let mut result: array<ServiceWireFunction> = []
     if (or (!= space.status 0) (or (!= bodies.status 0) (!= owners.status 0))) { (sl_fail 1 "I require complete nominal and ownership checks before lowering.") }
     let count: int = (+ parser.functions_count parser.shadows_count)
     if (or (== count 0) (> count 63)) { (sl_fail 3 "I exceeded my File function bound.") }
+    set sl_catalogs [] set sl_service_names space.names
     let mut i: int = 0
     while (< i (array_length space.plan.rows)) {
-        set sl_catalog (at space.plan.rows i).catalog
-        set sl_types (LowerCatalog.count sl_catalog 1)
-        if (!= (at space.plan.rows i).request 0) { (sl_fail 2 "I have not lowered multiple nominal service declarations together.") }
+        let row: FileSourceRow = (at space.plan.rows i)
+        if (== row.request (array_length sl_catalogs)) { set sl_catalogs (array_push sl_catalogs row.catalog) }
+        else if (or (< row.request 0) (>= row.request (array_length sl_catalogs))) { (sl_fail 1 "I require ordered service instance identities.") }
         set i (+ i 1)
     }
+    if (or (== (array_length sl_catalogs) 0) (> (array_length sl_catalogs) 64)) { (sl_fail 3 "I require one to 64 service instances.") }
     let mut selected: int = -1 set i 0
     while (and (== sl_status 0) (< i count)) {
         let mut line: int = 0 let mut body: int = -1 let mut arity: int = 0 let mut params: int = 0 let mut name: string = ""
@@ -783,9 +818,10 @@ pub fn lower_service_source(parser: Parser, files: array<string>, sources: array
     }
     let mut bytes: array<int> = []
     if (== sl_status 0) {
-        set bytes (service_wire_serialize_catalog result selected sl_maps sl_catalog)
+        set bytes (service_wire_serialize_instances result selected sl_maps sl_catalogs)
         if (== (array_length bytes) 0) { (sl_fail 3 "I cannot serialize these bounded File lowering records.") }
     }
+    set sl_catalogs [1] set sl_service_names []
     return ServiceLowering { status: sl_status, diagnostic: sl_diagnostic, bytes: bytes }
 }
 shadow lower_service_source {

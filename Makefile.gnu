@@ -427,7 +427,7 @@ FILE_PUBLIC_LIBRARY = lib/libnano_file_runtime.a
 SERVICE_DRIVER_OBJECTS = $(OBJ_DIR)/service_driver.o $(OBJ_DIR)/service_lowering.o $(OBJ_DIR)/runtime/service_product.o $(OBJ_DIR)/runtime/service_shadows.o
 COMPILER_OBJECTS += $(SERVICE_DRIVER_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a
 $(SERVICE_DRIVER_OBJECTS): src/service_driver.h src/service_lowering.h src/runtime/service_product.h src/runtime/service_shadows.h
-FILE_PUBLIC_QUERY_STEMS = nanoisa/affine_bytecode nanoisa/affine_state nanoisa/file_flow nanoisa/socket_flow nanoisa/isa \
+FILE_PUBLIC_QUERY_STEMS = nanoisa/affine_bytecode nanoisa/affine_state nanoisa/file_flow nanoisa/socket_flow nanoisa/services_flow nanoisa/services_nominal nanoisa/isa \
 	nanoisa/managed_array_shapes nanoisa/mixed_float_proof nanoisa/nvm_format \
 	nanoisa/nvm_format_v2 nanoisa/nvm_v2_constants nanoisa/nvm_v2_convert \
 	nanoisa/nvm_v2_cursor nanoisa/nvm_v2_functions nanoisa/nvm_v2_imports \
@@ -6120,15 +6120,15 @@ test-service-ownership-sanitize: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(COMPILER
 	ASAN_OPTIONS=detect_leaks=1 NANO_SERVICE_OWNERSHIP_C_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_ownership_sanitize" python3 -m unittest -v tests.test_service_ownership
 test-units: test-service-ownership
 
-$(OBJ_DIR)/test_service_lowering: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h src/runtime/service_shadows.c src/runtime/service_shadows.h $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a
-	$(CC) $(CFLAGS) -o $@ tests/test_service_lowering.c src/runtime/service_shadows.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a $(LDFLAGS)
+$(OBJ_DIR)/test_service_lowering: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h src/runtime/service_shadows.c src/runtime/service_shadows.h $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a
+	$(CC) $(CFLAGS) -o $@ tests/test_service_lowering.c src/runtime/service_shadows.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a $(LDFLAGS)
 .PHONY: test-service-lowering
 test-service-lowering: $(OBJ_DIR)/test_service_lowering
 	python3 -m unittest -v tests.test_service_lowering
 
 .PHONY: test-service-lowering-sanitize
-$(OBJ_DIR)/test_service_lowering_sanitize: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h src/runtime/service_shadows.c src/runtime/service_shadows.h $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a
-	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -DNVM_FILE_PUBLIC_ENGINE -o $(OBJ_DIR)/test_service_lowering_sanitize tests/test_service_lowering.c src/runtime/service_shadows.c $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a $(LDFLAGS)
+$(OBJ_DIR)/test_service_lowering_sanitize: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h src/runtime/service_shadows.c src/runtime/service_shadows.h $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a
+	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -DNVM_FILE_PUBLIC_ENGINE -o $(OBJ_DIR)/test_service_lowering_sanitize tests/test_service_lowering.c src/runtime/service_shadows.c $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a $(LDFLAGS)
 test-service-lowering-sanitize: $(OBJ_DIR)/test_service_lowering_sanitize
 	ASAN_OPTIONS=detect_leaks=1 NANO_SERVICE_LOWERING_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_lowering_sanitize" python3 -m unittest -v tests.test_service_lowering
 
@@ -6374,7 +6374,7 @@ test-units: test-services-dispatch
 SERVICES_PUBLIC_HEADERS = nanoisa/generated_schema.h nanoisa/isa.h nanoisa/nvm_format.h nanoisa/nvm_format_v2.h nanoisa/nvm_v2_sections.h nanoisa/service_bindings.h nanoisa/service_multi_nominal.h nanoisa/services_body.h nanoisa/services_code.h nanoisa/services_cyclic.h nanoisa/services_flow.h nanoisa/services_host_grant.h nanoisa/services_host_grant_internal.h nanoisa/services_hosted.h nanoisa/services_indirect_flow.h nanoisa/services_indirect_hosted.h nanoisa/services_indirect_native_abi.h nanoisa/services_indirect_native_public.h nanoisa/services_indirect_public.h nanoisa/services_indirect_public_internal.h nanoisa/services_indirect_report.h nanoisa/services_indirect_runtime.h nanoisa/services_indirect_targets.h nanoisa/services_nominal.h nanoisa/services_public.h nanoisa/services_public_internal.h nanoisa/services_runtime.h nanoisa/services_runtime_frames.h nsi.h nsi_cap.h nsi_file.h nsi_file_catalog.h nsi_file_plan.h nsi_file_values.h nsi_service_catalog.h nsi_services_values.h nsi_socket.h nsi_socket_plan.h nsi_socket_values.h
 # I package the mixed runtime with its single shared public-call gate.
 SERVICES_PUBLIC_LIBRARY = lib/libnano_services_runtime.a
-SERVICES_PUBLIC_STEMS = $(FILE_PUBLIC_QUERY_STEMS) nanoisa/services_nominal nanoisa/services_flow nanoisa/services_runtime \
+SERVICES_PUBLIC_STEMS = $(FILE_PUBLIC_QUERY_STEMS) nanoisa/services_runtime \
  nanoisa/file_host_grant nanoisa/services_host_grant nanoisa/services_indirect_public_native \
  nanoisa/services_indirect_public_abi nanovm/services_indirect_public_vm nsi_cap nsi_file nsi_file_values nsi_socket nsi_socket_values nsi_services_values
 SERVICES_PUBLIC_OBJECTS = $(addprefix $(OBJ_DIR)/,$(addsuffix .o,$(SERVICES_PUBLIC_STEMS)))
