@@ -95,11 +95,16 @@ callee sets and complete plan facts before starting the runtime. My
 real IPv4/IPv6 execution, fuel and cleanup outcomes and checks tampered generated
 facts before host acquisition. This private engine supplies no public grant.
 
-I have not connected TCP source lowering, public network grants or selected network
-shadow execution. Both lowerers explicitly refuse TCP before wire publication,
-so the File runtime cannot interpret TCP ordinals. My paired source checks,
-mixed namespace fixture and prior-output refusal checks are retained in
-[the source-checking evidence](evidence/socket-source-checking-20261009/README.md).
-The mixed fixture compiles through the C bytecode producer and previously
-installed Stage2 driver. These helper checks are not a fresh full bootstrap
-or release/platform qualification.
+I now connect TCP and mixed File/TCP/repeated-instance source lowering to
+public VM/native execution, independent catalog grants and selected network
+shadows. My [paired lowering evidence](evidence/mixed-service-source-20261010/README.md)
+records exact C/Nano wire parity and IPv4/IPv6 execution. My
+[publication evidence](evidence/mixed-service-product-20261010/README.md)
+records the four compiler drivers, installed mixed runtime linkage, fresh native
+invocation grants, output preservation and File/TCP regressions. The earlier
+[source-checking evidence](evidence/socket-source-checking-20261009/README.md)
+retains the historical refusal checkpoint; it does not describe current
+publication behavior.
+
+Fresh bootstrap, both-generation checks, DNS/string endpoint and WebSocket
+migration, and exact-candidate Linux/Darwin release qualification remain open.

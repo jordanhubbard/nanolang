@@ -79,6 +79,7 @@ compiler and retained host libraries. These are local Darwin checks; workflow
 configuration tests do not establish a passing hosted run. I do not claim
 whole-program sanitizer coverage or an explicit leak-sanitizer run here.
 
-I also start the full sixteen-method File suite through the fresh Nano driver
-and a fresh bootstrap. Those runs are pending at this publication checkpoint;
-they do not contribute to the completed results above.
+I subsequently pass the full sixteen-method File suite through the fresh Nano
+VM/native driver in 519.675 seconds. All 165 retained command records match
+their expected status; `nano-file-records.tar.gz` retains their inputs and outputs.
+The fresh bootstrap remains pending and is not included in these passing results.

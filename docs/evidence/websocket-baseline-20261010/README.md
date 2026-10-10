@@ -1,0 +1,24 @@
+# My WebSocket baseline
+
+I audit the legacy adapter at `f5696fdc6` under #990 while the mixed compiler
+bootstrap is running. I preserve its production source unchanged.
+
+My included-source fixture substitutes only send/recv, so the actual URL parser,
+base64 encoder, handshake validator and frame writer execute deterministically.
+LLVM clang compiles it with `-std=c11 -O1 -g -fsanitize=address,undefined
+-fno-sanitize-recover=all`. The default run demonstrates:
+
+- I accept `wss://localhost/private` and select plaintext port 80.
+- I accept HTTP 403 containing an unrelated `X-Trace: 101` field as an upgrade.
+- I encode sixteen zero bytes without the required two padding characters.
+
+The `long-frame` run sends 65,536 payload bytes and ASan reports a stack buffer
+overflow at `websocket_helpers.c:303`: I append four mask bytes after a ten-byte
+header inside a ten-byte array. The process aborts; no external server is used.
+My JSON preserves both terminals. These failures are not corrected here.
+
+My migration must satisfy the client handshake, masking, control-frame and
+fragmentation requirements in [RFC 6455](https://www.rfc-editor.org/rfc/rfc6455.html),
+alongside verified service ownership, explicit authority, bounded execution and
+cleanup. Repairing the existing integer/pointer wrapper alone would not satisfy
+my 5.1 release contract.
