@@ -40,3 +40,11 @@ NvmFileIndirectExecutionReport nvm_file_runtime_indirect_destroy(NvmFileRuntime 
     free(c->frames);free(c->regions);free(c->references);free(c->values);free(c->witness);
     nvm_file_indirect_hosted_free(c->indirect_plan);free(c);*address=NULL;return report;
 }
+
+/* Revision 1 binds the generated indirect surface to these exact C layouts. */
+bool nvm_file_runtime_indirect_native_abi(uint32_t revision,size_t options,size_t report,
+                                        size_t view,size_t frame,size_t value) {
+    return revision==1u && options==sizeof(NvmFileIndirectOptions) &&
+        report==sizeof(NvmFileIndirectExecutionReport) && view==sizeof(NvmFileIndirectFrameView) &&
+        frame==sizeof(NvmFileRuntimeFrameView) && value==sizeof(NvmFileRuntimeView);
+}

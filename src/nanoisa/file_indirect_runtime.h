@@ -30,4 +30,5 @@ NvmFileRuntimeStatus nvm_file_runtime_indirect_enter(NvmFileRuntime *);
 NvmFileRuntimeStatus nvm_file_runtime_indirect_funcref(NvmFileRuntime *,uint32_t dst);
 NvmFileIndirectExecutionReport nvm_file_runtime_indirect_finish(NvmFileRuntime *,NvmFileRuntimeView *);
 NvmFileIndirectExecutionReport nvm_file_runtime_indirect_destroy(NvmFileRuntime **,NvmFileRuntimeView *);
+bool nvm_file_runtime_indirect_native_abi(uint32_t,size_t,size_t,size_t,size_t,size_t);
 #endif

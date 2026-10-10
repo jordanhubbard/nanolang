@@ -193,7 +193,10 @@ static void indirect_allocations(void){
 }
 
 #endif
-int main(void){
+#ifndef FILE_INDIRECT_RUNTIME_MAIN
+#define FILE_INDIRECT_RUNTIME_MAIN main
+#endif
+int FILE_INDIRECT_RUNTIME_MAIN(void){
  CHECK(prior_cyclic_runtime_main()==0);unsigned before=checks;
  indirect_options();indirect_matrix();
 #ifdef HOSTED_INSTRUMENT

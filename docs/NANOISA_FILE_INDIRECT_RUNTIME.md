@@ -51,9 +51,8 @@ graph, indirect borrowed formals, or callable parameters/results. Direct-call
 borrows retain their existing rules. These are implementation boundaries, not
 a reduction of my 5.1 scope.
 
-My carrier fixture manually supplies instruction operations. VM/native storage
-tests do not establish a shipped VM dispatcher or generated native dispatch.
-Those adapters must cover every accepted instruction and fact, and native
-indirect dispatch must call actual generated functions after checking the
-selected target. Paired source lowering, full shadows, public grants, installed
-consumers, richer callable signatures and both-host release gates remain open.
+My carrier fixture manually supplies instruction operations. Its VM/native
+storage tests remain separate from my later [matched private adapters](NANOISA_FILE_INDIRECT_DISPATCH.md),
+which execute the serialized corpus through VM and generated C functions.
+Paired source lowering, full shadows, public grants, installed consumers,
+richer callable signatures and both-host release gates remain open.
