@@ -6259,3 +6259,11 @@ test-socket-runtime: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	NANO_SOCKET_RUNTIME_CC="$(CC)" SOCKET_RUNTIME_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_RUNTIME_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_socket_runtime
 
 test-units: test-socket-runtime
+
+$(OBJ_DIR)/nanovm/file_indirect_public_vm.o: $(SRC_DIR)/nanovm/service_vm_indirect_engine.inc $(NANOISA_DIR)/service_indirect_dispatch.inc $(NANOISA_DIR)/file_dispatch_config.h
+$(OBJ_DIR)/nanoisa/file_indirect_public_native.o: $(NANOISA_DIR)/service_indirect_native_emit.inc $(NANOISA_DIR)/service_indirect_dispatch.inc $(NANOISA_DIR)/file_dispatch_config.h
+.PHONY: test-socket-dispatch
+test-socket-dispatch: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+	NANO_SOCKET_DISPATCH_CC="$(CC)" SOCKET_DISPATCH_OBJECTS="$(NANOISA_OBJECTS) $(NANOISA_UTF8)" SOCKET_DISPATCH_LDFLAGS="$(LDFLAGS)" python3 -m unittest -f -v tests.test_socket_dispatch
+
+test-units: test-socket-dispatch

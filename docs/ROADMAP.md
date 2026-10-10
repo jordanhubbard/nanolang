@@ -14793,3 +14793,7 @@ I retain [my TCP transport and hosted-preparation evidence](evidence/socket-tran
 - [x] Under #990 I correct the new runtime fixture's helper-name collision with its included flow corpus and use the common service descriptor type in the shared carrier. I retain the initial compile refusal and require the complete unchanged runtime assertions to build and pass.
 
 I retain [my TCP carrier and File compatibility evidence](evidence/socket-runtime-carrier-20261009/README.md). TCP dispatch/native emission/grants/source integration and the full 5.1 release contract remain open.
+
+- [x] Under #990 I connect the TCP carrier to one fuel-bounded indirect-capable VM dispatcher and native C emitter, covering acyclic bodies and loops through the same checked profile. I share the existing File indirect execution machinery, account for Endpoint consumption and its runtime obligation, retain exact generated-byte/plan/ABI agreement, and require real IPv4/IPv6 execution with owned/borrowed indirect calls, malformed inputs, fuel exhaustion, cleanup errors and generated-code tamper controls. File execution compatibility remains required. Public grants and paired source lowering follow this matched engine; they are not inferred from a private test entry point.
+
+I retain [my matched TCP VM/native execution evidence](evidence/socket-dispatch-native-20261010/README.md), including real IPv4/IPv6 indirect calls, fuel, unknown-close publication and pre-acquisition tamper controls. Public grants, paired source lowering and full 5.1 release acceptance remain open.

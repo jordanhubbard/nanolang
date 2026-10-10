@@ -85,7 +85,17 @@ The [carrier evidence](evidence/socket-runtime-carrier-20261009/README.md) state
 the tested scope, including manual cyclic/indirect frame checks. A private
 carrier API is not a matched CODE dispatcher or a public network grant.
 
-I have not connected TCP wire metadata to source lowering, matched service dispatch or selected network
+I now execute checked TCP bytes through a separate fuel-bounded private VM entry
+point and independently generated native C. The shared indirect-capable profile
+covers ordinary calls, loops, owned callees and borrowed indirect calls. Both
+execution paths consume Endpoint and perform its domain check through the Socket
+core before acquisition. The native function checks its retained bytes, ABI,
+callee sets and complete plan facts before starting the runtime. My
+[dispatch evidence](evidence/socket-dispatch-native-20261010/README.md) compares
+real IPv4/IPv6 execution, fuel and cleanup outcomes and checks tampered generated
+facts before host acquisition. This private engine supplies no public grant.
+
+I have not connected TCP source lowering, public network grants or selected network
 shadow execution. Both lowerers explicitly refuse TCP before wire publication,
 so the File runtime cannot interpret TCP ordinals. My paired source checks,
 mixed namespace fixture and prior-output refusal checks are retained in
