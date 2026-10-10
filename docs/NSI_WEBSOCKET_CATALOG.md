@@ -36,8 +36,20 @@ has no payload. Each Error contains `WebSocketError` with ordered fields:
 `status`, `host_errno`, `resolver_error`, `supervisor_status`, `close_code`,
 `cleanup_errno`, `cleanup_failed`, `closure_unknown`, `terminal`. The first six
 are int, and the last three are bool. These retain separate host/resolver/
-supervisor/cleanup domains. Exact service status values and absent-close-code
-representation must be fixed with the runtime adapter before execution admission.
+supervisor/cleanup domains. My shared host transport fixes status values as
+0 OK, 1 argument, 2 rights, 3 memory, 4 limit, 5 timeout, 6 host I/O,
+7 protocol, 8 cryptographic randomness and 9 closed. I use close code 0 when
+no peer close code was received. These values do not themselves admit execution.
+
+My private `nsi_websocket_transport.h` API now owns the shared transport used by
+the legacy module. Its caller must close each successful connection exactly
+once, including after terminal I/O failure. Receive publishes independently
+allocated counted bytes; they survive further receives and connection closure.
+Allocation refusal preserves the pending message for retry. I retain partial
+input on timeout and terminate a stream after failed frame transmission.
+Close destroys the connection even when its deadline is invalid or expires.
+The API assumes serialized calls and valid, disjoint C storage; its pointer is
+not an affine source value or an unforgeable runtime token.
 
 ## Deadline and authority requirements
 

@@ -1,0 +1,11 @@
+test_close_consumes_on_invalid_deadline (tests.test_websocket_transport.WebSocketTransport.test_close_consumes_on_invalid_deadline) ... ok
+test_close_consumes_on_timeout (tests.test_websocket_transport.WebSocketTransport.test_close_consumes_on_timeout) ... ok
+test_counted_messages_survive_receive_and_close (tests.test_websocket_transport.WebSocketTransport.test_counted_messages_survive_receive_and_close) ... ok
+test_partial_input_survives_timeout (tests.test_websocket_transport.WebSocketTransport.test_partial_input_survives_timeout) ... ok
+test_partial_send_failure_terminates_stream (tests.test_websocket_transport.WebSocketTransport.test_partial_send_failure_terminates_stream) ... ok
+test_protocol_failure_is_terminal (tests.test_websocket_transport.WebSocketTransport.test_protocol_failure_is_terminal) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.992s
+
+OK

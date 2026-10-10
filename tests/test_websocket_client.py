@@ -51,7 +51,7 @@ class WebSocketClient(unittest.TestCase):
         command = compiler + ["-std=c11", "-D_GNU_SOURCE", "-Wall", "-Wextra", "-Werror", "-g"] + flags
         command += [str(ROOT / p) for p in (
             "tests/websocket_client_probe.c", "modules/websocket/websocket_helpers.c",
-            "src/nsi_websocket_protocol.c", "src/nsi_socket.c", "src/nsi_socket_resolver.c", "src/nsi_cap.c", "src/utf8.c")]
+            "src/nsi_websocket_protocol.c", "src/nsi_websocket_transport.c", "src/nsi_socket.c", "src/nsi_socket_resolver.c", "src/nsi_cap.c", "src/utf8.c")]
         command += shlex.split(crypto) + ["-o", str(cls.binary)]
         subprocess.run(command, check=True, timeout=60)
 

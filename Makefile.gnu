@@ -1673,6 +1673,10 @@ test-nsi-websocket-protocol:
 test-websocket-client: $(BIN_DIR)/nano-resolver
 	NANO_WEBSOCKET_CC="$(CC)" NANO_WEBSOCKET_CFLAGS="$(CFLAGS)" python3 -m unittest -v tests.test_websocket_client
 
+.PHONY: test-websocket-transport
+test-websocket-transport: $(BIN_DIR)/nano-resolver
+	NANO_WEBSOCKET_CC="$(CC)" NANO_WEBSOCKET_CFLAGS="$(CFLAGS)" python3 -m unittest -v tests.test_websocket_transport
+
 .PHONY: test-websocket-bindings
 test-websocket-bindings: $(COMPILER_C) nano_virt nano_vm
 	python3 -m unittest -v tests.test_websocket_bindings
@@ -1681,7 +1685,7 @@ test-websocket-bindings: $(COMPILER_C) nano_virt nano_vm
 test-websocket-artifacts: nvm2c nano_virt nano_vm $(BIN_DIR)/nanoisa
 	NANO_NATIVE_TEST_CC="$(CC)" LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_websocket_artifacts.WebSocketArtifacts
 
-test-units: test-nsi-websocket-protocol test-websocket-client test-websocket-bindings test-websocket-artifacts
+test-units: test-nsi-websocket-protocol test-websocket-client test-websocket-transport test-websocket-bindings test-websocket-artifacts
 
 .PHONY: test-nsi-socket-network
 test-nsi-socket-network:

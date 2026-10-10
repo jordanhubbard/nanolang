@@ -5,6 +5,7 @@
   "c_sources": [
     "websocket_helpers.c",
     "../../src/nsi_websocket_protocol.c",
+    "../../src/nsi_websocket_transport.c",
     "../../src/nsi_socket.c",
     "../../src/nsi_socket_resolver.c",
     "../../src/nsi_cap.c"
