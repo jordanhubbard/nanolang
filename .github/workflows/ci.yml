@@ -19,8 +19,8 @@ jobs:
     name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.allow_failure || false }}
-    # I reserve the additional60-minute paired-source gate without shrinking the existing suite budget.
-    timeout-minutes: 135
+    # I budget bootstrap and both service generations separately from the general suite.
+    timeout-minutes: 240
     permissions:
       contents: read
       checks: write
@@ -133,13 +133,23 @@ jobs:
           mkdir -p "$TMPDIR"
           make -f Makefile.gnu test-file-indirect-queries test-file-indirect-runtime test-file-indirect-dispatch test-file-indirect-public
 
-      - name: Check paired File and TCP source across bootstrap generations
+      - name: Bootstrap both compiler generations
         timeout-minutes: 60
         shell: bash
+        run: make -f Makefile.gnu bootstrap3
+
+      - name: Check C File source drivers
+        timeout-minutes: 15
+        env:
+          NANO_SHADOW_TIMEOUT_SECONDS: "10"
+        run: python3 -m unittest -v tests.test_service_drivers
+
+      - name: Check File TCP and mixed source across both generations
+        timeout-minutes: 90
+        shell: bash
+        env:
+          NANO_SHADOW_TIMEOUT_SECONDS: "10"
         run: |
-          make -f Makefile.gnu bootstrap3
-          export NANO_SHADOW_TIMEOUT_SECONDS=10
-          python3 -m unittest -v tests.test_service_drivers
           for generation in 1 2; do
             NANO_FILE_DRIVER_MODULE="$PWD/bin/nanoc_stage${generation}.nvm" \
             NANO_FILE_DRIVER_NATIVE="$PWD/bin/nanoc_stage${generation}" \
@@ -379,10 +389,12 @@ jobs:
     name: Memory Sanitizers
     env:
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
+      # I bound each instrumented self-compilation separately from shadow tests.
+      BOOTSTRAP_NANOISA_TIMEOUT: "3600"
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
       LDFLAGS: "-lm -lcrypto -fsanitize=address,undefined"
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 285
     permissions:
       contents: read
 
@@ -424,6 +436,7 @@ jobs:
           make sanitize CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Compile and verify both compiler generations with sanitizers
+        timeout-minutes: 135
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           make bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
@@ -478,8 +491,10 @@ jobs:
     name: Code Coverage
     env:
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
+      CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
+      LDFLAGS: "-lm -lcrypto -fprofile-arcs -ftest-coverage"
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 240
     permissions:
       contents: read
       pull-requests: write
@@ -526,15 +541,17 @@ jobs:
             gforth
 
       - name: Build with coverage
-        run: make coverage
+        run: make coverage CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
-      - name: Complete 3-stage bootstrap with coverage
-        run: make build CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
+      - name: Compile and verify both compiler generations with coverage
+        timeout-minutes: 75
+        run: make bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Run tests
+        timeout-minutes: 120
         env:
           NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
-        run: make test-quick CFLAGS="-Wall -Wextra -Werror -std=c99 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage" LDFLAGS="-lm -lcrypto -fprofile-arcs -ftest-coverage"
+        run: make test-quick CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Run negative tests
         env:
