@@ -158,14 +158,14 @@ static FLOW_TYPE(Status) file_code_operands(CODE_TYPE(Plan) *p,uint32_t function
         break;
     }
     case OP_FILE_SERVICE: {
-        uint32_t ordinal=NVM_SERVICE_BINDING_COUNT;
-        for(uint32_t i=0;i<NVM_SERVICE_BINDING_COUNT;i++) {
+        uint32_t ordinal=FLOW_IMPORT_COUNT(p->declarations->nominal);
+        for(uint32_t i=0;i<FLOW_IMPORT_COUNT(p->declarations->nominal);i++) {
             uint32_t import;
             if(NOMINAL_FN(import)(p->declarations->nominal,i,&import) && import==d->operands[0].u32) {
                 ordinal=i;break;
             }
         }
-        const NlServicePlanMethod *method=NOMINAL_CATALOG_METHOD(ordinal);
+        const NlServicePlanMethod *method=FLOW_CATALOG_METHOD(p->declarations->nominal,ordinal);
         if(!method)return FLOW_CONST(INVALID);
         uint16_t reference=d->operands[1].u16;
         if(method->input_mode==NL_SERVICE_INPUT_EXCLUSIVE) {
@@ -187,7 +187,7 @@ static FLOW_TYPE(Status) file_code_operands(CODE_TYPE(Plan) *p,uint32_t function
         if(!NOMINAL_FN(source)(p->declarations->nominal,kind,source,&layout))return FLOW_CONST(INVALID);
         if(layout.category!=NOMINAL_CATEGORY_RECORD && layout.category!=NOMINAL_CATEGORY_SCALAR_RESULT)
             return FLOW_CONST(UNRESOLVED);
-        const NlServicePlanType *type=NOMINAL_CATALOG_TYPE(layout.catalog_ordinal);
+        const NlServicePlanType *type=FLOW_CATALOG_TYPE(p->declarations->nominal,layout.catalog_ordinal);
         bool record=layout.category==NOMINAL_CATEGORY_RECORD;
         if(!type || (record?variant!=0:variant>=type->member_count) ||
            count!=(record?type->member_count:1))return FLOW_CONST(INVALID);

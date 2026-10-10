@@ -68,7 +68,7 @@ apply. An unknown or malformed version cannot fall back to a different codec.
 
 My general verifier, VM and native translator still refuse service execution.
 Existing explicitly granted File and TCP execution remains single-catalog;
-this table does not combine their grants. Mixed flow analysis, runtime values,
+this table does not combine their grants. My checked mixed-flow queries are described below. Runtime values,
 cleanup, paired source lowering and supervised publication remain necessary
 before a mixed source program can execute.
 
@@ -79,3 +79,38 @@ serialized metadata with corrected CRCs, allocation failure and both bridge
 directions with `make -f Makefile.gnu test-multi-nominal`. Sanitizers cover the
 new codec/query and transport adapters; linked surrounding objects retain
 their ordinary build flags. This is not a fully instrumented whole-program run.
+
+## My checked mixed-flow queries
+
+I instantiate the existing ownership, CODE, body, cyclic and indirect engines
+with `services_flow_config.h`. File and TCP retain their original catalog
+configuration. The mixed configuration resolves every member and method through
+the nominal instance map; it does not search all instances for a matching name.
+
+My private flow API uses `instance * 9 + type` for type identities and
+`instance * 5 + method` for method identities. A File instance's unused ninth
+type slot remains invalid. These identifiers differ from the global layout or
+import indices, the wire catalog IDs, and the per-kind source ordinals used by
+aggregate instructions. I retain all of those distinctions in the query facts.
+The historical `catalog_ordinal` field name in the shared report shape carries
+this private instance-qualified identifier in `NvmServices*` reports.
+
+Calls and borrows compare exact declarations, including their global nominal
+index. Acquiring and consuming services use the selected instance's owner and
+Result. Result payloads and constructors resolve within that instance. TCP
+begin-connect keeps its Endpoint-domain obligation; every byte-write method
+keeps its byte-domain obligation. Host rights, liveness and cleanup obligations
+remain pending. A logical call or hosted query never discharges host authority.
+
+The hosted preflight bounds all declared imports, including bridge-array growth
+and parameter storage for up to 320 imports. I preserve the existing function,
+state, graph and allocation limits. The copied hosted plan owns its input bytes
+and metadata; it remains usable after the input module and buffer are destroyed.
+
+`make -f Makefile.gnu test-services-flow` checks mixed File/TCP/File programs
+through direct and indirect owned/borrowed calls, all catalog methods, Ok/Error
+branches, loops and permuted maps. I also check a full 64-instance table,
+wrong-instance calls, service operands, result storage and error constructors,
+failed-transition preservation, query lifetime and allocation failures. These
+are synthetic logical programs; Endpoint values still require runtime domain
+checking. My mixed runtime, grants and paired source product remain open.

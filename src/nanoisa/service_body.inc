@@ -48,9 +48,9 @@ static FLOW_TYPE(Status) file_body_projection(FLOW_TYPE(State) *s,uint16_t field
     if(!tag) {
         if(field)return FLOW_CONST(INVALID);
         if(v.arm!=FLOW_CONST(ARM_OK) && v.arm!=FLOW_CONST(ARM_ERROR))return FLOW_CONST(UNRESOLVED);
-        const NlServicePlanType *type=NOMINAL_CATALOG_TYPE(v.type.catalog_ordinal);
+        const NlServicePlanType *type=FLOW_CATALOG_TYPE(s->declarations->nominal,v.type.catalog_ordinal);
         if(!type || type->member_count!=2 ||
-           !member_type(s,type->members[v.arm==FLOW_CONST(ARM_ERROR)].type_id,&result) || owned(result))
+           !member_type(s,v.type.catalog_ordinal,type->members[v.arm==FLOW_CONST(ARM_ERROR)].type_id,&result) || owned(result))
             return FLOW_CONST(INVALID);
     }
     s->stack[s->stack_count-1]=initial_value(result,true,0);return FLOW_CONST(OK);

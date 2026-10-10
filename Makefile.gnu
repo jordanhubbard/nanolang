@@ -6345,3 +6345,12 @@ test-multi-nominal: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUN
 	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_multi_nominal
 
 test-units: test-multi-nominal
+
+$(OBJ_DIR)/nanoisa/file_flow.o $(OBJ_DIR)/nanoisa/socket_flow.o $(OBJ_DIR)/nanoisa/services_flow.o: src/nanoisa/service_flow_catalog.inc
+$(OBJ_DIR)/nanoisa/services_flow.o: $(wildcard src/nanoisa/service_*.inc) $(wildcard src/nanoisa/services_*.h)
+
+.PHONY: test-services-flow
+test-services-flow: $(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	NANO_SERVICE_MODULE_TEST_CC="$(CC)" SERVICE_MODULE_OBJECTS="$(NANOISA_OBJECTS) $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)" SERVICE_MODULE_LDFLAGS="$(LDFLAGS)" python3 -m unittest -v tests.test_services_flow
+
+test-units: test-services-flow

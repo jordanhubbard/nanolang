@@ -1,5 +1,6 @@
 /* I share transactional ownership states across separately checked catalogs. */
 #include "ownership_contracts.h"
+#include "service_flow_catalog.inc"
 #include "nvm_v2_sections.h"
 #include "isa.h"
 #include <stdlib.h>
@@ -346,12 +347,12 @@ static bool catalog_type(const FLOW_TYPE(State) *s,uint32_t ordinal,FLOW_TYPE(De
     *out=(FLOW_TYPE(Declaration)){l.layout_kind==NVM_V2_LAYOUT_STRUCT?TAG_STRUCT:TAG_UNION,
         0,l.global_index,l.catalog_ordinal,l.category};return true;
 }
-static bool member_type(const FLOW_TYPE(State) *s,const char *id,FLOW_TYPE(Declaration) *out) {
+static bool member_type(const FLOW_TYPE(State) *s,uint32_t context,const char *id,FLOW_TYPE(Declaration) *out) {
     if(!id){*out=scalar_type(TAG_VOID);return true;}
     if(!strcmp(id,"nsi:core/int")){*out=scalar_type(TAG_INT);return true;}
     if(!strcmp(id,"nsi:core/bool")){*out=scalar_type(TAG_BOOL);return true;}
-    for(uint32_t i=0;i<NOMINAL_TYPES;i++) {
-        const NlServicePlanType *t=NOMINAL_CATALOG_TYPE(i);
+    for(uint32_t i=FLOW_TYPE_BASE(context);i<FLOW_TYPE_BASE(context)+FLOW_TYPE_COUNT(s->declarations->nominal,context);i++) {
+        const NlServicePlanType *t=FLOW_CATALOG_TYPE(s->declarations->nominal,i);
         if(t && !strcmp(t->id,id))return catalog_type(s,i,out);
     }
     return false;
@@ -468,7 +469,7 @@ FLOW_TYPE(Status) FLOW_FN(construct)(FLOW_TYPE(State) *s,uint32_t ordinal,uint16
     FLOW_TYPE(Declaration) result;
     if(!catalog_type(s,ordinal,&result))return FLOW_CONST(INVALID);
     if(owned(result))return FLOW_CONST(INVALID);
-    const NlServicePlanType *type=NOMINAL_CATALOG_TYPE(ordinal);
+    const NlServicePlanType *type=FLOW_CATALOG_TYPE(s->declarations->nominal,ordinal);
     bool record=result.category==NOMINAL_CATEGORY_RECORD;
     if(!type || (record?variant!=0:variant>=type->member_count))return FLOW_CONST(INVALID);
     size_t count=record?type->member_count:1;
@@ -477,7 +478,7 @@ FLOW_TYPE(Status) FLOW_FN(construct)(FLOW_TYPE(State) *s,uint32_t ordinal,uint16
     uint16_t start=(uint16_t)(s->stack_count-count);
     for(size_t i=0;i<count;i++) {
         FLOW_TYPE(Declaration) expected;const NlServicePlanMember *member=&type->members[record?i:variant];
-        if(!member_type(s,member->type_id,&expected) || owned(expected))return FLOW_CONST(INVALID);
+        if(!member_type(s,ordinal,member->type_id,&expected) || owned(expected))return FLOW_CONST(INVALID);
         FLOW_TYPE(Value) value=s->stack[start+i];
         if(!value.initialized || value.owner || !same(expected,value.type))return FLOW_CONST(INVALID);
     }
@@ -491,8 +492,8 @@ FLOW_TYPE(Status) FLOW_FN(field)(FLOW_TYPE(State) *s,uint16_t field) {
     if(!s->reachable)return FLOW_CONST(UNRESOLVED);
     FLOW_TYPE(Value) value=s->stack[s->stack_count-1];
     if(value.owner || value.type.category!=NOMINAL_CATEGORY_RECORD)return FLOW_CONST(INVALID);
-    const NlServicePlanType *type=NOMINAL_CATALOG_TYPE(value.type.catalog_ordinal);FLOW_TYPE(Declaration) result;
-    if(!type || field>=type->member_count || !member_type(s,type->members[field].type_id,&result) ||
+    const NlServicePlanType *type=FLOW_CATALOG_TYPE(s->declarations->nominal,value.type.catalog_ordinal);FLOW_TYPE(Declaration) result;
+    if(!type || field>=type->member_count || !member_type(s,value.type.catalog_ordinal,type->members[field].type_id,&result) ||
        !scalar(result.tag) || result.global_index!=NVM_V2_NO_INDEX)return FLOW_CONST(INVALID);
     s->stack[s->stack_count-1]=initial_value(result,true,0);return FLOW_CONST(OK);
 }
@@ -503,8 +504,8 @@ FLOW_TYPE(Status) FLOW_FN(take_result)(FLOW_TYPE(State) *s,uint16_t local,FLOW_T
     if(!value.initialized || !result_type(value.type) || value.arm!=arm ||
        (arm!=FLOW_CONST(ARM_OK) && arm!=FLOW_CONST(ARM_ERROR)))return FLOW_CONST(INVALID);
     if(s->stack_count==FLOW_CONST(STACK))return FLOW_CONST(LIMIT);
-    const NlServicePlanType *type=NOMINAL_CATALOG_TYPE(value.type.catalog_ordinal);FLOW_TYPE(Declaration) payload;
-    if(!type || type->member_count!=2 || !member_type(s,type->members[arm==FLOW_CONST(ARM_ERROR)].type_id,&payload))
+    const NlServicePlanType *type=FLOW_CATALOG_TYPE(s->declarations->nominal,value.type.catalog_ordinal);FLOW_TYPE(Declaration) payload;
+    if(!type || type->member_count!=2 || !member_type(s,value.type.catalog_ordinal,type->members[arm==FLOW_CONST(ARM_ERROR)].type_id,&payload))
         return FLOW_CONST(INVALID);
     if(owned(payload) && (!value.owner || value.type.category!=NOMINAL_CATEGORY_OWNER_RESULT))return FLOW_CONST(INVALID);
     s->stack[s->stack_count++]=initial_value(payload,true,owned(payload)?value.owner:0);
@@ -533,15 +534,15 @@ static FLOW_TYPE(InputState) input_state(NlServiceOwnerState state) {
 FLOW_TYPE(Status) FLOW_FN(service)(FLOW_TYPE(State) *s,uint32_t site,uint32_t import,uint16_t reference) {
     if(!s)return FLOW_CONST(INVALID);
     if(!s->reachable)return FLOW_CONST(UNRESOLVED);
-    uint32_t ordinal=NVM_SERVICE_BINDING_COUNT;
-    for(uint32_t i=0;i<NVM_SERVICE_BINDING_COUNT;i++) {
+    uint32_t ordinal=FLOW_IMPORT_COUNT(s->declarations->nominal);
+    for(uint32_t i=0;i<FLOW_IMPORT_COUNT(s->declarations->nominal);i++) {
         uint32_t index;
         if(NOMINAL_FN(import)(s->declarations->nominal,i,&index) && index==import){ordinal=i;break;}
     }
-    const NlServicePlanMethod *method=NOMINAL_CATALOG_METHOD(ordinal);
+    const NlServicePlanMethod *method=FLOW_CATALOG_METHOD(s->declarations->nominal,ordinal);
     if(!method || !method->param_count)return FLOW_CONST(INVALID);
     FLOW_TYPE(Declaration) result,file;
-    if(!member_type(s,method->params[method->param_count-1].type_id,&result) || !catalog_type(s,0,&file))
+    if(!member_type(s,FLOW_METHOD_OWNER(ordinal),method->params[method->param_count-1].type_id,&result) || !catalog_type(s,FLOW_METHOD_OWNER(ordinal),&file))
         return FLOW_CONST(INVALID);
     uint16_t consumed=0;
     FLOW_TYPE(Obligation) obligation={0};obligation.kind=FLOW_CONST(SERVICE);obligation.site=site;
@@ -557,7 +558,7 @@ FLOW_TYPE(Status) FLOW_FN(service)(FLOW_TYPE(State) *s,uint32_t site,uint32_t im
         if(!live_reference(s,reference,&ref_type))return FLOW_CONST(INVALID);
         file.mode=2;if(!same(file,ref_type))return FLOW_CONST(INVALID);
         obligation.borrowed_inputs=1;obligation.checks|=FLOW_CONST(CHECK_BORROW);
-        if(ordinal==1) {
+        if(FLOW_METHOD_LOCAL(ordinal)==1) {
             if(!s->stack_count || !s->stack[s->stack_count-1].initialized ||
                !same(s->stack[s->stack_count-1].type,scalar_type(TAG_INT)))return FLOW_CONST(INVALID);
             consumed=1;obligation.checks|=FLOW_CONST(CHECK_BYTE);
@@ -577,9 +578,9 @@ FLOW_TYPE(Status) FLOW_FN(service)(FLOW_TYPE(State) *s,uint32_t site,uint32_t im
             for(size_t i=0;i<inputs;i++) {
                 FLOW_TYPE(Declaration) expected;
                 FLOW_TYPE(Value) value=s->stack[s->stack_count-inputs+i];
-                if(!member_type(s,method->params[i].type_id,&expected) || owned(expected) ||
+                if(!member_type(s,FLOW_METHOD_OWNER(ordinal),method->params[i].type_id,&expected) || owned(expected) ||
                    !value.initialized || value.owner || !same(expected,value.type))return FLOW_CONST(INVALID);
-                if(expected.catalog_ordinal==FLOW_ENDPOINT_TYPE && expected.category==NOMINAL_CATEGORY_RECORD)
+                if(FLOW_IS_ENDPOINT(s->declarations->nominal,expected.catalog_ordinal) && expected.category==NOMINAL_CATEGORY_RECORD)
                     obligation.checks|=FLOW_ENDPOINT_CHECK;
             }
             consumed=(uint16_t)inputs;

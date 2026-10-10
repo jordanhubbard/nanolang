@@ -6,12 +6,12 @@ struct SERVICE_TYPE(CyclicHostedPlan) {
     SERVICE_TYPE(CyclicHostedStartup) startup;
     SERVICE_TYPE(CyclicHostedFunction) functions[SERVICE_CONST(FLOW_FUNCTIONS)];
 };
-static bool file_ch_member(const SERVICE_TYPE(CyclicReport) *r,const char *id,SERVICE_TYPE(FlowDeclaration) *out) {
+static bool file_ch_member(const SERVICE_TYPE(CyclicReport) *r,uint32_t context,const char *id,SERVICE_TYPE(FlowDeclaration) *out) {
     if(!id){*out=scalar_type(TAG_VOID);return true;}
     if(!strcmp(id,"nsi:core/int")){*out=scalar_type(TAG_INT);return true;}
     if(!strcmp(id,"nsi:core/bool")){*out=scalar_type(TAG_BOOL);return true;}
-    for(uint32_t i=0;i<SERVICE_CONST(NOMINAL_TYPES);i++) {
-        const NlServicePlanType *type=NOMINAL_CATALOG_TYPE(i);SERVICE_TYPE(NominalLayout) layout;
+    for(uint32_t i=FLOW_TYPE_BASE(context);i<FLOW_TYPE_BASE(context)+FLOW_TYPE_COUNT(r->plan->declarations->nominal,context);i++) {
+        const NlServicePlanType *type=FLOW_CATALOG_TYPE(r->plan->declarations->nominal,i);SERVICE_TYPE(NominalLayout) layout;
         if(type && !strcmp(type->id,id) && SERVICE_FN(cyclic_type)(r,i,&layout)) {
             *out=(SERVICE_TYPE(FlowDeclaration)){layout.layout_kind==NVM_V2_LAYOUT_STRUCT?TAG_STRUCT:TAG_UNION,
                 0,layout.global_index,layout.catalog_ordinal,layout.category};return true;
@@ -55,10 +55,10 @@ static bool file_ch_fact(const SERVICE_TYPE(CyclicReport) *r,const SERVICE_TYPE(
         expected.checks=checks|SERVICE_CONST(FLOW_CHECK_CALLEE)|SERVICE_CONST(FLOW_CHECK_RESULT);
         discharged=SERVICE_CONST(FLOW_CHECK_CALLEE);checks=expected.checks;
     } else if(service) {
-        const NlServicePlanMethod *method=NOMINAL_CATALOG_METHOD(in->catalog_ordinal);uint32_t import;
+        const NlServicePlanMethod *method=FLOW_CATALOG_METHOD(r->plan->declarations->nominal,in->catalog_ordinal);uint32_t import;
         if(!method || !method->param_count ||
            !SERVICE_FN(cyclic_import)(r,in->catalog_ordinal,&import) || import!=in->decoded.operands[0].u32 ||
-           !file_ch_member(r,method->params[method->param_count-1].type_id,&expected.result))return false;
+           !file_ch_member(r,FLOW_METHOD_OWNER(in->catalog_ordinal),method->params[method->param_count-1].type_id,&expected.result))return false;
         expected.kind=SERVICE_CONST(FLOW_SERVICE);expected.site=in->byte_offset;expected.target=import;
         expected.parameters=(uint16_t)(method->param_count-1);expected.result_count=1;
         expected.required_rights=method->required_rights;expected.acquired_rights=method->acquired_rights;
@@ -68,12 +68,12 @@ static bool file_ch_fact(const SERVICE_TYPE(CyclicReport) *r,const SERVICE_TYPE(
                 SERVICE_CONST(FLOW_CHECK_LIVENESS)|SERVICE_CONST(FLOW_CHECK_RIGHTS)|SERVICE_CONST(FLOW_CHECK_RESULT);
         if(method->input_mode==NL_SERVICE_INPUT_EXCLUSIVE) {
             expected.borrowed_inputs=1;checks|=SERVICE_CONST(FLOW_CHECK_BORROW);
-            if(in->catalog_ordinal==1)checks|=SERVICE_CONST(FLOW_CHECK_BYTE);
+            if(FLOW_METHOD_LOCAL(in->catalog_ordinal)==1)checks|=SERVICE_CONST(FLOW_CHECK_BYTE);
         } else if(method->input_mode==NL_SERVICE_INPUT_CONSUME)expected.owned_inputs=1;
         for(size_t i=0;i+1<method->param_count;i++) {
             SERVICE_TYPE(FlowDeclaration) argument;
-            if(!file_ch_member(r,method->params[i].type_id,&argument))return false;
-            if(argument.catalog_ordinal==FLOW_ENDPOINT_TYPE && argument.category==SERVICE_CONST(CATEGORY_RECORD))
+            if(!file_ch_member(r,FLOW_METHOD_OWNER(in->catalog_ordinal),method->params[i].type_id,&argument))return false;
+            if(FLOW_IS_ENDPOINT(r->plan->declarations->nominal,argument.catalog_ordinal) && argument.category==SERVICE_CONST(CATEGORY_RECORD))
                 checks|=FLOW_ENDPOINT_CHECK;
         }
         expected.checks=checks;

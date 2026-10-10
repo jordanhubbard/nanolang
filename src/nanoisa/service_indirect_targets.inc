@@ -35,12 +35,12 @@ static bool fi_catalog(const SERVICE_TYPE(CodePlan) *p,uint32_t ordinal,SERVICE_
     *out=(SERVICE_TYPE(FlowDeclaration)){l.layout_kind==NVM_V2_LAYOUT_STRUCT?TAG_STRUCT:TAG_UNION,
         0,l.global_index,l.catalog_ordinal,l.category};return true;
 }
-static bool fi_member(const SERVICE_TYPE(CodePlan) *p,const char *id,SERVICE_TYPE(FlowDeclaration) *out) {
+static bool fi_member(const SERVICE_TYPE(CodePlan) *p,uint32_t context,const char *id,SERVICE_TYPE(FlowDeclaration) *out) {
     if(!id){*out=scalar_type(TAG_VOID);return true;}
     if(!strcmp(id,"nsi:core/int")){*out=scalar_type(TAG_INT);return true;}
     if(!strcmp(id,"nsi:core/bool")){*out=scalar_type(TAG_BOOL);return true;}
-    for(uint32_t i=0;i<SERVICE_CONST(NOMINAL_TYPES);i++) {
-        const NlServicePlanType *t=NOMINAL_CATALOG_TYPE(i);
+    for(uint32_t i=FLOW_TYPE_BASE(context);i<FLOW_TYPE_BASE(context)+FLOW_TYPE_COUNT(p->declarations->nominal,context);i++) {
+        const NlServicePlanType *t=FLOW_CATALOG_TYPE(p->declarations->nominal,i);
         if(t && !strcmp(t->id,id))return fi_catalog(p,i,out);
     }
     return false;
@@ -200,8 +200,8 @@ static SERVICE_TYPE(FlowStatus) fi_transfer(SERVICE_TYPE(IndirectTargets) *r,uin
     case OP_FILE_RESULT_TAKE: {
         value=s->locals[local];uint8_t arm=(uint8_t)(1u<<d->operands[1].u8);
         if(value.initialized!=2 || value.arms!=arm)return SERVICE_CONST(FLOW_UNRESOLVED);
-        const NlServicePlanType *t=NOMINAL_CATALOG_TYPE(value.type.catalog_ordinal);
-        if(!t || t->member_count!=2 || !fi_member(p,t->members[d->operands[1].u8].type_id,&type))return SERVICE_CONST(FLOW_INVALID);
+        const NlServicePlanType *t=FLOW_CATALOG_TYPE(p->declarations->nominal,value.type.catalog_ordinal);
+        if(!t || t->member_count!=2 || !fi_member(p,value.type.catalog_ordinal,t->members[d->operands[1].u8].type_id,&type))return SERVICE_CONST(FLOW_INVALID);
         status=fi_push(s,fi_value(type,2));
         if(status==SERVICE_CONST(FLOW_OK))s->locals[local]=fi_value(value.type,1);
         return status;
@@ -234,25 +234,25 @@ static SERVICE_TYPE(FlowStatus) fi_transfer(SERVICE_TYPE(IndirectTargets) *r,uin
         return fi_call(r,s,bits,first,changed);
     }
     case OP_FILE_SERVICE: {
-        const NlServicePlanMethod *method=NOMINAL_CATALOG_METHOD(in->catalog_ordinal);
+        const NlServicePlanMethod *method=FLOW_CATALOG_METHOD(p->declarations->nominal,in->catalog_ordinal);
         if(!method || !method->param_count)return SERVICE_CONST(FLOW_INVALID);
         size_t first=method->input_mode==NL_SERVICE_INPUT_EXCLUSIVE?1u:0u;
         for(size_t i=method->param_count-1;i>first;i--) {
-            if(!fi_member(p,method->params[i-1].type_id,&type))return SERVICE_CONST(FLOW_INVALID);
+            if(!fi_member(p,FLOW_METHOD_OWNER(in->catalog_ordinal),method->params[i-1].type_id,&type))return SERVICE_CONST(FLOW_INVALID);
             status=fi_take(s,type);if(status!=SERVICE_CONST(FLOW_OK))return status;
         }
-        if(!fi_member(p,method->params[method->param_count-1].type_id,&type))return SERVICE_CONST(FLOW_INVALID);
+        if(!fi_member(p,FLOW_METHOD_OWNER(in->catalog_ordinal),method->params[method->param_count-1].type_id,&type))return SERVICE_CONST(FLOW_INVALID);
         return fi_push(s,fi_value(type,2));
     }
     case OP_AGG_PACK:case OP_UNION_CONSTRUCT: {
-        const NlServicePlanType *t=NOMINAL_CATALOG_TYPE(in->catalog_ordinal);
+        const NlServicePlanType *t=FLOW_CATALOG_TYPE(p->declarations->nominal,in->catalog_ordinal);
         if(!t || !fi_catalog(p,in->catalog_ordinal,&type))return SERVICE_CONST(FLOW_INVALID);
         bool record=type.category==SERVICE_CONST(CATEGORY_RECORD);
         uint16_t variant=d->operands[d->opcode==OP_AGG_PACK?2:1].u16;
         size_t count=record?t->member_count:1;
         for(size_t i=count;i>0;i--) {
             SERVICE_TYPE(FlowDeclaration) member;
-            if(!fi_member(p,t->members[record?i-1:variant].type_id,&member))return SERVICE_CONST(FLOW_INVALID);
+            if(!fi_member(p,in->catalog_ordinal,t->members[record?i-1:variant].type_id,&member))return SERVICE_CONST(FLOW_INVALID);
             status=fi_take(s,member);if(status!=SERVICE_CONST(FLOW_OK))return status;
         }
         value=fi_value(type,2);if(!record)value.arms=(uint8_t)(1u<<variant);
@@ -262,16 +262,16 @@ static SERVICE_TYPE(FlowStatus) fi_transfer(SERVICE_TYPE(IndirectTargets) *r,uin
         if(!s->stack_count)return SERVICE_CONST(FLOW_INVALID);
         value=s->stack[s->stack_count-1];
         if(value.initialized!=2 || owned(value.type) || value.type.mode)return SERVICE_CONST(FLOW_INVALID);
-        const NlServicePlanType *t=NOMINAL_CATALOG_TYPE(value.type.catalog_ordinal);
+        const NlServicePlanType *t=FLOW_CATALOG_TYPE(p->declarations->nominal,value.type.catalog_ordinal);
         if(!t)return SERVICE_CONST(FLOW_INVALID);
         bool tag=d->opcode==OP_AGG_TAG || d->opcode==OP_UNION_TAG;
         if(value.type.category==SERVICE_CONST(CATEGORY_RECORD) && d->opcode==OP_AGG_GET) {
-            if(local>=t->member_count || !fi_member(p,t->members[local].type_id,&type))return SERVICE_CONST(FLOW_INVALID);
+            if(local>=t->member_count || !fi_member(p,value.type.catalog_ordinal,t->members[local].type_id,&type))return SERVICE_CONST(FLOW_INVALID);
         } else if(value.type.category==SERVICE_CONST(CATEGORY_SCALAR_RESULT)) {
             if(tag)type=scalar_type(TAG_INT);
             else {
                 if(local || (value.arms!=1 && value.arms!=2))return SERVICE_CONST(FLOW_UNRESOLVED);
-                if(!fi_member(p,t->members[value.arms==2].type_id,&type))return SERVICE_CONST(FLOW_INVALID);
+                if(!fi_member(p,value.type.catalog_ordinal,t->members[value.arms==2].type_id,&type))return SERVICE_CONST(FLOW_INVALID);
             }
         } else return SERVICE_CONST(FLOW_UNRESOLVED);
         s->stack[s->stack_count-1]=fi_value(type,2);return SERVICE_CONST(FLOW_OK);

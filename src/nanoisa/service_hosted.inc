@@ -47,7 +47,7 @@ static SERVICE_TYPE(FlowStatus) file_hosted_section(const uint8_t *data,NvmV2Sec
         if(!count || count>SERVICE_CONST(FLOW_FUNCTIONS))return SERVICE_CONST(FLOW_LIMIT);
         wire=32;width=sizeof(NvmV2Function);break;
     case NVM_V2_SECTION_IMPORTS:
-        if(count!=NVM_SERVICE_BINDING_COUNT)return SERVICE_CONST(FLOW_INVALID);
+        if(!FLOW_IMPORT_COUNT_VALID(count))return SERVICE_CONST(FLOW_INVALID);
         wire=16;width=sizeof(NvmV2Import);break;
     case NVM_V2_SECTION_METADATA:wire=8;width=sizeof(NvmV2MetadataEntry);break;
     case NVM_V2_SECTION_DEBUG:wire=16;width=sizeof(NvmV2DebugEntry);break;
@@ -134,10 +134,10 @@ static SERVICE_TYPE(FlowStatus) file_hosted_preflight(const uint8_t *data,size_t
        !file_hosted_array(&total,a.section_bytes[NVM_V2_SECTION_CODE],4096,1) ||
        !file_hosted_array(&total,a.counts[NVM_V2_SECTION_DEBUG],256,sizeof(NvmDebugEntry)) ||
        !file_hosted_array(&total,a.counts[NVM_V2_SECTION_METADATA],8,sizeof(NvmMetadataEntry)) ||
-       !file_hosted_add(&total,32,sizeof(NvmImportEntry)+sizeof(uint8_t *)) ||
+       !file_hosted_array(&total,a.counts[NVM_V2_SECTION_IMPORTS],32,sizeof(NvmImportEntry)+sizeof(uint8_t *)) ||
        !file_hosted_add(&total,16,sizeof(NvmModuleRefEntry)) ||
        !file_hosted_add(&total,a.strings,1) ||
-       !file_hosted_add(&total,(size_t)functions+NVM_SERVICE_BINDING_COUNT,a.maximum_params) ||
+       !file_hosted_add(&total,(size_t)functions+a.counts[NVM_V2_SECTION_IMPORTS],a.maximum_params) ||
        !file_hosted_add(&total,layout,2) ||
        !file_hosted_add(&total,a.section_bytes[NVM_V2_SECTION_OWNERSHIP],1) ||
        !file_hosted_add(&total,SERVICE_CONST(NOMINAL_BYTES),1) ||
