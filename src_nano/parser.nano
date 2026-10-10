@@ -8329,7 +8329,7 @@ fn parse_service_declaration(p: Parser) -> Parser {
     let path_size: int = (str_length document_path)
     if (or (!= interface_size interface_token.value_bytes) (!= path_size path_token.value_bytes)) { return (parser_with_error p true) }
     if (or (not (parser_service_utf8 interface_id)) (not (parser_service_utf8 document_path))) { return (parser_with_error p true) }
-    if (and (!= interface_id "nsi:nanolang/filesystem") (!= interface_id "nsi:nanolang/net")) { return (parser_with_error p true) }
+    if (and (!= interface_id "nsi:nanolang/filesystem") (and (!= interface_id "nsi:nanolang/net") (!= interface_id "nsi:nanolang/websocket"))) { return (parser_with_error p true) }
     if (str_starts_with document_path "/") { return (parser_with_error p true) }
     let next: Parser = (parser_with_position p (+ p.position 6))
     return (parser_store_service next interface_id interface_size document_path path_size start.line start.column)
@@ -9836,6 +9836,11 @@ shadow parse_service_declaration {
     assert (not (parser_has_error tcp))
     assert (== tcp.services_count 1)
     assert (== (list_ASTServiceDecl_get tcp.services 0).interface_id "nsi:nanolang/net")
+    let ws_tokens: List<LexerToken> = (tokenize_string "service \"nsi:nanolang/websocket\" catalog 1 from \"ws.json\"\n" "ws.nano" (Diagnostics.diag_list_new))
+    let ws: Parser = (parse_program ws_tokens (list_LexerToken_length ws_tokens) "ws.nano")
+    assert (not (parser_has_error ws))
+    assert (== ws.services_count 1)
+    assert (== (list_ASTServiceDecl_get ws.services 0).interface_id "nsi:nanolang/websocket")
 }
 
 shadow parser_get_service_count {

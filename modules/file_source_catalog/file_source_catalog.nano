@@ -1,6 +1,6 @@
 module file_source_catalog
 
-# I expose immutable data only. Neither function accepts an AST or executes File.
+# I expose immutable catalog data. I accept no AST and grant no service authority.
 extern fn nl_file_source_catalog_string(kind: int, ordinal: int, field: int, member: int) -> string
 extern fn nl_file_source_catalog_number(kind: int, ordinal: int, field: int, member: int) -> int
 pub fn text(kind: int, ordinal: int, field: int, member: int) -> string {
@@ -29,6 +29,7 @@ pub fn catalog_id(interface_id: string) -> int {
 shadow catalog_id {
     assert (== (catalog_id "nsi:nanolang/filesystem") 1)
     assert (== (catalog_id "nsi:nanolang/net") 2)
+    assert (== (catalog_id "nsi:nanolang/websocket") 3)
     assert (== (catalog_id "nsi:nanolang/net#Socket") 0)
 }
 pub fn count(catalog: int, kind: int) -> int {
@@ -38,6 +39,8 @@ shadow count {
     assert (== (count 1 1) 8)
     assert (== (count 2 1) 9)
     assert (== (count 2 2) 5)
+    assert (== (count 3 1) 7)
+    assert (== (count 3 2) 4)
     assert (== (count 2 0) -1)
     assert (== (count -1 1) -1)
 }
@@ -45,18 +48,21 @@ pub fn catalog_text(catalog: int, kind: int, ordinal: int, field: int, member: i
     unsafe { return (nl_service_source_catalog_string catalog kind ordinal field member) }
 }
 shadow catalog_text {
+    assert (== (catalog_text 3 1 2 4 1) "nsi:core/string")
     assert (== (catalog_text 2 1 0 1 0) "Conn")
     assert (== (catalog_text 2 1 8 1 0) "Endpoint")
     assert (== (catalog_text 1 1 8 1 0) "")
-    assert (== (catalog_text 3 0 0 0 0) "")
+    assert (== (catalog_text 4 0 0 0 0) "")
 }
 pub fn catalog_number(catalog: int, kind: int, ordinal: int, field: int, member: int) -> int {
     unsafe { return (nl_service_source_catalog_number catalog kind ordinal field member) }
 }
 shadow catalog_number {
+    assert (== (catalog_number 3 2 1 4 0) 4)
+    assert (== (catalog_number 3 2 3 3 0) 2)
     assert (== (catalog_number 2 1 1 1 0) 11)
     assert (== (catalog_number 2 1 8 1 0) 7)
     assert (== (catalog_number 2 1 8 2 0) 4)
     assert (== (catalog_number 2 2 4 3 0) 2)
-    assert (== (catalog_number 3 1 0 1 0) -1)
+    assert (== (catalog_number 4 1 0 1 0) -1)
 }

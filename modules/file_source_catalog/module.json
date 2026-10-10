@@ -1,7 +1,7 @@
 {
   "name": "file_source_catalog",
   "version": "1.0.0",
-  "description": "I expose checked File and TCP source data without execution authority",
+  "description": "I expose checked File, TCP and WebSocket source facts without execution authority",
   "headers": [
     "nanoisa/file_source_plan.h",
     "nanoisa/service_source_catalog.h"
@@ -9,7 +9,8 @@
   "c_sources": [
     "../../src/nanoisa/file_source_catalog.c",
     "../../src/nsi_file_plan.c",
-    "../../src/nsi_socket_plan.c"
+    "../../src/nsi_socket_plan.c",
+    "../../src/nsi_websocket_plan.c"
   ],
   "cflags": [
     "-Dnl_file_catalog_interface=nl_source_catalog_private_file_catalog_interface",
@@ -33,6 +34,20 @@
     "-Dnl_socket_plan_method_count=nl_source_catalog_private_socket_plan_method_count",
     "-Dnl_socket_plan_storage_size=nl_source_catalog_private_socket_plan_storage_size",
     "-Dnl_socket_plan_type=nl_source_catalog_private_socket_plan_type",
-    "-Dnl_socket_plan_type_count=nl_source_catalog_private_socket_plan_type_count"
+    "-Dnl_socket_plan_type_count=nl_source_catalog_private_socket_plan_type_count",
+    "-Dnl_websocket_catalog_interface=nl_source_catalog_private_websocket_catalog_interface",
+    "-Dnl_websocket_catalog_method=nl_source_catalog_private_websocket_catalog_method",
+    "-Dnl_websocket_catalog_type=nl_source_catalog_private_websocket_catalog_type",
+    "-Dnl_websocket_catalog_capability=nl_source_catalog_private_websocket_catalog_capability",
+    "-Dnl_websocket_plan_build=nl_source_catalog_private_websocket_plan_build",
+    "-Dnl_websocket_plan_free=nl_source_catalog_private_websocket_plan_free",
+    "-Dnl_websocket_plan_interface=nl_source_catalog_private_websocket_plan_interface",
+    "-Dnl_websocket_plan_method=nl_source_catalog_private_websocket_plan_method",
+    "-Dnl_websocket_plan_method_count=nl_source_catalog_private_websocket_plan_method_count",
+    "-Dnl_websocket_plan_type=nl_source_catalog_private_websocket_plan_type",
+    "-Dnl_websocket_plan_type_count=nl_source_catalog_private_websocket_plan_type_count",
+    "-Dnl_websocket_plan_storage_size=nl_source_catalog_private_websocket_plan_storage_size",
+    "-Dnl_websocket_plan_capability=nl_source_catalog_private_websocket_plan_capability",
+    "-Dnl_websocket_plan_capability_count=nl_source_catalog_private_websocket_plan_capability_count"
   ]
 }

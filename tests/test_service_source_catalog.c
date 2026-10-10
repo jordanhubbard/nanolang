@@ -24,7 +24,7 @@ int main(void) {
     assert(nl_file_source_catalog_view(old,sizeof old,&old_size));
     assert(nl_service_source_catalog_view(1,text,sizeof text,&needed));
     assert(needed==old_size && !memcmp(old,text,needed));
-    int64_t bad[]={INT64_MIN,-1,0,3,INT64_MAX};
+    int64_t bad[]={INT64_MIN,-1,0,4,INT64_MAX};
     for(size_t i=0;i<sizeof bad/sizeof bad[0];i++) {
         assert(nl_service_source_catalog_count(bad[i],1)==-1);
         assert(nl_service_source_catalog_count(bad[i],2)==-1);
@@ -36,6 +36,17 @@ int main(void) {
         assert(needed==73);
         for(size_t b=0;b<sizeof text;b++) assert((unsigned char)text[b]==0xa5);
     }
+    assert(nl_service_source_catalog_id("nsi:nanolang/websocket")==3);
+    assert(nl_service_source_catalog_id("nsi:nanolang/websocket#Connection")==0);
+    assert(nl_service_source_catalog_count(3,1)==7);
+    assert(nl_service_source_catalog_count(3,2)==4);
+    assert(nl_service_source_catalog_count(3,0)==-1);
+    assert(!strcmp(nl_service_source_catalog_string(3,1,2,4,1),"nsi:core/string"));
+    assert(nl_service_source_catalog_number(3,1,1,1,0)==9);
+    assert(nl_service_source_catalog_number(3,2,1,4,0)==4);
+    assert(nl_service_source_catalog_number(3,2,3,3,0)==2);
+    assert(nl_service_source_catalog_number(3,2,4,4,0)==-1);
+    assert(!strcmp(nl_service_source_catalog_string(3,1,7,1,0),""));
     assert(nl_service_source_catalog_count(2,1)==9);
     assert(nl_service_source_catalog_count(2,2)==5);
     assert(nl_service_source_catalog_count(2,0)==-1);
@@ -52,7 +63,7 @@ int main(void) {
     assert(nl_service_source_catalog_number(2,2,4,3,0)==2);
     assert(!strcmp(nl_service_source_catalog_string(2,2,0,7,0),"nsi:nanolang/net#Conn"));
     assert(!strcmp(nl_service_source_catalog_string(2,2,0,7,1),""));
-    for(int64_t catalog=1;catalog<=2;catalog++) {
+    for(int64_t catalog=1;catalog<=3;catalog++) {
         needed=0;assert(nl_service_source_catalog_view(catalog,NULL,0,&needed));
         size_t capacity=needed,unchanged=73;
         memset(text,0xa5,sizeof text);

@@ -103,7 +103,7 @@ def expected_rows(c):
             k,o=b['kind'],b['ordinal']
             category=5 if k else 1 if o==0 else 2 if o==3 else 3 if o<3 or (q.get("identity",1)==2 and o==8) else 4
             rows.append([q['module'],b['name'],b['id'],b['id'],r,k,o,category,
-                         [0,1,1,1,2][o] if k else NO_INDEX,
+                         ([0,1,1,2] if q.get("identity",1)==3 else [0,1,1,1,2])[o] if k else NO_INDEX,
                          3+o if k else NO_INDEX,NO_INDEX,NO_INDEX,q['line'],q['column'],q.get("identity",1)])
     bases={r[2]:r for r in rows}
     for a in c['aliases']:
@@ -124,7 +124,7 @@ def expected(cases):
 
 def generate_c(cases, services=False):
     out=['#include <stdio.h>\n#include <stdlib.h>\n#include <stdint.h>\n#include "src/nanoisa/file_source_plan.h"\n#include "src/nanoisa/service_source_catalog.h"\n']
-    out.append('static char catalog[32768],socket_catalog[32768];static size_t catalog_size,socket_catalog_size;\n')
+    out.append('static char catalog[32768],socket_catalog[32768],websocket_catalog[32768];static size_t catalog_size,socket_catalog_size,websocket_catalog_size;\n')
     out.append('static void emit(unsigned n,NlFileSourceStatus s,NlFileSourcePlan *p){printf("CASE %u %u %zu\\n",n,(unsigned)s,nl_file_source_plan_count(p));for(size_t i=0;i<nl_file_source_plan_count(p);i++){NlFileSourceRow r;if(!nl_file_source_plan_row(p,i,&r))abort();printf("%zu:%.*s|%zu:%.*s|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u|%u\\n",r.module.size,(int)r.module.size,r.module.data,r.name.size,(int)r.name.size,r.name.data,r.id,r.target,r.request,r.kind,r.ordinal,r.category,r.input_mode,r.result_ordinal,r.global_layout,r.import_index,r.line,r.column,r.catalog);}nl_file_source_plan_free(p);}\n')
     for n,c in enumerate(cases):
         out.append(f'static void case_{n}(void){{\n')
@@ -134,7 +134,7 @@ def generate_c(cases, services=False):
         if c['requests']:
             qs=[]
             for j,q in enumerate(c['requests']):
-                cat=('{socket_catalog,socket_catalog_size-1}' if q.get('identity',1)==2 else '{catalog,catalog_size-1}') if q['catalog'] is None else c_span(q['catalog'])
+                cat=('{websocket_catalog,websocket_catalog_size-1}' if q.get('identity',1)==3 else '{socket_catalog,socket_catalog_size-1}' if q.get('identity',1)==2 else '{catalog,catalog_size-1}') if q['catalog'] is None else c_span(q['catalog'])
                 qs.append('{%s,%s,%s,%d,%d,%d,b%d,%d}'%(c_span(q['module']),c_span(q['interface']),cat,q['version'],q['line'],q['column'],j,len(q['bindings'])))
             out.append('NlFileSourceRequest q[]={'+','.join(qs)+'};\n')
         for key,typ in [('aliases','NlFileSourceAlias'),('ordinary','NlFileSourceOrdinary')]:
@@ -148,7 +148,7 @@ def generate_c(cases, services=False):
         out.append(f'if(s!={c["status"]}) {{ abort(); }}\n')
         out.append('if(s) {\n if(p!=(NlFileSourcePlan *)(uintptr_t)1) { abort(); }\n p=NULL;\n}\n')
         out.append(f'emit({n},s,p);\n}}\n')
-    out.append('int main(void){if(!nl_service_source_catalog_view(2,socket_catalog,sizeof socket_catalog,&socket_catalog_size))abort();if(!nl_file_source_catalog_view(catalog,sizeof catalog,&catalog_size))abort();printf("CAT:%s\\n",catalog);')
+    out.append('int main(void){if(!nl_service_source_catalog_view(3,websocket_catalog,sizeof websocket_catalog,&websocket_catalog_size))abort();if(!nl_service_source_catalog_view(2,socket_catalog,sizeof socket_catalog,&socket_catalog_size))abort();if(!nl_file_source_catalog_view(catalog,sizeof catalog,&catalog_size))abort();printf("CAT:%s\\n",catalog);')
     out.extend(f'case_{i}();' for i in range(len(cases)));out.append('return 0;}\n')
     return ''.join(out)
 
@@ -168,7 +168,7 @@ def generate_nano(cases, services=False):
                 out.append(f' set b{j} (array_push b{j} FileSourceBinding {{ id: {b["id"]}, kind: {b["kind"]}, ordinal: {b["ordinal"]}, name: {nano_span(b["name"])} }})\n')
         out.append(' let mut requests: array<FileSourceRequest> = []\n')
         for j,q in enumerate(c['requests']):
-            view='(Plan.service_source_catalog_view 2)' if q.get('identity',1)==2 else 'catalog'
+            view=f"(Plan.service_source_catalog_view {q['identity']})" if q.get('identity',1)>1 else 'catalog'
             cat='FileSourceText { data: '+view+', size: (str_length '+view+') }' if q['catalog'] is None else nano_span(q['catalog'])
             out.append(' set requests (array_push requests FileSourceRequest { module_id: '+nano_span(q['module'])+', interface_id: '+nano_span(q['interface'])+', catalog_view: '+cat+f', catalog_version: {q["version"]}, line: {q["line"]}, column: {q["column"]}, bindings: b{j}'+ ' })\n')
         for key,typ in [('aliases','FileSourceAlias'),('ordinary','FileSourceOrdinary')]:
@@ -303,3 +303,30 @@ def socket_boundaries():
             .replace('Plan.file_source_plan','Plan.service_source_plan')
             .replace('nsi:nanolang/filesystem','nsi:nanolang/net').replace('size: 23','size: 16')
             .replace('(+ 7 (+ 24','(+ 7 (+ 17'))
+
+
+def websocket_corpus():
+    def alias(target,name,id):return dict(module=span('user'),name=span(name),id=id,target=target)
+    names=['Connection','WebSocketError','Message','ConnectResult','SendResult','ReceiveResult','CloseResult','connect','send','receive','close']
+    def websocket():
+        q=request('websocket',201)
+        q.update(identity=3,interface=span('nsi:nanolang/websocket'),bindings=[
+            dict(id=201+i,kind=int(i>=7),ordinal=i-7 if i>=7 else i,name=span(name))
+            for i,name in enumerate(names)])
+        return q
+    cases=[]
+    def add(name,status=0,mutate=None):
+        c=dict(name=name,status=status,requests=[websocket()],aliases=[],ordinary=[])
+        if mutate:mutate(c)
+        cases.append(c)
+    add('websocket')
+    add('permuted',mutate=lambda c:c['requests'][0]['bindings'].reverse())
+    add('all_catalogs',mutate=lambda c:c['requests'].extend(service_corpus()[0]['requests']))
+    add('aliases',mutate=lambda c:c.update(aliases=[alias(201,'Handle',500),alias(203,'Payload',501),alias(209,'Send',502)]))
+    add('wrong_view',4,lambda c:c['requests'][0].update(identity=2))
+    add('missing_method',1,lambda c:c['requests'][0]['bindings'].pop())
+    add('wrong_method_name',1,lambda c:c['requests'][0]['bindings'][-1].update(name=span('closex')))
+    add('wrong_ordinal',1,lambda c:c['requests'][0]['bindings'][-1].update(ordinal=4))
+    add('legacy_refuses',1,lambda c:c.update(legacy=True))
+    add('wrong_version',4,lambda c:c['requests'][0].update(version=2))
+    return cases

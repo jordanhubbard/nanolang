@@ -303,17 +303,19 @@ static BodyValue expression_impl(BodyCheck *c, const ASTNode *node) {
         if(nl_service_type(c->space,c->source,name,&type)) {
             if(type.service_category==1 || type.service_category==2)
                 return fail(c,node,1,"I cannot fabricate an owned catalog value.");
-            if(node->type==AST_STRUCT_LITERAL && type.service_ordinal==8 &&
-               nl_service_namespace_catalog(c->space,type.service_module)==2) {
-                if(node->as.struct_literal.spread_source || node->as.struct_literal.field_count!=7)
-                    return fail(c,node,1,"I require all seven Endpoint fields exactly once.");
+            int64_t catalog=nl_service_namespace_catalog(c->space,type.service_module);
+            if(node->type==AST_STRUCT_LITERAL && ((type.service_ordinal==8 && catalog==2) ||
+                                                 (type.service_ordinal==2 && catalog==3))) {
+                int count=catalog==3?2:7;
+                if(node->as.struct_literal.spread_source || node->as.struct_literal.field_count!=count)
+                    return fail(c,node,1,"I require every catalog record field exactly once.");
                 bool returns=false;
                 for(int i=0;i<node->as.struct_literal.field_count;i++) {
                     const char *field=node->as.struct_literal.field_names[i];TypeInfo expected;
                     if(!field || !nl_service_member_type(c->space,&type,field,&expected))
-                        return fail(c,node,1,"I require a declared Endpoint field.");
+                        return fail(c,node,1,"I require a declared catalog record field.");
                     for(int j=0;j<i;j++)if(!strcmp(field,node->as.struct_literal.field_names[j]))
-                        return fail(c,node,1,"I require distinct Endpoint fields.");
+                        return fail(c,node,1,"I require distinct catalog record fields.");
                     BodyValue actual=require(c,node,expression(c,node->as.struct_literal.field_values[i]),(BodyValue){.type=expected});
                     returns |= actual.returns;
                 }

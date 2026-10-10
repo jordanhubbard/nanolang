@@ -32,7 +32,7 @@ class FileSourceInputs(unittest.TestCase):
             catalog = work / "catalog"
             self.checked([*cc,"-std=c99","-Wall","-Wextra","-Werror","-Isrc",
                 "tests/test_service_source_catalog.c","src/nanoisa/file_source_catalog.c",
-                "src/nsi_file_plan.c","src/nsi_socket_plan.c","-o",catalog])
+                "src/nsi_file_plan.c","src/nsi_socket_plan.c","src/nsi_websocket_plan.c","-o",catalog])
             expected = self.checked([catalog])
             self.assertEqual(expected.splitlines()[0],"CAT1:"+(ROOT/"tests/fixtures/file_source_catalog_expected.txt").read_text().strip())
             for compiler in os.environ.get("NANO_INPUT_COMPILERS", "nanoc_c,nano_virt,nanoc_stage1,nanoc_stage2").split(","):

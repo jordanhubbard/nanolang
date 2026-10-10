@@ -74,6 +74,7 @@ fn st_value_type(space: ServiceNamespace, owner: int, id: string) -> ServiceType
     if (== id "") { return (st_scalar 3) }
     if (== id "nsi:core/int") { return (st_scalar 1) }
     if (== id "nsi:core/bool") { return (st_scalar 2) }
+    if (== id "nsi:core/string") { return (st_scalar 8) }
     let identity: int = (service_namespace_catalog space owner)
     let mut ordinal: int = 0
     while (< ordinal (TypeCatalog.count identity 1)) {
@@ -87,6 +88,7 @@ shadow st_value_type {
     assert (== (st_value_type empty 0 "").kind 3)
     assert (== (st_value_type empty 0 "nsi:core/bool").kind 2)
     assert (== (st_value_type empty 0 "File").kind 0)
+    assert (== (st_value_type empty 0 "nsi:core/string").kind 8)
 }
 
 pub fn service_member_type(space: ServiceNamespace, owner: ServiceType, name: string) -> ServiceType {
@@ -114,11 +116,11 @@ pub fn service_method_type(space: ServiceNamespace, owner: int, name: string) ->
     let found: int = (service_namespace_lookup space owner name)
     if (< found 0) { return failure }
     let row: ServiceName = (at space.names found)
-    if (or (!= row.kind 9) (or (< row.ordinal 0) (>= row.ordinal 5))) { return failure }
+    if (or (!= row.kind 9) (< row.ordinal 0)) { return failure }
     let identity: int = (service_namespace_catalog space row.target_owner)
-    if (== identity 0) { return failure }
+    if (or (== identity 0) (>= row.ordinal (TypeCatalog.count identity 2))) { return failure }
     let count: int = (TypeCatalog.catalog_number identity 2 row.ordinal 4 0)
-    if (or (< count 1) (> count 3)) { return failure }
+    if (or (< count 1) (> count 4)) { return failure }
     let mut parameters: array<ServiceType> = []
     let mut result: ServiceType = (st_scalar 0)
     let mut i: int = 0

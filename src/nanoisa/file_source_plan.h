@@ -34,8 +34,8 @@ typedef struct {
  * storage is disjoint from input/plan. Failure preserves *out. */
 NlFileSourceStatus nl_file_source_plan_build(const NlFileSourceRequest *,size_t,
  const NlFileSourceAlias *,size_t,const NlFileSourceOrdinary *,size_t,NlFileSourcePlan **out);
-/* I retain catalog identity1 File or2 TCP in every row, including aliases.
- * The legacy builder admits only File; this builder admits both exact catalogs. */
+/* I retain catalog identity1 File,2 TCP or3 WebSocket in every row, including aliases.
+ * The legacy builder admits only File; this builder admits all three exact catalogs. */
 NlFileSourceStatus nl_service_source_plan_build(const NlFileSourceRequest *,size_t,
  const NlFileSourceAlias *,size_t,const NlFileSourceOrdinary *,size_t,NlFileSourcePlan **out);
 void nl_file_source_plan_free(NlFileSourcePlan *);

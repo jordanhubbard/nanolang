@@ -108,7 +108,7 @@ class ServiceOwnership(unittest.TestCase):
             self.assertNotIn('I cannot type-check File service bodies:',message)
             if status==1: self.assertIn('I cannot verify File service ownership:',message)
             else:
-                self.assertRegex(message,r'I have not resolved File service declarations|I require --allow-temporary-files|I cannot lower File source')
+                self.assertRegex(message,r'I have not resolved File service declarations|I require --allow-temporary-files|I require --allow-tcp-connections|I cannot lower File source')
                 self.assertNotIn('I cannot verify File service ownership:',message)
             self.assertEqual(output.read_bytes(),b'prior-output')
 

@@ -54,6 +54,7 @@ fn main() -> int {
     }
     (println (+ "CAT1:" (Plan.service_source_catalog_view 1)))
     (println (+ "CAT2:" (Plan.service_source_catalog_view 2)))
+    (println (+ "CAT3:" (Plan.service_source_catalog_view 3)))
     (println "PASS source input bridge")
     return 0
 }

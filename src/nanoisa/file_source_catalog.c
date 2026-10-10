@@ -1,6 +1,7 @@
 #include "file_source_plan.h"
 #include "service_source_catalog.h"
 #include "../nsi_socket_plan.h"
+#include "../nsi_websocket_plan.h"
 #include "../nsi_file_catalog.h"
 #include <stdlib.h>
 #include <string.h>
@@ -10,22 +11,25 @@ int64_t nl_service_source_catalog_id(const char *id) {
  if(!id)return NL_SOURCE_CATALOG_NONE;
  if(!strcmp(id,nl_file_catalog_interface()))return NL_SOURCE_CATALOG_FILE;
  if(!strcmp(id,nl_socket_catalog_interface()))return NL_SOURCE_CATALOG_SOCKET;
+ if(!strcmp(id,nl_websocket_catalog_interface()))return NL_SOURCE_CATALOG_WEBSOCKET;
  return NL_SOURCE_CATALOG_NONE;
 }
 int64_t nl_service_source_catalog_count(int64_t catalog,int64_t kind) {
  if(catalog==NL_SOURCE_CATALOG_FILE)return kind==1?8:kind==2?5:-1;
  if(catalog==NL_SOURCE_CATALOG_SOCKET)return kind==1?(int64_t)NL_SOCKET_PLAN_TYPES:kind==2?(int64_t)NL_SOCKET_PLAN_METHODS:-1;
+ if(catalog==NL_SOURCE_CATALOG_WEBSOCKET)return kind==1?(int64_t)NL_WEBSOCKET_PLAN_TYPES:kind==2?(int64_t)NL_WEBSOCKET_PLAN_METHODS:-1;
  return -1;
 }
 static const char *source_interface(int64_t catalog) {
  return catalog==NL_SOURCE_CATALOG_FILE?nl_file_catalog_interface():
-        catalog==NL_SOURCE_CATALOG_SOCKET?nl_socket_catalog_interface():"";
+        catalog==NL_SOURCE_CATALOG_SOCKET?nl_socket_catalog_interface():
+        catalog==NL_SOURCE_CATALOG_WEBSOCKET?nl_websocket_catalog_interface():"";
 }
 static const NlServicePlanType *source_type(int64_t catalog,size_t ordinal) {
- return catalog==NL_SOURCE_CATALOG_FILE?nl_file_catalog_type(ordinal):nl_socket_catalog_type(ordinal);
+ return catalog==NL_SOURCE_CATALOG_FILE?nl_file_catalog_type(ordinal):catalog==NL_SOURCE_CATALOG_SOCKET?nl_socket_catalog_type(ordinal):nl_websocket_catalog_type(ordinal);
 }
 static const NlServicePlanMethod *source_method(int64_t catalog,size_t ordinal) {
- return catalog==NL_SOURCE_CATALOG_FILE?nl_file_catalog_method(ordinal):nl_socket_catalog_method(ordinal);
+ return catalog==NL_SOURCE_CATALOG_FILE?nl_file_catalog_method(ordinal):catalog==NL_SOURCE_CATALOG_SOCKET?nl_socket_catalog_method(ordinal):nl_websocket_catalog_method(ordinal);
 }
 /* String fields: interface0; type0=id,1=name,2..4=member id/name/type;
  * method0..3=id/name/generated/binding,4..6=param id/name/type,7=owned outcome.
@@ -96,7 +100,7 @@ static void catalog_string(CatalogText *b,const char *s) {
 }
 bool nl_service_source_catalog_view(int64_t catalog,char *out,size_t cap,size_t *needed) {
  if(!needed || (!out && cap) || nl_service_source_catalog_count(catalog,1)<0)return false;
- CatalogText b={{0},0,true};catalog_text(&b,catalog==NL_SOURCE_CATALOG_FILE?"file-source-catalog1;":"socket-source-catalog1;");
+ CatalogText b={{0},0,true};catalog_text(&b,catalog==NL_SOURCE_CATALOG_FILE?"file-source-catalog1;":catalog==NL_SOURCE_CATALOG_SOCKET?"socket-source-catalog1;":"websocket-source-catalog1;");
  catalog_string(&b,source_interface(catalog));catalog_number(&b,nl_service_source_catalog_count(catalog,1));catalog_number(&b,nl_service_source_catalog_count(catalog,2));
  for(int64_t i=0;i<nl_service_source_catalog_count(catalog,1);i++) {
   for(int64_t f=0;f<2;f++)catalog_string(&b,nl_service_source_catalog_string(catalog,1,i,f,0));

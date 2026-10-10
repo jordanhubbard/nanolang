@@ -471,20 +471,22 @@ fn sb_expression_impl(parser: Parser, space: ServiceNamespace, kind: int, id: in
         else { set name (parser_get_union_construct parser id).union_name }
         let typ: ServiceType = (service_named_type space sb_owner name)
         if (or (== typ.category 1) (== typ.category 2)) { return (sb_fail 1 "I cannot fabricate an owned catalog value.") }
-        if (and (== kind ParseNodeType.PNODE_STRUCT_LITERAL) (and (== typ.ordinal 8) (== (service_namespace_catalog space typ.owner) 2))) {
+        let catalog: int = (service_namespace_catalog space typ.owner)
+        if (and (== kind ParseNodeType.PNODE_STRUCT_LITERAL) (or (and (== typ.ordinal 8) (== catalog 2)) (and (== typ.ordinal 2) (== catalog 3)))) {
             let node: ASTStructLiteral = (parser_get_struct_literal parser id)
-            if (or (!= node.field_count 7) (or (!= (array_length node.field_names) 7) (or (!= (array_length node.field_value_ids) 7) (!= (array_length node.field_value_types) 7)))) {
-                return (sb_fail 1 "I require all seven Endpoint fields exactly once.")
+            let count: int = (cond ((== catalog 3) 2) (else 7))
+            if (or (!= node.field_count count) (or (!= (array_length node.field_names) count) (or (!= (array_length node.field_value_ids) count) (!= (array_length node.field_value_types) count)))) {
+                return (sb_fail 1 "I require every catalog record field exactly once.")
             }
             let mut returned: bool = false
             let mut i: int = 0
             while (< i node.field_count) {
                 let field: string = (at node.field_names i)
                 let expected: ServiceType = (service_member_type space typ field)
-                if (== expected.kind 0) { return (sb_fail 1 "I require a declared Endpoint field.") }
+                if (== expected.kind 0) { return (sb_fail 1 "I require a declared catalog record field.") }
                 let mut j: int = 0
                 while (< j i) {
-                    if (== field (at node.field_names j)) { return (sb_fail 1 "I require distinct Endpoint fields.") }
+                    if (== field (at node.field_names j)) { return (sb_fail 1 "I require distinct catalog record fields.") }
                     set j (+ j 1)
                 }
                 let actual: ServiceBodyValue = (sb_require (sb_expression parser space (at node.field_value_types i) (at node.field_value_ids i)) ServiceBodyValue { type: expected, borrow_mode: 0, returns: false })

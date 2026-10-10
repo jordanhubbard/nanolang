@@ -5770,7 +5770,7 @@ test-file-cyclic: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 
 # I prepare descriptive source plans only; existing compiler selection is unchanged.
 .PHONY: file-source-plan
-file-source-plan: $(OBJ_DIR)/nsi_socket_plan.o $(OBJ_DIR)/nanoisa/file_source_plan.o $(OBJ_DIR)/nanoisa/file_source_catalog.o $(OBJ_DIR)/nsi_file_plan.o
+file-source-plan: $(OBJ_DIR)/nsi_websocket_plan.o $(OBJ_DIR)/nsi_socket_plan.o $(OBJ_DIR)/nanoisa/file_source_plan.o $(OBJ_DIR)/nanoisa/file_source_catalog.o $(OBJ_DIR)/nsi_file_plan.o
 $(OBJ_DIR)/nanoisa/file_source_plan.o $(OBJ_DIR)/nanoisa/file_source_catalog.o: $(NANOISA_DIR)/file_source_plan.h $(SRC_DIR)/nsi_file_catalog.h $(SRC_DIR)/nsi_file_plan.h
 
 # I qualify explicit descriptive requests; no File source lowering is selected.
@@ -6641,3 +6641,11 @@ test-websocket-source-binding:
 test-units: test-websocket-source-binding
 
 $(OBJ_DIR)/nanoisa/file_source_snapshot.o: $(SRC_DIR)/nsi_websocket_binding.h $(NANOISA_DIR)/service_source_catalog.h
+
+$(OBJ_DIR)/nanoisa/file_source_catalog.o: $(SRC_DIR)/nsi_websocket_plan.h $(NANOISA_DIR)/service_source_catalog.h
+
+.PHONY: test-websocket-service-source
+test-websocket-service-source: $(OBJ_DIR)/test_service_ownership $(OBJ_DIR)/test_service_bodies $(COMPILER_C) nano_virt nano_vm nvm2c
+	NANO_NATIVE_TEST_CC="$(CC)" python3 -m unittest -f -v tests.test_websocket_service_source
+
+test-units: test-websocket-service-source

@@ -186,9 +186,25 @@ My shared source-snapshot API accepts explicit catalog identity 3, reads a
 companion relative to an absolute source origin and keeps copied bytes after the
 file changes or disappears. The `file_source_inputs` module carries these views
 through C-seed, NanoVirt, Stage 1 and Stage 2 consumer programs, including VM and
-native products. This supplies compiler input storage; it does not resolve
-WebSocket source names or lower service calls. Catalog queries, namespaces and
-paired lowering remain required.
+native products. This supplies compiler input storage. My paired source checks now resolve
+WebSocket names and signatures; executable lowering remains required.
+
+## Paired source checking
+
+My C and Nano parsers accept the exact WebSocket service declaration. Both
+source plans retain all seven types and four methods, original declaration
+identity, aliases and the catalog selector. Their complete rendered type/method
+views agree. Wrong catalogs, incomplete bindings and out-of-range ordinals refuse.
+
+Both type systems retain `Message.data` as a string and check the three inputs
+of `send`: exclusive connection borrow, Message and timeout. Body checking
+requires each Message field exactly once, accepts either field order and checks
+field expressions in source order. Result arms retain their nominal payloads.
+Source ownership checking remains independent of type checking and execution.
+
+My product lowerers still refuse WebSocket catalogs before output publication.
+These source checks do not yet produce executable WebSocket bytecode. I must
+extend both lowerers and connect the resulting products to explicit host grants.
 
 ## Explicit public providers
 
@@ -215,8 +231,7 @@ callers and external serialization.
 My installed-provider checks cover denial, separate lookup authority, revocation,
 immutable copied policy, malformed bytes and generated-native isolation. My
 public real-peer suite is implemented but remains unqualified in the current
-sandbox, which refuses localhost bind. This does not enable source catalog
-selection or satisfy release/platform acceptance.
+sandbox, which refuses localhost bind. This does not enable source execution or satisfy release/platform acceptance.
 
 ## Admission boundary
 
@@ -236,8 +251,8 @@ reject stale/cross-invocation values; they do not protect against arbitrary nati
 memory access or establish verified source authority. It has no public binding.
 
 My descriptor, owned runtime and explicit checked execution providers are
-implemented. I have not registered this catalog in source selection or the
-executable binding registry. Paired frontend lowering and public real-peer,
+implemented. My descriptive source catalog and paired checkers now recognize
+WebSocket; executable binding selection remains pending. Paired frontend lowering and public real-peer,
 fault/cleanup and installed Linux/Darwin qualification remain required before
 source admission and release acceptance.
 

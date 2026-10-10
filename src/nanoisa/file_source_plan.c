@@ -43,7 +43,8 @@ static NlFileSourceStatus source_plan_build(bool services,const NlFileSourceRequ
      !text_ok(q->catalog_view,32767,false) || !id_ok(q->line) || !id_ok(q->column) ||
      !q->bindings || (!services && q->binding_count!=13))return NL_FILE_SOURCE_INVALID;
   int64_t identity=text_literal(q->interface_id,"nsi:nanolang/filesystem")?NL_SOURCE_CATALOG_FILE:
-                   services && text_literal(q->interface_id,"nsi:nanolang/net")?NL_SOURCE_CATALOG_SOCKET:NL_SOURCE_CATALOG_NONE;
+                   services && text_literal(q->interface_id,"nsi:nanolang/net")?NL_SOURCE_CATALOG_SOCKET:
+                   services && text_literal(q->interface_id,"nsi:nanolang/websocket")?NL_SOURCE_CATALOG_WEBSOCKET:NL_SOURCE_CATALOG_NONE;
   if(!identity)return NL_FILE_SOURCE_UNRESOLVED;
   uint32_t types=(uint32_t)nl_service_source_catalog_count(identity,1);
   uint32_t methods=(uint32_t)nl_service_source_catalog_count(identity,2);

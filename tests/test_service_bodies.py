@@ -87,7 +87,7 @@ class ServiceBodies(unittest.TestCase):
             message=run.stdout+run.stderr
             if status in (1,3):self.assertIn('I cannot type-check File service bodies:',message)
             else:
-                self.assertRegex(message,r'I have not resolved File service declarations|I require --allow-temporary-files|I cannot lower File source')
+                self.assertRegex(message,r'I have not resolved File service declarations|I require --allow-temporary-files|I require --allow-tcp-connections|I cannot lower File source')
                 self.assertNotIn('I cannot type-check File service bodies:',message)
             self.assertEqual(output.read_bytes(),b'prior')
 

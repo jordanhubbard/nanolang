@@ -100,13 +100,13 @@ class SocketOwnership(unittest.TestCase):
         doubled=ENDPOINT.replace('port: 12345','port: (close_port value)').replace('scope_id: 0','scope_id: (close_port value)')
         self.check(prefix+'fn build(value:Conn)->Endpoint{return '+doubled+'}',1)
 
-    def test_lowering_does_not_reinterpret_tcp_as_file(self):
+    def test_file_grant_does_not_authorize_tcp(self):
         path=self.work/'body.nano';path.write_text(source(tcp(bodies.POSITIVE)))
         for command in self.drivers:
             output=self.work/'prior.nvm';output.write_bytes(b'prior-output')
             run=subprocess.run(list(map(str,[*command,path,'-o',output,'--allow-temporary-files'])),cwd=ROOT,text=True,capture_output=True,timeout=90)
             self.assertNotEqual(run.returncode,0)
-            self.assertIn('I have not connected TCP wire and runtime lowering',run.stdout+run.stderr)
+            self.assertIn('I require --allow-tcp-connections for selected service shadows or execution.',run.stdout+run.stderr)
             self.assertEqual(output.read_bytes(),b'prior-output')
 
 if __name__=='__main__':unittest.main()

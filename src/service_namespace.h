@@ -33,7 +33,7 @@ int64_t nl_service_namespace_catalog(const NlServiceNamespace *, uint32_t module
  * Returned TypeInfo values contain no owning pointers. Failure preserves out. */
 typedef struct {
     uint32_t declaration, module, ordinal, parameter_count;
-    TypeInfo parameters[2], result;
+    TypeInfo parameters[3], result;
     uint32_t input_mode;
 } NlServiceSignature;
 bool nl_service_type(const NlServiceNamespace *, const char *module,

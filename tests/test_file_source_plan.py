@@ -14,11 +14,11 @@ import subprocess
 import tempfile
 import time
 import unittest
-from tests.file_source_plan_corpus import corpus, expected, generate_c, generate_nano, service_corpus
+from tests.file_source_plan_corpus import corpus, expected, generate_c, generate_nano, service_corpus, websocket_corpus
 
 ROOT = Path(__file__).resolve().parents[1]
 PROVIDERS = ['src/nanoisa/file_source_plan.c', 'src/nanoisa/file_source_catalog.c',
-             'src/nsi_file_plan.c', 'src/nsi_socket_plan.c']
+             'src/nsi_file_plan.c', 'src/nsi_socket_plan.c', 'src/nsi_websocket_plan.c']
 
 class FileSourcePlan(unittest.TestCase):
     @classmethod
@@ -126,6 +126,9 @@ class FileSourcePlan(unittest.TestCase):
 
     def test_paired_mixed_catalogs_and_selected_shadows(self):
         self.paired(service_corpus(), True)
+
+    def test_paired_websocket_catalog_and_selected_shadows(self):
+        self.paired(websocket_corpus(), True)
 
     def paired(self, cases, services):
         (self.work/'cases.json').write_text(json.dumps(cases,ensure_ascii=False,indent=2)+'\n')

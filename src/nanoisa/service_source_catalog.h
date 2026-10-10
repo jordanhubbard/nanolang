@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 /* I identify exact source catalogs, not runtime grants or serialized tags. */
-/* I reserve WebSocket identity for strict snapshots; source queries are pending. */
 enum { NL_SOURCE_CATALOG_NONE = 0, NL_SOURCE_CATALOG_FILE = 1,
        NL_SOURCE_CATALOG_SOCKET = 2, NL_SOURCE_CATALOG_WEBSOCKET = 3 };
 int64_t nl_service_source_catalog_id(const char *interface_id);

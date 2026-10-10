@@ -30,6 +30,7 @@ pub fn service_source_catalog_view(catalog: int) -> string {
     if (or (or (< types 1) (> types 64)) (or (< methods 1) (> methods 64))) { return "" }
     let mut prefix: string = "file-source-catalog1;"
     if (== catalog 2) { set prefix "socket-source-catalog1;" }
+    if (== catalog 3) { set prefix "websocket-source-catalog1;" }
     let mut out: string = (+ prefix (fsp_string (FileCatalog.catalog_text catalog 0 0 0 0)))
     set out (+ out (+ (fsp_number types) (fsp_number methods)))
     let mut i: int = 0
@@ -82,6 +83,8 @@ shadow service_source_catalog_view {
     assert (str_contains view "nsi.tcp.v1.begin_connect")
     assert (str_contains view "connect_pending")
     assert (str_contains view "Endpoint")
+    assert (str_contains (service_source_catalog_view 3) "websocket-source-catalog1;")
+    assert (str_contains (service_source_catalog_view 3) "nsi:core/string")
     assert (== (service_source_catalog_view 0) "")
 }
 pub fn file_source_catalog_view() -> string {
@@ -183,6 +186,7 @@ fn source_plan_build(services: bool, requests: array<FileSourceRequest>, aliases
         let mut identity: int = 0
         if (fsp_literal request.interface_id "nsi:nanolang/filesystem") { set identity 1 }
         if (and services (fsp_literal request.interface_id "nsi:nanolang/net")) { set identity 2 }
+        if (and services (fsp_literal request.interface_id "nsi:nanolang/websocket")) { set identity 3 }
         if (== identity 0) { return (fsp_failure 4) }
         let types: int = (FileCatalog.count identity 1)
         let methods: int = (FileCatalog.count identity 2)
