@@ -2667,6 +2667,8 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 local->name = node->as.handle_expr.handler_param_names[i][j];
                 local->slot = starts[i] + j;
                 local->struct_type = operation->params[j].struct_type_name;
+                local_name_begin(cg, local->slot, local->name,
+                                 operation->params[j].type, node->line);
                 Parameter parameter = operation->params[j];
                 parameter.name = local->name;
                 bind_parameter_type(cg, &parameter, node->as.handle_expr.handler_bodies[i]->line);

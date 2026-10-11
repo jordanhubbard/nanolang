@@ -5262,6 +5262,11 @@ test-units: test-local-binding-producers
 test-local-binding-producers: bootstrap test-local-binding-metadata nano_virt nano_vm nvm2c
 	python3 -m unittest -v tests.test_local_binding_metadata
 
+.PHONY: test-effect-binding-metadata
+test-units: test-effect-binding-metadata
+test-effect-binding-metadata: test-local-binding-metadata nano_virt nano_vm nanoisa_dump
+	python3 -m unittest -v tests.test_effect_binding_metadata
+
 test-local-binding-metadata: test-local-binding-alloc
 .PHONY: test-local-binding-alloc
 test-local-binding-alloc: $(NANOISA_OBJECTS) $(NANOISA_UTF8)

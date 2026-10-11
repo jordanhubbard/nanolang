@@ -154,3 +154,13 @@ I begin a union match-arm binding after storing the selected scrutinee, before
 its optional guard. I end it before another arm's code. A false guard can leave
 that interval without making it a liveness guarantee. Wildcard bindings remain
 unnamed; an outer variable with the same spelling retains its own slot/interval.
+
+## Effect-handler parameters
+
+My C producer begins an effect-handler parameter name at that arm's entry and
+ends it after the arm's resume. The VM installs performed arguments before
+entering that interval. Sibling arms and nested handlers retain separate slots;
+an outer same-spelling binding retains its own interval. Zero-argument arms
+invent no parameter names. A lexical return may exit before the interval's end;
+these names carry no liveness or execution authority. Self-hosted effects and
+canonical native effect translation remain separate implementation gaps.

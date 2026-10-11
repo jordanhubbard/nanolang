@@ -1,0 +1,13 @@
+effect Ask { ask : int -> int }
+fn main() -> int {
+    let value: int = 40
+    let first: int = handle { perform Ask.ask(3) } with {
+        ask value -> { let adjusted: int = (+ value 1) adjusted }
+    }
+    let second: int = handle { perform Ask.ask(2) } with {
+        ask value -> { (+ value 1) }
+    }
+    assert (== value 40)
+    return (+ first second)
+}
+shadow main { assert (== (main) 7) }

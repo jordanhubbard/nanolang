@@ -1,0 +1,81 @@
+test_lexical_return_retains_arm_interval (tests.test_effect_binding_metadata.EffectBindingMetadata.test_lexical_return_retains_arm_interval) ... FAIL
+test_nested_handlers_keep_distinct_parameters (tests.test_effect_binding_metadata.EffectBindingMetadata.test_nested_handlers_keep_distinct_parameters) ... FAIL
+test_sibling_parameters_shadow_outer_binding (tests.test_effect_binding_metadata.EffectBindingMetadata.test_sibling_parameters_shadow_outer_binding) ... FAIL
+test_typed_arguments_and_zero_argument_arm (tests.test_effect_binding_metadata.EffectBindingMetadata.test_typed_arguments_and_zero_argument_arm) ... FAIL
+
+======================================================================
+FAIL: test_lexical_return_retains_arm_interval (tests.test_effect_binding_metadata.EffectBindingMetadata.test_lexical_return_retains_arm_interval)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_effect_binding_metadata.py", line 124, in test_lexical_return_retains_arm_interval
+    self.assertEqual(sorted(b[4] for b in bindings), ['answer', 'value'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['answer'] != ['answer', 'value']
+
+Second list contains 1 additional elements.
+First extra element 1:
+'value'
+
+- ['answer']
++ ['answer', 'value']
+
+======================================================================
+FAIL: test_nested_handlers_keep_distinct_parameters (tests.test_effect_binding_metadata.EffectBindingMetadata.test_nested_handlers_keep_distinct_parameters)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_effect_binding_metadata.py", line 88, in test_nested_handlers_keep_distinct_parameters
+    self.assertEqual(sorted(b[4] for b in bindings), ['answer', 'inner', 'value', 'value'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['answer', 'inner'] != ['answer', 'inner', 'value', 'value']
+
+Second list contains 2 additional elements.
+First extra element 2:
+'value'
+
+- ['answer', 'inner']
++ ['answer', 'inner', 'value', 'value']
+
+======================================================================
+FAIL: test_sibling_parameters_shadow_outer_binding (tests.test_effect_binding_metadata.EffectBindingMetadata.test_sibling_parameters_shadow_outer_binding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_effect_binding_metadata.py", line 60, in test_sibling_parameters_shadow_outer_binding
+    self.assertEqual(sorted(b[4] for b in bindings),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ['adjusted', 'first', 'second', 'value', 'value', 'value'])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['adjusted', 'first', 'second', 'value'] != ['adjusted', 'first', 'second', 'value', 'value', 'value']
+
+Second list contains 2 additional elements.
+First extra element 4:
+'value'
+
+- ['adjusted', 'first', 'second', 'value']
++ ['adjusted', 'first', 'second', 'value', 'value', 'value']
+?                                 ++++++++++++++++++
+
+
+======================================================================
+FAIL: test_typed_arguments_and_zero_argument_arm (tests.test_effect_binding_metadata.EffectBindingMetadata.test_typed_arguments_and_zero_argument_arm)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_effect_binding_metadata.py", line 107, in test_typed_arguments_and_zero_argument_arm
+    self.assertEqual(sorted(names), ['flag', 'left', 'number', 'right', 'text'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['left', 'right'] != ['flag', 'left', 'number', 'right', 'text']
+
+First differing element 0:
+'left'
+'flag'
+
+Second list contains 3 additional elements.
+First extra element 2:
+'number'
+
+- ['left', 'right']
++ ['flag', 'left', 'number', 'right', 'text']
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.356s
+
+FAILED (failures=4)
