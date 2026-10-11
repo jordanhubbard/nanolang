@@ -74,6 +74,30 @@ class NativeModuleGenerationSelection(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr.decode())
             subprocess.run([str(work / "program")], check=True, timeout=10)
 
+    def test_pure_nano_dependency_keeps_foreign_headers(self):
+        with tempfile.TemporaryDirectory(prefix='nano-pure-import-headers-') as tmp:
+            work = Path(tmp)
+            foreign = work/'foreign'
+            include = foreign/'include directory'
+            include.mkdir(parents=True)
+            (include/'foreign_value.h').write_text('#include <stdint.h>\nint64_t foreign_value(void);\n')
+            (foreign/'value.c').write_text('#include "foreign_value.h"\nint64_t foreign_value(void){return 42;}\n')
+            (foreign/'api.nano').write_text('pub extern fn foreign_value()->int\n')
+            (foreign/'module.json').write_text(json.dumps({'name':'foreign',
+                'headers':['foreign_value.h'], 'include_dirs':[str(include)], 'c_sources':['value.c']}))
+            (work/'middle.nano').write_text('module "foreign/api.nano" as foreign\n'
+                'pub fn answer()->int {unsafe {return (foreign.foreign_value)}}\n'
+                'shadow answer {assert (== (answer) 42)}\n')
+            source, binary = work/'main.nano', work/'program'
+            source.write_text('module "middle.nano" as middle\n'
+                'fn main()->int{assert (== (middle.answer) 42) return 0}\n'
+                'shadow main {assert (== (main) 0)}\n')
+            env = {**os.environ, 'NANO_BUILD_CACHE':str(work/'cache')}
+            result = subprocess.run([ROOT/'bin/nanoc_c',source,'-o',binary],
+                cwd=ROOT,env=env,capture_output=True,text=True,timeout=120)
+            self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+            subprocess.run([binary],check=True,timeout=10)
+
     def test_long_link_closure_keeps_every_foreign_object(self):
         with tempfile.TemporaryDirectory(prefix="nano-long-link-") as tmp:
             work = Path(tmp)

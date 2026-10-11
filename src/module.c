@@ -1391,12 +1391,13 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
 
 /* Compile a single module to an object file */
 
-bool compile_module_to_object(const char *module_path,
+static bool compile_module_object(const char *module_path,
                               const char *output_obj,
                               Environment *env,
                               bool verbose,
                               char **extra_compile_flags,
-                              size_t extra_compile_flags_count) {
+                              size_t extra_compile_flags_count,
+                              ModuleBuildInfo **dependencies, size_t dependency_count) {
     if (!module_path || !output_obj) return false;
 
     /* env is intentionally unused: module compilation is done in an isolated environment */
@@ -1647,19 +1648,41 @@ bool compile_module_to_object(const char *module_path,
     bool arguments_valid = true;
     const char *root = get_project_root();
 
-    for (size_t i = 0; i < extra_compile_flags_count; i++) {
-        if (!extra_compile_flags || !extra_compile_flags[i] || extra_compile_flags[i][0] == '\0') {
-            continue;
-        }
-        if (strlen(inherited_flags) + strlen(extra_compile_flags[i]) + 2 < sizeof(inherited_flags)) {
-            if (inherited_flags[0] != '\0') {
-                strcat(inherited_flags, " ");
+    /* I inherit flags only from this isolated module's actual import closure. */
+    ModuleBuildInfo **selected = dependency_count ? calloc(dependency_count, sizeof *selected) : NULL;
+    size_t selected_count = 0, import_flag_count = 0;
+    if (dependency_count && !selected) arguments_valid = false;
+    for (size_t i = 0; selected && i < dependency_count; ++i) {
+        const char *directory = dependencies[i]->module_dir;
+        if (!directory) continue;
+        for (int j = 0; module_cache && j < module_cache->count; ++j) {
+            const char *path = module_cache->loaded_paths[j];
+            const char *slash = strrchr(path, '/');
+            if (slash && strlen(directory) == (size_t)(slash - path) &&
+                !strncmp(path, directory, (size_t)(slash - path))) {
+                selected[selected_count++] = dependencies[i];
+                break;
             }
-            strcat(inherited_flags, extra_compile_flags[i]);
-        } else {
-            arguments_valid = false;
         }
     }
+    char **import_flags = module_get_compile_flags(selected, selected_count, &import_flag_count);
+    if (!import_flags)
+        for (size_t i = 0; i < selected_count; ++i)
+            if (selected[i]->compile_flags_count) arguments_valid = false;
+    free(selected);
+    for (int group = 0; group < 2; ++group) {
+        char **flags = group ? import_flags : extra_compile_flags;
+        size_t count = group ? import_flag_count : extra_compile_flags_count;
+        for (size_t i = 0; i < count; ++i) {
+            if (!flags || !flags[i] || !flags[i][0]) continue;
+            if (strlen(inherited_flags) + strlen(flags[i]) + 2 < sizeof inherited_flags) {
+                if (inherited_flags[0]) strcat(inherited_flags, " ");
+                strcat(inherited_flags, flags[i]);
+            } else arguments_valid = false;
+        }
+    }
+    for (size_t i = 0; i < import_flag_count; ++i) free(import_flags[i]);
+    free(import_flags);
 
     /* Extract the module's own directory for -I path (so it can find its own headers) */
     char module_dir[512] = "";
@@ -1767,6 +1790,13 @@ bool compile_module_to_object(const char *module_path,
     /* Don't free AST or environment - they're owned by the cache/caller */
     free_environment(module_env);
     return true;
+}
+
+bool compile_module_to_object(const char *module_path, const char *output_obj,
+                              Environment *env, bool verbose,
+                              char **extra_compile_flags, size_t extra_compile_flags_count) {
+    return compile_module_object(module_path, output_obj, env, verbose,
+                                 extra_compile_flags, extra_compile_flags_count, NULL, 0);
 }
 
 /* Check if a module is FFI-only (only extern declarations, no implementation) */
@@ -1948,7 +1978,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
                 char nano_obj[512];
                 snprintf(nano_obj, sizeof(nano_obj), "obj/nano_modules/%s_nano_%s.o", meta->name, base_without_ext);
                 
-                if (!compile_module_to_object(module_path, nano_obj, env, verbose, info->compile_flags, info->compile_flags_count)) {
+                if (!compile_module_object(module_path, nano_obj, env, verbose, info->compile_flags, info->compile_flags_count, build_infos, (size_t)build_info_count)) {
                     fprintf(stderr, "Error: Failed to compile nanolang parts of module '%s'\n", meta->name);
                     module_metadata_free(meta);
                     free(module_dir);
@@ -2017,7 +2047,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
 #pragma GCC diagnostic pop
 
             /* Compile module to object file */
-            if (!compile_module_to_object(module_path, obj_file, env, verbose, NULL, 0)) {
+            if (!compile_module_object(module_path, obj_file, env, verbose, NULL, 0, build_infos, (size_t)build_info_count)) {
                 fprintf(stderr, "Error: Failed to compile module '%s'\n", module_path);
                 free(module_dir);
                 module_builder_free(builder);

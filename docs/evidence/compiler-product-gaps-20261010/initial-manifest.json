@@ -1,0 +1,86 @@
+{
+  "revision": "73571dba57fcde32eb842d32fdca2d6b4f0f12be",
+  "steps": [
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_virt",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "--strip-debug",
+        "-o",
+        "/private/tmp/nl51-product-current-4km8h7zs/nano-one-ir-compiler-pxkd52os/compiler.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 27.238016167015303,
+      "stdout": "00.stdout",
+      "stderr": "00.stderr"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-product-current-4km8h7zs/nano-one-ir-compiler-pxkd52os/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-product-current-4km8h7zs/nano-one-ir-compiler-pxkd52os/compiler.c"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.973538708989508,
+      "stdout": "01.stdout",
+      "stderr": "01.stderr"
+    },
+    {
+      "argv": [
+        "/usr/bin/cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-product-current-4km8h7zs/nano-one-ir-compiler-pxkd52os/compiler.c",
+        "-o",
+        "/private/tmp/nl51-product-current-4km8h7zs/nano-one-ir-compiler-pxkd52os/compiler",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.619082916004118,
+      "stdout": "02.stdout",
+      "stderr": "02.stderr"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-product-current-4km8h7zs/nano-one-ir-compiler-pxkd52os/compiler",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.012904874980449677,
+      "stdout": "03.stdout",
+      "stderr": "03.stderr"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_captures",
+        "tests.test_native_mutable_record_arrays",
+        "tests.test_genenv_scope"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 11.182850041019265,
+      "stdout": "04.stdout",
+      "stderr": "04.stderr"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "-o",
+        "/private/tmp/nl51-product-current-4km8h7zs/nano-selfhost-native-product-ah1syx58/seed"
+      ],
+      "exit_code": 1,
+      "elapsed_seconds": 143.09044341696426,
+      "stdout": "05.stdout",
+      "stderr": "05.stderr"
+    }
+  ]
+}

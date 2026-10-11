@@ -1,0 +1,386 @@
+FFFF.FFFFFFFFFFFFFFFFFFFFFFFFFF...
+======================================================================
+FAIL: test_immediate_zero_capture_identity_and_scope_restore (tests.test_selfhost_captures.SelfhostCaptures.test_immediate_zero_capture_identity_and_scope_restore) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 36, in execute
+    self.assertEqual(self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}).stdout, expected)
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 18, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==91881==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_immediate_zero_capture_identity_and_scope_restore (tests.test_selfhost_captures.SelfhostCaptures.test_immediate_zero_capture_identity_and_scope_restore) (producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 36, in execute
+    self.assertEqual(self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}).stdout, expected)
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 18, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==91890==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_imported_capture_and_shadow_local (tests.test_selfhost_captures.SelfhostCaptures.test_imported_capture_and_shadow_local) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 36, in execute
+    self.assertEqual(self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}).stdout, expected)
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 18, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==91899==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_imported_capture_and_shadow_local (tests.test_selfhost_captures.SelfhostCaptures.test_imported_capture_and_shadow_local) (producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 36, in execute
+    self.assertEqual(self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}).stdout, expected)
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 18, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==91908==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_mutable_instances_containers_and_forwarded_callable (tests.test_selfhost_captures.SelfhostCaptures.test_mutable_instances_containers_and_forwarded_callable) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 26, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 18, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-captured-values-r71gn0jx/input.nano
+I require the returned function value's complete declared signature.
+
+8|     return fn()->fn()->int { return fn()->int { return (f) } }
+       ^
+Hint: Preserve the callback parameter and result identities.
+Warning at line 19, column 24: Unused variable 'temporary'
+error: type check failed
+
+
+======================================================================
+FAIL: test_mutable_instances_containers_and_forwarded_callable (tests.test_selfhost_captures.SelfhostCaptures.test_mutable_instances_containers_and_forwarded_callable) (producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 36, in execute
+    self.assertEqual(self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}).stdout, expected)
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 18, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==91944==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_unchanged_returned_closure_chain (tests.test_selfhost_captures.SelfhostCaptures.test_unchanged_returned_closure_chain) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 26, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 18, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /Users/jordanh/Src/nanolang/docs/evidence/captured-closure-baseline-20261008/capture.nano
+I require the returned function value's complete declared signature.
+
+2|     return fn() -> fn() -> int {
+       ^
+Hint: Preserve the callback parameter and result identities.
+error: type check failed
+
+
+======================================================================
+FAIL: test_unchanged_returned_closure_chain (tests.test_selfhost_captures.SelfhostCaptures.test_unchanged_returned_closure_chain) (producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 36, in execute
+    self.assertEqual(self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}).stdout, expected)
+                     ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 18, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==91954==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_existing_populated_diagnostic_formatter (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_existing_populated_diagnostic_formatter) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==91962==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_existing_populated_diagnostic_formatter (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_existing_populated_diagnostic_formatter) (producer='selfhost')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==91972==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', operation='push', mutation='(array_push alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==91980==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', operation='push', mutation='(array_push alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==91989==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', operation='push', mutation='(add alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==91998==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', operation='push', mutation='(add alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92007==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', operation='push', mutation='(forward alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92015==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', operation='push', mutation='(forward alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92025==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', operation='push', mutation='(wrapped Holder {items:alias} d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92033==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', operation='push', mutation='(wrapped Holder {items:alias} d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92042==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', operation='push', mutation='let callback:fn(array<Diagnostic>, Diagnostic)->void = forward\n (callback alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92050==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', operation='push', mutation='let callback:fn(array<Diagnostic>, Diagnostic)->void = forward\n (callback alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92059==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', operation='set', mutation='(array_set alias 0 d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92067==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', operation='set', mutation='(array_set alias 0 d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92076==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', operation='set', mutation='(add alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92084==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', operation='set', mutation='(add alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92093==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', operation='set', mutation='(forward alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92102==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', operation='set', mutation='(forward alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92111==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', operation='set', mutation='(wrapped Holder {items:alias} d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92119==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', operation='set', mutation='(wrapped Holder {items:alias} d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92128==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', operation='set', mutation='let callback:fn(array<Diagnostic>, Diagnostic)->void = forward\n (callback alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92136==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', operation='set', mutation='let callback:fn(array<Diagnostic>, Diagnostic)->void = forward\n (callback alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92145==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 11.086s
+
+FAILED (failures=30)

@@ -1,0 +1,10 @@
+I run 0 ['/Users/jordanh/Src/nanolang/bin/nvm2c', '/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/rebuilt-compiler.nvm', '-o', '/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/compiler.c']
+I run 1 ['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', '-O0', '/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/compiler.c', '-o', '/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/compiler', '/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o', '-lm']
+I run 2 ['/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/compiler', '--help']
+I run 3 ['python3', '-m', 'unittest', 'tests.test_selfhost_captures', 'tests.test_native_mutable_record_arrays', 'tests.test_genenv_scope']
+I run 4 ['/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/compiler', '/Users/jordanh/Src/nanolang/examples/language/nl_hello.nano', '--emit-nvm', '-o', '/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello.nvm']
+I run 5 ['/Users/jordanh/Src/nanolang/bin/nano_vm', '/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello.nvm']
+I run 6 ['/Users/jordanh/Src/nanolang/bin/nvm2c', '/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello.nvm', '-o', '/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello.c']
+I run 7 ['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', '/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello.c', '-o', '/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello']
+I run 8 ['/private/tmp/nl51-product-current-h8l42nxe/selfhost-followthrough/hello']
+I passed the fresh self-hosted NanoISA compiler product and its acceptance corpus.

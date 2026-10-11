@@ -1,0 +1,24 @@
+F.
+======================================================================
+FAIL: test_named_returned_callable_chain (tests.test_selfhost_captures.SelfhostCaptures.test_named_returned_callable_chain) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 26, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 18, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-named-returned-callable-f10kp8f3/input.nano
+I require the returned function value's complete declared signature.
+
+5| fn outer()->fn()->fn()->int{return middle}
+                               ^
+Hint: Preserve the callback parameter and result identities.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.448s
+
+FAILED (failures=1)

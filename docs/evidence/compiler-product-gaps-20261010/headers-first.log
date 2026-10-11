@@ -1,0 +1,24 @@
+F
+======================================================================
+FAIL: test_pure_nano_dependency_keeps_foreign_headers (tests.test_native_module_generation_selection.NativeModuleGenerationSelection.test_pure_nano_dependency_keeps_foreign_headers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_module_generation_selection.py", line 98, in test_pure_nano_dependency_keeps_foreign_headers
+    self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-pure-import-headers-d8000kei/middle.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-UXtIWD/source.c:29:10: fatal error: 'foreign_value.h' file not found
+   29 | #include "foreign_value.h"  /* priority: 0 */
+      |          ^~~~~~~~~~~~~~~~~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-UXtIWD/source.c
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-pure-import-headers-d8000kei/middle.nano'
+Error: Failed to compile modules
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.527s
+
+FAILED (failures=1)

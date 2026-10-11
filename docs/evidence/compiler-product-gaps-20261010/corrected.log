@@ -1,0 +1,66 @@
+I retain this audit at /private/tmp/nl51-product-current-h8l42nxe
+test_compiler_bytecode_to_native_to_program (__main__.Audit.test_compiler_bytecode_to_native_to_program) ... I run step 00: /Users/jordanh/Src/nanolang/bin/nano_virt /Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano --emit-nvm --strip-debug -o /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler.nvm
+I run step 01: /Users/jordanh/Src/nanolang/bin/nvm2c /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler.nvm -o /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler.c
+I run step 02: /usr/bin/cc -std=c11 -Wall -Wextra -Werror -O0 /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler.c -o /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler /Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o -lm
+I run step 03: /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler --help
+I run step 04: /opt/homebrew/opt/python@3.14/bin/python3.14 -m unittest tests.test_selfhost_captures tests.test_native_mutable_record_arrays tests.test_genenv_scope
+I run step 05: /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler /Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano --emit-nvm -o /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/rebuilt-compiler.nvm
+I run step 06: /Users/jordanh/Src/nanolang/bin/nano_vm --verify-only /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/rebuilt-compiler.nvm
+I run step 07: /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler /Users/jordanh/Src/nanolang/examples/language/nl_hello.nano -o /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello
+I run step 08: /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello
+I run step 09: /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler /Users/jordanh/Src/nanolang/examples/language/nl_hello.nano --emit-nvm -o /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello.nvm
+I run step 10: /Users/jordanh/Src/nanolang/bin/nano_vm /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello.nvm
+I run step 11: /Users/jordanh/Src/nanolang/bin/nvm2c /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello.nvm -o /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello.c
+I run step 12: /usr/bin/cc -std=c11 -Wall -Wextra -Werror /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello.c -o /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello-aot
+I run step 13: /private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello-aot
+ok
+test_selfhost_emitted_compiler_to_native_nanoisa_product (__main__.Audit.test_selfhost_emitted_compiler_to_native_nanoisa_product)
+I execute my canonical emitter before translating its compiler product. ... I run step 14: /Users/jordanh/Src/nanolang/bin/nanoc_c /Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano -o /private/tmp/nl51-product-current-h8l42nxe/nano-selfhost-native-product-_8m1war9/seed
+FAIL
+
+======================================================================
+FAIL: test_selfhost_emitted_compiler_to_native_nanoisa_product (__main__.Audit.test_selfhost_emitted_compiler_to_native_nanoisa_product)
+I execute my canonical emitter before translating its compiler product.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_one_ir_compiler.py", line 379, in test_selfhost_emitted_compiler_to_native_nanoisa_product
+    self.run_checked([ROOT / "bin/nanoc_c", ROOT / "src_nano/nanoc_v06.nano",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "-o", seed], timeout=600)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nl51-corrected-product-audit.py", line 33, in run_checked
+    self.assertEqual(process.returncode,0,(stdout+stderr).decode(errors='replace')[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2871, column 9: Unused variable 'rejected'
+Warning at line 3169, column 9: Unused variable 'rejected'
+Warning at line 3173, column 9: Unused variable 'rejected'
+Warning at line 3177, column 9: Unused variable 'rejected'
+Warning at line 3181, column 9: Unused variable 'rejected'
+Warning at line 3188, column 13: Unused variable 'rejected'
+Warning at line 3337, column 9: Unused variable 'rejected'
+Warning at line 3341, column 9: Unused variable 'rejected'
+Warning at line 3348, column 13: Unused variable 'rejected'
+Warning at line 7267, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2871, column 9: Unused variable 'rejected'
+Warning at line 3169, column 9: Unused variable 'rejected'
+Warning at line 3173, column 9: Unused variable 'rejected'
+Warning at line 3177, column 9: Unused variable 'rejected'
+Warning at line 3181, column 9: Unused variable 'rejected'
+Warning at line 3188, column 13: Unused variable 'rejected'
+Warning at line 3337, column 9: Unused variable 'rejected'
+Warning at line 3341, column 9: Unused variable 'rejected'
+Warning at line 3348, column 13: Unused variable 'rejected'
+Warning at line 7267, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+I stopped shadow execution after 10 seconds.
+Shadow tests failed
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 944.459s
+
+FAILED (failures=1)

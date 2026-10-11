@@ -1,0 +1,156 @@
+I retain this audit at /private/tmp/nl51-product-current-4km8h7zs
+test_compiler_bytecode_to_native_to_program (__main__.Audit.test_compiler_bytecode_to_native_to_program) ... I run step 00: /Users/jordanh/Src/nanolang/bin/nano_virt /Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano --emit-nvm --strip-debug -o /private/tmp/nl51-product-current-4km8h7zs/nano-one-ir-compiler-pxkd52os/compiler.nvm
+I run step 01: /Users/jordanh/Src/nanolang/bin/nvm2c /private/tmp/nl51-product-current-4km8h7zs/nano-one-ir-compiler-pxkd52os/compiler.nvm -o /private/tmp/nl51-product-current-4km8h7zs/nano-one-ir-compiler-pxkd52os/compiler.c
+I run step 02: /usr/bin/cc -std=c11 -Wall -Wextra -Werror -O0 /private/tmp/nl51-product-current-4km8h7zs/nano-one-ir-compiler-pxkd52os/compiler.c -o /private/tmp/nl51-product-current-4km8h7zs/nano-one-ir-compiler-pxkd52os/compiler /Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o -lm
+I run step 03: /private/tmp/nl51-product-current-4km8h7zs/nano-one-ir-compiler-pxkd52os/compiler --help
+I run step 04: /opt/homebrew/opt/python@3.14/bin/python3.14 -m unittest tests.test_selfhost_captures tests.test_native_mutable_record_arrays tests.test_genenv_scope
+FAIL
+test_selfhost_emitted_compiler_to_native_nanoisa_product (__main__.Audit.test_selfhost_emitted_compiler_to_native_nanoisa_product)
+I execute my canonical emitter before translating its compiler product. ... I run step 05: /Users/jordanh/Src/nanolang/bin/nanoc_c /Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano -o /private/tmp/nl51-product-current-4km8h7zs/nano-selfhost-native-product-ah1syx58/seed
+FAIL
+
+======================================================================
+FAIL: test_compiler_bytecode_to_native_to_program (__main__.Audit.test_compiler_bytecode_to_native_to_program)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_one_ir_compiler.py", line 343, in test_compiler_bytecode_to_native_to_program
+    self.run_checked([sys.executable, "-m", "unittest", "tests.test_selfhost_captures",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "tests.test_native_mutable_record_arrays", "tests.test_genenv_scope"],
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     timeout=180, extra_env={"NANOLANG_SELFHOST_COMPILER": str(compiler)})
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nl51-current-product-audit.py", line 27, in run_checked
+    self.assertEqual(process.returncode,0,(stdout+stderr).decode(errors='replace')[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : rays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', operation='set', mutation='(forward alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92102==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', operation='set', mutation='(forward alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92111==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', operation='set', mutation='(wrapped Holder {items:alias} d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92119==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', operation='set', mutation='(wrapped Holder {items:alias} d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92128==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='seed', operation='set', mutation='let callback:fn(array<Diagnostic>, Diagnostic)->void = forward\n (callback alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92136==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+======================================================================
+FAIL: test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) (producer='selfhost', operation='set', mutation='let callback:fn(array<Diagnostic>, Diagnostic)->void = forward\n (callback alias d)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 37, in execute
+    actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+  File "/Users/jordanh/Src/nanolang/tests/test_native_mutable_record_arrays.py", line 19, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : ==92145==AddressSanitizer: detect_leaks is not supported on this platform.
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 11.086s
+
+FAILED (failures=30)
+
+
+======================================================================
+FAIL: test_selfhost_emitted_compiler_to_native_nanoisa_product (__main__.Audit.test_selfhost_emitted_compiler_to_native_nanoisa_product)
+I execute my canonical emitter before translating its compiler product.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_one_ir_compiler.py", line 379, in test_selfhost_emitted_compiler_to_native_nanoisa_product
+    self.run_checked([ROOT / "bin/nanoc_c", ROOT / "src_nano/nanoc_v06.nano",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "-o", seed], timeout=600)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nl51-current-product-audit.py", line 27, in run_checked
+    self.assertEqual(process.returncode,0,(stdout+stderr).decode(errors='replace')[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2871, column 9: Unused variable 'rejected'
+Warning at line 3169, column 9: Unused variable 'rejected'
+Warning at line 3173, column 9: Unused variable 'rejected'
+Warning at line 3177, column 9: Unused variable 'rejected'
+Warning at line 3181, column 9: Unused variable 'rejected'
+Warning at line 3188, column 13: Unused variable 'rejected'
+Warning at line 3337, column 9: Unused variable 'rejected'
+Warning at line 3341, column 9: Unused variable 'rejected'
+Warning at line 3348, column 13: Unused variable 'rejected'
+Warning at line 7267, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2871, column 9: Unused variable 'rejected'
+Warning at line 3169, column 9: Unused variable 'rejected'
+Warning at line 3173, column 9: Unused variable 'rejected'
+Warning at line 3177, column 9: Unused variable 'rejected'
+Warning at line 3181, column 9: Unused variable 'rejected'
+Warning at line 3188, column 13: Unused variable 'rejected'
+Warning at line 3337, column 9: Unused variable 'rejected'
+Warning at line 3341, column 9: Unused variable 'rejected'
+Warning at line 3348, column 13: Unused variable 'rejected'
+Warning at line 7267, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+Error: Failed to compile module '/Users/jordanh/Src/nanolang/src_nano/compiler/service_inputs.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-sQejJq/source.c:29:10: fatal error: 'file_source_inputs.h' file not found
+   29 | #include "file_source_inputs.h"  /* priority: 0 */
+      |          ^~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-sQejJq/source.c
+Error: Failed to compile module '/Users/jordanh/Src/nanolang/src_nano/compiler/service_inputs.nano'
+Error: Failed to compile modules
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 199.543s
+
+FAILED (failures=2)

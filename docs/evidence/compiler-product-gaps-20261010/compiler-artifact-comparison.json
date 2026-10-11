@@ -1,0 +1,12 @@
+{
+  "compiler.nvm": {
+    "before": "96b828282872ee2a7935df6632e9c311154168ca830b9198c3ec6708a0762857",
+    "after": "96b828282872ee2a7935df6632e9c311154168ca830b9198c3ec6708a0762857",
+    "equal": true
+  },
+  "compiler.c": {
+    "before": "a77908f5883c17d20dba0e2505cb52596ba9496c42bc12d2881054eb7e6f508b",
+    "after": "a77908f5883c17d20dba0e2505cb52596ba9496c42bc12d2881054eb7e6f508b",
+    "equal": true
+  }
+}

@@ -2093,6 +2093,15 @@ FunctionSignature *function_signature_from_function(const Function *function) {
     sig->return_struct_name = payload_name(function->return_struct_type_name);
     sig->return_fn_sig = payload_signature(function->return_fn_sig, 0);
     sig->return_type_info = payload_copy(function->return_type_info, 0);
+    /* I retain nested callable results in both complete annotation views. */
+    if (sig->return_type == TYPE_FUNCTION && sig->return_fn_sig) {
+        if (!sig->return_type_info) {
+            sig->return_type_info = payload_alloc(1, sizeof *sig->return_type_info);
+            sig->return_type_info->base_type = TYPE_FUNCTION;
+        }
+        if (!sig->return_type_info->fn_sig)
+            sig->return_type_info->fn_sig = payload_signature(sig->return_fn_sig, 0);
+    }
     if (sig->param_count) {
         sig->param_types = payload_alloc((size_t)sig->param_count, sizeof(Type));
         sig->param_struct_names = payload_alloc((size_t)sig->param_count, sizeof(char*));

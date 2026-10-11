@@ -39,6 +39,38 @@ class SelfhostCaptures(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='nano-captured-chain-') as tmp:
             self.execute(ROOT / 'docs/evidence/captured-closure-baseline-20261008/capture.nano', Path(tmp), '42\n')
 
+    def test_named_returned_callable_chain(self):
+        source = '''fn value()->int{return 42}
+shadow value {assert (== (value) 42)}
+fn middle()->fn()->int{return value}
+shadow middle {let f:fn()->int=(middle) assert (== (f) 42)}
+fn outer()->fn()->fn()->int{return middle}
+shadow outer {let f:fn()->fn()->int=(outer) let g:fn()->int=(f) assert (== (g) 42)}
+fn main()->int {let f:fn()->fn()->int=(outer) let g:fn()->int=(f) (println (g)) return 0}
+shadow main {assert (== (main) 0)}
+'''
+        with tempfile.TemporaryDirectory(prefix='nano-named-returned-callable-') as tmp:
+            work = Path(tmp)
+            path = work/'input.nano'
+            path.write_text(source)
+            self.execute(path, work, '42\n')
+
+    def test_incompatible_returned_callable_preserves_output(self):
+        for expression in ('middle', 'fn()->fn()->bool{return value}'):
+            with self.subTest(expression=expression), tempfile.TemporaryDirectory() as tmp:
+                work = Path(tmp)
+                source, output = work/'input.nano', work/'output.nvm'
+                source.write_text('fn value()->bool{return true} shadow value {assert (value)}\n'
+                    'fn middle()->fn()->bool{return value} shadow middle {let f:fn()->bool=(middle) assert (f)}\n'
+                    'fn bad()->fn()->fn()->int{return '+expression+'} shadow bad {assert true}\n'
+                    'fn main()->int{return 0} shadow main {assert true}\n')
+                output.write_bytes(b'prior module')
+                result = subprocess.run([ROOT/'bin/nano_virt', source, '--emit-nvm', '-o', output],
+                    capture_output=True, text=True, timeout=120)
+                self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+                self.assertIn('complete declared signature', result.stderr)
+                self.assertEqual(output.read_bytes(), b'prior module')
+
     def test_mutable_instances_containers_and_forwarded_callable(self):
         source = '''struct Box { callback: fn()->int, names: array<string> }
 fn counter(start:int)->fn()->int {

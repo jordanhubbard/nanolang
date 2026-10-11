@@ -1,0 +1,44 @@
+...FF.....
+======================================================================
+FAIL: test_mutable_instances_containers_and_forwarded_callable (tests.test_selfhost_captures.SelfhostCaptures.test_mutable_instances_containers_and_forwarded_callable) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 26, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 18, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-captured-values-evs5r1yo/input.nano
+I require the returned function value's complete declared signature.
+
+8|     return fn()->fn()->int { return fn()->int { return (f) } }
+       ^
+Hint: Preserve the callback parameter and result identities.
+Warning at line 19, column 24: Unused variable 'temporary'
+error: type check failed
+
+
+======================================================================
+FAIL: test_unchanged_returned_closure_chain (tests.test_selfhost_captures.SelfhostCaptures.test_unchanged_returned_closure_chain) (producer='seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 26, in execute
+    self.checked([compiler, source, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_captures.py", line 18, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /Users/jordanh/Src/nanolang/docs/evidence/captured-closure-baseline-20261008/capture.nano
+I require the returned function value's complete declared signature.
+
+2|     return fn() -> fn() -> int {
+       ^
+Hint: Preserve the callback parameter and result identities.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 17.680s
+
+FAILED (failures=2)

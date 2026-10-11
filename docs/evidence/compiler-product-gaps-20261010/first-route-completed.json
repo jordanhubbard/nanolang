@@ -1,0 +1,178 @@
+{
+  "steps": [
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_virt",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "--strip-debug",
+        "-o",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 25.31863566703396,
+      "stdout": "00.stdout",
+      "stderr": "00.stderr"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler.c"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 10.83790362504078,
+      "stdout": "01.stdout",
+      "stderr": "01.stderr"
+    },
+    {
+      "argv": [
+        "/usr/bin/cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler.c",
+        "-o",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 6.486007083032746,
+      "stdout": "02.stdout",
+      "stderr": "02.stderr"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler",
+        "--help"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.022723665984813124,
+      "stdout": "03.stdout",
+      "stderr": "03.stderr"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_captures",
+        "tests.test_native_mutable_record_arrays",
+        "tests.test_genenv_scope"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 18.916977624990977,
+      "stdout": "04.stdout",
+      "stderr": "04.stderr"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/rebuilt-compiler.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 742.0037201250088,
+      "stdout": "05.stdout",
+      "stderr": "05.stderr"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/rebuilt-compiler.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.04743304097792134,
+      "stdout": "06.stdout",
+      "stderr": "06.stderr"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler",
+        "/Users/jordanh/Src/nanolang/examples/language/nl_hello.nano",
+        "-o",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.29960404202574864,
+      "stdout": "07.stdout",
+      "stderr": "07.stderr"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.009577416989486665,
+      "stdout": "08.stdout",
+      "stderr": "08.stderr"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/compiler",
+        "/Users/jordanh/Src/nanolang/examples/language/nl_hello.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.03528912499314174,
+      "stdout": "09.stdout",
+      "stderr": "09.stderr"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello.nvm"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.00619599997298792,
+      "stdout": "10.stdout",
+      "stderr": "10.stderr"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello.nvm",
+        "-o",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello.c"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.005638291011564434,
+      "stdout": "11.stdout",
+      "stderr": "11.stderr"
+    },
+    {
+      "argv": [
+        "/usr/bin/cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello.c",
+        "-o",
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello-aot"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.061556291999295354,
+      "stdout": "12.stdout",
+      "stderr": "12.stderr"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-product-current-h8l42nxe/nano-one-ir-compiler-d3fe66ju/hello-aot"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.008306499978061765,
+      "stdout": "13.stdout",
+      "stderr": "13.stderr"
+    }
+  ]
+}
