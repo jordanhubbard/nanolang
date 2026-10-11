@@ -71,7 +71,7 @@ RET
                     native = self.command(binary)
                     self.assertEqual(vm.stdout, native.stdout)
 
-    def test_conflicting_heap_and_scalar_fields_still_refuse(self):
+    def test_non_integer_array_and_scalar_fields_still_refuse(self):
         text = '''.string 0 "kept"
 .types 0 0 1
 .entry main
@@ -80,7 +80,8 @@ PUSH_I64 7
 AGG_PACK 1 0 0 1
 CALL 1
 POP
-ARR_NEW 1
+PUSH_STR 0
+ARR_LITERAL 5 1
 AGG_PACK 1 0 1 1
 CALL 1
 RET
@@ -101,3 +102,29 @@ RET
             self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
             self.assertIn('conflicting kinds', result.stderr)
             self.assertEqual(output.read_text(), 'retained')
+
+    def test_integer_array_and_scalar_tags_execute(self):
+        # I admit this finite carrier under NATIVE_VARIANT_ARRAY_CARRIERS.md.
+        from tests import test_native_variant_array_carriers as carriers
+        carriers.VariantArrayCarriers().paired(carriers.HEADER + """.function main 0 0 0 int 1
+PUSH_I64 7
+AGG_PACK 1 0 0 1
+CALL read
+PUSH_I64 0
+I64_EQ
+ASSERT
+ARR_NEW 1
+AGG_PACK 1 0 1 1
+CALL read
+PUSH_I64 1
+I64_EQ
+ASSERT
+PUSH_I64 0
+RET
+.end
+.function read 1 1 0 int 1
+LOAD_LOCAL 0
+AGG_TAG
+RET
+.end
+""")

@@ -905,6 +905,20 @@ static NvmShapeId shape_child(Nvm2cBuf *b, NvmShapeId parent, uint32_t index) {
     return child;
 }
 
+/* I extract the admitted integer-array member without equating its finite
+ * variant carrier with an array. Runtime consumers still validate the tag,
+ * integer storage kind and handle before accessing elements. */
+static NvmShapeId checked_array_payload(Nvm2cBuf *b, const Nvm2cSimSlot *array) {
+    if (array->kind == NVM2C_VK_VALUE && variant_payload_tags(array->scalar_tags) &&
+        (array->scalar_tags & (1u << TAG_ARRAY))) {
+        NvmShapeId extracted = 0;
+        shape_variable(b, &extracted);
+        shape_kind(b, extracted, NVM2C_VK_ARR);
+        return extracted;
+    }
+    return array->kind == NVM2C_VK_VALUE ? shape_child(b, array->shape, 0) : array->shape;
+}
+
 /* I give proved numeric or constructor-derived finite storage its own payload set. */
 static int shape_carrier_box(Nvm2cBuf *b, NvmShapeId id, uint16_t tags) {
     if (!b->track_shapes) return 1;
@@ -2210,7 +2224,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_ARR_REMOVE: {
             Nvm2cSimSlot index, array;
             if (!sim_pop(b, idx, stk, &sp, &index) || !sim_pop(b, idx, stk, &sp, &array)) return 0;
-            NvmShapeId payload = array.kind == NVM2C_VK_VALUE ? shape_child(b, array.shape, 0) : array.shape;
+            NvmShapeId payload = checked_array_payload(b, &array);
             if (!shape_type(b, payload, NVM_SHAPE_ARRAY)) return 0;
             array.origin = -1;
             if (!sim_push_slot(b, idx, stk, &sp, array)) return 0;
@@ -2221,7 +2235,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &end) ||
                 !sim_pop(b, idx, stk, &sp, &start_value) ||
                 !sim_pop(b, idx, stk, &sp, &array)) return 0;
-            NvmShapeId payload = array.kind == NVM2C_VK_VALUE ? shape_child(b, array.shape, 0) : array.shape;
+            NvmShapeId payload = checked_array_payload(b, &array);
             if (!shape_type(b, payload, NVM_SHAPE_ARRAY)) return 0;
             if (array.kind != NVM2C_VK_UNK && array.kind != NVM2C_VK_VALUE &&
                 !word_array_storage(array.kind) && array.kind != NVM2C_VK_SARR &&
@@ -2231,6 +2245,9 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             NvmShapeId original = payload;
             array.shape = shape_variable(b, b->shape_current);
             array.origin = -1;
+            /* I return a new array after checked extraction, not the input's
+             * finite scalar/array alternative set. */
+            array.scalar_tags = 0;
             payload = array.shape;
             if (array.kind == NVM2C_VK_VALUE) {
                 if (!shape_type(b, array.shape, NVM_SHAPE_OPTIONAL)) return 0;
@@ -2259,8 +2276,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_ARR_POP: {
             Nvm2cSimSlot array, value = {0};
             if (!sim_pop(b, idx, stk, &sp, &array)) return 0;
-            if (array.kind == NVM2C_VK_VALUE)
-                array.shape = shape_child(b, array.shape, 0);
+            array.shape = checked_array_payload(b, &array);
             if (!shape_type(b, array.shape, NVM_SHAPE_ARRAY)) return 0;
             value.kind = NVM2C_VK_VALUE;
             value.origin = -1;
@@ -2277,7 +2293,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
             (void)ix;
             if (arr.kind == NVM2C_VK_VALUE) {
-                NvmShapeId payload = shape_child(b, arr.shape, 0);
+                NvmShapeId payload = checked_array_payload(b, &arr);
                 NvmShapeId result = shape_variable(b, b->shape_current);
                 if (!shape_type(b, payload, NVM_SHAPE_ARRAY) ||
                     !shape_type(b, result, NVM_SHAPE_OPTIONAL) ||

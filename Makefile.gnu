@@ -5389,7 +5389,7 @@ test-units: test-canonical-string-builtins
 # I qualify finite variant payloads separately from compiler bootstrap.
 .PHONY: test-native-variant-array-carriers
 test-native-variant-array-carriers: nvm2c nanoisa_dump nano_vm test-nvm2c-shapes
-	python3 -m unittest tests.test_native_variant_array_carriers tests.test_native_variant_scalar_carriers
+	CC="$(CC)" python3 -m unittest tests.test_native_variant_array_carriers tests.test_native_variant_scalar_carriers
 
 .PHONY: test-native-generic-scalar-array
 test-native-generic-scalar-array: nvm2c nano_vm
@@ -5402,7 +5402,8 @@ test-units: test-native-variant-scalar-carriers
 
 .PHONY: test-native-union-padding
 test-native-union-padding: nvm2c nanoisa_dump nano_vm
-	python3 -m unittest -v tests.test_native_union_padding
+	CC="$(CC)" python3 -m unittest -v tests.test_native_union_padding
+test-nvm2c: test-native-variant-array-carriers test-native-union-padding
 
 .PHONY: test-canonical-filesystem
 test-canonical-filesystem: bootstrap nano_vm nvm2c nvm2c-runtime
