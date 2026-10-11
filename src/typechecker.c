@@ -6165,6 +6165,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 Value dummy = create_void();
                 env_define_var_with_type_info(tc->env, stmt->as.par_let.names[i],
                     t, TYPE_UNKNOWN, NULL, false, dummy);
+                /* I expose every group binding only after all initializers. */
+                Symbol *symbol = env_get_var(tc->env, stmt->as.par_let.names[i]);
+                if (symbol) {
+                    symbol->def_line = stmt->line;
+                    symbol->def_column = stmt->column;
+                    symbol->flow_start_line = stmt->as.par_let.body->line;
+                    symbol->flow_start_column = stmt->as.par_let.body->column;
+                }
             }
             /* Type-check body with all bindings in scope */
             return check_expression(stmt->as.par_let.body, tc->env);

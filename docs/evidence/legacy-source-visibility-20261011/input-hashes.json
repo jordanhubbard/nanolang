@@ -1,0 +1,5 @@
+{
+  "src/typechecker.c": "6f22794592e3bebad17f207a2f417916446690331c935882bf1116f54e6c5660",
+  "src/transpiler_iterative_v3_twopass.c": "68c52d08f699dae4933ebddb9a1c85b9435f562c3d8aa7bbcfa164eda24d20be",
+  "tests/test_legacy_par_let.py": "ddef491eaa1f90e659cf5f4a09c51383ee6a1964d25917d4b78605958cc7d017"
+}

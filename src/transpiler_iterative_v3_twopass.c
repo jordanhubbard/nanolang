@@ -3754,8 +3754,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
             emit_indent_item(list, indent);
             emit_literal(list, "/* par-let end */\n");
             emit_indent_item(list, indent);
+            emit_literal(list, "(void)(");
             build_expr(list, stmt->as.par_let.body, env);
-            emit_literal(list, ";\n");
+            emit_literal(list, ");\n");
             break;
         case AST_MATCH: {
             /* Use the checked domain rather than reconstructing it from arms.
