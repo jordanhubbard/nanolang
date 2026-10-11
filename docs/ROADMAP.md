@@ -1,5 +1,7 @@
 # My Roadmap
 
+- [x] Under #976 I retain complete native global declaration types. My callback-storage control exposes `static struct global;` instead of the declared record type. I require record, tuple, callable and enum global execution, including mutation and generic initialization, without erasing nominal identity. My [native global evidence](evidence/native-global-types-20261010/README.md) records six new global methods, 47 native and compiler-sanitizer methods, 84 NanoISA regressions and 17 adjacent global/enum methods. Native callback fields and arrays remain open.
+
 - [x] Under #976 I preserve callable-bearing record globals in C AOT. My callback-storage global/reassignment control passes module verification and NanoVM through both producers, but the translated binary aborts at a native invariant. I require exact callable/aggregate identity and executed C AOT parity without removing the invariant. My [callback storage evidence](evidence/generic-callback-storage-20261010/README.md) records 84 passing methods per producer, 25 compiler-sanitizer methods, 19 callable/closure methods and all 2,443 C AOT checks. Legacy native storage and final release qualification remain open.
 
 - [ ] Under #976 I execute callback-bearing aggregate storage through the native path. My new array fixture fails interpreter shadows with unsupported array element type, and a record callback field emits an incomplete C declaration. I require evaluator array-callable support and native record-field/array representation before claiming native storage parity.

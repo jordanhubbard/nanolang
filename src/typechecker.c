@@ -5016,11 +5016,15 @@ static bool check_global_union_value(Environment *env,const char *name,
         "Preserve the global union identity in every value arm.");
     return false;
 }
-static void resolve_global_union_annotation(Environment *env,ASTNode *item) {
+static void resolve_global_nominal_annotation(Environment *env,ASTNode *item) {
     if(item->as.let.var_type==TYPE_STRUCT && item->as.let.type_name &&
        env_get_union(env,item->as.let.type_name)) {
         item->as.let.var_type=TYPE_UNION;
         if(item->as.let.type_info)item->as.let.type_info->base_type=TYPE_UNION;
+    } else if (item->as.let.var_type == TYPE_STRUCT && item->as.let.type_name &&
+               env_get_enum(env, item->as.let.type_name)) {
+        item->as.let.var_type = TYPE_ENUM;
+        if (item->as.let.type_info) item->as.let.type_info->base_type = TYPE_ENUM;
     }
 }
 
@@ -8325,13 +8329,26 @@ register_function_pass1:;
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
             /* I provide declared constructor context before checking the initializer. */
-            resolve_global_union_annotation(env,item);
+            resolve_global_nominal_annotation(env,item);
             prepare_map_initializer(&tc, item);
+            /* I expose global callback context before specializing its initializer. */
+            if (!retain_let_function_type(&tc, item, item->as.let.var_type)) continue;
             check_concrete_union_arrays(env, item->as.let.type_info, item->as.let.value, 0);
             Type value_type = check_expression(item->as.let.value, env);
             if(item->as.let.var_type==TYPE_UNION &&
                !check_global_union_value(env,item->as.let.type_name,item->as.let.type_info,item->as.let.value))
                 tc.has_error=true;
+            if (item->as.let.var_type == TYPE_ENUM) {
+                TypeInfo expected = {.base_type=TYPE_ENUM, .generic_name=item->as.let.type_name};
+                TypeInfo *actual = copy_generic_argument_info(item->as.let.value, env, 0);
+                if (!actual || !reduce_types_exact(&expected, actual, env, 0)) {
+                    emit_context_error("E001 TYPE MISMATCH", item->line, item->column, 1,
+                        "I require the declared global enum identity.",
+                        "Initialize this global with the declared enum.");
+                    tc.has_error = true;
+                }
+                free_payload_type_info(actual);
+            }
             check_global_ownership(env, item, &tc.has_error);
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
                     item->as.let.type_name, item->as.let.value)) tc.has_error = true;
@@ -8379,7 +8396,7 @@ register_function_pass1:;
                 if (sym->struct_type_name) free(sym->struct_type_name);
                 sym->struct_type_name = NULL;
 
-                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION) {
+                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION || item->as.let.var_type == TYPE_ENUM) {
                     sym->struct_type_name = strdup(item->as.let.type_name);
                     mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
                 } else if (item->as.let.var_type == TYPE_ARRAY && item->as.let.element_type == TYPE_STRUCT) {
@@ -9090,13 +9107,26 @@ register_function_pass2:;
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_LET) {
             /* I provide declared constructor context before checking the initializer. */
-            resolve_global_union_annotation(env,item);
+            resolve_global_nominal_annotation(env,item);
             prepare_map_initializer(&tc, item);
+            /* I expose global callback context before specializing its initializer. */
+            if (!retain_let_function_type(&tc, item, item->as.let.var_type)) continue;
             check_concrete_union_arrays(env, item->as.let.type_info, item->as.let.value, 0);
             Type value_type = check_expression(item->as.let.value, env);
             if(item->as.let.var_type==TYPE_UNION &&
                !check_global_union_value(env,item->as.let.type_name,item->as.let.type_info,item->as.let.value))
                 tc.has_error=true;
+            if (item->as.let.var_type == TYPE_ENUM) {
+                TypeInfo expected = {.base_type=TYPE_ENUM, .generic_name=item->as.let.type_name};
+                TypeInfo *actual = copy_generic_argument_info(item->as.let.value, env, 0);
+                if (!actual || !reduce_types_exact(&expected, actual, env, 0)) {
+                    emit_context_error("E001 TYPE MISMATCH", item->line, item->column, 1,
+                        "I require the declared global enum identity.",
+                        "Initialize this global with the declared enum.");
+                    tc.has_error = true;
+                }
+                free_payload_type_info(actual);
+            }
             check_global_ownership(env, item, &tc.has_error);
             if (!check_record_array_contract(env, item->as.let.var_type, item->as.let.element_type,
                     item->as.let.type_name, item->as.let.value)) tc.has_error = true;
@@ -9144,7 +9174,7 @@ register_function_pass2:;
                 if (sym->struct_type_name) free(sym->struct_type_name);
                 sym->struct_type_name = NULL;
 
-                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION) {
+                if (item->as.let.var_type == TYPE_STRUCT || item->as.let.var_type == TYPE_UNION || item->as.let.var_type == TYPE_ENUM) {
                     sym->struct_type_name = strdup(item->as.let.type_name);
                     mark_variable_as_resource_if_needed(env, item->as.let.name, item->as.let.type_name);
                 } else if (item->as.let.var_type == TYPE_ARRAY && item->as.let.element_type == TYPE_STRUCT) {

@@ -4337,10 +4337,14 @@ static void generate_toplevel_globals(StringBuilder *sb, ASTNode *program, Envir
             } else {
                 sb_append(sb, "void*");
             }
-        } else if (item->as.let.var_type == TYPE_UNION && item->as.let.type_info) {
-            emit_native_type_info(env, sb, item->as.let.type_info);
         } else {
-            sb_append(sb, type_to_c(item->as.let.var_type));
+            /* I retain the complete declared global type just as I do at
+             * callable boundaries, including nominal and tuple identity. */
+            TypeInfo function = {.base_type=TYPE_FUNCTION, .fn_sig=item->as.let.fn_sig};
+            emit_signature_type(sb, env, item->as.let.var_type,
+                item->as.let.type_name,
+                item->as.let.type_info ? item->as.let.type_info :
+                    item->as.let.var_type == TYPE_FUNCTION ? &function : NULL);
         }
         sb_appendf(sb, " %s", item->as.let.name);
         if (is_const_init) {
