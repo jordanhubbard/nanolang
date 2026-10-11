@@ -4463,6 +4463,8 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             compile_expr(cg, node->as.par_let.values[i]);
             uint16_t slot = local_add(cg, node->as.par_let.names[i], node->line);
             emit_op(cg, OP_STORE_LOCAL, (int)slot);
+            local_name_begin(cg,slot,node->as.par_let.names[i],
+                             check_expression(node->as.par_let.values[i],cg->env),node->line);
         }
         compile_expr(cg, node->as.par_let.body);
         if (expr_leaves_value(cg, node->as.par_let.body))

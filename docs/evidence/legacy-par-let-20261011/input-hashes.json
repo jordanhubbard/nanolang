@@ -1,0 +1,15 @@
+{
+  "schema/compiler_schema.json": "70cc9b2b39e5fe1ba77c806b701d3e46cfddfd8f4266512180a29c6cdc5cf813",
+  "src/generated/compiler_schema.h": "c68d4e1cd2ee4aef02decfb0e754296bea6472bc318545b0f08b8d4aa02f38d8",
+  "src_nano/generated/compiler_ast.nano": "039a334aef3c84256733630d8a8201b7a3ae0b44c280fcbcc9252d865c6278b0",
+  "src_nano/parser.nano": "d64eadde13f6fea0c69bedef94b2b7a4f1558c0ed6a1ffa9c71e838c4eb2c786",
+  "src_nano/typecheck.nano": "a536c97cb103d1a50b1cff2324d57f72f4a7c054231a230a113bd8b647d2ca22",
+  "src_nano/compiler/nanoisa_codegen.nano": "0d9e510dc6a31db789e4762e5fb3deec12e27646367c3f56020493db01b5c910",
+  "src_nano/compiler/owner_selection.nano": "360cea2e71727c995bd44495ebb87937b5c7a6e5c1607b514fc086147a3871f7",
+  "src_nano/compiler/passive_purity.nano": "b653194da5844b6bb240a6837d5064441b97bfe64d37bfd8fe02be8314a9c40a",
+  "src_nano/compiler/nanoisa_borrows.nano": "a925cf3b0f941db85239c0a38b66face2725a88adf88cb63aa2a6df938a436a2",
+  "src/nanovirt/codegen.c": "a9ad10fcd4060889c26fee78f0efe927e2c516ba422d9c7897e1e0d33a092925",
+  "src/typechecker.c": "e5e89147bf583ea6a0282ab082eaa49a474222fa8742041d5280a42a29412048",
+  "tests/test_local_binding_metadata.py": "c441ac3ebcc7584e3b7e8a772828a50fce8aa85f51ff1e4ac001cd9a74ee5075",
+  "tests/test_legacy_par_let.py": "fa2038d7af6dda34f32e0f89fe587863580b8cfb3b4d080378a2694044a9171a"
+}

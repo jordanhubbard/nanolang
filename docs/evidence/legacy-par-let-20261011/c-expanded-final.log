@@ -1,0 +1,20 @@
+test_aggregate_and_callable_capture_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_aggregate_and_callable_capture_names) ... ok
+test_aggregate_and_callable_parameters_and_locals (tests.test_local_binding_metadata.LocalBindingMetadata.test_aggregate_and_callable_parameters_and_locals) ... ok
+test_array_name_is_retained (tests.test_local_binding_metadata.LocalBindingMetadata.test_array_name_is_retained) ... ok
+test_generated_tuple_owner_is_omitted_without_reserving_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_generated_tuple_owner_is_omitted_without_reserving_names) ... ok
+test_global_initializer_lambda_and_imported_passive_offsets (tests.test_local_binding_metadata.LocalBindingMetadata.test_global_initializer_lambda_and_imported_passive_offsets) ... ok
+test_imported_generated_owner_and_source_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_imported_generated_owner_and_source_names) ... ok
+test_iteration_names_have_separate_lexical_intervals (tests.test_local_binding_metadata.LocalBindingMetadata.test_iteration_names_have_separate_lexical_intervals) ... ok
+test_legacy_par_let_discards_expression_results (tests.test_local_binding_metadata.LocalBindingMetadata.test_legacy_par_let_discards_expression_results) ... ok
+test_legacy_par_let_names_effects_and_enclosing_scope (tests.test_local_binding_metadata.LocalBindingMetadata.test_legacy_par_let_names_effects_and_enclosing_scope) ... ok
+test_match_arm_names_include_guard_and_exclude_other_arms (tests.test_local_binding_metadata.LocalBindingMetadata.test_match_arm_names_include_guard_and_exclude_other_arms) ... ok
+test_nested_functions_keep_separate_local_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_nested_functions_keep_separate_local_names) ... ok
+test_parameters_shadowed_bindings_and_loop (tests.test_local_binding_metadata.LocalBindingMetadata.test_parameters_shadowed_bindings_and_loop) ... ok
+test_shadowed_array_intervals (tests.test_local_binding_metadata.LocalBindingMetadata.test_shadowed_array_intervals) ... ok
+test_specialized_array_parameter_keeps_source_name (tests.test_local_binding_metadata.LocalBindingMetadata.test_specialized_array_parameter_keeps_source_name) ... ok
+test_dependencies_and_malformed_groups_preserve_output (tests.test_legacy_par_let.LegacyParLet.test_dependencies_and_malformed_groups_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 8.914s
+
+OK

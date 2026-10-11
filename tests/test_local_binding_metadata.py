@@ -351,4 +351,39 @@ shadow main {assert (== (main) 0)}
             with self.subTest(order=order):
                 self.produce(program,0,inspect)
 
+    def test_legacy_par_let_names_effects_and_enclosing_scope(self):
+        source='''let mut trace:int = 0
+fn mark(value:int)->int {set trace (+ (* trace 10) value) return value}
+shadow mark {assert true}
+fn finish(left:int,right:int)->int {assert (== (+ left right) 3) set trace (+ (* trace 10) 3) return 0}
+shadow finish {assert true}
+fn main()->int {
+ set trace 0
+ let _:int = 99
+ par-let _=(mark 1) other=(mark 2) in (finish _ other)
+ assert (== trace 123)
+ assert (== _ 1)
+ assert (== other 2)
+ par-let values=[7,9] word="kept" in (array_length values)
+ assert (== (array_length values) 2)
+ assert (== word "kept")
+ let original:int=6
+ par-let original=(+ original 1) in original
+ assert (== original 7)
+ return 0
+}
+shadow main {assert (== (main) 0)}
+'''
+        def inspect(bindings):
+            self.assertEqual(sorted(b[4] for b in bindings if b[0]=='main'),['_','_','original','original','other','values','word'])
+        self.produce(source,0,inspect)
+
+    def test_legacy_par_let_discards_expression_results(self):
+        for body in ['1.5','"kept"','[7,9]','(7,true)','Item {value:7}']:
+            with self.subTest(body=body):
+                source='struct Item {value:int}\nfn main()->int {par-let value=7 in '+body+' return value}\nshadow main {assert (== (main) 7)}\n'
+                def inspect(bindings):
+                    self.assertEqual([b[4] for b in bindings if b[0]=='main'],['value'])
+                self.produce(source,7,inspect)
+
 if __name__=="__main__": unittest.main()

@@ -6567,6 +6567,20 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
     if (== stmt.node_type ParseNodeType.PNODE_MATCH) { return (nisa_emit_match parser stmt.node_id) }
     if (== stmt.node_type ParseNodeType.PNODE_BLOCK) {
         let block: ASTBlock = (parser_get_block parser stmt.node_id)
+        if block.is_legacy_par {
+            let mut text: string = ""
+            let mut i: int = 0
+            let count: int = (list_ASTStmtRef_length block.statements)
+            while (< i (- count 1)) {
+                set text (+ text (nisa_emit_stmt parser (list_ASTStmtRef_get block.statements i)))
+                set i (+ i 1)
+            }
+            let body: ASTStmtRef = (list_ASTStmtRef_get block.statements (- count 1))
+            let result_type: string = (nisa_expr_type parser body.node_id body.node_type)
+            set text (+ text (nisa_emit_expr parser body.node_id body.node_type))
+            if (!= result_type "void") { set text (+ text (nisa_line "POP")) }
+            return text
+        }
         if block.is_par { return (nisa_emit_par parser block) }
         if block.is_flow { return (nisa_emit_flow parser block) }
     }

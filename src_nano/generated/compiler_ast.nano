@@ -168,7 +168,8 @@ extern struct ASTBlock {
     column: int,
     statements: List<ASTStmtRef>,
     is_par: bool,
-    is_flow: bool
+    is_flow: bool,
+    is_legacy_par: bool
 }
 
 extern struct ASTUnsafeBlock {

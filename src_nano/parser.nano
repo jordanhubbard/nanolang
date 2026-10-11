@@ -5071,7 +5071,7 @@ shadow parser_store_assert {
 /* Helper: Store block node */
 fn parser_store_block(p: Parser, stmts: List<ASTStmtRef>, line: int, column: int) -> Parser {
     let node: ASTBlock = ASTBlock {
-        is_par: false, is_flow: false,
+        is_par: false, is_flow: false, is_legacy_par: false,
         node_type: ParseNodeType.PNODE_BLOCK,
         line: line,
         column: column,
@@ -6150,7 +6150,7 @@ fn parser_mark_passive(p: Parser, is_flow: bool) -> Parser {
     let block: ASTBlock = (parser_get_block p p.last_expr_node_id)
     (list_ASTBlock_set p.blocks p.last_expr_node_id (ASTBlock {
         node_type: block.node_type, line: block.line, column: block.column,
-        statements: block.statements, is_par: (not is_flow), is_flow: is_flow
+        statements: block.statements, is_par: (not is_flow), is_flow: is_flow, is_legacy_par: false
     }))
     return (parser_with_node p ParseNodeType.PNODE_BLOCK p.last_expr_node_id)
 }
@@ -6177,11 +6177,52 @@ shadow parser_mark_par {
     assert (not body.is_par)
 }
 
+# I preserve the group so typechecking can reject sibling dependencies.
+fn parse_legacy_par(p: Parser) -> Parser {
+    let token: LexerToken = (parser_current p)
+    let mut cursor: Parser = (parser_advance (parser_advance (parser_advance p)))
+    let statements: List<ASTStmtRef> = (list_ASTStmtRef_new)
+    while (!= (parser_current cursor).token_type LexerTokenType.TOKEN_IN) {
+        if (or (parser_has_error cursor) (parser_is_at_end cursor)) { return (parser_with_error cursor true) }
+        let name: LexerToken = (parser_current cursor)
+        if (!= name.token_type LexerTokenType.TOKEN_IDENTIFIER) { return (parser_with_error cursor true) }
+        set cursor (parser_expect (parser_advance cursor) LexerTokenType.TOKEN_ASSIGN)
+        if (parser_has_error cursor) { return cursor }
+        set cursor (parse_expression cursor)
+        if (parser_has_error cursor) { return cursor }
+        set cursor (parser_store_let cursor name.value "" cursor.last_expr_node_id cursor.last_expr_node_type false name.line name.column)
+        (list_ASTStmtRef_push statements (ASTStmtRef {node_id:cursor.last_expr_node_id,node_type:ParseNodeType.PNODE_LET}))
+    }
+    set cursor (parse_expression (parser_advance cursor))
+    if (parser_has_error cursor) { return cursor }
+    (list_ASTStmtRef_push statements (ASTStmtRef {node_id:cursor.last_expr_node_id,node_type:cursor.last_expr_node_type}))
+    let result: Parser = (parser_store_block cursor statements token.line token.column)
+    let block: ASTBlock = (parser_get_block result result.last_expr_node_id)
+    (list_ASTBlock_set result.blocks result.last_expr_node_id (ASTBlock {
+        node_type:block.node_type,line:block.line,column:block.column,statements:block.statements,
+        is_par:false,is_flow:false,is_legacy_par:true
+    }))
+    return (parser_with_node result ParseNodeType.PNODE_BLOCK result.last_expr_node_id)
+}
+shadow parse_legacy_par {
+    let tokens: List<LexerToken> = (tokenize_string "par-let left=7 right=8 in (+ left right)" "legacy.nano" (Diagnostics.diag_list_new))
+    let parsed: Parser = (parse_legacy_par (parser_new tokens (list_LexerToken_length tokens) "legacy.nano"))
+    assert (not (parser_has_error parsed))
+    assert (== parsed.last_expr_node_type ParseNodeType.PNODE_BLOCK)
+    let block: ASTBlock = (parser_get_block parsed parsed.last_expr_node_id)
+    assert block.is_legacy_par
+    assert (== (list_ASTStmtRef_length block.statements) 3)
+    assert (== (parser_get_let parsed 0).name "left")
+}
+
 fn parse_statement(p: Parser) -> Parser {
     if (and (== (parser_current p).token_type LexerTokenType.TOKEN_IDENTIFIER) (and (== (parser_current p).value "flow") (== (parser_peek p 1) LexerTokenType.TOKEN_LBRACE))) {
         return (parser_mark_passive (parse_block (parser_advance p)) true)
     }
     if (== (parser_current p).token_type LexerTokenType.TOKEN_PAR) {
+        if (and (== (parser_peek p 1) LexerTokenType.TOKEN_MINUS) (== (parser_peek p 2) LexerTokenType.TOKEN_LET)) {
+            return (parse_legacy_par p)
+        }
         return (parser_mark_par (parse_block (parser_advance p)))
     }
     if (parser_is_at_end p) {

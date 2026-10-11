@@ -745,6 +745,10 @@
         [
           "is_flow",
           "bool"
+        ],
+        [
+          "is_legacy_par",
+          "bool"
         ]
       ],
       "emit_c": true

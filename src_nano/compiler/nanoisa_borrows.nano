@@ -1132,7 +1132,7 @@ fn nb_match_value(parser: Parser, node_id: int, expected: int, expected_layout: 
         let mut kind: int = (at matched.arm_body_types arm_index)
         if (== kind ParseNodeType.PNODE_BLOCK) {
             let block: ASTBlock = (parser_get_block parser body)
-            if (or block.is_par block.is_flow) { return (nb_fail "an ordinary lexical value-match block") }
+            if (or block.is_legacy_par (or block.is_par block.is_flow)) { return (nb_fail "an ordinary lexical value-match block") }
             let count: int = (list_ASTStmtRef_length block.statements)
             if (<= count 0) { return (nb_fail "a final value in every match block") }
             let prefix: List<ASTStmtRef> = (list_ASTStmtRef_new)
@@ -2045,7 +2045,7 @@ shadow nb_increment {
 }
 fn nb_body(parser: Parser, body: int, is_shadow: bool) -> int {
     let block: ASTBlock = (parser_get_block parser body)
-    if (or block.is_par block.is_flow) { return (nb_fail "an ordinary lexical body") }
+    if (or block.is_legacy_par (or block.is_par block.is_flow)) { return (nb_fail "an ordinary lexical body") }
     return (nb_body_statements parser block.statements is_shadow)
 }
 fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: bool) -> int {

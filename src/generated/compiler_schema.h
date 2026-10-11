@@ -556,6 +556,7 @@ typedef struct nl_ASTBlock {
     List_ASTStmtRef * statements;
     bool is_par;
     bool is_flow;
+    bool is_legacy_par;
 } nl_ASTBlock;
 typedef nl_ASTBlock ASTBlock;
 #endif

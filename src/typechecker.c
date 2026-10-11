@@ -6153,6 +6153,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                         fprintf(stderr, "Error at line %d, column %d: par-let binding '%s' depends on sibling binding '%s' — use sequential let for dependent bindings\n",
                                 stmt->line, stmt->column,
                                 stmt->as.par_let.names[i], stmt->as.par_let.names[j]);
+                        tc->has_error = true;
                         return TYPE_VOID;
                     }
                 }

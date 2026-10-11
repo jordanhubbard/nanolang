@@ -1,0 +1,151 @@
+test_aggregate_and_callable_capture_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_aggregate_and_callable_capture_names) ... ok
+test_aggregate_and_callable_parameters_and_locals (tests.test_local_binding_metadata.LocalBindingMetadata.test_aggregate_and_callable_parameters_and_locals) ... ok
+test_array_name_is_retained (tests.test_local_binding_metadata.LocalBindingMetadata.test_array_name_is_retained) ... ok
+test_generated_tuple_owner_is_omitted_without_reserving_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_generated_tuple_owner_is_omitted_without_reserving_names) ... ok
+test_global_initializer_lambda_and_imported_passive_offsets (tests.test_local_binding_metadata.LocalBindingMetadata.test_global_initializer_lambda_and_imported_passive_offsets) ... ok
+test_imported_generated_owner_and_source_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_imported_generated_owner_and_source_names) ... ok
+test_iteration_names_have_separate_lexical_intervals (tests.test_local_binding_metadata.LocalBindingMetadata.test_iteration_names_have_separate_lexical_intervals) ... ok
+test_legacy_par_let_names_effects_and_enclosing_scope (tests.test_local_binding_metadata.LocalBindingMetadata.test_legacy_par_let_names_effects_and_enclosing_scope) ... ok
+test_match_arm_names_include_guard_and_exclude_other_arms (tests.test_local_binding_metadata.LocalBindingMetadata.test_match_arm_names_include_guard_and_exclude_other_arms) ... ok
+test_nested_functions_keep_separate_local_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_nested_functions_keep_separate_local_names) ... ok
+test_parameters_shadowed_bindings_and_loop (tests.test_local_binding_metadata.LocalBindingMetadata.test_parameters_shadowed_bindings_and_loop) ... ok
+test_shadowed_array_intervals (tests.test_local_binding_metadata.LocalBindingMetadata.test_shadowed_array_intervals) ... ok
+test_specialized_array_parameter_keeps_source_name (tests.test_local_binding_metadata.LocalBindingMetadata.test_specialized_array_parameter_keeps_source_name) ... ok
+test_dependencies_and_malformed_groups_preserve_output (tests.test_legacy_par_let.LegacyParLet.test_dependencies_and_malformed_groups_preserve_output) ...
+  test_dependencies_and_malformed_groups_preserve_output (tests.test_legacy_par_let.LegacyParLet.test_dependencies_and_malformed_groups_preserve_output) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), group='par-let left=right right=8 in (+ left right)') ... FAIL
+  test_dependencies_and_malformed_groups_preserve_output (tests.test_legacy_par_let.LegacyParLet.test_dependencies_and_malformed_groups_preserve_output) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), group='par-let left=7 right=left in (+ left right)') ... FAIL
+  test_dependencies_and_malformed_groups_preserve_output (tests.test_legacy_par_let.LegacyParLet.test_dependencies_and_malformed_groups_preserve_output) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), group='par-let left=[right] right=8 in (array_length left)') ... FAIL
+
+======================================================================
+FAIL: test_dependencies_and_malformed_groups_preserve_output (tests.test_legacy_par_let.LegacyParLet.test_dependencies_and_malformed_groups_preserve_output) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), group='par-let left=right right=8 in (+ left right)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_legacy_par_let.py", line 24, in test_dependencies_and_malformed_groups_preserve_output
+    self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : Error at line 1, column 34: par-let binding 'left' depends on sibling binding 'right' — use sequential let for dependent bindings
+Warning at line 1, column 17: Unused variable 'right'
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpqnsk92jk/case.nano
+I cannot find a variable named `left`.
+
+1| fn main()->int {let right:int=99 par-let left=right right=8 in (+ left right) return 0}
+                                                                     ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpqnsk92jk/case.nano
+I cannot find a variable named `left`.
+
+1| fn main()->int {let right:int=99 par-let left=right right=8 in (+ left right) return 0}
+                                                                     ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpqnsk92jk/case.nano
+Arithmetic expects numeric types or string concatenation with + (got unknown and int).
+
+1| fn main()->int {let right:int=99 par-let left=right right=8 in (+ left right) return 0}
+                                                                  ^
+Hint: Use matching numeric types, or use + with two strings.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpqnsk92jk/case.nano
+I cannot find a variable named `left`.
+
+1| fn main()->int {let right:int=99 par-let left=right right=8 in (+ left right) return 0}
+                                                                     ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpqnsk92jk/case.nano
+I cannot find a variable named `left`.
+
+1| fn main()->int {let right:int=99 par-let left=right right=8 in (+ left right) return 0}
+                                                                     ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpqnsk92jk/case.nano
+Arithmetic expects numeric types or string concatenation with + (got unknown and int).
+
+1| fn main()->int {let right:int=99 par-let left=right right=8 in (+ left right) return 0}
+                                                                  ^
+Hint: Use matching numeric types, or use + with two strings.
+
+
+======================================================================
+FAIL: test_dependencies_and_malformed_groups_preserve_output (tests.test_legacy_par_let.LegacyParLet.test_dependencies_and_malformed_groups_preserve_output) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), group='par-let left=7 right=left in (+ left right)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_legacy_par_let.py", line 24, in test_dependencies_and_malformed_groups_preserve_output
+    self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : Error at line 1, column 34: par-let binding 'right' depends on sibling binding 'left' — use sequential let for dependent bindings
+Warning at line 1, column 17: Unused variable 'right'
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpb46i438w/case.nano
+I cannot find a variable named `left`.
+
+1| fn main()->int {let right:int=99 par-let left=7 right=left in (+ left right) return 0}
+                                                         ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpb46i438w/case.nano
+I cannot find a variable named `left`.
+
+1| fn main()->int {let right:int=99 par-let left=7 right=left in (+ left right) return 0}
+                                                                    ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpb46i438w/case.nano
+I cannot find a variable named `left`.
+
+1| fn main()->int {let right:int=99 par-let left=7 right=left in (+ left right) return 0}
+                                                                    ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpb46i438w/case.nano
+Arithmetic expects numeric types or string concatenation with + (got unknown and int).
+
+1| fn main()->int {let right:int=99 par-let left=7 right=left in (+ left right) return 0}
+                                                                 ^
+Hint: Use matching numeric types, or use + with two strings.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpb46i438w/case.nano
+I cannot find a variable named `left`.
+
+1| fn main()->int {let right:int=99 par-let left=7 right=left in (+ left right) return 0}
+                                                         ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpb46i438w/case.nano
+I cannot find a variable named `left`.
+
+1| fn main()->int {let right:int=99 par-let left=7 right=left in (+ left right) return 0}
+                                                                    ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpb46i438w/case.nano
+I cannot find a variable named `left`.
+
+1| fn main()->int {let right:int=99 par-let left=7 right=left in (+ left right) return 0}
+                                                                    ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpb46i438w/case.nano
+Arithmetic expects numeric types or string concatenation with + (got unknown and int).
+
+1| fn main()->int {let right:int=99 par-let left=7 right=left in (+ left right) return 0}
+                                                                 ^
+Hint: Use matching numeric types, or use + with two strings.
+
+
+======================================================================
+FAIL: test_dependencies_and_malformed_groups_preserve_output (tests.test_legacy_par_let.LegacyParLet.test_dependencies_and_malformed_groups_preserve_output) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), group='par-let left=[right] right=8 in (array_length left)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_legacy_par_let.py", line 24, in test_dependencies_and_malformed_groups_preserve_output
+    self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : Error at line 1, column 34: par-let binding 'left' depends on sibling binding 'right' — use sequential let for dependent bindings
+Warning at line 1, column 17: Unused variable 'right'
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp1pdolnw2/case.nano
+I cannot find a variable named `left`.
+
+1| fn main()->int {let right:int=99 par-let left=[right] right=8 in (array_length left) return 0}
+                                                                                  ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E024 UNDEFINED VARIABLE --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp1pdolnw2/case.nano
+I cannot find a variable named `left`.
+
+1| fn main()->int {let right:int=99 par-let left=[right] right=8 in (array_length left) return 0}
+                                                                                  ^^^^
+Hint: Check spelling or ensure the variable is in scope.
+
+
+----------------------------------------------------------------------
+Ran 14 tests in 6.334s
+
+FAILED (failures=3)

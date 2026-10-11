@@ -68,6 +68,14 @@ declaration forms remain open unless independently implemented and tested. My sp
 borrowed profile and its scalar pattern projections are described below. No existing executable source is refused just because
 its original local names are absent.
 
+I retain legacy `par-let` binding names in both ordinary producers. A binding
+begins after its initializer store and remains visible through the enclosing
+scope, including after the discarded body expression. I preserve literal `_`
+names and same-spelling outer bindings as separate slots. The parser retains a
+distinct legacy-group flag so the typechecker checks sibling independence before
+lowering the group to ordered initializers and a discarded body value. Restricted
+passive and borrowed profiles do not treat this group as an ordinary lexical block.
+
 ## Required acceptance
 
 I compare parameter, shadowed-name, nested-block, conditional and loop bindings

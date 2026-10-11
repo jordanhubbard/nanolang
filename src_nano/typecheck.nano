@@ -1778,6 +1778,7 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     /* ASTBlock fields */
     set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "is_par", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "is_flow", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
+    set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "is_legacy_par", field_type_kind: TypeKind.TYPE_BOOL, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "stmt_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTBlock", field_name: "stmt_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     
@@ -6037,6 +6038,50 @@ shadow check_par_statement {
     assert (typecheck_phase bad "par.nano").had_error
 }
 
+fn check_legacy_par(parser: Parser, block: ASTBlock, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> array<Symbol> {
+    let count: int = (- (list_ASTStmtRef_length block.statements) 1)
+    let mut result: array<Symbol> = (env_copy_symbols symbols)
+    let mut i: int = 0
+    while (< i count) {
+        let statement: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+        let binding: ASTLet = (parser_get_let parser statement.node_id)
+        # I hide sibling spellings even when an outer binding shares the name.
+        let mut independent: array<Symbol> = []
+        let mut entry: int = 0
+        while (< entry (array_length symbols)) {
+            let symbol: Symbol = (at symbols entry)
+            let mut hidden: bool = false
+            let mut sibling: int = 0
+            while (< sibling count) {
+                if (!= sibling i) {
+                    let other: ASTLet = (parser_get_let parser (list_ASTStmtRef_get block.statements sibling).node_id)
+                    if (== other.name symbol.name) { set hidden true }
+                }
+                set sibling (+ sibling 1)
+            }
+            if (not hidden) { set independent (array_push independent symbol) }
+            set entry (+ entry 1)
+        }
+        let before: int = (array_length independent)
+        let checked: array<Symbol> = (check_let_statement parser binding statement.node_id independent diags file_name)
+        if (> (array_length checked) before) {
+            set result (array_push result (at checked (- (array_length checked) 1)))
+        }
+        set i (+ i 1)
+    }
+    if (>= count 0) {
+        let body: ASTStmtRef = (list_ASTStmtRef_get block.statements count)
+        let checked_body: NSType = (check_expr_node parser body.node_id body.node_type result diags file_name)
+    }
+    return result
+}
+shadow check_legacy_par {
+    let good: Parser = (resource_test_parser "fn main()->int{par-let left=7 right=8 in (+ left right) return left}")
+    assert (not (typecheck_phase good "legacy.nano").had_error)
+    let bad: Parser = (resource_test_parser "fn main()->int{let right:int=9 par-let left=right right=8 in (+ left right) return left}")
+    assert (typecheck_phase bad "legacy.nano").had_error
+}
+
 fn check_block_value(parser: Parser, block_id: int, symbols: array<Symbol>, expected_return: NSType, diags: List<CompilerDiagnostic>, file_name: string, current_function: string) -> CheckedBlock {
     let block: ASTBlock = (parser_get_block parser block_id)
     return (check_statement_list parser block.statements symbols expected_return diags file_name current_function)
@@ -6061,6 +6106,13 @@ fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: a
         
         if (== stmt.node_type ParseNodeType.PNODE_BLOCK) {
             let parallel_block: ASTBlock = (parser_get_block parser stmt.node_id)
+            if parallel_block.is_legacy_par {
+                let before: int = (list_CompilerDiagnostic_length diags)
+                set local_symbols (check_legacy_par parser parallel_block local_symbols diags file_name)
+                if (> (list_CompilerDiagnostic_length diags) before) { set ok false }
+                set i (+ i 1)
+                continue
+            }
             if (or parallel_block.is_par parallel_block.is_flow) {
                 let before: int = (list_CompilerDiagnostic_length diags)
                 if parallel_block.is_flow {
