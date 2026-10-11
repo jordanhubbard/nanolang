@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -9,11 +10,35 @@ ROOT = Path(__file__).resolve().parents[1]
 DRIVERS = os.environ.get('NANOLANG_EFFECT_COMPILERS', os.pathsep.join(
     str(ROOT/'bin'/name) for name in ('nano_virt', 'nanoc_stage1', 'nanoc_stage2'))).split(os.pathsep)
 
+TARGETS = os.environ.get('NANOLANG_EFFECT_TARGETS', 'vm').split(',')
+if not TARGETS or any(target not in ('vm', 'native') for target in TARGETS):
+    raise ValueError('I require vm or native effect execution targets')
+
 
 class SelfhostEffects(unittest.TestCase):
     def compile(self, driver, source, output):
         return subprocess.run([driver, str(source), '--emit-nvm', '-o', str(output)],
                               cwd=ROOT, capture_output=True, text=True, timeout=120)
+
+    def execute_module(self, output, expected):
+        for target in TARGETS:
+            with self.subTest(target=target):
+                command = [ROOT/'bin/nano_vm', output]
+                if target == 'native':
+                    source, binary = output.with_suffix('.c'), output.with_suffix('.native')
+                    translated = subprocess.run([ROOT/'bin/nvm2c', output, '-o', source],
+                                                capture_output=True, text=True, timeout=60)
+                    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+                    runtime = [ROOT/'bin/nano_aot_runtime.o', '-lm']
+                    if sys.platform.startswith('linux'):
+                        runtime += ['-Wl,--export-dynamic', '-ldl']
+                    built = subprocess.run(['cc', '-std=c11', '-Wall', '-Wextra', '-Werror',
+                                            source, '-o', binary, *runtime],
+                                           capture_output=True, text=True, timeout=60)
+                    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+                    command = [binary]
+                ran = subprocess.run(command, capture_output=True, text=True, timeout=30)
+                self.assertEqual(ran.returncode, expected, ran.stdout+ran.stderr)
 
     def test_dynamic_handlers_resume_and_lexical_returns(self):
         sources = [
@@ -52,6 +77,18 @@ let mut recorded:int=0
 fn send()->void{return handle {perform Record.emit(9)} with {emit value->{set recorded value}}}
 shadow send{assert true}
 fn main()->int{set recorded 0 (send) return recorded}''', 9),
+            ('captured_mutation', """effect Ask{ask:int->int}
+fn main()->int{let mut total:int=1 let ignored=handle {(+ perform Ask.ask(2) perform Ask.ask(3))} with {ask value->{set total (+ total value) total}} return total}""", 6),
+            ('recursive_arm', """effect Ask{ask:int->int}
+fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{let mut result:int=0 if (> value 0){set result (+ value perform Ask.ask((- value 1)))} result}}}""", 6),
+            ('string_result', """effect Text{join:string->string}
+fn send(text:string)->string{return perform Text.join(text)}
+shadow send{assert true}
+fn main()->int{let prefix:string="abc" let value:string=handle {(send "def")} with {join text->{(str_concat prefix text)}} assert (== value "abcdef") return (str_length value)}""", 6),
+            ('array_result', """effect Values{append:array<int>->array<int>}
+fn send(values:array<int>)->array<int>{return perform Values.append(values)}
+shadow send{assert true}
+fn main()->int{let values:array<int> = handle {(send [2, 3])} with {append items->{(array_push items 4)}} assert (== (array_length values) 3) return (at values 2)}""", 4),
             ('local_loop', '''effect Ask{ask:int->int}
 fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{let mut total:int=0 let mut i:int=0 while (< i value){set total (+ total i) set i (+ i 1)} total}}}''', 3),
         ]
@@ -63,8 +100,7 @@ fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{let mut tota
                     source.write_text(body+'\nshadow main{assert (== (main) '+str(expected)+')}\n')
                     built = self.compile(driver, source, output)
                     self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
-                    ran = subprocess.run([ROOT/'bin/nano_vm', output], capture_output=True, text=True, timeout=30)
-                    self.assertEqual(ran.returncode, expected, ran.stdout+ran.stderr)
+                    self.execute_module(output, expected)
 
     def test_declaration_types_and_forward_references(self):
         declarations = [

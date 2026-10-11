@@ -1,0 +1,135 @@
+.FFFFFFFFFFFFF.
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='resume')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 31, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpyr3ait3z/source.nvm': I cannot classify unsupported opcode HANDLER_PUSH (0xA5) in function 0 at offset 0
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='lexical_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 31, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmppzid9in2/source.nvm': I cannot classify unsupported opcode HANDLER_PUSH (0xA5) in function 1 at offset 0
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='nested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 31, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpwwqx5ivj/source.nvm': I cannot classify unsupported opcode HANDLER_PUSH (0xA5) in function 0 at offset 0
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='ordered_arguments')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 31, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp5qb8wmbi/source.nvm': I cannot classify unsupported opcode HANDLER_PUSH (0xA5) in function 0 at offset 14
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='typed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 31, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpn_ym2tei/source.nvm': I cannot classify unsupported opcode HANDLER_PUSH (0xA5) in function 0 at offset 0
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='void')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 31, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpr1duqn8u/source.nvm': I cannot classify unsupported opcode HANDLER_PUSH (0xA5) in function 0 at offset 14
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='void_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 31, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpw10_n4ks/source.nvm': I cannot classify unsupported opcode HANDLER_PUSH (0xA5) in function 0 at offset 14
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='handled_void_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 31, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpze33305z/source.nvm': I cannot classify unsupported opcode HANDLER_PUSH (0xA5) in function 1 at offset 0
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='captured_mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 31, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpcih5xehf/source.nvm': I cannot classify unsupported opcode HANDLER_PUSH (0xA5) in function 0 at offset 12
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='recursive_arm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 31, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpo_gcyfk1/source.nvm': I cannot classify unsupported opcode HANDLER_PUSH (0xA5) in function 0 at offset 0
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='string_result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 31, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpwdn3ka1f/source.nvm': I cannot classify unsupported opcode HANDLER_PUSH (0xA5) in function 0 at offset 8
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/private/tmp/nl51-row-signatures/compiler', case='array_result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 102, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpjm0fypdg/source.nano:4, column 57: unexpected token '3'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='local_loop')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 31, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplt1c47it/source.nvm': I cannot classify unsupported opcode HANDLER_PUSH (0xA5) in function 0 at offset 0
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.542s
+
+FAILED (failures=13)

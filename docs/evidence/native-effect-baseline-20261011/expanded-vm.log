@@ -1,0 +1,15 @@
+.F.
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/private/tmp/nl51-row-signatures/compiler', case='array_result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 102, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpl30suwsa/source.nano:4, column 36: unexpected token ''
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.494s
+
+FAILED (failures=1)
