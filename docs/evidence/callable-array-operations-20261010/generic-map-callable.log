@@ -1,0 +1,13 @@
+-- E001 TYPE MISMATCH --- /private/tmp/nl51-generic-map-callable.nano
+I require a unary callback matching the complete array element type.
+
+7| let copied:array<fn(int)->int> = (map callbacks identity)
+                                    ^
+Hint: Return a concrete value from the transform.
+-- E001 TYPE MISMATCH --- /private/tmp/nl51-generic-map-callable.nano
+I require the array annotation to match the transform result type.
+
+7| let copied:array<fn(int)->int> = (map callbacks identity)
+   ^
+Hint: Use the transform's return type as the mapped element type.
+Type checking failed

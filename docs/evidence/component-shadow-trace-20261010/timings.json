@@ -1,0 +1,87 @@
+{
+  "completed": 563,
+  "failures": 0,
+  "summed_shadow_seconds": 4.756716,
+  "longest": [
+    {
+      "event": "shadow-complete",
+      "name": "parse_block_recursive",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/parser.nano",
+      "line": 5368,
+      "elapsed_seconds": 0.808889,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "parse_unsafe_block_recursive",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/parser.nano",
+      "line": 5529,
+      "elapsed_seconds": 0.791397,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "resource_concrete_payload_fact",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 247,
+      "elapsed_seconds": 0.218898,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "resource_type_is_declared",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 383,
+      "elapsed_seconds": 0.202197,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "resource_transfer_supported",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 899,
+      "elapsed_seconds": 0.170315,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "main",
+      "source": "src_nano/typecheck_driver.nano",
+      "line": 50,
+      "elapsed_seconds": 0.120885,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "resource_instantiated_classify",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 834,
+      "elapsed_seconds": 0.118643,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "check_expr_node",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 5324,
+      "elapsed_seconds": 0.115395,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "check_legacy_global_declarations",
+      "source": "src_nano/typecheck_driver.nano",
+      "line": 23,
+      "elapsed_seconds": 0.108305,
+      "failures": 0
+    },
+    {
+      "event": "shadow-complete",
+      "name": "resource_callback_unsupported",
+      "source": "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano",
+      "line": 926,
+      "elapsed_seconds": 0.087048,
+      "failures": 0
+    }
+  ]
+}

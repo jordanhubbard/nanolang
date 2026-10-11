@@ -1915,6 +1915,8 @@ static bool reduce_expression_matches(ASTNode *expression, const TypeInfo *expec
     if (!expression || !expected || depth > 128) return false;
     Type actual = check_expression(expression, env);
     if (actual == TYPE_UNKNOWN || actual == TYPE_VOID) return false;
+    if (actual == TYPE_FUNCTION && expected->base_type == TYPE_FUNCTION)
+        return indirect_argument_matches(expression, env, expected, TYPE_FUNCTION, depth + 1);
     if (actual == TYPE_ARRAY && expression->type == AST_ARRAY_LITERAL) {
         if (reduce_identity_kind(expected, env) != TYPE_ARRAY ||
             !reduce_types_exact(expected, expected, env, depth + 1)) return false;
@@ -1929,6 +1931,66 @@ static bool reduce_expression_matches(ASTNode *expression, const TypeInfo *expec
         name = expression->as.field_access.object->as.identifier;
     TypeInfo view = reduce_type_view(actual, name, try_get_expr_type_info(expression, env));
     return reduce_types_exact(&view, expected, env, depth + 1);
+}
+
+/* I preserve the complete input and result identities of unary array callbacks. */
+static Type check_unary_array_call(ASTNode *call, Environment *env, bool filter) {
+    if (call->as.call.arg_count != 2) {
+        emit_context_error("E003 ARITY MISMATCH", call->line, call->column, 1,
+            "I require an array and one callback.", "Pass exactly two operands.");
+        return TYPE_UNKNOWN;
+    }
+    ASTNode *array = call->as.call.args[0], *callback = call->as.call.args[1];
+    Type array_type = check_expression(array, env);
+    Type callback_type = check_expression(callback, env);
+    FunctionSignature *signature = copy_callable_signature(callback, env);
+    bool valid = array_type == TYPE_ARRAY && callback_type == TYPE_FUNCTION &&
+        signature && signature->param_count == 1 && signature->param_types &&
+        signature->return_type != TYPE_VOID && signature->return_type != TYPE_UNKNOWN &&
+        (!filter || signature->return_type == TYPE_BOOL);
+    TypeInfo input = {0}, output = {0};
+    if (valid) {
+        input = reduce_type_view(signature->param_types[0],
+            signature->param_struct_names ? signature->param_struct_names[0] : NULL,
+            signature->param_type_info ? signature->param_type_info[0] : NULL);
+        output = reduce_type_view(signature->return_type, signature->return_struct_name, signature->return_type_info);
+        if (!output.fn_sig) output.fn_sig = signature->return_fn_sig;
+        valid = reduce_types_exact(&input, &input, env, 0);
+    }
+    if (valid && array->type == AST_ARRAY_LITERAL) {
+        for (int i = 0; valid && i < array->as.array_literal.element_count; ++i)
+            valid = reduce_expression_matches(array->as.array_literal.elements[i], &input, env, 0);
+        if (valid) {
+            array->as.array_literal.element_type = input.base_type;
+            array->as.array_literal.has_element_annotation = true;
+        }
+    } else if (valid) {
+        TypeInfo *actual = copy_generic_argument_info(array, env, 0);
+        valid = actual && actual->base_type == TYPE_ARRAY &&
+            reduce_types_exact(actual->element_type, &input, env, 0);
+        free_payload_type_info(actual);
+    }
+    if (!valid) {
+        free_function_signature(signature);
+        emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
+            "I require a unary callback matching the complete array element type.",
+            filter ? "Return bool from the predicate." : "Return a concrete value from the transform.");
+        return TYPE_UNKNOWN;
+    }
+    Type arguments[2] = {TYPE_ARRAY, TYPE_FUNCTION};
+    FunctionSignature *operation = create_function_signature(arguments, 2, TYPE_ARRAY);
+    operation->return_type_info = calloc(1, sizeof *operation->return_type_info);
+    operation->return_type_info->base_type = TYPE_ARRAY;
+    operation->return_type_info->element_type = copy_payload_type_info(filter ? &input : &output);
+    free_function_signature(signature);
+    if (call->as.call.checked_signature &&
+        function_signatures_equal(call->as.call.checked_signature, operation)) {
+        free_function_signature(operation);
+    } else {
+        free_function_signature(call->as.call.checked_signature);
+        call->as.call.checked_signature = operation;
+    }
+    return TYPE_ARRAY;
 }
 
 static Type check_reduce_call(ASTNode *call, Environment *env) {
@@ -2677,41 +2739,11 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
             /* Regular function call */
             
-            /* Special handling for map builtin - check before environment lookup */
-            if (strcmp(expr->as.call.name, "map") == 0) {
-                if (expr->as.call.arg_count != 2) {
-                    emit_context_error("E003 ARITY MISMATCH", expr->line, expr->column, 1,
-                        "I require an array and a transform for map.", "Pass exactly two arguments.");
-                    return TYPE_UNKNOWN;
-                }
-                Type array_type = check_expression(expr->as.call.args[0], env);
-                Type callback_type = check_expression(expr->as.call.args[1], env);
-                int arity;
-                Type argument;
-                Type result = map_callback_type(expr->as.call.args[1], env, &arity, &argument);
-                Type element = infer_array_element_type(expr->as.call.args[0], env);
-                if (array_type != TYPE_ARRAY || callback_type != TYPE_FUNCTION || arity != 1 ||
-                    result == TYPE_UNKNOWN || result == TYPE_VOID ||
-                    (element != TYPE_UNKNOWN && !types_match(element, argument))) {
-                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
-                        "I require a unary transform matching the array element type and returning a value.",
-                        "Match the transform signature to the source array.");
-                    return TYPE_UNKNOWN;
-                }
-                return TYPE_ARRAY;
-            }
+            if (strcmp(expr->as.call.name, "map") == 0)
+                return check_unary_array_call(expr, env, false);
+            if (strcmp(expr->as.call.name, "filter") == 0)
+                return check_unary_array_call(expr, env, true);
 
-            /* Special handling for filter builtin - check before environment lookup */
-            if (strcmp(expr->as.call.name, "filter") == 0) {
-                /* filter(array, predicate_fn) -> array */
-                if (expr->as.call.arg_count >= 2) {
-                    Type array_type = check_expression(expr->as.call.args[0], env);
-                    check_expression(expr->as.call.args[1], env);  /* Check function */
-                    return array_type;
-                }
-                return TYPE_ARRAY;
-            }
-            
             /* I validate the callback as one exact accumulator/element contract. */
             if (strcmp(expr->as.call.name, "reduce") == 0)
                 return check_reduce_call(expr, env);

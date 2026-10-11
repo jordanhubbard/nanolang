@@ -1,0 +1,21 @@
+fn increment(value:int)->int{return (+ value 1)}
+shadow increment {assert (== (increment 7) 8)}
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 7) 7)}
+fn apply(callback:fn(int)->int)->int{return (callback 7)}
+shadow apply {assert (== (apply increment) 8)}
+fn selected(callback:fn(int)->int)->bool{return (== (callback 7) 8)}
+shadow selected {assert (selected increment)}
+fn sum_callback(total:int, callback:fn(int)->int)->int{return (+ total (callback 7))}
+shadow sum_callback {assert (== (sum_callback 1 increment) 9)}
+let callbacks:array<fn(int)->int> =[increment,increment]
+fn replace(callback:fn(int)->int)->bool {
+(array_set callbacks 0 identity) (array_set callbacks 1 identity)
+return (== (callback 7) 8)}
+shadow replace {assert (replace increment)}
+fn main()->int {
+(array_set callbacks 0 increment) (array_set callbacks 1 increment)
+let kept:array<fn(int)->int> =(filter callbacks replace)
+assert (== (array_length kept) 1)
+let callback:fn(int)->int=(at kept 0) assert (== (callback 7) 8) return 0}
+shadow main {assert (== (main) 0)}

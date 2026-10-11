@@ -1,0 +1,20 @@
+fn increment(value:int)->int{return (+ value 1)}
+shadow increment {assert (== (increment 7) 8)}
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 7) 7)}
+fn apply(callback:fn(int)->int)->int{return (callback 7)}
+shadow apply {assert (== (apply increment) 8)}
+fn selected(callback:fn(int)->int)->bool{return (== (callback 7) 8)}
+shadow selected {assert (selected increment)}
+fn sum_callback(total:int, callback:fn(int)->int)->int{return (+ total (callback 7))}
+shadow sum_callback {assert (== (sum_callback 1 increment) 9)}
+let mut order:int=0
+fn input()->array<fn(int)->int>{set order (+ (* order 10) 1) return [increment]}
+shadow input {let callbacks=(input) assert (== (array_length callbacks) 1)}
+fn initial()->int {set order (+ (* order 10) 2) return 1}
+shadow initial {assert (== (initial) 1)}
+fn reducer()->fn(int,fn(int)->int)->int {set order (+ (* order 10) 3) return sum_callback}
+shadow reducer {let callback=(reducer) assert (== (callback 1 increment) 9)}
+fn main()->int {set order 0 assert (== (reduce (input) (initial) (reducer)) 9)
+assert (== order 123) return 0}
+shadow main {assert (== (main) 0)}

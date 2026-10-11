@@ -1,0 +1,4 @@
+nl_functions_map_reduce passed native/NanoVM output comparison
+nl_functions_filter passed native/NanoVM output comparison
+nl_functions_array_param passed native/NanoVM output comparison
+nl_syntax_operators passed native/NanoVM output comparison

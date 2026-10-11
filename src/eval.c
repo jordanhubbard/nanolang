@@ -1962,6 +1962,7 @@ static Value builtin_map(Value *args, Environment *env) {
             case TYPE_BOOL: result_type = VAL_BOOL; break;
             case TYPE_STRING: result_type = VAL_STRING; break;
             case TYPE_STRUCT: result_type = VAL_STRUCT; break;
+            case TYPE_FUNCTION: result_type = VAL_FUNCTION; break;
             default: break;
         }
     }
@@ -1997,6 +1998,14 @@ static Value builtin_map(Value *args, Environment *env) {
                 case VAL_STRING:
                     elem.as.string_val = ((char**)input_arr->data)[i];
                     break;
+                case VAL_FUNCTION:
+                    if (i >= input_arr->length) {
+                        discard_partial_owned_array(output_arr, (int)i);
+                        fprintf(stderr, "I require an in-bounds callable map element.\n");
+                        return create_void();
+                    }
+                    elem = copy_array_callable(((Value*)input_arr->data)[i]);
+                    break;
                 case VAL_STRUCT: {
                     StructValue *record = ((StructValue**)input_arr->data)[i];
                     elem = create_struct(record->struct_name, record->field_names,
@@ -2012,6 +2021,7 @@ static Value builtin_map(Value *args, Environment *env) {
             Value call_args[1];
             call_args[0] = elem;
             Value transformed = call_function(transform_fn_name, call_args, 1, env);
+            if (elem.type == VAL_FUNCTION) discard_array_callable(elem);
             if (transformed.is_return) {
                 discard_partial_owned_array(output_arr, (int)i);
                 return transformed;
@@ -2019,6 +2029,14 @@ static Value builtin_map(Value *args, Environment *env) {
             
             /* Store transformed value in output array */
             switch (output_arr->element_type) {
+                case VAL_FUNCTION:
+                    if (transformed.type != VAL_FUNCTION) {
+                        discard_partial_owned_array(output_arr, (int)i);
+                        fprintf(stderr, "I require a callable result in map.\n");
+                        return create_void();
+                    }
+                    ((Value*)output_arr->data)[i] = transformed;
+                    break;
                 case VAL_INT:
                     if (transformed.type != VAL_INT) {
                         fprintf(stderr, "I require the transform's declared result type in map.\n");
@@ -2227,6 +2245,33 @@ static Value builtin_filter(Value *args, Environment *env) {
 
     const char *pred_fn_name = args[1].as.function_val.function_name;
 
+    if (args[0].type == VAL_ARRAY && args[0].as.array_val->element_type == VAL_FUNCTION) {
+        Array *input = args[0].as.array_val;
+        int length = input->length;
+        Value result = create_array(VAL_FUNCTION, 0, length);
+        Array *output = result.as.array_val;
+        for (int i = 0; i < length; ++i) {
+            if (i >= input->length) {
+                discard_partial_owned_array(output, output->length);
+                fprintf(stderr, "I require an in-bounds callable filter element.\n");
+                return create_void();
+            }
+            Value element = copy_array_callable(((Value*)input->data)[i]);
+            Value predicate = call_function(pred_fn_name, &element, 1, env);
+            if (predicate.is_return || predicate.type != VAL_BOOL) {
+                discard_array_callable(element);
+                discard_partial_owned_array(output, output->length);
+                if (predicate.is_return) return predicate;
+                fprintf(stderr, "I require a Boolean filter predicate.\n");
+                return create_void();
+            }
+            /* I retain the tested value before the predicate can replace its slot. */
+            if (predicate.as.bool_val) ((Value*)output->data)[output->length++] = element;
+            else discard_array_callable(element);
+        }
+        return result;
+    }
+
     /* Handle static arrays */
     if (args[0].type == VAL_ARRAY) {
         Array *input_arr = args[0].as.array_val;
@@ -2428,7 +2473,7 @@ static Value builtin_reduce(Value *args, Environment *env) {
     }
     
     const char *combine_fn_name = args[2].as.function_val.function_name;
-    Value accumulator = args[1];  /* Initial value */
+    Value accumulator = args[1].type == VAL_FUNCTION ? copy_array_callable(args[1]) : args[1];
     
     /* Handle static arrays */
     if (args[0].type == VAL_ARRAY) {
@@ -2456,6 +2501,14 @@ static Value builtin_reduce(Value *args, Environment *env) {
                 case VAL_STRING:
                     elem.as.string_val = ((char**)arr->data)[i];
                     break;
+                case VAL_FUNCTION:
+                    if (i >= arr->length) {
+                        if (accumulator.type == VAL_FUNCTION) discard_array_callable(accumulator);
+                        fprintf(stderr, "I require an in-bounds callable reduce element.\n");
+                        return create_void();
+                    }
+                    elem = copy_array_callable(((Value*)arr->data)[i]);
+                    break;
                 case VAL_STRUCT: {
                     StructValue *record = ((StructValue**)arr->data)[i];
                     elem = create_struct(record->struct_name, record->field_names,
@@ -2471,7 +2524,10 @@ static Value builtin_reduce(Value *args, Environment *env) {
             Value call_args[2];
             call_args[0] = accumulator;
             call_args[1] = elem;
-            accumulator = call_function(combine_fn_name, call_args, 2, env);
+            Value next = call_function(combine_fn_name, call_args, 2, env);
+            if (elem.type == VAL_FUNCTION) discard_array_callable(elem);
+            if (accumulator.type == VAL_FUNCTION) discard_array_callable(accumulator);
+            accumulator = next;
             if (accumulator.is_return) return accumulator;
         }
         
@@ -6766,6 +6822,7 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
             param_value = create_string(args[i].as.string_val);
         }
 
+        if (param_value.type == VAL_FUNCTION) param_value = copy_array_callable(param_value);
         env_define_var(env, func->params[i].name, func->params[i].type, false, param_value);
     }
 
@@ -6788,6 +6845,8 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
         return_value = create_string(result.as.string_val);
     }
     
+    if (result.type == VAL_FUNCTION) return_value = copy_array_callable(result);
+
     /* I consume only this activation's return, after preserving its value. */
     return_value.is_return = result.is_return && result.return_target &&
         result.return_target != &return_boundary;
@@ -6798,6 +6857,8 @@ static Value call_function_at(const char *name, Value *args, int arg_count,
     /* Clean up parameter strings and restore environment */
     for (int i = original_symbol_count; i < env->symbol_count; i++) {
         free(env->symbols[i].name);
+        if (env->symbols[i].value.type == VAL_FUNCTION)
+            discard_array_callable(env->symbols[i].value);
         if (env->symbols[i].value.type == VAL_STRING) {
             /* Release GC-managed string if applicable */
             if (gc_is_managed(env->symbols[i].value.as.string_val)) {
