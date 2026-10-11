@@ -1,0 +1,7 @@
+test_filter_generic_predicate passed C NanoISA, NanoVM and C AOT
+test_inline_callable_inputs passed C NanoISA, NanoVM and C AOT
+test_map_callable_identity passed C NanoISA, NanoVM and C AOT
+test_map_multiple_scalar_instances passed C NanoISA, NanoVM and C AOT
+test_reduce_generic_callable_accumulator passed C NanoISA, NanoVM and C AOT
+test_reduce_independent_type_variables passed C NanoISA, NanoVM and C AOT
+test_typed_empty_inputs passed C NanoISA, NanoVM and C AOT

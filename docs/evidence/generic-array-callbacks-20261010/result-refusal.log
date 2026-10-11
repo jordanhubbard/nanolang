@@ -1,0 +1,17 @@
+.F.....
+======================================================================
+FAIL: test_incompatible_contexts_preserve_output (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_incompatible_contexts_preserve_output) (expression='let bad:array<fn(int)->bool> = (map callbacks identity)')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_array_callbacks.py", line 68, in test_incompatible_contexts_preserve_output
+    self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : Warning at line 5, column 1: Unused variable 'value'
+Warning at line 7, column 1: Unused variable 'previous'
+Warning at line 9, column 67: Unused variable 'bad'
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 9.638s
+
+FAILED (failures=1)

@@ -1142,6 +1142,15 @@ static void build_callable_array_read(WorkList *list, ASTNode *array,
     const TypeInfo *info = array_expr_type_info(array, env);
     FunctionSignature *signature = info && info->element_type ? info->element_type->fn_sig : NULL;
     FunctionSignature *operation = NULL;
+    if (!signature && callback && callback->contextual_func_name) {
+        for (int i = 0; i < env->generic_func_instance_count; ++i) {
+            GenericFuncInstance *instance = &env->generic_func_instances[i];
+            if (!strcmp(instance->mono_name, callback->contextual_func_name)) {
+                operation = instance->signature;
+                break;
+            }
+        }
+    }
     if (!signature && callback && callback->type == AST_IDENTIFIER) {
         Symbol *symbol = env_get_var_visible_at(env, callback->as.identifier, callback->line, callback->column);
         Function *function = symbol ? NULL : env_get_function(env, callback->as.identifier);

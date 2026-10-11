@@ -1,0 +1,12 @@
+test_empty_callable_operations FAILED bin/nvm2c  I cannot translate '/private/tmp/nl51-callable-operations-recheck-corpus/test_empty_callable_operations.nvm': I require resolved indirect-call targets in function 1 at offset 18
+
+test_filter_callable_elements passed C NanoISA, NanoVM and C AOT
+test_filter_retains_value_before_predicate_mutation passed C NanoISA, NanoVM and C AOT
+test_map_callable_elements passed C NanoISA, NanoVM and C AOT
+test_map_callable_results passed C NanoISA, NanoVM and C AOT
+test_map_retains_callable_argument_result FAILED bin/nvm2c  I cannot translate '/private/tmp/nl51-callable-operations-recheck-corpus/test_map_retains_callable_argument_result.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 5, offset 72: nmap_value versus nmap_value at parameter 0 of function 4)
+
+test_reduce_callable_accumulator FAILED bin/nvm2c  I cannot translate '/private/tmp/nl51-callable-operations-recheck-corpus/test_reduce_callable_accumulator.nvm': I cannot assign conflicting kinds to a function parameter or aggregate field (function 5, offset 83: nmap_value versus nmap_value at parameter 1 of function 4)
+
+test_reduce_callable_elements passed C NanoISA, NanoVM and C AOT
+test_reduce_operand_order passed C NanoISA, NanoVM and C AOT

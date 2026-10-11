@@ -1,0 +1,227 @@
+F.FFFFF
+======================================================================
+FAIL: test_filter_generic_predicate (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_filter_generic_predicate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_array_callbacks.py", line 32, in test_filter_generic_predicate
+            self.execute('''fn main()->int {let callbacks:array<fn(int)->int> = [increment,identity]
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let kept:array<fn(int)->int> = (filter callbacks keep)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== (array_length kept) 2)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let callback:fn(int)->int=(at kept 0) assert (== (callback 7) 8) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_array_callbacks.py", line 17, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + body)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 5, column 1: Unused variable 'value'
+Warning at line 7, column 1: Unused variable 'previous'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-pz31salw/main.nano
+I require a unary callback matching the complete array element type.
+
+10| let kept:array<fn(int)->int> = (filter callbacks keep)
+                                   ^
+Hint: Return bool from the predicate.
+Type checking failed
+
+
+======================================================================
+FAIL: test_map_callable_identity (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_map_callable_identity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_array_callbacks.py", line 26, in test_map_callable_identity
+            self.execute('''fn main()->int {let original:array<fn(int)->int> = [increment]
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let copied:array<fn(int)->int> = (map original identity)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    (array_set original 0 identity)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let callback:fn(int)->int=(at copied 0) assert (== (callback 7) 8) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_array_callbacks.py", line 17, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + body)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 5, column 1: Unused variable 'value'
+Warning at line 7, column 1: Unused variable 'previous'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-oa4d_2yq/main.nano
+I require a unary callback matching the complete array element type.
+
+10| let copied:array<fn(int)->int> = (map original identity)
+                                     ^
+Hint: Return a concrete value from the transform.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-oa4d_2yq/main.nano
+I require the array annotation to match the transform result type.
+
+10| let copied:array<fn(int)->int> = (map original identity)
+    ^
+Hint: Use the transform's return type as the mapped element type.
+Type checking failed
+
+
+======================================================================
+FAIL: test_map_multiple_scalar_instances (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_map_multiple_scalar_instances)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_array_callbacks.py", line 20, in test_map_multiple_scalar_instances
+            self.execute('''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+    let numbers:array<int> = (map [7,9] identity)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let flags:array<bool> = (map [true,false] identity)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== (at numbers 1) 9) assert (at flags 0) assert (not (at flags 1)) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_array_callbacks.py", line 17, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + body)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 5, column 1: Unused variable 'value'
+Warning at line 7, column 1: Unused variable 'previous'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-eojp0nf3/main.nano
+I require a unary callback matching the complete array element type.
+
+10| let numbers:array<int> = (map [7,9] identity)
+                             ^
+Hint: Return a concrete value from the transform.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-eojp0nf3/main.nano
+I require the array annotation to match the transform result type.
+
+10| let numbers:array<int> = (map [7,9] identity)
+    ^
+Hint: Use the transform's return type as the mapped element type.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-eojp0nf3/main.nano
+I require a unary callback matching the complete array element type.
+
+11| let flags:array<bool> = (map [true,false] identity)
+                            ^
+Hint: Return a concrete value from the transform.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-eojp0nf3/main.nano
+I require the array annotation to match the transform result type.
+
+11| let flags:array<bool> = (map [true,false] identity)
+    ^
+Hint: Use the transform's return type as the mapped element type.
+Type checking failed
+
+
+======================================================================
+FAIL: test_reduce_generic_callable_accumulator (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_reduce_generic_callable_accumulator)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_array_callbacks.py", line 38, in test_reduce_generic_callable_accumulator
+            self.execute('''fn main()->int {let callbacks:array<fn(int)->int> = [identity,increment]
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let callback:fn(int)->int=(reduce callbacks identity latest)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== (callback 7) 8) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_array_callbacks.py", line 17, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + body)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 5, column 1: Unused variable 'value'
+Warning at line 7, column 1: Unused variable 'previous'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-n3414wax/main.nano
+I require reduce to receive array<E>, an initializer A and an exact fn(A,E)->A.
+
+10| let callback:fn(int)->int=(reduce callbacks identity latest)
+                              ^
+Hint: Retain complete types and match both callback parameters and its result exactly.
+Type checking failed
+
+
+======================================================================
+FAIL: test_reduce_independent_type_variables (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_reduce_independent_type_variables)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_array_callbacks.py", line 43, in test_reduce_independent_type_variables
+            self.execute('''fn retain(accumulator:A, value:T)->A{return accumulator}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow retain {assert (== (retain 7 true) 7)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int {let callback:fn(int)->int=(reduce [true,false] increment retain)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== (callback 7) 8) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_array_callbacks.py", line 17, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + body)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 5, column 1: Unused variable 'value'
+Warning at line 7, column 1: Unused variable 'previous'
+Warning at line 9, column 1: Unused variable 'value'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-qryu5vis/main.nano
+I require reduce to receive array<E>, an initializer A and an exact fn(A,E)->A.
+
+11| fn main()->int {let callback:fn(int)->int=(reduce [true,false] increment retain)
+                                              ^
+Hint: Retain complete types and match both callback parameters and its result exactly.
+Type checking failed
+
+
+======================================================================
+FAIL: test_typed_empty_inputs (tests.test_generic_array_callbacks.GenericArrayCallbacks.test_typed_empty_inputs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_array_callbacks.py", line 49, in test_typed_empty_inputs
+            self.execute('''fn main()->int {let callbacks:array<fn(int)->int> = []
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    let copied:array<fn(int)->int> = (map callbacks identity)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    assert (== (array_length copied) 0) assert (== (array_length kept) 0)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    assert (== (callback 7) 7) return 0}''')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_array_callbacks.py", line 17, in execute
+    arrays.harness.NativeGlobalTypes().execute(PRELUDE + body)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_global_types.py", line 20, in execute
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 5, column 1: Unused variable 'value'
+Warning at line 7, column 1: Unused variable 'previous'
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-zllhg8vz/main.nano
+I require a unary callback matching the complete array element type.
+
+10| let copied:array<fn(int)->int> = (map callbacks identity)
+                                     ^
+Hint: Return a concrete value from the transform.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-zllhg8vz/main.nano
+I require the array annotation to match the transform result type.
+
+10| let copied:array<fn(int)->int> = (map callbacks identity)
+    ^
+Hint: Use the transform's return type as the mapped element type.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-zllhg8vz/main.nano
+I require a unary callback matching the complete array element type.
+
+11| let kept:array<fn(int)->int> = (filter callbacks keep)
+                                   ^
+Hint: Return bool from the predicate.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-native-global-types-zllhg8vz/main.nano
+I require reduce to receive array<E>, an initializer A and an exact fn(A,E)->A.
+
+12| let callback:fn(int)->int=(reduce callbacks identity latest)
+                              ^
+Hint: Retain complete types and match both callback parameters and its result exactly.
+Type checking failed
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.143s
+
+FAILED (failures=6)

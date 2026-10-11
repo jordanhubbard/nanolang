@@ -565,7 +565,7 @@ test-native-callables: nvm2c nanoisa_dump nano_vm
 
 .PHONY: test-native-callable-arrays
 test-native-callable-arrays: $(COMPILER_C)
-	@NANO_CONTEXTUAL_NATIVE_COMPILER="$(CURDIR)/$(COMPILER_C)" python3 -m unittest tests.test_native_callable_arrays tests.test_native_callable_operations
+	@NANO_CONTEXTUAL_NATIVE_COMPILER="$(CURDIR)/$(COMPILER_C)" python3 -m unittest tests.test_native_callable_arrays tests.test_native_callable_operations tests.test_generic_array_callbacks
 
 test-one-ir-compiler: test-native-callable-arrays
 

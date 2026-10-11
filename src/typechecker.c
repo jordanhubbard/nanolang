@@ -1192,6 +1192,17 @@ static Type map_callback_type(ASTNode *callback, Environment *env, int *arity, T
     FunctionSignature *sig = NULL;
     *arity = -1;
     *argument = TYPE_UNKNOWN;
+    if (callback->contextual_func_name) {
+        for (int i = 0; i < env->generic_func_instance_count; ++i) {
+            GenericFuncInstance *instance = &env->generic_func_instances[i];
+            if (!strcmp(instance->mono_name, callback->contextual_func_name) && instance->signature) {
+                sig = instance->signature;
+                *arity = sig->param_count;
+                if (*arity == 1) *argument = sig->param_types[0];
+                return sig->return_type;
+            }
+        }
+    }
     if (callback->type == AST_IDENTIFIER) {
         Symbol *symbol = env_get_var_visible_at(env, callback->as.identifier,
                                                callback->line, callback->column);
@@ -1785,9 +1796,38 @@ FunctionSignature *copy_contextual_callable_signature(ASTNode *value, Environmen
     return signature;
 }
 
+/* I infer functional-array templates from complete concrete operand identities. */
+static FunctionSignature *infer_array_callback(ASTNode *callback, Environment *env,
+                                               const TypeInfo **arguments, int count) {
+    FunctionSignature *signature = copy_callable_signature(callback, env);
+    Function *function = callback->type == AST_IDENTIFIER &&
+        !env_get_var_visible_at(env, callback->as.identifier, callback->line, callback->column)
+        ? env_get_function(env, callback->as.identifier) : NULL;
+    if (!signature || !function || !generic_function(env, function)) return signature;
+    GenericBindings bindings = {0};
+    bool valid = signature->param_count == count;
+    for (int i = 0; valid && i < count; ++i) {
+        TypeInfo formal;
+        if (arguments[i] && !generic_contains(env, arguments[i], 0))
+            valid = generic_bind(env, generic_signature_param(signature, i, &formal),
+                                 arguments[i], &bindings, 0);
+    }
+    if (valid) valid = generic_substitute_signature(env, signature, &bindings, 0);
+    generic_bindings_free(&bindings);
+    FunctionSignature *concrete = valid
+        ? copy_contextual_callable_signature(callback, env, signature) : NULL;
+    free_function_signature(signature);
+    return concrete;
+}
+
 /* I retain explicit and inferred callable signatures with the AST in every let scope. */
 static bool retain_let_function_type(TypeChecker *tc, ASTNode *statement, Type declared) {
-    if (statement->as.let.type_info || declared != TYPE_FUNCTION) return true;
+    if (declared != TYPE_FUNCTION) return true;
+    if (statement->as.let.type_info) {
+        if (!statement->as.let.fn_sig)
+            statement->as.let.fn_sig = statement->as.let.type_info->fn_sig;
+        return true;
+    }
     if (!statement->as.let.fn_sig)
         statement->as.let.fn_sig = copy_callable_signature(statement->as.let.value, tc->env);
     if (!statement->as.let.fn_sig) return true;
@@ -1943,7 +1983,10 @@ static Type check_unary_array_call(ASTNode *call, Environment *env, bool filter)
     ASTNode *array = call->as.call.args[0], *callback = call->as.call.args[1];
     Type array_type = check_expression(array, env);
     Type callback_type = check_expression(callback, env);
-    FunctionSignature *signature = copy_callable_signature(callback, env);
+    TypeInfo *array_info = copy_generic_argument_info(array, env, 0);
+    const TypeInfo *arguments_info[1] = {array_info ? array_info->element_type : NULL};
+    FunctionSignature *signature = infer_array_callback(callback, env, arguments_info, 1);
+    free_payload_type_info(array_info);
     bool valid = array_type == TYPE_ARRAY && callback_type == TYPE_FUNCTION &&
         signature && signature->param_count == 1 && signature->param_types &&
         signature->return_type != TYPE_VOID && signature->return_type != TYPE_UNKNOWN &&
@@ -2005,32 +2048,16 @@ static Type check_reduce_call(ASTNode *call, Environment *env) {
     Type array_type = check_expression(array, env);
     Type initial_type = check_expression(initial, env);
     Type callback_type = check_expression(callback, env);
-    Function *function = NULL;
-    FunctionSignature *signature = NULL;
-    if (callback->type == AST_IDENTIFIER) {
-        Symbol *value = env_get_var_visible_at(env, callback->as.identifier,
-                                               callback->line, callback->column);
-        if (value) signature = value->type_info ? value->type_info->fn_sig : NULL;
-        else function = env_get_function(env, callback->as.identifier);
-    } else if (callback->type == AST_CALL) {
-        signature = function_result_signature(callback, env);
-    } else {
-        TypeInfo *info = try_get_expr_type_info(callback, env);
-        signature = info ? info->fn_sig : NULL;
-    }
+    TypeInfo *array_context = copy_generic_argument_info(array, env, 0);
+    TypeInfo *initial_context = copy_generic_argument_info(initial, env, 0);
+    const TypeInfo *arguments_info[2] = {initial_context,
+        array_context ? array_context->element_type : NULL};
+    FunctionSignature *signature = infer_array_callback(callback, env, arguments_info, 2);
+    free_payload_type_info(array_context);
+    free_payload_type_info(initial_context);
     TypeInfo parameters[2] = {{.base_type = TYPE_UNKNOWN}, {.base_type = TYPE_UNKNOWN}};
     TypeInfo result = {.base_type = TYPE_UNKNOWN};
-    if (function && function->param_count == 2 && function->params) {
-        for (int i = 0; i < 2; ++i) {
-            Parameter *parameter = &function->params[i];
-            parameters[i] = reduce_type_view(parameter->type, parameter->struct_type_name,
-                                              parameter->type_info);
-            if (!parameters[i].fn_sig) parameters[i].fn_sig = parameter->fn_sig;
-        }
-        result = reduce_type_view(function->return_type, function->return_struct_type_name,
-                                  function->return_type_info);
-        if (!result.fn_sig) result.fn_sig = function->return_fn_sig;
-    } else if (signature && signature->param_count == 2 && signature->param_types) {
+    if (signature && signature->param_count == 2 && signature->param_types) {
         for (int i = 0; i < 2; ++i)
             parameters[i] = reduce_type_view(signature->param_types[i],
                 signature->param_struct_names ? signature->param_struct_names[i] : NULL,
@@ -2062,12 +2089,25 @@ static Type check_reduce_call(ASTNode *call, Environment *env) {
         valid = reduce_types_exact(&element, &parameters[1], env, 0);
     }
     if (!valid) {
+        free_function_signature(signature);
         emit_context_error("E001 TYPE MISMATCH", call->line, call->column, 1,
             "I require reduce to receive array<E>, an initializer A and an exact fn(A,E)->A.",
             "Retain complete types and match both callback parameters and its result exactly.");
         return TYPE_UNKNOWN;
     }
-    return initial_type;
+    Type argument_types[3] = {TYPE_ARRAY, initial_type, TYPE_FUNCTION};
+    FunctionSignature *operation = create_function_signature(argument_types, 3, result.base_type);
+    operation->return_type_info = copy_payload_type_info(&result);
+    if (result.fn_sig) operation->return_fn_sig = copy_function_signature(result.fn_sig);
+    free_function_signature(signature);
+    if (call->as.call.checked_signature &&
+        function_signatures_equal(call->as.call.checked_signature, operation)) {
+        free_function_signature(operation);
+    } else {
+        free_function_signature(call->as.call.checked_signature);
+        call->as.call.checked_signature = operation;
+    }
+    return call->as.call.checked_signature->return_type;
 }
 
 /* I retain the union identity of the parser's dotted variant literals. */
@@ -5484,6 +5524,22 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     "Ensure the assigned expression matches the declared type."
                 );
                 tc->has_error = true;
+            }
+
+            /* I compare complete functional-array results before retaining their annotation. */
+            if (declared_type == TYPE_ARRAY && stmt->as.let.type_info &&
+                stmt->as.let.value->type == AST_CALL &&
+                stmt->as.let.value->as.call.checked_signature &&
+                stmt->as.let.value->as.call.name &&
+                (!strcmp(stmt->as.let.value->as.call.name, "map") ||
+                 !strcmp(stmt->as.let.value->as.call.name, "filter"))) {
+                TypeInfo *actual = stmt->as.let.value->as.call.checked_signature->return_type_info;
+                if (actual && !reduce_types_exact(stmt->as.let.type_info, actual, tc->env, 0)) {
+                    emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                        "I require the complete functional-array result annotation to match.",
+                        "Retain the callback's exact element identity.");
+                    tc->has_error = true;
+                }
             }
 
             /* Extract element type if this is an array */
