@@ -37,17 +37,43 @@ memory:
     nvm2c_fail(b, "I cannot allocate native effect facts"); return 0;
 }
 
+/* I join scalar operation carriers without changing their runtime tags. */
+static int effect_merge_kind(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_t kind) {
+    if (variant_scalar_kind(*dest) && variant_scalar_kind(kind) && *dest != kind) {
+        *dest = NVM2C_VK_VALUE;
+        facts->changed = 1;
+        return 1;
+    }
+    return merge_parameter(b, facts, dest, kind);
+}
+
+static uint16_t effect_scalar_tags(uint16_t previous, Nvm2cSimSlot value, uint8_t destination) {
+    uint16_t tags = previous | (value.kind == NVM2C_VK_UNK ? 0 : value.scalar_tags);
+    if (destination == NVM2C_VK_VALUE && variant_scalar_tags(tags | NVM2C_SCALAR_VARIANT))
+        tags |= NVM2C_SCALAR_VARIANT;
+    return tags;
+}
+
+static int effect_shape_flow(Nvm2cBuf *b, NvmShapeId source, NvmShapeId destination,
+                             uint8_t kind, uint16_t tags) {
+    if (kind == NVM2C_VK_VALUE && variant_scalar_tags(tags)) {
+        if (!shape_carrier_box(b, destination, tags)) return 0;
+        return !b->track_shapes || (nvm_shape_convert(&b->shapes, source, destination) && shape_ok(b));
+    }
+    return shape_equal(b, source, destination);
+}
+
 static int effect_resume_result(Nvm2cBuf *b, uint32_t fn, size_t pc,
         Nvm2cFacts *facts, Nvm2cSimSlot result) {
     for (size_t h = 0; h < b->handler_count; ++h) {
         Nvm2cHandler *handler = &b->handlers[h];
         if (handler->function != fn || !handler->flow[pc]) continue;
         Nvm2cEffectResult *out = &b->effect_results[handler->operation];
-        if (!merge_fact(b, facts, &out->kind, result.kind) ||
-            !merge_record_results(b, facts, out->fields, result.rec_k) ||
-            !shape_equal(b, shape_variable(b, &out->shape), result.shape)) return 0;
-        uint16_t tags = out->tags | result.scalar_tags;
+        if (!effect_merge_kind(b, facts, &out->kind, result.kind) ||
+            !merge_record_results(b, facts, out->fields, result.rec_k)) return 0;
+        uint16_t tags = effect_scalar_tags(out->tags, result, out->kind);
         if (tags != out->tags) { out->tags = tags; facts->changed = 1; }
+        if (!effect_shape_flow(b, result.shape, shape_variable(b, &out->shape), out->kind, tags)) return 0;
     }
     return 1;
 }
@@ -68,9 +94,11 @@ static int effect_classify_perform(Nvm2cBuf *b, const NvmModule *mod, uint32_t f
         for (uint16_t p = 0; p < count; ++p) {
             Nvm2cSimSlot v = stack[base + p];
             size_t at = (size_t)h->function * b->local_width + h->start + p;
-            if (!merge_parameter(b, facts, &facts->parameters[at], v.kind) ||
-                !merge_record_results(b, facts, facts->fields + at * b->record_width, v.rec_k) ||
-                !shape_equal(b, shape_variable(b, &b->shape_locals[at]), v.shape)) return 0;
+            if (!effect_merge_kind(b, facts, &facts->parameters[at], v.kind) ||
+                !merge_record_results(b, facts, facts->fields + at * b->record_width, v.rec_k)) return 0;
+            uint16_t tags = effect_scalar_tags(b->local_scalar_tags[at], v, facts->parameters[at]);
+            if (tags != b->local_scalar_tags[at]) { b->local_scalar_tags[at] = tags; facts->changed = 1; }
+            if (!effect_shape_flow(b, v.shape, shape_variable(b, &b->shape_locals[at]), facts->parameters[at], tags)) return 0;
             if (v.kind == NVM2C_VK_UNK)
                 mark_origin(locals, mod->functions[fn].local_count, v.origin, facts->parameters[at]);
         }

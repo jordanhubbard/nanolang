@@ -1,0 +1,31 @@
+[
+  {
+    "command": [
+      "bin/nanoisa",
+      "asm",
+      "/private/tmp/nl51-native-effects/mixed-byte.nasm",
+      "-o",
+      "/private/tmp/nl51-native-effects/mixed-byte.nvm"
+    ],
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bin/nano_vm",
+      "/private/tmp/nl51-native-effects/mixed-byte.nvm"
+    ],
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "command": [
+      "bin/nvm2c",
+      "/private/tmp/nl51-native-effects/mixed-byte.nvm",
+      "-o",
+      "/private/tmp/nl51-native-effects/mixed-byte.c"
+    ],
+    "returncode": 1,
+    "stderr": "I cannot translate '/private/tmp/nl51-native-effects/mixed-byte.nvm': I found invalid aggregate shape constraints during PERFORM in function 0 at offset 51: I found conflicting aggregate shape kinds optional/int at nodes 17/1\n"
+  }
+]

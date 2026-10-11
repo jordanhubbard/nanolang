@@ -1,6 +1,27 @@
 #ifndef NVM2C_EFFECT_EMIT_H
 #define NVM2C_EFFECT_EMIT_H
 
+/* I use a tagged scalar at activation boundaries even for a monomorphic arm. */
+static void effect_emit_store(Nvm2cBuf *b, const char *destination, uint8_t kind, int slot) {
+    if (variant_scalar_kind(kind) || kind == NVM2C_VK_VALUE) {
+        char value[160]; scalar_value_expression(b, value, sizeof value, kind, slot);
+        nvm2c_printf(b, "    %s.kind = %u; %s.data.v = %s;\n", destination, NVM2C_VK_VALUE, destination, value);
+    } else {
+        nvm2c_printf(b, "    %s.kind = %u; %s.data.%s = %s[%d];\n",
+                     destination, kind, destination, stack_array_name(kind), stack_array_name(kind), slot);
+    }
+}
+
+static void effect_value_expression(Nvm2cBuf *b, char *out, size_t size, const char *source, uint8_t kind) {
+    unsigned carrier = variant_scalar_kind(kind) ? NVM2C_VK_VALUE : kind;
+    nvm2c_printf(b, "    if (%s.kind != %u) NVM2C_ABORT();\n", source, carrier);
+    if (variant_scalar_kind(kind)) {
+        const char *projection = kind == NVM2C_VK_INT ? "int" : kind == NVM2C_VK_BOOL ? "bool" :
+                                 kind == NVM2C_VK_FLOAT ? "float" : "string";
+        snprintf(out, size, "nvalue_require_%s(%s.data.v)", projection, source);
+    } else snprintf(out, size, "%s.data.%s", source, stack_array_name(kind));
+}
+
 static void effect_emit_runtime(Nvm2cBuf *b) {
     nvm2c_puts(b,
         "typedef struct { unsigned kind; union { int64_t t; double f; const char *s; narr_t a; nsarr_t sa; nrec_t r; nrarr_t ra; nmap_t m; nmap_value v; } data; } nfx_value;\n"
@@ -65,8 +86,10 @@ static void effect_emit_frame(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx, c
         nvm2c_printf(b, "    %s *p%u = &%s;\n", c_local_type(kind), i, local);
         nvm2c_printf(b, "    if (nactivation && %u < nactivation->start) p%u = nactivation->owner->locals[%u];\n    nfx_locals[%u] = p%u;\n", i, i, i, i, i);
         nvm2c_printf(b, "    if (nactivation && %u >= nactivation->start && %u - nactivation->start < nactivation->count) {\n", i, i);
-        nvm2c_printf(b, "    if (nactivation->arguments[%u - nactivation->start].kind != %u) NVM2C_ABORT();\n", i, kind);
-        nvm2c_printf(b, "    *p%u = nactivation->arguments[%u - nactivation->start].data.%s;\n    }\n", i, i, stack_array_name(kind));
+        char argument[96], value[192];
+        snprintf(argument, sizeof argument, "nactivation->arguments[%u - nactivation->start]", i);
+        effect_value_expression(b, value, sizeof value, argument, kind);
+        nvm2c_printf(b, "    *p%u = %s;\n    }\n", i, value);
     }
 }
 
@@ -86,13 +109,13 @@ static int effect_emit_perform(Nvm2cBuf *b, const NvmModule *mod, Nvm2cStack *st
         uint8_t kind;
         int slot = stack_pop_kind(b, st, &kind);
         if (b->failed) return 0;
-        nvm2c_printf(b, "    arguments[%u].kind = %u; arguments[%u].data.%s = %s[%d];\n", i - 1, kind, i - 1, stack_array_name(kind), stack_array_name(kind), slot);
+        char argument[32]; snprintf(argument, sizeof argument, "arguments[%u]", i - 1);
+        effect_emit_store(b, argument, kind, slot);
     }
     nvm2c_printf(b, "    nfx_activation *activation = nfx_perform(%u, %u, arguments);\n    free(arguments);\n    if (nfx_unwind || nfx_halted) { free(activation); goto L_return; }\n", op, count);
     uint8_t kind = b->effect_results[op].kind;
     if (kind == NVM2C_VK_UNK) kind = NVM2C_VK_VALUE;
-    nvm2c_printf(b, "    if (activation->result.kind != %u) NVM2C_ABORT();\n", kind);
-    char value[64]; snprintf(value, sizeof value, "activation->result.data.%s", stack_array_name(kind));
+    char value[128]; effect_value_expression(b, value, sizeof value, "activation->result", kind);
     int slot = -1;
     if (kind == NVM2C_VK_STR) slot = stack_push_str(b, st, value);
     else if (kind == NVM2C_VK_FLOAT) slot = stack_push_float(b, st, value);

@@ -242,5 +242,61 @@ RET
 """, expected=expected)
 
 
+    def test_mixed_scalar_arguments_and_resume_results(self):
+        values = [
+            ('PUSH_I64 7', 1, 'PUSH_I64 7\nEQ\nASSERT'),
+            ('PUSH_BOOL 1', 4, 'ASSERT'),
+            ('PUSH_F64 1.25', 3, 'PUSH_F64 1.25\nEQ\nASSERT'),
+            ('PUSH_STR a\nPUSH_STR b\nSTR_CONCAT', 5, 'PUSH_STR joined\nSTR_EQ\nASSERT'),
+            ('PUSH_VOID', 0, 'POP'),
+        ]
+        for reverse in (False, True):
+            calls = ''.join(f'{producer}\nPERFORM op 1\nDUP\nTYPE_CHECK {tag}\nASSERT\n{check}\n'
+                            for producer, tag, check in (values[::-1] if reverse else values))
+            with self.subTest(reverse=reverse):
+                self.exercise(f""".string a "hello"
+.string b "world"
+.string joined "helloworld"
+.function main 0 1 0 int 1
+HANDLER_PUSH op arm 0 1
+{calls}HANDLER_POP 1
+PUSH_I64 0
+RET
+arm:
+LOAD_LOCAL 0
+EFFECT_RESUME
+.end
+""")
+
+    def test_distinct_scalar_resumptions_keep_tags(self):
+        self.exercise(""".function main 0 0 0 int 1
+HANDLER_PUSH op integer_arm 0 0
+PERFORM op 0
+DUP
+TYPE_CHECK 1
+ASSERT
+PUSH_I64 7
+EQ
+ASSERT
+HANDLER_POP 1
+HANDLER_PUSH op boolean_arm 0 0
+PERFORM op 0
+DUP
+TYPE_CHECK 4
+ASSERT
+ASSERT
+HANDLER_POP 1
+PUSH_I64 0
+RET
+integer_arm:
+PUSH_I64 7
+EFFECT_RESUME
+boolean_arm:
+PUSH_BOOL 1
+EFFECT_RESUME
+.end
+""")
+
+
 if __name__ == '__main__':
     unittest.main()

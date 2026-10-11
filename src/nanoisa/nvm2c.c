@@ -5718,7 +5718,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             uint8_t kind;
             int slot = stack_pop_kind(b, &st, &kind);
             if (b->failed || st.sp) { nvm2c_fail(b, "I require one native resumed value"); goto done; }
-            nvm2c_printf(b, "    if (!nactivation) NVM2C_ABORT();\n    nactivation->result.kind = %u;\n    nactivation->result.data.%s = %s[%d];\n    nresumed = 1;\n    goto L_return;\n", kind, stack_array_name(kind), stack_array_name(kind), slot);
+            nvm2c_puts(b, "    if (!nactivation) NVM2C_ABORT();\n");
+            effect_emit_store(b, "nactivation->result", kind, slot);
+            nvm2c_puts(b, "    nresumed = 1;\n    goto L_return;\n");
             terminated = 1;
             break;
         }
@@ -6043,8 +6045,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         if (b->has_unwind) {
             if (fn->result_count == 1 && st.sp == 1) {
                 uint8_t kind = st.kinds[0];
-                nvm2c_printf(b, "    if (nactivation) { nactivation->result.kind = %u; nactivation->result.data.%s = %s[%d]; nresumed = 1; goto L_return; }\n",
-                             kind, stack_array_name(kind), stack_array_name(kind), st.slots[0]);
+                nvm2c_puts(b, "    if (nactivation) {\n");
+                effect_emit_store(b, "nactivation->result", kind, st.slots[0]);
+                nvm2c_puts(b, "    nresumed = 1; goto L_return; }\n");
             } else nvm2c_puts(b, "    if (nactivation) NVM2C_ABORT();\n");
         }
         if (!emit_scalar_return(b, &st, fn, idx)) goto done;
