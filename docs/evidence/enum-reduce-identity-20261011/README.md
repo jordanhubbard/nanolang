@@ -1,0 +1,13 @@
+# My enum and string reduce identity evidence
+
+I continue #976 after the qualified tuple checkpoint 20d62a12b. My C checker omitted enum declaration names when introducing function parameters in both root and module bodies. I retain those names, preserving exact reduce accumulator identity. My complete typechecker suite now passes, including new distinct-enum and integer-initializer refusals.
+
+My first executed enum reproducer then aborted in dyn_array_get_struct: native reduce recovered a raw nominal parameter element kind after its initial array inference had resolved the enum. I resolve that retained name before selecting storage access. Integer-backed enum arrays now use integer reads. I also declare string accumulators const char*, preserving callback return qualification when their initializer is a string literal.
+
+My two maintained tests in tests/test_reduce_nominal_values.py exercise nonempty and empty enum arrays with an enum parameter, and nonempty and empty string reductions with literal initializers. Both pass through C NanoISA and the native self-hosted compiler from the preceding checkpoint, with verified VM execution and ASan/UBSan C AOT execution. The C-native run passes those two methods and all 40 tuple/generic methods (42 total). The current typechecker and transpiler unit gates pass.
+
+I rebuild the changed typechecker and transpiler objects with ASan/UBSan, reusing the separately instrumented environment and evaluator objects from the tuple checkpoint. Both runtime methods and the complete typechecker unit suite pass with these instrumented objects. I disable interpreter leak detection; I do not infer leak freedom from this audit.
+
+I retain all demonstrated failures. The broad scalar-reduce suite initially reports four failed subcases: C-native string qualification, installed Stage 1/2 operand-order shadows, and a test expecting Boolean reduce to be unsupported although compilation succeeds. After the production fixes, the unchanged ordered, neighboring and Boolean sources compile and execute through current C-native and the fresh self-hosted product. Those six current-product controls pass; I do not claim a green rerun of the installed-stage suite or silently weaken its assertions. Its installed-generation qualification and outdated refusal expectation remain a roadmap follow-up.
+
+The preceding tuple checkpoint passed an unchanged-source eleven-stage compiler-product audit. These subsequent small C-checker/native-emitter corrections are qualified by the targeted runtime, sanitizer and unit gates above; that earlier frozen audit is not an exact-source audit of this follow-up. The full 5.1 candidate/platform gates and equal-name module union work remain open.

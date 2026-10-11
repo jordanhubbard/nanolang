@@ -2289,6 +2289,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                 }
 
+                elem_type = resolved_array_element(elem_type, elem_struct_name, env);
+
                 const char *elem_suffix = "int";
                 const char *elem_c_type = "int64_t";
                 if (elem_type == TYPE_FLOAT) {
@@ -2307,7 +2309,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
                 emit_literal(list, "({ DynArray* _arr = ");
                 build_expr(list, array_arg, env);
-                emit_literal(list, "; __auto_type _acc = ");
+                emit_literal(list, check_expression(initial_arg, env) == TYPE_STRING
+                    ? "; const char *_acc = " : "; __auto_type _acc = ");
                 build_expr(list, initial_arg, env);
                 emit_literal(list, "; __auto_type _f = ");
                 build_expr(list, fn_arg, env);

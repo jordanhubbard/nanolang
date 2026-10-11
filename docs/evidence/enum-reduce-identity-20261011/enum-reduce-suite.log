@@ -1,0 +1,82 @@
+test_bound_reduce_function_and_local (tests.test_scalar_reduce_source.ScalarReduce.test_bound_reduce_function_and_local) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-2mjjr807
+ok
+test_checked_signature_refusals_preserve_output (tests.test_scalar_reduce_source.ScalarReduce.test_checked_signature_refusals_preserve_output) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-kfjfdsgk
+ok
+test_float_contexts_and_empty (tests.test_scalar_reduce_source.ScalarReduce.test_float_contexts_and_empty) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-bmj7v_c0
+ok
+test_neighbor_helpers (tests.test_scalar_reduce_source.ScalarReduce.test_neighbor_helpers) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-dz3_eygy
+
+  test_neighbor_helpers (tests.test_scalar_reduce_source.ScalarReduce.test_neighbor_helpers) (legacy='nanoc_c') ... FAIL
+test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-cmyibw9l
+
+  test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (legacy='nanoc_stage1') ... FAIL
+  test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (legacy='nanoc_stage2') ... FAIL
+test_supported_checker_unsupported_legacy_abi (tests.test_scalar_reduce_source.ScalarReduce.test_supported_checker_unsupported_legacy_abi) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ci3qh16b
+FAIL
+
+======================================================================
+FAIL: test_neighbor_helpers (tests.test_scalar_reduce_source.ScalarReduce.test_neighbor_helpers) (legacy='nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 31, in legacy
+    self.command(ROOT/'bin'/name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 19, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nanoc_c command=['/Users/jordanh/Src/nanolang/bin/nanoc_c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-dz3_eygy/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-dz3_eygy/nanoc_c-legacy']
+
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-dz3_eygy/ordinary.nano:7:263: error: assigning to 'char *' from 'const char *' discards qualifiers [-Werror,-Wincompatible-pointer-types-discards-qualifiers]
+    7 |     if (!((strcmp(({ DynArray* _arr = dynarray_literal_string(2, "a", "b"); __auto_type _acc = "x"; __auto_type _f = nl_join; int64_t _len = dyn_array_length(_arr); for (int64_t _i = 0; _i < _len; _i++) { const char* _elem = dyn_array_get_string(_arr, _i); _acc = _f(_acc, _elem); } _acc; }), "xab") == 0))) { fputs("Contract violation at line 7: (== (reduce ... \"x\" join) \"xab\")\n", stderr); exit(1); }
+      |                                                                                                                                                                                                                                                                       ^ ~~~~~~~~~~~~~~~
+1 error generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (legacy='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 31, in legacy
+    self.command(ROOT/'bin'/name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 19, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nanoc_stage1 command=['/Users/jordanh/Src/nanolang/bin/nanoc_stage1', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-cmyibw9l/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-cmyibw9l/nanoc_stage1-legacy']
+I cannot lower this checked program: I require a declared scalar callback identifier
+
+
+
+======================================================================
+FAIL: test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (legacy='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 31, in legacy
+    self.command(ROOT/'bin'/name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 19, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nanoc_stage2 command=['/Users/jordanh/Src/nanolang/bin/nanoc_stage2', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-cmyibw9l/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-cmyibw9l/nanoc_stage2-legacy']
+I cannot lower this checked program: I require a declared scalar callback identifier
+
+
+
+======================================================================
+FAIL: test_supported_checker_unsupported_legacy_abi (tests.test_scalar_reduce_source.ScalarReduce.test_supported_checker_unsupported_legacy_abi)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 90, in test_supported_checker_unsupported_legacy_abi
+    result = self.command(ROOT/'bin'/name, source, *flags, '-o', output, success=False)
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 19, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : tool=/Users/jordanh/Src/nanolang/bin/nanoc_stage1 command=['/Users/jordanh/Src/nanolang/bin/nanoc_stage1', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ci3qh16b/ordinary.nano', '--target', 'c', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ci3qh16b/prior']
+
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 6.871s
+
+FAILED (failures=4)
