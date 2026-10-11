@@ -121,6 +121,73 @@ static Symbol *symbol_lookup(Environment *env, const char *name, bool same_file)
     return NULL;
 }
 
+/* I keep function slots in reverse declaration order within each name bucket.
+ * Names do not change after registration; module ownership and bodies remain
+ * live slot data and are never cached. Reallocation cannot stale slot indices. */
+static void function_index_free(Environment *env) {
+    struct EnvSymbolIndex *index = env->function_index;
+    if (!index) return;
+    free(index->heads); free(index->links); free(index);
+    env->function_index = NULL;
+}
+
+static struct EnvSymbolIndex *function_index_sync(Environment *env) {
+    struct EnvSymbolIndex *index = env->function_index;
+    size_t needed = (size_t)env->function_count;
+    if (index && (index->count > env->function_count || needed > index->capacity)) {
+        function_index_free(env);
+        index = NULL;
+    }
+    if (!index) {
+        size_t capacity = 16;
+        while (capacity < needed) {
+            if (capacity > SIZE_MAX / 2) return NULL;
+            capacity *= 2;
+        }
+        if (capacity > SIZE_MAX / (2 * sizeof(int)) ||
+            capacity > SIZE_MAX / sizeof(EnvSymbolLink)) return NULL;
+        index = calloc(1, sizeof *index);
+        if (!index) return NULL;
+        index->capacity = capacity;
+        index->bucket_count = capacity * 2;
+        index->heads = calloc(index->bucket_count, sizeof *index->heads);
+        index->links = calloc(capacity, sizeof *index->links);
+        env->function_index = index;
+        if (!index->heads || !index->links) { function_index_free(env); return NULL; }
+    }
+    while (index->count < env->function_count) {
+        int slot = index->count++;
+        const char *name = env->functions[slot].name;
+        if (!name) continue;
+        EnvSymbolLink *link = &index->links[slot];
+        link->hash = symbol_name_hash(name);
+        size_t bucket = link->hash & (index->bucket_count - 1);
+        link->previous = index->heads[bucket];
+        index->heads[bucket] = slot + 1;
+    }
+    return index;
+}
+
+static Function *function_named(Environment *env, const char *name,
+                                 const char *owner, bool owned_only, bool body_only) {
+    struct EnvSymbolIndex *index = function_index_sync(env);
+    uint64_t hash = symbol_name_hash(name);
+    int next = index ? index->heads[hash & (index->bucket_count - 1)] : env->function_count;
+    Function *first = NULL;
+    while (next) {
+        int slot = next - 1;
+        next = index ? index->links[slot].previous : slot;
+        if (index && index->links[slot].hash != hash) continue;
+        Function *function = &env->functions[slot];
+        if (!function->name || strcmp(function->name, name)) continue;
+        if (body_only && (function->is_extern || !function->body)) continue;
+        if (owned_only && !((!owner && !function->module_name) ||
+            (owner && function->module_name && !strcmp(owner, function->module_name)))) continue;
+        first = function; /* I retain the earliest matching declaration. */
+    }
+    return first;
+}
+
 /* I retain checker allocations independently of mutable symbol/function slots.
  * Every registered block is unique and shallowly freed; borrowed subgraphs are
  * never traversed. This deliberately does not change runtime value ownership. */
@@ -433,6 +500,7 @@ void free_environment(Environment *env) {
         /* Note: function names are not owned by environment - they point to AST */
         /* Freeing them causes double-free crashes */
     }
+    function_index_free(env);
     free(env->functions);
     
     for (int i = 0; i < env->struct_count; i++) {
@@ -970,16 +1038,7 @@ Function *env_get_function(Environment *env, const char *name) {
                     if (strcmp(env->namespaces[i].function_names[j], func_name) == 0) {
                         /* Look up the actual function by its original name AND module name */
                         const char *orig_mod = env->namespaces[i].module_name;
-                        for (int k = 0; k < env->function_count; k++) {
-                            if (safe_strcmp(env->functions[k].name, func_name) == 0) {
-                                /* I bind a qualified name only to its namespace owner. */
-                                if ((!orig_mod && !env->functions[k].module_name) ||
-                                    (orig_mod && env->functions[k].module_name &&
-                                     strcmp(env->functions[k].module_name, orig_mod) == 0)) {
-                                    return &env->functions[k];
-                                }
-                            }
-                        }
+                        return function_named(env, func_name, orig_mod, true, false);
                     }
                 }
                 /* Function not found in this module's namespace */
@@ -992,15 +1051,8 @@ Function *env_get_function(Environment *env, const char *name) {
 
     /* I permit this non-reserved declaration only in its own module. */
     if (strcmp(name, "array_push") == 0) {
-        for (int i = 0; i < env->function_count; i++) {
-            Function *function = &env->functions[i];
-            if (function->name && strcmp(function->name, name) == 0 &&
-                !function->is_extern && function->body &&
-                ((!env->current_module && !function->module_name) ||
-                 (env->current_module && function->module_name &&
-                  strcmp(env->current_module, function->module_name) == 0)))
-                return function;
-        }
+        Function *function = function_named(env, name, env->current_module, true, true);
+        if (function) return function;
     }
 
     /* Check built-in functions via unified registry (only BUILTIN_LANG entries) */
@@ -1025,32 +1077,8 @@ Function *env_get_function(Environment *env, const char *name) {
         }
     }
 
-    /* Check user-defined functions */
-    /* First pass: prefer functions in the current module */
-    {
-        for (int i = 0; i < env->function_count; i++) {
-            if (env->functions[i].name && safe_strcmp(env->functions[i].name, name) == 0) {
-                if ((!env->current_module && !env->functions[i].module_name) ||
-                    (env->current_module && env->functions[i].module_name &&
-                     strcmp(env->functions[i].module_name, env->current_module) == 0)) {
-                    return &env->functions[i];
-                }
-            }
-        }
-    }
-
-    /* Second pass: check all functions (global or other modules) */
-    for (int i = 0; i < env->function_count; i++) {
-        /* Skip functions with NULL names */
-        if (!env->functions[i].name) {
-            continue;
-        }
-        if (safe_strcmp(env->functions[i].name, name) == 0) {
-            return &env->functions[i];
-        }
-    }
-
-    return NULL;
+    Function *local = function_named(env, name, env->current_module, true, false);
+    return local ? local : function_named(env, name, NULL, false, false);
 }
 
 /* I share push identity across inference and native lowering. */

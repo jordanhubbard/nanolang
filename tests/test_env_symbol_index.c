@@ -125,8 +125,81 @@ static void check_visible_index(Environment *env) {
     pop_to(env, mark);
 }
 
+/* I compare indexed function candidates with declaration-order selection. */
+static Function *linear_function(Environment *env, const char *name, const char *owner,
+                                  bool owned, bool body) {
+    for (int i = 0; i < env->function_count; ++i) {
+        Function *f = &env->functions[i];
+        if (!f->name || strcmp(f->name, name)) continue;
+        if (body && (f->is_extern || !f->body)) continue;
+        if (owned && ((!owner != !f->module_name) ||
+            (owner && strcmp(owner, f->module_name)))) continue;
+        return f;
+    }
+    return NULL;
+}
+
+static void check_function_index(void) {
+    Environment *env = create_environment();
+    char names[513][32];
+    char *owners[] = {NULL, "alpha", "beta"};
+    ASTNode body = {0};
+    for (int i = 0; i < 513; ++i) {
+        snprintf(names[i], sizeof names[i], "indexed_fn_%d", i % 97);
+        Function f = {0};
+        f.name = names[i]; f.module_name = owners[i % 3];
+        f.is_extern = i % 5 == 0; f.body = i % 7 ? &body : NULL;
+        env_define_function(env, f);
+        /* I force lookup across every append and function-table reallocation. */
+        assert(function_named(env, names[i], NULL, false, false) ==
+               linear_function(env, names[i], NULL, false, false));
+    }
+    env_define_function(env, (Function){0});
+    for (int owner = 0; owner < 3; ++owner) {
+        env->current_module = owners[owner];
+        for (int i = 0; i < 513; ++i) {
+            for (int owned = 0; owned < 2; ++owned)
+                for (int body_only = 0; body_only < 2; ++body_only)
+                    assert(function_named(env, names[i], owners[owner], owned, body_only) ==
+                           linear_function(env, names[i], owners[owner], owned, body_only));
+            Function *local = linear_function(env, names[i], owners[owner], true, false);
+            assert(env_get_function(env, names[i]) == (local ? local :
+                   linear_function(env, names[i], NULL, false, false)));
+        }
+        char **exports = malloc(sizeof *exports); exports[0] = strdup(names[0]);
+        env_register_namespace(env, "Selected", "beta", exports, 1, NULL, 0, NULL, 0, NULL, 0);
+        assert(env_get_function(env, "Selected.indexed_fn_0") ==
+               linear_function(env, names[0], "beta", true, false));
+        assert(!env_get_function(env, "Selected.missing"));
+    }
+    env->current_module = "unregistered_owner";
+    assert(!env_get_function(env, "Selected.indexed_fn_0"));
+    assert(!env_get_function(env, "absent_function"));
+    Function *builtin = env_get_function(env, "abs"); assert(builtin);
+    env_define_function(env, (Function){.name="abs", .body=&body});
+    assert(env_get_function(env, "abs") == builtin);
+    env->current_module = "alpha";
+    env_define_function(env, (Function){.name="array_push", .module_name="alpha", .body=&body});
+    assert(env_get_function(env, "array_push") == &env->functions[env->function_count-1]);
+    env->current_module = "beta";
+    assert(env_get_function(env, "array_push") != &env->functions[env->function_count-1]);
+    /* I read changed ownership/body data directly rather than caching selection. */
+    env->functions[0].module_name = "beta"; env->functions[0].body = &body;
+    assert(function_named(env, names[0], "beta", true, false) == &env->functions[0]);
+    for (int failure = 1; failure <= 3; ++failure) {
+        function_index_free(env);
+        fail_index_allocation = failure; index_allocation_number = 0;
+        assert(function_named(env, names[0], "beta", true, false) == &env->functions[0]);
+        assert(!env->function_index);
+        fail_index_allocation = 0;
+    }
+    assert(!function_named(env, "absent_function", NULL, false, false));
+    free_environment(env);
+}
+
 int main(void) {
     gc_init();
+    check_function_index();
     Environment *env = create_environment();
     assert(!env_get_var(env, "absent"));
     for (int i = 0; i < 4096; ++i) {

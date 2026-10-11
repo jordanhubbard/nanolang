@@ -1,0 +1,43 @@
+--- a/src/env.c
++++ b/src/env.c
+@@ -944,7 +944,7 @@
+ }
+ 
+ /* Get function */
+-Function *env_get_function(Environment *env, const char *name) {
++static Function *profile_lookup(Environment *env, const char *name) {
+     if (!name) {
+         return NULL;
+     }
+@@ -2438,3 +2438,13 @@
+     }
+     env->generic_func_instances[env->generic_func_instance_count++] = inst;
+ }
++
++#include <time.h>
++static unsigned long long lookup_calls, lookup_ns;
++void nl_lookup_profile_reset(void) { lookup_calls=lookup_ns=0; }
++void nl_lookup_profile_report(const char *name) { fprintf(stderr,"lookup-profile %s %llu %llu\n",name,lookup_calls,lookup_ns); }
++Function *env_get_function(Environment *env, const char *name) {
++ struct timespec a,b; clock_gettime(CLOCK_MONOTONIC,&a);
++ Function *r=profile_lookup(env,name); clock_gettime(CLOCK_MONOTONIC,&b);
++ lookup_calls++;lookup_ns+=(b.tv_sec-a.tv_sec)*1000000000LL+b.tv_nsec-a.tv_nsec;return r;
++}
+--- a/src/eval.c
++++ b/src/eval.c
+@@ -1,3 +1,5 @@
++extern void nl_lookup_profile_reset(void);
++extern void nl_lookup_profile_report(const char *);
+ #define _POSIX_C_SOURCE 200809L  /* For mkstemp/mkdtemp */
+ 
+ #include "nanolang.h"
+@@ -6592,7 +6594,9 @@
+                 bool trace_clock = trace_shadows && clock_gettime(CLOCK_MONOTONIC, &trace_start) == 0;
+                 if (trace_shadows)
+                     shadow_trace_event("shadow-start", func_name, file, item->line, 0, 0);
++                nl_lookup_profile_reset();
+                 eval_statement(item->as.shadow.body, env);
++                nl_lookup_profile_report(func_name);
+                 if (trace_shadows) {
+                     double elapsed = -1;
+                     if (trace_clock && clock_gettime(CLOCK_MONOTONIC, &trace_end) == 0)

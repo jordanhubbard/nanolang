@@ -834,6 +834,7 @@ typedef struct {
     struct EnvCheckerAllocation *checker_allocations; /* Explicit checker-owned storage, independent of slots. */
     struct EnvSymbolIndex *symbol_index; /* Owned optional name index; slots remain authoritative. */
     Function *functions;
+    struct EnvSymbolIndex *function_index; /* I index names; declarations remain authoritative. */
     int function_count;
     int function_capacity;
     StructDef *structs;
