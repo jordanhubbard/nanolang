@@ -366,6 +366,8 @@ static FunctionSignature *parse_function_signature(Stage1Parser *p) {
     }
     sig->return_struct_name = return_struct_name;  /* May be NULL */
     sig->return_fn_sig = return_fn_sig;  /* Store function signature for function return types */
+    if (return_fn_sig && !sig->return_type_info->fn_sig)
+        sig->return_type_info->fn_sig = copy_function_signature(return_fn_sig);
     
     if (sig->return_type == TYPE_UNKNOWN) {
         /* Error already reported */

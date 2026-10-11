@@ -746,6 +746,8 @@ static void register_native_union_context(Environment *env, const TypeInfo *info
 }
 
 /* I resolve payload annotations and retain owned constructor context. */
+static bool indirect_argument_matches(ASTNode *, Environment *, const TypeInfo *, Type, int);
+
 static void check_concrete_union_arrays(Environment *env, const TypeInfo *expected,
                                         ASTNode *value, unsigned depth) {
     if (!expected || !value) return;
@@ -759,6 +761,13 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
         return;
     }
 
+    if (expected->base_type == TYPE_TUPLE && value->type == AST_TUPLE_LITERAL) {
+        if (!indirect_argument_matches(value, env, expected, TYPE_TUPLE, (int)depth))
+            emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                "I require the complete declared tuple storage signature.",
+                "Match every stored tuple element type.");
+        return;
+    }
     register_native_union_context(env, expected, 0);
     if (depth > 128) {
         emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
@@ -1354,8 +1363,6 @@ static TypeInfo *copy_generic_argument_info(ASTNode *expr, Environment *env, uns
     }
     return info;
 }
-
-static bool indirect_argument_matches(ASTNode *, Environment *, const TypeInfo *, Type, int);
 
 /* I compare tuple contents at each declared value boundary. */
 static bool check_tuple_contract(Environment *env, const TypeInfo *expected, ASTNode *value) {
@@ -4166,6 +4173,9 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Check field type */
                 Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
                 ASTNode *field_value = expr->as.struct_literal.field_values[i];
+                if (sdef->field_types[field_index] == TYPE_TUPLE && sdef->field_type_info &&
+                    !check_tuple_contract(env, sdef->field_type_info[field_index], field_value))
+                    return TYPE_UNKNOWN;
                 check_record_array_contract(env, sdef->field_types[field_index],
                     sdef->field_element_types ? sdef->field_element_types[field_index] : TYPE_UNKNOWN,
                     sdef->field_type_names ? sdef->field_type_names[field_index] : NULL, field_value);

@@ -1,0 +1,14 @@
+............................F............
+======================================================================
+FAIL: test_conflicting_heap_and_scalar_fields_still_refuse (tests.test_native_union_padding.NativeUnionPadding.test_conflicting_heap_and_scalar_fields_still_refuse)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_union_padding.py", line 101, in test_conflicting_heap_and_scalar_fields_still_refuse
+    self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 : 
+
+----------------------------------------------------------------------
+Ran 41 tests in 56.295s
+
+FAILED (failures=1)
