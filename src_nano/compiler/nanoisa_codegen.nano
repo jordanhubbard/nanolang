@@ -56,6 +56,7 @@ shadow nisa_generic_type {
 
 fn nisa_generic_function(parser: Parser, function: ASTFunction) -> bool {
     if (< function.body 0) { return false }
+    if (== function.node_type ParseNodeType.PNODE_LAMBDA) { return false }
     let mut i: int = 0
     while (< i function.param_count) {
         if (generic_type_contains_variable parser (parser_get_let parser (+ function.param_start i)).var_type) { return true }
@@ -275,6 +276,7 @@ let mut nisa_capture_frames: array<NisaCaptureFrame> = []
 let mut nisa_capture_frame: int = -1
 let mut nisa_capture_parent: int = -1
 let mut nisa_lambda_indices: array<int> = []
+let mut nisa_lambda_generics: array<int> = []
 let mut nisa_lambda_frames: array<int> = []
 let mut nisa_lambda_text: string = ""
 
@@ -513,6 +515,7 @@ fn nisa_reset() -> int {
     set nisa_capture_frame -1
     set nisa_capture_parent -1
     set nisa_lambda_indices []
+    set nisa_lambda_generics []
     set nisa_lambda_frames []
     set nisa_lambda_text ""
     set nisa_has_callables false
@@ -640,11 +643,21 @@ shadow nisa_capture_find {
 }
 
 fn nisa_emit_lambda(parser: Parser, index: int) -> string {
-    let function: ASTFunction = (parser_get_function parser index)
+    let mut function: ASTFunction = (parser_get_function parser index)
+    if (>= nisa_generic_active 0) {
+        let name: string = (nisa_shadow_name parser (+ "__nanoisa_instance_" (+ (int_to_string nisa_generic_active) (+ "_lambda_" (int_to_string index)))))
+        set function (ASTFunction {
+            node_type: function.node_type, line: function.line, column: function.column,
+            name: name, param_start: function.param_start, param_count: function.param_count,
+            return_type: (nisa_generic_type function.return_type), body: function.body,
+            is_pure: function.is_pure, self_name: function.self_name })
+    }
     let mut child: int = -1
     let mut cached: int = 0
     while (< cached (array_length nisa_lambda_indices)) {
-        if (== (at nisa_lambda_indices cached) index) { set child (at nisa_lambda_frames cached) }
+        if (and (== (at nisa_lambda_indices cached) index) (== (at nisa_lambda_generics cached) nisa_generic_active)) {
+            set child (at nisa_lambda_frames cached)
+        }
         set cached (+ cached 1)
     }
     if (< child 0) {
@@ -669,6 +682,7 @@ fn nisa_emit_lambda(parser: Parser, index: int) -> string {
         }
         set child (array_length nisa_capture_frames)
         set nisa_lambda_indices (array_push nisa_lambda_indices index)
+        set nisa_lambda_generics (array_push nisa_lambda_generics nisa_generic_active)
         set nisa_lambda_frames (array_push nisa_lambda_frames child)
         set nisa_capture_parent saved_frame
         let body: string = (nisa_emit_function parser function)
@@ -703,6 +717,10 @@ fn nisa_emit_lambda(parser: Parser, index: int) -> string {
     return (+ text (nisa_line_imm "CLOSURE_NEW" (+ function.name (+ " " (int_to_string capture)))))
 }
 shadow nisa_emit_lambda {
+    let specialized: string = (nanoisa_emit_nasm "fn keep(value:T)->T{let f:fn()->int=fn()->int{return 7} assert (== (f) 7) return value} fn main()->int{assert (keep true) return (keep 7)}")
+    assert nisa_ok
+    assert (str_contains specialized "CLOSURE_NEW __nanoisa_instance_0_lambda_")
+    assert (str_contains specialized "CLOSURE_NEW __nanoisa_instance_1_lambda_")
     let named: string = (nanoisa_emit_nasm "fn main()->int{let offset:int=1 fn sum(n:int)->int{if (== n 0){return offset} return (+ n (sum (- n 1)))} return (sum 3)}")
     assert nisa_ok
     assert (str_contains named "CLOSURE_NEW __lambda_")
@@ -4233,7 +4251,7 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
                 return (nisa_line_imm "FUNCREF" (at nisa_generics binding).name)
             }
         }
-        if (not (nisa_value_type_matches parser (nisa_expr_type parser node_id node_type) expected)) {
+        if (not (nisa_value_type_matches parser (nisa_generic_type (nisa_expr_type parser node_id node_type)) expected)) {
             return (nisa_fail "I require the declared function value signature")
         }
     }
@@ -7052,6 +7070,25 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         }
         if func.is_pure { set header (+ header ".function_purity 1\n") }
         else { set header (+ header ".function_purity 0\n") }
+        if (>= nisa_generic_active 0) {
+            let instance: NisaGeneric = (at nisa_generics nisa_generic_active)
+            if (== func.name instance.name) {
+                let declaration: ASTFunction = (parser_get_function parser instance.function_index)
+                let owner: int = (mb_owner declaration.line)
+                let source_name: string = (mb_source_name owner declaration.name)
+                let mut source_path: string = (mb_source owner)
+                if (== source_path "") { set source_path parser.file_name }
+                let mut binding: int = 0
+                while (< binding (array_length instance.variables)) {
+                    let mut record: string = (+ ".generic_binding \"" (nisa_escape_string source_name))
+                    set record (+ record (+ "\" \"" (nisa_escape_string source_path)))
+                    set record (+ record (+ "\" \"" (nisa_escape_string (at instance.variables binding))))
+                    set record (+ record (+ "\" \"" (nisa_escape_string (nisa_compact_type (at instance.types binding)))))
+                    set header (+ header (+ record "\"\n"))
+                    set binding (+ binding 1)
+                }
+            }
+        }
         let mut parameter_names: string = ""
         let mut named_parameter: int = 0
         while (< named_parameter func.param_count) {
@@ -7083,6 +7120,9 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
 }
 
 shadow nisa_emit_function {
+    let generic: string = (nanoisa_emit_nasm "fn same(value:T)->T{return value} fn main()->int{return (same 7)}")
+    assert (str_contains generic ".generic_binding \"same\"")
+    assert (str_contains generic "\"T\" \"int\"\n")
     let purity: string = (nanoisa_emit_nasm "pure fn twice(x:int)->int{return (+ x x)} fn main()->int{return (twice 3)}")
     assert (str_contains purity ".function_purity 1\n")
     assert (str_contains purity ".function_purity 0\n")

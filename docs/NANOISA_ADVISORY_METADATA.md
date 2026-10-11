@@ -74,3 +74,39 @@ Stripping, forging or duplicating them cannot change executable behavior.
 A linker or rewriter that changes function-table indices must remap or discard
 these records. Exact module transport preserves them; general fact-aware linking
 and reconstruction remain separate requirements.
+
+## Generic specialization bindings
+
+I retain one `nano.generic.v1` entry per bound type variable of an emitted
+specialization. Its value starts with five little-endian u32 fields: the
+function-table index, then byte lengths for the original declaration name,
+source path, variable name and resolved type spelling. Those four UTF-8 strings
+follow inline, without terminators or padding. The source path may be empty
+when the producer has no filename; the other fields must be nonempty. No field
+may contain NUL. The codec treats the counted strings as descriptive bytes; it
+does not certify UTF-8 or parse the type spelling.
+
+My C producer retains its checked `TypeInfo` spelling, including internal
+nominal owner names. My selfhosted producer retains its resolved, whitespace-free
+type spelling and recovers the original declaration name before module renaming.
+These frontend spellings can differ. They preserve the frontend's identity;
+they do not replace canonical layout identities or recover original type aliases.
+Calls and contextual function values sharing one specialization share its
+binding records. Ordinary functions have no generic binding record.
+
+Inside a function, `.generic_binding "declaration" "path" "variable" "type"`
+constructs an entry. Canonical assembly transports the raw `.metadata` bytes.
+My lookup borrows counted fields and leaves its output unchanged on failure.
+Unknown versions remain uninterpreted. A malformed v1 record makes lookup fail;
+duplicate variables or inconsistent declaration origins for the queried function
+make its records ambiguous. Missing records do not imply a complete binding set.
+Appending refuses an ambiguous target binding, inconsistent origin or malformed
+v1 record. Allocation failure publishes no partial entry; unused pooled strings
+may remain available for retry.
+
+I do not use these strings to authorize execution, substitute executable types,
+choose layouts or transfer ownership. Stripping and forging them leave execution
+unchanged. A function-table rewriter must remap indices or discard the records.
+Because fields are inline bytes, string-pool relocation needs no hidden index
+rewrite. Complete generic signatures, fact-aware linking and source reconstruction
+remain separate obligations.

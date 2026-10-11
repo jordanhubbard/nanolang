@@ -1,0 +1,28 @@
+test_arrays_and_tuples (tests.test_generic_binding_metadata.GenericBindingMetadata.test_arrays_and_tuples) ... ok
+test_callable_binding (tests.test_generic_binding_metadata.GenericBindingMetadata.test_callable_binding) ... ok
+test_contextual_callable_reuses_direct_instance (tests.test_generic_binding_metadata.GenericBindingMetadata.test_contextual_callable_reuses_direct_instance) ... ok
+test_imported_declaration_origins (tests.test_generic_binding_metadata.GenericBindingMetadata.test_imported_declaration_origins) ... ok
+test_imported_nominal_types_remain_distinct (tests.test_generic_binding_metadata.GenericBindingMetadata.test_imported_nominal_types_remain_distinct) ... ok
+test_multiple_type_variables (tests.test_generic_binding_metadata.GenericBindingMetadata.test_multiple_type_variables) ... ok
+test_nested_body_is_not_a_second_specialization (tests.test_generic_binding_metadata.GenericBindingMetadata.test_nested_body_is_not_a_second_specialization) ... 
+  test_nested_body_is_not_a_second_specialization (tests.test_generic_binding_metadata.GenericBindingMetadata.test_nested_body_is_not_a_second_specialization) (driver=PosixPath('/private/tmp/nl51-generic/compiler')) ... FAIL
+test_nominal_and_generic_union_bindings (tests.test_generic_binding_metadata.GenericBindingMetadata.test_nominal_and_generic_union_bindings) ... ok
+test_scalars_and_reused_instances (tests.test_generic_binding_metadata.GenericBindingMetadata.test_scalars_and_reused_instances) ... ok
+
+======================================================================
+FAIL: test_nested_body_is_not_a_second_specialization (tests.test_generic_binding_metadata.GenericBindingMetadata.test_nested_body_is_not_a_second_specialization) (driver=PosixPath('/private/tmp/nl51-generic/compiler'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_binding_metadata.py", line 31, in exercise
+    self.run_checked([driver, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_binding_metadata.py", line 20, in run_checked
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require one lexical creation scope for an anonymous body
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 4.720s
+
+FAILED (failures=1)

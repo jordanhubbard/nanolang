@@ -266,6 +266,28 @@ pub fn mb_source(owner: int) -> string {
     if (or (< owner 0) (>= owner (array_length mb_source_paths))) { return "" }
     return (at mb_source_paths owner)
 }
+
+# I recover a declaration's spelling before generated module renaming.
+pub fn mb_source_name(owner: int, target: string) -> string {
+    let mut i: int = 0
+    while (< i (array_length mb_targets)) {
+        if (and (== (at mb_owners i) owner) (and (== (at mb_definition_owners i) owner) (== (at mb_targets i) target))) {
+            let name: string = (at mb_names i)
+            if (not (str_starts_with name "#type:")) { return name }
+        }
+        set i (+ i 1)
+    }
+    return target
+}
+shadow mb_source_name {
+    (mb_reset [1, 9])
+    (mb_add 0 "value" "generated_value")
+    (mb_add_target 1 "alias" "generated_value" 0)
+    assert (== (mb_source_name 0 "generated_value") "value")
+    assert (== (mb_source_name 1 "generated_value") "generated_value")
+    assert (== (mb_source_name 0 "missing") "missing")
+    (mb_reset [])
+}
 shadow mb_source {
     (mb_set_sources ["one.nano"])
     assert (== (mb_source 0) "one.nano")

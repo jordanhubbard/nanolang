@@ -314,6 +314,20 @@ bool nvm_metadata_source_key(const NvmModule *mod, uint32_t key);
 bool nvm_add_function_purity(NvmModule *mod, uint32_t function, bool declared);
 int nvm_function_purity(const NvmModule *mod, uint32_t function);
 
+/* I borrow counted, non-NUL-terminated frontend descriptions. These strings
+ * are advisory and never grant type, layout or ownership authority. */
+typedef struct {
+    uint32_t function;
+    const char *source_name, *source_path, *variable, *type;
+    uint32_t source_name_length, source_path_length, variable_length, type_length;
+} NvmGenericBinding;
+bool nvm_add_generic_binding(NvmModule *mod, uint32_t function,
+    const char *source_name, const char *source_path, const char *variable,
+    const char *type);
+/* I leave output unchanged for unknown, malformed or ambiguous records. */
+bool nvm_generic_binding_at(const NvmModule *mod, uint32_t metadata_index,
+                            NvmGenericBinding *out);
+
 /* Add a function entry. Returns the function index. */
 /* I return UINT32_MAX on failure; entry may borrow an existing table entry. */
 uint32_t nvm_add_function(NvmModule *mod, const NvmFunctionEntry *entry);

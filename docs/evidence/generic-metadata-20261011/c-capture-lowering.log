@@ -1,0 +1,28 @@
+test_specialized_returned_captures (tests.test_generic_binding_metadata.GenericBindingMetadata.test_specialized_returned_captures) ... 
+  test_specialized_returned_captures (tests.test_generic_binding_metadata.GenericBindingMetadata.test_specialized_returned_captures) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt')) ... FAIL
+
+======================================================================
+FAIL: test_specialized_returned_captures (tests.test_generic_binding_metadata.GenericBindingMetadata.test_specialized_returned_captures) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_binding_metadata.py", line 31, in exercise
+    self.run_checked([driver, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_binding_metadata.py", line 20, in run_checked
+    self.assertEqual(result.returncode, expected, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Type error
+  Function 6 returned int, expected struct
+Stack trace (most recent call first):
+  #0   __lambda_1_37  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-metadata-u8d8l6sb/case.nano:1:45
+  #1   $shadow_0_capture  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-metadata-u8d8l6sb/case.nano:2:45
+  #2   $shadow_entry  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-metadata-u8d8l6sb/case.nano:?
+I failed a shadow: Function 6 returned int, expected struct
+I will not publish output after failed shadow execution
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.038s
+
+FAILED (failures=1)

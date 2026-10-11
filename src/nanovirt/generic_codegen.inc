@@ -10,6 +10,7 @@ typedef struct CgGenericType {
 struct CgGeneric {
     GenericBindings bindings;
     CgGenericType *local_types;
+    struct CgGeneric *nested_declarations;
     ASTNode declaration;
     ASTNode *template;
     struct CgGeneric *parent;
@@ -47,6 +48,11 @@ static ASTNode *cg_generic_definition(CG *cg, ASTNode *body, ASTNode **owner, co
     return NULL;
 }
 static void cg_generic_free(CgGeneric *instance) {
+    while (instance->nested_declarations) {
+        CgGeneric *nested = instance->nested_declarations;
+        instance->nested_declarations = nested->next;
+        cg_generic_free(nested);
+    }
     generic_bindings_free(&instance->bindings);
     while (instance->local_types) {
         CgGenericType *item=instance->local_types;
@@ -64,6 +70,60 @@ static void cg_generic_free(CgGeneric *instance) {
     free(instance->declaration.as.function.name);
     free(instance);
 }
+/* I retain substituted nested annotations until their owning specialization
+ * finishes, since emission-only environment symbols borrow their TypeInfo. */
+static CgGeneric *cg_generic_nested(CG *cg, ASTNode *node) {
+    CgGeneric *copy = calloc(1, sizeof *copy);
+    if (!copy) goto allocation_failure;
+    copy->declaration = *node;
+    copy->declaration.as.function.name = NULL;
+    copy->declaration.as.function.param_count = 0;
+    copy->declaration.as.function.params = NULL;
+    copy->declaration.as.function.return_struct_type_name = NULL;
+    copy->declaration.as.function.return_type_info = NULL;
+    copy->declaration.as.function.return_fn_sig = NULL;
+    int count = node->as.function.param_count;
+    Parameter *params = count ? calloc((size_t)count, sizeof *params) : NULL;
+    if (count && !params) goto fail;
+    copy->declaration.as.function.params = params;
+    copy->declaration.as.function.param_count = count;
+    copy->declaration.as.function.name = strdup(node->as.function.name);
+    if (!copy->declaration.as.function.name) goto fail;
+    TypeInfo view;
+    const TypeInfo *result = generic_view(node->as.function.return_type_info,
+        node->as.function.return_type, node->as.function.return_struct_type_name,
+        node->as.function.return_fn_sig, &view);
+    TypeInfo *info = generic_substitute(cg->env, result, &cg->generic_active->bindings, 0);
+    if (!info) goto fail;
+    copy->declaration.as.function.return_type_info = info;
+    copy->declaration.as.function.return_type = info->base_type;
+    if (info->element_type) copy->declaration.as.function.return_element_type = info->element_type->base_type;
+    copy->declaration.as.function.return_fn_sig = copy_function_signature(info->fn_sig);
+    if (info->fn_sig && !copy->declaration.as.function.return_fn_sig) goto fail;
+    const char *name = cg_generic_nominal(info);
+    if (name && !(copy->declaration.as.function.return_struct_type_name = strdup(name))) goto fail;
+    for (int i = 0; i < count; ++i) {
+        params[i] = node->as.function.params[i];
+        params[i].struct_type_name = NULL;
+        params[i].type_info = generic_substitute(cg->env,
+            generic_parameter(&node->as.function.params[i], &view), &cg->generic_active->bindings, 0);
+        if (!params[i].type_info) goto fail;
+        params[i].type = params[i].type_info->base_type;
+        params[i].fn_sig = params[i].type_info->fn_sig;
+        if (params[i].type_info->element_type) params[i].element_type = params[i].type_info->element_type->base_type;
+        name = cg_generic_nominal(params[i].type_info);
+        if (name && !(params[i].struct_type_name = strdup(name))) goto fail;
+    }
+    copy->next = cg->generic_active->nested_declarations;
+    cg->generic_active->nested_declarations = copy;
+    return copy;
+fail:
+    cg_generic_free(copy);
+allocation_failure:
+    cg_error(cg, node->line, "I cannot retain a specialized nested function signature");
+    return NULL;
+}
+
 static bool cg_generic_type_supported(CG *cg, const TypeInfo *info) {
     if (!info) return false;
     if (info->base_type == TYPE_FUNCTION) {
@@ -96,6 +156,82 @@ static bool cg_generic_type_supported(CG *cg, const TypeInfo *info) {
     return info->base_type == TYPE_VOID || info->base_type == TYPE_INT || info->base_type == TYPE_U8 ||
         info->base_type == TYPE_FLOAT || info->base_type == TYPE_BOOL || info->base_type == TYPE_STRING;
 }
+typedef struct { char *data; size_t size, capacity; } CgGenericText;
+
+static bool cg_generic_text(CgGenericText *text, const char *part) {
+    if (!part) return false;
+    size_t length = strlen(part);
+    if (length > SIZE_MAX - text->size - 1) return false;
+    size_t required = text->size + length + 1;
+    if (required > text->capacity) {
+        size_t capacity = required <= SIZE_MAX / 2 ? required * 2 : required;
+        char *data = realloc(text->data, capacity);
+        if (!data) return false;
+        text->data = data; text->capacity = capacity;
+    }
+    memcpy(text->data + text->size, part, length + 1);
+    text->size += length;
+    return true;
+}
+
+/* I retain resolved frontend spellings, independently of executable tags. */
+static bool cg_generic_type_text(CgGenericText *text, const TypeInfo *info, unsigned depth) {
+    if (!info || depth > 512) return false;
+    switch (info->base_type) {
+    case TYPE_VOID: case TYPE_INT: case TYPE_U8: case TYPE_FLOAT: case TYPE_BOOL: case TYPE_STRING:
+        return cg_generic_text(text, type_to_string(info->base_type));
+    case TYPE_ARRAY:
+        return cg_generic_text(text, "array<") &&
+            cg_generic_type_text(text, info->element_type, depth + 1) && cg_generic_text(text, ">");
+    case TYPE_FUNCTION: {
+        const FunctionSignature *sig = info->fn_sig;
+        if (!sig || sig->param_count < 0 || (sig->param_count && !sig->param_types) ||
+            !cg_generic_text(text, "fn(")) return false;
+        TypeInfo view;
+        for (int i = 0; i < sig->param_count; ++i) {
+            if ((i && !cg_generic_text(text, ",")) ||
+                !cg_generic_type_text(text, generic_signature_param(sig, i, &view), depth + 1)) return false;
+        }
+        return cg_generic_text(text, ")->") &&
+            cg_generic_type_text(text, generic_signature_result(sig, &view), depth + 1);
+    }
+    case TYPE_TUPLE:
+        if (info->tuple_element_count < 2 || !cg_generic_text(text, "(")) return false;
+        for (int i = 0; i < info->tuple_element_count; ++i) {
+            TypeInfo view;
+            if ((i && !cg_generic_text(text, ",")) ||
+                !cg_generic_type_text(text, tuple_element_info(info, i, &view), depth + 1)) return false;
+        }
+        return cg_generic_text(text, ")");
+    case TYPE_STRUCT: case TYPE_ENUM: case TYPE_UNION:
+        if (!info->generic_name || !*info->generic_name ||
+            !cg_generic_text(text, info->generic_name) || info->type_param_count < 0) return false;
+        if (!info->type_param_count) return true;
+        if (!info->type_params || !cg_generic_text(text, "<")) return false;
+        for (int i = 0; i < info->type_param_count; ++i)
+            if ((i && !cg_generic_text(text, ",")) ||
+                !cg_generic_type_text(text, info->type_params[i], depth + 1)) return false;
+        return cg_generic_text(text, ">");
+    default: return false;
+    }
+}
+
+static bool cg_generic_metadata(CG *cg, const CgGeneric *instance) {
+    for (int i = 0; i < instance->bindings.count; ++i) {
+        CgGenericText text = {0};
+        bool ok = cg_generic_type_text(&text, instance->bindings.types[i], 0) &&
+            nvm_add_generic_binding(cg->module, instance->index,
+                instance->template->as.function.name, instance->source ? instance->source : "",
+                instance->bindings.names[i], text.data);
+        free(text.data);
+        if (!ok) {
+            cg_error(cg, instance->template->line, "I cannot retain the generic specialization binding");
+            return false;
+        }
+    }
+    return true;
+}
+
 static int32_t cg_generic_signature(CG *cg, ASTNode *call, const FunctionSignature *context) {
     Function *function=call->as.call.name?env_get_function(cg->env,call->as.call.name):NULL;
     /* Builtins have arity but no source body or Parameter array. */
@@ -186,6 +322,7 @@ static int32_t cg_generic_signature(CG *cg, ASTNode *call, const FunctionSignatu
     if(instance->index==UINT32_MAX || !nvm_set_function_param_types(cg->module,instance->index,tags,entry.arity)) {
         cg_error(cg,call->line,"I cannot retain a concrete generic signature");goto fail;
     }
+    if (!cg_generic_metadata(cg, instance)) goto fail;
     if(cg->generic_tail)cg->generic_tail->next=instance;else cg->generics=instance;
     cg->generic_tail=instance;
     return (int32_t)instance->index;

@@ -1868,7 +1868,7 @@ FunctionSignature *copy_contextual_callable_signature(ASTNode *value, Environmen
         return copy_contextual_callable_signature(value->as.block.statements[0], env, expected);
     FunctionSignature *signature = copy_callable_signature(value, env);
     if (!signature || !expected) return signature;
-    Function *function = value && value->type == AST_IDENTIFIER &&
+    Function *function = value && value->type == AST_IDENTIFIER && !value->lambda_definition &&
         !env_get_var_visible_at(env, value->as.identifier, value->line, value->column)
         ? env_get_function_at(env, value->as.identifier, value->line, value->column) : NULL;
     if (function && generic_function(env, function)) {
@@ -5553,23 +5553,12 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 bool owns_value_sig = false;
                 
                 /* Get function signature from value expression */
-                if (stmt->as.let.value->type == AST_CALL) {
-                    /* Function call - could be calling a function-typed parameter */
-                    Function *func = env_get_function(tc->env, stmt->as.let.value->as.call.name);
-                    if (func && func->return_type == TYPE_FUNCTION) {
-                        /* Function that returns a function */
-                        value_sig = func->return_fn_sig;
-                    } else if (!func) {
-                        /* Check if it's a function-typed parameter being called */
-                        Symbol *sym = env_get_var(tc->env, stmt->as.let.value->as.call.name);
-                        if (sym && sym->type == TYPE_FUNCTION) {
-                            /* Function-typed parameter - if called with 0 args, it's the function itself */
-                            if (stmt->as.let.value->as.call.arg_count == 0) {
-                                /* TODO: Get function signature from parameter - for now allow it */
-                                /* The signature should match the declared type */
-                            }
-                        }
-                    }
+                if (stmt->as.let.value->type == AST_CALL ||
+                    stmt->as.let.value->type == AST_MODULE_QUALIFIED_CALL) {
+                    /* I use the checked call result after generic substitution,
+                     * including indirect and imported callable results. */
+                    value_sig = copy_callable_signature(stmt->as.let.value, tc->env);
+                    owns_value_sig = true;
                 } else if (stmt->as.let.value->type == AST_IDENTIFIER) {
                     /* Could be function name or function-typed variable */
                     Function *func = env_get_function(tc->env, stmt->as.let.value->as.identifier);
@@ -5589,10 +5578,6 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                             value_sig = sym->type_info ? sym->type_info->fn_sig : NULL;
                         }
                     }
-                } else if (stmt->as.let.value->type == AST_CALL && stmt->as.let.value->as.call.func_expr) {
-                    /* Function call returning function: ((func_call) arg1 arg2) */
-                    /* The return type will be determined at runtime */
-                    /* For now, allow it if declared type is TYPE_FUNCTION */
                 }
                 
                 if (declared_sig && (stmt->as.let.value->type == AST_COND ||

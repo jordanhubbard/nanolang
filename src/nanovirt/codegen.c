@@ -75,10 +75,13 @@ typedef struct {
     int continue_index_slot;        /* for index, or -1 for while */
 } LoopCtx;
 
+typedef struct CgGeneric CgGeneric;
+
 typedef struct {
     char *name;
     uint32_t fn_idx;
     ASTNode *body; /* I identify a source function independently of its short name. */
+    CgGeneric *generic_owner; /* I keep each instantiation's nested body separate. */
     bool module_intrinsic;
 } FnEntry;
 
@@ -134,7 +137,6 @@ typedef struct CgPassive {
     struct CgPassive *next;
 } CgPassive;
 
-typedef struct CgGeneric CgGeneric;
 typedef struct CG CG;
 struct CG {
     /* Module being built */
@@ -437,11 +439,14 @@ static const char *local_struct_type(CG *cg, const char *name) {
 
 static int32_t fn_find_body(CG *cg, ASTNode *body) {
     if (!body) return -1;
+    int32_t ordinary = -1;
     for (int i = 0; i < cg->fn_count; i++) {
-        if (cg->functions[i].body == body)
+        if (cg->functions[i].body != body) continue;
+        if (cg->functions[i].generic_owner == cg->generic_active)
             return (int32_t)cg->functions[i].fn_idx;
+        if (!cg->functions[i].generic_owner) ordinary = (int32_t)cg->functions[i].fn_idx;
     }
-    return -1;
+    return ordinary;
 }
 
 static int32_t fn_find(CG *cg, const char *name) {
@@ -3555,7 +3560,7 @@ static bool record_function_parameters(CG *cg, ASTNode *node, uint32_t index) {
     return ok;
 }
 
-static void compile_nested_function(CG *cg, ASTNode *node, bool source_binding) {
+static void compile_nested_function_body(CG *cg, ASTNode *node, bool source_binding) {
     if (node->as.function.is_extern) return;
 
     const char *name = node->as.function.name;
@@ -3565,7 +3570,7 @@ static void compile_nested_function(CG *cg, ASTNode *node, bool source_binding) 
     if (fn_idx < 0) {
         const char *wire_name = name;
         char *owned_name = NULL;
-        if (source_binding && nvm_find_function(cg->module, name) != UINT32_MAX) {
+        if (nvm_find_function(cg->module, name) != UINT32_MAX) {
             uint32_t suffix = 0;
             do {
                 free(owned_name);
@@ -3590,6 +3595,7 @@ static void compile_nested_function(CG *cg, ASTNode *node, bool source_binding) 
             cg->functions[cg->fn_count].name = (char *)name;
             cg->functions[cg->fn_count].fn_idx = (uint32_t)fn_idx;
             cg->functions[cg->fn_count].body = node->as.function.body;
+            cg->functions[cg->fn_count].generic_owner = cg->generic_active;
             cg->fn_count++;
         }
     }
@@ -3741,6 +3747,25 @@ static void compile_nested_function(CG *cg, ASTNode *node, bool source_binding) 
     if (source_binding) local_name_begin(cg, closure_slot, name, TYPE_FUNCTION, node->line);
 
     free(st);
+}
+
+static void compile_nested_function(CG *cg, ASTNode *node, bool source_binding) {
+    if (!cg->generic_active) {
+        compile_nested_function_body(cg, node, source_binding);
+        return;
+    }
+    TypeInfo view;
+    bool generic = generic_contains(cg->env, generic_view(node->as.function.return_type_info,
+        node->as.function.return_type, node->as.function.return_struct_type_name,
+        node->as.function.return_fn_sig, &view), 0);
+    for (int i = 0; !generic && i < node->as.function.param_count; ++i)
+        generic = generic_contains(cg->env, generic_parameter(&node->as.function.params[i], &view), 0);
+    if (!generic) {
+        compile_nested_function_body(cg, node, source_binding);
+        return;
+    }
+    CgGeneric *specialized = cg_generic_nested(cg, node);
+    if (specialized) compile_nested_function_body(cg, &specialized->declaration, source_binding);
 }
 
 /* ── Statement compilation ──────────────────────────────────────── */

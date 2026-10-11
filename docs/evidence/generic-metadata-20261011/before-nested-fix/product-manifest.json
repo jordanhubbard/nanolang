@@ -1,0 +1,99 @@
+{
+  "revision": "44601059bc0ebeb9bbc63378211a868bad96ad0e",
+  "inputs": {
+    "src/nanoisa/nvm_format.c": "91c7d31ada072441f67a4aa451c0e9d382331e3eb80080b276bf39a4bbde4fa0",
+    "src/nanoisa/nvm_format.h": "e0d06c25ecbb97ac687e44b8b580fd050a4a8d5df0bccf87236c3bbc333b69ee",
+    "src/nanoisa/assembler.c": "60655f8725e5d8defed051a936d9d9f45c59c050ea034af995bb7dbd49998949",
+    "src/nanovirt/codegen.c": "9e605fba7fb2afa3af10f0738876898da6e07ab04a29624533dfd5a9e3ac3222",
+    "src/nanovirt/generic_codegen.inc": "c181ee0532adebde82591b00256a133aef8ec443209eb11decd3c3f5ae522d5d",
+    "src_nano/compiler/module_bindings.nano": "40f9ec3a49d15ac600a1c99f2c38d6924fe22783c5878f86364e5aef3b3e6b3a",
+    "src_nano/compiler/nanoisa_codegen.nano": "11af9b12f9ad2d6981a6d57b5c74613e291f99c13aaf76ebd857ac479ba5f28a"
+  },
+  "steps": [
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "tests.test_generic_binding_metadata",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 10.003182583954185,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-generic/seed",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-generic/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 313.8675622079754,
+      "log": "product-01.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-generic/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 0.12851541698910296,
+      "log": "product-02.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-generic/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-generic/compiler.c"
+      ],
+      "returncode": 0,
+      "seconds": 19.954346249927767,
+      "log": "product-03.log"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-generic/compiler.c",
+        "-o",
+        "/private/tmp/nl51-generic/compiler",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "returncode": 0,
+      "seconds": 7.0273838330758736,
+      "log": "product-04.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-generic/compiler",
+        "--help"
+      ],
+      "returncode": 0,
+      "seconds": 0.0137082498986274,
+      "log": "product-05.log"
+    },
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "tests.test_generic_binding_metadata",
+        "-v"
+      ],
+      "returncode": 1,
+      "seconds": 4.800215624971315,
+      "log": "product-06.log"
+    }
+  ],
+  "seed_build_log": "seed-build.log"
+}

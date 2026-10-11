@@ -6770,3 +6770,8 @@ test-units: test-selfhost-effects
 test-units: test-function-purity-metadata
 test-function-purity-metadata: nano_virt nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_function_purity_metadata
+
+.PHONY: test-generic-binding-metadata
+test-units: test-generic-binding-metadata
+test-generic-binding-metadata: nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_generic_binding_metadata

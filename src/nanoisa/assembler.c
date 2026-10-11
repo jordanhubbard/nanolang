@@ -900,6 +900,26 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return true;
         }
 
+        if (strcmp(directive, "generic_binding") == 0) {
+            if (!state->in_function)
+                return par_error(result, "I require generic_binding inside a function.");
+            char *fields[4] = {0};
+            bool valid = true;
+            for (unsigned i = 0; i < 4 && valid; ++i) {
+                size_t capacity = strlen(p) + 1;
+                uint32_t length = 0;
+                fields[i] = malloc(capacity);
+                valid = fields[i] && parse_quoted_string(&p, fields[i], capacity, &length) &&
+                    strlen(fields[i]) == length;
+            }
+            valid = valid && require_line_end(p, result) &&
+                nvm_add_generic_binding(state->mod, state->current_function,
+                    fields[0], fields[1], fields[2], fields[3]);
+            for (unsigned i = 0; i < 4; ++i) free(fields[i]);
+            if (!valid) return par_error(result, "I require four quoted, unambiguous generic binding fields.");
+            return true;
+        }
+
         if (strcmp(directive, "function_purity") == 0) {
             uint16_t declared;
             if (!state->in_function || !parse_uint16(&p, &declared) ||
