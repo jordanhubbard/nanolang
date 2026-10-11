@@ -29,6 +29,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "nvm2c_reachability.h"
+
 #define NVM2C_MAX_LOCALS 1024
 #define NVM2C_CALL_SIZE (64 + NVM2C_MAX_LOCALS * 32)
 
@@ -2628,6 +2630,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         case OP_CALL_INDIRECT: {
             Nvm2cSimSlot callable;
             if (!b->callables.function_count) {
+                if (nvm2c_constant_unreachable(mod, idx, (uint32_t)start)) {
+                    terminated = 1;
+                    sp = 0;
+                    break;
+                }
                 nvm2c_fail(b, "I cannot classify unsupported opcode CALL_INDIRECT (0x3C) in function %u at offset %zu: I have no callable targets", idx, start);
                 return 0;
             }
@@ -2649,6 +2656,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             NvmShapeId set = nvm_callable_at(&b->callables, idx, (uint32_t)start);
             size_t count = set ? nvm_shape_function_count(&b->callables.shapes, set) : 0;
             if (!count) {
+                if (nvm2c_constant_unreachable(mod, idx, (uint32_t)start)) {
+                    terminated = 1;
+                    sp = 0;
+                    break;
+                }
                 if (b->required_functions[idx]) { nvm2c_fail(b, "I require resolved indirect-call targets in function %u at offset %zu", idx, start); return 0; }
                 b->emitted_functions[idx] = 0;
                 sp -= arity;
@@ -5569,6 +5581,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             uint16_t arity = ins.operands[0].u16;
             NvmShapeId set = nvm_callable_at(&b->callables, idx, (uint32_t)start);
             size_t count = set ? nvm_shape_function_count(&b->callables.shapes, set) : 0;
+            if (!count && nvm2c_constant_unreachable(mod, idx, (uint32_t)start)) {
+                nvm2c_puts(b, "    NVM2C_ABORT(); /* I cannot reach this unresolved call. */\n");
+                terminated = 1;
+                st.sp = 0;
+                break;
+            }
             if (!count || arity > (unsigned)st.sp || arity > NVM2C_MAX_LOCALS) {
                 nvm2c_fail(b, "I require resolved targets and arguments for native indirect dispatch"); goto done;
             }

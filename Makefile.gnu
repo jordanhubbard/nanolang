@@ -563,6 +563,12 @@ test-one-ir-compiler: $(COMPILER_C) nano_virt nvm2c nanoisa_dump nano_vm nvm2c-r
 test-native-callables: nvm2c nanoisa_dump nano_vm
 	@python3 -m unittest -v tests.test_native_callables tests.test_native_closures tests.test_native_closure_arrays
 
+.PHONY: test-native-dead-callable-paths
+test-native-dead-callable-paths: nano_virt nvm2c nanoisa_dump nano_vm
+	@CC="$(CC)" python3 -m unittest tests.test_native_dead_callable_paths
+
+test-nvm2c: test-native-dead-callable-paths
+
 .PHONY: test-native-product-pipeline
 test-native-product-pipeline: nano_virt nano_vm nvm2c nvm2c-runtime
 	@python3 -m unittest -v tests.test_native_product_pipeline
