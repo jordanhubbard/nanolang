@@ -7,6 +7,10 @@ requirement by its text under Phase 20 in [my roadmap](ROADMAP.md), which remain
 the detailed contract and evidence index. GitHub Issues is my task ledger.
 None of these historical numbers narrows the requirement it identifies.
 
+My [2026-10-11 reconciliation](RELEASE_5.1_STATUS.md) accounts for all 67
+headline entries and separates recorded implementation from unclosed acceptance.
+It is an evidence inventory, not release qualification or a narrowed scope.
+
 ## Ownership and services
 
 - **Done (9511):** Replace the C seed ownership prototype with path-sensitive analysis; both frontends need the same affine rules.
@@ -32,7 +36,7 @@ None of these historical numbers narrows the requirement it identifies.
 
 ## Compiler product
 
-- **Required (9707):** Infer C-seed loop element metadata for inline and computed arrays; compiler-source lowering depends on valid loops. **Done.**
+- **Done (9707):** Infer C-seed loop element metadata for inline and computed arrays; compiler-source lowering depends on valid loops.
 - **Done (9879):** Propagate transitive foreign header paths through C-seed module compilation.
 - **Done (9882):** Reclaim shared static arrays and owned elements at an alias-safe interpreter boundary.
 - **Done (9902):** Define Boolean List syntax and backend parity before the compiler product claims list coverage. `List<bool>` now parses and the interpreter, native C and NanoVM backends share its boolean element contract (`tests/nl_types_bool_list.nano`).
@@ -40,13 +44,13 @@ None of these historical numbers narrows the requirement it identifies.
 - **Done (9978):** Prevent ordinary record names from colliding with native runtime helper names. My [native record-name evidence](evidence/native-record-names-20261010/README.md) passes the original `NSType` fixture, record-array operations, imported records and external schema ABI.
 - **Implemented (10055):** Carry record and map globals through standalone AOT with correct runtime ownership. My [current local audit](evidence/generic-results-global-audit-20261010/README.md) passes both installed stages, C-frontend source execution and record-retention/refusal controls; final candidate/platform qualification remains required.
 - **Implemented (10068):** Bind imported globals and selective or qualified aliases in the standalone product. My [28-method shared suite](evidence/generic-results-global-audit-20261010/README.md) passes all three producer routes locally; final candidate/platform qualification remains required.
-- **Required (10153):** Make `--emit-nvm` the self-hosted compiler's only backend and make binary output an explicit `nvm2c` plus `cc` pipeline.
+- **Implemented (10153):** Make `--emit-nvm` the self-hosted compiler's only backend and make binary output an explicit `nvm2c` plus `cc` pipeline. My [driver implementation](evidence/native-driver-cutover-20261007/README.md) and [structural bootstrap](evidence/structural-bootstrap-0c501dc4b/README.md) establish the product path; the exact-candidate gates below remain required.
 - **Required (10260):** Finish the self-hosted NanoISA lowering dual for the full compiler subset.
 - **Done (10262):** Compile the compiler to `.nvm` through the C seed and then the self-hosted emitter.
 - **Done (10264):** Compare Stage 1 and Stage 2 module bytes; native binary comparison remains a translator test.
   My [current local bootstrap evidence](evidence/structural-bootstrap-0c501dc4b/README.md) records all 17 guarded steps, equal raw module bytes and generic/global execution through both installed stages; the exact release-candidate Linux/Darwin gates remain below.
-- **Required (10266):** Freeze and remove `transpiler.nano` from the product after the compiler module builds itself.
-- **Required (10269):** Rename the transpiler compiler phase so the language pipeline ends at NanoISA.
+- **Implemented (10266):** Freeze and remove `transpiler.nano` from the product after the compiler module builds itself. My [emitter retirement](evidence/legacy-extern-retirement-20261009/README.md) removes the product source and passes an isolated Darwin bootstrap. The historical helper closure remains test-only; exact-candidate Linux/Darwin gates remain required.
+- **Implemented (10269):** Rename the transpiler compiler phase so the language pipeline ends at NanoISA. My [phase evidence](evidence/compiler-phases-20261008/README.md) records the NanoISA ordinal and distinct backend phase, with 36 passing controls. Integration and final-candidate qualification remain required.
 
 ## C AOT, metadata, and profiles
 
@@ -67,7 +71,7 @@ None of these historical numbers narrows the requirement it identifies.
 - **Required (10661):** Implement exact declared host/module capability linkage and owned results for LLVM and Wasm.
 - **Required (10663):** Review the portable read-text linkage proposal as the first concrete portable host capability.
 - **Required (10664):** Qualify the read-text query, adapters, opt-in lowering, source publication, and installed links in ordered checkpoints.
-- **Required (10669):** Implement the private allowlisted read-text adapters and managed-copy ownership checkpoint.
+- **Implemented (10669):** Implement the private allowlisted read-text adapters and managed-copy ownership checkpoint. My [portable execution](evidence/portable-read-execution-20261010/README.md) and [installed text/byte gate](evidence/portable-byte-execution-20261010/README.md) exercise the adapters. Wasmtime execution and full capability/candidate coverage remain required.
 - **Required (10670):** Qualify native, LLVM, Wasmtime, and Node adapters with real files and denial/fault cleanup.
 - **Required (10671):** Extend portable linkage to byte and aggregate results and the remaining compiler capabilities.
 
