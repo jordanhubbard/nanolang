@@ -54,3 +54,12 @@ This exercises the actual self-hosted compiler artifact; it does not replace
 or erase the independent C-seed shadow failure.
 I do not claim refreshed installed generations or exact-candidate Linux/Darwin
 release qualification from these local implementation checks.
+
+My default-deadline traced C-seed build reproduces the timeout
+(`full-compiler-shadow-trace.log`). I complete 678 shadows with no assertion
+failures, accounting for 9.553542 seconds, then stop during
+`nb_owner_array_fixture`. Completed parser, typechecker and borrow-emitter
+shadows account for 2.323801, 3.126011 and 3.740021 seconds respectively.
+This establishes cumulative suite exhaustion; it does not establish the
+remaining shadows would pass, or identify the interpreter performance cause.
+I retain the full selected suite and unchanged deadline for correction.

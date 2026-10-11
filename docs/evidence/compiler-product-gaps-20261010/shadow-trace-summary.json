@@ -1,0 +1,31 @@
+{
+  "command": "NANO_SHADOW_TRACE=1 bin/nanoc_c src_nano/nanoc_v06.nano -o /private/tmp/nl51-full-compiler-traced",
+  "source_commit": "6ff5da9b2",
+  "exit_code": 1,
+  "deadline_seconds": 10,
+  "completed_shadows": 678,
+  "completed_shadow_seconds": 9.553542,
+  "completed_failures": 0,
+  "seconds_by_source": {
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/token_value_bytes.nano": 0.001861,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/diagnostics.nano": 0.007644000000000001,
+    "/Users/jordanh/Src/nanolang/modules/std/fs.nano": 0.026300999999999998,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/lexer.nano": 0.016591,
+    "/Users/jordanh/Src/nanolang/src_nano/parser.nano": 2.3238009999999996,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/function_signature.nano": 0.002207,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/type_substitution.nano": 0.000941,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/generic_types.nano": 0.022917,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/passive_graph.nano": 0.06306300000000001,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/module_bindings.nano": 0.006247,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/passive_purity.nano": 0.059187000000000003,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/declaration_ownership.nano": 0.045945,
+    "/Users/jordanh/Src/nanolang/src_nano/generated/purity_intrinsics.nano": 0.000424,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/error_messages.nano": 0.009096,
+    "/Users/jordanh/Src/nanolang/src_nano/typecheck.nano": 3.1260109999999988,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/native_product.nano": 0.017803999999999997,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/owner_selection.nano": 0.072663,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/module_introspection.nano": 0.010818,
+    "/Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_borrows.nano": 3.7400209999999987
+  },
+  "last_started_shadow": "nb_owner_array_fixture"
+}
