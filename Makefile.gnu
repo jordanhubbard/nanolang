@@ -579,7 +579,11 @@ test-one-ir-compiler: test-callable-union-storage
 test-native-dead-callable-paths: nano_virt nvm2c nanoisa_dump nano_vm
 	@CC="$(CC)" python3 -m unittest tests.test_native_dead_callable_paths
 
-test-nvm2c: test-native-dead-callable-paths test-native-functional-callbacks
+test-nvm2c: test-native-dead-callable-paths test-native-functional-callbacks test-native-list-record-fields
+
+.PHONY: test-native-list-record-fields
+test-native-list-record-fields: nvm2c nanoisa_dump nano_vm
+	@python3 -m unittest tests.test_native_list_record_fields
 
 .PHONY: test-native-functional-callbacks
 test-native-functional-callbacks: nano_virt nvm2c nanoisa_dump nano_vm

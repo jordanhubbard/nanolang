@@ -1,0 +1,103 @@
+{
+  "revision": "3256204bd9148b02e459eeb43136152d64240139",
+  "module": "/private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/compiler.nvm",
+  "module_sha256": "b00d14b21eae58c14bec59fdbce0e15c1aa7de621e932417d85c4b50128dda4e",
+  "steps": [
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 0.07290049997391179,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-functional-product-kcfeo416/nano-selfhost-native-product-4vp861v_/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-list-record/compiler-final.c"
+      ],
+      "returncode": 0,
+      "seconds": 10.12531166698318,
+      "log": "product-01.log"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-list-record/compiler-final.c",
+        "-o",
+        "/private/tmp/nl51-list-record/compiler-final",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "returncode": 0,
+      "seconds": 6.702709790959489,
+      "log": "product-02.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-list-record/compiler-final",
+        "--help"
+      ],
+      "returncode": 0,
+      "seconds": 0.012592750019393861,
+      "log": "product-03.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_native_nominal_order",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 3.0491893750149757,
+      "log": "product-04.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-list-record/compiler-final",
+        "/private/tmp/nl51-list-record/empty.nano",
+        "-o",
+        "/private/tmp/nl51-list-record/empty-final"
+      ],
+      "returncode": 0,
+      "seconds": 0.235583542031236,
+      "log": "product-05.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-list-record/empty-final"
+      ],
+      "returncode": 0,
+      "seconds": 0.012630957993678749,
+      "log": "product-06.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_union_aggregate_payloads",
+        "tests.test_selfhost_union_storage",
+        "tests.test_selfhost_layout_validation",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 8.97402087500086,
+      "log": "product-07.log"
+    }
+  ],
+  "src/nanoisa/nvm2c.c": "b1b116e6b547623bd2c8361d67aafbcb36ffdb4163f8861d4d6fbe92f7742bdf",
+  "Makefile.gnu": "32d46fdef5533313692d369d2114c1ba299c999238689dce8774f7e8ea59b5fc",
+  "inputs_unchanged": true
+}

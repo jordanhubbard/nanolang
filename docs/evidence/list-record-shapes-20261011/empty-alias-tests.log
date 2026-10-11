@@ -1,0 +1,35 @@
+test_empty_integer_array_field_uses_constructor_evidence (tests.test_native_list_record_fields.NativeListRecordFields.test_empty_integer_array_field_uses_constructor_evidence) ... ok
+test_incompatible_scalar_write_is_refused (tests.test_native_list_record_fields.NativeListRecordFields.test_incompatible_scalar_write_is_refused) ... ok
+test_integer_placeholder_can_acquire_string_storage_before_defaulting (tests.test_native_list_record_fields.NativeListRecordFields.test_integer_placeholder_can_acquire_string_storage_before_defaulting) ... FAIL
+test_retained_selfhosted_record_and_union_aliases (tests.test_native_list_record_fields.NativeListRecordFields.test_retained_selfhosted_record_and_union_aliases) ... ok
+test_scalar_set_through_record_alias (tests.test_native_list_record_fields.NativeListRecordFields.test_scalar_set_through_record_alias) ... ok
+test_scalar_writes_through_forwarded_record_fields (tests.test_native_list_record_fields.NativeListRecordFields.test_scalar_writes_through_forwarded_record_fields) ... ok
+
+======================================================================
+FAIL: test_integer_placeholder_can_acquire_string_storage_before_defaulting (tests.test_native_list_record_fields.NativeListRecordFields.test_integer_placeholder_can_acquire_string_storage_before_defaulting)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_list_record_fields.py", line 40, in test_integer_placeholder_can_acquire_string_storage_before_defaulting
+    self.run_module('.string text "kept"\n.types 1 0 0\n.entry main\n'
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function write 1 1 0 void 0\nLOAD_LOCAL 0\nAGG_GET 0\nPUSH_STR text\nARR_PUSH\nPOP\nRET\n.end\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        '.function main 0 1 0 int 1\nARR_NEW 1\nSTORE_LOCAL 0\nLOAD_LOCAL 0\nAGG_PACK 0 0 0 1\nCALL write\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'LOAD_LOCAL 0\nPUSH_I64 0\nARR_GET\nPUSH_STR text\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n', '')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_closures.py", line 26, in run_module
+    source = self.emit(work, text, stdout)
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 23, in emit
+    result = self.checked([ROOT / 'bin/nano_vm', module])
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not execute the module: Assertion failed
+  Assertion failed
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 3.163s
+
+FAILED (failures=1)

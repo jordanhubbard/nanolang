@@ -1,0 +1,11 @@
+test_empty_integer_array_field_uses_constructor_evidence (tests.test_native_list_record_fields.NativeListRecordFields.test_empty_integer_array_field_uses_constructor_evidence) ... ok
+test_incompatible_scalar_write_is_refused (tests.test_native_list_record_fields.NativeListRecordFields.test_incompatible_scalar_write_is_refused) ... ok
+test_retained_selfhosted_record_and_union_aliases (tests.test_native_list_record_fields.NativeListRecordFields.test_retained_selfhosted_record_and_union_aliases) ... ok
+test_scalar_set_through_record_alias (tests.test_native_list_record_fields.NativeListRecordFields.test_scalar_set_through_record_alias) ... ok
+test_scalar_writes_through_forwarded_record_fields (tests.test_native_list_record_fields.NativeListRecordFields.test_scalar_writes_through_forwarded_record_fields) ... ok
+test_unresolved_array_parameter_is_not_integer_constructor_evidence (tests.test_native_list_record_fields.NativeListRecordFields.test_unresolved_array_parameter_is_not_integer_constructor_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.944s
+
+OK

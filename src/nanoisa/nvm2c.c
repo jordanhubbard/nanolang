@@ -2491,7 +2491,11 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 NvmShapeKind payload = written_array == NVM2C_VK_SARR ? NVM_SHAPE_STRING :
                     written_array == NVM2C_VK_FNARR ? NVM_SHAPE_FUNCTION :
                     written_array == NVM2C_VK_FARR ? NVM_SHAPE_FLOAT : written_array == NVM2C_VK_BARR ? NVM_SHAPE_BOOL : NVM_SHAPE_INT;
-                if (!shape_type(b, shape_child(b, arr.shape, 0), payload)) return 0;
+                NvmShapeId element = shape_child(b, arr.shape, 0);
+                if (!shape_type(b, element, payload)) return 0;
+                /* I propagate scalar writes through shared array handles just
+                 * as record writes, without binding an optional source value. */
+                if (b->track_shapes && !nvm_shape_array_write(&b->shapes, arr.shape, element)) return 0;
                 /* An already tagged value retains its known payload contract. */
                 if (val.kind == NVM2C_VK_VALUE &&
                     !shape_equal(b, shape_child(b, arr.shape, 0), shape_child(b, val.shape, 0))) return 0;
@@ -7540,6 +7544,31 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         b.array_shape_kinds |= (uint32_t)(1u << NVM2C_VK_RARR);
     }
     if (!infer_nominal_scalar_fields(&b, mod)) goto fail;
+
+    /* I keep legacy ARR_NEW integer placeholders open while consumers infer
+     * their storage. Only a still-unconstrained concrete constructor supplies
+     * the integer default; unknown parameters are not constructor evidence. */
+    for (uint32_t f = 0; f < mod->function_count; ++f) {
+        const NvmFunctionEntry *fn = &mod->functions[f];
+        for (size_t pc = 0; pc < fn->code_length;) {
+            DecodedInstruction ins;
+            uint32_t size = isa_decode(mod->code + fn->code_offset + pc,
+                                       fn->code_length - pc, &ins);
+            if (!size) { nvm2c_fail(&b, "I cannot decode array constructor evidence"); goto fail; }
+            NvmShapeId shape = b.shape_outputs[f][pc];
+            if (ins.opcode == OP_ARR_NEW && ins.operands[0].u8 == TAG_INT && shape &&
+                nvm_shape_kind(&b.shapes, shape) == NVM_SHAPE_ARRAY) {
+                NvmShapeId element = shape_child(&b, shape, 0);
+                if (nvm_shape_kind(&b.shapes, element) == NVM_SHAPE_UNKNOWN &&
+                    !shape_type(&b, element, NVM_SHAPE_INT)) goto fail;
+            }
+            pc += size;
+        }
+    }
+    if (!nvm_shape_solve_conversions(&b.shapes)) {
+        nvm2c_fail(&b, "I cannot resolve array constructor storage: %s", b.shapes.error);
+        goto fail;
+    }
 
     /* Nested projections may acquire their representation from a later
      * function's constraints. Resolve local storage after all final passes. */

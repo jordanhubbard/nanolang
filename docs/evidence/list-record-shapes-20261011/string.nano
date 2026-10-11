@@ -1,0 +1,18 @@
+struct Holder { values: List<string>, tail: int }
+union Choice { Some { item: Holder } }
+fn read(holder: Holder) -> string { return (list_string_get holder.values 1) }
+shadow read { let values: List<string> = (list_string_new) (list_string_push values "first") (list_string_push values "second") assert (== (read Holder { values: values, tail: 5 }) "second") }
+fn choice_size(value: Choice) -> int { match value { Some(payload) => { return (+ (list_string_length payload.item.values) payload.item.tail) } } }
+shadow choice_size { let values: List<string> = (list_string_new) let value: Choice = Choice.Some { item: Holder { values: values, tail: 5 } } assert (== (choice_size value) 5) }
+fn main() -> int {
+ let values: List<string> = (list_string_new)
+ let holder: Holder = Holder { values: values, tail: 5 }
+ (list_string_push holder.values "first")
+ (list_string_push holder.values "second")
+ assert (== (read holder) "second")
+ assert (== (list_string_length values) 2)
+ let choice: Choice = Choice.Some { item: holder }
+ assert (== (choice_size choice) 7)
+ return 0
+}
+shadow main { assert (== (main) 0) }

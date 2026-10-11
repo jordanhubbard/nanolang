@@ -1,0 +1,19 @@
+test_incompatible_scalar_write_is_refused (tests.test_native_list_record_fields.NativeListRecordFields.test_incompatible_scalar_write_is_refused) ... ok
+test_retained_selfhosted_record_and_union_aliases (tests.test_native_list_record_fields.NativeListRecordFields.test_retained_selfhosted_record_and_union_aliases) ... ok
+test_scalar_set_through_record_alias (tests.test_native_list_record_fields.NativeListRecordFields.test_scalar_set_through_record_alias) ... ok
+test_scalar_writes_through_forwarded_record_fields (tests.test_native_list_record_fields.NativeListRecordFields.test_scalar_writes_through_forwarded_record_fields) ... ok
+test_alternating_record_and_union_results (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_alternating_record_and_union_results) ... ok
+test_array_payload_element_kinds (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_array_payload_element_kinds) ... ok
+test_imported_equal_record_names_keep_payload_identity (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_imported_equal_record_names_keep_payload_identity) ... ok
+test_map_payload_retains_shared_storage (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_map_payload_retains_shared_storage) ... ok
+test_primitive_lists_keep_shared_mutation (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_primitive_lists_keep_shared_mutation) ... ok
+test_record_and_generic_record_results (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_and_generic_record_results) ... ok
+test_record_arrays_escape_and_mutate (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_arrays_escape_and_mutate) ... ok
+test_record_list_payload_mutates_shared_storage (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_list_payload_mutates_shared_storage) ... ok
+test_tuple_payload (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_tuple_payload) ... ok
+test_wrong_nominal_constructor_arguments_preserve_output (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_wrong_nominal_constructor_arguments_preserve_output) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 6.933s
+
+OK
