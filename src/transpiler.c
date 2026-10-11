@@ -2598,7 +2598,7 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
                     if (!field_name) continue;
                     int dep = find_composite_type_item(items, count, field_name);
                     free(field_name);
-                    if (dep >= 0 && dep != i && !edges[(size_t)dep * (size_t)count + (size_t)i]) {
+                    if (dep >= 0 && !edges[(size_t)dep * (size_t)count + (size_t)i]) {
                         edges[(size_t)dep * (size_t)count + (size_t)i] = true;
                         indegree[i]++;
                     }
@@ -2615,7 +2615,7 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
                         continue;
                     }
                     int dep = find_composite_type_item(items, count, udef->variant_field_type_names[v][f]);
-                    if (dep >= 0 && dep != i && !edges[(size_t)dep * (size_t)count + (size_t)i]) {
+                    if (dep >= 0 && !edges[(size_t)dep * (size_t)count + (size_t)i]) {
                         edges[(size_t)dep * (size_t)count + (size_t)i] = true;
                         indegree[i]++;
                     }
@@ -2644,7 +2644,7 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
                             char *name = typeinfo_to_generic_arg_name(payload);
                             int dep = name ? find_composite_type_item(items, count, name) : -1;
                             free(name);
-                            if (dep >= 0 && dep != i && !edges[(size_t)dep * (size_t)count + (size_t)i]) {
+                            if (dep >= 0 && !edges[(size_t)dep * (size_t)count + (size_t)i]) {
                                 edges[(size_t)dep * (size_t)count + (size_t)i] = true;
                                 indegree[i]++;
                             }
@@ -2684,7 +2684,7 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
                     }
 
                     int dep = find_composite_type_item(items, count, concrete_type);
-                    if (dep >= 0 && dep != i && !edges[(size_t)dep * (size_t)count + (size_t)i]) {
+                    if (dep >= 0 && !edges[(size_t)dep * (size_t)count + (size_t)i]) {
                         edges[(size_t)dep * (size_t)count + (size_t)i] = true;
                         indegree[i]++;
                     }
@@ -2704,23 +2704,8 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
         }
 
         if (pick < 0) {
-            /* Cycle or missing type info; emit remaining in original order */
-            for (int i = 0; i < count; i++) {
-                if (emitted[i]) continue;
-                NLCompositeTypeItem *it = &items[i];
-                if (it->kind == NL_CT_STRUCT) {
-                    emit_struct_definition_single(env, sb, &env->structs[it->index]);
-                } else if (it->kind == NL_CT_UNION) {
-                    emit_union_definition_single(env, sb, &env->unions[it->index]);
-                } else if (it->kind == NL_CT_TUPLE) {
-                    generate_tuple_typedef(sb, g_tuple_registry->tuples[it->index], it->name);
-                } else {
-                    GenericInstantiation *inst = &env->generic_instances[it->index];
-                    emit_generic_union_instantiation(env, sb, it->generic_union_def, inst, it->name);
-                }
-                emitted[i] = true;
-            }
-            break;
+            fprintf(stderr, "I cannot emit cyclic by-value type layouts.\n");
+            exit(1);
         }
 
         NLCompositeTypeItem *it = &items[pick];
