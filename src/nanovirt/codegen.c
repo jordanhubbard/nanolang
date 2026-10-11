@@ -940,7 +940,7 @@ static bool compile_module_introspection(CG *cg, const char *name) {
 
 static void compile_expr(CG *cg, ASTNode *node);
 static void compile_stmt(CG *cg, ASTNode *node);
-static void compile_nested_function(CG *cg, ASTNode *node);
+static void compile_nested_function(CG *cg, ASTNode *node, bool source_binding);
 static bool stmt_falls_through(ASTNode *node);
 static void compile_par_guards(CG *cg, ASTNode *body);
 static bool expr_leaves_value(CG *cg, ASTNode *node);
@@ -2729,7 +2729,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
         }
         const char *id = node->as.identifier;
         if (node->lambda_definition) {
-            compile_nested_function(cg, node->lambda_definition);
+            compile_nested_function(cg, node->lambda_definition, false);
             int16_t slot = local_find(cg, id);
             if (slot >= 0) emit_op(cg, OP_LOAD_LOCAL, (int)slot);
             else cg_error(cg, node->line, "I could not instantiate this anonymous closure");
@@ -3553,7 +3553,7 @@ static bool record_function_parameters(CG *cg, ASTNode *node, uint32_t index) {
     return ok;
 }
 
-static void compile_nested_function(CG *cg, ASTNode *node) {
+static void compile_nested_function(CG *cg, ASTNode *node, bool source_binding) {
     if (node->as.function.is_extern) return;
 
     const char *name = node->as.function.name;
@@ -3561,7 +3561,23 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     /* Register nested function in module function table if not already there */
     int32_t fn_idx = fn_find_body(cg, node->as.function.body);
     if (fn_idx < 0) {
-        uint32_t name_idx = nvm_add_string(cg->module, name, (uint32_t)strlen(name));
+        const char *wire_name = name;
+        char *owned_name = NULL;
+        if (source_binding && nvm_find_function(cg->module, name) != UINT32_MAX) {
+            uint32_t suffix = 0;
+            do {
+                free(owned_name);
+                int length = snprintf(NULL, 0, "__nested_%u_%u_%s", cg->module->function_count, suffix++, name);
+                if (length < 0 || !(owned_name = malloc((size_t)length + 1))) {
+                    cg_error(cg, node->line, "I cannot allocate a lexical function identity");
+                    return;
+                }
+                snprintf(owned_name, (size_t)length + 1, "__nested_%u_%u_%s", cg->module->function_count, suffix - 1, name);
+            } while (nvm_find_function(cg->module, owned_name) != UINT32_MAX);
+            wire_name = owned_name;
+        }
+        uint32_t name_idx = nvm_add_string(cg->module, wire_name, (uint32_t)strlen(wire_name));
+        free(owned_name);
         NvmFunctionEntry fn = {0};
         fn.name_idx = name_idx;
         fn.arity = (uint16_t)node->as.function.param_count;
@@ -3716,6 +3732,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     /* Store closure in a local variable named after the function */
     uint16_t closure_slot = local_add(cg, name, node->line);
     emit_op(cg, OP_STORE_LOCAL, (int)closure_slot);
+    if (source_binding) local_name_begin(cg, closure_slot, name, TYPE_FUNCTION, node->line);
 
     free(st);
 }
@@ -4431,7 +4448,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
     case AST_FUNCTION:
         /* Nested function definition. Kept in its own function so that its
          * large saved-state buffers stay out of compile_stmt's frame. */
-        compile_nested_function(cg, node);
+        compile_nested_function(cg, node, true);
         break;
 
     case AST_UNSAFE_BLOCK: {

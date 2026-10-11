@@ -151,7 +151,7 @@ static void check_function_index(void) {
         f.is_extern = i % 5 == 0; f.body = i % 7 ? &body : NULL;
         env_define_function(env, f);
         /* I force lookup across every append and function-table reallocation. */
-        assert(function_named(env, names[i], NULL, false, false) ==
+        assert(function_named(env, names[i], NULL, false, false, 0, 0) ==
                linear_function(env, names[i], NULL, false, false));
     }
     env_define_function(env, (Function){0});
@@ -160,7 +160,7 @@ static void check_function_index(void) {
         for (int i = 0; i < 513; ++i) {
             for (int owned = 0; owned < 2; ++owned)
                 for (int body_only = 0; body_only < 2; ++body_only)
-                    assert(function_named(env, names[i], owners[owner], owned, body_only) ==
+                    assert(function_named(env, names[i], owners[owner], owned, body_only, 0, 0) ==
                            linear_function(env, names[i], owners[owner], owned, body_only));
             Function *local = linear_function(env, names[i], owners[owner], true, false);
             assert(env_get_function(env, names[i]) == (local ? local :
@@ -185,15 +185,15 @@ static void check_function_index(void) {
     assert(env_get_function(env, "array_push") != &env->functions[env->function_count-1]);
     /* I read changed ownership/body data directly rather than caching selection. */
     env->functions[0].module_name = "beta"; env->functions[0].body = &body;
-    assert(function_named(env, names[0], "beta", true, false) == &env->functions[0]);
+    assert(function_named(env, names[0], "beta", true, false, 0, 0) == &env->functions[0]);
     for (int failure = 1; failure <= 3; ++failure) {
         function_index_free(env);
         fail_index_allocation = failure; index_allocation_number = 0;
-        assert(function_named(env, names[0], "beta", true, false) == &env->functions[0]);
+        assert(function_named(env, names[0], "beta", true, false, 0, 0) == &env->functions[0]);
         assert(!env->function_index);
         fail_index_allocation = 0;
     }
-    assert(!function_named(env, "absent_function", NULL, false, false));
+    assert(!function_named(env, "absent_function", NULL, false, false, 0, 0));
     free_environment(env);
 }
 
@@ -299,6 +299,28 @@ int main(void) {
     ordinary->def_line = 20; ordinary->def_column = 9;
     assert(!env_get_var_visible_at(env, "ordinary_scalar", 15, 1));
     assert(env_get_var_visible_at(env, "ordinary_scalar", 20, 9) == ordinary);
+
+    /* I select lexical functions by use position without exporting them. */
+    ASTNode outer_scope = {.type=AST_BLOCK, .scope_end_line=30, .scope_end_column=1};
+    ASTNode inner_scope = {.type=AST_BLOCK, .scope_end_line=25, .scope_end_column=1};
+    ASTNode outer_body = {.type=AST_BLOCK, .line=12, .column=8};
+    ASTNode inner_body = {.type=AST_BLOCK, .line=20, .column=8};
+    int first_function = env->function_count;
+    env_define_function(env, (Function){.name="lexical_probe", .return_type=TYPE_INT});
+    env_define_function(env, (Function){.name="lexical_probe", .return_type=TYPE_INT,
+        .body=&outer_body, .lexical_scope=&outer_scope, .source_file="lexical.nano"});
+    env_define_function(env, (Function){.name="lexical_probe", .return_type=TYPE_INT,
+        .body=&inner_body, .lexical_scope=&inner_scope, .source_file="lexical.nano"});
+    env_set_current_file(env, "lexical.nano");
+    assert(env_get_function_at(env,"lexical_probe",11,1)==&env->functions[first_function]);
+    assert(env_get_function_at(env,"lexical_probe",12,7)==&env->functions[first_function]);
+    assert(env_get_function_at(env,"lexical_probe",12,8)==&env->functions[first_function+1]);
+    assert(env_get_function_at(env,"lexical_probe",21,1)==&env->functions[first_function+2]);
+    assert(env_get_function_at(env,"lexical_probe",25,1)==&env->functions[first_function+1]);
+    assert(env_get_function_at(env,"lexical_probe",30,1)==&env->functions[first_function]);
+    env_set_current_file(env, "other.nano");
+    assert(env_get_function_at(env,"lexical_probe",21,1)==&env->functions[first_function]);
+    assert(env_get_function(env,"lexical_probe")==&env->functions[first_function]);
 
     pop_to(env, 0);
     assert(!env_get_var(env, "imported"));

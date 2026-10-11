@@ -46,6 +46,7 @@ typedef struct {
 
 /* I retain the enclosing function context when checking expression blocks. */
 static _Thread_local TypeChecker *active_statement_checker;
+static _Thread_local ASTNode *active_lexical_scope;
 
 static char *typeinfo_to_monomorphized_generic_name(TypeInfo *info);
 
@@ -392,7 +393,7 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     }
     if (expr->type == AST_CALL) {
         if (!expr->as.call.checked_signature && expr->as.call.name) {
-            Function *function = env_get_function(env, expr->as.call.name);
+            Function *function = env_get_function_at(env, expr->as.call.name, expr->line, expr->column);
             if (function && generic_function(env, function)) check_expression(expr, env);
         }
         if (expr->as.call.checked_signature)
@@ -415,7 +416,7 @@ static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
             TypeInfo *array = try_get_expr_type_info(expr->as.call.args[0], env);
             if (array && array->base_type == TYPE_ARRAY) return array->element_type;
         }
-        Function *func = env_get_function(env, expr->as.call.name);
+        Function *func = env_get_function_at(env, expr->as.call.name, expr->line, expr->column);
         if (func && func->return_type_info) return func->return_type_info;
     }
     return NULL;
@@ -1096,7 +1097,7 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
             }
             
             /* Check if function returns a struct */
-            Function *func = env_get_function(env, expr->as.call.name);
+            Function *func = env_get_function_at(env, expr->as.call.name, expr->line, expr->column);
             if (func && (func->return_type == TYPE_STRUCT || func->return_type == TYPE_UNION || func->return_type == TYPE_ENUM)) {
                 return func->return_struct_type_name;
             }
@@ -1753,7 +1754,7 @@ static FunctionSignature *function_result_signature(ASTNode *call, Environment *
         return callee ? callee->return_fn_sig : NULL;
     }
     if (!call->as.call.name) return NULL;
-    Function *func = env_get_function(env, call->as.call.name);
+    Function *func = env_get_function_at(env, call->as.call.name, call->line, call->column);
     if (func) return func->return_fn_sig;
     Symbol *sym = env_get_var_visible_at(env, call->as.call.name, call->line, call->column);
     FunctionSignature *sig = sym && sym->type_info ? sym->type_info->fn_sig : NULL;
@@ -1769,7 +1770,7 @@ static FunctionSignature *copy_callable_signature(ASTNode *value, Environment *e
                                                 value->line, value->column);
         if (symbol) return symbol->type_info && symbol->type_info->fn_sig
             ? copy_function_signature(symbol->type_info->fn_sig) : NULL;
-        Function *function = env_get_function(env, value->as.identifier);
+        Function *function = env_get_function_at(env, value->as.identifier, value->line, value->column);
         return function ? function_signature_from_function(function) : NULL;
     }
     FunctionSignature *signature = NULL;
@@ -1786,7 +1787,7 @@ static bool generic_function_value(ASTNode *value, Environment *env) {
     bind_qualified_function_value(value, env);
     if (!value || value->type != AST_IDENTIFIER || value->lambda_definition ||
         env_get_var_visible_at(env, value->as.identifier, value->line, value->column)) return false;
-    return generic_function(env, env_get_function(env, value->as.identifier));
+    return generic_function(env, env_get_function_at(env, value->as.identifier, value->line, value->column));
 }
 static FunctionSignature *infer_generic_callback(ASTNode *value, Environment *env,
         const FunctionSignature *expected, const GenericBindings *outer) {
@@ -1869,7 +1870,7 @@ FunctionSignature *copy_contextual_callable_signature(ASTNode *value, Environmen
     if (!signature || !expected) return signature;
     Function *function = value && value->type == AST_IDENTIFIER &&
         !env_get_var_visible_at(env, value->as.identifier, value->line, value->column)
-        ? env_get_function(env, value->as.identifier) : NULL;
+        ? env_get_function_at(env, value->as.identifier, value->line, value->column) : NULL;
     if (function && generic_function(env, function)) {
         TypeInfo formal = {.base_type=TYPE_FUNCTION, .fn_sig=signature};
         TypeInfo actual = {.base_type=TYPE_FUNCTION, .fn_sig=(FunctionSignature *)expected};
@@ -2410,7 +2411,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
             if (!sym) {
                 /* Not a variable - check if it's a function name */
-                Function *func = env_get_function(env, expr->as.identifier);
+                Function *func = env_get_function_at(env, expr->as.identifier, expr->line, expr->column);
                 if (func) {
                     /* Function name used as value (for passing/returning) */
                     return TYPE_FUNCTION;
@@ -2983,7 +2984,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
             
             /* Check if function exists */
-            Function *func = env_get_function(env, expr->as.call.name);
+            Function *func = env_get_function_at(env, expr->as.call.name, expr->line, expr->column);
             
             /* Check visibility */
             if (func && !is_function_accessible(func, env, expr->line, expr->column)) {
@@ -5313,7 +5314,10 @@ static Type check_statement(TypeChecker *tc, ASTNode *stmt) {
     TypeChecker *previous = active_statement_checker;
     active_statement_checker = tc;
     int first_symbol = tc->env->symbol_count;
+    ASTNode *previous_scope = active_lexical_scope;
+    if (stmt->type == AST_BLOCK || stmt->type == AST_UNSAFE_BLOCK) active_lexical_scope = stmt;
     Type result = check_statement_impl(tc, stmt);
+    active_lexical_scope = previous_scope;
     ASTNode *scope = stmt->type == AST_FOR ? stmt->as.for_stmt.body : stmt;
     bound_scope_symbols(tc->env, first_symbol, scope);
     active_statement_checker = previous;
@@ -6468,6 +6472,10 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 func.return_fn_sig = stmt->as.function.return_fn_sig;
                 func.return_type_info = stmt->as.function.return_type_info;
                 func.body = stmt->as.function.body;
+                func.lexical_scope = stmt->as.function.is_anonymous ? NULL : active_lexical_scope;
+                func.source_file = tc->env->current_file;
+                func.module_name = tc->env->current_module
+                    ? env_own_checker_allocation(tc->env, strdup(tc->env->current_module)) : NULL;
                 func.is_extern = false;
                 func.is_pub = false;
                 if (!stmt->as.function.is_anonymous || !env_get_function(tc->env, func.name))
@@ -6475,6 +6483,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
 
                 /* Type-check the function body */
                 if (stmt->as.function.body) {
+                    int first_parameter = tc->env->symbol_count;
                     for (int p = 0; p < stmt->as.function.param_count; p++) {
                         Value dummy_val = {0};
                         Parameter *param = &stmt->as.function.params[p];
@@ -6500,6 +6509,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     nested.current_function_return_signature = func.return_fn_sig;
                     nested.current_function_return_struct_name = func.return_struct_type_name;
                     check_statement(&nested, stmt->as.function.body);
+                    bound_scope_symbols(tc->env, first_parameter, stmt->as.function.body);
                     tc->has_error = tc->has_error || nested.has_error;
                 }
             }

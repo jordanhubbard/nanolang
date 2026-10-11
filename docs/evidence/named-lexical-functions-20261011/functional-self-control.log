@@ -1,0 +1,6 @@
+test_declared_map_keeps_its_signature (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_declared_map_keeps_its_signature) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.436s
+
+OK

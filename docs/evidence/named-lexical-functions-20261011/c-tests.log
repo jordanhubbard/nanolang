@@ -1,0 +1,85 @@
+test_aggregate_and_callable_capture_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_aggregate_and_callable_capture_names) ... ok
+test_aggregate_and_callable_parameters_and_locals (tests.test_local_binding_metadata.LocalBindingMetadata.test_aggregate_and_callable_parameters_and_locals) ... ok
+test_array_name_is_retained (tests.test_local_binding_metadata.LocalBindingMetadata.test_array_name_is_retained) ... ok
+test_generated_tuple_owner_is_omitted_without_reserving_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_generated_tuple_owner_is_omitted_without_reserving_names) ... ok
+test_global_initializer_lambda_and_imported_passive_offsets (tests.test_local_binding_metadata.LocalBindingMetadata.test_global_initializer_lambda_and_imported_passive_offsets) ... ok
+test_imported_generated_owner_and_source_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_imported_generated_owner_and_source_names) ... ok
+test_iteration_names_have_separate_lexical_intervals (tests.test_local_binding_metadata.LocalBindingMetadata.test_iteration_names_have_separate_lexical_intervals) ... ok
+test_legacy_par_let_discards_expression_results (tests.test_local_binding_metadata.LocalBindingMetadata.test_legacy_par_let_discards_expression_results) ... ok
+test_legacy_par_let_names_effects_and_enclosing_scope (tests.test_local_binding_metadata.LocalBindingMetadata.test_legacy_par_let_names_effects_and_enclosing_scope) ... ok
+test_match_arm_names_include_guard_and_exclude_other_arms (tests.test_local_binding_metadata.LocalBindingMetadata.test_match_arm_names_include_guard_and_exclude_other_arms) ... ok
+test_named_nested_function_binding_and_captures (tests.test_local_binding_metadata.LocalBindingMetadata.test_named_nested_function_binding_and_captures) ... ok
+test_named_recursive_capture_preserves_environment (tests.test_local_binding_metadata.LocalBindingMetadata.test_named_recursive_capture_preserves_environment) ... ok
+test_nested_functions_keep_separate_local_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_nested_functions_keep_separate_local_names) ... ok
+test_parameters_shadowed_bindings_and_loop (tests.test_local_binding_metadata.LocalBindingMetadata.test_parameters_shadowed_bindings_and_loop) ... ok
+test_shadowed_array_intervals (tests.test_local_binding_metadata.LocalBindingMetadata.test_shadowed_array_intervals) ... ok
+test_specialized_array_parameter_keeps_source_name (tests.test_local_binding_metadata.LocalBindingMetadata.test_specialized_array_parameter_keeps_source_name) ... ok
+test_invalid_lexical_declarations_preserve_output (tests.test_named_nested_functions.NamedNestedFunctions.test_invalid_lexical_declarations_preserve_output) ...
+  test_invalid_lexical_declarations_preserve_output (tests.test_named_nested_functions.NamedNestedFunctions.test_invalid_lexical_declarations_preserve_output) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), source='fn main()->int {if true {fn helper()->int{return 7}} return (helper)}') ... FAIL
+test_lexical_closures_and_recursive_values (tests.test_named_nested_functions.NamedNestedFunctions.test_lexical_closures_and_recursive_values) ...
+  test_lexical_closures_and_recursive_values (tests.test_named_nested_functions.NamedNestedFunctions.test_lexical_closures_and_recursive_values) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), case='scopes') ... FAIL
+  test_lexical_closures_and_recursive_values (tests.test_named_nested_functions.NamedNestedFunctions.test_lexical_closures_and_recursive_values) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), case='parameter_shadow') ... FAIL
+test_aggregate_and_callable_capture_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_aggregate_and_callable_capture_names) ... ok
+test_aggregate_and_callable_parameters_and_locals (tests.test_local_binding_metadata.LocalBindingMetadata.test_aggregate_and_callable_parameters_and_locals) ... ok
+test_array_name_is_retained (tests.test_local_binding_metadata.LocalBindingMetadata.test_array_name_is_retained) ... ok
+test_generated_tuple_owner_is_omitted_without_reserving_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_generated_tuple_owner_is_omitted_without_reserving_names) ... ok
+test_global_initializer_lambda_and_imported_passive_offsets (tests.test_local_binding_metadata.LocalBindingMetadata.test_global_initializer_lambda_and_imported_passive_offsets) ... ok
+test_imported_generated_owner_and_source_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_imported_generated_owner_and_source_names) ... ok
+test_iteration_names_have_separate_lexical_intervals (tests.test_local_binding_metadata.LocalBindingMetadata.test_iteration_names_have_separate_lexical_intervals) ... ok
+test_legacy_par_let_discards_expression_results (tests.test_local_binding_metadata.LocalBindingMetadata.test_legacy_par_let_discards_expression_results) ... ok
+test_legacy_par_let_names_effects_and_enclosing_scope (tests.test_local_binding_metadata.LocalBindingMetadata.test_legacy_par_let_names_effects_and_enclosing_scope) ... ok
+test_match_arm_names_include_guard_and_exclude_other_arms (tests.test_local_binding_metadata.LocalBindingMetadata.test_match_arm_names_include_guard_and_exclude_other_arms) ... ok
+test_named_nested_function_binding_and_captures (tests.test_local_binding_metadata.LocalBindingMetadata.test_named_nested_function_binding_and_captures) ... ok
+test_named_recursive_capture_preserves_environment (tests.test_local_binding_metadata.LocalBindingMetadata.test_named_recursive_capture_preserves_environment) ... ok
+test_nested_functions_keep_separate_local_names (tests.test_local_binding_metadata.LocalBindingMetadata.test_nested_functions_keep_separate_local_names) ... ok
+test_parameters_shadowed_bindings_and_loop (tests.test_local_binding_metadata.LocalBindingMetadata.test_parameters_shadowed_bindings_and_loop) ... ok
+test_shadowed_array_intervals (tests.test_local_binding_metadata.LocalBindingMetadata.test_shadowed_array_intervals) ... ok
+test_specialized_array_parameter_keeps_source_name (tests.test_local_binding_metadata.LocalBindingMetadata.test_specialized_array_parameter_keeps_source_name) ... ok
+
+======================================================================
+FAIL: test_invalid_lexical_declarations_preserve_output (tests.test_named_nested_functions.NamedNestedFunctions.test_invalid_lexical_declarations_preserve_output) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), source='fn main()->int {if true {fn helper()->int{return 7}} return (helper)}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_named_nested_functions.py", line 42, in test_invalid_lexical_declarations_preserve_output
+    self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0 :
+
+======================================================================
+FAIL: test_lexical_closures_and_recursive_values (tests.test_named_nested_functions.NamedNestedFunctions.test_lexical_closures_and_recursive_values) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), case='scopes')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_local_binding_metadata.py", line 52, in produce
+    lines=self.run_checked([ROOT/"obj/test_local_bindings",artifact]+(["--require-debug"] if driver.name=="nano_virt" else [])).splitlines()
+          ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_local_binding_metadata.py", line 38, in run_checked
+    self.assertEqual(p.returncode, expected, p.stdout + p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : main 0 10 67 helper
+main 1 27 52 helper
+Assertion failed: (c), function roundtrip, file test_local_bindings.c, line 17.
+
+
+======================================================================
+FAIL: test_lexical_closures_and_recursive_values (tests.test_named_nested_functions.NamedNestedFunctions.test_lexical_closures_and_recursive_values) (driver=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'), case='parameter_shadow')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_local_binding_metadata.py", line 49, in produce
+    self.run_checked([driver,input_file,"--emit-nvm","-o",artifact])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_local_binding_metadata.py", line 38, in run_checked
+    self.assertEqual(p.returncode, expected, p.stdout + p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-local-names-njbznji1/case.nano
+I require a function value for a bound call.
+
+1| fn main()->int{fn helper(helper:int)->int{return helper} return (helper 7)}
+                                                                   ^
+Hint: Call the declared function or a function-typed binding.
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 34 tests in 21.645s
+
+FAILED (failures=3)

@@ -653,6 +653,7 @@ typedef struct {
     TypeInfo *return_type_info;  /* For TYPE_TUPLE returns: tuple element types */
     ASTNode *body;
     ASTNode *shadow_test;
+    ASTNode *lexical_scope; /* Borrowed enclosing block for named local functions. */
     bool is_extern;  /* Mark external C functions */
     bool is_gpu;     /* @gpu annotation: function targets GPU / PTX */
     bool is_async;   /* Mark async functions (declared with `async fn`) */
@@ -1005,6 +1006,7 @@ Symbol *env_get_var_visible_at(Environment *env, const char *name, int line, int
 void env_set_var(Environment *env, const char *name, Value value);
 void env_define_function(Environment *env, Function func);
 Function *env_get_function(Environment *env, const char *name);
+Function *env_get_function_at(Environment *env, const char *name, int line, int column);
 bool env_array_push_is_builtin(Environment *env, int line, int column);
 bool is_builtin_function(const char *name);
 void env_define_struct(Environment *env, StructDef struct_def);

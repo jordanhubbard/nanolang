@@ -76,6 +76,14 @@ distinct legacy-group flag so the typechecker checks sibling independence before
 lowering the group to ordered initializers and a discarded body value. Restricted
 passive and borrowed profiles do not treat this group as an ordinary lexical block.
 
+I retain named nested-function bindings in both ordinary NanoISA producers.
+Their parent binding starts after closure initialization; child parameter and
+capture names remain in the child's table. The selfhost AST retains a separate
+recursive self spelling, and its generated self-closure slot stays unnamed.
+I preserve unambiguous C function labels and disambiguate collisions without
+reserving source spellings. Direct recursive C-produced calls retain their active
+capture environment in both VM execution and native translation.
+
 ## Required acceptance
 
 I compare parameter, shadowed-name, nested-block, conditional and loop bindings

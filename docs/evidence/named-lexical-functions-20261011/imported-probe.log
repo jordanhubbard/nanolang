@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+  File "/Users/jordanh/Src/nanolang/tests/test_local_binding_metadata.py", line 49, in produce
+    self.run_checked([driver,input_file,"--emit-nvm","-o",artifact])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_local_binding_metadata.py", line 38, in run_checked
+    self.assertEqual(p.returncode, expected, p.stdout + p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/case.py", line 925, in assertEqual
+    assertion_func(first, second, msg=msg)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/unittest/case.py", line 918, in _baseAssertEqual
+    raise self.failureException(msg)
+AssertionError: 1 != 0 : Error at line 3, column 90: I require the returned function value's complete declared signature.
+Hint: Preserve the callback parameter and result identities.
+Error: Type checking failed for module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-local-names-kqpfum82/helpers.nano'
+Error at line 1, column 1: Failed to load module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-local-names-kqpfum82/helpers.nano'
+error: module loading failed

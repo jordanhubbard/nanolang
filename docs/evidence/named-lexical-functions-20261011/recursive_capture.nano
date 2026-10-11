@@ -1,0 +1,2 @@
+fn main()->int {let offset:int=1 fn sum(value:int)->int{if (== value 0) {return offset} return (+ value (sum (- value 1)))} return (sum 3)}
+shadow main {assert true}

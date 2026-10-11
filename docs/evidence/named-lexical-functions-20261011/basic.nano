@@ -1,0 +1,2 @@
+fn main()->int {fn helper(value:int)->int{return (+ value 1)} return (helper 6)}
+shadow main {assert true}

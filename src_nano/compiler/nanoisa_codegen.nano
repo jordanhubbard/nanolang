@@ -205,8 +205,7 @@ fn nisa_queued_function(parser: Parser, index: int) -> ASTFunction {
     return ASTFunction {
         node_type: source.node_type, line: source.line, column: source.column,
         name: instance.name, param_start: source.param_start, param_count: source.param_count,
-        return_type: (nisa_generic_type source.return_type), body: source.body, is_pure: source.is_pure
-    }
+        return_type: (nisa_generic_type source.return_type), body: source.body, is_pure: source.is_pure, self_name: source.self_name }
 }
 shadow nisa_queued_function {
     let assembly: string = (nanoisa_emit_nasm "fn id(x:T)->T{return x} fn main()->bool{return (id true)}")
@@ -699,6 +698,10 @@ fn nisa_emit_lambda(parser: Parser, index: int) -> string {
     return (+ text (nisa_line_imm "CLOSURE_NEW" (+ function.name (+ " " (int_to_string capture)))))
 }
 shadow nisa_emit_lambda {
+    let named: string = (nanoisa_emit_nasm "fn main()->int{let offset:int=1 fn sum(n:int)->int{if (== n 0){return offset} return (+ n (sum (- n 1)))} return (sum 3)}")
+    assert nisa_ok
+    assert (str_contains named "CLOSURE_NEW __lambda_")
+    assert (str_contains named "LOAD_UPVALUE 0 0")
     let text: string = (nanoisa_emit_nasm "fn make(n:int)->fn()->fn()->int{return fn()->fn()->int{return fn()->int{return n}}} fn main()->int{return 0}")
     assert nisa_ok
     assert (str_contains text "LOAD_UPVALUE 0 0")
@@ -6940,7 +6943,26 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
                 set i (+ i 1)
             }
         }
+        let mut self_slot: int = -1
+        if (and (!= func.self_name "") (< (nisa_local_find func.self_name) 0)) {
+            set self_slot (array_length nisa_names)
+            set nisa_names (array_push nisa_names func.self_name)
+            set nisa_types (array_push nisa_types (nisa_function_type parser func))
+            set nisa_has_callables true
+            set nisa_ordinary_ok false
+        }
         let mut body: string = (nisa_emit_block parser func.body)
+        if (>= self_slot 0) {
+            let captures: int = (array_length (at nisa_capture_frames nisa_capture_frame).captures)
+            let mut self_value: string = ""
+            let mut capture: int = 0
+            while (< capture captures) {
+                set self_value (+ self_value (nisa_line_imm "LOAD_UPVALUE" (+ "0 " (int_to_string capture))))
+                set capture (+ capture 1)
+            }
+            set self_value (+ self_value (nisa_line_imm "CLOSURE_NEW" (+ func.name (+ " " (int_to_string captures)))))
+            set body (+ self_value (+ (nisa_line_imm "STORE_LOCAL" (int_to_string self_slot)) body))
+        }
         if (not nisa_ok) { return "" }
         if (nisa_block_falls_through parser func.body) {
             set body (+ body (nisa_line "RET"))
@@ -7341,8 +7363,7 @@ pub fn nanoisa_emit_shadows_nasm(parser: Parser, first_shadow: int) -> string {
         let function: ASTFunction = ASTFunction {
             node_type: ParseNodeType.PNODE_FUNCTION, line: selected.line, column: selected.column,
             name: name, param_start: 0, param_count: 0, return_type: "void",
-            body: selected.body, is_pure: false
-        }
+            body: selected.body, is_pure: false, self_name: "" }
         set out (+ out (nisa_emit_function parser function))
         if (not nisa_ok) {
             set nisa_err (+ (+ "I cannot lower shadow " selected.target_name)

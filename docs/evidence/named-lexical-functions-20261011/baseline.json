@@ -1,0 +1,62 @@
+[
+  {
+    "case": "basic",
+    "compile": 0,
+    "stdout": "",
+    "stderr": "",
+    "run": 7,
+    "run_out": "",
+    "run_error": ""
+  },
+  {
+    "case": "capture",
+    "compile": 0,
+    "stdout": "",
+    "stderr": "",
+    "run": 7,
+    "run_out": "",
+    "run_error": ""
+  },
+  {
+    "case": "escape",
+    "compile": 0,
+    "stdout": "",
+    "stderr": "Warning: Function 'make' is missing a shadow test\n",
+    "run": 7,
+    "run_out": "",
+    "run_error": ""
+  },
+  {
+    "case": "recursive",
+    "compile": 0,
+    "stdout": "",
+    "stderr": "",
+    "run": 6,
+    "run_out": "",
+    "run_error": ""
+  },
+  {
+    "case": "recursive_capture",
+    "compile": 0,
+    "stdout": "",
+    "stderr": "",
+    "run": 1,
+    "run_out": "",
+    "run_error": "\nRuntime error: Type error\n  Function 1 returned void, expected int\nStack trace (most recent call first):\n  #0   sum  /private/tmp/nl51-named-functions/recursive_capture.nano:1:74\n  #1   sum  /private/tmp/nl51-named-functions/recursive_capture.nano:1:89\n  #2   sum  /private/tmp/nl51-named-functions/recursive_capture.nano:1:89\n  #3   sum  /private/tmp/nl51-named-functions/recursive_capture.nano:1:89\n  #4   main  /private/tmp/nl51-named-functions/recursive_capture.nano:1:125\nI could not execute the module: Type error\n  Function 1 returned void, expected int\n"
+  },
+  {
+    "case": "scopes",
+    "compile": 0,
+    "stdout": "",
+    "stderr": "",
+    "run": 7,
+    "run_out": "",
+    "run_error": ""
+  },
+  {
+    "case": "forward",
+    "compile": 1,
+    "stdout": "",
+    "stderr": "-- E027 UNDEFINED FUNCTION --- /private/tmp/nl51-named-functions/forward.nano\nI cannot find a function named `helper`.\n\n1| fn main()->int {return (helper)} fn other()->int{fn helper()->int{return 7} return (helper)}\n                          ^^^^^^\nHint: Check spelling or ensure the function is defined/imported.\nWarning: Function 'other' is missing a shadow test\nerror: type check failed\n"
+  }
+]

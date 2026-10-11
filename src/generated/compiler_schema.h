@@ -608,6 +608,7 @@ typedef struct nl_ASTFunction {
     const char * return_type;
     int body;
     bool is_pure;
+    const char * self_name;
 } nl_ASTFunction;
 typedef nl_ASTFunction ASTFunction;
 #endif

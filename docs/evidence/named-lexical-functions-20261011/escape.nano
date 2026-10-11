@@ -1,0 +1,2 @@
+fn make(offset:int)->fn(int)->int {fn helper(value:int)->int{return (+ value offset)} return helper} fn main()->int {let f:fn(int)->int=(make 4) return (f 3)}
+shadow main {assert true}

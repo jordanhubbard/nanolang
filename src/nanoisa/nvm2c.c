@@ -3765,8 +3765,12 @@ static int build_direct_call(Nvm2cBuf *b, Nvm2cStack *st, const NvmModule *mod,
     }
     pos = (size_t)written;
     if (cf->upvalue_count) {
-        if (b->call_environment < 0) { nvm2c_fail(b, "I require an environment for a captured call"); return 0; }
-        written = snprintf(call + pos, call_sz - pos, "%s(nrec_t *)v[%d].text", record_result ? ", " : "", b->call_environment);
+        if (b->call_environment < 0) {
+            if (callee != idx) { nvm2c_fail(b, "I require an environment for a captured call"); return 0; }
+            written = snprintf(call + pos, call_sz - pos, "%snenv", record_result ? ", " : "");
+        } else {
+            written = snprintf(call + pos, call_sz - pos, "%s(nrec_t *)v[%d].text", record_result ? ", " : "", b->call_environment);
+        }
         if (written < 0 || (size_t)written >= call_sz - pos) { nvm2c_fail(b, "I cannot fit a native capture argument"); return 0; }
         pos += (size_t)written;
     }

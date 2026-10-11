@@ -169,7 +169,7 @@ static struct EnvSymbolIndex *function_index_sync(Environment *env) {
 }
 
 static Function *function_named(Environment *env, const char *name,
-                                 const char *owner, bool owned_only, bool body_only) {
+                                 const char *owner, bool owned_only, bool body_only, int line, int column) {
     struct EnvSymbolIndex *index = function_index_sync(env);
     uint64_t hash = symbol_name_hash(name);
     int next = index ? index->heads[hash & (index->bucket_count - 1)] : env->function_count;
@@ -183,7 +183,18 @@ static Function *function_named(Environment *env, const char *name,
         if (body_only && (function->is_extern || !function->body)) continue;
         if (owned_only && !((!owner && !function->module_name) ||
             (owner && function->module_name && !strcmp(owner, function->module_name)))) continue;
-        first = function; /* I retain the earliest matching declaration. */
+        if (line > 0 && function->lexical_scope) {
+            ASTNode *scope = function->lexical_scope;
+            ASTNode *body = function->body;
+            if (function->source_file && env->current_file &&
+                strcmp(function->source_file, env->current_file)) continue;
+            if (body && (line < body->line ||
+                (line == body->line && column > 0 && column < body->column))) continue;
+            if (scope->scope_end_line > 0 && (line > scope->scope_end_line ||
+                (line == scope->scope_end_line && column >= scope->scope_end_column))) continue;
+            return function; /* I prefer the nearest visible lexical declaration. */
+        }
+        first = function; /* I retain the earliest matching module declaration. */
     }
     return first;
 }
@@ -1013,7 +1024,7 @@ static bool namespace_owned_by(const ModuleNamespace *ns, const char *owner) {
 }
 
 /* Get function */
-Function *env_get_function(Environment *env, const char *name) {
+Function *env_get_function_at(Environment *env, const char *name, int line, int column) {
     if (!name) {
         return NULL;
     }
@@ -1039,7 +1050,7 @@ Function *env_get_function(Environment *env, const char *name) {
                     if (strcmp(env->namespaces[i].function_names[j], func_name) == 0) {
                         /* Look up the actual function by its original name AND module name */
                         const char *orig_mod = env->namespaces[i].module_name;
-                        return function_named(env, func_name, orig_mod, true, false);
+                        return function_named(env, func_name, orig_mod, true, false, line, column);
                     }
                 }
                 /* Function not found in this module's namespace */
@@ -1052,7 +1063,7 @@ Function *env_get_function(Environment *env, const char *name) {
 
     /* I permit this non-reserved declaration only in its own module. */
     if (strcmp(name, "array_push") == 0) {
-        Function *function = function_named(env, name, env->current_module, true, true);
+        Function *function = function_named(env, name, env->current_module, true, true, line, column);
         if (function) return function;
     }
 
@@ -1078,8 +1089,12 @@ Function *env_get_function(Environment *env, const char *name) {
         }
     }
 
-    Function *local = function_named(env, name, env->current_module, true, false);
-    return local ? local : function_named(env, name, NULL, false, false);
+    Function *local = function_named(env, name, env->current_module, true, false, line, column);
+    return local ? local : function_named(env, name, NULL, false, false, line, column);
+}
+
+Function *env_get_function(Environment *env, const char *name) {
+    return env_get_function_at(env, name, 0, 0);
 }
 
 /* I share push identity across inference and native lowering. */

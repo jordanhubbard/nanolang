@@ -3019,8 +3019,11 @@ dynamic_div:
             new_frame->effect_owner = 0;
             new_frame->stack_base = new_base;
             new_frame->local_count = callee->local_count;
-            new_frame->closure = NULL;
-            new_frame->owned_callable = val_void();
+            /* I retain the active environment for a direct recursive call. */
+            bool recursive_closure = callee_idx == frame->fn_idx && callee->upvalue_count;
+            new_frame->closure = recursive_closure ? frame->closure : NULL;
+            new_frame->owned_callable = recursive_closure ? frame->owned_callable : val_void();
+            if (recursive_closure) vm_retain(&vm->heap, new_frame->owned_callable);
             new_frame->module = vm->module;
             new_frame->current_line = 0;
             new_frame->current_col  = 0;
@@ -3078,14 +3081,16 @@ dynamic_div:
             for (uint16_t i = callee->arity; i < callee->local_count; i++)
                 stack_push(vm, val_void());
 
-            /* A tail call reuses this frame, so the callable the frame was
-             * entered through goes away with it. */
-            vm_release(&vm->heap, frame->owned_callable);
+            /* I preserve the environment when this frame recurs into itself. */
+            bool recursive_closure = callee_idx == frame->fn_idx && callee->upvalue_count;
+            if (!recursive_closure) {
+                vm_release(&vm->heap, frame->owned_callable);
+                frame->closure = NULL;
+                frame->owned_callable = val_void();
+            }
             frame->fn_idx = callee_idx;
             frame->instruction_ip = callee->code_offset;
             frame->local_count = callee->local_count;
-            frame->closure = NULL;
-            frame->owned_callable = val_void();
             frame->current_line = 0;
             frame->current_col = 0;
             vm->current_fn = callee_idx;

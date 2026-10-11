@@ -351,6 +351,33 @@ shadow main {assert (== (main) 0)}
             with self.subTest(order=order):
                 self.produce(program,0,inspect)
 
+    def test_named_nested_function_binding_and_captures(self):
+        source = """fn main()->int {
+ let offset:int=4
+ fn helper(value:int)->int {let answer:int=(+ value offset) return answer}
+ return (helper 3)
+}
+shadow main {assert (== (main) 7)}
+"""
+        def inspect(bindings):
+            self.assertEqual(sorted(b[4] for b in bindings if b[0]=='main'),['helper','offset'])
+            self.assertEqual(sorted(b[4] for b in bindings if b[0]!='main' and not b[0].startswith('__nanoisa_shadow_')),['answer','value'])
+        def captures(bindings):
+            self.assertEqual([b[4] for b in bindings],['offset'])
+        self.produce(source,7,inspect,inspect_captures=captures)
+
+    def test_named_recursive_capture_preserves_environment(self):
+        source = """fn main()->int {
+ let offset:int=1
+ fn sum(value:int)->int {if (== value 0) {return offset} return (+ value (sum (- value 1)))}
+ return (sum 3)
+}
+shadow main {assert (== (main) 7)}
+"""
+        def inspect(bindings):
+            self.assertEqual(sorted(b[4] for b in bindings if b[0]=='main'),['offset','sum'])
+        self.produce(source,7,inspect)
+
     def test_legacy_par_let_names_effects_and_enclosing_scope(self):
         source='''let mut trace:int = 0
 fn mark(value:int)->int {set trace (+ (* trace 10) value) return value}

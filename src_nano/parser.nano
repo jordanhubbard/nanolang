@@ -6215,7 +6215,34 @@ shadow parse_legacy_par {
     assert (== (parser_get_let parsed 0).name "left")
 }
 
+# I bind a named lexical declaration to a closure with an explicit self spelling.
+fn parse_named_function(p: Parser) -> Parser {
+    let parsed: Parser = (parse_function_definition p)
+    if (parser_has_error parsed) { return parsed }
+    let index: int = (- parsed.functions_count 1)
+    let function: ASTFunction = (parser_get_function parsed index)
+    let name: string = (+ "__lambda_" (+ (int_to_string function.line) (+ "_" (int_to_string function.column))))
+    (list_ASTFunction_set parsed.functions index (ASTFunction {
+        node_type: ParseNodeType.PNODE_LAMBDA, line: function.line, column: function.column,
+        name: name, param_start: function.param_start, param_count: function.param_count,
+        return_type: function.return_type, body: function.body, is_pure: function.is_pure,
+        self_name: function.name
+    }))
+    let value: Parser = (parser_store_identifier parsed name function.line function.column)
+    return (parser_store_let value function.name "" value.last_expr_node_id value.last_expr_node_type false function.line function.column)
+}
+shadow parse_named_function {
+    let tokens: List<LexerToken> = (tokenize_string "fn helper(x:int)->int{return x}" "nested.nano" (Diagnostics.diag_list_new))
+    let parsed: Parser = (parse_named_function (parser_new tokens (list_LexerToken_length tokens) "nested.nano"))
+    assert (not parsed.has_error)
+    assert (== parsed.last_expr_node_type ParseNodeType.PNODE_LET)
+    assert (== (parser_get_let parsed parsed.last_expr_node_id).name "helper")
+    assert (== (parser_get_function parsed 0).self_name "helper")
+    assert (== (parser_get_function parsed 0).node_type ParseNodeType.PNODE_LAMBDA)
+}
+
 fn parse_statement(p: Parser) -> Parser {
+    if (and (== (parser_current p).token_type LexerTokenType.TOKEN_FN) (== (parser_peek p 1) LexerTokenType.TOKEN_IDENTIFIER)) { return (parse_named_function p) }
     if (and (== (parser_current p).token_type LexerTokenType.TOKEN_IDENTIFIER) (and (== (parser_current p).value "flow") (== (parser_peek p 1) LexerTokenType.TOKEN_LBRACE))) {
         return (parser_mark_passive (parse_block (parser_advance p)) true)
     }
@@ -6318,8 +6345,7 @@ fn parser_mark_lambda(p: Parser) -> Parser {
     (list_ASTFunction_set p.functions index (ASTFunction {
         node_type: ParseNodeType.PNODE_LAMBDA, line: func.line, column: func.column,
         name: func.name, param_start: func.param_start, param_count: func.param_count,
-        return_type: func.return_type, body: func.body, is_pure: func.is_pure
-    }))
+        return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name }))
     return p
 }
 shadow parser_mark_lambda {
@@ -6353,8 +6379,7 @@ shadow parser_lambda_function {
     (list_ASTFunction_set parser.functions 0 (ASTFunction {
         node_type: func.node_type, line: func.line, column: func.column,
         name: "__nano_module_0_renamed", param_start: func.param_start, param_count: func.param_count,
-        return_type: func.return_type, body: func.body, is_pure: func.is_pure
-    }))
+        return_type: func.return_type, body: func.body, is_pure: func.is_pure, self_name: func.self_name }))
     assert (== (parser_lambda_function parser (parser_get_identifier parser 1)) 0)
 }
 
@@ -6366,8 +6391,7 @@ fn parser_mark_pure(p: Parser) -> Parser {
     (list_ASTFunction_set p.functions index (ASTFunction {
         node_type: func.node_type, line: func.line, column: func.column,
         name: func.name, param_start: func.param_start, param_count: func.param_count,
-        return_type: func.return_type, body: func.body, is_pure: true
-    }))
+        return_type: func.return_type, body: func.body, is_pure: true, self_name: func.self_name }))
     return p
 }
 shadow parser_mark_pure {
@@ -6390,8 +6414,7 @@ fn parser_store_function(p: Parser, name: string, param_start: int, param_count:
         param_count: param_count,
         return_type: return_type,
         body: body_id,
-        is_pure: false
-    }
+        is_pure: false, self_name: "" }
     let node_id: int = p.functions_count
     (list_ASTFunction_push p.functions node)
     

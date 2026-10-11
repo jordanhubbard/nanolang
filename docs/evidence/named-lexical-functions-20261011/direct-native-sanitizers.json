@@ -1,0 +1,28 @@
+[
+  {
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nl51-named-functions/recursive_capture-asan.c",
+      "-lm",
+      "-o",
+      "/private/tmp/nl51-named-functions/recursive_capture-asan"
+    ],
+    "status": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/private/tmp/nl51-named-functions/recursive_capture-asan"
+    ],
+    "status": 7,
+    "stdout": "",
+    "stderr": ""
+  }
+]

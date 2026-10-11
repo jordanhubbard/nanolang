@@ -1725,6 +1725,7 @@ fn init_struct_metadata() -> array<FieldMetadata> {
     set m (array_push m FieldMetadata { struct_name: "Parser", field_name: "binary_ops", field_type_kind: TypeKind.TYPE_VOID, field_type_is_list: true, field_type_name: "ASTBinaryOp" })
     
     /* ASTFunction fields */
+    set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "self_name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "name", field_type_kind: TypeKind.TYPE_STRING, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "param_start", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
     set m (array_push m FieldMetadata { struct_name: "ASTFunction", field_name: "param_count", field_type_kind: TypeKind.TYPE_INT, field_type_is_list: false, field_type_name: "" })
@@ -5133,6 +5134,14 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                     }
                 }
             } else {
+                let mut declaration: int = 0
+                while (< declaration parser.functions_count) {
+                    if (== (parser_get_function parser declaration).self_name fn_name) {
+                        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" (+ "I cannot call this lexical function outside its declaration scope: " fn_name) (Diagnostics.diag_location file_name call_node.line call_node.column)))
+                        break
+                    }
+                    set declaration (+ declaration 1)
+                }
                 return (type_unknown_named fn_name)
             }
         }
@@ -6299,13 +6308,25 @@ fn check_lambda_creation(parser: Parser, identifier: ASTIdentifier, symbols: arr
     if (< index 0) { return }
     let func: ASTFunction = (parser_get_function parser index)
     let before: int = (list_CompilerDiagnostic_length diags)
-    let valid: bool = (check_function parser func symbols diags file_name)
+    let mut lexical: array<Symbol> = symbols
+    if (!= func.self_name "") {
+        let index: int = (env_lookup symbols func.name)
+        if (>= index 0) {
+            let signature: Symbol = (at symbols index)
+            set lexical (env_add_symbol (env_copy_symbols symbols) (symbol_new func.self_name signature.sym_type false true signature.param_count signature.param_types signature.return_type))
+        }
+    }
+    let valid: bool = (check_function parser func lexical diags file_name)
     (resource_check_function parser func diags file_name)
     if (and (not valid) (== before (list_CompilerDiagnostic_length diags))) {
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0011" "I cannot check this anonymous body in its lexical scope." (Diagnostics.diag_location file_name func.line func.column)))
     }
 }
 shadow check_lambda_creation {
+    let recursive: Parser = (resource_test_parser "fn main()->int{let offset:int=1 fn sum(n:int)->int{if (== n 0){return offset} return (+ n (sum (- n 1)))} return (sum 3)}")
+    assert (not (typecheck_phase recursive "nested.nano").had_error)
+    let escaped: Parser = (resource_test_parser "fn main()->int{if true {fn hidden()->int{return 1}} return (hidden)}")
+    assert (typecheck_phase escaped "nested.nano").had_error
     let parser: Parser = (resource_test_parser "fn outer(n:int)->fn()->int{return fn()->int{return n}}")
     let diagnostics: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let symbols: array<Symbol> = [(symbol_new "n" (type_int) false false 0 (empty_param_types) (type_void))]
@@ -7168,7 +7189,7 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
                 (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "SH0003" "I require a non-extern shadow target" (Diagnostics.diag_location file_name sh.line sh.column)))
                 set error_count (+ error_count 1)
             } else {
-                let synthetic: ASTFunction = ASTFunction { node_type: ParseNodeType.PNODE_FUNCTION, line: sh.line, column: sh.column, name: (+ "shadow " sh.target_name), param_start: 0, param_count: 0, return_type: "void", body: sh.body, is_pure: false }
+                let synthetic: ASTFunction = ASTFunction { node_type: ParseNodeType.PNODE_FUNCTION, line: sh.line, column: sh.column, name: (+ "shadow " sh.target_name), param_start: 0, param_count: 0, return_type: "void", body: sh.body, is_pure: false, self_name: "" }
                 if (not (check_function parser synthetic symbols env.diagnostics file_name)) { set error_count (+ error_count 1) }
             }
         }

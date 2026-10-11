@@ -865,6 +865,10 @@
         [
           "is_pure",
           "bool"
+        ],
+        [
+          "self_name",
+          "string"
         ]
       ],
       "emit_c": true
