@@ -2305,7 +2305,7 @@ static void emit_union_definition_single(Environment *env, StringBuilder *sb, Un
 
                 TypeInfo *info = udef->variant_field_type_info && udef->variant_field_type_info[j]
                     ? udef->variant_field_type_info[j][k] : NULL;
-                if (info && (ft == TYPE_FUNCTION || ft == TYPE_TUPLE)) {
+                if (info && (ft == TYPE_FUNCTION || ft == TYPE_TUPLE || ft == TYPE_LIST_GENERIC || ft == TYPE_HASHMAP)) {
                     emit_signature_type(sb, env, ft, info->generic_name, info);
                 } else if (ft == TYPE_STRUCT && udef->variant_field_type_names && udef->variant_field_type_names[j] &&
                     udef->variant_field_type_names[j][k] &&
@@ -2354,7 +2354,8 @@ static void emit_union_definition_single(Environment *env, StringBuilder *sb, Un
 }
 
 static void emit_native_type_info(Environment *env, StringBuilder *sb, TypeInfo *info) {
-    if (info->base_type == TYPE_FUNCTION || info->base_type == TYPE_TUPLE) {
+    if (info->base_type == TYPE_FUNCTION || info->base_type == TYPE_TUPLE ||
+        info->base_type == TYPE_LIST_GENERIC || info->base_type == TYPE_HASHMAP) {
         emit_signature_type(sb, env, info->base_type, info->generic_name, info);
     } else if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION || info->base_type == TYPE_ENUM) && info->generic_name) {
         if (env_get_opaque_type(env, info->generic_name)) { sb_append(sb, "void*"); return; }
@@ -2608,6 +2609,10 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
             UnionDef *udef = &env->unions[it->index];
             for (int v = 0; v < udef->variant_count; v++) {
                 for (int f = 0; f < udef->variant_field_counts[v]; f++) {
+                    if (udef->variant_field_type_info && udef->variant_field_type_info[v] &&
+                        udef->variant_field_type_info[v][f] &&
+                        udef->variant_field_type_info[v][f]->base_type == TYPE_TUPLE)
+                        native_layout_edge(items, count, i, udef->variant_field_type_info[v][f], edges, indegree);
                     Type ft = udef->variant_field_types[v][f];
                     if (ft != TYPE_STRUCT && ft != TYPE_UNION && ft != TYPE_ENUM) continue;
                     if (!udef->variant_field_type_names || !udef->variant_field_type_names[v] ||
@@ -2639,6 +2644,8 @@ static void generate_struct_and_union_definitions_ordered(Environment *env, Stri
                     TypeInfo *payload = inst->type_info
                         ? resolve_union_payload_type_info(udef, v, f, inst->type_info) : NULL;
                     if (payload) {
+                        if (payload->base_type == TYPE_TUPLE)
+                            native_layout_edge(items, count, i, payload, edges, indegree);
                         if ((payload->base_type == TYPE_STRUCT || payload->base_type == TYPE_UNION || payload->base_type == TYPE_ENUM) && payload->generic_name &&
                             !env_get_opaque_type(env, payload->generic_name)) {
                             char *name = typeinfo_to_generic_arg_name(payload);

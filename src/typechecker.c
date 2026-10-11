@@ -7,6 +7,7 @@
 #include <ctype.h>
 
 #include "generic_bindings.h"
+#include "native_type_key.h"
 
 /* Use json_diagnostics without including json_diagnostics.h (DiagnosticSeverity conflict
  * with compiler_schema.h). Declare only what we need via extern. */
@@ -54,6 +55,22 @@ char *typeinfo_to_generic_arg_name(TypeInfo *param) {
         return typeinfo_to_monomorphized_generic_name(param);
 
     switch (param->base_type) {
+        case TYPE_TUPLE:
+        case TYPE_FUNCTION:
+            return native_structural_type_key(param);
+        case TYPE_LIST_INT: return strdup("List_int");
+        case TYPE_LIST_STRING: return strdup("List_string");
+        case TYPE_LIST_BOOL: return strdup("List_bool");
+        case TYPE_LIST_TOKEN: return strdup("List_Token");
+        case TYPE_LIST_GENERIC: {
+            if (!param->generic_name) return native_structural_type_key(param);
+            size_t size = strlen(param->generic_name) + sizeof "List_";
+            char *name = malloc(size);
+            if (name) snprintf(name, size, "List_%s", param->generic_name);
+            return name;
+        }
+        case TYPE_BSTRING: return strdup("bstring");
+        case TYPE_VOID: return strdup("void");
         case TYPE_INT:
             return strdup("int");
         case TYPE_U8:

@@ -1,0 +1,12 @@
+make -j4 bin/nanoc_c bin/nano_virt
+NANO_CONTEXTUAL_NATIVE_COMPILER=$PWD/bin/nanoc_c python3 -m unittest tests.test_native_union_tuples tests.test_union_aggregate_payloads
+python3 -m unittest tests.test_native_union_tuples tests.test_union_aggregate_payloads
+make test-typechecker test-transpiler
+NANO_CONTEXTUAL_NATIVE_COMPILER=$PWD/bin/nanoc_c python3 -m unittest tests.test_generic_union_parameters tests.test_module_union_owners tests.test_native_nominal_order tests.test_cseed_generic_functions
+python3 -m unittest tests.test_generic_union_parameters tests.test_module_union_owners tests.test_native_nominal_order tests.test_cseed_generic_functions
+NANOLANG_NOMINAL_COMPILERS=nanoc_c python3 -m unittest tests.test_native_nominal_order
+NANO_GENERIC_CSEED_COMPILER=/private/tmp/nl51-list-record/compiler-final python3 -m unittest tests.test_native_union_tuples tests.test_union_aggregate_payloads
+ASAN_OPTIONS=detect_leaks=0 NANO_CONTEXTUAL_NATIVE_COMPILER=$PWD/bin/nanoc_c_tuple_asan python3 -m unittest tests.test_native_union_tuples tests.test_union_aggregate_payloads
+bin/nanoc_c src_nano/nanoc_v06.nano -o /private/tmp/nl51-native-tuple-order/seed
+NANO_GENERIC_CSEED_COMPILER=/private/tmp/nl51-native-tuple-order/seed python3 -m unittest tests.test_native_union_tuples tests.test_union_aggregate_payloads tests.test_generic_union_parameters tests.test_module_union_owners
+NANOLANG_NOMINAL_COMPILER_ROOT=/private/tmp/nl51-native-tuple-order NANOLANG_NOMINAL_COMPILERS=seed python3 -m unittest tests.test_native_nominal_order

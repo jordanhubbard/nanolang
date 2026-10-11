@@ -1,0 +1,17 @@
+/private/tmp/nl51-native-tuple-order/distinct.nano:9:31: error: incompatible integer to pointer conversion passing 'int64_t' (aka 'long long') to parameter of type 'const char *' [-Wint-conversion]
+    9 |                 if (!((strcmp(p.value._0, "right") == 0))) { fputs("Contract violation at line 4: (== ... \"right\")\n", stderr); exit(1); }
+      |                               ^~~~~~~~~~
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_string.h:89:25: note: passing argument to parameter '__s1' here
+   89 | int      strcmp(const char *__s1, const char *__s2);
+      |                             ^
+/private/tmp/nl51-native-tuple-order/distinct.nano:10:24: error: incompatible pointer to integer conversion returning 'const char *' from a function with result type 'int64_t' (aka 'long long') [-Wint-conversion]
+   10 |                 return p.value._1;
+      |                        ^~~~~~~~~~
+/private/tmp/nl51-native-tuple-order/distinct.nano:6:153: error: initializing 'int64_t' (aka 'long long') with an expression of incompatible type 'Tuple_string_int_1' (aka 'struct Tuple_string_int_1')
+    6 |     if (!((({ __auto_type __nl_arg_1_0 = (nl___nano_root_union__Box_unknown){ .tag = nl___nano_root_union__Box_unknown_TAG_Some, .data.Some = {.value = (Tuple_string_int_1){._0 = "right", ._1 = 9LL}}}; nl_second(__nl_arg_1_0); })) == (9LL))) { fputs("Contract violation at line 6: (== (second ...) 9)\n", stderr); exit(1); }
+      |                                                                                                                                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/private/tmp/nl51-native-tuple-order/distinct.nano:6:199: error: missing field '_1' initializer [-Werror,-Wmissing-field-initializers]
+    6 |     if (!((({ __auto_type __nl_arg_1_0 = (nl___nano_root_union__Box_unknown){ .tag = nl___nano_root_union__Box_unknown_TAG_Some, .data.Some = {.value = (Tuple_string_int_1){._0 = "right", ._1 = 9LL}}}; nl_second(__nl_arg_1_0); })) == (9LL))) { fputs("Contract violation at line 6: (== (second ...) 9)\n", stderr); exit(1); }
+      |                                                                                                                                                                                                       ^
+4 errors generated.
+C compilation failed

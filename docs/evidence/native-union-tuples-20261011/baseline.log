@@ -1,0 +1,36 @@
+test_tuple_payload (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_tuple_payload) ... FAIL
+
+======================================================================
+FAIL: test_tuple_payload (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_tuple_payload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_aggregate_payloads.py", line 46, in test_tuple_payload
+            self.execute('''union Box<T> { Some {value:T} }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn make()->Box<(int,string)> { return Box<(int,string)>.Some {value:(7,"kept")} }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    fn main()->int { assert (== (read (make)) 7) return 0 }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    '''+SHADOW)
+    ^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_33392_main.c:1732:24: error: field has incomplete type 'Tuple_int_string_0' (aka 'struct Tuple_int_string_0')
+ 1732 |     Tuple_int_string_0 value;
+      |                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_33392_main.c:1730:16: note: forward declaration of 'struct Tuple_int_string_0'
+ 1730 | typedef struct Tuple_int_string_0 Tuple_int_string_0;
+      |                ^
+1 error generated.
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 2.241s
+
+FAILED (failures=1)
