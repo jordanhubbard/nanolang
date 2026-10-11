@@ -19,6 +19,20 @@ class NativeGlobalTypes(unittest.TestCase):
                                         capture_output=True, text=True, timeout=120)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
+    def test_record_receiver_shadows_import_alias(self):
+        with tempfile.TemporaryDirectory(prefix='nano-field-import-') as tmp:
+            module = Path(tmp) / 'constants.nano'
+            module.write_text('pub let answer: int = 99\n')
+            self.execute(f'module "{module}" as items\n' +
+                'struct Packet { answer: int, label: string }\n'
+                'fn read(items: Packet) -> int { return items.answer }\n'
+                'shadow read { assert (== (read Packet { answer: 42, label: "kept" }) 42) }\n'
+                'fn main() -> int { assert (== items.answer 99) '
+                'assert (== (read Packet { answer: 42, label: "kept" }) 42) '
+                'if true { let items: Packet = Packet { answer: 7, label: "local" } '
+                'assert (== items.answer 7) assert (== items.label "local") } '
+                'assert (== items.answer 99) return 0 }\n')
+
     def test_record_global_and_mutation(self):
         self.execute('''struct Box {value:int}
 let mut global:Box=Box {value:7}

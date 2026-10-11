@@ -1,3 +1,4 @@
+#include "../src/eval/call_dispatch.h"
 /**
  * test_eval.c — unit tests for the nanolang tree-walking interpreter (eval.c)
  *
@@ -1296,6 +1297,24 @@ void test_eval_string_conversion(void) {
         "}\n"
     );
     ASSERT(ok);
+    run_ctx_free(&ctx);
+}
+
+void test_eval_live_record_receiver(void) {
+    RunCtx ctx;
+    ASSERT(run_ctx_init(&ctx,
+        "enum Direction { North, South }\n"
+        "struct Packet { North: int, label: string }\n"
+        "fn read(Direction: Packet) -> int { return Direction.North }\n"
+        "fn label(Direction: Packet) -> string { return Direction.label }\n"
+        "fn main() -> int { return 0 }\n"
+        "shadow read { assert (== (read Packet { North: 42, label: \"kept\" }) 42) }\n"
+        "shadow label { let saved: string = (label Packet { North: 7, label: \"kept\" }) "
+        "let mut receiver: Packet = Packet { North: 1, label: \"old\" } "
+        "set receiver Packet { North: 2, label: \"new\" } "
+        "assert (== receiver.North 2) assert (== receiver.label \"new\") "
+        "assert (== saved \"kept\") assert (!= Direction.North Direction.South) }\n"));
+    ASSERT(run_shadow_tests(ctx.program, ctx.env, false));
     run_ctx_free(&ctx);
 }
 
@@ -3044,6 +3063,27 @@ static void test_eval_file_write_failures(void) {
     remove(args[0].as.string_val);
 }
 
+/* I check the ordering invariant needed by binary lookup and exact spelling. */
+void test_eval_call_dispatch_names(void) {
+    static const char *const names[] = {
+#define EVAL_CALL_NAME(name) #name,
+#include "../src/eval/call_names.inc"
+#undef EVAL_CALL_NAME
+    };
+    for (size_t i = 1; i < sizeof names / sizeof names[0]; ++i)
+        ASSERT(strcmp(names[i-1], names[i]) < 0);
+    ASSERT(eval_call_name(NULL) == EVAL_CALL_unknown);
+    ASSERT(eval_call_name("") == EVAL_CALL_unknown);
+    ASSERT(eval_call_name("file_read") == EVAL_CALL_file_read);
+    ASSERT(eval_call_name("file_read_bytes") == EVAL_CALL_file_read_bytes);
+    ASSERT(eval_call_name("str_length") == EVAL_CALL_str_length);
+    ASSERT(eval_call_name("strlen") == EVAL_CALL_strlen);
+    ASSERT(eval_call_name("unsetenv") == EVAL_CALL_unsetenv);
+    ASSERT(eval_call_name("file_read_extra") == EVAL_CALL_unknown);
+    ASSERT(eval_call_name("File_read") == EVAL_CALL_unknown);
+    ASSERT(eval_call_name("User.function") == EVAL_CALL_unknown);
+}
+
 int main(void) {
     TEST(eval_declared_push_initializer_bindings);
     TEST(eval_file_write_failures);
@@ -3110,6 +3150,7 @@ int main(void) {
     TEST(eval_string_conversion);
     TEST(eval_binary64_prefix_and_strict_cast);
     TEST(eval_enum_access);
+    TEST(eval_live_record_receiver);
     TEST(eval_string_to_int_back);
     TEST(eval_shadowed_functions_reuse);
     TEST(eval_float_comparison);
@@ -3171,6 +3212,7 @@ int main(void) {
     TEST(eval_record_alias_reassignment);
     TEST(eval_record_alias_across_direct_calls);
     TEST(eval_epoch_milliseconds);
+    TEST(eval_call_dispatch_names);
 
     printf("\n✓ All eval tests passed!\n");
     return 0;

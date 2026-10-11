@@ -1,0 +1,9 @@
+{
+  "completed_shadows": 1107,
+  "summed_shadow_seconds": 5.402708,
+  "assertion_failures": 0,
+  "product_test_exit_code": 1,
+  "product_test_seconds": 198.038,
+  "linker_duplicate_symbols": 606,
+  "source_inputs_unchanged": true
+}

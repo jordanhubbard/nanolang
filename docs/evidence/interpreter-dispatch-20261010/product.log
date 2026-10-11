@@ -1,0 +1,103 @@
+I retain this audit at /private/tmp/nl51-dispatch-product-zqoj28sk
+test_selfhost_emitted_compiler_to_native_nanoisa_product (__main__.Audit.test_selfhost_emitted_compiler_to_native_nanoisa_product)
+I execute my canonical emitter before translating its compiler product. ... I run step 00: /Users/jordanh/Src/nanolang/bin/nanoc_c /Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano -o /private/tmp/nl51-dispatch-product-zqoj28sk/nano-selfhost-native-product-pj_j7zt_/seed
+FAIL
+
+======================================================================
+FAIL: test_selfhost_emitted_compiler_to_native_nanoisa_product (__main__.Audit.test_selfhost_emitted_compiler_to_native_nanoisa_product)
+I execute my canonical emitter before translating its compiler product.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_one_ir_compiler.py", line 379, in test_selfhost_emitted_compiler_to_native_nanoisa_product
+    self.run_checked([ROOT / "bin/nanoc_c", ROOT / "src_nano/nanoc_v06.nano",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                      "-o", seed], timeout=600)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nl51-dispatch-product-audit.py", line 35, in run_checked
+    self.assertEqual(process.returncode,0,(stdout+stderr).decode(errors='replace')[-6000:])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : ordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_service_bindings_attach' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_cJSON_AddItemToArray' in:
+    /Users/jordanh/Src/nanolang/modules/compiler_support/.build/.nano-gen-ejPU5J/compiler_support.o
+    /Users/jordanh/Src/nanolang/modules/file_source_inputs/.build/.nano-gen-fMYvi1/file_source_inputs.o
+duplicate symbol '_nvm_record_array_execution_section' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_owned_array_source_layout' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nl_websocket_plan_method_count' in:
+    /Users/jordanh/Src/nanolang/modules/file_source_inputs/.build/.nano-gen-fMYvi1/file_source_inputs.o
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_affine_take_local' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_metadata_source_key' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_cJSON_PrintUnformatted' in:
+    /Users/jordanh/Src/nanolang/modules/compiler_support/.build/.nano-gen-ejPU5J/compiler_support.o
+    /Users/jordanh/Src/nanolang/modules/file_source_inputs/.build/.nano-gen-fMYvi1/file_source_inputs.o
+duplicate symbol '_cJSON_ReplaceItemViaPointer' in:
+    /Users/jordanh/Src/nanolang/modules/compiler_support/.build/.nano-gen-ejPU5J/compiler_support.o
+    /Users/jordanh/Src/nanolang/modules/file_source_inputs/.build/.nano-gen-fMYvi1/file_source_inputs.o
+duplicate symbol '_nvm_multi_nominal_import' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_file_instructions_present' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_describe_managed_records' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_v2_constants_free' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_file_indirect_targets_free' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_file_flow_put' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_cJSON_GetArrayItem' in:
+    /Users/jordanh/Src/nanolang/modules/compiler_support/.build/.nano-gen-ejPU5J/compiler_support.o
+    /Users/jordanh/Src/nanolang/modules/file_source_inputs/.build/.nano-gen-fMYvi1/file_source_inputs.o
+duplicate symbol '_nl_websocket_plan_storage_size' in:
+    /Users/jordanh/Src/nanolang/modules/file_source_inputs/.build/.nano-gen-fMYvi1/file_source_inputs.o
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_socket_nominal_storage_bound' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_file_flow_load' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_file_cyclic_hosted_import' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_file_cyclic_local' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_file_flow_declaration' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_file_indirect_flow_import' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+duplicate symbol '_nvm_affine_union_fields' in:
+    /Users/jordanh/Src/nanolang/modules/nanoisa/.build/.nano-gen-Odp2Db/nanoisa.o
+    /Users/jordanh/Src/nanolang/modules/file_product/.build/.nano-gen-FSSgRT/file_product.o
+ld: 606 duplicate symbols
+clang: error: linker command failed with exit code 1 (use -v to see invocation)
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 198.038s
+
+FAILED (failures=1)
