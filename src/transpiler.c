@@ -938,46 +938,12 @@ static const char *type_to_c(Type type) {
     }
 }
 
-/* Get C function name with prefix to avoid conflicts with standard library */
-/* Helper: Mangle module name for C identifier (module -> module, std::io -> std__io) */
-static void mangle_module_name(char *dest, size_t dest_size, const char *module_name) {
-    /* Safety check: ensure valid input */
-    if (!dest || dest_size == 0 || !module_name || module_name[0] == '\0') {
-        if (dest && dest_size > 0) {
-            dest[0] = '\0';
-        }
-        return;
-    }
-    
-    size_t i = 0, j = 0;
-    while (module_name[i] && j < dest_size - 1) {
-        /* Only copy valid ASCII/UTF-8 characters */
-        unsigned char c = (unsigned char)module_name[i];
-        
-        if (module_name[i] == ':' && module_name[i+1] == ':') {
-            /* Replace :: with __ */
-            dest[j++] = '_';
-            if (j < dest_size - 1) {
-                dest[j++] = '_';
-            }
-            i += 2;
-        } else if (c >= 32 && c < 127) {
-            /* Only copy printable ASCII characters */
-            dest[j++] = module_name[i++];
-        } else {
-            /* Skip invalid/non-ASCII characters */
-            i++;
-        }
-    }
-    dest[j] = '\0';
-}
-
 /* Helper: Get C function name with namespace mangling support */
 static const char *get_c_func_name_with_module(const char *nano_name, const char *module_name, bool is_extern) {
     const char *helper_name = module_helper_c_name(nano_name);
     if (helper_name != nano_name) return helper_name;
     /* WARNING: Returns pointer to thread-local static storage. Valid until next call. */
-    static _Thread_local char buffer[512];
+    static _Thread_local char buffer[8192];
     
     /* Extern functions use their original name without any mangling or nl_ prefix */
     if (is_extern) {
@@ -1009,29 +975,17 @@ static const char *get_c_func_name_with_module(const char *nano_name, const char
         return nano_name;
     }
     
-    /* If module_name is provided, use namespace mangling: module__func */
+    /* I share the byte-preserving metadata encoder for declaration and call names. */
     if (module_name && module_name[0] != '\0') {
-        /* Validate module_name contains only printable ASCII before using */
-        bool valid_module_name = true;
-        for (const char *p = module_name; *p; p++) {
-            unsigned char c = (unsigned char)*p;
-            if (c < 32 || c >= 127) {
-                valid_module_name = false;
-                break;
-            }
+        const char *module_symbol = module_symbol_suffix(module_name);
+        int length = snprintf(buffer, sizeof(buffer), "%s__%s", module_symbol, nano_name);
+        if (length < 0 || (size_t)length >= sizeof(buffer)) {
+            fprintf(stderr, "I cannot represent this module function symbol.\n");
+            exit(1);
         }
-        
-        if (valid_module_name) {
-            char mangled_module[256];
-            mangle_module_name(mangled_module, sizeof(mangled_module), module_name);
-            /* Only use mangled name if it's non-empty */
-            if (mangled_module[0] != '\0') {
-                snprintf(buffer, sizeof(buffer), "%s__%s", mangled_module, nano_name);
-                return buffer;
-            }
-        }
+        return buffer;
     }
-    
+
     /* I keep an allowed declaration separate from my retained builtin helper. */
     if (strcmp(nano_name, "array_push") == 0) return "__nl_declared_array_push";
 
@@ -3372,17 +3326,8 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
             /* main is always entry point, not a module function to be imported */
             if (strcmp(mi->as.function.name, "main") == 0) continue;
 
-            const char *c_name = NULL;
-            char c_name_buf[512];
-            if (mi->as.function.is_extern) {
-                /* Extern functions use their literal name */
-                c_name = mi->as.function.name;
-            } else if (module_name) {
-                snprintf(c_name_buf, sizeof(c_name_buf), "%s__%s", module_name, mi->as.function.name);
-                c_name = c_name_buf;
-            } else {
-                c_name = get_c_func_name_with_module(mi->as.function.name, NULL, mi->as.function.is_extern);
-            }
+            const char *c_name = get_c_func_name_with_module(
+                mi->as.function.name, module_name, mi->as.function.is_extern);
 
             /* If the generated C file includes the relevant system headers, don't redeclare system APIs. */
             if (mi->as.function.is_extern && g_module_headers_count > 0) {

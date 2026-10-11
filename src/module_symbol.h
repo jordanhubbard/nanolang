@@ -38,7 +38,8 @@ static inline const char *module_symbol_suffix(const char *name) {
     static _Thread_local char buffer[4096];
     const char prefix[] = "__nano_hex_";
     const char hex[] = "0123456789abcdef";
-    bool plain = name[0] && strncmp(name, prefix, sizeof(prefix) - 1) != 0;
+    bool plain = name[0] && !(name[0] >= '0' && name[0] <= '9') &&
+        strncmp(name, prefix, sizeof(prefix) - 1) != 0;
     for (const unsigned char *p = (const unsigned char *)name; *p; p++) {
         if (!((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') ||
               (*p >= '0' && *p <= '9') || *p == '_')) plain = false;

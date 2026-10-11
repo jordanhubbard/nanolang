@@ -1,0 +1,8 @@
+test_long_common_prefixes_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_long_common_prefixes_remain_distinct) ... ok
+test_punctuation_and_encoded_looking_names_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_punctuation_and_encoded_looking_names_remain_distinct) ... ok
+test_unicode_digits_and_dots_remain_distinct (tests.test_module_function_names.ModuleFunctionNames.test_unicode_digits_and_dots_remain_distinct) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.868s
+
+OK

@@ -1,0 +1,5 @@
+I continue #976 from 8e75c9979 on release/5.1-completion-20261007. I fixed native module function symbols by sharing the byte-preserving metadata encoder across definitions, imported prototypes and calls. Leading digits and encoded-looking names remain distinct; extern names retain their existing mapping.
+
+Three executed filename methods cover punctuation/underscore/encoded-looking collisions, UTF-8, digits, dots, long common prefixes, internal calls, qualified calls, selective aliases and callbacks. They pass C-native, C NanoISA/VM/ASan-UBSan C AOT, the retained current self-hosted seed, and the two-object instrumented compiler. All 18 native module-name/union regressions, the transpiler gate and all 24 module-build invocation tests pass.
+
+Evidence: docs/evidence/module-function-names-20261011/README.md. I close this roadmap implementation gap, not the full 5.1 scope. Union aggregate lowering, layout-cycle validation and exact-candidate release gates remain open. MAC is not used; the coordination branch carries ownership and handoff while the API is unavailable.
