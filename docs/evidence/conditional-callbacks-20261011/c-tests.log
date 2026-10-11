@@ -1,0 +1,9 @@
+test_inactive_incompatible_branch_preserves_output (tests.test_conditional_generic_callbacks.ConditionalGenericCallbacks.test_inactive_incompatible_branch_preserves_output) ... ok
+test_local_nested_and_reassigned (tests.test_conditional_generic_callbacks.ConditionalGenericCallbacks.test_local_nested_and_reassigned) ... ok
+test_record_array_and_union_storage (tests.test_conditional_generic_callbacks.ConditionalGenericCallbacks.test_record_array_and_union_storage) ... ok
+test_return_and_call_argument (tests.test_conditional_generic_callbacks.ConditionalGenericCallbacks.test_return_and_call_argument) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.852s
+
+OK

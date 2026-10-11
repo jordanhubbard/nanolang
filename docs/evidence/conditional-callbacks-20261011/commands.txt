@@ -1,0 +1,7 @@
+make -j4 bin/nanoc_c bin/nano_virt
+python3 -m unittest -v tests.test_conditional_generic_callbacks tests.test_contextual_generic_functions
+NANO_CONTEXTUAL_NATIVE_COMPILER=$PWD/bin/nanoc_c python3 -m unittest -v tests.test_conditional_generic_callbacks tests.test_contextual_generic_functions
+make test-typechecker test-transpiler
+bin/nanoc_c src_nano/nanoc_v06.nano -o /private/tmp/nl51-context-storage/seed
+NANO_GENERIC_CSEED_COMPILER=/private/tmp/nl51-context-storage/seed python3 -m unittest -v tests.test_conditional_generic_callbacks tests.test_contextual_generic_functions
+python3 /private/tmp/nl51-context-storage/product-audit.py

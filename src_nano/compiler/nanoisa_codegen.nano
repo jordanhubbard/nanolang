@@ -4166,6 +4166,22 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         }
     }
     if (str_starts_with (nisa_compact_type expected) "fn(") {
+        if (== node_type ParseNodeType.PNODE_BLOCK) {
+            let block: ASTBlock = (parser_get_block parser node_id)
+            if (!= (list_ASTStmtRef_length block.statements) 1) { return (nisa_fail "I require one value in a conditional callback branch") }
+            let value: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+            return (nisa_emit_expected_expr parser value.node_id value.node_type expected)
+        }
+        if (== node_type ParseNodeType.PNODE_IF) {
+            let choice: ASTIf = (parser_get_if parser node_id)
+            if (< choice.else_body 0) { return (nisa_fail "I require an else value for a conditional callback") }
+            let alternate: string = (nisa_fresh)
+            let end: string = (nisa_fresh)
+            let condition: string = (nisa_emit_expr parser choice.condition choice.condition_type)
+            let left: string = (nisa_emit_expected_expr parser choice.then_body ParseNodeType.PNODE_BLOCK expected)
+            let right: string = (nisa_emit_expected_expr parser choice.else_body ParseNodeType.PNODE_BLOCK expected)
+            return (+ condition (+ (nisa_line_imm "JMP_FALSE" alternate) (+ left (+ (nisa_line_imm "JMP" end) (+ (nisa_label_line alternate) (+ right (nisa_label_line end)))))))
+        }
         let index: int = (nisa_function_value_index parser node_id node_type)
         if (>= index 0) {
             let function: ASTFunction = (parser_get_function parser index)
@@ -4289,6 +4305,20 @@ shadow nisa_emit_expected_expr {
     let tuple_return: ASTReturn = (parser_get_return tuple_parser tuple_statement.node_id)
     let tuple_text: string = (nisa_emit_expected_expr tuple_parser tuple_return.value tuple_return.value_type "(int,string)")
     assert (str_contains tuple_text "AGG_PACK 2 0 0 2")
+    let _: int = (nisa_reset)
+    let choices: string = "fn id(x:T)->T{return x} fn other(x:T)->T{return x} fn choose()->fn(int)->int{return (cond (true id) (else other))}"
+    let choice_tokens: List<LexerToken> = (tokenize_string choices "choice.nano" diagnostics)
+    let choice_parser: Parser = (parse_program choice_tokens (list_LexerToken_length choice_tokens) "choice.nano")
+    let choice_function: ASTFunction = (parser_get_function choice_parser 2)
+    let choice_block: ASTBlock = (parser_get_block choice_parser choice_function.body)
+    let choice_statement: ASTStmtRef = (list_ASTStmtRef_get choice_block.statements 0)
+    let choice_return: ASTReturn = (parser_get_return choice_parser choice_statement.node_id)
+    let choice_text: string = (nisa_emit_expected_expr choice_parser choice_return.value choice_return.value_type "fn(int)->int")
+    assert nisa_ok
+    assert (str_contains choice_text "JMP_FALSE")
+    assert (str_contains choice_text "FUNCREF")
+    assert (== (array_length nisa_generics) 2)
+    let _2: int = (nisa_reset)
 }
 
 fn nisa_emit_call_args(parser: Parser, call: ASTCall) -> string {

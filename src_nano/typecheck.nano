@@ -4159,6 +4159,24 @@ shadow tc_function_value_symbol {
 
 fn check_constructor_argument(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     if (str_starts_with (type_to_string expected) "fn(") {
+        if (== node_type ParseNodeType.PNODE_BLOCK) {
+            let block: ASTBlock = (parser_get_block parser node_id)
+            if (== (list_ASTStmtRef_length block.statements) 1) {
+                let value: ASTStmtRef = (list_ASTStmtRef_get block.statements 0)
+                let raw: NSType = (check_expr_node parser value.node_id value.node_type symbols diags file_name)
+                return (check_constructor_argument parser value.node_id value.node_type raw expected symbols diags file_name)
+            }
+        }
+        if (== node_type ParseNodeType.PNODE_IF) {
+            let choice: ASTIf = (parser_get_if parser node_id)
+            if (>= choice.else_body 0) {
+                let left: NSType = (check_constructor_argument parser choice.then_body ParseNodeType.PNODE_BLOCK actual expected symbols diags file_name)
+                let right: NSType = (check_constructor_argument parser choice.else_body ParseNodeType.PNODE_BLOCK actual expected symbols diags file_name)
+                if (and (types_equal left expected) (types_equal right expected)) { return expected }
+            }
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require every conditional callback to match the declared signature." (Diagnostics.diag_location file_name choice.line choice.column)))
+            return (type_unknown_named "conditional callback")
+        }
         let index: int = (tc_function_value_symbol parser node_id node_type symbols)
         if (>= index 0) {
             let symbol: Symbol = (at symbols index)
@@ -4245,6 +4263,10 @@ fn check_constructor_argument(parser: Parser, node_id: int, node_type: int, actu
     return expected
 }
 shadow check_constructor_argument {
+    let callbacks: Parser = (resource_test_parser "fn id(x:T)->T{return x} fn other(x:T)->T{return x} fn main()->int{let f:fn(int)->int=(cond (true id) (else other)) return (f 7)}")
+    assert (not (typecheck_phase callbacks "conditional.nano").had_error)
+    let wrong: Parser = (resource_test_parser "fn id(x:T)->T{return x} fn wrong(x:int)->bool{return true} fn main()->int{let f:fn(int)->int=(cond (true id) (else wrong)) return (f 7)}")
+    assert (typecheck_phase wrong "conditional.nano").had_error
     let parser: Parser = (resource_test_parser "union Choice { Some { n: int } } fn f() -> void { (consume (Choice.Some { n: 1 })) }")
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let expected: NSType = (type_from_string_with_parser parser "Choice")

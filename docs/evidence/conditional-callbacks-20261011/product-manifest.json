@@ -1,0 +1,101 @@
+{
+  "revision": "c90d7498ff26a8ab6951e90561dfabc774205c91",
+  "inputs": {
+    "src/typechecker.c": "8c6834883a77582987582602ea469966c15942ac821015b36d1621031825178e",
+    "src_nano/typecheck.nano": "ed9e4212d168630f00d37e4c9caae90b628c50d4172ff5c0909870d1edfcbda9",
+    "src_nano/compiler/nanoisa_codegen.nano": "9a776b58afd33ea3a00d7eff8b341bf20692043c931b87a7da679da03ed455fa",
+    "src/nanoisa/nvm2c.c": "e2ee35d8d31f46ed383ad4286839b507caca58907fdee9ec95f2dc339de96266"
+  },
+  "steps": [
+    {
+      "argv": [
+        "/private/tmp/nl51-context-storage/seed",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-context-storage/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 291.75437624996994,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-context-storage/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 0.08135862497147173,
+      "log": "product-01.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-context-storage/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-context-storage/compiler.c"
+      ],
+      "returncode": 0,
+      "seconds": 10.138613124960102,
+      "log": "product-02.log"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-context-storage/compiler.c",
+        "-o",
+        "/private/tmp/nl51-context-storage/compiler",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "returncode": 0,
+      "seconds": 6.5475941660115495,
+      "log": "product-03.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-context-storage/compiler",
+        "--help"
+      ],
+      "returncode": 0,
+      "seconds": 0.023673958028666675,
+      "log": "product-04.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_conditional_generic_callbacks",
+        "tests.test_contextual_generic_functions",
+        "tests.test_union_aggregate_payloads",
+        "tests.test_native_union_tuples",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 14.258572458056733,
+      "log": "product-05.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_native_nominal_order",
+        "tests.test_selfhost_union_storage",
+        "tests.test_selfhost_layout_validation",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 5.7982652499340475,
+      "log": "product-06.log"
+    }
+  ],
+  "inputs_unchanged": true
+}

@@ -1,0 +1,347 @@
+**Exploration: nanoc_v06 transpiler transpile_program_to_c nisa_write native output**
+
+Found 30 symbols across 6 files.
+
+**Blast radius — what depends on these (update/verify before editing)**
+
+- `program` (docs/evidence/raw-cast-u8/nanolang-scalar-u8-8caba.py:16) — 7 callers in `docs/evidence/raw-cast-u8/nanolang-scalar-u8-8caba.py`; no tests found within 3 caller hops
+- `write` (scripts/generate_test_tone.py:75) — 7 callers in `skills/releasing/documentation/check_documentation.py`, `skills/releasing/presentation/check_presentation.py`, `docs/presentation/publish_google_workspace.py`, `scripts/generate_test_tone.py` +3 more; no tests found within 3 caller hops
+- `write` (docs/evidence/affine-full-suite/reports/nanolang-affine-full-3c728-corrected-darwin-bootstrap/runner.py:16) — 7 callers in `docs/evidence/affine-full-suite/reports/nanolang-affine-full-3c728-corrected-darwin-bootstrap/runner.py`, `docs/evidence/cast-u8-backends/linux/nanolang-cast-u8-backends-linux-reconstruction/check-refusal.py`, `docs/evidence/cast-u8-backends/puck/nanolang-cast-u8-backends-puck-reconstruction/check-refusal.py`, `docs/evidence/raw-cast-u8/linux-extended-corrected/check-refusal.py` +2 more; tested via callers: `docs/evidence/owned-array-source-linux/phase/test_source_owned_float_arrays.py`, `docs/evidence/owned-array-source-linux/remaining/test_source_owned_float_arrays.py`
+
+**Relationships**
+
+**extends:**
+- nl_TranspilePhaseOutput → List_CompilerDiagnostic
+- nl_Parser → List_CompilerDiagnostic
+- nl_LexPhaseOutput → List_CompilerDiagnostic
+- nl_ParsePhaseOutput → List_CompilerDiagnostic
+- nl_TypeEnvironment → List_CompilerDiagnostic
+- nl_TypecheckPhaseOutput → List_CompilerDiagnostic
+- nl_Parser → List_LexerToken
+- nl_Parser → List_ASTNumber
+- nl_Parser → List_ASTFloat
+- nl_Parser → List_ASTString
+- ... and 15 more
+
+**calls:**
+- test_exact_conversions_tags_and_unsigned_order → program
+- test_calls_locals_branch_and_implicit_result_transport → program
+- test_generic_byte_order_across_scalar_backends → program
+- test_native_byte_display_and_unused_signature → program
+- test_declared_byte_argument_retains_runtime_tag_guard → program
+- test_declared_byte_result_checks_actual_return_tag → program
+- test_typed_integer_instruction_still_checks_byte_tag → program
+- test_exact_conversions_tags_and_unsigned_order → compare
+- test_calls_locals_branch_and_implicit_result_transport → compare
+- test_generic_byte_order_across_scalar_backends → compare
+- ... and 68 more
+
+**references:**
+- write → SAMPLE_RATE
+- write → SAMPLE_WIDTH
+- write → CHANNELS
+- render → AMPLITUDE
+- render → SAMPLE_RATE
+- render → NOTES_HZ
+- render → DURATION_S
+- main → WATCHES
+- main → WATCHES
+- refused → ROOT
+- ... and 6 more
+
+**Source Code**
+
+> The code below is the **verbatim, current on-disk source** of these files — re-read from disk on this call and line-numbered, byte-for-byte identical to what the Read tool returns. It is NOT a summary, outline, or stale cache. Treat each block as a Read you have already performed: do not Read a file shown here. (Exception: files flagged "⚠ changed on disk" below drifted from the index after their last sync — their source is omitted rather than risk a mis-sliced block; Read those specific files.)
+
+**`docs/evidence/c-seed-comparison-grouping/runner.py`** — native(variable), output(variable)
+
+```python
+11	pin=git('rev-parse','HEAD');assert pin=='b4ddc1edb5a4509e5e8888fa4834b367f8f49cc7'
+12	assert not git('status','--porcelain','--untracked-files=no')
+13	assert not (root/'obj').exists() and not (root/'bin').exists()
+14	cc='/usr/bin/clang' if darwin else '/bin/gcc';native='/opt/homebrew/opt/llvm/bin/clang' if darwin else '/bin/gcc'
+15	llvm='/opt/homebrew/opt/llvm/bin' if darwin else '/usr/local/bin'
+16	selected=[cc,native,sys.executable,shutil.which('python3'),shutil.which('make'),shutil.which('ar'),shutil.which('ld'),shutil.which('perl'),shutil.which('git')]
+17	selected += [llvm+'/'+x for x in ('clang','opt','llc','lli')]
+
+... (gap) ...
+
+59	for name,args,bound in [('build',['make','-j2','build',*flags],1800),('bootstrap',['make','-j2','bootstrap',*flags],1800),('array-compatibility',[sys.executable,'-m','unittest','-v','tests.test_selfhost_array_compatibility'],900)]:
+60	 if not command(name,args,bound):sys.exit(1)
+61	for compiler in ('nanoc_c','nanoc_stage1','nanoc_stage2'):
+62	 output=out/('boolean-'+compiler)
+63	 if not command('boolean-compile-'+compiler,[str(root/'bin'/compiler),'tests/test_boolean_precedence.nano','-o',str(output),'--keep-c'],60):sys.exit(1)
+64	 if not command('boolean-run-'+compiler,[str(output)],10):sys.exit(1)
+65	save('retained-boolean-products.json',snapshot(out.glob('boolean-*')))
+```
+
+**`src/generated/compiler_schema.h`** — ⚠ changed on disk after the last index sync — source omitted (indexed line ranges no longer match, so a slice could show the wrong code). Read this file directly for current content; the change is picked up on that project's next index sync.
+
+**`docs/evidence/affine-full-suite/reports/nanolang-affine-full-3c728-corrected-darwin-build/runner.py`** — calls(calls), write(calls), command(calls), write(function), command(function)
+
+```python
+13	os.chdir(root);sys.path.insert(0,str(root))
+14	def git(*args,tree=root):return subprocess.check_output(['git',*args],cwd=tree,text=True).strip()
+15	def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+16	def write(name,value):(out/name).write_text(json.dumps(value,indent=2)+'\n')
+17	def sources():return {p:sha(root/p) for p in git('ls-files').splitlines() if (root/p).is_file()}
+18	def inputs():return {str(p.relative_to(root)):sha(p) for d in ('bin','obj','lib') for p in (root/d).rglob('*') if p.is_file()}
+19	def tools():
+20	 result={}
+21	 for name in ('cc','gcc','clang','make','python3','ar','ld','pkg-config','brew',cc,nativecc):
+22	  path=pathlib.Path(shutil.which(name)).resolve();result[name]={'path':str(path),'sha256':sha(path)}
+23	 return result
+24	assert shutil.disk_usage(root).free >= 4*1024**3
+25	assert git('rev-parse','HEAD')==pin
+26	assert git('status','--porcelain') in ('','?? tests/test_eval')
+27	if (root/'tests/test_eval').exists():write('retained-evaluator.json',{'path':str(root/'tests/test_eval'),'sha256':sha(root/'tests/test_eval')})
+28	for key in ('NANOC','NANO_VM','NANO_NVM2C','NANO_AOT_RUNTIME','NANO_BUILD_CACHE','NANO_MODULE_PATH'):os.environ.pop(key,None)
+29	os.environ.update(ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',CC=cc,NANO_VM=str(root/'bin/nano_vm'),NANO_NVM2C=str(root/'bin/nvm2c'),NANO_AOT_RUNTIME=str(root/'bin/nano_aot_runtime.o'),NANO_MODULE_PATH=str(root/'modules'),NANO_BUILD_CACHE=str(root/'obj/module_cache'),PYTHONPATH=str(root))
+30	if not linux:os.environ['SDKROOT']=subprocess.check_output(['/usr/bin/xcrun','--sdk','macosx','--show-sdk-path'],text=True).strip()
+31	write('environment.json',{k:v for k,v in os.environ.items() if k in ('PATH','CC','NANO_VM','NANO_NVM2C','NANO_AOT_RUNTIME','NANO_MODULE_PATH','NANO_BUILD_CACHE','PYTHONPATH','SDKROOT','ASAN_OPTIONS')})
+32	(out/'runner.py').write_bytes(pathlib.Path(__file__).read_bytes())
+33	if not linux:
+34	 prefix=subprocess.check_output(['/opt/homebrew/bin/brew','--prefix','openssl'],text=True).strip()
+35	 deps={'openssl_prefix':prefix,'sdk':os.environ['SDKROOT'],'libffi_flags':subprocess.check_output(['/opt/homebrew/bin/pkg-config','--cflags','--libs','libffi'],text=True).strip()}
+36	 paths=[pathlib.Path(prefix)/'include/openssl/sha.h',pathlib.Path(prefix)/'lib/libcrypto.dylib',pathlib.Path(os.environ['SDKROOT'])/'usr/include/ffi/ffi.h']
+37	 deps['files']={str(p):{'resolved':str(p.resolve()),'sha256':sha(p)} for p in paths}
+38	 write('dependencies.json',deps)
+39	initial=sources();write('source-before.json',initial);write('inputs-before.json',inputs());write('host-tools-before.json',tools())
+40	status={'pin':pin,'phase':phase,'success':False};start=time.monotonic()
+41	def command(name,args,timeout=1800):
+42	 t=time.monotonic()
+43	 with (out/(name+'.log')).open('wb') as log:
+44	  code=subprocess.run(args,cwd=root,stdout=log,stderr=subprocess.STDOUT,timeout=timeout).returncode
+45	 write(name+'.json',{'command':args,'status':code,'seconds':time.monotonic()-t})
+46	 if code:raise RuntimeError(name+' failed with '+str(code))
+47	def dependency(name,count=None):
+48	 d=json.loads(pathlib.Path(str(base)+'-'+name+'/status.json').read_text());assert d['success']
+49	 if count is not None:assert d['testsRun']==count
+50	try:
+51	 if phase=='bootstrap':
+52	  command('bootstrap',[make,'-j2','-f','Makefile.gnu','CC='+cc,'bootstrap'],1800)
+53	  write('fresh-stages.json',{str(root/'bin'/n):sha(root/'bin'/n) for n in ('nanoc_c','nanoc_stage1','nanoc_stage2')})
+54	 elif phase=='build':
+55	  dependency('bootstrap')
+56	  command('build',[make,'-j2','-f','Makefile.gnu','CC='+cc,'nano_virt','nano_vm','obj/test_affine_c_frontend'])
+57	  write('fresh-stages.json',{str(root/'bin'/n):sha(root/'bin'/n) for n in ('nanoc_c','nanoc_stage1','nanoc_stage2')})
+58	 else:raise RuntimeError('Only bootstrap and preparation authorized in this driver')
+59	 status['success']=True
+60	except BaseException as error:
+```
+
+**`docs/evidence/affine-full-suite/reports/nanolang-affine-full-3c728-corrected-darwin-suite/runner.py`** — calls(calls), write(calls), write(function), command(function), command(calls)
+
+```python
+13	os.chdir(root);sys.path.insert(0,str(root))
+14	def git(*args,tree=root):return subprocess.check_output(['git',*args],cwd=tree,text=True).strip()
+15	def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+16	def write(name,value):(out/name).write_text(json.dumps(value,indent=2)+'\n')
+17	def sources():return {p:sha(root/p) for p in git('ls-files').splitlines() if (root/p).is_file()}
+18	def inputs():return {str(p.relative_to(root)):sha(p) for d in ('bin','obj','lib') for p in (root/d).rglob('*') if p.is_file()}
+19	def tools():
+20	 result={}
+21	 for name in ('cc','gcc','clang','make','python3','ar','ld',cc,nativecc):
+22	  path=pathlib.Path(shutil.which(name)).resolve();result[name]={'path':str(path),'sha256':sha(path)}
+23	 return result
+24	assert shutil.disk_usage(root).free >= 4*1024**3
+25	assert git('rev-parse','HEAD')==pin
+26	assert git('status','--porcelain') in ('','?? tests/test_eval')
+27	if (root/'tests/test_eval').exists():write('retained-evaluator.json',{'path':str(root/'tests/test_eval'),'sha256':sha(root/'tests/test_eval')})
+28	for key in ('NANOC','NANO_VM','NANO_NVM2C','NANO_AOT_RUNTIME','NANO_BUILD_CACHE','NANO_MODULE_PATH'):os.environ.pop(key,None)
+29	os.environ.update(ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',CC=cc,NANO_VM=str(root/'bin/nano_vm'),NANO_NVM2C=str(root/'bin/nvm2c'),NANO_AOT_RUNTIME=str(root/'bin/nano_aot_runtime.o'),NANO_MODULE_PATH=str(root/'modules'),NANO_BUILD_CACHE=str(root/'obj/module_cache'),PYTHONPATH=str(root))
+30	if not linux:os.environ['SDKROOT']=subprocess.check_output(['/usr/bin/xcrun','--sdk','macosx','--show-sdk-path'],text=True).strip()
+31	write('environment.json',{k:v for k,v in os.environ.items() if k in ('CC','NANO_VM','NANO_NVM2C','NANO_AOT_RUNTIME','NANO_MODULE_PATH','NANO_BUILD_CACHE','PYTHONPATH','SDKROOT','ASAN_OPTIONS')})
+32	(out/'runner.py').write_bytes(pathlib.Path(__file__).read_bytes())
+33	initial=sources();write('source-before.json',initial);write('inputs-before.json',inputs());write('host-tools-before.json',tools())
+34	status={'pin':pin,'phase':phase,'success':False};start=time.monotonic()
+35	def command(name,args,timeout=1800):
+36	 t=time.monotonic()
+37	 with (out/(name+'.log')).open('wb') as log:
+```
+
+**`docs/evidence/affine-full-suite/reports/nanolang-affine-full-3c728-darwin-bootstrap/runner.py`** — calls(calls), write(calls), command(calls), write(function), command(function)
+
+```python
+12	os.chdir(root);sys.path.insert(0,str(root))
+13	def git(*args,tree=root):return subprocess.check_output(['git',*args],cwd=tree,text=True).strip()
+14	def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+15	def write(name,value):(out/name).write_text(json.dumps(value,indent=2)+'\n')
+16	def sources():return {p:sha(root/p) for p in git('ls-files').splitlines() if (root/p).is_file()}
+17	def inputs():return {str(p.relative_to(root)):sha(p) for d in ('bin','obj','lib') for p in (root/d).rglob('*') if p.is_file()}
+18	def tools():
+19	 result={}
+20	 for name in ('cc','gcc','clang','make','python3','ar','ld',cc,nativecc):
+21	  path=pathlib.Path(shutil.which(name)).resolve();result[name]={'path':str(path),'sha256':sha(path)}
+22	 return result
+23	assert shutil.disk_usage(root).free >= 4*1024**3
+24	assert git('rev-parse','HEAD')==pin
+25	assert git('status','--porcelain') in ('','?? tests/test_eval')
+26	if (root/'tests/test_eval').exists():write('retained-evaluator.json',{'path':str(root/'tests/test_eval'),'sha256':sha(root/'tests/test_eval')})
+27	for key in ('NANOC','NANO_VM','NANO_NVM2C','NANO_AOT_RUNTIME','NANO_BUILD_CACHE','NANO_MODULE_PATH'):os.environ.pop(key,None)
+28	os.environ.update(ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',CC=cc,NANO_VM=str(root/'bin/nano_vm'),NANO_NVM2C=str(root/'bin/nvm2c'),NANO_AOT_RUNTIME=str(root/'bin/nano_aot_runtime.o'),NANO_MODULE_PATH=str(root/'modules'),NANO_BUILD_CACHE=str(root/'obj/module_cache'),PYTHONPATH=str(root))
+29	if not linux:os.environ['SDKROOT']=subprocess.check_output(['/usr/bin/xcrun','--sdk','macosx','--show-sdk-path'],text=True).strip()
+30	write('environment.json',{k:v for k,v in os.environ.items() if k in ('CC','NANO_VM','NANO_NVM2C','NANO_AOT_RUNTIME','NANO_MODULE_PATH','NANO_BUILD_CACHE','PYTHONPATH','SDKROOT','ASAN_OPTIONS')})
+31	(out/'runner.py').write_bytes(pathlib.Path(__file__).read_bytes())
+32	initial=sources();write('source-before.json',initial);write('inputs-before.json',inputs());write('host-tools-before.json',tools())
+33	status={'pin':pin,'phase':phase,'success':False};start=time.monotonic()
+34	def command(name,args,timeout=1800):
+35	 t=time.monotonic()
+36	 with (out/(name+'.log')).open('wb') as log:
+37	  code=subprocess.run(args,cwd=root,stdout=log,stderr=subprocess.STDOUT,timeout=timeout).returncode
+```
+
+**`docs/evidence/raw-cast-u8/nanolang-scalar-u8-8caba.py`** — run_cmd(calls), program(calls), compare(calls), module(calls), program(method), test_exact_conversions_tags_and_unsigned_order(method), test_calls_locals_branch_and_implicit_result_transport(method), test_generic_byte_order_across_scalar_backends(method), test_native_byte_display_and_unused_signature(method), test_declared_byte_argument_retains_runtime_tag_guard(method), +3 more
+
+```python
+13	    module = wasm.ScalarWasm.module
+14	    compare = wasm.ScalarWasm.compare
+15	
+16	    def program(self, body, suffix=''):
+17	        return '.entry main\n.function main 0 2 0 int 1\n'+body+'PUSH_I64 0\nRET\n.end\n'+suffix
+18	
+19	    def test_exact_conversions_tags_and_unsigned_order(self):
+20	        body = ''
+21	        for value in (0, 1, 127, 128, 254, 255):
+22	            body += f'PUSH_U8 {value}\nDUP\nTYPE_CHECK 2\nASSERT\nDUP\nTYPE_CHECK 1\nBOOL_NOT\nASSERT\nSTORE_LOCAL 0\n'
+23	            body += f'LOAD_LOCAL 0\nCAST_INT\nPUSH_I64 {value}\nI64_EQ\nASSERT\n'
+24	            body += f'LOAD_LOCAL 0\nCAST_FLOAT\nDUP\nTYPE_CHECK 3\nASSERT\nPUSH_F64 {value}.0\nF64_EQ\nASSERT\n'
+25	            body += 'LOAD_LOCAL 0\nCAST_BOOL\n'+('BOOL_NOT\n' if value == 0 else '')+'ASSERT\n'
+26	            body += f'LOAD_LOCAL 0\nPUSH_U8 1\nOR\nASSERT\nLOAD_LOCAL 0\nPUSH_U8 0\nAND\nBOOL_NOT\nASSERT\n'
+27	        for a, b in ((0, 255), (127, 128), (254, 255), (255, 255)):
+28	            body += f'PUSH_U8 {a}\nCAST_INT\nPUSH_U8 {b}\nCAST_INT\nI64_LE_S\nASSERT\n'
+29	        self.compare(self.program(body))
+30	
+31	    def test_calls_locals_branch_and_implicit_result_transport(self):
+32	        suffix = ('.function identity 1 1 0 u8 1\n.parameters identity u8\nLOAD_LOCAL 0\n.end\n'
+33	                  '.function choose 1 1 0 u8 1\n.parameters choose bool\nLOAD_LOCAL 0\nJMP_FALSE low\n'
+34	                  'PUSH_U8 255\nJMP done\nlow:\nPUSH_U8 128\ndone:\nCALL identity\nRET\n.end\n')
+35	        body = ''
+36	        for flag, expected in ((0, 128), (1, 255)):
+37	            body += f'PUSH_BOOL {flag}\nCALL choose\nSTORE_LOCAL 1\nLOAD_LOCAL 1\nTYPE_CHECK 2\nASSERT\n'
+38	            body += f'LOAD_LOCAL 1\nCAST_INT\nPUSH_I64 {expected}\nI64_EQ\nASSERT\n'
+39	        self.compare(self.program(body, suffix))
+40	
+41	    def test_generic_byte_order_across_scalar_backends(self):
+42	        body = ''
+43	        for a, b in ((0, 255), (128, 127), (255, 255)):
+44	            for op, expected in (('EQ', a == b), ('NE', a != b), ('LT', a < b),
+45	                                 ('LE', a <= b), ('GT', a > b), ('GE', a >= b)):
+46	                body += f'PUSH_U8 {a}\nPUSH_U8 {b}\n{op}\nDUP\nTYPE_CHECK 4\nASSERT\n'
+47	                body += ('BOOL_NOT\n' if not expected else '')+'ASSERT\n'
+48	        self.compare(self.program(body))
+49	
+50	    def test_native_byte_display_and_unused_signature(self):
+51	        text = self.program('PUSH_U8 255\nPRINTLN\nPUSH_U8 128\nPRINTLN\n',
+52	            '.function unused 1 1 0 u8 1\n.parameters unused u8\nLOAD_LOCAL 0\nRET\n.end\n')
+53	        module = self.module(text)
+54	        vm = self.run_cmd([llvm.VM, module])
+55	        self.assertEqual(vm.stdout, '255\n128\n')
+56	        c, executable = self.work/'display.c', self.work/'display'
+57	        self.run_cmd([llvm.C, module, '-o', c])
+58	        self.run_cmd(['cc', '-std=c11', '-Wall', '-Wextra', '-Werror', c, '-o', executable])
+59	        self.assertEqual(self.run_cmd([executable]).stdout, vm.stdout)
+60	
+61	    def test_declared_byte_argument_retains_runtime_tag_guard(self):
+62	        suffix = ('.function checked 1 1 0 int 1\n.parameters checked u8\n'
+63	                  'LOAD_LOCAL 0\nTYPE_CHECK 2\nASSERT\nPUSH_I64 0\nRET\n.end\n')
+64	        self.compare(self.program('PUSH_I64 255\nCALL checked\nPOP\n', suffix), trap=True)
+65	
+66	    def test_declared_byte_result_checks_actual_return_tag(self):
+67	        suffix = ('.function wrong 1 1 0 u8 1\n.parameters wrong int\n'
+68	                  'LOAD_LOCAL 0\nRET\n.end\n')
+69	        module = self.module(self.program('PUSH_I64 255\nCALL wrong\nPOP\n', suffix))
+70	        self.run_cmd([llvm.VM, module], success=False)
+71	        ir, target = self.work/'wrong.ll', self.work/'wrong.wasm'
+72	        self.run_cmd([llvm.LLVM, module, '-o', ir])
+
+... (gap) ...
+
+85	        self.assertNotIn('Sanitizer', refusal.stderr)
+86	        self.assertNotIn('runtime error:', refusal.stderr)
+87	
+88	    def test_typed_integer_instruction_still_checks_byte_tag(self):
+89	        suffix = '.function add_one 1 1 0 int 1\n.parameters add_one int\nLOAD_LOCAL 0\nPUSH_I64 1\nI64_ADD\nRET\n.end\n'
+90	        self.compare(self.program('PUSH_U8 1\nCALL add_one\nPOP\n', suffix), trap=True)
+91	
+92	
+93	if __name__ == '__main__':
+```
+
+**`scripts/generate_test_tone.py`** — min(calls), SAMPLE_RATE(variable), SAMPLE_WIDTH(variable), CHANNELS(variable), DURATION_S(variable), AMPLITUDE(variable), NOTES_HZ(variable), _envelope(function), max(calls), render(function), +6 more
+
+```python
+27	import sys
+28	import wave
+29	
+30	SAMPLE_RATE = 44100
+31	SAMPLE_WIDTH = 2  # 16-bit PCM
+32	CHANNELS = 1
+33	DURATION_S = 1.5
+34	AMPLITUDE = 0.35  # headroom below full scale; avoids clipping on mixdown
+35	
+36	# An A-major arpeggio: A4, C#5, E5, A5. Equal-tempered, rounded to 3 decimals
+37	# so the frequencies are exact literals rather than platform-dependent
+38	# computations.
+39	NOTES_HZ = (440.000, 554.365, 659.255, 880.000)
+40	
+41	# Per-note and whole-file fades. Without these the note boundaries and the
+42	# buffer edges produce audible clicks, which is exactly what a playback smoke
+43	# test should not be teaching people to ignore.
+44	NOTE_FADE_S = 0.008
+45	FILE_FADE_S = 0.050
+46	
+47	
+48	def _envelope(index: int, total: int, note_index: int, note_len: int) -> float:
+49	    """Amplitude scale at ``index``, combining the note and file envelopes."""
+50	    note_pos = index - (note_index * note_len)
+51	    note_fade = NOTE_FADE_S * SAMPLE_RATE
+52	    file_fade = FILE_FADE_S * SAMPLE_RATE
+53	
+54	    note_env = min(1.0, note_pos / note_fade, (note_len - note_pos) / note_fade)
+55	    file_env = min(1.0, index / file_fade, (total - index) / file_fade)
+56	    return max(0.0, min(note_env, file_env))
+57	
+58	
+59	def render() -> bytes:
+60	    """Render the arpeggio as little-endian signed 16-bit PCM frames."""
+61	    total = int(SAMPLE_RATE * DURATION_S)
+62	    note_len = total // len(NOTES_HZ)
+63	    frames = bytearray()
+64	
+65	    for index in range(total):
+66	        note_index = min(index // note_len, len(NOTES_HZ) - 1)
+67	        freq = NOTES_HZ[note_index]
+68	        phase = 2.0 * math.pi * freq * (index / SAMPLE_RATE)
+69	        value = AMPLITUDE * _envelope(index, total, note_index, note_len) * math.sin(phase)
+70	        frames += struct.pack("<h", int(value * 32767.0))
+71	
+72	    return bytes(frames)
+73	
+74	
+75	def write(path: pathlib.Path) -> None:
+76	    path.parent.mkdir(parents=True, exist_ok=True)
+77	    with wave.open(str(path), "wb") as out:
+78	        out.setnchannels(CHANNELS)
+79	        out.setsampwidth(SAMPLE_WIDTH)
+80	        out.setframerate(SAMPLE_RATE)
+81	        out.writeframes(render())
+82	
+83	
+84	def main(argv: list[str]) -> int:
+85	    if len(argv) > 1:
+86	        target = pathlib.Path(argv[1])
+87	    else:
+88	        repo_root = pathlib.Path(__file__).resolve().parent.parent
+89	        target = repo_root / "examples" / "audio" / "nanolang-test-tone.wav"
+90	
+91	    write(target)
+92	    print("wrote %s (%d bytes)" % (target, target.stat().st_size))
+93	    return 0
+94	
+95	
+96	if __name__ == "__main__":
+```
+
+
+... (output truncated to budget; the source above is complete and verbatim — treat it as already Read. For any area not covered, run another codegraph_explore with the specific names — do NOT Read these files.)

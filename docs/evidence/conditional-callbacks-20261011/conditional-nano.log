@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0001] Variable f: I expected a value of type `fn(int)->int`, but found `fn(T)->T`. (/private/tmp/nl51-context-storage/conditional.nano:5:17)

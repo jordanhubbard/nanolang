@@ -1,0 +1,5 @@
+I complete conditional generic callback contexts under #976. A declared fn(int)->int conditional previously reached an unresolved generic value in C shadow emission and remained fn(T)->T in self-hosted checking. I apply declared signatures to every branch, register concrete generic functions in C checking, and carry that context through self-hosted checking and NanoISA emission.
+
+Six new methods cover local/reassigned callbacks, return and call contexts, record/array/union storage, nested and imported choices, ordered condition evaluation and incompatible inactive-branch output preservation. All 17 conditional/contextual methods pass C-native, C-NanoISA/VM/sanitized AOT and fresh-seed execution; typechecker/transpiler component gates pass. The updated compiler emits its own module, verifies, translates without VM wrappers and links natively. The resulting compiler passes 35 callback/aggregate and 22 nominal/resource/layout methods, with recorded source inputs unchanged.
+
+Evidence: docs/evidence/conditional-callbacks-20261011/README.md. I keep #976, the full 5.1 implementation scope and final candidate/platform gates open.

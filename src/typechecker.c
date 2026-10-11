@@ -1849,6 +1849,22 @@ static GenericFuncInstance *register_complete_generic(Environment *env, const ch
  * changing its shared declaration or a lexical function-valued binding. */
 FunctionSignature *copy_contextual_callable_signature(ASTNode *value, Environment *env,
                                                       const FunctionSignature *expected) {
+    if (value && expected && value->type == AST_COND) {
+        for (int i = 0; i < value->as.cond_expr.clause_count; ++i) {
+            FunctionSignature *branch = copy_contextual_callable_signature(value->as.cond_expr.values[i], env, expected);
+            if (!branch) return NULL;
+            free_function_signature(branch);
+        }
+        return copy_contextual_callable_signature(value->as.cond_expr.else_value, env, expected);
+    }
+    if (value && expected && value->type == AST_IF) {
+        FunctionSignature *branch = copy_contextual_callable_signature(value->as.if_stmt.then_branch, env, expected);
+        if (!branch) return NULL;
+        free_function_signature(branch);
+        return copy_contextual_callable_signature(value->as.if_stmt.else_branch, env, expected);
+    }
+    if (value && expected && value->type == AST_BLOCK && value->as.block.count == 1)
+        return copy_contextual_callable_signature(value->as.block.statements[0], env, expected);
     FunctionSignature *signature = copy_callable_signature(value, env);
     if (!signature || !expected) return signature;
     Function *function = value && value->type == AST_IDENTIFIER &&
@@ -5565,6 +5581,17 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     /* For now, allow it if declared type is TYPE_FUNCTION */
                 }
                 
+                if (declared_sig && (stmt->as.let.value->type == AST_COND ||
+                                     stmt->as.let.value->type == AST_IF)) {
+                    value_sig = copy_contextual_callable_signature(stmt->as.let.value, tc->env, declared_sig);
+                    owns_value_sig = true;
+                    if (!value_sig) {
+                        emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                            "I require every conditional callback to match the declared signature.",
+                            "Match the parameter and result types in every branch.");
+                        tc->has_error = true;
+                    }
+                }
                 /* Check if signatures match */
                 if (declared_sig && value_sig) {
                     if (!function_signatures_equal(declared_sig, value_sig)) {
