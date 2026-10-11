@@ -1,0 +1,41 @@
+test_argument_order (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_argument_order) ... ok
+test_callback_result_inference (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_callback_result_inference) ... ok
+test_dependent_callbacks_reach_fixed_point (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_dependent_callbacks_reach_fixed_point) ... ok
+test_imported_callback_alias (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_imported_callback_alias) ... ok
+test_nested_array_and_record_binding (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_nested_array_and_record_binding) ... ok
+test_refusals_preserve_output (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_refusals_preserve_output) ... ok
+test_structural_callback_result (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_structural_callback_result) ... FAIL
+
+======================================================================
+FAIL: test_structural_callback_result (tests.test_higher_order_generic_functions.HigherOrderGenericFunctions.test_structural_callback_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 32, in test_structural_callback_result
+            self.execute('''fn wrap(value:T)->array<T>{return [value]}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow wrap {assert (== (at (wrap 1) 0) 1)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+     return 0
+     ^^^^^^^^
+    }''')
+    ^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_higher_order_generic_functions.py", line 12, in execute
+    context.ContextualGenericFunctions().execute(context.PRELUDE+body+context.SHADOW, files=files)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 28, in execute
+    shared.CseedGenericFunctions().execute(source, files=files)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([ROOT / 'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 17, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-8buqaiv9/main.nvm': I require record elements in a record-array literal
+
+
+----------------------------------------------------------------------
+Ran 7 tests in 1.345s
+
+FAILED (failures=1)

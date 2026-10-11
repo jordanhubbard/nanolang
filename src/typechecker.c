@@ -1687,6 +1687,36 @@ static FunctionSignature *copy_callable_signature(ASTNode *value, Environment *e
     return signature ? copy_function_signature(signature) : NULL;
 }
 
+/* I keep callback template variables separate from the enclosing call's bindings. */
+static bool generic_function_value(ASTNode *value, Environment *env) {
+    if (!value || value->type != AST_IDENTIFIER || value->lambda_definition ||
+        env_get_var_visible_at(env, value->as.identifier, value->line, value->column)) return false;
+    return generic_function(env, env_get_function(env, value->as.identifier));
+}
+static FunctionSignature *infer_generic_callback(ASTNode *value, Environment *env,
+        const FunctionSignature *expected, const GenericBindings *outer) {
+    FunctionSignature *actual = copy_callable_signature(value, env);
+    if (!actual || !expected || actual->param_count != expected->param_count) {
+        free_function_signature(actual); return NULL;
+    }
+    GenericBindings local = {0};
+    bool valid = true;
+    for (int i = 0; valid && i <= actual->param_count; ++i) {
+        TypeInfo expected_view, actual_view;
+        const TypeInfo *context = i == actual->param_count ? generic_signature_result(expected, &expected_view)
+            : generic_signature_param(expected, i, &expected_view);
+        const TypeInfo *pattern = i == actual->param_count ? generic_signature_result(actual, &actual_view)
+            : generic_signature_param(actual, i, &actual_view);
+        TypeInfo *concrete = generic_substitute(env, context, outer, 0);
+        if (concrete) valid = generic_bind(env, pattern, concrete, &local, 0);
+        free_payload_type_info(concrete);
+    }
+    if (valid) valid = generic_substitute_signature(env, actual, &local, 0);
+    generic_bindings_free(&local);
+    if (!valid) { free_function_signature(actual); return NULL; }
+    return actual;
+}
+
 /* I bind a declared generic function to a complete callable context without
  * changing its shared declaration or a lexical function-valued binding. */
 FunctionSignature *copy_contextual_callable_signature(ASTNode *value, Environment *env,
@@ -3326,20 +3356,50 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 Function retained_function = *func;
                 func = &retained_function;
                 GenericBindings bindings = {0};
-                bool valid = true;
-                for (int i = 0; i < func->param_count; ++i) {
+                bool *pending = calloc((size_t)func->param_count, sizeof(bool));
+                bool valid = pending != NULL;
+                int remaining = 0;
+                for (int i = 0; valid && i < func->param_count; ++i) {
                     TypeInfo view;
                     const TypeInfo *formal = generic_parameter(&func->params[i], &view);
+                    ASTNode *argument = expr->as.call.args[i];
+                    if (formal->base_type == TYPE_FUNCTION && generic_function_value(argument, env)) {
+                        pending[i] = true; ++remaining; continue;
+                    }
                     if (!generic_contains(env, formal, 0)) {
-                        if (!indirect_argument_matches(expr->as.call.args[i], env, formal, formal->base_type, 0)) valid = false;
+                        if (!indirect_argument_matches(argument, env, formal, formal->base_type, 0)) valid = false;
                         continue;
                     }
-                    TypeInfo *actual = copy_generic_argument_info(expr->as.call.args[i], env, 0);
+                    TypeInfo *actual = copy_generic_argument_info(argument, env, 0);
                     if (!generic_bind(env, formal, actual, &bindings, 0)) valid = false;
                     free_payload_type_info(actual);
                 }
+                while (valid && remaining) {
+                    bool progress = false;
+                    for (int i = 0; valid && i < func->param_count; ++i) {
+                        if (!pending[i]) continue;
+                        TypeInfo view;
+                        const TypeInfo *formal = generic_parameter(&func->params[i], &view);
+                        FunctionSignature *callback = infer_generic_callback(expr->as.call.args[i], env, formal->fn_sig, &bindings);
+                        if (!callback) continue;
+                        TypeInfo actual = {.base_type=TYPE_FUNCTION, .fn_sig=callback};
+                        valid = generic_bind(env, formal, &actual, &bindings, 0);
+                        free_function_signature(callback);
+                        pending[i] = false; --remaining; progress = true;
+                    }
+                    if (!progress) valid = false;
+                }
+                free(pending);
                 FunctionSignature *signature = function_signature_from_function(func);
                 if (valid) valid = generic_substitute_signature(env, signature, &bindings, 0);
+                for (int i = 0; valid && i < func->param_count; ++i) {
+                    if (!generic_function_value(expr->as.call.args[i], env)) continue;
+                    TypeInfo view;
+                    const TypeInfo *formal = generic_signature_param(signature, i, &view);
+                    FunctionSignature *callback = copy_contextual_callable_signature(expr->as.call.args[i], env, formal->fn_sig);
+                    valid = callback != NULL;
+                    free_function_signature(callback);
+                }
                 if (!valid) {
                     emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
                         "I require one concrete identity and matching structure for each generic type variable.",

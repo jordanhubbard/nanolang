@@ -4675,25 +4675,31 @@ fn tc_generic_call(parser: Parser, sym: Symbol, start: int, count: int, line: in
         (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the generic function's exact argument count." location))
         return (type_unknown_named "generic argument count")
     }
-    let mut names: array<string> = []
-    let mut types: array<string> = []
+    let mut formals: array<string> = []
+    let mut actuals: array<string> = []
+    let mut contextual: array<bool> = []
     let mut i: int = 0
     while (< i count) {
         let expected: NSType = (at sym.param_types i)
         let spelling: string = (type_to_string expected)
         let argument: ASTStmtRef = (parser_get_call_arg parser (+ start i))
         let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
-        if (generic_type_contains_variable parser spelling) {
-            let actual: string = (type_to_string raw)
-            let prior: GenericBindings = GenericBindings {names: names, types: types, valid: true}
-            let bound: GenericBindings = (generic_bind_type parser spelling actual prior)
-            if (or (== raw.kind TypeKind.TYPE_UNKNOWN) (not bound.valid)) {
-                (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one concrete identity and matching structure for each generic type variable." location))
-            } else {
-                set names bound.names
-                set types bound.types
+        let mut deferred: bool = false
+        if (== argument.node_type ParseNodeType.PNODE_IDENTIFIER) {
+            let identifier: ASTIdentifier = (parser_get_identifier parser argument.node_id)
+            let index: int = (env_lookup symbols (tc_bound_name identifier.name identifier.line symbols))
+            if (>= index 0) {
+                let value: Symbol = (at symbols index)
+                set deferred (and value.is_function (tc_generic_function parser value))
             }
-        } else {
+        }
+        if (== raw.kind TypeKind.TYPE_UNKNOWN) {
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one concrete identity and matching structure for each generic type variable." location))
+        }
+        set formals (array_push formals spelling)
+        set actuals (array_push actuals (type_to_string raw))
+        set contextual (array_push contextual deferred)
+        if (and (not deferred) (not (generic_type_contains_variable parser spelling))) {
             let hinted: NSType = (apply_value_type_hint parser argument.node_id argument.node_type raw expected)
             let actual: NSType = (check_constructor_argument parser argument.node_id argument.node_type hinted expected symbols diags file_name)
             if (not (types_equal actual expected)) {
@@ -4702,7 +4708,11 @@ fn tc_generic_call(parser: Parser, sym: Symbol, start: int, count: int, line: in
         }
         set i (+ i 1)
     }
-    return (type_from_string_with_parser parser (substitute_type_parameters (type_to_string sym.return_type) names types))
+    let bound: GenericBindings = (generic_bind_arguments parser formals actuals contextual)
+    if (not bound.valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one concrete identity and matching structure for each generic type variable." location))
+    }
+    return (type_from_string_with_parser parser (substitute_type_parameters (type_to_string sym.return_type) bound.names bound.types))
 }
 shadow tc_generic_call {
     let sources: array<string> = [

@@ -1,0 +1,9 @@
+{
+  "src/typechecker.c": "7f87525c671a71cffeb0a44f2959631daca01ecbf3a07a81298977b7fbfe42c3",
+  "src/nanovirt/codegen.c": "7b6a30563558b6c877a196ac7b4139de6abd516ae33fa1b553e288a72f83e542",
+  "src_nano/compiler/generic_types.nano": "e0dd0db67700005ecfc7ac34a73d2d4d9a1dcb95a6edfe51f4d3941177d81ec2",
+  "src_nano/compiler/nanoisa_codegen.nano": "cd9349d1eb0b0804a1e7044baa7fdc8935a0b160abc6859123b1204e083024d0",
+  "src_nano/typecheck.nano": "07db34feb9d3811fa20169bd7ac69c75e73f1eba0c57f190d395c3ac34ec217e",
+  "tests/test_higher_order_generic_functions.py": "98568d95fa16af3624d28cedc26919d53e91a540a38f936df96e6bb4fea3fabc",
+  "/private/tmp/nl51-higher-order-final.nvm": "9768f43c3dce6e939bf00e70fee6a20640c5b71cdecfa78c4a101391f7b2514a"
+}

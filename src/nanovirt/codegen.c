@@ -2692,13 +2692,18 @@ static void compile_expr(CG *cg, ASTNode *node) {
 
     case AST_ARRAY_LITERAL: {
         int count = node->as.array_literal.element_count;
+        /* My parser represents a template variable as a nominal type. I resolve
+         * its element in this instance without changing the shared annotation. */
+        Type element_type = node->as.array_literal.element_type;
+        if (cg->generic_active && count && element_type == TYPE_STRUCT)
+            element_type = check_expression(node->as.array_literal.elements[0], cg->env);
         /* Push all elements left-to-right */
         for (int i = 0; i < count; i++) {
             compile_expr(cg, node->as.array_literal.elements[i]);
         }
         /* Determine element type tag */
         uint8_t elem_tag = TAG_INT; /* default */
-        switch (node->as.array_literal.element_type) {
+        switch (element_type) {
             case TYPE_ARRAY:  elem_tag = TAG_ARRAY;  break;
             case TYPE_FLOAT:  elem_tag = TAG_FLOAT;  break;
             case TYPE_BOOL:   elem_tag = TAG_BOOL;   break;
