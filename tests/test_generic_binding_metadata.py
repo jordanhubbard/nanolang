@@ -163,6 +163,20 @@ shadow capture {let f:fn()->int=(capture 7) assert (== (f) 7)}
                     self.run_checked([driver, source, '--emit-nvm', '-o', output], 1)
                     self.assertEqual(output.read_bytes(), b'prior artifact')
 
+    def test_independent_record_captures_share_specialization(self):
+        def inspect(records):
+            self.assertEqual([r[4] for r in records], ['Item'])
+        self.exercise('''struct Item {value:int}
+fn capture(value:T)->fn()->T{return fn()->T{return value}}
+shadow capture {let f:fn()->int=(capture 7) assert (== (f) 7)}
+fn main()->int {
+ let first:fn()->Item=(capture Item {value:7})
+ let second:fn()->Item=(capture Item {value:9})
+ let a:Item=(first) let b:Item=(second)
+ assert (== a.value 7) assert (== b.value 9) return 0
+}
+''', inspect)
+
     def test_specialized_nested_parameters(self):
         def inspect(records):
             self.assertEqual({r[4] for r in records}, {'int', 'bool'})
