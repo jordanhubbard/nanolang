@@ -1,0 +1,19 @@
+Warning at line 175, column 9: Unused variable 'ignored'
+Warning at line 2923, column 9: Unused variable 'rejected'
+Warning at line 3221, column 9: Unused variable 'rejected'
+Warning at line 3225, column 9: Unused variable 'rejected'
+Warning at line 3229, column 9: Unused variable 'rejected'
+Warning at line 3233, column 9: Unused variable 'rejected'
+Warning at line 3240, column 13: Unused variable 'rejected'
+Warning at line 3389, column 9: Unused variable 'rejected'
+Warning at line 3393, column 9: Unused variable 'rejected'
+Warning at line 3400, column 13: Unused variable 'rejected'
+Warning at line 7397, column 17: Unused variable 'imported'
+Warning at line 9, column 1: Unused variable 'parser'
+-- E009 PRIVATE ACCESS --- /Users/jordanh/Src/nanolang/src_nano/compiler/nanoisa_codegen.nano
+I cannot call private function 'parser_mark_generated' from module 'parser'.
+
+6389|     let generated: Parser = (parser_mark_generated nested 0)
+                                  ^^^^^^^^^^^^^^^^^^^^^
+Hint: Call an exported function, or declare this function pub in its owning module.
+Type checking failed

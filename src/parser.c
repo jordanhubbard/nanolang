@@ -2882,6 +2882,7 @@ static bool parse_record_bindings(Stage1Parser *p, ASTNode ***items, int *count,
     owner->as.let.var_type = TYPE_STRUCT;
     owner->as.let.type_name = pattern_type;
     owner->as.let.is_destructure = true;
+    owner->as.let.is_generated = true;
     for (int i = 0; i <= after_type; i++) advance(p);
     while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_EOF)) {
         if (!match(p, TOKEN_IDENTIFIER)) {
@@ -3055,6 +3056,7 @@ static ASTNode *parse_block(Stage1Parser *p) {
             /* Emit: let __tdN = rhs (inferred type) */
             ASTNode *temp_let = create_node(AST_LET, td_line, td_col);
             temp_let->as.let.name = strdup(temp_name);
+            temp_let->as.let.is_generated = true;
             temp_let->as.let.var_type = TYPE_UNKNOWN;
             temp_let->as.let.type_name = NULL;
             temp_let->as.let.element_type = TYPE_UNKNOWN;

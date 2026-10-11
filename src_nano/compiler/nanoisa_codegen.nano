@@ -6343,23 +6343,15 @@ shadow nisa_par_reads {
     assert (not (nisa_par_reads parser 0 ParseNodeType.PNODE_NUMBER "x"))
 }
 
-# I attach optional scalar names without changing a local's authority.
-fn nisa_named_scalar(t: string) -> bool {
-    return (or (or (== t "int") (== t "bool")) (or (== t "u8") (or (== t "float") (== t "string"))))
-}
-shadow nisa_named_scalar {
-    assert (nisa_named_scalar "int")
-    assert (nisa_named_scalar "string")
-    assert (not (nisa_named_scalar "array<int>"))
-}
-fn nisa_local_name_begin(slot: int, name: string, t: string) -> string {
-    if (or (== name "") (not (nisa_named_scalar t))) { return "" }
+# I attach optional source names without changing a local's authority.
+fn nisa_local_name_begin(slot: int, name: string) -> string {
+    if (== name "") { return "" }
     return (+ ".local_begin " (+ (int_to_string slot) (+ " \"" (+ (nisa_escape_string name) "\"\n"))))
 }
 shadow nisa_local_name_begin {
-    assert (== (nisa_local_name_begin 2 "answer" "int") ".local_begin 2 \"answer\"\n")
-    assert (== (nisa_local_name_begin 0 "" "int") "")
-    assert (== (nisa_local_name_begin 1 "items" "array<int>") "")
+    assert (== (nisa_local_name_begin 2 "answer") ".local_begin 2 \"answer\"\n")
+    assert (== (nisa_local_name_begin 0 "") "")
+    assert (== (nisa_local_name_begin 1 "items") ".local_begin 1 \"items\"\n")
 }
 
 fn nisa_emit_typed_let(parser: Parser, binding: ASTLet, value_type: string) -> string {
@@ -6372,10 +6364,12 @@ fn nisa_emit_typed_let(parser: Parser, binding: ASTLet, value_type: string) -> s
     set nisa_names (array_push nisa_names binding.name)
     set nisa_types (array_push nisa_types value_type)
     let slot: int = (- (array_length nisa_names) 1)
-    if (and (!= binding.name "") (nisa_named_scalar value_type)) {
+    if (and (!= binding.name "") (not binding.is_generated)) {
         set nisa_named_slots (array_push nisa_named_slots slot)
     }
-    return (+ value (+ (nisa_line_imm "STORE_LOCAL" (int_to_string slot)) (nisa_local_name_begin slot binding.name value_type)))
+    let mut marker: string = ""
+    if (not binding.is_generated) { set marker (nisa_local_name_begin slot binding.name) }
+    return (+ value (+ (nisa_line_imm "STORE_LOCAL" (int_to_string slot)) marker))
 }
 shadow nisa_emit_typed_let {
     let _: int = (nisa_reset)
@@ -6390,6 +6384,14 @@ shadow nisa_emit_typed_let {
     let nested_output: string = (nisa_emit_typed_let nested (parser_get_let nested 0) "array<array<float>>")
     assert (str_contains nested_output "ARR_LITERAL 3 1")
     assert (str_contains nested_output "ARR_LITERAL 7 1")
+    assert (str_contains nested_output ".local_begin 0 \"values\"")
+    assert (== (nisa_reset) 0)
+    let generated_tokens: List<LexerToken> = (tokenize_string "fn main()->int{let (left,right)=([1.5],true) return 0}" "generated.nano" (diag_list_new))
+    let generated: Parser = (parse_program generated_tokens (list_LexerToken_length generated_tokens) "generated.nano")
+    let generated_output: string = (nisa_emit_typed_let generated (parser_get_let generated 0) "(array<float>,bool)")
+    assert (str_contains generated_output "AGG_PACK 2 0 0 2")
+    assert (not (str_contains generated_output ".local_begin"))
+    assert (== (array_length nisa_named_slots) 0)
     assert (== (nisa_reset) 0)
     let unsupported_tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let values: array<array<Missing>> = [] return 0 }" "unsupported.nano" (diag_list_new))
     let unsupported: Parser = (parse_program unsupported_tokens (list_LexerToken_length unsupported_tokens) "unsupported.nano")
@@ -6959,7 +6961,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         let mut named_parameter: int = 0
         while (< named_parameter func.param_count) {
             let declared: ASTLet = (parser_get_let parser (+ func.param_start named_parameter))
-            set parameter_names (+ parameter_names (nisa_local_name_begin named_parameter declared.name (nisa_generic_type declared.var_type)))
+            set parameter_names (+ parameter_names (nisa_local_name_begin named_parameter declared.name))
             set named_parameter (+ named_parameter 1)
         }
         if nisa_has_par { set nisa_ordinary_ok false }

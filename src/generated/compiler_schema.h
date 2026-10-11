@@ -463,6 +463,7 @@ typedef struct nl_ASTLet {
     int value_type;
     bool is_mut;
     bool is_pub;
+    bool is_generated;
     bool is_destructure;
     bool is_destructure_projection;
     DynArray * destructure_names;

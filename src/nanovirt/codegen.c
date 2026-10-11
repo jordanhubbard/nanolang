@@ -300,9 +300,6 @@ static uint16_t local_add(CG *cg, const char *name, int line) {
     return slot;
 }
 
-static bool local_name_scalar(Type type) {
-    return type==TYPE_INT || type==TYPE_FLOAT || type==TYPE_BOOL || type==TYPE_U8 || type==TYPE_STRING;
-}
 static uint8_t ordinary_slot_tag(Type type) {
     switch(type) {
     case TYPE_INT:return TAG_INT; case TYPE_U8:return TAG_U8;
@@ -318,7 +315,7 @@ static void local_name_begin(CG *cg,uint16_t slot,const char *name,Type type,int
         *fact=(CgAuthoritySlot){cg->current_fn_idx,slot,ordinary_slot_tag(type),*cg->authority_slots};
         *cg->authority_slots=fact;
     }
-    if(!cg->names_enabled || !local_name_scalar(type) || !name || !*name || cg->had_error)return;
+    if(!cg->names_enabled || !name || !*name || cg->had_error)return;
     CgLocalName *entry=calloc(1,sizeof *entry);
     if(!entry){cg_error(cg,line,"I cannot retain a lexical local name");return;}
     entry->binding=(NvmLocalBinding){.function=cg->current_fn_idx,.slot=slot,
@@ -334,6 +331,90 @@ static void local_names_end(CG *cg,uint16_t first) {
         }
     }
 }
+/* I publish function bodies in table order so canonical assembly retains
+ * their exact offsets. Names are function-relative; DEBUG offsets are not. */
+typedef struct { uint32_t begin, end, destination; } CgCodeRange;
+typedef struct { NvmDebugEntry entry; uint32_t order; } CgOrderedDebug;
+static int cg_code_range_compare(const void *a, const void *b) {
+    const CgCodeRange *left = a, *right = b;
+    return (left->begin > right->begin) - (left->begin < right->begin);
+}
+static int cg_debug_compare(const void *a, const void *b) {
+    const CgOrderedDebug *left = a, *right = b;
+    if (left->entry.bytecode_offset != right->entry.bytecode_offset)
+        return (left->entry.bytecode_offset > right->entry.bytecode_offset) ? 1 : -1;
+    return (left->order > right->order) - (left->order < right->order);
+}
+static void canonicalize_function_code(CG *cg) {
+    NvmModule *module = cg->module;
+    if (cg->had_error || !module->code_size) return;
+    uint8_t *code = malloc(module->code_size);
+    CgCodeRange *ranges = calloc(module->function_count, sizeof *ranges);
+    CgOrderedDebug *debug = calloc(module->debug_count ? module->debug_count : 1, sizeof *debug);
+    if (!code || !ranges || !debug) {
+        cg_error(cg, 0, "I cannot allocate canonical function code");
+        goto done;
+    }
+    uint32_t offset = 0, count = 0;
+    for (uint32_t i = 0; i < module->function_count; ++i) {
+        const NvmFunctionEntry *function = &module->functions[i];
+        if (function->code_offset > module->code_size ||
+            function->code_length > module->code_size - function->code_offset ||
+            function->code_length > module->code_size - offset) {
+            cg_error(cg, 0, "I require bounded function code before canonical publication");
+            goto done;
+        }
+        if (function->code_length) {
+            ranges[count++] = (CgCodeRange){function->code_offset,
+                function->code_offset + function->code_length, offset};
+            memcpy(code + offset, module->code + function->code_offset, function->code_length);
+        }
+        offset += function->code_length;
+    }
+    qsort(ranges, count, sizeof *ranges, cg_code_range_compare);
+    uint32_t covered = 0;
+    for (uint32_t i = 0; i < count; ++i) {
+        if (ranges[i].begin != covered) {
+            cg_error(cg, 0, "I require disjoint complete function code before canonical publication");
+            goto done;
+        }
+        covered = ranges[i].end;
+    }
+    if (covered != module->code_size) {
+        cg_error(cg, 0, "I require every emitted instruction to belong to a function");
+        goto done;
+    }
+    for (uint32_t i = 0; i < module->debug_count; ++i) {
+        debug[i] = (CgOrderedDebug){module->debug_entries[i], i};
+        uint32_t pc = debug[i].entry.bytecode_offset;
+        if (pc == module->code_size) continue;
+        uint32_t low = 0, high = count;
+        while (low < high) {
+            uint32_t middle = low + (high - low) / 2;
+            if (ranges[middle].end <= pc) low = middle + 1;
+            else high = middle;
+        }
+        if (low == count || pc < ranges[low].begin) {
+            cg_error(cg, 0, "I require source locations inside emitted function code");
+            goto done;
+        }
+        debug[i].entry.bytecode_offset = ranges[low].destination + pc - ranges[low].begin;
+    }
+    qsort(debug, module->debug_count, sizeof *debug, cg_debug_compare);
+    offset = 0;
+    for (uint32_t i = 0; i < module->function_count; ++i) {
+        module->functions[i].code_offset = offset;
+        offset += module->functions[i].code_length;
+    }
+    for (uint32_t i = 0; i < module->debug_count; ++i) module->debug_entries[i] = debug[i].entry;
+    free(module->code);
+    module->code = code;
+    module->code_capacity = module->code_size;
+    code = NULL;
+done:
+    free(code); free(ranges); free(debug);
+}
+
 static void publish_local_names(CG *cg) {
     while(*cg->local_names) {
         CgLocalName *entry=*cg->local_names;
@@ -3963,7 +4044,7 @@ static void compile_stmt(CG *cg, ASTNode *node) {
                 local_type->struct_type_name = strdup(node->as.let.type_name);
         }
         emit_op(cg, OP_STORE_LOCAL, (int)slot);
-        local_name_begin(cg,slot,node->as.let.name,node->as.let.var_type,node->line);
+        local_name_begin(cg,slot,node->as.let.is_generated ? NULL : node->as.let.name,node->as.let.var_type,node->line);
         break;
     }
 
@@ -5324,6 +5405,7 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                                                      (uint32_t)strlen(input_file));
     }
 
+    canonicalize_function_code(&cg);
     if(!cg.had_error) publish_ordinary_authority(&cg,program);
     while(authority_slots) {
         CgAuthoritySlot *next=authority_slots->next;free(authority_slots);authority_slots=next;

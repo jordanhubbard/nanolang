@@ -45,14 +45,21 @@ bindings; unmatched ends and invalid slots are assembly errors. Generic canonica
 `.metadata` output remains the lossless reconstruction form.
 
 I then add paired ordinary C/selfhost producers for parameters and ordinary
-scalar `let` bindings, including nested blocks, if/else and while scopes.
+`let` bindings, including scalar, array, record, tuple, enum, union and
+callback values, nested blocks, if/else and while scopes.
 Parameters begin at function entry; a local begins after its initialization
 store and ends at lexical scope exit. Temporaries without original names are
-omitted. A function return may end an interval at the last emitted instruction.
+omitted. Both parsers explicitly mark generated destructuring owners; a user
+name sharing a temporary prefix remains a source name. A function return may
+end an interval at the last emitted instruction.
 The record describes lexical bytecode positions, not path-sensitive liveness.
 
 My C producer uses its current function index and code offsets; my selfhosted
 text producer uses the assembler markers rather than duplicating opcode widths.
+My C producer publishes function bodies in function-table order, relocating
+absolute DEBUG locations before publishing passive metadata. Local-name
+intervals stay function-relative. Canonical assembly retains dotted generic
+specialization names without merging distinct functions.
 I preserve source ownership task505's specialized producer and entry dispatch.
 Closures/upvalues, effects and other declaration forms remain explicit later
 producer work unless independently implemented and tested. My specialized

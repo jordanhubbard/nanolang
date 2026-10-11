@@ -3602,6 +3602,7 @@ fn parser_store_let(p: Parser, name: string, var_type: string, value_id: int, va
         value_type: value_type,
         is_mut: is_mut,
         is_pub: false,
+        is_generated: false,
         is_destructure: false,
         is_destructure_projection: false,
         destructure_names: []
@@ -5214,11 +5215,30 @@ shadow parser_starts_owned_pattern {
     assert (parser_starts_owned_pattern p)
 }
 
+# I distinguish compiler-owned slots from source names without reserving spellings.
+fn parser_mark_generated(p: Parser, idx: int) -> Parser {
+    let old: ASTLet = (parser_get_let p idx)
+    let marked: ASTLet = ASTLet { node_type: old.node_type, line: old.line, column: old.column,
+        name: old.name, var_type: old.var_type, value: old.value, value_type: old.value_type,
+        is_mut: old.is_mut, is_pub: old.is_pub, is_generated: true,
+        is_destructure: old.is_destructure, is_destructure_projection: old.is_destructure_projection,
+        destructure_names: old.destructure_names }
+    (list_ASTLet_set p.lets idx marked)
+    return p
+}
+shadow parser_mark_generated {
+    let original: Parser = (parser_store_let (parser_init_ast_lists) "__td99" "int" -1 -1 false 1 1)
+    assert (not (parser_get_let original 0).is_generated)
+    let marked: Parser = (parser_mark_generated original 0)
+    assert (parser_get_let marked 0).is_generated
+    assert (== (parser_get_let marked 0).name "__td99")
+}
+
 fn parser_mark_owned(p: Parser, idx: int, whole: bool, projection: bool, names: array<string>) -> Parser {
     let old: ASTLet = (parser_get_let p idx)
     let marked: ASTLet = ASTLet { node_type: old.node_type, line: old.line, column: old.column,
         name: old.name, var_type: old.var_type, value: old.value, value_type: old.value_type,
-        is_mut: old.is_mut, is_pub: old.is_pub, is_destructure: whole, is_destructure_projection: projection,
+        is_mut: old.is_mut, is_pub: old.is_pub, is_generated: (or old.is_generated whole), is_destructure: whole, is_destructure_projection: projection,
         destructure_names: names }
     (list_ASTLet_set p.lets idx marked)
     return p
@@ -5288,6 +5308,8 @@ shadow parse_owned_pattern {
     assert (== (list_ASTStmtRef_length statements) 2)
     let projected: ASTLet = (parser_get_let parsed 1)
     assert projected.is_destructure_projection
+    assert (not projected.is_generated)
+    assert (parser_get_let parsed 0).is_generated
     let qualified_tokens: List<LexerToken> = (tokenize_string "let Choice.Some { item } = payload" "pattern.nano" (list_CompilerDiagnostic_new))
     let qualified: Parser = (parser_new qualified_tokens (list_LexerToken_length qualified_tokens) "pattern.nano")
     assert (parser_starts_owned_pattern qualified)
@@ -5718,7 +5740,7 @@ fn parse_tuple_destructure(p: Parser, stmts: List<ASTStmtRef>, is_mut: bool, lin
     let temp_name: string = (str_concat "__td" (int_to_string p4.lets_count))
 
     /* Emit: let temp_name = expr (inferred type) */
-    let p5: Parser = (parser_store_let p4 temp_name "" expr_id expr_type false line column)
+    let p5: Parser = (parser_mark_generated (parser_store_let p4 temp_name "" expr_id expr_type false line column) p4.lets_count)
     let temp_let_id: int = p5.last_expr_node_id
     let temp_stmt: ASTStmtRef = ASTStmtRef { node_id: temp_let_id, node_type: ParseNodeType.PNODE_LET }
     (list_ASTStmtRef_push stmts temp_stmt)
@@ -8357,7 +8379,7 @@ fn parser_public_let(p: Parser) -> Parser {
     (list_ASTLet_set parsed.lets index (ASTLet {
         node_type: old.node_type, line: old.line, column: old.column,
         name: old.name, var_type: old.var_type, value: old.value, value_type: old.value_type,
-        is_mut: old.is_mut, is_pub: true, is_destructure: old.is_destructure,
+        is_mut: old.is_mut, is_pub: true, is_generated: old.is_generated, is_destructure: old.is_destructure,
         is_destructure_projection: old.is_destructure_projection, destructure_names: old.destructure_names
     }))
     return parsed
@@ -8699,7 +8721,7 @@ pub fn parser_set_let_var_type(p: Parser, idx: int, var_type: string) -> Parser 
         value: old.value,
         value_type: old.value_type,
         is_mut: old.is_mut,
-        is_pub: old.is_pub,
+        is_pub: old.is_pub, is_generated: old.is_generated,
         is_destructure: old.is_destructure,
         is_destructure_projection: old.is_destructure_projection,
         destructure_names: old.destructure_names

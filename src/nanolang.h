@@ -323,6 +323,7 @@ struct ASTNode {
             bool is_mut;
             bool is_pub;
             ASTNode *value;
+            bool is_generated; /* I omit parser-owned temporaries from original-name metadata. */
             bool is_destructure;
             bool is_destructure_projection;
             int destructure_count;
