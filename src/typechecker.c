@@ -774,6 +774,11 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
             "I cannot resolve this deeply nested payload context.", "Reduce the nesting depth.");
         return;
     }
+    if (expected->base_type == TYPE_ARRAY && expected->element_type &&
+        value->type == AST_CALL && value->as.call.name &&
+        !strcmp(value->as.call.name, "array_new") && value->as.call.arg_count == 2) {
+        check_concrete_union_arrays(env, expected->element_type, value->as.call.args[1], depth + 1);
+    }
     if (value->type == AST_IF) {
         check_concrete_union_arrays(env, expected, value->as.if_stmt.then_branch, depth + 1);
         check_concrete_union_arrays(env, expected, value->as.if_stmt.else_branch, depth + 1);
@@ -2826,6 +2831,26 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
             
+            bool callable_array_push = !strcmp(expr->as.call.name, "array_push") &&
+                env_array_push_is_builtin(env, expr->line, expr->column);
+            bool callable_array_set = !strcmp(expr->as.call.name, "array_set");
+            int stored_index = callable_array_set ? 2 : 1;
+            if ((callable_array_push || callable_array_set) &&
+                expr->as.call.arg_count == stored_index + 1) {
+                ASTNode *array = expr->as.call.args[0];
+                check_expression(array, env);
+                TypeInfo *info = try_get_expr_type_info(array, env);
+                if (info && info->base_type == TYPE_ARRAY && info->element_type &&
+                    info->element_type->base_type == TYPE_FUNCTION &&
+                    !indirect_argument_matches(expr->as.call.args[stored_index], env,
+                        info->element_type, TYPE_FUNCTION, 0)) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 1,
+                        "I require the complete callable array element signature.",
+                        "Store a callback with the declared parameter and result types.");
+                    return TYPE_UNKNOWN;
+                }
+            }
+
             /* If not a function, check if it's a function-typed variable (parameter) */
             /* ALSO: prefer built-in HashMap<K,V> generics when there's a generic type context,
              * even if a user-defined map_* function exists (to avoid conflict with non-generic

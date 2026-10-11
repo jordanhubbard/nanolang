@@ -346,6 +346,9 @@ static void env_release_array(EnvArrayReclaim *ctx, Array *arr) {
             free(sv->struct_name);
             free(sv);
         }
+    } else if (arr->element_type == VAL_FUNCTION) {
+        Value *elems = (Value *)arr->data;
+        for (int i = 0; i < arr->length; ++i) env_free_value(elems[i]);
     } else if (arr->element_type == VAL_STRING) {
         char **elems = (char **)arr->data;
         for (int i = 0; i < arr->length; i++) free(elems[i]);
@@ -1137,7 +1140,8 @@ Value create_array(ValueType elem_type, int length, int capacity) {
         case VAL_FLOAT:  elem_size = sizeof(double); break;
         case VAL_BOOL:   elem_size = sizeof(bool); break;
         case VAL_STRING: elem_size = sizeof(char*); break;
-        case VAL_ARRAY:  elem_size = sizeof(Value); break;
+        case VAL_ARRAY:
+        case VAL_FUNCTION: elem_size = sizeof(Value); break;
         default:         elem_size = sizeof(void*); break;
     }
     v.as.array_val->data = calloc(v.as.array_val->capacity, elem_size);

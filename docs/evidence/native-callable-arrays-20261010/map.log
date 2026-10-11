@@ -1,0 +1,6 @@
+Error: Unsupported array element type in map
+Error: at() requires an array as first argument
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 8, column 1
+I will not publish output after failed shadow execution.
+Shadow tests failed

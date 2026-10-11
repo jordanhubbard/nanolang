@@ -976,6 +976,20 @@ static Value builtin_println(Value *args) {
  * Array Built-in Functions (With Bounds Checking!)
  * ========================================================================== */
 
+/* I give callable array slots independent names and signature ownership.
+ * Reads copy them so replacement, removal and container reclamation cannot
+ * invalidate an extracted function value. */
+static Value own_function_identifier(ASTNode *, Environment *, Value);
+
+static Value copy_array_callable(Value value) {
+    return create_function(value.as.function_val.function_name,
+                           copy_function_signature(value.as.function_val.signature));
+}
+static void discard_array_callable(Value value) {
+    free(value.as.function_val.function_name);
+    free_function_signature(value.as.function_val.signature);
+}
+
 static Value builtin_at(Value *args) {
     /* at(array, index) -> element */
     if (args[1].type != VAL_INT) {
@@ -998,6 +1012,8 @@ static Value builtin_at(Value *args) {
         
         /* Return element based on type */
         switch (arr->element_type) {
+            case VAL_FUNCTION:
+                return copy_array_callable(((Value *)arr->data)[index]);
             case VAL_ARRAY:
                 return ((Value*)arr->data)[index];
             case VAL_INT:
@@ -1093,6 +1109,9 @@ static Value builtin_array_new(Value *args) {
     /* Initialize all elements with default value */
     for (long long i = 0; i < size; i++) {
         switch (elem_type) {
+            case VAL_FUNCTION:
+                ((Value *)arr.as.array_val->data)[i] = copy_array_callable(args[1]);
+                break;
             case VAL_INT:
                 ((long long*)arr.as.array_val->data)[i] = args[1].as.int_val;
                 break;
@@ -1183,6 +1202,16 @@ static Value builtin_array_set(Value *args) {
     
     /* Set element based on type */
     switch (arr->element_type) {
+        case VAL_FUNCTION: {
+            if (args[2].type != VAL_FUNCTION) {
+                fprintf(stderr, "I require a callable array element.\n");
+                return create_void();
+            }
+            Value copy = copy_array_callable(args[2]);
+            discard_array_callable(((Value *)arr->data)[index]);
+            ((Value *)arr->data)[index] = copy;
+            break;
+        }
         case VAL_ARRAY:
             if (args[2].type != VAL_ARRAY && args[2].type != VAL_DYN_ARRAY) {
                 fprintf(stderr, "I require an array value for a nested array element.\n");
@@ -1266,6 +1295,10 @@ static Value builtin_array_slice(Value *args) {
 
         Value out = create_array(arr->element_type, out_len, out_len);
         switch (arr->element_type) {
+            case VAL_FUNCTION:
+                for (int64_t i = 0; i < out_len; ++i)
+                    ((Value *)out.as.array_val->data)[i] = copy_array_callable(((Value *)arr->data)[start + i]);
+                break;
             case VAL_ARRAY:
                 for (int64_t i = 0; i < out_len; i++)
                     ((Value*)out.as.array_val->data)[i] = ((Value*)arr->data)[start + i];
@@ -1378,7 +1411,8 @@ static void discard_literal_record(StructValue *record);
 
 static size_t static_array_element_width(ValueType type) {
     switch (type) {
-        case VAL_ARRAY: return sizeof(Value);
+        case VAL_ARRAY:
+        case VAL_FUNCTION: return sizeof(Value);
         case VAL_INT: return sizeof(long long);
         case VAL_FLOAT: return sizeof(double);
         case VAL_BOOL: return sizeof(bool);
@@ -1394,7 +1428,8 @@ static size_t static_array_element_width(ValueType type) {
  * keep their shared identity; create_struct clones record/string fields. */
 static void static_array_remove(Array *arr, int index) {
     size_t width = static_array_element_width(arr->element_type);
-    if (arr->element_type == VAL_STRING) free(((char**)arr->data)[index]);
+    if (arr->element_type == VAL_FUNCTION) discard_array_callable(((Value *)arr->data)[index]);
+    else if (arr->element_type == VAL_STRING) free(((char**)arr->data)[index]);
     else if (arr->element_type == VAL_STRUCT)
         discard_literal_record(((StructValue**)arr->data)[index]);
     memmove((char*)arr->data + (size_t)index * width,
@@ -5041,7 +5076,8 @@ static void discard_literal_record(StructValue *record) {
 
 static void discard_partial_owned_array(Array *array, int initialized) {
     for (int i = 0; i < initialized; i++) {
-        if (array->element_type == VAL_STRING) free(((char **)array->data)[i]);
+        if (array->element_type == VAL_FUNCTION) discard_array_callable(((Value *)array->data)[i]);
+        else if (array->element_type == VAL_STRING) free(((char **)array->data)[i]);
         else if (array->element_type == VAL_STRUCT)
             discard_literal_record(((StructValue **)array->data)[i]);
     }
@@ -5177,6 +5213,7 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
             if (count == 0) {
                 ValueType element = VAL_INT;
                 switch (expr->as.array_literal.element_type) {
+                    case TYPE_FUNCTION: element = VAL_FUNCTION; break;
                     case TYPE_FLOAT: element = VAL_FLOAT; break;
                     case TYPE_BOOL: element = VAL_BOOL; break;
                     case TYPE_STRING: element = VAL_STRING; break;
@@ -5206,6 +5243,14 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 
                 /* Store element in array data */
                 switch (elem_type) {
+                    case VAL_FUNCTION: {
+                        ASTNode *element = expr->as.array_literal.elements[i];
+                        ((Value *)arr.as.array_val->data)[i] = element->type == AST_IDENTIFIER
+                            ? own_function_identifier(element, env, elem) :
+                            (element->type == AST_CALL || element->type == AST_MODULE_QUALIFIED_CALL)
+                                ? elem : copy_array_callable(elem);
+                        break;
+                    }
                     case VAL_ARRAY:
                         if (elem.type != VAL_ARRAY && elem.type != VAL_DYN_ARRAY) {
                             fprintf(stderr, "I require array values in a nested array literal.\n");

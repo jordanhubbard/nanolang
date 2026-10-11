@@ -588,7 +588,14 @@ static const char *map_function_name(const char *name, Environment *env) {
 }
 
 static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
+    if (expr && expr->type == AST_TUPLE_INDEX) {
+        const TypeInfo *tuple = array_expr_type_info(expr->as.tuple_index.tuple, env);
+        int index = expr->as.tuple_index.index;
+        return tuple && tuple->base_type == TYPE_TUPLE && tuple->tuple_elements &&
+            index >= 0 && index < tuple->tuple_element_count ? tuple->tuple_elements[index] : NULL;
+    }
     if (!expr) return NULL;
+    if (expr->type == AST_TUPLE_LITERAL) return expr->as.tuple_literal.type_info;
     if (expr->type == AST_CALL && expr->as.call.name &&
         strcmp(expr->as.call.name, "array_push") == 0 &&
         !env_array_push_is_builtin(env, expr->line, expr->column)) {
@@ -610,7 +617,7 @@ static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
     }
     if (expr->type == AST_IDENTIFIER) {
         Symbol *sym = env_get_var_visible_at(env, expr->as.identifier, expr->line, expr->column);
-        return sym && sym->type == TYPE_ARRAY ? sym->type_info : NULL;
+        return sym ? sym->type_info : NULL;
     }
     if (expr->type == AST_CALL && expr->as.call.name &&
         strcmp(expr->as.call.name, "at") == 0 &&
@@ -2344,8 +2351,25 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (elem_type == TYPE_STRUCT && (strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0))
                     struct_name = get_struct_type_name(expr, env);
 
-                /* For structs, use dyn_array_get/set_struct with casts */
-                if (elem_type == TYPE_STRUCT && struct_name) {
+                /* I copy typed callable pointers through sized array slots. */
+                if (elem_type == TYPE_FUNCTION) {
+                    FunctionSignature *signature = array_info && array_info->element_type
+                        ? array_info->element_type->fn_sig : NULL;
+                    if (!signature) { fprintf(stderr, "I require the complete callable array signature.\n"); exit(1); }
+                    const char *type_name = register_function_signature(g_function_registry, signature);
+                    emit_literal(list, "({ ");
+                    unsigned call_id = build_ordered_call_args(list, expr->as.call.args, expr->as.call.arg_count, env, NULL);
+                    if (strcmp(func_name, "array_set") == 0) {
+                        emit_formatted(list,
+                            "%s _value = __nl_arg_%u_2; dyn_array_set_struct(__nl_arg_%u_0, __nl_arg_%u_1, &_value, sizeof _value); })",
+                            type_name, call_id, call_id, call_id);
+                    } else {
+                        emit_formatted(list,
+                            "void *_slot = dyn_array_get_struct(__nl_arg_%u_0, __nl_arg_%u_1); "
+                            "if (!_slot) { fputs(\"I require an in-bounds callable array element.\\n\", stderr); abort(); } "
+                            "*((%s *)_slot); })", call_id, call_id, type_name);
+                    }
+                } else if (elem_type == TYPE_STRUCT && struct_name) {
                     if ((strcmp(func_name, "at") == 0 || strcmp(func_name, "array_get") == 0)) {
                         /* Generate: *((nl_StructName*)dyn_array_get_struct(arr, idx)) */
                         emit_formatted(list, "(*((%s*)dyn_array_get_struct(", get_prefixed_type_name(struct_name));
@@ -2437,7 +2461,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     elem_type_str = "ELEM_BOOL";
                 } else if (elem_type == TYPE_ARRAY) {
                     elem_type_str = "ELEM_ARRAY";
-                } else if (elem_type == TYPE_STRUCT) {
+                } else if (elem_type == TYPE_STRUCT || elem_type == TYPE_FUNCTION) {
                     elem_type_str = "ELEM_STRUCT";
                 }
                 
@@ -2448,7 +2472,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 emit_formatted(list, "DynArray* _arr = dyn_array_new(%s); ", elem_type_str);
                 emit_formatted(list, "for (int64_t _i = 0; _i < __nl_arg_%u_0; _i++) { ", call_id);
 
-                if (elem_type == TYPE_STRUCT) {
+                if (elem_type == TYPE_STRUCT || elem_type == TYPE_FUNCTION) {
                     emit_formatted(list, "dyn_array_push_struct(_arr, &__nl_arg_%u_1, sizeof(__nl_arg_%u_1)); ", call_id, call_id);
                 } else {
                     /* For primitives: dyn_array_push_<type>(_arr, value) */
@@ -2482,7 +2506,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                  * addressable storage, and either operand may have effects. */
                 emit_literal(list, "({ ");
                 unsigned call_id = build_ordered_call_args(list, expr->as.call.args, 2, env, NULL);
-                if (elem_type == TYPE_STRUCT) {
+                if (elem_type == TYPE_STRUCT || elem_type == TYPE_FUNCTION) {
                     emit_formatted(list,
                         "dyn_array_push_struct(__nl_arg_%u_0, &__nl_arg_%u_1, sizeof(__nl_arg_%u_1)); })",
                         call_id, call_id, call_id);
@@ -2514,8 +2538,18 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     }
                 }
                 
-                /* For structs, use dyn_array_pop_struct */
-                if (elem_type == TYPE_STRUCT && struct_name) {
+                const TypeInfo *array_info = array_expr_type_info(array_arg, env);
+                if (array_info && array_info->element_type) elem_type = array_info->element_type->base_type;
+                if (elem_type == TYPE_FUNCTION) {
+                    FunctionSignature *signature = array_info && array_info->element_type
+                        ? array_info->element_type->fn_sig : NULL;
+                    if (!signature) { fprintf(stderr, "I require the complete callable array signature.\n"); exit(1); }
+                    const char *type_name = register_function_signature(g_function_registry, signature);
+                    emit_formatted(list, "({ bool _success; %s _value; dyn_array_pop_struct(", type_name);
+                    build_expr(list, array_arg, env);
+                    emit_literal(list, ", &_value, sizeof _value, &_success); "
+                        "if (!_success) { fputs(\"I cannot pop an empty callable array.\\n\", stderr); abort(); } _value; })");
+                } else if (elem_type == TYPE_STRUCT && struct_name) {
                     /* Generate: ({ bool _s; nl_StructName _v; dyn_array_pop_struct(arr, &_v, sizeof(nl_StructName), &_s); _v; }) */
                     emit_formatted(list, "({ bool _s; %s _v; dyn_array_pop_struct(", get_prefixed_type_name(struct_name));
                     build_expr(list, expr->as.call.args[0], env);  /* array */
@@ -3110,7 +3144,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     emit_literal(list, "dyn_array_new(ELEM_STRING)");
                 } else if (elem_type == TYPE_BOOL) {
                     emit_literal(list, "dyn_array_new(ELEM_BOOL)");
-                } else if (elem_type == TYPE_STRUCT) {
+                } else if (elem_type == TYPE_STRUCT || elem_type == TYPE_FUNCTION) {
                     /* Array of structs - size will be set on first push */
                     emit_literal(list, "dyn_array_new(ELEM_STRUCT)");
                 } else {
@@ -3161,7 +3195,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                         build_expr(list, expr->as.array_literal.elements[i], env);
                     }
                     emit_literal(list, ")");
-                } else if (elem_type == TYPE_STRUCT) {
+                } else if (elem_type == TYPE_STRUCT || elem_type == TYPE_FUNCTION) {
                     /* I snapshot each record in source order before copying its
                      * value into a dynamic record array. */
                     unsigned array_id = next_nested_array_id(env);
