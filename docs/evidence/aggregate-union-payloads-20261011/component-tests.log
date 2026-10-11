@@ -1,0 +1,10 @@
+test_alternating_record_and_union_results (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_alternating_record_and_union_results) ... ok
+test_primitive_lists_keep_shared_mutation (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_primitive_lists_keep_shared_mutation) ... ok
+test_record_and_generic_record_results (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_and_generic_record_results) ... ok
+test_record_arrays_escape_and_mutate (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_arrays_escape_and_mutate) ... ok
+test_tuple_payload (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_tuple_payload) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 2.832s
+
+OK

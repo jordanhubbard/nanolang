@@ -1250,14 +1250,19 @@ static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name)
         
         /* Parse a type parameter */
         TypeInfo *param_type_info = NULL;
-        Type param_type = parse_type_with_element(p, NULL, NULL, NULL, &param_type_info);
+        char *param_name = NULL;
+        FunctionSignature *param_signature = NULL;
+        Type param_type = parse_type_with_element(p, NULL, &param_name, &param_signature, &param_type_info);
         
         if (param_type == TYPE_UNKNOWN) {
+            free(param_name);
+            free_function_signature(param_signature);
+            free_payload_type_info(param_type_info);
             parser_error(p, current_token(p)->line, current_token(p)->column, "Error at line %d, column %d: Failed to parse generic type parameter\n",
                     current_token(p)->line, current_token(p)->column);
             /* Cleanup */
             for (int i = 0; i < count; i++) {
-                free(type_params[i]);
+                free_payload_type_info(type_params[i]);
             }
             free(type_params);
             free(type_info->generic_name);
@@ -1269,6 +1274,12 @@ static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name)
         if (!param_type_info) {
             param_type_info = calloc(1, sizeof(TypeInfo));
             param_type_info->base_type = param_type;
+            /* I retain nominal names and signatures in explicit constructor arguments. */
+            param_type_info->generic_name = param_name;
+            param_type_info->fn_sig = param_signature;
+        } else {
+            free(param_name);
+            free_function_signature(param_signature);
         }
         
         type_params[count++] = param_type_info;
@@ -1282,7 +1293,7 @@ static TypeInfo *parse_generic_type_args(Stage1Parser *p, const char *base_name)
     if (!expect(p, TOKEN_GT, "Expected '>' after generic type parameters")) {
         /* Cleanup */
         for (int i = 0; i < count; i++) {
-            free(type_params[i]);
+            free_payload_type_info(type_params[i]);
         }
         free(type_params);
         free(type_info->generic_name);

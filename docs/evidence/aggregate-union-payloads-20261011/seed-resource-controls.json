@@ -1,0 +1,32 @@
+[
+  {
+    "payload": "Handle",
+    "returncode": 1,
+    "diagnostic": "NSType checking failed\nDiagnostics:\n  [E0036] I cannot verify ownership: resource remains live at scope exit: value (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpj7yphypk/main.nano:4:9)\n",
+    "artifact_preserved": true
+  },
+  {
+    "payload": "array<Handle>",
+    "returncode": 1,
+    "diagnostic": "NSType checking failed\nDiagnostics:\n  [E0036] I cannot verify ownership: resource-bearing union collection payloads are not supported (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmph8fg0i0g/main.nano:4:9)\n  [E0036] I cannot verify ownership: resource remains live at scope exit: value (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmph8fg0i0g/main.nano:4:9)\n  [E0036] I cannot verify ownership: resource-bearing union collection payloads are not supported (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmph8fg0i0g/main.nano:6:17)\n  [E0036] I cannot verify ownership: resource-bearing collections are not supported (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmph8fg0i0g/main.nano:6:79)\n",
+    "artifact_preserved": true
+  },
+  {
+    "payload": "List<Handle>",
+    "returncode": 1,
+    "diagnostic": "NSType checking failed\nDiagnostics:\n  [E0036] I cannot verify ownership: resource-bearing union collection payloads are not supported (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpjrq1z3qt/main.nano:4:9)\n  [E0036] I cannot verify ownership: resource remains live at scope exit: value (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpjrq1z3qt/main.nano:4:9)\n  [E0036] I cannot verify ownership: resource-bearing union collection payloads are not supported (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpjrq1z3qt/main.nano:6:17)\n",
+    "artifact_preserved": true
+  },
+  {
+    "payload": "Wrapper",
+    "returncode": 1,
+    "diagnostic": "NSType checking failed\nDiagnostics:\n  [E0036] I cannot verify ownership: resource remains live at scope exit: value (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp84t7x1cv/main.nano:4:9)\n",
+    "artifact_preserved": true
+  },
+  {
+    "payload": "Box<Handle>",
+    "returncode": 1,
+    "diagnostic": "NSType checking failed\nDiagnostics:\n  [E0036] I cannot verify ownership: resource remains live at scope exit: value (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp1osz8ydr/main.nano:4:9)\n",
+    "artifact_preserved": true
+  }
+]

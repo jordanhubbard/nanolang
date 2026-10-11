@@ -1,0 +1,11 @@
+test_resource_payloads_preserve_prior_artifacts (tests.test_selfhost_union_storage.SelfhostUnionStorage.test_resource_payloads_preserve_prior_artifacts) ... ok
+test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) ... ok
+test_deep_acyclic_records_do_not_consume_generic_expansion_budget (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_deep_acyclic_records_do_not_consume_generic_expansion_budget) ... ok
+test_expanding_generic_layout_has_a_distinct_diagnostic (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_expanding_generic_layout_has_a_distinct_diagnostic) ... ok
+test_imported_equal_name_owners_keep_the_cycle_local (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_imported_equal_name_owners_keep_the_cycle_local) ... ok
+test_indirect_fields_and_unused_generic_parameters_are_legal (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_indirect_fields_and_unused_generic_parameters_are_legal) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.815s
+
+OK

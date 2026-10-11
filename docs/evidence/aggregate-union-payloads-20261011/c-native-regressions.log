@@ -1,0 +1,57 @@
+test_alternating_record_and_union_results (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_alternating_record_and_union_results) ... ok
+test_imported_equal_record_names_keep_payload_identity (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_imported_equal_record_names_keep_payload_identity) ... ok
+test_primitive_lists_keep_shared_mutation (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_primitive_lists_keep_shared_mutation) ... ok
+test_record_and_generic_record_results (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_and_generic_record_results) ... ok
+test_record_arrays_escape_and_mutate (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_record_arrays_escape_and_mutate) ... ok
+test_tuple_payload (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_tuple_payload) ... FAIL
+test_wrong_nominal_constructor_arguments_preserve_output (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_wrong_nominal_constructor_arguments_preserve_output) ... ok
+test_cross_owner_refusals_preserve_output (tests.test_module_union_owners.ModuleUnionOwners.test_cross_owner_refusals_preserve_output) ... ok
+test_distinct_layouts_and_both_import_orders (tests.test_module_union_owners.ModuleUnionOwners.test_distinct_layouts_and_both_import_orders) ... ok
+test_duplicate_declaration_in_one_owner_preserves_output (tests.test_module_union_owners.ModuleUnionOwners.test_duplicate_declaration_in_one_owner_preserves_output) ... ok
+test_malformed_qualified_constructors_preserve_output (tests.test_module_union_owners.ModuleUnionOwners.test_malformed_qualified_constructors_preserve_output) ... ok
+test_ordinary_module_unions (tests.test_module_union_owners.ModuleUnionOwners.test_ordinary_module_unions) ... ok
+test_root_union_and_qualified_constructors (tests.test_module_union_owners.ModuleUnionOwners.test_root_union_and_qualified_constructors) ... ok
+test_same_owner_aliases_and_imported_callbacks (tests.test_module_union_owners.ModuleUnionOwners.test_same_owner_aliases_and_imported_callbacks) ... ok
+test_array_and_callable_payloads (tests.test_generic_union_parameters.GenericUnionParameters.test_array_and_callable_payloads) ... ok
+test_imported_union_and_generic_function (tests.test_generic_union_parameters.GenericUnionParameters.test_imported_union_and_generic_function) ... ok
+test_mismatched_instances_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_mismatched_instances_preserve_output) ... ok
+test_nested_and_multiple_parameters (tests.test_generic_union_parameters.GenericUnionParameters.test_nested_and_multiple_parameters) ... ok
+test_ordinary_union_identity (tests.test_generic_union_parameters.GenericUnionParameters.test_ordinary_union_identity) ... ok
+test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) ... ok
+test_scalar_instances_and_empty_variants (tests.test_generic_union_parameters.GenericUnionParameters.test_scalar_instances_and_empty_variants) ... ok
+test_union_result_boundaries_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_union_result_boundaries_preserve_output) ... ok
+
+======================================================================
+FAIL: test_tuple_payload (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_tuple_payload)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_aggregate_payloads.py", line 46, in test_tuple_payload
+            self.execute('''union Box<T> { Some {value:T} }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn make()->Box<(int,string)> { return Box<(int,string)>.Some {value:(7,"kept")} }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    fn main()->int { assert (== (read (make)) 7) return 0 }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    '''+SHADOW)
+    ^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_90951_main.c:1732:24: error: field has incomplete type 'Tuple_int_string_0' (aka 'struct Tuple_int_string_0')
+ 1732 |     Tuple_int_string_0 value;
+      |                        ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_90951_main.c:1730:16: note: forward declaration of 'struct Tuple_int_string_0'
+ 1730 | typedef struct Tuple_int_string_0 Tuple_int_string_0;
+      |                ^
+1 error generated.
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 22 tests in 31.617s
+
+FAILED (failures=1)

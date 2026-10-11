@@ -1,0 +1,7 @@
+test_array_payload_element_kinds (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_array_payload_element_kinds) ... ok
+test_map_payload_retains_shared_storage (tests.test_union_aggregate_payloads.UnionAggregatePayloads.test_map_payload_retains_shared_storage) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.655s
+
+OK
