@@ -93,7 +93,7 @@ static uint8_t variant_field_for(uint8_t kind) {
 }
 static int variant_scalar_tags(uint16_t tags) {
     const unsigned members = (1u << TAG_INT) | (1u << TAG_BOOL) |
-                             (1u << TAG_FLOAT) | (1u << TAG_STRING);
+                             (1u << TAG_FLOAT) | (1u << TAG_STRING) | (1u << TAG_U8) | (1u << TAG_ENUM);
     return (tags & NVM2C_SCALAR_VARIANT) && (tags & members) &&
            !(tags & ~(NVM2C_SCALAR_VARIANT | members | (1u << TAG_VOID)));
 }
@@ -101,7 +101,7 @@ static int variant_scalar_tags(uint16_t tags) {
 static int variant_payload_tags(uint16_t tags) {
     if (variant_scalar_tags(tags)) return 1;
     const unsigned members = (1u << TAG_INT) | (1u << TAG_BOOL) |
-        (1u << TAG_FLOAT) | (1u << TAG_STRING) | (1u << TAG_ARRAY);
+        (1u << TAG_FLOAT) | (1u << TAG_STRING) | (1u << TAG_U8) | (1u << TAG_ENUM) | (1u << TAG_ARRAY);
     return (tags & NVM2C_SCALAR_VARIANT) && (tags & members) &&
         !(tags & ~(NVM2C_SCALAR_VARIANT | members | (1u << TAG_VOID)));
 }

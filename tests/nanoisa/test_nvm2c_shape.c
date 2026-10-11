@@ -272,7 +272,7 @@ static void test_numeric_union_payload(void) {
 }
 
 static void test_explicit_variant_scalar_storage(void) {
-    const NvmShapeKind members[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_STRING};
+    const NvmShapeKind members[] = {NVM_SHAPE_INT, NVM_SHAPE_U8, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT, NVM_SHAPE_STRING};
     for (size_t i = 0; i < sizeof members / sizeof members[0]; ++i) {
         NvmShapeGraph g = {0};
         NvmShapeId source = nvm_shape_new(&g, members[i]);
@@ -316,7 +316,7 @@ static void test_explicit_variant_scalar_storage(void) {
 
 static void test_finite_variant_integer_array(void) {
     const NvmShapeKind members[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT,
-        NVM_SHAPE_STRING, NVM_SHAPE_VARIANT_SCALAR, NVM_SHAPE_VARIANT_INT_ARRAY};
+        NVM_SHAPE_STRING, NVM_SHAPE_U8, NVM_SHAPE_VARIANT_SCALAR, NVM_SHAPE_VARIANT_INT_ARRAY};
     for (size_t i = 0; i < sizeof members / sizeof members[0]; ++i) {
         NvmShapeGraph g = {0};
         NvmShapeId source = nvm_shape_new(&g, members[i]);
@@ -326,7 +326,7 @@ static void test_finite_variant_integer_array(void) {
         CHECK(nvm_shape_kind(&g, source) == members[i]);
         nvm_shape_destroy(&g);
     }
-    const NvmShapeKind elements[] = {NVM_SHAPE_INT, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT,
+    const NvmShapeKind elements[] = {NVM_SHAPE_INT, NVM_SHAPE_U8, NVM_SHAPE_BOOL, NVM_SHAPE_FLOAT,
         NVM_SHAPE_STRING, NVM_SHAPE_RECORD, NVM_SHAPE_ARRAY, NVM_SHAPE_UNKNOWN};
     for (size_t i = 0; i < sizeof elements / sizeof elements[0]; ++i) {
         NvmShapeGraph g = {0};

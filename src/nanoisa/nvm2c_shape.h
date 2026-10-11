@@ -10,7 +10,7 @@
  * A map's edges zero and one are its key and value shapes respectively.
  * An optional's edge zero is the present value shape; absence remains tagged.
  * NUMERIC is an explicit INT|FLOAT leaf, not an inferred exact-kind conflict.
- * VARIANT_SCALAR is an explicit int/bool/float/string constructor payload set;
+ * VARIANT_SCALAR is an explicit int/u8/bool/float/string payload set;
  * I never infer it by unifying unrelated exact kinds or arbitrary VALUE.
  * VARIANT_INT_ARRAY adds only exact ARRAY<INT> to that finite payload set.
  * Missing edges mean unconstrained, not absent fields or a proved width. */

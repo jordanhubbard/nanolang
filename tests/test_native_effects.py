@@ -248,13 +248,17 @@ RET
             ('PUSH_BOOL 1', 4, 'ASSERT'),
             ('PUSH_F64 1.25', 3, 'PUSH_F64 1.25\nEQ\nASSERT'),
             ('PUSH_STR a\nPUSH_STR b\nSTR_CONCAT', 5, 'PUSH_STR joined\nSTR_EQ\nASSERT'),
+            ('PUSH_U8 0', 2, 'CAST_INT\nPUSH_I64 0\nEQ\nASSERT'),
+            ('PUSH_I64 255\nCAST_U8', 2, 'CAST_INT\nPUSH_I64 255\nEQ\nASSERT'),
+            ('ENUM_VAL 0 65535', 9, 'CAST_INT\nPUSH_I64 65535\nEQ\nASSERT'),
             ('PUSH_VOID', 0, 'POP'),
         ]
         for reverse in (False, True):
             calls = ''.join(f'{producer}\nPERFORM op 1\nDUP\nTYPE_CHECK {tag}\nASSERT\n{check}\n'
                             for producer, tag, check in (values[::-1] if reverse else values))
             with self.subTest(reverse=reverse):
-                self.exercise(f""".string a "hello"
+                self.exercise(f""".types 0 1 0
+.string a "hello"
 .string b "world"
 .string joined "helloworld"
 .function main 0 1 0 int 1

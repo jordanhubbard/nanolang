@@ -480,12 +480,12 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
          * exact scalar producers. I do not change their source constraints. */
         if (to == NVM_SHAPE_VARIANT_SCALAR &&
             (from == NVM_SHAPE_INT || from == NVM_SHAPE_BOOL ||
-             from == NVM_SHAPE_FLOAT || from == NVM_SHAPE_STRING)) continue;
+             from == NVM_SHAPE_FLOAT || from == NVM_SHAPE_STRING || from == NVM_SHAPE_U8)) continue;
         /* I admit only a proved integer-array member, not any heap handle.
          * I wait for late element resolution without binding the producer. */
         if (to == NVM_SHAPE_VARIANT_INT_ARRAY) {
             if (from == NVM_SHAPE_INT || from == NVM_SHAPE_BOOL ||
-                from == NVM_SHAPE_FLOAT || from == NVM_SHAPE_STRING ||
+                from == NVM_SHAPE_FLOAT || from == NVM_SHAPE_STRING || from == NVM_SHAPE_U8 ||
                 from == NVM_SHAPE_VARIANT_SCALAR) continue;
             if (from == NVM_SHAPE_ARRAY) {
                 NvmShapeId element = nvm_shape_lookup(g, source, 0);
