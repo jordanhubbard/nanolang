@@ -569,6 +569,12 @@ test-native-callable-arrays: $(COMPILER_C)
 
 test-one-ir-compiler: test-native-callable-arrays
 
+.PHONY: test-callable-union-storage
+test-callable-union-storage: $(COMPILER_C) nano_virt nano_vm $(BIN_DIR)/nanoisa nvm2c nvm2c-runtime
+	@python3 -m unittest tests.test_callable_union_storage
+
+test-one-ir-compiler: test-callable-union-storage
+
 .PHONY: test-native-dead-callable-paths
 test-native-dead-callable-paths: nano_virt nvm2c nanoisa_dump nano_vm
 	@CC="$(CC)" python3 -m unittest tests.test_native_dead_callable_paths

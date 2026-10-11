@@ -688,13 +688,19 @@ static bool check_record_array_contract(Environment *env, Type type, Type elemen
     return false;
 }
 
+static void check_concrete_union_arrays(Environment *, const TypeInfo *, ASTNode *, unsigned);
+
 /* I retain fixed union field contracts without resolving formal parameters here. */
-static void check_union_record_array_contract(Environment *env, UnionDef *def,
+static void check_union_field_contract(Environment *env, UnionDef *def,
                                               int arm, const char *field, ASTNode *value) {
     if (!def->variant_field_type_info || !def->variant_field_type_info[arm]) return;
     for (int i = 0; i < def->variant_field_counts[arm]; ++i) {
         if (strcmp(def->variant_field_names[arm][i], field)) continue;
         TypeInfo *info = def->variant_field_type_info[arm][i];
+        if (info && info->base_type == TYPE_FUNCTION && !def->generic_param_count) {
+            check_concrete_union_arrays(env, info, value, 0);
+            return;
+        }
         if (!info || info->base_type != TYPE_ARRAY || !info->element_type) return;
         TypeInfo *element = info->element_type;
         for (int j = 0; element->generic_name && j < def->generic_param_count; ++j)
@@ -4152,7 +4158,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                     Type field_type = check_expression(expr->as.struct_literal.field_values[i], env);
                     Type expected = udef->variant_field_types[variant_idx][field_index];
-                    check_union_record_array_contract(env, udef, variant_idx,
+                    check_union_field_contract(env, udef, variant_idx,
                         expr->as.struct_literal.field_names[i], expr->as.struct_literal.field_values[i]);
 
                     /* If the expected field type refers to a generic parameter name (T, E, etc.),
@@ -4599,7 +4605,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 /* Check field type */
                 Type expected_type = udef->variant_field_types[variant_idx][field_index];
                 Type actual_type = check_expression(expr->as.union_construct.field_values[i], env);
-                check_union_record_array_contract(env, udef, variant_idx, field_name,
+                check_union_field_contract(env, udef, variant_idx, field_name,
                     expr->as.union_construct.field_values[i]);
 
                 /* For generic unions, accept any type for generic type parameters */

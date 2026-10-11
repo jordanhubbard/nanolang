@@ -1,0 +1,20 @@
+[
+  {
+    "case": "inferred",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "case": "global",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "case": "nested",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+]

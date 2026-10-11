@@ -2349,7 +2349,11 @@ static void emit_union_definition_single(Environment *env, StringBuilder *sb, Un
                 sb_append(sb, "    ");
                 Type ft = udef->variant_field_types[j][k];
 
-                if (ft == TYPE_STRUCT && udef->variant_field_type_names && udef->variant_field_type_names[j] &&
+                TypeInfo *info = udef->variant_field_type_info && udef->variant_field_type_info[j]
+                    ? udef->variant_field_type_info[j][k] : NULL;
+                if (info && (ft == TYPE_FUNCTION || ft == TYPE_TUPLE)) {
+                    emit_signature_type(sb, env, ft, info->generic_name, info);
+                } else if (ft == TYPE_STRUCT && udef->variant_field_type_names && udef->variant_field_type_names[j] &&
                     udef->variant_field_type_names[j][k] &&
                     env_get_opaque_type(env, udef->variant_field_type_names[j][k])) {
                     sb_append(sb, "void*");
@@ -2396,7 +2400,9 @@ static void emit_union_definition_single(Environment *env, StringBuilder *sb, Un
 }
 
 static void emit_native_type_info(Environment *env, StringBuilder *sb, TypeInfo *info) {
-    if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION || info->base_type == TYPE_ENUM) && info->generic_name) {
+    if (info->base_type == TYPE_FUNCTION || info->base_type == TYPE_TUPLE) {
+        emit_signature_type(sb, env, info->base_type, info->generic_name, info);
+    } else if ((info->base_type == TYPE_STRUCT || info->base_type == TYPE_UNION || info->base_type == TYPE_ENUM) && info->generic_name) {
         if (env_get_opaque_type(env, info->generic_name)) { sb_append(sb, "void*"); return; }
         char *name = typeinfo_to_generic_arg_name(info);
         if (!name) { fprintf(stderr, "I cannot allocate a native payload type\n"); exit(1); }
@@ -5156,6 +5162,25 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     for (int r = 0; r < env->struct_count; ++r)
         for (int f = 0; env->structs[r].field_type_info && f < env->structs[r].field_count; ++f)
             collect_native_dependencies(env->structs[r].field_type_info[f], fn_registry, tuple_registry, 0);
+    for (int u = 0; u < env->union_count; ++u) {
+        UnionDef *def = &env->unions[u];
+        for (int v = 0; v < def->variant_count; ++v)
+            for (int f = 0; def->variant_field_type_info && def->variant_field_type_info[v] &&
+                            f < def->variant_field_counts[v]; ++f)
+                if (!def->generic_param_count)
+                    collect_native_dependencies(def->variant_field_type_info[v][f], fn_registry, tuple_registry, 0);
+    }
+    for (int i = 0; i < env->generic_instance_count; ++i) {
+        GenericInstantiation *inst = &env->generic_instances[i];
+        UnionDef *def = env_get_union(env, inst->generic_name);
+        if (!def || !inst->type_info) continue;
+        for (int v = 0; v < def->variant_count; ++v)
+            for (int f = 0; f < def->variant_field_counts[v]; ++f) {
+                TypeInfo *payload = resolve_union_payload_type_info(def, v, f, inst->type_info);
+                collect_native_dependencies(payload, fn_registry, tuple_registry, 0);
+                free_payload_type_info(payload);
+            }
+    }
     close_native_type_dependencies(fn_registry, tuple_registry);
 
 

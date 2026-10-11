@@ -1,0 +1,8 @@
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 1) 1)}
+union Choice {Some {callback:fn(int)->bool}}
+struct Holder {value:Choice}
+fn unused()->void {let h:Holder=Holder {value:Choice.Some {callback:identity}}}
+shadow unused {assert true}
+fn main()->int{return 0}
+shadow main {assert true}

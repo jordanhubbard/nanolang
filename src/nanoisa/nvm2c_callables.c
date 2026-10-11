@@ -20,11 +20,16 @@ typedef struct {
     NvmShapeId **locals, **upvalues, *results, *globals;
     size_t global_count;
     uint32_t field_count;
+    uint16_t *variants;
+    size_t variant_count;
     IndirectCall *calls;
     size_t call_count;
 } Analysis;
 
 typedef struct { NvmShapeId *stack; size_t count; int set; } Frame;
+
+/* I keep selected-arm provenance separate from ordinary positional fields. */
+#define CALLABLE_VARIANT_BASE UINT32_C(65536)
 
 static int fail(Analysis *a, const char *message) {
     if (!a->out->error[0]) snprintf(a->out->error, sizeof a->out->error, "%s", message);
@@ -76,7 +81,22 @@ static int collect_function(Analysis *a, uint32_t function) {
     Frame *frames = calloc(count + 1, sizeof *frames);
     uint32_t *work = calloc(count + 1, sizeof *work);
     NvmShapeId *stack = NULL;
+    unsigned char *branch_targets = calloc(count + 1, 1);
     int ok = 0;
+    if (!branch_targets) { fail(a, "I cannot retain callable branch boundaries"); goto done; }
+    for (size_t i = 0; i < count; ++i) {
+        const VmDecodedInstruction *instruction = &decoded.instructions[i];
+        uint8_t opcode = instruction->instruction.opcode;
+        if (opcode != OP_JMP && opcode != OP_JMP_TRUE && opcode != OP_JMP_FALSE) continue;
+        int64_t offset = (int64_t)instruction->byte_offset + instruction->instruction.operands[0].i32;
+        if (offset < 0 || (uint64_t)offset > decoded.code_size ||
+            !vm_decoded_function_has_boundary(&decoded, (uint32_t)offset)) {
+            fail(a, "I require valid callable branch boundaries"); goto done;
+        }
+        size_t target = offset == decoded.code_size ? count :
+            (size_t)(vm_decoded_function_at(&decoded, (uint32_t)offset) - decoded.instructions);
+        branch_targets[target] = 1;
+    }
     if (!frames || !work) { fail(a, "I cannot allocate callable analysis frames"); goto done; }
     size_t head = 0, tail = 0;
     if (!edge(a, frames, 0, NULL, 0, work, &tail)) goto done;
@@ -162,8 +182,14 @@ static int collect_function(Analysis *a, uint32_t function) {
         case OP_ROT3: output[0] = stack[base + 2]; output[1] = stack[base]; output[2] = stack[base + 1]; break;
         case OP_AGG_PACK:
             if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_RECORD))) goto done;
-            for (int i = 0; i < pop; ++i)
+            for (int i = 0; i < pop; ++i) {
                 if (!flow(a, stack[base + (size_t)i], field(a, output[0], (uint32_t)i))) goto done;
+                if (in->operands[0].u8 == 1) {
+                    NvmShapeId selected = field(a, output[0], CALLABLE_VARIANT_BASE + in->operands[2].u16);
+                    if (!nvm_shape_unify(&a->out->shapes, selected, nvm_shape_new(&a->out->shapes, NVM_SHAPE_RECORD))) goto done;
+                    if (!flow(a, stack[base + (size_t)i], field(a, selected, (uint32_t)i))) goto done;
+                }
+            }
             break;
         case OP_AGG_GET: output[0] = field(a, stack[base], in->operands[0].u16); break;
         case OP_ARR_NEW:
@@ -233,13 +259,38 @@ static int collect_function(Analysis *a, uint32_t function) {
             uint32_t destination = offset == decoded.code_size ? (uint32_t)count : (uint32_t)(vm_decoded_function_at(&decoded, (uint32_t)offset) - decoded.instructions);
             if (!edge(a, frames, destination, stack, after, work, &tail)) goto done;
             if (in->opcode == OP_JMP) continue;
+            /* I refine only the fallthrough of an uninterrupted exact tag
+             * equality. Entry into its middle would invalidate the DUP proof. */
+            if (in->opcode == OP_JMP_FALSE && at >= 4 && after &&
+                decoded.instructions[at-4].instruction.opcode == OP_DUP &&
+                decoded.instructions[at-3].instruction.opcode == OP_AGG_TAG &&
+                decoded.instructions[at-2].instruction.opcode == OP_PUSH_I64 &&
+                (decoded.instructions[at-1].instruction.opcode == OP_EQ ||
+                 decoded.instructions[at-1].instruction.opcode == OP_I64_EQ) &&
+                !branch_targets[at-3] && !branch_targets[at-2] &&
+                !branch_targets[at-1] && !branch_targets[at]) {
+                int64_t variant = decoded.instructions[at-2].instruction.operands[0].i64;
+                if (variant >= 0 && variant <= UINT16_MAX) {
+                    NvmShapeId original = stack[after-1];
+                    NvmShapeId view = nvm_shape_new(&a->out->shapes, NVM_SHAPE_RECORD);
+                    NvmShapeId selected = field(a, original, CALLABLE_VARIANT_BASE + (uint32_t)variant);
+                    for (uint32_t i = 0; i < a->field_count; ++i)
+                        if (!flow(a, field(a, selected, i), field(a, view, i))) goto done;
+                    /* A later match still sees each constructor's tag map. */
+                    for (size_t i = 0; i < a->variant_count; ++i) {
+                        uint32_t key = CALLABLE_VARIANT_BASE + a->variants[i];
+                        if (!flow(a, field(a, original, key), field(a, view, key))) goto done;
+                    }
+                    stack[after-1] = view;
+                }
+            }
         }
         if (!edge(a, frames, at + 1, stack, after, work, &tail)) goto done;
     }
     ok = 1;
 done:
     if (frames) for (size_t i = 0; i <= count; ++i) free(frames[i].stack);
-    free(frames); free(work); free(stack);
+    free(frames); free(work); free(stack); free(branch_targets);
     vm_decoded_function_free(&decoded);
     return ok;
 }
@@ -273,7 +324,9 @@ static int connect_array_aliases(Analysis *a, int *changed) {
                     }
                 }
             } else if (kind == NVM_SHAPE_RECORD) {
-                for (uint32_t field_index = 0; field_index < a->field_count; ++field_index) {
+                for (size_t f = 0; f < (size_t)a->field_count + a->variant_count; ++f) {
+                    uint32_t field_index = f < a->field_count ? (uint32_t)f :
+                        CALLABLE_VARIANT_BASE + a->variants[f - a->field_count];
                     NvmShapeId from = nvm_shape_lookup(g, pair.source, field_index);
                     NvmShapeId to = nvm_shape_lookup(g, pair.target, field_index);
                     if (!from || !to || from == to) continue;
@@ -343,6 +396,16 @@ int nvm_callable_analyze(const NvmModule *module, NvmCallableAnalysis *out) {
             uint32_t fields = in.opcode == OP_AGG_PACK ? in.operands[3].u16 :
                 in.opcode == OP_AGG_GET ? (uint32_t)in.operands[0].u16 + 1 : 0;
             if (fields > a.field_count) a.field_count = fields;
+            if (in.opcode == OP_AGG_PACK && in.operands[0].u8 == 1) {
+                uint16_t variant = in.operands[2].u16;
+                size_t i = 0;
+                while (i < a.variant_count && a.variants[i] != variant) ++i;
+                if (i == a.variant_count) {
+                    uint16_t *next = realloc(a.variants, (i + 1) * sizeof *next);
+                    if (!next) goto done;
+                    a.variants = next; a.variants[a.variant_count++] = variant;
+                }
+            }
             if (in.opcode == OP_LOAD_GLOBAL || in.opcode == OP_STORE_GLOBAL) {
                 if (in.operands[0].u32 >= NVM_MAX_GLOBALS) goto done;
                 size_t required = (size_t)in.operands[0].u32 + 1;
@@ -386,6 +449,6 @@ done:
     if (a.locals) for (uint32_t f = 0; f < module->function_count; ++f) free(a.locals[f]);
     if (a.upvalues) for (uint32_t f = 0; f < module->function_count; ++f) free(a.upvalues[f]);
     for (size_t i = 0; i < a.call_count; ++i) { free(a.calls[i].arguments); free(a.calls[i].linked); }
-    free(a.calls); free(a.upvalues); free(a.locals); free(a.results); free(a.globals);
+    free(a.variants); free(a.calls); free(a.upvalues); free(a.locals); free(a.results); free(a.globals);
     return ok;
 }

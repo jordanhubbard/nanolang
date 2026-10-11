@@ -1,0 +1,23 @@
+[
+  {
+    "case": "inferred",
+    "status": 1,
+    "preserved": true,
+    "stdout": "NSType checking failed\nDiagnostics:\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/tmp/nl51-context-storage/bad-inferred.nano:4:26)\n",
+    "stderr": ""
+  },
+  {
+    "case": "global",
+    "status": 1,
+    "preserved": true,
+    "stdout": "NSType checking failed\nDiagnostics:\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/tmp/nl51-context-storage/bad-global.nano:4:14)\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/tmp/nl51-context-storage/bad-global.nano:4:14)\n",
+    "stderr": ""
+  },
+  {
+    "case": "nested",
+    "status": 1,
+    "preserved": true,
+    "stdout": "NSType checking failed\nDiagnostics:\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/tmp/nl51-context-storage/bad-nested.nano:5:47)\n  [E0010] I require a declared union variant with each payload field exactly once and matching concrete types. (/private/tmp/nl51-context-storage/bad-nested.nano:5:47)\n",
+    "stderr": ""
+  }
+]

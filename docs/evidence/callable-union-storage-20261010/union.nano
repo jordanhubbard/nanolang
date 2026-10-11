@@ -1,0 +1,5 @@
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 1) 1)}
+union Choice {Some {callback:fn(int)->int}}
+fn main()->int {let c:Choice=Choice.Some {callback:identity} match c {Some(payload)=>{let f:fn(int)->int=payload.callback assert (== (f 7) 7)}} return 0}
+shadow main {assert (== (main) 0)}

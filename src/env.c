@@ -2098,6 +2098,44 @@ static void payload_substitute(TypeInfo **slot, const UnionDef *def, const TypeI
     if (info->element_type) payload_substitute(&info->element_type, def, arguments);
     for (int i = 0; info->type_params && i < info->type_param_count; ++i)
         payload_substitute(&info->type_params[i], def, arguments);
+    for (int i = 0; info->tuple_elements && i < info->tuple_element_count; ++i) {
+        payload_substitute(&info->tuple_elements[i], def, arguments);
+        TypeInfo *element = info->tuple_elements[i];
+        if (info->tuple_types) info->tuple_types[i] = element->base_type;
+        if (info->tuple_type_names) {
+            free(info->tuple_type_names[i]);
+            info->tuple_type_names[i] = payload_name(element->generic_name);
+        }
+    }
+    FunctionSignature *sig = info->fn_sig;
+    if (sig) {
+        if (!sig->param_type_info)
+            sig->param_type_info = payload_alloc((size_t)sig->param_count, sizeof(TypeInfo *));
+        for (int i = 0; i < sig->param_count; ++i) {
+            if (!sig->param_type_info[i]) {
+                TypeInfo view = {.base_type=sig->param_types[i],
+                    .generic_name=sig->param_struct_names ? sig->param_struct_names[i] : NULL};
+                sig->param_type_info[i] = copy_payload_type_info(&view);
+            }
+            payload_substitute(&sig->param_type_info[i], def, arguments);
+            sig->param_types[i] = sig->param_type_info[i]->base_type;
+            if (sig->param_struct_names) {
+                free(sig->param_struct_names[i]);
+                sig->param_struct_names[i] = payload_name(sig->param_type_info[i]->generic_name);
+            }
+        }
+        if (!sig->return_type_info) {
+            TypeInfo view = {.base_type=sig->return_type, .generic_name=sig->return_struct_name,
+                             .fn_sig=sig->return_fn_sig};
+            sig->return_type_info = copy_payload_type_info(&view);
+        }
+        payload_substitute(&sig->return_type_info, def, arguments);
+        sig->return_type = sig->return_type_info->base_type;
+        free(sig->return_struct_name);
+        sig->return_struct_name = payload_name(sig->return_type_info->generic_name);
+        free_function_signature(sig->return_fn_sig);
+        sig->return_fn_sig = copy_function_signature(sig->return_type_info->fn_sig);
+    }
 }
 TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int field, const TypeInfo *arguments) {
     if (!def || arm < 0 || arm >= def->variant_count || field < 0 ||

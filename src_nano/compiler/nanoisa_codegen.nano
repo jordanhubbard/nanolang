@@ -1456,22 +1456,28 @@ fn nisa_union_arguments(name: string) -> array<string> {
     let mut args: array<string> = []
     let mut part: string = ""
     let mut depth: int = 0
+    let mut parentheses: int = 0
     let mut i: int = (+ start 1)
     while (< i (- length 1)) {
         let ch: string = (str_substring compact i 1)
         if (== ch "<") { set depth (+ depth 1) }
-        if (== ch ">") { set depth (- depth 1) if (< depth 0) { return [] } }
-        if (and (== ch ",") (== depth 0)) {
+        if (and (== ch ">") (!= (str_substring compact (- i 1) 1) "-")) { set depth (- depth 1) if (< depth 0) { return [] } }
+        if (== ch "(") { set parentheses (+ parentheses 1) }
+        if (== ch ")") { set parentheses (- parentheses 1) if (< parentheses 0) { return [] } }
+        if (and (== ch ",") (and (== depth 0) (== parentheses 0))) {
             if (== part "") { return [] }
             set args (array_push args part) set part ""
         } else { set part (+ part ch) }
         set i (+ i 1)
     }
-    if (or (!= depth 0) (== part "")) { return [] }
+    if (or (!= parentheses 0) (or (!= depth 0) (== part ""))) { return [] }
     return (array_push args part)
 }
 shadow nisa_union_arguments {
     let args: array<string> = (nisa_union_arguments "Choice<int,array<int>>")
+    let callbacks: array<string> = (nisa_union_arguments "Box<fn(int,bool)->fn(int)->bool,int>")
+    assert (== (array_length callbacks) 2)
+    assert (== (at callbacks 0) "fn(int,bool)->fn(int)->bool")
     assert (== (array_length args) 2) assert (== (at args 1) "array<int>")
     assert (== (array_length (nisa_union_arguments "Box<int><string>")) 0)
     assert (== (array_length (nisa_union_arguments "Box<int,>")) 0)
@@ -1555,7 +1561,7 @@ shadow nisa_union_concrete_field {
     assert (== (nisa_union_concrete_field (parser_get_union p 0) "Box<string>" 0) "string")
 }
 
-fn nisa_union_supported(parser: Parser, name: string) -> bool {
+fn nisa_union_supported_seen(parser: Parser, name: string, signatures: array<string>) -> bool {
     let index: int = (nisa_union_index parser name)
     if (< index 0) { return false }
     let definition: ASTUnion = (parser_get_union parser index)
@@ -1565,7 +1571,7 @@ fn nisa_union_supported(parser: Parser, name: string) -> bool {
     if (and (== definition.generic_param_count 0) (!= (nisa_compact_type name) definition.name)) { return false }
     let mut parameter: int = 0
     while (< parameter definition.generic_param_count) {
-        if (not (nisa_union_payload_type (at args parameter))) { return false }
+        if (not (or (nisa_union_payload_type (at args parameter)) (nisa_function_type_ok_seen parser (at args parameter) signatures))) { return false }
         let mut prior: int = 0
         while (< prior parameter) {
             if (== (at definition.generic_params prior) (at definition.generic_params parameter)) { return false }
@@ -1579,7 +1585,7 @@ fn nisa_union_supported(parser: Parser, name: string) -> bool {
     let mut i: int = 0
     while (< i count) {
         let t: string = (nisa_union_concrete_field definition name i)
-        if (not (nisa_union_payload_type t)) { return false }
+        if (not (or (nisa_union_payload_type t) (nisa_function_type_ok_seen parser t signatures))) { return false }
         set i (+ i 1)
     }
     set i 0
@@ -1599,6 +1605,15 @@ fn nisa_union_supported(parser: Parser, name: string) -> bool {
         set i (+ i 1)
     }
     return true
+}
+shadow nisa_union_supported_seen {
+    let tokens: List<LexerToken> = (tokenize_string "union Ops { Call { callback: fn(Ops)->int } } union Bad { Call { callback: fn(Missing)->int } }" "union.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "union.nano")
+    assert (nisa_union_supported_seen parser "Ops" [])
+    assert (not (nisa_union_supported_seen parser "Bad" []))
+}
+fn nisa_union_supported(parser: Parser, name: string) -> bool {
+    return (nisa_union_supported_seen parser name [])
 }
 shadow nisa_union_supported {
     let tokens: List<LexerToken> = (tokenize_string "union Choice { Yes { value: int }, No {} } union Nested { Item { value: Choice } }" "union.nano" (diag_list_new))
@@ -1702,7 +1717,7 @@ fn nisa_emit_union_context(parser: Parser, node_id: int, identity: string) -> st
         let expected: string = (nisa_union_concrete_field definition identity (+ offset field))
         let value: int = (at literal.field_value_ids i)
         let kind: int = (at literal.field_value_types i)
-        if (!= (nisa_expr_type parser value kind) expected) { return (nisa_fail "I require the declared union field type") }
+        if (and (not (nisa_function_type_ok parser expected)) (!= (nisa_expr_type parser value kind) expected)) { return (nisa_fail "I require the declared union field type") }
         set out (+ out (nisa_emit_expected_expr parser value kind expected))
         if (not nisa_ok) { return "" }
         let slot: int = (array_length nisa_names)
@@ -2375,7 +2390,7 @@ fn nisa_type_ok_seen(parser: Parser, t: string, signatures: array<string>) -> bo
     if (>= (nisa_opaque_index parser t) 0) { return true }
     if (str_starts_with (nisa_compact_type t) "fn(") { return (nisa_function_type_ok_seen parser t signatures) }
     if (nisa_tuple_type_ok_seen parser t signatures) { return true }
-    if (nisa_union_supported parser t) { return true }
+    if (nisa_union_supported_seen parser t signatures) { return true }
     if (>= (nisa_enum_index parser t) 0) { return true }
     if (and (str_starts_with t "array<") (str_ends_with t ">")) {
         let element: string = (str_substring t 6 (- (str_length t) 7))

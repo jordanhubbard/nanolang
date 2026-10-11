@@ -213,6 +213,32 @@ static void captured_array_aliases_and_instances(void) {
     nvm_callable_destroy(&a); nvm_module_free(m);
 }
 
+/* I refine the surviving aggregate only when its exact tag comparison is
+ * entered at DUP. An alternate entry at the branch keeps both targets. */
+static void variant_guard_targets(void) {
+    for (int bypass = 0; bypass < 2; ++bypass) {
+        char source[4096];
+        snprintf(source, sizeof source,
+            ".function main 0 1 0 void 0\nPUSH_BOOL 0\nCALL choose\n%s"
+            "DUP\nAGG_TAG\nPUSH_I64 0\nEQ\ncondition:\nJMP_FALSE other\n"
+            "STORE_LOCAL 0\nPUSH_I64 7\nLOAD_LOCAL 0\nAGG_GET 0\n"
+            "CALL_INDIRECT 1 1\nPOP\nRET\nother:\nPOP\nRET\n%s.end\n"
+            ".function choose 1 1 0 union 1\nLOAD_LOCAL 0\nJMP_FALSE second_arm\n"
+            "FUNCREF first\nAGG_PACK 1 0 0 1\nRET\nsecond_arm:\n"
+            "FUNCREF second\nAGG_PACK 1 0 1 1\nRET\n.end\n" LEAVES,
+            bypass ? "PUSH_BOOL 1\nJMP_TRUE bypass\n" : "",
+            bypass ? "bypass:\nPUSH_BOOL 1\nJMP condition\n" : "");
+        NvmModule *m = assemble(source, 1);
+        if (!m) continue;
+        NvmCallableAnalysis a;
+        if (analyze(m, &a)) {
+            const uint32_t want[] = {2, 3};
+            targets(m, &a, 0, 0, want, bypass ? 2 : 1);
+        }
+        nvm_callable_destroy(&a); nvm_module_free(m);
+    }
+}
+
 static void malformed_captures(void) {
     const char *cases[] = {
         ".function main 0 0 0 void 0\nCLOSURE_NEW 99 0\nPOP\nRET\n.end\n",
@@ -252,6 +278,7 @@ int main(int argc, char **argv) {
     globals_loops_and_separate_producers(); aggregate_and_array_aliases();
     unresolved_and_refused(); stack_loop_and_zero_target(); map_aliases();
     captured_targets(); captured_array_aliases_and_instances(); malformed_captures();
+    variant_guard_targets();
     if (argc > 1) source_fixture(argv[1]);
     printf("Callable constraints: %d passed, %d failed\n", passed, failed);
     return failed != 0;

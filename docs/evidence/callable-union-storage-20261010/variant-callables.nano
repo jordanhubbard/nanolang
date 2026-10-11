@@ -1,0 +1,7 @@
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 1) 1)}
+union Choice {Number {callback:fn(int)->int}, Flag {callback:fn(bool)->bool}}
+fn select(flag:bool)->Choice {if flag {return Choice.Flag {callback:identity}} return Choice.Number {callback:identity}}
+shadow select {match (select true) {Flag(p)=>{let f:fn(bool)->bool=p.callback assert (f true)} Number(p)=>{assert false}}}
+fn main()->int {match (select false) {Number(p)=>{let f:fn(int)->int=p.callback assert (== (f 7) 7)} Flag(p)=>{assert false}} return 0}
+shadow main {assert (== (main) 0)}

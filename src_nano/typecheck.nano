@@ -4103,13 +4103,13 @@ fn check_record_callable_fields(parser: Parser, literal: ASTStructLiteral, symbo
                 let mut f: int = 0
                 while (< f record.field_count) {
                     let spelling: string = (at record.field_types f)
-                    if (and (== (at literal.field_names i) (at record.field_names f)) (str_contains spelling "fn(")) {
+                    if (== (at literal.field_names i) (at record.field_names f)) {
                         let id: int = (at literal.field_value_ids i)
                         let kind: int = (at literal.field_value_types i)
                         let raw: NSType = (check_expr_node parser id kind symbols diags file_name)
                         let expected: NSType = (type_from_string_with_parser parser spelling)
                         let checked: NSType = (check_constructor_argument parser id kind raw expected symbols diags file_name)
-                        if (not (types_equal checked expected)) {
+                        if (and (or (str_contains spelling "fn(") (== expected.kind TypeKind.TYPE_UNION)) (not (types_equal checked expected))) {
                             (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require the complete declared callback storage signature." (Diagnostics.diag_location file_name literal.line literal.column)))
                         }
                     }
@@ -5195,7 +5195,15 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
             element_type_name: ""
         }
     } else { (print "") }
-    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (check_union_construct parser node_id) } else { (print "") }
+    if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
+        let actual: NSType = (check_union_construct parser node_id)
+        let identity: string = (type_to_string actual)
+        let index: int = (resource_union_index parser (resource_type_identity parser identity 0))
+        if (and (>= index 0) (or (== (parser_get_union parser index).generic_param_count 0) (> (array_length (tc_generic_arguments identity)) 0))) {
+            return (check_constructor_argument parser node_id node_type actual actual symbols diags file_name)
+        }
+        return actual
+    } else { (print "") }
     if (== node_type ParseNodeType.PNODE_MATCH) { return (check_match_expr parser node_id symbols diags file_name) } else { (print "") }
     if (== node_type ParseNodeType.PNODE_IF) {
         /* If-expression: type check both branches and return their common type */
@@ -5584,7 +5592,7 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
         let init_context: NSType = (check_array_literal_context parser let_node.value let_node.value_type init_type_raw declared_type symbols diags file_name)
         let init_type_hint: NSType = (apply_value_type_hint parser let_node.value let_node.value_type init_context declared_type)
         let mut init_type: NSType = (apply_return_type_hint init_type_hint declared_type)
-        if (or (== declared_type.kind TypeKind.TYPE_FUNCTION) (== declared_type.kind TypeKind.TYPE_TUPLE)) {
+        if (or (== declared_type.kind TypeKind.TYPE_UNION) (or (== declared_type.kind TypeKind.TYPE_FUNCTION) (== declared_type.kind TypeKind.TYPE_TUPLE))) {
             set init_type (check_constructor_argument parser let_node.value let_node.value_type init_type_hint declared_type symbols diags file_name)
         }
         # I accept only literal zero as a declared opaque null, as at call sites.
@@ -5627,6 +5635,10 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
 }
 
 shadow check_let_statement {
+    let stored: Parser = (resource_test_parser "union Choice {Some {callback:fn(int)->int}} fn unused()->void {let c:Choice=Choice.Some {callback:true}}")
+    let storage_diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (check_let_statement stored (parser_get_let stored 0) 0 [] storage_diags "union.nano")
+    assert (> (list_CompilerDiagnostic_length storage_diags) 0)
     let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let value: array<int> = (map [1] convert) return 0 }" "map.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "map.nano")
     let params: array<NSType> = [(type_int)]
@@ -5680,7 +5692,7 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
         let expr_context: NSType = (check_array_literal_context parser ret_node.value ret_node.value_type expr_t_raw expected_type symbols diags file_name)
         let expr_t_hint: NSType = (apply_value_type_hint parser ret_node.value ret_node.value_type expr_context expected_type)
         let mut expr_t: NSType = (apply_return_type_hint expr_t_hint expected_type)
-        if (or (== expected_type.kind TypeKind.TYPE_FUNCTION) (== expected_type.kind TypeKind.TYPE_TUPLE)) {
+        if (or (== expected_type.kind TypeKind.TYPE_UNION) (or (== expected_type.kind TypeKind.TYPE_FUNCTION) (== expected_type.kind TypeKind.TYPE_TUPLE))) {
             set expr_t (check_constructor_argument parser ret_node.value ret_node.value_type expr_t_hint expected_type symbols diags file_name)
         }
         if (and (tc_is_opaque_name parser (type_to_string expected_type)) (== ret_node.value_type ParseNodeType.PNODE_NUMBER)) {
@@ -5756,7 +5768,7 @@ fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>,
             let rhs_context: NSType = (check_array_literal_context parser set_node.value set_node.value_type rhs_t_raw sym.sym_type symbols diags file_name)
             let rhs_t_hint: NSType = (apply_value_type_hint parser set_node.value set_node.value_type rhs_context sym.sym_type)
             let mut rhs_t: NSType = (apply_return_type_hint rhs_t_hint sym.sym_type)
-            if (or (== sym.sym_type.kind TypeKind.TYPE_FUNCTION) (== sym.sym_type.kind TypeKind.TYPE_TUPLE)) {
+            if (or (== sym.sym_type.kind TypeKind.TYPE_UNION) (or (== sym.sym_type.kind TypeKind.TYPE_FUNCTION) (== sym.sym_type.kind TypeKind.TYPE_TUPLE))) {
                 set rhs_t (check_constructor_argument parser set_node.value set_node.value_type rhs_t_hint sym.sym_type symbols diags file_name)
             }
             if (not (types_equal rhs_t sym.sym_type)) {
@@ -6840,6 +6852,15 @@ pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_s
         set i (+ i 1)
     }
     
+    # I validate global initializers after every function signature is available.
+    set gli 0
+    while (< gli global_let_count) {
+        if (not (at local_lets gli)) {
+            (check_let_statement parser (parser_get_let parser gli) gli symbols env.diagnostics file_name)
+        }
+        set gli (+ gli 1)
+    }
+
     /* Phase 2: NSType check each function body */
     set i 0
     while (< i func_count) {

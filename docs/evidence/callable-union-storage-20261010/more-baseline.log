@@ -1,0 +1,18 @@
+{"case": "tuple", "driver": "native", "compile": 0, "stdout": "", "stderr": "", "preserved": false, "execute": 0, "execute_stdout": "", "execute_stderr": ""}
+{"case": "tuple", "driver": "virt", "compile": 0, "stdout": "", "stderr": "", "preserved": false, "execute": 0, "execute_stdout": "", "execute_stderr": ""}
+{"case": "tuple", "driver": "selfhost", "compile": 0, "stdout": "", "stderr": "", "preserved": false, "execute": 0, "execute_stdout": "", "execute_stderr": ""}
+{"case": "union", "driver": "native", "compile": 1, "stdout": "", "stderr": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_87318_union-native.c:1732:6: error: type name requires a specifier or qualifier\n 1732 |      callback;\n      |      ^\n/private/tmp/nl51-context-storage/union.nano:4:85: error: use of undeclared identifier 'nl_identity'\n    4 |     nl_Choice c = (nl_Choice){ .tag = nl_Choice_TAG_Some, .data.Some = {.callback = nl_identity}};\n      |                                                                                     ^~~~~~~~~~~\n2 errors generated.\nC compilation failed\n", "preserved": true}
+{"case": "union", "driver": "virt", "compile": 1, "stdout": "", "stderr": "I could not compile shadows at line 4: undefined variable 'identity'\n", "preserved": true}
+{"case": "union", "driver": "selfhost", "compile": 1, "stdout": "I cannot lower this checked program: unsupported local type Choice\n", "stderr": "", "preserved": true}
+{"case": "generic-union", "driver": "native", "compile": 1, "stdout": "", "stderr": "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_87376_generic-union-native.c:1732:6: error: type name requires a specifier or qualifier\n 1732 |      value;\n      |      ^\n1 error generated.\nC compilation failed\n", "preserved": true}
+{"case": "generic-union", "driver": "virt", "compile": 0, "stdout": "", "stderr": "", "preserved": false, "execute": 0, "execute_stdout": "", "execute_stderr": ""}
+{"case": "generic-union", "driver": "selfhost", "compile": 1, "stdout": "I cannot lower this checked program: unsupported local type Choice<fn(int)->int>\n", "stderr": "", "preserved": true}
+{"case": "global", "driver": "native", "compile": 0, "stdout": "", "stderr": "", "preserved": false, "execute": 0, "execute_stdout": "", "execute_stderr": ""}
+{"case": "global", "driver": "virt", "compile": 0, "stdout": "", "stderr": "", "preserved": false, "execute": 0, "execute_stdout": "", "execute_stderr": ""}
+{"case": "global", "driver": "selfhost", "compile": 0, "stdout": "", "stderr": "", "preserved": false, "execute": 0, "execute_stdout": "", "execute_stderr": ""}
+{"case": "nested-array", "driver": "native", "compile": 0, "stdout": "", "stderr": "", "preserved": false, "execute": 0, "execute_stdout": "", "execute_stderr": ""}
+{"case": "nested-array", "driver": "virt", "compile": 0, "stdout": "", "stderr": "", "preserved": false, "execute": 0, "execute_stdout": "", "execute_stderr": ""}
+{"case": "nested-array", "driver": "selfhost", "compile": 0, "stdout": "", "stderr": "", "preserved": false, "execute": 0, "execute_stdout": "", "execute_stderr": ""}
+{"case": "tuple-return", "driver": "native", "compile": 0, "stdout": "", "stderr": "", "preserved": false, "execute": 0, "execute_stdout": "", "execute_stderr": ""}
+{"case": "tuple-return", "driver": "virt", "compile": 0, "stdout": "", "stderr": "", "preserved": false, "execute": 0, "execute_stdout": "", "execute_stderr": ""}
+{"case": "tuple-return", "driver": "selfhost", "compile": 0, "stdout": "", "stderr": "", "preserved": false, "execute": 0, "execute_stdout": "", "execute_stderr": ""}

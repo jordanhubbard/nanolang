@@ -1,0 +1,265 @@
+FFFFFFFF.FFFFFFFFFFFF
+======================================================================
+FAIL: test_generic_payload (tests.test_callable_union_storage.CallableUnionStorage.test_generic_payload) (producer='c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-olriu653/out.nvm': I require resolved indirect-call targets in function 0 at offset 76
+
+
+======================================================================
+FAIL: test_generic_payload (tests.test_callable_union_storage.CallableUnionStorage.test_generic_payload) (producer='whole')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-olriu653/out.nvm': I require resolved indirect-call targets in function 0 at offset 76
+
+
+======================================================================
+FAIL: test_generic_payload (tests.test_callable_union_storage.CallableUnionStorage.test_generic_payload) (producer='program')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-olriu653/out.nvm': I require resolved indirect-call targets in function 0 at offset 76
+
+
+======================================================================
+FAIL: test_generic_payload (tests.test_callable_union_storage.CallableUnionStorage.test_generic_payload) (producer='raw')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-olriu653/out.nvm': I require resolved indirect-call targets in function 4 at offset 76
+
+
+======================================================================
+FAIL: test_generic_signature_field (tests.test_callable_union_storage.CallableUnionStorage.test_generic_signature_field) (producer='c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-c95cbgzs/out.nvm': I require resolved indirect-call targets in function 0 at offset 76
+
+
+======================================================================
+FAIL: test_generic_signature_field (tests.test_callable_union_storage.CallableUnionStorage.test_generic_signature_field) (producer='whole')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-c95cbgzs/out.nvm': I require resolved indirect-call targets in function 0 at offset 76
+
+
+======================================================================
+FAIL: test_generic_signature_field (tests.test_callable_union_storage.CallableUnionStorage.test_generic_signature_field) (producer='program')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-c95cbgzs/out.nvm': I require resolved indirect-call targets in function 0 at offset 76
+
+
+======================================================================
+FAIL: test_generic_signature_field (tests.test_callable_union_storage.CallableUnionStorage.test_generic_signature_field) (producer='raw')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-c95cbgzs/out.nvm': I require resolved indirect-call targets in function 4 at offset 76
+
+
+======================================================================
+FAIL: test_ordinary_payload (tests.test_callable_union_storage.CallableUnionStorage.test_ordinary_payload) (producer='c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-t17tm2xx/out.nvm': I require resolved indirect-call targets in function 0 at offset 76
+
+
+======================================================================
+FAIL: test_ordinary_payload (tests.test_callable_union_storage.CallableUnionStorage.test_ordinary_payload) (producer='whole')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-t17tm2xx/out.nvm': I require resolved indirect-call targets in function 0 at offset 76
+
+
+======================================================================
+FAIL: test_ordinary_payload (tests.test_callable_union_storage.CallableUnionStorage.test_ordinary_payload) (producer='program')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-t17tm2xx/out.nvm': I require resolved indirect-call targets in function 0 at offset 76
+
+
+======================================================================
+FAIL: test_ordinary_payload (tests.test_callable_union_storage.CallableUnionStorage.test_ordinary_payload) (producer='raw')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-t17tm2xx/out.nvm': I require resolved indirect-call targets in function 4 at offset 76
+
+
+======================================================================
+FAIL: test_recursive_callable_signature (tests.test_callable_union_storage.CallableUnionStorage.test_recursive_callable_signature) (producer='c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-re3tijcp/out.nvm': I require resolved indirect-call targets in function 1 at offset 77
+
+
+======================================================================
+FAIL: test_recursive_callable_signature (tests.test_callable_union_storage.CallableUnionStorage.test_recursive_callable_signature) (producer='whole')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-re3tijcp/out.nvm': I require resolved indirect-call targets in function 1 at offset 77
+
+
+======================================================================
+FAIL: test_recursive_callable_signature (tests.test_callable_union_storage.CallableUnionStorage.test_recursive_callable_signature) (producer='program')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-re3tijcp/out.nvm': I require resolved indirect-call targets in function 0 at offset 77
+
+
+======================================================================
+FAIL: test_recursive_callable_signature (tests.test_callable_union_storage.CallableUnionStorage.test_recursive_callable_signature) (producer='raw')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-re3tijcp/out.nvm': I require resolved indirect-call targets in function 6 at offset 77
+
+
+======================================================================
+FAIL: test_returned_union_and_multiple_signatures (tests.test_callable_union_storage.CallableUnionStorage.test_returned_union_and_multiple_signatures) (producer='c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-at0dz1fs/out.nvm': I require resolved indirect-call targets in function 1 at offset 56
+
+
+======================================================================
+FAIL: test_returned_union_and_multiple_signatures (tests.test_callable_union_storage.CallableUnionStorage.test_returned_union_and_multiple_signatures) (producer='whole')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-at0dz1fs/out.nvm': I require resolved indirect-call targets in function 1 at offset 56
+
+
+======================================================================
+FAIL: test_returned_union_and_multiple_signatures (tests.test_callable_union_storage.CallableUnionStorage.test_returned_union_and_multiple_signatures) (producer='program')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-at0dz1fs/out.nvm': I require resolved indirect-call targets in function 0 at offset 56
+
+
+======================================================================
+FAIL: test_returned_union_and_multiple_signatures (tests.test_callable_union_storage.CallableUnionStorage.test_returned_union_and_multiple_signatures) (producer='raw')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 42, in execute
+    self.command([ROOT/'bin/nvm2c', module, '-o', c])
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_callable_union_storage.py", line 17, in command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-callable-union-at0dz1fs/out.nvm': I require resolved indirect-call targets in function 1 at offset 49
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 7.442s
+
+FAILED (failures=20)
