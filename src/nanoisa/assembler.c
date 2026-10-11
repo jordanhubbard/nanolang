@@ -320,7 +320,7 @@ static bool operand_symbol_kind(uint8_t opcode, int operand_index, SymbolKind *k
                 *kind = SYMBOL_FUNCTION; return true;
             case OP_CALL_EXTERN:
                 *kind = SYMBOL_IMPORT; return true;
-            case OP_PUSH_STR:
+            case OP_PUSH_STR: case OP_HANDLER_PUSH: case OP_PERFORM:
                 *kind = SYMBOL_CONSTANT; return true;
             case OP_STRUCT_NEW: case OP_STRUCT_LITERAL: case OP_UNION_CONSTRUCT: case OP_ENUM_VAL:
                 *kind = SYMBOL_TYPE; return true;

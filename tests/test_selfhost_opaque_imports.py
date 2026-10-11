@@ -34,13 +34,13 @@ class OpaqueImports(unittest.TestCase):
                 with self.subTest(imported=imported, compiler=str(compiler)):
                     source = self.work / "main.nano"
                     output = self.work / "main.nvm"
-                    good = prefix + "fn main()->int { let handle:Handle = 0 return 0 } shadow main { assert true }\n"
+                    good = prefix + "fn main()->int { let opaque_value:Handle = 0 return 0 } shadow main { assert true }\n"
                     source.write_text(good)
                     self.command(compiler, source, "--emit-nvm", "-o", output)
                     self.command(ROOT / "bin/nano_vm", "--verify-only", output)
                     self.command(ROOT / "bin/nano_vm", output)
                     original = output.read_bytes()
-                    source.write_text(good.replace("handle:Handle = 0", "handle:Handle = 1"))
+                    source.write_text(good.replace("opaque_value:Handle = 0", "opaque_value:Handle = 1"))
                     self.command(compiler, source, "--emit-nvm", "-o", output, success=False)
                     self.assertEqual(output.read_bytes(), original)
                     source.write_text(good)
@@ -49,7 +49,7 @@ class OpaqueImports(unittest.TestCase):
 
     def test_unknown_opaque_name_refused(self):
         source = self.work / "unknown.nano"
-        source.write_text("fn main()->int { let handle:Missing = 0 return 0 } shadow main { assert true }\n")
+        source.write_text("fn main()->int { let opaque_value:Missing = 0 return 0 } shadow main { assert true }\n")
         for compiler in self.compilers:
             with self.subTest(compiler=str(compiler)):
                 output = self.work / "unknown.nvm"

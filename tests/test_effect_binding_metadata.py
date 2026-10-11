@@ -24,7 +24,10 @@ class EffectBindingMetadata(unittest.TestCase):
                           source_path, '--emit-nvm', '-o', module])
             # The probe checks instruction boundaries, lookup endpoints, original-wire
             # equality and two canonical assembly cycles for every retained record.
-            lines = self.checked([ROOT/'obj/test_local_bindings', module, '--require-debug'])
+            probe = [ROOT/'obj/test_local_bindings', module]
+            if os.environ.get('NANOLANG_EFFECT_NAME_REQUIRE_DEBUG', '1') == '1':
+                probe.append('--require-debug')
+            lines = self.checked(probe)
             bindings = [(function, int(slot), int(begin), int(end), name)
                         for function, slot, begin, end, name in
                         (line.split() for line in lines.splitlines())]

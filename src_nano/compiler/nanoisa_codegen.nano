@@ -1,3 +1,4 @@
+from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
 import "src_nano/compiler/generic_types.nano"
 from "src_nano/compiler/function_signature.nano" import function_type_parts
 from "src_nano/compiler/owner_selection.nano" import nanoisa_selected_ownership
@@ -242,6 +243,7 @@ let mut nisa_err: string = ""
 let mut nisa_label: int = 0
 let mut nisa_param_count: int = 0
 let mut nisa_has_par: bool = false
+let mut nisa_effect_depth: int = 0
 let mut nisa_has_callables: bool = false
 let mut nisa_void_return: bool = false
 let mut nisa_return_type: string = ""
@@ -529,6 +531,7 @@ fn nisa_reset() -> int {
     set nisa_label 0
     set nisa_param_count 0
     set nisa_has_par false
+    set nisa_effect_depth 0
     set nisa_void_return false
     set nisa_return_type ""
     set nisa_loop_top ""
@@ -651,6 +654,7 @@ fn nisa_emit_lambda(parser: Parser, index: int) -> string {
         let saved_slots: array<int> = nisa_named_slots
         let saved_params: int = nisa_param_count
         let saved_par: bool = nisa_has_par
+        let saved_effect_depth: int = nisa_effect_depth
         let saved_void: bool = nisa_void_return
         let saved_return: string = nisa_return_type
         let saved_top: string = nisa_loop_top
@@ -676,6 +680,7 @@ fn nisa_emit_lambda(parser: Parser, index: int) -> string {
         set nisa_named_slots saved_slots
         set nisa_param_count saved_params
         set nisa_has_par saved_par
+        set nisa_effect_depth saved_effect_depth
         set nisa_void_return saved_void
         set nisa_return_type saved_return
         set nisa_loop_top saved_top
@@ -3801,6 +3806,20 @@ shadow nisa_push_container_type {
 }
 
 fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
+    if (== node_type ParseNodeType.PNODE_HANDLE_EXPR) {
+        let node: ASTEffectHandle = (at parser.handlers node_id)
+        return (nisa_effect_value_type parser node.body_id node.body_type)
+    }
+    if (== node_type ParseNodeType.PNODE_EFFECT_OP) {
+        let node: ASTEffectPerform = (at parser.performs node_id)
+        let owner: int = (effect_decl_index parser node.effect_name)
+        if (< owner 0) { return "" }
+        let declaration: ASTEffectDecl = (at parser.effects owner)
+        let operation: int = (effect_operation_index declaration node.operation_name)
+        if (< operation 0) { return "" }
+        return (at declaration.return_types operation)
+    }
+
     if (== node_type ParseNodeType.PNODE_MATCH) { return (nisa_match_result_type parser node_id) }
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (parser_get_union_construct parser node_id).union_name }
     if (== node_type ParseNodeType.PNODE_BLOCK) {
@@ -5724,6 +5743,8 @@ shadow nisa_emit_logical_binary {
 }
 
 fn nisa_emit_expr(parser: Parser, node_id: int, node_type: int) -> string {
+    if (== node_type ParseNodeType.PNODE_EFFECT_OP) { return (nisa_effect_perform parser (at parser.performs node_id)) }
+    if (== node_type ParseNodeType.PNODE_HANDLE_EXPR) { return (nisa_effect_handle parser (at parser.handlers node_id)) }
     if (== node_type ParseNodeType.PNODE_MATCH) { return (nisa_emit_match_value parser node_id) }
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) { return (nisa_emit_union parser node_id) }
     if (== node_type ParseNodeType.PNODE_FLOAT) {
@@ -6381,7 +6402,8 @@ shadow nisa_local_name_begin {
 
 fn nisa_emit_typed_let(parser: Parser, binding: ASTLet, value_type: string) -> string {
     if (not nisa_ok) { return "" }
-    if (not (nisa_type_ok parser value_type)) {
+    let effect_void: bool = (and (== value_type "void") (or (== binding.value_type ParseNodeType.PNODE_HANDLE_EXPR) (== binding.value_type ParseNodeType.PNODE_EFFECT_OP)))
+    if (and (not effect_void) (not (nisa_type_ok parser value_type))) {
         return (nisa_fail (+ "unsupported local type " value_type))
     }
     let value: string = (nisa_emit_expected_expr parser binding.value binding.value_type value_type)
@@ -6567,6 +6589,7 @@ shadow nisa_emit_par {
 }
 
 fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
+    if (or (== stmt.node_type ParseNodeType.PNODE_EFFECT_OP) (== stmt.node_type ParseNodeType.PNODE_HANDLE_EXPR)) { return (+ (nisa_emit_expr parser stmt.node_id stmt.node_type) (nisa_line "POP")) }
     if (== stmt.node_type ParseNodeType.PNODE_MATCH) { return (nisa_emit_match parser stmt.node_id) }
     if (== stmt.node_type ParseNodeType.PNODE_BLOCK) {
         let block: ASTBlock = (parser_get_block parser stmt.node_id)
@@ -6673,6 +6696,7 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
                         return (nisa_fail (+ "undefined function " function_name))
                     } else {
                         (nisa_require_function (nisa_fn_index parser function_name))
+                        if (> nisa_effect_depth 0) { return (+ (nisa_emit_call parser call) (nisa_line "RET")) }
                         return (+ (nisa_emit_call_args parser call) (nisa_line_imm "TAIL_CALL" function_name))
                     }
                 }
@@ -6918,6 +6942,7 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
     set nisa_capture_parent -1
     set nisa_param_count func.param_count
     set nisa_has_par false
+    set nisa_effect_depth 0
     set nisa_names []
     set nisa_types []
     set nisa_named_slots []
@@ -7604,4 +7629,178 @@ shadow nanoisa_emit_nasm {
     assert (str_contains (nanoisa_last_lowering_error) "reference IR")
     let control: string = (+ "f" "n main() -> int { let mut value: int = 1 set value 2 return value }")
     assert (str_contains (nanoisa_emit_nasm control) "STORE_LOCAL")
+}
+
+fn nisa_effect_scope_end(first: int) -> string {
+    let mut out: string = ""
+    let mut active: array<int> = []
+    let mut index: int = 0
+    while (< index (array_length nisa_named_slots)) {
+        let slot: int = (at nisa_named_slots index)
+        if (>= slot first) { set out (+ out (+ ".local_end " (+ (int_to_string slot) "\n"))) }
+        else { set active (array_push active slot) }
+        set index (+ index 1)
+    }
+    set nisa_named_slots active
+    set index first
+    while (< index (array_length nisa_names)) {
+        (array_set nisa_names index "")
+        set index (+ index 1)
+    }
+    return out
+}
+shadow nisa_effect_scope_end {
+    let reset: int = (nisa_reset)
+    set nisa_names ["outer", "inner"] set nisa_types ["int", "int"] set nisa_named_slots [0, 1]
+    assert (== (nisa_effect_scope_end 1) ".local_end 1\n")
+    assert (== (at nisa_names 0) "outer")
+    assert (== (at nisa_names 1) "")
+    assert (== (nisa_reset) 0)
+}
+
+fn nisa_effect_value_type(parser: Parser, id: int, kind: int) -> string {
+    if (!= kind ParseNodeType.PNODE_BLOCK) { return (nisa_expr_type parser id kind) }
+    let block: ASTBlock = (parser_get_block parser id)
+    let count: int = (list_ASTStmtRef_length block.statements)
+    if (== count 0) { return "void" }
+    let tail: ASTStmtRef = (list_ASTStmtRef_get block.statements (- count 1))
+    if (not (parser_is_value_expression tail.node_type)) { return "void" }
+    return (nisa_match_arm_type parser id kind)
+}
+shadow nisa_effect_value_type {
+    let reset: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "fn main()->void{}" "effect.nano" (diag_list_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "effect.nano")
+    assert (== (nisa_effect_value_type p (parser_get_function p 0).body ParseNodeType.PNODE_BLOCK) "void")
+}
+
+# I leave exactly one value for handle/resume, including a void sentinel.
+fn nisa_effect_value(parser: Parser, id: int, kind: int) -> string {
+    if (!= kind ParseNodeType.PNODE_BLOCK) {
+        let mut out: string = (nisa_emit_expr parser id kind)
+        if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+            if (not (nisa_call_has_result parser (nisa_get_call parser id kind))) { set out (+ out (nisa_line "PUSH_VOID")) }
+        }
+        return out
+    }
+    let first: int = (array_length nisa_names)
+    let block: ASTBlock = (parser_get_block parser id)
+    let count: int = (list_ASTStmtRef_length block.statements)
+    let mut out: string = ""
+    let mut value: bool = false
+    let mut index: int = 0
+    while (and nisa_ok (< index count)) {
+        let stmt: ASTStmtRef = (list_ASTStmtRef_get block.statements index)
+        set value (and (== index (- count 1)) (parser_is_value_expression stmt.node_type))
+        if value { set out (+ out (nisa_effect_value parser stmt.node_id stmt.node_type)) }
+        else { set out (+ out (nisa_emit_stmt parser stmt)) }
+        if (nisa_stmt_terminates parser stmt) { break }
+        set index (+ index 1)
+    }
+    if (not value) { set out (+ out (nisa_line "PUSH_VOID")) }
+    return (+ out (nisa_effect_scope_end first))
+}
+shadow nisa_effect_value {
+    let reset: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "fn main()->int{let x:int=7 x}" "effect.nano" (diag_list_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "effect.nano")
+    let text: string = (nisa_effect_value p (parser_get_function p 0).body ParseNodeType.PNODE_BLOCK)
+    assert (str_contains text "LOAD_LOCAL 0")
+    assert (str_contains text ".local_end 0")
+    assert (== (nisa_reset) 0)
+}
+
+fn nisa_effect_perform(parser: Parser, node: ASTEffectPerform) -> string {
+    let owner: int = (effect_decl_index parser node.effect_name)
+    if (< owner 0) { return (nisa_fail "I require a declared performed effect") }
+    let declaration: ASTEffectDecl = (at parser.effects owner)
+    let operation: int = (effect_operation_index declaration node.operation_name)
+    if (< operation 0) { return (nisa_fail "I require a declared performed operation") }
+    let count: int = (at declaration.parameter_counts operation)
+    if (!= count (array_length node.argument_ids)) { return (nisa_fail "I require the declared performed argument count") }
+    let first: int = (at declaration.parameter_starts operation)
+    let mut out: string = ""
+    let mut index: int = 0
+    while (< index count) {
+        set out (+ out (nisa_emit_expected_expr parser (at node.argument_ids index) (at node.argument_types index) (at declaration.parameter_types (+ first index))))
+        set index (+ index 1)
+    }
+    set nisa_ordinary_ok false
+    let key: string = (nisa_intern (+ node.effect_name (+ "." node.operation_name)))
+    return (+ out (nisa_line_imm "PERFORM" (+ key (+ " " (int_to_string count)))))
+}
+shadow nisa_effect_perform {
+    let text: string = (nanoisa_emit_nasm "effect Ask{ask:int->int} fn main()->int{return perform Ask.ask(3)}")
+    assert nisa_ok
+    assert (str_contains text "PERFORM")
+    assert (== (nisa_reset) 0)
+}
+
+fn nisa_effect_handle(parser: Parser, node: ASTEffectHandle) -> string {
+    let owner: int = (effect_handler_owner parser node)
+    if (< owner 0) { return (nisa_fail "I require one declared effect for a handler") }
+    let declaration: ASTEffectDecl = (at parser.effects owner)
+    let count: int = (array_length node.operation_names)
+    let mut starts: array<int> = []
+    let mut labels: array<string> = []
+    let mut out: string = ""
+    let mut arm: int = 0
+    while (< arm count) {
+        let operation: int = (effect_operation_index declaration (at node.operation_names arm))
+        let parameters: int = (at node.parameter_counts arm)
+        if (!= parameters (at declaration.parameter_counts operation)) { return (nisa_fail "I require the declared handler parameter count") }
+        let slot: int = (array_length nisa_names)
+        let label: string = (nisa_fresh)
+        set starts (array_push starts slot) set labels (array_push labels label)
+        let mut parameter: int = 0
+        while (< parameter parameters) {
+            set nisa_names (array_push nisa_names "")
+            set nisa_types (array_push nisa_types (at declaration.parameter_types (+ (at declaration.parameter_starts operation) parameter)))
+            set parameter (+ parameter 1)
+        }
+        let key: string = (nisa_intern (+ declaration.name (+ "." (at node.operation_names arm))))
+        set out (+ out (nisa_line_imm "HANDLER_PUSH" (+ key (+ " " (+ label (+ " " (+ (int_to_string slot) (+ " " (int_to_string parameters)))))))))
+        set arm (+ arm 1)
+    }
+    set nisa_effect_depth (+ nisa_effect_depth 1)
+    set out (+ out (nisa_effect_value parser node.body_id node.body_type))
+    set out (+ out (nisa_line_imm "HANDLER_POP" (int_to_string count)))
+    let end: string = (nisa_fresh)
+    set out (+ out (nisa_line_imm "JMP" end))
+    set arm 0
+    while (and nisa_ok (< arm count)) {
+        let first: int = (at starts arm)
+        let parameters: int = (at node.parameter_counts arm)
+        set out (+ out (nisa_label_line (at labels arm)))
+        let mut parameter: int = 0
+        while (< parameter parameters) {
+            let slot: int = (+ first parameter)
+            let name: string = (at node.parameter_names (+ (at node.parameter_starts arm) parameter))
+            (array_set nisa_names slot name)
+            set nisa_named_slots (array_push nisa_named_slots slot)
+            set out (+ out (nisa_local_name_begin slot name))
+            set parameter (+ parameter 1)
+        }
+        let saved_top: string = nisa_loop_top
+        let saved_end: string = nisa_loop_end
+        let saved_index: string = nisa_loop_index
+        set nisa_loop_top "" set nisa_loop_end "" set nisa_loop_index ""
+        set out (+ out (nisa_effect_value parser (at node.arm_ids arm) (at node.arm_types arm)))
+        set nisa_loop_top saved_top set nisa_loop_end saved_end set nisa_loop_index saved_index
+        set out (+ out (nisa_line "EFFECT_RESUME"))
+        # Reserved sibling slots are unnamed; only this arm's names are active.
+        set out (+ out (nisa_effect_scope_end first))
+        set arm (+ arm 1)
+    }
+    set nisa_effect_depth (- nisa_effect_depth 1)
+    set nisa_ordinary_ok false
+    return (+ out (nisa_label_line end))
+}
+shadow nisa_effect_handle {
+    let text: string = (nanoisa_emit_nasm "effect Ask{ask:int->int} fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{(+ value 1)}}}")
+    assert nisa_ok
+    assert (str_contains text "HANDLER_PUSH")
+    assert (str_contains text "EFFECT_RESUME")
+    assert (str_contains text "\"value\"")
+    assert (== (nisa_reset) 0)
 }

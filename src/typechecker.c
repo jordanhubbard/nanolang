@@ -5133,7 +5133,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     }
                 }
 
-                check_expression(expr->as.handle_expr.handler_bodies[i], env);
+                ASTNode *arm = expr->as.handle_expr.handler_bodies[i];
+                Type resumed_type = check_expression(arm, env);
+                if (op && !ast_always_returns(arm) && resumed_type != op->return_type) {
+                    emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 6,
+                        "I require a resumed handler value to match the operation result.",
+                        "Return the declared operation type or exit the lexical function.");
+                    g_typecheck_error_count++;
+                }
 
                 /* Pop handler-local symbols */
                 env->symbol_count = saved_count;

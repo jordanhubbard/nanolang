@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0040] I require distinct effect declarations. (/private/tmp/nl51-selfhost-effects/declaration-controls/duplicate_declaration.nano:1:26)

@@ -1,0 +1,24 @@
+import "src_nano/parser.nano"
+import "src_nano/typecheck.nano"
+import "src_nano/compiler/nanoisa_codegen.nano"
+import "src_nano/compiler/lexer.nano"
+fn main()->int {
+    let source:string="effect Ask{ask:int->int} fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{true}}}"
+    let tokens:List<LexerToken> = (tokenize_string source "debug.nano" (list_CompilerDiagnostic_new))
+    let p:Parser=(parse_program tokens (list_LexerToken_length tokens) "debug.nano")
+    (println p.has_error)
+    let handler:ASTEffectHandle=(at p.handlers 0)
+    (println handler.body_type)
+    (println (at handler.arm_types 0))
+    let block:ASTBlock=(parser_get_block p (at handler.arm_ids 0))
+    (println (list_ASTStmtRef_length block.statements))
+    let statement:ASTStmtRef=(list_ASTStmtRef_get block.statements 0)
+    (println statement.node_type)
+    let checked:TypecheckPhaseOutput=(typecheck_phase p "debug.nano")
+    (println checked.had_error)
+    let emitted:string=(nanoisa_emit_nasm source)
+    (println emitted)
+    (println (nanoisa_last_lowering_error))
+    return 0
+}
+shadow main {assert true}

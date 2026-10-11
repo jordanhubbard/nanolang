@@ -1,0 +1,60 @@
+# I share declaration identity between my self-hosted checker and NanoISA emitter.
+import "src_nano/parser.nano"
+from "src_nano/compiler/lexer.nano" import tokenize_string
+
+pub fn effect_decl_index(parser: Parser, name: string) -> int {
+    let mut index: int = 0
+    while (< index (array_length parser.effects)) {
+        if (== (at parser.effects index).name name) { return index }
+        set index (+ index 1)
+    }
+    return -1
+}
+shadow effect_decl_index {
+    let tokens: List<LexerToken> = (tokenize_string "effect Ask{ask:int->int}" "effect.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "effect.nano")
+    assert (== (effect_decl_index p "Ask") 0)
+    assert (== (effect_decl_index p "Missing") -1)
+}
+
+pub fn effect_operation_index(declaration: ASTEffectDecl, name: string) -> int {
+    let mut index: int = 0
+    while (< index (array_length declaration.operation_names)) {
+        if (== (at declaration.operation_names index) name) { return index }
+        set index (+ index 1)
+    }
+    return -1
+}
+shadow effect_operation_index {
+    let tokens: List<LexerToken> = (tokenize_string "effect Ask{ask:int->int}" "effect.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "effect.nano")
+    assert (== (effect_operation_index (at p.effects 0) "ask") 0)
+    assert (== (effect_operation_index (at p.effects 0) "missing") -1)
+}
+
+# Minus two denotes ambiguity; minus one denotes no matching declaration.
+pub fn effect_handler_owner(parser: Parser, handler: ASTEffectHandle) -> int {
+    if (== (array_length handler.operation_names) 0) { return -1 }
+    let mut found: int = -1
+    let mut index: int = 0
+    while (< index (array_length parser.effects)) {
+        let declaration: ASTEffectDecl = (at parser.effects index)
+        let mut matches: bool = true
+        let mut arm: int = 0
+        while (< arm (array_length handler.operation_names)) {
+            if (< (effect_operation_index declaration (at handler.operation_names arm)) 0) { set matches false }
+            set arm (+ arm 1)
+        }
+        if matches {
+            if (>= found 0) { return -2 }
+            set found index
+        }
+        set index (+ index 1)
+    }
+    return found
+}
+shadow effect_handler_owner {
+    let tokens: List<LexerToken> = (tokenize_string "effect A{ask:int->int} effect B{ask:int->int} fn main()->int{return handle {perform A.ask(1)} with {ask x->{x}}}" "effect.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "effect.nano")
+    assert (== (effect_handler_owner p (at p.handlers 0)) -2)
+}

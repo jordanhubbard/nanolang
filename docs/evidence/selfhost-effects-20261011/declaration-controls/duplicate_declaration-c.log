@@ -1,0 +1,7 @@
+-- E031 DUPLICATE EFFECT --- /private/tmp/nl51-selfhost-effects/declaration-controls/duplicate_declaration.nano
+Effect is already defined in this scope
+
+1| effect Ask{ask:int->int} effect Ask{ask:int->int}
+                            ^^^
+Hint: E013: effect names must be unique
+error: type check failed

@@ -312,7 +312,8 @@ typedef enum {
     PNODE_HANDLE_EXPR = 42,
     PNODE_ASYNC_FN = 43,
     PNODE_SERVICE_DECL = 44,
-    PNODE_LAMBDA = 45
+    PNODE_LAMBDA = 45,
+    PNODE_EFFECT_OP = 46
 } ParseNodeType;
 
 #ifndef DEFINED_nl_LexerToken
@@ -804,6 +805,55 @@ typedef struct nl_ASTTupleIndex {
 typedef nl_ASTTupleIndex ASTTupleIndex;
 #endif
 
+#ifndef DEFINED_nl_ASTEffectDecl
+#define DEFINED_nl_ASTEffectDecl
+typedef struct nl_ASTEffectDecl {
+    int node_type;
+    int line;
+    int column;
+    const char * name;
+    bool is_pub;
+    DynArray * operation_names;
+    DynArray * parameter_types;
+    DynArray * parameter_starts;
+    DynArray * parameter_counts;
+    DynArray * return_types;
+} nl_ASTEffectDecl;
+typedef nl_ASTEffectDecl ASTEffectDecl;
+#endif
+
+#ifndef DEFINED_nl_ASTEffectPerform
+#define DEFINED_nl_ASTEffectPerform
+typedef struct nl_ASTEffectPerform {
+    int node_type;
+    int line;
+    int column;
+    const char * effect_name;
+    const char * operation_name;
+    DynArray * argument_ids;
+    DynArray * argument_types;
+} nl_ASTEffectPerform;
+typedef nl_ASTEffectPerform ASTEffectPerform;
+#endif
+
+#ifndef DEFINED_nl_ASTEffectHandle
+#define DEFINED_nl_ASTEffectHandle
+typedef struct nl_ASTEffectHandle {
+    int node_type;
+    int line;
+    int column;
+    int body_id;
+    int body_type;
+    DynArray * operation_names;
+    DynArray * parameter_names;
+    DynArray * parameter_starts;
+    DynArray * parameter_counts;
+    DynArray * arm_ids;
+    DynArray * arm_types;
+} nl_ASTEffectHandle;
+typedef nl_ASTEffectHandle ASTEffectHandle;
+#endif
+
 #ifndef DEFINED_nl_Parser
 #define DEFINED_nl_Parser
 typedef struct nl_Parser {
@@ -884,6 +934,9 @@ typedef struct nl_Parser {
     int last_expr_node_type;
     List_ASTServiceDecl * services;
     int services_count;
+    DynArray * effects;
+    DynArray * performs;
+    DynArray * handlers;
 } nl_Parser;
 typedef nl_Parser Parser;
 #endif

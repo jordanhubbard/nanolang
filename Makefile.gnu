@@ -6755,3 +6755,8 @@ test-nvm2wasm: test-portable-read-execution
 test-portable-bytes-execution: portable-read-runtime nvm2wasm nanoisa_dump nano_vm nvm2c nano_virt
 	python3 -m unittest -v tests.test_portable_bytes_execution
 test-nvm2wasm: test-portable-bytes-execution
+
+.PHONY: test-selfhost-effects
+test-selfhost-effects: bootstrap nano_virt nano_vm
+	python3 tests/test_selfhost_effects.py
+test-units: test-selfhost-effects

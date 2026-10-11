@@ -12,14 +12,14 @@ class SelfhostUnionStorage(unittest.TestCase):
             ('Handle', 'Handle {value:7}'),
             ('array<Handle>', '[Handle {value:7}]'),
             ('List<Handle>', '(list_Handle_new)'),
-            ('Wrapper', 'Wrapper {handle:Handle {value:7}}'),
+            ('Wrapper', 'Wrapper {opaque_value:Handle {value:7}}'),
             ('Box<Handle>', 'Box<Handle>.Some {value:Handle {value:7}}'),
         ]
         for payload, value in cases:
             for mode in ([], ['--emit-nvm']):
                 with self.subTest(payload=payload, mode=mode), tempfile.TemporaryDirectory() as tmp:
                     source, output = Path(tmp)/'main.nano', Path(tmp)/'output'
-                    source.write_text('resource struct Handle {value:int}\nstruct Wrapper {handle:Handle}\nunion Box<T> {Some {value:T}}\n'
+                    source.write_text('resource struct Handle {value:int}\nstruct Wrapper {opaque_value:Handle}\nunion Box<T> {Some {value:T}}\n'
                         f'fn hold(value:Box<{payload}>)->int {{return 0}}\nshadow hold {{assert true}}\n'
                         f'fn main()->int {{let value:Box<{payload}> = Box<{payload}>.Some {{value:{value}}} return (hold value)}}\n'
                         'shadow main {assert (== (main) 0)}\n')

@@ -1,0 +1,3 @@
+NSType checking failed
+Diagnostics:
+  [E0040] I require distinct effect operation names. (/private/tmp/nl51-selfhost-effects/declaration-controls/duplicate_operation.nano:1:1)

@@ -1,3 +1,4 @@
+from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
 import "src_nano/compiler/generic_types.nano"
 from "src_nano/compiler/passive_graph.nano" import passive_order
 from "src_nano/compiler/passive_purity.nano" import par_closed_call
@@ -4862,6 +4863,8 @@ shadow tc_generic_call {
 }
 
 fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (== node_type ParseNodeType.PNODE_EFFECT_OP) { return (tc_effect_perform parser (at parser.performs node_id) symbols diags file_name) }
+    if (== node_type ParseNodeType.PNODE_HANDLE_EXPR) { return (tc_effect_handle parser (at parser.handlers node_id) symbols diags file_name) }
     if (== node_type ParseNodeType.PNODE_BLOCK) {
         let expected: NSType = (type_from_string_with_parser parser tc_enclosing_return)
         let checked: CheckedBlock = (check_block_value parser node_id symbols expected diags file_name tc_enclosing_function)
@@ -7034,6 +7037,7 @@ shadow tc_validate_layouts {
 
 pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_symbols: array<Symbol>, first_shadow: int) -> TypecheckPhaseOutput {
     let env: TypeEnvironment = (env_new)
+    (tc_effect_declarations parser env.diagnostics file_name)
     if (not (tc_validate_layouts parser env.diagnostics file_name)) {
         return (typecheck_output env.diagnostics 1 true)
     }
@@ -7280,12 +7284,144 @@ shadow typecheck {
 }
 
 shadow check_let_statement {
-    let valid: Parser = (resource_test_parser "opaque type Handle fn main()->int { let handle:Handle = 0 return 0 }")
+    let valid: Parser = (resource_test_parser "opaque type Handle fn main()->int { let opaque_value:Handle = 0 return 0 }")
+    assert (not valid.has_error)
     let accepted: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     (check_let_statement valid (parser_get_let valid 0) 0 [] accepted "opaque.nano")
     assert (== (list_CompilerDiagnostic_length accepted) 0)
-    let invalid: Parser = (resource_test_parser "opaque type Handle fn main()->int { let handle:Handle = 1 return 0 }")
+    let invalid: Parser = (resource_test_parser "opaque type Handle fn main()->int { let opaque_value:Handle = 1 return 0 }")
+    assert (not invalid.has_error)
     let rejected: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     (check_let_statement invalid (parser_get_let invalid 0) 0 [] rejected "opaque.nano")
     assert (> (list_CompilerDiagnostic_length rejected) 0)
+}
+
+fn tc_effect_error(diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int, message: string) -> void {
+    (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0040" message (Diagnostics.diag_location file_name line column)))
+}
+shadow tc_effect_error {
+    let diags: List<CompilerDiagnostic> = (Diagnostics.diag_list_new)
+    (tc_effect_error diags "effect.nano" 1 2 "I require a declared operation.")
+    assert (Diagnostics.diag_list_has_errors diags)
+}
+
+fn tc_effect_declarations(parser: Parser, diags: List<CompilerDiagnostic>, file_name: string) -> void {
+    let mut index: int = 0
+    while (< index (array_length parser.effects)) {
+        let declaration: ASTEffectDecl = (at parser.effects index)
+        if (!= (effect_decl_index parser declaration.name) index) {
+            (tc_effect_error diags file_name declaration.line declaration.column "I require distinct effect declarations.")
+        }
+        let mut operation: int = 0
+        while (< operation (array_length declaration.operation_names)) {
+            if (!= (effect_operation_index declaration (at declaration.operation_names operation)) operation) {
+                (tc_effect_error diags file_name declaration.line declaration.column "I require distinct effect operation names.")
+            }
+            let first: int = (at declaration.parameter_starts operation)
+            let count: int = (at declaration.parameter_counts operation)
+            let mut parameter: int = 0
+            while (< parameter count) {
+                let name: string = (at declaration.parameter_types (+ first parameter))
+                if (== name "void") { (tc_effect_error diags file_name declaration.line declaration.column "I use void only as the sole zero-argument effect marker.") }
+                set parameter (+ parameter 1)
+            }
+            set operation (+ operation 1)
+        }
+        set index (+ index 1)
+    }
+}
+shadow tc_effect_declarations {
+    let parsed: Parser = (resource_test_parser "effect A{ask:int->int} effect A{ask:int->int} fn main()->int{return 0}")
+    assert (typecheck_phase parsed "effect.nano").had_error
+}
+
+fn tc_effect_perform(parser: Parser, node: ASTEffectPerform, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let owner: int = (effect_decl_index parser node.effect_name)
+    if (< owner 0) {
+        (tc_effect_error diags file_name node.line node.column "I require a declared effect before performing an operation.")
+        return (type_void)
+    }
+    let declaration: ASTEffectDecl = (at parser.effects owner)
+    let operation: int = (effect_operation_index declaration node.operation_name)
+    if (< operation 0) {
+        (tc_effect_error diags file_name node.line node.column "I require an operation declared by this effect.")
+        return (type_void)
+    }
+    let count: int = (at declaration.parameter_counts operation)
+    if (!= count (array_length node.argument_ids)) {
+        (tc_effect_error diags file_name node.line node.column "I require the declared number of performed arguments.")
+        return (type_void)
+    }
+    let first: int = (at declaration.parameter_starts operation)
+    let mut parameter: int = 0
+    while (< parameter count) {
+        let id: int = (at node.argument_ids parameter)
+        let kind: int = (at node.argument_types parameter)
+        let raw: NSType = (check_expr_node parser id kind symbols diags file_name)
+        let expected: NSType = (type_from_string_with_parser parser (at declaration.parameter_types (+ first parameter)))
+        let checked: NSType = (check_constructor_argument parser id kind raw expected symbols diags file_name)
+        if (not (types_equal checked expected)) {
+            (tc_effect_error diags file_name node.line node.column "I require each performed argument to match its declared type.")
+        }
+        set parameter (+ parameter 1)
+    }
+    return (type_from_string_with_parser parser (at declaration.return_types operation))
+}
+shadow tc_effect_perform {
+    let bad: Parser = (resource_test_parser "effect Ask{ask:int->int} fn main()->int{return perform Ask.ask(true)}")
+    assert (typecheck_phase bad "effect.nano").had_error
+}
+
+fn tc_effect_handle(parser: Parser, node: ASTEffectHandle, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let owner: int = (effect_handler_owner parser node)
+    if (< owner 0) {
+        (tc_effect_error diags file_name node.line node.column "I require handler operations to identify one declared effect.")
+        return (type_void)
+    }
+    let declaration: ASTEffectDecl = (at parser.effects owner)
+    let mut arm: int = 0
+    while (< arm (array_length node.operation_names)) {
+        let name: string = (at node.operation_names arm)
+        let mut previous: int = 0
+        while (< previous arm) {
+            if (== (at node.operation_names previous) name) { (tc_effect_error diags file_name node.line node.column "I require one handler arm per operation.") }
+            set previous (+ previous 1)
+        }
+        let operation: int = (effect_operation_index declaration name)
+        let count: int = (at node.parameter_counts arm)
+        let first: int = (at node.parameter_starts arm)
+        let formal: int = (at declaration.parameter_starts operation)
+        if (!= count (at declaration.parameter_counts operation)) {
+            (tc_effect_error diags file_name node.line node.column "I require the declared number of handler parameters.")
+        } else {
+            let mut lexical: array<Symbol> = (env_copy_symbols symbols)
+            let mut parameter: int = 0
+            while (< parameter count) {
+                let pname: string = (at node.parameter_names (+ first parameter))
+                let ptype: NSType = (type_from_string_with_parser parser (at declaration.parameter_types (+ formal parameter)))
+                let mut prior: int = 0
+                while (< prior parameter) {
+                    if (== pname (at node.parameter_names (+ first prior))) { (tc_effect_error diags file_name node.line node.column "I require distinct parameters within a handler arm.") }
+                    set prior (+ prior 1)
+                }
+                set lexical (env_add_symbol lexical (symbol_new pname ptype false false 0 (empty_param_types) (type_void)))
+                set parameter (+ parameter 1)
+            }
+            let id: int = (at node.arm_ids arm)
+            let kind: int = (at node.arm_types arm)
+            let actual: NSType = (check_expr_node parser id kind lexical diags file_name)
+            let expected: NSType = (type_from_string_with_parser parser (at declaration.return_types operation))
+            if (and (not (parser_always_returns parser id kind)) (not (types_equal actual expected))) {
+                (tc_effect_error diags file_name node.line node.column "I require a resumed handler value to match the operation result.")
+            }
+        }
+        set arm (+ arm 1)
+    }
+    return (check_expr_node parser node.body_id node.body_type symbols diags file_name)
+}
+shadow tc_effect_handle {
+    let good: Parser = (resource_test_parser "effect Ask{ask:int->int} fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{(+ value 1)}}}")
+    assert (not (typecheck_phase good "effect.nano").had_error)
+    let bad: Parser = (resource_test_parser "effect Ask{ask:int->int} fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{true}}}")
+    assert (typecheck_phase bad "effect.nano").had_error
 }
