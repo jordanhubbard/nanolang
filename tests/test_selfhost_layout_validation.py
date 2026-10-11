@@ -19,10 +19,13 @@ CYCLES = [
 
 
 class SelfhostLayoutValidation(unittest.TestCase):
+    native_compiler = COMPILER
+    nvm_compiler = COMPILER
     def compile(self, source, mode, output, work):
         path = work/'main.nano'
         path.write_text(source+MAIN)
-        return subprocess.run([str(COMPILER), str(path), *mode, '-o', str(output)],
+        compiler = self.nvm_compiler if mode else self.native_compiler
+        return subprocess.run([str(compiler), str(path), *mode, '-o', str(output)],
                               cwd=ROOT, text=True, capture_output=True, timeout=120)
 
     def refuse(self, source, diagnostic, files=None):

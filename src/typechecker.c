@@ -7891,6 +7891,8 @@ static bool register_effect_declaration(ASTNode *item, Environment *env) {
     return true;
 }
 
+#include "layout_validation.h"
+
 bool type_check(ASTNode *program, Environment *env) {
     if (ast_has_service_declaration(program)) {
         fprintf(stderr, "I have not resolved File service declarations for this consumer.\n");
@@ -8470,6 +8472,8 @@ register_function_pass1:;
             }
         }
     }
+
+    if (!validate_declaration_layouts(program, env)) return false;
 
     /* I retain concrete field-only union instances after all declarations
      * are visible, including forward declarations in the same module. */
@@ -9247,6 +9251,8 @@ register_function_pass2:;
             }
         }
     }
+
+    if (!validate_declaration_layouts(program, env)) return false;
 
     /* I retain concrete field-only union instances after all declarations
      * are visible, including forward declarations in the same module. */
