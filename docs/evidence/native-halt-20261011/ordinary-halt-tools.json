@@ -1,0 +1,20 @@
+{
+  "before": {
+    "bin/nvm2c": "c6a4fd8d60fec5552d5e68a74aa731791b2428a15c838f505c9f370d1fbcabd6",
+    "bin/nano_virt": "35c6e5a9e5a0ad37b757ec7803567c84bd8591ddb5db94d01dc4644001518885",
+    "bin/nanoisa": "7cb72ab285237d2c7f7d046bcd9be2488e24bdf1d58485b67f354ccca6f5953f",
+    "bin/nano_vm": "8c34f16e963e5f3f2c720226b5aa25d8c77193ca7da4fe9a2874b3ab8ab61185",
+    "/private/tmp/nl51-native-effects/seed": "19b9d47a946c8f60ba9a6373bdf30cb8861fb5c9613c1187233cfe5df6b10b18",
+    "/private/tmp/nl51-native-effects/compiler": "dd9cb4b261907e34ac5d80b7a27b7fa013a035931bdb39202cb3e4c6a2bd71e6"
+  },
+  "after": {
+    "bin/nvm2c": "c6a4fd8d60fec5552d5e68a74aa731791b2428a15c838f505c9f370d1fbcabd6",
+    "bin/nano_virt": "35c6e5a9e5a0ad37b757ec7803567c84bd8591ddb5db94d01dc4644001518885",
+    "bin/nanoisa": "7cb72ab285237d2c7f7d046bcd9be2488e24bdf1d58485b67f354ccca6f5953f",
+    "bin/nano_vm": "8c34f16e963e5f3f2c720226b5aa25d8c77193ca7da4fe9a2874b3ab8ab61185",
+    "/private/tmp/nl51-native-effects/seed": "19b9d47a946c8f60ba9a6373bdf30cb8861fb5c9613c1187233cfe5df6b10b18",
+    "/private/tmp/nl51-native-effects/compiler": "dd9cb4b261907e34ac5d80b7a27b7fa013a035931bdb39202cb3e4c6a2bd71e6"
+  },
+  "unchanged": true,
+  "returncode": 0
+}

@@ -19,7 +19,7 @@ static void effect_destroy(Nvm2cBuf *b) {
 }
 
 static int effect_collect(Nvm2cBuf *b, const NvmModule *mod) {
-    if (!b->has_effects) return 1;
+    if (!b->has_unwind) return 1;
     b->effect_results = calloc(mod->string_count ? mod->string_count : 1, sizeof *b->effect_results);
     if (!b->effect_results) goto memory;
     b->effect_result_count = mod->string_count;

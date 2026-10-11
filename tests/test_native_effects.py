@@ -218,5 +218,29 @@ RET
 """)
 
 
+    def test_ordinary_halt_unwinds_without_handlers(self):
+        cases = [
+            ('integer', 'PUSH_I64 7\nHALT', '', 'CALL owner', 7),
+            ('suspended', 'HALT', 'PUSH_I64 7\n', 'CALL owner', 7),
+            ('indirect', 'PUSH_I64 7\nHALT', '', 'FUNCREF owner\nCALL_INDIRECT 0 1', 7),
+            ('string_cleanup', 'PUSH_STR a\nPUSH_STR b\nSTR_CONCAT\nHALT', '', 'CALL owner', 0),
+        ]
+        for name, body, prefix, call, expected in cases:
+            with self.subTest(case=name):
+                self.exercise(f""".string a "hello"
+.string b "world"
+.function owner 0 0 0 int 1
+{body}
+.end
+.function main 0 0 0 int 1
+{prefix}{call}
+POP
+{"POP" if prefix else ""}
+PUSH_I64 99
+RET
+.end
+""", expected=expected)
+
+
 if __name__ == '__main__':
     unittest.main()
