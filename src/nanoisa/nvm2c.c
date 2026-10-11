@@ -2620,6 +2620,12 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 nvm2c_fail(b, "I require a function value for CALL_INDIRECT in function %u at offset %zu", idx, start);
                 return 0;
             }
+            /* I constrain projected callable storage before choosing its C
+             * representation. A tagged global can hide the field's producer,
+             * but an indirect call still requires a function or closure. */
+            NvmShapeId callable_shape = callable.kind == NVM2C_VK_VALUE
+                ? shape_child(b, callable.shape, 0) : callable.shape;
+            if (!shape_type(b, callable_shape, NVM_SHAPE_FUNCTION)) return 0;
             uint16_t arity = ins.operands[0].u16;
             if (arity > (unsigned)sp || arity > NVM2C_MAX_LOCALS) {
                 nvm2c_fail(b, "I require every indirect-call argument"); return 0;

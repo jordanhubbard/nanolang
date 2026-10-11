@@ -2638,6 +2638,14 @@ static void compile_expr(CG *cg, ASTNode *node) {
     }
 
     case AST_IDENTIFIER: {
+        if (node->contextual_func_name) {
+            const FunctionSignature *expected = NULL;
+            for (int i = 0; i < cg->env->generic_func_instance_count; ++i) {
+                GenericFuncInstance *instance = &cg->env->generic_func_instances[i];
+                if (!strcmp(instance->mono_name, node->contextual_func_name)) { expected = instance->signature; break; }
+            }
+            if (cg_contextual_function(cg, node, expected)) break;
+        }
         const char *id = node->as.identifier;
         if (node->lambda_definition) {
             compile_nested_function(cg, node->lambda_definition);

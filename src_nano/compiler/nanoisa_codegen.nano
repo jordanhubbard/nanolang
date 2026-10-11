@@ -4013,7 +4013,10 @@ fn nisa_emit_tuple_literal(parser: Parser, node_id: int, expected: string) -> st
         let value_type: int = (at literal.element_types i)
         let actual: string = (nisa_expr_type parser value_id value_type)
         let required: string = (at elements i)
-        if (not (nisa_value_type_matches parser actual required)) {
+        let contextual: bool = (or (nisa_function_type_ok parser required)
+            (or (and (== value_type ParseNodeType.PNODE_TUPLE_LITERAL) (nisa_tuple_type_ok parser required))
+                (and (== value_type ParseNodeType.PNODE_ARRAY_LITERAL) (str_starts_with required "array<"))))
+        if (and (not contextual) (not (nisa_value_type_matches parser actual required))) {
             return (nisa_fail (+ "tuple element " (+ (int_to_string i) " does not match my declared type")))
         }
         set output (+ output (nisa_emit_expected_expr parser value_id value_type required))
@@ -4160,10 +4163,11 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         while (< i literal.element_count) {
             let value: ASTStmtRef = (parser_get_array_element parser (+ literal.element_start i))
             let nested_literal: bool = (and (str_starts_with element "array<") (== value.node_type ParseNodeType.PNODE_ARRAY_LITERAL))
-            if (and (not nested_literal) (not (nisa_array_value_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
+            let contextual_function: bool = (nisa_function_type_ok parser element)
+            if (and (not (or nested_literal contextual_function)) (not (nisa_array_value_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
                 return (nisa_fail "array element does not match my declared type")
             }
-            if nested_literal {
+            if (or nested_literal contextual_function) {
                 set output (+ output (nisa_emit_expected_expr parser value.node_id value.node_type element))
             } else {
                 set output (+ output (nisa_emit_expr parser value.node_id value.node_type))
@@ -4281,7 +4285,8 @@ fn nisa_emit_struct_literal(parser: Parser, node_id: int) -> string {
                         (and (str_starts_with expected "array<") (nisa_type_ok parser expected)))
                     let contextual_map: bool = (and (!= (nisa_map_value_type expected) "")
                         (nisa_is_map_constructor parser vid vty))
-                    if (and (not (or contextual_array contextual_map)) (not (nisa_value_type_matches parser (nisa_expr_type parser vid vty) expected))) {
+                    let contextual_function: bool = (nisa_function_type_ok parser expected)
+                    if (and (not (or contextual_function (or contextual_array contextual_map))) (not (nisa_value_type_matches parser (nisa_expr_type parser vid vty) expected))) {
                         return (nisa_fail (+ "I require the declared type for record field " fname))
                     }
                     set out (+ out (nisa_emit_expected_expr parser vid vty expected))

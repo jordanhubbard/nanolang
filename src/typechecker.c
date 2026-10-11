@@ -749,6 +749,16 @@ static void register_native_union_context(Environment *env, const TypeInfo *info
 static void check_concrete_union_arrays(Environment *env, const TypeInfo *expected,
                                         ASTNode *value, unsigned depth) {
     if (!expected || !value) return;
+    if (expected->base_type == TYPE_FUNCTION) {
+        FunctionSignature *signature = copy_contextual_callable_signature(value, env, expected->fn_sig);
+        if (!signature || !function_signatures_equal(signature, expected->fn_sig))
+            emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                "I require the complete declared callback storage signature.",
+                "Match the stored callback parameter and result types.");
+        free_function_signature(signature);
+        return;
+    }
+
     register_native_union_context(env, expected, 0);
     if (depth > 128) {
         emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
@@ -1345,9 +1355,17 @@ static TypeInfo *copy_generic_argument_info(ASTNode *expr, Environment *env, uns
     return info;
 }
 
+static bool indirect_argument_matches(ASTNode *, Environment *, const TypeInfo *, Type, int);
+
 /* I compare tuple contents at each declared value boundary. */
 static bool check_tuple_contract(Environment *env, const TypeInfo *expected, ASTNode *value) {
     TypeInfo *declared = copy_payload_type_info(expected);
+    if (value && value->type == AST_TUPLE_LITERAL && declared &&
+        generic_normalize_nominals(env, declared, 0) &&
+        indirect_argument_matches(value, env, declared, TYPE_TUPLE, 0)) {
+        free_payload_type_info(declared);
+        return true;
+    }
     TypeInfo *actual = copy_generic_argument_info(value,env,0);
     bool matches = declared && actual && actual->base_type == TYPE_TUPLE &&
         generic_normalize_nominals(env,declared,0) && generic_normalize_nominals(env,actual,0) &&
@@ -2003,6 +2021,20 @@ static bool indirect_argument_matches(ASTNode *argument, Environment *env,
         bool matches = signature && function_signatures_equal(expected->fn_sig, signature);
         free_function_signature(signature);
         return matches;
+    }
+    if (expected->base_type == TYPE_TUPLE && argument->type == AST_TUPLE_LITERAL) {
+        if (argument->as.tuple_literal.element_count != expected->tuple_element_count) return false;
+        for (int i = 0; i < expected->tuple_element_count; ++i) {
+            TypeInfo view;
+            const TypeInfo *element = tuple_element_info(expected, i, &view);
+            if (!indirect_argument_matches(argument->as.tuple_literal.elements[i], env, element,
+                    element->base_type, depth + 1)) return false;
+        }
+        TypeInfo *retained = copy_payload_type_info(expected);
+        if (!retained) return false;
+        free_payload_type_info(argument->as.tuple_literal.type_info);
+        argument->as.tuple_literal.type_info = retained;
+        return true;
     }
     if (expected->base_type == TYPE_ARRAY && expected->element_type &&
         argument->type == AST_ARRAY_LITERAL) {
