@@ -6797,8 +6797,151 @@ shadow purity_summary {
     assert (== (purity_summary p 0 []) 1)
 }
 
+# I follow stored values, not the types behind pointers or callback signatures.
+# Results distinguish a known cycle (1) from my finite expansion boundary (2).
+fn tc_layout_visit(parser: Parser, spelling: string, formals: array<string>, colors: HashMap<string,string>, depth: int) -> int {
+    let name: string = (strip_spaces spelling)
+    if (resource_name_in formals name) { return 0 }
+    if (or (tc_str_starts_with name "fn(") (tc_str_starts_with name "&")) { return 0 }
+    let base: string = (base_type_name name)
+    if (or (== base "array") (or (== base "List") (== base "HashMap"))) { return 0 }
+    if (map_has colors name) {
+        if (== (map_get colors name) "active") { return 1 }
+        return 0
+    }
+    if (> depth 128) { return 2 }
+    if (and (tc_str_starts_with name "(") (tc_str_ends_with name ")")) {
+        let fields: array<string> = (split_tuple_type_names name)
+        let mut field: int = 0
+        while (< field (array_length fields)) {
+            let result: int = (tc_layout_visit parser (at fields field) formals colors depth)
+            if (!= result 0) { return result }
+            set field (+ field 1)
+        }
+        return 0
+    }
+    let mut index: int = 0
+    while (< index parser.structs_count) {
+        let record: ASTStruct = (parser_get_struct_def parser index)
+        if (== record.name name) {
+            if record.is_extern { return 0 }
+            (map_set colors name "active")
+            let mut field: int = 0
+            while (< field record.field_count) {
+                let result: int = (tc_layout_visit parser (at record.field_types field) formals colors depth)
+                if (!= result 0) { return result }
+                set field (+ field 1)
+            }
+            (map_set colors name "done")
+            return 0
+        }
+        set index (+ index 1)
+    }
+    set index 0
+    while (< index parser.unions_count) {
+        let definition: ASTUnion = (parser_get_union parser index)
+        if (== definition.name base) {
+            let args: array<string> = (tc_generic_arguments name)
+            if (!= (array_length args) definition.generic_param_count) { return 0 }
+            (map_set colors name "active")
+            let mut next_depth: int = depth
+            if (> definition.generic_param_count 0) { set next_depth (+ depth 1) }
+            let mut field: int = 0
+            while (< field (array_length definition.variant_field_types)) {
+                let concrete: string = (tc_substitute_generic (at definition.variant_field_types field) definition.generic_params args)
+                let result: int = (tc_layout_visit parser concrete formals colors next_depth)
+                if (!= result 0) { return result }
+                set field (+ field 1)
+            }
+            (map_set colors name "done")
+            return 0
+        }
+        set index (+ index 1)
+    }
+    return 0
+}
+shadow tc_layout_visit {
+    let parser: Parser = (resource_test_parser "struct Loop { next: Loop } union Box<T> { Some { value: T } } union Phantom<T> { None {} }")
+    let cycle: HashMap<string,string> = (map_new)
+    assert (== (tc_layout_visit parser "Loop" [] cycle 0) 1)
+    let nested: HashMap<string,string> = (map_new)
+    assert (== (tc_layout_visit parser "Box<Box<int>>" [] nested 0) 0)
+    let indirect: HashMap<string,string> = (map_new)
+    assert (== (tc_layout_visit parser "(array<Loop>,List<Loop>,fn(Loop)->Loop,Phantom<Loop>)" [] indirect 0) 0)
+    let substituted: HashMap<string,string> = (map_new)
+    assert (== (tc_layout_visit parser "Box<Loop>" [] substituted 0) 1)
+    let parameter: HashMap<string,string> = (map_new)
+    assert (== (tc_layout_visit parser "Box<Loop>" ["Loop"] parameter 0) 0)
+    let limited: HashMap<string,string> = (map_new)
+    assert (== (tc_layout_visit parser "Box<int>" [] limited 129) 2)
+}
+
+fn tc_validate_layouts(parser: Parser, diags: List<CompilerDiagnostic>, file_name: string) -> bool {
+    let mut index: int = 0
+    while (< index (+ parser.structs_count parser.unions_count)) {
+        let mut name: string = ""
+        let mut line: int = 0
+        let mut column: int = 0
+        let mut formals: array<string> = []
+        if (< index parser.structs_count) {
+            let record: ASTStruct = (parser_get_struct_def parser index)
+            set name record.name
+            set line record.line
+            set column record.column
+        } else {
+            let definition: ASTUnion = (parser_get_union parser (- index parser.structs_count))
+            set name definition.name
+            set line definition.line
+            set column definition.column
+            set formals definition.generic_params
+            if (> definition.generic_param_count 0) {
+                set name (+ name "<")
+                let mut parameter: int = 0
+                while (< parameter definition.generic_param_count) {
+                    if (> parameter 0) { set name (+ name ",") }
+                    set name (+ name (at formals parameter))
+                    set parameter (+ parameter 1)
+                }
+                set name (+ name ">")
+            }
+        }
+        # I isolate template parameters and completed-state caches by root declaration.
+        let colors: HashMap<string,string> = (map_new)
+        let result: int = (tc_layout_visit parser name formals colors 0)
+        if (!= result 0) {
+            let mut message: string = "I cannot admit cyclic by-value type layouts: "
+            if (== result 2) { set message "I cannot validate by-value layout expansion beyond 128 nested generic substitutions: " }
+            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0038" (+ message name) (Diagnostics.diag_location file_name line column)))
+            return false
+        }
+        set index (+ index 1)
+    }
+    return true
+}
+shadow tc_validate_layouts {
+    let cycles: array<string> = ["struct A { next: A }", "struct A { b: B } struct B { a: A }", "union U { Some { next: U }, None {} }", "struct A { u: U } union U { Some { a: A } }", "struct A { pair: (int,A) }", "union Box<T> { Some { value:T } } struct A { box:Box<A> }"]
+    let mut i: int = 0
+    while (< i (array_length cycles)) {
+        let errors: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+        assert (not (tc_validate_layouts (resource_test_parser (at cycles i)) errors "cycle.nano"))
+        assert (== (Diagnostics.diag_list_count errors) 1)
+        set i (+ i 1)
+    }
+    let legal: Parser = (resource_test_parser "struct Node { children:array<Node>, callback:fn(Node)->Node } union Box<T> { Some { values:array<T> } } struct Root { box:Box<Root> }")
+    let clean: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (tc_validate_layouts legal clean "legal.nano")
+    assert (== (Diagnostics.diag_list_count clean) 0)
+    let expanding: Parser = (resource_test_parser "union Grow<T> { Some { value:Grow<array<T>> } }")
+    let errors: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    assert (not (tc_validate_layouts expanding errors "expanding.nano"))
+    assert (== (Diagnostics.diag_list_count errors) 1)
+}
+
 pub fn typecheck_phase_with_shadows(parser: Parser, file_name: string, initial_symbols: array<Symbol>, first_shadow: int) -> TypecheckPhaseOutput {
     let env: TypeEnvironment = (env_new)
+    if (not (tc_validate_layouts parser env.diagnostics file_name)) {
+        return (typecheck_output env.diagnostics 1 true)
+    }
     if (> parser.services_count 0) {
         (Diagnostics.diag_list_add env.diagnostics (Diagnostics.diag_typecheck_error "E0037" "I have not resolved File service declarations for this consumer." (Diagnostics.diag_location file_name 0 0)))
         return (typecheck_output env.diagnostics 1 true)

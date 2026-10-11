@@ -1,0 +1,148 @@
+test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) ... 
+  test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=[], source='struct Loop { next:Loop }') ... FAIL
+  test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=['--emit-nvm'], source='struct Loop { next:Loop }') ... FAIL
+  test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=[], source='struct Left { right:Right } struct Right { left:Left }') ... FAIL
+  test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=['--emit-nvm'], source='struct Left { right:Right } struct Right { left:Left }') ... FAIL
+  test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=[], source='union Loop { Some { next:Loop }, None {} }') ... FAIL
+  test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=['--emit-nvm'], source='union Loop { Some { next:Loop }, None {} }') ... FAIL
+  test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=[], source='struct Loop { value:Choice } union Choice { Some { value:Loop } }') ... FAIL
+  test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=['--emit-nvm'], source='struct Loop { value:Choice } union Choice { Some { value:Loop } }') ... FAIL
+  test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=[], source='struct Loop { pair:(int,Loop) }') ... FAIL
+  test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=['--emit-nvm'], source='struct Loop { pair:(int,Loop) }') ... FAIL
+  test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=[], source='union Box<T> { Some { value:T }, None {} } struct Loop { box:Box<Loop> }') ... FAIL
+  test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=['--emit-nvm'], source='union Box<T> { Some { value:T }, None {} } struct Loop { box:Box<Loop> }') ... FAIL
+test_expanding_generic_layout_has_a_distinct_diagnostic (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_expanding_generic_layout_has_a_distinct_diagnostic) ... 
+  test_expanding_generic_layout_has_a_distinct_diagnostic (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_expanding_generic_layout_has_a_distinct_diagnostic) (mode=[]) ... FAIL
+  test_expanding_generic_layout_has_a_distinct_diagnostic (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_expanding_generic_layout_has_a_distinct_diagnostic) (mode=['--emit-nvm']) ... FAIL
+test_indirect_fields_and_unused_generic_parameters_are_legal (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_indirect_fields_and_unused_generic_parameters_are_legal) ... ok
+
+======================================================================
+FAIL: test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=[], source='struct Loop { next:Loop }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=['--emit-nvm'], source='struct Loop { next:Loop }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=[], source='struct Left { right:Right } struct Right { left:Left }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=['--emit-nvm'], source='struct Left { right:Right } struct Right { left:Left }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=[], source='union Loop { Some { next:Loop }, None {} }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=['--emit-nvm'], source='union Loop { Some { next:Loop }, None {} }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=[], source='struct Loop { value:Choice } union Choice { Some { value:Loop } }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=['--emit-nvm'], source='struct Loop { value:Choice } union Choice { Some { value:Loop } }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=[], source='struct Loop { pair:(int,Loop) }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=['--emit-nvm'], source='struct Loop { pair:(int,Loop) }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=[], source='union Box<T> { Some { value:T }, None {} } struct Loop { box:Box<Loop> }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_cycles_preserve_both_artifact_kinds (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_cycles_preserve_both_artifact_kinds) (mode=['--emit-nvm'], source='union Box<T> { Some { value:T }, None {} } struct Loop { box:Box<Loop> }')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_expanding_generic_layout_has_a_distinct_diagnostic (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_expanding_generic_layout_has_a_distinct_diagnostic) (mode=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+======================================================================
+FAIL: test_expanding_generic_layout_has_a_distinct_diagnostic (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_expanding_generic_layout_has_a_distinct_diagnostic) (mode=['--emit-nvm'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 35, in refuse
+    self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : 
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.588s
+
+FAILED (failures=14)

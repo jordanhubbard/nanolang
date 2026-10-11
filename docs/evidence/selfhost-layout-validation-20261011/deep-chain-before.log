@@ -1,0 +1,18 @@
+test_deep_acyclic_records_do_not_consume_generic_expansion_budget (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_deep_acyclic_records_do_not_consume_generic_expansion_budget) ... FAIL
+
+======================================================================
+FAIL: test_deep_acyclic_records_do_not_consume_generic_expansion_budget (tests.test_selfhost_layout_validation.SelfhostLayoutValidation.test_deep_acyclic_records_do_not_consume_generic_expansion_budget)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_layout_validation.py", line 82, in test_deep_acyclic_records_do_not_consume_generic_expansion_budget
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0038] I cannot validate by-value layout expansion beyond 128 nested dependencies: Item128 (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpzahqhtmb/main.nano:129:1)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.072s
+
+FAILED (failures=1)
