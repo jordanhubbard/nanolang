@@ -4490,6 +4490,7 @@ shadow tc_bound_name {
 
 fn reduce_type_known(parser: Parser, value: NSType) -> bool {
     if (or (== value.kind TypeKind.TYPE_UNKNOWN) (== value.kind TypeKind.TYPE_GENERIC)) { return false }
+    if (== (type_to_string value) "u8") { return true }
     if (== value.kind TypeKind.TYPE_ARRAY) {
         if (== value.element_type_kind TypeKind.TYPE_UNKNOWN) { return false }
         return (reduce_type_known parser (type_from_string_with_parser parser (type_kind_to_string value.element_type_kind value.element_type_name)))
@@ -4545,6 +4546,7 @@ fn reduce_type_known(parser: Parser, value: NSType) -> bool {
 shadow reduce_type_known {
     let parser: Parser = (resource_test_parser "union Box<T> { Some { value: T } }")
     assert (reduce_type_known parser (type_from_string_with_parser parser "array<Box<int>>"))
+    assert (reduce_type_known parser (type_from_string_with_parser parser "array<u8>"))
     assert (not (reduce_type_known parser (type_from_string_with_parser parser "array<array<unknown>>")))
     assert (not (reduce_type_known parser (type_from_string_with_parser parser "Box<unknown>")))
     assert (not (reduce_type_known parser (type_from_string_with_parser parser "Box<T>")))
@@ -4565,46 +4567,106 @@ shadow reduce_types_exact {
     assert (reduce_types_exact parser (type_from_string_with_parser parser "array<Box<int>>") (type_from_string_with_parser parser "array<Box<int>>"))
 }
 
-fn check_reduce_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+fn check_array_mutation_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string, replacing: bool) -> NSType {
     let location: CompilerSourceLocation = (Diagnostics.diag_location file_name call.line call.column)
-    if (!= call.arg_count 3) {
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require an array, initializer and binary callback in reduce." location))
-        return (type_unknown_named "reduce")
+    let mut arity: int = 2
+    if replacing { set arity 3 }
+    if (!= call.arg_count arity) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the exact array mutation argument count." location))
+        return (type_unknown_named "array mutation")
     }
     let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
-    let initial: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
-    let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 2))
+    let value: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start (- arity 1)))
+    let array_type: NSType = (check_expr_node parser source.node_id source.node_type symbols diags file_name)
+    let raw: NSType = (check_expr_node parser value.node_id value.node_type symbols diags file_name)
+    let mut element: NSType = (type_from_string_with_parser parser (type_kind_to_string array_type.element_type_kind array_type.element_type_name))
+    if (== array_type.element_type_kind TypeKind.TYPE_UNKNOWN) { set element raw }
+    let hinted: NSType = (apply_value_type_hint parser value.node_id value.node_type raw element)
+    let checked: NSType = (check_constructor_argument parser value.node_id value.node_type hinted element symbols diags file_name)
+    let container: NSType = (type_array_of element)
+    let checked_source: NSType = (check_constructor_argument parser source.node_id source.node_type array_type container symbols diags file_name)
+    let mut compatible: bool = (reduce_types_exact parser checked element)
+    # I preserve scalar storage conversions without erasing callable identity.
+    if (or (and (== checked.kind TypeKind.TYPE_ENUM) (== element.kind TypeKind.TYPE_INT)) (and (== checked.kind TypeKind.TYPE_INT) (== element.kind TypeKind.TYPE_ENUM))) { set compatible true }
+    if (and (== (type_to_string element) "u8") (== raw.kind TypeKind.TYPE_INT)) { set compatible true }
+    let mut valid: bool = (and compatible (reduce_types_exact parser checked_source container))
+    if replacing {
+        let index: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+        set valid (and valid (== (check_expr_node parser index.node_id index.node_type symbols diags file_name).kind TypeKind.TYPE_INT))
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the array mutation value to match its complete element type and an integer index." location))
+    }
+    if replacing { return (type_void) }
+    return container
+}
+shadow check_array_mutation_call {
+    let valid: Parser = (resource_test_parser "fn id(x:T)->T{return x} fn main()->int{let fs:array<fn(int)->int> = [id] (array_set fs 0 id) (array_push fs id) return 0}")
+    assert (not (typecheck_phase valid "mutation.nano").had_error)
+    let invalid: Parser = (resource_test_parser "fn f(x:int)->bool{return true} fn unused(xs:array<fn(int)->int>)->void{(array_push xs f)}")
+    assert (typecheck_phase invalid "mutation.nano").had_error
+}
+
+fn check_functional_signature(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string, reducing: bool, filtering: bool) -> string {
+    let location: CompilerSourceLocation = (Diagnostics.diag_location file_name call.line call.column)
+    let mut arity: int = 2
+    if reducing { set arity 3 }
+    if (!= call.arg_count arity) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require the exact functional array argument count." location))
+        return ""
+    }
+    let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start (- arity 1)))
     let source_type: NSType = (check_expr_node parser source.node_id source.node_type symbols diags file_name)
-    let accumulator: NSType = (check_expr_node parser initial.node_id initial.node_type symbols diags file_name)
     let callback_type: NSType = (check_expr_node parser callback.node_id callback.node_type symbols diags file_name)
-    if (or (!= source_type.kind TypeKind.TYPE_ARRAY) (!= callback_type.kind TypeKind.TYPE_FUNCTION)) {
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require an array and a function callback in reduce." location))
-        return (type_unknown_named "reduce")
-    }
-    let parameters: array<NSType> = (fn_type_params_with_parser parser callback_type.name)
-    let result: NSType = (type_from_string_with_parser parser (type_to_string (fn_type_return_type callback_type.name)))
-    if (!= (array_length parameters) 2) {
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a binary callback in reduce." location))
-        return (type_unknown_named "reduce")
-    }
-    let first: NSType = (at parameters 0)
-    let element: NSType = (at parameters 1)
-    let known: bool = (and (and (reduce_type_known parser accumulator) (!= accumulator.kind TypeKind.TYPE_VOID)) (and (reduce_type_known parser element) (!= element.kind TypeKind.TYPE_VOID)))
-    let mut matches: bool = (and known (and (reduce_types_exact parser accumulator first) (reduce_types_exact parser accumulator result)))
-    if (== source_type.element_type_kind TypeKind.TYPE_UNKNOWN) {
-        let mut empty_literal: bool = false
-        if (== source.node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
-            set empty_literal (== (parser_get_array_literal parser source.node_id).element_count 0)
-        }
-        set matches (and matches empty_literal)
+    let mut element: string = ""
+    let mut valid: bool = (and (== source_type.kind TypeKind.TYPE_ARRAY) (== callback_type.kind TypeKind.TYPE_FUNCTION))
+    if (!= source_type.element_type_kind TypeKind.TYPE_UNKNOWN) {
+        set element (type_kind_to_string source_type.element_type_kind source_type.element_type_name)
     } else {
-        set matches (and matches (reduce_types_exact parser source_type (type_array_of element)))
+        let mut empty: bool = false
+        if (== source.node_type ParseNodeType.PNODE_ARRAY_LITERAL) { set empty (== (parser_get_array_literal parser source.node_id).element_count 0) }
+        set valid (and valid empty)
     }
-    if (not matches) {
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require reduce callback fn(A,E)->A to match the initializer and array elements exactly." location))
-        return (type_unknown_named "reduce")
+    let mut initial_type: NSType = (type_void)
+    let mut initial: ASTStmtRef = source
+    if reducing {
+        set initial (parser_get_call_arg parser (+ call.arg_start 1))
+        set initial_type (check_expr_node parser initial.node_id initial.node_type symbols diags file_name)
     }
-    return accumulator
+    let signature: string = (generic_functional_type parser (strip_spaces (type_to_string callback_type)) (strip_spaces element) (strip_spaces (type_to_string initial_type)) reducing filtering)
+    if (== signature "") { set valid false }
+    if valid {
+        let expected: NSType = (type_from_string_with_parser parser signature)
+        let checked: NSType = (check_constructor_argument parser callback.node_id callback.node_type callback_type expected symbols diags file_name)
+        set valid (reduce_types_exact parser checked expected)
+        let parameters: array<NSType> = (fn_type_params_with_parser parser signature)
+        let container: NSType = (type_array_of (at parameters (- (array_length parameters) 1)))
+        let checked_source: NSType = (check_constructor_argument parser source.node_id source.node_type source_type container symbols diags file_name)
+        set valid (and valid (reduce_types_exact parser checked_source container))
+        if reducing {
+            let wanted: NSType = (at (fn_type_params_with_parser parser signature) 0)
+            let checked_initial: NSType = (check_constructor_argument parser initial.node_id initial.node_type initial_type wanted symbols diags file_name)
+            set valid (and valid (reduce_types_exact parser checked_initial wanted))
+        }
+    }
+    if (not valid) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require exact functional callback, array element and accumulator types." location))
+        return ""
+    }
+    return signature
+}
+shadow check_functional_signature {
+    let parsed: Parser = (resource_test_parser "fn id(x:T)->T{return x} fn main()->int{let xs:array<int> = (map [7] id) return 0}")
+    assert (not (typecheck_phase parsed "functional.nano").had_error)
+    let invalid: Parser = (resource_test_parser "fn wrong(x:bool)->bool{return x} fn unused()->int{let xs=(filter [7] wrong) return 0} fn main()->int{return 0}")
+    assert (typecheck_phase invalid "functional.nano").had_error
+}
+
+fn check_reduce_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let signature: string = (check_functional_signature parser call symbols diags file_name true false)
+    if (== signature "") { return (type_unknown_named "reduce") }
+    return (type_from_string_with_parser parser (type_to_string (fn_type_return_type signature)))
 }
 shadow check_reduce_call {
     let tokens: List<LexerToken> = (tokenize_string "fn main() -> int { let value = (reduce [1.0] 0.0 combine) return 0 }" "reduce.nano" (list_CompilerDiagnostic_new))
@@ -4619,40 +4681,9 @@ shadow check_reduce_call {
 }
 
 fn check_map_call(parser: Parser, call: ASTCall, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
-    let location: CompilerSourceLocation = (Diagnostics.diag_location file_name call.line call.column)
-    if (!= call.arg_count 2) {
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a source array and one transform in map." location))
-        return (type_unknown_named "map")
-    }
-    let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
-    let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
-    let source_type: NSType = (check_expr_node parser source.node_id source.node_type symbols diags file_name)
-    let callback_type: NSType = (check_expr_node parser callback.node_id callback.node_type symbols diags file_name)
-    if (!= source_type.kind TypeKind.TYPE_ARRAY) {
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require an array source in map." location))
-    }
-    if (!= callback_type.kind TypeKind.TYPE_FUNCTION) {
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a function transform in map." location))
-        return (type_unknown_named "map")
-    }
-    let parameters: array<NSType> = (fn_type_param_types callback_type.name)
-    if (!= (array_length parameters) 1) {
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a unary transform in map." location))
-        return (type_unknown_named "map")
-    }
-    let parameter: NSType = (at parameters 0)
-    let result: NSType = (type_from_string_with_parser parser (type_to_string (fn_type_return_type callback_type.name)))
-    if (or (== result.kind TypeKind.TYPE_VOID) (== result.kind TypeKind.TYPE_UNKNOWN)) {
-        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require a known value-producing transform in map." location))
-        return (type_unknown_named "map")
-    }
-    if (and (== source_type.kind TypeKind.TYPE_ARRAY) (!= source_type.element_type_kind TypeKind.TYPE_UNKNOWN)) {
-        let expected_source: NSType = (type_array_of parameter)
-        if (!= (type_to_string source_type) (type_to_string expected_source)) {
-            (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require map input elements to match the transform parameter." location))
-        }
-    }
-    return (type_array_of result)
+    let signature: string = (check_functional_signature parser call symbols diags file_name false false)
+    if (== signature "") { return (type_unknown_named "map") }
+    return (type_array_of (type_from_string_with_parser parser (type_to_string (fn_type_return_type signature))))
 }
 
 shadow check_map_call {
@@ -4903,8 +4934,13 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
         if (and (or (== fn_name "reduce") (== fn_name "array_fold")) (< (env_lookup symbols fn_name) 0)) {
             return (check_reduce_call parser call_node symbols diags file_name)
         }
-        if (or (== fn_name "map") (== fn_name "array_map")) {
+        if (and (or (== fn_name "map") (== fn_name "array_map")) (< (env_lookup symbols fn_name) 0)) {
             return (check_map_call parser call_node symbols diags file_name)
+        }
+        if (and (or (== fn_name "filter") (== fn_name "array_filter")) (< (env_lookup symbols fn_name) 0)) {
+            let signature: string = (check_functional_signature parser call_node symbols diags file_name false true)
+            if (== signature "") { return (type_unknown_named "filter") }
+            return (type_array_of (at (fn_type_params_with_parser parser signature) 0))
         }
         if (or (== fn_name "sb_new") (or (== fn_name "sb_with_capacity") (or (== fn_name "sb_append") (or (== fn_name "sb_append_line") (or (== fn_name "sb_append_int") (or (== fn_name "sb_append_char") (or (== fn_name "sb_clear") (or (== fn_name "sb_free") (or (== fn_name "sb_is_empty") (or (== fn_name "sb_length") (or (== fn_name "sb_capacity") (== fn_name "sb_to_string")))))))))))) {
             if (or (== fn_name "sb_to_string") (or (== fn_name "sb_length") (== fn_name "sb_capacity"))) {
@@ -4921,15 +4957,8 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 }
             }
         } else { (print "") }
-        if (and (== fn_name "array_push") (and (== call_node.arg_count 2) (< (env_lookup symbols fn_name) 0))) {
-            let first: ASTStmtRef = (parser_get_call_arg parser call_node.arg_start)
-            let array_type: NSType = (check_expr_node parser first.node_id first.node_type symbols diags file_name)
-            if (and (== array_type.kind TypeKind.TYPE_ARRAY) (!= array_type.element_type_kind TypeKind.TYPE_UNKNOWN)) {
-                return array_type
-            }
-            let second: ASTStmtRef = (parser_get_call_arg parser (+ call_node.arg_start 1))
-            let value_type: NSType = (check_expr_node parser second.node_id second.node_type symbols diags file_name)
-            return (type_array_of value_type)
+        if (and (or (== fn_name "array_push") (== fn_name "array_set")) (< (env_lookup symbols fn_name) 0)) {
+            return (check_array_mutation_call parser call_node symbols diags file_name (== fn_name "array_set"))
         }
         if (or (== fn_name "at") (== fn_name "array_get")) {
             if (>= call_node.arg_count 1) {
@@ -6041,18 +6070,9 @@ fn check_statement_list(parser: Parser, statements: List<ASTStmtRef>, symbols: a
             if (== iter_type.kind TypeKind.TYPE_LIST_GENERIC) {
                 set loop_var_type (type_from_string_with_parser parser iter_type.element_type_name)
             } else { if (== iter_type.kind TypeKind.TYPE_ARRAY) {
-                /* Use element_type_kind directly — name is "" for array types */
-                if (== iter_type.element_type_kind TypeKind.TYPE_STRING) {
-                    set loop_var_type (type_string)
-                } else { if (== iter_type.element_type_kind TypeKind.TYPE_FLOAT) {
-                    set loop_var_type (type_float)
-                } else { if (== iter_type.element_type_kind TypeKind.TYPE_BOOL) {
-                    set loop_var_type (type_bool)
-                } else { if (== iter_type.element_type_kind TypeKind.TYPE_STRUCT) {
-                    set loop_var_type (type_from_string iter_type.element_type_name)
-                } else {
-                    set loop_var_type (type_int)
-                } } } }
+                if (!= iter_type.element_type_kind TypeKind.TYPE_UNKNOWN) {
+                    set loop_var_type (type_from_string_with_parser parser (type_kind_to_string iter_type.element_type_kind iter_type.element_type_name))
+                }
             } else { (print "") } }
             /* Add loop var to symbols, then check body */
             let loop_sym: Symbol = (symbol_new for_node.var_name loop_var_type false false 0 (empty_param_types) (type_void))

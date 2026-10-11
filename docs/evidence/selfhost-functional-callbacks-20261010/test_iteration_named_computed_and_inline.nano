@@ -1,0 +1,15 @@
+fn increment(value:int)->int{return (+ value 1)}
+shadow increment {assert (== (increment 7) 8)}
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 7) 7)}
+fn make()->array<fn(int)->int>{return [increment]}
+shadow make {assert (== (array_length (make)) 1)}
+fn main()->int {
+let callbacks:array<fn(int)->int> = [increment, identity]
+let mut total:int=0
+for callback in callbacks {set total (+ total (callback 7))}
+assert (== total 15)
+for callback in (make) {assert (== (callback 7) 8)}
+for callback in [increment] {assert (== (callback 7) 8)}
+return 0}
+shadow main {assert (== (main) 0)}

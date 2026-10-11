@@ -676,6 +676,7 @@ typedef struct {
     uint8_t *rec_k;
     NvmShapeId shape;
     uint16_t scalar_tags;
+    uint8_t array_payload_kind;
 } Nvm2cSimSlot;
 
 typedef struct {
@@ -1137,6 +1138,9 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         return 0;
     }
     for (int i = 0; i < sp; i++) {
+        uint8_t array_payload = join->slots[i].array_payload_kind == stack[i].array_payload_kind
+            ? stack[i].array_payload_kind : 0;
+        join->slots[i].array_payload_kind = array_payload;
         uint16_t tags = join->slots[i].scalar_tags | stack[i].scalar_tags;
         if ((boxed_carrier_tags(join->slots[i].scalar_tags) || boxed_carrier_tags(stack[i].scalar_tags)) &&
             !boxed_carrier_tags(tags)) {
@@ -1207,6 +1211,7 @@ static int sim_join(Nvm2cBuf *b, uint32_t idx, size_t target, Nvm2cSimJoin *join
         int origin = join->slots[i].origin == stack[i].origin ? stack[i].origin : -1;
         if (join->slots[i].kind == NVM2C_VK_UNK) {
             join->slots[i] = stack[i];
+            join->slots[i].array_payload_kind = array_payload;
             join->slots[i].origin = origin;
             continue;
         }
@@ -1702,8 +1707,17 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 loaded.shape = shape_variable(b, &b->shape_globals[slot]);
                 loaded.rec_k = sim_fields(b, NULL, NVM2C_VK_UNK);
                 if (!loaded.rec_k || !sim_push_slot(b, idx, stk, &sp, loaded)) return 0;
-            } else if (!sim_push(b, idx, stk, &sp,
-                                 facts->discover_globals ? NVM2C_VK_UNK : NVM2C_VK_VALUE, -1)) return 0;
+            } else {
+                if (!sim_push(b, idx, stk, &sp,
+                              facts->discover_globals ? NVM2C_VK_UNK : NVM2C_VK_VALUE, -1)) return 0;
+                /* I retain a return hint without constraining the tagged
+                 * value's other consumers. Their runtime checks still apply. */
+                uint8_t kind = facts->global_kinds[slot];
+                if (!facts->discover_globals &&
+                    facts->global_stored[slot] == NVM2C_GLOBAL_EXACT_CANDIDATE &&
+                    (word_array_storage(kind) || kind == NVM2C_VK_SARR))
+                    stk[sp - 1].array_payload_kind = kind;
+            }
             break;
         }
         case OP_STORE_GLOBAL: {
@@ -2795,6 +2809,17 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                             !shape_kind(b, shape_variable(b, &b->shape_results[idx]), NVM2C_VK_ARR)) return 0;
                         break; /* Emission checks tag, integer storage and presence. */
                     }
+                    if (v.kind == NVM2C_VK_VALUE && v.array_payload_kind) {
+                        /* I unbox into the declared result, leaving the global
+                         * carrier and unrelated scalar projections unchanged. */
+                        v.kind = v.array_payload_kind;
+                        v.shape = shape_variable(b, &b->shape_results[idx]);
+                        int generic = b->shape_generic_array;
+                        b->shape_generic_array = 0;
+                        int ok = shape_kind(b, v.shape, v.kind);
+                        b->shape_generic_array = generic;
+                        if (!ok) return 0;
+                    }
                     if (v.kind == NVM2C_VK_VALUE) {
                         /* I check a tagged array's storage at return without
                          * changing the caller's optional representation. */
@@ -3279,11 +3304,13 @@ static int stack_pop_expect(Nvm2cBuf *b, Nvm2cStack *st, uint8_t kind, const cha
         else stack_push_str(b, st, expression);
         return b->failed ? -1 : stack_pop_kind(b, st, NULL);
     }
-    if (got == NVM2C_VK_VALUE && word_array_storage(kind)) {
+    if (got == NVM2C_VK_VALUE && (word_array_storage(kind) || kind == NVM2C_VK_SARR)) {
         char expression[80];
         nvm2c_printf(b, "    if (v[%d].kind != 7 || v[%d].integer != %u || !v[%d].text) NVM2C_ABORT();\n", slot, slot, kind, slot);
-        snprintf(expression, sizeof expression, "(narr_t)v[%d].text", slot);
-        stack_push_iarray(b, st, expression, kind);
+        snprintf(expression, sizeof expression, "(%s)v[%d].text",
+                 kind == NVM2C_VK_SARR ? "nsarr_t" : "narr_t", slot);
+        if (kind == NVM2C_VK_SARR) stack_push_sarr(b, st, expression);
+        else stack_push_iarray(b, st, expression, kind);
         return b->failed ? -1 : stack_pop_kind(b, st, NULL);
     }
     if (got != kind) {

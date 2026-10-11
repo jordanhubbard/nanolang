@@ -1,0 +1,12 @@
+test_declared_builtin_names_keep_identity (__main__.Scalar.test_declared_builtin_names_keep_identity) ... ok
+test_existing_core_examples (__main__.Scalar.test_existing_core_examples) ... ok
+test_reduce_initializer_mutation_precedes_length_snapshot (__main__.Scalar.test_reduce_initializer_mutation_precedes_length_snapshot) ... ok
+test_scalar_reductions_and_element_read_timing (__main__.Scalar.test_scalar_reductions_and_element_read_timing) ... ok
+test_signature_and_shadowing_refusals_preserve_output (__main__.Scalar.test_signature_and_shadowing_refusals_preserve_output) ... ok
+test_source_order_and_captured_length (__main__.Scalar.test_source_order_and_captured_length) ... ok
+test_typed_empty_fresh_outputs_and_changed_map_type (__main__.Scalar.test_typed_empty_fresh_outputs_and_changed_map_type) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 10.786s
+
+OK

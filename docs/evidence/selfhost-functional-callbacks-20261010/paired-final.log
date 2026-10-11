@@ -1,0 +1,111 @@
+test_callback_expression_order_and_length_snapshot (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_expression_order_and_length_snapshot) ... ok
+test_callback_variable_is_captured_once (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_variable_is_captured_once) ... ok
+test_declared_map_keeps_its_signature (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_declared_map_keeps_its_signature) ... ok
+test_incompatible_tagged_parameter_preserves_output (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_incompatible_tagged_parameter_preserves_output) ... ok
+test_inline_generic_elements_take_callback_context (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_inline_generic_elements_take_callback_context) ...
+  test_inline_generic_elements_take_callback_context (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_inline_generic_elements_take_callback_context) (producer='whole') ... FAIL
+  test_inline_generic_elements_take_callback_context (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_inline_generic_elements_take_callback_context) (producer='program') ... FAIL
+  test_inline_generic_elements_take_callback_context (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_inline_generic_elements_take_callback_context) (producer='raw') ... FAIL
+test_invalid_unused_callbacks_preserve_output (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_invalid_unused_callbacks_preserve_output) ... ok
+test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) ... ok
+test_returned_global_array_storage (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_returned_global_array_storage) ...
+  test_returned_global_array_storage (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_returned_global_array_storage) (producer='product') ... FAIL
+  test_returned_global_array_storage (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_returned_global_array_storage) (producer='whole') ... FAIL
+  test_returned_global_array_storage (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_returned_global_array_storage) (producer='program') ... FAIL
+  test_returned_global_array_storage (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_returned_global_array_storage) (producer='raw') ... FAIL
+
+======================================================================
+FAIL: test_inline_generic_elements_take_callback_context (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_inline_generic_elements_take_callback_context) (producer='whole')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 29, in execute
+    assembly.write_text(runner.checked([emitter, source, '0', producer]).stdout)
+                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require a checked functional source array
+
+
+======================================================================
+FAIL: test_inline_generic_elements_take_callback_context (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_inline_generic_elements_take_callback_context) (producer='program')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 29, in execute
+    assembly.write_text(runner.checked([emitter, source, '0', producer]).stdout)
+                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I require a checked functional source array
+
+
+======================================================================
+FAIL: test_inline_generic_elements_take_callback_context (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_inline_generic_elements_take_callback_context) (producer='raw')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 29, in execute
+    assembly.write_text(runner.checked([emitter, source, '0', producer]).stdout)
+                        ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower shadow main at merged line 6: I require a checked functional source array
+
+
+======================================================================
+FAIL: test_returned_global_array_storage (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_returned_global_array_storage) (producer='product')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 33, in execute
+    runner.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp_9suubv_/input.nvm': RET: expected string array value
+
+
+======================================================================
+FAIL: test_returned_global_array_storage (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_returned_global_array_storage) (producer='whole')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 33, in execute
+    runner.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp_9suubv_/input.nvm': RET: expected string array value
+
+
+======================================================================
+FAIL: test_returned_global_array_storage (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_returned_global_array_storage) (producer='program')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 33, in execute
+    runner.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp_9suubv_/input.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 139/37
+
+
+======================================================================
+FAIL: test_returned_global_array_storage (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_returned_global_array_storage) (producer='raw')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_functional_callbacks.py", line 33, in execute
+    runner.checked([TRANSLATOR, module, '-o', c])
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_callables.py", line 16, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp_9suubv_/input.nvm': I cannot solve aggregate storage shape conversions: I cannot convert aggregate storage optional to float at nodes 167/74
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 40.412s
+
+FAILED (failures=7)

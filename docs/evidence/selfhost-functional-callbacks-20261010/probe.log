@@ -1,0 +1,58 @@
+callable-array-operations-20261010-test_empty_callable_operations 0 1 I cannot lower this checked program: I require exact scalar callback parameter and result types
+
+callable-array-operations-20261010-test_filter_callable_elements 0 1 I cannot lower this checked program: I require exact scalar callback parameter and result types
+
+callable-array-operations-20261010-test_filter_retains_value_before_predicate_mutation 0 1 I cannot lower this checked program: I require exact scalar callback parameter and result types
+
+callable-array-operations-20261010-test_map_callable_elements 0 1 I cannot lower this checked program: I require exact scalar callback parameter and result types
+
+callable-array-operations-20261010-test_map_callable_results 0 1 I cannot lower this checked program: I require exact scalar callback parameter and result types
+
+callable-array-operations-20261010-test_map_retains_callable_argument_result 0 1 I cannot lower this checked program: I require exact scalar callback parameter and result types
+
+callable-array-operations-20261010-test_reduce_callable_accumulator 0 1 NSType checking failed
+Diagnostics:
+  [E0010] I require reduce callback fn(A,E)->A to match the initializer and array elements exactly. (/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_reduce_callable_accumulator.nano:14:27)
+
+callable-array-operations-20261010-test_reduce_callable_elements 0 1 I cannot lower this checked program: I require exact scalar callback parameter and result types
+
+callable-array-operations-20261010-test_reduce_operand_order 0 1 I cannot lower this checked program: I require a declared scalar callback identifier
+
+generic-array-callbacks-20261010-test_filter_generic_predicate 0 1 I cannot lower this checked program: I require exact scalar callback parameter and result types
+
+generic-array-callbacks-20261010-test_inline_callable_inputs 0 1 NSType checking failed
+Diagnostics:
+  [E0010] I require map input elements to match the transform parameter. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_inline_callable_inputs.nano:10:34)
+  [E0010] I require the declared map array type to match the transform result. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_inline_callable_inputs.nano:10:1)
+  [E0001] Variable copied: I expected a value of type `array<fn(int)->int>`, but found `array<T>`. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_inline_callable_inputs.nano:10:1)
+  [E0010] I require reduce callback fn(A,E)->A to match the initializer and array elements exactly. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_inline_callable_inputs.nano:12:14)
+
+generic-array-callbacks-20261010-test_map_callable_identity 0 1 NSType checking failed
+Diagnostics:
+  [E0010] I require map input elements to match the transform parameter. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_map_callable_identity.nano:10:34)
+  [E0010] I require the declared map array type to match the transform result. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_map_callable_identity.nano:10:1)
+  [E0001] Variable copied: I expected a value of type `array<fn(int)->int>`, but found `array<T>`. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_map_callable_identity.nano:10:1)
+
+generic-array-callbacks-20261010-test_map_multiple_scalar_instances 0 1 NSType checking failed
+Diagnostics:
+  [E0010] I require map input elements to match the transform parameter. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_map_multiple_scalar_instances.nano:10:26)
+  [E0010] I require the declared map array type to match the transform result. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_map_multiple_scalar_instances.nano:10:1)
+  [E0001] Variable numbers: I expected a value of type `array<int>`, but found `array<T>`. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_map_multiple_scalar_instances.nano:10:1)
+  [E0010] I require map input elements to match the transform parameter. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_map_multiple_scalar_instances.nano:11:25)
+  [E0010] I require the declared map array type to match the transform result. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_map_multiple_scalar_instances.nano:11:1)
+  [E0001] Variable flags: I expected a value of type `array<bool>`, but found `array<T>`. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_map_multiple_scalar_instances.nano:11:1)
+
+generic-array-callbacks-20261010-test_reduce_generic_callable_accumulator 0 1 NSType checking failed
+Diagnostics:
+  [E0010] I require reduce callback fn(A,E)->A to match the initializer and array elements exactly. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_reduce_generic_callable_accumulator.nano:10:27)
+
+generic-array-callbacks-20261010-test_reduce_independent_type_variables 0 1 NSType checking failed
+Diagnostics:
+  [E0010] I require reduce callback fn(A,E)->A to match the initializer and array elements exactly. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_reduce_independent_type_variables.nano:11:43)
+
+generic-array-callbacks-20261010-test_typed_empty_inputs 0 1 NSType checking failed
+Diagnostics:
+  [E0010] I require map input elements to match the transform parameter. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_typed_empty_inputs.nano:10:34)
+  [E0010] I require the declared map array type to match the transform result. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_typed_empty_inputs.nano:10:1)
+  [E0001] Variable copied: I expected a value of type `array<fn(int)->int>`, but found `array<T>`. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_typed_empty_inputs.nano:10:1)
+  [E0010] I require reduce callback fn(A,E)->A to match the initializer and array elements exactly. (/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_typed_empty_inputs.nano:12:27)

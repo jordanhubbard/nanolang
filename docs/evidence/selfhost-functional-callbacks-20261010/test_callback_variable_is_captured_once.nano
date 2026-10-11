@@ -1,0 +1,11 @@
+fn plus(x:int)->int{return (+ x 1)}
+shadow plus {assert (== (plus 1) 2)}
+let mut chosen:fn(int)->int=plus
+fn switch(x:int)->int{set chosen plus return (+ x 10)}
+shadow switch {assert true}
+fn main()->int{
+set chosen switch
+let result:array<int> = (map [1,2] chosen)
+assert (== (at result 0) 11) assert (== (at result 1) 12)
+assert (== (chosen 1) 2) return 0}
+shadow main {assert (== (main) 0)}

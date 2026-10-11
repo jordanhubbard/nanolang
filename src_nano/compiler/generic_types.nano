@@ -244,3 +244,48 @@ shadow generic_bind_arguments {
     assert (== (substitute_type_parameters "fn(T)->E" bound.names bound.types) "fn(int)->int")
     assert (not (generic_bind_arguments parser ["T","fn(T)->bool"] ["int","fn(T)->T"] [false,true]).valid)
 }
+
+# I infer functional callbacks from concrete array and accumulator identities.
+pub fn generic_functional_type(parser: Parser, signature: string, element: string, initial: string, reducing: bool, filtering: bool) -> string {
+    let parts: array<string> = (function_type_parts signature)
+    let mut arity: int = 1
+    if reducing { set arity 2 }
+    if (!= (array_length parts) (+ arity 1)) { return "" }
+    let mut bound: GenericBindings = GenericBindings {names: [], types: [], valid: true}
+    let mut concrete_element: string = element
+    let wanted_element: string = (at parts (- arity 1))
+    if (and (generic_type_contains_variable parser element) (not (generic_type_contains_variable parser wanted_element))) {
+        set concrete_element (generic_callback_type parser element wanted_element)
+        if (== concrete_element "") { return "" }
+    }
+    if (!= concrete_element "") { set bound (generic_bind_type parser wanted_element concrete_element bound) }
+    if (and reducing (not (generic_type_contains_variable parser initial))) {
+        set bound (generic_bind_type parser (at parts 0) initial bound)
+    }
+    if (not bound.valid) { return "" }
+    let partial: string = (substitute_type_parameters signature bound.names bound.types)
+    let mut concrete_initial: string = initial
+    if (and reducing (generic_type_contains_variable parser initial)) {
+        let wanted: string = (at (function_type_parts partial) 0)
+        set concrete_initial (generic_callback_type parser initial wanted)
+        if (== concrete_initial "") { return "" }
+        set bound (generic_bind_type parser (at parts 0) concrete_initial bound)
+    }
+    let concrete: string = (substitute_type_parameters signature bound.names bound.types)
+    if (or (not bound.valid) (generic_type_contains_variable parser concrete)) { return "" }
+    let resolved: array<string> = (function_type_parts concrete)
+    let result: string = (at resolved arity)
+    if (or (== result "void") (== result "unknown")) { return "" }
+    if (and filtering (!= result "bool")) { return "" }
+    if (and reducing (or (!= (at resolved 0) concrete_initial) (!= result concrete_initial))) { return "" }
+    return concrete
+}
+shadow generic_functional_type {
+    let parser: Parser = (parse_program (list_LexerToken_new) 0 "functional.nano")
+    assert (== (generic_functional_type parser "fn(T)->T" "fn(int)->int" "" false false) "fn(fn(int)->int)->fn(int)->int")
+    assert (== (generic_functional_type parser "fn(A,E)->A" "bool" "int" true false) "fn(int,bool)->int")
+    assert (== (generic_functional_type parser "fn(T,T)->T" "fn(int)->int" "fn(T)->T" true false) "fn(fn(int)->int,fn(int)->int)->fn(int)->int")
+    assert (== (generic_functional_type parser "fn(int)->int" "bool" "" false false) "")
+    assert (== (generic_functional_type parser "fn(int)->int" "int" "" false true) "")
+    assert (== (generic_functional_type parser "fn(T)->E" "int" "" false false) "")
+}

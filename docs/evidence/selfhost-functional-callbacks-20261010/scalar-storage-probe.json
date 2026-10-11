@@ -1,0 +1,18 @@
+[
+  {
+    "case": "enum",
+    "exit": 0
+  },
+  {
+    "case": "byte",
+    "exit": 1
+  },
+  {
+    "case": "readbyte",
+    "exit": 0
+  },
+  {
+    "case": "byte_literal",
+    "exit": 1
+  }
+]

@@ -1,0 +1,258 @@
+[
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_empty_callable_operations.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_empty_callable_operations.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/callable-array-operations-20261010-test_empty_callable_operations.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.060735875042155385
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_filter_callable_elements.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_filter_callable_elements.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/callable-array-operations-20261010-test_filter_callable_elements.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.04606695903930813
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_filter_retains_value_before_predicate_mutation.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_filter_retains_value_before_predicate_mutation.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/callable-array-operations-20261010-test_filter_retains_value_before_predicate_mutation.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.06025520799448714
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_map_callable_elements.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_map_callable_elements.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/callable-array-operations-20261010-test_map_callable_elements.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.04325233300914988
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_map_callable_results.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_map_callable_results.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/callable-array-operations-20261010-test_map_callable_results.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.05081083398545161
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_map_retains_callable_argument_result.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_map_retains_callable_argument_result.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/callable-array-operations-20261010-test_map_retains_callable_argument_result.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.05307550000725314
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_reduce_callable_accumulator.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_reduce_callable_accumulator.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/callable-array-operations-20261010-test_reduce_callable_accumulator.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.05151262495201081
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_reduce_callable_elements.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_reduce_callable_elements.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/callable-array-operations-20261010-test_reduce_callable_elements.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.045620999997481704
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_reduce_operand_order.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/callable-array-operations-20261010/test_reduce_operand_order.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/callable-array-operations-20261010-test_reduce_operand_order.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.06300687504699454
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_filter_generic_predicate.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_filter_generic_predicate.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/generic-array-callbacks-20261010-test_filter_generic_predicate.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.04118920798646286
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_inline_callable_inputs.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_inline_callable_inputs.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/generic-array-callbacks-20261010-test_inline_callable_inputs.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.04484387504635379
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_map_callable_identity.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_map_callable_identity.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/generic-array-callbacks-20261010-test_map_callable_identity.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.038294041994959116
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_map_multiple_scalar_instances.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_map_multiple_scalar_instances.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/generic-array-callbacks-20261010-test_map_multiple_scalar_instances.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.038402332982514054
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_reduce_generic_callable_accumulator.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_reduce_generic_callable_accumulator.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/generic-array-callbacks-20261010-test_reduce_generic_callable_accumulator.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.03463466698303819
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_reduce_independent_type_variables.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_reduce_independent_type_variables.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/generic-array-callbacks-20261010-test_reduce_independent_type_variables.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.03861345798941329
+      }
+    ]
+  },
+  {
+    "source": "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_typed_empty_inputs.nano",
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-callable-union-product-xm4t8i4y/nano-selfhost-native-product-zrrrmdsr/compiler",
+          "/Users/jordanh/Src/nanolang/docs/evidence/generic-array-callbacks-20261010/test_typed_empty_inputs.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selfhost-functional/generic-array-callbacks-20261010-test_typed_empty_inputs.nvm"
+        ],
+        "exit": 1,
+        "seconds": 0.04113125003641471
+      }
+    ]
+  }
+]

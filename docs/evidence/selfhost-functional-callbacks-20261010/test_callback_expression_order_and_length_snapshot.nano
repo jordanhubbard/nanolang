@@ -1,0 +1,17 @@
+let values:array<int> = [2,3]
+let mut trace:int=0
+fn source()->array<int>{set trace (+ (* trace 10) 1) return values}
+shadow source {assert true}
+fn initial()->int{set trace (+ (* trace 10) 2) return 10}
+shadow initial {assert true}
+fn combine(a:int,b:int)->int{return (+ a b)}
+shadow combine {assert (== (combine 1 2) 3)}
+fn callback()->fn(int,int)->int{
+set trace (+ (* trace 10) 3) (array_push values 4) return combine}
+shadow callback {assert true}
+fn main()->int{
+set trace 0
+assert (== (reduce (source) (initial) (callback)) 19)
+assert (== trace 123)
+return 0}
+shadow main {assert (== (main) 0)}

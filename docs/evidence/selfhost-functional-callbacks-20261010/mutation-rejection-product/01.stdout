@@ -1,0 +1,11 @@
+NSType checking failed
+Diagnostics:
+  [E0010] I require the array mutation value to match its complete element type and an integer index. (/Users/jordanh/Src/nanolang/src_nano/parser.nano:2489:68)
+  [E0010] I require the array mutation value to match its complete element type and an integer index. (/Users/jordanh/Src/nanolang/src_nano/parser.nano:2545:68)
+  [E0010] I require the array mutation value to match its complete element type and an integer index. (/Users/jordanh/Src/nanolang/src_nano/parser.nano:2617:84)
+  [E0010] I require the array mutation value to match its complete element type and an integer index. (/Users/jordanh/Src/nanolang/src_nano/parser.nano:9159:15)
+  [E0010] I require the array mutation value to match its complete element type and an integer index. (/Users/jordanh/Src/nanolang/src_nano/parser.nano:9177:15)
+  [E0010] I require the array mutation value to match its complete element type and an integer index. (/Users/jordanh/Src/nanolang/src_nano/parser.nano:9524:15)
+  [E0010] I require the array mutation value to match its complete element type and an integer index. (/Users/jordanh/Src/nanolang/src_nano/parser.nano:9536:15)
+  [E0010] I require the array mutation value to match its complete element type and an integer index. (/Users/jordanh/Src/nanolang/src_nano/parser.nano:9590:15)
+  [E0010] I require the array mutation value to match its complete element type and an integer index. (/Users/jordanh/Src/nanolang/src_nano/parser.nano:9600:15)

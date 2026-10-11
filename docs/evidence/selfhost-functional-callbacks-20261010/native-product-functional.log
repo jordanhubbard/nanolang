@@ -1,0 +1,16 @@
+test_callable_for_loop_bindings (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callable_for_loop_bindings) ... ok
+test_callback_expression_order_and_length_snapshot (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_expression_order_and_length_snapshot) ... ok
+test_callback_variable_is_captured_once (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_callback_variable_is_captured_once) ... ok
+test_contextual_generic_array_mutations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_contextual_generic_array_mutations) ... ok
+test_declared_map_keeps_its_signature (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_declared_map_keeps_its_signature) ... ok
+test_enum_and_byte_array_storage_conversions (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_enum_and_byte_array_storage_conversions) ... ok
+test_incompatible_tagged_parameter_preserves_output (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_incompatible_tagged_parameter_preserves_output) ... ok
+test_inline_generic_elements_take_callback_context (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_inline_generic_elements_take_callback_context) ... ok
+test_invalid_unused_callbacks_preserve_output (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_invalid_unused_callbacks_preserve_output) ... ok
+test_retained_source_operations (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_retained_source_operations) ... ok
+test_returned_global_array_storage (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_returned_global_array_storage) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 15.567s
+
+OK

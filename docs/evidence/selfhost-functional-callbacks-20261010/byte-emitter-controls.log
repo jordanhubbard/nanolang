@@ -1,0 +1,6 @@
+test_enum_and_byte_array_storage_conversions (tests.test_native_functional_callbacks.NativeFunctionalCallbacks.test_enum_and_byte_array_storage_conversions) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.782s
+
+OK

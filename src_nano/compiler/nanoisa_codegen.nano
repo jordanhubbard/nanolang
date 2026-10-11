@@ -4786,11 +4786,13 @@ fn nisa_emit_push_call(parser: Parser, call: ASTCall, name: string) -> string {
         let declared: string = (str_substring name 5 (- (str_length name) 10))
         if (!= declared element) { return (nisa_fail "I require the list append to match its element type") }
     }
-    if (not (nisa_array_value_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
+    if (and (not (nisa_function_type_ok parser element)) (not (nisa_array_value_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
         return (nisa_fail "I require an append value matching the element type")
     }
     let receiver: string = (nisa_emit_expected_expr parser object.node_id object.node_type container)
-    let appended: string = (nisa_emit_expr parser value.node_id value.node_type)
+    let mut appended: string = ""
+    if (nisa_function_type_ok parser element) { set appended (nisa_emit_expected_expr parser value.node_id value.node_type element) }
+    else { set appended (nisa_emit_expr parser value.node_id value.node_type) }
     return (+ receiver (+ appended (nisa_line "ARR_PUSH")))
 }
 shadow nisa_emit_push_call {
@@ -4820,10 +4822,15 @@ fn nisa_emit_set_call(parser: Parser, call: ASTCall, name: string) -> string {
         let declared: string = (str_substring name 5 (- (str_length name) 9))
         if (!= declared element) { return (nisa_fail "I require the list setter to match its element type") }
     }
-    if (not (nisa_array_value_matches parser (nisa_expr_type parser value.node_id value.node_type) element)) {
+    if (and (not (nisa_function_type_ok parser element)) (not (nisa_array_value_matches parser (nisa_expr_type parser value.node_id value.node_type) element))) {
         return (nisa_fail "I require a replacement value matching the element type")
     }
-    return (+ (nisa_emit_call_args parser call) (+ (nisa_line "ARR_SET") (nisa_line "POP")))
+    let receiver: string = (nisa_emit_expr parser object.node_id object.node_type)
+    let position: string = (nisa_emit_expr parser index.node_id index.node_type)
+    let mut replacement: string = ""
+    if (nisa_function_type_ok parser element) { set replacement (nisa_emit_expected_expr parser value.node_id value.node_type element) }
+    else { set replacement (nisa_emit_expr parser value.node_id value.node_type) }
+    return (+ receiver (+ position (+ replacement (+ (nisa_line "ARR_SET") (nisa_line "POP")))))
 }
 shadow nisa_emit_set_call {
     let _: int = (nisa_reset)
@@ -4836,7 +4843,7 @@ shadow nisa_emit_set_call {
     let reset: int = (nisa_reset)
 }
 
-# I resolve only a declared callback, using the ordinary owner-aware call path.
+# I resolve checked callback expressions and retain their exact signatures.
 fn nisa_functional_name(name: string) -> bool {
     return (or (== name "map") (or (== name "filter") (== name "reduce")))
 }
@@ -4846,79 +4853,62 @@ shadow nisa_functional_name {
     assert (not (nisa_functional_name "map_new"))
 }
 
-fn nisa_functional_index(parser: Parser, call: ASTCall, name: string) -> int {
+fn nisa_functional_signature(parser: Parser, call: ASTCall, name: string) -> string {
     let mut arity: int = 2
     if (== name "reduce") { set arity 3 }
-    if (!= call.arg_count arity) {
-        let _: string = (nisa_fail "I require the exact functional array arity")
-        return (- 0 1)
-    }
-    let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start (- arity 1)))
-    if (!= callback.node_type ParseNodeType.PNODE_IDENTIFIER) {
-        let _: string = (nisa_fail "I require a declared scalar callback identifier")
-        return (- 0 1)
-    }
-    let identifier: ASTIdentifier = (parser_get_identifier parser callback.node_id)
-    let target: ASTCall = ASTCall { borrow_mode: 0, node_type: ParseNodeType.PNODE_CALL,
-        line: identifier.line, column: identifier.column, function: callback.node_id,
-        function_type: ParseNodeType.PNODE_IDENTIFIER, arg_start: 0, arg_count: 0 }
-    let index: int = (nisa_call_index parser target)
-    if (< index 0) {
-        let _: string = (nisa_fail "I require a resolved declared scalar callback")
-        return (- 0 1)
-    }
-    let function: ASTFunction = (parser_get_function parser index)
-    let mut parameter_count: int = 1
-    if (== name "reduce") { set parameter_count 2 }
-    if (or (< function.body 0) (!= function.param_count parameter_count)) {
-        let _: string = (nisa_fail "I require a defined callback with the exact parameter count")
-        return (- 0 1)
-    }
-    let element: string = (parser_get_let parser (+ function.param_start (- parameter_count 1))).var_type
-    if (or (not (nisa_par_scalar element)) (not (nisa_par_scalar function.return_type))) {
-        let _: string = (nisa_fail "I require exact scalar callback parameter and result types")
-        return (- 0 1)
-    }
-    if (and (== name "filter") (!= function.return_type "bool")) {
-        let _: string = (nisa_fail "I require a bool filter callback result")
-        return (- 0 1)
-    }
+    if (!= call.arg_count arity) { return (nisa_fail "I require the exact functional array arity") }
     let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
+    let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start (- arity 1)))
+    let container: string = (nisa_expr_type parser source.node_id source.node_type)
+    let mut element: string = ""
+    if (and (str_starts_with container "array<") (str_ends_with container ">")) {
+        set element (str_substring container 6 (- (str_length container) 7))
+    }
     let mut empty: bool = false
-    if (== source.node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
-        set empty (== (parser_get_array_literal parser source.node_id).element_count 0)
-    }
-    if (and (not empty) (!= (nisa_expr_type parser source.node_id source.node_type) (+ "array<" (+ element ">")))) {
-        let _: string = (nisa_fail "I require the callback parameter to match my array element type")
-        return (- 0 1)
-    }
-    if (== name "reduce") {
-        let accumulator: string = (parser_get_let parser function.param_start).var_type
-        let initial: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
-        if (or (!= accumulator function.return_type) (!= (nisa_expr_type parser initial.node_id initial.node_type) accumulator)) {
-            let _: string = (nisa_fail "I require matching reduce initializer, accumulator and result types")
-            return (- 0 1)
+    if (== source.node_type ParseNodeType.PNODE_ARRAY_LITERAL) { set empty (== (parser_get_array_literal parser source.node_id).element_count 0) }
+    if (and (== element "") (== source.node_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
+        let literal: ASTArrayLiteral = (parser_get_array_literal parser source.node_id)
+        if (> literal.element_count 0) {
+            let first: ASTStmtRef = (parser_get_array_element parser literal.element_start)
+            if (nisa_generic_value parser first.node_id first.node_type) {
+                set element (nisa_expr_type parser first.node_id first.node_type)
+            }
         }
     }
-    return index
+    if (and (== element "") (not empty)) { return (nisa_fail "I require a checked functional source array") }
+    if empty { set element "" }
+    let mut initial: string = ""
+    if (== name "reduce") {
+        let value: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
+        set initial (nisa_expr_type parser value.node_id value.node_type)
+    }
+    let actual: string = (nisa_expr_type parser callback.node_id callback.node_type)
+    let signature: string = (generic_functional_type parser (nisa_compact_type actual) (nisa_compact_type element) (nisa_compact_type initial) (== name "reduce") (== name "filter"))
+    if (or (== signature "") (not (nisa_function_type_ok parser signature))) { return (nisa_fail "I require exact supported functional callback types") }
+    let parts: array<string> = (function_type_parts signature)
+    let input: string = (at parts (- (array_length parts) 2))
+    let mut output: string = (at parts (- (array_length parts) 1))
+    if (== name "filter") { set output input }
+    if (not (nisa_type_ok parser (+ "array<" (+ input ">")))) { return (nisa_fail "I require supported functional array elements") }
+    if (and (!= name "reduce") (not (nisa_type_ok parser (+ "array<" (+ output ">"))))) { return (nisa_fail "I require supported functional result elements") }
+    return signature
 }
-shadow nisa_functional_index {
-    let reset: int = (nisa_reset)
+shadow nisa_functional_signature {
+    let _: int = (nisa_reset)
     let tokens: List<LexerToken> = (tokenize_string "fn twice(x:int)->int{return (* x 2)} fn main()->array<int>{return (map [1] twice)}" "callback.nano" (diag_list_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "callback.nano")
-    assert (== (nisa_functional_index parser (parser_get_call parser 0) "map") 0)
-    let reset_again: int = (nisa_reset)
+    assert (== (nisa_functional_signature parser (parser_get_call parser 0) "map") "fn(int)->int")
+    let _: int = (nisa_reset)
 }
 
 fn nisa_functional_result(parser: Parser, call: ASTCall, name: string) -> string {
-    let index: int = (nisa_functional_index parser call name)
-    if (< index 0) { return "" }
-    let function: ASTFunction = (parser_get_function parser index)
-    if (== name "reduce") { return function.return_type }
-    if (== name "filter") {
-        return (+ "array<" (+ (parser_get_let parser function.param_start).var_type ">"))
-    }
-    return (+ "array<" (+ function.return_type ">"))
+    let signature: string = (nisa_functional_signature parser call name)
+    if (== signature "") { return "" }
+    let parts: array<string> = (function_type_parts signature)
+    let result: string = (at parts (- (array_length parts) 1))
+    if (== name "reduce") { return result }
+    if (== name "filter") { return (+ "array<" (+ (at parts 0) ">")) }
+    return (+ "array<" (+ result ">"))
 }
 shadow nisa_functional_result {
     let reset: int = (nisa_reset)
@@ -4958,10 +4948,12 @@ shadow nisa_emit_abs {
 }
 
 fn nisa_emit_functional_array(parser: Parser, call: ASTCall, name: string) -> string {
-    let index: int = (nisa_functional_index parser call name)
-    if (< index 0) { return "" }
-    let function: ASTFunction = (parser_get_function parser index)
-    let element: string = (parser_get_let parser (+ function.param_start (- function.param_count 1))).var_type
+    let signature: string = (nisa_functional_signature parser call name)
+    if (== signature "") { return "" }
+    let parts: array<string> = (function_type_parts signature)
+    let arity: int = (- (array_length parts) 1)
+    let result: string = (at parts arity)
+    let element: string = (at parts (- arity 1))
     let container: string = (+ "array<" (+ element ">"))
     let source: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
     let mut text: string = (nisa_emit_expected_expr parser source.node_id source.node_type container)
@@ -4971,22 +4963,32 @@ fn nisa_emit_functional_array(parser: Parser, call: ASTCall, name: string) -> st
     let mut result_slot: string = ""
     if (== name "reduce") {
         let initial: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start 1))
-        set text (+ text (nisa_emit_expected_expr parser initial.node_id initial.node_type function.return_type))
+        set text (+ text (nisa_emit_expected_expr parser initial.node_id initial.node_type result))
         if (not nisa_ok) { return "" }
-        set result_slot (nisa_temp_local function.return_type)
+        set result_slot (nisa_temp_local result)
         set text (+ text (nisa_line_imm "STORE_LOCAL" result_slot))
     }
+    # I capture the callback once after the array and initializer, before length.
+    let callback: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start (- call.arg_count 1)))
+    set text (+ text (nisa_emit_expected_expr parser callback.node_id callback.node_type signature))
+    if (not nisa_ok) { return "" }
+    let callback_slot: string = (nisa_temp_local signature)
+    set text (+ text (nisa_line_imm "STORE_LOCAL" callback_slot))
     let length_slot: string = (nisa_temp_local "int")
     set text (+ text (nisa_line_imm "LOAD_LOCAL" source_slot))
     set text (+ text (nisa_line "ARR_LEN"))
     set text (+ text (nisa_line_imm "STORE_LOCAL" length_slot))
     if (!= name "reduce") {
-        let mut output_element: string = function.return_type
+        let mut output_element: string = result
         if (== name "filter") { set output_element element }
         let mut tag: string = "1"
         if (== output_element "float") { set tag "3" }
         if (== output_element "bool") { set tag "4" }
         if (== output_element "string") { set tag "5" }
+        if (== output_element "u8") { set tag "2" }
+        if (nisa_function_type_ok parser output_element) { set tag "11" }
+        if (nisa_is_pin_record parser output_element) { set tag "8" }
+        if (str_starts_with output_element "array<") { set tag "7" }
         set result_slot (nisa_temp_local (+ "array<" (+ output_element ">")))
         set text (+ text (nisa_line_imm "ARR_NEW" tag))
         set text (+ text (nisa_line_imm "STORE_LOCAL" result_slot))
@@ -5009,8 +5011,10 @@ fn nisa_emit_functional_array(parser: Parser, call: ASTCall, name: string) -> st
     set text (+ text (nisa_line_imm "STORE_LOCAL" element_slot))
     if (== name "reduce") { set text (+ text (nisa_line_imm "LOAD_LOCAL" result_slot)) }
     set text (+ text (nisa_line_imm "LOAD_LOCAL" element_slot))
-    (nisa_require_function index)
-    set text (+ text (nisa_line_imm "CALL" function.name))
+    set nisa_has_callables true
+    set nisa_ordinary_ok false
+    set text (+ text (nisa_line_imm "LOAD_LOCAL" callback_slot))
+    set text (+ text (nisa_line_imm "CALL_INDIRECT" (+ (int_to_string arity) " 1")))
     if (== name "reduce") {
         set text (+ text (nisa_line_imm "STORE_LOCAL" result_slot))
     } else {
@@ -5032,7 +5036,8 @@ fn nisa_emit_functional_array(parser: Parser, call: ASTCall, name: string) -> st
 shadow nisa_emit_functional_array {
     let text: string = (nanoisa_emit_nasm "fn keep(x:float)->bool{return true} fn main()->int{let xs:array<float> = (filter [] keep) return (array_length xs)}")
     assert (str_contains text "ARR_NEW 3")
-    assert (str_contains text "CALL keep")
+    assert (str_contains text "FUNCREF keep")
+    assert (str_contains text "CALL_INDIRECT 1 1")
     assert (== (nanoisa_emit_nasm "fn wrong(x:int)->int{return x} fn main()->int{let xs:array<int> = (filter [1] wrong) return 0}") "")
     let reset: int = (nisa_reset)
 }
