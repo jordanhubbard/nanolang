@@ -89,19 +89,19 @@ static bool cg_generic_type_supported(CG *cg, const TypeInfo *info) {
     return info->base_type == TYPE_VOID || info->base_type == TYPE_INT || info->base_type == TYPE_U8 ||
         info->base_type == TYPE_FLOAT || info->base_type == TYPE_BOOL || info->base_type == TYPE_STRING;
 }
-static int32_t cg_generic_call(CG *cg, ASTNode *call) {
+static int32_t cg_generic_signature(CG *cg, ASTNode *call, const FunctionSignature *context) {
     Function *function=call->as.call.name?env_get_function(cg->env,call->as.call.name):NULL;
     /* Builtins have arity but no source body or Parameter array. */
     if(!function || function->is_extern || !function->body || !function->params)return -1;
     Function retained_function=*function;function=&retained_function;
     if(!generic_function(cg->env,function))return -1;
-    if (check_expression(call, cg->env) == TYPE_UNKNOWN || !call->as.call.checked_signature) {
+    if (!context && (check_expression(call, cg->env) == TYPE_UNKNOWN || !call->as.call.checked_signature)) {
         cg_error(cg, call->line, "I require a complete checked generic signature");return -1;
     }
     /* Argument checking may grow my environment function table. */
     function = env_get_function(cg->env, call->as.call.name);
     if (!function) { cg_error(cg, call->line, "I lost the checked generic declaration"); return -1; }
-    const FunctionSignature *signature = call->as.call.checked_signature;
+    const FunctionSignature *signature = context ? context : call->as.call.checked_signature;
     ASTNode *owner=NULL;const char *source=NULL;
     ASTNode *definition=cg_generic_definition(cg,function->body,&owner,&source);
     if(!definition || function->param_count!=call->as.call.arg_count || function->param_count>MAX_LOCALS) {
@@ -184,4 +184,49 @@ static int32_t cg_generic_call(CG *cg, ASTNode *call) {
     return (int32_t)instance->index;
 fail:
     cg_generic_free(instance);return -1;
+}
+
+static int32_t cg_generic_call(CG *cg, ASTNode *call) {
+    return cg_generic_signature(cg, call, NULL);
+}
+
+/* I lower contextual function values through the same concrete instance queue. */
+static bool cg_contextual_function(CG *cg, ASTNode *value, const FunctionSignature *expected) {
+    if (!expected || !value || value->type != AST_IDENTIFIER || value->lambda_definition ||
+        local_find(cg, value->as.identifier) >= 0 || global_find(cg, value->as.identifier) >= 0 ||
+        upvalue_resolve(cg, value->as.identifier) >= 0) return false;
+    Function *function = env_get_function(cg->env, value->as.identifier);
+    if (!function || !generic_function(cg->env, function)) return false;
+    FunctionSignature *signature = copy_contextual_callable_signature(value, cg->env, expected);
+    if (!signature) {
+        cg_error(cg, value->line, "I require a concrete matching generic function value signature");
+        return true;
+    }
+    ASTNode call = {.type=AST_CALL, .line=value->line, .column=value->column};
+    call.as.call.name=value->as.identifier;
+    call.as.call.arg_count=signature->param_count;
+    int32_t index=cg_generic_signature(cg, &call, signature);
+    free_function_signature(signature);
+    if (index >= 0) emit_op(cg, OP_FUNCREF, (uint32_t)index);
+    return true;
+}
+
+static const FunctionSignature *cg_argument_signature(CG *cg, ASTNode *call, int index) {
+    const FunctionSignature *signature = NULL;
+    const char *name = NULL;
+    char qualified[512];
+    if (call->type == AST_CALL) {
+        signature = call->as.call.checked_signature;
+        name = call->as.call.name;
+    } else if (call->type == AST_MODULE_QUALIFIED_CALL) {
+        signature = call->as.module_qualified_call.checked_signature;
+        snprintf(qualified, sizeof qualified, "%s.%s", call->as.module_qualified_call.module_alias,
+                 call->as.module_qualified_call.function_name);
+        name = qualified;
+    }
+    if (signature && index < signature->param_count && signature->param_type_info &&
+        signature->param_type_info[index]) return signature->param_type_info[index]->fn_sig;
+    Function *function = name ? env_get_function(cg->env, name) : NULL;
+    return function && function->params && index < function->param_count
+        ? function->params[index].fn_sig : NULL;
 }

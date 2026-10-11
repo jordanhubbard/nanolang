@@ -59,6 +59,7 @@ typedef struct {
     Type current_function_return_type;
     Type current_function_return_element_type;
     const TypeInfo *current_function_return_info;
+    const FunctionSignature *current_function_return_signature;
     const char *current_function_return_struct_name;  /* For struct return types */
     bool has_error;
     bool warnings_enabled;
@@ -1686,6 +1687,31 @@ static FunctionSignature *copy_callable_signature(ASTNode *value, Environment *e
     return signature ? copy_function_signature(signature) : NULL;
 }
 
+/* I bind a declared generic function to a complete callable context without
+ * changing its shared declaration or a lexical function-valued binding. */
+FunctionSignature *copy_contextual_callable_signature(ASTNode *value, Environment *env,
+                                                      const FunctionSignature *expected) {
+    FunctionSignature *signature = copy_callable_signature(value, env);
+    if (!signature || !expected) return signature;
+    Function *function = value && value->type == AST_IDENTIFIER &&
+        !env_get_var_visible_at(env, value->as.identifier, value->line, value->column)
+        ? env_get_function(env, value->as.identifier) : NULL;
+    if (function && generic_function(env, function)) {
+        TypeInfo formal = {.base_type=TYPE_FUNCTION, .fn_sig=signature};
+        TypeInfo actual = {.base_type=TYPE_FUNCTION, .fn_sig=(FunctionSignature *)expected};
+        GenericBindings bindings = {0};
+        bool valid = !generic_contains(env, &actual, 0) &&
+            generic_bind(env, &formal, &actual, &bindings, 0) &&
+            generic_substitute_signature(env, signature, &bindings, 0);
+        generic_bindings_free(&bindings);
+        if (!valid) { free_function_signature(signature); return NULL; }
+    }
+    if (!function_signatures_equal(signature, (FunctionSignature *)expected)) {
+        free_function_signature(signature); return NULL;
+    }
+    return signature;
+}
+
 /* I retain explicit callable annotations with the AST in every let scope. */
 static bool retain_let_function_type(TypeChecker *tc, ASTNode *statement, Type declared) {
     if (statement->as.let.type_info || declared != TYPE_FUNCTION ||
@@ -1930,7 +1956,7 @@ static bool indirect_argument_matches(ASTNode *argument, Environment *env,
     if (!types_match(actual, expected ? expected->base_type : fallback)) return false;
     if (!expected) return true;
     if (expected->base_type == TYPE_FUNCTION) {
-        FunctionSignature *signature = copy_callable_signature(argument, env);
+        FunctionSignature *signature = copy_contextual_callable_signature(argument, env, expected->fn_sig);
         bool matches = signature && function_signatures_equal(expected->fn_sig, signature);
         free_function_signature(signature);
         return matches;
@@ -3343,7 +3369,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     if (func->params[i].type == TYPE_FUNCTION) {
                         Type actual_type = check_expression(arg, env);
                         FunctionSignature *actual = actual_type == TYPE_FUNCTION
-                            ? copy_callable_signature(arg, env) : NULL;
+                            ? copy_contextual_callable_signature(arg, env, func->params[i].fn_sig) : NULL;
                         bool matches = actual && function_signatures_equal(func->params[i].fn_sig, actual);
                         free_function_signature(actual);
                         if (!matches) {
@@ -5238,8 +5264,14 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     /* Could be function name or function-typed variable */
                     Function *func = env_get_function(tc->env, stmt->as.let.value->as.identifier);
                     if (func) {
-                        value_sig = function_signature_from_function(func);
+                        value_sig = copy_contextual_callable_signature(stmt->as.let.value, tc->env, declared_sig);
                         owns_value_sig = true;
+                        if (!value_sig) {
+                            emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                                "I require a concrete matching function value signature.",
+                                "Bind every generic variable consistently with the declared callback.");
+                            tc->has_error = true;
+                        }
                     } else {
                         /* Check if it's a function-typed variable */
                         Symbol *sym = env_get_var(tc->env, stmt->as.let.value->as.identifier);
@@ -5462,6 +5494,17 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 tc->has_error=true;
             if (!check_record_array_contract(tc->env, sym->type, sym->element_type,
                     sym->struct_type_name, stmt->as.set.value)) tc->has_error = true;
+            if (sym->type == TYPE_FUNCTION && sym->type_info && sym->type_info->fn_sig) {
+                FunctionSignature *signature = copy_contextual_callable_signature(
+                    stmt->as.set.value, tc->env, sym->type_info->fn_sig);
+                if (!signature) {
+                    emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                        "I require the assigned function value's complete declared signature.",
+                        "Preserve the callback parameter and result identities.");
+                    tc->has_error = true;
+                }
+                free_function_signature(signature);
+            }
 
             /* Propagate element type to array literals for correct transpilation */
             if (sym->type == TYPE_ARRAY && sym->element_type != TYPE_UNKNOWN) {
@@ -5621,6 +5664,18 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 
                 check_concrete_union_arrays(tc->env, tc->current_function_return_info, stmt->as.return_stmt.value, 0);
                 Type return_type = check_expression(stmt->as.return_stmt.value, tc->env);
+                if (tc->current_function_return_type == TYPE_FUNCTION &&
+                    tc->current_function_return_signature) {
+                    FunctionSignature *signature = copy_contextual_callable_signature(
+                        stmt->as.return_stmt.value, tc->env, tc->current_function_return_signature);
+                    if (!signature) {
+                        emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
+                            "I require the returned function value's complete declared signature.",
+                            "Preserve the callback parameter and result identities.");
+                        tc->has_error = true;
+                    }
+                    free_function_signature(signature);
+                }
                 if (tc->current_function_return_type == TYPE_TUPLE &&
                     !check_tuple_contract(tc->env,tc->current_function_return_info,stmt->as.return_stmt.value))
                     tc->has_error = true;
@@ -6101,6 +6156,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     nested.current_function_return_type = func.return_type;
                     nested.current_function_return_element_type = func.return_element_type;
                     nested.current_function_return_info = func.return_type_info;
+                    nested.current_function_return_signature = func.return_fn_sig;
                     nested.current_function_return_struct_name = func.return_struct_type_name;
                     check_statement(&nested, stmt->as.function.body);
                     tc->has_error = tc->has_error || nested.has_error;
@@ -8255,6 +8311,7 @@ register_function_pass1:;
             tc.current_function_return_struct_name = func_def ? func_def->return_struct_type_name : NULL;
             tc.current_function_return_element_type = func_def ? func_def->return_element_type : TYPE_UNKNOWN;
             tc.current_function_return_info = func_def ? func_def->return_type_info : NULL;
+            tc.current_function_return_signature = func_def ? func_def->return_fn_sig : NULL;
             
             /* Register generic union instantiation for function return type */
             if (item->as.function.return_type == TYPE_UNION &&
@@ -9028,6 +9085,7 @@ register_function_pass2:;
                 env_get_enum(env,item->as.function.return_struct_type_name)) tc.current_function_return_type=TYPE_ENUM;
             tc.current_function_return_element_type = item->as.function.return_element_type;
             tc.current_function_return_info = item->as.function.return_type_info;
+            tc.current_function_return_signature = item->as.function.return_fn_sig;
             tc.current_function_return_struct_name = item->as.function.return_struct_type_name;
 
             /* Register generic union instantiation for function return type */

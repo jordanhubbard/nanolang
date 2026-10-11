@@ -1,0 +1,5 @@
+docs/evidence/contextual-generic-baseline-20261010/callback.nano:4:25: error: use of undeclared identifier 'nl_identity'
+    4 |     FnType_0 callback = nl_identity;
+      |                         ^~~~~~~~~~~
+1 error generated.
+C compilation failed

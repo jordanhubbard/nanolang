@@ -1,0 +1,32 @@
+test_tail_and_indirect_callback_arguments (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_tail_and_indirect_callback_arguments) ... FAIL
+
+======================================================================
+FAIL: test_tail_and_indirect_callback_arguments (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_tail_and_indirect_callback_arguments)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 55, in test_tail_and_indirect_callback_arguments
+            self.execute(PRELUDE+'''fn apply(f:fn(int)->int)->int{return (f 7)}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow apply {assert (== (apply identity) 7)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+     return 0
+     ^^^^^^^^
+    }'''+SHADOW)
+    ^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 14, in execute
+    shared.CseedGenericFunctions().execute(source, files=files)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 27, in execute
+    self.run_command([COMPILER, path, '--emit-nvm', '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 17, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: I require the function expression argument types
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.276s
+
+FAILED (failures=1)

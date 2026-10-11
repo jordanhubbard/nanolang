@@ -1064,6 +1064,8 @@ Value create_function(const char *function_name, FunctionSignature *signature);
 FunctionSignature *create_function_signature(Type *param_types, int param_count, Type return_type);
 FunctionSignature *function_signature_from_function(const Function *function);
 FunctionSignature *copy_function_signature(const FunctionSignature *signature);
+FunctionSignature *copy_contextual_callable_signature(ASTNode *value, Environment *env,
+                                                      const FunctionSignature *expected);
 void free_function_signature(FunctionSignature *sig);
 bool function_signatures_equal(FunctionSignature *sig1, FunctionSignature *sig2);
 bool type_infos_equal(const TypeInfo *left, const TypeInfo *right);

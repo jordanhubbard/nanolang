@@ -4090,6 +4090,18 @@ shadow check_array_literal_context {
 }
 
 fn check_constructor_argument(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (and (== node_type ParseNodeType.PNODE_IDENTIFIER) (str_starts_with (type_to_string expected) "fn(")) {
+        let identifier: ASTIdentifier = (parser_get_identifier parser node_id)
+        let index: int = (env_lookup symbols (tc_bound_name identifier.name identifier.line symbols))
+        if (>= index 0) {
+            let symbol: Symbol = (at symbols index)
+            if (and symbol.is_function (tc_generic_function parser symbol)) {
+                let prior: GenericBindings = GenericBindings {names: [], types: [], valid: true}
+                let bound: GenericBindings = (generic_bind_type parser (type_to_string actual) (type_to_string expected) prior)
+                if bound.valid { return expected }
+            }
+        }
+    }
     if (== expected.kind TypeKind.TYPE_ARRAY) { return (check_array_literal_context parser node_id node_type actual expected symbols diags file_name) }
     if (or (!= expected.kind TypeKind.TYPE_UNION) (!= node_type ParseNodeType.PNODE_UNION_CONSTRUCT)) { return actual }
     let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
@@ -4651,6 +4663,10 @@ shadow tc_generic_function {
     let tokens: List<LexerToken> = (tokenize_string "fn identity(x:T)->T{return x} fn main()->int{return (identity 7)}" "generic.nano" (list_CompilerDiagnostic_new))
     let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "generic.nano")
     assert (not (typecheck_phase parser "generic.nano").had_error)
+    let contextual: Parser = (resource_test_parser "fn id(x:T)->T{return x} fn apply(f:fn(int)->int)->int{return (f 7)} fn main()->int{return (apply id)}")
+    assert (not (typecheck_phase contextual "context.nano").had_error)
+    let invalid: Parser = (resource_test_parser "fn id(x:T)->T{return x} fn apply(f:fn(int)->bool)->int{return 0} fn main()->int{return (apply id)}")
+    assert (typecheck_phase invalid "context.nano").had_error
 }
 
 fn tc_generic_call(parser: Parser, sym: Symbol, start: int, count: int, line: int, column: int, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
@@ -5502,6 +5518,9 @@ fn check_let_statement(parser: Parser, let_node: ASTLet, node_id: int, symbols: 
         let init_context: NSType = (check_array_literal_context parser let_node.value let_node.value_type init_type_raw declared_type symbols diags file_name)
         let init_type_hint: NSType = (apply_value_type_hint parser let_node.value let_node.value_type init_context declared_type)
         let mut init_type: NSType = (apply_return_type_hint init_type_hint declared_type)
+        if (== declared_type.kind TypeKind.TYPE_FUNCTION) {
+            set init_type (check_constructor_argument parser let_node.value let_node.value_type init_type_hint declared_type symbols diags file_name)
+        }
         # I accept only literal zero as a declared opaque null, as at call sites.
         if (and (tc_is_opaque_name parser let_node.var_type) (== let_node.value_type ParseNodeType.PNODE_NUMBER)) {
             if (== (parser_get_number parser let_node.value).value "0") { set init_type declared_type }
@@ -5595,6 +5614,9 @@ fn check_return_statement(parser: Parser, ret_node: ASTReturn, expected_type: NS
         let expr_context: NSType = (check_array_literal_context parser ret_node.value ret_node.value_type expr_t_raw expected_type symbols diags file_name)
         let expr_t_hint: NSType = (apply_value_type_hint parser ret_node.value ret_node.value_type expr_context expected_type)
         let mut expr_t: NSType = (apply_return_type_hint expr_t_hint expected_type)
+        if (== expected_type.kind TypeKind.TYPE_FUNCTION) {
+            set expr_t (check_constructor_argument parser ret_node.value ret_node.value_type expr_t_hint expected_type symbols diags file_name)
+        }
         if (and (tc_is_opaque_name parser (type_to_string expected_type)) (== ret_node.value_type ParseNodeType.PNODE_NUMBER)) {
             if (== (parser_get_number parser ret_node.value).value "0") { set expr_t expected_type }
         }
@@ -5667,7 +5689,10 @@ fn check_set_statement(parser: Parser, set_node: ASTSet, symbols: array<Symbol>,
             let rhs_t_raw: NSType = (check_expr_node parser set_node.value set_node.value_type symbols diags file_name)
             let rhs_context: NSType = (check_array_literal_context parser set_node.value set_node.value_type rhs_t_raw sym.sym_type symbols diags file_name)
             let rhs_t_hint: NSType = (apply_value_type_hint parser set_node.value set_node.value_type rhs_context sym.sym_type)
-            let rhs_t: NSType = (apply_return_type_hint rhs_t_hint sym.sym_type)
+            let mut rhs_t: NSType = (apply_return_type_hint rhs_t_hint sym.sym_type)
+            if (== sym.sym_type.kind TypeKind.TYPE_FUNCTION) {
+                set rhs_t (check_constructor_argument parser set_node.value set_node.value_type rhs_t_hint sym.sym_type symbols diags file_name)
+            }
             if (not (types_equal rhs_t sym.sym_type)) {
                 let detail: string = (+ "Assignment to " set_node.target)
                 let msg: string = (encode_type_mismatch_message "variable_assignment" (type_to_string sym.sym_type) (type_to_string rhs_t) detail)
@@ -6189,12 +6214,6 @@ fn apply_return_type_hint(expr_type: NSType, expected_type: NSType) -> NSType {
     } else { (print "") }
     if (== expected_type.kind TypeKind.TYPE_BOOL) {
         if (or (== expr_type.kind TypeKind.TYPE_BOOL) (== expr_type.kind TypeKind.TYPE_UNKNOWN)) {
-            return expected_type
-        } else { (print "") }
-    } else { (print "") }
-    /* Function types: allow if both are function types with matching signatures */
-    if (== expected_type.kind TypeKind.TYPE_FUNCTION) {
-        if (== expr_type.kind TypeKind.TYPE_FUNCTION) {
             return expected_type
         } else { (print "") }
     } else { (print "") }

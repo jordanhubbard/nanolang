@@ -162,6 +162,7 @@ struct CG {
     uint16_t param_count;
     uint32_t current_fn_idx;
     Type current_return_element_type;
+    const FunctionSignature *current_return_signature;
 
     /* Function table (populated in pass 1) */
     FnEntry functions[MAX_FUNCTIONS];
@@ -2811,7 +2812,10 @@ static void compile_expr(CG *cg, ASTNode *node) {
             else emit_op(cg, OP_LOAD_GLOBAL, (uint32_t)callable_global);
             uint16_t saved_callee = local_add(cg, "", node->line);
             emit_op(cg, OP_STORE_LOCAL, (int)saved_callee);
-            for (int i = 0; i < argc; i++) compile_expr(cg, node->as.call.args[i]);
+            for (int i = 0; i < argc; i++) {
+                if (!cg_contextual_function(cg, node->as.call.args[i], cg_argument_signature(cg, node, i)))
+                    compile_expr(cg, node->as.call.args[i]);
+            }
             emit_op(cg, OP_LOAD_LOCAL, (int)saved_callee);
             emit_op(cg, OP_CALL_INDIRECT, argc,
                     check_expression(node, cg->env) == TYPE_VOID ? 0 : 1);
@@ -2832,6 +2836,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
         uint8_t *declared_tags = declared_target >= 0
             ? cg->module->function_param_types[declared_target] : NULL;
         for (int i = 0; i < argc; i++) {
+            if (cg_contextual_function(cg, node->as.call.args[i], cg_argument_signature(cg, node, i))) continue;
             compile_expected_tag(cg, node->as.call.args[i],
                 declared_tags && i < cg->module->functions[declared_target].arity
                     ? declared_tags[i] : TAG_COUNT);
@@ -3505,6 +3510,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     uint16_t saved_param_count = cg->param_count;
     uint32_t saved_current_fn_idx = cg->current_fn_idx;
     Type saved_return_element_type = cg->current_return_element_type;
+    const FunctionSignature *saved_return_signature = cg->current_return_signature;
     memcpy(st->loops, cg->loops, sizeof(cg->loops));
     int saved_loop_depth = cg->loop_depth;
     int saved_effect_depth = cg->effect_depth;
@@ -3534,6 +3540,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     cg->upvalue_count = 0;
     cg->current_fn_idx = (uint32_t)fn_idx;
     cg->current_return_element_type = node->as.function.return_element_type;
+    cg->current_return_signature = node->as.function.return_fn_sig;
 
     /* Parameters become the first locals of nested function */
     for (int i = 0; i < node->as.function.param_count; i++) {
@@ -3589,6 +3596,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     cg->param_count = saved_param_count;
     cg->current_fn_idx = saved_current_fn_idx;
     cg->current_return_element_type = saved_return_element_type;
+    cg->current_return_signature = saved_return_signature;
     memcpy(cg->loops, st->loops, sizeof(cg->loops));
     cg->loop_depth = saved_loop_depth;
     cg->effect_depth = saved_effect_depth;
@@ -3714,8 +3722,10 @@ static bool compile_tail_call(CG *cg, ASTNode *node) {
         : node->as.module_qualified_call.arg_count;
     if ((uint16_t)argc != callee->arity) return false;
     uint8_t *tags = cg->module->function_param_types[target];
-    for (int i = 0; i < argc; i++)
-        compile_expected_tag(cg, args[i], tags ? tags[i] : TAG_COUNT);
+    for (int i = 0; i < argc; i++) {
+        if (!cg_contextual_function(cg, args[i], cg_argument_signature(cg, node, i)))
+            compile_expected_tag(cg, args[i], tags ? tags[i] : TAG_COUNT);
+    }
     emit_op(cg, OP_TAIL_CALL, (uint32_t)target);
     return true;
 }
@@ -3922,7 +3932,10 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             node->as.let.element_type != TYPE_UNKNOWN) {
             node->as.let.value->as.array_literal.element_type = node->as.let.element_type;
         }
-        if (node->as.let.var_type == TYPE_U8)
+        if (node->as.let.var_type == TYPE_FUNCTION &&
+            cg_contextual_function(cg, node->as.let.value, node->as.let.fn_sig)) {
+            /* I have emitted the concrete callable reference. */
+        } else if (node->as.let.var_type == TYPE_U8)
             compile_expected_tag(cg, node->as.let.value, TAG_U8);
         else if (node->as.let.var_type == TYPE_INT || node->as.let.var_type == TYPE_FLOAT)
             compile_numeric_expr(cg, node->as.let.value,
@@ -3974,7 +3987,10 @@ static void compile_stmt(CG *cg, ASTNode *node) {
         if (slot >= 0) {
             Symbol *binding = env_get_var_visible_at(cg->env, node->as.set.name,
                                                      node->line, node->column);
-            if (binding && binding->type == TYPE_U8)
+            if (binding && binding->type_info &&
+                cg_contextual_function(cg, node->as.set.value, binding->type_info->fn_sig)) {
+                /* I have emitted the concrete callable reference. */
+            } else if (binding && binding->type == TYPE_U8)
                 compile_expected_tag(cg, node->as.set.value, TAG_U8);
             else
                 compile_stored_expr(cg, node->as.set.value);
@@ -4195,8 +4211,9 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             break;
         }
         if (node->as.return_stmt.value) {
-            compile_expected_tag(cg, node->as.return_stmt.value,
-                cg->module->functions[cg->current_fn_idx].result_tag);
+            if (!cg_contextual_function(cg, node->as.return_stmt.value, cg->current_return_signature))
+                compile_expected_tag(cg, node->as.return_stmt.value,
+                    cg->module->functions[cg->current_fn_idx].result_tag);
             if (cg->module->functions[cg->current_fn_idx].result_count == 0 &&
                 expr_leaves_value(cg, node->as.return_stmt.value))
                 emit_op(cg, OP_POP);
@@ -4398,6 +4415,7 @@ static void compile_function_at(CG *cg, ASTNode *fn_node, int32_t fn_idx) {
     cg->upvalue_count = 0;
     cg->current_fn_idx = (uint32_t)fn_idx;
     cg->current_return_element_type = fn_node->as.function.return_element_type;
+    cg->current_return_signature = fn_node->as.function.return_fn_sig;
 
     /* Parameters become the first locals */
     for (int i = 0; i < fn_node->as.function.param_count; i++) {

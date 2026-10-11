@@ -83,36 +83,9 @@ shadow nisa_generic_budget {
     assert (not (nisa_generic_budget 0 0 -1))
 }
 
-fn nisa_generic_bind(parser: Parser, call: ASTCall, index: int) -> int {
-    let function: ASTFunction = (parser_get_function parser index)
-    if (!= call.arg_count function.param_count) {
-        let _: string = (nisa_fail "I require the generic function's exact argument count")
-        return -1
-    }
-    let mut variables: array<string> = []
-    let mut types: array<string> = []
+# I share concrete instances between direct calls and contextual function values.
+fn nisa_generic_register(parser: Parser, index: int, variables: array<string>, types: array<string>) -> int {
     let mut i: int = 0
-    while (< i function.param_count) {
-        let formal: string = (parser_get_let parser (+ function.param_start i)).var_type
-        if (generic_type_contains_variable parser formal) {
-            let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
-            let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
-            if (or (== actual "void") (not (nisa_type_ok parser actual))) {
-                let _: string = (nisa_fail "I require a concrete supported generic argument")
-                return -1
-            }
-            let prior: GenericBindings = GenericBindings {names: variables, types: types, valid: true}
-            let bound: GenericBindings = (generic_bind_type parser formal actual prior)
-            if (not bound.valid) {
-                let _: string = (nisa_fail "I require one concrete identity and matching structure for each generic type variable")
-                return -1
-            }
-            set variables bound.names
-            set types bound.types
-        }
-        set i (+ i 1)
-    }
-    set i 0
     while (< i (array_length nisa_generics)) {
         let prior: NisaGeneric = (at nisa_generics i)
         if (== prior.function_index index) {
@@ -159,6 +132,51 @@ fn nisa_generic_bind(parser: Parser, call: ASTCall, index: int) -> int {
     }))
     (nisa_require_function (- -1 i))
     return i
+}
+shadow nisa_generic_register {
+    let _: int = (nisa_reset)
+    let tokens: List<LexerToken> = (tokenize_string "fn id(x:T)->T{return x}" "context.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "context.nano")
+    assert (== (nisa_generic_register parser 0 ["T"] ["int"]) 0)
+    assert (== (nisa_generic_register parser 0 ["T"] ["int"]) 0)
+    assert (== (nisa_generic_register parser 0 ["T"] ["bool"]) 1)
+    let _: int = (nisa_reset)
+    let assembly: string = (nanoisa_emit_nasm "fn id(x:T)->T{return x} fn main()->int{let callback:fn(int)->int=id return (callback 7)}")
+    assert (str_contains assembly "FUNCREF __nanoisa_generic_0")
+    assert (str_contains assembly ".parameters __nanoisa_generic_0 int")
+    let _: int = (nisa_reset)
+}
+
+fn nisa_generic_bind(parser: Parser, call: ASTCall, index: int) -> int {
+    let function: ASTFunction = (parser_get_function parser index)
+    if (!= call.arg_count function.param_count) {
+        let _: string = (nisa_fail "I require the generic function's exact argument count")
+        return -1
+    }
+    let mut variables: array<string> = []
+    let mut types: array<string> = []
+    let mut i: int = 0
+    while (< i function.param_count) {
+        let formal: string = (parser_get_let parser (+ function.param_start i)).var_type
+        if (generic_type_contains_variable parser formal) {
+            let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
+            let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
+            if (or (== actual "void") (not (nisa_type_ok parser actual))) {
+                let _: string = (nisa_fail "I require a concrete supported generic argument")
+                return -1
+            }
+            let prior: GenericBindings = GenericBindings {names: variables, types: types, valid: true}
+            let bound: GenericBindings = (generic_bind_type parser formal actual prior)
+            if (not bound.valid) {
+                let _: string = (nisa_fail "I require one concrete identity and matching structure for each generic type variable")
+                return -1
+            }
+            set variables bound.names
+            set types bound.types
+        }
+        set i (+ i 1)
+    }
+    return (nisa_generic_register parser index variables types)
 }
 shadow nisa_generic_bind {
     let assembly: string = (nanoisa_emit_nasm "fn id(x:T)->T{return x} fn main()->int{return (id 7)}")
@@ -4009,6 +4027,29 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         }
     }
     if (str_starts_with (nisa_compact_type expected) "fn(") {
+        if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
+            let identifier: ASTIdentifier = (parser_get_identifier parser node_id)
+            if (and (< (nisa_local_find identifier.name) 0)
+                    (and (< (nisa_capture_find nisa_capture_frame identifier.name) 0)
+                         (< (nisa_global_find identifier.name identifier.line) 0))) {
+                let index: int = (nisa_identifier_function parser identifier)
+                if (>= index 0) {
+                    let function: ASTFunction = (parser_get_function parser index)
+                    if (nisa_generic_function parser function) {
+                        let prior: GenericBindings = GenericBindings {names: [], types: [], valid: true}
+                        let bound: GenericBindings = (generic_bind_type parser (nisa_function_type parser function) expected prior)
+                        if (or (not bound.valid) (not (nisa_function_type_ok parser expected))) {
+                            return (nisa_fail "I require one concrete identity for the declared generic function value signature")
+                        }
+                        let binding: int = (nisa_generic_register parser index bound.names bound.types)
+                        if (< binding 0) { return "" }
+                        set nisa_has_callables true
+                        set nisa_ordinary_ok false
+                        return (nisa_line_imm "FUNCREF" (at nisa_generics binding).name)
+                    }
+                }
+            }
+        }
         if (not (nisa_value_type_matches parser (nisa_expr_type parser node_id node_type) expected)) {
             return (nisa_fail "I require the declared function value signature")
         }
@@ -4954,6 +4995,7 @@ fn nisa_emit_indirect_call(parser: Parser, call: ASTCall) -> string {
         let expected: string = (at parts i)
         let actual: string = (nisa_expr_type parser argument.node_id argument.node_type)
         let mut contextual: bool = (and (== expected "u8") (== argument.node_type ParseNodeType.PNODE_NUMBER))
+        if (str_starts_with (nisa_compact_type expected) "fn(") { set contextual true }
         if (and (str_starts_with expected "array<") (== argument.node_type ParseNodeType.PNODE_ARRAY_LITERAL)) {
             set contextual (== (parser_get_array_literal parser argument.node_id).element_count 0)
         }
