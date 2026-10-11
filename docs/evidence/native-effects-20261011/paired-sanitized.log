@@ -1,0 +1,27 @@
+.F.
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='bin/nano_virt', case='handler_removal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 2, column 31: Unexpected token in expression: LET (type=25)
+Error at line 2, column 31: Expected expression in handle body
+Error at line 2, column 136: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 141: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 142: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 146: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 151: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 153: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 154: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 159: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 160: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 2, column 161: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+error: parser failed
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 36.960s
+
+FAILED (failures=1)

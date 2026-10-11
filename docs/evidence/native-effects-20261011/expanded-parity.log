@@ -1,0 +1,25 @@
+.FF.
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='aggregate_result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 32, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp5pv5svb_/source.nvm': I require an explicit stack contract for callable analysis
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (__main__.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (target='native', driver='/private/tmp/nl51-row-signatures/compiler', case='indirect_arm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 32, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpt_kdxasl/source.nvm': I require an explicit stack contract for callable analysis
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 4.453s
+
+FAILED (failures=2)

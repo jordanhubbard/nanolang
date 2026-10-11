@@ -623,7 +623,12 @@ test-nvm2c-sanitizer-driver:
 test-nvm2c-opcode-coverage:
 	@python3 -m unittest tests.test_nvm2c_opcode_coverage
 
-test-nvm2c: test-native-array-pop test-native-local-clear test-nvm2c-callables test-nvm2c-opcode-coverage test-nvm2c-sanitizer-driver test-nvm2c-shapes nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+# I exercise raw activation and unwind boundaries independently of source producers.
+.PHONY: test-native-effects
+test-native-effects: nvm2c nanoisa_dump nano_vm
+	@CC="$(CC)" NANOLANG_NVM2C="$(BIN_DIR)/nvm2c" NANOLANG_NANOISA="$(BIN_DIR)/nanoisa" NANOLANG_NANO_VM="$(BIN_DIR)/nano_vm" python3 -m unittest tests.test_native_effects
+
+test-nvm2c: test-native-effects test-native-array-pop test-native-local-clear test-nvm2c-callables test-nvm2c-opcode-coverage test-nvm2c-sanitizer-driver test-nvm2c-shapes nvm2c $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	@echo "Running nvm2c structured-C tests..."
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -I$(NANOISA_MODULE_DIR) -o $(NVM2C_TEST_BINARY) \
 		tests/nanoisa/test_nvm2c.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)

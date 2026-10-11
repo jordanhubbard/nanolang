@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "nvm2c_effect_flow.h"
 
 typedef struct {
     NvmShapeId callee, result;
@@ -24,6 +25,9 @@ typedef struct {
     size_t variant_count;
     IndirectCall *calls;
     size_t call_count;
+    Nvm2cHandler *handlers;
+    size_t handler_count;
+    NvmShapeId *effect_results;
 } Analysis;
 
 typedef struct { NvmShapeId *stack; size_t count; int set; } Frame;
@@ -87,8 +91,8 @@ static int collect_function(Analysis *a, uint32_t function) {
     for (size_t i = 0; i < count; ++i) {
         const VmDecodedInstruction *instruction = &decoded.instructions[i];
         uint8_t opcode = instruction->instruction.opcode;
-        if (opcode != OP_JMP && opcode != OP_JMP_TRUE && opcode != OP_JMP_FALSE) continue;
-        int64_t offset = (int64_t)instruction->byte_offset + instruction->instruction.operands[0].i32;
+        if (opcode != OP_JMP && opcode != OP_JMP_TRUE && opcode != OP_JMP_FALSE && opcode != OP_HANDLER_PUSH) continue;
+        int64_t offset = (int64_t)instruction->byte_offset + instruction->instruction.operands[opcode == OP_HANDLER_PUSH ? 1 : 0].i32;
         if (offset < 0 || (uint64_t)offset > decoded.code_size ||
             !vm_decoded_function_has_boundary(&decoded, (uint32_t)offset)) {
             fail(a, "I require valid callable branch boundaries"); goto done;
@@ -122,6 +126,7 @@ static int collect_function(Analysis *a, uint32_t function) {
         case OP_CLOSURE_NEW: pop = in->operands[1].u16; push = 1; break;
         case OP_AGG_PACK: pop = in->operands[3].u16; push = 1; break;
         case OP_ARR_LITERAL: pop = in->operands[1].u16; push = 1; break;
+        case OP_PERFORM: pop = in->operands[1].u16; push = 1; break;
         case OP_RET: pop = fn->result_count; push = 0; break;
         default: break;
         }
@@ -143,6 +148,25 @@ static int collect_function(Analysis *a, uint32_t function) {
         NvmShapeId output[3] = {0};
         for (int i = 0; i < push; ++i) output[i] = fresh(a);
         switch (in->opcode) {
+        case OP_PERFORM: {
+            if (target >= a->module->string_count) { fail(a, "I require a valid effect operation"); goto done; }
+            uint32_t operation = effect_operation(a->module, target);
+            output[0] = a->effect_results[operation];
+            for (size_t h = 0; h < a->handler_count; ++h) {
+                Nvm2cHandler *handler = &a->handlers[h];
+                if (handler->operation != operation || handler->count != pop) continue;
+                for (int p = 0; p < pop; ++p)
+                    if (!flow(a, stack[base + (size_t)p], a->locals[handler->function][handler->start + p])) goto done;
+            }
+            break;
+        }
+        case OP_EFFECT_RESUME:
+            for (size_t h = 0; h < a->handler_count; ++h) {
+                Nvm2cHandler *handler = &a->handlers[h];
+                if (handler->function == function && handler->flow[decoded_instruction->byte_offset] &&
+                    !flow(a, stack[base], a->effect_results[handler->operation])) goto done;
+            }
+            break;
         case OP_FUNCREF:
             if (target >= a->module->function_count) { fail(a, "I require a valid function reference"); goto done; }
             if (!nvm_shape_function_add(&a->out->shapes, output[0], target)) goto done;
@@ -288,7 +312,12 @@ static int collect_function(Analysis *a, uint32_t function) {
             if (!nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_FUNCTION)) goto done;
         for (int i = 0; i < push; ++i) stack[base + (size_t)i] = output[i];
         if (a->out->shapes.error) goto done;
-        if (in->opcode == OP_RET || in->opcode == OP_HALT || in->opcode == OP_TAIL_CALL) continue;
+        if (in->opcode == OP_RET || in->opcode == OP_HALT || in->opcode == OP_TAIL_CALL || in->opcode == OP_EFFECT_RESUME) continue;
+        if (in->opcode == OP_HANDLER_PUSH) {
+            uint32_t offset = (uint32_t)((int64_t)decoded_instruction->byte_offset + in->operands[1].i32);
+            uint32_t destination = (uint32_t)(vm_decoded_function_at(&decoded, offset) - decoded.instructions);
+            if (!edge(a, frames, destination, NULL, 0, work, &tail)) goto done;
+        }
         if (in->opcode == OP_JMP || in->opcode == OP_JMP_TRUE || in->opcode == OP_JMP_FALSE) {
             int64_t offset = (int64_t)decoded_instruction->byte_offset + in->operands[0].i32;
             if (offset < 0 || (uint64_t)offset > decoded.code_size ||
@@ -466,6 +495,10 @@ int nvm_callable_analyze(const NvmModule *module, NvmCallableAnalysis *out) {
     a.globals = calloc(a.global_count ? a.global_count : 1, sizeof *a.globals);
     if (!a.globals) goto done;
     for (size_t i = 0; i < a.global_count; ++i) a.globals[i] = fresh(&a);
+    if (!effect_collect_entries(module, &a.handlers, &a.handler_count)) goto done;
+    a.effect_results = calloc(module->string_count ? module->string_count : 1, sizeof *a.effect_results);
+    if (!a.effect_results) goto done;
+    for (uint32_t i = 0; i < module->string_count; ++i) a.effect_results[i] = fresh(&a);
     for (uint32_t f = 0; f < module->function_count; ++f)
         if (!collect_function(&a, f)) goto done;
     for (;;) {
@@ -498,6 +531,8 @@ done:
     if (a.locals) for (uint32_t f = 0; f < module->function_count; ++f) free(a.locals[f]);
     if (a.upvalues) for (uint32_t f = 0; f < module->function_count; ++f) free(a.upvalues[f]);
     for (size_t i = 0; i < a.call_count; ++i) { free(a.calls[i].arguments); free(a.calls[i].linked); }
+    for (size_t h = 0; h < a.handler_count; ++h) free(a.handlers[h].flow);
+    free(a.handlers); free(a.effect_results);
     free(a.variants); free(a.calls); free(a.upvalues); free(a.locals); free(a.results); free(a.globals);
     return ok;
 }

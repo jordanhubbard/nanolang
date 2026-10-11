@@ -1,0 +1,146 @@
+{
+  "revision": "b66665e7c2a9f99a3ec9643fde7c373c3408e606",
+  "inputs": {
+    "src/nanoisa/nvm2c_effects.h": "f55176f2caae55034e69abcfdbb6aa287c40cecf51508ba64e14abd31a51b383",
+    "src/nanoisa/nvm2c_effect_flow.h": "b272e8c54f5cce644619fd2fc1439d570976704c148b08b7beecbe9ca65e9855",
+    "src/nanoisa/nvm2c_effect_emit.h": "cd5da8557ebae30b841c95c4f88852da13dff7b82038bd9b3c04b14b368585a3",
+    "src/nanoisa/nvm2c_callables.c": "1036583b03ddf81bb67179016726db4e6304839c315be1add5725170f09f370b",
+    "tests/test_native_effects.py": "1b46838ab9243399e27f7cd3f41e3a61ab4a44f570e5f3141163ddcb57149b36",
+    "tests/test_selfhost_effects.py": "04a16f1436e19d63449e8fa8c75dc55cc2ae898dcba88f9e54af9c1aaee10468",
+    "src/module_metadata.c": "e4f379e5e4c92455921f96c44f096997ad82ec17ee48d73fed67420d6826b863",
+    "src/native_type_key.h": "04401ba9337c8d34ecb4c2616e1fe5e98497c6fcf01f2bd406bca13fe1d24b00",
+    "src/c_backend.c": "e3f5f181c165efe2b23f1628092b30129e4381af140c3f9fb45e379e9267c359",
+    "src/parser.c": "347f7559d5e13dae86e85736595ecdf4dc6171541f8eac8b7b800fbde6879ec8",
+    "src/nominal_types.c": "af91c81896e2091a2cf0ed30090ca2c765b26716fa397eb9b864496c4bae617a",
+    "src_nano/compiler/lexer.nano": "967fb0f4a8f95b6a183da0bb6c9d866dd43298449ea183868ba045357b4a384b",
+    "src_nano/compiler/effect_declarations.nano": "35244c84bd38ab609e8e9036a2845dbdaf115b23f0665f743c98b21f754c0dd6",
+    "src_nano/generated/compiler_schema.nano": "1b043a43cf22f18b8df6433a1b3c84b36bdde2231f860b8d0e3e882d2058f2ea",
+    "src/nanoisa/assembler.c": "44b700dc91c93598ed3b1717ec75936d7aebf4d87f0f2da505668f29c15a5bb7",
+    "schema/compiler_schema.json": "0a5b3ecd46caad1638c6aeeb699d1643d8fabcd4a667861daade8ad69ccb8116",
+    "src/generated/compiler_schema.h": "70ece2b0dd7a55511653ba917dccde0dde24e3a345daef407a5c36442c19dcef",
+    "src_nano/generated/compiler_ast.nano": "6dee8b493881897f3e444eb61c10ed063ce49573d5105fc49a08d4916a7e0447",
+    "src_nano/parser.nano": "b4c4c70ee9400eb006d5af71feb59114f84c480a0a423c172715438ced837c51",
+    "src_nano/typecheck.nano": "f3e2db946c45baecda60fcfd0378553ef550ba113667829f4ccfa2dfb9ce7856",
+    "src_nano/nanoc_v06.nano": "197cd3e338aa8c1cf47729b740bad19a58a9dabc99efd192ea3003912727a6a6",
+    "src_nano/compiler/nanoisa_codegen.nano": "478f9e3462c13e257d259762c8fc0fbda6f706a3a68a18d6e6af2e31bc88ed90",
+    "src_nano/compiler/nominal_bindings.nano": "55556a1ad0614d843673e2527783d4f60148bc1265d139c5e29b9e55bc46d110",
+    "src/nanolang.h": "7c486f4e383e27c999c62fd37a9e95a7f62ae65cc958a753d4f995ed9d21dc9e",
+    "src/env.c": "30e192487573065bc8eed8ad70c1c08bd179aea5f265bcd63a38d0ce048f43f6",
+    "src/typechecker.c": "a8af645c7acd3c157abe5e59047b451f16cd9805d00cdaa6aa3111455d8f0741",
+    "src/nanovirt/codegen.c": "b59d47e18c431f8744487c7580b20c7dc8b4d3c925d200035d43c8adf141787b",
+    "src/nanovm/vm.c": "582bc7f815b0ad0cc1b2e0406c67384c9e0278839760384ff50ea39e2484b258",
+    "src/nanoisa/nvm2c.c": "c8da6ca26d0b033f6e458b6f96237ccd00c0a190fd28299e3f5a38b37baec043"
+  },
+  "steps": [
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "-o",
+        "/private/tmp/nl51-native-effects/seed"
+      ],
+      "returncode": 0,
+      "seconds": 199.89999137504492,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-native-effects/seed",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-native-effects/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 313.7432206670055,
+      "log": "product-01.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-native-effects/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 0.12890187499579042,
+      "log": "product-02.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-native-effects/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-native-effects/compiler.c"
+      ],
+      "returncode": 0,
+      "seconds": 19.739610415999778,
+      "log": "product-03.log"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-native-effects/compiler.c",
+        "-o",
+        "/private/tmp/nl51-native-effects/compiler",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "returncode": 0,
+      "seconds": 6.84699529199861,
+      "log": "product-04.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-native-effects/compiler",
+        "--help"
+      ],
+      "returncode": 0,
+      "seconds": 0.021113749942742288,
+      "log": "product-05.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "tests/test_selfhost_effects.py"
+      ],
+      "returncode": 0,
+      "seconds": 38.03117337508593,
+      "log": "product-06.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "tests/test_effect_binding_metadata.py"
+      ],
+      "returncode": 0,
+      "seconds": 0.6469492079922929,
+      "log": "product-07.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_opaque_imports",
+        "tests.test_selfhost_union_storage",
+        "tests.test_selfhost_layout_validation",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 3.4573049580212682,
+      "log": "product-08.log"
+    }
+  ],
+  "artifacts": {
+    "seed": "19b9d47a946c8f60ba9a6373bdf30cb8861fb5c9613c1187233cfe5df6b10b18",
+    "compiler.nvm": "d7470984f4de70f0e66e8738a3bdbbfef37a145bfe40847cd815a9639af9b728",
+    "compiler.c": "5dc1ab3ac807fda0c07ac8d8ae22e59dd261bddff3d9a43797401f86c229d294",
+    "compiler": "dd9cb4b261907e34ac5d80b7a27b7fa013a035931bdb39202cb3e4c6a2bd71e6"
+  },
+  "inputs_unchanged": true
+}

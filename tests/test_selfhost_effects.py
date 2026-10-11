@@ -1,5 +1,6 @@
 """I require effect semantics and refusal parity through both NanoISA frontends."""
 import os
+import shlex
 from pathlib import Path
 import subprocess
 import sys
@@ -26,14 +27,14 @@ class SelfhostEffects(unittest.TestCase):
                 command = [ROOT/'bin/nano_vm', output]
                 if target == 'native':
                     source, binary = output.with_suffix('.c'), output.with_suffix('.native')
-                    translated = subprocess.run([ROOT/'bin/nvm2c', output, '-o', source],
+                    translated = subprocess.run([os.environ.get('NANOLANG_NVM2C', str(ROOT/'bin/nvm2c')), output, '-o', source],
                                                 capture_output=True, text=True, timeout=60)
                     self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
                     runtime = [ROOT/'bin/nano_aot_runtime.o', '-lm']
                     if sys.platform.startswith('linux'):
                         runtime += ['-Wl,--export-dynamic', '-ldl']
-                    built = subprocess.run(['cc', '-std=c11', '-Wall', '-Wextra', '-Werror',
-                                            source, '-o', binary, *runtime],
+                    built = subprocess.run([*shlex.split(os.environ.get('NANOLANG_EFFECT_CC', os.environ.get('CC', 'cc'))), '-std=c11', '-Wall', '-Wextra', '-Werror',
+                                            *shlex.split(os.environ.get('NANOLANG_EFFECT_CFLAGS', '')), source, '-o', binary, *runtime],
                                            capture_output=True, text=True, timeout=60)
                     self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
                     command = [binary]
@@ -89,6 +90,24 @@ fn main()->int{let prefix:string="abc" let value:string=handle {(send "def")} wi
 fn send(values:array<int>)->array<int>{return perform Values.append(values)}
 shadow send{assert true}
 fn main()->int{let values:array<int> = handle {(send [2, 3])} with {append items->{(array_push items 4)}} assert (== (array_length values) 3) return (at values 2)}""", 4),
+            ('aggregate_result', """struct Point{x:int,text:string}
+effect Move{move:Point->Point}
+fn main()->int{let point:Point=handle {perform Move.move(Point{x:2,text:"abc"})} with {move point->{Point{x:(+ point.x 1),text:(str_concat point.text "def")}}} assert (== point.text "abcdef") return point.x}""", 3),
+            ('lexical_string', """effect Ask{ask:int->int}
+let mut trace:int=0
+fn send()->int{let allocated:string=(str_concat "abc" "def") let value:int=perform Ask.ask((str_length allocated)) set trace 1 return value}
+shadow send{assert true}
+fn leave()->string{let ignored=handle {(send)} with {ask value->{return (str_concat "result" "!")}} return "wrong"}
+shadow leave{assert true}
+fn main()->int{set trace 0 let result:string=(leave) assert (== trace 0) assert (== result "result!") return (str_length result)}""", 7),
+            ('handler_removal', """effect Ask{ask:int->int}
+fn main()->int{return handle {let first:int=handle {perform Ask.ask(2)} with {ask value->{(+ value 10)}} (+ first perform Ask.ask(3))} with {ask value->{value}}}""", 15),
+            ('managed_loop', """effect Text{join:string->string}
+fn main()->int{let mut i:int=0 let mut kept:string="" while (< i 1200){set kept handle {perform Text.join("abc")} with {join text->{(str_concat text "def")}} set i (+ i 1)} assert (== kept "abcdef") return (str_length kept)}""", 6),
+            ('indirect_arm', """effect Ask{ask:int->int}
+fn plus(x:int)->int{return (+ x 2)}
+shadow plus{assert (== (plus 2) 4)}
+fn main()->int{let callback:fn(int)->int=plus return handle {perform Ask.ask(3)} with {ask value->{(callback value)}}}""", 5),
             ('local_loop', '''effect Ask{ask:int->int}
 fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{let mut total:int=0 let mut i:int=0 while (< i value){set total (+ total i) set i (+ i 1)} total}}}''', 3),
         ]
@@ -160,6 +179,7 @@ fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{let mut tota
 
     def test_invalid_effects_preserve_previous_output(self):
         sources = [
+            'effect Ask{ask:int->int} fn main()->int{let value=handle {let hidden:int=3 hidden} with {ask n->{n}} return hidden}',
             'fn main()->int{return perform Missing.ask(1)}',
             'effect Ask{ask:int->int} fn main()->int{return perform Ask.missing(1)}',
             'effect Ask{ask:int->int} fn main()->int{return perform Ask.ask(true)}',

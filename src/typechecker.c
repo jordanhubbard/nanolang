@@ -5147,7 +5147,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
             }
 
             /* Type of handle expression = type of the handled body */
-            return check_expression(expr->as.handle_expr.body, env);
+            int saved_body_count = env->symbol_count;
+            Type body_type = check_expression(expr->as.handle_expr.body, env);
+            env->symbol_count = saved_body_count;
+            return body_type;
         }
 
         case AST_AWAIT:

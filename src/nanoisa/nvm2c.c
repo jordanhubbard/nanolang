@@ -195,6 +195,15 @@ static int optional_scalar_tags(uint16_t tags) {
            !(tags & ~((1u << (TAG_BOOL + 1)) - 1));
 }
 
+#include "nvm2c_effect_flow.h"
+
+typedef struct {
+    uint8_t kind;
+    uint8_t *fields;
+    NvmShapeId shape;
+    uint16_t tags;
+} Nvm2cEffectResult;
+
 typedef struct {
     char *data;
     size_t len;
@@ -205,6 +214,11 @@ typedef struct {
     size_t sim_stack_capacity;
     size_t record_width;
     int has_maps;
+    int has_effects;
+    Nvm2cHandler *handlers;
+    size_t handler_count;
+    Nvm2cEffectResult *effect_results;
+    uint32_t effect_result_count;
     int call_environment;
     int has_float_arithmetic;
     int has_string_arrays;
@@ -709,7 +723,10 @@ static int merge_fact(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_t kin
     if (kind == NVM2C_VK_UNK || *dest == kind) return 1;
     if (*dest != NVM2C_VK_UNK) {
         char target[96];
-        if (dest < facts->fields) {
+        if ((uintptr_t)dest < (uintptr_t)facts->parameters ||
+            (uintptr_t)dest >= (uintptr_t)facts->global_kinds) {
+            snprintf(target, sizeof target, "effect representation");
+        } else if (dest < facts->fields) {
             size_t offset = (size_t)(dest - facts->parameters);
             snprintf(target, sizeof target, "parameter %zu of function %zu",
                      offset % b->local_width, offset / b->local_width);
@@ -1262,11 +1279,11 @@ static int local_clear_unobserved(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (ins.opcode == OP_LOAD_LOCAL) safe = 0;
             continue;
         }
-        if (ins.opcode == OP_RET || ins.opcode == OP_HALT || ins.opcode == OP_TAIL_CALL) continue;
+        if (ins.opcode == OP_RET || ins.opcode == OP_HALT || ins.opcode == OP_TAIL_CALL || ins.opcode == OP_EFFECT_RESUME) continue;
         size_t successors[2] = {pc + n, 0}, size = 1;
-        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE || ins.opcode == OP_JMP_TRUE) {
+        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE || ins.opcode == OP_JMP_TRUE || ins.opcode == OP_HANDLER_PUSH) {
             size_t target;
-            if (!jump_target(b, idx, pc, ins.operands[0].i32, fn->code_length, &target)) { safe = 0; break; }
+            if (!jump_target(b, idx, pc, ins.operands[ins.opcode == OP_HANDLER_PUSH ? 1 : 0].i32, fn->code_length, &target)) { safe = 0; break; }
             if (ins.opcode == OP_JMP) successors[0] = target;
             else successors[size++] = target;
         }
@@ -1311,15 +1328,23 @@ static int mark_uninitialized_locals(Nvm2cBuf *b, const NvmModule *mod, uint32_t
             }
             if (ins.opcode == OP_STORE_LOCAL) out[slot / 8] |= (uint8_t)(1u << (slot % 8));
         }
-        if (ins.opcode == OP_RET || ins.opcode == OP_HALT || ins.opcode == OP_TAIL_CALL) continue;
+        if (ins.opcode == OP_RET || ins.opcode == OP_HALT || ins.opcode == OP_TAIL_CALL || ins.opcode == OP_EFFECT_RESUME) continue;
         size_t next[2] = {pc + n, 0}, successors = 1;
-        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE || ins.opcode == OP_JMP_TRUE) {
+        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE || ins.opcode == OP_JMP_TRUE || ins.opcode == OP_HANDLER_PUSH) {
             size_t target;
-            if (!jump_target(b, idx, pc, ins.operands[0].i32, fn->code_length, &target)) break;
+            if (!jump_target(b, idx, pc, ins.operands[ins.opcode == OP_HANDLER_PUSH ? 1 : 0].i32, fn->code_length, &target)) break;
             if (ins.opcode == OP_JMP) next[0] = target;
             else next[successors++] = target;
         }
         for (size_t s = 0; s < successors; ++s) {
+            if (ins.opcode == OP_HANDLER_PUSH && s == 1) {
+                uint16_t first = ins.operands[2].u16, count = ins.operands[3].u16;
+                for (uint16_t l = first; l < fn->local_count; ++l) {
+                    uint8_t bit = (uint8_t)(1u << (l % 8));
+                    if (l - first < count) out[l / 8] |= bit;
+                    else out[l / 8] &= (uint8_t)~bit;
+                }
+            }
             size_t at = next[s];
             uint8_t *dest = states + at * WIDTH;
             int changed = !(flags[at] & 1);
@@ -1503,6 +1528,8 @@ static int classify_direct_call(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     return 1;
 }
 
+#include "nvm2c_effects.h"
+
 static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                   uint8_t *local_kind, uint8_t *rec_fields,
                                   Nvm2cSimJoin *joins, const uint8_t *targets,
@@ -1515,7 +1542,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
     uint16_t i;
     memset(local_kind, NVM2C_VK_UNK, nloc);
     memset(rec_fields, NVM2C_VK_UNK, (size_t)nloc * b->record_width);
-    memcpy(local_kind, facts->parameters + (size_t)idx * b->local_width, fn->arity);
+    memcpy(local_kind, facts->parameters + (size_t)idx * b->local_width, b->has_effects ? nloc : fn->arity);
     for (i = 0; i < nloc; ++i) {
         if (b->tagged_locals[(size_t)idx * b->local_width + i]) {
             local_kind[i] = NVM2C_VK_VALUE;
@@ -2658,6 +2685,23 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_push_slot(b, idx, stk, &sp, field)) return 0;
             break;
         }
+        case OP_HANDLER_PUSH: {
+            size_t target;
+            if (!jump_target(b, idx, start, ins.operands[1].i32, remaining, &target) ||
+                !sim_join(b, idx, target, &joins[target], stk, 0, facts)) return 0;
+            break;
+        }
+        case OP_HANDLER_POP: break;
+        case OP_PERFORM:
+            if (!effect_classify_perform(b, mod, idx, &ins, local_kind, facts, stk, &sp)) return 0;
+            break;
+        case OP_EFFECT_RESUME: {
+            Nvm2cSimSlot result;
+            if (!sim_pop(b, idx, stk, &sp, &result) || sp) return 0;
+            if (!effect_resume_result(b, idx, start, facts, result)) return 0;
+            terminated = 1;
+            break;
+        }
         case OP_CALL:
         case OP_TAIL_CALL:
             if (!classify_direct_call(b, mod, idx, ins.operands[0].u32,
@@ -2781,6 +2825,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         }
         case OP_RET:
         case OP_HALT: {
+            if (b->has_effects && ins.opcode == OP_HALT) { sp = 0; break; }
             if (fn->result_count == 1 &&
                 (fn->result_tag == TAG_INT || fn->result_tag == TAG_BOOL || (fn->result_tag == TAG_U8 || fn->result_tag == TAG_ENUM || fn->result_tag == TAG_OPAQUE) || fn->result_tag == TAG_FLOAT ||
                  fn->result_tag == TAG_STRING || fn->result_tag == TAG_ARRAY || (fn->result_tag == TAG_FUNCTION || fn->result_tag == TAG_CLOSURE) ||
@@ -2922,8 +2967,10 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
         if (b->failed) return 0;
     }
 
+    if (!terminated && fn->result_count == 1 && sp == 1 &&
+        !effect_resume_result(b, idx, remaining, facts, stk[0])) return 0;
     for (i = 0; i < nloc; i++) {
-        if (i < fn->arity &&
+        if ((i < fn->arity || effect_parameter(b, idx, i)) &&
             !merge_parameter(b, facts, &facts->parameters[(size_t)idx * b->local_width + i], local_kind[i])) return 0;
     }
     return 1;
@@ -2970,9 +3017,9 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             goto done;
         }
         starts[pc] = 1;
-        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE || ins.opcode == OP_JMP_TRUE) {
+        if (ins.opcode == OP_JMP || ins.opcode == OP_JMP_FALSE || ins.opcode == OP_JMP_TRUE || ins.opcode == OP_HANDLER_PUSH) {
             size_t target;
-            if (!jump_target(b, idx, pc, ins.operands[0].i32, length, &target)) goto done;
+            if (!jump_target(b, idx, pc, ins.operands[ins.opcode == OP_HANDLER_PUSH ? 1 : 0].i32, length, &target)) goto done;
             targets[target] = 1;
         }
         pc += n;
@@ -2993,6 +3040,11 @@ static int classify_function(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     }
     b->default_fields = sim_fields(b, NULL, NVM2C_VK_UNK);
     if (!b->default_fields) goto done;
+    for (size_t h = 0; h < b->handler_count; ++h) {
+        Nvm2cHandler *handler = &b->handlers[h];
+        if (handler->function == idx &&
+            !sim_join(b, idx, handler->target, &joins[handler->target], stack, 0, facts)) goto done;
+    }
     ok = classify_function_body(b, mod, idx, local_kind, rec_fields, joins, targets, facts, stack);
     if (ok && facts->final) {
         for (size_t pc = 0; pc <= length; ++pc) {
@@ -3402,7 +3454,7 @@ static void scalar_value_expression(Nvm2cBuf *b, char *out, size_t size, uint8_t
 
 /* I give record locals stable invocation-owned addresses. Other locals retain
  * their scalar/handle storage; every local use shares this spelling. */
-static void local_operand(char out[32], const Nvm2cBuf *b, const uint8_t *kinds,
+static void physical_local_operand(char out[32], const Nvm2cBuf *b, const uint8_t *kinds,
                           uint32_t idx, uint16_t slot) {
     if (fn_local_kind(b, kinds, idx, slot) == NVM2C_VK_REC) {
         unsigned record_slot = 0;
@@ -3414,12 +3466,41 @@ static void local_operand(char out[32], const Nvm2cBuf *b, const uint8_t *kinds,
     }
 }
 
+static void local_operand(char out[32], const Nvm2cBuf *b, const uint8_t *kinds,
+                          uint32_t idx, uint16_t slot) {
+    if (b->has_effects) snprintf(out, 32, "(*p%u)", (unsigned)slot);
+    else physical_local_operand(out, b, kinds, idx, slot);
+}
+
+/* I retain the VM's observable integer stack top when HALT crosses calls. */
+static void emit_effect_top(Nvm2cBuf *b, const Nvm2cStack *st,
+        const NvmFunctionEntry *fn, const uint8_t *kinds, uint32_t idx, const char *destination) {
+    char value[64];
+    uint8_t kind;
+    if (st->sp) {
+        kind = st->kinds[st->sp - 1];
+        snprintf(value, sizeof value, "%s[%d]", stack_array_name(kind), st->slots[st->sp - 1]);
+    } else if (fn->local_count) {
+        kind = fn_local_kind(b, kinds, idx, fn->local_count - 1);
+        char local[32]; local_operand(local, b, kinds, idx, fn->local_count - 1);
+        snprintf(value, sizeof value, "%s", local);
+    } else {
+        nvm2c_printf(b, "    %s = nfx.fallback;\n", destination);
+        return;
+    }
+    if (kind == NVM2C_VK_INT) nvm2c_printf(b, "    %s = %s;\n", destination, value);
+    else if (kind == NVM2C_VK_VALUE)
+        nvm2c_printf(b, "    %s = %s.kind == 1 ? %s.integer : 0;\n", destination, value, value);
+    else nvm2c_printf(b, "    %s = 0;\n", destination);
+}
+
 /* I publish only live operand slots, not stale high-water temporaries. Caller
  * snapshots stay registered while callees run; mutable aggregates are traced
  * from their current contents at collection time. */
 static void emit_map_roots(Nvm2cBuf *b, const Nvm2cStack *st,
                            const NvmFunctionEntry *fn, const uint8_t *kinds,
                            uint32_t idx) {
+    if (b->has_effects) emit_effect_top(b, st, fn, kinds, idx, "nfx_top");
     if (!b->has_maps) return;
     nvm2c_puts(b, "    nroot_reset(&nroots.live);\n");
     if (fn->upvalue_count) nvm2c_puts(b, "    nroot_add(&nroots.live, 4, nenv);\n");
@@ -3911,6 +3992,8 @@ static int emit_record_array_value(Nvm2cBuf *b, Nvm2cStack *st, int array, int v
     return normalized < 0 ? value : normalized;
 }
 
+#include "nvm2c_effect_emit.h"
+
 static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                                const uint8_t *kinds, const uint8_t *rec_fields,
                                const uint8_t *result_fields) {
@@ -3949,7 +4032,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         if (lk == NVM2C_VK_REC) {
             if (i < fn->arity) {
                 char local[32];
-                local_operand(local, b, kinds, idx, i);
+                physical_local_operand(local, b, kinds, idx, i);
                 nvm2c_printf(b, "    %s = *a%u;\n", local, (unsigned)i);
             }
             continue;
@@ -3976,6 +4059,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         nvm2c_printf(b, "    (void)l%u;\n", (unsigned)i);
     }
     if (fn->upvalue_count) nvm2c_printf(b, "    if (!nenv || nenv->n != %u) NVM2C_ABORT();\n", fn->upvalue_count);
+    if (b->has_effects) effect_emit_frame(b, mod, idx, kinds);
     size_t declarations_at = b->len;
 
     if (fn->code_offset > mod->code_size ||
@@ -4025,9 +4109,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         if (look.opcode == OP_TAIL_CALL && look.operands[0].u32 == idx)
             has_self_tail = 1;
-        if (look.opcode == OP_JMP || look.opcode == OP_JMP_FALSE || look.opcode == OP_JMP_TRUE) {
+        if (look.opcode == OP_JMP || look.opcode == OP_JMP_FALSE || look.opcode == OP_JMP_TRUE || look.opcode == OP_HANDLER_PUSH) {
             size_t tgt = 0;
-            if (!jump_target(b, idx, scan, look.operands[0].i32, remaining, &tgt)) {
+            if (!jump_target(b, idx, scan, look.operands[look.opcode == OP_HANDLER_PUSH ? 1 : 0].i32, remaining, &tgt)) {
                 goto done;
             }
             is_target[tgt] = 1;
@@ -4060,6 +4144,20 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
     /* A decoded self-tail instruction may be unreachable. Keep its label
      * syntactically referenced without executing an extra jump. */
     nvm2c_puts(b, "    if (0) goto L_return;\n");
+    if (b->has_effects) {
+        nvm2c_puts(b, "    nfx.result = ");
+        nvm2c_puts(b, record_result ? "nresult;\n" : strcmp(rt, "void") ? "&nresult;\n" : "NULL;\n");
+        nvm2c_puts(b, "    if (nactivation) { switch (nactivation->entry) {\n");
+        for (size_t h = 0; h < b->handler_count; ++h) {
+            Nvm2cHandler *handler = &b->handlers[h];
+            if (handler->function != idx) continue;
+            if (!record_join(b, idx, joins, join_set, handler->target, &st)) goto done;
+            referenced[handler->target] = 1;
+            nvm2c_printf(b, "    case %zu: goto L_%u;\n", h, handler->target);
+        }
+        nvm2c_puts(b, "    default: NVM2C_ABORT(); } }\n");
+    }
+
     if (has_self_tail) nvm2c_puts(b, "    if (0) goto L_tco;\nL_tco: ;\n");
     if (b->has_maps && has_self_tail) {
         emit_map_roots(b, &st, fn, kinds, idx);
@@ -4419,27 +4517,9 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 uint8_t expect = fn_local_kind(b, kinds, idx, slot);
                 int t = stack_pop_expect(b, &st, expect, "STORE_LOCAL");
                 if (b->failed) goto done;
-                if (expect == NVM2C_VK_STR) {
-                    nvm2c_printf(b, "    l%u = s[%d];\n", (unsigned)slot, t);
-                } else if (expect == NVM2C_VK_FLOAT) {
-                    nvm2c_printf(b, "    l%u = f[%d];\n", (unsigned)slot, t);
-                } else if (word_array_storage(expect)) {
-                    nvm2c_printf(b, "    l%u = a[%d];\n", (unsigned)slot, t);
-                } else if (expect == NVM2C_VK_SARR) {
-                    nvm2c_printf(b, "    l%u = sa[%d];\n", (unsigned)slot, t);
-                } else if (expect == NVM2C_VK_REC) {
-                    char local[32];
-                    local_operand(local, b, kinds, idx, slot);
-                    nvm2c_printf(b, "    %s = r[%d];\n", local, t);
-                } else if (expect == NVM2C_VK_RARR) {
-                    nvm2c_printf(b, "    l%u = ra[%d];\n", (unsigned)slot, t);
-                } else if (expect == NVM2C_VK_MAP) {
-                    nvm2c_printf(b, "    l%u = m[%d];\n", (unsigned)slot, t);
-                } else if (expect == NVM2C_VK_VALUE || expect == NVM2C_VK_FUNC) {
-                    nvm2c_printf(b, "    l%u = v[%d];\n", (unsigned)slot, t);
-                } else {
-                    nvm2c_printf(b, "    l%u = t[%d];\n", (unsigned)slot, t);
-                }
+                char local[32];
+                local_operand(local, b, kinds, idx, slot);
+                nvm2c_printf(b, "    %s = %s[%d];\n", local, stack_array_name(expect), t);
             }
             break;
         }
@@ -5617,6 +5697,31 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             }
             break;
         }
+        case OP_HANDLER_PUSH:
+            for (size_t h = 0; h < b->handler_count; ++h) {
+                Nvm2cHandler *handler = &b->handlers[h];
+                if (handler->function == idx && handler->target == (uint32_t)((int64_t)start + ins.operands[1].i32) &&
+                    handler->start == ins.operands[2].u16 && handler->count == ins.operands[3].u16 && handler->operation == effect_operation(mod, ins.operands[0].u32)) {
+                    nvm2c_printf(b, "    nfx_push(&nfx, %zu, %u, %u, %u);\n", h, handler->operation, handler->start, handler->count);
+                    break;
+                }
+            }
+            break;
+        case OP_HANDLER_POP:
+            nvm2c_printf(b, "    nfx_pop(&nfx, %u);\n", ins.operands[0].u16);
+            break;
+        case OP_PERFORM:
+            emit_map_roots(b, &st, fn, kinds, idx);
+            if (!effect_emit_perform(b, mod, &st, &ins)) goto done;
+            break;
+        case OP_EFFECT_RESUME: {
+            uint8_t kind;
+            int slot = stack_pop_kind(b, &st, &kind);
+            if (b->failed || st.sp) { nvm2c_fail(b, "I require one native resumed value"); goto done; }
+            nvm2c_printf(b, "    if (!nactivation) NVM2C_ABORT();\n    nactivation->result.kind = %u;\n    nactivation->result.data.%s = %s[%d];\n    nresumed = 1;\n    goto L_return;\n", kind, stack_array_name(kind), stack_array_name(kind), slot);
+            terminated = 1;
+            break;
+        }
         case OP_CALL:
             emit_map_roots(b, &st, fn, kinds, idx);
             if (b->has_owned_strings || b->has_owned_aggregates)
@@ -5697,6 +5802,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             break;
         }
         case OP_TAIL_CALL: {
+            if (b->has_effects) nvm2c_puts(b, "    if (nactivation) NVM2C_ABORT();\n    nfx_prune(nfx_saved);\n");
             uint32_t callee = ins.operands[0].u32;
             emit_map_roots(b, &st, fn, kinds, idx);
             if (b->has_owned_strings || b->has_owned_aggregates)
@@ -5811,6 +5917,12 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             terminated = 1;
             break;
         case OP_HALT:
+            if (b->has_effects) {
+                emit_effect_top(b, &st, fn, kinds, idx, "nfx_halt_result");
+                nvm2c_puts(b, "    nfx_halted = 1;\n    goto L_return;\n");
+                st.sp = 0; terminated = 1;
+                break;
+            }
             if (result_is_i64(fn) && st.sp == 1) {
                 nvm2c_printf(b, "    nresult = t[%d];\n    goto L_return;\n",
                              stack_pop_expect(b, &st, fn->result_tag == TAG_BOOL ? NVM2C_VK_BOOL : NVM2C_VK_INT, "HALT"));
@@ -5827,6 +5939,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_CALL_EXTERN: {
             /* A host call may re-enter generated code through a callback. I
              * publish its caller before consuming the host arguments. */
+            if (b->has_effects) nvm2c_puts(b, "    { nfx_handler *saved_floor = nfx_floor; nfx_floor = nfx_head;\n");
             emit_map_roots(b, &st, fn, kinds, idx);
             if (b->has_owned_strings || b->has_owned_aggregates)
                 nvm2c_puts(b, "    nmap_collect_if_needed();\n");
@@ -5907,6 +6020,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         }
         }
         if (b->failed) goto done;
+        if (b->has_effects && ins.opcode == OP_CALL_EXTERN)
+            nvm2c_puts(b, "    nfx_floor = saved_floor; }\n");
+        if (b->has_effects && (ins.opcode == OP_CALL || ins.opcode == OP_CALL_INDIRECT || ins.opcode == OP_CALL_EXTERN))
+            nvm2c_puts(b, "    if (nfx_unwind || nfx_halted) goto L_return;\n");
         if (boolean_result(ins.opcode) && st.sp > 0) st.kinds[st.sp - 1] = NVM2C_VK_BOOL;
         previous_false_push = ins.opcode == OP_PUSH_BOOL && ins.operands[0].u8 == 0;
         previous_void_push = ins.opcode == OP_PUSH_VOID;
@@ -5923,9 +6040,18 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             nvm2c_fail(b, "function %u: I support implicit returns only for zero results or one int/u8/bool/float", idx);
             goto done;
         }
+        if (b->has_effects) {
+            if (fn->result_count == 1 && st.sp == 1) {
+                uint8_t kind = st.kinds[0];
+                nvm2c_printf(b, "    if (nactivation) { nactivation->result.kind = %u; nactivation->result.data.%s = %s[%d]; nresumed = 1; goto L_return; }\n",
+                             kind, stack_array_name(kind), stack_array_name(kind), st.slots[0]);
+            } else nvm2c_puts(b, "    if (nactivation) NVM2C_ABORT();\n");
+        }
         if (!emit_scalar_return(b, &st, fn, idx)) goto done;
     }
     nvm2c_puts(b, "L_return:\n");
+    if (b->has_effects) effect_emit_return(b, fn, rt, record_result);
+
     if (b->has_maps) nvm2c_puts(b, "    nroot_head = nroots.prev; nroot_destroy(&nroots.live);\n");
     nvm2c_puts(b, "    free(r);\n");
     if (record_locals) nvm2c_puts(b, "    free(rl);\n");
@@ -7297,6 +7423,9 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     b.err_len = err_len;
     b.record_width = 1;
     b.local_width = 1;
+    b.has_effects = module_has_opcode(mod, OP_HANDLER_PUSH) || module_has_opcode(mod, OP_PERFORM) ||
+        module_has_opcode(mod, OP_HANDLER_POP) || module_has_opcode(mod, OP_EFFECT_RESUME);
+    if (b.has_effects) b.has_maps = 1;
     b.has_owned_strings = module_has_opcode(mod, OP_STR_CONCAT) ||
         module_has_opcode(mod, OP_STR_SUBSTR) || module_has_opcode(mod, OP_STR_TRIM) || module_has_opcode(mod, OP_CAST_STRING) ||
         module_uses_host(mod, "nhost_from_char");
@@ -7461,6 +7590,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     facts.global_kinds = b.array_results + mod->function_count;
     facts.global_fields = facts.global_kinds + b.global_count;
     facts.global_stored = global_stored;
+    if (!effect_collect(&b, mod)) goto fail;
     /* I discover exact array globals before ordinary inference. A
      * load cannot publish the old tagged fallback into a local or parameter
      * before a later function reveals the global's exact element shape. */
@@ -8205,6 +8335,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             "}\n");
     }
 
+    if (b.has_effects) effect_emit_runtime(&b);
+
     {
         uint32_t i;
         for (i = 0; i < mod->function_count; i++) {
@@ -8213,6 +8345,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (b.failed) goto fail;
         }
     }
+    if (b.has_effects) effect_emit_dispatch(&b, mod, kinds);
     nvm2c_puts(&b, "\n");
 
     {
@@ -8335,7 +8468,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 break;
             }
         }
-        nvm2c_printf(&b, "    int result = (int)%s();\n", ename);
+        if (b.has_effects) {
+            nvm2c_puts(&b, "    nfx_top = 0;\n");
+            nvm2c_printf(&b, "    int result = nfx_halted ? (int)nfx_halt_result : (int)%s();\n    if (nfx_halted) result = (int)nfx_halt_result;\n", ename);
+        } else nvm2c_printf(&b, "    int result = (int)%s();\n", ename);
         if ((module_has_opcode(mod, OP_AGG_PACK) || module_has_opcode(mod, OP_CLOSURE_NEW) || module_has_opcode(mod, OP_ARR_POP) || module_has_opcode(mod, OP_ARR_GET))) nvm2c_puts(&b, "    nrec_release_snapshots();\n");
         if (b.has_maps) nvm2c_puts(&b, "    nmap_release_owned();\n");
         if (b.has_record_array_allocations) nvm2c_puts(&b, "    nrarr_release_owned();\n");
@@ -8354,6 +8490,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     free(rec_fields);
     free(inference);
     free(global_stored);
+    effect_destroy(&b);
     nvm_shape_destroy(&b.shapes);
     nvm_callable_destroy(&b.callables);
     free(b.shape_locals);
@@ -8383,6 +8520,7 @@ fail:
     free(rec_fields);
     free(inference);
     free(global_stored);
+    effect_destroy(&b);
     nvm_shape_destroy(&b.shapes);
     nvm_callable_destroy(&b.callables);
     free(b.shape_locals);

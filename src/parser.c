@@ -4164,23 +4164,12 @@ static ASTNode *parse_handle_expr(Stage1Parser *p) {
 
     if (!expect(p, TOKEN_HANDLE, "Expected 'handle'")) return NULL;
 
-    /* Accept both `handle { expr }` and `handle expr` (no braces) forms.
-     * When expr starts with '(', that's a prefix-call: (fn args) — parse_expression handles it. */
+    /* I retain braced bodies as expression blocks, like handler arms. */
     ASTNode *body = NULL;
     bool brace_form = match(p, TOKEN_LBRACE);
     if (brace_form) {
-        advance(p); /* consume '{' */
-        body = parse_expression(p);
-        if (!body) {
-            parser_error(p, current_token(p)->line, current_token(p)->column,
-                "Error at line %d, column %d: Expected expression in handle body\n",
-                current_token(p)->line, current_token(p)->column);
-            return NULL;
-        }
-        if (!expect(p, TOKEN_RBRACE, "Expected '}' after handle body")) {
-            free_ast(body);
-            return NULL;
-        }
+        body = parse_block(p);
+        if (!body) return NULL;
     } else {
         /* Bare expression form: handle (fn args) with { ... } */
         body = parse_expression(p);

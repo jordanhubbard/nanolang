@@ -1,0 +1,15 @@
+..F..
+======================================================================
+FAIL: test_backward_handler_entry (__main__.NativeEffectBoundaries.test_backward_handler_entry) (target='/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-effect-dy31ldq6/program')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 40, in exercise
+    self.assertEqual(ran.returncode, 0, ran.stdout+ran.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: -6 != 0 : I stopped at a native invariant in nl_main at generated C line 949.
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 4.965s
+
+FAILED (failures=1)

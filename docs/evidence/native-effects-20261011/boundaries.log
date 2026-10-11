@@ -1,0 +1,143 @@
+FFFFFF..
+======================================================================
+FAIL: test_activation_errors_trap (__main__.NativeEffectBoundaries.test_activation_errors_trap) (case='unhandled')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 48, in test_activation_errors_trap
+    self.exercise(body, traps=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 26, in exercise
+    self.checked([os.environ.get('NANOLANG_EFFECT_CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  *shlex.split(os.environ.get('NANOLANG_EFFECT_CFLAGS', '')), source, '-o', binary, '-lm'])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-effect-kccmyn8e/input.c:863:20: error: unused function 'nfx_push' [-Werror,-Wunused-function]
+  863 | static inline void nfx_push(nfx_frame *owner, unsigned entry, unsigned operation, unsigned start, unsigned count) {
+      |                    ^~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-effect-kccmyn8e/input.c:868:20: error: unused function 'nfx_pop' [-Werror,-Wunused-function]
+  868 | static inline void nfx_pop(nfx_frame *owner, unsigned count) {
+      |                    ^~~~~~~
+2 errors generated.
+
+
+======================================================================
+FAIL: test_activation_errors_trap (__main__.NativeEffectBoundaries.test_activation_errors_trap) (case='pop_absent')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 48, in test_activation_errors_trap
+    self.exercise(body, traps=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 26, in exercise
+    self.checked([os.environ.get('NANOLANG_EFFECT_CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  *shlex.split(os.environ.get('NANOLANG_EFFECT_CFLAGS', '')), source, '-o', binary, '-lm'])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-effect-xb6o8fw8/input.c:863:20: error: unused function 'nfx_push' [-Werror,-Wunused-function]
+  863 | static inline void nfx_push(nfx_frame *owner, unsigned entry, unsigned operation, unsigned start, unsigned count) {
+      |                    ^~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-effect-xb6o8fw8/input.c:874:31: error: unused function 'nfx_perform' [-Werror,-Wunused-function]
+  874 | static inline nfx_activation *nfx_perform(unsigned operation, unsigned count, nfx_value *arguments) {
+      |                               ^~~~~~~~~~~
+2 errors generated.
+
+
+======================================================================
+FAIL: test_activation_errors_trap (__main__.NativeEffectBoundaries.test_activation_errors_trap) (case='resume_outside_arm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 48, in test_activation_errors_trap
+    self.exercise(body, traps=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 26, in exercise
+    self.checked([os.environ.get('NANOLANG_EFFECT_CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  *shlex.split(os.environ.get('NANOLANG_EFFECT_CFLAGS', '')), source, '-o', binary, '-lm'])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-effect-qz2te505/input.c:863:20: error: unused function 'nfx_push' [-Werror,-Wunused-function]
+  863 | static inline void nfx_push(nfx_frame *owner, unsigned entry, unsigned operation, unsigned start, unsigned count) {
+      |                    ^~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-effect-qz2te505/input.c:868:20: error: unused function 'nfx_pop' [-Werror,-Wunused-function]
+  868 | static inline void nfx_pop(nfx_frame *owner, unsigned count) {
+      |                    ^~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-effect-qz2te505/input.c:874:31: error: unused function 'nfx_perform' [-Werror,-Wunused-function]
+  874 | static inline nfx_activation *nfx_perform(unsigned operation, unsigned count, nfx_value *arguments) {
+      |                               ^~~~~~~~~~~
+3 errors generated.
+
+
+======================================================================
+FAIL: test_activation_errors_trap (__main__.NativeEffectBoundaries.test_activation_errors_trap) (case='argument_count')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 48, in test_activation_errors_trap
+    self.exercise(body, traps=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 26, in exercise
+    self.checked([os.environ.get('NANOLANG_EFFECT_CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  *shlex.split(os.environ.get('NANOLANG_EFFECT_CFLAGS', '')), source, '-o', binary, '-lm'])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-effect-u7hpjqg_/input.c:868:20: error: unused function 'nfx_pop' [-Werror,-Wunused-function]
+  868 | static inline void nfx_pop(nfx_frame *owner, unsigned count) {
+      |                    ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_activation_errors_trap (__main__.NativeEffectBoundaries.test_activation_errors_trap) (case='pop_other_owner')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 48, in test_activation_errors_trap
+    self.exercise(body, traps=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 26, in exercise
+    self.checked([os.environ.get('NANOLANG_EFFECT_CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  *shlex.split(os.environ.get('NANOLANG_EFFECT_CFLAGS', '')), source, '-o', binary, '-lm'])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-effect-14oolu_w/input.c:874:31: error: unused function 'nfx_perform' [-Werror,-Wunused-function]
+  874 | static inline nfx_activation *nfx_perform(unsigned operation, unsigned count, nfx_value *arguments) {
+      |                               ^~~~~~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_activation_errors_trap (__main__.NativeEffectBoundaries.test_activation_errors_trap) (case='tail_from_arm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 48, in test_activation_errors_trap
+    self.exercise(body, traps=True)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 26, in exercise
+    self.checked([os.environ.get('NANOLANG_EFFECT_CC', 'cc'), '-std=c11', '-Wall', '-Wextra', '-Werror',
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                  *shlex.split(os.environ.get('NANOLANG_EFFECT_CFLAGS', '')), source, '-o', binary, '-lm'])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_native_effects.py", line 15, in checked
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/native-effect-kqspn2mh/input.c:868:20: error: unused function 'nfx_pop' [-Werror,-Wunused-function]
+  868 | static inline void nfx_pop(nfx_frame *owner, unsigned count) {
+      |                    ^~~~~~~
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.920s
+
+FAILED (failures=6)
