@@ -48,6 +48,10 @@ NvmShapeId nvm_shape_child(NvmShapeGraph *graph, NvmShapeId id, uint32_t index);
 /* Unlike child, lookup does not create a missing edge. Zero with no error
  * means unconstrained. Root path compression may still update parent links. */
 NvmShapeId nvm_shape_lookup(NvmShapeGraph *graph, NvmShapeId id, uint32_t index);
+/* I retain producer tag sets independently of representation constraints.
+ * Zero is unresolved; callers reserve their own bit for unknown producers. */
+int nvm_shape_tags_add(NvmShapeGraph *graph, NvmShapeId id, uint16_t tags);
+uint16_t nvm_shape_tags(NvmShapeGraph *graph, NvmShapeId id);
 int nvm_shape_unify(NvmShapeGraph *graph, NvmShapeId a, NvmShapeId b);
 /* I retain function-table indices as a finite target set, never as integer
  * payloads or record edges. Empty means unresolved, not any callable target.

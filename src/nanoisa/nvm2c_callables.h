@@ -8,7 +8,7 @@
  * inference. This analysis does not admit opcodes, signatures or ownership. */
 typedef struct {
     NvmShapeGraph shapes;
-    NvmShapeId **callees;
+    NvmShapeId **callees, **projections;
     uint32_t function_count;
     uint32_t *code_lengths;
     char error[256];
@@ -22,5 +22,11 @@ void nvm_callable_destroy(NvmCallableAnalysis *analysis);
  * A nonzero shape is a FUNCTION whose targets remain module indices. */
 NvmShapeId nvm_callable_at(NvmCallableAnalysis *analysis, uint32_t function,
                           uint32_t byte_offset);
+
+#define NVM_CALLABLE_TAG_UNKNOWN UINT16_C(0x8000)
+/* I return actual producer tags at an aggregate projection, after arm selection.
+ * Zero and UNKNOWN both require a runtime check; neither proves a scalar tag. */
+uint16_t nvm_callable_projection_tags(NvmCallableAnalysis *analysis,
+                                      uint32_t function, uint32_t byte_offset);
 
 #endif

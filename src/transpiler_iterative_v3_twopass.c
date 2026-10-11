@@ -130,7 +130,24 @@ static bool match_uses_checked_int_domain(ASTNode *match) {
     exit(1);
 }
 
-static const char *checked_match_union_name(ASTNode *match) {
+static const char *checked_match_union_name(ASTNode *match, Environment *env, char *buffer, size_t size) {
+    if (match && native_generic_bindings) {
+        ASTNode *value = match->as.match_expr.expr;
+        TypeInfo *info = NULL;
+        if (value && value->type == AST_IDENTIFIER) {
+            Symbol *symbol = env_get_var_visible_at(env, value->as.identifier, value->line, value->column);
+            if (symbol) info = symbol->type_info;
+        } else if (value && value->type == AST_CALL) {
+            check_expression(value, env);
+            if (value->as.call.checked_signature) info = value->as.call.checked_signature->return_type_info;
+        }
+        if (info && info->generic_name && env_get_union(env, info->generic_name)) {
+            info = native_generic_local(env, info);
+            if (info->type_param_count && build_monomorphized_name_from_typeinfo_iter(buffer, size, info))
+                return buffer;
+            return info->generic_name;
+        }
+    }
     const char *name = match ? match->as.match_expr.union_type_name : NULL;
     if (name && name[0] != '\0') return name;
 
@@ -3097,6 +3114,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             if (!context && g_current_function &&
                 g_current_function->as.function.return_type == TYPE_UNION)
                 context = g_current_function->as.function.return_type_info;
+            if (context && native_generic_bindings && generic_contains(env, context, 0))
+                context = native_generic_local(env, context);
             if (context && context->generic_name && context->type_param_count > 0 &&
                 strcmp(union_name, context->generic_name) == 0) {
                 if (!build_monomorphized_name_from_typeinfo_iter(monomorphized_name, sizeof(monomorphized_name), context)) {
@@ -3280,8 +3299,9 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 }
             }
 
+            char concrete_union[256];
             const char *union_c_name = is_int_match_expr
-                ? "" : checked_match_union_name(expr);
+                ? "" : checked_match_union_name(expr, env, concrete_union, sizeof concrete_union);
 
             /* Look up union definition to check variant field counts.
              * For generic unions, union_c_name is monomorphized; use the base name for lookup. */
@@ -3605,11 +3625,12 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                        FunctionTypeRegistry *fn_registry) {
     if (!stmt) return;
     ASTNode concrete;
-    if (stmt->type == AST_LET && native_generic_bindings) {
+    if (stmt->type == AST_LET) {
         TypeInfo view;
         const TypeInfo *formal = generic_view(stmt->as.let.type_info, stmt->as.let.var_type,
             stmt->as.let.type_name, stmt->as.let.fn_sig, &view);
-        if (generic_contains(env, formal, 0)) {
+        if ((native_generic_bindings && generic_contains(env, formal, 0)) ||
+            (formal->generic_name && strchr(formal->generic_name, '.') && env_get_union(env, formal->generic_name))) {
             TypeInfo *info = native_generic_local(env, formal);
             concrete = *stmt;
             concrete.as.let.var_type = info->base_type;
@@ -3748,8 +3769,9 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                 }
             }
 
+            char concrete_union[256];
             const char *union_c_name = is_int_match_stmt
-                ? "" : checked_match_union_name(stmt);
+                ? "" : checked_match_union_name(stmt, env, concrete_union, sizeof concrete_union);
 
             /* For generic unions, typechecker stores the monomorphized name (e.g. Result_int_string).
              * We still need the base name (e.g. Result) to look up the union definition. */

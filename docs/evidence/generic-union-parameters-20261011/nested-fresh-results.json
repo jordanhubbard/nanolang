@@ -1,0 +1,281 @@
+[
+  {
+    "mode": "whole",
+    "step": 0,
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/emitter",
+      "/private/tmp/nl51-generic-union-parameters/nested-only.nano",
+      "0",
+      "whole"
+    ],
+    "exit": 0,
+    "stderr": ""
+  },
+  {
+    "mode": "whole",
+    "step": 1,
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoisa",
+      "asm",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-whole.nasm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-whole.nvm"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "whole",
+    "step": 2,
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-whole.nvm"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "whole",
+    "step": 3,
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-whole.nvm"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "whole",
+    "step": 4,
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-whole.nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-whole.c"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "whole",
+    "step": 5,
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-whole.c",
+      "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-whole.bin"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "whole",
+    "step": 6,
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-whole.bin"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "program",
+    "step": 0,
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/emitter",
+      "/private/tmp/nl51-generic-union-parameters/nested-only.nano",
+      "0",
+      "program"
+    ],
+    "exit": 0,
+    "stderr": ""
+  },
+  {
+    "mode": "program",
+    "step": 1,
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoisa",
+      "asm",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-program.nasm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-program.nvm"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "program",
+    "step": 2,
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-program.nvm"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "program",
+    "step": 3,
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-program.nvm"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "program",
+    "step": 4,
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-program.nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-program.c"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "program",
+    "step": 5,
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-program.c",
+      "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-program.bin"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "program",
+    "step": 6,
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-program.bin"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "raw",
+    "step": 0,
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/emitter",
+      "/private/tmp/nl51-generic-union-parameters/nested-only.nano",
+      "0",
+      "raw"
+    ],
+    "exit": 0,
+    "stderr": ""
+  },
+  {
+    "mode": "raw",
+    "step": 1,
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nanoisa",
+      "asm",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-raw.nasm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-raw.nvm"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "raw",
+    "step": 2,
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-raw.nvm"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "raw",
+    "step": 3,
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-raw.nvm"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "raw",
+    "step": 4,
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-raw.nvm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-raw.c"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "raw",
+    "step": 5,
+    "argv": [
+      "/opt/homebrew/opt/llvm/bin/clang",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-sanitize-recover=all",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-raw.c",
+      "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+      "-lm",
+      "-o",
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-raw.bin"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  },
+  {
+    "mode": "raw",
+    "step": 6,
+    "argv": [
+      "/private/tmp/nl51-generic-union-parameters/nested-fresh-raw.bin"
+    ],
+    "exit": 0,
+    "stderr": "",
+    "stdout": ""
+  }
+]

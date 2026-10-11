@@ -712,7 +712,8 @@ static void check_union_field_contract(Environment *env, UnionDef *def,
 }
 
 /* I retain complete concrete trees for native nested payload substitution. */
-static void register_native_union_context(Environment *env, const TypeInfo *info, unsigned depth) {
+static void register_native_union_context(Environment *, const TypeInfo *, unsigned);
+static void register_native_union_context_normalized(Environment *env, const TypeInfo *info, unsigned depth) {
     if (!info || depth > 128) return;
     register_native_union_context(env, info->element_type, depth + 1);
     for (int i = 0; info->type_params && i < info->type_param_count; ++i)
@@ -749,6 +750,13 @@ static void register_native_union_context(Environment *env, const TypeInfo *info
             register_native_union_context(env, payload, depth + 1);
             free_payload_type_info(payload);
         }
+}
+
+static void register_native_union_context(Environment *env, const TypeInfo *info, unsigned depth) {
+    TypeInfo *concrete = copy_payload_type_info(info);
+    if (generic_normalize_nominals(env, concrete, depth))
+        register_native_union_context_normalized(env, concrete, depth);
+    free_payload_type_info(concrete);
 }
 
 /* I resolve payload annotations and retain owned constructor context. */
@@ -904,6 +912,20 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
     if (!expected->generic_name) return;
     UnionDef *def = env_get_union(env, expected->generic_name);
     if (!def) return;
+    if (value->type != AST_UNION_CONSTRUCT && value->type != AST_STRUCT_LITERAL &&
+        !generic_contains(env, expected, 0)) {
+        check_expression(value, env);
+        TypeInfo *actual = copy_payload_type_info(try_get_expr_type_info(value, env));
+        TypeInfo *wanted = copy_payload_type_info(expected);
+        if (actual && generic_normalize_nominals(env, actual, 0) &&
+            generic_normalize_nominals(env, wanted, 0) && !type_infos_equal(actual, wanted))
+            emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                "I require the complete declared union instance at this value boundary.",
+                "Preserve the union declaration and every concrete type argument.");
+        free_payload_type_info(actual);
+        free_payload_type_info(wanted);
+        return;
+    }
     const char *variant = NULL;
     char **names = NULL;
     ASTNode **values = NULL;
@@ -1342,6 +1364,11 @@ static TypeInfo *copy_generic_argument_info(ASTNode *expr, Environment *env, uns
     Type type = check_expression(expr, env);
     TypeInfo *known = try_get_expr_type_info(expr, env);
     if (known && known->base_type == type) return copy_payload_type_info(known);
+    if (known && type == TYPE_UNION && (known->base_type == TYPE_STRUCT || known->base_type == TYPE_GENERIC)) {
+        TypeInfo *copy = copy_payload_type_info(known);
+        if (generic_normalize_nominals(env, copy, 0) && copy->base_type == TYPE_UNION) return copy;
+        free_payload_type_info(copy);
+    }
     TypeInfo *info = calloc(1, sizeof *info);
     if (!info) return NULL;
     info->base_type = type;
@@ -1743,6 +1770,10 @@ static FunctionSignature *infer_generic_callback(ASTNode *value, Environment *en
 /* I share complete signature identities between direct and contextual uses. */
 static GenericFuncInstance *register_complete_generic(Environment *env, const char *function_name,
                                                        FunctionSignature *signature) {
+    TypeInfo view;
+    for (int p=0; p<signature->param_count; ++p)
+        register_native_union_context(env, generic_signature_param(signature, p, &view), 0);
+    register_native_union_context(env, generic_signature_result(signature, &view), 0);
     GenericFuncInstance *instance = NULL;
     for (int i = 0; i < env->generic_func_instance_count; ++i) {
         GenericFuncInstance *candidate = &env->generic_func_instances[i];
@@ -5362,22 +5393,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                                 union_def->generic_param_count, info->type_param_count);
                         tc->has_error = true;
                     } else {
-                        /* Build concrete type names for registration */
-                        char **type_names = malloc(sizeof(char*) * info->type_param_count);
-                        for (int i = 0; i < info->type_param_count; i++) {
-                            type_names[i] = typeinfo_to_generic_arg_name(info->type_params[i]);
-                        }
-                        
-                        /* Register this instantiation for code generation */
-                        env_register_union_instantiation(tc->env, info->generic_name,
-                                                        (const char**)type_names,
-                                                        info->type_param_count);
-                        
-                        /* Free type names */
-                        for (int i = 0; i < info->type_param_count; i++) {
-                            free(type_names[i]);
-                        }
-                        free(type_names);
+                        register_native_union_context(tc->env, info, 0);
                     }
                 }
             }

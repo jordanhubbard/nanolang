@@ -1,0 +1,5 @@
+pub union Box<T> { Some {value:T}, None {} }
+pub fn unbox(value:Box<T>,fallback:T)->T{match value{Some(p)=>{return p.value} None(p)=>{return fallback}}}
+shadow unbox {assert (== (unbox Box<int>.Some {value:7} 0) 7)}
+pub fn make()->Box<int>{return Box<int>.Some {value:7}}
+shadow make {assert (== (unbox (make) 0) 7)}

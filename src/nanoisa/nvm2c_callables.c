@@ -191,7 +191,10 @@ static int collect_function(Analysis *a, uint32_t function) {
                 }
             }
             break;
-        case OP_AGG_GET: output[0] = field(a, stack[base], in->operands[0].u16); break;
+        case OP_AGG_GET:
+            output[0] = field(a, stack[base], in->operands[0].u16);
+            a->out->projections[function][decoded_instruction->byte_offset] = output[0];
+            break;
         case OP_ARR_NEW:
             if (!nvm_shape_unify(&a->out->shapes, output[0], nvm_shape_new(&a->out->shapes, NVM_SHAPE_ARRAY))) goto done;
             break;
@@ -245,8 +248,44 @@ static int collect_function(Analysis *a, uint32_t function) {
         case OP_RET:
             if (pop > 1 || (pop && !flow(a, stack[base], a->results[function]))) goto done;
             break;
-        default: break;
+        default:
+            for (int i = 0; i < push; ++i) {
+                uint16_t tags = NVM_CALLABLE_TAG_UNKNOWN;
+                switch (in->opcode) {
+                case OP_STR_LEN: case OP_STR_CHAR_AT: case OP_ARR_LEN: case OP_HM_LEN:
+                case OP_AGG_TAG: case OP_ENUM_VAL: case OP_CAST_INT: case OP_F64_TO_BITS:
+                case OP_I64_ADD: case OP_I64_SUB: case OP_I64_MUL: case OP_I64_DIV_S:
+                case OP_I64_REM_S: case OP_I64_NEG: case OP_I64_DIV_U: case OP_I64_REM_U:
+                case OP_I64_AND: case OP_I64_OR: case OP_I64_XOR: case OP_I64_INVERT:
+                case OP_I64_SHL: case OP_I64_SHR_S: case OP_I64_SHR_U:
+                case OP_PUSH_I64: tags = 1u << TAG_INT; break;
+                case OP_F64_ADD: case OP_F64_SUB: case OP_F64_MUL: case OP_F64_DIV:
+                case OP_F64_NEG: case OP_CAST_FLOAT: case OP_F64_FROM_BITS:
+                case OP_PUSH_F64: tags = 1u << TAG_FLOAT; break;
+                case OP_EQ: case OP_NE: case OP_LT: case OP_LE: case OP_GT: case OP_GE:
+                case OP_AND: case OP_OR: case OP_NOT: case OP_BOOL_AND: case OP_BOOL_OR: case OP_BOOL_NOT:
+                case OP_I64_EQ: case OP_I64_NE: case OP_I64_LT_S: case OP_I64_LE_S:
+                case OP_I64_GT_S: case OP_I64_GE_S: case OP_I64_LT_U: case OP_I64_LE_U:
+                case OP_I64_GT_U: case OP_I64_GE_U: case OP_F64_EQ: case OP_F64_NE:
+                case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
+                case OP_STR_CONTAINS: case OP_STR_EQ: case OP_STR_STARTS_WITH: case OP_STR_ENDS_WITH:
+                case OP_HM_HAS: case OP_CAST_BOOL: case OP_TYPE_CHECK: case OP_OPAQUE_VALID:
+                case OP_PUSH_BOOL: tags = 1u << TAG_BOOL; break;
+                case OP_STR_CONCAT: case OP_STR_SUBSTR: case OP_STR_FROM_INT: case OP_STR_FROM_FLOAT:
+                case OP_STR_TRIM: case OP_STR_TO_LOWER: case OP_STR_TO_UPPER: case OP_STR_REPLACE:
+                case OP_CAST_STRING: case OP_PUSH_STR: tags = 1u << TAG_STRING; break;
+                case OP_PUSH_VOID: tags = 1u << TAG_VOID; break;
+                case OP_CAST_U8: case OP_PUSH_U8: tags = 1u << TAG_U8; break;
+                default: break;
+                }
+                if (!nvm_shape_tags_add(&a->out->shapes, output[i], tags)) goto done;
+            }
+            break;
         }
+        if (push && (in->opcode == OP_ARR_NEW || in->opcode == OP_ARR_LITERAL || in->opcode == OP_ARR_SLICE))
+            if (!nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_ARRAY)) goto done;
+        if (push && (in->opcode == OP_FUNCREF || in->opcode == OP_CLOSURE_NEW))
+            if (!nvm_shape_tags_add(&a->out->shapes, output[0], 1u << TAG_FUNCTION)) goto done;
         for (int i = 0; i < push; ++i) stack[base + (size_t)i] = output[i];
         if (a->out->shapes.error) goto done;
         if (in->opcode == OP_RET || in->opcode == OP_HALT || in->opcode == OP_TAIL_CALL) continue;
@@ -352,7 +391,8 @@ static int connect_array_aliases(Analysis *a, int *changed) {
 
 void nvm_callable_destroy(NvmCallableAnalysis *out) {
     if (out->callees) for (uint32_t i = 0; i < out->function_count; ++i) free(out->callees[i]);
-    free(out->callees); free(out->code_lengths);
+    if (out->projections) for (uint32_t i = 0; i < out->function_count; ++i) free(out->projections[i]);
+    free(out->projections); free(out->callees); free(out->code_lengths);
     nvm_shape_destroy(&out->shapes);
     memset(out, 0, sizeof *out);
 }
@@ -364,6 +404,13 @@ NvmShapeId nvm_callable_at(NvmCallableAnalysis *out, uint32_t function, uint32_t
     return shape;
 }
 
+uint16_t nvm_callable_projection_tags(NvmCallableAnalysis *out, uint32_t function, uint32_t offset) {
+    if (out->error[0] || function >= out->function_count || offset >= out->code_lengths[function])
+        return NVM_CALLABLE_TAG_UNKNOWN;
+    NvmShapeId shape = out->projections[function][offset];
+    return shape ? nvm_shape_tags(&out->shapes, shape) : NVM_CALLABLE_TAG_UNKNOWN;
+}
+
 int nvm_callable_analyze(const NvmModule *module, NvmCallableAnalysis *out) {
     memset(out, 0, sizeof *out);
     Analysis a = {.module = module, .out = out};
@@ -371,11 +418,12 @@ int nvm_callable_analyze(const NvmModule *module, NvmCallableAnalysis *out) {
     if (!module || !module->functions || !module->function_count) return fail(&a, "I require callable module functions");
     out->function_count = module->function_count;
     out->callees = calloc(module->function_count, sizeof *out->callees);
+    out->projections = calloc(module->function_count, sizeof *out->projections);
     out->code_lengths = calloc(module->function_count, sizeof *out->code_lengths);
     a.locals = calloc(module->function_count, sizeof *a.locals);
     a.upvalues = calloc(module->function_count, sizeof *a.upvalues);
     a.results = calloc(module->function_count, sizeof *a.results);
-    if (!out->callees || !out->code_lengths || !a.locals || !a.upvalues || !a.results) goto done;
+    if (!out->projections || !out->callees || !out->code_lengths || !a.locals || !a.upvalues || !a.results) goto done;
     /* I retain every global referenced by the module, including late stores. */
     for (uint32_t f = 0; f < module->function_count; ++f) {
         const NvmFunctionEntry *fn = &module->functions[f];
@@ -383,9 +431,10 @@ int nvm_callable_analyze(const NvmModule *module, NvmCallableAnalysis *out) {
             fn->code_length > module->code_size - fn->code_offset) goto done;
         out->code_lengths[f] = fn->code_length;
         out->callees[f] = calloc(fn->code_length ? fn->code_length : 1, sizeof **out->callees);
+        out->projections[f] = calloc(fn->code_length ? fn->code_length : 1, sizeof **out->projections);
         a.locals[f] = calloc(fn->local_count ? fn->local_count : 1, sizeof **a.locals);
         a.upvalues[f] = calloc(fn->upvalue_count ? fn->upvalue_count : 1, sizeof **a.upvalues);
-        if (!out->callees[f] || !a.locals[f] || !a.upvalues[f]) goto done;
+        if (!out->projections[f] || !out->callees[f] || !a.locals[f] || !a.upvalues[f]) goto done;
         a.results[f] = fresh(&a);
         for (uint16_t l = 0; l < fn->local_count; ++l) a.locals[f][l] = fresh(&a);
         for (uint16_t u = 0; u < fn->upvalue_count; ++u) a.upvalues[f][u] = fresh(&a);

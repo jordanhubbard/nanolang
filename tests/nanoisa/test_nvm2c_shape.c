@@ -688,6 +688,29 @@ static void test_shared_array_views(void) {
     }
 }
 
+static void test_producer_tags(void) {
+    NvmShapeGraph g = {0};
+    NvmShapeId a = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+    NvmShapeId b = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+    NvmShapeId c = nvm_shape_new(&g, NVM_SHAPE_UNKNOWN);
+    CHECK(nvm_shape_tags_add(&g, a, 2));
+    CHECK(nvm_shape_convert(&g, b, c));
+    CHECK(nvm_shape_convert(&g, a, b));
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(nvm_shape_tags(&g, c) == 2);
+    CHECK(nvm_shape_tags_add(&g, c, 4));
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(nvm_shape_tags(&g, a) == 2);
+    CHECK(nvm_shape_tags(&g, b) == 2);
+    CHECK(nvm_shape_tags(&g, c) == 6);
+    CHECK(nvm_shape_unify(&g, a, c));
+    CHECK(nvm_shape_tags(&g, a) == 6);
+    CHECK(nvm_shape_tags_add(&g, a, UINT16_C(0x8000)));
+    CHECK(nvm_shape_solve_conversions(&g));
+    CHECK(nvm_shape_tags(&g, b) == UINT16_C(0x8006));
+    nvm_shape_destroy(&g);
+}
+
 int main(void) {
     {
         NvmShapeGraph g = {0};
@@ -753,6 +776,7 @@ int main(void) {
         CHECK(g.error != NULL);
         nvm_shape_destroy(&g);
     }
+    test_producer_tags();
     test_array_write_alias_cycle();
     test_nested_array_write_facts();
     test_function_targets();

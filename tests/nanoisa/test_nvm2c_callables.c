@@ -239,6 +239,59 @@ static void variant_guard_targets(void) {
     }
 }
 
+static void variant_scalar_producers(void) {
+    for (int bypass = 0; bypass < 2; ++bypass) {
+        char source[4096];
+        snprintf(source, sizeof source,
+            ".string text \"kept\"\n.function main 0 1 0 void 0\nPUSH_BOOL 0\nCALL choose\n%s"
+            "DUP\nAGG_TAG\nPUSH_I64 0\nEQ\ncondition:\nJMP_FALSE other\n"
+            "STORE_LOCAL 0\nLOAD_LOCAL 0\nAGG_GET 0\nPOP\nRET\nother:\nPOP\nRET\n%s.end\n"
+            ".function choose 1 1 0 union 1\nLOAD_LOCAL 0\nJMP_FALSE second_arm\n"
+            "PUSH_BOOL 1\nAGG_PACK 1 0 0 1\nRET\nsecond_arm:\n"
+            "PUSH_STR text\nAGG_PACK 1 0 1 1\nRET\n.end\n",
+            bypass ? "PUSH_BOOL 1\nJMP_TRUE bypass\n" : "",
+            bypass ? "bypass:\nPUSH_BOOL 1\nJMP condition\n" : "");
+        NvmModule *m = assemble(source, 1);
+        if (!m) continue;
+        NvmCallableAnalysis a;
+        if (analyze(m, &a)) {
+            const NvmFunctionEntry *fn = &m->functions[0];
+            unsigned projections = 0;
+            for (uint32_t pc = 0; pc < fn->code_length;) {
+                DecodedInstruction in;
+                uint32_t size = isa_decode(m->code + fn->code_offset + pc, fn->code_length - pc, &in);
+                CHECK(size != 0);
+                if (!size) break;
+                if (in.opcode == OP_AGG_GET) {
+                    uint16_t expected = (1u << TAG_BOOL) | (bypass ? 1u << TAG_STRING : 0);
+                    CHECK(nvm_callable_projection_tags(&a, 0, pc) == expected);
+                    ++projections;
+                }
+                pc += size;
+            }
+            CHECK(projections == 1);
+        }
+        nvm_callable_destroy(&a); nvm_module_free(m);
+    }
+    for (int wrong = 0; wrong < 2; ++wrong) {
+        char source[2048];
+        snprintf(source, sizeof source,
+            ".string text \"unused\"\n.function main 0 0 0 int 1\n"
+            "PUSH_BOOL 1\nAGG_PACK 1 0 0 1\nCALL read\nPOP\n"
+            "PUSH_STR text\nAGG_PACK 1 0 %d 1\nCALL read\nASSERT\nPUSH_I64 0\nRET\n.end\n"
+            ".function read 1 1 0 bool 1\nLOAD_LOCAL 0\nDUP\nAGG_TAG\nPUSH_I64 1\nEQ\n"
+            "JMP_FALSE fallback\nAGG_GET 0\nRET\nfallback:\nPOP\nPUSH_BOOL 1\nRET\n.end\n", wrong);
+        NvmModule *m = assemble(source, 1);
+        if (!m) continue;
+        char error[512] = {0};
+        char *c = nvm2c_emit(m, error, sizeof error);
+        if (!wrong && !c) fprintf(stderr, "I could not translate the fallback: %s\n", error);
+        CHECK(wrong ? c == NULL : c != NULL);
+        if (wrong) CHECK(strstr(error, "incompatible variant scalar payload") != NULL);
+        free(c); nvm_module_free(m);
+    }
+}
+
 static void malformed_captures(void) {
     const char *cases[] = {
         ".function main 0 0 0 void 0\nCLOSURE_NEW 99 0\nPOP\nRET\n.end\n",
@@ -279,6 +332,7 @@ int main(int argc, char **argv) {
     unresolved_and_refused(); stack_loop_and_zero_target(); map_aliases();
     captured_targets(); captured_array_aliases_and_instances(); malformed_captures();
     variant_guard_targets();
+    variant_scalar_producers();
     if (argc > 1) source_fixture(argv[1]);
     printf("Callable constraints: %d passed, %d failed\n", passed, failed);
     return failed != 0;

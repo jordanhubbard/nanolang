@@ -62,7 +62,7 @@ static inline void generic_bindings_free(GenericBindings *bindings) {
     for (int i=0; i<bindings->count; ++i) { free(bindings->names[i]); free_payload_type_info(bindings->types[i]); }
     *bindings=(GenericBindings){0};
 }
-/* I normalize legacy enum-as-struct annotations before exact generic comparison. */
+/* I normalize legacy nominal annotations before exact generic comparison. */
 static inline bool generic_normalize_nominals(Environment *env, TypeInfo *info, unsigned depth) {
     if (!info || depth>128) return false;
     if (info->generic_name && (info->base_type==TYPE_STRUCT || info->base_type==TYPE_ENUM || info->base_type==TYPE_INT)) {
@@ -71,6 +71,14 @@ static inline bool generic_normalize_nominals(Environment *env, TypeInfo *info, 
             char *name=strdup(enumeration->name);
             if (!name) return false;
             free(info->generic_name);info->generic_name=name;info->base_type=TYPE_ENUM;
+        }
+    }
+    if (info->generic_name && (info->base_type==TYPE_STRUCT || info->base_type==TYPE_UNION || info->base_type==TYPE_GENERIC)) {
+        UnionDef *definition=env_get_union(env,info->generic_name);
+        if (definition) {
+            char *name=strdup(definition->name);
+            if (!name) return false;
+            free(info->generic_name);info->generic_name=name;info->base_type=TYPE_UNION;
         }
     }
     if (info->element_type && !generic_normalize_nominals(env,info->element_type,depth+1)) return false;

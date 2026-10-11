@@ -1,0 +1,18 @@
+union Box<T> { Some {value:T}, None {} }
+fn unbox(value:Box<T>,fallback:T)->T{match value{Some(p)=>{return p.value} None(p)=>{return fallback}}}
+shadow unbox {assert (== (unbox Box<int>.Some {value:7} 0) 7)}
+fn identity(value:T)->T{return value}
+shadow identity {assert (== (identity 1) 1)}
+fn plus(x:int)->int{return (+ x 1)}
+shadow plus {assert (== (plus 1) 2)}
+fn main()->int{
+ let source:array<int> = [7]
+ let boxed:Box<array<int>> = Box.Some {value:source}
+ let values:array<int> = (unbox (identity boxed) [0])
+ (array_set values 0 9) assert (== (at source 0) 9)
+ let callback:Box<fn(int)->int> = Box.Some {value:plus}
+ let selected:fn(int)->int = (unbox (identity callback) plus)
+ assert (== (selected 7) 8)
+ return 0
+}
+shadow main {assert (== (main) 0)}

@@ -1564,6 +1564,22 @@ shadow nisa_union_concrete_field {
 fn nisa_union_supported_seen(parser: Parser, name: string, signatures: array<string>) -> bool {
     let index: int = (nisa_union_index parser name)
     if (< index 0) { return false }
+    if (>= (array_length signatures) 128) { return false }
+    let key: string = (nisa_compact_type name)
+    let mut path: array<string> = []
+    let mut seen: bool = false
+    let mut indirect: bool = false
+    let mut visit: int = 0
+    while (< visit (array_length signatures)) {
+        let prior: string = (at signatures visit)
+        if (== prior key) { set seen true set indirect false }
+        if (and seen (str_starts_with prior "fn(")) { set indirect true }
+        set path (array_push path prior)
+        set visit (+ visit 1)
+    }
+    # I permit recursive callable boundaries, but not recursive value layouts.
+    if seen { return indirect }
+    set path (array_push path key)
     let definition: ASTUnion = (parser_get_union parser index)
     let args: array<string> = (nisa_union_arguments name)
     if (or (!= definition.generic_param_count (array_length args)) (<= definition.variant_count 0)) { return false }
@@ -1571,7 +1587,7 @@ fn nisa_union_supported_seen(parser: Parser, name: string, signatures: array<str
     if (and (== definition.generic_param_count 0) (!= (nisa_compact_type name) definition.name)) { return false }
     let mut parameter: int = 0
     while (< parameter definition.generic_param_count) {
-        if (not (or (nisa_union_payload_type (at args parameter)) (nisa_function_type_ok_seen parser (at args parameter) signatures))) { return false }
+        if (not (or (nisa_union_payload_type (at args parameter)) (or (nisa_function_type_ok_seen parser (at args parameter) path) (nisa_union_supported_seen parser (at args parameter) path)))) { return false }
         let mut prior: int = 0
         while (< prior parameter) {
             if (== (at definition.generic_params prior) (at definition.generic_params parameter)) { return false }
@@ -1585,7 +1601,7 @@ fn nisa_union_supported_seen(parser: Parser, name: string, signatures: array<str
     let mut i: int = 0
     while (< i count) {
         let t: string = (nisa_union_concrete_field definition name i)
-        if (not (or (nisa_union_payload_type t) (nisa_function_type_ok_seen parser t signatures))) { return false }
+        if (not (or (nisa_union_payload_type t) (or (nisa_function_type_ok_seen parser t path) (nisa_union_supported_seen parser t path)))) { return false }
         set i (+ i 1)
     }
     set i 0
@@ -1616,10 +1632,11 @@ fn nisa_union_supported(parser: Parser, name: string) -> bool {
     return (nisa_union_supported_seen parser name [])
 }
 shadow nisa_union_supported {
-    let tokens: List<LexerToken> = (tokenize_string "union Choice { Yes { value: int }, No {} } union Nested { Item { value: Choice } }" "union.nano" (diag_list_new))
+    let tokens: List<LexerToken> = (tokenize_string "union Choice { Yes { value: int }, No {} } union Nested { Item { value: Choice } } union Recursive { Item { value: Recursive } }" "union.nano" (diag_list_new))
     let p: Parser = (parse_program tokens (list_LexerToken_length tokens) "union.nano")
     assert (nisa_union_supported p "Choice")
-    assert (not (nisa_union_supported p "Nested"))
+    assert (nisa_union_supported p "Nested")
+    assert (not (nisa_union_supported p "Recursive"))
 }
 
 # I use a private variant-qualified type only for lexically bound match payloads.
@@ -1717,7 +1734,8 @@ fn nisa_emit_union_context(parser: Parser, node_id: int, identity: string) -> st
         let expected: string = (nisa_union_concrete_field definition identity (+ offset field))
         let value: int = (at literal.field_value_ids i)
         let kind: int = (at literal.field_value_types i)
-        if (and (not (nisa_function_type_ok parser expected)) (!= (nisa_expr_type parser value kind) expected)) { return (nisa_fail "I require the declared union field type") }
+        let contextual_union: bool = (and (== kind ParseNodeType.PNODE_UNION_CONSTRUCT) (nisa_union_supported parser expected))
+        if (and (not contextual_union) (and (not (nisa_function_type_ok parser expected)) (!= (nisa_expr_type parser value kind) expected))) { return (nisa_fail "I require the declared union field type") }
         set out (+ out (nisa_emit_expected_expr parser value kind expected))
         if (not nisa_ok) { return "" }
         let slot: int = (array_length nisa_names)

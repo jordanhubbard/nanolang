@@ -1,0 +1,8 @@
+module "a.nano" as a
+module "b.nano" as b
+fn same(x:T,y:T)->T{return x}
+shadow same {assert (== (same 1 2) 1)}
+fn unused()->int{let wrong = (same (a.make) (b.make)) return 0}
+shadow unused {assert true}
+fn main()->int{return 0}
+shadow main {assert (== (main) 0)}

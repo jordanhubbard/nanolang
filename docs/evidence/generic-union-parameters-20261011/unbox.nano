@@ -1,0 +1,5 @@
+union Box<T> { Some {value:T}, None {} }
+fn unbox(x:Box<T>,fallback:T)->T{match x{Some(p)=>{return p.value} None(p)=>{return fallback}}}
+shadow unbox {assert (== (unbox Box<int>.Some {value:7} 0) 7)}
+fn main()->int{assert (== (unbox Box<int>.Some {value:7} 0) 7) assert (== (unbox Box<string>.None {} "kept") "kept") return 0}
+shadow main {assert (== (main) 0)}

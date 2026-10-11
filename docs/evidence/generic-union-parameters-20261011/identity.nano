@@ -1,0 +1,7 @@
+union Box<T> { Some {value:T}, None {} }
+fn identity(x:T)->T{return x}
+shadow identity {assert (== (identity 7) 7)}
+fn read(x:Box<int>)->int{match x{Some(p)=>{return p.value} None(p)=>{return 0}}}
+shadow read {assert (== (read Box<int>.Some {value:7}) 7)}
+fn main()->int{let x:Box<int> = (identity Box<int>.Some {value:7}) assert (== (read x) 7) return 0}
+shadow main {assert (== (main) 0)}

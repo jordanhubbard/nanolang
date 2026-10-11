@@ -9,6 +9,7 @@ struct NvmShapeNode {
     uint32_t rank;
     NvmShapeKind kind;
     int conversion_kind;
+    uint16_t value_tags;
     ShapeEdge *edges;
     size_t count, capacity;
     uint32_t *functions;
@@ -208,6 +209,7 @@ int nvm_shape_unify(NvmShapeGraph *g, NvmShapeId a, NvmShapeId b) {
          * than recurse. A later conflict poisons this whole graph. */
         y->parent = left;
         x->kind = kind;
+        x->value_tags |= y->value_tags;
         if (x->rank == y->rank) ++x->rank;
         int changed = 0;
         for (size_t i = 0; i < y->function_count && !g->error; ++i)
@@ -237,6 +239,18 @@ int nvm_shape_unify(NvmShapeGraph *g, NvmShapeId a, NvmShapeId b) {
     }
     free(pending);
     return !g->error;
+}
+
+int nvm_shape_tags_add(NvmShapeGraph *g, NvmShapeId id, uint16_t tags) {
+    id = nvm_shape_root(g, id);
+    if (!id) return 0;
+    g->nodes[id - 1].value_tags |= tags;
+    return !g->error;
+}
+
+uint16_t nvm_shape_tags(NvmShapeGraph *g, NvmShapeId id) {
+    id = nvm_shape_root(g, id);
+    return id ? g->nodes[id - 1].value_tags : 0;
 }
 
 int nvm_shape_convert(NvmShapeGraph *g, NvmShapeId source, NvmShapeId target) {
@@ -404,6 +418,11 @@ static int flow_one(NvmShapeGraph *g, NvmShapeConversion conversion, int *change
             if (nvm_shape_root(g, queue[i].source) == source &&
                 nvm_shape_root(g, queue[i].target) == target && queue[i].exact == pair.exact && queue[i].alias_view == pair.alias_view) seen = 1;
         if (seen) continue;
+        uint16_t tags = g->nodes[source - 1].value_tags;
+        if (tags & ~g->nodes[target - 1].value_tags) {
+            g->nodes[target - 1].value_tags |= tags;
+            *changed = 1;
+        }
         NvmShapeKind from = g->nodes[source - 1].kind, to = g->nodes[target - 1].kind;
         if (from == NVM_SHAPE_UNKNOWN) {
             if (final && (to == NVM_SHAPE_VARIANT_SCALAR || to == NVM_SHAPE_VARIANT_INT_ARRAY)) {

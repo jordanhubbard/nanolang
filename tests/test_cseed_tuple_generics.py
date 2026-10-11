@@ -68,7 +68,7 @@ fn main()->int {
                 output.write_bytes(b'prior')
                 source.write_text('fn choose(a:T,b:T)->T{return a}\nshadow choose {assert (== (choose 1 2) 1)}\n'
                     +f'fn main()->int{{let result = (choose {left} {right}) return 0}}'+MAIN_SHADOW)
-                result=subprocess.run([str(base.COMPILER),str(source),'--emit-nvm','-o',str(output)],
+                result=subprocess.run([str(base.COMPILER),str(source),*base.MODE,'-o',str(output)],
                                       cwd=base.ROOT,capture_output=True,text=True,timeout=120)
                 self.assertGreater(result.returncode,0,result.stdout+result.stderr)
                 self.assertIn('one concrete identity',result.stdout+result.stderr)
@@ -86,7 +86,7 @@ fn main()->int {
                 source,output=Path(tmp)/'main.nano',Path(tmp)/'main.nvm'
                 output.write_bytes(b'prior')
                 source.write_text(program+'\nshadow main {assert true}\n')
-                result=subprocess.run([str(base.COMPILER),str(source),'--emit-nvm','-o',str(output)],
+                result=subprocess.run([str(base.COMPILER),str(source),*base.MODE,'-o',str(output)],
                                       cwd=base.ROOT,capture_output=True,text=True,timeout=120)
                 self.assertGreater(result.returncode,0,result.stdout+result.stderr)
                 self.assertRegex(result.stdout+result.stderr, r'one complete tuple shape|expected a value of type `\(int,bool\)`, but found `\(int,int\)`|expected \(int,bool\), got \(int,int\)')
@@ -122,7 +122,7 @@ shadow make {let value = (make) assert value.1}
             output.write_bytes(b'prior')
             source.write_text('fn pair()->(int,bool){return (1,true)}\nshadow pair {assert true}\n'
                 'fn main()->int{let value=(pair).2 return 0}\nshadow main {assert true}\n')
-            result=subprocess.run([str(base.COMPILER),str(source),'--emit-nvm','-o',str(output)],
+            result=subprocess.run([str(base.COMPILER),str(source),*base.MODE,'-o',str(output)],
                                   cwd=base.ROOT,capture_output=True,text=True,timeout=120)
             self.assertGreater(result.returncode,0,result.stdout+result.stderr)
             self.assertEqual(output.read_bytes(),b'prior')
@@ -156,7 +156,7 @@ fn main()->int {
             source.write_text('resource struct Handle {value:int}\n'+IDENTITY+
                 'fn main()->int{let owned:Handle=Handle {value:1} let tuple=(identity (owned,true)) return 0}\n'
                 'shadow main {assert true}\n')
-            result=subprocess.run([str(base.COMPILER),str(source),'--emit-nvm','-o',str(output)],
+            result=subprocess.run([str(base.COMPILER),str(source),*base.MODE,'-o',str(output)],
                                   cwd=base.ROOT,capture_output=True,text=True,timeout=120)
             self.assertGreater(result.returncode,0,result.stdout+result.stderr)
             self.assertEqual(output.read_bytes(),b'prior')

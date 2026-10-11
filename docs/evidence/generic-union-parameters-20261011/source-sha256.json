@@ -1,0 +1,16 @@
+{
+  "src/generic_bindings.h": "a9f78333f1507af251b6e5e31b3b5b24640742124e09445813c3dac372cd4f21",
+  "src/nanoisa/nvm2c.c": "cc29f89304e332b118ef691e91f8b71a2042341c51138f785473fba806c4ed4b",
+  "src/nanoisa/nvm2c_callables.c": "74bc63f45e9ab660cc0dcc65b54e283fcf42ee21d1b3bac18981f7f71ce35504",
+  "src/nanoisa/nvm2c_callables.h": "8ca5e8e07cf14bf36df5dde1a82ddac7de26b1f099fb21b5b4589771331a027c",
+  "src/nanoisa/nvm2c_shape.c": "e6691c987312c72331a25dec54e165e81aad8bc31bf958a9f907f870761ce3e7",
+  "src/nanoisa/nvm2c_shape.h": "bff2acdf63dae01ca0636cdd717b1bb8183fa054f418fd9158ad9673e26c85b4",
+  "src/nanovirt/generic_codegen.inc": "23aad7bff3e0cc9dd122156a9f402fa4498cbc6bfb64e1cabdeee91a3dfd7746",
+  "src/transpiler_iterative_v3_twopass.c": "7762c9d13771f731d1f447d3ab11eec580fb848ca2bcda498c1876c736618e57",
+  "src/typechecker.c": "eb70cbdd556d0e124fd74fd3ab9ffc86163ff573e2dd02460a4bd9933a42806a",
+  "src_nano/compiler/nanoisa_codegen.nano": "e97681e1efa3cc30c48ce8520df4f27b536d7b7961a47e479bebf26abfb6c025",
+  "tests/nanoisa/test_nvm2c_callables.c": "80e952d98ba43ed10e23839feb8b7ac7c0e867813f14265cd59bfd0b03fe31e7",
+  "tests/nanoisa/test_nvm2c_shape.c": "7888da0e4e255d4d21fe3976e6f3ec384480cb107d4855f249284351e66fa7ee",
+  "tests/test_cseed_tuple_generics.py": "0737ddb64e9c7251d53bee5f4df5de8757b353f121d308afc04f9a06e69fe2a4",
+  "tests/test_generic_union_parameters.py": "443992fe65f9fb57f2571062d550f0c95ce4a2b19cac7dc2dd8ba15cd09de38f"
+}

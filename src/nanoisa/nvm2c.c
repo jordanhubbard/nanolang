@@ -91,13 +91,6 @@ static uint8_t variant_field_for(uint8_t kind) {
     return NVM2C_FIELD_VARIANT_BASE | (kind == NVM2C_VK_INT ? 1 :
         kind == NVM2C_VK_BOOL ? 2 : kind == NVM2C_VK_FLOAT ? 4 : kind == NVM2C_VK_ARR ? NVM2C_FIELD_VARIANT_INT_ARRAY : 8);
 }
-static uint16_t variant_field_tags(uint8_t kind) {
-    if (kind & NVM2C_FIELD_VARIANT_OPTIONAL) return 0;
-    return NVM2C_SCALAR_VARIANT | ((kind & 1) ? 1u << TAG_INT : 0) |
-        ((kind & 2) ? 1u << TAG_BOOL : 0) | ((kind & 4) ? 1u << TAG_FLOAT : 0) |
-        ((kind & 8) ? 1u << TAG_STRING : 0) |
-        ((kind & NVM2C_FIELD_VARIANT_INT_ARRAY) ? 1u << TAG_ARRAY : 0);
-}
 static int variant_scalar_tags(uint16_t tags) {
     const unsigned members = (1u << TAG_INT) | (1u << TAG_BOOL) |
                              (1u << TAG_FLOAT) | (1u << TAG_STRING);
@@ -2637,7 +2630,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                              shape_child(b, rec.shape, fi))) return 0;
             Nvm2cSimSlot field = {0};
             field.kind = variant_field(fk) ? NVM2C_VK_VALUE : fk;
-            if (variant_field(fk)) field.scalar_tags = variant_field_tags(fk);
+            if (variant_field(fk)) {
+                uint16_t tags = nvm_callable_projection_tags(&b->callables, idx, (uint32_t)start);
+                /* I keep flat storage layout separate from selected-arm facts.
+                 * Missing or unknown producers retain runtime tag checks. */
+                field.scalar_tags = tags && !(tags & NVM_CALLABLE_TAG_UNKNOWN)
+                    ? NVM2C_SCALAR_VARIANT | tags : 0;
+            }
             field.origin = -1;
             if (fk == NVM2C_VK_RARR || fk == NVM2C_VK_REC || fk == NVM2C_VK_MAP || fk == NVM2C_VK_UNK) {
                 /* A flat parent vector describes this field's representation,
@@ -7426,9 +7425,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         for (uint16_t local = 0; local < mod->functions[f].local_count; ++local)
             b.local_scalar_tags[(size_t)f * b.local_width + local] =
                 local < mod->functions[f].arity ? 0 : 1u << TAG_VOID;
-    /* With no module-local reference producer, I have no target evidence to
-     * add. I retain the classifier's own instruction refusal in that case. */
-    if ((module_has_opcode(mod, OP_FUNCREF) || module_has_opcode(mod, OP_CLOSURE_NEW)) && module_has_opcode(mod, OP_CALL_INDIRECT) &&
+    /* I collect provenance for indirect targets and selected union payloads. */
+    if ((((module_has_opcode(mod, OP_FUNCREF) || module_has_opcode(mod, OP_CLOSURE_NEW)) &&
+           module_has_opcode(mod, OP_CALL_INDIRECT)) ||
+          (module_has_opcode(mod, OP_AGG_PACK) && module_has_opcode(mod, OP_AGG_GET))) &&
         !nvm_callable_analyze(mod, &b.callables)) {
         nvm2c_fail(&b, "%s", b.callables.error);
         goto fail;

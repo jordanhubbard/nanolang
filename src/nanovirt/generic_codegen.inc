@@ -86,6 +86,13 @@ static bool cg_generic_type_supported(CG *cg, const TypeInfo *info) {
         return info->generic_name && env_get_enum(cg->env,info->generic_name);
     if (info->base_type == TYPE_STRUCT)
         return info->generic_name && env_get_struct(cg->env, info->generic_name);
+    if (info->base_type == TYPE_UNION) {
+        UnionDef *definition = info->generic_name ? env_get_union(cg->env, info->generic_name) : NULL;
+        if (!definition || definition->generic_param_count != info->type_param_count) return false;
+        for (int p=0; p<info->type_param_count; ++p)
+            if (!cg_generic_type_supported(cg, info->type_params[p])) return false;
+        return true;
+    }
     return info->base_type == TYPE_VOID || info->base_type == TYPE_INT || info->base_type == TYPE_U8 ||
         info->base_type == TYPE_FLOAT || info->base_type == TYPE_BOOL || info->base_type == TYPE_STRING;
 }
