@@ -101,14 +101,32 @@ class ServiceNamespace(unittest.TestCase):
                 if accepted:
                     self.assertIn("PLAN 29",report)
                     self.assertIn("MISSING bridge.net.Socket",report)
-                    for compiler in ("nanoc_c","nano_virt"):
-                        output=work/(compiler+".out");output.write_bytes(b"prior")
-                        command=[ROOT/"bin"/compiler,args[3],"-o",output,"--allow-temporary-files"]
-                        if compiler=="nano_virt":command.append("--emit-nvm")
-                        run=subprocess.run(list(map(str,command)),cwd=ROOT,capture_output=True,text=True,timeout=90)
-                        self.assertNotEqual(run.returncode,0)
-                        self.assertIn("I have not connected TCP wire and runtime lowering",run.stdout+run.stderr)
-                        self.assertEqual(output.read_bytes(),b"prior")
+                    grants = ["--allow-temporary-files", "--allow-tcp-connections"]
+                    for compiler in ("nanoc_c", "nano_virt"):
+                        output = work / (compiler + ".out")
+                        command = [ROOT / "bin" / compiler, args[3], "-o", output]
+                        if compiler == "nano_virt":
+                            command.append("--emit-nvm")
+                        for allowed in ([], grants[:1], grants[1:]):
+                            with self.subTest(compiler=compiler, grants=allowed):
+                                output.write_bytes(b"prior")
+                                run = subprocess.run(list(map(str, [*command, *allowed])),
+                                    cwd=ROOT, capture_output=True, text=True, timeout=90)
+                                self.assertNotEqual(run.returncode, 0)
+                                for missing in set(grants) - set(allowed):
+                                    self.assertIn("I require " + missing, run.stdout + run.stderr)
+                                self.assertEqual(output.read_bytes(), b"prior")
+                        checked([*command, *grants])
+                        self.assertNotEqual(output.read_bytes(), b"prior")
+                        invocation = ([ROOT / "bin/nano_vm", "--services",
+                            "--service-instruction-limit", "1000000", output]
+                            if compiler == "nano_virt" else [output])
+                        for allowed in ([], grants[:1], grants[1:]):
+                            with self.subTest(runtime=compiler, grants=allowed):
+                                run = subprocess.run(list(map(str, [*invocation, *allowed])),
+                                    cwd=ROOT, capture_output=True, text=True, timeout=90)
+                                self.assertNotEqual(run.returncode, 0)
+                        checked([*invocation, *grants])
             for compiler in ("nano_virt","nanoc_stage2"):
                 module=work/(compiler+".nvm")
                 checked([ROOT/"bin"/compiler,ROOT/"tests/service_namespace_tcp.nano","--emit-nvm","-o",module])
