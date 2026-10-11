@@ -49,6 +49,14 @@ with unchanged inputs, seventeen resulting-product methods and 27 adjacent
 methods. I retain separate manifests for native and packaged VM seed execution.
 Both independently emitted compiler modules are byte-identical.
 
+After these audits, I remove the unnecessary signature copy at C typed let
+comparison. I borrow the checked signature instead, so an allocation failure
+cannot erase an available result signature at this boundary. My follow-up
+passes all 59 focused/adjacent C methods, the typechecker suite, and all seventeen
+methods with the changed C producer objects instrumented by ASan/UBSan (producer
+leak detection remains disabled). No selfhosted compiler source changes in this
+follow-up; the full product audit manifests retain their original source hashes.
+
 Full #976 remains open. These records describe frontend bindings and do not
 authorize types, layouts or ownership. Complete generic signatures, original
 type aliases, inferred effects, other frontend facts, fact-aware linking,

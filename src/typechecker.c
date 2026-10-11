@@ -5557,8 +5557,12 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     stmt->as.let.value->type == AST_MODULE_QUALIFIED_CALL) {
                     /* I use the checked call result after generic substitution,
                      * including indirect and imported callable results. */
-                    value_sig = copy_callable_signature(stmt->as.let.value, tc->env);
-                    owns_value_sig = true;
+                    if (stmt->as.let.value->type == AST_CALL)
+                        value_sig = function_result_signature(stmt->as.let.value, tc->env);
+                    if (!value_sig) {
+                        TypeInfo *info = try_get_expr_type_info(stmt->as.let.value, tc->env);
+                        value_sig = info ? info->fn_sig : NULL;
+                    }
                 } else if (stmt->as.let.value->type == AST_IDENTIFIER) {
                     /* Could be function name or function-typed variable */
                     Function *func = env_get_function(tc->env, stmt->as.let.value->as.identifier);
