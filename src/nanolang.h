@@ -542,6 +542,7 @@ struct ASTNode {
             Parameter **op_params;      /* Parameter list for each operation */
             int *op_param_counts;       /* Param count for each operation */
             Type *op_return_types;      /* Return type for each operation */
+            TypeInfo **op_return_type_infos; /* I own complete operation results. */
             char **op_return_type_names;/* For struct return types */
             bool is_pub;
             /* Alternative simple-type layout (used by parse_effect_def) */

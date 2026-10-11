@@ -1,0 +1,168 @@
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -O1 -fno-inline -fsanitize=address,undefined -fno-sanitize-recover=all -c /private/tmp/nl51-effect-contracts/parser-before.c -o /private/tmp/nl51-effect-contracts/parser-before-asan.o
+/opt/homebrew/opt/llvm/bin/clang -Wall -Wextra -Werror -std=c99 -g -O3 -ftree-vectorize -fPIC -Isrc -D_GNU_SOURCE -I'/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk/usr/include/ffi' -I/opt/homebrew/Cellar/openssl@3/3.6.5/include -Itests -O1 -fno-inline -fsanitize=address,undefined -fno-sanitize-recover=all -o /private/tmp/nl51-effect-contracts/test-parser-before-asan /private/tmp/nl51-effect-contracts/test-parser-before.c /private/tmp/nl51-effect-contracts/parser-before-asan.o /private/tmp/nl51-effect-contracts/typechecker-asan.o /private/tmp/nl51-effect-contracts/nominal-types-asan.o obj/lexer.o obj/transpiler.o obj/stdlib_runtime.o obj/env.o obj/builtins_registry.o obj/module.o obj/module_metadata.o obj/cJSON.o obj/toon_output.o obj/module_builder.o obj/resource_tracking.o obj/eval.o obj/eval/eval_hashmap.o obj/eval/eval_math.o obj/eval/eval_string.o obj/eval/eval_io.o obj/interpreter_ffi.o obj/json_diagnostics.o obj/reflection.o obj/nanocore_subset.o obj/nanocore_export.o obj/emit_typed_ast.o obj/type_infer.o obj/effects.o obj/fold_constants.o obj/dce_pass.o obj/par_let_pass.o obj/ptx_backend.o obj/opencl_backend.o obj/tco_pass.o obj/cps_pass.o obj/coroutine.o obj/pgo_pass.o obj/c_backend.o obj/bench.o obj/bench_native.o obj/riscv_backend.o obj/dwarf_info.o obj/docgen_md.o obj/docgen.o obj/fmt.o obj/channel.o obj/bcp47.o obj/locale.o obj/utf8.o obj/diag_id.o obj/catalog.o obj/resource_flow.o obj/service_namespace.o obj/service_bodies.o obj/service_ownership.o lib/libnano_compiler_inputs.a obj/runtime/list_int.o obj/runtime/list_bool.o obj/runtime/list_string.o obj/runtime/list_LexerToken.o obj/runtime/list_token.o obj/runtime/list_CompilerDiagnostic.o obj/runtime/list_CompilerSourceLocation.o obj/runtime/list_ASTNumber.o obj/runtime/list_ASTFloat.o obj/runtime/list_ASTString.o obj/runtime/list_ASTBool.o obj/runtime/list_ASTIdentifier.o obj/runtime/list_ASTBinaryOp.o obj/runtime/list_ASTCall.o obj/runtime/list_ASTModuleQualifiedCall.o obj/runtime/list_ASTArrayLiteral.o obj/runtime/list_ASTLet.o obj/runtime/list_ASTSet.o obj/runtime/list_ASTStmtRef.o obj/runtime/list_ASTIf.o obj/runtime/list_ASTWhile.o obj/runtime/list_ASTFor.o obj/runtime/list_ASTReturn.o obj/runtime/list_ASTBlock.o obj/runtime/list_ASTUnsafeBlock.o obj/runtime/list_ASTPrint.o obj/runtime/list_ASTAssert.o obj/runtime/list_ASTFunction.o obj/runtime/list_ASTShadow.o obj/runtime/list_ASTStruct.o obj/runtime/list_ASTStructLiteral.o obj/runtime/list_ASTFieldAccess.o obj/runtime/list_ASTEnum.o obj/runtime/list_ASTUnion.o obj/runtime/list_ASTUnionConstruct.o obj/runtime/list_ASTMatch.o obj/runtime/list_ASTImport.o obj/runtime/list_ASTOpaqueType.o obj/runtime/list_ASTServiceDecl.o obj/runtime/list_ASTTupleLiteral.o obj/runtime/list_ASTTupleIndex.o obj/runtime/token_helpers.o obj/runtime/gc.o obj/runtime/effect_runtime.o obj/runtime/dyn_array.o obj/runtime/gc_struct.o obj/runtime/nl_string.o obj/runtime/ffi_loader.o obj/runtime/module_build_dir.o obj/runtime/cli.o obj/runtime/regex.o -lm -lcrypto -lffi -L/opt/homebrew/Cellar/openssl@3/3.6.5/lib
+ASAN_OPTIONS=detect_leaks=1 ASAN_SYMBOLIZER_PATH=/opt/homebrew/opt/llvm/bin/llvm-symbolizer /private/tmp/nl51-effect-contracts/test-parser-before-asan
+I support borrow annotations only on named parameters until ownership lowering lands
+Error at line 1, column 23: Expected ')' after parameters (got AMPERSAND)
+Error at line 1, column 24: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 27: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 29: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 32: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+I support borrow annotations only on named parameters until ownership lowering lands
+Error at line 1, column 24: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 25: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+I support borrow annotations only on named parameters until ownership lowering lands
+Error at line 1, column 25: Expected field name
+Error at line 1, column 25: Expected '}' after struct fields (got AMPERSAND)
+Error at line 1, column 26: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 1, column 30: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+  Testing reexported_call_paths... ✓
+=== Parser Tests ===
+
+--- Valid programs ---
+  Testing parse_minimal... ✓
+  Testing borrow_annotation_retention... ✓
+  Testing borrow_postcondition_copy... ✓
+  Testing exclusive_field_place_retention... ✓
+  Testing nested_generic_annotation_metadata... ✓
+  Testing nested_generic_annotation_errors... ✓
+  Testing parse_empty_program... ✓
+  Testing parse_arithmetic... ✓
+  Testing parse_all_comparisons... ✓
+  Testing parse_bool_ops... ✓
+  Testing parse_if_else_chain... ✓
+  Testing parse_while_loop... ✓
+  Testing parse_for_range... ✓
+  Testing parse_struct_def... ✓
+  Testing parse_enum_def... ✓
+  Testing parse_union_def... ✓
+  Testing parse_match_expr... ✓
+  Testing parse_match_with_guards... ✓
+  Testing parse_union_match... ✓
+  Testing parse_cond_expr... ✓
+  Testing parse_array_literal... ✓
+  Testing parse_tuple_literal... ✓
+  Testing parse_struct_literal... ✓
+  Testing parse_let_mut... ✓
+  Testing parse_constants... ✓
+  Testing parse_pub_functions... ✓
+  Testing parse_public_globals... ✓
+  Testing parse_extern_fn... ✓
+  Testing parse_pure_fn... ✓
+  Testing parse_pub_pure_fn... ✓
+  Testing parse_pure_extern_fn... ✓
+  Testing parse_pub_pure_extern_fn... ✓
+  Testing parse_pure_fn_not_set_on_regular... ✓
+  Testing parse_shadow... ✓
+  Testing parse_break_continue... ✓
+  Testing parse_print_println... ✓
+  Testing parse_assert... ✓
+  Testing parse_float_literals... ✓
+  Testing parse_string_escape... ✓
+  Testing parse_generic_list... ✓
+  Testing parse_hashmap... ✓
+  Testing parse_opaque_type... ✓
+  Testing parse_effect_decl... ✓
+  Testing parse_handle_expr... ✓
+  Testing parse_unary_operators... ✓
+  Testing parse_nested_function_calls... ✓
+  Testing parse_multiline_string... ✓
+  Testing parse_unsafe_block... ✓
+
+--- Import parsing ---
+  Testing parse_selective_import_alias... ✓
+  Testing parse_pub_use_reexport... ✓
+  Testing parse_normal_module_import... ✓
+  Testing parse_unsafe_module_import... ✓
+  Testing parse_wildcard_import... ✓
+
+--- parse_repl_input tests ---
+  Testing parse_repl_simple... ✓
+  Testing parse_repl_expression... ✓
+  Testing parse_repl_function... ✓
+  Testing parse_repl_empty... ✓
+
+--- free_ast edge cases ---
+  Testing free_ast_null... ✓
+  Testing free_ast_complex... ✓
+
+--- Error cases ---
+  Testing parse_ascii_identifiers_only... ✓
+  Testing parse_err_unclosed_paren... ✓
+  Testing parse_err_missing_return_type... ✓
+  Testing parse_err_invalid_token... ✓
+  Testing parse_err_selective_import_dangling_as... ✓
+  Testing parse_many_functions... ✓
+  Testing parse_deep_nesting... ✓
+  Testing parse_infix_operators... ✓
+  Testing parse_type_annotations... ✓
+  Testing owned_generic_function_annotations... ✓
+  Testing recursive_tuple_annotations... ✓
+
+✓ All parser tests passed!
+
+=================================================================
+==71831==ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 168 byte(s) in 1 object(s) allocated from:
+    #0 0x00010193d6ec in calloc (/opt/homebrew/Cellar/llvm/23.1.3/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x00010012b9ac in parse_parameters /private/tmp/nl51-effect-contracts/parser-before.c:1057:29
+    #2 0x00010011b2e8 in parse_function /private/tmp/nl51-effect-contracts/parser-before.c:5127:10
+    #3 0x000100113b14 in parse_program /private/tmp/nl51-effect-contracts/parser-before.c:5886:26
+    #4 0x000100109614 in parse_ok /private/tmp/nl51-effect-contracts/test-parser-before.c:54:21
+    #5 0x00010010f174 in test_borrow_annotation_retention /private/tmp/nl51-effect-contracts/test-parser-before.c:1084:17
+    #6 0x00010010e2f4 in main /private/tmp/nl51-effect-contracts/test-parser-before.c:1141:5
+    #7 0x0001828804e0 in start (/usr/lib/dyld:arm64e+0x204e0)
+
+Direct leak of 136 byte(s) in 1 object(s) allocated from:
+    #0 0x00010193d6ec in calloc (/opt/homebrew/Cellar/llvm/23.1.3/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x000100125fc4 in create_node /private/tmp/nl51-effect-contracts/parser-before.c:209:21
+    #2 0x00010011cd5c in parse_statement /private/tmp/nl51-effect-contracts/parser-before.c:3340:20
+    #3 0x00010012e088 in parse_block /private/tmp/nl51-effect-contracts/parser-before.c:3091:25
+    #4 0x00010011bac0 in parse_function /private/tmp/nl51-effect-contracts/parser-before.c:5253:16
+    #5 0x0001001138d8 in parse_program /private/tmp/nl51-effect-contracts/parser-before.c:5890:22
+    #6 0x000100109614 in parse_ok /private/tmp/nl51-effect-contracts/test-parser-before.c:54:21
+    #7 0x00010010da8c in test_parse_err_unclosed_paren /private/tmp/nl51-effect-contracts/test-parser-before.c:869:21
+    #8 0x00010010eb70 in main /private/tmp/nl51-effect-contracts/test-parser-before.c:1208:5
+    #9 0x0001828804e0 in start (/usr/lib/dyld:arm64e+0x204e0)
+
+Direct leak of 8 byte(s) in 1 object(s) allocated from:
+    #0 0x000101935da8 in strdup (/opt/homebrew/Cellar/llvm/23.1.3/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib:arm64+0x4dda8)
+    #1 0x00010011674c in parse_import /private/tmp/nl51-effect-contracts/parser-before.c:5474:55
+    #2 0x0001001131b8 in parse_program /private/tmp/nl51-effect-contracts/parser-before.c
+    #3 0x000100109614 in parse_ok /private/tmp/nl51-effect-contracts/test-parser-before.c:54:21
+    #4 0x00010010db74 in test_parse_err_selective_import_dangling_as /private/tmp/nl51-effect-contracts/test-parser-before.c:891:21
+    #5 0x00010010ebdc in main /private/tmp/nl51-effect-contracts/test-parser-before.c:1211:5
+    #6 0x0001828804e0 in start (/usr/lib/dyld:arm64e+0x204e0)
+
+Direct leak of 6 byte(s) in 1 object(s) allocated from:
+    #0 0x000101935da8 in strdup (/opt/homebrew/Cellar/llvm/23.1.3/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib:arm64+0x4dda8)
+    #1 0x00010012b7c0 in parse_parameters /private/tmp/nl51-effect-contracts/parser-before.c:1023:38
+    #2 0x00010011b2e8 in parse_function /private/tmp/nl51-effect-contracts/parser-before.c:5127:10
+    #3 0x0001001138d8 in parse_program /private/tmp/nl51-effect-contracts/parser-before.c:5890:22
+    #4 0x000100109614 in parse_ok /private/tmp/nl51-effect-contracts/test-parser-before.c:54:21
+    #5 0x0001001096fc in test_nested_generic_annotation_errors /private/tmp/nl51-effect-contracts/test-parser-before.c:114:28
+    #6 0x00010010e384 in main /private/tmp/nl51-effect-contracts/test-parser-before.c:1145:5
+    #7 0x0001828804e0 in start (/usr/lib/dyld:arm64e+0x204e0)
+
+Direct leak of 2 byte(s) in 1 object(s) allocated from:
+    #0 0x000101935da8 in strdup (/opt/homebrew/Cellar/llvm/23.1.3/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib:arm64+0x4dda8)
+    #1 0x00010012b7c0 in parse_parameters /private/tmp/nl51-effect-contracts/parser-before.c:1023:38
+    #2 0x00010011b2e8 in parse_function /private/tmp/nl51-effect-contracts/parser-before.c:5127:10
+    #3 0x000100113b14 in parse_program /private/tmp/nl51-effect-contracts/parser-before.c:5886:26
+    #4 0x000100109614 in parse_ok /private/tmp/nl51-effect-contracts/test-parser-before.c:54:21
+    #5 0x00010010f174 in test_borrow_annotation_retention /private/tmp/nl51-effect-contracts/test-parser-before.c:1084:17
+    #6 0x00010010e2f4 in main /private/tmp/nl51-effect-contracts/test-parser-before.c:1141:5
+    #7 0x0001828804e0 in start (/usr/lib/dyld:arm64e+0x204e0)
+
+Indirect leak of 168 byte(s) in 1 object(s) allocated from:
+    #0 0x00010193d6ec in calloc (/opt/homebrew/Cellar/llvm/23.1.3/lib/clang/23/lib/darwin/libclang_rt.asan_osx_dynamic.dylib:arm64+0x556ec)
+    #1 0x00010012b93c in parse_parameters /private/tmp/nl51-effect-contracts/parser-before.c:1051:34
+    #2 0x00010011b2e8 in parse_function /private/tmp/nl51-effect-contracts/parser-before.c:5127:10
+    #3 0x000100113b14 in parse_program /private/tmp/nl51-effect-contracts/parser-before.c:5886:26
+    #4 0x000100109614 in parse_ok /private/tmp/nl51-effect-contracts/test-parser-before.c:54:21
+    #5 0x00010010f174 in test_borrow_annotation_retention /private/tmp/nl51-effect-contracts/test-parser-before.c:1084:17
+    #6 0x00010010e2f4 in main /private/tmp/nl51-effect-contracts/test-parser-before.c:1141:5
+    #7 0x0001828804e0 in start (/usr/lib/dyld:arm64e+0x204e0)
+
+SUMMARY: AddressSanitizer: 488 byte(s) leaked in 6 allocation(s).
+make: *** [effect-parser-baseline] Error 1

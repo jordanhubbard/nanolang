@@ -6633,6 +6633,10 @@ fn nisa_emit_stmt(parser: Parser, stmt: ASTStmtRef) -> string {
             if nisa_void_return { return (nisa_line "RET") }
             return (nisa_fail "a value-result function needs a return value")
         }
+        if (and nisa_void_return (or (== r.value_type ParseNodeType.PNODE_EFFECT_OP) (== r.value_type ParseNodeType.PNODE_HANDLE_EXPR))) {
+            if (!= (nisa_expr_type parser r.value r.value_type) "void") { return (nisa_fail "I require a void effect result in a void return") }
+            return (+ (nisa_emit_expr parser r.value r.value_type) (+ (nisa_line "POP") (nisa_line "RET")))
+        }
         if (and (== nisa_return_type "int") (== (nisa_expr_type parser r.value r.value_type) "u8")) {
             return (+ (nisa_emit_expected_expr parser r.value r.value_type "int") (nisa_line "RET"))
         }
@@ -6807,6 +6811,12 @@ shadow nisa_emit_stmt {
     assert (str_contains inferred ".function main 0 2 0 int 1")
     assert (str_contains inferred "STORE_LOCAL 0")
     assert (str_contains inferred "STORE_LOCAL 1")
+    let effect_return: string = (nanoisa_emit_nasm "effect Record{emit:int->void} fn send()->void{return perform Record.emit(7)} fn main()->int{(send) return 0}")
+    assert nisa_ok
+    assert (str_contains effect_return "PERFORM s0 1\n  POP\n  RET")
+    let invalid_effect_return: string = (nanoisa_emit_nasm "effect Ask{ask:int->int} fn send()->void{return perform Ask.ask(7)} fn main()->int{(send) return 0}")
+    assert (not nisa_ok)
+    assert (== (nisa_reset) 0)
 }
 
 fn nisa_emit_statements(parser: Parser, statements: List<ASTStmtRef>) -> string {

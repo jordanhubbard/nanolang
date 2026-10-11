@@ -1,0 +1,18 @@
+[
+  {
+    "case": "list_unknown",
+    "returncode": 0
+  },
+  {
+    "case": "map_unknown",
+    "returncode": 1
+  },
+  {
+    "case": "list_forward",
+    "returncode": 0
+  },
+  {
+    "case": "map_forward",
+    "returncode": 0
+  }
+]

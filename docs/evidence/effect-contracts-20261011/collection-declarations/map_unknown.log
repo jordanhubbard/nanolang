@@ -1,0 +1,7 @@
+-- E032 EFFECT SIGNATURE --- /private/tmp/nl51-effect-contracts/collection-declarations/map_unknown.nano
+I require declared concrete types in every effect signature.
+
+1| effect Ask{ask:HashMap<string,Missing>->int} struct Point{x:int} fn main()->int{return 0} shadow main{assert true}
+   ^^^^^^
+Hint: Declare each referenced type and supply its complete type arguments.
+error: type check failed

@@ -7922,6 +7922,79 @@ bool type_check_shadow_scope(ASTNode *program, Environment *env, ModuleList *mod
     return typed;
 }
 
+/* I validate effect annotations after all nominal declarations are visible. */
+static bool effect_type_known(Environment *env, Type type, const char *name,
+                              const TypeInfo *info, int depth) {
+    if (depth > 128) return false;
+    if (info) {
+        type = info->base_type;
+        if (info->generic_name) name = info->generic_name;
+        if (info->opaque_type_name) name = info->opaque_type_name;
+        if (info->element_type &&
+            !effect_type_known(env, info->element_type->base_type, NULL, info->element_type, depth + 1)) return false;
+        for (int i = 0; i < info->type_param_count; ++i)
+            if (!info->type_params || !info->type_params[i] ||
+                !effect_type_known(env, info->type_params[i]->base_type, NULL, info->type_params[i], depth + 1)) return false;
+    }
+    if (type == TYPE_UNKNOWN) return false;
+    if (type == TYPE_LIST_GENERIC) return effect_type_known(env, TYPE_STRUCT, name, NULL, depth + 1);
+    if (type == TYPE_ARRAY) return info && info->element_type;
+    if (type == TYPE_TUPLE) {
+        if (!info || info->tuple_element_count < 1) return false;
+        for (int i = 0; i < info->tuple_element_count; ++i) {
+            TypeInfo fallback = {0};
+            const TypeInfo *element = tuple_element_info(info, i, &fallback);
+            if (!element || !effect_type_known(env, element->base_type, NULL, element, depth + 1)) return false;
+        }
+    }
+    if (type == TYPE_FUNCTION) {
+        const FunctionSignature *signature = info ? info->fn_sig : NULL;
+        if (!signature) return false;
+        for (int i = 0; i < signature->param_count; ++i)
+            if (!effect_type_known(env, signature->param_types[i],
+                signature->param_struct_names ? signature->param_struct_names[i] : NULL,
+                signature->param_type_info ? signature->param_type_info[i] : NULL, depth + 1)) return false;
+        TypeInfo result = {.base_type = signature->return_type, .fn_sig = signature->return_fn_sig,
+                           .generic_name = signature->return_struct_name};
+        return effect_type_known(env, signature->return_type, signature->return_struct_name,
+                                 signature->return_type_info ? signature->return_type_info : &result, depth + 1);
+    }
+    if (type == TYPE_STRUCT || type == TYPE_UNION || type == TYPE_ENUM ||
+        type == TYPE_GENERIC || type == TYPE_OPAQUE) {
+        if (!name) return false;
+        UnionDef *sum = env_get_union(env, name);
+        int count = info ? info->type_param_count : 0;
+        if (sum) return count == sum->generic_param_count;
+        return !count && (env_get_struct(env, name) || env_get_enum(env, name) || env_get_opaque_type(env, name));
+    }
+    return true;
+}
+
+static bool validate_effect_declarations(ASTNode *program, Environment *env) {
+    bool valid = true;
+    for (int i = 0; i < program->as.program.count; ++i) {
+        ASTNode *item = program->as.program.items[i];
+        if (item->type != AST_EFFECT_DECL) continue;
+        for (int operation = 0; operation < item->as.effect_decl.op_count; ++operation) {
+            bool known = effect_type_known(env, item->as.effect_decl.op_return_types[operation],
+                item->as.effect_decl.op_return_type_names[operation],
+                item->as.effect_decl.op_return_type_infos ? item->as.effect_decl.op_return_type_infos[operation] : NULL, 0);
+            for (int parameter = 0; parameter < item->as.effect_decl.op_param_counts[operation]; ++parameter) {
+                Parameter *formal = &item->as.effect_decl.op_params[operation][parameter];
+                if (formal->type == TYPE_VOID ||
+                    !effect_type_known(env, formal->type, formal->struct_type_name, formal->type_info, 0)) known = false;
+            }
+            if (!known) {
+                emit_context_error("E032 EFFECT SIGNATURE", item->line, item->column, 6,
+                    "I require declared concrete types in every effect signature.",
+                    "Declare each referenced type and supply its complete type arguments.");
+                valid = false;
+            }
+        }
+    }
+    return valid;
+}
+
 static bool register_effect_declaration(ASTNode *item, Environment *env) {
     /* Register algebraic effect definition */
     const char *eff_name = item->as.effect_decl.effect_name;
@@ -7932,6 +8005,15 @@ static bool register_effect_declaration(ASTNode *item, Environment *env) {
         return false;
     }
 
+    for (int operation = 0; operation < item->as.effect_decl.op_count; ++operation) {
+        for (int previous = 0; previous < operation; ++previous) {
+            if (!strcmp(item->as.effect_decl.op_names[operation], item->as.effect_decl.op_names[previous])) {
+                emit_context_error("E031 DUPLICATE EFFECT OPERATION", item->line, item->column, 6,
+                    "I require distinct operation names within an effect.", "Rename the duplicate operation.");
+                return false;
+            }
+        }
+    }
     EffectDef edef;
     edef.name = strdup(eff_name);
     edef.op_count = item->as.effect_decl.op_count;
@@ -8544,6 +8626,7 @@ register_function_pass1:;
     }
 
     if (!validate_declaration_layouts(program, env)) return false;
+    if (!validate_effect_declarations(program, env)) return false;
 
     /* I retain concrete field-only union instances after all declarations
      * are visible, including forward declarations in the same module. */
@@ -9323,6 +9406,7 @@ register_function_pass2:;
     }
 
     if (!validate_declaration_layouts(program, env)) return false;
+    if (!validate_effect_declarations(program, env)) return false;
 
     /* I retain concrete field-only union instances after all declarations
      * are visible, including forward declarations in the same module. */

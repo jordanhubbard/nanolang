@@ -42,6 +42,16 @@ let mut recorded:int=0
 fn send()->void{perform Record.emit(7)}
 shadow send{assert true}
 fn main()->int{set recorded 0 let ignored=handle {(send)} with {emit value->{set recorded value}} return recorded}''', 7),
+            ('void_return', '''effect Record{emit:int->void}
+let mut recorded:int=0
+fn send()->void{return perform Record.emit(7)}
+shadow send{assert true}
+fn main()->int{set recorded 0 let ignored=handle {(send)} with {emit value->{set recorded value}} return recorded}''', 7),
+            ('handled_void_return', '''effect Record{emit:int->void}
+let mut recorded:int=0
+fn send()->void{return handle {perform Record.emit(9)} with {emit value->{set recorded value}}}
+shadow send{assert true}
+fn main()->int{set recorded 0 (send) return recorded}''', 9),
             ('local_loop', '''effect Ask{ask:int->int}
 fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{let mut total:int=0 let mut i:int=0 while (< i value){set total (+ total i) set i (+ i 1)} total}}}''', 3),
         ]
@@ -55,6 +65,51 @@ fn main()->int{return handle {perform Ask.ask(3)} with {ask value->{let mut tota
                     self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
                     ran = subprocess.run([ROOT/'bin/nano_vm', output], capture_output=True, text=True, timeout=30)
                     self.assertEqual(ran.returncode, expected, ran.stdout+ran.stderr)
+
+    def test_declaration_types_and_forward_references(self):
+        declarations = [
+            ('effect Ask{ask:Missing->int}', False),
+            ('effect Ask{ask:int->Missing}', False),
+            ('effect Ask{ask:array<Missing>->int}', False),
+            ('effect Ask{ask:int->array<Missing>}', False),
+            ('effect Ask{ask:int->(int,Missing)}', False),
+            ('effect Ask{ask:int->fn(Missing)->int}', False),
+            ('effect Ask{ask:fn(int)->Missing->int}', False),
+            ('effect Ask{ask:int->int,ask:int->int}', False),
+            ('effect Ask{ask:void int->int}', False),
+            ('effect Ask{ask:Box->int} union Box<T>{Some{value:T}}', False),
+            ('effect Ask{ask:Box<int,string>->int} union Box<T>{Some{value:T}}', False),
+            ('effect Ask{ask:Point<int>->int} struct Point{x:int}', False),
+            ('effect Ask{ask:List<Missing>->int}', False),
+            ('effect Ask{ask:int->List<Missing>}', False),
+            ('effect Ask{ask:HashMap<string,Missing>->int}', False),
+            ('effect Ask{ask:List<Point>->int} struct Point{x:int}', True),
+            ('effect Ask{ask:HashMap<string,Point>->int} struct Point{x:int}', True),
+            ('effect Ask{ask:array<HashMap<string,Missing>>->int}', False),
+            ('effect Ask{ask:int->fn(int)->HashMap<string,Point>} struct Point{x:int}', True),
+            ('effect Ask{ask:Box<HashMap<string,Point>>->int} struct Point{x:int} union Box<T>{Some{value:T}}', True),
+            ('effect Ask{ask:Point->array<Point>} struct Point{x:int}', True),
+            ('effect Ask{ask:Choice->Choice} enum Choice{First,Second}', True),
+            ('effect Ask{ask:Handle->Handle} opaque type Handle', True),
+            ('effect Ask{ask:Box<int>->Box<string>} union Box<T>{Some{value:T}}', True),
+            ('effect Ask{ask:int->fn(int)->Point} struct Point{x:int}', True),
+            ('effect Ask{ask:array<array<int>>->(int,string)}', True),
+        ]
+        for driver in DRIVERS:
+            for declaration, accepted in declarations:
+                with self.subTest(driver=driver, declaration=declaration), tempfile.TemporaryDirectory() as directory:
+                    work = Path(directory)
+                    source, output = work/'source.nano', work/'source.nvm'
+                    source.write_text(declaration+'\nfn main()->int{return 0}\nshadow main{assert true}\n')
+                    output.write_bytes(b'previous artifact')
+                    built = self.compile(driver, source, output)
+                    if accepted:
+                        self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+                        ran = subprocess.run([ROOT/'bin/nano_vm', output], capture_output=True, text=True, timeout=30)
+                        self.assertEqual(ran.returncode, 0, ran.stdout+ran.stderr)
+                    else:
+                        self.assertNotEqual(built.returncode, 0, built.stdout+built.stderr)
+                        self.assertEqual(output.read_bytes(), b'previous artifact')
 
     def test_invalid_effects_preserve_previous_output(self):
         sources = [

@@ -581,6 +581,29 @@ void test_parse_effect_decl(void) {
     free_ast(prog);
 }
 
+void test_effect_result_annotations(void) {
+    ASTNode *program = parse_ok(
+        "effect Shapes { rows : int -> array<array<Point>>, "
+        "pair : int -> (int,Point), callback : int -> fn(Point)->array<Point> } "
+        "struct Point { x:int } fn main()->int{return 0}");
+    ASSERT_NOT_NULL(program);
+    ASTNode *effect = program->as.program.items[0];
+    ASSERT_EQ(effect->type, AST_EFFECT_DECL);
+    ASSERT_EQ(effect->as.effect_decl.op_count, 3);
+    TypeInfo **results = effect->as.effect_decl.op_return_type_infos;
+    ASSERT_NOT_NULL(results);
+    ASSERT_EQ(results[0]->base_type, TYPE_ARRAY);
+    ASSERT_EQ(results[0]->element_type->base_type, TYPE_ARRAY);
+    ASSERT(!strcmp(results[0]->element_type->element_type->generic_name, "Point"));
+    ASSERT_EQ(results[1]->base_type, TYPE_TUPLE);
+    ASSERT_EQ(results[1]->tuple_element_count, 2);
+    ASSERT_EQ(results[2]->base_type, TYPE_FUNCTION);
+    ASSERT_NOT_NULL(results[2]->fn_sig);
+    ASSERT_EQ(results[2]->fn_sig->param_count, 1);
+    ASSERT_EQ(results[2]->fn_sig->return_type_info->base_type, TYPE_ARRAY);
+    free_ast(program);
+}
+
 void test_parse_handle_expr(void) {
     ASTNode *prog = parse_ok(
         "effect Console {\n"
@@ -1180,6 +1203,7 @@ int main(void) {
     TEST(parse_hashmap);
     TEST(parse_opaque_type);
     TEST(parse_effect_decl);
+    TEST(effect_result_annotations);
     TEST(parse_handle_expr);
     TEST(parse_unary_operators);
     TEST(parse_nested_function_calls);

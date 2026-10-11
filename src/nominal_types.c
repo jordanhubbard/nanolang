@@ -288,6 +288,8 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
         case AST_EFFECT_DECL:
             for (int i = 0; i < node->as.effect_decl.op_count; ++i) {
                 if (node->as.effect_decl.op_return_type_names) SLOT(node->as.effect_decl.op_return_type_names[i]);
+                if (node->as.effect_decl.op_return_type_infos &&
+                    !nominal_info(program, env, node->as.effect_decl.op_return_type_infos[i])) return false;
                 if (node->as.effect_decl.op_param_type_names) SLOT(node->as.effect_decl.op_param_type_names[i]);
                 if (node->as.effect_decl.op_params && node->as.effect_decl.op_params[i])
                     for (int j = 0; j < node->as.effect_decl.op_param_counts[i]; ++j)

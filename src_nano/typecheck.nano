@@ -7305,6 +7305,63 @@ shadow tc_effect_error {
     assert (Diagnostics.diag_list_has_errors diags)
 }
 
+fn tc_effect_type_known(parser: Parser, value: NSType) -> bool {
+    let spelling: string = (type_to_string value)
+    let base: string = (base_type_name spelling)
+    if (== value.kind TypeKind.TYPE_ARRAY) {
+        return (tc_effect_type_known parser (type_from_string_with_parser parser (type_kind_to_string value.element_type_kind value.element_type_name)))
+    }
+    if (== value.kind TypeKind.TYPE_LIST_GENERIC) {
+        return (tc_effect_type_known parser (type_from_string_with_parser parser value.element_type_name))
+    }
+    if (== value.kind TypeKind.TYPE_FUNCTION) {
+        let parameters: array<NSType> = (fn_type_params_with_parser parser value.name)
+        let mut i: int = 0
+        while (< i (array_length parameters)) {
+            if (not (tc_effect_type_known parser (at parameters i))) { return false }
+            set i (+ i 1)
+        }
+        return (tc_effect_type_known parser (type_from_string_with_parser parser (type_to_string (fn_type_return_type value.name))))
+    }
+    if (== value.kind TypeKind.TYPE_TUPLE) {
+        let components: array<string> = (split_tuple_type_names value.name)
+        let mut i: int = 0
+        while (< i (array_length components)) {
+            if (not (tc_effect_type_known parser (type_from_string_with_parser parser (at components i)))) { return false }
+            set i (+ i 1)
+        }
+        return (> (array_length components) 0)
+    }
+    let arguments: array<string> = (tc_generic_arguments spelling)
+    if (or (== base "HashMap") (> (array_length arguments) 0)) {
+        let mut arity: int = -1
+        if (== base "HashMap") { set arity 2 }
+        else {
+            let mut i: int = 0
+            while (< i (parser_get_union_count parser)) {
+                let declaration: ASTUnion = (parser_get_union parser i)
+                if (== declaration.name base) { set arity declaration.generic_param_count }
+                set i (+ i 1)
+            }
+        }
+        if (!= arity (array_length arguments)) { return false }
+        let mut i: int = 0
+        while (< i (array_length arguments)) {
+            if (not (tc_effect_type_known parser (type_from_string_with_parser parser (at arguments i)))) { return false }
+            set i (+ i 1)
+        }
+        return true
+    }
+    return (reduce_type_known parser value)
+}
+shadow tc_effect_type_known {
+    let parser: Parser = (resource_test_parser "struct Point{x:int} union Box<T>{Some{value:T}}")
+    assert (tc_effect_type_known parser (type_from_string_with_parser parser "HashMap<string,Point>"))
+    assert (tc_effect_type_known parser (type_from_string_with_parser parser "Box<HashMap<string,Point>>"))
+    assert (not (tc_effect_type_known parser (type_from_string_with_parser parser "HashMap<string,Missing>")))
+    assert (not (tc_effect_type_known parser (type_from_string_with_parser parser "array<HashMap<string,Missing>>")))
+}
+
 fn tc_effect_declarations(parser: Parser, diags: List<CompilerDiagnostic>, file_name: string) -> void {
     let mut index: int = 0
     while (< index (array_length parser.effects)) {
@@ -7323,7 +7380,13 @@ fn tc_effect_declarations(parser: Parser, diags: List<CompilerDiagnostic>, file_
             while (< parameter count) {
                 let name: string = (at declaration.parameter_types (+ first parameter))
                 if (== name "void") { (tc_effect_error diags file_name declaration.line declaration.column "I use void only as the sole zero-argument effect marker.") }
+                if (not (tc_effect_type_known parser (type_from_string_with_parser parser name))) {
+                    (tc_effect_error diags file_name declaration.line declaration.column "I require a declared concrete effect parameter type.")
+                }
                 set parameter (+ parameter 1)
+            }
+            if (not (tc_effect_type_known parser (type_from_string_with_parser parser (at declaration.return_types operation)))) {
+                (tc_effect_error diags file_name declaration.line declaration.column "I require a declared concrete effect result type.")
             }
             set operation (+ operation 1)
         }
@@ -7333,6 +7396,10 @@ fn tc_effect_declarations(parser: Parser, diags: List<CompilerDiagnostic>, file_
 shadow tc_effect_declarations {
     let parsed: Parser = (resource_test_parser "effect A{ask:int->int} effect A{ask:int->int} fn main()->int{return 0}")
     assert (typecheck_phase parsed "effect.nano").had_error
+    let unknown: Parser = (resource_test_parser "effect A{ask:array<Missing>->int} fn main()->int{return 0}")
+    assert (typecheck_phase unknown "effect.nano").had_error
+    let forward: Parser = (resource_test_parser "effect A{ask:Point->array<Point>} struct Point{x:int} fn main()->int{return 0}")
+    assert (not (typecheck_phase forward "effect.nano").had_error)
 }
 
 fn tc_effect_perform(parser: Parser, node: ASTEffectPerform, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {

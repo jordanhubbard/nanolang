@@ -3978,6 +3978,7 @@ static ASTNode *parse_effect_decl(Stage1Parser *p, bool is_pub) {
     Parameter **op_params = malloc(sizeof(Parameter*) * capacity);
     int *op_param_counts = malloc(sizeof(int) * capacity);
     Type *op_return_types = malloc(sizeof(Type) * capacity);
+    TypeInfo **op_return_type_infos = malloc(sizeof(*op_return_type_infos) * capacity);
     char **op_return_type_names = malloc(sizeof(char*) * capacity);
     int op_count = 0;
 
@@ -3988,6 +3989,7 @@ static ASTNode *parse_effect_decl(Stage1Parser *p, bool is_pub) {
             op_params = realloc(op_params, sizeof(Parameter*) * capacity);
             op_param_counts = realloc(op_param_counts, sizeof(int) * capacity);
             op_return_types = realloc(op_return_types, sizeof(Type) * capacity);
+            op_return_type_infos = realloc(op_return_type_infos, sizeof(*op_return_type_infos) * capacity);
             op_return_type_names = realloc(op_return_type_names, sizeof(char*) * capacity);
         }
 
@@ -4061,6 +4063,16 @@ static ASTNode *parse_effect_decl(Stage1Parser *p, bool is_pub) {
         FunctionSignature *ret_sig = NULL;
         TypeInfo *ret_info = NULL;
         Type ret_type = parse_type_with_element(p, NULL, &ret_name, &ret_sig, &ret_info);
+        if (ret_type == TYPE_FUNCTION && ret_sig && !ret_info) {
+            ret_info = calloc(1, sizeof(*ret_info));
+            if (!ret_info) {
+                fprintf(stderr, "I cannot allocate an effect result signature.\n");
+                exit(EXIT_FAILURE);
+            }
+            ret_info->base_type = TYPE_FUNCTION;
+            ret_info->fn_sig = ret_sig;
+        }
+        op_return_type_infos[op_count] = ret_info;
         op_return_types[op_count] = ret_type;
         op_return_type_names[op_count] = ret_name;
 
@@ -4084,6 +4096,7 @@ static ASTNode *parse_effect_decl(Stage1Parser *p, bool is_pub) {
         node->as.effect_decl.op_params = op_params;
         node->as.effect_decl.op_param_counts = op_param_counts;
         node->as.effect_decl.op_return_types = op_return_types;
+        node->as.effect_decl.op_return_type_infos = op_return_type_infos;
         node->as.effect_decl.op_return_type_names = op_return_type_names;
         node->as.effect_decl.is_pub = is_pub;
         return node;
@@ -4094,11 +4107,13 @@ effect_error:
         free(op_names[i]);
         free(op_params[i]);
         free(op_return_type_names[i]);
+        free_type_info(op_return_type_infos[i]);
     }
     free(op_names);
     free(op_params);
     free(op_param_counts);
     free(op_return_types);
+    free(op_return_type_infos);
     free(op_return_type_names);
     free(effect_name);
     return NULL;
@@ -6234,11 +6249,13 @@ void free_ast(ASTNode *node) {
                 }
                 free(node->as.effect_decl.op_params[i]);
                 free(node->as.effect_decl.op_return_type_names[i]);
+                if (node->as.effect_decl.op_return_type_infos) free_type_info(node->as.effect_decl.op_return_type_infos[i]);
             }
             free(node->as.effect_decl.op_names);
             free(node->as.effect_decl.op_params);
             free(node->as.effect_decl.op_param_counts);
             free(node->as.effect_decl.op_return_types);
+            free(node->as.effect_decl.op_return_type_infos);
             free(node->as.effect_decl.op_return_type_names);
             break;
         case AST_HANDLE_EXPR:
