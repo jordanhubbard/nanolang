@@ -1717,13 +1717,16 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             Nvm2cSimSlot value;
             uint32_t slot = ins.operands[0].u32;
             if (!sim_pop(b, idx, stk, &sp, &value)) return 0;
-            uint8_t stored = value.kind == NVM2C_VK_VALUE
+            /* An in-place checked array write preserves its input storage. */
+            uint8_t stored_kind = value.kind == NVM2C_VK_VALUE && value.array_payload_kind
+                ? value.array_payload_kind : value.kind;
+            uint8_t stored = stored_kind == NVM2C_VK_VALUE
                 ? NVM2C_GLOBAL_DYNAMIC : NVM2C_GLOBAL_EXACT_CANDIDATE;
             if (facts->global_stored[slot] < stored) {
                 facts->global_stored[slot] = stored;
                 facts->changed = 1;
             }
-            if (!merge_global_kind(b, facts, slot, value.kind)) return 0;
+            if (!merge_global_kind(b, facts, slot, stored_kind)) return 0;
             if (value.kind == NVM2C_VK_RARR) {
                 if (!merge_global_fields(b, facts, slot, value.rec_k)) return 0;
                 NvmShapeId global = shape_variable(b, &b->shape_globals[slot]);
@@ -2375,6 +2378,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (!sim_pop(b, idx, stk, &sp, &arr)) return 0;
             if (arr.kind == NVM2C_VK_VALUE) {
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_VALUE, -1)) return 0;
+                stk[sp - 1].array_payload_kind = arr.array_payload_kind;
                 break;
             }
             if (arr.kind == NVM2C_VK_NARR) {
@@ -7297,7 +7301,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             b.has_owned_strings = 1;
         if (context_artifact_adapter(host)) b.has_maps = 1;
     }
-    int has_global_store = 0, has_record_array_constructor = 0;
+    int has_global_store = 0, has_array_constructor = 0;
     /* The tagged map runtime also provides shared frame/aggregate root tracing.
      * Owned strings/aggregates need it even without map instructions. */
     if (b.has_owned_strings) b.has_maps = 1;
@@ -7366,8 +7370,8 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
                 b.has_maps = 1; /* Globals share the tagged scalar runtime. */
                 if (ins.opcode == OP_STORE_GLOBAL) has_global_store = 1;
             }
-            if ((ins.opcode == OP_ARR_NEW || ins.opcode == OP_ARR_LITERAL) &&
-                ins.operands[0].u8 == TAG_STRUCT) has_record_array_constructor = 1;
+            if (ins.opcode == OP_ARR_NEW || ins.opcode == OP_ARR_LITERAL)
+                has_array_constructor = 1;
             pc += n;
         }
     }
@@ -7450,10 +7454,10 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
     facts.global_kinds = b.array_results + mod->function_count;
     facts.global_fields = facts.global_kinds + b.global_count;
     facts.global_stored = global_stored;
-    /* I discover exact record-array globals before ordinary inference. A
+    /* I discover exact array globals before ordinary inference. A
      * load cannot publish the old tagged fallback into a local or parameter
      * before a later function reveals the global's exact element shape. */
-    if (has_global_store && has_record_array_constructor) {
+    if (has_global_store && has_array_constructor) {
         facts.discover_globals = 1;
         for (size_t pass = 0; ; ++pass) {
             if (pass / 2 > fact_size && pass / 2 - fact_size > mod->code_size) {

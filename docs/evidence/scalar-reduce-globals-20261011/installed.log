@@ -1,0 +1,97 @@
+test_boolean_results_and_empty (tests.test_scalar_reduce_source.ScalarReduce.test_boolean_results_and_empty) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ojtgyiu8
+ok
+test_bound_reduce_function_and_local (tests.test_scalar_reduce_source.ScalarReduce.test_bound_reduce_function_and_local) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-yagim474
+ok
+test_checked_signature_refusals_preserve_output (tests.test_scalar_reduce_source.ScalarReduce.test_checked_signature_refusals_preserve_output) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-b8j7wjqx
+ok
+test_float_contexts_and_empty (tests.test_scalar_reduce_source.ScalarReduce.test_float_contexts_and_empty) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-bvf0sijq
+ok
+test_neighbor_helpers (tests.test_scalar_reduce_source.ScalarReduce.test_neighbor_helpers) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-v9ab6b9h
+ok
+test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) ... I retain reduce source evidence at /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ylmj33d4
+
+  test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (legacy=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_stage1')) ... FAIL
+  test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (legacy=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_stage2')) ... FAIL
+  test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt')) ... FAIL
+  test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_stage1')) ... FAIL
+  test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_stage2')) ... FAIL
+
+======================================================================
+FAIL: test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (legacy=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_stage1'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nanoc_stage1 command=['/Users/jordanh/Src/nanolang/bin/nanoc_stage1', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ylmj33d4/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ylmj33d4/nanoc_stage1-legacy']
+I cannot lower this checked program: I require a declared scalar callback identifier
+
+
+
+======================================================================
+FAIL: test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (legacy=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_stage2'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 39, in legacy
+    self.command(name, source, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nanoc_stage2 command=['/Users/jordanh/Src/nanolang/bin/nanoc_stage2', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ylmj33d4/ordinary.nano', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ylmj33d4/nanoc_stage2-legacy']
+I cannot lower this checked program: I require a declared scalar callback identifier
+
+
+
+======================================================================
+FAIL: test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nano_virt'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 50, in canonical
+    self.command(ROOT/'bin/nvm2c', module, '-o', output)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nvm2c command=['/Users/jordanh/Src/nanolang/bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ylmj33d4/nano_virt.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ylmj33d4/nano_virt.c']
+
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ylmj33d4/nano_virt.nvm': function 0: only void or a single supported value result is supported
+
+
+======================================================================
+FAIL: test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_stage1'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nanoc_stage1 command=['/Users/jordanh/Src/nanolang/bin/nanoc_stage1', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ylmj33d4/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ylmj33d4/nanoc_stage1.nvm']
+I cannot lower this checked program: I require a declared scalar callback identifier
+
+
+
+======================================================================
+FAIL: test_ordered_operands_and_post_initializer_length (tests.test_scalar_reduce_source.ScalarReduce.test_ordered_operands_and_post_initializer_length) (canonical=PosixPath('/Users/jordanh/Src/nanolang/bin/nanoc_stage2'))
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 46, in canonical
+    self.command(name, source, '--emit-nvm', '-o', module)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_scalar_reduce_source.py", line 27, in command
+    (self.assertEqual if success else self.assertNotEqual)(result.returncode, 0, message)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : tool=/Users/jordanh/Src/nanolang/bin/nanoc_stage2 command=['/Users/jordanh/Src/nanolang/bin/nanoc_stage2', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ylmj33d4/ordinary.nano', '--emit-nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-reduce-source-ylmj33d4/nanoc_stage2.nvm']
+I cannot lower this checked program: I require a declared scalar callback identifier
+
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 10.229s
+
+FAILED (failures=5)
