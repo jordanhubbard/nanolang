@@ -320,9 +320,6 @@ static bool build_obj_list(char **buf, const char *obj_dir, bool daemon) {
         "lexer.o", "parser.o", "typechecker.o", "transpiler.o",
         "stdlib_runtime.o", "env.o", "builtins_registry.o",
         "module.o", "module_metadata.o", "utf8.o", "service_namespace.o", "service_bodies.o", "service_ownership.o",
-        /* I include the same immutable input objects as the compiler archive. */
-        "nanoisa/file_source_snapshot.o", "nanoisa/file_source_plan.o", "nanoisa/file_source_catalog.o",
-        "nsi_file_binding.o", "nsi.o", "nsi_file_plan.o",
         "cJSON.o", "toon_output.o", "module_builder.o",
         "resource_tracking.o", "resource_flow.o", "nominal_types.o", "eval.o", "interpreter_ffi.o",
         "json_diagnostics.o", "reflection.o", "effects.o", "coroutine.o",
@@ -356,8 +353,10 @@ static bool build_obj_list(char **buf, const char *obj_dir, bool daemon) {
         "runtime/module_build_dir.o", "runtime/cli.o", "runtime/regex.o", NULL
     };
 
+    /* I share the compiler's complete immutable service-input dependency set. */
+    static const char *compiler_inputs[] = { "../lib/libnano_compiler_inputs.a", NULL };
     const char **groups[] = { daemon ? daemon_objs : nanovm_objs,
-                             daemon ? NULL : nanoisa_objs, common_objs, runtime_objs, NULL };
+                             daemon ? NULL : nanoisa_objs, common_objs, runtime_objs, compiler_inputs, NULL };
     for (int g = 0; groups[g]; g++) {
         for (int i = 0; groups[g][i]; i++) {
             char *path = wrapper_path(obj_dir, groups[g][i]);

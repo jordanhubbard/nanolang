@@ -7,7 +7,9 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-COMPILER = Path(os.environ.get("NANO_GENERIC_CSEED_COMPILER", ROOT / "bin/nano_virt"))
+NATIVE = os.environ.get("NANO_CONTEXTUAL_NATIVE_COMPILER")
+COMPILER = Path(NATIVE or os.environ.get("NANO_GENERIC_CSEED_COMPILER", ROOT / "bin/nano_virt"))
+MODE = [] if NATIVE else ["--emit-nvm"]
 
 
 class CseedGenericFunctions(unittest.TestCase):
@@ -24,7 +26,11 @@ class CseedGenericFunctions(unittest.TestCase):
                 (work / name).write_text(contents)
             path, module, c, binary = [work / name for name in ('main.nano', 'main.nvm', 'main.c', 'main')]
             path.write_text(source)
-            self.run_command([COMPILER, path, '--emit-nvm', '-o', module])
+            if NATIVE:
+                self.run_command([COMPILER, path, '-o', binary])
+                self.run_command([binary])
+                return
+            self.run_command([COMPILER, path, *MODE, '-o', module])
             self.run_command([ROOT / 'bin/nano_vm', '--verify-only', module])
             self.run_command([ROOT / 'bin/nano_vm', module])
             self.run_command([ROOT / 'bin/nvm2c', module, '-o', c])
@@ -33,6 +39,21 @@ class CseedGenericFunctions(unittest.TestCase):
                 '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                 c, ROOT / 'bin/nano_aot_runtime.o', '-lm', '-o', binary])
             self.run_command([binary])
+
+    def test_generic_global_initializer(self):
+        self.execute('fn identity(value:T)->T{return value}\n'
+            'shadow identity {assert (== (identity 1) 1)}\n'
+            'let initial:int=(identity 7)\n'
+            'fn main()->int{assert (== initial 7) return 0}\n'
+            'shadow main {assert (== (main) 0)}\n')
+
+    def test_independent_instances_do_not_consume_recursive_budget(self):
+        declarations = ''.join(f'struct Item{i} {{value:int}}\n' for i in range(70))
+        body = ''.join(f'let item{i} = (identity Item{i} {{value:{i}}}) assert (== item{i}.value {i})\n'
+                       for i in range(70))
+        self.execute(declarations+'fn identity(value:T)->T{return value}\n'
+            'shadow identity {assert (== (identity 1) 1)}\n'
+            'fn main()->int{'+body+'return 0}\nshadow main {assert (== (main) 0)}\n')
 
     def test_builtin_tail_call_does_not_enter_generic_specialization(self):
         self.execute('fn size(text: string) -> int { return (str_length text) }\nshadow size { assert (== (size "abc") 3) }\nfn main() -> int { assert (== (size "four") 4) return 0 }\nshadow main { assert (== (main) 0) }\n')
@@ -69,7 +90,7 @@ class CseedGenericFunctions(unittest.TestCase):
                     'shadow apply {assert true}\nfn main()->int{'+body+'}\n'
                     'shadow main {assert (== (main) 0)}\n')
                 module.write_bytes(b'prior-output')
-                result = subprocess.run([str(COMPILER),str(path),'--emit-nvm','-o',str(module)],
+                result = subprocess.run([str(COMPILER),str(path),*MODE,'-o',str(module)],
                     cwd=ROOT,capture_output=True,text=True,timeout=120)
                 self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
                 self.assertIn('one concrete identity',result.stdout+result.stderr)
@@ -92,7 +113,7 @@ class CseedGenericFunctions(unittest.TestCase):
                 'fn main()->int{let values:array<int> = (unbound 1) return (array_length values)}\n'
                 'shadow main {assert (== (main) 0)}\n')
             module.write_bytes(b'prior-output')
-            result = subprocess.run([str(COMPILER),str(path),'--emit-nvm','-o',str(module)],
+            result = subprocess.run([str(COMPILER),str(path),*MODE,'-o',str(module)],
                 cwd=ROOT,capture_output=True,text=True,timeout=120)
             self.assertGreater(result.returncode,0,result.stdout+result.stderr)
             self.assertRegex(result.stdout+result.stderr,
@@ -158,7 +179,7 @@ shadow main { assert true }
 ''')
             module.write_bytes(b'prior-output')
             result = subprocess.run([str(COMPILER), str(path),
-                '--emit-nvm', '-o', str(module)], cwd=ROOT, capture_output=True,
+                *MODE, '-o', str(module)], cwd=ROOT, capture_output=True,
                 text=True, timeout=120)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn('one concrete identity', result.stdout + result.stderr)
@@ -221,7 +242,7 @@ shadow main {assert (== (main) 0)}
                     'fn main()->int{let result:' + result_type + ' = (choose ' + left + ' ' + right + ') return 0}\n'
                     'shadow main {assert (== (main) 0)}\n')
                 module.write_bytes(b'prior-output')
-                result = subprocess.run([str(COMPILER), str(source), '--emit-nvm', '-o', str(module)],
+                result = subprocess.run([str(COMPILER), str(source), *MODE, '-o', str(module)],
                     cwd=ROOT, capture_output=True, text=True, timeout=120)
                 self.assertNotEqual(result.returncode, 0, result.stdout+result.stderr)
                 self.assertIn('one concrete identity', result.stdout+result.stderr)
@@ -239,7 +260,7 @@ shadow main {assert (== (main) 0)}
                     'fn fixed(value:T, count:int)->T{return value}\nshadow fixed {assert (== (fixed 1 0) 1)}\n'
                     'fn main()->int{' + body + '}\nshadow main {assert (== (main) 0)}\n')
                 module.write_bytes(b'prior-output')
-                result = subprocess.run([str(COMPILER),str(path),'--emit-nvm','-o',str(module)],
+                result = subprocess.run([str(COMPILER),str(path),*MODE,'-o',str(module)],
                     cwd=ROOT,capture_output=True,text=True,timeout=120)
                 self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
                 self.assertEqual(module.read_bytes(),b'prior-output')
@@ -249,7 +270,7 @@ shadow main {assert (== (main) 0)}
         with tempfile.TemporaryDirectory() as tmp:
             module = Path(tmp)/'prior.nvm'
             module.write_bytes(b'prior-output')
-            result = subprocess.run([str(COMPILER),str(source),'--emit-nvm','-o',str(module)],
+            result = subprocess.run([str(COMPILER),str(source),*MODE,'-o',str(module)],
                 cwd=ROOT,capture_output=True,text=True,timeout=120)
             self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
             self.assertIn('generic specialization budget',result.stdout+result.stderr)

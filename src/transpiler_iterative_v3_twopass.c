@@ -598,6 +598,12 @@ static const TypeInfo *array_expr_type_info(ASTNode *expr, Environment *env) {
         Function *selected = env_get_function(env, expr->as.call.name);
         return selected ? selected->return_type_info : NULL;
     }
+    if (expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL) {
+        check_expression(expr, env);
+        FunctionSignature *signature = expr->type == AST_CALL ? expr->as.call.checked_signature
+            : expr->as.module_qualified_call.checked_signature;
+        if (signature) return signature->return_type_info;
+    }
     if (expr->type == AST_FIELD_ACCESS) {
         check_expression(expr, env);
         if (expr->as.field_access.resolved_type_info) return expr->as.field_access.resolved_type_info;
@@ -1125,6 +1131,8 @@ static void build_ordered_hashmap_call(WorkList *list, ASTNode *call, Environmen
 
 static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
     if (!expr) return;
+    if (expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL)
+        check_expression(expr, env);
 
     if (native_effect_program && expr != effect_guarded_foreign_call &&
         (expr->type == AST_CALL || expr->type == AST_MODULE_QUALIFIED_CALL)) {
@@ -2294,8 +2302,12 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                     elem_type = TYPE_INT;  /* Fallback */
                 }
 
+                const TypeInfo *array_info = array_expr_type_info(array_arg, env);
+                if (array_info && array_info->element_type)
+                    struct_name = array_info->element_type->generic_name;
+
                 /* If this is an array of structs, try to recover the element struct name */
-                if (elem_type == TYPE_STRUCT) {
+                if (elem_type == TYPE_STRUCT && !struct_name) {
                     if (array_arg->type == AST_CALL && array_arg->as.call.name &&
                         !array_arg->as.call.func_expr) {
                         Function *producer = env_get_function(env, array_arg->as.call.name);
@@ -2664,7 +2676,20 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             sprintf(qualified_name, "%s.%s", module_alias, function_name);
             
             /* Map to C function name */
-            char *c_name = strdup(map_function_name(qualified_name, env));
+            const char *selected_name = NULL;
+            Function *selected_function = env_get_function(env, qualified_name);
+            for (int i = 0; selected_function && i < env->generic_func_instance_count; ++i) {
+                GenericFuncInstance *instance = &env->generic_func_instances[i];
+                if (instance->signature && !strcmp(instance->orig_name, selected_function->name) &&
+                    function_signatures_equal(instance->signature, expr->as.module_qualified_call.checked_signature)) {
+                    selected_name = instance->mono_name; break;
+                }
+            }
+            char *c_name;
+            if (selected_name) {
+                c_name = malloc(strlen(selected_name) + 4);
+                if (c_name) sprintf(c_name, "nl_%s", selected_name);
+            } else c_name = strdup(map_function_name(qualified_name, env));
             if (!c_name) {
                 fprintf(stderr, "I could not retain the qualified native call name.\n");
                 exit(1);
@@ -3097,7 +3122,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             } else {
                 /* Non-empty array - prefer stored element type (possibly set from type context) */
                 Type elem_type = expr->as.array_literal.element_type;
-                if (elem_type == TYPE_UNKNOWN) {
+                if (elem_type == TYPE_UNKNOWN || elem_type == TYPE_STRUCT) {
                     elem_type = check_expression(expr->as.array_literal.elements[0], env);
                 }
                 
@@ -3525,6 +3550,23 @@ static bool loop_body_has_exit(const ASTNode *node) {
 static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int indent, Environment *env,
                        FunctionTypeRegistry *fn_registry) {
     if (!stmt) return;
+    ASTNode concrete;
+    if (stmt->type == AST_LET && native_generic_bindings) {
+        TypeInfo view;
+        const TypeInfo *formal = generic_view(stmt->as.let.type_info, stmt->as.let.var_type,
+            stmt->as.let.type_name, stmt->as.let.fn_sig, &view);
+        if (generic_contains(env, formal, 0)) {
+            TypeInfo *info = native_generic_local(env, formal);
+            concrete = *stmt;
+            concrete.as.let.var_type = info->base_type;
+            concrete.as.let.type_info = info;
+            concrete.as.let.type_name = info->base_type == TYPE_ARRAY && info->element_type
+                ? info->element_type->generic_name : info->generic_name;
+            concrete.as.let.fn_sig = info->fn_sig;
+            concrete.as.let.element_type = info->element_type ? info->element_type->base_type : TYPE_UNKNOWN;
+            stmt = &concrete;
+        }
+    }
 
     switch (stmt->type) {
         case AST_BLOCK:

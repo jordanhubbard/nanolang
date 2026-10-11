@@ -1,4 +1,5 @@
 #include "nanolang.h"
+#include "generic_bindings.h"
 #include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
@@ -1057,6 +1058,29 @@ static const char *get_c_func_name(const char *nano_name) {
 
 /* Global context for the iterative transpiler */
 ASTNode *g_current_function = NULL;
+static GenericBindings *native_generic_bindings;
+typedef struct NativeGenericType {
+    TypeInfo *info;
+    struct NativeGenericType *next;
+} NativeGenericType;
+static NativeGenericType *native_generic_types;
+
+/* I retain substituted locals until borrowed callable typedefs are emitted. */
+static TypeInfo *native_generic_local(Environment *env, const TypeInfo *formal) {
+    NativeGenericType *item = calloc(1, sizeof *item);
+    if (!item) { fprintf(stderr, "I cannot allocate a generic local type.\n"); exit(1); }
+    item->info = generic_substitute(env, formal, native_generic_bindings, 0);
+    if (!item->info || generic_contains(env, item->info, 0)) {
+        fprintf(stderr, "I require a concrete native generic local type.\n"); exit(1);
+    }
+    item->next = native_generic_types;
+    native_generic_types = item;
+    return item->info;
+}
+static bool native_generic_complete(Environment *env, const GenericFuncInstance *instance) {
+    TypeInfo info = {.base_type=TYPE_FUNCTION, .fn_sig=instance->signature};
+    return instance->signature && !generic_contains(env, &info, 0);
+}
 const char *g_source_file_for_line_directives = NULL;
 bool g_profile_mode = false;          /* --profile: emit timing guard in next function body block */
 const char *g_profile_func_name = NULL; /* name of function being profiled */
@@ -3669,7 +3693,9 @@ static void generate_program_function_declarations(StringBuilder *sb, ASTNode *p
 
     /* Emit forward declarations for monomorphized generic function instances */
     for (int gi = 0; gi < env->generic_func_instance_count; gi++) {
-        GenericFuncInstance *inst = &env->generic_func_instances[gi];
+        GenericFuncInstance retained = env->generic_func_instances[gi];
+        GenericFuncInstance *inst = &retained;
+        if (inst->signature && !native_generic_complete(env, inst)) continue;
         if (inst->signature) {
             ASTNode declaration = contextual_declaration(env, inst);
             if (declaration.type == AST_FUNCTION) {
@@ -3703,6 +3729,7 @@ static void pop_native_function_metadata(Environment *env, int first) {
         env->symbols[i].struct_type_name = NULL;
     }
     env->symbol_count = first;
+    env_symbol_index_invalidate(env);
 }
 
 /* Emit implementation for one generic function instance (must appear after transpile_statement macro) */
@@ -3712,6 +3739,20 @@ static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
                                           FunctionTypeRegistry *fn_registry,
                                           bool is_module) {
     if (inst->signature) {
+        GenericBindings bindings = {0};
+        for (int i = 0; i < inst->signature->param_count; ++i) {
+            TypeInfo view, actual;
+            if (!generic_bind(env, generic_parameter(&orig->as.function.params[i], &view),
+                    generic_signature_param(inst->signature, i, &actual), &bindings, 0)) {
+                fprintf(stderr, "I cannot bind my native generic body.\n"); exit(1);
+            }
+        }
+        GenericBindings *saved_bindings = native_generic_bindings;
+        native_generic_bindings = &bindings;
+        Function *owner = env_get_function(env, inst->orig_name);
+        const char *saved_file = env->current_file;
+        char *saved_module = env->current_module;
+        if (owner) { env_set_current_file(env, owner->source_file); env->current_module = owner->module_name; }
         emit_contextual_header(sb, orig, inst, env, fn_registry, is_module);
         sb_append(sb, " ");
         int saved_symbols = env->symbol_count;
@@ -3722,6 +3763,10 @@ static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
                 inst->signature->param_types[i], info && info->element_type ? info->element_type->base_type : TYPE_UNKNOWN,
                 info, true, dummy);
             Symbol *symbol = env_get_var(env, orig->as.function.params[i].name);
+            if (symbol) {
+                symbol->def_line = orig->as.function.body->line;
+                symbol->def_column = 0;
+            }
             if (symbol && inst->signature->param_struct_names && inst->signature->param_struct_names[i]) {
                 free(symbol->struct_type_name);
                 symbol->struct_type_name = strdup(inst->signature->param_struct_names[i]);
@@ -3733,6 +3778,9 @@ static void emit_generic_implementation(StringBuilder *sb, const ASTNode *orig,
         g_current_function = saved_function;
         sb_append(sb, "\n");
         pop_native_function_metadata(env, saved_symbols);
+        env_set_current_file(env, saved_file); env->current_module = saved_module;
+        native_generic_bindings = saved_bindings;
+        generic_bindings_free(&bindings);
         return;
     }
     if (!orig->as.function.is_pub && !is_module) sb_append(sb, "static ");
@@ -4047,12 +4095,32 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
     }
 
     /* Emit implementations for monomorphized generic function instances */
+    int parent_count = env->generic_func_instance_count;
+    int *parents = calloc((size_t)parent_count + 1, sizeof *parents);
+    if (!parents) { fprintf(stderr, "I cannot allocate native generic ancestry.\n"); exit(1); }
     for (int gi = 0; gi < env->generic_func_instance_count; gi++) {
-        GenericFuncInstance *inst = &env->generic_func_instances[gi];
+        GenericFuncInstance retained = env->generic_func_instances[gi];
+        GenericFuncInstance *inst = &retained;
+        if (inst->signature && !native_generic_complete(env, inst)) continue;
         if (inst->signature) {
+            unsigned recursive = 0;
+            for (int parent = parents[gi]; parent; parent = parents[parent - 1]) {
+                if (!strcmp(env->generic_func_instances[parent - 1].orig_name, inst->orig_name) && ++recursive >= 64) {
+                    fprintf(stderr, "I reached my generic specialization budget (64 recursive instances per declaration).\n");
+                    exit(1);
+                }
+            }
             ASTNode declaration = contextual_declaration(env, inst);
             if (declaration.type == AST_FUNCTION)
                 emit_generic_implementation(sb, &declaration, inst, env, fn_registry, is_module);
+            if (env->generic_func_instance_count > parent_count) {
+                int count = env->generic_func_instance_count;
+                int *grown = realloc(parents, ((size_t)count + 1) * sizeof *parents);
+                if (!grown) { fprintf(stderr, "I cannot grow native generic ancestry.\n"); exit(1); }
+                parents = grown;
+                for (int i = parent_count; i < count; ++i) parents[i] = gi + 1;
+                parent_count = count;
+            }
             continue;
         }
         for (int j = 0; j < program->as.program.count; j++) {
@@ -4064,6 +4132,7 @@ static void generate_function_implementations(StringBuilder *sb, ASTNode *progra
             }
         }
     }
+    free(parents);
 }
 
 /* Generate OS process operations (system, exit, getenv) */
@@ -5050,6 +5119,24 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     }
 
     
+    /* I initialize effect context before buffering bodies; declarations still
+     * follow their prerequisite typedefs in the final output. */
+    StringBuilder *effect_declarations = sb_create();
+    generate_effect_dispatch(effect_declarations, program, env);
+
+    /* I discover global and body specializations before declarations and typedefs. */
+    StringBuilder *global_initializers = sb_create();
+    generate_toplevel_globals(global_initializers, program, env);
+    effect_helpers = sb_create(); effect_serial = 0;
+    StringBuilder *implementations = sb_create();
+    generate_function_implementations(implementations, program, env, fn_registry, tuple_registry);
+
+    /* I collect concrete generic callable dependencies before emitting typedefs. */
+    for (int i = 0; i < env->generic_func_instance_count; ++i) {
+        FunctionSignature *signature = env->generic_func_instances[i].signature;
+        if (native_generic_complete(env, &env->generic_func_instances[i])) register_function_signature(fn_registry, signature);
+    }
+
     /* Generate typedef declarations */
     generate_type_typedefs(sb, fn_registry, tuple_registry, env);
 
@@ -5057,7 +5144,8 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     generate_extern_declarations(sb, program, env, fn_registry);
 
     /* Generate typed entry points for synchronous effect operations. */
-    generate_effect_dispatch(sb, program, env);
+    sb_append(sb, effect_declarations->buffer);
+    free(effect_declarations->buffer); free(effect_declarations);
 
     /* Also generate extern declarations for extern functions from imported modules */
     generate_module_extern_declarations(sb, program, env, fn_registry);
@@ -5069,12 +5157,9 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     generate_program_function_declarations(sb, program, env, fn_registry, tuple_registry);
 
     /* Emit top-level globals in their original initialization order. */
-    generate_toplevel_globals(sb, program, env);
+    sb_append(sb, global_initializers->buffer);
+    free(global_initializers->buffer); free(global_initializers);
 
-    /* Generate function implementations */
-    effect_helpers = sb_create(); effect_serial = 0;
-    StringBuilder *implementations = sb_create();
-    generate_function_implementations(implementations, program, env, fn_registry, tuple_registry);
     sb_append(sb, effect_helpers->buffer);
     sb_append(sb, implementations->buffer);
     free(effect_helpers->buffer); free(effect_helpers); effect_helpers = NULL;
@@ -5091,6 +5176,11 @@ static char *transpile_to_c_impl(ASTNode *program, Environment *env, const char 
     /* Cleanup */
     free_fn_type_registry(fn_registry);
     free_tuple_type_registry(tuple_registry);
+    while (native_generic_types) {
+        NativeGenericType *next = native_generic_types->next;
+        free_payload_type_info(native_generic_types->info);
+        free(native_generic_types); native_generic_types = next;
+    }
     g_tuple_registry = NULL;  /* Clear global registry */
     g_function_registry = NULL;
     clear_module_headers();  /* Clear collected headers */

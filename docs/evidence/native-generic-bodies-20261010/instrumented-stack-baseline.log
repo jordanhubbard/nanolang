@@ -1,0 +1,37 @@
+test_typed_locals_transitive_calls_and_recursion (tests.test_cseed_generic_functions.CseedGenericFunctions.test_typed_locals_transitive_calls_and_recursion) ... FAIL
+
+======================================================================
+FAIL: test_typed_locals_transitive_calls_and_recursion (tests.test_cseed_generic_functions.CseedGenericFunctions.test_typed_locals_transitive_calls_and_recursion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 130, in test_typed_locals_transitive_calls_and_recursion
+            self.execute('''struct Box { value: int }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn identity(value: T) -> T { let copy: T = value return copy }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<17 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : {"event":"shadow-start","name":"identity","source":"/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-apusqoou/main.nano","line":3,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"identity","source":"/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-apusqoou/main.nano","line":3,"elapsed_seconds":0.000167,"failures":0}
+{"event":"shadow-start","name":"forward","source":"/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-apusqoou/main.nano","line":5,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"forward","source":"/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-apusqoou/main.nano","line":5,"elapsed_seconds":0.000089,"failures":0}
+{"event":"shadow-start","name":"repeat","source":"/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-apusqoou/main.nano","line":10,"elapsed_seconds":0.000000,"failures":0}
+{"event":"shadow-complete","name":"repeat","source":"/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-apusqoou/main.nano","line":10,"elapsed_seconds":0.000296,"failures":0}
+{"event":"shadow-start","name":"main","source":"/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-apusqoou/main.nano","line":20,"elapsed_seconds":0.000000,"failures":0}
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.137s
+
+FAILED (failures=1)

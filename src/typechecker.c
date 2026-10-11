@@ -8,30 +8,6 @@
 
 #include "generic_bindings.h"
 
-/* Build monomorphized name: "identity" + T->int => "identity_int" */
-static void build_generic_mono_name(char *out, size_t out_size,
-                                     const char *func_name,
-                                     char **var_names, Type *bound_types, char **bound_type_names,
-                                     int binding_count) {
-    size_t pos = (size_t)snprintf(out, out_size, "%s", func_name);
-    for (int i = 0; i < binding_count && pos < out_size - 1; i++) {
-        const char *suffix = NULL;
-        if (bound_types[i] == TYPE_STRUCT && bound_type_names[i]) {
-            suffix = bound_type_names[i];
-        } else {
-            switch (bound_types[i]) {
-                case TYPE_INT:    suffix = "int"; break;
-                case TYPE_FLOAT:  suffix = "float"; break;
-                case TYPE_BOOL:   suffix = "bool"; break;
-                case TYPE_STRING: suffix = "string"; break;
-                default:          suffix = "unknown"; break;
-            }
-        }
-        pos += (size_t)snprintf(out + pos, out_size - pos, "_%s", suffix);
-    }
-    (void)var_names; /* used for identity-resolution; not needed in name build */
-}
-
 /* Use json_diagnostics without including json_diagnostics.h (DiagnosticSeverity conflict
  * with compiler_schema.h). Declare only what we need via extern. */
 extern bool g_json_output_enabled;
@@ -1717,6 +1693,35 @@ static FunctionSignature *infer_generic_callback(ASTNode *value, Environment *en
     return actual;
 }
 
+/* I share complete signature identities between direct and contextual uses. */
+static GenericFuncInstance *register_complete_generic(Environment *env, const char *function_name,
+                                                       FunctionSignature *signature) {
+    GenericFuncInstance *instance = NULL;
+    for (int i = 0; i < env->generic_func_instance_count; ++i) {
+        GenericFuncInstance *candidate = &env->generic_func_instances[i];
+        if (!strcmp(candidate->orig_name, function_name) && candidate->signature &&
+            function_signatures_equal(candidate->signature, signature)) {
+            instance = candidate; break;
+        }
+    }
+    if (!instance) {
+        char name[80];
+        unsigned serial = (unsigned)env->generic_func_instance_count;
+        bool used;
+        do {
+            snprintf(name, sizeof name, "__contextual_%u", serial++);
+            used = env_get_function(env, name) != NULL;
+            for (int i = 0; i < env->generic_func_instance_count; ++i)
+                if (!strcmp(env->generic_func_instances[i].mono_name, name)) used = true;
+        } while (used);
+        env_register_generic_func_instance(env, function_name, name, NULL, NULL, NULL, 0);
+        instance = &env->generic_func_instances[env->generic_func_instance_count - 1];
+        instance->signature = copy_function_signature(signature);
+        if (!instance->signature) return NULL;
+    }
+    return instance;
+}
+
 /* I bind a declared generic function to a complete callable context without
  * changing its shared declaration or a lexical function-valued binding. */
 FunctionSignature *copy_contextual_callable_signature(ASTNode *value, Environment *env,
@@ -1740,29 +1745,8 @@ FunctionSignature *copy_contextual_callable_signature(ASTNode *value, Environmen
         free_function_signature(signature); return NULL;
     }
     if (function && generic_function(env, function)) {
-        GenericFuncInstance *instance = NULL;
-        for (int i = 0; i < env->generic_func_instance_count; ++i) {
-            GenericFuncInstance *candidate = &env->generic_func_instances[i];
-            if (!strcmp(candidate->orig_name, function->name) && candidate->signature &&
-                function_signatures_equal(candidate->signature, signature)) {
-                instance = candidate; break;
-            }
-        }
-        if (!instance) {
-            char name[80];
-            unsigned serial = (unsigned)env->generic_func_instance_count;
-            bool used;
-            do {
-                snprintf(name, sizeof name, "__contextual_%u", serial++);
-                used = env_get_function(env, name) != NULL;
-                for (int i = 0; i < env->generic_func_instance_count; ++i)
-                    if (!strcmp(env->generic_func_instances[i].mono_name, name)) used = true;
-            } while (used);
-            env_register_generic_func_instance(env, function->name, name, NULL, NULL, NULL, 0);
-            instance = &env->generic_func_instances[env->generic_func_instance_count - 1];
-            instance->signature = copy_function_signature(signature);
-            if (!instance->signature) { free_function_signature(signature); return NULL; }
-        }
+        GenericFuncInstance *instance = register_complete_generic(env, function->name, signature);
+        if (!instance) { free_function_signature(signature); return NULL; }
         char *name = strdup(instance->mono_name);
         if (!name) { free_function_signature(signature); return NULL; }
         free(value->contextual_func_name);
@@ -3408,20 +3392,14 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     generic_bindings_free(&bindings);
                     return TYPE_UNKNOWN;
                 }
-                char *names[26], *nominals[26];
-                Type types[26];
-                for (int i=0; i<bindings.count; ++i) {
-                    names[i]=(char *)bindings.names[i];
-                    types[i]=bindings.types[i]->base_type;
-                    nominals[i]=bindings.types[i]->generic_name;
+                GenericFuncInstance *instance = register_complete_generic(env, func->name, signature);
+                if (!instance) {
+                    free_function_signature(signature);
+                    generic_bindings_free(&bindings);
+                    return TYPE_UNKNOWN;
                 }
-                char mono_name[256];
-                build_generic_mono_name(mono_name, sizeof mono_name, func->name,
-                    names, types, nominals, bindings.count);
-                env_register_generic_func_instance(env, func->name, mono_name,
-                    (const char **)names, types, (const char **)nominals, bindings.count);
                 free(expr->as.call.concrete_func_name);
-                expr->as.call.concrete_func_name = strdup(mono_name);
+                expr->as.call.concrete_func_name = strdup(instance->mono_name);
                 generic_bindings_free(&bindings);
                 free_function_signature(expr->as.call.checked_signature);
                 expr->as.call.checked_signature = signature;

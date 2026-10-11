@@ -422,6 +422,28 @@ shadow nisa_ordinary_graph {
     let empty: Parser = (parse_program (tokenize_string "" "ordinary.nano" (diag_list_new)) 0 "ordinary.nano")
     assert (not (nisa_ordinary_graph empty))
 }
+# I split byte metadata into even hexadecimal chunks below the assembler limit.
+fn nisa_metadata_chunks(name: string, bytes: string) -> string {
+    let mut out: string = ""
+    let mut start: int = 0
+    while (< start (str_length bytes)) {
+        let mut length: int = (- (str_length bytes) start)
+        if (> length 2048) { set length 2048 }
+        set out (+ out (+ (+ "." name) (+ " \"" (+ (str_substring bytes start length) "\"\n"))))
+        set start (+ start length)
+    }
+    return out
+}
+shadow nisa_metadata_chunks {
+    assert (== (nisa_metadata_chunks "layouts" "0102") ".layouts \"0102\"\n")
+    assert (== (nisa_metadata_chunks "layouts" "") "")
+    let mut bytes: string = ""
+    let mut i: int = 0
+    while (< i 1025) { set bytes (+ bytes "ab") set i (+ i 1) }
+    let first: string = (+ ".ownership \"" (+ (str_substring bytes 0 2048) "\"\n"))
+    assert (== (nisa_metadata_chunks "ownership" bytes) (+ first ".ownership \"ab\"\n"))
+}
+
 fn nisa_ordinary_publication(parser: Parser) -> string {
     let count: int = (parser_get_struct_def_count parser)
     if (or (<= parser.token_count 0) (> (array_length nisa_import_names) 0)) { return "" }
@@ -459,7 +481,7 @@ fn nisa_ordinary_publication(parser: Parser) -> string {
     let mut functions: int = nisa_ordinary_count
     if (!= nisa_ordinary_init "") { set functions (+ functions 1) }
     let ownership: string = (+ "01000000" (+ (nisa_ordinary_hex count 4) (+ flags (+ (nisa_ordinary_hex functions 4) (+ nisa_ordinary_functions nisa_ordinary_init)))))
-    return (+ (+ ".layouts \"" (+ layouts "\"\n.ownership \"")) (+ ownership (+ "\"\n" nisa_ordinary_parameters)))
+    return (+ (nisa_metadata_chunks "layouts" layouts) (+ (nisa_metadata_chunks "ownership" ownership) nisa_ordinary_parameters))
 }
 shadow nisa_ordinary_publication {
     let p: Parser = (parse_program (tokenize_string "" "ordinary.nano" (diag_list_new)) 0 "ordinary.nano")
