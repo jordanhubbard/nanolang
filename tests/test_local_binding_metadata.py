@@ -215,4 +215,40 @@ shadow compute {assert (== (compute 8) 25)}
             self.assertEqual(sorted(names),['result','transform'])
         self.produce(source,0,inspect,files={'values.nano':module})
 
+    def test_nested_functions_keep_separate_local_names(self):
+        source='''struct Item {value:int}
+fn main()->int {
+ let base:int = 7
+ let outer:fn(int)->fn(int)->int = fn(offset:int)->fn(int)->int {
+  let item:Item = Item {value:offset}
+  let values:array<int> = [item.value]
+  return fn(delta:int)->int {
+   let result:int = (+ (+ base (at values 0)) delta)
+   if true {let result:int = 99 assert (== result 99)}
+   return result
+  }
+ }
+ let inner:fn(int)->int = (outer 3)
+ assert (== (inner 2) 12)
+ return 0
+}
+shadow main {assert (== (main) 0)}
+'''
+        def inspect(bindings):
+            self.assertEqual(sorted(b[4] for b in bindings if b[0]=='main'),['base','inner','outer'])
+            outer={b[0] for b in bindings if b[4]=='offset'}
+            inner={b[0] for b in bindings if b[4]=='delta'}
+            self.assertEqual(len(outer),1)
+            self.assertEqual(len(inner),1)
+            self.assertTrue(outer.isdisjoint(inner))
+            self.assertEqual(sorted(b[4] for b in bindings if b[0] in outer),['item','offset','values'])
+            self.assertEqual(sorted(b[4] for b in bindings if b[0] in inner),['delta','result','result'])
+            for name in ['offset','delta']:
+                self.assertEqual(next(b[2] for b in bindings if b[4]==name),0)
+            results=sorted((b for b in bindings if b[0] in inner and b[4]=='result'),key=lambda b:b[2])
+            self.assertNotEqual(results[0][1],results[1][1])
+            self.assertLess(results[0][2],results[1][2])
+            self.assertGreaterEqual(results[0][3],results[1][3])
+        self.produce(source,0,inspect)
+
 if __name__=="__main__": unittest.main()

@@ -61,8 +61,11 @@ absolute DEBUG locations before publishing passive metadata. Local-name
 intervals stay function-relative. Canonical assembly retains dotted generic
 specialization names without merging distinct functions.
 I preserve source ownership task505's specialized producer and entry dispatch.
-Closures/upvalues, effects and other declaration forms remain explicit later
-producer work unless independently implemented and tested. My specialized
+I retain nested-function parameters and ordinary local names in both producers,
+including anonymous functions with captures. Child intervals belong to the child
+function; restoring a parent keeps its bindings intact. Captured upvalue names
+are not local-slot names and remain open, as do effects and other declaration
+forms unless independently implemented and tested. My specialized
 borrowed profile and its scalar pattern projections are described below. No existing executable source is refused just because
 its original local names are absent.
 

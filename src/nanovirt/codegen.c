@@ -3590,7 +3590,7 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     uint16_t saved_local_count = cg->local_count;
     uint16_t saved_local_binding_count = cg->local_binding_count;
     bool saved_names_enabled = cg->names_enabled;
-    cg->names_enabled = false;
+    cg->names_enabled = true;
     uint16_t saved_param_count = cg->param_count;
     uint32_t saved_current_fn_idx = cg->current_fn_idx;
     Type saved_return_element_type = cg->current_return_element_type;
@@ -3629,7 +3629,9 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     /* Parameters become the first locals of nested function */
     for (int i = 0; i < node->as.function.param_count; i++) {
         bind_parameter_type(cg, &node->as.function.params[i], node->line);
-        local_add(cg, node->as.function.params[i].name, node->line);
+        uint16_t slot = local_add(cg, node->as.function.params[i].name, node->line);
+        local_name_begin(cg, slot, node->as.function.params[i].name,
+                         node->as.function.params[i].type, node->line);
         if (node->as.function.params[i].struct_type_name) {
             cg->locals[cg->local_binding_count - 1].struct_type =
                 node->as.function.params[i].struct_type_name;
@@ -3653,6 +3655,8 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
     if (!body || stmt_falls_through(body)) {
         emit_op(cg, OP_RET);
     }
+
+    local_names_end(cg, 0);
 
     /* Save nested function's upvalue info before restoring parent state */
     uint16_t child_upvalue_count = cg->upvalue_count;
