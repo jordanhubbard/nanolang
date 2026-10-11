@@ -9,6 +9,38 @@ NanoLang has a modular architecture where some modules require external system l
 1. **Strict Mode** (`make examples`): Fails if any module dependencies are missing
 2. **Graceful Mode** (`make examples-available`): Skips examples with missing dependencies
 
+## Native foreign-module providers
+
+For native C-seed compilation, I follow a foreign module's `module.json`
+`dependencies` transitively. I resolve a provider beside its dependent module,
+then through the configured module search path. I require a readable manifest;
+a missing provider stops compilation before I replace existing program output.
+
+I retain one build generation per physical provider for a compilation, including
+providers reached through several dependencies or imported directly as NanoLang
+modules. I visit cycles once, bound traversal depth to 64 and each dependency
+closure to 4,096 modules, and link each retained object once with its declared
+libraries. Header propagation continues to use the dependency manifests.
+
+I distinguish native providers from private support embedded in a separately
+loaded shared library. For example, an adapter can declare:
+
+```json
+{
+  "name": "adapter",
+  "c_sources": ["adapter.c"],
+  "shared_c_sources": ["../provider/core.c"],
+  "dependencies": ["provider"]
+}
+```
+
+Here I link `provider`'s ordinary object into a native program, while the adapter's
+shared library retains its hidden private copy of `core.c`. I do not include that
+private copy in `adapter.o`. The provider manifest must list `core.c` in its own
+`c_sources`. Shared-library-only builds retain their existing self-contained
+support contract; a dependency declaration does not substitute for their private
+support sources.
+
 ## Checking Module Dependencies
 
 ### Validate All Modules

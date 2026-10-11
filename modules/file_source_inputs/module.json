@@ -14,15 +14,15 @@
     "../../src/nanoisa/file_source_snapshot.c",
     "../../src/nsi_file_binding.c",
     "../../src/nsi.c",
-    "../../src/cJSON.c",
     "../../src/nsi_socket_binding.c",
-    "../../src/nsi_file_plan.c",
-    "../../src/nsi_socket_plan.c",
-    "../../src/nsi_websocket_binding.c",
-    "../../src/nsi_websocket_plan.c"
+    "../../src/nsi_websocket_binding.c"
   ],
   "shared_c_sources": [
-    "../../src/utf8.c"
+    "../../src/utf8.c",
+    "../../src/cJSON.c",
+    "../../src/nsi_file_plan.c",
+    "../../src/nsi_socket_plan.c",
+    "../../src/nsi_websocket_plan.c"
   ],
   "cflags": [
     "-D_GNU_SOURCE",
@@ -30,5 +30,9 @@
   ],
   "owned_string_returns": [
     "nl_source_inputs_text"
+  ],
+  "dependencies": [
+    "compiler_support",
+    "nanoisa"
   ]
 }

@@ -1923,7 +1923,7 @@ bool compile_modules(ModuleList *modules, Environment *env, char **module_objs_b
             }
             free(physical_dir);
             if (!info) {
-                info = module_build(builder, meta);
+                info = module_build_native(builder, meta);
                 if (info) {
                     build_infos[build_info_count++] = info;
                     c_modules_built++;

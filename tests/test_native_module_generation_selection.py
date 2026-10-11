@@ -7,6 +7,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
+COMPILER = Path(os.environ.get("NANO_NATIVE_MODULE_COMPILER", ROOT / "bin/nanoc_c"))
 
 
 class NativeModuleGenerationSelection(unittest.TestCase):
@@ -69,7 +70,7 @@ class NativeModuleGenerationSelection(unittest.TestCase):
                 env.pop(name, None)
             env["NANO_BUILD_CACHE"] = str(work / "cache")
             result = subprocess.run(
-                [str(ROOT / "bin/nanoc_c"), str(source), "-o", str(work / "program")],
+                [str(COMPILER), str(source), "-o", str(work / "program")],
                 cwd=ROOT, env=env, capture_output=True, timeout=120)
             self.assertEqual(result.returncode, 0, result.stderr.decode())
             subprocess.run([str(work / "program")], check=True, timeout=10)
@@ -126,7 +127,7 @@ class NativeModuleGenerationSelection(unittest.TestCase):
             # I exercise both initial publication and the cached generation path.
             for _ in range(2):
                 result = subprocess.run(
-                    [str(ROOT / "bin/nanoc_c"), str(source), "-o", str(work / "program")],
+                    [str(COMPILER), str(source), "-o", str(work / "program")],
                     cwd=ROOT, env=env, capture_output=True, timeout=120)
                 self.assertEqual(result.returncode, 0, result.stderr.decode())
                 objects = list(cache.glob("*/.nano-gen-*/*.o"))
@@ -155,11 +156,73 @@ class NativeModuleGenerationSelection(unittest.TestCase):
             env.pop("CC", None)
             env["NANO_BUILD_CACHE"] = str(work / "cache")
             result = subprocess.run(
-                [str(ROOT / "bin/nanoc_c"), str(source), "-o", str(work / "program")],
+                [str(COMPILER), str(source), "-o", str(work / "program")],
                 cwd=ROOT, env=env, capture_output=True, timeout=60)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn(b"I could not represent all module compile flags.", result.stderr)
             self.assertFalse((work / "program").exists())
+
+    def test_native_dependencies_pin_shared_providers(self):
+        with tempfile.TemporaryDirectory(prefix="nano-native-dependencies-") as tmp:
+            work = Path(tmp)
+            for name in ("provider", "bridge", "first", "second"):
+                (work / name).mkdir()
+            provider = work / "provider"
+            (provider / "common.c").write_text("#include <stdint.h>\nint64_t core_probe(void) { return 21; }\n")
+            (provider / "provider.nano").write_text("pub extern fn core_probe() -> int\n")
+            (provider / "module.json").write_text(json.dumps({
+                "name": "provider", "c_compiler": "cc ", "c_sources": ["common.c"], "dependencies": ["bridge"]}))
+            (work / "bridge/module.json").write_text(json.dumps({
+                "name": "bridge", "dependencies": ["provider"]}))
+            for name in ("first", "second"):
+                directory = work / name
+                (directory / "entry.c").write_text("#include <stdint.h>\nextern int64_t core_probe(void);\n"
+                    f"int64_t {name}_probe(void) {{ return core_probe(); }}\n")
+                (directory / "entry.nano").write_text(f"module {name}\npub extern fn {name}_probe() -> int\n")
+                (directory / "module.json").write_text(json.dumps({
+                    "name": name, "c_sources": ["entry.c"], "dependencies": ["bridge"],
+                    "shared_c_sources": ["../provider/common.c"]}))
+            source = work / "main.nano"
+            source.write_text('unsafe module "first/entry.nano" as a\n'
+                'unsafe module "second/entry.nano" as b\n'
+                'fn main() -> int { unsafe { assert (== (+ (a.first_probe) (b.second_probe)) 42) '
+                '} return 0 }\n'
+                'shadow main { assert true }\n')
+            env = os.environ.copy()
+            env.pop("NANO_CC", None); env.pop("CC", None)
+            cache = work / "cache"; env["NANO_BUILD_CACHE"] = str(cache)
+            for attempt in range(2):
+                if attempt:
+                    source.write_text('unsafe module "provider/provider.nano" as provider\n' + source.read_text())
+                result = subprocess.run([str(COMPILER), str(source), "-o", str(work / "program")],
+                    cwd=ROOT, env=env, capture_output=True, timeout=120)
+                self.assertEqual(result.returncode, 0, result.stderr.decode())
+                subprocess.run([str(work / "program")], check=True, timeout=10)
+                self.assertEqual(len(list(cache.glob("*/.nano-gen-*/provider.o"))), attempt + 1)
+            # I execute each private shared copy independently of native providers.
+            import ctypes
+            for name in ("first", "second"):
+                paths = list(cache.glob(f"*/.nano-gen-*/lib{name}.*"))
+                self.assertTrue(paths)
+                library = ctypes.CDLL(str(paths[0]))
+                self.assertEqual(getattr(library, name + "_probe")(), 21)
+
+    def test_missing_native_dependency_preserves_output(self):
+        with tempfile.TemporaryDirectory(prefix="nano-missing-native-dependency-") as tmp:
+            work = Path(tmp); module = work / "foreign"; module.mkdir()
+            (module / "entry.c").write_text("#include <stdint.h>\nint64_t probe(void) { return 42; }\n")
+            (module / "entry.nano").write_text("pub extern fn probe() -> int\n")
+            (module / "module.json").write_text(json.dumps({"name": "foreign",
+                "c_sources": ["entry.c"], "dependencies": ["absent_provider"]}))
+            source = work / "main.nano"
+            source.write_text('unsafe module "foreign/entry.nano" as f\n'
+                'fn main() -> int { unsafe { return (- (f.probe) 42) } }\nshadow main { assert true }\n')
+            output = work / "program"; output.write_bytes(b"prior-output")
+            result = subprocess.run([str(COMPILER), str(source), "-o", str(output)],
+                cwd=ROOT, capture_output=True, timeout=120)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(b"I cannot load native dependency", result.stderr)
+            self.assertEqual(output.read_bytes(), b"prior-output")
 
     def test_multiple_sources_share_one_uncacheable_foreign_build(self):
         with tempfile.TemporaryDirectory(prefix="nano-link-generation-") as tmp:
@@ -191,7 +254,7 @@ class NativeModuleGenerationSelection(unittest.TestCase):
             env["NANO_BUILD_CACHE"] = str(work / "cache")
             for attempt in range(2):
                 result = subprocess.run(
-                    [str(ROOT / "bin/nanoc_c"), str(source), "-o", str(work / "program")],
+                    [str(COMPILER), str(source), "-o", str(work / "program")],
                     cwd=ROOT, env=env, capture_output=True, timeout=60)
                 self.assertEqual(result.returncode, 0, result.stderr.decode())
                 subprocess.run([str(work / "program")], check=True, timeout=10)

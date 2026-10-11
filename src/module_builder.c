@@ -2339,6 +2339,8 @@ struct ModuleBuilder {
     char *module_path;
     char **include_paths;
     size_t include_paths_count;
+    ModuleBuildInfo **native_builds;
+    size_t native_build_count;
 };
 
 ModuleBuilder* module_builder_new(const char *module_path) {
@@ -2358,6 +2360,9 @@ void module_builder_free(ModuleBuilder *builder) {
         free(builder->include_paths[i]);
     }
     free(builder->include_paths);
+    for (size_t i = 0; i < builder->native_build_count; ++i)
+        module_build_info_free(builder->native_builds[i]);
+    free(builder->native_builds);
 
     free(builder);
 }
@@ -6462,6 +6467,83 @@ ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta)
     module_response_metadata_free(meta, &captured);
     if (!info) module_trace_evidence("build-result", 1, 0, false);
     return info;
+}
+
+/* I build native providers independently of the private support embedded in
+ * each shared library. The builder pins identities across separate root imports;
+ * the per-root visited list handles diamonds and cycles without duplicate links. */
+static bool module_native_walk(ModuleBuilder *builder, ModuleBuildMetadata *meta,
+                               ModuleBuildInfo ***closure, size_t *count, size_t depth) {
+    if (depth > 64 || *count >= 4096) {
+        fprintf(stderr, "I exceeded the native module dependency bound.\n");
+        return false;
+    }
+    char *directory = realpath(meta->module_dir, NULL);
+    if (!directory) return false;
+    ModuleBuildInfo *info = NULL;
+    for (size_t i = 0; i < builder->native_build_count; ++i)
+        if (!strcmp(builder->native_builds[i]->module_dir, directory)) {
+            info = builder->native_builds[i];
+            break;
+        }
+    free(directory);
+    if (!info) {
+        info = module_build(builder, meta);
+        if (!info) return false;
+        ModuleBuildInfo **grown = realloc(builder->native_builds,
+            (builder->native_build_count + 1) * sizeof *grown);
+        if (!grown) { module_build_info_free(info); return false; }
+        builder->native_builds = grown;
+        builder->native_builds[builder->native_build_count++] = info;
+    }
+    for (size_t i = 0; i < *count; ++i)
+        if ((*closure)[i] == info) return true;
+    ModuleBuildInfo **grown = realloc(*closure, (*count + 1) * sizeof *grown);
+    if (!grown) return false;
+    *closure = grown;
+    (*closure)[(*count)++] = info;
+    for (size_t i = 0; i < meta->dependencies_count; ++i) {
+        char *path = module_dependency_directory(builder, meta->module_dir, meta->dependencies[i]);
+        ModuleBuildMetadata *dependency = path ? module_load_metadata(path) : NULL;
+        free(path);
+        if (!dependency) {
+            fprintf(stderr, "I cannot load native dependency '%s' of module '%s'.\n",
+                    meta->dependencies[i], meta->name ? meta->name : "");
+            return false;
+        }
+        bool passed = module_native_walk(builder, dependency, closure, count, depth + 1);
+        module_metadata_free(dependency);
+        if (!passed) return false;
+    }
+    return true;
+}
+
+ModuleBuildInfo *module_build_native(ModuleBuilder *builder, ModuleBuildMetadata *meta) {
+    if (!builder || !meta) return NULL;
+    ModuleBuildInfo **closure = NULL;
+    size_t count = 0;
+    if (!module_native_walk(builder, meta, &closure, &count, 0)) {
+        free(closure);
+        return NULL;
+    }
+    ModuleBuildInfo *root = closure[0];
+    ModuleBuildInfo *result = calloc(1, sizeof *result);
+    if (result) {
+        result->object_file = root->object_file ? strdup(root->object_file) : NULL;
+        result->module_dir = strdup(root->module_dir);
+        result->needs_rebuild = root->needs_rebuild;
+        result->link_flags = module_get_link_flags(closure, count, &result->link_flags_count);
+        result->compile_flags = module_get_compile_flags(&root, 1, &result->compile_flags_count);
+        bool valid = (!root->object_file || result->object_file) && result->module_dir &&
+                     result->link_flags && result->compile_flags;
+        for (size_t i = 0; valid && i < result->link_flags_count; ++i)
+            valid = result->link_flags[i] != NULL;
+        for (size_t i = 0; valid && i < result->compile_flags_count; ++i)
+            valid = result->compile_flags[i] != NULL;
+        if (!valid) { module_build_info_free(result); result = NULL; }
+    }
+    free(closure);
+    return result;
 }
 
 void module_build_info_free(ModuleBuildInfo *info) {

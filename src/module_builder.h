@@ -148,6 +148,10 @@ void module_metadata_free(ModuleBuildMetadata *meta);
 // Returns build info with object file path and link flags
 ModuleBuildInfo* module_build(ModuleBuilder *builder, ModuleBuildMetadata *meta);
 
+/* I retain one native dependency generation per builder lifetime. The returned
+ * info owns its strings; shared-library-only builds keep module_build semantics. */
+ModuleBuildInfo* module_build_native(ModuleBuilder *builder, ModuleBuildMetadata *meta);
+
 // Free build info
 void module_build_info_free(ModuleBuildInfo *info);
 
