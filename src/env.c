@@ -533,6 +533,7 @@ void free_environment(Environment *env) {
     /* Free unions */
     for (int i = 0; i < env->union_count; i++) {
         free(env->unions[i].name);
+        free(env->unions[i].original_name);
         for (int j = 0; j < env->unions[i].variant_count; j++) {
             free(env->unions[i].variant_names[j]);
             if (env->unions[i].variant_field_type_info && env->unions[i].variant_field_type_info[j]) {
@@ -1505,59 +1506,45 @@ void env_define_union(Environment *env, UnionDef union_def) {
 
 /* Get union definition */
 UnionDef *env_get_union(Environment *env, const char *name) {
-    /* Check for Module.Type pattern */
+    if (!env || !name) return NULL;
+    /* I preserve canonical identities even outside their declaration owner. */
+    for (int i = 0; i < env->union_count; ++i)
+        if (env->unions[i].name && !strcmp(env->unions[i].name, name))
+            return &env->unions[i];
     const char *dot = strchr(name, '.');
     if (dot) {
-        char module_alias[256];
-        size_t module_len = dot - name;
-        if (module_len >= sizeof(module_alias)) {
-            module_len = sizeof(module_alias) - 1;
-        }
-        strncpy(module_alias, name, module_len);
-        module_alias[module_len] = '\0';
-        const char *type_name = dot + 1;
-        
-        for (int i = 0; i < env->namespace_count; i++) {
-            if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
-                strcmp(env->namespaces[i].alias, module_alias) == 0) {
-                for (int j = 0; j < env->namespaces[i].union_count; j++) {
-                    if (strcmp(env->namespaces[i].union_names[j], type_name) == 0) {
-                        /* Look up the actual union by its original name AND module name */
-                        const char *orig_mod = env->namespaces[i].module_name;
-                        for (int k = 0; k < env->union_count; k++) {
-                            if (safe_strcmp(env->unions[k].name, type_name) == 0) {
-                                if (!orig_mod || !env->unions[k].module_name ||
-                                    strcmp(env->unions[k].module_name, orig_mod) == 0) {
-                                    return &env->unions[k];
-                                }
-                            }
-                        }
-                    }
+        size_t length = (size_t)(dot - name);
+        for (int i = 0; i < env->namespace_count; ++i) {
+            ModuleNamespace *space = &env->namespaces[i];
+            if (!namespace_owned_by(space, env->current_module) ||
+                strlen(space->alias) != length || strncmp(space->alias, name, length)) continue;
+            for (int j = 0; j < space->union_count; ++j) {
+                if (strcmp(space->union_names[j], dot + 1)) continue;
+                for (int k = 0; k < env->union_count; ++k) {
+                    UnionDef *definition = &env->unions[k];
+                    const char *source = definition->original_name ? definition->original_name : definition->name;
+                    bool owner = (!space->module_name && !definition->module_name) ||
+                        (space->module_name && definition->module_name && !strcmp(space->module_name, definition->module_name));
+                    if (owner && source && !strcmp(source, dot + 1)) return definition;
                 }
-                return NULL;
             }
+            return NULL;
         }
         return NULL;
     }
-    
-    /* First pass: prefer unions in the current module */
-    if (env->current_module) {
-        for (int i = 0; i < env->union_count; i++) {
-            if (env->unions[i].name && safe_strcmp(env->unions[i].name, name) == 0) {
-                if (env->unions[i].module_name && 
-                    strcmp(env->unions[i].module_name, env->current_module) == 0) {
-                    return &env->unions[i];
-                }
-            }
-        }
+    UnionDef *fallback = NULL;
+    bool ambiguous = false;
+    for (int i = 0; i < env->union_count; ++i) {
+        UnionDef *definition = &env->unions[i];
+        if (!definition->original_name || strcmp(definition->original_name, name)) continue;
+        bool owner = (!env->current_module && !definition->module_name) ||
+            (env->current_module && definition->module_name && !strcmp(env->current_module, definition->module_name));
+        if (owner) return definition;
+        if (fallback) ambiguous = true;
+        fallback = definition;
     }
-
-    for (int i = 0; i < env->union_count; i++) {
-        if (safe_strcmp(env->unions[i].name, name) == 0) {
-            return &env->unions[i];
-        }
-    }
-    return NULL;
+    /* I keep unambiguous legacy imports without choosing an arbitrary owner. */
+    return ambiguous ? NULL : fallback;
 }
 
 /* Get variant index in union (returns -1 if not found) */

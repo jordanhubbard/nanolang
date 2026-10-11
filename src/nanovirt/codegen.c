@@ -3246,23 +3246,13 @@ static void compile_expr(CG *cg, ASTNode *node) {
         uint32_t end_instrs[64];
         int end_count = 0;
 
-        /* Find union definition for variant name → index mapping.
-         * The typechecker may set a monomorphized name (e.g., "Result_int_string")
-         * but we register unions under their base name (e.g., "Result").
-         * Try exact match first, then try base name (before first '_'). */
+        /* I retain the registered owner when a checked match names an instance. */
         const char *utype = node->as.match_expr.union_type_name;
         CgUnionDef *ud = utype ? union_find(cg, utype) : NULL;
-        if (!ud && utype) {
-            /* Try base name: look for first '_' and try prefix */
-            const char *underscore = strchr(utype, '_');
-            if (underscore) {
-                char base[256];
-                size_t blen = (size_t)(underscore - utype);
-                if (blen >= sizeof(base)) blen = sizeof(base) - 1;
-                memcpy(base, utype, blen);
-                base[blen] = '\0';
-                ud = union_find(cg, base);
-            }
+        for (int instance = 0; !ud && utype && instance < cg->env->generic_instance_count; ++instance) {
+            GenericInstantiation *registered = &cg->env->generic_instances[instance];
+            if (registered->concrete_name && !strcmp(registered->concrete_name, utype))
+                ud = union_find(cg, registered->generic_name);
         }
 
         for (int i = 0; i < arm_count; i++) {

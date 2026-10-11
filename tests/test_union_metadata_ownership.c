@@ -9,7 +9,8 @@ int g_argc;
 char **g_argv;
 
 static void check_union(const UnionDef *u) {
-    assert(!strcmp(u->name, "Box"));
+    assert(!strcmp(u->name, "__nano_union_4f776e6572_Box"));
+    assert(u->original_name && !strcmp(u->original_name, "Box"));
     assert(u->generic_param_count == 1 && !strcmp(u->generic_params[0], "T"));
     assert(!strcmp(u->module_name, "Owner"));
     assert(u->variant_count == 2 && u->variant_field_counts[0] == 2);
@@ -35,6 +36,7 @@ static void lifetime(int metadata_first) {
     ModuleMetadata *second = extract_module_metadata(env, "second");
     assert(first && second && first->union_count == 1 && second->union_count == 1);
     UnionDef *a = &first->unions[0], *b = &second->unions[0];
+    assert(a->original_name != original->original_name && a->original_name != b->original_name);
     assert(a->generic_params != original->generic_params && a->generic_params != b->generic_params);
     assert(a->generic_params[0] != original->generic_params[0] && a->generic_params[0] != b->generic_params[0]);
     assert(a->module_name != original->module_name && a->module_name != b->module_name);

@@ -1732,34 +1732,22 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 return parse_perform(p, true);
             }
 
-            /* Check if this is a struct literal: StructName { ... } or Module.StructName { ... } */
-            /* Only parse as struct literal if identifier starts with uppercase (type convention) */
-            /* AND it's not followed by code keywords that indicate it's a condition */
-            Token *next = peek_token(p, 1);
-            Token *after_next = peek_token(p, 2);
-            Token *after_brace = peek_token(p, 2);
-            bool looks_like_struct = tok->value && tok->value[0] >= 'A' && tok->value[0] <= 'Z';
-            
-            /* Check for Module.Type pattern */
-            bool is_qualified = next && next->token_type == TOKEN_DOT && 
-                               after_next && after_next->token_type == TOKEN_IDENTIFIER;
-            if (is_qualified) {
-                after_brace = peek_token(p, 3);  /* { comes after Module.Type */
-                looks_like_struct = after_next->value && after_next->value[0] >= 'A' && after_next->value[0] <= 'Z';
-            }
-            
-            /* Heuristic: if the token after { is a keyword like 'if', 'return', 'let', etc., 
-               this is NOT a struct literal, it's a code block after a condition */
+            /* I recognize the complete owner/type/variant path before fields. */
+            int name_end = 0;
+            while (peek_token(p, name_end + 1) && peek_token(p, name_end + 2) &&
+                   peek_token(p, name_end + 1)->token_type == TOKEN_DOT &&
+                   peek_token(p, name_end + 2)->token_type == TOKEN_IDENTIFIER)
+                name_end += 2;
+            Token *last_name = peek_token(p, name_end);
+            Token *brace = peek_token(p, name_end + 1);
+            Token *after_brace = peek_token(p, name_end + 2);
+            bool looks_like_struct = last_name && last_name->value &&
+                last_name->value[0] >= 'A' && last_name->value[0] <= 'Z';
             bool looks_like_code_block = after_brace && (
-                after_brace->token_type == TOKEN_IF ||
-                after_brace->token_type == TOKEN_RETURN ||
-                after_brace->token_type == TOKEN_LET ||
-                after_brace->token_type == TOKEN_WHILE ||
-                after_brace->token_type == TOKEN_FOR
-            );
-            
-            bool has_lbrace = (next && next->token_type == TOKEN_LBRACE) ||
-                             (is_qualified && peek_token(p, 3) && peek_token(p, 3)->token_type == TOKEN_LBRACE);
+                after_brace->token_type == TOKEN_IF || after_brace->token_type == TOKEN_RETURN ||
+                after_brace->token_type == TOKEN_LET || after_brace->token_type == TOKEN_WHILE ||
+                after_brace->token_type == TOKEN_FOR);
+            bool has_lbrace = brace && brace->token_type == TOKEN_LBRACE;
 
             /* Dotted uppercase literals are parsed as struct literals first.
              * The typechecker resolves `Union.Variant { ... }` by checking
@@ -1775,24 +1763,17 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                 char *struct_name = strdup(tok->value);
                 advance(p);  /* consume struct name */
                 
-                /* Check for Module.StructName pattern */
-                if (current_token(p)->token_type == TOKEN_DOT) {
-                    advance(p);  /* consume '.' */
-                    Token *type_tok = current_token(p);
-                    if (type_tok->token_type != TOKEN_IDENTIFIER) {
-                        parser_error(p, type_tok->line, type_tok->column, "Error at line %d, column %d: Expected struct name after '.'\n",
-                                type_tok->line, type_tok->column);
-                        free(struct_name);
-                        return NULL;
-                    }
-                    /* Build qualified name: Module.StructName */
-                    char qualified_name[512];
-                    snprintf(qualified_name, sizeof(qualified_name), "%s.%s", struct_name, type_tok->value);
-                    free(struct_name);
-                    struct_name = strdup(qualified_name);
-                    advance(p);  /* consume struct name */
+                while (match(p, TOKEN_DOT)) {
+                    advance(p);
+                    Token *part = current_token(p);
+                    size_t size = strlen(struct_name) + strlen(part->value) + 2;
+                    char *qualified = malloc(size);
+                    if (!qualified) { free(struct_name); return NULL; }
+                    snprintf(qualified, size, "%s.%s", struct_name, part->value);
+                    free(struct_name); struct_name = qualified;
+                    advance(p);
                 }
-                
+
                 advance(p);  /* consume '{' */
                 
                 int capacity = 4;
@@ -1891,7 +1872,28 @@ static ASTNode *parse_primary(Stage1Parser *p) {
                     /* Check if followed by '<' for generic type instantiation.
                      * Only try this for uppercase identifiers (type names) to avoid
                      * ambiguity with infix '<' operator on variables. */
-                    bool looks_like_type = name_parts[0][0] >= 'A' && name_parts[0][0] <= 'Z';
+                    int qualified_end = 0;
+                    while (peek_token(p, qualified_end) && peek_token(p, qualified_end + 1) &&
+                           peek_token(p, qualified_end)->token_type == TOKEN_DOT &&
+                           peek_token(p, qualified_end + 1)->token_type == TOKEN_IDENTIFIER)
+                        qualified_end += 2;
+                    Token *last_part = qualified_end ? peek_token(p, qualified_end - 1) : NULL;
+                    if (last_part && last_part->value[0] >= 'A' && last_part->value[0] <= 'Z' &&
+                        peek_token(p, qualified_end) && peek_token(p, qualified_end)->token_type == TOKEN_LT) {
+                        while (match(p, TOKEN_DOT)) {
+                            advance(p);
+                            Token *part = current_token(p);
+                            size_t size = strlen(name_parts[0]) + strlen(part->value) + 2;
+                            char *qualified = malloc(size);
+                            if (!qualified) { free(name_parts[0]); free(name_parts); return NULL; }
+                            snprintf(qualified, size, "%s.%s", name_parts[0], part->value);
+                            free(name_parts[0]); name_parts[0] = qualified;
+                            advance(p);
+                        }
+                    }
+                    const char *type_start = strrchr(name_parts[0], '.');
+                    type_start = type_start ? type_start + 1 : name_parts[0];
+                    bool looks_like_type = type_start[0] >= 'A' && type_start[0] <= 'Z';
                     if (looks_like_type && match(p, TOKEN_LT)) {
                         generic_type_info = parse_generic_type_args(p, name_parts[0]);
                         if (!generic_type_info) {
@@ -6321,6 +6323,7 @@ void free_ast(ASTNode *node) {
             break;
         case AST_UNION_DEF:
             free(node->as.union_def.name);
+            free(node->as.union_def.original_name);
             for (int i = 0; i < node->as.union_def.variant_count; i++) {
                 free(node->as.union_def.variant_names[i]);
                 for (int j = 0; j < node->as.union_def.variant_field_counts[i]; j++) {

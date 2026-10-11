@@ -1226,7 +1226,7 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                     } else if (node->type == AST_ENUM_DEF) {
                         enum_names[e_idx++] = strdup(node->as.enum_def.original_name ? node->as.enum_def.original_name : node->as.enum_def.name);
                     } else if (node->type == AST_UNION_DEF) {
-                        union_names[u_idx++] = strdup(node->as.union_def.name);
+                        union_names[u_idx++] = strdup(node->as.union_def.original_name ? node->as.union_def.original_name : node->as.union_def.name);
                     }
                 }
                 
@@ -2387,6 +2387,7 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
         meta->unions = malloc(sizeof(UnionDef) * meta->union_count);
         for (int i = 0; i < meta->union_count; i++) {
             meta->unions[i] = env->unions[i];
+            meta->unions[i].original_name = env->unions[i].original_name ? strdup(env->unions[i].original_name) : NULL;
             meta->unions[i].variant_names = NULL;
             meta->unions[i].variant_field_counts = NULL;
             meta->unions[i].variant_field_names = NULL;
@@ -2795,6 +2796,7 @@ void free_module_metadata(ModuleMetadata *meta) {
     if (meta->unions) {
         for (int i = 0; i < meta->union_count; i++) {
             if (meta->unions[i].name) free(meta->unions[i].name);
+            free(meta->unions[i].original_name);
             if (meta->unions[i].variant_names) {
                 for (int j = 0; j < meta->unions[i].variant_count; j++) {
                     if (meta->unions[i].variant_names[j]) free(meta->unions[i].variant_names[j]);

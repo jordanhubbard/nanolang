@@ -8085,6 +8085,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             /* Register the union */
             UnionDef udef = {0};
             udef.name = strdup(union_name);
+            udef.original_name = item->as.union_def.original_name ? strdup(item->as.union_def.original_name) : NULL;
             udef.variant_count = item->as.union_def.variant_count;
             
             /* Duplicate variant names */
@@ -8956,6 +8957,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
             /* Register the union */
             UnionDef udef = {0};
             udef.name = strdup(union_name);
+            udef.original_name = item->as.union_def.original_name ? strdup(item->as.union_def.original_name) : NULL;
             udef.variant_count = item->as.union_def.variant_count;
             
             /* Allocate variant names */

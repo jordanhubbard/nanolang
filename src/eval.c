@@ -6401,6 +6401,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
             if (env_get_union(env, stmt->as.union_def.name)) return create_void();
             UnionDef udef = {0};
             udef.name = strdup(stmt->as.union_def.name);
+            udef.original_name = stmt->as.union_def.original_name ? strdup(stmt->as.union_def.original_name) : NULL;
             udef.variant_count = stmt->as.union_def.variant_count;
             
             /* Copy generic parameters */

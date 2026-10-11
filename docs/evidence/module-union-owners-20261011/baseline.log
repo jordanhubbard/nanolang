@@ -1,0 +1,4 @@
+Error at line 1, column 5: Union 'Box' is already defined
+Error: Type checking failed for module '/Users/jordanh/Src/nanolang/docs/evidence/generic-union-parameters-20261011/owners/b.nano'
+Error at line 2, column 1: Failed to load module '/Users/jordanh/Src/nanolang/docs/evidence/generic-union-parameters-20261011/owners/b.nano'
+Module loading failed

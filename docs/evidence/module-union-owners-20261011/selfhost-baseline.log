@@ -1,0 +1,60 @@
+test_cross_owner_refusals_preserve_output (tests.test_module_union_owners.ModuleUnionOwners.test_cross_owner_refusals_preserve_output) ... ok
+test_distinct_layouts_and_both_import_orders (tests.test_module_union_owners.ModuleUnionOwners.test_distinct_layouts_and_both_import_orders) ... ok
+test_ordinary_module_unions (tests.test_module_union_owners.ModuleUnionOwners.test_ordinary_module_unions) ... FAIL
+test_root_union_and_qualified_constructors (tests.test_module_union_owners.ModuleUnionOwners.test_root_union_and_qualified_constructors) ... FAIL
+test_same_owner_aliases_and_imported_callbacks (tests.test_module_union_owners.ModuleUnionOwners.test_same_owner_aliases_and_imported_callbacks) ... ok
+
+======================================================================
+FAIL: test_ordinary_module_unions (tests.test_module_union_owners.ModuleUnionOwners.test_ordinary_module_unions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_union_owners.py", line 68, in test_ordinary_module_unions
+            self.execute(IMPORTS+IDENTITY+'''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let left:a.Box = a.Box.Some {value:7}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+SHADOW, files={'a.nano':a,'b.nano':b})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0001] Return value of __nano_module_1_make: I expected a value of type `__nano_module_1_type_Box`, but found `Box.Some`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-ncotbc29/b.nano:2:20)
+  [E0001] Variable left: I expected a value of type `__nano_module_0_type_Box`, but found `a.Box.Some`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-ncotbc29/main.nano:6:5)
+  [E0001] Variable right: I expected a value of type `__nano_module_1_type_Box`, but found `b.Box.Some`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-ncotbc29/main.nano:7:5)
+
+
+======================================================================
+FAIL: test_root_union_and_qualified_constructors (tests.test_module_union_owners.ModuleUnionOwners.test_root_union_and_qualified_constructors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_union_owners.py", line 52, in test_root_union_and_qualified_constructors
+            self.execute(IMPORTS+IDENTITY+'''union Box<T> {Some {value:T}, None {}}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn read(value:Box<int>)->int{match value{Some(p)=>{return p.value} None(p)=>{return 0}}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+SHADOW, files={'a.nano':A,'b.nano':B})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-7qopigw4/main.nano:10, column 33: unexpected token 'int'
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 1.543s
+
+FAILED (failures=2)

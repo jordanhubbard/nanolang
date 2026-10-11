@@ -41,11 +41,17 @@ static const char *nominal_name(ASTNode *program, Environment *env, const char *
             (!strcmp(item->as.enum_def.name, name) ||
              (item->as.enum_def.original_name && !strcmp(item->as.enum_def.original_name, name))))
             return item->as.enum_def.name;
+        if (item->type == AST_UNION_DEF &&
+            (!strcmp(item->as.union_def.name, name) ||
+             (item->as.union_def.original_name && !strcmp(item->as.union_def.original_name, name))))
+            return item->as.union_def.name;
     }
     StructDef *record = env_get_struct(env, name);
     if (record) return record->name;
     EnumDef *enumeration = env_get_enum(env, name);
-    return enumeration ? enumeration->name : name;
+    if (enumeration) return enumeration->name;
+    UnionDef *variant = env_get_union(env, name);
+    return variant ? variant->name : name;
 }
 
 static bool nominal_slot(ASTNode *program, Environment *env, char **slot) {
@@ -56,6 +62,25 @@ static bool nominal_slot(ASTNode *program, Environment *env, char **slot) {
     if (!bound) return false;
     free(*slot);
     *slot = bound;
+    return true;
+}
+
+/* I bind a union constructor owner independently of its selected variant. */
+static bool nominal_constructor_slot(ASTNode *program, Environment *env, char **slot) {
+    if (!slot || !*slot) return true;
+    if (!nominal_slot(program, env, slot)) return false;
+    const char *dot = strrchr(*slot, '.');
+    if (!dot) return true;
+    char *prefix = strndup(*slot, (size_t)(dot - *slot));
+    if (!prefix) return false;
+    const char *owner = nominal_name(program, env, prefix);
+    if (!strcmp(owner, prefix)) { free(prefix); return true; }
+    size_t size = strlen(owner) + strlen(dot) + 1;
+    char *bound = malloc(size);
+    if (bound) snprintf(bound, size, "%s%s", owner, dot);
+    free(prefix);
+    if (!bound) return false;
+    free(*slot); *slot = bound;
     return true;
 }
 
@@ -76,7 +101,8 @@ static Type nominal_kind(ASTNode *program, Environment *env, Type type,
         ASTNode *item = program->as.program.items[i];
         if (item->type == AST_ENUM_DEF && (!strcmp(item->as.enum_def.name, name) ||
             (item->as.enum_def.original_name && !strcmp(item->as.enum_def.original_name, name)))) return TYPE_ENUM;
-        if (item->type == AST_UNION_DEF && !strcmp(item->as.union_def.name, name))
+        if (item->type == AST_UNION_DEF && (!strcmp(item->as.union_def.name, name) ||
+            (item->as.union_def.original_name && !strcmp(item->as.union_def.original_name, name))))
             return TYPE_UNION;
     }
     if (env_get_enum(env, name)) return TYPE_ENUM;
@@ -215,10 +241,11 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
                 }
             break;
         case AST_STRUCT_LITERAL:
-            SLOT(node->as.struct_literal.struct_name);
+            if (!nominal_constructor_slot(program, env, &node->as.struct_literal.struct_name)) return false;
             CHILDREN(node->as.struct_literal.field_values, node->as.struct_literal.field_count);
             CHILD(node->as.struct_literal.spread_source); break;
         case AST_UNION_CONSTRUCT:
+            SLOT(node->as.union_construct.union_name);
             if (!nominal_info(program, env, node->as.union_construct.type_info)) return false;
             CHILDREN(node->as.union_construct.field_values, node->as.union_construct.field_count); break;
         case AST_LET:
@@ -348,6 +375,24 @@ bool bind_nominal_records(ASTNode *program, Environment *env) {
             bound[offset++] = '_'; strcpy(bound + offset, item->as.enum_def.name);
             item->as.enum_def.original_name = item->as.enum_def.name;
             item->as.enum_def.name = bound;
+        }
+        for (int i = 0; i < program->as.program.count; ++i) {
+            ASTNode *item = program->as.program.items[i];
+            if (item->type != AST_UNION_DEF || item->as.union_def.original_name) continue;
+            if (item->as.union_def.is_extern) continue;
+            size_t name_length = strlen(item->as.union_def.name);
+            if (length > (SIZE_MAX - name_length - 32) / 2) return false;
+            char *bound = malloc(2 * length + name_length + 32);
+            if (!bound) return false;
+            strcpy(bound, owner ? "__nano_union_" : "__nano_root_union_");
+            size_t offset = strlen(bound);
+            for (size_t j = 0; j < length; ++j) {
+                unsigned char c = (unsigned char)owner[j];
+                bound[offset++] = hex[c >> 4]; bound[offset++] = hex[c & 15];
+            }
+            bound[offset++] = '_'; strcpy(bound + offset, item->as.union_def.name);
+            item->as.union_def.original_name = item->as.union_def.name;
+            item->as.union_def.name = bound;
         }
     }
     if (!nominal_node(program, env, program)) {

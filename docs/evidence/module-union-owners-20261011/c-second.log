@@ -1,0 +1,394 @@
+test_array_and_callable_payloads (tests.test_generic_union_parameters.GenericUnionParameters.test_array_and_callable_payloads) ... FAIL
+test_imported_union_and_generic_function (tests.test_generic_union_parameters.GenericUnionParameters.test_imported_union_and_generic_function) ... FAIL
+test_mismatched_instances_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_mismatched_instances_preserve_output) ... ok
+test_nested_and_multiple_parameters (tests.test_generic_union_parameters.GenericUnionParameters.test_nested_and_multiple_parameters) ... FAIL
+test_ordinary_union_identity (tests.test_generic_union_parameters.GenericUnionParameters.test_ordinary_union_identity) ... ok
+test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) ... 
+  test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) (case='identity') ... FAIL
+  test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) (case='unbox') ... FAIL
+  test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) (case='rebox') ... FAIL
+test_scalar_instances_and_empty_variants (tests.test_generic_union_parameters.GenericUnionParameters.test_scalar_instances_and_empty_variants) ... FAIL
+test_union_result_boundaries_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_union_result_boundaries_preserve_output) ... ok
+test_cross_owner_refusals_preserve_output (tests.test_module_union_owners.ModuleUnionOwners.test_cross_owner_refusals_preserve_output) ... ok
+test_distinct_layouts_and_both_import_orders (tests.test_module_union_owners.ModuleUnionOwners.test_distinct_layouts_and_both_import_orders) ... 
+  test_distinct_layouts_and_both_import_orders (tests.test_module_union_owners.ModuleUnionOwners.test_distinct_layouts_and_both_import_orders) (imports='module "a.nano" as a\nmodule "b.nano" as b\n') ... FAIL
+  test_distinct_layouts_and_both_import_orders (tests.test_module_union_owners.ModuleUnionOwners.test_distinct_layouts_and_both_import_orders) (imports='module "b.nano" as b\nmodule "a.nano" as a\n') ... FAIL
+test_ordinary_module_unions (tests.test_module_union_owners.ModuleUnionOwners.test_ordinary_module_unions) ... FAIL
+test_root_union_and_qualified_constructors (tests.test_module_union_owners.ModuleUnionOwners.test_root_union_and_qualified_constructors) ... FAIL
+test_same_owner_aliases_and_imported_callbacks (tests.test_module_union_owners.ModuleUnionOwners.test_same_owner_aliases_and_imported_callbacks) ... FAIL
+
+======================================================================
+FAIL: test_array_and_callable_payloads (tests.test_generic_union_parameters.GenericUnionParameters.test_array_and_callable_payloads)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 37, in test_array_and_callable_payloads
+            self.execute(BOX+UNBOX+IDENTITY+'''fn plus(x:int)->int{return (+ x 1)}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow plus {assert (== (plus 1) 2)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+     return 0
+     ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 2, column 38: Unused variable 'p'
+I could not compile shadows at line 2: I require a field from the checked variant
+
+
+======================================================================
+FAIL: test_imported_union_and_generic_function (tests.test_generic_union_parameters.GenericUnionParameters.test_imported_union_and_generic_function)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 71, in test_imported_union_and_generic_function
+            self.execute('module "box.nano" as b\n'+IDENTITY+'''fn main()->int{
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     let value:b.Box<int> = (b.make)
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+    }'''+MAIN_SHADOW,files={'box.nano':BOX.replace('union','pub union',1)+UNBOX.replace('fn unbox','pub fn unbox',1)+
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                'pub fn make()->Box<int>{return Box<int>.Some {value:7}}\nshadow make {assert (== (unbox (make) 0) 7)}\n'})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 2, column 42: Unused variable 'p'
+-- E004 UNKNOWN FIELD --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-7a1vyv1w/main.nano
+Variant 'None' of union '__nano_union_626f78_Box' has no field 'value'.
+
+2| fn identity(value:T)->T{return value}
+                                                                          ^^^^^
+Hint: Variant 'None' has no fields.
+I could not compile shadows at line 2: I require a field from the checked variant
+
+
+======================================================================
+FAIL: test_nested_and_multiple_parameters (tests.test_generic_union_parameters.GenericUnionParameters.test_nested_and_multiple_parameters)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 51, in test_nested_and_multiple_parameters
+            self.execute(BOX+UNBOX+IDENTITY+'''union Choice<T,E> {Left {value:T}, Right {value:E}}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn second(value:Choice<T,E>,fallback:E)->E{match value{Left(p)=>{return fallback} Right(p)=>{return p.value}}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+     return 0
+     ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 2, column 38: Unused variable 'p'
+Warning at line 7, column 44: Unused variable 'p'
+-- E004 UNKNOWN FIELD --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-cc1ink5v/main.nano
+Variant 'None' of union '__nano_root_union__Box' has no field 'value'.
+
+2| fn unbox(value:Box<T>,fallback:T)->T{match value{Some(p)=>{return p.value} None(p)=>{return fallback}}}
+                                                                      ^^^^^
+Hint: Variant 'None' has no fields.
+
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   $generic.4  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-cc1ink5v/main.nano:7:94
+  #1   $shadow_2_second  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-cc1ink5v/main.nano:8:16
+  #2   $shadow_entry  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-cc1ink5v/main.nano:?
+I failed a shadow: Assertion failed
+Stack trace (most recent call first):
+  #0   $generic.4  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-cc1ink5v/main.nano:7:94
+  #1   $shadow_2_second  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-cc1ink5v/main.nano:8:16
+  #2   $shadow_entry  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-cc1ink5v/main.nano:?
+I will not publish output after failed shadow execution
+
+
+======================================================================
+FAIL: test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) (case='identity')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 22, in test_retained_failures
+    self.execute((directory/(name+'.nano')).read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 4, column 26: Unused variable 'p'
+-- E004 UNKNOWN FIELD --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-geie_ncp/main.nano
+Variant 'None' of union '__nano_root_union__Box' has no field 'value'.
+
+4| fn read(x:Box<int>)->int{match x{Some(p)=>{return p.value} None(p)=>{return 0}}}
+                                                      ^^^^^
+Hint: Variant 'None' has no fields.
+I could not compile shadows at line 4: I require a field from the checked variant
+
+
+======================================================================
+FAIL: test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) (case='unbox')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 22, in test_retained_failures
+    self.execute((directory/(name+'.nano')).read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 2, column 34: Unused variable 'p'
+-- E004 UNKNOWN FIELD --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-d1r9jpu6/main.nano
+Variant 'None' of union '__nano_root_union__Box' has no field 'value'.
+
+2| fn unbox(x:Box<T>,fallback:T)->T{match x{Some(p)=>{return p.value} None(p)=>{return fallback}}}
+                                                              ^^^^^
+Hint: Variant 'None' has no fields.
+I could not compile shadows at line 2: I require a field from the checked variant
+
+
+======================================================================
+FAIL: test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) (case='rebox')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 22, in test_retained_failures
+    self.execute((directory/(name+'.nano')).read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 4, column 26: Unused variable 'p'
+-- E004 UNKNOWN FIELD --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-u5fhz8_d/main.nano
+Variant 'None' of union '__nano_root_union__Box' has no field 'value'.
+
+4| fn read(x:Box<int>)->int{match x{Some(p)=>{return p.value} None(p)=>{return 0}}}
+                                                      ^^^^^
+Hint: Variant 'None' has no fields.
+I could not compile shadows at line 4: I require a field from the checked variant
+
+
+======================================================================
+FAIL: test_scalar_instances_and_empty_variants (tests.test_generic_union_parameters.GenericUnionParameters.test_scalar_instances_and_empty_variants)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_generic_union_parameters.py", line 25, in test_scalar_instances_and_empty_variants
+            self.execute(BOX+UNBOX+IDENTITY+'''fn box(value:T)->Box<T>{return Box.Some {value:value}}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow box {assert (== (unbox (box 7) 0) 7)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+     return 0
+     ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 2, column 38: Unused variable 'p'
+-- E004 UNKNOWN FIELD --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-zj17nzs4/main.nano
+Variant 'None' of union '__nano_root_union__Box' has no field 'value'.
+
+2| fn unbox(value:Box<T>,fallback:T)->T{match value{Some(p)=>{return p.value} None(p)=>{return fallback}}}
+                                                                      ^^^^^
+Hint: Variant 'None' has no fields.
+I could not compile shadows at line 2: I require a field from the checked variant
+
+
+======================================================================
+FAIL: test_distinct_layouts_and_both_import_orders (tests.test_module_union_owners.ModuleUnionOwners.test_distinct_layouts_and_both_import_orders) (imports='module "a.nano" as a\nmodule "b.nano" as b\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_union_owners.py", line 32, in test_distinct_layouts_and_both_import_orders
+                    self.execute(imports+IDENTITY+'''fn main()->int {
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let left:a.Box<int> = (identity (a.make))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+SHADOW, files={'a.nano':A,'b.nano':B})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 4, column 34: Unused variable 'p'
+Warning at line 4, column 34: Unused variable 'p'
+-- E004 UNKNOWN FIELD --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-m2jg0ur9/main.nano
+Variant 'None' of union '__nano_union_61_Box' has no field 'value'.
+
+4| shadow identity {assert (== (identity 1) 1)}
+                                                                  ^^^^^
+Hint: Variant 'None' has no fields.
+I could not compile shadows at line 4: I require a field from the checked variant
+
+
+======================================================================
+FAIL: test_distinct_layouts_and_both_import_orders (tests.test_module_union_owners.ModuleUnionOwners.test_distinct_layouts_and_both_import_orders) (imports='module "b.nano" as b\nmodule "a.nano" as a\n')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_union_owners.py", line 32, in test_distinct_layouts_and_both_import_orders
+                    self.execute(imports+IDENTITY+'''fn main()->int {
+                    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let left:a.Box<int> = (identity (a.make))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+SHADOW, files={'a.nano':A,'b.nano':B})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 4, column 34: Unused variable 'p'
+Warning at line 4, column 34: Unused variable 'p'
+-- E004 UNKNOWN FIELD --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-nyidbpa9/main.nano
+Variant 'None' of union '__nano_union_62_Box' has no field 'value'.
+
+4| shadow identity {assert (== (identity 1) 1)}
+                                                                     ^^^^^
+Hint: Variant 'None' has no fields.
+-- E004 UNKNOWN FIELD --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-nyidbpa9/main.nano
+Variant 'None' of union '__nano_union_62_Box' has no field 'extra'.
+
+4| shadow identity {assert (== (identity 1) 1)}
+                                                                             ^^^^^
+Hint: Variant 'None' has no fields.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-nyidbpa9/main.nano
+Arithmetic expects numeric types or string concatenation with + (got unknown and unknown).
+
+4| shadow identity {assert (== (identity 1) 1)}
+                                                                 ^
+Hint: Use matching numeric types, or use + with two strings.
+-- E004 UNKNOWN FIELD --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-nyidbpa9/main.nano
+Variant 'None' of union '__nano_union_62_Box' has no field 'value'.
+
+4| shadow identity {assert (== (identity 1) 1)}
+                                                                     ^^^^^
+Hint: Variant 'None' has no fields.
+-- E004 UNKNOWN FIELD --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-nyidbpa9/main.nano
+Variant 'None' of union '__nano_union_62_Box' has no field 'extra'.
+
+4| shadow identity {assert (== (identity 1) 1)}
+                                                                             ^^^^^
+Hint: Variant 'None' has no fields.
+I could not compile shadows at line 4: I require a field from the checked variant
+
+
+======================================================================
+FAIL: test_ordinary_module_unions (tests.test_module_union_owners.ModuleUnionOwners.test_ordinary_module_unions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_union_owners.py", line 68, in test_ordinary_module_unions
+            self.execute(IMPORTS+IDENTITY+'''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let left:a.Box = a.Box.Some {value:7}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+SHADOW, files={'a.nano':a,'b.nano':b})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 4, column 29: Unused variable 'p'
+Warning at line 4, column 29: Unused variable 'p'
+I cannot allocate module-owned nominal identities
+error: type check failed
+
+
+======================================================================
+FAIL: test_root_union_and_qualified_constructors (tests.test_module_union_owners.ModuleUnionOwners.test_root_union_and_qualified_constructors)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_union_owners.py", line 52, in test_root_union_and_qualified_constructors
+            self.execute(IMPORTS+IDENTITY+'''union Box<T> {Some {value:T}, None {}}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn read(value:Box<int>)->int{match value{Some(p)=>{return p.value} None(p)=>{return 0}}}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+SHADOW, files={'a.nano':A,'b.nano':B})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 10, column 33: Unexpected token in expression: TYPE_INT (type=50)
+Error at line 10, column 32: Expected expression after operator
+Error at line 10, column 33: Unexpected token in expression: TYPE_INT (type=50)
+Error at line 10, column 36: Unexpected token in expression: GT (type=66)
+Error at line 10, column 37: Unexpected token in expression: DOT (type=18)
+Error at line 11, column 34: Unexpected token in expression: TYPE_INT (type=50)
+Error at line 11, column 33: Expected expression after operator
+Error at line 11, column 34: Unexpected token in expression: TYPE_INT (type=50)
+Error at line 11, column 37: Unexpected token in expression: GT (type=66)
+Error at line 11, column 38: Unexpected token in expression: DOT (type=18)
+error: parser failed
+
+
+======================================================================
+FAIL: test_same_owner_aliases_and_imported_callbacks (tests.test_module_union_owners.ModuleUnionOwners.test_same_owner_aliases_and_imported_callbacks)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_module_union_owners.py", line 41, in test_same_owner_aliases_and_imported_callbacks
+            self.execute(IMPORTS+'module "a.nano" as again\nfrom "a.nano" import make as first\n'+IDENTITY+'''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let value:again.Box<int> = (identity (first))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+SHADOW, files={'a.nano':A,'b.nano':B})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 4, column 34: Unused variable 'p'
+Warning at line 4, column 34: Unused variable 'p'
+-- E004 UNKNOWN FIELD --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-oep36xg4/main.nano
+Variant 'None' of union '__nano_union_61_Box' has no field 'value'.
+
+4| from "a.nano" import make as first
+                                                                  ^^^^^
+Hint: Variant 'None' has no fields.
+I could not compile shadows at line 4: I require a field from the checked variant
+
+
+----------------------------------------------------------------------
+Ran 13 tests in 1.396s
+
+FAILED (failures=12)

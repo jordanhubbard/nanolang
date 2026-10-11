@@ -2109,6 +2109,15 @@ shadow literal_type_spelling {
 
 /* I distinguish a declared union variant from a qualified record name. */
 fn parse_named_literal(p: Parser, name: string, line: int, column: int) -> Parser {
+    # I retain a qualified Type.Variant path before its import is bound.
+    let dot: int = (str_last_index_of name ".")
+    if (> dot 0) {
+        let owner: string = (str_substring name 0 dot)
+        let variant: string = (str_substring name (+ dot 1) (- (str_length name) (+ dot 1)))
+        if (and (>= (str_last_index_of owner ".") 0) (and (literal_type_spelling owner) (literal_type_spelling variant))) {
+            return (parse_union_construct p owner variant line column)
+        }
+    }
     let mut i: int = 0
     while (< i (parser_get_union_count p)) {
         let definition: ASTUnion = (parser_get_union p i)
@@ -2116,14 +2125,8 @@ fn parse_named_literal(p: Parser, name: string, line: int, column: int) -> Parse
         while (< v definition.variant_count) {
             let selected: string = (+ definition.name (+ "." (at definition.variant_names v)))
             if (== name selected) {
-                let mut matches: int = 0
-                let mut declaration: int = 0
-                while (< declaration (parser_get_union_count p)) {
-                    if (== (parser_get_union p declaration).name definition.name) { set matches (+ matches 1) }
-                    set declaration (+ declaration 1)
-                }
-                if (== matches 1) { return (parse_union_construct p definition.name (at definition.variant_names v) line column) }
-                return (parse_struct_literal p name line column)
+                # I bind the declaration owner after parsing the merged source.
+                return (parse_union_construct p definition.name (at definition.variant_names v) line column)
             }
             set v (+ v 1)
         }
@@ -2132,6 +2135,12 @@ fn parse_named_literal(p: Parser, name: string, line: int, column: int) -> Parse
     return (parse_struct_literal p name line column)
 }
 shadow parse_named_literal {
+    let qualified: List<LexerToken> = (tokenize_string "api.Box.Some { value: 7 }" "qualified.nano" (list_CompilerDiagnostic_new))
+    let selected: Parser = (parse_primary (parser_new qualified (list_LexerToken_length qualified) "qualified.nano"))
+    assert (not (parser_has_error selected))
+    assert (parser_is_at_end selected)
+    assert (== selected.last_expr_node_type ParseNodeType.PNODE_UNION_CONSTRUCT)
+    assert (== (parser_get_union_construct selected selected.last_expr_node_id).union_name "api.Box")
     let tokens: List<LexerToken> = (tokenize_string "union Choice { Some { n: int } } fn f() -> void { (consume (Choice.Some { n: 1 })) }" "constructor.nano" (list_CompilerDiagnostic_new))
     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "constructor.nano")
     assert (not (parser_has_error parsed))
@@ -2141,8 +2150,10 @@ shadow parse_named_literal {
     assert (== value.variant_name "Some")
     let ambiguous_tokens: List<LexerToken> = (tokenize_string "union Choice { Some { n: int } } union Choice { Other {} } fn f() -> void { (consume (Choice.Some { n: 1 })) }" "ambiguous.nano" (list_CompilerDiagnostic_new))
     let ambiguous: Parser = (parse_program ambiguous_tokens (list_LexerToken_length ambiguous_tokens) "ambiguous.nano")
-    assert (== (parser_get_union_construct_count ambiguous) 0)
-    assert (== (parser_get_struct_literal_count ambiguous) 1)
+    assert (== (parser_get_union_construct_count ambiguous) 1)
+    assert (== (parser_get_struct_literal_count ambiguous) 0)
+    assert (== (parser_get_union_construct ambiguous 0).union_name "Choice")
+    assert (== (parser_get_union_construct ambiguous 0).variant_name "Some")
 }
 
 /* Parse union construction: UnionName.Variant{field: value} */
@@ -2685,14 +2696,13 @@ fn parse_primary(p: Parser) -> Parser {
     } else {
         let tok: LexerToken = (parser_current p)
 
-        # I reserve uppercase Type<args>.Variant for explicit union construction.
-        # Lowercase identifiers keep their ordinary infix comparison grammar.
+        # I inspect the type component after any module qualifier.
+        # Lowercase fields retain their ordinary comparison grammar.
         if (== tok.token_type (token_identifier)) {
-            let first: int = (char_at tok.value 0)
-            if (and (>= first 65) (<= first 90)) {
-                let after_name: Parser = (parser_advance p)
-                if (not (parser_is_at_end after_name)) {
-                    if (== (parser_current after_name).token_type (token_lt)) {
+            let named: NameParseResult = (parse_call_name p)
+            if (and named.ok (literal_type_spelling named.name)) {
+                if (not (parser_is_at_end named.p)) {
+                    if (== (parser_current named.p).token_type (token_lt)) {
                         let concrete: TypeParseResult = (parse_type_string p)
                         if (not concrete.ok) { return (parser_with_error concrete.p true) }
                         let after_dot: Parser = (parser_expect concrete.p (token_dot))
@@ -3274,8 +3284,8 @@ fn parse_primary(p: Parser) -> Parser {
 }
 
 shadow parse_primary {
-    let explicit_sources: array<string> = ["Box<int>.Some { value: 7 }", "Box<array<int>>.None {}", "Choice<int,string>.Right { value: \"ok\" }"]
-    let explicit_names: array<string> = ["Box<int>", "Box<array<int>>", "Choice<int,string>"]
+    let explicit_sources: array<string> = ["Box<int>.Some { value: 7 }", "Box<array<int>>.None {}", "Choice<int,string>.Right { value: \"ok\" }", "api.Box<int>.Some { value: 7 }", "api.Box<array<int>>.None {}"]
+    let explicit_names: array<string> = ["Box<int>", "Box<array<int>>", "Choice<int,string>", "api.Box<int>", "api.Box<array<int>>"]
     let mut explicit_index: int = 0
     while (< explicit_index (array_length explicit_sources)) {
         let tokens: List<LexerToken> = (tokenize_string (at explicit_sources explicit_index) "parser-test.nano" (list_CompilerDiagnostic_new))

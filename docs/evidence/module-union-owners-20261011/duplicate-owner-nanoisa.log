@@ -1,0 +1,6 @@
+test_duplicate_declaration_in_one_owner_preserves_output (tests.test_module_union_owners.ModuleUnionOwners.test_duplicate_declaration_in_one_owner_preserves_output) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.023s
+
+OK

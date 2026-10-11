@@ -1,0 +1,69 @@
+Error: Failed to compile module '/private/tmp/nl51-module-union-owners/parser-corrected.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-VB4Ead/source.c:2572:14: error: expected ';' after top level declarator
+ 2572 | Parser parser-corrected__parser_init_ast_lists();
+      |              ^
+      |              ;
+obj/nano_modules/.nano-module-VB4Ead/source.c:2573:14: error: expected ';' after top level declarator
+ 2573 | Parser parser-corrected__parser_new(List_LexerToken* tokens, int64_t token_count, const char* file_name);
+      |              ^
+      |              ;
+obj/nano_modules/.nano-module-VB4Ead/source.c:2574:9: error: redefinition of 'parser' with a different type: 'int64_t' (aka 'long long') vs 'Parser' (aka 'struct nl_Parser')
+ 2574 | int64_t parser-corrected__parser_allocate_id(Parser p);
+      |         ^
+obj/nano_modules/.nano-module-VB4Ead/source.c:2573:8: note: previous definition is here
+ 2573 | Parser parser-corrected__parser_new(List_LexerToken* tokens, int64_t token_count, const char* file_name);
+      |        ^
+obj/nano_modules/.nano-module-VB4Ead/source.c:2574:15: error: expected ';' after top level declarator
+ 2574 | int64_t parser-corrected__parser_allocate_id(Parser p);
+      |               ^
+      |               ;
+obj/nano_modules/.nano-module-VB4Ead/source.c:2575:6: error: redefinition of 'parser' with a different type: 'bool' vs 'Parser' (aka 'struct nl_Parser')
+ 2575 | bool parser-corrected__parser_is_at_end(Parser p);
+      |      ^
+obj/nano_modules/.nano-module-VB4Ead/source.c:2573:8: note: previous definition is here
+ 2573 | Parser parser-corrected__parser_new(List_LexerToken* tokens, int64_t token_count, const char* file_name);
+      |        ^
+obj/nano_modules/.nano-module-VB4Ead/source.c:2575:12: error: expected ';' after top level declarator
+ 2575 | bool parser-corrected__parser_is_at_end(Parser p);
+      |            ^
+      |            ;
+obj/nano_modules/.nano-module-VB4Ead/source.c:2576:14: error: expected ';' after top level declarator
+ 2576 | Parser parser-corrected__parser_with_position(Parser p, int64_t new_position);
+      |              ^
+      |              ;
+obj/nano_modules/.nano-module-VB4Ead/source.c:2577:14: error: expected ';' after top level declarator
+ 2577 | Parser parser-corrected__parser_advance(Parser p);
+      |              ^
+      |              ;
+obj/nano_modules/.nano-module-VB4Ead/source.c:2578:9: error: redefinition of 'parser' with a different type: 'int64_t' (aka 'long long') vs 'Parser' (aka 'struct nl_Parser')
+ 2578 | int64_t parser-corrected__parser_position(Parser p);
+      |         ^
+obj/nano_modules/.nano-module-VB4Ead/source.c:2577:8: note: previous definition is here
+ 2577 | Parser parser-corrected__parser_advance(Parser p);
+      |        ^
+obj/nano_modules/.nano-module-VB4Ead/source.c:2578:15: error: expected ';' after top level declarator
+ 2578 | int64_t parser-corrected__parser_position(Parser p);
+      |               ^
+      |               ;
+obj/nano_modules/.nano-module-VB4Ead/source.c:2579:12: error: redefinition of 'parser' with a different type: 'LexerToken' (aka 'struct nl_LexerToken') vs 'Parser' (aka 'struct nl_Parser')
+ 2579 | LexerToken parser-corrected__parser_current(Parser p);
+      |            ^
+obj/nano_modules/.nano-module-VB4Ead/source.c:2577:8: note: previous definition is here
+ 2577 | Parser parser-corrected__parser_advance(Parser p);
+      |        ^
+obj/nano_modules/.nano-module-VB4Ead/source.c:2579:18: error: expected ';' after top level declarator
+ 2579 | LexerToken parser-corrected__parser_current(Parser p);
+      |                  ^
+      |                  ;
+obj/nano_modules/.nano-module-VB4Ead/source.c:2580:6: error: redefinition of 'parser' with a different type: 'bool' vs 'Parser' (aka 'struct nl_Parser')
+ 2580 | bool parser-corrected__parser_match(Parser p, int64_t token_type);
+      |      ^
+obj/nano_modules/.nano-module-VB4Ead/source.c:2577:8: note: previous definition is here
+ 2577 | Parser parser-corrected__parser_advance(Parser p);
+      |        ^
+obj/nano_modules/.nano-module-VB4Ead/source.c:2580:12: error: expected ';' after top level declarator
+ 2580 | bool parser-corrected__parser_match(Parser p, 
+C file kept at: obj/nano_modules/.nano-module-VB4Ead/source.c
+Error: Failed to compile module '/private/tmp/nl51-module-union-owners/parser-corrected.nano'
+Error: Failed to compile modules

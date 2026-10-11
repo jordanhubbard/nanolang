@@ -1,0 +1,611 @@
+diff --git a/docs/ROADMAP.md b/docs/ROADMAP.md
+index 44673df0c..afef11851 100644
+--- a/docs/ROADMAP.md
++++ b/docs/ROADMAP.md
+@@ -22,7 +22,7 @@
+ 
+ - [x] Under #976 I run tuple-generic refusal tests in the selected compiler mode. My native regression audit passes a hardcoded --emit-nvm option to nanoc_c and receives CLI refusals instead of the intended type diagnostics. My four refusal methods now use the shared mode selection and pass unchanged prior-artifact/type assertions through both routes; evidence/generic-union-parameters-20261011 retains the initial CLI failures and corrected checks.
+ 
+-- [ ] Under #976 I distinguish module-owned generic union declarations with equal source names. My generic-union parameter audit loads two modules that each export Box<T>; both C frontends reject the second declaration as already defined, before checking whether a generic call combines distinct owners. I require independent module loading, same-owner alias compatibility, cross-owner refusal and both producer/native execution. My retained reproducer is in evidence/generic-union-parameters-20261011/owners.
++- [ ] Under #976 I distinguish module-owned generic union declarations with equal source names. My generic-union parameter audit loads two modules that each export Box<T>; both C frontends reject the second declaration as already defined, before checking whether a generic call combines distinct owners. I require independent module loading, same-owner alias compatibility, cross-owner refusal and both producer/native execution. My retained reproducer is in evidence/generic-union-parameters-20261011/owners. My first canonical-owner build reaches the intended cross-owner refusal but exposes native match lookup that splits names at the first underscore and ordinary constructor names that retain their unbound prefix. I require registered instance lookup, complete constructor binding and independent original-name metadata ownership as part of this correction. The same underscore heuristic also appears in NanoVirt match selection. My expanded controls expose previously unsupported qualified constructors in both parsers/checkers; I retain those failures and require qualified ordinary and generic construction instead of dropping the controls.
+ 
+ - [x] Under #976 I preserve selected-variant scalar provenance in C AOT. My Choice<T,E> generic function returns a bool fallback for Left(string), but translation attributes that string payload to the unreachable Right(bool) return and rejects it. Both producers reproduce the same error. I require per-arm finite scalar facts, retained runtime guards, wrong-payload refusals and full translator regressions. My [generic-union evidence](evidence/generic-union-parameters-20261011/README.md) passes eight focused methods through both C routes and the freshly built self-hosted compiler, sanitizer controls, the full 2,443/464/3,113 translator gate and the unchanged eleven-stage compiler-product audit. Separate module-owner and C-native tuple gaps remain open.
+ 
+diff --git a/src/env.c b/src/env.c
+index 0249cca34..af6375f11 100644
+--- a/src/env.c
++++ b/src/env.c
+@@ -533,6 +533,7 @@ void free_environment(Environment *env) {
+     /* Free unions */
+     for (int i = 0; i < env->union_count; i++) {
+         free(env->unions[i].name);
++        free(env->unions[i].original_name);
+         for (int j = 0; j < env->unions[i].variant_count; j++) {
+             free(env->unions[i].variant_names[j]);
+             if (env->unions[i].variant_field_type_info && env->unions[i].variant_field_type_info[j]) {
+@@ -1505,59 +1506,45 @@ void env_define_union(Environment *env, UnionDef union_def) {
+ 
+ /* Get union definition */
+ UnionDef *env_get_union(Environment *env, const char *name) {
+-    /* Check for Module.Type pattern */
++    if (!env || !name) return NULL;
++    /* I preserve canonical identities even outside their declaration owner. */
++    for (int i = 0; i < env->union_count; ++i)
++        if (env->unions[i].name && !strcmp(env->unions[i].name, name))
++            return &env->unions[i];
+     const char *dot = strchr(name, '.');
+     if (dot) {
+-        char module_alias[256];
+-        size_t module_len = dot - name;
+-        if (module_len >= sizeof(module_alias)) {
+-            module_len = sizeof(module_alias) - 1;
+-        }
+-        strncpy(module_alias, name, module_len);
+-        module_alias[module_len] = '\0';
+-        const char *type_name = dot + 1;
+-        
+-        for (int i = 0; i < env->namespace_count; i++) {
+-            if (namespace_owned_by(&env->namespaces[i], env->current_module) &&
+-                strcmp(env->namespaces[i].alias, module_alias) == 0) {
+-                for (int j = 0; j < env->namespaces[i].union_count; j++) {
+-                    if (strcmp(env->namespaces[i].union_names[j], type_name) == 0) {
+-                        /* Look up the actual union by its original name AND module name */
+-                        const char *orig_mod = env->namespaces[i].module_name;
+-                        for (int k = 0; k < env->union_count; k++) {
+-                            if (safe_strcmp(env->unions[k].name, type_name) == 0) {
+-                                if (!orig_mod || !env->unions[k].module_name ||
+-                                    strcmp(env->unions[k].module_name, orig_mod) == 0) {
+-                                    return &env->unions[k];
+-                                }
+-                            }
+-                        }
+-                    }
++        size_t length = (size_t)(dot - name);
++        for (int i = 0; i < env->namespace_count; ++i) {
++            ModuleNamespace *space = &env->namespaces[i];
++            if (!namespace_owned_by(space, env->current_module) ||
++                strlen(space->alias) != length || strncmp(space->alias, name, length)) continue;
++            for (int j = 0; j < space->union_count; ++j) {
++                if (strcmp(space->union_names[j], dot + 1)) continue;
++                for (int k = 0; k < env->union_count; ++k) {
++                    UnionDef *definition = &env->unions[k];
++                    const char *source = definition->original_name ? definition->original_name : definition->name;
++                    bool owner = (!space->module_name && !definition->module_name) ||
++                        (space->module_name && definition->module_name && !strcmp(space->module_name, definition->module_name));
++                    if (owner && source && !strcmp(source, dot + 1)) return definition;
+                 }
+-                return NULL;
+             }
++            return NULL;
+         }
+         return NULL;
+     }
+-    
+-    /* First pass: prefer unions in the current module */
+-    if (env->current_module) {
+-        for (int i = 0; i < env->union_count; i++) {
+-            if (env->unions[i].name && safe_strcmp(env->unions[i].name, name) == 0) {
+-                if (env->unions[i].module_name && 
+-                    strcmp(env->unions[i].module_name, env->current_module) == 0) {
+-                    return &env->unions[i];
+-                }
+-            }
+-        }
+-    }
+-
+-    for (int i = 0; i < env->union_count; i++) {
+-        if (safe_strcmp(env->unions[i].name, name) == 0) {
+-            return &env->unions[i];
+-        }
+-    }
+-    return NULL;
++    UnionDef *fallback = NULL;
++    bool ambiguous = false;
++    for (int i = 0; i < env->union_count; ++i) {
++        UnionDef *definition = &env->unions[i];
++        if (!definition->original_name || strcmp(definition->original_name, name)) continue;
++        bool owner = (!env->current_module && !definition->module_name) ||
++            (env->current_module && definition->module_name && !strcmp(env->current_module, definition->module_name));
++        if (owner) return definition;
++        if (fallback) ambiguous = true;
++        fallback = definition;
++    }
++    /* I keep unambiguous legacy imports without choosing an arbitrary owner. */
++    return ambiguous ? NULL : fallback;
+ }
+ 
+ /* Get variant index in union (returns -1 if not found) */
+diff --git a/src/eval.c b/src/eval.c
+index 0cf7f0b0c..08b7fc198 100644
+--- a/src/eval.c
++++ b/src/eval.c
+@@ -6401,6 +6401,7 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
+             if (env_get_union(env, stmt->as.union_def.name)) return create_void();
+             UnionDef udef = {0};
+             udef.name = strdup(stmt->as.union_def.name);
++            udef.original_name = stmt->as.union_def.original_name ? strdup(stmt->as.union_def.original_name) : NULL;
+             udef.variant_count = stmt->as.union_def.variant_count;
+             
+             /* Copy generic parameters */
+diff --git a/src/module.c b/src/module.c
+index 44105d1b4..6a3de654e 100644
+--- a/src/module.c
++++ b/src/module.c
+@@ -1226,7 +1226,7 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
+                     } else if (node->type == AST_ENUM_DEF) {
+                         enum_names[e_idx++] = strdup(node->as.enum_def.original_name ? node->as.enum_def.original_name : node->as.enum_def.name);
+                     } else if (node->type == AST_UNION_DEF) {
+-                        union_names[u_idx++] = strdup(node->as.union_def.name);
++                        union_names[u_idx++] = strdup(node->as.union_def.original_name ? node->as.union_def.original_name : node->as.union_def.name);
+                     }
+                 }
+                 
+@@ -2387,6 +2387,7 @@ ModuleMetadata *extract_module_metadata(Environment *env, const char *module_nam
+         meta->unions = malloc(sizeof(UnionDef) * meta->union_count);
+         for (int i = 0; i < meta->union_count; i++) {
+             meta->unions[i] = env->unions[i];
++            meta->unions[i].original_name = env->unions[i].original_name ? strdup(env->unions[i].original_name) : NULL;
+             meta->unions[i].variant_names = NULL;
+             meta->unions[i].variant_field_counts = NULL;
+             meta->unions[i].variant_field_names = NULL;
+@@ -2795,6 +2796,7 @@ void free_module_metadata(ModuleMetadata *meta) {
+     if (meta->unions) {
+         for (int i = 0; i < meta->union_count; i++) {
+             if (meta->unions[i].name) free(meta->unions[i].name);
++            free(meta->unions[i].original_name);
+             if (meta->unions[i].variant_names) {
+                 for (int j = 0; j < meta->unions[i].variant_count; j++) {
+                     if (meta->unions[i].variant_names[j]) free(meta->unions[i].variant_names[j]);
+diff --git a/src/nanolang.h b/src/nanolang.h
+index a88254dd9..577dad566 100644
+--- a/src/nanolang.h
++++ b/src/nanolang.h
+@@ -432,6 +432,7 @@ struct ASTNode {
+          * Generic union: union Result<T, E> { Ok { value: T }, Err { error: E } } */
+         struct {
+             char *name;
++            char *original_name;      /* I retain my source spelling after owner binding. */
+             int variant_count;
+             char **variant_names;
+             int *variant_field_counts;
+@@ -702,6 +703,7 @@ typedef struct {
+ /* Union definition entry */
+ typedef struct {
+     char *name;
++    char *original_name; /* I own the source spelling independently of the AST. */
+     int variant_count;
+     char **variant_names;
+     int *variant_field_counts;
+diff --git a/src/nanovirt/codegen.c b/src/nanovirt/codegen.c
+index 67f21cb1e..d10198c3a 100644
+--- a/src/nanovirt/codegen.c
++++ b/src/nanovirt/codegen.c
+@@ -3246,23 +3246,13 @@ static void compile_expr(CG *cg, ASTNode *node) {
+         uint32_t end_instrs[64];
+         int end_count = 0;
+ 
+-        /* Find union definition for variant name → index mapping.
+-         * The typechecker may set a monomorphized name (e.g., "Result_int_string")
+-         * but we register unions under their base name (e.g., "Result").
+-         * Try exact match first, then try base name (before first '_'). */
++        /* I retain the registered owner when a checked match names an instance. */
+         const char *utype = node->as.match_expr.union_type_name;
+         CgUnionDef *ud = utype ? union_find(cg, utype) : NULL;
+-        if (!ud && utype) {
+-            /* Try base name: look for first '_' and try prefix */
+-            const char *underscore = strchr(utype, '_');
+-            if (underscore) {
+-                char base[256];
+-                size_t blen = (size_t)(underscore - utype);
+-                if (blen >= sizeof(base)) blen = sizeof(base) - 1;
+-                memcpy(base, utype, blen);
+-                base[blen] = '\0';
+-                ud = union_find(cg, base);
+-            }
++        for (int instance = 0; !ud && utype && instance < cg->env->generic_instance_count; ++instance) {
++            GenericInstantiation *registered = &cg->env->generic_instances[instance];
++            if (registered->concrete_name && !strcmp(registered->concrete_name, utype))
++                ud = union_find(cg, registered->generic_name);
+         }
+ 
+         for (int i = 0; i < arm_count; i++) {
+diff --git a/src/nominal_types.c b/src/nominal_types.c
+index 3c92151e4..d085711ed 100644
+--- a/src/nominal_types.c
++++ b/src/nominal_types.c
+@@ -41,11 +41,17 @@ static const char *nominal_name(ASTNode *program, Environment *env, const char *
+             (!strcmp(item->as.enum_def.name, name) ||
+              (item->as.enum_def.original_name && !strcmp(item->as.enum_def.original_name, name))))
+             return item->as.enum_def.name;
++        if (item->type == AST_UNION_DEF &&
++            (!strcmp(item->as.union_def.name, name) ||
++             (item->as.union_def.original_name && !strcmp(item->as.union_def.original_name, name))))
++            return item->as.union_def.name;
+     }
+     StructDef *record = env_get_struct(env, name);
+     if (record) return record->name;
+     EnumDef *enumeration = env_get_enum(env, name);
+-    return enumeration ? enumeration->name : name;
++    if (enumeration) return enumeration->name;
++    UnionDef *variant = env_get_union(env, name);
++    return variant ? variant->name : name;
+ }
+ 
+ static bool nominal_slot(ASTNode *program, Environment *env, char **slot) {
+@@ -59,6 +65,25 @@ static bool nominal_slot(ASTNode *program, Environment *env, char **slot) {
+     return true;
+ }
+ 
++/* I bind a union constructor owner independently of its selected variant. */
++static bool nominal_constructor_slot(ASTNode *program, Environment *env, char **slot) {
++    if (!slot || !*slot) return true;
++    if (!nominal_slot(program, env, slot)) return false;
++    const char *dot = strrchr(*slot, '.');
++    if (!dot) return true;
++    char *prefix = strndup(*slot, (size_t)(dot - *slot));
++    if (!prefix) return false;
++    const char *owner = nominal_name(program, env, prefix);
++    if (!strcmp(owner, prefix)) { free(prefix); return true; }
++    size_t size = strlen(owner) + strlen(dot) + 1;
++    char *bound = malloc(size);
++    if (bound) snprintf(bound, size, "%s%s", owner, dot);
++    free(prefix);
++    if (!bound) return false;
++    free(*slot); *slot = bound;
++    return true;
++}
++
+ static bool nominal_scoped_slot(ASTNode *program, Environment *env, char **slot, char **formals, int count) {
+     for (int i = 0; slot && *slot && i < count; ++i)
+         if (!strcmp(*slot, formals[i])) return true;
+@@ -76,7 +101,8 @@ static Type nominal_kind(ASTNode *program, Environment *env, Type type,
+         ASTNode *item = program->as.program.items[i];
+         if (item->type == AST_ENUM_DEF && (!strcmp(item->as.enum_def.name, name) ||
+             (item->as.enum_def.original_name && !strcmp(item->as.enum_def.original_name, name)))) return TYPE_ENUM;
+-        if (item->type == AST_UNION_DEF && !strcmp(item->as.union_def.name, name))
++        if (item->type == AST_UNION_DEF && (!strcmp(item->as.union_def.name, name) ||
++            (item->as.union_def.original_name && !strcmp(item->as.union_def.original_name, name))))
+             return TYPE_UNION;
+     }
+     if (env_get_enum(env, name)) return TYPE_ENUM;
+@@ -215,10 +241,11 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
+                 }
+             break;
+         case AST_STRUCT_LITERAL:
+-            SLOT(node->as.struct_literal.struct_name);
++            if (!nominal_constructor_slot(program, env, &node->as.struct_literal.struct_name)) return false;
+             CHILDREN(node->as.struct_literal.field_values, node->as.struct_literal.field_count);
+             CHILD(node->as.struct_literal.spread_source); break;
+         case AST_UNION_CONSTRUCT:
++            SLOT(node->as.union_construct.union_name);
+             if (!nominal_info(program, env, node->as.union_construct.type_info)) return false;
+             CHILDREN(node->as.union_construct.field_values, node->as.union_construct.field_count); break;
+         case AST_LET:
+@@ -349,6 +376,24 @@ bool bind_nominal_records(ASTNode *program, Environment *env) {
+             item->as.enum_def.original_name = item->as.enum_def.name;
+             item->as.enum_def.name = bound;
+         }
++        for (int i = 0; i < program->as.program.count; ++i) {
++            ASTNode *item = program->as.program.items[i];
++            if (item->type != AST_UNION_DEF || item->as.union_def.original_name) continue;
++            if (item->as.union_def.is_extern) continue;
++            size_t name_length = strlen(item->as.union_def.name);
++            if (length > (SIZE_MAX - name_length - 32) / 2) return false;
++            char *bound = malloc(2 * length + name_length + 32);
++            if (!bound) return false;
++            strcpy(bound, owner ? "__nano_union_" : "__nano_root_union_");
++            size_t offset = strlen(bound);
++            for (size_t j = 0; j < length; ++j) {
++                unsigned char c = (unsigned char)owner[j];
++                bound[offset++] = hex[c >> 4]; bound[offset++] = hex[c & 15];
++            }
++            bound[offset++] = '_'; strcpy(bound + offset, item->as.union_def.name);
++            item->as.union_def.original_name = item->as.union_def.name;
++            item->as.union_def.name = bound;
++        }
+     }
+     if (!nominal_node(program, env, program)) {
+         fprintf(stderr, "I cannot allocate module-owned nominal identities\n");
+diff --git a/src/parser.c b/src/parser.c
+index edfb93ad7..5a33d604d 100644
+--- a/src/parser.c
++++ b/src/parser.c
+@@ -1732,34 +1732,22 @@ static ASTNode *parse_primary(Stage1Parser *p) {
+                 return parse_perform(p, true);
+             }
+ 
+-            /* Check if this is a struct literal: StructName { ... } or Module.StructName { ... } */
+-            /* Only parse as struct literal if identifier starts with uppercase (type convention) */
+-            /* AND it's not followed by code keywords that indicate it's a condition */
+-            Token *next = peek_token(p, 1);
+-            Token *after_next = peek_token(p, 2);
+-            Token *after_brace = peek_token(p, 2);
+-            bool looks_like_struct = tok->value && tok->value[0] >= 'A' && tok->value[0] <= 'Z';
+-            
+-            /* Check for Module.Type pattern */
+-            bool is_qualified = next && next->token_type == TOKEN_DOT && 
+-                               after_next && after_next->token_type == TOKEN_IDENTIFIER;
+-            if (is_qualified) {
+-                after_brace = peek_token(p, 3);  /* { comes after Module.Type */
+-                looks_like_struct = after_next->value && after_next->value[0] >= 'A' && after_next->value[0] <= 'Z';
+-            }
+-            
+-            /* Heuristic: if the token after { is a keyword like 'if', 'return', 'let', etc., 
+-               this is NOT a struct literal, it's a code block after a condition */
++            /* I recognize the complete owner/type/variant path before fields. */
++            int name_end = 0;
++            while (peek_token(p, name_end + 1) && peek_token(p, name_end + 2) &&
++                   peek_token(p, name_end + 1)->token_type == TOKEN_DOT &&
++                   peek_token(p, name_end + 2)->token_type == TOKEN_IDENTIFIER)
++                name_end += 2;
++            Token *last_name = peek_token(p, name_end);
++            Token *brace = peek_token(p, name_end + 1);
++            Token *after_brace = peek_token(p, name_end + 2);
++            bool looks_like_struct = last_name && last_name->value &&
++                last_name->value[0] >= 'A' && last_name->value[0] <= 'Z';
+             bool looks_like_code_block = after_brace && (
+-                after_brace->token_type == TOKEN_IF ||
+-                after_brace->token_type == TOKEN_RETURN ||
+-                after_brace->token_type == TOKEN_LET ||
+-                after_brace->token_type == TOKEN_WHILE ||
+-                after_brace->token_type == TOKEN_FOR
+-            );
+-            
+-            bool has_lbrace = (next && next->token_type == TOKEN_LBRACE) ||
+-                             (is_qualified && peek_token(p, 3) && peek_token(p, 3)->token_type == TOKEN_LBRACE);
++                after_brace->token_type == TOKEN_IF || after_brace->token_type == TOKEN_RETURN ||
++                after_brace->token_type == TOKEN_LET || after_brace->token_type == TOKEN_WHILE ||
++                after_brace->token_type == TOKEN_FOR);
++            bool has_lbrace = brace && brace->token_type == TOKEN_LBRACE;
+ 
+             /* Dotted uppercase literals are parsed as struct literals first.
+              * The typechecker resolves `Union.Variant { ... }` by checking
+@@ -1775,24 +1763,17 @@ static ASTNode *parse_primary(Stage1Parser *p) {
+                 char *struct_name = strdup(tok->value);
+                 advance(p);  /* consume struct name */
+                 
+-                /* Check for Module.StructName pattern */
+-                if (current_token(p)->token_type == TOKEN_DOT) {
+-                    advance(p);  /* consume '.' */
+-                    Token *type_tok = current_token(p);
+-                    if (type_tok->token_type != TOKEN_IDENTIFIER) {
+-                        parser_error(p, type_tok->line, type_tok->column, "Error at line %d, column %d: Expected struct name after '.'\n",
+-                                type_tok->line, type_tok->column);
+-                        free(struct_name);
+-                        return NULL;
+-                    }
+-                    /* Build qualified name: Module.StructName */
+-                    char qualified_name[512];
+-                    snprintf(qualified_name, sizeof(qualified_name), "%s.%s", struct_name, type_tok->value);
+-                    free(struct_name);
+-                    struct_name = strdup(qualified_name);
+-                    advance(p);  /* consume struct name */
++                while (match(p, TOKEN_DOT)) {
++                    advance(p);
++                    Token *part = current_token(p);
++                    size_t size = strlen(struct_name) + strlen(part->value) + 2;
++                    char *qualified = malloc(size);
++                    if (!qualified) { free(struct_name); return NULL; }
++                    snprintf(qualified, size, "%s.%s", struct_name, part->value);
++                    free(struct_name); struct_name = qualified;
++                    advance(p);
+                 }
+-                
++
+                 advance(p);  /* consume '{' */
+                 
+                 int capacity = 4;
+@@ -1891,7 +1872,28 @@ static ASTNode *parse_primary(Stage1Parser *p) {
+                     /* Check if followed by '<' for generic type instantiation.
+                      * Only try this for uppercase identifiers (type names) to avoid
+                      * ambiguity with infix '<' operator on variables. */
+-                    bool looks_like_type = name_parts[0][0] >= 'A' && name_parts[0][0] <= 'Z';
++                    int qualified_end = 0;
++                    while (peek_token(p, qualified_end) && peek_token(p, qualified_end + 1) &&
++                           peek_token(p, qualified_end)->token_type == TOKEN_DOT &&
++                           peek_token(p, qualified_end + 1)->token_type == TOKEN_IDENTIFIER)
++                        qualified_end += 2;
++                    Token *last_part = qualified_end ? peek_token(p, qualified_end - 1) : NULL;
++                    if (last_part && last_part->value[0] >= 'A' && last_part->value[0] <= 'Z' &&
++                        peek_token(p, qualified_end) && peek_token(p, qualified_end)->token_type == TOKEN_LT) {
++                        while (match(p, TOKEN_DOT)) {
++                            advance(p);
++                            Token *part = current_token(p);
++                            size_t size = strlen(name_parts[0]) + strlen(part->value) + 2;
++                            char *qualified = malloc(size);
++                            if (!qualified) { free(name_parts[0]); free(name_parts); return NULL; }
++                            snprintf(qualified, size, "%s.%s", name_parts[0], part->value);
++                            free(name_parts[0]); name_parts[0] = qualified;
++                            advance(p);
++                        }
++                    }
++                    const char *type_start = strrchr(name_parts[0], '.');
++                    type_start = type_start ? type_start + 1 : name_parts[0];
++                    bool looks_like_type = type_start[0] >= 'A' && type_start[0] <= 'Z';
+                     if (looks_like_type && match(p, TOKEN_LT)) {
+                         generic_type_info = parse_generic_type_args(p, name_parts[0]);
+                         if (!generic_type_info) {
+@@ -6321,6 +6323,7 @@ void free_ast(ASTNode *node) {
+             break;
+         case AST_UNION_DEF:
+             free(node->as.union_def.name);
++            free(node->as.union_def.original_name);
+             for (int i = 0; i < node->as.union_def.variant_count; i++) {
+                 free(node->as.union_def.variant_names[i]);
+                 for (int j = 0; j < node->as.union_def.variant_field_counts[i]; j++) {
+diff --git a/src/transpiler_iterative_v3_twopass.c b/src/transpiler_iterative_v3_twopass.c
+index c09b2d9a5..c73eefbd6 100644
+--- a/src/transpiler_iterative_v3_twopass.c
++++ b/src/transpiler_iterative_v3_twopass.c
+@@ -113,6 +113,18 @@ static const char *match_union_c_name(ASTNode *match, Environment *env, char *bu
+     return base;
+ }
+ 
++/* I recover the declaration from registered instances, never name punctuation. */
++static UnionDef *native_union_definition(Environment *env, const char *name) {
++    UnionDef *definition = env_get_union(env, name);
++    if (definition) return definition;
++    for (int i = 0; i < env->generic_instance_count; ++i) {
++        GenericInstantiation *instance = &env->generic_instances[i];
++        if (instance->concrete_name && !strcmp(instance->concrete_name, name))
++            return env_get_union(env, instance->generic_name);
++    }
++    return NULL;
++}
++
+ static bool match_uses_checked_int_domain(ASTNode *match) {
+     if (!match || !match->as.match_expr.scrutinee_type_checked) {
+         fprintf(stderr,
+@@ -3311,21 +3323,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
+ 
+             /* Look up union definition to check variant field counts.
+              * For generic unions, union_c_name is monomorphized; use the base name for lookup. */
+-            const char *base_union_name = union_c_name;
+-            char base_buf[256];
+-            UnionDef *udef = env_get_union(env, base_union_name);
+-            if (!udef) {
+-                const char *us = strchr(union_c_name, '_');
+-                if (us) {
+-                    size_t n = (size_t)(us - union_c_name);
+-                    if (n < sizeof(base_buf)) {
+-                        memcpy(base_buf, union_c_name, n);
+-                        base_buf[n] = '\0';
+-                        base_union_name = base_buf;
+-                        udef = env_get_union(env, base_union_name);
+-                    }
+-                }
+-            }
++            UnionDef *udef = native_union_definition(env, union_c_name);
+ 
+             /* I lower the checked match value, not the enclosing return type. */
+             Type result_type = expr->as.match_expr.result_type;
+@@ -3781,21 +3779,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
+ 
+             /* For generic unions, typechecker stores the monomorphized name (e.g. Result_int_string).
+              * We still need the base name (e.g. Result) to look up the union definition. */
+-            const char *base_union_name = union_c_name;
+-            char base_buf[256];
+-            UnionDef *udef = env_get_union(env, base_union_name);
+-            if (!udef) {
+-                const char *us = strchr(union_c_name, '_');
+-                if (us) {
+-                    size_t n = (size_t)(us - union_c_name);
+-                    if (n < sizeof(base_buf)) {
+-                        memcpy(base_buf, union_c_name, n);
+-                        base_buf[n] = '\0';
+-                        base_union_name = base_buf;
+-                        udef = env_get_union(env, base_union_name);
+-                    }
+-                }
+-            }
++            UnionDef *udef = native_union_definition(env, union_c_name);
+ 
+             const char *prefixed_union = get_prefixed_type_name(union_c_name);
+ 
+diff --git a/src/typechecker.c b/src/typechecker.c
+index 61346c96f..499737686 100644
+--- a/src/typechecker.c
++++ b/src/typechecker.c
+@@ -8085,6 +8085,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
+             /* Register the union */
+             UnionDef udef = {0};
+             udef.name = strdup(union_name);
++            udef.original_name = item->as.union_def.original_name ? strdup(item->as.union_def.original_name) : NULL;
+             udef.variant_count = item->as.union_def.variant_count;
+             
+             /* Duplicate variant names */
+@@ -8956,6 +8957,7 @@ sdef.is_pub = item->as.struct_def.is_pub;            /* Propagate public visibil
+             /* Register the union */
+             UnionDef udef = {0};
+             udef.name = strdup(union_name);
++            udef.original_name = item->as.union_def.original_name ? strdup(item->as.union_def.original_name) : NULL;
+             udef.variant_count = item->as.union_def.variant_count;
+             
+             /* Allocate variant names */
+diff --git a/src_nano/parser.nano b/src_nano/parser.nano
+index 1ff7e685f..5ccf00cb3 100644
+--- a/src_nano/parser.nano
++++ b/src_nano/parser.nano
+@@ -2109,6 +2109,15 @@ shadow literal_type_spelling {
+ 
+ /* I distinguish a declared union variant from a qualified record name. */
+ fn parse_named_literal(p: Parser, name: string, line: int, column: int) -> Parser {
++    # I retain a qualified Type.Variant path before its import is bound.
++    let dot: int = (str_last_index_of name ".")
++    if (> dot 0) {
++        let owner: string = (str_substring name 0 dot)
++        let variant: string = (str_substring name (+ dot 1) (- (str_length name) (+ dot 1)))
++        if (and (>= (str_last_index_of owner ".") 0) (and (literal_type_spelling owner) (literal_type_spelling variant))) {
++            return (parse_union_construct p owner variant line column)
++        }
++    }
+     let mut i: int = 0
+     while (< i (parser_get_union_count p)) {
+         let definition: ASTUnion = (parser_get_union p i)
+@@ -2132,6 +2141,12 @@ fn parse_named_literal(p: Parser, name: string, line: int, column: int) -> Parse
+     return (parse_struct_literal p name line column)
+ }
+ shadow parse_named_literal {
++    let qualified: List<LexerToken> = (tokenize_string "api.Box.Some { value: 7 }" "qualified.nano" (list_CompilerDiagnostic_new))
++    let selected: Parser = (parse_primary (parser_new qualified (list_LexerToken_length qualified) "qualified.nano"))
++    assert (not (parser_has_error selected))
++    assert (parser_is_at_end selected)
++    assert (== selected.last_expr_node_type ParseNodeType.PNODE_UNION_CONSTRUCT)
++    assert (== (parser_get_union_construct selected selected.last_expr_node_id).union_name "api.Box")
+     let tokens: List<LexerToken> = (tokenize_string "union Choice { Some { n: int } } fn f() -> void { (consume (Choice.Some { n: 1 })) }" "constructor.nano" (list_CompilerDiagnostic_new))
+     let parsed: Parser = (parse_program tokens (list_LexerToken_length tokens) "constructor.nano")
+     assert (not (parser_has_error parsed))
+@@ -2685,14 +2700,13 @@ fn parse_primary(p: Parser) -> Parser {
+     } else {
+         let tok: LexerToken = (parser_current p)
+ 
+-        # I reserve uppercase Type<args>.Variant for explicit union construction.
+-        # Lowercase identifiers keep their ordinary infix comparison grammar.
++        # I inspect the type component after any module qualifier.
++        # Lowercase fields retain their ordinary comparison grammar.
+         if (== tok.token_type (token_identifier)) {
+-            let first: int = (char_at tok.value 0)
+-            if (and (>= first 65) (<= first 90)) {
+-                let after_name: Parser = (parser_advance p)
+-                if (not (parser_is_at_end after_name)) {
+-                    if (== (parser_current after_name).token_type (token_lt)) {
++            let named: NameParseResult = (parse_call_name p)
++            if (and named.ok (literal_type_spelling named.name)) {
++                if (not (parser_is_at_end named.p)) {
++                    if (== (parser_current named.p).token_type (token_lt)) {
+                         let concrete: TypeParseResult = (parse_type_string p)
+                         if (not concrete.ok) { return (parser_with_error concrete.p true) }
+                         let after_dot: Parser = (parser_expect concrete.p (token_dot))
+@@ -3274,8 +3288,8 @@ fn parse_primary(p: Parser) -> Parser {
+ }
+ 
+ shadow parse_primary {
+-    let explicit_sources: array<string> = ["Box<int>.Some { value: 7 }", "Box<array<int>>.None {}", "Choice<int,string>.Right { value: \"ok\" }"]
+-    let explicit_names: array<string> = ["Box<int>", "Box<array<int>>", "Choice<int,string>"]
++    let explicit_sources: array<string> = ["Box<int>.Some { value: 7 }", "Box<array<int>>.None {}", "Choice<int,string>.Right { value: \"ok\" }", "api.Box<int>.Some { value: 7 }", "api.Box<array<int>>.None {}"]
++    let explicit_names: array<string> = ["Box<int>", "Box<array<int>>", "Choice<int,string>", "api.Box<int>", "api.Box<array<int>>"]
+     let mut explicit_index: int = 0
+     while (< explicit_index (array_length explicit_sources)) {
+         let tokens: List<LexerToken> = (tokenize_string (at explicit_sources explicit_index) "parser-test.nano" (list_CompilerDiagnostic_new))
+diff --git a/tests/test_union_metadata_ownership.c b/tests/test_union_metadata_ownership.c
+index 47063d71b..a927f3f72 100644
+--- a/tests/test_union_metadata_ownership.c
++++ b/tests/test_union_metadata_ownership.c
+@@ -9,7 +9,8 @@ int g_argc;
+ char **g_argv;
+ 
+ static void check_union(const UnionDef *u) {
+-    assert(!strcmp(u->name, "Box"));
++    assert(!strcmp(u->name, "__nano_union_4f776e6572_Box"));
++    assert(u->original_name && !strcmp(u->original_name, "Box"));
+     assert(u->generic_param_count == 1 && !strcmp(u->generic_params[0], "T"));
+     assert(!strcmp(u->module_name, "Owner"));
+     assert(u->variant_count == 2 && u->variant_field_counts[0] == 2);
+@@ -35,6 +36,7 @@ static void lifetime(int metadata_first) {
+     ModuleMetadata *second = extract_module_metadata(env, "second");
+     assert(first && second && first->union_count == 1 && second->union_count == 1);
+     UnionDef *a = &first->unions[0], *b = &second->unions[0];
++    assert(a->original_name != original->original_name && a->original_name != b->original_name);
+     assert(a->generic_params != original->generic_params && a->generic_params != b->generic_params);
+     assert(a->generic_params[0] != original->generic_params[0] && a->generic_params[0] != b->generic_params[0]);
+     assert(a->module_name != original->module_name && a->module_name != b->module_name);

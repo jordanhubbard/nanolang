@@ -1,0 +1,267 @@
+test_generic_record_array (tests.test_union_literal_context.UnionLiteralContext.test_generic_record_array) ... FAIL
+test_generic_wrong_record_retains_prior_output (tests.test_union_literal_context.UnionLiteralContext.test_generic_wrong_record_retains_prior_output) ... ok
+test_nested_generic_record_array (tests.test_union_literal_context.UnionLiteralContext.test_nested_generic_record_array) ... FAIL
+test_nongeneric_record_array (tests.test_union_literal_context.UnionLiteralContext.test_nongeneric_record_array) ... FAIL
+test_wrong_record_retains_prior_output (tests.test_union_literal_context.UnionLiteralContext.test_wrong_record_retains_prior_output) ... ok
+test_from_import_calls (tests.test_cseed_imported_unions.CseedImportedUnions.test_from_import_calls) ... ok
+test_imported_result_and_typed_local (tests.test_cseed_imported_unions.CseedImportedUnions.test_imported_result_and_typed_local) ... ok
+test_module_callback_signature (tests.test_cseed_imported_unions.CseedImportedUnions.test_module_callback_signature) ... ok
+test_module_shadow_preserves_output (tests.test_cseed_imported_unions.CseedImportedUnions.test_module_shadow_preserves_output) ... ok
+test_qualified_parameter_and_empty_variant (tests.test_cseed_imported_unions.CseedImportedUnions.test_qualified_parameter_and_empty_variant) ... ok
+test_unbound_function_type_variable (tests.test_cseed_imported_unions.CseedImportedUnions.test_unbound_function_type_variable) ... ok
+test_wrong_payload_preserves_output (tests.test_cseed_imported_unions.CseedImportedUnions.test_wrong_payload_preserves_output) ... ok
+test_wrong_union_preserves_output (tests.test_cseed_imported_unions.CseedImportedUnions.test_wrong_union_preserves_output) ... ok
+test_callback_parameter (tests.test_cseed_union_signatures.CseedUnionSignatures.test_callback_parameter) ... ok
+test_concrete_generic_identity (tests.test_cseed_union_signatures.CseedUnionSignatures.test_concrete_generic_identity) ... ok
+test_empty_and_stored_arguments (tests.test_cseed_union_signatures.CseedUnionSignatures.test_empty_and_stored_arguments) ... ok
+test_local_and_computed_constructor_arguments (tests.test_cseed_union_signatures.CseedUnionSignatures.test_local_and_computed_constructor_arguments) ... ok
+test_shadow_preserves_previous_output (tests.test_cseed_union_signatures.CseedUnionSignatures.test_shadow_preserves_previous_output) ... ok
+test_union_return_signature (tests.test_cseed_union_signatures.CseedUnionSignatures.test_union_return_signature) ... ok
+test_wrong_nominal_argument (tests.test_cseed_union_signatures.CseedUnionSignatures.test_wrong_nominal_argument) ... ok
+test_wrong_nominal_signature (tests.test_cseed_union_signatures.CseedUnionSignatures.test_wrong_nominal_signature) ... ok
+test_wrong_payload (tests.test_cseed_union_signatures.CseedUnionSignatures.test_wrong_payload) ... ok
+test_concrete_and_boxed_join_orders (tests.test_native_numeric_union.NumericUnion.test_concrete_and_boxed_join_orders) ... ok
+test_local_numeric_storage_and_loop_backedge (tests.test_native_numeric_union.NumericUnion.test_local_numeric_storage_and_loop_backedge) ... ok
+test_loop_stack_numeric_storage (tests.test_native_numeric_union.NumericUnion.test_loop_stack_numeric_storage) ... ok
+test_non_numeric_join_provenance_is_not_widened (tests.test_native_numeric_union.NumericUnion.test_non_numeric_join_provenance_is_not_widened) ... ok
+test_numeric_local_and_parameter_reject_unproved_payloads (tests.test_native_numeric_union.NumericUnion.test_numeric_local_and_parameter_reject_unproved_payloads) ... ok
+test_optional_numeric_absence_keeps_void_tag (tests.test_native_numeric_union.NumericUnion.test_optional_numeric_absence_keeps_void_tag) ... ok
+test_shared_calls_preserve_actual_parameter_tags (tests.test_native_numeric_union.NumericUnion.test_shared_calls_preserve_actual_parameter_tags) ... ok
+test_alternating_chain (tests.test_native_nominal_order.NativeNominalOrder.test_alternating_chain) ... ok
+test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) ... 
+  test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) (compiler='nanoc_stage1') ... FAIL
+  test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) (compiler='nanoc_stage2') ... FAIL
+test_pointer_backed_array_is_not_a_layout_cycle (tests.test_native_nominal_order.NativeNominalOrder.test_pointer_backed_array_is_not_a_layout_cycle) ... ok
+test_pointer_backed_list_is_not_a_layout_cycle (tests.test_native_nominal_order.NativeNominalOrder.test_pointer_backed_list_is_not_a_layout_cycle) ... ok
+test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) ... 
+  test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='int') ... FAIL
+  test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='int') ... FAIL
+  test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='string') ... FAIL
+  test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='string') ... FAIL
+test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) ... 
+  test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='int') ... FAIL
+  test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='int') ... FAIL
+  test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='string') ... FAIL
+  test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='string') ... FAIL
+test_record_contains_union (tests.test_native_nominal_order.NativeNominalOrder.test_record_contains_union) ... ok
+test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) ... 
+  test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) (compiler='nanoc_stage1') ... FAIL
+  test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) (compiler='nanoc_stage2') ... FAIL
+test_reverse_record_dependencies (tests.test_native_nominal_order.NativeNominalOrder.test_reverse_record_dependencies) ... ok
+test_union_contains_record (tests.test_native_nominal_order.NativeNominalOrder.test_union_contains_record) ... 
+  test_union_contains_record (tests.test_native_nominal_order.NativeNominalOrder.test_union_contains_record) (compiler='nanoc_stage1') ... FAIL
+  test_union_contains_record (tests.test_native_nominal_order.NativeNominalOrder.test_union_contains_record) (compiler='nanoc_stage2') ... FAIL
+test_empty_variant (tests.test_inline_union_match.InlineUnionMatches.test_empty_variant) ... ok
+test_expression_payload (tests.test_inline_union_match.InlineUnionMatches.test_expression_payload) ... ok
+test_lexical_return (tests.test_inline_union_match.InlineUnionMatches.test_lexical_return) ... ok
+test_statement_side_effect (tests.test_inline_union_match.InlineUnionMatches.test_statement_side_effect) ... ok
+
+======================================================================
+FAIL: test_generic_record_array (tests.test_union_literal_context.UnionLiteralContext.test_generic_record_array)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_literal_context.py", line 22, in test_generic_record_array
+            self.check('''struct Plain { value: int }
+            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Box<T> { None {}, Some { values: array<T> } }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_union_literal_context.py", line 10, in check
+    generic.GenericAffineIdentity().check(source, True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Box<Plain>
+
+
+======================================================================
+FAIL: test_nested_generic_record_array (tests.test_union_literal_context.UnionLiteralContext.test_nested_generic_record_array)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_literal_context.py", line 31, in test_nested_generic_record_array
+            self.check('''struct Plain { value: int }
+            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Box<T> { None {}, Some { values: array<T> } }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_union_literal_context.py", line 10, in check
+    generic.GenericAffineIdentity().check(source, True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Box<array<Plain>>
+
+
+======================================================================
+FAIL: test_nongeneric_record_array (tests.test_union_literal_context.UnionLiteralContext.test_nongeneric_record_array)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_union_literal_context.py", line 13, in test_nongeneric_record_array
+            self.check('''struct Plain { value: int }
+            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    union Values { None {}, Other { unused: int }, Some { values: array<Plain> } }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_union_literal_context.py", line 10, in check
+    generic.GenericAffineIdentity().check(source, True)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_affine_generic_identity.py", line 27, in check
+    self.assertEqual(result.returncode, 0, messages)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Values
+
+
+======================================================================
+FAIL: test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 27, in check
+    self.assertGreater(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : 
+
+======================================================================
+FAIL: test_mixed_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_mixed_cycle_preserves_previous_output) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 27, in check
+    self.assertGreater(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : 
+
+======================================================================
+FAIL: test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_primitive_list_record_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_record_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='int')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage1', element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_primitive_list_union_fields_keep_runtime_typedefs (tests.test_native_nominal_order.NativeNominalOrder.test_primitive_list_union_fields_keep_runtime_typedefs) (compiler='nanoc_stage2', element='string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 27, in check
+    self.assertGreater(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : 
+
+======================================================================
+FAIL: test_record_cycle_preserves_previous_output (tests.test_native_nominal_order.NativeNominalOrder.test_record_cycle_preserves_previous_output) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 27, in check
+    self.assertGreater(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 not greater than 0 : 
+
+======================================================================
+FAIL: test_union_contains_record (tests.test_native_nominal_order.NativeNominalOrder.test_union_contains_record) (compiler='nanoc_stage1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+======================================================================
+FAIL: test_union_contains_record (tests.test_native_nominal_order.NativeNominalOrder.test_union_contains_record) (compiler='nanoc_stage2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_native_nominal_order.py", line 23, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot lower this checked program: unsupported local type Choice
+
+
+----------------------------------------------------------------------
+Ran 43 tests in 29.727s
+
+FAILED (failures=17)

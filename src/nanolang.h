@@ -432,6 +432,7 @@ struct ASTNode {
          * Generic union: union Result<T, E> { Ok { value: T }, Err { error: E } } */
         struct {
             char *name;
+            char *original_name;      /* I retain my source spelling after owner binding. */
             int variant_count;
             char **variant_names;
             int *variant_field_counts;
@@ -702,6 +703,7 @@ typedef struct {
 /* Union definition entry */
 typedef struct {
     char *name;
+    char *original_name; /* I own the source spelling independently of the AST. */
     int variant_count;
     char **variant_names;
     int *variant_field_counts;

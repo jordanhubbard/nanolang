@@ -113,6 +113,18 @@ static const char *match_union_c_name(ASTNode *match, Environment *env, char *bu
     return base;
 }
 
+/* I recover the declaration from registered instances, never name punctuation. */
+static UnionDef *native_union_definition(Environment *env, const char *name) {
+    UnionDef *definition = env_get_union(env, name);
+    if (definition) return definition;
+    for (int i = 0; i < env->generic_instance_count; ++i) {
+        GenericInstantiation *instance = &env->generic_instances[i];
+        if (instance->concrete_name && !strcmp(instance->concrete_name, name))
+            return env_get_union(env, instance->generic_name);
+    }
+    return NULL;
+}
+
 static bool match_uses_checked_int_domain(ASTNode *match) {
     if (!match || !match->as.match_expr.scrutinee_type_checked) {
         fprintf(stderr,
@@ -3311,21 +3323,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
 
             /* Look up union definition to check variant field counts.
              * For generic unions, union_c_name is monomorphized; use the base name for lookup. */
-            const char *base_union_name = union_c_name;
-            char base_buf[256];
-            UnionDef *udef = env_get_union(env, base_union_name);
-            if (!udef) {
-                const char *us = strchr(union_c_name, '_');
-                if (us) {
-                    size_t n = (size_t)(us - union_c_name);
-                    if (n < sizeof(base_buf)) {
-                        memcpy(base_buf, union_c_name, n);
-                        base_buf[n] = '\0';
-                        base_union_name = base_buf;
-                        udef = env_get_union(env, base_union_name);
-                    }
-                }
-            }
+            UnionDef *udef = native_union_definition(env, union_c_name);
 
             /* I lower the checked match value, not the enclosing return type. */
             Type result_type = expr->as.match_expr.result_type;
@@ -3781,21 +3779,7 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
 
             /* For generic unions, typechecker stores the monomorphized name (e.g. Result_int_string).
              * We still need the base name (e.g. Result) to look up the union definition. */
-            const char *base_union_name = union_c_name;
-            char base_buf[256];
-            UnionDef *udef = env_get_union(env, base_union_name);
-            if (!udef) {
-                const char *us = strchr(union_c_name, '_');
-                if (us) {
-                    size_t n = (size_t)(us - union_c_name);
-                    if (n < sizeof(base_buf)) {
-                        memcpy(base_buf, union_c_name, n);
-                        base_buf[n] = '\0';
-                        base_union_name = base_buf;
-                        udef = env_get_union(env, base_union_name);
-                    }
-                }
-            }
+            UnionDef *udef = native_union_definition(env, union_c_name);
 
             const char *prefixed_union = get_prefixed_type_name(union_c_name);
 
