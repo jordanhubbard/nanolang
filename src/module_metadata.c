@@ -70,6 +70,8 @@ static bool metadata_graph_collect(MetadataGraph *graph, const ModuleMetadata *m
                 if (!metadata_add(&graph->types, t->type_params[j])) return false;
             for (int j = 0; t->tuple_elements && j < t->tuple_element_count; ++j)
                 if (!metadata_add(&graph->types, t->tuple_elements[j])) return false;
+            for (int j = 0; t->row_field_type_info && j < t->row_field_count; ++j)
+                if (!metadata_add(&graph->types, t->row_field_type_info[j])) return false;
         }
         while (si < graph->signatures.count) {
             const FunctionSignature *sig = graph->signatures.items[si++];
@@ -341,6 +343,18 @@ static void serialize_type_info(char **buffer_ptr, size_t *pos_ptr, size_t *capa
                          type_info->row_field_count, type_info->row_field_types, NULL);
     serialize_type_array(buffer_ptr, pos_ptr, capacity_ptr, info_idx, "row_field_type_names",
                          type_info->row_field_count, NULL, type_info->row_field_type_names);
+    if (type_info->row_field_count && type_info->row_field_type_info) {
+        snprintf(temp, sizeof(temp), "    static TypeInfo* _type_info_%d_row_fields[%d];\n", info_idx, type_info->row_field_count);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        for (int i = 0; i < type_info->row_field_count; ++i) {
+            if (!type_info->row_field_type_info[i]) continue;
+            snprintf(temp, sizeof(temp), "    _type_info_%d_row_fields[%d] = &_type_infos[%d];\n",
+                     info_idx, i, metadata_index(&graph->types, type_info->row_field_type_info[i]));
+            APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+        }
+        snprintf(temp, sizeof(temp), "    _type_infos[%d].row_field_type_info = _type_info_%d_row_fields;\n", info_idx, info_idx);
+        APPEND_TO_BUFFER(buffer_ptr, pos_ptr, capacity_ptr, temp);
+    }
     serialize_type_array(buffer_ptr, pos_ptr, capacity_ptr, info_idx, "type_var_names",
                          type_info->type_var_count, NULL, type_info->type_var_names);
     snprintf(temp, sizeof(temp), "    _type_infos[%d].row_field_count = %d;\n    _type_infos[%d].is_open_row = %s;\n    _type_infos[%d].type_var_count = %d;\n",

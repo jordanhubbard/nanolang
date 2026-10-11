@@ -555,21 +555,23 @@ static void test_recursive_signature_roundtrip(void) {
     parameter_info[1] = &callback; /* I retain an intentional graph cycle. */
     Type tuple_types[] = {TYPE_INT, TYPE_UNION};
     char *tuple_names[] = {NULL, "Box<int>"};
-    char *row_names[] = {"value"};
-    Type row_types[] = {TYPE_UNION};
-    char *row_type_names[] = {"Box<int>"};
+    TypeInfo service = {.base_type = TYPE_OPAQUE, .service_declaration = 37,
+        .service_module = 2, .service_ordinal = 0, .service_category = 1};
+    char *row_names[] = {"value", "owned"};
+    Type row_types[] = {TYPE_UNION, TYPE_OPAQUE};
+    char *row_type_names[] = {"Box<int>", NULL};
     char *variables[] = {"T", "U"};
     TypeInfo tuple_integer = {.base_type = TYPE_INT};
     TypeInfo *tuple_elements[] = {&tuple_integer, &generic};
+    TypeInfo *row_annotations[] = {&generic, &service};
     TypeInfo tuple = {.base_type = TYPE_TUPLE, .tuple_types = tuple_types,
         .tuple_elements = tuple_elements,
         .tuple_type_names = tuple_names, .tuple_element_count = 2,
         .opaque_type_name = "opaque\"\\\n", .is_open_row = true,
         .row_var_name = "r", .row_field_names = row_names,
         .row_field_types = row_types, .row_field_type_names = row_type_names,
-        .row_field_count = 1, .type_var_names = variables, .type_var_count = 2};
-    TypeInfo service = {.base_type = TYPE_OPAQUE, .service_declaration = 37,
-        .service_module = 2, .service_ordinal = 0, .service_category = 1};
+        .row_field_type_info = row_annotations,
+        .row_field_count = 2, .type_var_names = variables, .type_var_count = 2};
     Parameter parameters[] = {
         {.name = "callback", .type = TYPE_FUNCTION, .fn_sig = &outer, .type_info = &callback},
         {.name = "values", .type = TYPE_ARRAY, .element_type = TYPE_ARRAY, .type_info = &nested},
@@ -630,7 +632,10 @@ static void test_recursive_signature_roundtrip(void) {
         " assert(t->tuple_type_names[0] == NULL && !strcmp(t->tuple_type_names[1], \"Box<int>\"));\n"
         " assert(!strcmp(t->opaque_type_name, \"opaque\\\"\\\\\\n\"));\n"
         " assert(t->is_open_row && !strcmp(t->row_var_name, \"r\"));\n"
-        " assert(t->row_field_count == 1 && t->row_field_types[0] == TYPE_UNION);\n"
+        " assert(t->row_field_count == 2 && t->row_field_types[0] == TYPE_UNION);\n"
+        " assert(t->row_field_type_info[1]->base_type == TYPE_OPAQUE);\n"
+        " assert(t->row_field_type_info[1]->service_declaration == 37 && t->row_field_type_info[1]->service_module == 2);\n"
+        " assert(t->row_field_type_info[0]->type_params[0]->element_type->element_type->base_type == TYPE_INT);\n"
         " assert(!strcmp(t->row_field_names[0], \"value\"));\n"
         " assert(!strcmp(t->row_field_type_names[0], \"Box<int>\"));\n"
         " assert(t->type_var_count == 2 && !strcmp(t->type_var_names[1], \"U\"));\n"

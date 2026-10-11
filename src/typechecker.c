@@ -7936,6 +7936,14 @@ static bool effect_type_known(Environment *env, Type type, const char *name,
             if (!info->type_params || !info->type_params[i] ||
                 !effect_type_known(env, info->type_params[i]->base_type, NULL, info->type_params[i], depth + 1)) return false;
     }
+    if (type == TYPE_OPEN_RECORD) {
+        if (!info || info->row_field_count < 0) return false;
+        for (int i = 0; i < info->row_field_count; ++i) {
+            TypeInfo fallback;
+            const TypeInfo *field = row_field_info(info, i, &fallback);
+            if (!field || !effect_type_known(env, field->base_type, NULL, field, depth + 1)) return false;
+        }
+    }
     if (type == TYPE_UNKNOWN) return false;
     if (type == TYPE_LIST_GENERIC) return effect_type_known(env, TYPE_STRUCT, name, NULL, depth + 1);
     if (type == TYPE_ARRAY) return info && info->element_type;

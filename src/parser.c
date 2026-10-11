@@ -945,47 +945,80 @@ static Type parse_type_with_element(Stage1Parser *p, Type *element_type_out, cha
             return TYPE_TUPLE;
         }
         case TOKEN_LBRACE: {
-            /* Open record type: {field: Type, field: Type | rowvar} */
-            advance(p);  /* consume '{' */
-            int field_cap = 4, field_cnt = 0;
-            char **fnames = malloc(sizeof(char*) * field_cap);
-            Type  *ftypes = malloc(sizeof(Type)  * field_cap);
+            advance(p);
+            TypeInfo *info = calloc(1, sizeof(*info));
+            if (!info) return TYPE_UNKNOWN;
+            info->base_type = TYPE_OPEN_RECORD;
+            int capacity = 4;
+            info->row_field_names = calloc(capacity, sizeof(char*));
+            info->row_field_types = calloc(capacity, sizeof(Type));
+            info->row_field_type_names = calloc(capacity, sizeof(char*));
+            info->row_field_type_info = calloc(capacity, sizeof(TypeInfo*));
+            if (!info->row_field_names || !info->row_field_types ||
+                !info->row_field_type_names || !info->row_field_type_info) goto row_error;
             while (!match(p, TOKEN_RBRACE) && !match(p, TOKEN_BAR) && !match(p, TOKEN_EOF)) {
-                if (field_cnt >= field_cap) {
-                    field_cap *= 2;
-                    fnames = realloc(fnames, sizeof(char*) * field_cap);
-                    ftypes = realloc(ftypes, sizeof(Type)  * field_cap);
+                if (!match(p, TOKEN_IDENTIFIER)) goto row_error;
+                int field = info->row_field_count;
+                for (int previous = 0; previous < field; ++previous) {
+                    if (!strcmp(info->row_field_names[previous], current_token(p)->value)) {
+                        parser_error(p, tok->line, tok->column, "I require distinct row field names\n");
+                        goto row_error;
+                    }
                 }
-                if (!match(p, TOKEN_IDENTIFIER)) break;
-                fnames[field_cnt] = strdup(current_token(p)->value);
+                if (field == capacity) {
+                    capacity *= 2;
+                    char **names = realloc(info->row_field_names, capacity * sizeof(char*));
+                    if (!names) goto row_error;
+                    info->row_field_names = names;
+                    Type *types = realloc(info->row_field_types, capacity * sizeof(Type));
+                    if (!types) goto row_error;
+                    info->row_field_types = types;
+                    char **type_names = realloc(info->row_field_type_names, capacity * sizeof(char*));
+                    if (!type_names) goto row_error;
+                    info->row_field_type_names = type_names;
+                    TypeInfo **annotations = realloc(info->row_field_type_info, capacity * sizeof(TypeInfo*));
+                    if (!annotations) goto row_error;
+                    info->row_field_type_info = annotations;
+                }
+                info->row_field_names[field] = strdup(current_token(p)->value);
+                info->row_field_type_names[field] = NULL;
+                info->row_field_type_info[field] = NULL;
+                info->row_field_count++;
+                if (!info->row_field_names[field]) goto row_error;
                 advance(p);
-                if (!expect(p, TOKEN_COLON, "Expected ':' in record type field")) { free(fnames[field_cnt]); break; }
-                TypeInfo *dummy_ti = NULL;
-                ftypes[field_cnt] = parse_type_with_element(p, NULL, NULL, NULL, &dummy_ti);
-                field_cnt++;
+                if (!expect(p, TOKEN_COLON, "I require ':' after a row field name")) goto row_error;
+                FunctionSignature *signature = NULL;
+                info->row_field_types[field] = parse_type_with_element(p, NULL,
+                    &info->row_field_type_names[field], &signature, &info->row_field_type_info[field]);
+                if (info->row_field_types[field] == TYPE_UNKNOWN) {
+                    if (!info->row_field_type_info[field] || info->row_field_type_info[field]->fn_sig != signature)
+                        free_function_signature(signature);
+                    goto row_error;
+                }
+                if (!info->row_field_type_info[field]) {
+                    info->row_field_type_info[field] = calloc(1, sizeof(TypeInfo));
+                    if (!info->row_field_type_info[field]) { free_function_signature(signature); goto row_error; }
+                    info->row_field_type_info[field]->base_type = info->row_field_types[field];
+                    info->row_field_type_info[field]->generic_name = info->row_field_type_names[field]
+                        ? strdup(info->row_field_type_names[field]) : NULL;
+                    info->row_field_type_info[field]->fn_sig = signature;
+                }
                 if (match(p, TOKEN_COMMA)) advance(p);
             }
-            char *rowvar = NULL;
             if (match(p, TOKEN_BAR)) {
                 advance(p);
-                if (match(p, TOKEN_IDENTIFIER)) {
-                    rowvar = strdup(current_token(p)->value);
-                    advance(p);
-                }
+                if (!match(p, TOKEN_IDENTIFIER)) goto row_error;
+                info->row_var_name = strdup(current_token(p)->value);
+                info->is_open_row = true;
+                advance(p);
             }
-            if (!expect(p, TOKEN_RBRACE, "Expected '}' closing record type")) {
-                free(fnames); free(ftypes); free(rowvar); return TYPE_UNKNOWN;
-            }
-            if (type_info_out) {
-                if (!*type_info_out) *type_info_out = calloc(1, sizeof(TypeInfo));
-                (*type_info_out)->tuple_type_names = fnames;
-                (*type_info_out)->tuple_types = ftypes;
-                (*type_info_out)->tuple_element_count = field_cnt;
-                (*type_info_out)->generic_name = rowvar ? rowvar : strdup("_");
-            } else {
-                free(fnames); free(ftypes); free(rowvar);
-            }
+            if (!expect(p, TOKEN_RBRACE, "I require '}' after a row type")) goto row_error;
+            if (type_info_out) *type_info_out = info;
+            else free_type_info(info);
             return TYPE_OPEN_RECORD;
+row_error:
+            free_type_info(info);
+            return TYPE_UNKNOWN;
         }
         default:
             parser_error(p, tok->line, tok->column, "Error at line %d, column %d: Expected type annotation\n", tok->line, tok->column);

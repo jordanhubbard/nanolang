@@ -1922,41 +1922,7 @@ const TypeInfo *tuple_element_info(const TypeInfo *info, int index, TypeInfo *fa
 }
 
 void free_type_info(TypeInfo *info) {
-    if (!info) return;
-
-    if (info->element_type) {
-        free_type_info(info->element_type);
-    }
-    if (info->generic_name) {
-        free(info->generic_name);
-    }
-    if (info->type_params) {
-        for (int i = 0; i < info->type_param_count; i++) {
-            free_type_info(info->type_params[i]);
-        }
-        free(info->type_params);
-    }
-    for (int i = 0; info->tuple_elements && i < info->tuple_element_count; ++i)
-        free_payload_type_info(info->tuple_elements[i]);
-    free(info->tuple_elements);
-    if (info->tuple_types) {
-        free(info->tuple_types);
-    }
-    if (info->tuple_type_names) {
-        for (int i = 0; i < info->tuple_element_count; i++) {
-            if (info->tuple_type_names[i]) {
-                free(info->tuple_type_names[i]);
-            }
-        }
-        free(info->tuple_type_names);
-    }
-    if (info->opaque_type_name) {
-        free(info->opaque_type_name);
-    }
-    if (info->fn_sig) {
-        free_function_signature(info->fn_sig);
-    }
-    free(info);
+    free_payload_type_info(info);
 }
 
 /* Payload annotations own their complete parsed tree. I never borrow a nested
@@ -2017,6 +1983,15 @@ static FunctionSignature *payload_signature(const FunctionSignature *source, uns
     copy->return_type_info = payload_copy(source->return_type_info, depth + 1);
     return copy;
 }
+const TypeInfo *row_field_info(const TypeInfo *info, int index, TypeInfo *fallback) {
+    if (!info || index < 0 || index >= info->row_field_count) return NULL;
+    if (info->row_field_type_info && info->row_field_type_info[index]) return info->row_field_type_info[index];
+    if (!fallback || !info->row_field_types) return NULL;
+    *fallback = (TypeInfo){.base_type = info->row_field_types[index],
+        .generic_name = info->row_field_type_names ? info->row_field_type_names[index] : NULL};
+    return fallback;
+}
+
 static TypeInfo *payload_copy(const TypeInfo *source, unsigned depth) {
     if (!source) return NULL;
     if (depth > 512) {
@@ -2057,6 +2032,14 @@ static TypeInfo *payload_copy(const TypeInfo *source, unsigned depth) {
         memcpy(copy->row_field_types, source->row_field_types, (size_t)source->row_field_count * sizeof(Type));
     }
     copy->row_field_type_names = payload_names(source->row_field_type_names, source->row_field_count);
+    copy->row_field_type_info = NULL;
+    if (source->row_field_count > 0) {
+        copy->row_field_type_info = payload_alloc((size_t)source->row_field_count, sizeof(TypeInfo*));
+        for (int i = 0; i < source->row_field_count; ++i) {
+            TypeInfo fallback;
+            copy->row_field_type_info[i] = payload_copy(row_field_info(source, i, &fallback), depth + 1);
+        }
+    }
     copy->type_var_names = payload_names(source->type_var_names, source->type_var_count);
     return copy;
 }
@@ -2077,6 +2060,9 @@ void free_payload_type_info(TypeInfo *info) {
     free_function_signature(info->fn_sig);
     free(info->row_var_name);
     payload_free_names(info->row_field_names, info->row_field_count);
+    for (int i = 0; info->row_field_type_info && i < info->row_field_count; ++i)
+        free_payload_type_info(info->row_field_type_info[i]);
+    free(info->row_field_type_info);
     free(info->row_field_types);
     payload_free_names(info->row_field_type_names, info->row_field_count);
     payload_free_names(info->type_var_names, info->type_var_count);
@@ -2107,6 +2093,16 @@ static void payload_substitute(TypeInfo **slot, const UnionDef *def, const TypeI
         if (info->tuple_type_names) {
             free(info->tuple_type_names[i]);
             info->tuple_type_names[i] = payload_name(element->generic_name);
+        }
+    }
+    for (int i = 0; info->row_field_type_info && i < info->row_field_count; ++i) {
+        payload_substitute(&info->row_field_type_info[i], def, arguments);
+        TypeInfo *field = info->row_field_type_info[i];
+        if (!field) continue;
+        if (info->row_field_types) info->row_field_types[i] = field->base_type;
+        if (info->row_field_type_names) {
+            free(info->row_field_type_names[i]);
+            info->row_field_type_names[i] = payload_name(field->generic_name);
         }
     }
     FunctionSignature *sig = info->fn_sig;
@@ -2215,13 +2211,16 @@ static bool annotations_equal(const TypeInfo *a, const TypeInfo *b, unsigned dep
         TypeInfo av, bv;
         if (!annotations_equal(tuple_element_info(a, i, &av), tuple_element_info(b, i, &bv), depth + 1)) return false;
     }
-    for (int i = 0; i < a->row_field_count; ++i)
+    for (int i = 0; i < a->row_field_count; ++i) {
+        TypeInfo af, bf;
+        if (!annotations_equal(row_field_info(a, i, &af), row_field_info(b, i, &bf), depth + 1)) return false;
         if (!a->row_field_types || !b->row_field_types ||
             a->row_field_types[i] != b->row_field_types[i] ||
             !annotation_names_equal(a->row_field_names ? a->row_field_names[i] : NULL,
                                     b->row_field_names ? b->row_field_names[i] : NULL) ||
             !annotation_names_equal(a->row_field_type_names ? a->row_field_type_names[i] : NULL,
                                     b->row_field_type_names ? b->row_field_type_names[i] : NULL)) return false;
+    }
     for (int i = 0; i < a->type_var_count; ++i)
         if (!a->type_var_names || !b->type_var_names ||
             !annotation_names_equal(a->type_var_names[i], b->type_var_names[i])) return false;

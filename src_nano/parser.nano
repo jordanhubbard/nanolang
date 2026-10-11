@@ -922,6 +922,7 @@ struct TypeParseResult {
 }
 
 fn is_type_start_token_type(token_type: int) -> bool {
+    if (== token_type LexerTokenType.TOKEN_LBRACE) { return true }
     return (or
         (== token_type (token_identifier))
         (or
@@ -960,6 +961,75 @@ shadow is_type_start_token_type {
     assert (not (is_type_start_token_type (token_plus)))
 }
 
+fn parse_row_type_string(p: Parser) -> TypeParseResult {
+    let mut cur: Parser = (parser_expect p LexerTokenType.TOKEN_LBRACE)
+    let mut text: string = "{"
+    let mut names: array<string> = []
+    while (and (not cur.has_error) (== (parser_current cur).token_type LexerTokenType.TOKEN_IDENTIFIER)) {
+        let name: string = (parser_current cur).value
+        let mut prior: int = 0
+        while (< prior (array_length names)) {
+            if (== name (at names prior)) { return TypeParseResult { p: (parser_with_error cur true), type_name: text, ok: false } }
+            set prior (+ prior 1)
+        }
+        if (> (array_length names) 0) { set text (+ text ",") }
+        set names (array_push names name)
+        set cur (parser_expect (parser_advance cur) LexerTokenType.TOKEN_COLON)
+        if cur.has_error { return TypeParseResult { p: cur, type_name: text, ok: false } }
+        let field: TypeParseResult = (parse_type_string cur)
+        if (not field.ok) { return TypeParseResult { p: (parser_with_error field.p true), type_name: text, ok: false } }
+        set text (+ text (+ name (+ ":" field.type_name)))
+        set cur field.p
+        if (== (parser_current cur).token_type LexerTokenType.TOKEN_COMMA) { set cur (parser_advance cur) }
+    }
+    if (== (parser_current cur).token_type LexerTokenType.TOKEN_BAR) {
+        set cur (parser_advance cur)
+        let variable: LexerToken = (parser_current cur)
+        if (!= variable.token_type LexerTokenType.TOKEN_IDENTIFIER) { return TypeParseResult { p: (parser_with_error cur true), type_name: text, ok: false } }
+        set text (+ text (+ "|" variable.value))
+        set cur (parser_advance cur)
+    }
+    set cur (parser_expect cur LexerTokenType.TOKEN_RBRACE)
+    return TypeParseResult { p: cur, type_name: (+ text "}"), ok: (not cur.has_error) }
+}
+shadow parse_row_type_string {
+    let tokens: List<LexerToken> = (tokenize_string "{point:Point, nested:array<{x:int,y:string}>,callback:fn(int)->Point|rest}" "row.nano" (Diagnostics.diag_list_new))
+    let result: TypeParseResult = (parse_type_string (parser_new tokens (list_LexerToken_length tokens) "row.nano"))
+    assert result.ok
+    assert (== result.type_name "{point:Point,nested:array<{x:int,y:string}>,callback:fn(int)->Point|rest}")
+    let repeated: List<LexerToken> = (tokenize_string "{x:int,x:string}" "row.nano" (Diagnostics.diag_list_new))
+    let bad: TypeParseResult = (parse_type_string (parser_new repeated (list_LexerToken_length repeated) "row.nano"))
+    assert (not bad.ok)
+}
+
+struct RowTypeFields { ok: bool, types: array<string> }
+
+pub fn parser_row_field_types(spelling: string) -> RowTypeFields {
+    let tokens: List<LexerToken> = (tokenize_string spelling "row-type.nano" (Diagnostics.diag_list_new))
+    let initial: Parser = (parser_new tokens (list_LexerToken_length tokens) "row-type.nano")
+    let shape: TypeParseResult = (parse_row_type_string initial)
+    if (or (not shape.ok) (not (parser_is_at_end shape.p))) { return RowTypeFields { ok: false, types: [] } }
+    let mut fields: array<string> = []
+    let mut cur: Parser = (parser_advance initial)
+    while (== (parser_current cur).token_type LexerTokenType.TOKEN_IDENTIFIER) {
+        set cur (parser_expect (parser_advance cur) LexerTokenType.TOKEN_COLON)
+        let field: TypeParseResult = (parse_type_string cur)
+        if (not field.ok) { return RowTypeFields { ok: false, types: [] } }
+        set fields (array_push fields field.type_name)
+        set cur field.p
+        if (== (parser_current cur).token_type LexerTokenType.TOKEN_COMMA) { set cur (parser_advance cur) }
+    }
+    return RowTypeFields { ok: true, types: fields }
+}
+shadow parser_row_field_types {
+    let fields: RowTypeFields = (parser_row_field_types "{point:Point,inner:{x:int,y:string}|r}")
+    assert fields.ok
+    assert (== (array_length fields.types) 2)
+    if (== (array_length fields.types) 2) { assert (== (at fields.types 1) "{x:int,y:string}") }
+    assert (not (parser_row_field_types "{x:int,x:string}").ok)
+    assert (not (parser_row_field_types "{x:int} trailing").ok)
+}
+
 fn parse_type_string(p: Parser) -> TypeParseResult {
     if (not (parser_is_at_end p)) {
         let first: LexerToken = (parser_current p)
@@ -973,6 +1043,7 @@ fn parse_type_string(p: Parser) -> TypeParseResult {
         return TypeParseResult { p: p, type_name: "", ok: false }
     } else {
         let tok: LexerToken = (parser_current p)
+        if (== tok.token_type LexerTokenType.TOKEN_LBRACE) { return (parse_row_type_string p) }
         if (not (is_type_start_token_type tok.token_type)) {
             return TypeParseResult { p: p, type_name: "", ok: false }
         } else {

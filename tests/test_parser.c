@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../src/native_type_key.h"
 
 #define TEST(name) printf("  Testing %s...", #name); test_##name(); printf(" ✓\n")
 #define ASSERT(cond) \
@@ -601,6 +602,51 @@ void test_effect_result_annotations(void) {
     ASSERT_NOT_NULL(results[2]->fn_sig);
     ASSERT_EQ(results[2]->fn_sig->param_count, 1);
     ASSERT_EQ(results[2]->fn_sig->return_type_info->base_type, TYPE_ARRAY);
+    free_ast(program);
+}
+
+void test_complete_row_annotations(void) {
+    ASTNode *program = parse_ok("effect Shapes { get : int -> {rows:array<array<Point>>, callback:fn(int)->Point, nested:{value:Point}|rest} } struct Point{x:int} fn main()->int{return 0}");
+    ASSERT_NOT_NULL(program);
+    TypeInfo *row = program->as.program.items[0]->as.effect_decl.op_return_type_infos[0];
+    ASSERT_EQ(row->base_type, TYPE_OPEN_RECORD);
+    ASSERT_EQ(row->row_field_count, 3);
+    ASSERT_EQ(row->tuple_element_count, 0);
+    ASSERT(row->is_open_row && !strcmp(row->row_var_name, "rest"));
+    ASSERT(!strcmp(row->row_field_names[0], "rows"));
+    TypeInfo *copy = copy_payload_type_info(row);
+    ASSERT(type_infos_equal(row, copy));
+    TypeInfo *leaf = copy->row_field_type_info[0]->element_type->element_type;
+    ASSERT(leaf != row->row_field_type_info[0]->element_type->element_type);
+    ASSERT_EQ(copy->row_field_type_info[1]->fn_sig->return_type, TYPE_STRUCT);
+    ASSERT_EQ(copy->row_field_type_info[2]->row_field_type_info[0]->base_type, TYPE_STRUCT);
+    char *before = native_structural_type_key(row);
+    free(leaf->generic_name);
+    leaf->generic_name = strdup("Other");
+    ASSERT(!type_infos_equal(row, copy));
+    char *after = native_structural_type_key(copy);
+    ASSERT(strcmp(before, after));
+    free(before); free(after);
+    free_type_info(copy);
+    free_ast(program);
+    program = parse_ok("union Box<T>{Some{value:{items:array<T>,callback:fn(T)->T}}} fn main()->int{return 0}");
+    ASSERT_NOT_NULL(program);
+    ASTNode *declaration = program->as.program.items[0];
+    UnionDef definition = {.variant_count = declaration->as.union_def.variant_count,
+        .variant_field_counts = declaration->as.union_def.variant_field_counts,
+        .variant_field_type_info = declaration->as.union_def.variant_field_type_info,
+        .generic_param_count = declaration->as.union_def.generic_param_count,
+        .generic_params = declaration->as.union_def.generic_params};
+    TypeInfo string = {.base_type = TYPE_STRING};
+    TypeInfo *arguments[] = {&string};
+    TypeInfo application = {.type_params = arguments, .type_param_count = 1};
+    TypeInfo *resolved = resolve_union_payload_type_info(&definition, 0, 0, &application);
+    ASSERT_NOT_NULL(resolved);
+    ASSERT_EQ(resolved->row_field_type_info[0]->element_type->base_type, TYPE_STRING);
+    ASSERT_EQ(resolved->row_field_type_info[1]->fn_sig->param_types[0], TYPE_STRING);
+    ASSERT_EQ(resolved->row_field_type_info[1]->fn_sig->return_type, TYPE_STRING);
+    ASSERT(!strcmp(definition.variant_field_type_info[0][0]->row_field_type_info[0]->element_type->generic_name, "T"));
+    free_type_info(resolved);
     free_ast(program);
 }
 
@@ -1204,6 +1250,7 @@ int main(void) {
     TEST(parse_opaque_type);
     TEST(parse_effect_decl);
     TEST(effect_result_annotations);
+    TEST(complete_row_annotations);
     TEST(parse_handle_expr);
     TEST(parse_unary_operators);
     TEST(parse_nested_function_calls);

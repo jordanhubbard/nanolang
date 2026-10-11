@@ -147,6 +147,7 @@ typedef struct TypeInfo {
     char  *row_var_name;       /* Name of the row variable, e.g. "r" (NULL = closed) */
     char **row_field_names;    /* Field names array (NULL-terminated or row_field_count) */
     Type  *row_field_types;    /* Field types parallel to row_field_names */
+    struct TypeInfo **row_field_type_info; /* I own complete row field annotations. */
     char **row_field_type_names; /* Struct/enum names for TYPE_STRUCT fields */
     int    row_field_count;    /* Number of known fields */
 
@@ -1081,6 +1082,7 @@ bool type_infos_equal(const TypeInfo *left, const TypeInfo *right);
 void free_type_info(TypeInfo *info);
 TypeInfo *copy_payload_type_info(const TypeInfo *info);
 const TypeInfo *tuple_element_info(const TypeInfo *info, int index, TypeInfo *fallback);
+const TypeInfo *row_field_info(const TypeInfo *info, int index, TypeInfo *fallback);
 void free_payload_type_info(TypeInfo *info);
 TypeInfo *resolve_union_payload_type_info(const UnionDef *def, int arm, int field, const TypeInfo *arguments);
 

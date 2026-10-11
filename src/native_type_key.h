@@ -83,6 +83,8 @@ static bool native_key_type(NativeTypeKey *key, const TypeInfo *info, unsigned d
         if (info->row_field_count < 0 || !native_key_number(key, 'r', info->row_field_count) ||
             !native_key_number(key, 'b', info->is_open_row) || !native_key_name(key, info->row_var_name)) return false;
         for (int i = 0; i < info->row_field_count; ++i) {
+            TypeInfo fallback;
+            if (!native_key_type(key, row_field_info(info, i, &fallback), depth + 1)) return false;
             if (!info->row_field_types || !info->row_field_names ||
                 !native_key_name(key, info->row_field_names[i]) ||
                 !native_key_number(key, 't', info->row_field_types[i]) ||

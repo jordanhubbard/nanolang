@@ -98,8 +98,10 @@ static bool cb_type_has_kind(const TypeInfo *type, Type kind, unsigned depth) {
         if(type->type_params && cb_type_has_kind(type->type_params[i], kind, depth+1)) return true;
     for(int i=0;i<type->tuple_element_count;i++)
         if(type->tuple_types && type->tuple_types[i]==kind) return true;
-    for(int i=0;i<type->row_field_count;i++)
-        if(type->row_field_types && type->row_field_types[i]==kind) return true;
+    for(int i=0;i<type->row_field_count;i++) {
+        TypeInfo fallback;
+        if(cb_type_has_kind(row_field_info(type,i,&fallback),kind,depth+1)) return true;
+    }
     return false;
 }
 static bool cb_node_has_kind(const ASTNode *node, Type kind) {

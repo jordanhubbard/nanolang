@@ -736,6 +736,11 @@ pub fn tokenize_string(source: string, file_name: string, diags: List<CompilerDi
                     }
                 } else {
                     set column (- (+ i 1) line_start)
+                    if (and (== c 124) (or (>= (+ i 1) len) (!= (char_at source (+ i 1)) 62))) {
+                        (push_tok tokens LexerTokenType.TOKEN_BAR "" line column)
+                        set i (+ i 1)
+                        continue
+                    }
 
                     if (and (< (+ i 1) len) (and (== c 58) (== (char_at source (+ i 1)) 58))) {
                         (push_tok tokens LexerTokenType.TOKEN_DOUBLE_COLON "" line column)
@@ -951,6 +956,14 @@ shadow tokenize_file {
 }
 
 shadow tokenize_string {
+    let row_diags: List<CompilerDiagnostic> = (diag_list_new)
+    let row_tokens: List<LexerToken> = (tokenize_string "| |>" "row.nano" row_diags)
+    assert (not (diag_list_has_errors row_diags))
+    assert (== (list_LexerToken_length row_tokens) 3)
+    if (>= (list_LexerToken_length row_tokens) 2) {
+        assert (== (list_LexerToken_get row_tokens 0).token_type LexerTokenType.TOKEN_BAR)
+        assert (== (list_LexerToken_get row_tokens 1).token_type LexerTokenType.TOKEN_PIPE)
+    }
     let source: string = "import \"x.nano\" as X\nfn main() -> int { return 0 }"
     let diags: List<CompilerDiagnostic> = (diag_list_new)
     let toks: List<LexerToken> = (tokenize_string source "test.nano" diags)

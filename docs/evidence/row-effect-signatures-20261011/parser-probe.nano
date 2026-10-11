@@ -1,0 +1,16 @@
+import "src_nano/parser.nano"
+import "src_nano/compiler/lexer.nano"
+fn main()->int {
+    let source:string="{point:Point,nested:array<{x:int,y:string}>,callback:fn(int)->Point|rest}"
+    let tokens:List<LexerToken> = (tokenize_string source "row.nano" (list_CompilerDiagnostic_new))
+    let mut i:int=0
+    while (< i (list_LexerToken_length tokens)) {
+        let token:LexerToken=(list_LexerToken_get tokens i)
+        (println token.token_type) (println token.value)
+        set i (+ i 1)
+    }
+    let shape:RowTypeFields=(parser_row_field_types source)
+    (println shape.ok) (println (array_length shape.types))
+    return 0
+}
+shadow main{assert true}

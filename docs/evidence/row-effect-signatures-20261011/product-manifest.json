@@ -1,0 +1,134 @@
+{
+  "revision": "9f6a45eae54e4b110de6c001b82eed3e3efb295d",
+  "inputs": {
+    "src/module_metadata.c": "e4f379e5e4c92455921f96c44f096997ad82ec17ee48d73fed67420d6826b863",
+    "src/native_type_key.h": "04401ba9337c8d34ecb4c2616e1fe5e98497c6fcf01f2bd406bca13fe1d24b00",
+    "src/c_backend.c": "e3f5f181c165efe2b23f1628092b30129e4381af140c3f9fb45e379e9267c359",
+    "src/parser.c": "43c339a4357e2375bc2e60d76935189eccd5c2a62c3bc2e1a6f0392ae443a5ea",
+    "src/nominal_types.c": "af91c81896e2091a2cf0ed30090ca2c765b26716fa397eb9b864496c4bae617a",
+    "src_nano/compiler/lexer.nano": "967fb0f4a8f95b6a183da0bb6c9d866dd43298449ea183868ba045357b4a384b",
+    "src_nano/compiler/effect_declarations.nano": "35244c84bd38ab609e8e9036a2845dbdaf115b23f0665f743c98b21f754c0dd6",
+    "src_nano/generated/compiler_schema.nano": "1b043a43cf22f18b8df6433a1b3c84b36bdde2231f860b8d0e3e882d2058f2ea",
+    "src/nanoisa/assembler.c": "44b700dc91c93598ed3b1717ec75936d7aebf4d87f0f2da505668f29c15a5bb7",
+    "schema/compiler_schema.json": "0a5b3ecd46caad1638c6aeeb699d1643d8fabcd4a667861daade8ad69ccb8116",
+    "src/generated/compiler_schema.h": "70ece2b0dd7a55511653ba917dccde0dde24e3a345daef407a5c36442c19dcef",
+    "src_nano/generated/compiler_ast.nano": "6dee8b493881897f3e444eb61c10ed063ce49573d5105fc49a08d4916a7e0447",
+    "src_nano/parser.nano": "b4c4c70ee9400eb006d5af71feb59114f84c480a0a423c172715438ced837c51",
+    "src_nano/typecheck.nano": "f3e2db946c45baecda60fcfd0378553ef550ba113667829f4ccfa2dfb9ce7856",
+    "src_nano/nanoc_v06.nano": "197cd3e338aa8c1cf47729b740bad19a58a9dabc99efd192ea3003912727a6a6",
+    "src_nano/compiler/nanoisa_codegen.nano": "478f9e3462c13e257d259762c8fc0fbda6f706a3a68a18d6e6af2e31bc88ed90",
+    "src_nano/compiler/nominal_bindings.nano": "55556a1ad0614d843673e2527783d4f60148bc1265d139c5e29b9e55bc46d110",
+    "src/nanolang.h": "7c486f4e383e27c999c62fd37a9e95a7f62ae65cc958a753d4f995ed9d21dc9e",
+    "src/env.c": "30e192487573065bc8eed8ad70c1c08bd179aea5f265bcd63a38d0ce048f43f6",
+    "src/typechecker.c": "9a0f2656c64f51e86eb1cbb86f3cad49dc2f5005ddc70b0fa38465783226b23b",
+    "src/nanovirt/codegen.c": "b59d47e18c431f8744487c7580b20c7dc8b4d3c925d200035d43c8adf141787b",
+    "src/nanovm/vm.c": "582bc7f815b0ad0cc1b2e0406c67384c9e0278839760384ff50ea39e2484b258",
+    "src/nanoisa/nvm2c.c": "e94d20eb315758957d206bbf1e8e9db7a6f3445e57d9b4a180469778f4000e81"
+  },
+  "steps": [
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nanoc_c",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "-o",
+        "/private/tmp/nl51-row-signatures/seed"
+      ],
+      "returncode": 0,
+      "seconds": 218.94913058297243,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-row-signatures/seed",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-row-signatures/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 310.26311812503263,
+      "log": "product-01.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-row-signatures/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 0.1345687499269843,
+      "log": "product-02.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-row-signatures/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-row-signatures/compiler.c"
+      ],
+      "returncode": 0,
+      "seconds": 19.644876625039615,
+      "log": "product-03.log"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-row-signatures/compiler.c",
+        "-o",
+        "/private/tmp/nl51-row-signatures/compiler",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "returncode": 0,
+      "seconds": 6.751667791977525,
+      "log": "product-04.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-row-signatures/compiler",
+        "--help"
+      ],
+      "returncode": 0,
+      "seconds": 0.011916083050891757,
+      "log": "product-05.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "tests/test_selfhost_effects.py"
+      ],
+      "returncode": 0,
+      "seconds": 2.58890708303079,
+      "log": "product-06.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "tests/test_effect_binding_metadata.py"
+      ],
+      "returncode": 0,
+      "seconds": 0.5588530000532046,
+      "log": "product-07.log"
+    },
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_opaque_imports",
+        "tests.test_selfhost_union_storage",
+        "tests.test_selfhost_layout_validation",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 3.2730579579947516,
+      "log": "product-08.log"
+    }
+  ],
+  "inputs_unchanged": true
+}
