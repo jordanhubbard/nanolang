@@ -1,0 +1,30 @@
+[
+  {
+    "case": "named",
+    "producer": "c",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "case": "named",
+    "producer": "self",
+    "returncode": 1,
+    "stdout": "Parse error at /private/tmp/nl51-pattern-names/named.nano:1, column 20: unexpected token 'helper'\n",
+    "stderr": ""
+  },
+  {
+    "case": "legacy",
+    "producer": "c",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "case": "legacy",
+    "producer": "self",
+    "returncode": 1,
+    "stdout": "Parse error at /private/tmp/nl51-pattern-names/legacy.nano:1, column 20: unexpected token ''\n",
+    "stderr": ""
+  }
+]

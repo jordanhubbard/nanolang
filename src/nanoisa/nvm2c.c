@@ -974,7 +974,10 @@ static int sim_push_slot(Nvm2cBuf *b, uint32_t idx, Nvm2cSimSlot *stk, int *sp,
          (slot.kind == NVM2C_VK_STR || slot.kind == NVM2C_VK_INT || slot.kind == NVM2C_VK_BOOL || slot.kind == NVM2C_VK_FLOAT))) {
         if (!shape_field_kind(b, slot.shape, slot.kind)) return 0;
     } else if (!shape_kind(b, slot.shape, slot.kind)) return 0;
-    if (!slot.scalar_tags) slot.scalar_tags = scalar_kind_tags(slot.kind);
+    /* I keep unresolved inference at bottom. It is not evidence of an
+     * opaque runtime payload and must not poison later finite joins. */
+    if (!slot.scalar_tags && slot.kind != NVM2C_VK_UNK)
+        slot.scalar_tags = scalar_kind_tags(slot.kind);
     if (slot.kind == NVM2C_VK_VALUE && boxed_carrier_tags(slot.scalar_tags) &&
         !shape_carrier_box(b, slot.shape, slot.scalar_tags)) return 0;
     stk[*sp] = slot;
@@ -1791,7 +1794,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             if (v.kind != NVM2C_VK_UNK &&
                 (boxed_carrier_tags(b->local_scalar_tags[local_at]) || boxed_carrier_tags(v.scalar_tags)) &&
                 !boxed_carrier_tags(tags)) {
-                nvm2c_fail(b, "I cannot mix numeric local storage with unproved scalar or heap provenance");
+                nvm2c_fail(b, "I cannot mix numeric local storage with unproved scalar or heap provenance (function %u, local %u, prior 0x%x, incoming kind %u tags 0x%x)",idx,slot,b->local_scalar_tags[local_at],v.kind,v.scalar_tags);
                 return 0;
             }
             if (tags != b->local_scalar_tags[local_at]) {

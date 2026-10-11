@@ -1,0 +1,8 @@
+test_backend_cases (tests.test_match_block_semantics.MatchBlockSemantics.test_backend_cases) ... ok
+test_incoming_grouping_fixture (tests.test_match_block_semantics.MatchBlockSemantics.test_incoming_grouping_fixture) ... ok
+test_reject_wrong_return_and_arm_types (tests.test_match_block_semantics.MatchBlockSemantics.test_reject_wrong_return_and_arm_types) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 40.854s
+
+OK

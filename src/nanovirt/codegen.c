@@ -3417,6 +3417,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 emit_op(cg, OP_DUP);  /* keep union on stack */
                 uint16_t bslot = local_add(cg, binding, node->line);
                 emit_op(cg, OP_STORE_LOCAL, (int)bslot);
+                local_name_begin(cg,bslot,binding,TYPE_UNION,node->line);
                 if (ud && !restore_match_binding(cg, node, i, ud->name)) {
                     cg_error(cg, node->line, "I require the checked nominal match binding");
                     break;
@@ -4246,6 +4247,9 @@ static void compile_stmt(CG *cg, ASTNode *node) {
             cg->local_binding_count = saved_binding_count;
             break;
         }
+        Symbol *iteration = env_get_var(cg->env, node->as.for_stmt.var_name);
+        local_name_begin(cg,var_slot,node->as.for_stmt.var_name,
+                         iteration?iteration->type:TYPE_UNKNOWN,node->line);
         /* Compile body */
         compile_stmt(cg, node->as.for_stmt.body);
 

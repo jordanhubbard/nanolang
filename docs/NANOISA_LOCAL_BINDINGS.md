@@ -125,3 +125,16 @@ no names and never alter verifier admission or VM/native semantics. A lookup
 at the exclusive function end returns absent. This metadata identifies a name
 in the closure environment; it does not identify an outer declaration, prove
 ownership, grant mutation rights or describe a live stack location.
+
+## Iteration and match bindings
+
+I begin an iteration variable's interval after its element initialization store
+and end it at loop scope exit. Generated array/index/length temporaries stay
+unnamed. Nested blocks, `continue`, `break`, and a later same-spelling loop do
+not merge those lexical intervals. The interval describes code scope, not which
+iterations execute.
+
+I begin a union match-arm binding after storing the selected scrutinee, before
+its optional guard. I end it before another arm's code. A false guard can leave
+that interval without making it a liveness guarantee. Wildcard bindings remain
+unnamed; an outer variable with the same spelling retains its own slot/interval.

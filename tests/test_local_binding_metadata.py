@@ -296,4 +296,59 @@ shadow main {assert (== (main) 0)}
             self.assertEqual(sorted(b[1] for b in bindings),[0,1,2,3])
         self.produce(source,0,inspect,inspect_captures=captures)
 
+    def test_iteration_names_have_separate_lexical_intervals(self):
+        source='''struct Item {value:int}
+fn main()->int {
+ let item:int = 99
+ let mut sum:int = 0
+ for item in [1,2,3] {
+  if (== item 2) {continue}
+  set sum (+ sum item)
+ }
+ for item in [Item {value:5},Item {value:6}] {set sum (+ sum item.value) break}
+ assert (== sum 9)
+ assert (== item 99)
+ return 0
+}
+shadow main {assert (== (main) 0)}
+'''
+        def inspect(bindings):
+            entries=sorted((b for b in bindings if b[0]=='main' and b[4]=='item'),key=lambda b:b[2])
+            self.assertEqual(len(entries),3)
+            self.assertEqual(len({b[1] for b in entries}),3)
+            self.assertLessEqual(entries[1][3],entries[2][2])
+            self.assertGreaterEqual(entries[0][3],entries[2][3])
+            self.assertEqual(sorted(b[4] for b in bindings if b[0]=='main'),['item','item','item','sum'])
+        self.produce(source,0,inspect)
+
+    def test_match_arm_names_include_guard_and_exclude_other_arms(self):
+        source='''union Box {Some {value:int} None {}}
+fn read(box:Box)->int {
+ let item:int = 99
+ let result:int = match box {
+  Some(item) if (< item.value 0) => 0
+  Some(item) => item.value
+  None(_) => 1
+ }
+ assert (== item 99)
+ return result
+}
+shadow read {assert (== (read Box.Some {value:7}) 7) assert (== (read Box.Some {value:-1}) 0)}
+fn main()->int {assert (== (read Box.Some {value:7}) 7) assert (== (read Box.None {}) 1) return 0}
+shadow main {assert (== (main) 0)}
+'''
+        def inspect(bindings):
+            entries=sorted((b for b in bindings if b[0]=='read' and b[4]=='item'),key=lambda b:b[2])
+            self.assertEqual(len(entries),3)
+            self.assertEqual(len({b[1] for b in entries}),3)
+            self.assertLessEqual(entries[1][3],entries[2][2])
+            self.assertGreaterEqual(entries[0][3],entries[2][3])
+            self.assertEqual(sorted(b[4] for b in bindings if b[0]=='read'),['box','item','item','item','result'])
+        main_at=source.index('fn main()')
+        read_at=source.index('fn read(')
+        caller_first=source[:read_at]+source[main_at:]+source[read_at:main_at]
+        for order,program in [('callee-first',source),('caller-first',caller_first)]:
+            with self.subTest(order=order):
+                self.produce(program,0,inspect)
+
 if __name__=="__main__": unittest.main()

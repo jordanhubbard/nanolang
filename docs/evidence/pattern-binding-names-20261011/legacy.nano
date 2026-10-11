@@ -1,0 +1,2 @@
+fn main()->int {par-let left=7 right=8 in (+ left right) return 0}
+shadow main {assert (== (main) 0)}

@@ -2064,6 +2064,10 @@ fn nisa_emit_match_cases(parser: Parser, node_id: int, result_type: string) -> s
             # I retain the original scrutinee across false guard edges.
             set out (+ out (nisa_line "DUP"))
             set out (+ out (nisa_line_imm "STORE_LOCAL" (int_to_string slot)))
+            if (and (!= binding "") (!= binding "_")) {
+                set out (+ out (nisa_local_name_begin slot binding))
+                set nisa_named_slots (array_push nisa_named_slots slot)
+            }
         }
         if (>= guard_id 0) {
             if (!= (nisa_expr_type parser guard_id guard_type) "bool") { return (nisa_fail "I require an exact bool match guard") }
@@ -2119,6 +2123,14 @@ shadow nisa_emit_match_cases {
     assert nisa_ok
     assert (str_contains text "PUSH_I64 7")
     assert (str_contains text "PUSH_BOOL 0\n  ASSERT\n  HALT")
+    assert (== (nisa_reset) 0)
+    let named_tokens: List<LexerToken> = (tokenize_string "union Box {Some {value:int}} fn main()->int{return match Box.Some {value:7} {Some(item)=>item.value}}" "named.nano" (diag_list_new))
+    let named_parser: Parser = (parse_program named_tokens (list_LexerToken_length named_tokens) "named.nano")
+    let named_text: string = (nisa_emit_match_cases named_parser 0 "int")
+    assert nisa_ok
+    assert (str_contains named_text ".local_begin ")
+    assert (str_contains named_text "\"item\"\n")
+    assert (str_contains named_text ".local_end ")
     assert (== (nisa_reset) 0)
 }
 
@@ -6175,12 +6187,14 @@ fn nisa_emit_for(parser: Parser, loop: ASTFor) -> string {
     set nisa_names (array_push nisa_names loop.var_name)
     set nisa_types (array_push nisa_types element)
     set text (+ text (nisa_line_imm "STORE_LOCAL" (int_to_string variable_slot)))
+    set text (+ text (nisa_local_name_begin variable_slot loop.var_name))
     set text (+ text (nisa_emit_block parser loop.body))
     if (nisa_block_falls_through parser loop.body) {
         set text (+ text (nisa_increment_local index_slot))
         set text (+ text (nisa_line_imm "JMP" top))
     }
     set text (+ text (nisa_label_line end))
+    set text (+ text (+ ".local_end " (+ (int_to_string variable_slot) "\n")))
     (array_set nisa_names variable_slot "")
     set nisa_loop_top outer_top
     set nisa_loop_end outer_end
@@ -6191,6 +6205,13 @@ shadow nisa_emit_for {
     let text: string = (nanoisa_emit_nasm "fn main() -> int { let index: int = 20 for index in (range 0 2) { continue } return index }")
     assert (str_contains text "ARR_GET")
     assert (str_contains text "LOAD_LOCAL 0\n  RET")
+    assert (== (nisa_reset) 0)
+    let loop_tokens: List<LexerToken> = (tokenize_string "fn main()->int{for index in [1,2] {continue} return 0}" "loop.nano" (diag_list_new))
+    let loop_parser: Parser = (parse_program loop_tokens (list_LexerToken_length loop_tokens) "loop.nano")
+    let loop_text: string = (nisa_emit_for loop_parser (parser_get_for loop_parser 0))
+    assert (str_contains loop_text ".local_begin ")
+    assert (str_contains loop_text "\"index\"\n")
+    assert (str_contains loop_text ".local_end ")
     assert (== nisa_loop_index "")
 }
 
