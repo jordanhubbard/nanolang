@@ -1785,10 +1785,12 @@ FunctionSignature *copy_contextual_callable_signature(ASTNode *value, Environmen
     return signature;
 }
 
-/* I retain explicit callable annotations with the AST in every let scope. */
+/* I retain explicit and inferred callable signatures with the AST in every let scope. */
 static bool retain_let_function_type(TypeChecker *tc, ASTNode *statement, Type declared) {
-    if (statement->as.let.type_info || declared != TYPE_FUNCTION ||
-        !statement->as.let.fn_sig) return true;
+    if (statement->as.let.type_info || declared != TYPE_FUNCTION) return true;
+    if (!statement->as.let.fn_sig)
+        statement->as.let.fn_sig = copy_callable_signature(statement->as.let.value, tc->env);
+    if (!statement->as.let.fn_sig) return true;
     TypeInfo *info = calloc(1, sizeof *info);
     if (!info) {
         tc->has_error = true;
@@ -5233,6 +5235,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                     stmt->as.let.type_info = copy_payload_type_info(
                         try_get_expr_type_info(stmt->as.let.value, tc->env));
                 }
+                if (!retain_let_function_type(tc, stmt, inferred)) return TYPE_UNKNOWN;
                 /* Register and add to env */
                 Value val = create_void();
                 env_define_var_with_type_info(tc->env, stmt->as.let.name, inferred,
@@ -5730,8 +5733,17 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             }
             /* TYPE_LIST_INT, TYPE_LIST_TOKEN -> TYPE_INT (default already set) */
 
+            TypeInfo *iter_info = iter_type == TYPE_ARRAY
+                ? try_get_expr_type_info(range_expr, tc->env) : NULL;
+            if (!iter_info && iter_type == TYPE_ARRAY)
+                iter_info = copy_generic_argument_info(range_expr, tc->env, 0);
+            TypeInfo *element_info = iter_info && iter_info->base_type == TYPE_ARRAY
+                ? iter_info->element_type : NULL;
             Value val = create_void();
-            env_define_var(tc->env, stmt->as.for_stmt.var_name, loop_var_type, false, val);
+            env_define_var_with_type_info(tc->env, stmt->as.for_stmt.var_name,
+                loop_var_type, element_info && element_info->element_type
+                    ? element_info->element_type->base_type : TYPE_UNKNOWN,
+                element_info, false, val);
 
             /* Set definition location and struct type name */
             Symbol *loop_var_sym = env_get_var(tc->env, stmt->as.for_stmt.var_name);

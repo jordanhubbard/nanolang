@@ -6077,10 +6077,25 @@ static Value eval_statement(ASTNode *stmt, Environment *env) {
                             case VAL_FLOAT:  elem = create_float(((double*)arr->data)[idx]); break;
                             case VAL_BOOL:   elem = create_bool(((bool*)arr->data)[idx]); break;
                             case VAL_STRING: elem = create_string(((char**)arr->data)[idx]); break;
+                            case VAL_FUNCTION: elem = copy_array_callable(((Value*)arr->data)[idx]); break;
                             default: break;
                         }
                         env->symbols[loop_var_index].value = elem;
+                        if (elem.type == VAL_FUNCTION)
+                            env->symbols[loop_var_index].type = TYPE_FUNCTION;
                         result = eval_statement(stmt->as.for_stmt.body, env);
+                        if (elem.type == VAL_FUNCTION) {
+                            /* I keep the loop value alive across mutations of its array slot. */
+                            if (result.type == VAL_FUNCTION &&
+                                result.as.function_val.function_name == elem.as.function_val.function_name) {
+                                Value owned = copy_array_callable(result);
+                                owned.is_return = result.is_return;
+                                owned.return_target = result.return_target;
+                                result = owned;
+                            }
+                            discard_array_callable(elem);
+                            env->symbols[loop_var_index].value = create_void();
+                        }
                         if (result.is_return) { env->symbol_count = loop_var_index; return result; }
                         if (result.is_break) { result = create_void(); break; }
                         if (result.is_continue) { result = create_void(); continue; }

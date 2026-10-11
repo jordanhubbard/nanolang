@@ -1,0 +1,7 @@
+loop case 1 passed C-seed NanoISA, NanoVM and C AOT
+loop case 2 passed C-seed NanoISA, NanoVM and C AOT
+Traceback (most recent call last):
+  File "<stdin>", line 17, in <module>
+RuntimeError: ['bin/nvm2c', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nl51-loop-vm-4zoupfr8/input.nvm', '-o', '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nl51-loop-vm-4zoupfr8/input.c']
+I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nl51-loop-vm-4zoupfr8/input.nvm': I require resolved indirect-call targets in function 1 at offset 245
+

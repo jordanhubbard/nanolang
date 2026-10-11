@@ -4453,15 +4453,31 @@ static void build_stmt(WorkList *list, ScopeStack *scopes, ASTNode *stmt, int in
                     emit_indent_item(list, indent + 1);
                     emit_literal(list, "for (int64_t __nl_idx = 0; __nl_idx < __nl_len; __nl_idx++) {\n");
                     emit_indent_item(list, indent + 2);
-                    emit_formatted(list, "%s %s = %s(__nl_arr, __nl_idx);\n",
-                                   c_elem_type, var, get_fn);
-                    /* Emit body statements */
-                    ASTNode *dyn_body = stmt->as.for_stmt.body;
                     scope_stack_push(scopes, list);
                     if (!reestablish_checked_loop_binding(env, stmt)) {
                         fprintf(stderr, "I require checked loop binding metadata at line %d.\n", stmt->line);
                         exit(1);
                     }
+                    if (dyn_elem_type == TYPE_FUNCTION) {
+                        Symbol *binding = env_get_var(env, var);
+                        FunctionSignature *signature = binding && binding->type_info
+                            ? binding->type_info->fn_sig : NULL;
+                        if (!signature) {
+                            fprintf(stderr, "I require the complete callable loop signature.\n");
+                            exit(1);
+                        }
+                        const char *callable_type = register_function_signature(g_function_registry, signature);
+                        emit_literal(list, "void *__nl_slot = dyn_array_get_struct(__nl_arr, __nl_idx);\n");
+                        emit_indent_item(list, indent + 2);
+                        emit_literal(list, "if (!__nl_slot) { fputs(\"I require an in-bounds callable loop element.\\n\", stderr); abort(); }\n");
+                        emit_indent_item(list, indent + 2);
+                        emit_formatted(list, "%s %s = *((%s *)__nl_slot);\n", callable_type, var, callable_type);
+                    } else {
+                        emit_formatted(list, "%s %s = %s(__nl_arr, __nl_idx);\n",
+                                       c_elem_type, var, get_fn);
+                    }
+                    /* Emit body statements */
+                    ASTNode *dyn_body = stmt->as.for_stmt.body;
                     if (!strcmp(var, "_")) list->underscore_name = NULL;
                     if (dyn_body && dyn_body->type == AST_BLOCK) {
                         for (int bi = 0; bi < dyn_body->as.block.count; bi++) {
