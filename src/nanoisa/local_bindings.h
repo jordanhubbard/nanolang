@@ -13,4 +13,10 @@ NvmLocalNamesStatus nvm_local_names_validate(const NvmModule *module);
 NvmLocalNamesStatus nvm_local_name_at(const NvmModule *module, uint32_t function,
                                      uint16_t slot, uint32_t pc, NvmLocalBinding *out);
 bool nvm_add_local_binding(NvmModule *module, const NvmLocalBinding *binding);
+/* I interpret slot as an upvalue index only in this separate convention.
+ * Capture names span [0, function code_length); they grant no authority. */
+NvmLocalNamesStatus nvm_upvalue_names_validate(const NvmModule *module);
+NvmLocalNamesStatus nvm_upvalue_name_at(const NvmModule *module, uint32_t function,
+                                       uint16_t slot, uint32_t pc, NvmLocalBinding *out);
+bool nvm_add_upvalue_binding(NvmModule *module, const NvmLocalBinding *binding);
 #endif

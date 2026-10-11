@@ -38,7 +38,7 @@ class LocalBindingMetadata(unittest.TestCase):
         self.assertEqual(p.returncode, expected, p.stdout + p.stderr)
         return p.stdout
 
-    def produce(self, source, expected, inspect, files=None, debug_line=None):
+    def produce(self, source, expected, inspect, files=None, debug_line=None, inspect_captures=None):
         with tempfile.TemporaryDirectory(prefix="nano-local-names-") as name:
             tmp=Path(name); input_file=tmp/"case.nano"; input_file.write_text(source)
             for filename, contents in (files or {}).items():
@@ -52,6 +52,9 @@ class LocalBindingMetadata(unittest.TestCase):
                     lines=self.run_checked([ROOT/"obj/test_local_bindings",artifact]+(["--require-debug"] if driver.name=="nano_virt" else [])).splitlines()
                     bindings=[(f,int(slot),int(begin),int(end),local) for f,slot,begin,end,local in (line.split() for line in lines)]
                     inspect(bindings)
+                    if inspect_captures:
+                        capture_lines=self.run_checked([ROOT/"obj/test_local_bindings",artifact,"--upvalues"]).splitlines()
+                        inspect_captures([(f,int(slot),int(begin),int(end),local) for f,slot,begin,end,local in (line.split() for line in capture_lines)])
                     self.run_checked([ROOT/"bin/nano_vm",artifact],expected)
                     native=tmp/f"{driver.name}.c"; binary=tmp/f"{driver.name}.out"
                     self.run_checked([ROOT/"bin/nvm2c",artifact,"-o",native])
@@ -63,9 +66,9 @@ class LocalBindingMetadata(unittest.TestCase):
                         locations=[line.split() for line in canonical if line.startswith('.debug ')]
                         self.assertEqual(locations[0][1:3],['0',str(debug_line)])
                     strings=[line for line in canonical if line.startswith('.string ')]
-                    local_key=str(strings.index('.string "nano.local.v1"'))
+                    name_keys={str(strings.index(line)) for line in strings if line in ('.string "nano.local.v1"','.string "nano.upvalue.v1"')}
                     stripped=[line for line in canonical if not
-                              (line.startswith('.metadata ') and line.split()[1]==local_key)]
+                              (line.startswith('.metadata ') and line.split()[1] in name_keys)]
                     self.assertLess(len(stripped),len(canonical))
                     assembly=tmp/'stripped.nasm'; unnamed=tmp/'stripped.nvm'; unnamed_c=tmp/'stripped.c'
                     assembly.write_text('\n'.join(stripped)+'\n')
@@ -73,6 +76,17 @@ class LocalBindingMetadata(unittest.TestCase):
                     self.run_checked([ROOT/"bin/nano_vm",unnamed],expected)
                     self.run_checked([ROOT/"bin/nvm2c",unnamed,"-o",unnamed_c])
                     self.assertEqual(native.read_bytes(),unnamed_c.read_bytes())
+                    if '.string "nano.upvalue.v1"' in strings:
+                        capture_key=str(strings.index('.string "nano.upvalue.v1"'))
+                        duplicate=next(line for line in canonical if line.startswith('.metadata ') and line.split()[1]==capture_key)
+                        alternatives=[canonical+[duplicate],
+                                      [line.replace('nano.upvalue.v1','nano.upvalue.v2') if line=='.string "nano.upvalue.v1"' else line for line in canonical]]
+                        for advisory in alternatives:
+                            assembly.write_text('\n'.join(advisory)+'\n')
+                            self.run_checked([ROOT/"bin/nanoisa","asm",assembly,"-o",unnamed])
+                            self.run_checked([ROOT/"bin/nano_vm",unnamed],expected)
+                            self.run_checked([ROOT/"bin/nvm2c",unnamed,"-o",unnamed_c])
+                            self.assertEqual(native.read_bytes(),unnamed_c.read_bytes())
 
     def test_parameters_shadowed_bindings_and_loop(self):
         def inspect(bindings):
@@ -249,6 +263,37 @@ shadow main {assert (== (main) 0)}
             self.assertNotEqual(results[0][1],results[1][1])
             self.assertLess(results[0][2],results[1][2])
             self.assertGreaterEqual(results[0][3],results[1][3])
-        self.produce(source,0,inspect)
+        def inspect_captures(bindings):
+            self.assertEqual(sorted(b[4] for b in bindings),['base','base','values'])
+            self.assertEqual(len({b[0] for b in bindings}),2)
+            for entry in bindings:
+                self.assertEqual(entry[2],0)
+                self.assertGreater(entry[3],0)
+        self.produce(source,0,inspect,inspect_captures=inspect_captures)
+
+    def test_aggregate_and_callable_capture_names(self):
+        source='''struct Item {value:int}
+fn main()->int {
+ let item:Item = Item {value:7}
+ let pair:(int,bool) = (3,true)
+ let text:string = "kept"
+ let callback:fn(int)->int = fn(input:int)->int {return (+ input 1)}
+ let reader:fn()->int = fn()->int {
+  assert (== text "kept")
+  assert pair.1
+  return (callback (+ item.value pair.0))
+ }
+ assert (== (reader) 11)
+ return 0
+}
+shadow main {assert (== (main) 0)}
+'''
+        def inspect(bindings):
+            self.assertEqual(sorted(b[4] for b in bindings if b[0]=='main'),['callback','item','pair','reader','text'])
+        def captures(bindings):
+            self.assertEqual(sorted(b[4] for b in bindings),['callback','item','pair','text'])
+            self.assertEqual(len({b[0] for b in bindings}),1)
+            self.assertEqual(sorted(b[1] for b in bindings),[0,1,2,3])
+        self.produce(source,0,inspect,inspect_captures=captures)
 
 if __name__=="__main__": unittest.main()

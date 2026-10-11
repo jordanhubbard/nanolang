@@ -63,9 +63,8 @@ specialization names without merging distinct functions.
 I preserve source ownership task505's specialized producer and entry dispatch.
 I retain nested-function parameters and ordinary local names in both producers,
 including anonymous functions with captures. Child intervals belong to the child
-function; restoring a parent keeps its bindings intact. Captured upvalue names
-are not local-slot names and remain open, as do effects and other declaration
-forms unless independently implemented and tested. My specialized
+function; restoring a parent keeps its bindings intact. Captured upvalue names use the separate convention below. Effects and other
+declaration forms remain open unless independently implemented and tested. My specialized
 borrowed profile and its scalar pattern projections are described below. No existing executable source is refused just because
 its original local names are absent.
 
@@ -101,3 +100,28 @@ when names repeat. Moving an owner does not shorten its lexical name interval;
 these intervals never promise runtime liveness. A failed lowering publishes no
 module or partial table. Stripping names leaves instructions, layouts and
 ownership unchanged and must preserve verified VM/native execution.
+
+## Captured upvalue names
+
+I use `nano.upvalue.v1` for names in a closure environment. Its byte layout is
+identical to `nano.local.v1`, but the slot is an upvalue index, checked against
+that function's declared `upvalue_count`. The beginning must be zero and the
+end must equal the function's code length. I reject duplicate function/index
+entries when interpreting the table, including empty-function duplicates.
+I keep local and capture tables independent: slot zero can describe one local
+and one capture without a conflict. Unknown versions remain opaque metadata.
+
+The assembler accepts `.upvalue_name <index> "<name>"` inside a function and
+publishes a full-function interval at `.end`. Canonical text uses raw `.metadata`
+records, retaining exact bytes even if the optional convention is malformed.
+My C emitter records the resolved capture order after compiling a nested body;
+my selfhost emitter emits names from its completed capture frame. Grandparent
+captures therefore retain their source names in each intervening environment.
+
+I expose separate `nvm_upvalue_names_validate`, `nvm_upvalue_name_at`, and
+`nvm_add_upvalue_binding` APIs. They reuse the borrowed `NvmLocalBinding` record
+shape but interpret the index only as an upvalue. Invalid capture tables supply
+no names and never alter verifier admission or VM/native semantics. A lookup
+at the exclusive function end returns absent. This metadata identifies a name
+in the closure environment; it does not identify an outer declaration, prove
+ownership, grant mutation rights or describe a live stack location.

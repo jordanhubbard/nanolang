@@ -65,7 +65,7 @@ typedef struct LocalMarker {
     uint16_t slot;
     uint32_t begin,end,length;
     char *name;
-    bool closed;
+    bool closed, upvalue;
     struct LocalMarker *next;
 } LocalMarker;
 
@@ -900,14 +900,16 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return true;
         }
 
-        if (strcmp(directive,"local_begin")==0 || strcmp(directive,"local_end")==0) {
+        if (strcmp(directive,"local_begin")==0 || strcmp(directive,"local_end")==0 || strcmp(directive,"upvalue_name")==0) {
+            bool upvalue=strcmp(directive,"upvalue_name")==0;
             uint16_t slot;
             if(!state->in_function || !parse_uint16(&p,&slot) ||
-               slot>=state->mod->functions[state->current_function].local_count)
+               slot>=(upvalue?state->mod->functions[state->current_function].upvalue_count:
+                              state->mod->functions[state->current_function].local_count))
                 return par_error(result,"I require a declared local slot inside a function.");
             LocalMarker *active=NULL;
             for(LocalMarker *m=state->local_markers;m;m=m->next)
-                if(m->slot==slot && !m->closed)active=m;
+                if(m->upvalue==upvalue && m->slot==slot && !m->closed)active=m;
             if(strcmp(directive,"local_end")==0) {
                 if(!active || !require_line_end(p,result))
                     return par_error(result,"I require an open local-name marker before its end.");
@@ -922,7 +924,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             }
             LocalMarker *m=calloc(1,sizeof *m);
             if(!m){free(name);return par_error(result,"I cannot allocate a local-name marker.");}
-            m->slot=slot;m->begin=state->fn_code_size;m->name=name;m->length=length;
+            m->upvalue=upvalue;m->slot=slot;m->begin=upvalue?0:state->fn_code_size;m->name=name;m->length=length;
             if(state->local_tail)state->local_tail->next=m;else state->local_markers=m;
             state->local_tail=m;return true;
         }
@@ -1350,7 +1352,7 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
                 NvmLocalBinding binding={.function=state->current_function,.slot=m->slot,
                     .begin=m->begin,.end=m->closed?m->end:state->fn_code_size,
                     .name=(const uint8_t *)m->name,.name_size=m->length};
-                if(!nvm_add_local_binding(state->mod,&binding))
+                if(!(m->upvalue?nvm_add_upvalue_binding(state->mod,&binding):nvm_add_local_binding(state->mod,&binding)))
                     return par_error(result,"I cannot retain this lexical local name.");
                 state->local_markers=m->next;free(m->name);free(m);
             }

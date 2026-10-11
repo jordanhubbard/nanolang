@@ -702,6 +702,7 @@ shadow nisa_emit_lambda {
     let text: string = (nanoisa_emit_nasm "fn make(n:int)->fn()->fn()->int{return fn()->fn()->int{return fn()->int{return n}}} fn main()->int{return 0}")
     assert nisa_ok
     assert (str_contains text "LOAD_UPVALUE 0 0")
+    assert (str_contains text ".upvalue_name 0 \"n\"")
     assert (str_contains text "CLOSURE_NEW __lambda_")
     assert (str_contains text " 0 0 1 int 1")
     let _: int = (nisa_reset)
@@ -6963,6 +6964,12 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
             let declared: ASTLet = (parser_get_let parser (+ func.param_start named_parameter))
             set parameter_names (+ parameter_names (nisa_local_name_begin named_parameter declared.name))
             set named_parameter (+ named_parameter 1)
+        }
+        let captures: array<string> = (at nisa_capture_frames nisa_capture_frame).captures
+        let mut capture_name: int = 0
+        while (< capture_name (array_length captures)) {
+            set parameter_names (+ parameter_names (+ ".upvalue_name " (+ (int_to_string capture_name) (+ " \"" (+ (nisa_escape_string (at captures capture_name)) "\"\n")))))
+            set capture_name (+ capture_name 1)
         }
         if nisa_has_par { set nisa_ordinary_ok false }
         set nisa_ordinary_functions (+ nisa_ordinary_functions (nisa_ordinary_contract parser func.return_type func.param_count nisa_types))

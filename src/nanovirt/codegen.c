@@ -3670,6 +3670,13 @@ static void compile_nested_function(CG *cg, ASTNode *node) {
         entry->code_length = cg->code_size;
         entry->local_count = cg->local_count;
         entry->upvalue_count = child_upvalue_count;
+        for(uint16_t i=0;i<child_upvalue_count;i++) {
+            const char *name=st->child_upvalues[i].name;
+            NvmLocalBinding binding={.function=(uint32_t)fn_idx,.slot=i,.begin=0,
+                .end=cg->code_size,.name=(const uint8_t *)name,.name_size=(uint32_t)strlen(name)};
+            if(!nvm_add_upvalue_binding(cg->module,&binding))
+                cg_error(cg,node->line,"I cannot preserve this captured source name");
+        }
     }
 
     /* Free child code buffer and restore parent state */
