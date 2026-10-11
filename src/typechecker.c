@@ -1709,6 +1709,35 @@ FunctionSignature *copy_contextual_callable_signature(ASTNode *value, Environmen
     if (!function_signatures_equal(signature, (FunctionSignature *)expected)) {
         free_function_signature(signature); return NULL;
     }
+    if (function && generic_function(env, function)) {
+        GenericFuncInstance *instance = NULL;
+        for (int i = 0; i < env->generic_func_instance_count; ++i) {
+            GenericFuncInstance *candidate = &env->generic_func_instances[i];
+            if (!strcmp(candidate->orig_name, function->name) && candidate->signature &&
+                function_signatures_equal(candidate->signature, signature)) {
+                instance = candidate; break;
+            }
+        }
+        if (!instance) {
+            char name[80];
+            unsigned serial = (unsigned)env->generic_func_instance_count;
+            bool used;
+            do {
+                snprintf(name, sizeof name, "__contextual_%u", serial++);
+                used = env_get_function(env, name) != NULL;
+                for (int i = 0; i < env->generic_func_instance_count; ++i)
+                    if (!strcmp(env->generic_func_instances[i].mono_name, name)) used = true;
+            } while (used);
+            env_register_generic_func_instance(env, function->name, name, NULL, NULL, NULL, 0);
+            instance = &env->generic_func_instances[env->generic_func_instance_count - 1];
+            instance->signature = copy_function_signature(signature);
+            if (!instance->signature) { free_function_signature(signature); return NULL; }
+        }
+        char *name = strdup(instance->mono_name);
+        if (!name) { free_function_signature(signature); return NULL; }
+        free(value->contextual_func_name);
+        value->contextual_func_name = name;
+    }
     return signature;
 }
 

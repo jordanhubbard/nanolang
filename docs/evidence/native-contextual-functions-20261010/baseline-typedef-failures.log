@@ -1,0 +1,74 @@
+test_callback_argument (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_callback_argument) ... ok
+test_imported_alias_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_imported_alias_callback) ... ok
+test_inconsistent_context_preserves_output (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_inconsistent_context_preserves_output) ... ok
+test_local_multiple_instances (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_local_multiple_instances) ... ok
+test_nominal_and_tuple_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_nominal_and_tuple_context) ... FAIL
+test_reassigned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_reassigned_callback) ... ok
+test_returned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_returned_callback) ... ok
+test_structural_array_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_structural_array_context) ... ok
+test_tail_and_indirect_callback_arguments (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_tail_and_indirect_callback_arguments) ... FAIL
+
+======================================================================
+FAIL: test_nominal_and_tuple_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_nominal_and_tuple_context)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 49, in test_nominal_and_tuple_context
+            self.execute(PRELUDE+'''struct Box {value:int}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn main()->int {
+    ^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+     return 0
+     ^^^^^^^^
+    }'''+SHADOW)
+    ^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 26, in execute
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_2162_main.c:1827:36: error: argument may not have 'void' type
+ 1827 | static void nl___contextual_0(void value);
+      |                                    ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-n8e5vbug/main.nano:5:14: error: incompatible function pointer types initializing 'FnType_0' (aka 'void (*)(void)') with an expression of type 'void (int)' [-Wincompatible-function-pointer-types]
+    5 |     FnType_0 callback = nl___contextual_0;
+      |              ^          ~~~~~~~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-n8e5vbug/main.nano:6:118: error: initializing 'void *' with an expression of incompatible type 'nl_Box' (aka 'struct nl_Box')
+    6 |     __auto_type result = ({ __auto_type __nl_callee_0 = callback; __auto_type __nl_arg_0_0 = (Tuple_t0_bool_0){._0 = (nl_Box){.value = 7LL}, ._1 = true}; __nl_callee_0(__nl_arg_0_0); });
+      |                                                                                                                      ^~~~~~~~~~~~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-n8e5vbug/main.nano:12:36: error: argument may not have 'void' type
+   12 | static void nl___contextual_0(void value) {
+      |                                    ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-n8e5vbug/main.nano:1:5: error: void function 'nl___contextual_0' should not return a value [-Wreturn-mismatch]
+    1 |     return value;
+      |     ^      ~~~~~
+5 errors generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_tail_and_indirect_callback_arguments (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_tail_and_indirect_callback_arguments)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 69, in test_tail_and_indirect_callback_arguments
+            self.execute(PRELUDE+'''fn apply(f:fn(int)->int)->int{return (f 7)}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow apply {assert (== (apply identity) 7)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<6 lines>...
+     return 0
+     ^^^^^^^^
+    }'''+SHADOW)
+    ^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_contextual_generic_functions.py", line 26, in execute
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-context-native-7jrvt0lh/main.nano:9:112: error: passing arguments to a function without a prototype is deprecated in all versions of C and is not supported in C23 [-Werror,-Wdeprecated-non-prototype]
+    9 |     if (!((({ __auto_type __nl_callee_2 = indirect; __auto_type __nl_arg_2_0 = nl___contextual_0; __nl_callee_2(__nl_arg_2_0); })) == (7LL))) { fputs("Contract violation at line 9: (== (indirect identity) 7)\n", stderr); exit(1); }
+      |                                                                                                                ^
+1 error generated.
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 10.710s
+
+FAILED (failures=2)

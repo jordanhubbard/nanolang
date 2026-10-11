@@ -520,6 +520,7 @@ void free_environment(Environment *env) {
             GenericFuncInstance *inst = &env->generic_func_instances[i];
             free(inst->orig_name);
             free(inst->mono_name);
+            free_function_signature(inst->signature);
             for (int j = 0; j < inst->binding_count; j++) {
                 free(inst->var_names[j]);
                 if (inst->bound_type_names[j]) free(inst->bound_type_names[j]);
@@ -2410,6 +2411,7 @@ void env_register_generic_func_instance(Environment *env, const char *orig_name,
             sizeof(GenericFuncInstance) * env->generic_func_instance_capacity);
     }
     GenericFuncInstance inst;
+    inst.signature = NULL;
     inst.orig_name = strdup(orig_name);
     inst.mono_name = strdup(mono_name);
     inst.binding_count = binding_count;

@@ -1,5 +1,6 @@
 """I specialize generic function values from complete callable contexts."""
 import subprocess
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -7,10 +8,23 @@ from tests import test_cseed_generic_functions as shared
 
 PRELUDE = 'fn identity(value:T)->T{return value}\nshadow identity {assert (== (identity 1) 1)}\n'
 SHADOW = '\nshadow main {assert (== (main) 0)}\n'
+NATIVE = os.environ.get('NANO_CONTEXTUAL_NATIVE_COMPILER')
 
 
 class ContextualGenericFunctions(unittest.TestCase):
     def execute(self, source, files=None):
+        if NATIVE:
+            with tempfile.TemporaryDirectory(prefix='nano-context-native-') as tmp:
+                work = Path(tmp)
+                for name, contents in (files or {}).items():
+                    (work/name).write_text(contents)
+                path, binary = work/'main.nano', work/'main'
+                path.write_text(source)
+                for args in ([NATIVE, path, '-o', binary], [binary]):
+                    result = subprocess.run(list(map(str, args)), cwd=shared.ROOT,
+                                            capture_output=True, text=True, timeout=120)
+                    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+            return
         shared.CseedGenericFunctions().execute(source, files=files)
 
     def test_local_multiple_instances(self):
@@ -38,6 +52,33 @@ fn main()->int {
  let result = (callback (Box {value:7},true))
  assert (== result.0.value 7)
  assert result.1
+ return 0
+}'''+SHADOW)
+
+    def test_distinct_nominal_tuple_contexts(self):
+        self.execute(PRELUDE+'''struct First {value:int}
+struct Second {value:string}
+fn main()->int {
+ let first:fn((First,bool))->(First,bool) = identity
+ let second:fn((Second,bool))->(Second,bool) = identity
+ let a = (first (First {value:7},true))
+ let b = (second (Second {value:"kept"},false))
+ assert (== a.0.value 7)
+ assert (== b.0.value "kept")
+ assert a.1
+ assert (not b.1)
+ return 0
+}'''+SHADOW)
+
+    def test_nested_tuple_callable_dependencies(self):
+        self.execute(PRELUDE+'''fn increment(value:int)->int{return (+ value 1)}
+shadow increment {assert (== (increment 7) 8)}
+fn main()->int {
+ let callback:fn(((int,bool),fn(int)->int))->((int,bool),fn(int)->int) = identity
+ let result = (callback ((7,true),increment))
+ let function:fn(int)->int = result.1
+ assert (== (function (result.0).0) 8)
+ assert (result.0).1
  return 0
 }'''+SHADOW)
 
@@ -92,7 +133,8 @@ fn main()->int {
                 source, output = Path(tmp)/'main.nano', Path(tmp)/'main.nvm'
                 source.write_text(PRELUDE+'fn positive(value:int)->bool{return (> value 0)}\nshadow positive {assert (positive 1)}\n'+body+SHADOW)
                 output.write_bytes(b'prior')
-                result=subprocess.run([str(shared.COMPILER),str(source),'--emit-nvm','-o',str(output)],
+                mode=[] if NATIVE else ['--emit-nvm']
+                result=subprocess.run([NATIVE or str(shared.COMPILER),str(source),*mode,'-o',str(output)],
                                       cwd=shared.ROOT,capture_output=True,text=True,timeout=120)
                 self.assertGreater(result.returncode,0,result.stdout+result.stderr)
                 self.assertEqual(output.read_bytes(),b'prior')

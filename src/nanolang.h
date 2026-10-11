@@ -274,6 +274,7 @@ struct ASTNode {
     /* I borrow the hoisted anonymous declaration at its lexical expression.
      * The program owns that declaration; this link does not own or free it. */
     ASTNode *lambda_definition;
+    char *contextual_func_name; /* Owned native specialization selected for this function value. */
     union {
         long long number;
         double float_val;
@@ -764,6 +765,7 @@ typedef struct {
     Type *bound_types;       /* Concrete types: [TYPE_INT] */
     char **bound_type_names; /* For TYPE_STRUCT bounds: ["Point"]; NULL for primitives */
     int binding_count;       /* Number of unique type variables */
+    FunctionSignature *signature; /* Owned complete contextual signature, or NULL for legacy instances. */
 } GenericFuncInstance;
 
 /* Module namespace for import aliases */

@@ -1193,6 +1193,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             break;
             
         case AST_IDENTIFIER: {
+            if (expr->contextual_func_name) {
+                emit_formatted(list, "nl_%s", expr->contextual_func_name);
+                break;
+            }
             if (in_effect_handler) {
                 const char *captured = effect_capture_name(expr->as.identifier, expr->line, expr->column);
                 if (captured != expr->as.identifier) { emit_literal(list, captured); break; }
@@ -2729,7 +2733,13 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             const char *typedef_name = NULL;
             
             if (g_tuple_registry && element_count > 0) {
-                if (expr->as.tuple_literal.element_types) {
+                if (expr->as.tuple_literal.type_info) {
+                    for (int i = 0; i < g_tuple_registry->count; ++i) {
+                        if (tuple_types_equal(g_tuple_registry->tuples[i], expr->as.tuple_literal.type_info)) {
+                            typedef_name = g_tuple_registry->typedef_names[i]; break;
+                        }
+                    }
+                } else if (expr->as.tuple_literal.element_types) {
                     /* Element types are set - look up by exact match */
                     for (int i = 0; i < g_tuple_registry->count; i++) {
                         TypeInfo *registered = g_tuple_registry->tuples[i];

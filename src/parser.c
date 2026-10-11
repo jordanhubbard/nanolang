@@ -4772,6 +4772,7 @@ static ASTNode *clone_ast_node(const ASTNode *node) {
     cloned->type = node->type;
     cloned->line = node->line;
     cloned->column = node->column;
+    cloned->contextual_func_name = node->contextual_func_name ? strdup(node->contextual_func_name) : NULL;
     switch (node->type) {
         case AST_SERVICE_DECL:
             cloned->as.service_decl = node->as.service_decl;
@@ -6009,6 +6010,7 @@ ASTNode *parse_repl_input(Token *tokens, int token_count) {
 /* Free AST */
 void free_ast(ASTNode *node) {
     if (!node) return;
+    free(node->contextual_func_name);
 
     switch (node->type) {
         case AST_STRING:
