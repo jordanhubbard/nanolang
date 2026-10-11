@@ -1,0 +1,9 @@
+test_imported_tuple_signatures_and_aliases (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_signatures_and_aliases) ... ok
+test_qualified_generic_tuple_callbacks_and_shadowing (tests.test_cseed_tuple_generics.TupleGenerics.test_qualified_generic_tuple_callbacks_and_shadowing) ... ok
+test_qualified_tuple_signature_refusals (tests.test_cseed_tuple_generics.TupleGenerics.test_qualified_tuple_signature_refusals) ... ok
+test_generic_tuple_literals_in_nested_results (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_tuple_literals_in_nested_results) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.027s
+
+OK

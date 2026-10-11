@@ -2282,6 +2282,11 @@ Value create_tuple(Value *elements, int element_count) {
             /* Deep copy strings */
             if (elements[i].type == VAL_STRING) {
                 val.as.tuple_val->elements[i].as.string_val = strdup(elements[i].as.string_val);
+            } else if (elements[i].type == VAL_FUNCTION) {
+                /* I retain tuple callbacks beyond their source call frame. */
+                val.as.tuple_val->elements[i] = create_function(
+                    elements[i].as.function_val.function_name,
+                    copy_function_signature(elements[i].as.function_val.signature));
             }
         }
     } else {
@@ -2299,6 +2304,9 @@ void free_tuple(TupleValue *tuple) {
     for (int i = 0; i < tuple->element_count; i++) {
         if (tuple->elements[i].type == VAL_STRING && tuple->elements[i].as.string_val) {
             free(tuple->elements[i].as.string_val);
+        } else if (tuple->elements[i].type == VAL_FUNCTION) {
+            free(tuple->elements[i].as.function_val.function_name);
+            free_function_signature(tuple->elements[i].as.function_val.signature);
         }
     }
     

@@ -1,0 +1,82 @@
+test_imported_tuple_result (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_result) ... FAIL
+test_structural_tuple_result_substitution (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_result_substitution) ... FAIL
+
+======================================================================
+FAIL: test_imported_tuple_result (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 109, in test_imported_tuple_result
+            self.execute('module "pair.nano" as pair\n'+IDENTITY+'''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let value = (identity (pair.make))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    shadow make {let value = (make) assert value.1}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    '''})
+    ^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-zdrch6nq/main.nano:5:40: error: variable has incomplete type 'void'
+    5 |     __auto_type value = ({ __auto_type __nl_arg_0_0 = ({ pair__make(); }); nl___contextual_0(__nl_arg_0_0); });
+      |                                        ^
+1 error generated.
+C compilation failed
+
+
+======================================================================
+FAIL: test_structural_tuple_result_substitution (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_result_substitution)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 96, in test_structural_tuple_result_substitution
+            self.execute('''fn swap(value:(T,E))->(E,T){return (value.1,value.0)}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow swap {let value=(swap (7,true)) assert value.0 assert (== value.1 7)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-bva7rygd/main.nano:1:34: error: incompatible integer to pointer conversion initializing 'void *' with an expression of type 'int64_t' (aka 'long long') [-Wint-conversion]
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |                                  ^~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-bva7rygd/main.nano:1:50: error: initializing 'void *' with an expression of type 'const char *' discards qualifiers [-Werror,-Wincompatible-pointer-types-discards-qualifiers]
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |                                                  ^~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-bva7rygd/main.nano:1:12: error: returning 'Tuple_t0_t1_0' (aka 'struct Tuple_t0_t1_0') from a function with incompatible result type 'Tuple_int_string_4' (aka 'struct Tuple_int_string_4')
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-bva7rygd/main.nano:1:34: error: incompatible integer to pointer conversion initializing 'void *' with an expression of type 'bool' [-Wint-conversion]
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |                                  ^~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-bva7rygd/main.nano:1:12: error: returning 'Tuple_t0_t1_0' (aka 'struct Tuple_t0_t1_0') from a function with incompatible result type 'Tuple_bool_t1_5' (aka 'struct Tuple_bool_t1_5')
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-bva7rygd/main.nano:1:34: error: incompatible integer to pointer conversion initializing 'void *' with an expression of type 'bool' [-Wint-conversion]
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |                                  ^~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-bva7rygd/main.nano:1:50: error: incompatible integer to pointer conversion initializing 'void *' with an expression of type 'int64_t' (aka 'long long') [-Wint-conversion]
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |                                                  ^~~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-bva7rygd/main.nano:1:12: error: returning 'Tuple_t0_t1_0' (aka 'struct Tuple_t0_t1_0') from a function with incompatible result type 'Tuple_bool_int_6' (aka 'struct Tuple_bool_int_6')
+    1 |     return (Tuple_t0_t1_0){._0 = value._1, ._1 = value._0};
+      |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+8 errors generated.
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 3.874s
+
+FAILED (failures=2)

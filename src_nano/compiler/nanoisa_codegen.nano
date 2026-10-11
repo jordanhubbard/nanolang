@@ -3526,11 +3526,49 @@ shadow nisa_identifier_function {
     assert (== (nisa_identifier_function parser (parser_get_identifier parser 0)) 0)
 }
 
-fn nisa_generic_value(parser: Parser, node_id: int, node_type: int) -> bool {
-    if (!= node_type ParseNodeType.PNODE_IDENTIFIER) { return false }
+# I resolve qualified function values with the same owner map as calls.
+fn nisa_qualified_function(parser: Parser, access: ASTFieldAccess) -> int {
+    if (!= access.object_type ParseNodeType.PNODE_IDENTIFIER) { return -1 }
+    let receiver: ASTIdentifier = (parser_get_identifier parser access.object)
+    if (or (>= (nisa_local_find receiver.name) 0) (or (>= (nisa_capture_find nisa_capture_frame receiver.name) 0) (>= (nisa_global_find receiver.name receiver.line) 0))) { return -1 }
+    if (>= (nisa_qualified_global parser access) 0) { return -1 }
+    let identifier: ASTIdentifier = ASTIdentifier {node_type: ParseNodeType.PNODE_IDENTIFIER, line: access.line, column: access.column, name: (+ receiver.name (+ "." access.field_name))}
+    return (nisa_identifier_function parser identifier)
+}
+shadow nisa_qualified_function {
+    let _: int = (nisa_reset)
+    (mb_reset [1, 5])
+    (mb_add_target 1 "pair.make" "made" 0)
+    let tokens: List<LexerToken> = (tokenize_string "fn made()->(int,bool){return (7,true)}\n\n\n\nfn main()->int{let callback:fn()->(int,bool)=pair.make return 0}" "qualified.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "qualified.nano")
+    let access: ASTFieldAccess = (parser_get_field_access parser 0)
+    assert (== (nisa_qualified_function parser access) 0)
+    set nisa_names ["pair"]
+    assert (== (nisa_qualified_function parser access) -1)
+    let _: int = (nisa_reset)
+    (mb_reset [])
+}
+
+fn nisa_function_value_index(parser: Parser, node_id: int, node_type: int) -> int {
+    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) { return (nisa_qualified_function parser (parser_get_field_access parser node_id)) }
+    if (!= node_type ParseNodeType.PNODE_IDENTIFIER) { return -1 }
     let identifier: ASTIdentifier = (parser_get_identifier parser node_id)
-    if (or (>= (nisa_local_find identifier.name) 0) (or (>= (nisa_capture_find nisa_capture_frame identifier.name) 0) (>= (nisa_global_find identifier.name identifier.line) 0))) { return false }
-    let target: int = (nisa_identifier_function parser identifier)
+    if (or (>= (nisa_local_find identifier.name) 0) (or (>= (nisa_capture_find nisa_capture_frame identifier.name) 0) (>= (nisa_global_find identifier.name identifier.line) 0))) { return -1 }
+    return (nisa_identifier_function parser identifier)
+}
+shadow nisa_function_value_index {
+    let _: int = (nisa_reset)
+    (mb_reset [])
+    let tokens: List<LexerToken> = (tokenize_string "fn answer()->int{return 7} fn main()->fn()->int{return answer}" "value.nano" (diag_list_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "value.nano")
+    assert (== (nisa_function_value_index parser 0 ParseNodeType.PNODE_IDENTIFIER) 0)
+    set nisa_names ["answer"]
+    assert (== (nisa_function_value_index parser 0 ParseNodeType.PNODE_IDENTIFIER) -1)
+    let _: int = (nisa_reset)
+}
+
+fn nisa_generic_value(parser: Parser, node_id: int, node_type: int) -> bool {
+    let target: int = (nisa_function_value_index parser node_id node_type)
     if (< target 0) { return false }
     return (nisa_generic_function parser (parser_get_function parser target))
 }
@@ -3816,6 +3854,8 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         let access: ASTFieldAccess = (parser_get_field_access parser node_id)
         let global: int = (nisa_qualified_global parser access)
         if (>= global 0) { return (at nisa_global_types global) }
+        let function: int = (nisa_qualified_function parser access)
+        if (>= function 0) { return (nisa_function_type parser (parser_get_function parser function)) }
         let enum_index: int = (nisa_enum_receiver parser access)
         if (>= enum_index 0) { return (parser_get_enum parser enum_index).name }
         let object_type: string = (nisa_expr_type parser access.object access.object_type)
@@ -4107,27 +4147,20 @@ fn nisa_emit_expected_expr(parser: Parser, node_id: int, node_type: int, expecte
         }
     }
     if (str_starts_with (nisa_compact_type expected) "fn(") {
-        if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
-            let identifier: ASTIdentifier = (parser_get_identifier parser node_id)
-            if (and (< (nisa_local_find identifier.name) 0)
-                    (and (< (nisa_capture_find nisa_capture_frame identifier.name) 0)
-                         (< (nisa_global_find identifier.name identifier.line) 0))) {
-                let index: int = (nisa_identifier_function parser identifier)
-                if (>= index 0) {
-                    let function: ASTFunction = (parser_get_function parser index)
-                    if (nisa_generic_function parser function) {
-                        let prior: GenericBindings = GenericBindings {names: [], types: [], valid: true}
-                        let bound: GenericBindings = (generic_bind_type parser (nisa_function_type parser function) expected prior)
-                        if (or (not bound.valid) (not (nisa_function_type_ok parser expected))) {
-                            return (nisa_fail "I require one concrete identity for the declared generic function value signature")
-                        }
-                        let binding: int = (nisa_generic_register parser index bound.names bound.types)
-                        if (< binding 0) { return "" }
-                        set nisa_has_callables true
-                        set nisa_ordinary_ok false
-                        return (nisa_line_imm "FUNCREF" (at nisa_generics binding).name)
-                    }
+        let index: int = (nisa_function_value_index parser node_id node_type)
+        if (>= index 0) {
+            let function: ASTFunction = (parser_get_function parser index)
+            if (nisa_generic_function parser function) {
+                let prior: GenericBindings = GenericBindings {names: [], types: [], valid: true}
+                let bound: GenericBindings = (generic_bind_type parser (nisa_function_type parser function) expected prior)
+                if (or (not bound.valid) (not (nisa_function_type_ok parser expected))) {
+                    return (nisa_fail "I require one concrete identity for the declared generic function value signature")
                 }
+                let binding: int = (nisa_generic_register parser index bound.names bound.types)
+                if (< binding 0) { return "" }
+                set nisa_has_callables true
+                set nisa_ordinary_ok false
+                return (nisa_line_imm "FUNCREF" (at nisa_generics binding).name)
             }
         }
         if (not (nisa_value_type_matches parser (nisa_expr_type parser node_id node_type) expected)) {
@@ -4393,6 +4426,15 @@ fn nisa_emit_field_access(parser: Parser, node_id: int) -> string {
     let access: ASTFieldAccess = (parser_get_field_access parser node_id)
     let global: int = (nisa_qualified_global parser access)
     if (>= global 0) { return (nisa_line_imm "LOAD_GLOBAL" (int_to_string global)) }
+    let function_index: int = (nisa_qualified_function parser access)
+    if (>= function_index 0) {
+        let function: ASTFunction = (parser_get_function parser function_index)
+        if (and (< function.body 0) (== (nisa_module_result function.name) "")) { return (nisa_fail "I require a NanoISA body for a function value") }
+        (nisa_require_function function_index)
+        set nisa_has_callables true
+        set nisa_ordinary_ok false
+        return (nisa_line_imm "FUNCREF" function.name)
+    }
     let enum_index: int = (nisa_enum_receiver parser access)
     if (>= enum_index 0) {
         let declaration: ASTEnum = (parser_get_enum parser enum_index)

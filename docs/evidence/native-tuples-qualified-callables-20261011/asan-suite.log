@@ -1,0 +1,1845 @@
+test_array_binding_parity (tests.test_cseed_tuple_generics.TupleGenerics.test_array_binding_parity) ... FAIL
+test_builtin_tail_call_does_not_enter_generic_specialization (tests.test_cseed_tuple_generics.TupleGenerics.test_builtin_tail_call_does_not_enter_generic_specialization) ... FAIL
+test_declared_tuple_shapes_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_declared_tuple_shapes_preserve_output) ... ok
+test_distinct_record_specializations (tests.test_cseed_tuple_generics.TupleGenerics.test_distinct_record_specializations) ... FAIL
+test_generic_array_contexts_reject_wrong_elements (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_array_contexts_reject_wrong_elements) ... ok
+test_generic_array_mutation_preserves_aliases_and_empty_types (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_array_mutation_preserves_aliases_and_empty_types) ... FAIL
+test_generic_global_initializer (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_global_initializer) ... FAIL
+test_generic_tuple_literals_in_nested_results (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_tuple_literals_in_nested_results) ... FAIL
+test_growing_array_specializations_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_growing_array_specializations_preserve_output) ... ok
+test_imported_generic_array_results_keep_complete_types (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_generic_array_results_keep_complete_types) ... FAIL
+test_imported_qualified_and_selective_owners (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_qualified_and_selective_owners) ... FAIL
+test_imported_structural_generic_parameters (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_structural_generic_parameters) ... FAIL
+test_imported_tuple_result (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_result) ... FAIL
+test_imported_tuple_signatures_and_aliases (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_signatures_and_aliases) ... FAIL
+test_independent_instances_do_not_consume_recursive_budget (tests.test_cseed_tuple_generics.TupleGenerics.test_independent_instances_do_not_consume_recursive_budget) ... FAIL
+test_nested_array_calls_and_record_elements (tests.test_cseed_tuple_generics.TupleGenerics.test_nested_array_calls_and_record_elements) ... FAIL
+test_nested_tuple_and_array_results (tests.test_cseed_tuple_generics.TupleGenerics.test_nested_tuple_and_array_results) ... FAIL
+test_primitive_generic_fixture (tests.test_cseed_tuple_generics.TupleGenerics.test_primitive_generic_fixture) ... FAIL
+test_qualified_generic_tuple_callbacks_and_shadowing (tests.test_cseed_tuple_generics.TupleGenerics.test_qualified_generic_tuple_callbacks_and_shadowing) ... FAIL
+test_qualified_tuple_signature_refusals (tests.test_cseed_tuple_generics.TupleGenerics.test_qualified_tuple_signature_refusals) ... ok
+test_repeated_generic_array_types_must_match (tests.test_cseed_tuple_generics.TupleGenerics.test_repeated_generic_array_types_must_match) ... ok
+test_repeated_type_variable_rejects_distinct_records (tests.test_cseed_tuple_generics.TupleGenerics.test_repeated_type_variable_rejects_distinct_records) ... ok
+test_resource_tuple_preserves_output (tests.test_cseed_tuple_generics.TupleGenerics.test_resource_tuple_preserves_output) ... ok
+test_retained_record_result_regression (tests.test_cseed_tuple_generics.TupleGenerics.test_retained_record_result_regression) ... FAIL
+test_structural_array_minimum (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_array_minimum) ... FAIL
+test_structural_array_parameters (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_array_parameters) ... FAIL
+test_structural_callable_local_and_nominal_letter (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_callable_local_and_nominal_letter) ... FAIL
+test_structural_callable_parameters (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_callable_parameters) ... FAIL
+test_structural_generic_refusals_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_generic_refusals_preserve_output) ... ok
+test_structural_tuple_parameter (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_parameter) ... FAIL
+test_structural_tuple_result_substitution (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_result_substitution) ... FAIL
+test_tuple_array_alias_is_preserved (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_array_alias_is_preserved) ... FAIL
+test_tuple_binding_mismatches_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_binding_mismatches_preserve_output) ... ok
+test_tuple_byte_element (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_byte_element) ... FAIL
+test_tuple_identity_and_destructuring (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_identity_and_destructuring) ... FAIL
+test_tuple_nominal_and_callback_elements (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_nominal_and_callback_elements) ... FAIL
+test_tuple_projection_bounds_preserve_output (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_projection_bounds_preserve_output) ... ok
+test_tuple_recursive_callback_signature (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_recursive_callback_signature) ... FAIL
+test_typed_locals_transitive_calls_and_recursion (tests.test_cseed_tuple_generics.TupleGenerics.test_typed_locals_transitive_calls_and_recursion) ... FAIL
+test_unbound_structural_result_preserves_output (tests.test_cseed_tuple_generics.TupleGenerics.test_unbound_structural_result_preserves_output) ... ok
+
+======================================================================
+FAIL: test_array_binding_parity (tests.test_cseed_tuple_generics.TupleGenerics.test_array_binding_parity)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 189, in test_array_binding_parity
+    self.execute((ROOT / 'docs/evidence/generic-specialization-budget-20261010/array-parity.nano').read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_builtin_tail_call_does_not_enter_generic_specialization (tests.test_cseed_tuple_generics.TupleGenerics.test_builtin_tail_call_does_not_enter_generic_specialization)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 59, in test_builtin_tail_call_does_not_enter_generic_specialization
+    self.execute('fn size(text: string) -> int { return (str_length text) }\nshadow size { assert (== (size "abc") 3) }\nfn main() -> int { assert (== (size "four") 4) return 0 }\nshadow main { assert (== (main) 0) }\n')
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_distinct_record_specializations (tests.test_cseed_tuple_generics.TupleGenerics.test_distinct_record_specializations)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 153, in test_distinct_record_specializations
+            self.execute('''struct First { value: int }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    struct Second { text: string }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<9 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_generic_array_mutation_preserves_aliases_and_empty_types (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_array_mutation_preserves_aliases_and_empty_types)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 219, in test_generic_array_mutation_preserves_aliases_and_empty_types
+            self.execute('''fn identity(value:T)->T{let copy:T = value return copy}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow identity {assert (== (identity 1) 1)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<10 lines>...
+    shadow main {assert (== (main) 0)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_generic_global_initializer (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_global_initializer)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 44, in test_generic_global_initializer
+    self.execute('fn identity(value:T)->T{return value}\n'
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'shadow identity {assert (== (identity 1) 1)}\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'let initial:int=(identity 7)\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'fn main()->int{assert (== initial 7) return 0}\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'shadow main {assert (== (main) 0)}\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_generic_tuple_literals_in_nested_results (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_tuple_literals_in_nested_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 182, in test_generic_tuple_literals_in_nested_results
+            self.execute(IDENTITY+'''fn wrap(value:T)->((T,bool),T){return ((value,true),value)}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow wrap {let value=(wrap 3) assert (== (value.0).0 3) assert (value.0).1}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<22 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_imported_generic_array_results_keep_complete_types (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_generic_array_results_keep_complete_types)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 280, in test_imported_generic_array_results_keep_complete_types
+            self.execute('''module "a.nano" as source
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    from "a.nano" import identity as copied
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<12 lines>...
+    shadow main {assert (== (main) 0)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''', {'a.nano':'pub fn identity(value:T)->T{let copy:T = value return copy}\nshadow identity {assert (== (identity 1) 1)}\n'})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-h2tj7yki/a.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-HcxnJV/source.c:13:10: fatal error: 'runtime/nl_string.h' file not found
+   13 | #include "runtime/nl_string.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-HcxnJV/source.c
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-h2tj7yki/a.nano'
+Error: Failed to compile modules
+
+
+======================================================================
+FAIL: test_imported_qualified_and_selective_owners (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_qualified_and_selective_owners)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 298, in test_imported_qualified_and_selective_owners
+            self.execute('''module "a.nano" as first
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    from "b.nano" import choose as second
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+    ''', {'a.nano': 'pub fn choose(a: T, b: T) -> T { return a }\nshadow choose { assert (== (choose 1 2) 1) }\n',
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          'b.nano': 'pub fn choose(a: T, b: T) -> T { return b }\nshadow choose { assert (== (choose 1 2) 2) }\n'})
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 1, column 5: Unused variable 'b'
+Warning at line 1, column 5: Unused variable 'a'
+Warning at line 1, column 5: Unused variable 'b'
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-hnbic37t/a.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-fGDcfh/source.c:13:10: fatal error: 'runtime/nl_string.h' file not found
+   13 | #include "runtime/nl_string.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-fGDcfh/source.c
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-hnbic37t/a.nano'
+Error: Failed to compile modules
+
+
+======================================================================
+FAIL: test_imported_structural_generic_parameters (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_structural_generic_parameters)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 71, in test_imported_structural_generic_parameters
+    self.execute('module "a.nano" as a\nfrom "a.nano" import first as head\n'
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'fn wrapped(values:array<int>)->int{return (a.first values)}\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        'pub fn first(values:array<T>)->T{return (at values 0)}\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'shadow first {assert (== (first [1]) 1)}\n'})
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-mr41wzv1/a.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-IF3P7U/source.c:13:10: fatal error: 'runtime/nl_string.h' file not found
+   13 | #include "runtime/nl_string.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-IF3P7U/source.c
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-mr41wzv1/a.nano'
+Error: Failed to compile modules
+
+
+======================================================================
+FAIL: test_imported_tuple_result (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_result)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 109, in test_imported_tuple_result
+            self.execute('module "pair.nano" as pair\n'+IDENTITY+'''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let value = (identity (pair.make))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+    shadow make {let value = (make) assert value.1}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    '''})
+    ^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-1sgev1rr/pair.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-3l2Kow/source.c:13:10: fatal error: 'runtime/nl_string.h' file not found
+   13 | #include "runtime/nl_string.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-3l2Kow/source.c
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-1sgev1rr/pair.nano'
+Error: Failed to compile modules
+
+
+======================================================================
+FAIL: test_imported_tuple_signatures_and_aliases (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_signatures_and_aliases)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 165, in test_imported_tuple_signatures_and_aliases
+            self.execute('module "pair.nano" as pair\nfrom "pair.nano" import flip as other\n'+IDENTITY+'''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let value:(int,bool) = (pair.make)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+    shadow flip {assert (== (flip (3,true)).1 3)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    '''})
+    ^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-vu63ncsx/pair.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-OOn02c/source.c:13:10: fatal error: 'runtime/nl_string.h' file not found
+   13 | #include "runtime/nl_string.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-OOn02c/source.c
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-vu63ncsx/pair.nano'
+Error: Failed to compile modules
+
+
+======================================================================
+FAIL: test_independent_instances_do_not_consume_recursive_budget (tests.test_cseed_tuple_generics.TupleGenerics.test_independent_instances_do_not_consume_recursive_budget)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 54, in test_independent_instances_do_not_consume_recursive_budget
+    self.execute(declarations+'fn identity(value:T)->T{return value}\n'
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'shadow identity {assert (== (identity 1) 1)}\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'fn main()->int{'+body+'return 0}\nshadow main {assert (== (main) 0)}\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_nested_array_calls_and_record_elements (tests.test_cseed_tuple_generics.TupleGenerics.test_nested_array_calls_and_record_elements)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 192, in test_nested_array_calls_and_record_elements
+            self.execute('''struct First { value:int }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    struct Second { text:string }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<21 lines>...
+    shadow main {assert (== (main) 0)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_nested_tuple_and_array_results (tests.test_cseed_tuple_generics.TupleGenerics.test_nested_tuple_and_array_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 30, in test_nested_tuple_and_array_results
+            self.execute(IDENTITY+'''fn make()->((int,bool),array<string>){return ((7,true),["kept"])}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow make {let value = (make) assert (value.0).1}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_primitive_generic_fixture (tests.test_cseed_tuple_generics.TupleGenerics.test_primitive_generic_fixture)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 127, in test_primitive_generic_fixture
+    self.execute((ROOT / 'tests/unit/test_generics.nano').read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 25, column 1: Unused variable 'b'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_qualified_generic_tuple_callbacks_and_shadowing (tests.test_cseed_tuple_generics.TupleGenerics.test_qualified_generic_tuple_callbacks_and_shadowing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 210, in test_qualified_generic_tuple_callbacks_and_shadowing
+            self.execute('module "pair.nano" as pair\n'+IDENTITY+'''struct Holder {keep:fn(int)->int}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn apply(value:T,callback:fn(T)->T)->T{return (callback value)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW, files={'pair.nano': 'pub fn keep(value:T)->T{return value}\nshadow keep {assert (== (keep 1) 1)}\n'})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-u0lki8fl/pair.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-6pVQuk/source.c:13:10: fatal error: 'runtime/nl_string.h' file not found
+   13 | #include "runtime/nl_string.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-6pVQuk/source.c
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-u0lki8fl/pair.nano'
+Error: Failed to compile modules
+
+
+======================================================================
+FAIL: test_retained_record_result_regression (tests.test_cseed_tuple_generics.TupleGenerics.test_retained_record_result_regression)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 124, in test_retained_record_result_regression
+    self.execute((ROOT / 'docs/evidence/generic-results-global-audit-20261010/generic-producer-repro.nano').read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_structural_array_minimum (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_array_minimum)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 68, in test_structural_array_minimum
+    self.execute((ROOT/'docs/evidence/structural-generic-baseline-20261010/array-parameter.nano').read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_structural_array_parameters (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_array_parameters)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 62, in test_structural_array_parameters
+    self.execute((ROOT/'tests/nanoisa/fixtures/structural_generic_arrays.nano.txt').read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 6, column 1: Unused variable 'values'
+Warning at line 8, column 1: Unused variable 'left'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_structural_callable_local_and_nominal_letter (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_callable_local_and_nominal_letter)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 100, in test_structural_callable_local_and_nominal_letter
+    self.execute('struct A {value:int}\n'
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+        'fn fixed(value:A)->A{return value}\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        'fn main()->int{assert (apply 2 positive) assert (== (fixed A {value:7}).value 7) return 0}\n'
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'shadow main {assert (== (main) 0)}\n')
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_structural_callable_parameters (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_callable_parameters)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 65, in test_structural_callable_parameters
+    self.execute((ROOT/'tests/nanoisa/fixtures/structural_generic_callable.nano.txt').read_text())
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_structural_tuple_parameter (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_parameter)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 41, in test_structural_tuple_parameter
+            self.execute('''fn first(value:(T,E))->T{return value.0}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow first {assert (== (first (7,true)) 7)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_structural_tuple_result_substitution (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_result_substitution)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 96, in test_structural_tuple_result_substitution
+            self.execute('''fn swap(value:(T,E))->(E,T){return (value.1,value.0)}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow swap {let value=(swap (7,true)) assert value.0 assert (== value.1 7)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_tuple_array_alias_is_preserved (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_array_alias_is_preserved)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 131, in test_tuple_array_alias_is_preserved
+            self.execute(IDENTITY+'''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let values:array<int> = [1]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_tuple_byte_element (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_byte_element)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 13, in test_tuple_byte_element
+            self.execute(IDENTITY+'''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let bytes:array<u8> = [7]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_tuple_identity_and_destructuring (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_identity_and_destructuring)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 22, in test_tuple_identity_and_destructuring
+            self.execute(IDENTITY+'''fn main()->int {
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        let (number, flag) = (identity (identity (7, true)))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_tuple_nominal_and_callback_elements (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_nominal_and_callback_elements)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 50, in test_tuple_nominal_and_callback_elements
+            self.execute(IDENTITY+'''enum Shade {Dark=2}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    struct Box {value:int}
+    ^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_tuple_recursive_callback_signature (tests.test_cseed_tuple_generics.TupleGenerics.test_tuple_recursive_callback_signature)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 140, in test_tuple_recursive_callback_signature
+            self.execute(IDENTITY+'''struct Ops {op:fn(Ops)->(int,bool)}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn answer(value:Ops)->(int,bool){return (7,true)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Warning at line 4, column 1: Unused variable 'value'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_int.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_bool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_LexerToken.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_token.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerDiagnostic.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_CompilerSourceLocation.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTNumber.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFloat.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTString.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBool.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIdentifier.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBinaryOp.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTModuleQualifiedCall.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTArrayLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTLet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTSet.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStmtRef.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTIf.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTWhile.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFor.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTReturn.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnsafeBlock.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTPrint.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTAssert.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFunction.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTShadow.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTStructLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTFieldAccess.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTEnum.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnion.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTUnionConstruct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTMatch.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTImport.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTOpaqueType.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTServiceDecl.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleLiteral.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/list_ASTTupleIndex.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/token_helpers.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/effect_runtime.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/dyn_array.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/gc_struct.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/nl_string.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/cli.c'
+clang: error: no such file or directory: '/private/tmp/src/runtime/regex.c'
+clang: error: no such file or directory: '/private/tmp/src/utf8.c'
+clang: error: no such file or directory: '/private/tmp/src/coroutine.c'
+C compilation failed
+
+
+======================================================================
+FAIL: test_typed_locals_transitive_calls_and_recursion (tests.test_cseed_tuple_generics.TupleGenerics.test_typed_locals_transitive_calls_and_recursion)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 130, in test_typed_locals_transitive_calls_and_recursion
+            self.execute('''struct Box { value: int }
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn identity(value: T) -> T { let copy: T = value return copy }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<17 lines>...
+    shadow main { assert (== (main) 0) }
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ''')
+    ^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+----------------------------------------------------------------------
+Ran 40 tests in 11.335s
+
+FAILED (failures=29)

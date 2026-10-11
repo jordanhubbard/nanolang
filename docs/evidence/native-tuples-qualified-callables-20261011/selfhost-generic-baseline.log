@@ -1,0 +1,32 @@
+test_qualified_generic_tuple_callbacks_and_shadowing (tests.test_cseed_tuple_generics.TupleGenerics.test_qualified_generic_tuple_callbacks_and_shadowing) ... FAIL
+
+======================================================================
+FAIL: test_qualified_generic_tuple_callbacks_and_shadowing (tests.test_cseed_tuple_generics.TupleGenerics.test_qualified_generic_tuple_callbacks_and_shadowing)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 210, in test_qualified_generic_tuple_callbacks_and_shadowing
+            self.execute('module "pair.nano" as pair\n'+IDENTITY+'''struct Holder {keep:fn(int)->int}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    fn apply(value:T,callback:fn(T)->T)->T{return (callback value)}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<11 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW, files={'pair.nano': 'pub fn keep(value:T)->T{return value}\nshadow keep {assert (== (keep 1) 1)}\n'})
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 33, in execute
+    self.run_command([COMPILER, path, *MODE, '-o', module])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : NSType checking failed
+Diagnostics:
+  [E0001] Variable keep: I expected a value of type `fn((int,bool))->(int,bool)`, but found `fn(T)->T`. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-aozx8t9y/main.nano:10:5)
+  [E0010] I require one concrete identity and matching structure for each generic type variable. (/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-generic-aozx8t9y/main.nano:13:12)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.119s
+
+FAILED (failures=1)

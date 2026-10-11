@@ -2834,7 +2834,10 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 if (expr->as.tuple_literal.type_info) {
                     /* I discover contextual field tuples while buffering
                      * bodies, before the complete layout graph is emitted. */
-                    typedef_name = register_tuple_type(g_tuple_registry, expr->as.tuple_literal.type_info);
+                    TypeInfo *info = expr->as.tuple_literal.type_info;
+                    if (native_generic_bindings && generic_contains(env, info, 0))
+                        info = native_generic_local(env, info);
+                    typedef_name = register_tuple_type(g_tuple_registry, info);
                 } else if (expr->as.tuple_literal.element_types) {
                     /* Element types are set - look up by exact match */
                     for (int i = 0; i < g_tuple_registry->count; i++) {

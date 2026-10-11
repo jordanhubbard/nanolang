@@ -1,0 +1,6 @@
+test_generic_tuple_literals_in_nested_results (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_tuple_literals_in_nested_results) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 1.853s
+
+OK

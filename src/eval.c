@@ -5791,6 +5791,9 @@ static Value eval_expression(ASTNode *expr, Environment *env) {
                 return create_void();
             }
             
+            /* I return an independently owned callable, as array reads do. */
+            if (tv->elements[index].type == VAL_FUNCTION)
+                return copy_array_callable(tv->elements[index]);
             return tv->elements[index];
         }
 

@@ -1,0 +1,11 @@
+Warning at line 2, column 1: Unused variable 'b'
+I compare reduce 9:__nano_root_enum__Choice with 9:__nano_root_enum__Choice.
+I compare reduce 9:__nano_root_enum__Choice with 9:__nano_root_enum__Choice.
+I compare reduce 9:- with 9:__nano_root_enum__Choice.
+-- E001 TYPE MISMATCH --- /private/tmp/nl51-native-tuple-results/enum-reduce.nano
+I require reduce to receive array<E>, an initializer A and an exact fn(A,E)->A.
+
+4| fn apply(xs:array<Choice>,initial:Choice)->Choice{return (reduce xs initial fold)}
+                                                            ^
+Hint: Retain complete types and match both callback parameters and its result exactly.
+Type checking failed

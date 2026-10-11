@@ -1,0 +1,34 @@
+test_imported_tuple_result (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_result) ... ok
+test_structural_tuple_result_substitution (tests.test_cseed_tuple_generics.TupleGenerics.test_structural_tuple_result_substitution) ... ok
+test_imported_tuple_signatures_and_aliases (tests.test_cseed_tuple_generics.TupleGenerics.test_imported_tuple_signatures_and_aliases) ... ok
+test_generic_tuple_literals_in_nested_results (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_tuple_literals_in_nested_results) ... FAIL
+
+======================================================================
+FAIL: test_generic_tuple_literals_in_nested_results (tests.test_cseed_tuple_generics.TupleGenerics.test_generic_tuple_literals_in_nested_results)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_tuple_generics.py", line 182, in test_generic_tuple_literals_in_nested_results
+            self.execute(IDENTITY+'''fn wrap(value:T)->((T,bool),T){return ((value,true),value)}
+            ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    shadow wrap {let value=(wrap 3) assert (== (value.0).0 3) assert (value.0).1}
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<17 lines>...
+        return 0
+        ^^^^^^^^
+    }'''+MAIN_SHADOW)
+    ^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 30, in execute
+    self.run_command([COMPILER, path, '-o', binary])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_cseed_generic_functions.py", line 19, in run_command
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Undefined function 'callback'
+I will not publish output after failed shadow execution.
+Shadow tests failed
+
+
+----------------------------------------------------------------------
+Ran 4 tests in 4.202s
+
+FAILED (failures=1)

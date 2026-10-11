@@ -160,3 +160,81 @@ fn main()->int {
                                   cwd=base.ROOT,capture_output=True,text=True,timeout=120)
             self.assertGreater(result.returncode,0,result.stdout+result.stderr)
             self.assertEqual(output.read_bytes(),b'prior')
+
+    def test_imported_tuple_signatures_and_aliases(self):
+        self.execute('module "pair.nano" as pair\nfrom "pair.nano" import flip as other\n'+IDENTITY+'''fn main()->int {
+    let value:(int,bool) = (pair.make)
+    let reversed:(bool,int) = (pair.flip value)
+    let flip:fn((int,bool))->(bool,int) = pair.flip
+    let maker:fn()->(int,bool) = pair.make
+    assert reversed.0
+    assert (== reversed.1 7)
+    assert (== (other (maker)).1 7)
+    assert (== (flip (identity value)).1 7)
+    return 0
+}'''+MAIN_SHADOW, files={'pair.nano': '''pub fn make()->(int,bool){return (7,true)}
+shadow make {assert (== (make).0 7)}
+pub fn flip(value:(int,bool))->(bool,int){return (value.1,value.0)}
+shadow flip {assert (== (flip (3,true)).1 3)}
+'''})
+
+    def test_generic_tuple_literals_in_nested_results(self):
+        self.execute(IDENTITY+'''fn wrap(value:T)->((T,bool),T){return ((value,true),value)}
+shadow wrap {let value=(wrap 3) assert (== (value.0).0 3) assert (value.0).1}
+fn plus(value:int)->int{return (+ value 1)}
+shadow plus {assert (== (plus 1) 2)}
+fn main()->int {
+    let number:((int,bool),int) = (wrap 7)
+    let text:((string,bool),string) = (wrap "kept")
+    let decimal:((float,bool),float) = (wrap 1.5)
+    let function:((fn(int)->int,bool),fn(int)->int) = (wrap plus)
+    let mut callback:fn(int)->int = (function.0).0
+    let retained:fn(int)->int = function.1
+    set callback plus
+    let projected:fn(int)->int = (function.0).0
+    assert (== (retained 8) 9)
+    assert (== (projected 9) 10)
+    let source:array<int> = [9]
+    let arrays:((array<int>,bool),array<int>) = (wrap source)
+    (array_set (arrays.0).0 0 11)
+    assert (== number.1 7)
+    assert (== (text.0).0 "kept")
+    assert (== decimal.1 1.5)
+    assert (== (callback 7) 8)
+    assert (== (at arrays.1 0) 11)
+    assert (== (at source 0) 11)
+    return 0
+}'''+MAIN_SHADOW)
+
+    def test_qualified_generic_tuple_callbacks_and_shadowing(self):
+        self.execute('module "pair.nano" as pair\n'+IDENTITY+'''struct Holder {keep:fn(int)->int}
+fn apply(value:T,callback:fn(T)->T)->T{return (callback value)}
+shadow apply {assert (== (apply 7 identity) 7)}
+fn local(value:int)->int{return (+ value 1)}
+shadow local {assert (== (local 1) 2)}
+fn main()->int {
+    let keep:fn((int,bool))->(int,bool) = pair.keep
+    let value:(int,bool) = (keep (7,true))
+    assert (== value.0 7)
+    assert (apply true pair.keep)
+    let pair:Holder = Holder {keep:local}
+    let shadowed:fn(int)->int = pair.keep
+    assert (== (shadowed 7) 8)
+    return 0
+}'''+MAIN_SHADOW, files={'pair.nano': 'pub fn keep(value:T)->T{return value}\nshadow keep {assert (== (keep 1) 1)}\n'})
+
+    def test_qualified_tuple_signature_refusals(self):
+        for signature in ('fn((int,bool))->(int,bool)', 'fn()->(bool,int)', 'fn((string,bool))->(bool,int)'):
+            with self.subTest(signature=signature), tempfile.TemporaryDirectory() as tmp:
+                directory = Path(tmp)
+                (directory/'pair.nano').write_text('pub fn flip(value:(int,bool))->(bool,int){return (value.1,value.0)}\n'
+                    'shadow flip {assert (== (flip (7,true)).1 7)}\n')
+                source, output = directory/'main.nano', directory/'output'
+                source.write_text('module "pair.nano" as pair\nfn unused()->int{let wrong:'+signature+' = pair.flip return 0}\n'
+                    'shadow unused {assert true}\nfn main()->int{return 0}'+MAIN_SHADOW)
+                output.write_bytes(b'prior artifact')
+                result = subprocess.run([base.COMPILER, source, *base.MODE, '-o', output], cwd=base.ROOT,
+                                        capture_output=True, text=True, timeout=120)
+                self.assertEqual(result.returncode, 1, result.stdout+result.stderr)
+                self.assertEqual(output.read_bytes(), b'prior artifact')
+                self.assertNotIn('C compilation failed', result.stdout+result.stderr)

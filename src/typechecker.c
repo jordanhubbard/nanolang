@@ -1447,7 +1447,32 @@ static void bound_scope_symbols(Environment *env, int first, ASTNode *scope) {
     }
 }
 
-/* Check expression type (wrapper with recursion depth tracking) */
+static void bind_qualified_function_value(ASTNode *expr, Environment *env) {
+    /* I bind an imported function value to the same exact name as its call.
+     * A visible local receiver keeps ordinary field-access semantics. */
+    if (env && expr && expr->type == AST_FIELD_ACCESS) {
+        ASTNode *receiver = expr->as.field_access.object;
+        const char *field = expr->as.field_access.field_name;
+        if (receiver && receiver->type == AST_IDENTIFIER && field &&
+            !env_get_var_visible_at(env, receiver->as.identifier, receiver->line, receiver->column)) {
+            size_t size = strlen(receiver->as.identifier) + strlen(field) + 2;
+            char *name = malloc(size);
+            if (name) {
+                snprintf(name, size, "%s.%s", receiver->as.identifier, field);
+                if (!env_global_import_symbol(env, name) && env_get_function(env, name)) {
+                    free_ast(receiver);
+                    free(expr->as.field_access.field_name);
+                    free_payload_type_info(expr->as.field_access.resolved_type_info);
+                    memset(&expr->as, 0, sizeof expr->as);
+                    expr->type = AST_IDENTIFIER;
+                    expr->as.identifier = name;
+                } else free(name);
+            }
+        }
+    }
+}
+
+/* I check expressions with bounded recursive traversal. */
 Type check_expression(ASTNode *expr, Environment *env) {
     if (!expr) return TYPE_UNKNOWN;
 
@@ -1460,6 +1485,7 @@ Type check_expression(ASTNode *expr, Environment *env) {
         return TYPE_UNKNOWN;
     }
 
+    bind_qualified_function_value(expr, env);
     int first_symbol = env ? env->symbol_count : 0;
     Type result = check_expression_impl(expr, env);
     bound_scope_symbols(env, first_symbol, expr);
@@ -1720,6 +1746,7 @@ static FunctionSignature *function_result_signature(ASTNode *call, Environment *
 /* I copy a callable expression's full signature for the caller to release. */
 static FunctionSignature *copy_callable_signature(ASTNode *value, Environment *env) {
     if (!value) return NULL;
+    bind_qualified_function_value(value, env);
     if (value->type == AST_IDENTIFIER) {
         Symbol *symbol = env_get_var_visible_at(env, value->as.identifier,
                                                 value->line, value->column);
@@ -1739,6 +1766,7 @@ static FunctionSignature *copy_callable_signature(ASTNode *value, Environment *e
 
 /* I keep callback template variables separate from the enclosing call's bindings. */
 static bool generic_function_value(ASTNode *value, Environment *env) {
+    bind_qualified_function_value(value, env);
     if (!value || value->type != AST_IDENTIFIER || value->lambda_definition ||
         env_get_var_visible_at(env, value->as.identifier, value->line, value->column)) return false;
     return generic_function(env, env_get_function(env, value->as.identifier));

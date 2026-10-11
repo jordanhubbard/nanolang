@@ -4128,10 +4128,38 @@ shadow check_record_callable_fields {
     assert (> (list_CompilerDiagnostic_length diags) 0)
 }
 
-fn check_constructor_argument(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
-    if (and (== node_type ParseNodeType.PNODE_IDENTIFIER) (str_starts_with (type_to_string expected) "fn(")) {
+# I preserve lexical receivers while resolving imported callable declarations.
+fn tc_function_value_symbol(parser: Parser, node_id: int, node_type: int, symbols: array<Symbol>) -> int {
+    if (== node_type ParseNodeType.PNODE_IDENTIFIER) {
         let identifier: ASTIdentifier = (parser_get_identifier parser node_id)
-        let index: int = (env_lookup symbols (tc_bound_name identifier.name identifier.line symbols))
+        return (env_lookup symbols (tc_bound_name identifier.name identifier.line symbols))
+    }
+    if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
+        let access: ASTFieldAccess = (parser_get_field_access parser node_id)
+        if (!= access.object_type ParseNodeType.PNODE_IDENTIFIER) { return -1 }
+        let receiver: ASTIdentifier = (parser_get_identifier parser access.object)
+        if (>= (env_lookup symbols (tc_bound_name receiver.name receiver.line symbols)) 0) { return -1 }
+        let qualified: string = (+ receiver.name (+ "." access.field_name))
+        let resolved: string = (mb_lookup (mb_owner access.line) qualified)
+        if (== qualified resolved) { return -1 }
+        return (env_lookup symbols resolved)
+    }
+    return -1
+}
+shadow tc_function_value_symbol {
+    (mb_reset [1])
+    (mb_add_target 0 "pair.keep" "owned_keep" 0)
+    let parser: Parser = (resource_test_parser "fn main()->int{let callback:fn(int)->int=pair.keep return 0}")
+    let function: Symbol = (symbol_new "owned_keep" (type_from_string "fn(int)->int") false true 1 [(type_int)] (type_int))
+    let receiver: Symbol = (symbol_new "pair" (type_int) false false 0 [] (type_void))
+    assert (== (tc_function_value_symbol parser 0 ParseNodeType.PNODE_FIELD_ACCESS [function]) 0)
+    assert (== (tc_function_value_symbol parser 0 ParseNodeType.PNODE_FIELD_ACCESS [function, receiver]) -1)
+    (mb_reset [])
+}
+
+fn check_constructor_argument(parser: Parser, node_id: int, node_type: int, actual: NSType, expected: NSType, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    if (str_starts_with (type_to_string expected) "fn(") {
+        let index: int = (tc_function_value_symbol parser node_id node_type symbols)
         if (>= index 0) {
             let symbol: Symbol = (at symbols index)
             if (and symbol.is_function (tc_generic_function parser symbol)) {
@@ -4771,13 +4799,10 @@ fn tc_generic_call(parser: Parser, sym: Symbol, start: int, count: int, line: in
         let argument: ASTStmtRef = (parser_get_call_arg parser (+ start i))
         let raw: NSType = (check_expr_node parser argument.node_id argument.node_type symbols diags file_name)
         let mut deferred: bool = false
-        if (== argument.node_type ParseNodeType.PNODE_IDENTIFIER) {
-            let identifier: ASTIdentifier = (parser_get_identifier parser argument.node_id)
-            let index: int = (env_lookup symbols (tc_bound_name identifier.name identifier.line symbols))
-            if (>= index 0) {
-                let value: Symbol = (at symbols index)
-                set deferred (and value.is_function (tc_generic_function parser value))
-            }
+        let index: int = (tc_function_value_symbol parser argument.node_id argument.node_type symbols)
+        if (>= index 0) {
+            let value: Symbol = (at symbols index)
+            set deferred (and value.is_function (tc_generic_function parser value))
         }
         if (== raw.kind TypeKind.TYPE_UNKNOWN) {
             (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0010" "I require one concrete identity and matching structure for each generic type variable." location))

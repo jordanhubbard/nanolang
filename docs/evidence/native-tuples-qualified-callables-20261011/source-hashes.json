@@ -1,0 +1,10 @@
+{
+  "src/env.c": "df653b7ced7c14f376733eae603e72098b33747faa9ddccba5525f696ad97e56",
+  "src/eval.c": "ef46634572187a31cc85ebc54e9fa09bab8dda8d697acc708bb1febf7c1618a1",
+  "src/transpiler.c": "8ebcd5045dd152fbfe5d484eafcf52fcbe2465856e332d6c7f443f76df7c02b1",
+  "src/transpiler_iterative_v3_twopass.c": "67e83127670aa7e9a4b7c9b5d31d0d6bb09183bd98799c99efe0609f0414e3a5",
+  "src/typechecker.c": "42accefe8f1eed8c3d12449fa03fa57752bde12ad304389c43d4c93052acddf4",
+  "src_nano/compiler/nanoisa_codegen.nano": "fae2b654a81008be254d2302b4c8c8d980ff9bd2f8786933256a392c8d1b4481",
+  "src_nano/typecheck.nano": "391a65af53b2a83face9d3d459334936266a607f2f97fc9628586c7d3ffc95e9",
+  "tests/test_cseed_tuple_generics.py": "cf6a0c07f0e73a5c4f1c7ceb7ad363c63116bead40e7ed51d8645c55d223adaa"
+}

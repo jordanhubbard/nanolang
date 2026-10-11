@@ -3472,6 +3472,8 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                 } else {
                     sb_append(sb, "void*");
                 }
+            } else if (mi->as.function.return_type == TYPE_TUPLE && mi->as.function.return_type_info) {
+                emit_signature_type(sb, env, TYPE_TUPLE, NULL, mi->as.function.return_type_info);
             } else if (mi->as.function.return_type == TYPE_FUNCTION) {
                 /* Avoid emitting incorrect prototypes (not needed for current stdlib) */
                 continue;
@@ -3526,6 +3528,8 @@ static void generate_module_function_declarations(StringBuilder *sb, ASTNode *pr
                     } else {
                         sb_append(sb, "void*");
                     }
+                } else if (param->type == TYPE_TUPLE && param->type_info) {
+                    emit_signature_type(sb, env, TYPE_TUPLE, NULL, param->type_info);
                 } else if (param->type == TYPE_FUNCTION && param->fn_sig && fn_registry) {
                     const char *typedef_name = register_function_signature(fn_registry, param->fn_sig);
                     sb_append(sb, typedef_name);
@@ -4609,7 +4613,9 @@ static void collect_module_function_types(ASTNode *program, FunctionTypeRegistry
             if (!mi || mi->type != AST_FUNCTION) continue;
             if (!mi->as.function.is_pub && module_has_main) continue;
 
+            collect_native_dependencies(mi->as.function.return_type_info, fn_registry, g_tuple_registry, 0);
             for (int p = 0; p < mi->as.function.param_count; p++) {
+                collect_native_dependencies(mi->as.function.params[p].type_info, fn_registry, g_tuple_registry, 0);
                 if (mi->as.function.params[p].type == TYPE_FUNCTION && mi->as.function.params[p].fn_sig) {
                     register_function_signature(fn_registry, mi->as.function.params[p].fn_sig);
                 }
