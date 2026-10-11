@@ -7050,6 +7050,8 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
         } else {
             set header (+ header " 1\n")
         }
+        if func.is_pure { set header (+ header ".function_purity 1\n") }
+        else { set header (+ header ".function_purity 0\n") }
         let mut parameter_names: string = ""
         let mut named_parameter: int = 0
         while (< named_parameter func.param_count) {
@@ -7081,6 +7083,9 @@ fn nisa_emit_function(parser: Parser, func: ASTFunction) -> string {
 }
 
 shadow nisa_emit_function {
+    let purity: string = (nanoisa_emit_nasm "pure fn twice(x:int)->int{return (+ x x)} fn main()->int{return (twice 3)}")
+    assert (str_contains purity ".function_purity 1\n")
+    assert (str_contains purity ".function_purity 0\n")
     let relay: string = (nanoisa_emit_nasm "fn relay(f:fn()->int)->fn()->int{return f} fn main()->int{return 0}")
     assert (str_contains relay ".parameters relay function")
     let _: int = (nisa_reset)

@@ -39,10 +39,15 @@ historical duplicates; these headline counts do not replace that contract.
 - Native HALT and scalar effect argument/resume gaps are repaired through
   `bfab9d50a`. Resource-bearing effects, imported/nominal/generic signature
   completeness and actual foreign callback reentry remain open.
-- Local names and reconstruction have bounded implementations. Upvalue naming,
-  all producer facts and full reconstruction are not established by those
-  bounded tests. Managed records/arrays likewise have admitted subsets and
+- Local names, including captured upvalues, and reconstruction have bounded
+  implementations. All producer facts and full reconstruction are not
+  established by those bounded tests. Managed records/arrays likewise have admitted subsets and
   private foundations, not complete applicable-target coverage.
+
+My subsequent [declared-purity checkpoint](evidence/function-purity-20261011/README.md)
+preserves source declaration flags through both producers and repairs duplicate
+assembly symbols for imported functions. The broader frontend-fact requirement
+remains open; these changes do not alter the headline counts.
 
 ## Concrete next acceptance blocks
 
@@ -126,7 +131,7 @@ remain open even when an older bootstrap or focused suite passed.
 | 10278 | Recorded done | Cover compiler functions, records, control flow, arrays, strings, modules, and declared host ABI in `nvm2c`; `STR_EQ` is now native (`make test-nvm2c`, 2,431 passed). | [Existing scope classification](RELEASE_5.1_SCOPE.md) |
 | 10280 | Recorded done | Lower `CALL_EXTERN` only through the declared host ABI and refuse unsupported imports; `make test-nvm2c` (2,431 passed) covers the builtin and artifact adapters and the refusal path. | [Existing scope classification](RELEASE_5.1_SCOPE.md) |
 | 10282 | Recorded done | Keep `wrapper_gen` explicitly packaged-interpreter-only in the CLI and documentation; the `-o` help and verbose output name a packaged interpreter, never native AOT (`make test-wrapper-packaged-interpreter`). | [Existing scope classification](RELEASE_5.1_SCOPE.md) |
-| 10400 | Unclosed | Store local names in module metadata for useful reconstruction and diagnostics. | [Checkpoint; full acceptance open](evidence/nested-local-names-20261011/README.md) |
+| 10400 | Unclosed | Store local names in module metadata for useful reconstruction and diagnostics. | [Checkpoint; full acceptance open](evidence/upvalue-names-20261011/README.md) |
 | 10407 | Unclosed | Preserve purity, affine, generic, effect, and exhaustiveness frontend facts in module metadata. | [Checkpoint; full acceptance open](NANOISA_ONLY.md) |
 | 10409 | Unclosed | Recover structured `if`, `while`, and `return` from verified control flow for reconstruction. | [Checkpoint; full acceptance open](evidence/reconstruction-feasibility-audit.md) |
 | 10419 | Unclosed | Define verifier-enforced general and restricted compute profiles. | [Checkpoint; full acceptance open](evidence/nanoisa-verifier-profiles.md) |

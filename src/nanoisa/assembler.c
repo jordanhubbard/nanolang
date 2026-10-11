@@ -900,6 +900,16 @@ static bool process_line(AsmState *state, const char *line, AsmResult *result) {
             return true;
         }
 
+        if (strcmp(directive, "function_purity") == 0) {
+            uint16_t declared;
+            if (!state->in_function || !parse_uint16(&p, &declared) ||
+                declared > 1 || !require_line_end(p, result))
+                return par_error(result, "I require function_purity 0 or 1 inside a function.");
+            if (!nvm_add_function_purity(state->mod, state->current_function, declared != 0))
+                return par_error(result, "I cannot retain an ambiguous function purity declaration.");
+            return true;
+        }
+
         if (strcmp(directive,"local_begin")==0 || strcmp(directive,"local_end")==0 || strcmp(directive,"upvalue_name")==0) {
             bool upvalue=strcmp(directive,"upvalue_name")==0;
             uint16_t slot;

@@ -6765,3 +6765,8 @@ test-nvm2wasm: test-portable-bytes-execution
 test-selfhost-effects: bootstrap nano_virt nano_vm
 	python3 tests/test_selfhost_effects.py
 test-units: test-selfhost-effects
+
+.PHONY: test-function-purity-metadata
+test-units: test-function-purity-metadata
+test-function-purity-metadata: nano_virt nanoisa_dump nano_vm nvm2c
+	python3 -m unittest -v tests.test_function_purity_metadata

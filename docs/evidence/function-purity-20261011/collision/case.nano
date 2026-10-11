@@ -1,0 +1,3 @@
+module "left.nano" as left
+module "right.nano" as right
+fn main()->int{return (+ (left.value 4) (right.value 9))}

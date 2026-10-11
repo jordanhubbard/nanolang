@@ -308,6 +308,12 @@ bool nvm_add_metadata(NvmModule *mod, uint32_t key, uint32_t value);
 bool nvm_metadata_valid(const NvmModule *mod);
 bool nvm_metadata_source_key(const NvmModule *mod, uint32_t key);
 
+/* I retain source declarations, never verified pure-call authority.
+ * Lookup returns 0/1 for an unambiguous declaration and -1 for absent,
+ * malformed or duplicate records. Rewriters must remap function indices. */
+bool nvm_add_function_purity(NvmModule *mod, uint32_t function, bool declared);
+int nvm_function_purity(const NvmModule *mod, uint32_t function);
+
 /* Add a function entry. Returns the function index. */
 /* I return UINT32_MAX on failure; entry may borrow an existing table entry. */
 uint32_t nvm_add_function(NvmModule *mod, const NvmFunctionEntry *entry);

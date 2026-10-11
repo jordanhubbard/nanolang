@@ -3595,6 +3595,10 @@ static void compile_nested_function(CG *cg, ASTNode *node, bool source_binding) 
     }
 
     if (!record_function_parameters(cg, node, (uint32_t)fn_idx)) return;
+    if (!nvm_add_function_purity(cg->module, (uint32_t)fn_idx, node->as.function.is_pure)) {
+        cg_error(cg, node->line, "I cannot retain the nested function purity declaration");
+        return;
+    }
     NestedFnState *st = malloc(sizeof(NestedFnState));
     if (!st) {
         cg_error(cg, node->line, "out of memory compiling nested function '%s'", name);
@@ -4522,6 +4526,11 @@ static void compile_function_at(CG *cg, ASTNode *fn_node, int32_t fn_idx) {
         cg->env->current_module = saved_module;
         return;
     }
+    if (!nvm_add_function_purity(cg->module, (uint32_t)fn_idx, fn_node->as.function.is_pure)) {
+        cg_error(cg, fn_node->line, "I cannot retain the function purity declaration");
+        cg->env->current_module = saved_module;
+        return;
+    }
 
     cg->names_enabled = true;
     /* Reset per-function state */
@@ -4606,6 +4615,23 @@ static void compile_function(CG *cg, ASTNode *node) {
 }
 
 /* ── Main compilation entry point ───────────────────────────────── */
+
+/* I keep source lookup aliases in FnEntry and give distinct imported bodies
+ * distinct wire symbols, including when their source names are identical. */
+static uint32_t imported_wire_name(CG *cg, const char *name, int line) {
+    char unique[64];
+    const char *wire = name;
+    if (nvm_find_function(cg->module, name) != UINT32_MAX) {
+        uint32_t suffix = 0;
+        do {
+            snprintf(unique, sizeof unique, "$import.%u.%u", cg->module->function_count, suffix++);
+        } while (nvm_find_function(cg->module, unique) != UINT32_MAX);
+        wire = unique;
+    }
+    uint32_t index = nvm_add_string(cg->module, wire, (uint32_t)strlen(wire));
+    if (index == UINT32_MAX) cg_error(cg, line, "I cannot retain an imported function identity");
+    return index;
+}
 
 /* Copy a struct definition out of an imported module's AST into the
  * environment. The environment owns and frees these strings, and the AST is
@@ -4849,8 +4875,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                             }
                         }
                         if (!already) {
-                            uint32_t name_idx = nvm_add_string(cg.module, use_name,
-                                                               (uint32_t)strlen(use_name));
+                            uint32_t name_idx = imported_wire_name(&cg, use_name, mitem->line);
+                            if (name_idx == UINT32_MAX) continue;
                             NvmFunctionEntry fn = {0};
                             fn.name_idx = name_idx;
                             fn.arity = (uint16_t)mitem->as.function.param_count;
@@ -5032,7 +5058,8 @@ static CodegenResult codegen_compile_internal(ASTNode *program, Environment *env
                 if (mitem->type == AST_FUNCTION && !mitem->as.function.is_extern && !mitem->as.function.is_anonymous && !cg_generic_declaration(&cg, mitem)) {
                     const char *fname = mitem->as.function.name;
                     if (fn_find_body(&cg, mitem->as.function.body) < 0 && cg.fn_count < MAX_FUNCTIONS) {
-                        uint32_t ni = nvm_add_string(cg.module, fname, (uint32_t)strlen(fname));
+                        uint32_t ni = imported_wire_name(&cg, fname, mitem->line);
+                        if (ni == UINT32_MAX) continue;
                         NvmFunctionEntry fn = {0};
                         fn.name_idx = ni;
                         fn.arity = (uint16_t)mitem->as.function.param_count;

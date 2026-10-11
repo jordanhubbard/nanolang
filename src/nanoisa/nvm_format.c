@@ -190,6 +190,59 @@ bool nvm_add_metadata(NvmModule *mod, uint32_t key, uint32_t value) {
     return true;
 }
 
+static const char purity_key[] = "nano.purity.v1";
+
+/* I leave unknown versions transportable and uninterpreted. */
+static bool purity_entry(const NvmModule *mod, const NvmMetadataEntry *entry) {
+    return mod->string_lengths[entry->key_idx] == sizeof purity_key - 1 &&
+        memcmp(mod->strings[entry->key_idx], purity_key, sizeof purity_key - 1) == 0;
+}
+
+static bool purity_record(const NvmModule *mod, const NvmMetadataEntry *entry,
+                          uint32_t *function, int *declared) {
+    if (mod->string_lengths[entry->value_idx] != 8) return false;
+    const unsigned char *p = (const unsigned char *)mod->strings[entry->value_idx];
+    *function = (uint32_t)p[0] | (uint32_t)p[1] << 8 |
+        (uint32_t)p[2] << 16 | (uint32_t)p[3] << 24;
+    *declared = p[4];
+    return *function < mod->function_count && p[4] <= 1 &&
+        !p[5] && !p[6] && !p[7];
+}
+
+int nvm_function_purity(const NvmModule *mod, uint32_t function) {
+    if (!nvm_metadata_valid(mod) || function >= mod->function_count) return -1;
+    int found = -1;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        const NvmMetadataEntry *entry = &mod->metadata[i];
+        if (!purity_entry(mod, entry)) continue;
+        uint32_t index; int declared;
+        if (!purity_record(mod, entry, &index, &declared)) return -1;
+        if (index == function) {
+            if (found != -1) return -1;
+            found = declared;
+        }
+    }
+    return found;
+}
+
+bool nvm_add_function_purity(NvmModule *mod, uint32_t function, bool declared) {
+    if (!nvm_metadata_valid(mod) || function >= mod->function_count) return false;
+    for (uint32_t i = 0; i < mod->metadata_count; ++i) {
+        const NvmMetadataEntry *entry = &mod->metadata[i];
+        if (!purity_entry(mod, entry)) continue;
+        uint32_t index; int previous;
+        if (!purity_record(mod, entry, &index, &previous) || index == function)
+            return false;
+    }
+    unsigned char value[8] = {0};
+    for (unsigned i = 0; i < 4; ++i) value[i] = (unsigned char)(function >> (8 * i));
+    value[4] = declared;
+    uint32_t key = nvm_add_string(mod, purity_key, sizeof purity_key - 1);
+    if (key == UINT32_MAX) return false;
+    uint32_t data = nvm_add_string(mod, (const char *)value, sizeof value);
+    return data != UINT32_MAX && nvm_add_metadata(mod, key, data);
+}
+
 void nvm_call_descriptors_reset(NvmModule *mod) {
     if (!mod) return;
     free(mod->call_descriptors);

@@ -1,0 +1,2 @@
+pub pure fn value(x:int)->int{return (+ x x)}
+shadow value {assert (== (value 4) 8)}

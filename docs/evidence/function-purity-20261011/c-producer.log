@@ -1,0 +1,13 @@
+test_anonymous_capture (tests.test_function_purity_metadata.FunctionPurityMetadata.test_anonymous_capture) ... ok
+test_declared_and_undeclared_purity (tests.test_function_purity_metadata.FunctionPurityMetadata.test_declared_and_undeclared_purity) ... ok
+test_generic_pure_refusal_preserves_prior_artifact (tests.test_function_purity_metadata.FunctionPurityMetadata.test_generic_pure_refusal_preserves_prior_artifact) ... ok
+test_generic_specialization (tests.test_function_purity_metadata.FunctionPurityMetadata.test_generic_specialization) ... ok
+test_imported_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_imported_declarations) ... ok
+test_imported_same_name_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_imported_same_name_declarations) ... ok
+test_nested_and_captured_functions (tests.test_function_purity_metadata.FunctionPurityMetadata.test_nested_and_captured_functions) ... ok
+test_transitive_imported_same_name_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_transitive_imported_same_name_declarations) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 3.367s
+
+OK

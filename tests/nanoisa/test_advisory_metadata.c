@@ -43,7 +43,63 @@ static void compare_wire(NvmModule *a, NvmModule *b) {
     size_t na, nb; uint8_t *pa = wire(a, &na), *pb = wire(b, &nb);
     CHECK(na == nb && memcmp(pa, pb, na) == 0); free(pa); free(pb);
 }
+static void test_purity(void) {
+    CHECK(nvm_function_purity(NULL, 0) == -1);
+    CHECK(!nvm_add_function_purity(NULL, 0, true));
+    NvmModule *m = ordinary();
+    CHECK(nvm_function_purity(m, 0) == -1);
+    CHECK(!nvm_add_function_purity(m, 1, true));
+    CHECK(nvm_add_function_purity(m, 0, true));
+    CHECK(nvm_function_purity(m, 0) == 1);
+    CHECK(nvm_function_purity(m, 1) == -1);
+    CHECK(!nvm_add_function_purity(m, 0, false));
+    NvmModule *b = copy(m); compare_wire(m, b);
+    CHECK(nvm_function_purity(b, 0) == 1);
+    char *text = disasm_module_styled(b, DISASM_STYLE_CANONICAL); CHECK(text);
+    AsmResult result; NvmModule *c = asm_assemble(text, &result); CHECK(c);
+    compare_wire(b, c); CHECK(nvm_function_purity(c, 0) == 1);
+    free(text); nvm_module_free(b); nvm_module_free(c);
+    nvm_strip_debug_info(m); CHECK(nvm_function_purity(m, 0) == 1);
+    NvmMetadataEntry e = m->metadata[0];
+    CHECK(nvm_add_metadata(m, e.key_idx, e.value_idx));
+    CHECK(nvm_function_purity(m, 0) == -1); CHECK(nvm_verify(m).ok);
+    b = copy(m); compare_wire(m, b); nvm_module_free(b); nvm_module_free(m);
+    const unsigned char malformed[][8] = {
+        {1,0,0,0,1,0,0,0}, {0,0,0,0,2,0,0,0},
+        {0,0,0,0,1,1,0,0}, {0,0,0,0,1,0,1,0}, {0,0,0,0,1,0,0,1}
+    };
+    for (size_t i = 0; i < sizeof malformed / sizeof *malformed; ++i) {
+        m = ordinary();
+        uint32_t key = nvm_add_string(m, "nano.purity.v1", 14);
+        uint32_t value = nvm_add_string(m, (const char *)malformed[i], 8);
+        CHECK(nvm_add_metadata(m, key, value));
+        CHECK(nvm_function_purity(m, 0) == -1);
+        CHECK(!nvm_add_function_purity(m, 0, true));
+        CHECK(nvm_verify(m).ok); b = copy(m); compare_wire(m, b);
+        nvm_module_free(b); nvm_module_free(m);
+    }
+    m = ordinary();
+    uint32_t key = nvm_add_string(m, "nano.purity.v1", 14);
+    uint32_t value = nvm_add_string(m, "", 0);
+    CHECK(nvm_add_metadata(m, key, value));
+    CHECK(nvm_function_purity(m, 0) == -1); CHECK(nvm_verify(m).ok);
+    nvm_module_free(m);
+    m = ordinary(); key = nvm_add_string(m, "nano.purity.v2", 14);
+    CHECK(nvm_add_metadata(m, key, key));
+    CHECK(nvm_function_purity(m, 0) == -1);
+    CHECK(nvm_add_function_purity(m, 0, false));
+    CHECK(nvm_function_purity(m, 0) == 0); nvm_module_free(m);
+    m = asm_assemble(".function main 0 0 0 int 1\n.function_purity 0\nPUSH_I64 42\nRET\n.end\n.entry main\n", &result);
+    CHECK(m); CHECK(nvm_function_purity(m, 0) == 0); nvm_module_free(m);
+    const char *invalid[] = {".function_purity 1\n", ".function main 0 0 0 void 0\n.function_purity 2\nRET\n.end\n",
+        ".function main 0 0 0 void 0\n.function_purity 1 junk\nRET\n.end\n",
+        ".function main 0 0 0 void 0\n.function_purity 1\n.function_purity 1\nRET\n.end\n"};
+    for (size_t i = 0; i < sizeof invalid / sizeof *invalid; ++i) {
+        m = asm_assemble(invalid[i], &result); CHECK(!m);
+    }
+}
 int main(int argc, char **argv) {
+    test_purity();
     NvmModule *m = ordinary();
     uint32_t legacy_size; uint8_t *legacy = nvm_serialize(m, &legacy_size);
     CHECK(legacy && legacy_size); free(legacy);

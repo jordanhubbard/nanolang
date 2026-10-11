@@ -47,3 +47,30 @@ rewriter that relocates instructions must relocate or discard these offset
 keys; copying them across a changed code layout cannot preserve trace meaning.
 Native translation preserves execution semantics but does not currently emit
 this optional diagnostic; my self-hosted compiler executes shadows in NanoVM.
+
+## Declared function purity
+
+I retain each emitted function's frontend `is_pure` flag under `nano.purity.v1`.
+Its eight-byte value contains a little-endian u32 function-table index, one
+byte (`0` for no pure declaration, `1` for a pure declaration), and three zero
+reserved bytes. A synthetic function with no declaration carries zero when it
+passes through the ordinary source emitter. Functions produced through other
+paths may have no record. Zero does not assert that a function has effects.
+Extern imports have no function-body entry; this convention does not encode
+import annotations. Unconstrained generic pure inputs still fail the existing
+purity check; admitted ordinary specializations retain zero.
+
+My assembler accepts `.function_purity 0` or `.function_purity 1` inside a
+function, once. Canonical assembly retains raw `.metadata` entries instead.
+My lookup API returns `-1` for absent metadata, an invalid function index, a
+malformed v1 record anywhere in the table, or duplicate records for the queried
+function. Unknown versions remain uninterpreted. My append API refuses malformed
+v1 tables and an existing record for the target function; allocation failure
+publishes no partial metadata entry, though unused strings may remain.
+
+These records describe frontend declarations. They do not certify inferred or
+verified purity, permit calls, or replace the ownership/passive verifiers.
+Stripping, forging or duplicating them cannot change executable behavior.
+A linker or rewriter that changes function-table indices must remap or discard
+these records. Exact module transport preserves them; general fact-aware linking
+and reconstruction remain separate requirements.

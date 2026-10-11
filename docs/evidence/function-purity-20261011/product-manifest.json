@@ -1,0 +1,116 @@
+{
+  "revision": "727de0a7d1865f284212a266c30d87a2417c4143",
+  "inputs": {
+    "src/nanoisa/nvm_format.c": "4093db5671fbea28b855ae96a17e84e738ad2945a5bcfca997f6cef8790a9c3d",
+    "src/nanoisa/nvm_format.h": "26382474ff8c9c2f13d1ff9ef0868d533586e4dfa996c1d47e12e40d91379aac",
+    "src/nanoisa/assembler.c": "c5a2ad12b249814bbb1e060cab67079e871f0b5296f0f1e11442a450acb5d618",
+    "src/nanovirt/codegen.c": "9e605fba7fb2afa3af10f0738876898da6e07ab04a29624533dfd5a9e3ac3222",
+    "src_nano/compiler/nanoisa_codegen.nano": "934d9fce4d26e7fbd7d2fa85a096e1415fea8ad4d16d3934fec73fe62e204043"
+  },
+  "steps": [
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "tests.test_function_purity_metadata",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 7.803808292024769,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-purity/seed",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-purity/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 314.423773040995,
+      "log": "product-01.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-purity/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 0.12982204207219183,
+      "log": "product-02.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-purity/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-purity/compiler.c"
+      ],
+      "returncode": 0,
+      "seconds": 19.81307612499222,
+      "log": "product-03.log"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-purity/compiler.c",
+        "-o",
+        "/private/tmp/nl51-purity/compiler",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "returncode": 0,
+      "seconds": 7.078657708014362,
+      "log": "product-04.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-purity/compiler",
+        "--help"
+      ],
+      "returncode": 0,
+      "seconds": 0.012452666065655649,
+      "log": "product-05.log"
+    },
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "tests.test_function_purity_metadata",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 3.861237540957518,
+      "log": "product-06.log"
+    },
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "tests.test_purity_contract",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 17.352958375005983,
+      "log": "product-07.log"
+    }
+  ],
+  "seed_build_log": "seed-build.log",
+  "inputs_unchanged": true,
+  "artifacts": {
+    "seed": "041a4cf6e5d06989b1996ed7fdf80020068a5e9e3b089f0935574ccf408b7c9b",
+    "compiler.nvm": "991a1847355e0314367846bc1d31d7612d3a60db04480428e8977090a0c64f48",
+    "compiler.c": "acf3e41ee5df1b87e4212749a99d2bc789b581e39d1980cf2444a9497a21faf8",
+    "compiler": "a5ccf6894397fea4fdeaa254286f981485c7cf1850b376be63a3bfb7d981737c"
+  }
+}

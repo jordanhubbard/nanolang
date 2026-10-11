@@ -33,5 +33,22 @@ int main(void) {
         assert(out==NULL);
     }
     assert(succeeded);nvm_v2_module_free(&wire);nvm_module_free(m);
+    succeeded=false;
+    for(unsigned attempt=1;attempt<128;attempt++) {
+        m=nvm_module_new(); assert(m);
+        NvmFunctionEntry function={0}; assert(nvm_add_function(m,&function)==0);
+        calls=0;fail_at=attempt;
+        bool added=nvm_add_function_purity(m,0,true);fail_at=0;++checks;
+        assert(nvm_metadata_valid(m));
+        if(added) { assert(nvm_function_purity(m,0)==1);succeeded=true; }
+        else {
+            assert(m->metadata_count==0 && nvm_function_purity(m,0)==-1);
+            assert(nvm_add_function_purity(m,0,false));
+            assert(nvm_function_purity(m,0)==0);
+        }
+        nvm_module_free(m);
+        if(succeeded)break;
+    }
+    assert(succeeded);
     printf("I passed %u metadata conversion allocation boundaries.\n",checks);return 0;
 }
