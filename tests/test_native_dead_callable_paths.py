@@ -93,3 +93,17 @@ class NativeDeadCallablePaths(unittest.TestCase):
             'CALL boundary\nPUSH_I64 0\nLOAD_LOCAL 0\nARR_LEN')
         self.refuse('.entry main\n.function main 0 1 0 void 0\n'+body+'.end\n'
             +'.function boundary 0 0 0 void 0\nRET\n.end\n')
+
+    def test_uninvoked_reference_does_not_require_body(self):
+        self.execute('.entry main\n.function main 0 0 0 int 1\nFUNCREF unresolved\nPOP\nPUSH_I64 0\nRET\n.end\n'
+            +'.function unresolved 1 1 0 void 0\nLOAD_LOCAL 0\nCALL_INDIRECT 0 0\nRET\n.end\n')
+
+    def test_invoked_reference_requires_body(self):
+        self.refuse('.entry main\n.function main 0 0 0 void 0\n'
+            +'ARR_LITERAL 11 0\nPUSH_I64 0\nARR_GET\nFUNCREF unresolved\nCALL_INDIRECT 1 0\nRET\n.end\n'
+            +'.function unresolved 1 1 0 void 0\nLOAD_LOCAL 0\nCALL_INDIRECT 0 0\nRET\n.end\n')
+
+    def test_uninvoked_indirect_caller_is_omitted_with_callee(self):
+        self.execute('.entry main\n.function main 0 0 0 int 1\nFUNCREF unused\nPOP\nPUSH_I64 0\nRET\n.end\n'
+            +'.function unused 1 1 0 void 0\nLOAD_LOCAL 0\nFUNCREF unresolved\nCALL_INDIRECT 1 0\nRET\n.end\n'
+            +'.function unresolved 1 1 0 void 0\nLOAD_LOCAL 0\nCALL_INDIRECT 0 0\nRET\n.end\n')

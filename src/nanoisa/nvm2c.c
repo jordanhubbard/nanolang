@@ -768,6 +768,13 @@ static int merge_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_
 static int merge_call_parameter(Nvm2cBuf *b, Nvm2cFacts *facts, uint8_t *dest, uint8_t kind) {
     /* I retain a record parameter's exact calling convention. Tagged
      * producers cross it through the runtime's checked record projection. */
+    /* I preserve callable parameters while checking tagged array projections. */
+    if (*dest == NVM2C_VK_FUNC && kind == NVM2C_VK_VALUE) return 1;
+    if (*dest == NVM2C_VK_VALUE && kind == NVM2C_VK_FUNC) {
+        *dest = NVM2C_VK_FUNC;
+        facts->changed = 1;
+        return 1;
+    }
     if (*dest == NVM2C_VK_REC && kind == NVM2C_VK_VALUE) return 1;
     if (*dest == NVM2C_VK_VALUE && kind == NVM2C_VK_REC) {
         *dest = NVM2C_VK_REC;
@@ -1387,6 +1394,11 @@ static int classify_direct_call(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             uint8_t *fields = facts->fields + at * b->record_width;
             if (!merge_record_results(b, facts, fields, arg.rec_k) ||
                 !shape_record_return(b, arg.shape, parameter, arg.rec_k, fields)) return 0;
+        } else if (arg.kind == NVM2C_VK_VALUE && facts->parameters[at] == NVM2C_VK_FUNC) {
+            if (!shape_type(b, arg.shape, NVM_SHAPE_OPTIONAL) ||
+                !shape_type(b, parameter, NVM_SHAPE_FUNCTION)) return 0;
+            if (b->track_shapes &&
+                !nvm_shape_convert(&b->shapes, shape_child(b, arg.shape, 0), parameter)) return 0;
         } else if (arg.kind == NVM2C_VK_VALUE && facts->parameters[at] == NVM2C_VK_REC) {
             /* I constrain the checked payload, never equate its tagged
              * wrapper with the callee's record storage. */
@@ -2628,13 +2640,13 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                                       ins.opcode == OP_TAIL_CALL, local_kind, facts, stk, &sp)) return 0;
             break;
         case OP_CALL_INDIRECT: {
+            if (nvm2c_constant_unreachable(mod, idx, (uint32_t)start)) {
+                terminated = 1;
+                sp = 0;
+                break;
+            }
             Nvm2cSimSlot callable;
             if (!b->callables.function_count) {
-                if (nvm2c_constant_unreachable(mod, idx, (uint32_t)start)) {
-                    terminated = 1;
-                    sp = 0;
-                    break;
-                }
                 nvm2c_fail(b, "I cannot classify unsupported opcode CALL_INDIRECT (0x3C) in function %u at offset %zu: I have no callable targets", idx, start);
                 return 0;
             }
@@ -2656,11 +2668,6 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
             NvmShapeId set = nvm_callable_at(&b->callables, idx, (uint32_t)start);
             size_t count = set ? nvm_shape_function_count(&b->callables.shapes, set) : 0;
             if (!count) {
-                if (nvm2c_constant_unreachable(mod, idx, (uint32_t)start)) {
-                    terminated = 1;
-                    sp = 0;
-                    break;
-                }
                 if (b->required_functions[idx]) { nvm2c_fail(b, "I require resolved indirect-call targets in function %u at offset %zu", idx, start); return 0; }
                 b->emitted_functions[idx] = 0;
                 sp -= arity;
@@ -5581,8 +5588,8 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
             uint16_t arity = ins.operands[0].u16;
             NvmShapeId set = nvm_callable_at(&b->callables, idx, (uint32_t)start);
             size_t count = set ? nvm_shape_function_count(&b->callables.shapes, set) : 0;
-            if (!count && nvm2c_constant_unreachable(mod, idx, (uint32_t)start)) {
-                nvm2c_puts(b, "    NVM2C_ABORT(); /* I cannot reach this unresolved call. */\n");
+            if (nvm2c_constant_unreachable(mod, idx, (uint32_t)start)) {
+                nvm2c_puts(b, "    NVM2C_ABORT(); /* I cannot reach this indirect call. */\n");
                 terminated = 1;
                 st.sp = 0;
                 break;
@@ -7079,8 +7086,9 @@ done:
     return !b->failed && shape_ok(b);
 }
 
-/* I need executable layouts for both VM roots, not for uncalled parameters.
- * The existing whole-module validation still rejects unsupported instructions. */
+/* I follow executable calls from both VM roots. A function reference stores
+ * an identity; only a reachable invocation requires its body's layout.
+ * Whole-module validation still rejects unsupported instructions. */
 static int mark_required_functions(Nvm2cBuf *b, const NvmModule *mod) {
     if (mod->header.entry_point >= mod->function_count) {
         nvm2c_fail(b, "entry_point %u is not a function", mod->header.entry_point);
@@ -7105,7 +7113,7 @@ static int mark_required_functions(Nvm2cBuf *b, const NvmModule *mod) {
                 uint32_t size = isa_decode(mod->code + fn->code_offset + pc,
                                            fn->code_length - pc, &ins);
                 if (!size) { nvm2c_fail(b, "I cannot decode function reachability"); return 0; }
-                if (ins.opcode == OP_CALL || ins.opcode == OP_TAIL_CALL || ins.opcode == OP_FUNCREF || ins.opcode == OP_CLOSURE_NEW) {
+                if (ins.opcode == OP_CALL || ins.opcode == OP_TAIL_CALL) {
                     uint32_t callee = ins.operands[0].u32;
                     if (callee >= mod->function_count) {
                         nvm2c_fail(b, "function %u: CALL target %u is out of range", i, callee);
@@ -7114,6 +7122,23 @@ static int mark_required_functions(Nvm2cBuf *b, const NvmModule *mod) {
                     if (!b->required_functions[callee]) {
                         b->required_functions[callee] = 1;
                         changed = 1;
+                    }
+                }
+                if (ins.opcode == OP_CALL_INDIRECT &&
+                    !nvm2c_constant_unreachable(mod, i, (uint32_t)pc)) {
+                    NvmShapeId set = nvm_callable_at(&b->callables, i, (uint32_t)pc);
+                    size_t count = set ? nvm_shape_function_count(&b->callables.shapes, set) : 0;
+                    for (size_t t = 0; t < count; ++t) {
+                        uint32_t callee;
+                        if (!nvm_shape_function_target(&b->callables.shapes, set, t, &callee) ||
+                            callee >= mod->function_count) {
+                            nvm2c_fail(b, "I require valid indirect reachability targets");
+                            return 0;
+                        }
+                        if (!b->required_functions[callee]) {
+                            b->required_functions[callee] = 1;
+                            changed = 1;
+                        }
                     }
                 }
                 pc += size;
@@ -7137,7 +7162,7 @@ static int prune_unemittable_callers(Nvm2cBuf *b, const NvmModule *mod) {
                 uint32_t size = isa_decode(mod->code + fn->code_offset + pc,
                                            fn->code_length - pc, &ins);
                 if (!size) { nvm2c_fail(b, "I cannot decode uncalled function dependencies"); return 0; }
-                if (ins.opcode == OP_CALL || ins.opcode == OP_TAIL_CALL || ins.opcode == OP_FUNCREF || ins.opcode == OP_CLOSURE_NEW) {
+                if (ins.opcode == OP_CALL || ins.opcode == OP_TAIL_CALL) {
                     uint32_t callee = ins.operands[0].u32;
                     if (callee >= mod->function_count) {
                         nvm2c_fail(b, "function %u: CALL target %u is out of range", i, callee);
@@ -7152,6 +7177,29 @@ static int prune_unemittable_callers(Nvm2cBuf *b, const NvmModule *mod) {
                         changed = 1;
                         break;
                     }
+                }
+                if (ins.opcode == OP_CALL_INDIRECT &&
+                    !nvm2c_constant_unreachable(mod, i, (uint32_t)pc)) {
+                    NvmShapeId set = nvm_callable_at(&b->callables, i, (uint32_t)pc);
+                    size_t count = set ? nvm_shape_function_count(&b->callables.shapes, set) : 0;
+                    for (size_t t = 0; t < count; ++t) {
+                        uint32_t callee;
+                        if (!nvm_shape_function_target(&b->callables.shapes, set, t, &callee) ||
+                            callee >= mod->function_count) {
+                            nvm2c_fail(b, "I require valid indirect dependency targets");
+                            return 0;
+                        }
+                        if (!b->emitted_functions[callee]) {
+                            if (b->required_functions[i]) {
+                                nvm2c_fail(b, "I cannot omit required function %u", i);
+                                return 0;
+                            }
+                            b->emitted_functions[i] = 0;
+                            changed = 1;
+                            break;
+                        }
+                    }
+                    if (!b->emitted_functions[i]) break;
                 }
                 pc += size;
             }
