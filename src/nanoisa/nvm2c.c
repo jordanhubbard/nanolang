@@ -8242,7 +8242,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         nvm2c_puts(&b, "typedef struct nrarr_s nrarr_s;\ntypedef nrarr_s *nrarr_t;\n");
         nvm2c_puts(&b, "typedef struct nrec_s nrec_t;\n");
         nvm2c_printf(&b,
-            "struct nrec_s { int64_t f[%zu]; const char *s[%zu]; narr_t a[%zu]; nsarr_t sa[%zu]; nrarr_t ra[%zu]; const nrec_t *rec[%zu]; uint8_t k[%zu], vk[%zu]; uint16_t n, tag; uint8_t kind = 0; uint32_t callable_target;",
+            "struct nrec_s { int64_t f[%zu]; const char *s[%zu]; narr_t a[%zu]; nsarr_t sa[%zu]; nrarr_t ra[%zu]; const nrec_t *rec[%zu]; uint8_t k[%zu], vk[%zu]; uint16_t n, tag; uint8_t kind; uint32_t callable_target;",
             b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width, b.record_width);
         if (b.has_maps) nvm2c_printf(&b, " nmap_t m[%zu];", b.record_width);
         nvm2c_puts(&b, " };\n");
