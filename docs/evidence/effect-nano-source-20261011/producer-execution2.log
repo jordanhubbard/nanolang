@@ -1,0 +1,6 @@
+test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 6.517s
+
+OK

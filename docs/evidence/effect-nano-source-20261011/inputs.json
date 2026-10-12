@@ -1,0 +1,9 @@
+{
+  "src_nano/compiler/nanoisa_borrows.nano": "aa0e9832fa9015a0a277657d9ae8db19a4a1ac2fd3d20fe7a2e9faf9caf9c08a",
+  "src_nano/compiler/nanoisa_codegen.nano": "a55ba7e4bfb9087a5dd56ff0e0eafe8954c904cf020a12865f85bb225d286910",
+  "src_nano/parser.nano": "9e011e771da632533181463d3be7daae65a9612d83cd6a66de0e64ca94919b7a",
+  "src_nano/compiler/effect_declarations.nano": "0c75fa41fe7ce3483eaf3aab5dccf84784319c6e01b28054c3a0e15713701dd8",
+  "src_nano/compiler/resource_effects.nano": "ddabebf46f76902f21f99867a7416c6748c735bd9f127911d23c89984304802d",
+  "src_nano/nanoc_v06.nano": "ad8ad84b1f4637bbf6cc0f1e794681ddce40a04fbdf5f63628c6f5869eb4ba48",
+  "tests/test_owned_effect_c_source.py": "e917b9694938d6274bd6e88b7a4b7744beb881391ff60548d59908e685308c2a"
+}

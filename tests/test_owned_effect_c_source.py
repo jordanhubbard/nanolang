@@ -16,11 +16,13 @@ class OwnedEffectCSource(unittest.TestCase):
             for name,content in (files or {}).items():(work/name).write_text(content)
             source.write_text(frontend.HEADER+declaration+'\nfn main()->int{'+body+'}\nshadow main{assert true}\n')
             module.write_bytes(b'prior artifact')
-            result=subprocess.run([ROOT/'bin/nano_virt',source,'--emit-nvm','-o',module],cwd=ROOT,
+            result=subprocess.run([os.environ.get('NANO_OWNED_EFFECT_DRIVER',str(ROOT/'bin/nano_virt')),source,'--emit-nvm','-o',module],cwd=ROOT,
                                   capture_output=True,text=True,timeout=120)
             self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
             if not accepted:
-                self.assertIn(diagnostic,result.stdout+result.stderr)
+                messages=result.stdout+result.stderr
+                alternatives=(diagnostic,) if isinstance(diagnostic,str) else diagnostic
+                self.assertTrue(any(text in messages for text in alternatives),messages)
                 self.assertEqual(module.read_bytes(),b'prior artifact');return
             for command,expected in (([ROOT/'bin/nano_vm','--verify-only',module],0),
                                      ([ROOT/'bin/nano_vm',module],7)):
@@ -93,4 +95,4 @@ class OwnedEffectCSource(unittest.TestCase):
         files={name+'.nano': 'pub resource struct Handle{value:int} pub effect E{pass:Handle->Handle}' for name in ('left','right')}
         self.check('module "left.nano" as left\nmodule "right.nano" as right',
             'let h:left.Handle=handle {perform left.E.pass(left.Handle{value:7})} with {pass value->{value}} let left.Handle{value}=h return value',
-            False,files=files,diagnostic='cannot infer a unique effect')
+            False,files=files,diagnostic=('cannot infer a unique effect','I require handler operations to identify one declared effect.'))

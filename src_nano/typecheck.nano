@@ -2599,6 +2599,7 @@ shadow type_tuple {
 
 /* Check if two types are equal */
 fn strip_spaces(s: string) -> string {
+    if (not (str_contains s " ")) { return s }
     let mut out: string = ""
     let len: int = (str_length s)
     let mut i: int = 0

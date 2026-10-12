@@ -1,4 +1,5 @@
 # I lower one closed, verified source-reference profile.
+from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
 import "src_nano/parser.nano"
 import "src_nano/compiler/module_introspection.nano"
 from "src_nano/compiler/declaration_ownership.nano" import declaration_local_lets
@@ -6,6 +7,9 @@ from "src_nano/compiler/lexer.nano" import tokenize_string
 from "src_nano/compiler/type_substitution.nano" import substitute_type_parameters
 from "src_nano/compiler/module_bindings.nano" import mb_active, mb_lookup, mb_owner, mb_reset, mb_resolve
 
+let mut nb_effect_keys: array<int> = []
+let mut nb_effect_owners: array<int> = []
+let mut nb_effect_operations: array<int> = []
 let mut nb_error: string = ""
 let mut nb_code: string = ""
 let mut nb_names: array<string> = []
@@ -50,6 +54,8 @@ let mut nb_projection_fields: array<int> = []
 let mut nb_in_helper: bool = false
 let mut nb_returned: bool = false
 let mut nb_transferred: bool = false
+let mut nb_handler_depth: int = 0
+let mut nb_loop_handler_depth: int = 0
 let mut nb_loop_first: int = -1
 let mut nb_loop_index: int = -1
 let mut nb_loop_top: string = ""
@@ -307,7 +313,7 @@ fn nb_slot(name: string, tag: int, layout: int, mode: int, mutable: bool) -> int
     return index
 }
 fn nb_reset_locals() -> int {
-    set nb_control_depth 0
+    set nb_control_depth 0 set nb_handler_depth 0 set nb_loop_handler_depth 0
     set nb_transferred false set nb_loop_first -1 set nb_loop_index -1 set nb_loop_top "" set nb_loop_done ""
     set nb_loop_live [] set nb_loop_pending [] set nb_loop_breaks 0
     set nb_names [] set nb_named [] set nb_tags [] set nb_identities [] set nb_variants []
@@ -1483,6 +1489,7 @@ fn nb_value_call(parser: Parser, name: string, arg_start: int, arg_count: int) -
     }
     if (!= nb_error "") { return 0 }
     (array_set nb_edges (+ (* nb_current_function 8) target) true)
+    let _: int = (nb_effect_dispose parser)
     let _: int = (nb_op1 "CALL" target)
     set nb_expression_layout (nb_record parser function.return_type)
     set nb_expression_identity ""
@@ -1531,6 +1538,8 @@ shadow nb_ordinary_receiver {
 
 fn nb_expr(parser: Parser, id: int, kind: int) -> int {
     if (!= nb_error "") { return 0 }
+    if (== kind ParseNodeType.PNODE_EFFECT_OP) { return (nb_effect_perform parser (at parser.performs id)) }
+    if (== kind ParseNodeType.PNODE_HANDLE_EXPR) { return (nb_effect_handle parser (at parser.handlers id)) }
     if (== kind ParseNodeType.PNODE_MATCH) { return (nb_match_expr parser id) }
     if (== kind ParseNodeType.PNODE_UNION_CONSTRUCT) {
         let identity: string = (parser_get_union_construct parser id).union_name
@@ -1872,7 +1881,7 @@ fn nb_owner(parser: Parser, id: int, kind: int, layout: int) -> int {
             let _: int = (nb_op1 "OWN_MOVE_LOCAL" old)
             (array_set nb_live old false) (array_set nb_disposal_pending old false)
         } else {
-            if (and (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) nb_value_graph) {
+            if (and (or (nb_effect_kind kind) (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL))) nb_value_graph) {
                 if (!= (nb_expr parser id kind) 8) { return (nb_fail "an owned call result") }
                 if (!= nb_expression_layout layout) { return (nb_fail "the exact nominal owned call result") }
             } else { return (nb_fail "a resource constructor, exact owner move or destructive pattern") }
@@ -1889,7 +1898,7 @@ fn nb_ordinary(parser: Parser, id: int, kind: int, layout: int) -> int {
         if (or (not (at nb_live local)) (!= (at nb_layouts local) layout)) { return (nb_fail "an exact live ordinary record alias") }
         return (nb_op1 "LOAD_LOCAL" local)
     }
-    if (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL)) {
+    if (or (nb_effect_kind kind) (or (== kind ParseNodeType.PNODE_CALL) (== kind ParseNodeType.PNODE_MODULE_QUALIFIED_CALL))) {
         if (!= (nb_expr parser id kind) 8) { return (nb_fail "an ordinary record call result") }
         if (!= nb_expression_layout layout) { return (nb_fail "the exact ordinary call result layout") }
         return 0
@@ -2014,11 +2023,14 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
         return 0
     }
     let tag: int = (nb_expr parser binding.value binding.value_type)
-    if (and (== tag 8) (nb_ordinary_layout nb_expression_layout)) {
-        if (!= binding.var_type "") { return (nb_fail "an exact inferred ordinary record binding") }
+    if (or (== tag 8) (== tag 10)) {
+        if (!= binding.var_type "") { return (nb_fail "an exact inferred aggregate binding") }
         let slot: int = (nb_slot binding.name tag nb_expression_layout 0 binding.is_mut)
         if (!= nb_error "") { return 0 }
-        let _: int = (nb_op1 "STORE_LOCAL" slot) return (nb_name_begin slot binding.name)
+        if (== tag 10) { (array_set nb_identities slot nb_expression_identity) }
+        if (nb_owned_type tag nb_expression_layout) { let _: int = (nb_op1 "OWN_STORE_LOCAL" slot) }
+        else { let _: int = (nb_op1 "STORE_LOCAL" slot) }
+        return (nb_name_begin slot binding.name)
     }
     if (and (nb_arrays) (== tag 7)) {
         if (and (!= binding.var_type "") (!= binding.var_type "array<float>")) { return (nb_fail "an exact flat FLOAT array binding") }
@@ -2113,8 +2125,9 @@ fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: b
             let saved_first: int = nb_loop_first let saved_index: int = nb_loop_index
             let saved_top: string = nb_loop_top let saved_done: string = nb_loop_done
             let saved_live: array<bool> = nb_loop_live let saved_pending: array<bool> = nb_loop_pending
-            let saved_breaks: int = nb_loop_breaks
+            let saved_breaks: int = nb_loop_breaks let saved_handler_depth: int = nb_loop_handler_depth
             if (!= stmt.node_type ParseNodeType.PNODE_IF) {
+                set nb_loop_handler_depth nb_handler_depth
                 set nb_loop_first incoming_count set nb_loop_index range_index set nb_loop_top top set nb_loop_done skip
                 set nb_loop_live incoming_live set nb_loop_pending incoming_disposal set nb_loop_breaks 0
             }
@@ -2122,6 +2135,7 @@ fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: b
             let _: int = (nb_body parser then_body is_shadow)
             set nb_control_depth (- nb_control_depth 1)
             if (!= stmt.node_type ParseNodeType.PNODE_IF) {
+                set nb_loop_handler_depth saved_handler_depth
                 set nb_loop_first saved_first set nb_loop_index saved_index set nb_loop_top saved_top set nb_loop_done saved_done
                 set nb_loop_live saved_live set nb_loop_pending saved_pending set nb_loop_breaks saved_breaks
             }
@@ -2172,6 +2186,7 @@ fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: b
             if (not (nb_same_owners nb_loop_first nb_loop_live nb_loop_pending)) { return 0 }
             let _: int = (nb_cleanup parser nb_loop_first)
             if (!= nb_error "") { return 0 }
+            if (> nb_handler_depth nb_loop_handler_depth) { let _: int = (nb_op1 "HANDLER_POP" (- nb_handler_depth nb_loop_handler_depth)) }
             if (== stmt.node_type ParseNodeType.PNODE_BREAK) {
                 if (== nb_loop_breaks 256) { return (nb_fail "at most 256 break edges per loop") }
                 set nb_loop_breaks (+ nb_loop_breaks 1)
@@ -2240,7 +2255,11 @@ fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: b
                         }
                         else {
                             if (== nb_result 0) {
-                                if (>= result.value 0) { return (nb_fail "a zero-value void return") }
+                                if (>= result.value 0) {
+                                    if (!= (nb_expr parser result.value result.value_type) 0) { return (nb_fail "a void return expression") }
+                                    if (or nb_returned nb_transferred) { return 0 }
+                                    if (nb_effect_kind result.value_type) { let _: int = (nb_emit "POP") }
+                                }
                             } else {
                                 if (!= (nb_expr parser result.value result.value_type) nb_result) { return (nb_fail "the declared scalar result") }
                             }
@@ -2249,10 +2268,10 @@ fn nb_body_statements(parser: Parser, statements: List<ASTStmtRef>, is_shadow: b
                         let _: int = (nb_cleanup parser 0)
                         let _: int = (nb_emit "RET") set nb_returned true
                     } else {
-                        if (== stmt.node_type ParseNodeType.PNODE_CALL) {
+                        if (or (nb_effect_kind stmt.node_type) (== stmt.node_type ParseNodeType.PNODE_CALL)) {
                             let tag: int = (nb_expr parser stmt.node_id stmt.node_type)
                             if (nb_owned_type tag nb_expression_layout) { return (nb_fail "explicit consumption of an owned call result") }
-                            if (!= tag 0) { let _: int = (nb_emit "POP") }
+                            if (or (!= tag 0) (nb_effect_kind stmt.node_type)) { let _: int = (nb_emit "POP") }
                         } else { return (nb_fail "straight-line let/set/assert/call/return statements") }
                     }
                 }
@@ -2876,6 +2895,7 @@ pub fn nanoisa_has_borrows(parser: Parser) -> bool {
 }
 pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> string {
     if (> parser.services_count 0) { let _: int = (nb_fail "resolved File service declarations") return "" }
+    set nb_effect_keys [] set nb_effect_owners [] set nb_effect_operations []
     set nb_error "" set nb_next_label 0 set nb_strings [] set nb_helper -1 set nb_arity 0 set nb_consuming false set nb_paths [] set nb_depths []
     set nb_value_graph true set nb_functions [] set nb_any_transfer false set nb_edges []
     set nb_mixed false set nb_owner_arrays false set nb_ordinary_layouts []
@@ -2927,6 +2947,8 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         if (not (nb_register_union parser (parser_get_let parser i).var_type)) { let _: int = (nb_fail "exact concrete scalar union bindings") return "" }
         set i (+ i 1)
     }
+    let _: int = (nb_effect_collect parser)
+    if (!= nb_error "") { return "" }
     set i 0
     while (< i (array_length nb_globals)) {
         let binding: ASTLet = (parser_get_let parser (at nb_globals i))
@@ -3117,11 +3139,12 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
         }
     }
     if (and nb_value_graph (not nb_any_transfer)) { let _: int = (nb_fail "an actual owned transfer in my module") return "" }
-    if (or (> (array_length nb_union_identities) 0) (> (array_length nb_globals) 0)) {
+    if (or (> (array_length nb_effect_keys) 0) (or (> (array_length nb_union_identities) 0) (> (array_length nb_globals) 0))) {
         set ownership (+ "03000000" (str_substring ownership 8 (- (str_length ownership) 8)))
         let paths: string = (nb_path_suffix)
         set ownership (+ ownership (+ (nb_hex (/ (str_length paths) 2) 4) paths))
         let mut extensions: int = 0
+        if (> (array_length nb_effect_keys) 0) { set extensions (+ extensions 1) }
         if (> (array_length nb_union_identities) 0) { set extensions (+ extensions 1) }
         if (> (array_length nb_globals) 0) { set extensions (+ extensions 1) }
         set ownership (+ ownership (nb_hex extensions 4))
@@ -3136,6 +3159,11 @@ pub fn nanoisa_borrow_emit(parser: Parser, shadows: bool, first_shadow: int) -> 
             set ownership (+ ownership (+ "03000100" (nb_hex (/ (str_length globals) 2) 4)))
             set ownership (+ ownership globals)
             while (!= (% (str_length ownership) 8) 0) { set ownership (+ ownership "00") }
+        }
+        if (> (array_length nb_effect_keys) 0) {
+            let effects: string = (nb_effect_bytes parser)
+            if (!= nb_error "") { return "" }
+            set ownership (+ ownership (+ "04000100" (+ (nb_hex (/ (str_length effects) 2) 4) effects)))
         }
     } else { if (> (array_length nb_paths) 0) {
         set ownership (+ "02000000" (str_substring ownership 8 (- (str_length ownership) 8)))
@@ -3381,4 +3409,377 @@ shadow nb_union_layout_bytes {
     assert (str_contains bytes "0a00000001000000")
     set nb_union_owned [] set nb_union_complete [] set nb_union_identities [] set nb_union_spellings [] set nb_union_sources []
     set nb_union_layout_base 0
+}
+
+# I retain operation identities and exact transfer types before lowering handlers.
+fn nb_effect_descriptor(parser: Parser, spelling: string, result: bool) -> string {
+    if (not (nb_register_union parser spelling)) { let _: int = (nb_fail "a concrete effect union type") return "" }
+    let record: int = (nb_record parser spelling)
+    if (>= record 0) { return (nb_descriptor 8 0 record) }
+    let instance: int = (nb_union_instance parser spelling)
+    if (>= instance 0) {
+        (array_set nb_union_complete instance true)
+        return (nb_descriptor 10 0 instance)
+    }
+    let tag: int = (nb_local_tag spelling)
+    if (and (== tag 0) (not (and result (== spelling "void")))) {
+        let _: int = (nb_fail "an exact scalar, STRING, record or union effect signature") return ""
+    }
+    return (nb_descriptor tag 0 4294967295)
+}
+shadow nb_effect_descriptor {
+    let parser: Parser = (nb_fixture)
+    set nb_error ""
+    assert (== (nb_effect_descriptor parser "int" false) "01000000ffffffff")
+    assert (== (nb_effect_descriptor parser "float" false) "03000000ffffffff")
+    assert (== (nb_effect_descriptor parser "string" false) "05000000ffffffff")
+    assert (== (nb_effect_descriptor parser "R" false) "0800000000000000")
+    assert (== (nb_effect_descriptor parser "void" true) "00000000ffffffff")
+    assert (== (nb_effect_descriptor parser "void" false) "")
+    assert (!= nb_error "") set nb_error ""
+    assert (== (nb_effect_descriptor parser "array<int>" false) "")
+    assert (!= nb_error "") set nb_error ""
+}
+fn nb_effect_register(parser: Parser, owner: int, operation: int) -> int {
+    if (or (< owner 0) (>= owner (array_length parser.effects))) { return (nb_fail "a resolved effect declaration") }
+    let declaration: ASTEffectDecl = (at parser.effects owner)
+    if (or (< operation 0) (>= operation (array_length declaration.operation_names))) { return (nb_fail "a resolved effect operation") }
+    let mut i: int = 0
+    while (< i (array_length nb_effect_keys)) {
+        if (and (== (at nb_effect_owners i) owner) (== (at nb_effect_operations i) operation)) { return (at nb_effect_keys i) }
+        set i (+ i 1)
+    }
+    let count: int = (at declaration.parameter_counts operation)
+    if (or (>= i 256) (or (< count 0) (> count 256))) { return (nb_fail "at most 256 operations and positional effect parameters") }
+    let _: string = (nb_effect_descriptor parser (at declaration.return_types operation) true)
+    let mut parameter: int = 0
+    while (and (== nb_error "") (< parameter count)) {
+        let _: string = (nb_effect_descriptor parser (at declaration.parameter_types (+ (at declaration.parameter_starts operation) parameter)) false)
+        set parameter (+ parameter 1)
+    }
+    if (!= nb_error "") { return 0 }
+    let key: int = (nb_string (+ declaration.name (+ "." (at declaration.operation_names operation))))
+    set nb_effect_keys (array_push nb_effect_keys key)
+    set nb_effect_owners (array_push nb_effect_owners owner)
+    set nb_effect_operations (array_push nb_effect_operations operation)
+    return key
+}
+shadow nb_effect_register {
+    let tokens: List<LexerToken> = (tokenize_string "effect E{pass:int->string}" "signature.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "signature.nano")
+    set nb_error "" set nb_strings [] set nb_effect_keys [] set nb_effect_owners [] set nb_effect_operations []
+    assert (== (nb_effect_register parser 0 0) 0)
+    assert (== (nb_effect_register parser 0 0) 0)
+    assert (== (array_length nb_effect_keys) 1)
+    assert (== (at nb_strings 0) "E.pass")
+    let _: int = (nb_effect_register parser 0 1)
+    assert (!= nb_error "") set nb_error ""
+    set nb_strings [] set nb_effect_keys [] set nb_effect_owners [] set nb_effect_operations []
+}
+fn nb_effect_collect(parser: Parser) -> int {
+    let mut i: int = 0
+    while (and (== nb_error "") (< i (array_length parser.performs))) {
+        let performed: ASTEffectPerform = (at parser.performs i)
+        let owner: int = (effect_decl_index parser performed.effect_name)
+        if (< owner 0) { return (nb_fail "a declared performed effect") }
+        let _: int = (nb_effect_register parser owner (effect_operation_index (at parser.effects owner) performed.operation_name))
+        set i (+ i 1)
+    }
+    set i 0
+    while (and (== nb_error "") (< i (array_length parser.handlers))) {
+        let handler: ASTEffectHandle = (at parser.handlers i)
+        let owner: int = (effect_handler_owner parser handler)
+        if (< owner 0) { return (nb_fail "one declared effect for a handler") }
+        let mut arm: int = 0
+        while (and (== nb_error "") (< arm (array_length handler.operation_names))) {
+            let _: int = (nb_effect_register parser owner (effect_operation_index (at parser.effects owner) (at handler.operation_names arm)))
+            set arm (+ arm 1)
+        }
+        set i (+ i 1)
+    }
+    return 0
+}
+shadow nb_effect_collect {
+    let tokens: List<LexerToken> = (tokenize_string "effect E{pass:int->int} fn main()->int{return handle {perform E.pass(7)} with {pass n->{n}}}" "signature.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "signature.nano")
+    set nb_error "" set nb_strings [] set nb_effect_keys [] set nb_effect_owners [] set nb_effect_operations []
+    let _: int = (nb_effect_collect parser)
+    assert (== nb_error "") assert (== (array_length nb_effect_keys) 1)
+    set nb_strings [] set nb_effect_keys [] set nb_effect_owners [] set nb_effect_operations []
+}
+fn nb_effect_bytes(parser: Parser) -> string {
+    let mut out: string = (nb_hex (array_length nb_effect_keys) 4)
+    let mut previous: int = -1
+    let mut row: int = 0
+    while (< row (array_length nb_effect_keys)) {
+        let mut selected: int = -1
+        let mut i: int = 0
+        while (< i (array_length nb_effect_keys)) {
+            let key: int = (at nb_effect_keys i)
+            if (> key previous) {
+                if (< selected 0) { set selected i }
+                else { if (< key (at nb_effect_keys selected)) { set selected i } }
+            }
+            set i (+ i 1)
+        }
+        if (< selected 0) { let _: int = (nb_fail "distinct sorted operation keys") return "" }
+        set previous (at nb_effect_keys selected)
+        let declaration: ASTEffectDecl = (at parser.effects (at nb_effect_owners selected))
+        let operation: int = (at nb_effect_operations selected)
+        let count: int = (at declaration.parameter_counts operation)
+        set out (+ out (+ (nb_hex previous 4) (+ (nb_hex count 2) "0000")))
+        set out (+ out (nb_effect_descriptor parser (at declaration.return_types operation) true))
+        set i 0
+        while (< i count) {
+            set out (+ out (nb_effect_descriptor parser (at declaration.parameter_types (+ (at declaration.parameter_starts operation) i)) false))
+            set i (+ i 1)
+        }
+        set row (+ row 1)
+    }
+    return out
+}
+shadow nb_effect_bytes {
+    let tokens: List<LexerToken> = (tokenize_string "effect E{first:int->string second:bool->void}" "signature.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "signature.nano")
+    set nb_error "" set nb_strings ["E.first", "E.second"] set nb_effect_keys [] set nb_effect_owners [] set nb_effect_operations []
+    assert (== (nb_effect_register parser 0 1) 1)
+    assert (== (nb_effect_register parser 0 0) 0)
+    assert (== (nb_effect_bytes parser) "02000000000000000100000005000000ffffffff01000000ffffffff010000000100000000000000ffffffff04000000ffffffff")
+    assert (== nb_error "")
+    set nb_strings [] set nb_effect_keys [] set nb_effect_owners [] set nb_effect_operations []
+}
+
+fn nb_effect_kind(kind: int) -> bool {
+    return (or (== kind ParseNodeType.PNODE_EFFECT_OP) (== kind ParseNodeType.PNODE_HANDLE_EXPR))
+}
+shadow nb_effect_kind { assert (nb_effect_kind ParseNodeType.PNODE_EFFECT_OP) assert (not (nb_effect_kind ParseNodeType.PNODE_CALL)) }
+fn nb_effect_dispose(parser: Parser) -> int {
+    let mut i: int = 0
+    while (and (== nb_error "") (< i (array_length nb_names))) {
+        if (and (at nb_live i) (at nb_disposal_pending i)) {
+            let _: int = (nb_op1 "OWN_UNPACK_LOCAL" i)
+            let mut field: int = 0
+            while (< field (parser_get_struct_def parser (at nb_layouts i)).field_count) {
+                let _: int = (nb_emit "POP") set field (+ field 1)
+            }
+            (array_set nb_live i false) (array_set nb_disposal_pending i false)
+        }
+        set i (+ i 1)
+    }
+    return 0
+}
+shadow nb_effect_dispose {
+    set nb_error "" let _: int = (nb_reset_locals)
+    let slot: int = (nb_slot "owner" 8 0 0 false)
+    (array_set nb_disposal_pending slot true)
+    let _: int = (nb_effect_dispose (nb_fixture))
+    assert (not (at nb_live slot)) assert (str_contains nb_code "OWN_UNPACK_LOCAL 0")
+    let _: int = (nb_reset_locals)
+}
+fn nb_effect_value(parser: Parser, id: int, kind: int, expected: string) -> int {
+    let mut layout: int = (nb_record parser expected)
+    if (>= (nb_union_instance parser expected) 0) { return (nb_union_expr parser id kind expected) }
+    if (and (< layout 0) (== kind ParseNodeType.PNODE_STRUCT_LITERAL)) { set layout (nb_record parser (parser_get_struct_literal parser id).struct_name) }
+    if (and (< layout 0) (== kind ParseNodeType.PNODE_IDENTIFIER)) {
+        let local: int = (nb_local (parser_get_identifier parser id).name)
+        if (>= local 0) { if (== (at nb_tags local) 8) { set layout (at nb_layouts local) } }
+    }
+    if (>= layout 0) {
+        if (nb_ordinary_layout layout) { let _: int = (nb_ordinary parser id kind layout) }
+        else { let _: int = (nb_owner parser id kind layout) }
+        set nb_expression_layout layout return 8
+    }
+    return (nb_expr parser id kind)
+}
+shadow nb_effect_value {
+    set nb_error "" let _: int = (nb_reset_locals)
+    let parser: Parser = (nb_fixture)
+    assert (== (nb_effect_value parser 0 ParseNodeType.PNODE_NUMBER "int") 1)
+    assert (str_contains nb_code "PUSH_I64") let _: int = (nb_reset_locals)
+}
+fn nb_effect_block(parser: Parser, id: int, kind: int, expected: string) -> int {
+    let first: int = (array_length nb_names)
+    let mut last: int = id let mut last_kind: int = kind
+    if (== kind ParseNodeType.PNODE_BLOCK) {
+        let block: ASTBlock = (parser_get_block parser id)
+        let count: int = (list_ASTStmtRef_length block.statements)
+        let prefix: List<ASTStmtRef> = (list_ASTStmtRef_new)
+        set last -1
+        let mut i: int = 0
+        while (< i count) {
+            let item: ASTStmtRef = (list_ASTStmtRef_get block.statements i)
+            if (and (== i (- count 1)) (parser_is_value_expression item.node_type)) { set last item.node_id set last_kind item.node_type }
+            else { (list_ASTStmtRef_push prefix item) }
+            set i (+ i 1)
+        }
+        let depth: int = nb_control_depth set nb_control_depth 0
+        let _: int = (nb_body_statements parser prefix false) set nb_control_depth depth
+    }
+    let mut tag: int = 0
+    if (and (== nb_error "") (not (or nb_returned nb_transferred))) {
+        if (>= last 0) {
+            set tag (nb_effect_value parser last last_kind expected)
+            if (and (== tag 0) (not (nb_effect_kind last_kind))) { let _: int = (nb_emit "PUSH_VOID") }
+        } else { let _: int = (nb_emit "PUSH_VOID") }
+        if (nb_consumed first) { let _: int = (nb_cleanup parser first) }
+    }
+    let _: int = (nb_match_scope_end first)
+    return tag
+}
+shadow nb_effect_block {
+    set nb_error "" let _: int = (nb_reset_locals)
+    let tokens: List<LexerToken> = (tokenize_string "fn main()->void{}" "block.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "block.nano")
+    assert (== (nb_effect_block parser (parser_get_function parser 0).body ParseNodeType.PNODE_BLOCK "void") 0)
+    assert (str_contains nb_code "PUSH_VOID") let _: int = (nb_reset_locals)
+}
+struct NBEffectScope { names: array<string>, live: array<bool>, pending: array<bool>, variants: array<int> }
+fn nb_effect_save() -> NBEffectScope {
+    let mut names: array<string> = [] let mut variants: array<int> = [] let mut i: int = 0
+    while (< i (array_length nb_names)) {
+        set names (array_push names (at nb_names i)) set variants (array_push variants (at nb_variants i)) set i (+ i 1)
+    }
+    return NBEffectScope{names:names,live:(nb_copy_flags nb_live i),pending:(nb_copy_flags nb_disposal_pending i),variants:variants}
+}
+shadow nb_effect_save {
+    let _: int = (nb_reset_locals) let _: int = (nb_slot "number" 1 4294967295 0 false)
+    let saved: NBEffectScope = (nb_effect_save)
+    (array_set nb_names 0 "changed") assert (== (at saved.names 0) "number") let _: int = (nb_reset_locals)
+}
+fn nb_effect_restore(scope: NBEffectScope) -> int {
+    let mut i: int = 0
+    while (< i (array_length nb_names)) {
+        if (< i (array_length scope.names)) {
+            (array_set nb_names i (at scope.names i)) (array_set nb_live i (at scope.live i))
+            (array_set nb_disposal_pending i (at scope.pending i)) (array_set nb_variants i (at scope.variants i))
+        } else {
+            (array_set nb_names i "") (array_set nb_live i false) (array_set nb_disposal_pending i false) (array_set nb_variants i -1)
+        }
+        set i (+ i 1)
+    }
+    return 0
+}
+shadow nb_effect_restore {
+    let _: int = (nb_reset_locals) let saved: NBEffectScope = (nb_effect_save)
+    let _: int = (nb_slot "later" 1 4294967295 0 false) let _: int = (nb_effect_restore saved)
+    assert (== (at nb_names 0) "") assert (not (at nb_live 0)) let _: int = (nb_reset_locals)
+}
+fn nb_effect_perform(parser: Parser, node: ASTEffectPerform) -> int {
+    let owner: int = (effect_decl_index parser node.effect_name)
+    if (< owner 0) { return (nb_fail "a resolved performed effect") }
+    let declaration: ASTEffectDecl = (at parser.effects owner)
+    let operation: int = (effect_operation_index declaration node.operation_name)
+    let key: int = (nb_effect_register parser owner operation)
+    if (!= nb_error "") { return 0 }
+    let count: int = (at declaration.parameter_counts operation)
+    if (!= count (array_length node.argument_ids)) { return (nb_fail "the exact performed argument count") }
+    let _: int = (nb_effect_dispose parser)
+    let mut i: int = 0
+    while (and (== nb_error "") (< i count)) {
+        let spelling: string = (at declaration.parameter_types (+ (at declaration.parameter_starts operation) i))
+        let tag: int = (nb_effect_value parser (at node.argument_ids i) (at node.argument_types i) spelling)
+        if (!= tag (nb_effect_tag parser spelling)) { return (nb_fail "the exact performed argument type") }
+        if (or (== tag 8) (== tag 10)) { if (!= nb_expression_layout (nb_concrete_layout parser spelling)) { return (nb_fail "the exact performed layout") } }
+        set i (+ i 1)
+    }
+    let _: int = (nb_effect_dispose parser)
+    let _: int = (nb_emit (+ "PERFORM " (+ (int_to_string key) (+ " " (int_to_string count)))))
+    let spelling: string = (at declaration.return_types operation)
+    set nb_expression_layout (nb_concrete_layout parser spelling)
+    set nb_expression_identity ""
+    if (>= (nb_union_instance parser spelling) 0) { set nb_expression_identity (at nb_union_identities nb_expression_layout) }
+    return (nb_effect_tag parser spelling)
+}
+shadow nb_effect_perform {
+    let tokens: List<LexerToken> = (tokenize_string "effect E{pass:int->int} fn main()->int{return perform E.pass(7)}" "perform.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "perform.nano")
+    set nb_error "" set nb_strings [] set nb_effect_keys [] set nb_effect_owners [] set nb_effect_operations [] let _: int = (nb_reset_locals)
+    assert (== (nb_effect_perform parser (at parser.performs 0)) 1) assert (str_contains nb_code "PERFORM 0 1")
+    set nb_strings [] set nb_effect_keys [] set nb_effect_owners [] set nb_effect_operations [] let _: int = (nb_reset_locals)
+}
+fn nb_effect_tag(parser: Parser, spelling: string) -> int {
+    if (>= (nb_union_instance parser spelling) 0) { return 10 }
+    if (>= (nb_record parser spelling) 0) { return 8 }
+    return (nb_local_tag spelling)
+}
+shadow nb_effect_tag { assert (== (nb_effect_tag (nb_fixture) "float") 3) assert (== (nb_effect_tag (nb_fixture) "R") 8) }
+fn nb_effect_handle(parser: Parser, node: ASTEffectHandle) -> int {
+    let owner: int = (effect_handler_owner parser node)
+    if (< owner 0) { return (nb_fail "one resolved handler effect") }
+    let declaration: ASTEffectDecl = (at parser.effects owner)
+    let count: int = (array_length node.operation_names)
+    let depth: int = nb_handler_depth
+    if (or (< count 1) (> (+ depth count) 64)) { return (nb_fail "one through 64 active lexical handlers") }
+    let before: NBEffectScope = (nb_effect_save)
+    let mut starts: array<int> = [] let mut labels: array<string> = [] let mut operations: array<int> = []
+    let mut arm: int = 0
+    while (and (== nb_error "") (< arm count)) {
+        let operation: int = (effect_operation_index declaration (at node.operation_names arm))
+        let key: int = (nb_effect_register parser owner operation)
+        if (!= nb_error "") { return 0 }
+        let parameters: int = (at declaration.parameter_counts operation)
+        if (!= parameters (at node.parameter_counts arm)) { return (nb_fail "exact handler parameter bindings") }
+        let first: int = (array_length nb_names) let label: string = (nb_label)
+        set starts (array_push starts first) set labels (array_push labels label) set operations (array_push operations operation)
+        let mut p: int = 0
+        while (and (== nb_error "") (< p parameters)) {
+            let spelling: string = (at declaration.parameter_types (+ (at declaration.parameter_starts operation) p))
+            let tag: int = (nb_effect_tag parser spelling) let layout: int = (nb_concrete_layout parser spelling)
+            let slot: int = (nb_slot "" tag layout 0 false)
+            if (!= nb_error "") { return 0 }
+            (array_set nb_live slot false)
+            if (== tag 10) { (array_set nb_identities slot (at nb_union_identities layout)) }
+            set p (+ p 1)
+        }
+        let _: int = (nb_emit (+ "HANDLER_PUSH " (+ (int_to_string key) (+ " " (+ label (+ " " (+ (int_to_string first) (+ " " (int_to_string parameters)))))))))
+        set arm (+ arm 1)
+    }
+    set nb_handler_depth (+ depth count)
+    let result: int = (nb_effect_block parser node.body_id node.body_type "")
+    let layout: int = nb_expression_layout let identity: string = nb_expression_identity
+    let returned: bool = nb_returned let transferred: bool = nb_transferred
+    let end: string = (nb_label)
+    if (not (or returned transferred)) { let _: int = (nb_op1 "HANDLER_POP" count) let _: int = (nb_emit (+ "JMP " end)) }
+    let normal: NBEffectScope = (nb_effect_save)
+    let loop_first: int = nb_loop_first
+    set arm 0
+    while (and (== nb_error "") (< arm count)) {
+        let _: int = (nb_emit (+ (at labels arm) ":"))
+        let _: int = (nb_effect_restore before)
+        set nb_returned false set nb_transferred false set nb_loop_first -1 set nb_handler_depth (+ depth (+ arm 1))
+        let mut i: int = 0
+        while (< i (array_length before.names)) {
+            if (or (nb_owned_local i) (!= (at nb_modes i) 0)) { (array_set nb_live i false) (array_set nb_disposal_pending i false) }
+            set i (+ i 1)
+        }
+        let first: int = (at starts arm)
+        set i 0
+        while (< i (at node.parameter_counts arm)) {
+            let slot: int = (+ first i) let name: string = (at node.parameter_names (+ (at node.parameter_starts arm) i))
+            (array_set nb_names slot name) (array_set nb_live slot true)
+            let _: int = (nb_name_begin slot name) set i (+ i 1)
+        }
+        let spelling: string = (at declaration.return_types (at operations arm))
+        let tag: int = (nb_effect_block parser (at node.arm_ids arm) (at node.arm_types arm) spelling)
+        if (not (or nb_returned nb_transferred)) {
+            if (!= tag (nb_effect_tag parser spelling)) { return (nb_fail "the exact resumed result type") }
+            if (or (== tag 8) (== tag 10)) { if (!= nb_expression_layout (nb_concrete_layout parser spelling)) { return (nb_fail "the exact resumed layout") } }
+            if (nb_consumed 0) { let _: int = (nb_cleanup parser 0) }
+            let _: int = (nb_emit "EFFECT_RESUME")
+        }
+        let _: int = (nb_names_end first)
+        set arm (+ arm 1)
+    }
+    let _: int = (nb_effect_restore normal)
+    set nb_returned returned set nb_transferred transferred set nb_loop_first loop_first set nb_handler_depth depth
+    set nb_expression_layout layout set nb_expression_identity identity
+    if (not (or returned transferred)) { let _: int = (nb_emit (+ end ":")) }
+    return result
+}
+shadow nb_effect_handle {
+    let source: string = "resource struct H{value:int} effect E{pass:H->H} fn main()->int{let h:H=handle {perform E.pass(H{value:7})} with {pass h->{h}} let H{value}=h return value}"
+    let tokens: List<LexerToken> = (tokenize_string source "handle.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "handle.nano")
+    let text: string = (nanoisa_borrow_emit parser false 0)
+    assert (== nb_error "") assert (str_contains text "HANDLER_PUSH") assert (str_contains text "EFFECT_RESUME")
 }
