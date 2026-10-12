@@ -1,0 +1,18 @@
+{
+  "compiler-shadows.nvm": {
+    "sha256": "f7403cf7bee881cefd5e7c5b0bf0f93aae717cef7bf540a1616daa73801ca799",
+    "bytes": 1420
+  },
+  "final-compiler.nvm": {
+    "sha256": "3074a43d20d7d5dfe526a1ca7663767725ed97d8d6ba69ab26e42cf89a491709",
+    "bytes": 892180
+  },
+  "final-compiler.c": {
+    "sha256": "e84f1e43c46afededde73064acc052ec8604b1853fa429d4f8895f8e4b81b9f9",
+    "bytes": 16500463
+  },
+  "final-compiler": {
+    "sha256": "356794e186d40a9c89dc537bb7c285635ff3a58fd781af0f3dc7def4668cd21a",
+    "bytes": 22069952
+  }
+}

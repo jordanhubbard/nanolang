@@ -1246,8 +1246,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
         } else if(n->type==AST_LET) {
             ASTNode *pattern_value=n->as.let.value;
             int selected=pattern_value && pattern_value->type==AST_IDENTIFIER?borrow_local(b,pattern_value->as.identifier):-1;
-            if(n->as.let.is_destructure && selected>=0 && b->tags[selected]==TAG_UNION &&
-               borrow_owned_type(b,TAG_UNION,b->layouts[selected])) {
+            if(n->as.let.is_destructure && selected>=0 && b->tags[selected]==TAG_UNION) {
                 if(b->variants[selected]<0){borrow_error(b,n,"a proven selected union pattern");break;}
                 UnionDef *definition=b->unions[b->layouts[selected]].definition;
                 int count=definition->variant_field_counts[b->variants[selected]];
@@ -1261,8 +1260,16 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                     seen[field]=true;
                 }
                 if(cg->had_error)break;
-                if(b->live[selected])borrow_union_unpack(b,(unsigned)selected);
-                b->names[selected]=n->as.let.name;
+                if(borrow_owned_type(b,TAG_UNION,b->layouts[selected])) {
+                    if(b->live[selected])borrow_union_unpack(b,(unsigned)selected);
+                    b->names[selected]=n->as.let.name;
+                } else {
+                    int alias=borrow_slot(b,n->as.let.name,TAG_UNION,b->layouts[selected],0,false);
+                    if(cg->had_error)break;
+                    b->variants[alias]=b->variants[selected];
+                    emit_op(cg,OP_LOAD_LOCAL,(unsigned)selected);
+                    emit_op(cg,OP_STORE_LOCAL,(unsigned)alias);
+                }
                 continue;
             }
             if(n->as.let.is_destructure_projection && n->as.let.value->type==AST_FIELD_ACCESS &&

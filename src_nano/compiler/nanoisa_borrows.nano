@@ -1955,7 +1955,7 @@ shadow nb_ordinary {
 fn nb_binding(parser: Parser, binding: ASTLet) -> int {
     if (and binding.is_destructure (== binding.value_type ParseNodeType.PNODE_IDENTIFIER)) {
         let selected: int = (nb_local (parser_get_identifier parser binding.value).name)
-        if (>= selected 0) { if (and (== (at nb_tags selected) 10) (nb_owned_local selected)) {
+        if (>= selected 0) { if (== (at nb_tags selected) 10) {
             let variant: int = (at nb_variants selected)
             if (< variant 0) { return (nb_fail "a proven selected union pattern") }
             let definition: ASTUnion = (parser_get_union parser (at nb_union_sources (at nb_layouts selected)))
@@ -1971,8 +1971,17 @@ fn nb_binding(parser: Parser, binding: ASTLet) -> int {
                 }
                 set i (+ i 1)
             }
-            if (at nb_live selected) { let _: int = (nb_union_unpack parser selected) }
-            (array_set nb_names selected binding.name)
+            if (nb_owned_local selected) {
+                if (at nb_live selected) { let _: int = (nb_union_unpack parser selected) }
+                (array_set nb_names selected binding.name)
+            } else {
+                let alias: int = (nb_slot binding.name 10 (at nb_layouts selected) 0 false)
+                if (!= nb_error "") { return 0 }
+                (array_set nb_variants alias (at nb_variants selected))
+                (array_set nb_identities alias (at nb_identities selected))
+                let _: int = (nb_op1 "LOAD_LOCAL" selected)
+                let _: int = (nb_op1 "STORE_LOCAL" alias)
+            }
             return 0
         } }
     }
@@ -3222,6 +3231,12 @@ shadow nb_binding {
     let _: int = (nb_cleanup parser 0)
     assert (not (at nb_live holder)) assert (not (at nb_disposal_pending holder))
     let _: int = (nb_reset_locals)
+    let tokens: List<LexerToken> = (tokenize_string "resource struct Handle { fd: int } union Choice { Some { value: int }, None {} } fn consume(h: Handle) -> int { let Handle { fd } = h return fd } fn read(boxed: Choice) -> int { match boxed { Some(payload) => { let Choice.Some { value } = payload return (+ value payload.value) } None(payload) => { let Choice.None {} = payload return 0 } } } fn main() -> int { return (read Choice.Some { value: 7 }) }" "mixed-selected-pattern.nano" (list_CompilerDiagnostic_new))
+    let mixed: Parser = (parse_program tokens (list_LexerToken_length tokens) "mixed-selected-pattern.nano")
+    assert (not (parser_has_error mixed))
+    let output: string = (nanoisa_borrow_emit mixed false 0)
+    assert (!= output "") assert (str_contains output "AGG_GET 0")
+    let _: string = (nanoisa_borrow_emit (nb_fixture) false 0)
 }
 shadow nb_body { let parser: Parser = (nb_fixture) let output: string = (nanoisa_borrow_emit parser true 0) assert (str_contains output "ASSERT") assert (str_contains output "CALL_REF 1 0") }
 shadow nb_function { let parser: Parser = (nb_fixture) let output: string = (nanoisa_borrow_emit parser false 0) assert (str_contains output ".function main 0") assert (str_contains output ".function read 1") }

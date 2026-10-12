@@ -1,0 +1,33 @@
+I require every record or selected variant field exactly once in an owned pattern at line 4.
+-- E024 UNDEFINED VARIABLE --- /private/tmp/nl51-selected-patterns/c-mixed-matrix/4/main.nano
+I cannot find a variable named `__owned$92`.
+
+4|  Some(payload) => { let Box.Some { value, value } = payload return 7 }
+                       ^^^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /private/tmp/nl51-selected-patterns/c-mixed-matrix/4/main.nano
+Field access requires a struct value.
+
+4|  Some(payload) => { let Box.Some { value, value } = payload return 7 }
+                       ^
+Hint: Ensure the object before '.' is a struct type.
+-- E024 UNDEFINED VARIABLE --- /private/tmp/nl51-selected-patterns/c-mixed-matrix/4/main.nano
+I cannot find a variable named `__owned$92`.
+
+4|  Some(payload) => { let Box.Some { value, value } = payload return 7 }
+                       ^^^^^^^^^^
+Hint: Check spelling or ensure the variable is in scope.
+-- E001 TYPE MISMATCH --- /private/tmp/nl51-selected-patterns/c-mixed-matrix/4/main.nano
+Field access requires a struct value.
+
+4|  Some(payload) => { let Box.Some { value, value } = payload return 7 }
+                       ^
+Hint: Ensure the object before '.' is a struct type.
+I cannot verify affine ownership at line 4, column 21: I require concrete selected payload ownership metadata — __nano_root_union__Box.Some
+I cannot verify affine ownership at line 4, column 21: I require concrete selected payload ownership metadata — __nano_root_union__Box.Some
+I cannot verify affine ownership at line 4, column 21: I require concrete selected payload ownership metadata — __nano_root_union__Box.Some
+I cannot verify affine ownership at line 4, column 21: I require concrete selected payload ownership metadata — __nano_root_union__Box.Some
+Warning at line 4, column 21: Unused variable 'value'
+Warning at line 4, column 21: Unused variable 'value'
+Warning at line 3, column 35: Unused variable 'payload'
+error: type check failed

@@ -1,6 +1,9 @@
 # I describe explicit checked source requests; I parse and execute no service.
 module "modules/file_source_catalog/file_source_catalog.nano" as FileCatalog
 
+# I reuse successful views of my immutable catalogs within this process.
+let mut fsp_catalog_views: array<string> = ["", "", ""]
+
 pub struct FileSourceText { data: string, size: int }
 pub struct FileSourceBinding { id: int, kind: int, ordinal: int, name: FileSourceText }
 pub struct FileSourceRequest {
@@ -23,29 +26,47 @@ shadow fsp_string { assert (== (fsp_string "File") "4:File;") }
 fn fsp_number(value: int) -> string { return (+ "#" (+ (int_to_string value) ";")) }
 shadow fsp_number { assert (== (fsp_number 1) "#1;") }
 
+# I join ordered fragments with logarithmic copy depth.
+fn fsp_join(parts: array<string>, first: int, last: int) -> string {
+    if (>= first last) { return "" }
+    if (== (+ first 1) last) { return (at parts first) }
+    let middle: int = (+ first (/ (- last first) 2))
+    return (+ (fsp_join parts first middle) (fsp_join parts middle last))
+}
+shadow fsp_join {
+    assert (== (fsp_join ["a", "", "bc", "d"] 0 4) "abcd")
+    assert (== (fsp_join ["a", "b", "c"] 1 3) "bc")
+    assert (== (fsp_join [] 0 0) "")
+}
+
 # This independently formats every catalog fact; C exposes only immutable getters.
 pub fn service_source_catalog_view(catalog: int) -> string {
+    let cached: bool = (and (>= catalog 1) (<= catalog 3))
+    if cached {
+        let prior: string = (at fsp_catalog_views (- catalog 1))
+        if (!= prior "") { return prior }
+    }
     let types: int = (FileCatalog.count catalog 1)
     let methods: int = (FileCatalog.count catalog 2)
     if (or (or (< types 1) (> types 64)) (or (< methods 1) (> methods 64))) { return "" }
     let mut prefix: string = "file-source-catalog1;"
     if (== catalog 2) { set prefix "socket-source-catalog1;" }
     if (== catalog 3) { set prefix "websocket-source-catalog1;" }
-    let mut out: string = (+ prefix (fsp_string (FileCatalog.catalog_text catalog 0 0 0 0)))
-    set out (+ out (+ (fsp_number types) (fsp_number methods)))
+    let mut parts: array<string> = [prefix, (fsp_string (FileCatalog.catalog_text catalog 0 0 0 0))]
+    set parts (array_push parts (+ (fsp_number types) (fsp_number methods)))
     let mut i: int = 0
     while (< i types) {
         let mut f: int = 0
-        while (< f 2) { set out (+ out (fsp_string (FileCatalog.catalog_text catalog 1 i f 0))) set f (+ f 1) }
+        while (< f 2) { set parts (array_push parts (fsp_string (FileCatalog.catalog_text catalog 1 i f 0))) set f (+ f 1) }
         set f 0
-        while (< f 2) { set out (+ out (fsp_number (FileCatalog.catalog_number catalog 1 i f 0))) set f (+ f 1) }
+        while (< f 2) { set parts (array_push parts (fsp_number (FileCatalog.catalog_number catalog 1 i f 0))) set f (+ f 1) }
         let count: int = (FileCatalog.catalog_number catalog 1 i 1 0)
         if (or (< count 0) (> count 64)) { return "" }
         let mut j: int = 0
         while (< j count) {
             set f 2
-            while (< f 5) { set out (+ out (fsp_string (FileCatalog.catalog_text catalog 1 i f j))) set f (+ f 1) }
-            set out (+ out (fsp_number (FileCatalog.catalog_number catalog 1 i 2 j)))
+            while (< f 5) { set parts (array_push parts (fsp_string (FileCatalog.catalog_text catalog 1 i f j))) set f (+ f 1) }
+            set parts (array_push parts (fsp_number (FileCatalog.catalog_number catalog 1 i 2 j)))
             set j (+ j 1)
         }
         set i (+ i 1)
@@ -53,32 +74,35 @@ pub fn service_source_catalog_view(catalog: int) -> string {
     set i 0
     while (< i methods) {
         let mut f: int = 0
-        while (< f 4) { set out (+ out (fsp_string (FileCatalog.catalog_text catalog 2 i f 0))) set f (+ f 1) }
+        while (< f 4) { set parts (array_push parts (fsp_string (FileCatalog.catalog_text catalog 2 i f 0))) set f (+ f 1) }
         set f 0
-        while (< f 5) { set out (+ out (fsp_number (FileCatalog.catalog_number catalog 2 i f 0))) set f (+ f 1) }
+        while (< f 5) { set parts (array_push parts (fsp_number (FileCatalog.catalog_number catalog 2 i f 0))) set f (+ f 1) }
         let count: int = (FileCatalog.catalog_number catalog 2 i 4 0)
         if (or (< count 0) (> count 64)) { return "" }
         let mut j: int = 0
         while (< j count) {
             set f 4
-            while (< f 7) { set out (+ out (fsp_string (FileCatalog.catalog_text catalog 2 i f j))) set f (+ f 1) }
+            while (< f 7) { set parts (array_push parts (fsp_string (FileCatalog.catalog_text catalog 2 i f j))) set f (+ f 1) }
             set f 5
-            while (< f 10) { set out (+ out (fsp_number (FileCatalog.catalog_number catalog 2 i f j))) set f (+ f 1) }
+            while (< f 10) { set parts (array_push parts (fsp_number (FileCatalog.catalog_number catalog 2 i f j))) set f (+ f 1) }
             set j (+ j 1)
         }
         set j 0
         while (< j 2) {
-            set out (+ out (fsp_number (FileCatalog.catalog_number catalog 2 i 10 j)))
-            set out (+ out (fsp_string (FileCatalog.catalog_text catalog 2 i 7 j)))
+            set parts (array_push parts (fsp_number (FileCatalog.catalog_number catalog 2 i 10 j)))
+            set parts (array_push parts (fsp_string (FileCatalog.catalog_text catalog 2 i 7 j)))
             set j (+ j 1)
         }
         set i (+ i 1)
     }
+    let out: string = (fsp_join parts 0 (array_length parts))
     if (>= (str_length out) 32768) { return "" }
+    if cached { (array_set fsp_catalog_views (- catalog 1) out) }
     return out
 }
 shadow service_source_catalog_view {
     let view: string = (service_source_catalog_view 2)
+    assert (== (service_source_catalog_view 2) view)
     assert (str_contains view "socket-source-catalog1;")
     assert (str_contains view "nsi.tcp.v1.begin_connect")
     assert (str_contains view "connect_pending")

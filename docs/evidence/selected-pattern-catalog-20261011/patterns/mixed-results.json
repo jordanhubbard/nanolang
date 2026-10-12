@@ -1,0 +1,12 @@
+{
+  "c": {
+    "returncode": 1,
+    "preserved": true,
+    "diagnostic": "Warning at line 5, column 35: Unused variable 'payload'\nI could not compile shadows at line 6: I require an exact concrete union binding without destructuring in my source borrow profile\n"
+  },
+  "nano": {
+    "returncode": 1,
+    "preserved": true,
+    "diagnostic": "I cannot lower this checked program: I require an exact inferred aggregate binding in my source borrow profile\n"
+  }
+}

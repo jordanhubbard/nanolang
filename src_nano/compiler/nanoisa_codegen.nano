@@ -6502,16 +6502,58 @@ shadow nisa_local_name_begin {
     assert (== (nisa_local_name_begin 1 "items") ".local_begin 1 \"items\"\n")
 }
 
+# I retain the concrete payload identity when a complete selected pattern aliases it.
+fn nisa_selected_pattern_type(parser: Parser, binding: ASTLet) -> string {
+    if (not binding.is_destructure) { return "" }
+    let payload: string = (nisa_expr_type parser binding.value binding.value_type)
+    let owner: string = (nisa_union_payload_owner parser payload)
+    if (== owner "") { return "" }
+    let index: int = (nisa_union_index parser owner)
+    let definition: ASTUnion = (parser_get_union parser index)
+    let suffix: string = (str_substring payload (str_length owner) (- (str_length payload) (str_length owner)))
+    if (and (!= binding.var_type payload) (!= binding.var_type (+ definition.name suffix))) {
+        return (nisa_fail "I require the exact selected variant in a destructuring pattern")
+    }
+    let variant: int = (nisa_union_variant definition (str_substring suffix 1 (- (str_length suffix) 1)))
+    if (or (< variant 0) (!= (array_length binding.destructure_names) (at definition.variant_field_counts variant))) {
+        return (nisa_fail "I require every selected variant field exactly once")
+    }
+    let mut field: int = 0
+    while (< field (array_length binding.destructure_names)) {
+        let name: string = (at binding.destructure_names field)
+        if (< (nisa_union_field parser payload name) 0) { return (nisa_fail "I require a declared selected variant field") }
+        let mut prior: int = 0
+        while (< prior field) {
+            if (== name (at binding.destructure_names prior)) { return (nisa_fail "I require distinct selected variant fields") }
+            set prior (+ prior 1)
+        }
+        set field (+ field 1)
+    }
+    return payload
+}
+shadow nisa_selected_pattern_type {
+    let source: string = "union Box<T>{Some{value:T},None{}} fn read(box:Box<int>)->int{match box{Some(payload)=>{let Box.Some{value}=payload return value} None(payload)=>{let Box.None{}=payload return 0}}} fn main()->int{return (read Box.Some{value:7})}"
+    let text: string = (nanoisa_emit_nasm source)
+    assert nisa_ok assert (str_contains text "AGG_GET 0")
+    let wrong: string = (nanoisa_emit_nasm "union Box<T>{Some{value:T},None{}} fn read(box:Box<int>)->int{match box{Some(payload)=>{let Box.None{}=payload return 0} None(payload)=>{return 0}}} fn main()->int{return (read Box.Some{value:7})}")
+    assert (not nisa_ok) assert (== wrong "")
+    let _: int = (nisa_reset)
+}
+
 fn nisa_emit_typed_let(parser: Parser, binding: ASTLet, value_type: string) -> string {
     if (not nisa_ok) { return "" }
+    let payload: string = (nisa_selected_pattern_type parser binding)
+    if (not nisa_ok) { return "" }
+    let mut retained: string = value_type
+    if (!= payload "") { set retained payload }
     let effect_void: bool = (and (== value_type "void") (or (== binding.value_type ParseNodeType.PNODE_HANDLE_EXPR) (== binding.value_type ParseNodeType.PNODE_EFFECT_OP)))
-    if (and (not effect_void) (not (nisa_type_ok parser value_type))) {
+    if (and (== payload "") (and (not effect_void) (not (nisa_type_ok parser retained)))) {
         return (nisa_fail (+ "unsupported local type " value_type))
     }
-    let value: string = (nisa_emit_expected_expr parser binding.value binding.value_type value_type)
+    let value: string = (nisa_emit_expected_expr parser binding.value binding.value_type retained)
     if (not nisa_ok) { return "" }
     set nisa_names (array_push nisa_names binding.name)
-    set nisa_types (array_push nisa_types value_type)
+    set nisa_types (array_push nisa_types retained)
     let slot: int = (- (array_length nisa_names) 1)
     if (and (!= binding.name "") (not binding.is_generated)) {
         set nisa_named_slots (array_push nisa_named_slots slot)

@@ -1,0 +1,14 @@
+test_copyable_pattern_with_resource_functions (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_copyable_pattern_with_resource_functions) ... ok
+test_duplicate (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_duplicate) ... ok
+test_integer (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_integer) ... ok
+test_missing (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_missing) ... ok
+test_nested (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_nested) ... ok
+test_owned_generic_transfer (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_owned_generic_transfer) ... ok
+test_string (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_string) ... ok
+test_substituted_type_mismatch (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_substituted_type_mismatch) ... ok
+test_wrong_variant (tests.test_generic_selected_patterns.GenericSelectedPatterns.test_wrong_variant) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 2.061s
+
+OK

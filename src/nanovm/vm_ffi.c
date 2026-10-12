@@ -611,6 +611,12 @@ static ffi_type *callback_native_type(uint8_t tag) {
     }
 }
 
+/* I reuse the service check only inside one synchronous dispatch, before foreign code runs. */
+static bool vm_ffi_call_checked(const NvmModule *module, uint32_t import_idx,
+                 NanoValue *args, int arg_count,
+                 NanoValue *result, VmHeap *heap,
+                 char *error_msg, size_t error_msg_size);
+
 bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
                     NanoValue *args, int arg_count, NanoValue *result,
                     char *error_msg, size_t error_msg_size) {
@@ -631,7 +637,7 @@ bool vm_ffi_call_vm(VmState *vm, const NvmModule *module, uint32_t import_idx,
     if (!policy) {
         return vm->isolate_ffi
             ? vm_ffi_call_cop(vm, module, import_idx, args, arg_count, result, &vm->heap, error_msg, error_msg_size)
-            : vm_ffi_call(module, import_idx, args, arg_count, result, &vm->heap, error_msg, error_msg_size);
+            : vm_ffi_call_checked(module, import_idx, args, arg_count, result, &vm->heap, error_msg, error_msg_size);
     }
     if (import_idx >= module->import_count || vm->callbacks_closed) {
         snprintf(error_msg, error_msg_size, "I require a valid callback contract and live VM host");
@@ -801,6 +807,14 @@ bool vm_ffi_call(const NvmModule *module, uint32_t import_idx,
                  NanoValue *result, VmHeap *heap,
                  char *error_msg, size_t error_msg_size) {
     if (nvm_service_execution_pending(module)) return false;
+    return vm_ffi_call_checked(module, import_idx, args, arg_count, result, heap,
+                               error_msg, error_msg_size);
+}
+
+static bool vm_ffi_call_checked(const NvmModule *module, uint32_t import_idx,
+                 NanoValue *args, int arg_count,
+                 NanoValue *result, VmHeap *heap,
+                 char *error_msg, size_t error_msg_size) {
     if (callback_contract_pending(module, import_idx, error_msg, error_msg_size)) return false;
     if (!ffi_loader_is_initialized()) vm_ffi_init();
 

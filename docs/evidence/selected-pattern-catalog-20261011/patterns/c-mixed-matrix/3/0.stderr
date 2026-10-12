@@ -1,0 +1,7 @@
+I require every record or selected variant field exactly once in an owned pattern at line 4.
+I cannot verify affine ownership at line 4, column 21: I require concrete selected payload ownership metadata — __nano_root_union__Box.Some
+I cannot verify affine ownership at line 4, column 21: I require concrete selected payload ownership metadata — __nano_root_union__Box.Some
+I cannot verify affine ownership at line 4, column 21: I require concrete selected payload ownership metadata — __nano_root_union__Box.Some
+I cannot verify affine ownership at line 4, column 21: I require concrete selected payload ownership metadata — __nano_root_union__Box.Some
+Warning at line 3, column 35: Unused variable 'payload'
+error: type check failed

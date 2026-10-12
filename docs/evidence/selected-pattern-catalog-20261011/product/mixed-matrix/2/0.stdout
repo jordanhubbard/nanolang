@@ -1,0 +1,4 @@
+NSType checking failed
+Diagnostics:
+  [E0036] I require the pattern to name the selected record or variant. (/private/tmp/nl51-selected-final/mixed-matrix/2/main.nano:4:21)
+  [E0011] I cannot find this name in the current scope: __owned$4 (/private/tmp/nl51-selected-final/mixed-matrix/2/main.nano:4:21)

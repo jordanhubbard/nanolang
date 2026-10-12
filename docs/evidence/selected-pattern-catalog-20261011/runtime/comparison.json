@@ -1,0 +1,17 @@
+{
+  "same_retired_instructions": true,
+  "before_ffi_ns": 9388531000,
+  "after_ffi_ns": 4854100000,
+  "before_calls": {
+    "direct": 1138956,
+    "indirect": 0,
+    "extern": 5308,
+    "module": 0
+  },
+  "after_calls": {
+    "direct": 1138956,
+    "indirect": 0,
+    "extern": 5308,
+    "module": 0
+  }
+}

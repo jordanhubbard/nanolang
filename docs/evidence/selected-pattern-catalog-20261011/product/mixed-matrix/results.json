@@ -1,0 +1,169 @@
+[
+  {
+    "accepted": true,
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-selected-final/final-compiler",
+          "/private/tmp/nl51-selected-final/mixed-matrix/0/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selected-final/mixed-matrix/0/main.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/Users/jordanh/Src/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/private/tmp/nl51-selected-final/mixed-matrix/0/main.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/Users/jordanh/Src/nanolang/bin/nano_vm",
+          "/private/tmp/nl51-selected-final/mixed-matrix/0/main.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/Users/jordanh/Src/nanolang/bin/nvm2c",
+          "/private/tmp/nl51-selected-final/mixed-matrix/0/main.nvm",
+          "-o",
+          "/private/tmp/nl51-selected-final/mixed-matrix/0/main.c"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-O1",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "/private/tmp/nl51-selected-final/mixed-matrix/0/main.c",
+          "-o",
+          "/private/tmp/nl51-selected-final/mixed-matrix/0/main"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/private/tmp/nl51-selected-final/mixed-matrix/0/main"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "accepted": true,
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-selected-final/final-compiler",
+          "/private/tmp/nl51-selected-final/mixed-matrix/1/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selected-final/mixed-matrix/1/main.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/Users/jordanh/Src/nanolang/bin/nano_vm",
+          "--verify-only",
+          "/private/tmp/nl51-selected-final/mixed-matrix/1/main.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/Users/jordanh/Src/nanolang/bin/nano_vm",
+          "/private/tmp/nl51-selected-final/mixed-matrix/1/main.nvm"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/Users/jordanh/Src/nanolang/bin/nvm2c",
+          "/private/tmp/nl51-selected-final/mixed-matrix/1/main.nvm",
+          "-o",
+          "/private/tmp/nl51-selected-final/mixed-matrix/1/main.c"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/opt/homebrew/opt/llvm/bin/clang",
+          "-std=c11",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-O1",
+          "-fsanitize=address,undefined",
+          "-fno-omit-frame-pointer",
+          "/private/tmp/nl51-selected-final/mixed-matrix/1/main.c",
+          "-o",
+          "/private/tmp/nl51-selected-final/mixed-matrix/1/main"
+        ],
+        "returncode": 0
+      },
+      {
+        "argv": [
+          "/private/tmp/nl51-selected-final/mixed-matrix/1/main"
+        ],
+        "returncode": 0
+      }
+    ]
+  },
+  {
+    "accepted": false,
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-selected-final/final-compiler",
+          "/private/tmp/nl51-selected-final/mixed-matrix/2/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selected-final/mixed-matrix/2/main.nvm"
+        ],
+        "returncode": 1
+      }
+    ]
+  },
+  {
+    "accepted": false,
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-selected-final/final-compiler",
+          "/private/tmp/nl51-selected-final/mixed-matrix/3/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selected-final/mixed-matrix/3/main.nvm"
+        ],
+        "returncode": 1
+      }
+    ]
+  },
+  {
+    "accepted": false,
+    "steps": [
+      {
+        "argv": [
+          "/private/tmp/nl51-selected-final/final-compiler",
+          "/private/tmp/nl51-selected-final/mixed-matrix/4/main.nano",
+          "--emit-nvm",
+          "-o",
+          "/private/tmp/nl51-selected-final/mixed-matrix/4/main.nvm"
+        ],
+        "returncode": 1
+      }
+    ]
+  }
+]
