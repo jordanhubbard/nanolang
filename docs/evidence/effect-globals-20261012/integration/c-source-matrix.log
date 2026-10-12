@@ -1,0 +1,161 @@
+test_ambiguous_imported_operations (tests.test_owned_effect_c_source.OwnedEffectCSource.test_ambiguous_imported_operations) ... ok
+test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) ... 
+  test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='handler_write') ... FAIL
+  test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='helper_write') ... FAIL
+  test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='lexical_return') ... FAIL
+  test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='initializer') ... FAIL
+  test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='string_write') ... FAIL
+  test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='owned_argument') ... FAIL
+  test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='nested_handlers') ... FAIL
+  test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='union_write') ... FAIL
+test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) ... ok
+test_imported_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_imported_resource_effects) ... ok
+test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) ... ok
+
+======================================================================
+FAIL: test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='handler_write')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 108, in test_global_effects
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 40, in check
+    self.assertEqual(compiled.returncode,0,compiled.stdout+compiled.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-e6ixzofi/main.c:75:8: error: use of undeclared identifier 'globals'
+   75 |  (void)globals;
+      |        ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='helper_write')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 108, in test_global_effects
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 40, in check
+    self.assertEqual(compiled.returncode,0,compiled.stdout+compiled.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-bvnfnjgk/main.c:77:8: error: use of undeclared identifier 'globals'
+   77 |  (void)globals;
+      |        ^~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-bvnfnjgk/main.c:146:8: error: use of undeclared identifier 'globals'
+  146 |  (void)globals;
+      |        ^~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-bvnfnjgk/main.c:217:85: error: too many arguments to function call, expected 6, have 7
+  217 |  status=nown_function_2(&t[0],next_generation,++*next_generation,&t[0],effects,NULL,globals); if(status)goto cleanup;
+      |         ~~~~~~~~~~~~~~~                                                             ^~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-bvnfnjgk/main.c:137:12: note: 'nown_function_2' declared here
+  137 | static int nown_function_2(nown_value *argument,uint64_t *next_generation,uint64_t generation,nown_value *result,nown_effects *effects,const nown_handler *activation) {
+      |            ^               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+3 errors generated.
+
+
+======================================================================
+FAIL: test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='lexical_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 108, in test_global_effects
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 40, in check
+    self.assertEqual(compiled.returncode,0,compiled.stdout+compiled.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-6s5q0wr6/main.c:75:8: error: use of undeclared identifier 'globals'
+   75 |  (void)globals;
+      |        ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='initializer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 108, in test_global_effects
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 40, in check
+    self.assertEqual(compiled.returncode,0,compiled.stdout+compiled.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-whq2_qvx/main.c:75:8: error: use of undeclared identifier 'globals'
+   75 |  (void)globals;
+      |        ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='string_write')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 108, in test_global_effects
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 40, in check
+    self.assertEqual(compiled.returncode,0,compiled.stdout+compiled.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-ghrr_vxv/main.c:75:8: error: use of undeclared identifier 'globals'
+   75 |  (void)globals;
+      |        ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='owned_argument')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 108, in test_global_effects
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 40, in check
+    self.assertEqual(compiled.returncode,0,compiled.stdout+compiled.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-cpodk2c8/main.c:75:8: error: use of undeclared identifier 'globals'
+   75 |  (void)globals;
+      |        ^~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-cpodk2c8/main.c:228:85: error: too many arguments to function call, expected 6, have 7
+  228 |  status=nown_function_1(&t[0],next_generation,++*next_generation,&t[0],effects,NULL,globals); if(status)goto cleanup;
+      |         ~~~~~~~~~~~~~~~                                                             ^~~~~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-cpodk2c8/main.c:66:12: note: 'nown_function_1' declared here
+   66 | static int nown_function_1(nown_value *argument,uint64_t *next_generation,uint64_t generation,nown_value *result,nown_effects *effects,const nown_handler *activation) {
+      |            ^               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2 errors generated.
+
+
+======================================================================
+FAIL: test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='nested_handlers')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 108, in test_global_effects
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 40, in check
+    self.assertEqual(compiled.returncode,0,compiled.stdout+compiled.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-yf8yhsfk/main.c:75:8: error: use of undeclared identifier 'globals'
+   75 |  (void)globals;
+      |        ^~~~~~~
+1 error generated.
+
+
+======================================================================
+FAIL: test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) (case='union_write')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 108, in test_global_effects
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 40, in check
+    self.assertEqual(compiled.returncode,0,compiled.stdout+compiled.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-lwa2wya2/main.c:75:8: error: use of undeclared identifier 'globals'
+   75 |  (void)globals;
+      |        ^~~~~~~
+1 error generated.
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 10.636s
+
+FAILED (failures=8)

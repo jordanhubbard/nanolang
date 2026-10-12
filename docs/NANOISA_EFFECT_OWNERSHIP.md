@@ -1,6 +1,6 @@
 # My effect ownership declarations
 
-I retain operation value-transfer signatures in ownership format version 3, extension kind 4 (`EFFECTS`), revision 1. This is a declaration prerequisite for resource-bearing effects. My affine analyzer now checks handler, perform and resume transitions against these declarations. I admit these instructions in my standalone owned value-call profile after matched VM/native cleanup qualification. My paired source producers now execute these bounded signatures; combined effect/global flow, collection signatures and borrowed continuations remain incomplete.
+I retain operation value-transfer signatures in ownership format version 3, extension kind 4 (`EFFECTS`), revision 1. This is a declaration prerequisite for resource-bearing effects. My affine analyzer now checks handler, perform and resume transitions against these declarations. I admit these instructions in my standalone owned value-call profile after matched VM/native cleanup qualification. My paired source producers now execute these bounded signatures; collection signatures and borrowed continuations remain incomplete.
 
 My extension payload uses little-endian integers:
 
@@ -29,7 +29,7 @@ At perform, I require exact positional argument types and transfer ownership int
 
 For bounded acyclic direct calls, I collect escaping operation identities. A callee's locally installed matching handler contains that operation; an unmatched operation propagates through callers. Calls that can escape require the caller's suspended owners to be resolved. This distinguishes locally handled effects, partially handled effects and transitive escapes without assuming all effectful calls have the same behavior.
 
-My current analysis bounds handler depth at 64 and retains the existing bounded acyclic value-call graph. It refuses combined global/effect flow until handler writes and lexical unwinding have a checked global relation. Borrowed captures and borrowed continuation signatures also remain outside this contract. These are remaining implementation requirements, not exemptions from the full release scope.
+My current analysis bounds handler depth at 64 and retains the existing bounded acyclic value-call graph. I check combined global/effect ordering with the contextual entry proof below. Borrowed captures and borrowed continuation signatures also remain outside this contract. These are remaining implementation requirements, not exemptions from the full release scope.
 
 My [handler-flow evidence](evidence/effect-affine-flow-20261011/README.md) records positive and negative bytecode/state cases. Analysis success alone is not executable admission: the separate runtime gate checks my standalone module, exact layouts, function signatures and supported instructions.
 
@@ -54,15 +54,27 @@ My [execution evidence](evidence/effect-owned-runtime-20261011/README.md) exerci
 scalar/void resumptions, mutable captures, nested/recursive handlers, lexical
 return through direct calls, handler-local borrows and cleanup after allocation
 failure. My [fresh compiler checkpoint](evidence/selected-pattern-catalog-20261011/README.md)
-qualifies C/Nano producer wiring for this bounded path. Effect/global flow,
-collection signatures and borrowed continuations remain full-scope work.
+qualifies C/Nano producer wiring for this bounded path. Collection signatures and borrowed continuations remain full-scope work.
 
-## My combined global-flow prerequisite
+## My combined global flow
 
 My private `affine_global_flow.h` algebra separates ordinary/resumed outcomes
 from lexical-return outcomes and shares initialization precondition/composition
 logic with existing global analysis. My [exhaustive checks](evidence/effect-globals-20261012/README.md)
 cover every encoded pair and preserve the ordinary global regression suite.
-The algebra does not identify lexical-return destinations or bind handlers to
-perform sites. Those contextual fixed points must be connected before I remove
-combined-flow refusal; no new runtime authority follows from this prerequisite.
+I now bind these transitions to exact persistent activation and handler stacks
+from entry zero, with every global initially uninitialized. I merge initialization
+states only at identical control states. Handler installation does not execute an
+arm; perform enters it with the current globals. Resume restores the performing
+continuation. Lexical return follows the captured normal function's caller.
+I conservatively explore both branch outcomes and preserve the runtime's
+1,024-activation/depth traps. Allocation failure or exhaustion of my 262,144-state
+analysis budget fails closed; instruction facts remain unchanged on refusal.
+
+My native effect context shares one global store across calls and handlers and
+releases it once at the entry boundary, including lexical return and traps.
+Existing global declaration and copyability restrictions remain in force.
+My [integration evidence](evidence/effect-globals-20261012/integration/README.md)
+qualifies ten combined source cases through both producers, 26 runtime/fault
+fixtures and a fresh compiler product. Collection signatures and borrowed
+continuations remain implementation requirements for the full release.

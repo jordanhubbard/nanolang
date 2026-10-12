@@ -111,7 +111,7 @@ static bool pop_scalar(Frame *f,uint8_t tag) {
     f->count--;return true;
 }
 typedef struct {
-    bool value_graph, globals_valid;
+    bool value_graph, globals_valid, effect_globals;
     uint32_t global_count;
     NvmOwnershipGlobal globals[NVM_OWNERSHIP_MAX_GLOBALS];
     /* Allowed input states and returning state relations, one summary per
@@ -169,11 +169,24 @@ static void analysis_calls_init(AnalysisCalls *calls,const NvmModule *module) {
     calls->globals_valid=nvm_ownership_globals(module,calls->globals,
         NVM_OWNERSHIP_MAX_GLOBALS,&calls->global_count)==NVM_V2_OK;
     calls->value_graph=calls->globals_valid && nvm_affine_value_call_graph(module);
+    if(calls->value_graph && calls->global_count) {
+        for(uint32_t f=0;f<module->function_count;f++) {
+            VmDecodedFunction decoded={0};char error[VM_DECODE_ERROR_SIZE];
+            if(!vm_decode_function(module,f,&decoded,error)){calls->globals_valid=false;return;}
+            for(uint32_t i=0;i<decoded.instruction_count;i++) {
+                uint8_t op=decoded.instructions[i].instruction.opcode;
+                if(op==OP_HANDLER_PUSH || op==OP_HANDLER_POP || op==OP_PERFORM || op==OP_EFFECT_RESUME)
+                    calls->effect_globals=true;
+            }
+            vm_decoded_function_free(&decoded);
+        }
+    }
 }
 /* I collect a precondition for each possible function-entry state. Joins only
  * add relation bits, so requirements can only become stricter during rechecks. */
 static void global_require(Frame *frame,AnalysisCalls *calls,uint32_t function,
                            uint32_t slot,uint8_t permitted) {
+    if(calls->effect_globals)return;
     calls->global_allowed[function][slot]&=
         nvm_affine_global_require(frame->globals[slot],permitted);
 }
@@ -267,7 +280,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
                 if (!effect_escape(calls,module,function,f,calls->escapes[target][i]))
                     return "I cannot retain escaping operation identities";
         }
-        for (uint32_t g=0;g<calls->global_count;g++) {
+        for (uint32_t g=0;!calls->effect_globals && g<calls->global_count;g++) {
             global_require(f,calls,function,g,calls->global_allowed[target][g]);
             f->globals[g]=nvm_affine_global_compose(f->globals[g],calls->global_returns[target][g]);
         }
@@ -753,12 +766,6 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
     }
     for (uint32_t i=0;i<count;i++) {
         const DecodedInstruction *in=&decoded.instructions[i].instruction;
-        if (in->opcode==OP_HANDLER_PUSH || in->opcode==OP_HANDLER_POP ||
-            in->opcode==OP_PERFORM || in->opcode==OP_EFFECT_RESUME) {
-            if (calls->global_count) {
-                nvm_affine_state_free(initial);error="I require effect-aware global flow before combining these contracts";goto done;
-            }
-        }
         if (in->opcode==OP_HANDLER_PUSH || in->opcode==OP_PERFORM) {
             NvmOwnershipEffect effect;
             uint16_t arity=in->operands[in->opcode==OP_HANDLER_PUSH?3:1].u16;
@@ -954,9 +961,16 @@ done:
     return result;
 }
 
+#include "affine_effect_globals.inc"
+
 NvmAffineAnalysis nvm_affine_analyze_function(const NvmModule *m,uint32_t function) {
     AnalysisCalls calls={0};analysis_calls_init(&calls,m);
-    return analyze(m,function,NULL,0,&calls);
+    NvmAffineAnalysis result=analyze(m,function,NULL,0,&calls);
+    if(result.ok && calls.effect_globals) {
+        NvmAffineAnalysis globals=effect_global_proof(m,&calls);
+        if(!globals.ok)return globals;
+    }
+    return result;
 }
 
 NvmAffineAnalysis nvm_affine_analyze_instructions(const NvmModule *m,
@@ -967,6 +981,17 @@ NvmAffineAnalysis nvm_affine_analyze_instructions(const NvmModule *m,
         return result;
     }
     AnalysisCalls calls={0};analysis_calls_init(&calls,m);
-    calls.fact_function=function;calls.fact_capacity=capacity;calls.facts=facts;
-    return analyze(m,function,NULL,0,&calls);
+    NvmAffineInstructionFact *staged=calls.effect_globals?malloc(capacity*sizeof(*staged)):NULL;
+    if(calls.effect_globals && !staged) {
+        NvmAffineAnalysis result={0};
+        snprintf(result.message,sizeof(result.message),"I cannot stage effect/global instruction facts");return result;
+    }
+    calls.fact_function=function;calls.fact_capacity=capacity;calls.facts=staged?staged:facts;
+    NvmAffineAnalysis result=analyze(m,function,NULL,0,&calls);
+    if(result.ok && calls.effect_globals) {
+        NvmAffineAnalysis globals=effect_global_proof(m,&calls);
+        if(!globals.ok)result=globals;
+    }
+    if(result.ok && staged)memcpy(facts,staged,capacity*sizeof(*facts));
+    free(staged);return result;
 }

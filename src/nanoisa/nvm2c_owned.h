@@ -170,7 +170,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         "typedef struct nown_handler nown_handler;\n"
         "struct nown_handler { nown_handler *previous; nown_effect_frame *owner; uint32_t key,target; uint16_t first,count; };\n"
         "struct nown_effect_frame { nown_effect_frame *root; nown_value **locals; uint32_t function; };\n"
-        "typedef struct { nown_handler *top; nown_effect_frame *returning; nown_value value; unsigned depth,handlers; } nown_effects;\n"
+        "typedef struct { nown_handler *top; nown_effect_frame *returning; nown_value value; nown_value *globals; unsigned depth,handlers; } nown_effects;\n"
         "typedef struct { nown_value t[256],l[256]; nown_value *locals[256]; nown_reference refs[256]; nown_handler handlers[64]; } nown_effect_storage;\n");
     if (!function && effects) {
         for(uint32_t f=0;f<mod->function_count;f++)
@@ -211,7 +211,8 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         " for(unsigned i=0;i<256;i++)locals[i]=&l[i];\n"
         " int status=0; (void)result; (void)a; (void)c; (void)nown_retain; (void)nown_string_new; (void)nown_string_equal; (void)refs; (void)region; (void)nown_referent;\n");
     if (global_count) {
-        if (!function) nvm2c_printf(&b," nown_value globals[%u]={{0}};\n",global_count);
+        if (effects) nvm2c_puts(&b," nown_value *globals=effects->globals;(void)globals;\n");
+        else if (!function) nvm2c_printf(&b," nown_value globals[%u]={{0}};\n",global_count);
         else nvm2c_puts(&b," (void)globals;\n");
     }
     if(shared) {
@@ -284,7 +285,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
             else nvm2c_puts(&b,"NULL");
             if(effects)nvm2c_puts(&b,",effects,NULL");
             if(shared)nvm2c_puts(&b,",managed");
-            if(global_count)nvm2c_puts(&b,",globals");
+            if(global_count && !effects)nvm2c_puts(&b,",globals");
             nvm2c_puts(&b,"); if(status)goto cleanup;\n");
             break;
         }
@@ -557,7 +558,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         else nvm2c_printf(&b," goto L%u;\n",d->next_byte_offset);
     }
     nvm2c_puts(&b,"cleanup:;\n for(size_t i=0;i<256;i++){nown_release(t[i]);nown_release(l[i]);}\n");
-    if (global_count && !function)
+    if (global_count && !function && !effects)
         nvm2c_printf(&b," for(size_t i=0;i<%u;i++)nown_release(globals[i]);\n",global_count);
     if(shared || effects)nvm2c_puts(&b," nown_release(a);nown_release(c);a=c=(nown_value){0};\n");
     if(effects)nvm2c_puts(&b,
@@ -569,10 +570,13 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         " if(!status){*result=pending; pending=(nown_value){0};}\n":
         " if(!status){*result=pending.scalar; pending=(nown_value){0};}\n");
     nvm2c_puts(&b," nown_release(pending); return status;\n}\n");
-    if(!function && effects)nvm2c_puts(&b,
-        "int nvm_owned_entry(int64_t *result){nown_effects effects={0};nown_value value={0};uint64_t sequence=1;\n"
-        " int status=nown_function_0(NULL,&sequence,1,&value,&effects,NULL);if(!status)*result=value.scalar;\n"
-        " nown_release(value);nown_release(effects.value);return status;\n}\n");
+    if(!function && effects) {
+        nvm2c_puts(&b,"int nvm_owned_entry(int64_t *result){nown_effects effects={0};nown_value value={0};uint64_t sequence=1;\n");
+        if(global_count)nvm2c_printf(&b," nown_value globals[%u]={{0}};effects.globals=globals;\n",global_count);
+        nvm2c_puts(&b," int status=nown_function_0(NULL,&sequence,1,&value,&effects,NULL);if(!status)*result=value.scalar;\n");
+        if(global_count)nvm2c_printf(&b," for(size_t i=0;i<%u;i++)nown_release(globals[i]);\n",global_count);
+        nvm2c_puts(&b," nown_release(value);nown_release(effects.value);return status;\n}\n");
+    }
     if(!function) nvm2c_puts(&b,"#ifndef NVM2C_NO_MAIN\nint main(void){int64_t result=0;return nvm_owned_entry(&result)?1:(int)result;}\n#endif\n");
     free(facts);free(depth);free(queue);nvm_affine_state_free(state);nvm_v2_layouts_free(&layouts);vm_decoded_function_free(&code);
     if (b.failed) {free(b.data);return NULL;}return b.data;

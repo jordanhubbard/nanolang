@@ -14,7 +14,10 @@ static const char *native_output,*module_output;
 #define CHECK(c) do {checks++;assert(c);} while(0)
 #ifdef AFFINE_BYTECODE_ALLOCATION_TEST
 static unsigned allocation_attempts, fail_at;
-static uint32_t forced_visit_limit;
+static uint32_t forced_visit_limit, forced_effect_limit;
+uint32_t affine_effect_global_test_limit(uint32_t limit) {
+    return forced_effect_limit && forced_effect_limit<limit?forced_effect_limit:limit;
+}
 uint32_t affine_bytecode_test_visit_limit(uint32_t limit) {
     return forced_visit_limit && forced_visit_limit<limit?forced_visit_limit:limit;
 }
@@ -220,9 +223,11 @@ static void instruction_facts(void) {
 #include "test_affine_globals.inc"
 
 #include "affine_effect_fixture.h"
+#include "test_affine_effect_globals.inc"
 int main(int argc,char **argv) {
-    if(argc==3 && !strcmp(argv[1],"--effects")){effect_runtime_artifacts(argv[2]);return 0;}
+    if(argc==3 && !strcmp(argv[1],"--effects")){effect_runtime_artifacts(argv[2]);effect_global_runtime_artifacts(argv[2]);return 0;}
     effect_edges();
+    check_effect_globals();
     check_global_flow();
     if(argc==3){native_output=argv[1];module_output=argv[2];}
     else CHECK(argc==1);

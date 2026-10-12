@@ -8,8 +8,9 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 CASES = {name: 0 for name in ("resume", "return", "nested", "call_resume",
                              "call_return", "contained", "capture", "recursive", "contained_return",
-                             "nested_return", "void", "string", "owned_string", "float", "borrow", "owned_union", "recursive_borrow")}
-CASES.update(assertion=2, unhandled=3, depth=3)
+                             "nested_return", "void", "string", "owned_string", "float", "borrow", "owned_union", "recursive_borrow", "global_resume", "global_string",
+                             "global_return", "global_recursive")}
+CASES.update(assertion=2, unhandled=3, depth=3, global_assertion=2, global_unhandled=3)
 
 
 class AffineEffectRuntime(unittest.TestCase):

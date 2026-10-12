@@ -41,3 +41,6 @@ initialization/store cases through both producers, VM and native execution.
 
 The verifier refusal and C producer refusal are unchanged. No new combined
 program is admitted by this checkpoint; the full roadmap item remains open.
+
+My later [contextual integration](integration/README.md) qualifies handler/call
+flow and paired source execution with a fresh compiler product.

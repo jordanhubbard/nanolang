@@ -85,6 +85,32 @@ class OwnedEffectCSource(unittest.TestCase):
         for name,(declaration,body) in cases.items():
             with self.subTest(case=name):self.check(declaration,body,True)
 
+    def test_global_effects(self):
+        cases = {
+            'handler_write': ('let mut total:int=0 effect E{tick:int->int}',
+                'let n:int=handle {perform E.tick(7)} with {tick value->{set total value value}} assert (== n total) return total'),
+            'helper_write': ('let mut total:int=0 effect E{tick:int->int} fn send()->int{return perform E.tick(7)} shadow send{assert true}',
+                'let n:int=handle {(send)} with {tick value->{set total value value}} assert (== n total) return total'),
+            'lexical_return': ('let mut total:int=0 effect E{tick:int->int}',
+                'handle {perform E.tick(3)} with {tick value->{set total (+ value 4) return total}} return 0'),
+            'initializer': ('effect E{tick:int->int} let total:int=handle {perform E.tick(7)} with {tick value->{value}}',
+                'return total'),
+            'string_write': ('let mut text:string="before" effect E{tick:string->string}',
+                'let got:string=handle {perform E.tick("after")} with {tick value->{set text value value}} assert (== got text) assert (== text "after") return 7'),
+            'owned_argument': ('let mut total:int=0 effect Transfer{pass:Handle->Handle}',
+                'let k:Handle=handle {perform Transfer.pass(Handle{value:7})} with {pass h->{set total 7 h}} assert (== total 7) return (consume k)'),
+            'nested_handlers': ('let mut total:int=0 effect E{tick:int->int}',
+                'let n:int=handle {handle {perform E.tick(7)} with {tick value->{set total value value}}} with {tick value->{set total 99 value}} assert (== n total) return total'),
+            'union_write': ('union Flag{Yes{value:int},No{}} let mut flag:Flag=Flag.No{} effect E{tick:int->int}',
+                'let n:int=handle {perform E.tick(7)} with {tick value->{set flag Flag.Yes{value:value} value}} match flag {Yes(v)=>{return v.value} No(v)=>{return 0}}'),
+            'scalar_kinds': ('let mut enabled:bool=false let mut ratio:float=1.25 effect E{tick:int->int}',
+                'let n:int=handle {perform E.tick(7)} with {tick value->{set enabled true set ratio 2.0 value}} assert enabled assert (== ratio 2.0) return n'),
+            'initializer_order': ('effect E{tick:int->int} let first:int=handle {perform E.tick(7)} with {tick value->{value}} let second:int=handle {perform E.tick(first)} with {tick value->{value}}',
+                'return (- (+ first second) 7)'),
+        }
+        for name,(declaration,body) in cases.items():
+            with self.subTest(case=name):self.check(declaration,body,True)
+
     def test_imported_resource_effects(self):
         files={name+'.nano': 'pub resource struct Handle{value:int} pub effect E{'+name+'_pass:Handle->Handle} fn unwrap(h:Handle)->int{let Handle{value}=h return value} shadow unwrap{assert (== (unwrap Handle{value:7}) 7)} pub fn take(h:Handle)->int{return (unwrap h)} shadow take{assert (== (take Handle{value:7}) 7)}' for name in ('left','right')}
         self.check('module "left.nano" as left\nmodule "right.nano" as right',

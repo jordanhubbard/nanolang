@@ -1752,8 +1752,8 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
     }
     for(unsigned p=0;p<b->program_count && !cg->had_error;p++)borrow_collect_unions(b,b->programs[p]);
     b->value_graph=!has_borrow;b->consuming=b->value_graph;
-    if(b->effect_count && (!b->value_graph || b->global_count || borrow_arrays(b)))
-        borrow_error(b,NULL,"effect signatures in my standalone value graph without global or ARRAY flow");
+    if(b->effect_count && (!b->value_graph || borrow_arrays(b)))
+        borrow_error(b,NULL,"effect signatures in my standalone value graph without ARRAY flow");
     if(b->global_count && (!b->value_graph || borrow_arrays(b)))
         borrow_error(b,NULL,"typed globals in the standalone owned value graph");
     for(unsigned g=0;g<b->global_count && !cg->had_error;g++) {

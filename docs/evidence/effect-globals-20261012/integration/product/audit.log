@@ -1,0 +1,12 @@
+start 0 /private/tmp/nl51-effect-globals/product/seed-v3
+done 0 0
+start 1 /Users/jordanh/Src/nanolang/bin/nano_vm
+done 1 0
+start 2 /Users/jordanh/Src/nanolang/bin/nvm2c
+done 2 0
+start 3 cc
+done 3 0
+start 4 /private/tmp/nl51-effect-globals/product/final-compiler
+done 4 0
+start 5 /opt/homebrew/opt/python@3.14/bin/python3.14
+done 5 0
