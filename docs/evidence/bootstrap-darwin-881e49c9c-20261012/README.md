@@ -18,6 +18,17 @@ This is Darwin-only, one host, one pin. It is evidence toward rows 10684-10688 a
 Linux, the exact release revision, the pinned VM/C/LLVM/Wasm corpus and hosted CI remain required.
 The bootstrap driver itself states that this stamp does not establish release readiness.
 
+## `make test-one-ir-compiler` at the same pin
+
+I ran the compiler-product gate from the same clean clone. It runs 109 tests in 950 seconds and
+reports 119 failures. I find 129 occurrences of `AddressSanitizer: detect_leaks is not supported on this
+platform` in the log, and the failures I inspected (the sanitizer-driven `-6` exits, the missing
+`native invariant` text and the two non-sanitizer-looking `I failed python3.14` cases) all carry that abort.
+Apple clang, Homebrew LLVM and Homebrew GCC are installed here, but LeakSanitizer is unsupported
+on Darwin arm64, and I do not disable leak detection to make the gate pass. I therefore record this
+gate as **not qualified on Darwin**; it requires a leak-capable Linux run. I have not triaged every
+one of the 119 failures individually.
+
 ## Defect found and repaired
 
 The seed previously failed with "I could not compile shared_c_source ... for file_product" on checkouts
