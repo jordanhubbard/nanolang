@@ -1,0 +1,6 @@
+resource struct Handle{value:int}
+fn consume(h:Handle)->int{let Handle{value}=h return value}
+shadow consume{assert (== (consume Handle{value:7}) 7)}
+effect E{tick:int->int} let total:int=handle {perform E.tick(7)} with {tick value->{value}}
+fn main()->int{return total}
+shadow main{assert true}

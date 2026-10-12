@@ -1,6 +1,6 @@
 # My effect ownership declarations
 
-I retain operation value-transfer signatures in ownership format version 3, extension kind 4 (`EFFECTS`), revision 1. This is a declaration prerequisite for resource-bearing effects. My affine analyzer now checks handler, perform and resume transitions against these declarations. I admit these instructions in my standalone owned value-call profile after matched VM/native cleanup qualification. C/Nano source producer emission remains incomplete.
+I retain operation value-transfer signatures in ownership format version 3, extension kind 4 (`EFFECTS`), revision 1. This is a declaration prerequisite for resource-bearing effects. My affine analyzer now checks handler, perform and resume transitions against these declarations. I admit these instructions in my standalone owned value-call profile after matched VM/native cleanup qualification. My paired source producers now execute these bounded signatures; combined effect/global flow, collection signatures and borrowed continuations remain incomplete.
 
 My extension payload uses little-endian integers:
 
@@ -19,7 +19,7 @@ Rows have strictly increasing key indexes. Keys must be nonempty strings without
 
 `nvm_ownership_effect` validates the complete ownership payload before returning one signature. A missing operation or any invalid extension leaves the caller's output unchanged. An unrelated malformed global or union extension cannot be bypassed by querying an effect. Binary and explicit unverified assembly transport preserve the declarations; ordinary assembly still requires executable verification.
 
-My [contract evidence](evidence/effect-ownership-contracts-20261011/README.md) records positive resource and nested-union signatures, capacity boundaries, mutation/truncation refusals, unchanged outputs, and the executable refusal at that earlier checkpoint. My later analysis and runtime checkpoints below establish additional boundaries; producer emission remains required under #976.
+My [contract evidence](evidence/effect-ownership-contracts-20261011/README.md) records positive resource and nested-union signatures, capacity boundaries, mutation/truncation refusals, unchanged outputs, and the executable refusal at that earlier checkpoint. My later analysis and runtime checkpoints below establish additional boundaries; my [fresh paired source/product evidence](evidence/selected-pattern-catalog-20261011/README.md) qualifies the bounded source path under #976.
 
 ## My affine analysis
 
@@ -53,5 +53,16 @@ My [execution evidence](evidence/effect-owned-runtime-20261011/README.md) exerci
 20 serialized fixtures, including resource records/unions, retained strings,
 scalar/void resumptions, mutable captures, nested/recursive handlers, lexical
 return through direct calls, handler-local borrows and cleanup after allocation
-failure. C/Nano producer wiring, effect/global flow, collection signatures and
-borrowed continuations remain full-scope implementation work.
+failure. My [fresh compiler checkpoint](evidence/selected-pattern-catalog-20261011/README.md)
+qualifies C/Nano producer wiring for this bounded path. Effect/global flow,
+collection signatures and borrowed continuations remain full-scope work.
+
+## My combined global-flow prerequisite
+
+My private `affine_global_flow.h` algebra separates ordinary/resumed outcomes
+from lexical-return outcomes and shares initialization precondition/composition
+logic with existing global analysis. My [exhaustive checks](evidence/effect-globals-20261012/README.md)
+cover every encoded pair and preserve the ordinary global regression suite.
+The algebra does not identify lexical-return destinations or bind handlers to
+perform sites. Those contextual fixed points must be connected before I remove
+combined-flow refusal; no new runtime authority follows from this prerequisite.

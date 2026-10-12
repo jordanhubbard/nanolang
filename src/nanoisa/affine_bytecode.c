@@ -1,5 +1,6 @@
 #include "affine_bytecode.h"
 #include "affine_state.h"
+#include "affine_global_flow.h"
 #include "../nanovm/vm_decode.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -173,18 +174,8 @@ static void analysis_calls_init(AnalysisCalls *calls,const NvmModule *module) {
  * add relation bits, so requirements can only become stricter during rechecks. */
 static void global_require(Frame *frame,AnalysisCalls *calls,uint32_t function,
                            uint32_t slot,uint8_t permitted) {
-    uint8_t relation=frame->globals[slot];
-    for (unsigned input=0;input<2;input++)
-        if (((relation>>(input*2))&3u)&~permitted)
-            calls->global_allowed[function][slot]&=(uint8_t)~(1u<<input);
-}
-static uint8_t global_compose(uint8_t before,uint8_t after) {
-    uint8_t result=0;
-    for (unsigned input=0;input<2;input++)
-        for (unsigned middle=0;middle<2;middle++)
-            if (before&(1u<<(input*2+middle)))
-                result|=(uint8_t)(((after>>(middle*2))&3u)<<(input*2));
-    return result;
+    calls->global_allowed[function][slot]&=
+        nvm_affine_global_require(frame->globals[slot],permitted);
 }
 
 static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
@@ -278,7 +269,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         }
         for (uint32_t g=0;g<calls->global_count;g++) {
             global_require(f,calls,function,g,calls->global_allowed[target][g]);
-            f->globals[g]=global_compose(f->globals[g],calls->global_returns[target][g]);
+            f->globals[g]=nvm_affine_global_compose(f->globals[g],calls->global_returns[target][g]);
         }
         f->count-=count;
         if (result.tag==TAG_VOID) return NULL;
@@ -490,7 +481,7 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         if (value.observation || value.owned || value.tag!=type.tag || value.layout!=type.layout)
             return "I require the exact global type without an owner or observation escape";
         if (!declaration.mutable) global_require(f,calls,function,index,1u);
-        f->globals[index]=global_compose(f->globals[index],10u);
+        f->globals[index]=nvm_affine_global_compose(f->globals[index],10u);
         f->count--;return NULL;
     }
     case OP_LOAD_LOCAL: {

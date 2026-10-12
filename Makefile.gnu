@@ -4987,9 +4987,15 @@ test-affine-state: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DAFFINE_ALLOCATION_TEST -o obj/test_affine_state_alloc tests/nanoisa/test_affine_state.c obj/test_affine_state_alloc.o $(filter-out obj/nanoisa/affine_state.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_affine_state_alloc
 
+.PHONY: test-affine-global-flow
+test-affine-global-flow:
+	@mkdir -p $(OBJ_DIR)
+	$(CC) $(CFLAGS) -Isrc/nanoisa tests/nanoisa/test_affine_global_flow.c -o $(OBJ_DIR)/test_affine_global_flow
+	$(OBJ_DIR)/test_affine_global_flow
+
 .PHONY: test-affine-bytecode
 test-units: test-affine-bytecode
-test-affine-bytecode: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
+test-affine-bytecode: test-affine-global-flow $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_affine_bytecode tests/nanoisa/test_affine_bytecode.c $(NANOISA_OBJECTS) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_affine_bytecode
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -Dmalloc=affine_bytecode_test_malloc -Dcalloc=affine_bytecode_test_calloc -Drealloc=affine_bytecode_test_realloc -DNVM_AFFINE_TEST_VISIT_LIMIT=affine_bytecode_test_visit_limit -c src/nanoisa/affine_bytecode.c -o obj/test_affine_bytecode_alloc.o

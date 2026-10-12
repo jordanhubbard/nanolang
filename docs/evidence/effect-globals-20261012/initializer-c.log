@@ -1,0 +1,1 @@
+I could not compile shadows at line 0: I require effect signatures in my standalone value graph without global or ARRAY flow in my source borrow profile
