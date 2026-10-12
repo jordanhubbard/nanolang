@@ -1173,7 +1173,7 @@ test-nanovirt: $(NANOVIRT_OBJECTS) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON
 	@./tests/nanovirt/test_codegen
 	@rm -f tests/nanovirt/test_codegen
 
-$(OBJ_DIR)/nanovirt/codegen_contract_allocation.o: $(NANOVIRT_DIR)/codegen.c $(NANOVIRT_DIR)/codegen.h $(NANOVIRT_DIR)/borrow_codegen.inc | $(OBJ_DIR)/nanovirt
+$(OBJ_DIR)/nanovirt/codegen_contract_allocation.o: $(NANOVIRT_DIR)/codegen.c $(NANOVIRT_DIR)/codegen.h $(NANOVIRT_DIR)/borrow_codegen.inc $(NANOVIRT_DIR)/borrow_effect_codegen.inc | $(OBJ_DIR)/nanovirt
 	$(CC) $(CFLAGS) -DNANOVIRT_TEST_CONTRACT_REALLOC -c $< -o $@
 
 .PHONY: test-borrow-contract-allocation
@@ -6800,3 +6800,8 @@ test-function-purity-metadata: nano_virt nanoisa_dump nano_vm nvm2c
 test-units: test-generic-binding-metadata
 test-generic-binding-metadata: nano_virt nanoisa_dump nano_vm nvm2c
 	python3 -m unittest -v tests.test_generic_binding_metadata
+
+.PHONY: test-owned-effect-c-source
+test-units: test-owned-effect-c-source
+test-owned-effect-c-source: nano_virt nano_vm nvm2c
+	python3 -m unittest -v tests.test_owned_effect_c_source

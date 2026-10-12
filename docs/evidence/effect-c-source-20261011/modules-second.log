@@ -1,0 +1,39 @@
+test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) ... ok
+test_imported_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_imported_resource_effects) ... FAIL
+test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) ... ok
+
+======================================================================
+FAIL: test_imported_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_imported_resource_effects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 88, in test_imported_resource_effects
+    self.check('module "left.nano" as left\nmodule "right.nano" as right',
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'let first:left.Handle=handle {perform left.E.pass(left.Handle{value:3})} with {pass value->{value}} let a:int=(left.take first) '
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'let second:right.Handle=handle {perform right.E.pass(right.Handle{value:4})} with {pass value->{value}} return (+ a (right.take second))',True,files=files)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : -- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-2w4qli0b/main.nano
+I cannot infer a unique effect for this handler.
+
+6| fn main()->int{let first:left.Handle=handle {perform left.E.pass(left.Handle{value:3})} with {pass value->{value}} let a:int=(left.take first) let second:right.Handle=handle {perform right.E.pass(right.Handle{value:4})} with {pass value->{value}} return (+ a (right.take second))}
+                                        ^^^^^^
+Hint: Use operation names that identify one effect.
+-- E001 TYPE MISMATCH --- /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-2w4qli0b/main.nano
+I cannot infer a unique effect for this handler.
+
+6| fn main()->int{let first:left.Handle=handle {perform left.E.pass(left.Handle{value:3})} with {pass value->{value}} let a:int=(left.take first) let second:right.Handle=handle {perform right.E.pass(right.Handle{value:4})} with {pass value->{value}} return (+ a (right.take second))}
+                                                                                                                                                                          ^^^^^^
+Hint: Use operation names that identify one effect.
+I cannot verify affine ownership at line 6, column 38: I require a resolved handler ownership signature
+I cannot verify affine ownership at line 6, column 168: I require a resolved handler ownership signature
+error: type check failed
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 8.577s
+
+FAILED (failures=1)

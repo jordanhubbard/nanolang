@@ -1,0 +1,56 @@
+test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) ... 
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_perform_return') ... FAIL
+  test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_handle_return') ... FAIL
+test_imported_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_imported_resource_effects) ... FAIL
+test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) ... ok
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_perform_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 4: I require a zero-value void return in my source borrow profile
+
+
+======================================================================
+FAIL: test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) (case='void_handle_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 84, in test_handler_execution
+    with self.subTest(case=name):self.check(declaration,body,True)
+                                 ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I could not compile shadows at line 4: I require a zero-value void return in my source borrow profile
+
+
+======================================================================
+FAIL: test_imported_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_imported_resource_effects)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 88, in test_imported_resource_effects
+    self.check('module "left.nano" as left\nmodule "right.nano" as right',
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'let first:left.Handle=handle {perform left.E.pass(left.Handle{value:3})} with {pass value->{value}} let a:int=(left.take first) '
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        'let second:right.Handle=handle {perform right.E.pass(right.Handle{value:4})} with {pass value->{value}} return (+ a (right.take second))',True,files=files)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jordanh/Src/nanolang/tests/test_owned_effect_c_source.py", line 21, in check
+    self.assertEqual(result.returncode,0 if accepted else 1,result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 1, column 5: 'pub' keyword must be followed by let, fn, pure, struct, enum, union, use, opaque, or effect
+Error: Failed to parse module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-87m24mhf/left.nano'
+Error at line 4, column 1: Failed to load module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/nano-owned-effect-source-87m24mhf/left.nano'
+error: module loading failed
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 7.607s
+
+FAILED (failures=3)

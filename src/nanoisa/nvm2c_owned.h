@@ -254,7 +254,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
     if(float_arithmetic) nvm2c_puts(&b," (void)nano_rt_f64_add; (void)nano_rt_f64_sub; (void)nano_rt_f64_mul; (void)nano_rt_f64_div;\n");
     nvm2c_puts(&b," (void)origins; (void)generations;\n");
     if(effects) {
-        nvm2c_puts(&b," (void)handler_count;if(activation)switch(activation->target){\n");
+        nvm2c_puts(&b," (void)handler_count;(void)nown_effect_call;if(activation)switch(activation->target){\n");
         for(uint32_t i=0;i<code.instruction_count;i++) if(depth[i]>=0 && code.instructions[i].instruction.opcode==OP_HANDLER_PUSH) {
             uint32_t target=code.instructions[i].resolved_target-fn->code_offset;
             bool seen=false;

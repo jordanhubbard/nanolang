@@ -254,7 +254,10 @@ static bool nominal_node(ASTNode *program, Environment *env, ASTNode *node) {
             CHILDREN(node->as.union_construct.field_values, node->as.union_construct.field_count); break;
         case AST_LET:
             if (!service_annotation(env, &node->as.let.var_type, node->as.let.type_name, &node->as.let.type_info, NULL, 0)) return false;
-            SLOT(node->as.let.type_name);
+            if (node->as.let.is_destructure) {
+                if (!nominal_constructor_slot(program, env, &node->as.let.type_name)) return false;
+                if (node->as.let.type_info && !nominal_constructor_slot(program, env, &node->as.let.type_info->generic_name)) return false;
+            } else SLOT(node->as.let.type_name);
             if (!nominal_signature(program, env, node->as.let.fn_sig) || !nominal_info(program, env, node->as.let.type_info)) return false;
             CHILD(node->as.let.value); break;
         case AST_SET: CHILD(node->as.set.value); break;

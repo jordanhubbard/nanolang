@@ -5860,6 +5860,19 @@ ASTNode *parse_program(Token *tokens, int token_count) {
                 if (parsed && parsed->type == AST_FUNCTION) {
                     parsed->as.function.is_pure = true;
                 }
+            } else if (match(&parser, TOKEN_RESOURCE)) {
+                advance(&parser);
+                if (!match(&parser, TOKEN_STRUCT)) {
+                    Token *token = current_token(&parser);
+                    if (token) parser_error(&parser, token->line, token->column,
+                        "I require struct after pub resource.\n");
+                    continue;
+                }
+                parsed = parse_struct_def(&parser);
+                if (parsed && parsed->type == AST_STRUCT_DEF) {
+                    parsed->as.struct_def.is_pub = true;
+                    parsed->as.struct_def.is_resource = true;
+                }
             } else if (match(&parser, TOKEN_STRUCT)) {
                 parsed = parse_struct_def(&parser);
                 if (parsed && parsed->type == AST_STRUCT_DEF) {
@@ -5883,7 +5896,7 @@ ASTNode *parse_program(Token *tokens, int token_count) {
             } else {
                 Token *err_tok = current_token(&parser);
                 if (err_tok) {
-                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'pub' keyword must be followed by let, fn, pure, struct, enum, union, use, opaque, or effect\n",
+                    parser_error(&parser, err_tok->line, err_tok->column, "Error at line %d, column %d: 'pub' keyword must be followed by let, fn, pure, resource, struct, enum, union, use, opaque, or effect\n",
                             err_tok->line, err_tok->column);
                 }
                 continue;
