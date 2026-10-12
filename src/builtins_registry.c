@@ -272,3 +272,18 @@ const char *builtin_c_name(const char *name) {
 bool builtin_is_known(const char *name) {
     return builtin_find(name) != NULL;
 }
+
+const char *builtin_array_operation(const char *name) {
+    if (!name) return NULL;
+    if (!strcmp(name, "array_map")) return "map";
+    if (!strcmp(name, "array_filter")) return "filter";
+    if (!strcmp(name, "array_fold")) return "reduce";
+    return name;
+}
+
+/* I recognize the three higher-order operations and their source aliases. */
+bool builtin_is_array_operation(const char *name) {
+    const char *operation = builtin_array_operation(name);
+    return operation && (!strcmp(operation, "map") || !strcmp(operation, "filter") ||
+                         !strcmp(operation, "reduce"));
+}

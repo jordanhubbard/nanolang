@@ -1,0 +1,15 @@
+test_callable_shadowing (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_callable_shadowing) ... ok
+test_matching_arity_shadow (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_matching_arity_shadow) ... ok
+test_pipeline (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_pipeline) ... ok
+test_record_result_inference (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_record_result_inference) ... ok
+test_signature_refusals (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_signature_refusals) ... ok
+test_string_accumulator (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_string_accumulator) ... ok
+test_declared_filter_changes_element_type (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_filter_changes_element_type) ... ok
+test_declared_fold_preserves_initial (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_fold_preserves_initial) ... ok
+test_declared_map_preserves_input (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_map_preserves_input) ... ok
+test_declared_scalar_signature (tests.test_array_declaration_priority.ArrayDeclarationPriority.test_declared_scalar_signature) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 10.417s
+
+OK

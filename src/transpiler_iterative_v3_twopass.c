@@ -589,7 +589,7 @@ static const char *map_function_name(const char *name, Environment *env) {
     }
     
     /* I retain the selected declaration instead of its registry spelling. */
-    if (strcmp(name, "array_push") == 0) {
+    if (strcmp(name, "array_push") == 0 || builtin_is_array_operation(name)) {
         Function *selected = env_get_function(env, name);
         if (selected && selected->body && !selected->is_extern) {
             extern const char *get_c_func_name_with_module(const char *, const char *, bool);
@@ -673,7 +673,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && array_expr->as.call.arg_count >= 1) {
         const char *name = array_expr->as.call.name;
-        bool keeps_source = (!strcmp(name, "filter") && array_expr->as.call.arg_count == 2) ||
+        bool keeps_source = (!strcmp(env_array_operation(env, array_expr), "filter") && array_expr->as.call.arg_count == 2) ||
                             (!strcmp(name, "array_slice") && array_expr->as.call.arg_count >= 2);
         if (keeps_source)
             return infer_array_element_type(array_expr->as.call.args[0], env);
@@ -1776,6 +1776,8 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
             /* Map function name */
             const char *func_name = expr->as.call.name;
+            const char *array_operation = env_array_operation(env, expr);
+            if (*array_operation) func_name = array_operation;
             
             /* Check for NULL function name (happens with function pointers: ((get_operation choice) a b)) */
             if (!func_name) {
@@ -2091,7 +2093,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
 
             /* Special handling for filter() - compiled lowering */
-            else if (strcmp(func_name, "filter") == 0 && expr->as.call.arg_count == 2) {
+            else if (strcmp(array_operation, "filter") == 0 && expr->as.call.arg_count == 2) {
                 /* filter(array<T>, fn(T)->bool) -> array<T>
                  * Arrays are DynArray* in compiled mode.
                  */
@@ -2186,7 +2188,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
 
             /* Special handling for map() - compiled lowering */
-            else if (strcmp(func_name, "map") == 0 && expr->as.call.arg_count == 2) {
+            else if (strcmp(array_operation, "map") == 0 && expr->as.call.arg_count == 2) {
                 /* map(array<T>, fn(T)->U) -> array<U>
                  * Arrays are DynArray* in compiled mode.
                  */
@@ -2273,7 +2275,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
             }
 
             /* Special handling for reduce() - compiled lowering */
-            else if (strcmp(func_name, "reduce") == 0 && expr->as.call.arg_count == 3) {
+            else if (strcmp(array_operation, "reduce") == 0 && expr->as.call.arg_count == 3) {
                 /* reduce(array<T>, acc, fn(acc, T)->acc) -> acc */
                 ASTNode *array_arg = expr->as.call.args[0];
                 ASTNode *initial_arg = expr->as.call.args[1];

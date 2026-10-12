@@ -682,12 +682,12 @@ static const char *array_record_name(ASTNode *array, Environment *env) {
         const char *name = array->as.call.name;
         bool builtin_push = !strcmp(name, "array_push") &&
             env_array_push_is_builtin(env, array->line, array->column);
-        if (((builtin_push || !strcmp(name, "filter")) && array->as.call.arg_count == 2) ||
+        if (((builtin_push || !strcmp(env_array_operation(env, array), "filter")) && array->as.call.arg_count == 2) ||
             (!strcmp(name, "array_slice") && array->as.call.arg_count == 3))
             return array_record_name(array->as.call.args[0], env);
         if (!strcmp(name, "array_new") && array->as.call.arg_count == 2)
             return get_struct_type_name(array->as.call.args[1], env);
-        if (!strcmp(name, "map") && array->as.call.arg_count == 2 &&
+        if (!strcmp(env_array_operation(env, array), "map") && array->as.call.arg_count == 2 &&
             array->as.call.args[1]->type == AST_IDENTIFIER) {
             ASTNode *callback = array->as.call.args[1];
             if (!env_get_var_visible_at(env, callback->as.identifier, callback->line, callback->column)) {
@@ -1065,6 +1065,13 @@ const char *get_struct_type_name(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
     
     switch (expr->type) {
+        case AST_HANDLE_EXPR:
+            return get_struct_type_name(expr->as.handle_expr.body, env);
+        case AST_EFFECT_OP: {
+            EffectOp *op = effect_get_op(env_get_effect(env, expr->as.effect_op.effect_name),
+                                         expr->as.effect_op.op_name);
+            return op ? op->return_type_name : NULL;
+        }
         case AST_BLOCK:
             if (expr->as.block.count > 0) {
                 ASTNode *tail = expr->as.block.statements[expr->as.block.count - 1];
@@ -1335,7 +1342,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
         env_array_push_is_builtin(env, array_expr->line, array_expr->column))
         return infer_array_element_type(array_expr->as.call.args[0], env);
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
-        array_expr->as.call.name && strcmp(array_expr->as.call.name, "map") == 0 &&
+        array_expr->as.call.name && strcmp(env_array_operation(env, array_expr), "map") == 0 &&
         array_expr->as.call.arg_count == 2) {
         int arity;
         Type argument;
@@ -1345,7 +1352,7 @@ static Type infer_array_element_type(ASTNode *array_expr, Environment *env) {
     if (array_expr->type == AST_CALL && !array_expr->as.call.func_expr &&
         array_expr->as.call.name && array_expr->as.call.arg_count >= 1) {
         const char *name = array_expr->as.call.name;
-        bool keeps_source = (!strcmp(name, "filter") && array_expr->as.call.arg_count == 2) ||
+        bool keeps_source = (!strcmp(env_array_operation(env, array_expr), "filter") && array_expr->as.call.arg_count == 2) ||
                             (!strcmp(name, "array_slice") && array_expr->as.call.arg_count >= 2);
         if (keeps_source)
             return infer_array_element_type(array_expr->as.call.args[0], env);
@@ -2975,13 +2982,13 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
 
             /* Regular function call */
             
-            if (strcmp(expr->as.call.name, "map") == 0)
+            if (strcmp(env_array_operation(env, expr), "map") == 0)
                 return check_unary_array_call(expr, env, false);
-            if (strcmp(expr->as.call.name, "filter") == 0)
+            if (strcmp(env_array_operation(env, expr), "filter") == 0)
                 return check_unary_array_call(expr, env, true);
 
             /* I validate the callback as one exact accumulator/element contract. */
-            if (strcmp(expr->as.call.name, "reduce") == 0)
+            if (strcmp(env_array_operation(env, expr), "reduce") == 0)
                 return check_reduce_call(expr, env);
 
             /* Special handling for format builtin - variadic string interpolation */
@@ -5728,8 +5735,8 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
                 stmt->as.let.value->type == AST_CALL &&
                 stmt->as.let.value->as.call.checked_signature &&
                 stmt->as.let.value->as.call.name &&
-                (!strcmp(stmt->as.let.value->as.call.name, "map") ||
-                 !strcmp(stmt->as.let.value->as.call.name, "filter"))) {
+                (!strcmp(env_array_operation(tc->env, stmt->as.let.value), "map") ||
+                 !strcmp(env_array_operation(tc->env, stmt->as.let.value), "filter"))) {
                 TypeInfo *actual = stmt->as.let.value->as.call.checked_signature->return_type_info;
                 if (actual && !reduce_types_exact(stmt->as.let.type_info, actual, tc->env, 0)) {
                     emit_context_error("E001 TYPE MISMATCH", stmt->line, stmt->column, 1,
@@ -5743,7 +5750,7 @@ static Type check_statement_impl(TypeChecker *tc, ASTNode *stmt) {
             Type element_type = stmt->as.let.element_type;  /* Get from type annotation if available */
             if (declared_type == TYPE_ARRAY && stmt->as.let.value->type == AST_CALL &&
                 !stmt->as.let.value->as.call.func_expr && stmt->as.let.value->as.call.name &&
-                strcmp(stmt->as.let.value->as.call.name, "map") == 0) {
+                strcmp(env_array_operation(tc->env, stmt->as.let.value), "map") == 0) {
                 Type mapped = infer_array_element_type(stmt->as.let.value, tc->env);
                 if (element_type == TYPE_UNKNOWN) {
                     element_type = mapped;
@@ -6893,6 +6900,7 @@ static void emit_context_error(
 
 /* Check if a function name is a built-in */
 static bool is_builtin_name(const char *name) {
+    if (builtin_is_array_operation(name)) return false;
     for (int i = 0; i < builtin_function_name_count; i++) {
         if (strcmp(builtin_function_names[i], name) == 0) {
             return true;
@@ -9437,6 +9445,8 @@ register_function_pass2:;
             
             /* Check for duplicate function definitions */
             Function *existing = env_get_function(env, func_name);
+            if (existing && !existing->body && !existing->is_extern &&
+                builtin_is_array_operation(func_name)) existing = NULL;
             /* I distinguish an imported name from a duplicate in this module. */
             if (existing && !existing->is_extern && !item->as.function.is_extern && existing->module_name &&
                 (!env->current_module || strcmp(existing->module_name, env->current_module) != 0)) {
@@ -9475,7 +9485,7 @@ register_function_pass2:;
             /* We check this in the first pass, but also here for module type checking */
             
             /* Check if function name shadows a built-in */
-            if (is_builtin_function(func_name)) {
+            if (is_builtin_function(func_name) && !builtin_is_array_operation(func_name)) {
                 fprintf(stderr, "Error at line %d, column %d: Function '%s' shadows a built-in function\n",
                         item->line, item->column, func_name);
                 tc.has_error = true;

@@ -1,0 +1,762 @@
+test_callable_shadowing (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_callable_shadowing) ... ok
+test_matching_arity_shadow (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_matching_arity_shadow) ... ok
+test_pipeline (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_pipeline) ... ok
+test_record_result_inference (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_record_result_inference) ... ok
+test_signature_refusals (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_signature_refusals) ... ok
+test_string_accumulator (tests.test_array_builtin_aliases.ArrayBuiltinAliases.test_string_accumulator) ... ok
+test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) ... 
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:List<Point>->int} struct Point{x:int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:HashMap<string,Point>->int} struct Point{x:int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:int->fn(int)->HashMap<string,Point>} struct Point{x:int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:Box<HashMap<string,Point>>->int} struct Point{x:int} union Box<T>{Some{value:T}}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:{field:int}->int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:{}->{}}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:{field:Point|rest}->{items:array<Point>}} struct Point{x:int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:fn({a:int,b:string},int)->int->int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:({a:int,b:string},int)->int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:Box<{a:int,b:string}>->int} union Box<T>{Some{value:T}}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:Point->array<Point>} struct Point{x:int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:Choice->Choice} enum Choice{First,Second}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:Handle->Handle} opaque type Handle') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:Box<int>->Box<string>} union Box<T>{Some{value:T}}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:int->fn(int)->Point} struct Point{x:int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:array<array<int>>->(int,string)}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:List<Point>->int} struct Point{x:int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:HashMap<string,Point>->int} struct Point{x:int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:int->fn(int)->HashMap<string,Point>} struct Point{x:int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:Box<HashMap<string,Point>>->int} struct Point{x:int} union Box<T>{Some{value:T}}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:{field:int}->int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:{}->{}}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:{field:Point|rest}->{items:array<Point>}} struct Point{x:int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:fn({a:int,b:string},int)->int->int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:({a:int,b:string},int)->int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:Box<{a:int,b:string}>->int} union Box<T>{Some{value:T}}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:Point->array<Point>} struct Point{x:int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:Choice->Choice} enum Choice{First,Second}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:Handle->Handle} opaque type Handle') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:Box<int>->Box<string>} union Box<T>{Some{value:T}}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:int->fn(int)->Point} struct Point{x:int}') ... FAIL
+  test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:array<array<int>>->(int,string)}') ... FAIL
+test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) ... 
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='resume') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='lexical_return') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='nested') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='ordered_arguments') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='typed') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='void') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='void_return') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='handled_void_return') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='captured_mutation') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='recursive_arm') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='string_result') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='array_result') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='aggregate_result') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='lexical_string') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='handler_removal') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='managed_loop') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='indirect_arm') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='local_loop') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='resume') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='lexical_return') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='nested') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='ordered_arguments') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='typed') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='void') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='void_return') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='handled_void_return') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='captured_mutation') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='recursive_arm') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='string_result') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='array_result') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='aggregate_result') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='lexical_string') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='handler_removal') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='managed_loop') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='indirect_arm') ... FAIL
+  test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='local_loop') ... FAIL
+test_invalid_effects_preserve_previous_output (tests.test_selfhost_effects.SelfhostEffects.test_invalid_effects_preserve_previous_output) ... ok
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:List<Point>->int} struct Point{x:int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp_rafg9uc/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:HashMap<string,Point>->int} struct Point{x:int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp1ozlhpaa/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:int->fn(int)->HashMap<string,Point>} struct Point{x:int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpno45tg2h/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:Box<HashMap<string,Point>>->int} struct Point{x:int} union Box<T>{Some{value:T}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpm493r2wz/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:{field:int}->int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpajeir3li/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:{}->{}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmph3ybp46d/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:{field:Point|rest}->{items:array<Point>}} struct Point{x:int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to tokenize input file
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:fn({a:int,b:string},int)->int->int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpz5fd4tct/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:({a:int,b:string},int)->int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpdblwslrp/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:Box<{a:int,b:string}>->int} union Box<T>{Some{value:T}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp3fg5x7v9/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:Point->array<Point>} struct Point{x:int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp3_ni9kcm/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:Choice->Choice} enum Choice{First,Second}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpe1rhhxn3/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:Handle->Handle} opaque type Handle')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmplbq4p054/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:Box<int>->Box<string>} union Box<T>{Some{value:T}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpn8cf6vmd/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:int->fn(int)->Point} struct Point{x:int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp6q6xkyfo/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', declaration='effect Ask{ask:array<array<int>>->(int,string)}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpxy7dlta8/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:List<Point>->int} struct Point{x:int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpdwnni0xs/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:HashMap<string,Point>->int} struct Point{x:int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpe1dkdnmi/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:int->fn(int)->HashMap<string,Point>} struct Point{x:int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpnwgh9foz/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:Box<HashMap<string,Point>>->int} struct Point{x:int} union Box<T>{Some{value:T}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpk4mw9qt1/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:{field:int}->int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp02nq8rh1/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:{}->{}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpgr0qi7i1/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:{field:Point|rest}->{items:array<Point>}} struct Point{x:int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to tokenize input file
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:fn({a:int,b:string},int)->int->int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpg773ximd/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:({a:int,b:string},int)->int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpal0zi1p5/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:Box<{a:int,b:string}>->int} union Box<T>{Some{value:T}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpl99r8mb4/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:Point->array<Point>} struct Point{x:int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp934g3fei/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:Choice->Choice} enum Choice{First,Second}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpfj_n4yqo/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:Handle->Handle} opaque type Handle')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpkmr6ts7t/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:Box<int>->Box<string>} union Box<T>{Some{value:T}}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpj__mj5hw/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:int->fn(int)->Point} struct Point{x:int}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpqdwau0h4/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', declaration='effect Ask{ask:array<array<int>>->(int,string)}')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 173, in test_declaration_types_and_forward_references
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpf0rue3vw/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='resume')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmponx2gh1t/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='lexical_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp2w9m8d07/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='nested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpgfy3e_qj/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='ordered_arguments')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp0e_44_cd/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='typed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpn99ajv9k/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='void')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp7gjfny6v/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='void_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpm8m8lnww/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='handled_void_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpsnhxb49g/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='captured_mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpokbvl8bz/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='recursive_arm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp1jqfx2dm/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='string_result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpbac57xjn/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='array_result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpf78pr64e/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='aggregate_result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpqp2k34n8/source.nano:2, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='lexical_string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpuinezyks/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='handler_removal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmppx_z5408/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='managed_loop')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp92tbhmgz/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='indirect_arm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpeknar_z4/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage1', case='local_loop')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpp03swj4r/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='resume')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpbsna2ath/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='lexical_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp6d8vhw_6/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='nested')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp2swolg_2/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='ordered_arguments')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpsk0ny73n/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='typed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpxwvk8fck/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='void')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp4_p66dp2/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='void_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp3tw88em1/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='handled_void_return')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmponj0j9r5/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='captured_mutation')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpzq88q_if/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='recursive_arm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpnc52i34v/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='string_result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp3x079hrv/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='array_result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpitzrw436/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='aggregate_result')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp_djc5ldf/source.nano:2, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='lexical_string')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpju1gpjcv/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='handler_removal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpx70zzwy2/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='managed_loop')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpafonkcf8/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='indirect_arm')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpamb6gab6/source.nano:1, column 1: unexpected token 'effect'
+
+
+======================================================================
+FAIL: test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_stage2', case='local_loop')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 121, in test_dynamic_handlers_resume_and_lexical_returns
+    self.assertEqual(built.returncode, 0, built.stdout+built.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Parse error at /private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpy9elwg8l/source.nano:1, column 1: unexpected token 'effect'
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 18.345s
+
+FAILED (failures=68)

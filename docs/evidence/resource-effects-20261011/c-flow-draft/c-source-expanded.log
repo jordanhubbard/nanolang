@@ -1,0 +1,12 @@
+test_cannot_reinitialize_captured_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_cannot_reinitialize_captured_owner) ... ok
+test_consumed_handler_argument (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_consumed_handler_argument) ... ok
+test_forwarded_resource (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_forwarded_resource) ... ok
+test_invalid_ownership (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_invalid_ownership) ... ok
+test_lexical_exit_consumes_argument (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_lexical_exit_consumes_argument) ... ok
+test_nested_perform_preserves_staged_owners (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_nested_perform_preserves_staged_owners) ... ok
+test_transfer (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_transfer) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.120s
+
+OK

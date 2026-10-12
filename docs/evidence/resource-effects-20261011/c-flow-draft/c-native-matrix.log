@@ -1,0 +1,36 @@
+test_callee_contains_its_effect (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_callee_contains_its_effect) ... ok
+test_cannot_reinitialize_captured_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_cannot_reinitialize_captured_owner) ... ok
+test_consumed_handler_argument (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_consumed_handler_argument) ... ok
+test_effectful_call_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_live_owner) ... ok
+test_effectful_call_preserves_staged_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_staged_owner) ... ok
+test_forward_declared_callee_contains_its_effect (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_forward_declared_callee_contains_its_effect) ... ok
+test_forwarded_resource (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_forwarded_resource) ... FAIL
+test_invalid_ownership (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_invalid_ownership) ... ok
+test_lexical_exit_consumes_argument (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_lexical_exit_consumes_argument) ... ok
+test_mutual_recursion_propagates_effect (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_mutual_recursion_propagates_effect) ... ok
+test_nested_perform_preserves_staged_owners (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_nested_perform_preserves_staged_owners) ... ok
+test_partial_handler_does_not_hide_other_operation (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_partial_handler_does_not_hide_other_operation) ... ok
+test_transfer (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_transfer) ... ok
+test_transitive_effectful_call (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_transitive_effectful_call) ... ok
+
+======================================================================
+FAIL: test_forwarded_resource (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_forwarded_resource)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 32, in test_forwarded_resource
+    self.check('effect Transfer{pass:Handle->Handle} fn send(h:Handle)->Handle{return perform Transfer.pass(h)} shadow send{assert true}', 'let h:Handle=Handle{value:7} let k=handle {(send h)} with {pass value->{value}} return (consume k)', True)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/nl51-resource-effects/native-matrix.py", line 11, in check
+    self.assertEqual(p.returncode,0 if accepted else 1,p.stdout+p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpp2jaug58/main.nano:5:11: error: initializing 'void *' with an expression of incompatible type 'nl_Handle' (aka 'struct nl_Handle')
+    5 |     void* k = ({ void *_captures_0[] = {&k, &h}; NlEffectEntry _entries_0[] = {{"Transfer.pass", nl_handler_0_0}}; int64_t _lexical_0 = {0}; NlEffectFrame _frame_0 __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_0, .count=1, .captures=_captures_0, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=&_lexical_0}; nl_Handle _out = {0}; if (nl_effect_run(&_frame_0, nl_handler_0_1, &_out)) {int64_t _ret = _lexical_0; return _ret;} _out; });
+      |           ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 14 tests in 8.930s
+
+FAILED (failures=1)

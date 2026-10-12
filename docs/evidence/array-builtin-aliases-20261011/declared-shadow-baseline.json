@@ -1,0 +1,18 @@
+[
+  {
+    "driver": "bin/nanoc_c",
+    "compile": 1
+  },
+  {
+    "driver": "bin/nano_virt",
+    "compile": 0,
+    "execution": 7,
+    "output": ""
+  },
+  {
+    "driver": "/private/tmp/nl51-array-aliases/seed",
+    "compile": 0,
+    "execution": 7,
+    "output": ""
+  }
+]

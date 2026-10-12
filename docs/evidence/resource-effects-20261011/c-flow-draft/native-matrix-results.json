@@ -1,0 +1,86 @@
+[
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_callee_contains_its_effect",
+    "accepted": true
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_cannot_reinitialize_captured_owner",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_consumed_handler_argument",
+    "accepted": true
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_preserves_staged_spread_owner",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_live_owner",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_staged_owner",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_forward_declared_callee_contains_its_effect",
+    "accepted": true
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_forwarded_resource",
+    "accepted": true
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_invalid_ownership",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_invalid_ownership",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_invalid_ownership",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_invalid_ownership",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_invalid_ownership",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_invalid_ownership",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_invalid_ownership",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_lexical_exit_consumes_argument",
+    "accepted": true
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_mutual_recursion_propagates_effect",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_nested_perform_preserves_staged_owners",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_partial_handler_does_not_hide_other_operation",
+    "accepted": false
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_transfer",
+    "accepted": true
+  },
+  {
+    "method": "tests.test_resource_effect_frontend.ResourceEffectFrontend.test_transitive_effectful_call",
+    "accepted": false
+  }
+]

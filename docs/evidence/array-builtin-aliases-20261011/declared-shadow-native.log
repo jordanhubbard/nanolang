@@ -1,0 +1,5 @@
+Warning at line 2, column 1: Unused variable 'callback'
+  Shadow test 'main' FAILED: 1 failure(s)
+  First failure at line 3, column 95
+I will not publish output after failed shadow execution.
+Shadow tests failed

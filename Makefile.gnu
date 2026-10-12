@@ -3400,6 +3400,15 @@ test-affine-module-identity: bootstrap
 $(OBJ_DIR)/test_affine_c_frontend: tests/test_affine_c_frontend.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
+.PHONY: test-resource-effect-frontend
+test-resource-effect-frontend: $(OBJ_DIR)/test_affine_c_frontend $(BIN_DIR)/nanoc_c
+	NANOLANG_RESOURCE_EFFECT_ROUTES=frontend,native python3 -m unittest tests.test_resource_effect_frontend -v
+
+.PHONY: test-array-builtin-aliases
+test-array-builtin-aliases: $(BIN_DIR)/nanoc_c nano_virt nano_vm nvm2c
+	NANOLANG_EFFECT_TARGETS=vm,native python3 -m unittest tests.test_array_builtin_aliases tests.test_array_declaration_priority -v
+	NANOLANG_ARRAY_ALIAS_COMPILERS=$(CURDIR)/$(BIN_DIR)/nanoc_c NANOLANG_ARRAY_ALIAS_ROUTE=source-native python3 -m unittest tests.test_array_builtin_aliases tests.test_array_declaration_priority -v
+
 .PHONY: test-affine-contract-boundaries
 test-affine-contract-boundaries: bootstrap $(OBJ_DIR)/test_affine_c_frontend
 	@python3 -m unittest tests.test_affine_contract_boundaries

@@ -1,0 +1,2 @@
+module "lib.nano" as lib
+fn main()->int{assert (== (lib.map 6) 7) assert (== (lib.filter 6) 7) assert (== (lib.reduce 6) 7) assert (== (lib.array_map 6) 7) assert (== (lib.array_filter 6) 7) assert (== (lib.array_fold 6) 7) return 7} shadow main{assert (== (main) 7)}

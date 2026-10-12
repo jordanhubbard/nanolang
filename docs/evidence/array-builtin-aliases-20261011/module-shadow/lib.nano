@@ -1,0 +1,6 @@
+pub fn map(n:int)->int{return (+ n 1)} shadow map{assert true}
+pub fn filter(n:int)->int{return (+ n 1)} shadow filter{assert true}
+pub fn reduce(n:int)->int{return (+ n 1)} shadow reduce{assert true}
+pub fn array_map(n:int)->int{return (+ n 1)} shadow array_map{assert true}
+pub fn array_filter(n:int)->int{return (+ n 1)} shadow array_filter{assert true}
+pub fn array_fold(n:int)->int{return (+ n 1)} shadow array_fold{assert true}

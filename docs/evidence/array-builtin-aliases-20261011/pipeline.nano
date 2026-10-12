@@ -1,0 +1,5 @@
+fn plus(n:int)->int{return (+ n 1)} shadow plus{assert true}
+fn keep(n:int)->bool{return (> n 2)} shadow keep{assert true}
+fn add(a:int,b:int)->int{return (+ a b)} shadow add{assert true}
+fn main()->int{let values:array<int> = (array_map [1,2] plus) let selected:array<int> = (array_filter values keep) return (array_fold selected 4 add)}
+shadow main{assert (== (main) 7)}

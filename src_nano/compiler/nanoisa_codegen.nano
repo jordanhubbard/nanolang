@@ -5012,7 +5012,21 @@ shadow nisa_emit_set_call {
 }
 
 # I resolve checked callback expressions and retain their exact signatures.
-fn nisa_functional_name(name: string) -> bool {
+fn nisa_array_operation(name: string) -> string {
+    if (== name "array_map") { return "map" }
+    if (== name "array_filter") { return "filter" }
+    if (== name "array_fold") { return "reduce" }
+    return name
+}
+shadow nisa_array_operation {
+    assert (== (nisa_array_operation "array_map") "map")
+    assert (== (nisa_array_operation "array_filter") "filter")
+    assert (== (nisa_array_operation "array_fold") "reduce")
+    assert (== (nisa_array_operation "map_new") "map_new")
+}
+
+fn nisa_functional_name(source_name: string) -> bool {
+    let name: string = (nisa_array_operation source_name)
     return (or (== name "map") (or (== name "filter") (== name "reduce")))
 }
 shadow nisa_functional_name {
@@ -5021,7 +5035,8 @@ shadow nisa_functional_name {
     assert (not (nisa_functional_name "map_new"))
 }
 
-fn nisa_functional_signature(parser: Parser, call: ASTCall, name: string) -> string {
+fn nisa_functional_signature(parser: Parser, call: ASTCall, source_name: string) -> string {
+    let name: string = (nisa_array_operation source_name)
     let mut arity: int = 2
     if (== name "reduce") { set arity 3 }
     if (!= call.arg_count arity) { return (nisa_fail "I require the exact functional array arity") }
@@ -5069,7 +5084,8 @@ shadow nisa_functional_signature {
     let _: int = (nisa_reset)
 }
 
-fn nisa_functional_result(parser: Parser, call: ASTCall, name: string) -> string {
+fn nisa_functional_result(parser: Parser, call: ASTCall, source_name: string) -> string {
+    let name: string = (nisa_array_operation source_name)
     let signature: string = (nisa_functional_signature parser call name)
     if (== signature "") { return "" }
     let parts: array<string> = (function_type_parts signature)
@@ -5115,7 +5131,8 @@ shadow nisa_emit_abs {
     let reset: int = (nisa_reset)
 }
 
-fn nisa_emit_functional_array(parser: Parser, call: ASTCall, name: string) -> string {
+fn nisa_emit_functional_array(parser: Parser, call: ASTCall, source_name: string) -> string {
+    let name: string = (nisa_array_operation source_name)
     let signature: string = (nisa_functional_signature parser call name)
     if (== signature "") { return "" }
     let parts: array<string> = (function_type_parts signature)

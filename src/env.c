@@ -1067,7 +1067,7 @@ Function *env_get_function_at(Environment *env, const char *name, int line, int 
     }
 
     /* I permit this non-reserved declaration only in its own module. */
-    if (strcmp(name, "array_push") == 0) {
+    if (strcmp(name, "array_push") == 0 || builtin_is_array_operation(name)) {
         Function *function = function_named(env, name, env->current_module, true, true, line, column);
         if (function) return function;
     }
@@ -1107,6 +1107,17 @@ bool env_array_push_is_builtin(Environment *env, int line, int column) {
     if (env_get_var_visible_at(env, "array_push", line, column)) return false;
     Function *function = env_get_function(env, "array_push");
     return !function || !function->body;
+}
+
+/* I classify a call only after lexical and declared function resolution. */
+const char *env_array_operation(Environment *env, ASTNode *call) {
+    if (!call || call->type != AST_CALL || call->as.call.func_expr ||
+        !builtin_is_array_operation(call->as.call.name)) return "";
+    const char *name = call->as.call.name;
+    if (env_get_var_visible_at(env, name, call->line, call->column)) return "";
+    Function *function = env_get_function_at(env, name, call->line, call->column);
+    if (function && (function->body || function->is_extern)) return "";
+    return builtin_array_operation(name);
 }
 
 /* Value creation functions */

@@ -13,6 +13,7 @@
 #include "nanovirt/codegen.h"
 #include "../nanoisa/local_bindings.h"
 #include "nanolang.h"
+#include "../builtins_registry.h"
 #include "../generic_bindings.h"
 #include "resource_tracking.h"
 #include "nanoisa/isa.h"
@@ -1175,7 +1176,7 @@ static void compile_list_mutation(CG *cg, ASTNode *node, const char *operation) 
 
 /* Handle built-in function calls. Returns true if handled, false if not a builtin. */
 static bool compile_builtin_call(CG *cg, ASTNode *node) {
-    const char *name = node->as.call.name;
+    const char *name = builtin_array_operation(node->as.call.name);
     int argc = node->as.call.arg_count;
     ASTNode **args = node->as.call.args;
 

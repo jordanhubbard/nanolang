@@ -1,0 +1,6 @@
+resource struct Handle{value:int}
+fn consume(h:Handle)->int{let Handle{value}=h return value}
+shadow consume{assert (== (consume Handle{value:7}) 7)}
+effect Transfer{pass:Handle int->Handle,tick:int->int}
+fn main()->int{let h:Handle=Handle{value:7} let k:Handle=handle {perform Transfer.pass(h perform Transfer.tick(0))} with {pass value number->{value} tick number->{return 7}} return (consume k)}
+shadow main{assert true}

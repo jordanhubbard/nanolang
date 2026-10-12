@@ -3880,9 +3880,12 @@ static Value eval_call_impl(ASTNode *node, Environment *env, const char *bound_n
     if (call_name == EVAL_CALL_array_slice) return builtin_array_slice(args);
     
     /* Higher-order array functions */
-    if (call_name == EVAL_CALL_map || call_name == EVAL_CALL_array_map) return builtin_map(args, env);
-    if (call_name == EVAL_CALL_filter || call_name == EVAL_CALL_array_filter) return builtin_filter(args, env);
-    if (call_name == EVAL_CALL_reduce || call_name == EVAL_CALL_array_fold) return builtin_reduce(args, env);
+    if ((!named_func || !named_func->body) &&
+        (call_name == EVAL_CALL_map || call_name == EVAL_CALL_array_map)) return builtin_map(args, env);
+    if ((!named_func || !named_func->body) &&
+        (call_name == EVAL_CALL_filter || call_name == EVAL_CALL_array_filter)) return builtin_filter(args, env);
+    if ((!named_func || !named_func->body) &&
+        (call_name == EVAL_CALL_reduce || call_name == EVAL_CALL_array_fold)) return builtin_reduce(args, env);
     
     /* Dynamic array operations (GC-managed) */
     if (call_name == EVAL_CALL_array_push && (!named_func || !named_func->body))

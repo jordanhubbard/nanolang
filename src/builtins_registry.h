@@ -44,6 +44,9 @@ extern const int builtin_registry_count;
 /* Lookup functions */
 const BuiltinEntry *builtin_find(const char *name);
 const char *builtin_c_name(const char *name);
+/* I retain source spelling while sharing checked array operations. */
+const char *builtin_array_operation(const char *name);
+bool builtin_is_array_operation(const char *name);
 bool builtin_is_known(const char *name);
 
 #endif /* BUILTINS_REGISTRY_H */

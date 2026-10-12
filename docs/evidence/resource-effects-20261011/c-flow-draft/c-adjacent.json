@@ -1,0 +1,182 @@
+[
+  {
+    "name": "both_arms",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "one_arm",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "resolved_return",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "leaking_return",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "observe_leak",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "hidden_owner",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "indirect_result_owner",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "indirect_result_discard",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "loop_break_True",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "loop_break_False",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "loop_continue_True",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "loop_continue_False",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "loop__True",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "loop__False",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "outer_loop_move",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "move_consume",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "nested_leak",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "nested_return",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "nested_after_move",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "nested_collection",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "moved_observation",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "observe_return",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "owner_257",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "overwrite_True",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "overwrite_False",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "resource_array_parameter",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "resource_empty_array",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "extern_resource_array",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "return_parameter",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "ordinary_shadow",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "conditional_move",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "unconditional_left_move",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "union_leak",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "union_return",
+    "expected": true,
+    "code": 0
+  },
+  {
+    "name": "union_envelope_leak",
+    "expected": false,
+    "code": 1
+  },
+  {
+    "name": "parameter_leak",
+    "expected": false,
+    "code": 1
+  }
+]

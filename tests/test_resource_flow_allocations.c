@@ -47,8 +47,22 @@ bool is_resource_type_info(Environment *env, const TypeInfo *info) {
 bool has_resource_collection_type_info(Environment *env, const TypeInfo *info) {
     (void)env; (void)info; return false;
 }
+bool env_effect_visible(Environment *env, const EffectDef *effect) { (void)env; (void)effect; return true; }
+EffectDef *env_get_effect(Environment *env, const char *name) {
+    for (int i = 0; name && i < env->effect_count; ++i)
+        if (!strcmp(env->effects[i].name, name)) return &env->effects[i];
+    return NULL;
+}
+EffectOp *effect_get_op(EffectDef *effect, const char *name) {
+    for (int i = 0; effect && name && i < effect->op_count; ++i)
+        if (!strcmp(effect->ops[i].name, name)) return &effect->ops[i];
+    return NULL;
+}
+bool is_builtin_function(const char *name) { (void)name; return false; }
 Function *env_get_function(Environment *env, const char *name) {
-    (void)env; (void)name; return NULL;
+    for (int i = 0; name && i < env->function_count; ++i)
+        if (!strcmp(env->functions[i].name, name)) return &env->functions[i];
+    return NULL;
 }
 StructDef *env_get_struct(Environment *env, const char *name) {
     (void)env; (void)name; return NULL;
@@ -78,6 +92,39 @@ void free_payload_type_info(TypeInfo *info) {
 #undef strdup
 #undef realloc
 #undef free
+
+static void test_effect_summary_allocations(void) {
+    ASTNode perform = {.type = AST_EFFECT_OP}, handler = {.type = AST_HANDLE_EXPR};
+    ASTNode call = {.type = AST_CALL}, result = {.type = AST_NUMBER};
+    perform.as.effect_op.effect_name = "E";
+    perform.as.effect_op.op_name = "tick";
+    call.as.call.name = "f";
+    char *names[] = {"tick"};
+    int counts[] = {0};
+    ASTNode *bodies[] = {&result};
+    handler.as.handle_expr.body = &perform;
+    handler.as.handle_expr.effect_name = "E";
+    handler.as.handle_expr.handler_op_names = names;
+    handler.as.handle_expr.handler_param_counts = counts;
+    handler.as.handle_expr.handler_bodies = bodies;
+    handler.as.handle_expr.handler_count = 1;
+    EffectOp op = {.name = "tick", .return_type = TYPE_INT};
+    EffectDef effect = {.name = "E", .ops = &op, .op_count = 1};
+    Function function = {.name = "f", .body = &perform};
+    Environment env = {.functions = &function, .function_count = 1, .effects = &effect, .effect_count = 1};
+    bool error = false;
+    OwnFlow flow = {.env = &env, .error = &error};
+    attempts = 0; fail_at = 0;
+    assert(own_call_effect_escape(&flow, &call));
+    assert(!error && allocations == 0);
+    function.body = &handler;
+    assert(!own_call_effect_escape(&flow, &call));
+    assert(!error && allocations == 0);
+    attempts = 0; fail_at = 1;
+    assert(own_call_effect_escape(&flow, &call));
+    assert(error && allocations == 0);
+    fail_at = 0;
+}
 
 int main(void) {
     enum { COUNT = 300 };
@@ -153,6 +200,7 @@ int main(void) {
     assert(!own_add(&overflow, &function, "overflow", "Handle", NULL));
     assert(error);
     assert(allocations == 0);
+    test_effect_summary_allocations();
     printf("I checked 300 owners and %zu allocation-failure positions.\n", sites);
     return 0;
 }
