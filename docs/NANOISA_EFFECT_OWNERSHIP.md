@@ -99,3 +99,12 @@ This is declaration support. My affine analysis explicitly refuses performed or
 handled ARRAY signatures until handler-aware element/ownership flow is connected.
 The private array projection, array-bearing resource layouts, producer wiring and
 VM/native cleanup remain implementation work; I have not granted array execution.
+
+ARRAY descriptors in function results, parameters and locals now use the same
+element-table indexes. I collect their required bounds while reading declarations,
+then resolve them only after checking the complete extension suffix. Typed ARRAY
+slots require revision 2 and zero borrow mode. Every ARRAY slot in such a module
+must name an element type; I reject NO_INDEX instead of silently erasing identity.
+Legacy revision-1 untyped ARRAY declarations retain their transport behavior.
+Neither typed nor untyped collection locals gain affine-state or execution
+admission from this declaration validation.

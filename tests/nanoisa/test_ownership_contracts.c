@@ -528,6 +528,7 @@ static void check_effect_transport(void) {
 int main(int argc, char **argv) {
     check_effect_transport();
     check_effect_array_contracts();
+    check_effect_array_slots();
     check_global_transport();
     check_union_transport();
     check_concrete_union_instances();

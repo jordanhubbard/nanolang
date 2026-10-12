@@ -96,3 +96,69 @@ static void check_effect_array_contracts(void) {
     CHECK(nvm_ownership_effect_types(m,&types)==NVM_V2_ERR_INDEX_RANGE);
     nvm_module_free(m);
 }
+
+static void check_effect_array_slots(void) {
+    AsmResult error;
+    NvmModule *m=asm_assemble_unverified(".string op \"Collection.pass\"\n.entry 0\n.function main 0 1 0 int 1\nPUSH_I64 0\nRET\n.end\n.function relay 1 1 0 array 1\nLOAD_LOCAL 0\nRET\n.end\n.parameters 1 array\n",&error);
+    CHECK(m);uint32_t key=nvm_add_string(m,"Collection.pass",15);
+    NvmV2LayoutField field={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
+    NvmV2Layout record={NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field};
+    NvmV2Layouts layouts={&record,1};m->struct_count=1;
+    CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    uint8_t *data=calloc(132,1);CHECK(data);m->ownership_data=data;m->ownership_size=132;
+    word(data,0,3);word(data,4,1);data[8]=1;word(data,12,2);
+    half(data,16,1);slot(data,20,TAG_INT,0,NVM_V2_NO_INDEX);slot(data,28,TAG_ARRAY,0,0);
+    half(data,36,1);half(data,38,1);slot(data,40,TAG_ARRAY,0,1);slot(data,48,TAG_ARRAY,0,1);
+    word(data,56,4);word(data,64,1);half(data,68,NVM_OWNERSHIP_EXTENSION_EFFECTS);
+    half(data,70,2);word(data,72,56);word(data,76,3);
+    slot(data,80,TAG_INT,0,NVM_V2_NO_INDEX);slot(data,88,TAG_ARRAY,0,0);slot(data,96,TAG_ARRAY,0,1);
+    word(data,104,1);word(data,108,key);half(data,112,1);
+    slot(data,116,TAG_ARRAY,0,2);slot(data,124,TAG_ARRAY,0,2);
+    check_status(m,true,true);
+    NvmOwnershipEffectTypes types,prior;NvmOwnershipEffect signature;
+    CHECK(nvm_ownership_effect_types(m,&types)==NVM_V2_OK && types.count==3);
+    CHECK(nvm_ownership_effect(m,key,&signature)==NVM_V2_OK && signature.result.layout==2);
+    /* My current state/runtime gate still refuses typed collection locals. */
+    CHECK(!nvm_affine_state_create(m,0,0));CHECK(!nvm_affine_state_create(m,1,0));
+    CHECK(!nvm_verify(m).ok);
+    char diagnostic[256];CHECK(!nvm2c_emit(m,diagnostic,sizeof diagnostic));
+    size_t length;uint8_t *bytes=wire(m,&length,NULL);NvmV2Module decoded;
+    CHECK(nvm_v2_module_deserialize(bytes,length,&decoded)==NVM_V2_OK);
+    NvmModule *copy=NULL;CHECK(nvm_v2_to_nvm_module(&decoded,&copy)==NVM_V2_OK);
+    CHECK(copy->ownership_size==132 && !memcmp(copy->ownership_data,data,132));
+    CHECK(nvm_ownership_effect_types(copy,&types)==NVM_V2_OK);
+    nvm_module_free(copy);nvm_v2_module_free(&decoded);free(bytes);
+    char *text=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(text);
+    copy=asm_assemble(text,&error);CHECK(!copy && error.error==ASM_ERR_VERIFY);
+    copy=asm_assemble_unverified(text,&error);CHECK(copy);
+    CHECK(copy->ownership_size==132 && !memcmp(copy->ownership_data,data,132));
+    nvm_module_free(copy);free(text);
+    memset(&types,0xa5,sizeof types);prior=types;
+    const unsigned refs[]={32,44,52};
+    const uint32_t bad[]={3,NVM_V2_NO_INDEX-1,NVM_V2_NO_INDEX};
+    for(unsigned i=0;i<3;i++)for(unsigned j=0;j<3;j++) {
+        word(data,refs[i],bad[j]);
+        CHECK(nvm_ownership_effect_types(m,&types)!=NVM_V2_OK);
+        CHECK(!memcmp(&types,&prior,sizeof types));word(data,refs[i],i?1:0);
+    }
+    for(unsigned mode=1;mode<=2;mode++) {
+        data[49]=(uint8_t)mode;
+        CHECK(nvm_ownership_effect_types(m,&types)!=NVM_V2_OK);
+        CHECK(!memcmp(&types,&prior,sizeof types));data[49]=0;
+    }
+    for(unsigned n=0;n<132;n++) {
+        m->ownership_size=n;CHECK(nvm_ownership_effect_types(m,&types)!=NVM_V2_OK);
+        CHECK(!memcmp(&types,&prior,sizeof types));
+    }
+    m->ownership_size=132;
+    /* A revision-1 operation cannot authorize the typed local references. */
+    memmove(data+76,data+104,28);m->ownership_size=104;word(data,72,28);half(data,70,1);
+    slot(data,88,TAG_INT,0,NVM_V2_NO_INDEX);slot(data,96,TAG_INT,0,NVM_V2_NO_INDEX);
+    CHECK(nvm_ownership_effect_types(m,&types)!=NVM_V2_OK);
+    CHECK(!memcmp(&types,&prior,sizeof types));
+    /* I preserve the old declaration-only untyped ARRAY transport in revision 1. */
+    for(unsigned i=0;i<3;i++)word(data,refs[i],NVM_V2_NO_INDEX);
+    CHECK(nvm_ownership_effect_types(m,&types)==NVM_V2_OK && types.count==0);
+    CHECK(!nvm_affine_state_create(m,1,0));
+    nvm_module_free(m);
+}

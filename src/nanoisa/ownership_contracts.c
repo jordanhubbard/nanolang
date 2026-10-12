@@ -65,9 +65,12 @@ static NvmV2Result check_layouts(const NvmV2Layouts *layouts, const uint8_t *fla
     return NVM_V2_OK;
 }
 
+/* I defer element references until the complete suffix has been checked. */
+typedef struct { uint32_t required; bool untyped; } EffectArrayReferences;
 static NvmV2Result descriptor(NvmV2Cursor *cursor, const NvmV2Layouts *layouts,
                                const uint8_t *flags, uint32_t version, bool parameter,
-                               int signature_tag, bool *needs, bool *ambiguous) {
+                               int signature_tag, bool *needs, bool *ambiguous,
+                               EffectArrayReferences *arrays) {
     uint8_t tag, mode;
     uint16_t reserved;
     uint32_t layout;
@@ -80,6 +83,16 @@ static NvmV2Result descriptor(NvmV2Cursor *cursor, const NvmV2Layouts *layouts,
     if (tag >= TAG_COUNT || mode > NVM_REFERENCE_EXCLUSIVE ||
         (!parameter && mode) || (signature_tag >= 0 && tag != signature_tag))
         return NVM_V2_ERR_SECTION_TYPE;
+    if (tag==TAG_ARRAY && arrays) {
+        if (layout==NVM_V2_NO_INDEX) arrays->untyped=true;
+        else {
+            if (version!=NVM_OWNERSHIP_EXTENSION_VERSION || mode)
+                return NVM_V2_ERR_SECTION_TYPE;
+            /* NO_INDEX was excluded, so this increment cannot wrap. */
+            if (arrays->required<layout+1) arrays->required=layout+1;
+            *needs=true;return NVM_V2_OK;
+        }
+    }
     if (layout != NVM_V2_NO_INDEX) {
         if (layout >= layouts->count) return NVM_V2_ERR_INDEX_RANGE;
         bool record=tag==TAG_STRUCT && (flags[layout]&NVM_LAYOUT_COMPLETE) &&
@@ -367,6 +380,7 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
         NvmOrdinaryArrayAuthority *private_plan, OwnershipProjection *projection) {
     NvmV2Result result;
     bool ambiguous=false;
+    EffectArrayReferences arrays={0};uint32_t effect_type_count=0;
     NvmV2Cursor cursor;
     nvm_v2_cursor_init(&cursor, module->ownership_data, module->ownership_size);
     uint32_t version, count;
@@ -394,7 +408,7 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
             function->result_count > 1) { result = NVM_V2_ERR_INDEX_RANGE; goto done; }
         int return_tag = function->result_count ? function->result_tag : TAG_VOID;
         ambiguous=false;
-        result=descriptor(&cursor,layouts,flags,version,false,return_tag,&needs,private_plan?&ambiguous:NULL);
+        result=descriptor(&cursor,layouts,flags,version,false,return_tag,&needs,private_plan?&ambiguous:NULL,private_plan?NULL:&arrays);
         if (result!=NVM_V2_OK) {
             if (!projection || !ambiguous) goto done;
             projection->ambiguous=true;result=NVM_V2_OK;
@@ -404,7 +418,7 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
             if (local < params) tag = module->function_param_types &&
                 module->function_param_types[i] ? module->function_param_types[i][local] : TAG_VOID;
             ambiguous=false;
-            result=descriptor(&cursor,layouts,flags,version,local<params,tag,&needs,private_plan?&ambiguous:NULL);
+            result=descriptor(&cursor,layouts,flags,version,local<params,tag,&needs,private_plan?&ambiguous:NULL,private_plan?NULL:&arrays);
             if (result!=NVM_V2_OK) {
                 if (!projection || !ambiguous) goto done;
                 projection->ambiguous=true;result=NVM_V2_OK;
@@ -438,8 +452,10 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
         }
         if (extensions.effects.data) {
             if (private_plan) { result=NVM_V2_ERR_FORMAT_VERSION;goto done; }
+            NvmOwnershipEffectTypes types;
             if ((result=effects_read(extensions.effects,module,layouts,flags,
-                                     NVM_V2_NO_INDEX,NULL,NULL))!=NVM_V2_OK) goto done;
+                                     NVM_V2_NO_INDEX,NULL,&types))!=NVM_V2_OK) goto done;
+            effect_type_count=types.count;
             needs=true;
         }
         if (extensions.array_fields.data) {
@@ -447,6 +463,8 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
             if ((result=oaa_array_fields(extensions.array_fields,private_plan))!=NVM_V2_OK) goto done;
         }
     }
+    if (arrays.required>effect_type_count) { result=NVM_V2_ERR_INDEX_RANGE;goto done; }
+    if (effect_type_count && arrays.untyped) { result=NVM_V2_ERR_SECTION_TYPE;goto done; }
     if (cursor.pos != cursor.size) { result = NVM_V2_ERR_SECTION_RANGE; goto done; }
     *requires_verifier = needs;
 done:

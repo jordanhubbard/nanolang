@@ -35,3 +35,6 @@ sources used here. No product source changed in this baseline checkpoint.
 
 My later [array declaration checkpoint](contracts/README.md) retains exact
 element tables; executable integration remains open.
+
+My [typed-slot checkpoint](slots/README.md) connects the element table to
+function results, parameters and locals, with executable admission still closed.
