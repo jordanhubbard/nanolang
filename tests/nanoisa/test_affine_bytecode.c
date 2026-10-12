@@ -226,7 +226,47 @@ static void instruction_facts(void) {
 #include "test_affine_effect_globals.inc"
 #include "test_affine_array_flow.inc"
 
+static void owner_observation_case(const char *body,bool accepted) {
+    uint8_t tags[]={TAG_STRUCT,TAG_STRUCT};
+    NvmModule *m=fixture(body,0,2,tags,NULL,TAG_INT,false);
+    m->ownership_data[8]|=NVM_LAYOUT_RESOURCE;
+    NvmAffineAnalysis result=nvm_affine_analyze_function(m,0);
+    if(result.ok!=accepted)fprintf(stderr,"Owner observation: %s\n%s",result.message,body);
+    CHECK(result.ok==accepted);
+    if(!accepted)CHECK(strstr(result.message,"owner observation"));
+    VmDecodedFunction decoded={0};char error[VM_DECODE_ERROR_SIZE];
+    CHECK(vm_decode_function(m,0,&decoded,error));
+    size_t bytes=decoded.instruction_count*sizeof(NvmAffineInstructionFact);
+    NvmAffineInstructionFact *facts=malloc(bytes),*prior=malloc(bytes);CHECK(facts && prior);
+    memset(facts,0xa5,bytes);memcpy(prior,facts,bytes);
+    CHECK(nvm_affine_analyze_instructions(m,0,facts,decoded.instruction_count).ok==accepted);
+    if(!accepted)CHECK(!memcmp(facts,prior,bytes));
+    CHECK(nvm_verify_owned_module(m).ok==accepted);
+    CHECK(nvm_verify(m).ok==accepted);
+    char message[256];char *native=nvm2c_emit(m,message,sizeof message);
+    CHECK((native!=NULL)==accepted);free(native);
+    free(facts);free(prior);vm_decoded_function_free(&decoded);nvm_module_free(m);
+}
+static void owner_observation_lifetime(void) {
+    /* I must not resolve an old observation against a replacement local owner. */
+    owner_observation_case("PUSH_I64 7\nOWN_PACK 0\nOWN_STORE_LOCAL 0\nLOAD_LOCAL 0\n"
+        "OWN_UNPACK_LOCAL 0\nPOP\nPUSH_I64 9\nOWN_PACK 0\nOWN_STORE_LOCAL 0\n"
+        "AGG_GET 0\nPOP\nOWN_UNPACK_LOCAL 0\nRET\n",false);
+    owner_observation_case("PUSH_I64 7\nOWN_PACK 0\nOWN_STORE_LOCAL 0\nLOAD_LOCAL 0\n"
+        "OWN_MOVE_LOCAL 0\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nPOP\n"
+        "PUSH_I64 9\nOWN_PACK 0\nOWN_STORE_LOCAL 0\nAGG_GET 0\nPOP\nOWN_UNPACK_LOCAL 0\nRET\n",false);
+    /* I consume the observation before moving its owner. */
+    owner_observation_case("PUSH_I64 7\nOWN_PACK 0\nOWN_STORE_LOCAL 0\nLOAD_LOCAL 0\n"
+        "AGG_GET 0\nPOP\nOWN_MOVE_LOCAL 0\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nRET\n",true);
+    /* I can move and unpack a different owner beneath a live observation. */
+    owner_observation_case("PUSH_I64 7\nOWN_PACK 0\nOWN_STORE_LOCAL 0\n"
+        "PUSH_I64 9\nOWN_PACK 0\nOWN_STORE_LOCAL 1\nLOAD_LOCAL 0\n"
+        "OWN_MOVE_LOCAL 1\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nPOP\n"
+        "AGG_GET 0\nPOP\nOWN_UNPACK_LOCAL 0\nRET\n",true);
+}
+
 int main(int argc,char **argv) {
+    owner_observation_lifetime();
     array_flow_edges();
     array_flow_facts();
     if(argc==3 && !strcmp(argv[1],"--effects")){effect_runtime_artifacts(argv[2]);effect_global_runtime_artifacts(argv[2]);return 0;}

@@ -71,12 +71,14 @@ static void array_flow_edges(void) {
     array_flow_case("PUSH_I64 7\nRET\n",helper,true,true,NULL);
     snprintf(helper,sizeof helper,"HANDLER_PUSH owner arm 0 1\n%sPERFORM owner 1\nHANDLER_POP 1\nRET\narm:\nOWN_MOVE_LOCAL 0\nEFFECT_RESUME\n",construct);
     array_flow_case("PUSH_I64 7\nRET\n",helper,true,true,NULL);
+    snprintf(helper,sizeof helper,"%sOWN_STORE_LOCAL 0\nLOAD_LOCAL 0\nOWN_MOVE_LOCAL 0\nOWN_STORE_LOCAL 0\nARR_LEN\nPOP\nOWN_MOVE_LOCAL 0\nRET\n",construct);
+    array_flow_case("PUSH_I64 7\nRET\n",helper,true,false,"owner observation");
     snprintf(helper,sizeof helper,"%sARR_POP\nRET\n",construct);
     array_flow_case("PUSH_I64 7\nRET\n",helper,true,false,"resource-element");
     snprintf(helper,sizeof helper,"%sDUP\nRET\n",construct);
     array_flow_case("PUSH_I64 7\nRET\n",helper,true,false,"duplicate");
     snprintf(helper,sizeof helper,"%sOWN_STORE_LOCAL 0\nLOAD_LOCAL 0\nOWN_MOVE_LOCAL 0\nSWAP\nARR_LEN\nRET\n",construct);
-    array_flow_case("PUSH_I64 7\nRET\n",helper,true,false,"permutation");
+    array_flow_case("PUSH_I64 7\nRET\n",helper,true,false,"owner observation");
     snprintf(helper,sizeof helper,"%sPUSH_I64 8\nOWN_PACK 1\nARR_PUSH\nRET\n",construct);
     array_flow_case("PUSH_I64 7\nRET\n",helper,true,false,"exact array element");
 }

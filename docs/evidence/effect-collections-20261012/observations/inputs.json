@@ -1,0 +1,5 @@
+{
+  "src/nanoisa/affine_bytecode.c": "347e57f9b8c953a62b7b00e16a0fc9feb1d057acfbb6dbab37e63ebe36c0a5f4",
+  "tests/nanoisa/test_affine_bytecode.c": "c1a8928ddeb19695cff76d94c2d9582778d580540d82d53c822711af3e831c4d",
+  "tests/nanoisa/test_affine_array_flow.inc": "f02849a36792f5e7e4606096de47a8c0f240f29f780f2cd79ad17d3777f3a848"
+}

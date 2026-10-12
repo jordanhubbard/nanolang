@@ -140,3 +140,15 @@ Push transfers exact elements; copyable arrays support projection and mutation.
 Resource-array length requires a live owner observation, and destructive resource
 extraction/overwrite remains refused. Ambiguous empty nominal arrays need further
 shape authority. These partial instruction contracts leave runtime admission closed.
+
+## My owner observation lifetime
+
+A stack observation refers to its current local owner. I reject moving or unpacking
+that owner while the observation remains on my stack; checking only that the local
+is live later could resolve an old observation against a replacement. This rule
+applies to record and resource-array observations and uses the same root check as
+exclusive borrowing. I permit operations on other owners and permit a move after
+the observation has been consumed. Failed analysis publishes no instruction facts.
+My [lifetime evidence](evidence/effect-collections-20261012/observations/README.md)
+retains the original accepted-invalid sequences and the corrected checks. This
+repair does not grant collection runtime admission.

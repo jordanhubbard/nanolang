@@ -30,6 +30,11 @@ typedef struct {
     uint32_t activation;
     Handler handlers[AFFINE_MAX_HANDLERS];
 } Frame;
+static bool observes_owner(const Frame *frame,uint16_t root) {
+    for (uint16_t i=0;i<frame->count;i++)
+        if (frame->stack[i].observation && frame->stack[i].root==root) return true;
+    return false;
+}
 static void frame_free(Frame *frame) {
     if (!frame) return;
     nvm_affine_state_free(frame->locals);free(frame->stack);free(frame);
@@ -374,10 +379,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             nvm_ownership_path(module,in->operands[2].u32,fields,NVM_OWNERSHIP_MAX_PATH_DEPTH,&count)!=NVM_V2_OK)
             return "I require a retained bounded ownership path";
         /* An existing stack observation must not outlive an exclusive hold. */
-        for (uint16_t i=0;i<f->count;i++)
-            if (f->stack[i].observation && f->stack[i].root==in->operands[1].u16 &&
-                exclusive)
-                return "I cannot borrow exclusively while an owner observation is on my stack";
+        if (exclusive && observes_owner(f,in->operands[1].u16))
+            return "I cannot borrow exclusively while an owner observation is on my stack";
         return nvm_affine_borrow(f->locals,in->operands[0].u16,in->operands[1].u16,
             fields,count,exclusive?NVM_REFERENCE_EXCLUSIVE:NVM_REFERENCE_SHARED)?NULL:
             "I require an available scalar-leaf resource owner and reference slot in a live region";
@@ -391,6 +394,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         break;
     case OP_OWN_MOVE_LOCAL: {
         NvmAffineType type;uint16_t variant=NVM_AFFINE_UNKNOWN_VARIANT;
+        if (observes_owner(f,in->operands[0].u16))
+            return "I cannot move while an owner observation is on my stack";
         (void)nvm_affine_union_variant(f->locals,in->operands[0].u16,&variant);
         if (!nvm_affine_take_local(f->locals,in->operands[0].u16,&type))
             return "I require a live unheld owner for an explicit move";
@@ -430,6 +435,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
     case OP_OWN_UNPACK_LOCAL: {
         NvmAffineType type,fields[NVM_AFFINE_MAX_STACK];uint16_t count;
         uint16_t source=in->operands[0].u16;
+        if (observes_owner(f,source))
+            return "I cannot unpack while an owner observation is on my stack";
         if (!nvm_affine_local_type(f->locals,source,&type) ||
             !nvm_affine_owned_local_fields(f->locals,source,fields,NVM_AFFINE_MAX_STACK,&count) ||
             f->count+count>NVM_AFFINE_MAX_STACK || !nvm_affine_take_local(f->locals,source,&type))
