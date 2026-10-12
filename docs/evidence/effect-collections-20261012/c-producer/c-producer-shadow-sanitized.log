@@ -1,0 +1,28 @@
+ld: warning: ignoring duplicate libraries: 'lib/libnano_compiler_inputs.a'
+case let a:array<int> =handle {perform E.pass([7])} with {pass a->{a}} return (at a 0)
+case return handle {perform E.pass([7])} with {pass a->{return (at a 0)}}
+case let a:array<int> =handle {perform E.pass((relay []))} with {pass a->{a}} return (array_length a)
+case let a:array<array<int>> =handle {perform E.pass([[], [7]])} with {pass a->{a}} return (at (at a 1) 0)
+case let a:array<Leaf> =handle {perform E.pass([])} with {pass a->{a}} return (array_length a)
+case return 7
+I cannot verify affine ownership at line 4, column 45: I reject resource-bearing collection elements — Handle
+I cannot verify affine ownership at line 4, column 45: I reject resource-bearing collection elements — Handle
+I cannot verify affine ownership at line 4, column 166: I reject resource-bearing collection elements — Handle
+case return 7
+I cannot verify affine ownership at line 4, column 45: I reject resource-bearing collection elements — Handle
+I cannot verify affine ownership at line 4, column 45: I reject resource-bearing collection elements — Handle
+I cannot verify affine ownership at line 4, column 155: I cannot use a moved value — a
+case let a:array<int> =handle {perform E.pass([7, 8])} with {pass a->{a}} (array_set a 0 9) let b:array<int> =(array_push a 10) let c:array<int> =(array_remove_at b 1) return (array_pop c)
+case let mut a:array<A> =handle {perform E.pass([] [])} with {pass a b->{a}} set a [A{value:7}] return (array_length a)
+case let a:array<Choice<int>> =handle {perform E.pass([Choice.Some{value:7}])} with {pass a->{a}} return (array_length a)
+Error at line 5, column 50: I require the declared operation's argument type for perform.
+Hint: Match the effect operation signature.
+case let value:Choice<int> =Choice.Some{value:7} let a:array<Choice<int>> =handle {perform E.pass([value])} with {pass a->{a}} return (array_length a)
+case let a:array<string> =handle {perform E.pass(["text"])} with {pass a->{a}} return (array_length a)
+case let a:array<float> =handle {perform E.pass([7.0])} with {pass a->{a}} assert (== (at a 0) 7.0) return 7
+case let a:array<bool> =handle {perform E.pass([true])} with {pass a->{a}} assert (at a 0) return 7
+case let pick:Pick=Pick.First{} let a:array<int> =match pick{First(v)=>{[]} Second(v)=>{[7]}} let b:array<int> =handle {perform E.pass(a)} with {pass a->{a}} return (array_length b)
+Warning at line 5, column 61: Unused variable 'v'
+Warning at line 5, column 61: Unused variable 'v'
+case let a:array<int> =handle {perform E.pass((empty))} with {pass a->{a}} return (array_length a)
+I passed 3605 C array producer checks.

@@ -2,6 +2,9 @@
 static NvmOwnershipEffectValue borrow_effect_type(BorrowCG *b,Type type,const TypeInfo *info,
                                                   const char *name,ASTNode *at,bool result) {
     NvmOwnershipEffectValue value={TAG_VOID,NVM_V2_NO_INDEX};
+    if(type==TYPE_ARRAY) {
+        value.tag=TAG_ARRAY;value.layout=borrow_array_type(b,info,at);return value;
+    }
     borrow_register_named_union(b,info,name,at);
     int instance=borrow_named_union_instance(b,info,name),record=borrow_record(b,name);
     if(instance>=0) {
@@ -38,8 +41,17 @@ static void borrow_effect_contracts(BorrowCG *b) {
         b->effects[order[j]].signature.key_idx<b->effects[order[j-1]].signature.key_idx;j--) {
         unsigned previous=order[j-1];order[j-1]=order[j];order[j]=previous;
     }
-    borrow_word(b,NVM_OWNERSHIP_EXTENSION_EFFECTS,2);borrow_word(b,NVM_OWNERSHIP_EXTENSION_REVISION_1,2);
+    borrow_word(b,NVM_OWNERSHIP_EXTENSION_EFFECTS,2);borrow_word(b,b->array_types.count?NVM_OWNERSHIP_EFFECT_CONSTRUCTOR_REVISION:NVM_OWNERSHIP_EXTENSION_REVISION_1,2);
     size_t size_at=b->contract_size;borrow_word(b,0,4);size_t payload=b->contract_size;
+    if(b->array_types.count) {
+        borrow_word(b,b->array_types.count,4);
+        for(unsigned i=0;i<b->array_types.count;i++)
+            borrow_descriptor(b,b->array_types.items[i].tag,0,b->array_types.items[i].layout);
+        borrow_word(b,b->array_site_count,4);
+        for(unsigned i=0;i<b->array_site_count;i++) {
+            borrow_word(b,b->array_sites[i].function,4);borrow_word(b,b->array_sites[i].pc,4);borrow_word(b,b->array_sites[i].element,4);
+        }
+    }
     borrow_word(b,b->effect_count,4);
     for(unsigned i=0;i<b->effect_count;i++) {
         NvmOwnershipEffect *effect=&b->effects[order[i]].signature;
@@ -60,6 +72,7 @@ static void borrow_dispose_patterns(BorrowCG *b) {
     }
 }
 static uint8_t borrow_effect_value(BorrowCG *b,ASTNode *node,uint8_t expected,uint32_t layout) {
+    if(expected==TAG_ARRAY)return borrow_array_expr(b,node,layout);
     if(expected==TAG_UNION)return borrow_union_expr(b,node,(int)layout);
     if(expected==TAG_STRUCT) {
         bool emitted=b->ordinary[layout]?borrow_ordinary(b,node,layout):borrow_owner(b,node,layout);
@@ -153,7 +166,7 @@ static uint8_t borrow_effect_expr(BorrowCG *b,ASTNode *node) {
         for(unsigned i=0;i<signature->parameter_count && !cg->had_error;i++) {
             NvmOwnershipEffectValue parameter=signature->parameters[i];
             uint8_t tag=borrow_effect_value(b,node->as.effect_op.args[i],parameter.tag,parameter.layout);
-            if(tag!=parameter.tag || ((tag==TAG_STRUCT || tag==TAG_UNION) && b->expression_layout!=parameter.layout))
+            if(tag!=parameter.tag || ((tag==TAG_STRUCT || tag==TAG_UNION || tag==TAG_ARRAY) && b->expression_layout!=parameter.layout))
                 borrow_error(b,node,"the exact positional operation argument");
         }
         borrow_dispose_patterns(b);
@@ -202,7 +215,7 @@ static uint8_t borrow_effect_expr(BorrowCG *b,ASTNode *node) {
         }
         uint8_t tag=borrow_effect_block(b,node->as.handle_expr.handler_bodies[i],signature->result.tag,signature->result.layout);
         if(!b->returned && !b->transferred) {
-            if(tag!=signature->result.tag || ((tag==TAG_STRUCT || tag==TAG_UNION) && b->expression_layout!=signature->result.layout))
+            if(tag!=signature->result.tag || ((tag==TAG_STRUCT || tag==TAG_UNION || tag==TAG_ARRAY) && b->expression_layout!=signature->result.layout))
                 borrow_error(b,node,"the exact resumed operation result");
             if(borrow_consumed(b,0,node))borrow_cleanup(b,0);
             emit_op(cg,OP_EFFECT_RESUME);

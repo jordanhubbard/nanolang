@@ -40,6 +40,9 @@ typedef struct {
     BorrowUnion unions[256];
     BorrowEffect effects[256];
     unsigned effect_count, handler_depth;
+    NvmOwnershipEffectTypes array_types;
+    struct { uint32_t function,pc,element; } array_sites[NVM_OWNERSHIP_MAX_ARRAY_CONSTRUCTORS];
+    unsigned array_site_count;
     ASTNode *globals[256];
     uint8_t global_tags[256];
     uint32_t global_layouts[256];
@@ -222,6 +225,9 @@ static uint8_t borrow_concrete_type(BorrowCG *b,const TypeInfo *info,uint32_t *l
     return borrow_type_info_tag(info);
 }
 static bool borrow_owned_type(BorrowCG *b,uint8_t tag,uint32_t layout) {
+    while(tag==TAG_ARRAY && layout<b->array_types.count) {
+        NvmOwnershipEffectValue element=b->array_types.items[layout];tag=element.tag;layout=element.layout;
+    }
     return (tag==TAG_STRUCT && layout<b->record_count && !b->ordinary[layout]) ||
         (tag==TAG_UNION && layout<b->union_count && b->unions[layout].owned);
 }
@@ -405,6 +411,7 @@ static int borrow_function_index(BorrowCG *b,const char *name) {
 }
 static uint8_t borrow_result_tag(BorrowCG *b,ASTNode *function) {
     if(borrow_named_union_instance(b,function->as.function.return_type_info,function->as.function.return_struct_type_name)>=0)return TAG_UNION;
+    if(b->effect_count && function->as.function.return_type==TYPE_ARRAY)return TAG_ARRAY;
     return function->as.function.return_type==TYPE_STRUCT?TAG_STRUCT:borrow_local_tag(function->as.function.return_type);
 }
 static bool borrow_owner(BorrowCG *b,ASTNode *value,unsigned layout);
@@ -415,6 +422,9 @@ static bool borrow_ordinary(BorrowCG *b,ASTNode *value,unsigned layout);
 static uint8_t borrow_match_expr(BorrowCG *b,ASTNode *n,uint8_t expected,uint32_t expected_layout);
 static void borrow_match_statement(BorrowCG *b,ASTNode *n,bool shadow);
 static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow);
+static uint8_t borrow_effect_value(BorrowCG *b,ASTNode *node,uint8_t expected,uint32_t layout);
+#include "borrow_array_codegen.inc"
+
 static bool borrow_declares_match_binding(ASTNode *n,const char *name) {
     if(!n || !name)return false;
     switch(n->type) {
@@ -597,7 +607,11 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
     if(borrow_union_literal(b,n,&normalized,owner,sizeof(owner)))return borrow_union_expr(b,&normalized,-1);
     if(n->type==AST_MATCH)return borrow_match_expr(b,n,TAG_VOID,NVM_V2_NO_INDEX);
     if(n->type==AST_UNION_CONSTRUCT)return borrow_union_expr(b,n,-1);
-    if(n->type==AST_ARRAY_LITERAL)return borrow_float_array(b,n,false);
+    if(n->type==AST_ARRAY_LITERAL)return b->effect_count?borrow_array_expr(b,n,NVM_V2_NO_INDEX):borrow_float_array(b,n,false);
+    if(b->effect_count && n->type==AST_CALL) {
+        uint8_t array_result;
+        if(borrow_array_builtin(b,n,&array_result))return array_result;
+    }
     if(n->type==AST_STRING) {
         if(!b->value_graph){borrow_error(b,n,"string literals only in a value-call graph");return TAG_VOID;}
         const char *raw=n->as.string_val;
@@ -819,6 +833,9 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
             int union_instance=borrow_named_union_instance(b,p->type_info,p->struct_type_name);
             if(union_instance>=0) {
                 if(borrow_union_expr(b,argument,union_instance)!=TAG_UNION)return TAG_VOID;
+            } else if(p->type==TYPE_ARRAY && b->effect_count) {
+                uint32_t type=borrow_array_type(b,p->type_info,argument);
+                if(type==NVM_V2_NO_INDEX || borrow_array_expr(b,argument,type)!=TAG_ARRAY)return TAG_VOID;
             } else if(p->type==TYPE_STRUCT) {
                 int layout=borrow_record(b,p->struct_type_name);
                 if(layout<0) {borrow_error(b,argument,"an exact declared owner parameter");return TAG_VOID;}
@@ -840,7 +857,7 @@ static uint8_t borrow_expr(BorrowCG *b,ASTNode *n) {
         borrow_dispose_patterns(b);
         emit_op(cg,OP_CALL,(uint32_t)target);
         uint8_t result=borrow_result_tag(b,function);
-        b->expression_layout=result==TAG_UNION?(uint32_t)borrow_named_union_instance(b,function->as.function.return_type_info,function->as.function.return_struct_type_name):
+        b->expression_layout=result==TAG_ARRAY?borrow_array_type(b,function->as.function.return_type_info,n):result==TAG_UNION?(uint32_t)borrow_named_union_instance(b,function->as.function.return_type_info,function->as.function.return_struct_type_name):
             (uint32_t)borrow_record(b,function->as.function.return_struct_type_name);
         return result;
     }
@@ -1063,13 +1080,14 @@ static uint8_t borrow_match_expr(BorrowCG *b,ASTNode *n,uint8_t expected,uint32_
             body=body->as.block.statements[body->as.block.count-1];
         }
         uint8_t tag=expected==TAG_UNION?borrow_union_expr(b,body,(int)expected_layout):
-            expected==TAG_STRUCT?(borrow_owner(b,body,expected_layout)?TAG_STRUCT:TAG_VOID):borrow_expr(b,body);
+            expected==TAG_STRUCT?(borrow_owner(b,body,expected_layout)?TAG_STRUCT:TAG_VOID):
+            expected==TAG_ARRAY?borrow_array_expr(b,body,expected_layout):borrow_expr(b,body);
         if(expected==TAG_STRUCT)b->expression_layout=expected_layout;
-        if(tag!=TAG_INT && tag!=TAG_FLOAT && tag!=TAG_BOOL && tag!=TAG_STRING && tag!=TAG_UNION && tag!=TAG_STRUCT) {
+        if(tag!=TAG_INT && tag!=TAG_FLOAT && tag!=TAG_BOOL && tag!=TAG_STRING && tag!=TAG_UNION && tag!=TAG_STRUCT && !(b->effect_count && tag==TAG_ARRAY)) {
             borrow_error(b,body,"one exact value-match result");break;
         }
         if(result==TAG_VOID){result=tag;result_layout=b->expression_layout;}
-        else if(result!=tag || ((tag==TAG_UNION || tag==TAG_STRUCT) && result_layout!=b->expression_layout)) {
+        else if(result!=tag || ((tag==TAG_UNION || tag==TAG_STRUCT || tag==TAG_ARRAY) && result_layout!=b->expression_layout)) {
             borrow_error(b,body,"one matching scalar or owned value-match result type");break;
         }
         if(has_join)borrow_same_owners(b,incoming_count,joined_live,joined_pending,n);
@@ -1294,7 +1312,13 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
             }
             int layout=borrow_record(b,n->as.let.type_name);
             int union_instance=borrow_named_union_instance(b,n->as.let.type_info,n->as.let.type_name);
-            if(union_instance>=0) {
+            if(b->effect_count && n->as.let.var_type==TYPE_ARRAY) {
+                uint32_t type=borrow_array_type(b,n->as.let.type_info,n);
+                if(type==NVM_V2_NO_INDEX || n->as.let.is_destructure || borrow_array_expr(b,n->as.let.value,type)!=TAG_ARRAY)break;
+                bool owned=borrow_owned_type(b,TAG_ARRAY,type);
+                int slot=borrow_slot(b,n->as.let.name,TAG_ARRAY,type,0,n->as.let.is_mut);
+                emit_op(cg,owned?OP_OWN_STORE_LOCAL:OP_STORE_LOCAL,slot);borrow_name_begin(b,(unsigned)slot,n->as.let.name);
+            } else if(union_instance>=0) {
                 if(n->as.let.is_destructure || borrow_union_expr(b,n->as.let.value,union_instance)!=TAG_UNION) {
                     if(!cg->had_error)borrow_error(b,n,"an exact concrete union binding without destructuring");
                     break;
@@ -1331,7 +1355,7 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 }
             } else {
                 uint8_t tag=borrow_expr(b,n->as.let.value),declared=borrow_local_tag(n->as.let.var_type);
-                if((tag==TAG_STRUCT || tag==TAG_UNION) && n->as.let.var_type==TYPE_UNKNOWN) {
+                if((tag==TAG_STRUCT || tag==TAG_UNION || (b->effect_count && tag==TAG_ARRAY)) && n->as.let.var_type==TYPE_UNKNOWN) {
                     bool owned=borrow_owned_type(b,tag,b->expression_layout);
                     int slot=borrow_slot(b,n->as.let.name,tag,b->expression_layout,0,n->as.let.is_mut);
                     emit_op(cg,owned?OP_OWN_STORE_LOCAL:OP_STORE_LOCAL,slot);borrow_name_begin(b,(unsigned)slot,n->as.let.name);continue;
@@ -1369,6 +1393,13 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 }
                 emit_op(cg,OP_STORE_GLOBAL,(uint32_t)global);continue;
             }
+            if(b->effect_count && b->tags[local]==TAG_ARRAY && !n->as.set.field_name) {
+                if(!b->mutable[local] || borrow_owned_type(b,TAG_ARRAY,b->layouts[local])) {
+                    borrow_error(b,n,"a mutable copyable array assignment");break;
+                }
+                if(borrow_array_expr(b,n->as.set.value,b->layouts[local])!=TAG_ARRAY)break;
+                emit_op(cg,OP_STORE_LOCAL,local);b->live[local]=true;continue;
+            }
             if(borrow_ordinary_local(b,(unsigned)local) || b->tags[local]==TAG_ARRAY) {borrow_error(b,n,"ordinary managed bindings without assignment");break;}
             if(!n->as.set.field_name && b->tags[local]==TAG_STRUCT) {
                 ASTNode *value=n->as.set.value;
@@ -1405,6 +1436,8 @@ static void borrow_body(BorrowCG *b,ASTNode *body,bool shadow) {
                 } else if(!borrow_owner(b,n->as.return_stmt.value,b->result_layout))break;
             } else if(b->result==TAG_UNION) {
                 if(borrow_union_expr(b,n->as.return_stmt.value,(int)b->result_layout)!=TAG_UNION)break;
+            } else if(b->result==TAG_ARRAY && b->effect_count) {
+                if(borrow_array_expr(b,n->as.return_stmt.value,b->result_layout)!=TAG_ARRAY)break;
             } else if(b->result==TAG_VOID) {
                 ASTNode *value=n->as.return_stmt.value;
                 if(value) {
@@ -1433,14 +1466,15 @@ static void borrow_function(BorrowCG *b,ASTNode *function,bool shadows,unsigned 
     b->current_function=index;b->current_source=function;if(b->value_graph)b->helper=function;
     b->result=index?borrow_result_tag(b,function):TAG_INT;
     b->result_layout=b->result==TAG_STRUCT?(uint32_t)borrow_record(b,function->as.function.return_struct_type_name):
-        b->result==TAG_UNION?(uint32_t)borrow_named_union_instance(b,function->as.function.return_type_info,function->as.function.return_struct_type_name):NVM_V2_NO_INDEX;cg->code_size=0;
+        b->result==TAG_UNION?(uint32_t)borrow_named_union_instance(b,function->as.function.return_type_info,function->as.function.return_struct_type_name):
+        b->result==TAG_ARRAY?borrow_array_type(b,function->as.function.return_type_info,function):NVM_V2_NO_INDEX;cg->code_size=0;
     if(index) {
         for(int i=0;i<function->as.function.param_count;i++) {
             Parameter *p=&function->as.function.params[i];
             int union_instance=borrow_named_union_instance(b,p->type_info,p->struct_type_name);
-            uint8_t tag=union_instance>=0?TAG_UNION:
+            uint8_t tag=b->effect_count && p->type==TYPE_ARRAY?TAG_ARRAY:union_instance>=0?TAG_UNION:
                 b->value_graph && p->type!=TYPE_STRUCT?borrow_parameter_tag(p->type):TAG_STRUCT;
-            uint32_t layout=union_instance>=0?(uint32_t)union_instance:(uint32_t)borrow_record(b,p->struct_type_name);
+            uint32_t layout=tag==TAG_ARRAY?borrow_array_type(b,p->type_info,function):union_instance>=0?(uint32_t)union_instance:(uint32_t)borrow_record(b,p->struct_type_name);
             borrow_slot(b,p->name,tag,layout,b->value_graph?0:p->type==TYPE_BORROW_MUT?2:1,false);
             borrow_name_begin(b,(unsigned)i,p->name);
         }
@@ -1502,11 +1536,15 @@ static void borrow_collect_unions(BorrowCG *b,ASTNode *n) {
             for(int i=0;i<n->as.unsafe_block.count;i++)borrow_collect_unions(b,n->as.unsafe_block.statements[i]);
             break;
         case AST_FUNCTION:
+            if(b->effect_count && n->as.function.return_type==TYPE_ARRAY)borrow_array_type(b,n->as.function.return_type_info,n);
+            for(int i=0;b->effect_count && i<n->as.function.param_count;i++)
+                if(n->as.function.params[i].type==TYPE_ARRAY)borrow_array_type(b,n->as.function.params[i].type_info,n);
             borrow_register_named_union(b,n->as.function.return_type_info,n->as.function.return_struct_type_name,n);
             for(int i=0;i<n->as.function.param_count;i++)borrow_register_named_union(b,n->as.function.params[i].type_info,n->as.function.params[i].struct_type_name,n);
             borrow_collect_unions(b,n->as.function.body);break;
         case AST_SHADOW:borrow_collect_unions(b,n->as.shadow.body);break;
         case AST_LET:
+            if(b->effect_count && n->as.let.var_type==TYPE_ARRAY)borrow_array_type(b,n->as.let.type_info,n);
             borrow_register_named_union(b,n->as.let.type_info,n->as.let.type_name,n);borrow_collect_unions(b,n->as.let.value);break;
         case AST_EFFECT_OP:
             borrow_effect_register(b,n->as.effect_op.effect_name,n->as.effect_op.op_name,n);
@@ -1751,9 +1789,10 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
             borrow_error(b,n,"only resource records, scalar unions, main, one helper and selected shadows");
     }
     for(unsigned p=0;p<b->program_count && !cg->had_error;p++)borrow_collect_unions(b,b->programs[p]);
+    if(b->effect_count)for(unsigned p=0;p<b->program_count && !cg->had_error;p++)borrow_collect_unions(b,b->programs[p]);
     b->value_graph=!has_borrow;b->consuming=b->value_graph;
     if(b->effect_count && (!b->value_graph || borrow_arrays(b)))
-        borrow_error(b,NULL,"effect signatures in my standalone value graph without ARRAY flow");
+        borrow_error(b,NULL,"effect signatures outside my private array-field profiles");
     if(b->global_count && (!b->value_graph || borrow_arrays(b)))
         borrow_error(b,NULL,"typed globals in the standalone owned value graph");
     for(unsigned g=0;g<b->global_count && !cg->had_error;g++) {
@@ -1788,7 +1827,7 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
         } else if(h->as.function.param_count<1 || !borrow_tag(h->as.function.return_type))borrow_error(b,h,"a scalar-result borrowed helper");
         for(int i=0;i<h->as.function.param_count && !cg->had_error;i++) {
             int layout=borrow_record(b,p[i].struct_type_name);
-            bool valid=b->value_graph?(borrow_parameter_tag(p[i].type) || borrow_named_union_instance(b,p[i].type_info,p[i].struct_type_name)>=0 ||
+            bool valid=b->value_graph?((b->effect_count && p[i].type==TYPE_ARRAY) || borrow_parameter_tag(p[i].type) || borrow_named_union_instance(b,p[i].type_info,p[i].struct_type_name)>=0 ||
                 (p[i].type==TYPE_STRUCT && layout>=0)):
                 ((p[i].type==TYPE_BORROW_SHARED || p[i].type==TYPE_BORROW_MUT) && layout>=0 && !b->ordinary[layout] && borrow_leaf(b,(unsigned)layout));
             if(!valid)borrow_error(b,h,"exact mode-zero scalar/owner or separate borrowed parameters");
@@ -1854,7 +1893,8 @@ static CodegenResult codegen_borrow_compile(ASTNode *program,Environment *env,Mo
             uint8_t parameters[8];
             for(unsigned j=0;j<f.arity;j++) {
                 Parameter *parameter=&source->as.function.params[j];
-                parameters[j]=borrow_named_union_instance(b,parameter->type_info,parameter->struct_type_name)>=0?TAG_UNION:
+                parameters[j]=b->effect_count && parameter->type==TYPE_ARRAY?TAG_ARRAY:
+                    borrow_named_union_instance(b,parameter->type_info,parameter->struct_type_name)>=0?TAG_UNION:
                     b->value_graph && parameter->type!=TYPE_STRUCT?borrow_parameter_tag(parameter->type):TAG_STRUCT;
             }
             if(!nvm_set_function_param_types(cg->module,i,parameters,f.arity))borrow_error(b,NULL,"exact positional parameter tags");

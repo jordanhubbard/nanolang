@@ -6811,3 +6811,14 @@ test-generic-binding-metadata: nano_virt nanoisa_dump nano_vm nvm2c
 test-units: test-owned-effect-c-source
 test-owned-effect-c-source: nano_virt nano_vm nvm2c
 	python3 -m unittest -v tests.test_owned_effect_c_source
+
+# I inspect typed-array producer facts without bypassing executable verification.
+$(OBJ_DIR)/nanovirt/codegen_effect_arrays.o: $(NANOVIRT_DIR)/codegen.c | $(OBJ_DIR)/nanovirt
+	$(CC) $(CFLAGS) -Dnvm_verify=effect_array_producer_verify -DNANOVIRT_TEST_CONTRACT_REALLOC -c $< -o $@
+.PHONY: test-effect-array-producer
+test-effect-array-producer: nano_virt $(OBJ_DIR)/nanovirt/codegen_effect_arrays.o $(filter-out $(OBJ_DIR)/nanovirt/codegen.o,$(NANOVIRT_OBJECTS)) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
+	$(CC) $(CFLAGS) -o $(OBJ_DIR)/test_effect_array_producer tests/nanovirt/test_effect_array_producer.c $(OBJ_DIR)/nanovirt/codegen_effect_arrays.o $(filter-out $(OBJ_DIR)/nanovirt/codegen.o,$(NANOVIRT_OBJECTS)) $(NANOVM_OBJECTS) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	$(OBJ_DIR)/test_effect_array_producer
+	python3 -m unittest -v tests.test_effect_array_producer
+
+test-units: test-effect-array-producer

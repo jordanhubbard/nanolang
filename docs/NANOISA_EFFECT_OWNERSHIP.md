@@ -179,3 +179,27 @@ does not prove instruction flow or grant execution. My [constructor evidence](ev
 checks transport, malformed metadata, exact affine flow and failure preservation.
 Both source producers still need to emit these bindings, and VM/native collection
 execution and cleanup remain unqualified.
+
+## My C producer integration
+
+My C source producer now interns exact array element descriptors and emits EFFECTS
+revision 3 when its owned effect graph contains typed arrays. I retain nested and
+nominal identities in operation signatures, function results/parameters, locals
+and empty-literal site bindings. Array values pass through calls, handlers, match
+results and copyable assignments. I lower exact literals and copyable get, length,
+push, set, pop and removal operations. I preserve the existing private array-field
+profiles and their separate admission restrictions.
+
+My [producer evidence](evidence/effect-collections-20261012/c-producer/README.md)
+inspects generated modules immediately before their existing verifier call. The
+test hook returns the real verifier result; it does not authorize execution or
+publish an otherwise rejected module. Public compilation still refuses at the
+collection runtime-cleanup gate and preserves prior output artifacts.
+
+This is partial source integration. Resource-bearing array annotations still fail
+my frontend ownership check. Contextual generic-union construction inside a
+performed array argument remains unresolved; an explicitly typed union local is
+a separate passing control. Array-bearing resource payloads, source array-new/fill
+and slice lowering in this profile, Nano producer parity, resource-element disposal
+and matched VM/native execution still need work. These checks do not qualify a
+fresh self-hosted compiler product or complete collection support.
