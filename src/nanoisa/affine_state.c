@@ -185,10 +185,10 @@ NvmAffineState *nvm_affine_handler_enter(const NvmAffineState *s,
     for (uint32_t i=0;i<s->ref_count;i++) if (s->refs[i].live) return NULL;
     NvmOwnershipEffect effect;
     if (nvm_ownership_effect(s->facts->module,key_idx,&effect)!=NVM_V2_OK ||
-        effect.parameter_count>s->facts->count-first) return NULL;
+        effect.parameter_count>s->facts->count-first || effect.result.tag==TAG_ARRAY) return NULL;
     for (uint16_t p=0;p<effect.parameter_count;p++) {
         NvmOwnershipEffectValue value=effect.parameters[p];
-        if (!same(s->facts->locals[first+p],(Slot){value.tag,0,value.layout})) return NULL;
+        if (value.tag==TAG_ARRAY || !same(s->facts->locals[first+p],(Slot){value.tag,0,value.layout})) return NULL;
     }
     NvmAffineState *arm=nvm_affine_state_clone(s);
     if (!arm) return NULL;

@@ -10,6 +10,7 @@
 #include "isa.h"
 #include "nvm2c.h"
 #include "affine_state.h"
+#include "affine_bytecode.h"
 #include "ownership_declaration_projection.h"
 
 static unsigned checks;
@@ -405,6 +406,8 @@ static void check_global_transport(void) {
     nvm_module_free(m);
 }
 
+#include "test_effect_array_contracts.inc"
+
 static void check_effect_transport(void) {
     AsmResult error;
     NvmModule *m=asm_assemble(".string operation \"Transfer.pass\"\n.function main 0 0 0 int 1\nPUSH_I64 0\nPERFORM operation 1\nRET\n.end\n",&error);
@@ -433,6 +436,8 @@ static void check_effect_transport(void) {
     slot(data,84,TAG_VOID,0,NVM_V2_NO_INDEX);
     slot(data,92,TAG_INT,0,NVM_V2_NO_INDEX);slot(data,100,TAG_STRING,0,NVM_V2_NO_INDEX);
     check_status(m,true,true);
+    NvmOwnershipEffectTypes element_types;
+    CHECK(nvm_ownership_effect_types(m,&element_types)==NVM_V2_OK && element_types.count==0);
     CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_OK);
     CHECK(effect.key_idx==key && effect.parameter_count==1 &&
           effect.result.tag==TAG_STRUCT && effect.result.layout==0 &&
@@ -440,6 +445,10 @@ static void check_effect_transport(void) {
     CHECK(nvm_ownership_effect(m,other,&effect)==NVM_V2_OK);
     CHECK(effect.parameter_count==2 && effect.result.tag==TAG_VOID &&
           effect.parameters[0].tag==TAG_INT && effect.parameters[1].tag==TAG_STRING);
+    /* I preserve revision-1 rejection and its diagnostic category. */
+    data[60]=TAG_ARRAY;
+    CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_ERR_SECTION_TYPE);
+    data[60]=TAG_STRUCT;
     /* I do not turn declarations into handler execution authority. */
     CHECK(!nvm_verify(m).ok);
     char diagnostic[256];CHECK(!nvm2c_emit(m,diagnostic,sizeof(diagnostic)));
@@ -518,6 +527,7 @@ static void check_effect_transport(void) {
 
 int main(int argc, char **argv) {
     check_effect_transport();
+    check_effect_array_contracts();
     check_global_transport();
     check_union_transport();
     check_concrete_union_instances();

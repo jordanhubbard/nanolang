@@ -11,6 +11,8 @@
 #define NVM_OWNERSHIP_EXTENSION_REVISION_1 1u
 #define NVM_OWNERSHIP_EXTENSION_GLOBALS 3u
 #define NVM_OWNERSHIP_EXTENSION_EFFECTS 4u
+#define NVM_OWNERSHIP_EFFECT_ARRAY_REVISION 2u
+#define NVM_OWNERSHIP_MAX_EFFECT_TYPES 256u
 #define NVM_OWNERSHIP_MAX_EFFECTS 256u
 #define NVM_OWNERSHIP_MAX_EFFECT_PARAMETERS 256u
 #define NVM_OWNERSHIP_MAX_GLOBALS 256u
@@ -37,6 +39,12 @@ typedef struct {
 } NvmOwnershipGlobal;
 
 typedef struct { uint8_t tag; uint32_t layout; } NvmOwnershipEffectValue;
+/* I encode ARRAY layout as an element-table index. Other descriptors retain
+ * their scalar NO_INDEX or exact nominal layout. ARRAY rows point backward. */
+typedef struct {
+    uint32_t count;
+    NvmOwnershipEffectValue items[NVM_OWNERSHIP_MAX_EFFECT_TYPES];
+} NvmOwnershipEffectTypes;
 typedef struct {
     uint32_t key_idx;
     uint16_t parameter_count;
@@ -50,6 +58,9 @@ typedef struct {
  * suspension, resumption or executable ownership authority by themselves. */
 NvmV2Result nvm_ownership_effect(const NvmModule *, uint32_t key_idx,
                                  NvmOwnershipEffect *out);
+/* I return the complete checked element table; revision 1 has zero entries.
+ * Failure leaves output unchanged. These facts grant no execution authority. */
+NvmV2Result nvm_ownership_effect_types(const NvmModule *, NvmOwnershipEffectTypes *out);
 
 /* I validate the entire contract before publishing global declarations. Slots
  * are dense and indexed by their row number. NULL/zero requests only the count;

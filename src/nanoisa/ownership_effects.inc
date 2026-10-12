@@ -2,9 +2,12 @@
  * EFFECTS revision 1: u32 count, then rows ordered by key string index:
  * u32 key, u16 parameter count, u16 reserved, result descriptor, parameters.
  * Each descriptor is u8 tag, u8 mode (zero), u16 reserved, u32 layout.
- * I transfer values here; borrowed continuations need a separate contract. */
+ * Revision 2 prefixes a count and backward-linked element descriptors. ARRAY
+ * layout indexes that table; nominal descriptors still index retained layouts.
+ * I retain declarations here; borrowed continuations need a separate contract. */
 static NvmV2Result effect_value_read(NvmV2Cursor *cursor,
         const NvmV2Layouts *layouts,const uint8_t *flags,bool result_value,
+        uint32_t earlier_types,bool arrays,
         NvmOwnershipEffectValue *out) {
     uint8_t mode;uint16_t reserved;NvmV2Result result;
     NvmOwnershipEffectValue value={0};
@@ -21,16 +24,27 @@ static NvmV2Result effect_value_read(NvmV2Cursor *cursor,
         uint16_t kind=value.tag==TAG_STRUCT?NVM_V2_LAYOUT_STRUCT:NVM_V2_LAYOUT_UNION;
         if (layouts->items[value.layout].kind!=kind ||
             !(flags[value.layout]&NVM_LAYOUT_COMPLETE)) return NVM_V2_ERR_SECTION_TYPE;
+    } else if (arrays && value.tag==TAG_ARRAY) {
+        if (value.layout>=earlier_types) return NVM_V2_ERR_INDEX_RANGE;
     } else return NVM_V2_ERR_SECTION_TYPE;
     *out=value;return NVM_V2_OK;
 }
 
 static NvmV2Result effects_read(NvmOwnershipExtensionView view,
         const NvmModule *module,const NvmV2Layouts *layouts,const uint8_t *flags,
-        uint32_t wanted,NvmOwnershipEffect *out) {
+        uint32_t wanted,NvmOwnershipEffect *out,NvmOwnershipEffectTypes *types_out) {
     NvmV2Cursor cursor;nvm_v2_cursor_init(&cursor,view.data,view.size);
     uint32_t count,keys[NVM_OWNERSHIP_MAX_EFFECTS];NvmV2Result result;
     NvmOwnershipEffect selected={0};bool found=false;
+    NvmOwnershipEffectTypes types={0};
+    if (view.revision==NVM_OWNERSHIP_EFFECT_ARRAY_REVISION) {
+        if ((result=nvm_v2_u32(&cursor,&types.count))!=NVM_V2_OK) return result;
+        if (!types.count || types.count>NVM_OWNERSHIP_MAX_EFFECT_TYPES)
+            return NVM_V2_ERR_INDEX_RANGE;
+        for (uint32_t i=0;i<types.count;i++)
+            if ((result=effect_value_read(&cursor,layouts,flags,false,i,true,&types.items[i]))!=NVM_V2_OK)
+                return result;
+    }
     const char *requested=wanted==NVM_V2_NO_INDEX?NULL:nvm_get_string(module,wanted);
     if (wanted!=NVM_V2_NO_INDEX && !requested) return NVM_V2_ERR_INDEX_RANGE;
     if ((result=nvm_v2_u32(&cursor,&count))!=NVM_V2_OK) return result;
@@ -50,10 +64,10 @@ static NvmV2Result effects_read(NvmOwnershipExtensionView view,
         for (uint32_t j=0;j<i;j++)
             if (!strcmp(key,nvm_get_string(module,keys[j]))) return NVM_V2_ERR_SECTION_TYPE;
         keys[i]=row.key_idx;
-        if ((result=effect_value_read(&cursor,layouts,flags,true,&row.result))!=NVM_V2_OK)
+        if ((result=effect_value_read(&cursor,layouts,flags,true,types.count,view.revision==NVM_OWNERSHIP_EFFECT_ARRAY_REVISION,&row.result))!=NVM_V2_OK)
             return result;
         for (uint16_t p=0;p<row.parameter_count;p++)
-            if ((result=effect_value_read(&cursor,layouts,flags,false,&row.parameters[p]))!=NVM_V2_OK)
+            if ((result=effect_value_read(&cursor,layouts,flags,false,types.count,view.revision==NVM_OWNERSHIP_EFFECT_ARRAY_REVISION,&row.parameters[p]))!=NVM_V2_OK)
                 return result;
         if (requested && nvm_get_string_len(module,wanted)==length &&
             !memcmp(requested,key,length)) { selected=row;found=true; }
@@ -61,5 +75,6 @@ static NvmV2Result effects_read(NvmOwnershipExtensionView view,
     if (cursor.pos!=cursor.size) return NVM_V2_ERR_SECTION_RANGE;
     if (wanted!=NVM_V2_NO_INDEX && !found) return NVM_V2_ERR_INDEX_RANGE;
     if (out && found) *out=selected;
+    if (types_out) *types_out=types;
     return NVM_V2_OK;
 }

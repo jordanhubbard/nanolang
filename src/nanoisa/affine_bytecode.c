@@ -314,6 +314,11 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         if (nvm_ownership_effect(module,in->operands[0].u32,&effect)!=NVM_V2_OK ||
             effect.parameter_count!=in->operands[1].u16 || f->count<effect.parameter_count)
             return "I require the exact retained performed signature";
+        if (effect.result.tag==TAG_ARRAY)
+            return "I require handler-aware array flow before resuming collection effects";
+        for (uint16_t p=0;p<effect.parameter_count;p++)
+            if (effect.parameters[p].tag==TAG_ARRAY)
+                return "I require handler-aware array flow before transferring collection effects";
         uint16_t first=f->count-effect.parameter_count;
         for (uint16_t p=0;p<effect.parameter_count;p++)
             if (!effect_value_matches(f->locals,f->stack[first+p],effect.parameters[p]))

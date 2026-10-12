@@ -32,3 +32,6 @@ continuations and the rest of 5.1 remain open.
 `baseline.py` records commands, statuses and logs in `baseline.json`. Its driver
 path names the retained compiler product; `inputs.json` pins both drivers and the
 sources used here. No product source changed in this baseline checkpoint.
+
+My later [array declaration checkpoint](contracts/README.md) retains exact
+element tables; executable integration remains open.

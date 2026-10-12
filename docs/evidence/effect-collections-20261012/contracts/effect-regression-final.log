@@ -1,0 +1,63 @@
+test_ambiguous_imported_operations (tests.test_owned_effect_c_source.OwnedEffectCSource.test_ambiguous_imported_operations) ... ok
+test_global_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_global_effects) ... ok
+test_handler_execution (tests.test_owned_effect_c_source.OwnedEffectCSource.test_handler_execution) ... ok
+test_imported_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_imported_resource_effects) ... ok
+test_source_resource_effects (tests.test_owned_effect_c_source.OwnedEffectCSource.test_source_resource_effects) ... ok
+test_execution_and_cleanup (tests.test_affine_effect_runtime.AffineEffectRuntime.test_execution_and_cleanup) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 26.798s
+
+OK
+resume: I check 2 VM allocation positions and reuse after every outcome.
+resume: 3 allocations, cleanup passed
+return: I check 2 VM allocation positions and reuse after every outcome.
+return: 3 allocations, cleanup passed
+nested: I check 2 VM allocation positions and reuse after every outcome.
+nested: 4 allocations, cleanup passed
+call_resume: I check 2 VM allocation positions and reuse after every outcome.
+call_resume: 5 allocations, cleanup passed
+call_return: I check 2 VM allocation positions and reuse after every outcome.
+call_return: 5 allocations, cleanup passed
+contained: I check 4 VM allocation positions and reuse after every outcome.
+contained: 6 allocations, cleanup passed
+capture: I check 2 VM allocation positions and reuse after every outcome.
+capture: 3 allocations, cleanup passed
+recursive: I check 19 VM allocation positions and reuse after every outcome.
+recursive: 18 allocations, cleanup passed
+contained_return: I check 4 VM allocation positions and reuse after every outcome.
+contained_return: 6 allocations, cleanup passed
+nested_return: I check 2 VM allocation positions and reuse after every outcome.
+nested_return: 4 allocations, cleanup passed
+void: I check 0 VM allocation positions and reuse after every outcome.
+void: 2 allocations, cleanup passed
+string: I check 0 VM allocation positions and reuse after every outcome.
+string: 4 allocations, cleanup passed
+owned_string: I check 2 VM allocation positions and reuse after every outcome.
+owned_string: 5 allocations, cleanup passed
+float: I check 0 VM allocation positions and reuse after every outcome.
+float: 2 allocations, cleanup passed
+borrow: I check 2 VM allocation positions and reuse after every outcome.
+borrow: 3 allocations, cleanup passed
+owned_union: I check 4 VM allocation positions and reuse after every outcome.
+owned_union: 4 allocations, cleanup passed
+recursive_borrow: I check 21 VM allocation positions and reuse after every outcome.
+recursive_borrow: 26 allocations, cleanup passed
+global_resume: I check 0 VM allocation positions and reuse after every outcome.
+global_resume: 2 allocations, cleanup passed
+global_string: I check 0 VM allocation positions and reuse after every outcome.
+global_string: 5 allocations, cleanup passed
+global_return: I check 0 VM allocation positions and reuse after every outcome.
+global_return: 4 allocations, cleanup passed
+global_recursive: I check 1 VM allocation positions and reuse after every outcome.
+global_recursive: 9 allocations, cleanup passed
+assertion: I check 2 VM allocation positions and reuse after every outcome.
+assertion: 3 allocations, cleanup passed
+unhandled: I check 2 VM allocation positions and reuse after every outcome.
+unhandled: 2 allocations, cleanup passed
+depth: I check 3065 VM allocation positions and reuse after every outcome.
+depth: 2048 allocations, cleanup passed
+global_assertion: I check 0 VM allocation positions and reuse after every outcome.
+global_assertion: 4 allocations, cleanup passed
+global_unhandled: I check 2 VM allocation positions and reuse after every outcome.
+global_unhandled: 3 allocations, cleanup passed

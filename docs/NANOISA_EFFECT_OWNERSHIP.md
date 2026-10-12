@@ -1,8 +1,8 @@
 # My effect ownership declarations
 
-I retain operation value-transfer signatures in ownership format version 3, extension kind 4 (`EFFECTS`), revision 1. This is a declaration prerequisite for resource-bearing effects. My affine analyzer now checks handler, perform and resume transitions against these declarations. I admit these instructions in my standalone owned value-call profile after matched VM/native cleanup qualification. My paired source producers now execute these bounded signatures; collection signatures and borrowed continuations remain incomplete.
+I retain operation value-transfer signatures in ownership format version 3, extension kind 4 (`EFFECTS`), revisions 1 and 2. This is a declaration prerequisite for resource-bearing effects. My affine analyzer now checks handler, perform and resume transitions against these declarations. I admit these instructions in my standalone owned value-call profile after matched VM/native cleanup qualification. My paired source producers execute the bounded revision-1 signatures. Revision 2 adds array declarations only; collection execution and borrowed continuations remain incomplete.
 
-My extension payload uses little-endian integers:
+My revision-1 extension payload uses little-endian integers:
 
 | Field | Encoding |
 | --- | --- |
@@ -13,7 +13,7 @@ My extension payload uses little-endian integers:
 | Result | One value descriptor |
 | Parameters | Parameter-count value descriptors in declaration order |
 
-A value descriptor contains a u8 value tag, u8 zero mode, u16 zero reserved word, and u32 layout index. Scalars and strings use `NO_INDEX`. A void result also uses `NO_INDEX`; a void parameter is invalid. Records and unions require an exact retained layout of the matching kind with COMPLETE authority. Resource flags propagate through existing aggregate declaration validation. Collection and borrowed-continuation signatures require additional contracts and are not admitted by this revision.
+A value descriptor contains a u8 value tag, u8 zero mode, u16 zero reserved word, and u32 layout index. Scalars and strings use `NO_INDEX`. A void result also uses `NO_INDEX`; a void parameter is invalid. Records and unions require an exact retained layout of the matching kind with COMPLETE authority. Resource flags propagate through existing aggregate declaration validation. Revision 1 does not describe collections. Borrowed-continuation signatures remain outside both revisions.
 
 Rows have strictly increasing key indexes. Keys must be nonempty strings without embedded zero bytes, and distinct indexes cannot repeat the same string identity. Lookup matches counted string contents, as operation dispatch matches names. Unsupported revisions, extension kinds, flags, tags, layouts, counts, trailing data and truncations fail validation.
 
@@ -78,3 +78,24 @@ My [integration evidence](evidence/effect-globals-20261012/integration/README.md
 qualifies ten combined source cases through both producers, 26 runtime/fault
 fixtures and a fresh compiler product. Collection signatures and borrowed
 continuations remain implementation requirements for the full release.
+
+## My retained array signatures
+
+EFFECTS revision 2 prefixes the revision-1 operation rows with a u32 element-type
+count (1 through 256) and that many eight-byte descriptors. Each row uses the same
+tag, zero mode, zero reserved and reference encoding. Scalars and STRING require
+NO_INDEX. STRUCT and UNION require a complete retained layout of the exact kind.
+An ARRAY row refers to an earlier element row; this forbids cycles and bounds
+nesting without recursive parsing. Operation ARRAY descriptors reference any row
+in this checked table, so distinct nominal leaves remain distinct at every depth.
+VOID is permitted only as an operation result, never as an element or argument.
+
+`nvm_ownership_effect_types` publishes the complete table only after validating
+all module ownership metadata. Revision 1 returns an empty table. Invalid rows,
+references, extents, revisions or unrelated extensions preserve the output.
+Binary and explicit unverified assembly transport retain the exact bytes.
+
+This is declaration support. My affine analysis explicitly refuses performed or
+handled ARRAY signatures until handler-aware element/ownership flow is connected.
+The private array projection, array-bearing resource layouts, producer wiring and
+VM/native cleanup remain implementation work; I have not granted array execution.
