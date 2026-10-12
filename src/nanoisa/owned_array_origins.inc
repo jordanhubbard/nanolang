@@ -92,7 +92,7 @@ static bool oq_vector(OQAnalysis *a,uint32_t count,uint32_t *start) {
     *start=a->field_count;a->field_count+=count;return true;
 }
 static bool oq_paths(OQAnalysis *a) {
-    NvmOwnedArrayLayoutCounts counts;
+    NvmOwnedArrayLayoutCounts counts={0};
     nvm_owned_array_layout_counts(a->proof->layouts,&counts);
     if(counts.leaf_paths) {
         a->paths=calloc(counts.leaf_paths,sizeof *a->paths);
@@ -100,10 +100,10 @@ static bool oq_paths(OQAnalysis *a) {
     }
     uint32_t used=0;
     for(uint32_t l=0;l<counts.layouts;l++) {
-        NvmOwnedArrayLayoutFact fact;nvm_owned_array_layout_fact(a->proof->layouts,l,&fact);
+        NvmOwnedArrayLayoutFact fact={0};nvm_owned_array_layout_fact(a->proof->layouts,l,&fact);
         a->array_start[l]=used;
         for(uint32_t p=0;p<fact.path_count;p++) {
-            NvmOwnedArrayLeafPath path;nvm_owned_array_leaf_path(a->proof->layouts,fact.path_start+p,&path);
+            NvmOwnedArrayLeafPath path={0};nvm_owned_array_leaf_path(a->proof->layouts,fact.path_start+p,&path);
             if(path.tag==TAG_ARRAY) {a->paths[used++]=fact.path_start+p;a->array_count[l]++;}
         }
     }
@@ -120,7 +120,7 @@ static bool oq_signature(OQAnalysis *a,OQType t) {
         t.tag==TAG_BOOL || t.tag==TAG_U8 || t.tag==TAG_STRING);
 }
 static bool oq_descriptors(OQAnalysis *a) {
-    NvmOwnedArrayTransport transport;nvm_owned_array_transport(a->proof->layouts,&transport);
+    NvmOwnedArrayTransport transport={0};nvm_owned_array_transport(a->proof->layouts,&transport);
     NvmV2Cursor c;uint32_t n,version;const uint8_t *unused;
     nvm_v2_cursor_init(&c,transport.ownership,transport.ownership_size);
     if(nvm_v2_u32(&c,&version)!=NVM_V2_OK || nvm_v2_u32(&c,&n)!=NVM_V2_OK ||
@@ -382,7 +382,7 @@ static bool oq_step(OQAnalysis *a,uint32_t index) {
     if(op==OP_ARR_LITERAL) {pops=in->operands[1].u16;pushes=1;}
     if(op==OP_OWN_PACK || op==OP_OWN_UNPACK_LOCAL) {
         uint32_t layout=op==OP_OWN_PACK?in->operands[0].u32:af->locals[in->operands[0].u16].layout;
-        NvmOwnedArrayLayoutFact fact;nvm_owned_array_layout_fact(a->proof->layouts,layout,&fact);
+        NvmOwnedArrayLayoutFact fact={0};nvm_owned_array_layout_fact(a->proof->layouts,layout,&fact);
         if(op==OP_OWN_PACK) {pops=(int)fact.field_count;pushes=1;}
         else {pops=0;pushes=(int)fact.field_count;}
     }
@@ -467,7 +467,7 @@ static bool oq_step(OQAnalysis *a,uint32_t index) {
         if(!oq_make_owner(a,layout,&result))return false;
         uint32_t next=0;
         for(uint16_t n=0;n<(uint16_t)pops;n++) {
-            NvmV2LayoutField field;nvm_owned_array_layout_field(a->proof->layouts,layout,n,&field);
+            NvmV2LayoutField field={0};nvm_owned_array_layout_field(a->proof->layouts,layout,n,&field);
             OQValue value=stack[base+n];
             if(!oq_type(a,value,(OQType){field.type_tag,field.nested_idx}))
                 return oq_stop(a,NVM_OWNER_ORIGIN_UNRESOLVED,f,i->pc,"I require exact owner constructor field facts.");

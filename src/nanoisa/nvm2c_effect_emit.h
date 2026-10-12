@@ -106,7 +106,7 @@ static int effect_emit_perform(Nvm2cBuf *b, const NvmModule *mod, Nvm2cStack *st
     if (count > st->sp) { nvm2c_fail(b, "I require native perform arguments"); return 0; }
     nvm2c_printf(b, "    {\n    nfx_value *arguments = calloc(%u, sizeof *arguments); if (!arguments) NVM2C_ABORT();\n", count ? count : 1);
     for (uint16_t i = count; i > 0; --i) {
-        uint8_t kind;
+        uint8_t kind = 0;
         int slot = stack_pop_kind(b, st, &kind);
         if (b->failed) return 0;
         char argument[32]; snprintf(argument, sizeof argument, "arguments[%u]", i - 1);
