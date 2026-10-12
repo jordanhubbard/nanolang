@@ -6,6 +6,9 @@ from "src_nano/compiler/nominal_bindings.nano" import nb_type
 
 let mut eb_visible_owners: array<int> = []
 let mut eb_visible_names: array<string> = []
+let mut eb_import_owners: array<int> = []
+let mut eb_import_names: array<string> = []
+let mut eb_import_targets: array<string> = []
 
 fn eb_key(name: string) -> string { return (+ "#effect:" name) }
 shadow eb_key { assert (== (eb_key "Ask") "#effect:Ask") }
@@ -48,6 +51,9 @@ shadow eb_visible {
 }
 
 pub fn eb_register(parser: Parser, prefix: string) -> bool {
+    set eb_import_owners []
+    set eb_import_names []
+    set eb_import_targets []
     set eb_visible_owners []
     set eb_visible_names []
     let mut i: int = 0
@@ -79,6 +85,44 @@ shadow eb_register {
     (mb_reset [])
 }
 
+fn eb_bind_import(owner: int, name: string, target: string) -> bool {
+    let key: string = (eb_key name)
+    let mut i: int = 0
+    while (< i (array_length eb_import_names)) {
+        if (and (== owner (at eb_import_owners i)) (== name (at eb_import_names i))) {
+            return (== target (at eb_import_targets i))
+        }
+        set i (+ i 1)
+    }
+    set eb_import_owners (array_push eb_import_owners owner)
+    set eb_import_names (array_push eb_import_names name)
+    set eb_import_targets (array_push eb_import_targets target)
+    (mb_add owner key target)
+    (eb_expose owner target)
+    return true
+}
+shadow eb_bind_import {
+    set eb_import_owners []
+    set eb_import_names []
+    set eb_import_targets []
+    (mb_reset [1, 10])
+    set eb_visible_owners []
+    set eb_visible_names []
+    assert (eb_bind_import 0 "Chosen" "first_E")
+    assert (eb_bind_import 0 "Chosen" "first_E")
+    assert (not (eb_bind_import 0 "Chosen" "second_E"))
+    assert (== (mb_lookup 0 (eb_key "Chosen")) "first_E")
+    assert (not (eb_visible "second_E" 1))
+    assert (eb_bind_import 1 "Chosen" "second_E")
+    assert (eb_visible "second_E" 10)
+    set eb_import_owners []
+    set eb_import_names []
+    set eb_import_targets []
+    (mb_reset [])
+    set eb_visible_owners []
+    set eb_visible_names []
+}
+
 pub fn eb_import(parser: Parser, imp: ASTImport, target_owner: int) -> bool {
     let owner: int = (mb_owner imp.line)
     let mut i: int = 0
@@ -95,8 +139,7 @@ pub fn eb_import(parser: Parser, imp: ASTImport, target_owner: int) -> bool {
                         if (< j (array_length imp.import_aliases)) {
                             if (!= (at imp.import_aliases j) "") { set alias (at imp.import_aliases j) }
                         }
-                        (mb_add owner (eb_key alias) target)
-                        (eb_expose owner target)
+                        if (not (eb_bind_import owner alias target)) { return false }
                     }
                     set j (+ j 1)
                 }
@@ -104,8 +147,7 @@ pub fn eb_import(parser: Parser, imp: ASTImport, target_owner: int) -> bool {
                 if item.is_pub {
                     let mut name: string = item.name
                     if (!= imp.module_name "") { set name (+ imp.module_name (+ "." name)) }
-                    (mb_add owner (eb_key name) target)
-                    (eb_expose owner target)
+                    if (not (eb_bind_import owner name target)) { return false }
                 }
             }
         }

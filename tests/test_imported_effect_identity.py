@@ -102,3 +102,19 @@ fn main()->int{return handle {(lib.send)} with {ask n->{n}}}''', accepted=False)
         for argument, resumed in [('right.Point{x:7}', 'p'), ('left.Point{x:7}', 'right.Point{x:7}')]:
             with self.subTest(argument=argument, resumed=resumed):
                 self.check(files, 'module "left.nano" as left\nmodule "right.nano" as right\nfn main()->int{let a:left.Point=handle {perform left.E.left_op('+argument+')} with {left_op p->{'+resumed+'}} return a.x}', accepted=False)
+
+    def test_conflicting_aliases_preserve_output(self):
+        self.check({'left.nano': 'pub effect E{left_op:int->int}',
+                    'right.nano': 'pub effect E{right_op:int->int}'},
+                   'from "left.nano" import E as Chosen\nfrom "right.nano" import E as Chosen\nfn main()->int{return 7}', accepted=False)
+
+    def test_repeated_same_target_alias(self):
+        self.check({'lib.nano': PUBLIC}, 'from "lib.nano" import E as Chosen\nfrom "lib.nano" import E as Chosen\nfn main()->int{return handle {perform Chosen.ask(7)} with {ask n->{n}}}')
+
+    def test_conflicting_wildcards_preserve_output(self):
+        self.check({'left.nano': 'pub effect E{left_op:int->int}',
+                    'right.nano': 'pub effect E{right_op:int->int}'},
+                   'from "left.nano" import *\nfrom "right.nano" import *\nfn main()->int{return 7}', accepted=False)
+
+    def test_local_declaration_shadows_import_name(self):
+        self.check({'lib.nano': PUBLIC}, 'from "lib.nano" import E as Chosen\neffect Chosen{local_op:int->int}\nfn main()->int{return handle {perform Chosen.local_op(7)} with {local_op n->{n}}}')

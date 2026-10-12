@@ -1,0 +1,5 @@
+I cannot verify affine ownership at line 5, column 58: resource remains live at scope exit — h
+I cannot verify affine ownership at line 5, column 66: resource remains live at scope exit — h
+I cannot verify affine ownership at line 5, column 88: this boundary needs ownership lowering — h
+I cannot verify affine ownership at line 5, column 119: resource remains live at scope exit — h
+error: type check failed

@@ -1,0 +1,49 @@
+test_arrays_and_tuples (tests.test_generic_binding_metadata.GenericBindingMetadata.test_arrays_and_tuples) ... ok
+test_callable_binding (tests.test_generic_binding_metadata.GenericBindingMetadata.test_callable_binding) ... ok
+test_contextual_callable_reuses_direct_instance (tests.test_generic_binding_metadata.GenericBindingMetadata.test_contextual_callable_reuses_direct_instance) ... ok
+test_imported_callable_result_mismatch_preserves_output (tests.test_generic_binding_metadata.GenericBindingMetadata.test_imported_callable_result_mismatch_preserves_output) ... ok
+test_imported_declaration_origins (tests.test_generic_binding_metadata.GenericBindingMetadata.test_imported_declaration_origins) ... ok
+test_imported_nominal_types_remain_distinct (tests.test_generic_binding_metadata.GenericBindingMetadata.test_imported_nominal_types_remain_distinct) ... ok
+test_imported_specialized_returned_captures (tests.test_generic_binding_metadata.GenericBindingMetadata.test_imported_specialized_returned_captures) ... ok
+test_independent_record_captures_share_specialization (tests.test_generic_binding_metadata.GenericBindingMetadata.test_independent_record_captures_share_specialization) ... ok
+test_multiple_type_variables (tests.test_generic_binding_metadata.GenericBindingMetadata.test_multiple_type_variables) ... ok
+test_nested_body_is_not_a_second_specialization (tests.test_generic_binding_metadata.GenericBindingMetadata.test_nested_body_is_not_a_second_specialization) ... ok
+test_nominal_and_generic_union_bindings (tests.test_generic_binding_metadata.GenericBindingMetadata.test_nominal_and_generic_union_bindings) ... ok
+test_scalars_and_reused_instances (tests.test_generic_binding_metadata.GenericBindingMetadata.test_scalars_and_reused_instances) ... ok
+test_specialized_callable_result_mismatch_preserves_output (tests.test_generic_binding_metadata.GenericBindingMetadata.test_specialized_callable_result_mismatch_preserves_output) ... ok
+test_specialized_grandparent_capture (tests.test_generic_binding_metadata.GenericBindingMetadata.test_specialized_grandparent_capture) ... ok
+test_specialized_named_recursive_capture (tests.test_generic_binding_metadata.GenericBindingMetadata.test_specialized_named_recursive_capture) ... ok
+test_specialized_nested_parameters (tests.test_generic_binding_metadata.GenericBindingMetadata.test_specialized_nested_parameters) ... ok
+test_specialized_returned_captures (tests.test_generic_binding_metadata.GenericBindingMetadata.test_specialized_returned_captures) ... ok
+test_anonymous_capture (tests.test_function_purity_metadata.FunctionPurityMetadata.test_anonymous_capture) ... ok
+test_declared_and_undeclared_purity (tests.test_function_purity_metadata.FunctionPurityMetadata.test_declared_and_undeclared_purity) ... ok
+test_generic_pure_refusal_preserves_prior_artifact (tests.test_function_purity_metadata.FunctionPurityMetadata.test_generic_pure_refusal_preserves_prior_artifact) ... ok
+test_generic_specialization (tests.test_function_purity_metadata.FunctionPurityMetadata.test_generic_specialization) ... ok
+test_imported_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_imported_declarations) ... ok
+test_imported_same_name_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_imported_same_name_declarations) ... ok
+test_nested_and_captured_functions (tests.test_function_purity_metadata.FunctionPurityMetadata.test_nested_and_captured_functions) ... ok
+test_transitive_imported_same_name_declarations (tests.test_function_purity_metadata.FunctionPurityMetadata.test_transitive_imported_same_name_declarations) ... ok
+test_array_and_callable_payloads (tests.test_generic_union_parameters.GenericUnionParameters.test_array_and_callable_payloads) ... ok
+test_imported_union_and_generic_function (tests.test_generic_union_parameters.GenericUnionParameters.test_imported_union_and_generic_function) ... ok
+test_mismatched_instances_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_mismatched_instances_preserve_output) ... ok
+test_nested_and_multiple_parameters (tests.test_generic_union_parameters.GenericUnionParameters.test_nested_and_multiple_parameters) ... ok
+test_ordinary_union_identity (tests.test_generic_union_parameters.GenericUnionParameters.test_ordinary_union_identity) ... ok
+test_retained_failures (tests.test_generic_union_parameters.GenericUnionParameters.test_retained_failures) ... ok
+test_scalar_instances_and_empty_variants (tests.test_generic_union_parameters.GenericUnionParameters.test_scalar_instances_and_empty_variants) ... ok
+test_union_result_boundaries_preserve_output (tests.test_generic_union_parameters.GenericUnionParameters.test_union_result_boundaries_preserve_output) ... ok
+test_callback_argument (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_callback_argument) ... ok
+test_distinct_nominal_tuple_contexts (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_distinct_nominal_tuple_contexts) ... ok
+test_imported_alias_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_imported_alias_callback) ... ok
+test_inconsistent_context_preserves_output (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_inconsistent_context_preserves_output) ... ok
+test_local_multiple_instances (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_local_multiple_instances) ... ok
+test_nested_tuple_callable_dependencies (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_nested_tuple_callable_dependencies) ... ok
+test_nominal_and_tuple_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_nominal_and_tuple_context) ... ok
+test_reassigned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_reassigned_callback) ... ok
+test_returned_callback (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_returned_callback) ... ok
+test_structural_array_context (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_structural_array_context) ... ok
+test_tail_and_indirect_callback_arguments (tests.test_contextual_generic_functions.ContextualGenericFunctions.test_tail_and_indirect_callback_arguments) ... ok
+
+----------------------------------------------------------------------
+Ran 44 tests in 17.527s
+
+OK

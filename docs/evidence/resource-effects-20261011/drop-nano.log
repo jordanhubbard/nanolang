@@ -1,0 +1,5 @@
+NSType checking failed
+Diagnostics:
+  [E0036] I cannot verify ownership: this expression still needs ownership lowering: node 42 (:0:0)
+  [E0036] I cannot verify ownership: resource remains live at scope exit: h (/private/tmp/nl51-resource-effects/drop.nano:5:16)
+  [E0036] I cannot verify ownership: resource remains live at scope exit: k (/private/tmp/nl51-resource-effects/drop.nano:5:45)

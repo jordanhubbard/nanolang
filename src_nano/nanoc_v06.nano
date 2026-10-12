@@ -1215,7 +1215,7 @@ fn bind_merged_functions(parser: Parser, merge: MergeResult) -> bool {
             return false
         }
         (nb_import parser imp target_owner)
-        if (not (eb_import parser imp target_owner)) { (println "I cannot import a private effect") return false }
+        if (not (eb_import parser imp target_owner)) { (println "I cannot import a private or conflicting effect") return false }
         set global 0
         while (< global (parser_get_let_count parser)) {
             let declaration: ASTLet = (parser_get_let parser global)
