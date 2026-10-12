@@ -219,7 +219,9 @@ static void instruction_facts(void) {
 }
 #include "test_affine_globals.inc"
 
+#include "affine_effect_fixture.h"
 int main(int argc,char **argv) {
+    effect_edges();
     check_global_flow();
     if(argc==3){native_output=argv[1];module_output=argv[2];}
     else CHECK(argc==1);

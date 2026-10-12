@@ -13,6 +13,13 @@ typedef struct NvmAffineState NvmAffineState;
 NvmAffineState *nvm_affine_state_create(const NvmModule *module,
                                        uint32_t function, uint32_t references);
 NvmAffineState *nvm_affine_state_clone(const NvmAffineState *state);
+/* I derive an arm activation from its lexical state and retained signature.
+ * Parameters occupy fresh activation slots; earlier resource places cannot be
+ * read or reinitialized through captures. Failure preserves the lexical state.
+ * These local transitions do not establish bytecode or runtime admission. */
+NvmAffineState *nvm_affine_handler_enter(const NvmAffineState *state,
+                                         uint32_t key_idx,uint16_t first);
+bool nvm_affine_can_suspend(const NvmAffineState *state);
 void nvm_affine_state_free(NvmAffineState *state);
 /* I expose the declaration boundary for consumers lacking union transfers. */
 bool nvm_affine_has_complete_unions(const NvmAffineState *state);
@@ -56,6 +63,7 @@ bool nvm_affine_scalar_field(const NvmAffineState *state, uint16_t local,
                               uint16_t field, uint8_t *tag);
 bool nvm_affine_can_exit_scalar(const NvmAffineState *state, uint8_t tag);
 typedef struct { uint8_t tag; uint32_t layout; } NvmAffineType;
+bool nvm_affine_can_resume(const NvmAffineState *state,NvmAffineType result);
 #define NVM_AFFINE_UNKNOWN_VARIANT UINT16_MAX
 /* These transfer APIs exchange an exact record token with the bytecode stack.
  * The stack analysis must prohibit duplication, loss and incompatible joins. */

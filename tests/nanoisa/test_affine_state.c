@@ -247,7 +247,72 @@ static void caller_binding_checks(void) {
     CHECK(nvm_affine_region_end(caller));consume_pair(caller);
     nvm_affine_state_free(before);nvm_affine_state_free(caller);nvm_module_free(m);
 }
+static void effect_handler_states(void) {
+    NvmModule *m=fixture();uint32_t key=nvm_add_string(m,"Transfer.pass",13);
+    uint8_t *data=realloc(m->ownership_data,160);CHECK(data);m->ownership_data=data;
+    memset(data+112,0,48);m->ownership_size=160;word(data,3);
+    word(data+112,4);word(data+120,1);data[124]=NVM_OWNERSHIP_EXTENSION_EFFECTS;
+    data[126]=1;word(data+128,28);word(data+132,1);word(data+136,key);data[140]=1;
+    slot(data+144,TAG_STRUCT,0,0);slot(data+152,TAG_STRUCT,0,0);
+    NvmAffineState *caller=nvm_affine_state_create(m,0,8);CHECK(caller);
+    CHECK(nvm_affine_can_suspend(caller));
+    CHECK(!nvm_affine_can_resume(caller,(NvmAffineType){TAG_STRUCT,0}));
+    uint16_t scalar_local=0;
+    CHECK(nvm_affine_scalar_define(caller,0));CHECK(nvm_affine_pack(caller,2,&scalar_local,1));
+    CHECK(!nvm_affine_can_suspend(caller));
+    NvmAffineState *before=nvm_affine_state_clone(caller);CHECK(before);
+    CHECK(!nvm_affine_handler_enter(caller,key,7));
+    CHECK(!nvm_affine_handler_enter(caller,key,8));
+    CHECK(!nvm_affine_handler_enter(caller,UINT32_MAX,3));
+    CHECK(nvm_affine_state_equal(caller,before));
+    NvmAffineState *arm=nvm_affine_handler_enter(caller,key,3);CHECK(arm);
+    CHECK(nvm_affine_state_equal(caller,before));
+    uint8_t tag,mode;NvmAffineType moved;
+    CHECK(nvm_affine_local_info(arm,0,&tag,&mode) && tag==TAG_INT && mode==0);
+    CHECK(!nvm_affine_local_info(arm,2,&tag,&mode));
+    NO_CHANGE(arm,nvm_affine_put_local(arm,2,(NvmAffineType){TAG_STRUCT,0}));
+    NO_CHANGE(arm,nvm_affine_take_local(arm,2,&moved));
+    CHECK(!nvm_affine_local_info(arm,4,&tag,&mode));
+    CHECK(nvm_affine_local_info(arm,3,&tag,&mode) && tag==TAG_STRUCT);
+    CHECK(!nvm_affine_can_resume(arm,(NvmAffineType){TAG_STRUCT,0}));
+    CHECK(!nvm_affine_can_exit(arm,UINT16_MAX));
+    bool changed=true;
+    CHECK(!nvm_affine_state_meet_initialization(arm,caller,&changed) && !changed);
+    CHECK(!nvm_affine_handler_enter(arm,key,2));
+    NvmAffineState *nested=nvm_affine_handler_enter(arm,key,4);CHECK(nested);
+    CHECK(!nvm_affine_take_local(nested,3,&moved));
+    CHECK(nvm_affine_take_local(nested,4,&moved));
+    CHECK(nvm_affine_can_resume(nested,moved));nvm_affine_state_free(nested);
+    CHECK(nvm_affine_take_local(arm,3,&moved));
+    CHECK(moved.tag==TAG_STRUCT && moved.layout==0);
+    CHECK(nvm_affine_can_resume(arm,moved));
+    CHECK(!nvm_affine_can_resume(arm,(NvmAffineType){TAG_STRUCT,2}));
+    CHECK(!nvm_affine_can_resume(arm,(NvmAffineType){TAG_VOID,NVM_V2_NO_INDEX}));
+    CHECK(nvm_affine_can_exit(arm,UINT16_MAX));
+    CHECK(nvm_affine_region_begin(arm));CHECK(!nvm_affine_can_resume(arm,moved));
+    CHECK(!nvm_affine_handler_enter(arm,key,4));CHECK(nvm_affine_region_end(arm));
+    CHECK(nvm_affine_can_resume(arm,moved));
+    CHECK(nvm_affine_region_begin(caller));
+    CHECK(nvm_affine_borrow(caller,0,2,NULL,0, NVM_REFERENCE_SHARED));
+    CHECK(!nvm_affine_can_suspend(caller));CHECK(!nvm_affine_handler_enter(caller,key,3));
+    CHECK(nvm_affine_region_end(caller));CHECK(nvm_affine_state_equal(caller,before));
+#ifdef AFFINE_ALLOCATION_TEST
+    allocation_attempts=0;
+    nested=nvm_affine_handler_enter(caller,key,3);CHECK(nested);
+    unsigned attempts=allocation_attempts;nvm_affine_state_free(nested);
+    for(unsigned i=1;i<=attempts;i++) {
+        allocation_attempts=0;fail_at=i;
+        nested=nvm_affine_handler_enter(caller,key,3);fail_at=0;
+        CHECK(!nested);CHECK(nvm_affine_state_equal(caller,before));
+    }
+#endif
+    nvm_affine_state_free(arm);nvm_affine_state_free(before);
+    CHECK(nvm_affine_take_local(caller,2,&moved));CHECK(nvm_affine_can_suspend(caller));
+    nvm_affine_state_free(caller);nvm_module_free(m);
+}
+
 int main(void) {
+    effect_handler_states();
     owned_union_transfers();
     scalar_initialization_meets();
     caller_binding_checks();

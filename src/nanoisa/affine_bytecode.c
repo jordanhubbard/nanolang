@@ -14,6 +14,8 @@ typedef struct {
     uint16_t variant;
     uint64_t excluded[(NVM_OWNERSHIP_MAX_VARIANTS+63u)/64u];
 } Value;
+#define AFFINE_MAX_HANDLERS 64u
+typedef struct { uint32_t key, site; } Handler;
 typedef struct {
     NvmAffineState *locals;
     Value *stack;
@@ -23,6 +25,9 @@ typedef struct {
     /* Four-bit relation: bit (2*input + current) describes initialization.
      * Input is the state at function entry; current is the state here. */
     uint8_t globals[NVM_OWNERSHIP_MAX_GLOBALS];
+    uint16_t handler_count, handler_floor;
+    uint32_t activation;
+    Handler handlers[AFFINE_MAX_HANDLERS];
 } Frame;
 static void frame_free(Frame *frame) {
     if (!frame) return;
@@ -36,6 +41,9 @@ static Frame *frame_clone(const Frame *from) {
     out->count=from->count;
     out->global_count=from->global_count;
     memcpy(out->globals,from->globals,from->global_count);
+    out->handler_count=from->handler_count;out->handler_floor=from->handler_floor;
+    out->activation=from->activation;
+    memcpy(out->handlers,from->handlers,from->handler_count*sizeof(*from->handlers));
     if (out->count) {
         out->stack=malloc(out->count*sizeof(*out->stack));
         if (!out->stack) {frame_free(out);return NULL;}
@@ -113,6 +121,8 @@ typedef struct {
     NvmAffineInstructionFact *facts;
     uint8_t status[NVM_OWNED_MAX_FUNCTIONS];
     NvmAffineAnalysis results[NVM_OWNED_MAX_FUNCTIONS];
+    uint16_t escape_count[NVM_OWNED_MAX_FUNCTIONS];
+    uint32_t escapes[NVM_OWNED_MAX_FUNCTIONS][NVM_OWNERSHIP_MAX_EFFECTS];
 } AnalysisCalls;
 
 bool nvm_affine_value_call_graph(const NvmModule *m) {
@@ -182,12 +192,13 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
 static bool supported(uint8_t op,bool value_graph) {
     switch(op) {
     case OP_HALT: case OP_CALL: case OP_CALL_REF: case OP_MATCH_TAG:
+    case OP_HANDLER_PUSH: case OP_HANDLER_POP: case OP_PERFORM: case OP_EFFECT_RESUME:
     case OP_BORROW_PATH_SHARED: case OP_BORROW_PATH_EXCLUSIVE:
     case OP_REBORROW_SHARED: case OP_REBORROW_EXCLUSIVE:
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
-    case OP_NOP: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_F64: case OP_PUSH_BOOL:
+    case OP_NOP: case OP_PUSH_VOID: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_F64: case OP_PUSH_BOOL:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_AGG_PACK: case OP_AGG_GET: case OP_AGG_TAG: case OP_STRUCT_GET:
     case OP_ADD: case OP_SUB: case OP_MUL:
@@ -203,6 +214,31 @@ static bool supported(uint8_t op,bool value_graph) {
     default:return false;
     }
 }
+static bool effect_value_matches(const NvmAffineState *state,Value value,
+                                   NvmOwnershipEffectValue declared) {
+    NvmAffineType type={declared.tag,declared.layout};
+    return !value.observation && value.tag==type.tag &&
+        value.owned==nvm_affine_type_is_owned(state,type) &&
+        ((type.tag!=TAG_STRUCT && type.tag!=TAG_UNION) || value.layout==type.layout);
+}
+static bool effect_key_equal(const NvmModule *module,uint32_t a,uint32_t b) {
+    const char *left=nvm_get_string(module,a),*right=nvm_get_string(module,b);
+    return left && right && nvm_get_string_len(module,a)==nvm_get_string_len(module,b) &&
+        !strcmp(left,right);
+}
+static bool effect_escape(AnalysisCalls *calls,const NvmModule *module,
+                            uint32_t function,const Frame *frame,uint32_t key) {
+    for (uint16_t i=0;i<frame->handler_count;i++)
+        if (effect_key_equal(module,key,frame->handlers[i].key)) return true;
+    if (function>=NVM_OWNED_MAX_FUNCTIONS) return false;
+    uint16_t *count=&calls->escape_count[function];
+    for (uint16_t i=0;i<*count;i++)
+        if (effect_key_equal(module,key,calls->escapes[function][i])) return true;
+    if (*count==NVM_OWNERSHIP_MAX_EFFECTS) return false;
+    calls->escapes[function][(*count)++]=key;
+    return true;
+}
+
 static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module,uint32_t function,AnalysisCalls *calls) {
     uint8_t op=in->opcode,tag=TAG_VOID,mode;
     uint16_t local;
@@ -230,6 +266,16 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         }
         NvmAffineAnalysis call=analyze(module,target,NULL,0,calls);
         if (!call.ok) return "I require complete consuming-helper owner resolution";
+        if (calls->escape_count[target]) {
+            if (!nvm_affine_can_suspend(f->locals))
+                return "I cannot suspend live local owners across an escaping effect call";
+            for (uint16_t i=0;i<f->count-count;i++)
+                if (f->stack[i].owned || f->stack[i].observation)
+                    return "I cannot suspend staged owners across an escaping effect call";
+            for (uint16_t i=0;i<calls->escape_count[target];i++)
+                if (!effect_escape(calls,module,function,f,calls->escapes[target][i]))
+                    return "I cannot retain escaping operation identities";
+        }
         for (uint32_t g=0;g<calls->global_count;g++) {
             global_require(f,calls,function,g,calls->global_allowed[target][g]);
             f->globals[g]=global_compose(f->globals[g],calls->global_returns[target][g]);
@@ -252,6 +298,37 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             return "I require a single scalar reference-call result";
         break;
     }
+    case OP_HANDLER_PUSH: return NULL; /* I bind both control-flow edges below. */
+    case OP_HANDLER_POP: {
+        uint16_t count=in->operands[0].u16;
+        if (count>f->handler_count-f->handler_floor)
+            return "I cannot pop absent or inherited handlers";
+        f->handler_count-=count;return NULL;
+    }
+    case OP_PERFORM: {
+        NvmOwnershipEffect effect;
+        if (nvm_ownership_effect(module,in->operands[0].u32,&effect)!=NVM_V2_OK ||
+            effect.parameter_count!=in->operands[1].u16 || f->count<effect.parameter_count)
+            return "I require the exact retained performed signature";
+        uint16_t first=f->count-effect.parameter_count;
+        for (uint16_t p=0;p<effect.parameter_count;p++)
+            if (!effect_value_matches(f->locals,f->stack[first+p],effect.parameters[p]))
+                return "I require exact positional effect argument ownership";
+        for (uint16_t p=0;p<first;p++)
+            if (f->stack[p].owned || f->stack[p].observation)
+                return "I cannot abandon a staged owner across an effect";
+        if (!nvm_affine_can_suspend(f->locals))
+            return "I cannot abandon a local owner or borrow across an effect";
+        if (!effect_escape(calls,module,function,f,effect.key_idx))
+            return "I cannot retain escaping operation identities";
+        f->count=first;
+        NvmAffineType type={effect.result.tag,effect.result.layout};
+        return push(f,(Value){.tag=type.tag,.layout=type.layout,.root=UINT16_MAX,
+                              .owned=nvm_affine_type_is_owned(f->locals,type),
+                              .variant=NVM_AFFINE_UNKNOWN_VARIANT})?NULL:
+            "I cannot retain a resumed effect value";
+    }
+    case OP_PUSH_VOID:tag=TAG_VOID;break;
     case OP_PUSH_I64:tag=TAG_INT;break;
     case OP_PUSH_U8:tag=TAG_U8;break;
     case OP_PUSH_F64:tag=TAG_FLOAT;break;
@@ -594,6 +671,12 @@ static bool propagate(Frame **frames,uint32_t target,const Frame *state,Worklist
                        const char **error) {
     bool changed=true;
     if (frames[target]) {
+        if (frames[target]->handler_count!=state->handler_count ||
+            frames[target]->handler_floor!=state->handler_floor ||
+            frames[target]->activation!=state->activation ||
+            memcmp(frames[target]->handlers,state->handlers,state->handler_count*sizeof(*state->handlers))) {
+            *error="I require identical handler context at every control-flow join";return false;
+        }
         bool stack_changed=false,locals_changed=false;
         if (!stack_meet(frames[target],state,&stack_changed) ||
             !nvm_affine_state_meet_initialization(frames[target]->locals,state->locals,&locals_changed)) {
@@ -679,6 +762,33 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
     }
     for (uint32_t i=0;i<count;i++) {
         const DecodedInstruction *in=&decoded.instructions[i].instruction;
+        if (in->opcode==OP_HANDLER_PUSH || in->opcode==OP_HANDLER_POP ||
+            in->opcode==OP_PERFORM || in->opcode==OP_EFFECT_RESUME) {
+            if (calls->global_count) {
+                nvm_affine_state_free(initial);error="I require effect-aware global flow before combining these contracts";goto done;
+            }
+        }
+        if (in->opcode==OP_HANDLER_PUSH || in->opcode==OP_PERFORM) {
+            NvmOwnershipEffect effect;
+            uint16_t arity=in->operands[in->opcode==OP_HANDLER_PUSH?3:1].u16;
+            if (nvm_ownership_effect(m,in->operands[0].u32,&effect)!=NVM_V2_OK ||
+                arity!=effect.parameter_count) {
+                nvm_affine_state_free(initial);error="I require a retained exact effect signature at every operation";goto done;
+            }
+            if (in->opcode==OP_HANDLER_PUSH) {
+                uint16_t first=in->operands[2].u16;
+                if ((uint32_t)first+arity>entry->local_count) {
+                    nvm_affine_state_free(initial);error="I require bounded handler parameter slots";goto done;
+                }
+                for (uint16_t p=0;p<arity;p++) {
+                    NvmAffineType type;
+                    if (!nvm_affine_local_type(initial,first+p,&type) ||
+                        type.tag!=effect.parameters[p].tag || type.layout!=effect.parameters[p].layout) {
+                        nvm_affine_state_free(initial);error="I require exact declared handler parameter types";goto done;
+                    }
+                }
+            }
+        }
         if ((in->opcode==OP_LOAD_GLOBAL || in->opcode==OP_STORE_GLOBAL) &&
             in->operands[0].u32>=calls->global_count) {
             result.byte_offset=decoded.instructions[i].byte_offset;
@@ -730,11 +840,44 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
             }
             for (uint32_t g=0;g<calls->global_count;g++)
                 calls->global_returns[function][g]|=current->globals[g];
+        } else if (op==OP_EFFECT_RESUME) {
+            if (!current->activation || current->count!=1 || current->stack[0].observation ||
+                !nvm_affine_can_resume(current->locals,
+                    (NvmAffineType){current->stack[0].tag,
+                        current->stack[0].tag==TAG_STRUCT || current->stack[0].tag==TAG_UNION
+                            ?current->stack[0].layout:NVM_V2_NO_INDEX}) ||
+                current->stack[0].owned!=nvm_affine_type_is_owned(current->locals,
+                    (NvmAffineType){current->stack[0].tag,current->stack[0].layout})) {
+                error="I require the active operation result and resolved arm ownership at resumption";goto done;
+            }
         } else if (op==OP_HALT) {
-            if (current->count) {error="I require an empty stack at my terminal invariant";goto done;}
+            if (current->count || current->activation || !nvm_affine_can_suspend(current->locals)) {
+                error="I require an empty stack and resolved owners at my terminal invariant";goto done;
+            }
         } else {
             error=step(current,&instruction->instruction,entry->local_count,m,function,calls);
             if (error) goto done;
+            if (op==OP_HANDLER_PUSH) {
+                if (current->handler_count==AFFINE_MAX_HANDLERS) {
+                    error="I exceeded my bounded affine handler depth";goto done;
+                }
+                uint32_t key=instruction->instruction.operands[0].u32;
+                uint16_t first=instruction->instruction.operands[2].u16;
+                current->handlers[current->handler_count++]=(Handler){key,index};
+                Frame *arm=frame_clone(current);
+                if (!arm) {error="I cannot allocate handler control-flow state";goto done;}
+                NvmAffineState *locals=nvm_affine_handler_enter(current->locals,key,first);
+                if (!locals) {frame_free(arm);error="I require a fresh exact handler activation";goto done;}
+                nvm_affine_state_free(arm->locals);arm->locals=locals;
+                free(arm->stack);arm->stack=NULL;arm->count=0;
+                arm->activation=index+1;arm->handler_floor=arm->handler_count;
+                uint32_t relative=instruction->resolved_target-entry->code_offset;
+                const VmDecodedInstruction *target=vm_decoded_function_at(&decoded,relative);
+                if (!target || !propagate(frames,(uint32_t)(target-decoded.instructions),arm,&work,&error)) {
+                    frame_free(arm);if (!error) error="I require a valid handler entry edge";goto done;
+                }
+                frame_free(arm);
+            }
             if (op==OP_MATCH_TAG) {
                 uint32_t relative=instruction->resolved_target-entry->code_offset;
                 const VmDecodedInstruction *target=vm_decoded_function_at(&decoded,relative);

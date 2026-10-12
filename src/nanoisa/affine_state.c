@@ -27,6 +27,10 @@ struct NvmAffineState {
     Reference *refs;
     uint32_t ref_count, region;
     bool caller_bound;
+    bool handler;
+    uint16_t handler_first;
+    uint32_t handler_key;
+    NvmAffineType resume_type;
     uint64_t invocation;
     uint16_t origin_count;
     CallerOrigin origins[NVM_AFFINE_MAX_PARAMETERS];
@@ -151,6 +155,8 @@ NvmAffineState *nvm_affine_state_clone(const NvmAffineState *s) {
     out->facts=s->facts; out->facts->users++;
     out->ref_count=s->ref_count; out->region=s->region;
     out->caller_bound=s->caller_bound; out->invocation=s->invocation;
+    out->handler=s->handler;out->handler_first=s->handler_first;
+    out->handler_key=s->handler_key;out->resume_type=s->resume_type;
     out->origin_count=s->origin_count;
     memcpy(out->origins,s->origins,sizeof(out->origins));
     out->live=malloc((s->facts->count ? s->facts->count : 1)*sizeof(*s->live));
@@ -172,10 +178,52 @@ NvmAffineState *nvm_affine_state_clone(const NvmAffineState *s) {
 fail:
     nvm_affine_state_free(out); return NULL;
 }
+NvmAffineState *nvm_affine_handler_enter(const NvmAffineState *s,
+                                         uint32_t key_idx,uint16_t first) {
+    if (!s || s->region || s->caller_bound || first>s->facts->count ||
+        (s->handler && first<s->handler_first)) return NULL;
+    for (uint32_t i=0;i<s->ref_count;i++) if (s->refs[i].live) return NULL;
+    NvmOwnershipEffect effect;
+    if (nvm_ownership_effect(s->facts->module,key_idx,&effect)!=NVM_V2_OK ||
+        effect.parameter_count>s->facts->count-first) return NULL;
+    for (uint16_t p=0;p<effect.parameter_count;p++) {
+        NvmOwnershipEffectValue value=effect.parameters[p];
+        if (!same(s->facts->locals[first+p],(Slot){value.tag,0,value.layout})) return NULL;
+    }
+    NvmAffineState *arm=nvm_affine_state_clone(s);
+    if (!arm) return NULL;
+    arm->handler=true;arm->handler_first=first;arm->handler_key=effect.key_idx;
+    arm->resume_type=(NvmAffineType){effect.result.tag,effect.result.layout};
+    for (uint16_t i=0;i<arm->facts->count;i++) {
+        Slot slot=arm->facts->locals[i];
+        if (i>=first || slot.mode || resource(arm->facts,slot)) {
+            arm->live[i]=false;arm->variants[i]=NVM_AFFINE_UNKNOWN_VARIANT;
+        }
+    }
+    for (uint16_t p=0;p<effect.parameter_count;p++) arm->live[first+p]=true;
+    return arm;
+}
+
+bool nvm_affine_can_suspend(const NvmAffineState *s) {
+    if (!s || s->region) return false;
+    for (uint32_t i=0;i<s->ref_count;i++) if (s->refs[i].live) return false;
+    for (uint16_t i=0;i<s->facts->count;i++)
+        if (s->live[i] && resource(s->facts,s->facts->locals[i])) return false;
+    return true;
+}
+
+bool nvm_affine_can_resume(const NvmAffineState *s,NvmAffineType result) {
+    return s && s->handler && s->resume_type.tag==result.tag &&
+        s->resume_type.layout==result.layout && nvm_affine_can_suspend(s);
+}
+
 static bool state_equal(const NvmAffineState *a, const NvmAffineState *b, bool meet_scalars) {
     if (!a || !b || a->facts!=b->facts || a->region!=b->region ||
         a->ref_count!=b->ref_count || a->caller_bound!=b->caller_bound ||
-        a->invocation!=b->invocation || a->origin_count!=b->origin_count) return false;
+        a->invocation!=b->invocation || a->origin_count!=b->origin_count ||
+        a->handler!=b->handler || a->handler_first!=b->handler_first ||
+        a->handler_key!=b->handler_key || a->resume_type.tag!=b->resume_type.tag ||
+        a->resume_type.layout!=b->resume_type.layout) return false;
     for (uint16_t i=0;i<a->facts->count;i++) {
         Slot slot=a->facts->locals[i];
         if (meet_scalars && !slot.mode &&
@@ -227,7 +275,8 @@ bool nvm_affine_state_meet_initialization(NvmAffineState *destination,
     return true;
 }
 static bool value_local(const NvmAffineState *s, uint16_t local) {
-    return s && local<s->facts->count && !s->facts->locals[local].mode;
+    return s && local<s->facts->count && !s->facts->locals[local].mode &&
+        !(s->handler && local<s->handler_first && resource(s->facts,s->facts->locals[local]));
 }
 static bool resolve(const NvmAffineState *s,uint16_t local,const uint16_t *path,
                     uint16_t count,Slot *out) {
