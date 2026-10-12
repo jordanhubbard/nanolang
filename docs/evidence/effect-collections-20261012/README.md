@@ -38,3 +38,6 @@ element tables; executable integration remains open.
 
 My [typed-slot checkpoint](slots/README.md) connects the element table to
 function results, parameters and locals, with executable admission still closed.
+
+My [local-state checkpoint](state/README.md) adds exact array ownership and
+handler transitions; instruction flow and execution remain open.

@@ -746,6 +746,10 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
     }
     NvmAffineState *initial=nvm_affine_state_create(m,function,entry->local_count);
     if (!initial) goto done;
+    if (nvm_affine_has_array_types(initial)) {
+        nvm_affine_state_free(initial);
+        error="I require handler-aware array flow before collection bytecode execution";goto done;
+    }
     if (caller && !nvm_affine_bind_caller(initial,caller,reference)) {
         nvm_affine_state_free(initial);error="I require exact caller-origin parameter authority";goto done;
     }

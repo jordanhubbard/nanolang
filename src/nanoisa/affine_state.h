@@ -7,7 +7,7 @@
  * My opaque state owns its facts; failed transitions leave it unchanged.
  * Reference slots are verifier identities, not runtime pointers. Entry
  * reference parameters occupy their corresponding local-numbered slots.
- * I retain scalar, complete-record and exact union declarations. Joins compare clones
+ * I retain scalar, complete-record, exact union and typed-array declarations. Joins compare clones
  * of one analysis; symbolic invocation 1 does not prove caller alias facts. */
 typedef struct NvmAffineState NvmAffineState;
 NvmAffineState *nvm_affine_state_create(const NvmModule *module,
@@ -23,6 +23,8 @@ bool nvm_affine_can_suspend(const NvmAffineState *state);
 void nvm_affine_state_free(NvmAffineState *state);
 /* I expose the declaration boundary for consumers lacking union transfers. */
 bool nvm_affine_has_complete_unions(const NvmAffineState *state);
+/* I retain exact element facts for local transitions; bytecode admission is separate. */
+bool nvm_affine_has_array_types(const NvmAffineState *state);
 bool nvm_affine_state_equal(const NvmAffineState *a, const NvmAffineState *b);
 /* I intersect copyable initialization and merge selected variants. Live
  * resource obligations remain exact; refusal leaves destination unchanged. */
@@ -63,9 +65,11 @@ bool nvm_affine_scalar_field(const NvmAffineState *state, uint16_t local,
                               uint16_t field, uint8_t *tag);
 bool nvm_affine_can_exit_scalar(const NvmAffineState *state, uint8_t tag);
 typedef struct { uint8_t tag; uint32_t layout; } NvmAffineType;
+bool nvm_affine_types_equal(const NvmAffineState *,NvmAffineType,NvmAffineType);
+bool nvm_affine_array_define(NvmAffineState *,uint16_t local,uint32_t element);
 bool nvm_affine_can_resume(const NvmAffineState *state,NvmAffineType result);
 #define NVM_AFFINE_UNKNOWN_VARIANT UINT16_MAX
-/* These transfer APIs exchange an exact record token with the bytecode stack.
+/* These transfer APIs exchange an exact owned-value token with the bytecode stack.
  * The stack analysis must prohibit duplication, loss and incompatible joins. */
 /* I require explicit transfer tokens for resource records and resource unions.
  * Complete ordinary records retain exact layout identity while copying. */

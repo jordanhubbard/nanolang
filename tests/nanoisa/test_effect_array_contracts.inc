@@ -28,7 +28,8 @@ static void check_effect_array_contracts(void) {
     NvmAffineAnalysis analysis=nvm_affine_analyze_function(m,0);
     CHECK(!analysis.ok && strstr(analysis.message,"handler-aware array flow"));
     NvmAffineState *state=nvm_affine_state_create(m,0,0);CHECK(state);
-    CHECK(!nvm_affine_handler_enter(state,key,0));nvm_affine_state_free(state);
+    NvmAffineState *arm=nvm_affine_handler_enter(state,key,0);CHECK(arm);
+    nvm_affine_state_free(arm);nvm_affine_state_free(state);
     CHECK(!nvm_verify(m).ok);
     char diagnostic[256];CHECK(!nvm2c_emit(m,diagnostic,sizeof(diagnostic)));
     /* I also retain two different nominal element identities in parameters. */
@@ -90,6 +91,10 @@ static void check_effect_array_contracts(void) {
     CHECK(nvm_ownership_effect_types(m,&types)==NVM_V2_OK && types.count==256);
     CHECK(types.items[255].tag==TAG_ARRAY && types.items[255].layout==254);
     CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_OK && effect.result.layout==255);
+    state=nvm_affine_state_create(m,0,0);CHECK(state);
+    CHECK(nvm_affine_types_equal(state,(NvmAffineType){TAG_ARRAY,255},(NvmAffineType){TAG_ARRAY,255}));
+    CHECK(!nvm_affine_type_is_owned(state,(NvmAffineType){TAG_ARRAY,255}));
+    nvm_affine_state_free(state);
     prior_types=types;word(data,48,257);
     CHECK(nvm_ownership_effect_types(m,&types)==NVM_V2_ERR_INDEX_RANGE);
     CHECK(!memcmp(&types,&prior_types,sizeof types));word(data,48,0);
@@ -118,8 +123,9 @@ static void check_effect_array_slots(void) {
     NvmOwnershipEffectTypes types,prior;NvmOwnershipEffect signature;
     CHECK(nvm_ownership_effect_types(m,&types)==NVM_V2_OK && types.count==3);
     CHECK(nvm_ownership_effect(m,key,&signature)==NVM_V2_OK && signature.result.layout==2);
-    /* My current state/runtime gate still refuses typed collection locals. */
-    CHECK(!nvm_affine_state_create(m,0,0));CHECK(!nvm_affine_state_create(m,1,0));
+    /* Local facts do not grant instruction-flow or runtime admission. */
+    NvmAffineState *state=nvm_affine_state_create(m,0,0);CHECK(state);nvm_affine_state_free(state);
+    state=nvm_affine_state_create(m,1,0);CHECK(state);nvm_affine_state_free(state);
     CHECK(!nvm_verify(m).ok);
     char diagnostic[256];CHECK(!nvm2c_emit(m,diagnostic,sizeof diagnostic));
     size_t length;uint8_t *bytes=wire(m,&length,NULL);NvmV2Module decoded;

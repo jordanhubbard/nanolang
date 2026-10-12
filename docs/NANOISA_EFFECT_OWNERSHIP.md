@@ -1,6 +1,6 @@
 # My effect ownership declarations
 
-I retain operation value-transfer signatures in ownership format version 3, extension kind 4 (`EFFECTS`), revisions 1 and 2. This is a declaration prerequisite for resource-bearing effects. My affine analyzer now checks handler, perform and resume transitions against these declarations. I admit these instructions in my standalone owned value-call profile after matched VM/native cleanup qualification. My paired source producers execute the bounded revision-1 signatures. Revision 2 adds array declarations only; collection execution and borrowed continuations remain incomplete.
+I retain operation value-transfer signatures in ownership format version 3, extension kind 4 (`EFFECTS`), revisions 1 and 2. This is a declaration prerequisite for resource-bearing effects. My affine analyzer now checks handler, perform and resume transitions against these declarations. I admit these instructions in my standalone owned value-call profile after matched VM/native cleanup qualification. My paired source producers execute the bounded revision-1 signatures. Revision 2 retains array declarations and local ownership facts; collection execution and borrowed continuations remain incomplete.
 
 My revision-1 extension payload uses little-endian integers:
 
@@ -95,8 +95,8 @@ all module ownership metadata. Revision 1 returns an empty table. Invalid rows,
 references, extents, revisions or unrelated extensions preserve the output.
 Binary and explicit unverified assembly transport retain the exact bytes.
 
-This is declaration support. My affine analysis explicitly refuses performed or
-handled ARRAY signatures until handler-aware element/ownership flow is connected.
+My bytecode analysis explicitly refuses modules using the typed-array table
+until collection instruction flow and execution are connected.
 The private array projection, array-bearing resource layouts, producer wiring and
 VM/native cleanup remain implementation work; I have not granted array execution.
 
@@ -106,5 +106,26 @@ then resolve them only after checking the complete extension suffix. Typed ARRAY
 slots require revision 2 and zero borrow mode. Every ARRAY slot in such a module
 must name an element type; I reject NO_INDEX instead of silently erasing identity.
 Legacy revision-1 untyped ARRAY declarations retain their transport behavior.
-Neither typed nor untyped collection locals gain affine-state or execution
-admission from this declaration validation.
+Declaration validation alone grants no execution authority. My typed local-state
+transitions are described below; untyped collection locals remain unsupported.
+
+## My typed array local state
+
+I copy checked element facts into shared immutable state declarations. Exact array
+type comparison follows the bounded element chains and preserves nominal leaf
+identity; duplicate table rows with the same structure compare equal. Resource
+classification follows nested arrays to their leaf, so arrays of resource records
+or unions carry a consuming obligation, while copyable leaves permit initialization
+joins and replacement. Moves and transfer tokens preserve the complete array type.
+
+Handler parameters become fresh arm-owned values. Captured resource arrays cannot
+be accessed or reinitialized; copyable array captures preserve initialization.
+Resume and lexical return require the exact declared structural type and no
+unresolved local resource obligations. Failed transitions preserve state. Record
+field, packing and borrow APIs reject array roots before interpreting their element
+indexes as record layouts. Array borrowing and element operations remain separate.
+
+My [local-state evidence](evidence/effect-collections-20261012/state/README.md)
+checks these transitions and allocation failures. Bytecode admission remains
+explicitly closed for the typed-array table. I must still connect array instruction
+flow, producers and matched VM/native cleanup before claiming collection execution.

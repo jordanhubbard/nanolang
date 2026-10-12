@@ -311,7 +311,10 @@ static void effect_handler_states(void) {
     nvm_affine_state_free(caller);nvm_module_free(m);
 }
 
+#include "test_affine_array_state.inc"
+
 int main(void) {
+    array_states();
     effect_handler_states();
     owned_union_transfers();
     scalar_initialization_meets();
