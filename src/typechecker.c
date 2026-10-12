@@ -4423,6 +4423,19 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 expr->as.struct_literal.struct_name = strdup(sdef->name);
             }
 
+            /* I validate even a spread whose fields are all overridden. */
+            if (expr->as.struct_literal.spread_source) {
+                ASTNode *source = expr->as.struct_literal.spread_source;
+                Type source_type = check_expression(source, env);
+                const char *source_name = get_struct_type_name(source, env);
+                if (source_type != TYPE_STRUCT || !source_name || !env_get_struct(env, source_name)) {
+                    emit_context_error("E001 TYPE MISMATCH", source->line, source->column, 1,
+                        "I require a declared record source for a spread.",
+                        "Spread a record value before overriding its fields.");
+                    return TYPE_UNKNOWN;
+                }
+            }
+
             /* Check that all fields are provided and types match.
              * Spread literals ({..base, overrides}) supply missing fields from
              * the spread source, so the explicit field_count may be less than

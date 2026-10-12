@@ -1,0 +1,214 @@
+test_all_fields_overridden (tests.test_selfhost_record_spreads.RecordSpreads.test_all_fields_overridden) ... 
+  test_all_fields_overridden (tests.test_selfhost_record_spreads.RecordSpreads.test_all_fields_overridden) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed') ... ERROR
+test_inherited_fields_and_unchanged_source (tests.test_selfhost_record_spreads.RecordSpreads.test_inherited_fields_and_unchanged_source) ... 
+  test_inherited_fields_and_unchanged_source (tests.test_selfhost_record_spreads.RecordSpreads.test_inherited_fields_and_unchanged_source) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed') ... ERROR
+test_invalid_sources_and_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_invalid_sources_and_overrides) ... 
+  test_invalid_sources_and_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_invalid_sources_and_overrides) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed', body='let p:Point=Point{x:1} let q:Point={..p,x:true} return 7') ... ERROR
+  test_invalid_sources_and_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_invalid_sources_and_overrides) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed', body='let q:Point={..7,x:1} return 7') ... ERROR
+test_nested_array_and_callable_fields (tests.test_selfhost_record_spreads.RecordSpreads.test_nested_array_and_callable_fields) ... 
+  test_nested_array_and_callable_fields (tests.test_selfhost_record_spreads.RecordSpreads.test_nested_array_and_callable_fields) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed') ... ERROR
+test_no_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_no_overrides) ... 
+  test_no_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_no_overrides) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed') ... ERROR
+test_source_once_and_override_order (tests.test_selfhost_record_spreads.RecordSpreads.test_source_once_and_override_order) ... 
+  test_source_once_and_override_order (tests.test_selfhost_record_spreads.RecordSpreads.test_source_once_and_override_order) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed') ... ERROR
+
+======================================================================
+ERROR: test_all_fields_overridden (tests.test_selfhost_record_spreads.RecordSpreads.test_all_fields_overridden) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    result = self.compile(driver, source, output)
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 21, in compile
+    return subprocess.run([driver, str(source), '--emit-nvm', '-o', str(output)],
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          cwd=ROOT, capture_output=True, text=True, timeout=120)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed'
+
+======================================================================
+ERROR: test_inherited_fields_and_unchanged_source (tests.test_selfhost_record_spreads.RecordSpreads.test_inherited_fields_and_unchanged_source) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    result = self.compile(driver, source, output)
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 21, in compile
+    return subprocess.run([driver, str(source), '--emit-nvm', '-o', str(output)],
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          cwd=ROOT, capture_output=True, text=True, timeout=120)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed'
+
+======================================================================
+ERROR: test_invalid_sources_and_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_invalid_sources_and_overrides) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed', body='let p:Point=Point{x:1} let q:Point={..p,x:true} return 7')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    result = self.compile(driver, source, output)
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 21, in compile
+    return subprocess.run([driver, str(source), '--emit-nvm', '-o', str(output)],
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          cwd=ROOT, capture_output=True, text=True, timeout=120)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed'
+
+======================================================================
+ERROR: test_invalid_sources_and_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_invalid_sources_and_overrides) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed', body='let q:Point={..7,x:1} return 7')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    result = self.compile(driver, source, output)
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 21, in compile
+    return subprocess.run([driver, str(source), '--emit-nvm', '-o', str(output)],
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          cwd=ROOT, capture_output=True, text=True, timeout=120)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed'
+
+======================================================================
+ERROR: test_nested_array_and_callable_fields (tests.test_selfhost_record_spreads.RecordSpreads.test_nested_array_and_callable_fields) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    result = self.compile(driver, source, output)
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 21, in compile
+    return subprocess.run([driver, str(source), '--emit-nvm', '-o', str(output)],
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          cwd=ROOT, capture_output=True, text=True, timeout=120)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed'
+
+======================================================================
+ERROR: test_no_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_no_overrides) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    result = self.compile(driver, source, output)
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 21, in compile
+    return subprocess.run([driver, str(source), '--emit-nvm', '-o', str(output)],
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          cwd=ROOT, capture_output=True, text=True, timeout=120)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed'
+
+======================================================================
+ERROR: test_source_once_and_override_order (tests.test_selfhost_record_spreads.RecordSpreads.test_source_once_and_override_order) (driver='bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 31, in check
+    result = self.compile(driver, source, output)
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 21, in compile
+    return subprocess.run([driver, str(source), '--emit-nvm', '-o', str(output)],
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          cwd=ROOT, capture_output=True, text=True, timeout=120)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'bin/nano_virt,/private/tmp/nl51-selfhost-resource-effects/seed'
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.049s
+
+FAILED (errors=7)

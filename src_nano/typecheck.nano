@@ -1,3 +1,4 @@
+from "src_nano/compiler/resource_effects.nano" import resource_effects_escape, resource_handler_loop_escape
 from "src_nano/compiler/effect_declarations.nano" import effect_decl_index, effect_operation_index, effect_handler_owner
 import "src_nano/compiler/generic_types.nano"
 from "src_nano/compiler/passive_graph.nano" import passive_order
@@ -74,6 +75,8 @@ struct Symbol {
 }
 
 struct ResourceState {
+    # I distinguish lexical owners (0), inaccessible captures (1) and staged values (2).
+    role: int,
     name: string,
     type_name: string,
     moved: bool,
@@ -404,7 +407,7 @@ fn resource_find(states: array<ResourceState>, name: string) -> int {
 }
 
 shadow resource_find {
-    let states: array<ResourceState> = [ResourceState { held_places: [], name: "file", type_name: "File", moved: false, line: 1, column: 1 }]
+    let states: array<ResourceState> = [ResourceState { role: 0, held_places: [], name: "file", type_name: "File", moved: false, line: 1, column: 1 }]
     assert (== (resource_find states "file") 0)
 }
 
@@ -434,7 +437,7 @@ fn resource_copy(states: array<ResourceState>, count: int) -> array<ResourceStat
 }
 
 shadow resource_copy {
-    let states: array<ResourceState> = [ResourceState { held_places: [], name: "x", type_name: "File", moved: false, line: 1, column: 1 }]
+    let states: array<ResourceState> = [ResourceState { role: 0, held_places: [], name: "x", type_name: "File", moved: false, line: 1, column: 1 }]
     let copy: array<ResourceState> = (resource_copy states 0)
     assert (== (array_length copy) 0)
     assert (== (array_length states) 1)
@@ -505,13 +508,13 @@ fn resource_place_hold(states: array<ResourceState>, index: int, path: string, e
             if exclusive { set mode "E" }
             set holds (array_push holds (+ mode path))
         }
-        set result (array_push result ResourceState { held_places: holds, name: state.name, type_name: state.type_name, moved: state.moved, line: state.line, column: state.column })
+        set result (array_push result ResourceState { role: state.role, held_places: holds, name: state.name, type_name: state.type_name, moved: state.moved, line: state.line, column: state.column })
         set i (+ i 1)
     }
     return result
 }
 shadow resource_place_hold {
-    let states: array<ResourceState> = [ResourceState { held_places: [], name: "owner", type_name: "Pair", moved: false, line: 1, column: 1 }]
+    let states: array<ResourceState> = [ResourceState { role: 0, held_places: [], name: "owner", type_name: "Pair", moved: false, line: 1, column: 1 }]
     let held: array<ResourceState> = (resource_place_hold states 0 ".left" true)
     assert (== (array_length (at states 0).held_places) 0)
     assert (resource_place_conflict (at held 0).held_places ".left" false)
@@ -527,13 +530,13 @@ fn resource_restore_holds(states: array<ResourceState>, entry: array<ResourceSta
         let state: ResourceState = (at states i)
         let mut holds: array<string> = state.held_places
         if (< i (array_length entry)) { set holds (at entry i).held_places }
-        set result (array_push result ResourceState { held_places: holds, name: state.name, type_name: state.type_name, moved: state.moved, line: state.line, column: state.column })
+        set result (array_push result ResourceState { role: state.role, held_places: holds, name: state.name, type_name: state.type_name, moved: state.moved, line: state.line, column: state.column })
         set i (+ i 1)
     }
     return result
 }
 shadow resource_restore_holds {
-    let states: array<ResourceState> = [ResourceState { held_places: ["S.left"], name: "owner", type_name: "Pair", moved: false, line: 1, column: 1 }]
+    let states: array<ResourceState> = [ResourceState { role: 0, held_places: ["S.left"], name: "owner", type_name: "Pair", moved: false, line: 1, column: 1 }]
     let held: array<ResourceState> = (resource_place_hold states 0 ".right" true)
     let restored: array<ResourceState> = (resource_restore_holds held states)
     assert (== (array_length (at restored 0).held_places) 1)
@@ -547,14 +550,14 @@ fn resource_replace(states: array<ResourceState>, index: int, moved: bool) -> ar
         let state: ResourceState = (at states i)
         let mut value: bool = state.moved
         if (== i index) { set value moved }
-        set copy (array_push copy ResourceState { held_places: state.held_places, name: state.name, type_name: state.type_name, moved: value, line: state.line, column: state.column })
+        set copy (array_push copy ResourceState { role: state.role, held_places: state.held_places, name: state.name, type_name: state.type_name, moved: value, line: state.line, column: state.column })
         set i (+ i 1)
     }
     return copy
 }
 
 shadow resource_replace {
-    let states: array<ResourceState> = [ResourceState { held_places: [], name: "x", type_name: "File", moved: false, line: 1, column: 1 }]
+    let states: array<ResourceState> = [ResourceState { role: 0, held_places: [], name: "x", type_name: "File", moved: false, line: 1, column: 1 }]
     let changed: array<ResourceState> = (resource_replace states 0 true)
     let original: ResourceState = (at states 0)
     let updated: ResourceState = (at changed 0)
@@ -576,7 +579,7 @@ fn resource_resolve_exit(parser: Parser, states: array<ResourceState>, first: in
     let mut i: int = first
     while (< i (array_length states)) {
         let state: ResourceState = (at states i)
-        if (and (not state.moved) (resource_type_is_declared parser state.type_name)) {
+        if (and (!= state.role 1) (and (not state.moved) (resource_type_is_declared parser state.type_name))) {
             (resource_flow_error diags file_name state.line state.column (+ "resource remains live at scope exit: " state.name))
         }
         set i (+ i 1)
@@ -632,6 +635,30 @@ shadow resource_loop_edge {
 
 fn resource_value_type(parser: Parser, node_id: int, node_type: int, states: array<ResourceState>) -> string {
     if (< node_id 0) { return "" }
+    if (== node_type ParseNodeType.PNODE_HANDLE_EXPR) {
+        let node: ASTEffectHandle = (at parser.handlers node_id)
+        return (resource_value_type parser node.body_id node.body_type states)
+    }
+    if (== node_type ParseNodeType.PNODE_EFFECT_OP) {
+        let node: ASTEffectPerform = (at parser.performs node_id)
+        let owner: int = (effect_decl_index parser node.effect_name)
+        if (< owner 0) { return "" }
+        let declaration: ASTEffectDecl = (at parser.effects owner)
+        let operation: int = (effect_operation_index declaration node.operation_name)
+        if (< operation 0) { return "" }
+        return (resource_type_identity parser (at declaration.return_types operation) declaration.line)
+    }
+    if (== node_type ParseNodeType.PNODE_BLOCK) {
+        let block: ASTBlock = (parser_get_block parser node_id)
+        let count: int = (list_ASTStmtRef_length block.statements)
+        if (== count 0) { return "" }
+        let last: ASTStmtRef = (list_ASTStmtRef_get block.statements (- count 1))
+        return (resource_value_type parser last.node_id last.node_type states)
+    }
+    if (== node_type ParseNodeType.PNODE_RETURN) {
+        let node: ASTReturn = (parser_get_return parser node_id)
+        return (resource_value_type parser node.value node.value_type states)
+    }
     if (== node_type ParseNodeType.PNODE_FIELD_ACCESS) {
         let field: ASTFieldAccess = (parser_get_field_access parser node_id)
         let owner: string = (resource_value_type parser field.object field.object_type states)
@@ -697,6 +724,7 @@ fn resource_value_type(parser: Parser, node_id: int, node_type: int, states: arr
     }
     if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
         let value: ASTStructLiteral = (parser_get_struct_literal parser node_id)
+        if (and (> value.field_count 0) (== (at value.field_names 0) "..")) { return (resource_value_type parser (at value.field_value_ids 0) (at value.field_value_types 0) states) }
         let mut ui: int = 0
         while (< ui (parser_get_union_count parser)) {
             let union_def: ASTUnion = (parser_get_union parser ui)
@@ -742,13 +770,105 @@ shadow resource_value_type {
     assert (== (resource_value_type (resource_test_parser "") -1 ParseNodeType.PNODE_IDENTIFIER [] ) "")
     let parser: Parser = (resource_test_parser "resource struct Handle { fd: int } union Box<T> { Some { value: T } } fn probe() -> int { return payload.value }")
     let ret: ASTReturn = (parser_get_return parser 0)
-    let owned: array<ResourceState> = [ResourceState { held_places: [], name: "payload", type_name: "#variant:0:0<#record:0>", moved: false, line: 1, column: 1 }]
-    let plain: array<ResourceState> = [ResourceState { held_places: [], name: "payload", type_name: "#variant:0:0<int>", moved: false, line: 1, column: 1 }]
+    let owned: array<ResourceState> = [ResourceState { role: 0, held_places: [], name: "payload", type_name: "#variant:0:0<#record:0>", moved: false, line: 1, column: 1 }]
+    let plain: array<ResourceState> = [ResourceState { role: 0, held_places: [], name: "payload", type_name: "#variant:0:0<int>", moved: false, line: 1, column: 1 }]
     assert (== (resource_value_type parser ret.value ret.value_type owned) "#record:0")
     assert (== (resource_value_type parser ret.value ret.value_type plain) "int")
     let callbacks: Parser = (resource_test_parser "fn make() -> int { return 7 } fn main() -> int { let factory = make return 0 }")
     let binding: ASTLet = (parser_get_let callbacks 0)
     assert (== (resource_value_type callbacks binding.value binding.value_type []) "fn()->int")
+}
+
+# I keep evaluated argument owners in the same immutable snapshots as locals.
+fn resource_stage_value(parser: Parser, flow: ResourceFlow, id: int, kind: int, expected: string, line: int, column: int) -> ResourceFlow {
+    if (not flow.next) { return flow }
+    let mut nominal: string = (resource_value_type parser id kind flow.states)
+    if (== nominal "") { set nominal expected }
+    if (not (resource_type_is_declared parser nominal)) { return flow }
+    let states: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
+    return ResourceFlow { states: (array_push states ResourceState { role: 2, held_places: [], name: "#staged", type_name: nominal, moved: false, line: line, column: column }), next: true }
+}
+shadow resource_stage_value {
+    let parser: Parser = (resource_test_parser "resource struct Handle{value:int}")
+    let original: ResourceFlow = ResourceFlow { states: [], next: true }
+    let staged: ResourceFlow = (resource_stage_value parser original -1 ParseNodeType.PNODE_NUMBER "Handle" 1 1)
+    assert (== (array_length original.states) 0)
+    assert (== (at staged.states 0).role 2)
+}
+
+fn resource_unstage(states: array<ResourceState>, first: int) -> array<ResourceState> {
+    let mut result: array<ResourceState> = []
+    let mut i: int = 0
+    while (< i (array_length states)) {
+        let state: ResourceState = (at states i)
+        if (or (< i first) (!= state.role 2)) { set result (array_push result state) }
+        set i (+ i 1)
+    }
+    return result
+}
+shadow resource_unstage {
+    let staged: ResourceState = ResourceState { role: 2, held_places: [], name: "#staged", type_name: "Handle", moved: false, line: 1, column: 1 }
+    assert (== (array_length (resource_unstage [staged, staged] 1)) 1)
+}
+
+fn resource_has_staged(states: array<ResourceState>) -> bool {
+    let mut i: int = 0
+    while (< i (array_length states)) {
+        let state: ResourceState = (at states i)
+        if (and (== state.role 2) (not state.moved)) { return true }
+        set i (+ i 1)
+    }
+    return false
+}
+shadow resource_has_staged {
+    assert (not (resource_has_staged []))
+    assert (resource_has_staged [ResourceState { role: 2, held_places: [], name: "#staged", type_name: "Handle", moved: false, line: 1, column: 1 }])
+}
+
+fn resource_capture_states(parser: Parser, states: array<ResourceState>) -> array<ResourceState> {
+    let mut result: array<ResourceState> = []
+    let mut i: int = 0
+    while (< i (array_length states)) {
+        let state: ResourceState = (at states i)
+        let mut role: int = state.role
+        if (and (!= role 2) (or (str_starts_with state.type_name "&") (resource_type_is_declared parser state.type_name))) { set role 1 }
+        set result (array_push result ResourceState { role: role, held_places: state.held_places, name: state.name, type_name: state.type_name, moved: state.moved, line: state.line, column: state.column })
+        set i (+ i 1)
+    }
+    return result
+}
+shadow resource_capture_states {
+    let parser: Parser = (resource_test_parser "resource struct Handle{value:int}")
+    let states: array<ResourceState> = [ResourceState { role: 0, held_places: [], name: "h", type_name: "Handle", moved: false, line: 1, column: 1 }]
+    let captured: array<ResourceState> = (resource_capture_states parser states)
+    assert (== (at captured 0).role 1)
+    assert (== (at states 0).role 0)
+    let errors: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    (resource_resolve_exit parser captured 0 errors "handler.nano")
+    assert (== (Diagnostics.diag_list_count errors) 0)
+}
+
+fn resource_check_call_effect(parser: Parser, id: int, kind: int, states: array<ResourceState>, diags: List<CompilerDiagnostic>, file_name: string, line: int, column: int) -> void {
+    let mut suspended: bool = false
+    let mut names: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length states)) {
+        let state: ResourceState = (at states i)
+        if (and (!= state.role 1) (and (not state.moved) (resource_type_is_declared parser state.type_name))) { set suspended true }
+        if (!= state.role 2) { set names (array_push names state.name) }
+        set i (+ i 1)
+    }
+    if (and suspended (resource_effects_escape parser id kind names)) {
+        (resource_flow_error diags file_name line column "I cannot abandon a suspended resource across an effectful call")
+    }
+}
+shadow resource_check_call_effect {
+    let parser: Parser = (resource_test_parser "resource struct Handle{value:int} effect E{tick:int->int} fn tick()->int{return perform E.tick(0)} fn call()->int{return (tick)}")
+    let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
+    let ret: ASTReturn = (parser_get_return parser 1)
+    let states: array<ResourceState> = [ResourceState { role: 0, held_places: [], name: "h", type_name: "Handle", moved: false, line: 1, column: 1 }]
+    (resource_check_call_effect parser ret.value ret.value_type states diags "test.nano" 1 1)
+    assert (== (Diagnostics.diag_list_count diags) 1)
 }
 
 # I preserve argument nesting when substituting concrete union payload types.
@@ -1066,7 +1186,7 @@ fn resource_guard_preserves(parser: Parser, before: array<ResourceState>, after:
 }
 shadow resource_guard_preserves {
     let parser: Parser = (resource_test_parser "resource struct Handle { fd: int }")
-    let state: array<ResourceState> = [ResourceState { held_places: [], name: "h", type_name: "Handle", moved: false, line: 1, column: 1 }]
+    let state: array<ResourceState> = [ResourceState { role: 0, held_places: [], name: "h", type_name: "Handle", moved: false, line: 1, column: 1 }]
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     (resource_guard_preserves parser state ResourceFlow { states: state, next: true } 1 1 diags "guard.nano")
     assert (== (Diagnostics.diag_list_count diags) 0)
@@ -1156,6 +1276,7 @@ fn resource_flow_value(parser: Parser, node_id: int, node_type: int, expected: s
         set line literal.line set column literal.column
     }
     let mut flow: ResourceFlow = ResourceFlow { states: states, next: true }
+    let first_staged: int = (array_length states)
     let mut offset: int = 0
     let mut variant: int = 0
     while (< variant definition.variant_count) {
@@ -1172,12 +1293,13 @@ fn resource_flow_value(parser: Parser, node_id: int, node_type: int, expected: s
                     set slot (+ slot 1)
                 }
                 set flow (resource_flow_value parser (at ids field) (at types field) (resource_type_identity parser context definition.line) flow.states true loop_entry diags file_name return_type)
+                set flow (resource_stage_value parser flow (at ids field) (at types field) (resource_type_identity parser context definition.line) line column)
                 set field (+ field 1)
             }
             if (and flow.next (and (not move) (resource_type_is_declared parser identity))) {
                 (resource_flow_error diags file_name line column "resource construction has no resolved owner")
             }
-            return flow
+            return ResourceFlow { states: (resource_unstage flow.states first_staged), next: flow.next }
         }
         set offset (+ offset count)
         set variant (+ variant 1)
@@ -1209,6 +1331,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         }
         if (>= index 0) {
             let state: ResourceState = (at states index)
+            if (== state.role 1) { (resource_flow_error diags file_name id.line id.column "I cannot access a captured resource") }
             if (resource_place_conflict state.held_places "" false) {
                 (resource_flow_error diags file_name id.line id.column "I cannot access an exclusively borrowed owner")
                 return flow
@@ -1242,7 +1365,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         }
         if flow.next {
             let updated: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
-            return ResourceFlow { states: (array_push updated ResourceState { held_places: [], name: binding.name, type_name: (resource_type_identity parser nominal binding.line), moved: binding.is_destructure, line: binding.line, column: binding.column }), next: true }
+            return ResourceFlow { states: (array_push updated ResourceState { role: 0, held_places: [], name: binding.name, type_name: (resource_type_identity parser nominal binding.line), moved: binding.is_destructure, line: binding.line, column: binding.column }), next: true }
         }
         return flow
     }
@@ -1260,6 +1383,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         }
         if (>= index 0) {
             let state: ResourceState = (at states index)
+            if (== state.role 1) { (resource_flow_error diags file_name assignment.line assignment.column "I cannot access a captured resource") }
             if (or (> (array_length state.held_places) 0) (str_starts_with state.type_name "&")) {
                 (resource_flow_error diags file_name assignment.line assignment.column (+ "I cannot overwrite a borrowed owner: " assignment.target))
             } else {
@@ -1316,7 +1440,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             if (< arm (array_length matched.arm_bindings)) {
                 let binding: string = (at matched.arm_bindings arm)
                 if (and (!= binding "") (!= binding "_")) {
-                    set arm_states (array_push arm_states ResourceState { held_places: [], name: binding, type_name: payload, moved: false, line: matched.line, column: matched.column })
+                    set arm_states (array_push arm_states ResourceState { role: 0, held_places: [], name: binding, type_name: payload, moved: false, line: matched.line, column: matched.column })
                 } else {
                     if (resource_type_is_declared parser payload) { (resource_flow_error diags file_name matched.line matched.column "I require a binding for the selected resource payload") }
                 }
@@ -1352,7 +1476,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         if (not flow.next) { return flow }
         (resource_loop_edge parser flow.states entry diags file_name)
         let mut body_states: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
-        if (!= variable "") { set body_states (array_push body_states ResourceState { held_places: [], name: variable, type_name: "int", moved: false, line: 0, column: 0 }) }
+        if (!= variable "") { set body_states (array_push body_states ResourceState { role: 0, held_places: [], name: variable, type_name: "int", moved: false, line: 0, column: 0 }) }
         set flow (resource_flow_node parser body ParseNodeType.PNODE_BLOCK body_states false entry diags file_name return_type "")
         if flow.next { (resource_loop_edge parser flow.states entry diags file_name) }
         return ResourceFlow { states: entry, next: true }
@@ -1366,6 +1490,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         let index: int = (resource_find states root)
         if (>= index 0) {
             let state: ResourceState = (at states index)
+            if (== state.role 1) { (resource_flow_error diags file_name field.line field.column "I cannot access a captured resource") }
             if state.moved { (resource_flow_error diags file_name field.line field.column "I cannot use a moved value") }
             if (resource_place_conflict state.held_places (resource_place_path parser node_id node_type) false) {
                 (resource_flow_error diags file_name field.line field.column "I cannot access an exclusively borrowed place")
@@ -1376,13 +1501,17 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
     }
     if (== node_type ParseNodeType.PNODE_MODULE_QUALIFIED_CALL) {
         let call: ASTModuleQualifiedCall = (parser_get_module_qualified_call parser node_id)
+        let first_staged: int = (array_length states)
         let mut i: int = 0
         while (and flow.next (< i call.arg_count)) {
             let arg: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
             let context: string = (resource_parameter_type parser call.function_name call.line i states)
             set flow (resource_flow_value parser arg.node_id arg.node_type context flow.states true loop_entry diags file_name return_type)
+            set flow (resource_stage_value parser flow arg.node_id arg.node_type context call.line call.column)
             set i (+ i 1)
         }
+        set flow ResourceFlow { states: (resource_unstage flow.states first_staged), next: flow.next }
+        if flow.next { (resource_check_call_effect parser node_id node_type flow.states diags file_name call.line call.column) }
         if (and flow.next (and (not move) (resource_type_is_declared parser (resource_value_type parser node_id node_type states)))) {
             (resource_flow_error diags file_name call.line call.column "resource result has no resolved owner")
         }
@@ -1401,6 +1530,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
         }
         if (not direct) { set flow (resource_flow_node parser call.function call.function_type states false loop_entry diags file_name return_type "") }
         let hold_entry: array<ResourceState> = (resource_copy flow.states (array_length flow.states))
+        let first_staged: int = (array_length flow.states)
         let mut i: int = 0
         while (and flow.next (< i call.arg_count)) {
             let arg: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
@@ -1433,9 +1563,14 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
                     }
                 }
             }
-            if (not borrowed) { set flow (resource_flow_value parser arg.node_id arg.node_type context flow.states true loop_entry diags file_name return_type) }
+            if (not borrowed) {
+                set flow (resource_flow_value parser arg.node_id arg.node_type context flow.states true loop_entry diags file_name return_type)
+                set flow (resource_stage_value parser flow arg.node_id arg.node_type context call.line call.column)
+            }
             set i (+ i 1)
         }
+        set flow ResourceFlow { states: (resource_unstage flow.states first_staged), next: flow.next }
+        if flow.next { (resource_check_call_effect parser node_id node_type flow.states diags file_name call.line call.column) }
         set flow ResourceFlow { states: (resource_restore_holds flow.states hold_entry), next: flow.next }
         if (and flow.next (and (not move) (resource_type_is_declared parser (resource_value_type parser node_id node_type states)))) {
             (resource_flow_error diags file_name call.line call.column "resource result has no resolved owner")
@@ -1461,6 +1596,7 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
     if (== node_type ParseNodeType.PNODE_UNION_CONSTRUCT) {
         let literal: ASTUnionConstruct = (parser_get_union_construct parser node_id)
         let identity: string = (resource_value_type parser node_id node_type states)
+        let first_staged: int = (array_length states)
         let supported: bool = (>= (resource_owned_union_index parser identity) 0)
         let mut field: int = 0
         while (and flow.next (< field literal.field_count)) {
@@ -1469,14 +1605,16 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
                 (resource_flow_error diags file_name literal.line literal.column "resource union payloads need ownership lowering")
             }
             set flow (resource_flow_node parser (at literal.field_value_ids field) (at literal.field_value_types field) flow.states true loop_entry diags file_name return_type "")
+            set flow (resource_stage_value parser flow (at literal.field_value_ids field) (at literal.field_value_types field) field_type literal.line literal.column)
             set field (+ field 1)
         }
         if (and flow.next (and (not move) (resource_type_is_declared parser identity))) { (resource_flow_error diags file_name literal.line literal.column "resource construction has no resolved owner") }
-        return flow
+        return ResourceFlow { states: (resource_unstage flow.states first_staged), next: flow.next }
     }
     if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
         let literal: ASTStructLiteral = (parser_get_struct_literal parser node_id)
         let identity: string = (resource_value_type parser node_id node_type states)
+        let first_staged: int = (array_length states)
         let union_literal: bool = (tc_str_starts_with identity "#union:")
         let supported: bool = (>= (resource_owned_union_index parser identity) 0)
         let mut i: int = 0
@@ -1486,10 +1624,11 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
                 (resource_flow_error diags file_name literal.line literal.column "resource union payloads need ownership lowering")
             }
             set flow (resource_flow_node parser (at literal.field_value_ids i) (at literal.field_value_types i) flow.states true loop_entry diags file_name return_type "")
+            set flow (resource_stage_value parser flow (at literal.field_value_ids i) (at literal.field_value_types i) field_type literal.line literal.column)
             set i (+ i 1)
         }
         if (and flow.next (and (not move) (resource_type_is_declared parser identity))) { (resource_flow_error diags file_name literal.line literal.column "resource construction has no resolved owner") }
-        return flow
+        return ResourceFlow { states: (resource_unstage flow.states first_staged), next: flow.next }
     }
     if (== node_type ParseNodeType.PNODE_ARRAY_LITERAL) {
         let literal_array: ASTArrayLiteral = (parser_get_array_literal parser node_id)
@@ -1499,6 +1638,74 @@ fn resource_flow_node(parser: Parser, node_id: int, node_type: int, states: arra
             if (resource_type_is_declared parser (resource_value_type parser element.node_id element.node_type flow.states)) { (resource_flow_error diags file_name literal_array.line literal_array.column "resource-bearing collections are not supported") }
             set flow (resource_flow_node parser element.node_id element.node_type flow.states true loop_entry diags file_name return_type "")
             set i (+ i 1)
+        }
+        return flow
+    }
+    if (== node_type ParseNodeType.PNODE_HANDLE_EXPR) {
+        let node: ASTEffectHandle = (at parser.handlers node_id)
+        let owner: int = (effect_handler_owner parser node)
+        if (< owner 0) {
+            (resource_flow_error diags file_name node.line node.column "I require a resolved handler ownership signature")
+            return flow
+        }
+        let declaration: ASTEffectDecl = (at parser.effects owner)
+        let mut arm: int = 0
+        while (< arm (array_length node.arm_ids)) {
+            let operation: int = (effect_operation_index declaration (at node.operation_names arm))
+            let count: int = (at node.parameter_counts arm)
+            if (or (< operation 0) (!= count (at declaration.parameter_counts operation))) {
+                (resource_flow_error diags file_name node.line node.column "I require matching handler ownership parameters")
+            } else {
+                let mut bindings: array<ResourceState> = (resource_capture_states parser states)
+                let first: int = (array_length bindings)
+                let mut param: int = 0
+                while (< param count) {
+                    let name: string = (at node.parameter_names (+ (at node.parameter_starts arm) param))
+                    let nominal: string = (resource_type_identity parser (at declaration.parameter_types (+ (at declaration.parameter_starts operation) param)) declaration.line)
+                    (resource_check_annotation parser nominal diags file_name node.line node.column)
+                    set bindings (array_push bindings ResourceState { role: 0, held_places: [], name: name, type_name: nominal, moved: false, line: node.line, column: node.column })
+                    set param (+ param 1)
+                }
+                let id: int = (at node.arm_ids arm)
+                let kind: int = (at node.arm_types arm)
+                if (resource_handler_loop_escape parser id kind 0 0) {
+                    (resource_flow_error diags file_name node.line node.column "I cannot transfer loop control across a handler boundary")
+                }
+                let result_type: string = (resource_type_identity parser (at declaration.return_types operation) declaration.line)
+                let checked: ResourceFlow = (resource_flow_value parser id kind result_type bindings true [] diags file_name return_type)
+                if checked.next { (resource_resolve_exit parser checked.states first diags file_name) }
+            }
+            set arm (+ arm 1)
+        }
+        return (resource_flow_value parser node.body_id node.body_type expected_type states move loop_entry diags file_name return_type)
+    }
+    if (== node_type ParseNodeType.PNODE_EFFECT_OP) {
+        let node: ASTEffectPerform = (at parser.performs node_id)
+        let owner: int = (effect_decl_index parser node.effect_name)
+        if (< owner 0) { (resource_flow_error diags file_name node.line node.column "I require a declared effect ownership signature") return flow }
+        let declaration: ASTEffectDecl = (at parser.effects owner)
+        let operation: int = (effect_operation_index declaration node.operation_name)
+        if (< operation 0) { (resource_flow_error diags file_name node.line node.column "I require a declared operation ownership signature") return flow }
+        if (resource_has_staged states) { (resource_flow_error diags file_name node.line node.column "I cannot abandon a staged resource across an effect") }
+        let first_staged: int = (array_length states)
+        let mut arg: int = 0
+        while (and flow.next (< arg (array_length node.argument_ids))) {
+            let id: int = (at node.argument_ids arg)
+            let kind: int = (at node.argument_types arg)
+            let mut context: string = ""
+            if (< arg (at declaration.parameter_counts operation)) {
+                set context (resource_type_identity parser (at declaration.parameter_types (+ (at declaration.parameter_starts operation) arg)) declaration.line)
+            }
+            set flow (resource_flow_value parser id kind context flow.states true loop_entry diags file_name return_type)
+            set flow (resource_stage_value parser flow id kind context node.line node.column)
+            set arg (+ arg 1)
+        }
+        set flow ResourceFlow { states: (resource_unstage flow.states first_staged), next: flow.next }
+        if flow.next {
+            (resource_resolve_exit parser flow.states 0 diags file_name)
+            if (and (not move) (resource_type_is_declared parser (resource_value_type parser node_id node_type states))) {
+                (resource_flow_error diags file_name node.line node.column "I require an owner for a resumed resource")
+            }
         }
         return flow
     }
@@ -1512,7 +1719,7 @@ shadow resource_flow_node {
     assert flow.next
     let parser: Parser = (resource_test_parser "resource struct File { fd: int } fn read(file: File) -> int { return file.fd }")
     let ret: ASTReturn = (parser_get_return parser 0)
-    let states: array<ResourceState> = [ResourceState { held_places: [], name: "file", type_name: "File", moved: false, line: 1, column: 1 }]
+    let states: array<ResourceState> = [ResourceState { role: 0, held_places: [], name: "file", type_name: "File", moved: false, line: 1, column: 1 }]
     let diags: List<CompilerDiagnostic> = (list_CompilerDiagnostic_new)
     let observed: ResourceFlow = (resource_flow_node parser ret.value ret.value_type states false [] diags "test.nano" "" "")
     let observed_state: ResourceState = (at observed.states 0)
@@ -1562,7 +1769,7 @@ fn resource_check_function(parser: Parser, func: ASTFunction, diags: List<Compil
     while (< i func.param_count) {
         let param: ASTLet = (parser_get_let parser (+ func.param_start i))
         (resource_check_annotation parser param.var_type diags file_name param.line param.column)
-        set states (array_push states ResourceState { held_places: [], name: param.name, type_name: (resource_type_identity parser param.var_type param.line), moved: false, line: param.line, column: param.column })
+        set states (array_push states ResourceState { role: 0, held_places: [], name: param.name, type_name: (resource_type_identity parser param.var_type param.line), moved: false, line: param.line, column: param.column })
         set i (+ i 1)
     }
     if (< func.body 0) { return }
@@ -4100,6 +4307,57 @@ shadow check_array_literal_context {
     assert (not (types_equal bad_alias expected))
 }
 
+fn tc_record_spread(parser: Parser, literal: ASTStructLiteral, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
+    let source: NSType = (check_expr_node parser (at literal.field_value_ids 0) (at literal.field_value_types 0) symbols diags file_name)
+    let mut record_index: int = -1
+    let mut r: int = 0
+    while (< r parser.structs_count) {
+        if (== (parser_get_struct_def parser r).name source.name) { set record_index r }
+        set r (+ r 1)
+    }
+    if (or (!= source.kind TypeKind.TYPE_STRUCT) (< record_index 0)) {
+        (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require a declared record source for a spread." (Diagnostics.diag_location file_name literal.line literal.column)))
+        return (type_unknown_named "spread")
+    }
+    let record: ASTStruct = (parser_get_struct_def parser record_index)
+    let mut i: int = 1
+    while (< i literal.field_count) {
+        let name: string = (at literal.field_names i)
+        let mut prior: int = 1
+        while (< prior i) {
+            if (== (at literal.field_names prior) name) { (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require distinct record spread overrides." (Diagnostics.diag_location file_name literal.line literal.column))) }
+            set prior (+ prior 1)
+        }
+        let mut found: bool = false
+        let mut field: int = 0
+        while (< field record.field_count) {
+            if (== name (at record.field_names field)) {
+                set found true
+                let id: int = (at literal.field_value_ids i)
+                let kind: int = (at literal.field_value_types i)
+                let raw: NSType = (check_expr_node parser id kind symbols diags file_name)
+                let expected: NSType = (type_from_string_with_parser parser (at record.field_types field))
+                let checked: NSType = (check_constructor_argument parser id kind raw expected symbols diags file_name)
+                if (not (types_equal checked expected)) { (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require a spread override to match its declared field type." (Diagnostics.diag_location file_name literal.line literal.column))) }
+                if (resource_type_is_declared parser (resource_type_identity parser (at record.field_types field) record.line)) {
+                    (resource_flow_error diags file_name literal.line literal.column "I cannot discard an inherited resource field in a spread override")
+                }
+            }
+            set field (+ field 1)
+        }
+        if (not found) { (Diagnostics.diag_list_add diags (Diagnostics.diag_typecheck_error "E0001" "I require a declared field name for a spread override." (Diagnostics.diag_location file_name literal.line literal.column))) }
+        set i (+ i 1)
+    }
+    return source
+}
+shadow tc_record_spread {
+    let good: Parser = (resource_test_parser "struct Point{x:int,y:int} fn main()->int{let p:Point=Point{x:1,y:2} let q={..p,x:7} return q.x}")
+    assert (not good.has_error)
+    assert (not (typecheck_phase good "spread.nano").had_error)
+    let bad: Parser = (resource_test_parser "struct Point{x:int} fn main()->int{let p:Point=Point{x:1} let q={..p,x:true} return 7}")
+    assert (typecheck_phase bad "spread.nano").had_error
+}
+
 # I check callable storage fields even when their containing function is unused.
 fn check_record_callable_fields(parser: Parser, literal: ASTStructLiteral, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> void {
     let mut r: int = 0
@@ -5284,6 +5542,7 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
     } else { (print "") }
     if (== node_type ParseNodeType.PNODE_STRUCT_LITERAL) {
         let sl: ASTStructLiteral = (parser_get_struct_literal parser node_id)
+        if (and (> sl.field_count 0) (== (at sl.field_names 0) "..")) { return (tc_record_spread parser sl symbols diags file_name) }
         (check_record_callable_fields parser sl symbols diags file_name)
         return NSType {
             kind: TypeKind.TYPE_STRUCT,

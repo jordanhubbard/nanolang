@@ -1,0 +1,32 @@
+[
+  {
+    "argv": [
+      "/private/tmp/nl51-selfhost-resource-effects/product-audit/seed",
+      "/Users/jordanh/Src/nanolang/tests/test_resource_effect_checker.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-selfhost-resource-effects/product-audit/checker.nvm"
+    ],
+    "returncode": 0,
+    "seconds": 103.63506887492258
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_vm",
+      "--verify-only",
+      "/private/tmp/nl51-selfhost-resource-effects/product-audit/checker.nvm"
+    ],
+    "returncode": 0,
+    "seconds": 0.04486625001300126
+  },
+  {
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nvm2c",
+      "/private/tmp/nl51-selfhost-resource-effects/product-audit/checker.nvm",
+      "-o",
+      "/private/tmp/nl51-selfhost-resource-effects/product-audit/checker.c"
+    ],
+    "returncode": 1,
+    "seconds": 14.238015166018158
+  }
+]

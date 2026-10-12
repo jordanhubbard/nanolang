@@ -1,0 +1,135 @@
+test_spread_cannot_drop_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_cannot_drop_inherited_owner) ... 
+  test_spread_cannot_drop_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_cannot_drop_inherited_owner) (route='frontend') ... FAIL
+  test_spread_cannot_drop_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_cannot_drop_inherited_owner) (route='native') ... FAIL
+  test_spread_cannot_drop_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_cannot_drop_inherited_owner) (route='selfhost-checker') ... FAIL
+test_spread_carries_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_carries_inherited_owner) ... 
+  test_spread_carries_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_carries_inherited_owner) (route='frontend') ... FAIL
+  test_spread_carries_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_carries_inherited_owner) (route='native') ... FAIL
+  test_spread_carries_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_carries_inherited_owner) (route='selfhost-checker') ... FAIL
+
+======================================================================
+FAIL: test_spread_cannot_drop_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_cannot_drop_inherited_owner) (route='frontend')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 32, in check
+    self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1 : Error at line 4, column 12: Expected field name
+Error at line 4, column 12: Expected '}' after struct fields (got HANDLE)
+Error at line 4, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 19: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 25: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+I require every field name in an owned record pattern.
+Error at line 4, column 63: Unexpected token in expression: RBRACE (type=10)
+Error at line 4, column 63: Expected expression after 'handle'
+Error at line 4, column 64: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 65: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 69: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 76: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 77: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 85: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 91: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 92: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 37: Expected field name in struct literal
+Error at line 5, column 37: Expected '}' at end of struct literal (got HANDLE)
+Error at line 5, column 43: Unexpected token in expression: COLON (type=14)
+Error at line 5, column 43: Expected expression after 'handle'
+... stopping after 20 errors
+AFFINE_C_FRONTEND_FAILED:parser
+
+
+======================================================================
+FAIL: test_spread_cannot_drop_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_cannot_drop_inherited_owner) (route='native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 34, in check
+    self.assertIn('ownership', result.stdout+result.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ownership' not found in "Error at line 4, column 12: Expected field name\nError at line 4, column 12: Expected '}' after struct fields (got HANDLE)\nError at line 4, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 4, column 19: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 4, column 25: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nI require every field name in an owned record pattern.\nError at line 4, column 63: Unexpected token in expression: RBRACE (type=10)\nError at line 4, column 63: Expected expression after 'handle'\nError at line 4, column 64: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 4, column 65: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 4, column 69: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 4, column 76: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 4, column 77: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 4, column 85: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 4, column 91: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 4, column 92: Expected import, struct, enum, union, extern, function, constant or shadow-test definition\nError at line 5, column 37: Expected field name in struct literal\nError at line 5, column 37: Expected '}' at end of struct literal (got HANDLE)\nError at line 5, column 43: Unexpected token in expression: COLON (type=14)\nError at line 5, column 43: Expected expression after 'handle'\n... stopping after 20 errors\nParsing error\n"
+
+======================================================================
+FAIL: test_spread_cannot_drop_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_cannot_drop_inherited_owner) (route='selfhost-checker')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 32, in check
+    self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1 : I could not parse the ownership fixture
+
+
+======================================================================
+FAIL: test_spread_carries_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_carries_inherited_owner) (route='frontend')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 32, in check
+    self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : Error at line 4, column 12: Expected field name
+Error at line 4, column 12: Expected '}' after struct fields (got HANDLE)
+Error at line 4, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 19: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 25: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+I require every field name in an owned record pattern.
+Error at line 4, column 63: Unexpected token in expression: RBRACE (type=10)
+Error at line 4, column 63: Expected expression after 'handle'
+Error at line 4, column 64: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 65: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 69: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 76: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 77: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 85: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 91: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 92: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 37: Expected field name in struct literal
+Error at line 5, column 37: Expected '}' at end of struct literal (got HANDLE)
+Error at line 5, column 43: Unexpected token in expression: COLON (type=14)
+Error at line 5, column 43: Expected expression after 'handle'
+... stopping after 20 errors
+AFFINE_C_FRONTEND_FAILED:parser
+
+
+======================================================================
+FAIL: test_spread_carries_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_carries_inherited_owner) (route='native')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 32, in check
+    self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error at line 4, column 12: Expected field name
+Error at line 4, column 12: Expected '}' after struct fields (got HANDLE)
+Error at line 4, column 18: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 19: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 25: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+I require every field name in an owned record pattern.
+Error at line 4, column 63: Unexpected token in expression: RBRACE (type=10)
+Error at line 4, column 63: Expected expression after 'handle'
+Error at line 4, column 64: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 65: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 69: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 76: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 77: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 85: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 91: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 4, column 92: Expected import, struct, enum, union, extern, function, constant or shadow-test definition
+Error at line 5, column 37: Expected field name in struct literal
+Error at line 5, column 37: Expected '}' at end of struct literal (got HANDLE)
+Error at line 5, column 43: Unexpected token in expression: COLON (type=14)
+Error at line 5, column 43: Expected expression after 'handle'
+... stopping after 20 errors
+Parsing error
+
+
+======================================================================
+FAIL: test_spread_carries_inherited_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_carries_inherited_owner) (route='selfhost-checker')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 32, in check
+    self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 0 : I could not parse the ownership fixture
+
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.082s
+
+FAILED (failures=6)

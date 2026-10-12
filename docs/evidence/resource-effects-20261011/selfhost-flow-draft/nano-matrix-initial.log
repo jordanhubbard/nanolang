@@ -1,0 +1,52 @@
+test_array_alias_callable_shadow (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_array_alias_callable_shadow) ... ok
+test_array_alias_pipeline (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_array_alias_pipeline) ... ok
+test_callback_effect_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_callback_effect_preserves_live_owner) ... ok
+test_callback_shadow_does_not_use_global_summary (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_callback_shadow_does_not_use_global_summary) ... ok
+test_callee_contains_its_effect (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_callee_contains_its_effect) ... ok
+test_cannot_reinitialize_captured_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_cannot_reinitialize_captured_owner) ... ok
+test_consumed_handler_argument (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_consumed_handler_argument) ... ok
+test_declared_alias_contains_its_effect (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_declared_alias_contains_its_effect) ... ok
+test_declared_alias_effect_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_declared_alias_effect_preserves_live_owner) ... ok
+test_effect_free_callback_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_free_callback_preserves_live_owner) ... ok
+test_effect_free_match_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_free_match_preserves_live_owner) ... 
+  test_effect_free_match_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_free_match_preserves_live_owner) (route='selfhost-checker') ... FAIL
+test_effect_preserves_staged_spread_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_preserves_staged_spread_owner) ... 
+  test_effect_preserves_staged_spread_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_preserves_staged_spread_owner) (route='selfhost-checker') ... FAIL
+test_effectful_call_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_live_owner) ... ok
+test_effectful_call_preserves_staged_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effectful_call_preserves_staged_owner) ... ok
+test_forward_declared_callee_contains_its_effect (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_forward_declared_callee_contains_its_effect) ... ok
+test_forwarded_resource (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_forwarded_resource) ... ok
+test_handler_cannot_break_lexical_loop (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_handler_cannot_break_lexical_loop) ... ok
+test_handler_owns_nested_loop (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_handler_owns_nested_loop) ... ok
+test_invalid_ownership (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_invalid_ownership) ... ok
+test_lexical_exit_consumes_argument (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_lexical_exit_consumes_argument) ... ok
+test_mutual_recursion_propagates_effect (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_mutual_recursion_propagates_effect) ... ok
+test_nested_perform_preserves_staged_owners (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_nested_perform_preserves_staged_owners) ... ok
+test_partial_handler_does_not_hide_other_operation (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_partial_handler_does_not_hide_other_operation) ... ok
+test_transfer (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_transfer) ... ok
+test_transitive_effectful_call (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_transitive_effectful_call) ... ok
+
+======================================================================
+FAIL: test_effect_free_match_preserves_live_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_free_match_preserves_live_owner) (route='selfhost-checker')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 32, in check
+    self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot verify ownership: I cannot abandon a suspended resource across an effectful call
+
+
+======================================================================
+FAIL: test_effect_preserves_staged_spread_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_effect_preserves_staged_spread_owner) (route='selfhost-checker')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_resource_effect_frontend.py", line 32, in check
+    self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 2 != 1 : I could not parse the ownership fixture
+
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.801s
+
+FAILED (failures=2)

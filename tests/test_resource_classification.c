@@ -70,9 +70,10 @@ int main(void) {
     int counts[] = {0, 2};
     Type *arm_types[] = {NULL, payload_types};
     char **arm_names[] = {NULL, payload_names};
+    /* I retain distinct canonical identities, as nominal binding does before registration. */
     UnionDef choices[] = {
-        {.name = "Choice", .module_name = "caller"},
-        {.name = "Choice", .module_name = "owner", .variant_count = 2,
+        {.name = "__nano_union_caller_Choice", .original_name = "Choice", .module_name = "caller"},
+        {.name = "__nano_union_owner_Choice", .original_name = "Choice", .module_name = "owner", .variant_count = 2,
          .variant_field_counts = counts, .variant_field_types = arm_types,
          .variant_field_type_names = arm_names}
     };
@@ -80,6 +81,11 @@ int main(void) {
     scoped[2].field_type_names = &wrapper_name;
     env.unions = choices;
     env.union_count = 2;
+    assert(env_get_union(&env, "Choice") == &choices[0]);
+    env.current_module = "owner";
+    assert(env_get_union(&env, "Choice") == &choices[1]);
+    env.current_module = caller;
+    assert(env_get_union(&env, choices[1].name) == &choices[1]);
     assert(is_resource_type(&env, "Box"));
     assert(!is_resource_type(&env, "Choice"));
     assert(env.current_module == caller);

@@ -1,0 +1,33 @@
+test_all_fields_overridden (tests.test_selfhost_record_spreads.RecordSpreads.test_all_fields_overridden) ... ok
+test_inherited_fields_and_unchanged_source (tests.test_selfhost_record_spreads.RecordSpreads.test_inherited_fields_and_unchanged_source) ... ok
+test_invalid_sources_and_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_invalid_sources_and_overrides) ... ok
+test_nested_array_and_callable_fields (tests.test_selfhost_record_spreads.RecordSpreads.test_nested_array_and_callable_fields) ... ok
+test_no_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_no_overrides) ... ok
+test_source_once_and_override_order (tests.test_selfhost_record_spreads.RecordSpreads.test_source_once_and_override_order) ... 
+  test_source_once_and_override_order (tests.test_selfhost_record_spreads.RecordSpreads.test_source_once_and_override_order) (driver='bin/nano_virt') ... FAIL
+
+======================================================================
+FAIL: test_source_once_and_override_order (tests.test_selfhost_record_spreads.RecordSpreads.test_source_once_and_override_order) (driver='bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 33, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : 
+Runtime error: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpgq4w_3nq/main.nano:2:96
+  #1   $shadow_2_main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpgq4w_3nq/main.nano:3:13
+  #2   $shadow_entry  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpgq4w_3nq/main.nano:?
+I failed a shadow: Assertion failed
+Stack trace (most recent call first):
+  #0   main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpgq4w_3nq/main.nano:2:96
+  #1   $shadow_2_main  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpgq4w_3nq/main.nano:3:13
+  #2   $shadow_entry  /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpgq4w_3nq/main.nano:?
+I will not publish output after failed shadow execution
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 2.000s
+
+FAILED (failures=1)

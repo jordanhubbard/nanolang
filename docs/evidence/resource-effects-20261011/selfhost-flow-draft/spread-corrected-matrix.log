@@ -1,0 +1,11 @@
+test_all_fields_overridden (tests.test_selfhost_record_spreads.RecordSpreads.test_all_fields_overridden) ... ok
+test_inherited_fields_and_unchanged_source (tests.test_selfhost_record_spreads.RecordSpreads.test_inherited_fields_and_unchanged_source) ... ok
+test_invalid_sources_and_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_invalid_sources_and_overrides) ... ok
+test_nested_array_and_callable_fields (tests.test_selfhost_record_spreads.RecordSpreads.test_nested_array_and_callable_fields) ... ok
+test_no_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_no_overrides) ... ok
+test_source_once_and_override_order (tests.test_selfhost_record_spreads.RecordSpreads.test_source_once_and_override_order) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 3.672s
+
+OK

@@ -1,0 +1,218 @@
+[
+  {
+    "case": "both_arms",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "one_arm",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: branches disagree on resource ownership: file\nI cannot verify ownership: I cannot use a moved value: file\n"
+  },
+  {
+    "case": "resolved_return",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "leaking_return",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  },
+  {
+    "case": "observe_leak",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  },
+  {
+    "case": "hidden_owner",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  },
+  {
+    "case": "indirect_result_owner",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "indirect_result_discard",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource result has no resolved owner\n"
+  },
+  {
+    "case": "loop_break_True",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "loop_break_False",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  },
+  {
+    "case": "loop_continue_True",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "loop_continue_False",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  },
+  {
+    "case": "loop__True",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "loop__False",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  },
+  {
+    "case": "outer_loop_move",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: loop changes ownership of an outer resource: file\n"
+  },
+  {
+    "case": "move_consume",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "nested_leak",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: owner\n"
+  },
+  {
+    "case": "nested_return",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "nested_after_move",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: I cannot use a moved value: owner\n"
+  },
+  {
+    "case": "nested_collection",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource-bearing union collection payloads are not supported\n"
+  },
+  {
+    "case": "moved_observation",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: I cannot use a moved value\n"
+  },
+  {
+    "case": "observe_return",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "owner_257",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: remaining\n"
+  },
+  {
+    "case": "overwrite_True",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "overwrite_False",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: I cannot overwrite a live resource: file\n"
+  },
+  {
+    "case": "resource_array_parameter",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource-bearing union collection payloads are not supported\nI cannot verify ownership: resource-bearing union collection payloads are not supported\n"
+  },
+  {
+    "case": "resource_empty_array",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource-bearing union collection payloads are not supported\nI cannot verify ownership: resource-bearing union collection payloads are not supported\n"
+  },
+  {
+    "case": "extern_resource_array",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource-bearing union collection payloads are not supported\n"
+  },
+  {
+    "case": "return_parameter",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "ordinary_shadow",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "conditional_move",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: branches disagree on resource ownership: file\n"
+  },
+  {
+    "case": "unconditional_left_move",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "union_leak",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: owner\n"
+  },
+  {
+    "case": "union_return",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "union_envelope_leak",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: owner\n"
+  },
+  {
+    "case": "parameter_leak",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  }
+]

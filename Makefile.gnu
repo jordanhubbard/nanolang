@@ -3404,6 +3404,13 @@ $(OBJ_DIR)/test_affine_c_frontend: tests/test_affine_c_frontend.c $(COMMON_OBJEC
 test-resource-effect-frontend: $(OBJ_DIR)/test_affine_c_frontend $(BIN_DIR)/nanoc_c
 	NANOLANG_RESOURCE_EFFECT_ROUTES=frontend,native python3 -m unittest tests.test_resource_effect_frontend -v
 
+$(BIN_DIR)/test_resource_effect_checker: $(COMPILER_C) tests/test_resource_effect_checker.nano $(wildcard src_nano/*.nano src_nano/compiler/*.nano src_nano/generated/*.nano)
+	$(COMPILER_C) tests/test_resource_effect_checker.nano -o $@
+
+.PHONY: test-resource-effect-selfhost
+test-resource-effect-selfhost: $(BIN_DIR)/test_resource_effect_checker
+	NANOLANG_RESOURCE_EFFECT_ROUTES=selfhost-checker NANOLANG_RESOURCE_EFFECT_NANO_CHECKER=$(CURDIR)/$(BIN_DIR)/test_resource_effect_checker python3 -m unittest tests.test_resource_effect_frontend -v
+
 .PHONY: test-array-builtin-aliases
 test-array-builtin-aliases: $(BIN_DIR)/nanoc_c nano_virt nano_vm nvm2c
 	NANOLANG_EFFECT_TARGETS=vm,native python3 -m unittest tests.test_array_builtin_aliases tests.test_array_declaration_priority -v

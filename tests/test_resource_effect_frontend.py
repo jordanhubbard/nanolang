@@ -16,17 +16,22 @@ class ResourceEffectFrontend(unittest.TestCase):
     def check(self, declaration, body, accepted):
         routes = os.environ.get('NANOLANG_RESOURCE_EFFECT_ROUTES', 'frontend').split(',')
         for route in routes:
-            self.assertIn(route, ('frontend', 'native'))
+            self.assertIn(route, ('frontend', 'native', 'selfhost-checker'))
             with self.subTest(route=route), tempfile.TemporaryDirectory() as directory:
                 source = Path(directory)/'main.nano'
                 output = Path(directory)/'main'
                 source.write_text(HEADER+declaration+'\nfn main()->int{'+body+'}\nshadow main{assert true}\n')
                 output.write_bytes(b'prior artifact')
-                command = [ROOT/'obj/test_affine_c_frontend', source] if route == 'frontend' else [ROOT/'bin/nanoc_c', source, '-o', output]
+                if route == 'frontend':
+                    command = [ROOT/'obj/test_affine_c_frontend', source]
+                elif route == 'selfhost-checker':
+                    command = [os.environ['NANOLANG_RESOURCE_EFFECT_NANO_CHECKER'], source]
+                else:
+                    command = [ROOT/'bin/nanoc_c', source, '-o', output]
                 result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=90)
                 self.assertEqual(result.returncode, 0 if accepted else 1, result.stdout+result.stderr)
                 if not accepted:
-                    self.assertIn('ownership', result.stderr)
+                    self.assertIn('ownership', result.stdout+result.stderr)
                     self.assertEqual(output.read_bytes(), b'prior artifact')
                 elif route == 'native':
                     ran = subprocess.run([output], capture_output=True, text=True, timeout=10)
@@ -109,3 +114,24 @@ class ResourceEffectFrontend(unittest.TestCase):
 
     def test_declared_alias_contains_its_effect(self):
         self.check('effect Transfer{tick:int->int} fn array_map(n:int)->int{return handle {perform Transfer.tick(n)} with {tick number->{number}}} shadow array_map{assert true}', 'let h:Handle=Handle{value:7} let n:int=(array_map 0) return (consume h)', True)
+
+    def test_effect_free_match_preserves_live_owner(self):
+        self.check('effect Transfer{tick:int->int} union Choice{Some{value:int},None{}} fn choose(c:Choice)->int{match c{Some(value)=>{return value.value} None(value)=>{return 0}}} shadow choose{assert true}', 'let h:Handle=Handle{value:7} let n:int=(choose Choice.Some{value:1}) return (consume h)', True)
+
+    def test_handler_cannot_break_lexical_loop(self):
+        self.check('effect Transfer{tick:int->int}', 'while true {let n:int=handle {perform Transfer.tick(0)} with {tick number->{if (> number 0){break} 0}} break} return 7', False)
+
+    def test_handler_owns_nested_loop(self):
+        self.check('effect Transfer{tick:int->int}', 'return handle {perform Transfer.tick(7)} with {tick number->{while false {break} number}}', True)
+
+    def test_spread_transfers_source_owner(self):
+        self.check('', 'let h:Handle=Handle{value:1} let k:Handle={..h,value:7} return (consume k)', True)
+
+    def test_spread_cannot_reuse_source_owner(self):
+        self.check('', 'let h:Handle=Handle{value:1} let k:Handle={..h,value:7} let n:int=(consume h) return (consume k)', False)
+
+    def test_spread_cannot_drop_inherited_owner(self):
+        self.check('struct Box{item:Handle} fn take(box:Box)->int{let Box{item}=box return (consume item)} shadow take{assert true}', 'let original:Box=Box{item:Handle{value:1}} let updated:Box={..original,item:Handle{value:7}} return (take updated)', False)
+
+    def test_spread_carries_inherited_owner(self):
+        self.check('struct Box{item:Handle} fn take(box:Box)->int{let Box{item}=box return (consume item)} shadow take{assert true}', 'let original:Box=Box{item:Handle{value:7}} let updated:Box={..original} return (take updated)', True)

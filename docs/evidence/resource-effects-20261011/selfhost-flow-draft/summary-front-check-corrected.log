@@ -1,0 +1,4 @@
+Warning at line 9, column 1: Unused variable 'parser'
+Error: Program must define a 'main' function
+  Hint: Add 'fn main() -> int { ... return 0 }' to your program.
+AFFINE_C_FRONTEND_REFUSED:typecheck

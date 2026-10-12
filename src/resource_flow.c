@@ -729,6 +729,19 @@ static unsigned own_node(OwnFlow *flow, ASTNode *node, bool move) {
             unsigned pending = flow->pending_values;
             if (node->type == AST_STRUCT_LITERAL) {
                 ASTNode *spread = node->as.struct_literal.spread_source;
+                const char *source_name = own_type(flow, spread);
+                StructDef *source = source_name ? env_get_struct(flow->env, source_name) : NULL;
+                for (int i = 0; source && i < count; ++i) {
+                    const char *field = node->as.struct_literal.field_names[i];
+                    for (int f = 0; f < source->field_count; ++f) {
+                        if (strcmp(field, source->field_names[f])) continue;
+                        const char *name = source->field_type_names ? source->field_type_names[f] : NULL;
+                        const TypeInfo *info = source->field_type_info ? source->field_type_info[f] : NULL;
+                        if (own_value_resource(flow, spread, name, info))
+                            own_error(flow, values[i], "I cannot discard an inherited resource field in a spread override", field);
+                        break;
+                    }
+                }
                 result = own_node(flow, spread, true);
                 if (spread && own_value_resource(flow, spread, own_type(flow, spread), own_expr_info(flow, spread)))
                     flow->pending_values++;

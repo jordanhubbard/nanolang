@@ -2324,12 +2324,12 @@ shadow parse_union_construct {
 }
 
 /* Parse struct literal: StructName{field1: val1, field2: val2} */
-fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_column: int) -> Parser {
-    /* p should be positioned after the { */
-    let mut field_count: int = 0
-    let mut field_names: array<string> = []
-    let mut field_value_ids: array<int> = []
-    let mut field_value_types: array<int> = []
+fn parse_record_fields(p: Parser, struct_name: string, start_line: int, start_column: int, names: array<string>, ids: array<int>, kinds: array<int>) -> Parser {
+    # I preserve source order, including a leading spread operand.
+    let mut field_count: int = (array_length names)
+    let mut field_names: array<string> = names
+    let mut field_value_ids: array<int> = ids
+    let mut field_value_types: array<int> = kinds
     let mut pcur: Parser = p
     
     /* Parse fields */
@@ -2389,8 +2389,43 @@ fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_c
     return (parser_with_error pcur true)
 }
 
+shadow parse_record_fields {
+    let tokens: List<LexerToken> = (tokenize_string "x:7}" "record.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_record_fields (parser_new tokens (list_LexerToken_length tokens) "record.nano") "Point" 1 1 [] [] [])
+    assert (not p.has_error)
+    assert (== (parser_get_struct_literal p p.last_expr_node_id).field_count 1)
+}
+
+fn parse_struct_literal(p: Parser, struct_name: string, start_line: int, start_column: int) -> Parser {
+    return (parse_record_fields p struct_name start_line start_column [] [] [])
+}
 shadow parse_struct_literal {
-    assert (== 1 1)
+    let tokens: List<LexerToken> = (tokenize_string "}" "record.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_struct_literal (parser_new tokens (list_LexerToken_length tokens) "record.nano") "Empty" 1 1)
+    assert (not p.has_error)
+    assert (== (parser_get_struct_literal p p.last_expr_node_id).struct_name "Empty")
+}
+
+# I reserve the impossible field name '..' for one evaluated spread source.
+fn parse_record_spread(p: Parser) -> Parser {
+    let token: LexerToken = (parser_current p)
+    let mut cur: Parser = (parser_advance (parser_advance (parser_advance p)))
+    set cur (parse_expression cur)
+    if cur.has_error { return cur }
+    let source_id: int = cur.last_expr_node_id
+    let source_type: int = cur.last_expr_node_type
+    if (== (parser_current cur).token_type (token_comma)) { set cur (parser_advance cur) }
+    else { if (!= (parser_current cur).token_type (token_rbrace)) { return (parser_with_error cur true) } }
+    return (parse_record_fields cur "" token.line token.column [".."] [source_id] [source_type])
+}
+shadow parse_record_spread {
+    let tokens: List<LexerToken> = (tokenize_string "{..source,x:7}" "record.nano" (list_CompilerDiagnostic_new))
+    let p: Parser = (parse_record_spread (parser_new tokens (list_LexerToken_length tokens) "record.nano"))
+    assert (not p.has_error)
+    let literal: ASTStructLiteral = (parser_get_struct_literal p p.last_expr_node_id)
+    assert (== literal.field_count 2)
+    assert (== (at literal.field_names 0) "..")
+    assert (== (at literal.field_value_types 0) ParseNodeType.PNODE_IDENTIFIER)
 }
 
 /* Parse cond expression: (cond ((test) val)+ (else default))
@@ -2806,6 +2841,7 @@ fn parse_primary(p: Parser) -> Parser {
     } else {
         let tok: LexerToken = (parser_current p)
 
+        if (and (== tok.token_type (token_lbrace)) (and (== (parser_peek p 1) (token_dot)) (== (parser_peek p 2) (token_dot)))) { return (parse_record_spread p) }
         if (== tok.token_type LexerTokenType.TOKEN_HANDLE) { return (parse_effect_handle p) }
         if (and (== tok.token_type LexerTokenType.TOKEN_IDENTIFIER) (== tok.value "perform")) { return (parse_effect_perform p false) }
         if (and (== tok.token_type LexerTokenType.TOKEN_LPAREN) (== (parser_peek p 1) LexerTokenType.TOKEN_IDENTIFIER)) {

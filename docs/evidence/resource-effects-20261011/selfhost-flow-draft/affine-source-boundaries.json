@@ -1,0 +1,506 @@
+[
+  {
+    "case": "both_arms",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "both_arms",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "one_arm",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 4, column 5: branches disagree on resource ownership \u2014 file\nI cannot verify affine ownership at line 5, column 30: I cannot use a moved value \u2014 file\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "one_arm",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: branches disagree on resource ownership: file\nI cannot verify ownership: I cannot use a moved value: file\n"
+  },
+  {
+    "case": "resolved_return",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "resolved_return",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "leaking_return",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 4, column 16: resource remains live at scope exit \u2014 file\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "leaking_return",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  },
+  {
+    "case": "observe_leak",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 3, column 37: resource remains live at scope exit \u2014 file\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "observe_leak",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  },
+  {
+    "case": "hidden_owner",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 3, column 1: resource remains live at scope exit \u2014 file\nWarning at line 3, column 1: Unused variable 'file'\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "hidden_owner",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  },
+  {
+    "case": "indirect_result_owner",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "indirect_result_owner",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "indirect_result_discard",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 4, column 5: resource result has no resolved owner \u2014 FileHandle\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "indirect_result_discard",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource result has no resolved owner\n"
+  },
+  {
+    "case": "loop_break_True",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "loop_break_True",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "loop_break_False",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 5, column 1: resource remains live at scope exit \u2014 file\nWarning at line 4, column 1: Unused variable 'file'\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "loop_break_False",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  },
+  {
+    "case": "loop_continue_True",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "loop_continue_True",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "loop_continue_False",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 5, column 1: resource remains live at scope exit \u2014 file\nWarning at line 4, column 1: Unused variable 'file'\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "loop_continue_False",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  },
+  {
+    "case": "loop__True",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "loop__True",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "loop__False",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 3, column 47: resource remains live at scope exit \u2014 file\nWarning at line 4, column 1: Unused variable 'file'\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "loop__False",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  },
+  {
+    "case": "outer_loop_move",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 4, column 5: loop changes ownership of an outer resource \u2014 file\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "outer_loop_move",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: loop changes ownership of an outer resource: file\n"
+  },
+  {
+    "case": "move_consume",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "move_consume",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "nested_leak",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 5, column 33: resource remains live at scope exit \u2014 owner\nWarning at line 5, column 1: Unused variable 'owner'\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "nested_leak",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: owner\n"
+  },
+  {
+    "case": "nested_return",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "nested_return",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "nested_after_move",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 8, column 50: I cannot use a moved value \u2014 owner\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "nested_after_move",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: I cannot use a moved value: owner\n"
+  },
+  {
+    "case": "nested_collection",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 4, column 8: I reject resource-bearing collection elements \u2014 Box\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "nested_collection",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource-bearing union collection payloads are not supported\n"
+  },
+  {
+    "case": "moved_observation",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 6, column 17: I cannot use a moved value \u2014 first\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "moved_observation",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: I cannot use a moved value\n"
+  },
+  {
+    "case": "observe_return",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning at line 4, column 5: Unused variable 'observed'\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "observe_return",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "owner_257",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 517, column 1: resource remains live at scope exit \u2014 remaining\nWarning at line 516, column 1: Unused variable 'remaining'\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "owner_257",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: remaining\n"
+  },
+  {
+    "case": "overwrite_True",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "overwrite_True",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "overwrite_False",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 6, column 5: I cannot overwrite a live resource \u2014 file\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "overwrite_False",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: I cannot overwrite a live resource: file\n"
+  },
+  {
+    "case": "resource_array_parameter",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 3, column 1: I reject resource-bearing collection elements \u2014 FileHandle\nI cannot verify affine ownership at line 3, column 1: I reject resource-bearing collection elements \u2014 FileHandle\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "resource_array_parameter",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource-bearing union collection payloads are not supported\nI cannot verify ownership: resource-bearing union collection payloads are not supported\n"
+  },
+  {
+    "case": "resource_empty_array",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 3, column 1: I reject resource-bearing collection elements \u2014 FileHandle\nI cannot verify affine ownership at line 4, column 5: I reject resource-bearing collection elements \u2014 FileHandle\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "resource_empty_array",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource-bearing union collection payloads are not supported\nI cannot verify ownership: resource-bearing union collection payloads are not supported\n"
+  },
+  {
+    "case": "extern_resource_array",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 3, column 8: I reject resource-bearing collection elements \u2014 FileHandle\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "extern_resource_array",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource-bearing union collection payloads are not supported\n"
+  },
+  {
+    "case": "return_parameter",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "return_parameter",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "ordinary_shadow",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "ordinary_shadow",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "conditional_move",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 5, column 36: branches disagree on resource ownership \u2014 file\nI cannot verify affine ownership at line 6, column 30: I cannot use a moved value \u2014 file\nWarning at line 5, column 14: Unused variable 'condition'\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "conditional_move",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: branches disagree on resource ownership: file\n"
+  },
+  {
+    "case": "unconditional_left_move",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning at line 5, column 14: Unused variable 'condition'\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "unconditional_left_move",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "union_leak",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 5, column 34: resource remains live at scope exit \u2014 owner\nWarning at line 5, column 1: Unused variable 'owner'\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "union_leak",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: owner\n"
+  },
+  {
+    "case": "union_return",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": true,
+    "returncode": 0,
+    "output": "AFFINE_C_FRONTEND_ACCEPTED\nWarning: Function 'probe' is missing a shadow test\n"
+  },
+  {
+    "case": "union_return",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": true,
+    "returncode": 0,
+    "output": ""
+  },
+  {
+    "case": "union_envelope_leak",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 5, column 36: resource remains live at scope exit \u2014 owner\nWarning at line 5, column 1: Unused variable 'owner'\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "union_envelope_leak",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: owner\n"
+  },
+  {
+    "case": "parameter_leak",
+    "route": "obj/test_affine_c_frontend",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify affine ownership at line 3, column 37: resource remains live at scope exit \u2014 file\nWarning at line 3, column 1: Unused variable 'file'\nWarning: Function 'probe' is missing a shadow test\nAFFINE_C_FRONTEND_REFUSED:typecheck\n"
+  },
+  {
+    "case": "parameter_leak",
+    "route": "/private/tmp/nl51-selfhost-resource-effects/checker-v2",
+    "accepted": false,
+    "returncode": 1,
+    "output": "I cannot verify ownership: resource remains live at scope exit: file\n"
+  }
+]

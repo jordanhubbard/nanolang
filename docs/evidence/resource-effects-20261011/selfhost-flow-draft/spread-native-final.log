@@ -1,0 +1,131 @@
+test_all_fields_overridden (tests.test_selfhost_record_spreads.RecordSpreads.test_all_fields_overridden) ... 
+  test_all_fields_overridden (tests.test_selfhost_record_spreads.RecordSpreads.test_all_fields_overridden) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt') ... ERROR
+test_inherited_fields_and_unchanged_source (tests.test_selfhost_record_spreads.RecordSpreads.test_inherited_fields_and_unchanged_source) ... 
+  test_inherited_fields_and_unchanged_source (tests.test_selfhost_record_spreads.RecordSpreads.test_inherited_fields_and_unchanged_source) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt') ... ERROR
+test_invalid_sources_and_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_invalid_sources_and_overrides) ... ok
+test_nested_array_and_callable_fields (tests.test_selfhost_record_spreads.RecordSpreads.test_nested_array_and_callable_fields) ... 
+  test_nested_array_and_callable_fields (tests.test_selfhost_record_spreads.RecordSpreads.test_nested_array_and_callable_fields) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt') ... ERROR
+test_no_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_no_overrides) ... 
+  test_no_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_no_overrides) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt') ... ERROR
+test_source_once_and_override_order (tests.test_selfhost_record_spreads.RecordSpreads.test_source_once_and_override_order) ... 
+  test_source_once_and_override_order (tests.test_selfhost_record_spreads.RecordSpreads.test_source_once_and_override_order) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt') ... ERROR
+
+======================================================================
+ERROR: test_all_fields_overridden (tests.test_selfhost_record_spreads.RecordSpreads.test_all_fields_overridden) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 35, in check
+    ran = subprocess.run([output], capture_output=True, text=True, timeout=10)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp5_2x_vx1/main.nvm')
+
+======================================================================
+ERROR: test_inherited_fields_and_unchanged_source (tests.test_selfhost_record_spreads.RecordSpreads.test_inherited_fields_and_unchanged_source) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 35, in check
+    ran = subprocess.run([output], capture_output=True, text=True, timeout=10)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpkwodyg58/main.nvm')
+
+======================================================================
+ERROR: test_nested_array_and_callable_fields (tests.test_selfhost_record_spreads.RecordSpreads.test_nested_array_and_callable_fields) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 35, in check
+    ran = subprocess.run([output], capture_output=True, text=True, timeout=10)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp3z82tohs/main.nvm')
+
+======================================================================
+ERROR: test_no_overrides (tests.test_selfhost_record_spreads.RecordSpreads.test_no_overrides) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 35, in check
+    ran = subprocess.run([output], capture_output=True, text=True, timeout=10)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmp69xbp8ey/main.nvm')
+
+======================================================================
+ERROR: test_source_once_and_override_order (tests.test_selfhost_record_spreads.RecordSpreads.test_source_once_and_override_order) (driver='/Users/jordanh/Src/nanolang/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_array_builtin_aliases.py", line 35, in check
+    ran = subprocess.run([output], capture_output=True, text=True, timeout=10)
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.8_1/Frameworks/Python.framework/Versions/3.14/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+PermissionError: [Errno 13] Permission denied: PosixPath('/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpi91wf_yz/main.nvm')
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.205s
+
+FAILED (errors=5)

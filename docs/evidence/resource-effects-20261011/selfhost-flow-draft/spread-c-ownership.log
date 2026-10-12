@@ -1,0 +1,7 @@
+test_spread_transfers_source_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_transfers_source_owner) ... ok
+test_spread_cannot_reuse_source_owner (tests.test_resource_effect_frontend.ResourceEffectFrontend.test_spread_cannot_reuse_source_owner) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.555s
+
+OK

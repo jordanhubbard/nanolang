@@ -1,0 +1,86 @@
+{
+  "revision": "0a23dbfe8f9ba801287774753065e7561da7e7f9",
+  "inputs": {
+    "src_nano/compiler/resource_effects.nano": "53f03f366bd7b069f175c7e24f0e35b04d309f0acb39541ce5ea4666432b7dd4",
+    "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+    "tests/test_selfhost_record_spreads.py": "d49c7510c5ece17f630f3d6b2d3b8d0c38ad2091139c8dbad5c9038563a7a8f9",
+    "src/resource_flow.c": "430deb98a302f198ad45976f51a5681d9c5a5d53bf767cbe826002464ce39317",
+    "src/resource_effect_summary.inc": "494ce46ba95abc475d89a6068d021f8341133bfee4b7434c935f3c82e40a7879",
+    "src/builtins_registry.c": "bc14b5350ef68ba2263a3942b5d37e18391beb673ac5012086ed573de15f02d8",
+    "src/builtins_registry.h": "a1a80c99c9d74739a0584d9dd9e7c8f9f5a02bf658da9302046778330833c520",
+    "tests/test_array_builtin_aliases.py": "4c8aa9c6fff787a5390e491d322c026faa7ed956ba4b0666bd9589dce9adef9b",
+    "tests/test_resource_effect_frontend.py": "a90bdb5ce2f745c3953ec0e8a85367e264aa8f05e6e0b89a09c8987b21bea21f",
+    "src/nanolang.h": "5978e13f69ed250e0a8b5860185cb99b96b7f20cd0b972fd267e109672a24a76",
+    "src/typechecker.c": "d2bee987cf8ac4904a18c17773c3df1c1897eceec0467d1eae6c51e76c63c5b4",
+    "src_nano/typecheck.nano": "1ca1f1caf50e531fb7a4ea2a248ef3b9c7579185e70fb6b8bda5f630e08fe47a",
+    "src/nanovirt/codegen.c": "071c3b5b349fd9317c2bd74b420eec345b7404d60eeafec39cd232ea7cd0f072",
+    "src/nanovirt/generic_codegen.inc": "37699303476f906782114c026f9f2fb017dfe37ab3dfd8f8edf00a9c5a540797",
+    "src_nano/compiler/nanoisa_codegen.nano": "a55ba7e4bfb9087a5dd56ff0e0eafe8954c904cf020a12865f85bb225d286910",
+    "tests/test_effect_signature_identity.py": "2048dc1ea3243e5a2274d4b424c2fa2fae41f972460de71b3c85b9f459c68abd",
+    "src/nanoisa/nvm2c.c": "2c70d3cb4e9bdd22da6a8476e11494bc2243173244c6473b4ae0849251f2822b",
+    "tests/test_union_arrays.py": "97ea26c82daf6fe3c0fafc62718f54528229b93da526b3129f6bb6946586a493",
+    "tests/test_imported_effect_identity.py": "c4e2a33f2f8731ae86a1024d65051ad7e84f45cb837577f83b54f127499549ad",
+    "src/env.c": "8cb08e6625167146288aec9f394df44b6ac55eda06beb09fd1452d3d41dc6556",
+    "src/module.c": "de165b18b8ee3877065ab52c2ad816382e967ab32c6f6788cfb86c341ab5e6d5",
+    "src/parser.c": "947f1cb836391b47afe2a9568bc865b8a1b3e07a3fde50bd8c868ca6c8d99468",
+    "src/transpiler.c": "680c223885eddb9a8c3b2a96d9e5b79d5cad904966e74c322e6a252ddeb348b8",
+    "src/transpiler_iterative_v3_twopass.c": "2c3681820d8099c502b462e890888b36aefa61fa36258cce76cb62b885662fd6",
+    "src_nano/nanoc_v06.nano": "ad8ad84b1f4637bbf6cc0f1e794681ddce40a04fbdf5f63628c6f5869eb4ba48",
+    "src_nano/parser.nano": "9e011e771da632533181463d3be7daae65a9612d83cd6a66de0e64ca94919b7a",
+    "src_nano/compiler/effect_declarations.nano": "0c75fa41fe7ce3483eaf3aab5dccf84784319c6e01b28054c3a0e15713701dd8",
+    "src_nano/compiler/effect_bindings.nano": "d00ba2e95aca1d1308b996de875b34ff52012fedd508a38a33133f919eb82a5e"
+  },
+  "steps": [
+    {
+      "argv": [
+        "/opt/homebrew/opt/python@3.14/bin/python3.14",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_effects",
+        "tests.test_effect_signature_identity",
+        "tests.test_union_arrays",
+        "tests.test_imported_effect_identity",
+        "tests.test_array_builtin_aliases",
+        "tests.test_selfhost_record_spreads",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 33.65602354099974,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-selfhost-resource-effects/product-audit/seed",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-selfhost-resource-effects/product-audit/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 335.20916874997783,
+      "log": "product-01.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-selfhost-resource-effects/product-audit/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 0.14150749996770173,
+      "log": "product-02.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-selfhost-resource-effects/product-audit/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-selfhost-resource-effects/product-audit/compiler.c"
+      ],
+      "returncode": 1,
+      "seconds": 20.35721454198938,
+      "log": "product-03.log"
+    }
+  ],
+  "seed_provenance": "Fresh C-built Nano compiler; 1168 shadow tests passed; resource effect checker and record spread changes included"
+}

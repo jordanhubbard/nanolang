@@ -3164,6 +3164,20 @@ static void compile_expr(CG *cg, ASTNode *node) {
             spread_slot = local_add(cg, "__spread_source__", node->line);
             emit_op(cg, OP_STORE_LOCAL, (int)spread_slot);
         }
+        /* I stage overrides in source order before arranging the record layout. */
+        uint16_t *override_slots = NULL;
+        if (spread && node->as.struct_literal.field_count) {
+            override_slots = malloc((size_t)node->as.struct_literal.field_count * sizeof(*override_slots));
+            if (!override_slots) {
+                cg_error(cg, node->line, "I cannot retain ordered record overrides");
+                break;
+            }
+            for (int j = 0; j < node->as.struct_literal.field_count; ++j) {
+                compile_expr(cg, node->as.struct_literal.field_values[j]);
+                override_slots[j] = local_add(cg, "", node->line);
+                emit_op(cg, OP_STORE_LOCAL, (int)override_slots[j]);
+            }
+        }
         /* Push field values in definition order */
         for (int i = 0; i < sd->field_count; i++) {
             /* Find matching field in the literal */
@@ -3171,7 +3185,8 @@ static void compile_expr(CG *cg, ASTNode *node) {
             for (int j = 0; j < node->as.struct_literal.field_count; j++) {
                 if (strcmp(node->as.struct_literal.field_names[j],
                            sd->field_names[i]) == 0) {
-                    compile_expr(cg, node->as.struct_literal.field_values[j]);
+                    if (override_slots) emit_op(cg, OP_LOAD_LOCAL, (int)override_slots[j]);
+                    else compile_expr(cg, node->as.struct_literal.field_values[j]);
                     found = true;
                     break;
                 }
@@ -3190,6 +3205,7 @@ static void compile_expr(CG *cg, ASTNode *node) {
                 }
             }
         }
+        free(override_slots);
         emit_op(cg, OP_AGG_PACK, AGG_RECORD, sd->def_idx, 0,
                 sd->field_count);
         break;

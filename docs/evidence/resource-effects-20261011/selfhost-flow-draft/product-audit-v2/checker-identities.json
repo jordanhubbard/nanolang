@@ -1,0 +1,16 @@
+{
+  "inputs": {
+    "src_nano/compiler/resource_effects.nano": "ddabebf46f76902f21f99867a7416c6748c735bd9f127911d23c89984304802d",
+    "src_nano/typecheck.nano": "1ca1f1caf50e531fb7a4ea2a248ef3b9c7579185e70fb6b8bda5f630e08fe47a",
+    "src_nano/parser.nano": "9e011e771da632533181463d3be7daae65a9612d83cd6a66de0e64ca94919b7a",
+    "src_nano/compiler/nanoisa_codegen.nano": "a55ba7e4bfb9087a5dd56ff0e0eafe8954c904cf020a12865f85bb225d286910",
+    "tests/test_resource_effect_checker.nano": "2a558efadc4250f2f9ece5a801bcddd77473dd651a2c72d15422606bbd21016a",
+    "tests/test_resource_effect_frontend.py": "a90bdb5ce2f745c3953ec0e8a85367e264aa8f05e6e0b89a09c8987b21bea21f"
+  },
+  "artifacts": {
+    "seed": "56911a4afe4b4efbba27919cab2692d05193d7da4ef83d698dc1b0bbf278655d",
+    "checker.nvm": "cd3b61e042c6846a0d21ffa96b85ccce9eca2801511ce799515e3d3ad9625bd1",
+    "checker.c": "fa237b31549d2f3e2e85462b9abbda32a3ca1d595cba2a39b12e2ed30ebc09f3",
+    "checker": "728ab4dc08ec4f8de92e08f53663cf23160842f22cb613d99a3b9102615f03f7"
+  }
+}
