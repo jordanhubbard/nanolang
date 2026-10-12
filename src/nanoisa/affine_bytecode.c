@@ -254,13 +254,13 @@ static bool effect_escape(AnalysisCalls *calls,const NvmModule *module,
 
 #include "affine_array_flow.inc"
 
-static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module,uint32_t function,AnalysisCalls *calls) {
+static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module,uint32_t function,uint32_t pc,AnalysisCalls *calls) {
     uint8_t op=in->opcode,tag=TAG_VOID,mode;
     uint16_t local;
     switch(op) {
     case OP_ARR_NEW: case OP_ARR_LITERAL: case OP_ARR_PUSH: case OP_ARR_POP:
     case OP_ARR_GET: case OP_ARR_SET: case OP_ARR_LEN: case OP_ARR_SLICE: case OP_ARR_REMOVE:
-        return array_step(f,in);
+        return array_step(f,in,module,function,pc);
     case OP_NOP: case OP_JMP: case OP_HALT: return NULL;
     case OP_CALL: {
         uint32_t target=in->operands[0].u32;
@@ -876,7 +876,7 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                 error="I require an empty stack and resolved owners at my terminal invariant";goto done;
             }
         } else {
-            error=step(current,&instruction->instruction,entry->local_count,m,function,calls);
+            error=step(current,&instruction->instruction,entry->local_count,m,function,instruction->byte_offset,calls);
             if (error) goto done;
             if (op==OP_HANDLER_PUSH) {
                 if (current->handler_count==AFFINE_MAX_HANDLERS) {

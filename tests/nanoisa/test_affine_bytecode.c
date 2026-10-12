@@ -267,6 +267,7 @@ static void owner_observation_lifetime(void) {
 
 int main(int argc,char **argv) {
     owner_observation_lifetime();
+    array_flow_constructors();
     array_flow_edges();
     array_flow_facts();
     if(argc==3 && !strcmp(argv[1],"--effects")){effect_runtime_artifacts(argv[2]);effect_global_runtime_artifacts(argv[2]);return 0;}

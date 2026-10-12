@@ -529,6 +529,7 @@ int main(int argc, char **argv) {
     check_effect_transport();
     check_effect_array_contracts();
     check_effect_array_slots();
+    check_effect_array_constructors();
     check_global_transport();
     check_union_transport();
     check_concrete_union_instances();

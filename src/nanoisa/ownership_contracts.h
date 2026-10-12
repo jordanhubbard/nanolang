@@ -12,6 +12,8 @@
 #define NVM_OWNERSHIP_EXTENSION_GLOBALS 3u
 #define NVM_OWNERSHIP_EXTENSION_EFFECTS 4u
 #define NVM_OWNERSHIP_EFFECT_ARRAY_REVISION 2u
+#define NVM_OWNERSHIP_EFFECT_CONSTRUCTOR_REVISION 3u
+#define NVM_OWNERSHIP_MAX_ARRAY_CONSTRUCTORS 32768u
 #define NVM_OWNERSHIP_MAX_EFFECT_TYPES 256u
 #define NVM_OWNERSHIP_MAX_EFFECTS 256u
 #define NVM_OWNERSHIP_MAX_EFFECT_PARAMETERS 256u
@@ -61,6 +63,11 @@ NvmV2Result nvm_ownership_effect(const NvmModule *, uint32_t key_idx,
 /* I return the complete checked element table; revision 1 has zero entries.
  * Failure leaves output unchanged. These facts grant no execution authority. */
 NvmV2Result nvm_ownership_effect_types(const NvmModule *, NvmOwnershipEffectTypes *out);
+/* I return an exact element-table index for a revision-3 empty constructor.
+ * A checked function-relative site without a binding yields NO_INDEX.
+ * I validate every declaration before publishing; failure preserves *out. */
+NvmV2Result nvm_ownership_array_constructor(const NvmModule *, uint32_t function,
+                                            uint32_t byte_offset, uint32_t *out);
 
 /* I validate the entire contract before publishing global declarations. Slots
  * are dense and indexed by their row number. NULL/zero requests only the count;

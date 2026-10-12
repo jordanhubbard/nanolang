@@ -30,10 +30,9 @@ static NvmModule *array_flow_fixture(const char *body,const char *helper,bool ow
     word(p+204,1);p[208]=1;array_flow_slot(p+212,TAG_ARRAY,3);array_flow_slot(p+220,TAG_ARRAY,3);
     bool needs=false;CHECK(nvm_ownership_contracts_validate(m,&needs)==NVM_V2_OK && needs);return m;
 }
-static void array_flow_case(const char *body,const char *helper,bool owned_helper,bool accepted,const char *reason) {
-    NvmModule *m=array_flow_fixture(body,helper,owned_helper);
+static void array_flow_check(NvmModule *m,bool owned_helper,bool accepted,const char *reason) {
     NvmAffineAnalysis result=nvm_affine_analyze_function(m,owned_helper?1:0);
-    if(result.ok!=accepted || (reason && !strstr(result.message,reason)))fprintf(stderr,"array flow: %s\n%s\n%s\n",result.message,body,helper?helper:"");
+    if(result.ok!=accepted || (reason && !strstr(result.message,reason)))fprintf(stderr,"array flow: %s\n",result.message);
     CHECK(result.ok==accepted);if(reason)CHECK(strstr(result.message,reason));
     VmDecodedFunction decoded={0};char decode_error[VM_DECODE_ERROR_SIZE];
     CHECK(vm_decode_function(m,owned_helper?1:0,&decoded,decode_error));
@@ -45,6 +44,58 @@ static void array_flow_case(const char *body,const char *helper,bool owned_helpe
     free(facts);free(prior);vm_decoded_function_free(&decoded);
     CHECK(!nvm_verify_owned_module(m).ok);CHECK(!nvm_verify(m).ok);
     char message[256];CHECK(!nvm2c_emit(m,message,sizeof message));nvm_module_free(m);
+}
+static void array_flow_case(const char *body,const char *helper,bool owned_helper,bool accepted,const char *reason) {
+    array_flow_check(array_flow_fixture(body,helper,owned_helper),owned_helper,accepted,reason);
+}
+/* I add exact bindings after the element table and before operation signatures. */
+static void array_flow_bind(NvmModule *m,const uint32_t (*sites)[3],unsigned count) {
+    size_t added=4+12u*count;
+    uint8_t *p=realloc(m->ownership_data,m->ownership_size+added);CHECK(p);m->ownership_data=p;
+    memmove(p+176+added,p+176,52);m->ownership_size+=(uint32_t)added;
+    p[118]=NVM_OWNERSHIP_EFFECT_CONSTRUCTOR_REVISION;word(p+120,104+(uint32_t)added);word(p+176,count);
+    for(unsigned i=0;i<count;i++)for(unsigned j=0;j<3;j++)word(p+180+12*i+4*j,sites[i][j]);
+}
+static uint32_t array_flow_site(NvmModule *m,uint32_t function) {
+    VmDecodedFunction decoded={0};char error[VM_DECODE_ERROR_SIZE];CHECK(vm_decode_function(m,function,&decoded,error));
+    uint32_t found=UINT32_MAX;
+    for(uint32_t i=0;i<decoded.instruction_count;i++) {
+        DecodedInstruction *in=&decoded.instructions[i].instruction;
+        if(in->opcode==OP_ARR_NEW || (in->opcode==OP_ARR_LITERAL && !in->operands[1].u16)) {
+            found=decoded.instructions[i].byte_offset;break;
+        }
+    }
+    vm_decoded_function_free(&decoded);CHECK(found!=UINT32_MAX);return found;
+}
+static NvmModule *array_flow_empty_handler(void) {
+    NvmModule *m=array_flow_fixture("PUSH_I64 7\nRET\n",
+        "HANDLER_PUSH owner arm 0 1\nARR_NEW 8\nPERFORM owner 1\nHANDLER_POP 1\nRET\n"
+        "arm:\nOWN_MOVE_LOCAL 0\nEFFECT_RESUME\n",true);
+    uint32_t sites[][3]={{1,array_flow_site(m,1),3}};array_flow_bind(m,sites,1);return m;
+}
+static void array_flow_constructors(void) {
+    for(unsigned literal=0;literal<2;literal++) {
+        const char *helper=literal?"ARR_LITERAL 8 0\nRET\n":"ARR_NEW 8\nRET\n";
+        for(unsigned type=3;type<=4;type++) {
+            NvmModule *m=array_flow_fixture("PUSH_I64 7\nRET\n",helper,true);
+            const uint32_t sites[][3]={{1,0,type}};array_flow_bind(m,sites,1);
+            array_flow_check(m,true,type==3,type==3?NULL:"exact declared result");
+        }
+    }
+    array_flow_check(array_flow_empty_handler(),true,true,NULL);
+    NvmModule *m=array_flow_fixture("ARR_NEW 7\nSTORE_LOCAL 2\nARR_LITERAL 7 0\nSTORE_LOCAL 5\n"
+        "LOAD_LOCAL 2\nARR_LEN\nRET\n",NULL,false);
+    array_flow_slot(m->ownership_data+168,TAG_ARRAY,1);
+    const uint32_t nested[][3]={{0,0,2},{0,5,5}};array_flow_bind(m,nested,2);
+    array_flow_check(m,false,true,NULL);
+    /* I retain nominal identity after the empty value receives an element. */
+    m=array_flow_fixture("PUSH_I64 7\nRET\n","ARR_NEW 8\nPUSH_I64 7\nOWN_PACK 1\nARR_PUSH\nRET\n",true);
+    const uint32_t nominal[][3]={{1,0,3}};array_flow_bind(m,nominal,1);
+    array_flow_check(m,true,false,"exact array element");
+    /* I reject a malformed declaration even when its constructor is unreachable. */
+    m=array_flow_fixture("PUSH_I64 7\nRET\n","PUSH_I64 0\nRET\nARR_NEW 8\nRET\n",true);
+    uint32_t unreachable[][3]={{1,array_flow_site(m,1)+1,3}};array_flow_bind(m,unreachable,1);
+    array_flow_check(m,false,false,NULL);
 }
 #define ARRAY_FLOW_START "HANDLER_PUSH pass arm 0 1\nPUSH_I64 7\nARR_LITERAL 1 1\nPERFORM pass 1\nHANDLER_POP 1\n"
 #define ARRAY_FLOW_END "PUSH_I64 0\nARR_GET\nRET\narm:\nLOAD_LOCAL 0\nEFFECT_RESUME\n"
@@ -89,17 +140,20 @@ static void array_flow_facts(void) {
     array_flow_slot(m->ownership_data+88,TAG_ARRAY,4);array_flow_slot(m->ownership_data+96,TAG_ARRAY,4);
     CHECK(nvm_affine_analyze_function(m,0).ok);nvm_module_free(m);
 #ifdef AFFINE_BYTECODE_ALLOCATION_TEST
-    m=array_flow_fixture(ARRAY_FLOW_START "CALL 1\n" ARRAY_FLOW_END,NULL,false);
-    VmDecodedFunction decoded={0};char error[VM_DECODE_ERROR_SIZE];CHECK(vm_decode_function(m,0,&decoded,error));
-    size_t bytes=decoded.instruction_count*sizeof(NvmAffineInstructionFact);
-    NvmAffineInstructionFact *facts=malloc(bytes),*prior=malloc(bytes);CHECK(facts && prior);memset(prior,0xa5,bytes);
-    unsigned failure;
-    for(failure=1;failure<4096;failure++) {
-        memcpy(facts,prior,bytes);allocation_attempts=0;fail_at=failure;
-        NvmAffineAnalysis result=nvm_affine_analyze_instructions(m,0,facts,decoded.instruction_count);fail_at=0;
-        if(result.ok){CHECK(allocation_attempts<failure);break;}
-        CHECK(!memcmp(facts,prior,bytes));CHECK(nvm_affine_analyze_instructions(m,0,facts,decoded.instruction_count).ok);
+    for(unsigned constructors=0;constructors<2;constructors++) {
+        m=constructors?array_flow_empty_handler():array_flow_fixture(ARRAY_FLOW_START "CALL 1\n" ARRAY_FLOW_END,NULL,false);
+        uint32_t function=constructors?1:0;
+        VmDecodedFunction decoded={0};char error[VM_DECODE_ERROR_SIZE];CHECK(vm_decode_function(m,function,&decoded,error));
+        size_t bytes=decoded.instruction_count*sizeof(NvmAffineInstructionFact);
+        NvmAffineInstructionFact *facts=malloc(bytes),*prior=malloc(bytes);CHECK(facts && prior);memset(prior,0xa5,bytes);
+        unsigned failure;
+        for(failure=1;failure<4096;failure++) {
+            memcpy(facts,prior,bytes);allocation_attempts=0;fail_at=failure;
+            NvmAffineAnalysis result=nvm_affine_analyze_instructions(m,function,facts,decoded.instruction_count);fail_at=0;
+            if(result.ok){CHECK(allocation_attempts<failure);break;}
+            CHECK(!memcmp(facts,prior,bytes));CHECK(nvm_affine_analyze_instructions(m,function,facts,decoded.instruction_count).ok);
+        }
+        CHECK(failure<4096);free(facts);free(prior);vm_decoded_function_free(&decoded);nvm_module_free(m);
     }
-    CHECK(failure<4096);free(facts);free(prior);vm_decoded_function_free(&decoded);nvm_module_free(m);
 #endif
 }

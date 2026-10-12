@@ -169,3 +169,103 @@ static void check_effect_array_slots(void) {
     CHECK(!nvm_affine_state_create(m,1,0));
     nvm_module_free(m);
 }
+
+/* I bind exact empty types without treating an operand byte as an instruction. */
+static void check_effect_array_constructors(void) {
+    AsmResult error;
+    NvmModule *m=asm_assemble_unverified(".string op \"Collection.empty\"\n.entry 0\n"
+        ".function main 0 0 0 int 1\nARR_NEW 8\nPOP\nARR_LITERAL 7 0\nPOP\nPUSH_I64 0\nRET\n.end\n"
+        ".function other 0 0 0 int 1\nARR_LITERAL 8 0\nPOP\nPUSH_I64 0\nRET\n.end\n",&error);
+    CHECK(m);
+    NvmV2LayoutField field={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
+    NvmV2Layout records[]={{NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field},
+                          {NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field}};
+    NvmV2Layouts layouts={records,2};m->struct_count=2;
+    CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    uint8_t *p=calloc(160,1);CHECK(p);m->ownership_data=p;m->ownership_size=156;
+    word(p,0,3);word(p,4,2);p[8]=3;p[9]=1;word(p,12,2);
+    slot(p,20,TAG_INT,0,NVM_V2_NO_INDEX);slot(p,32,TAG_INT,0,NVM_V2_NO_INDEX);
+    word(p,40,4);word(p,48,1);half(p,52,NVM_OWNERSHIP_EXTENSION_EFFECTS);
+    half(p,54,NVM_OWNERSHIP_EFFECT_CONSTRUCTOR_REVISION);word(p,56,96);word(p,60,4);
+    slot(p,64,TAG_STRUCT,0,0);slot(p,72,TAG_STRUCT,0,1);
+    slot(p,80,TAG_ARRAY,0,0);slot(p,88,TAG_ARRAY,0,1);
+    word(p,96,3);word(p,100,0);word(p,104,0);word(p,108,0);
+    word(p,112,0);word(p,116,3);word(p,120,2);
+    word(p,124,1);word(p,128,0);word(p,132,1);
+    word(p,136,1);word(p,140,0);slot(p,148,TAG_ARRAY,0,3);
+    uint8_t canonical[156];memcpy(canonical,p,sizeof canonical);
+    check_status(m,true,true);
+    uint32_t element=99;
+    CHECK(nvm_ownership_array_constructor(m,0,0,&element)==NVM_V2_OK && element==0);
+    CHECK(nvm_ownership_array_constructor(m,0,3,&element)==NVM_V2_OK && element==2);
+    CHECK(nvm_ownership_array_constructor(m,1,0,&element)==NVM_V2_OK && element==1);
+    CHECK(nvm_ownership_array_constructor(m,0,2,&element)==NVM_V2_OK && element==NVM_V2_NO_INDEX);
+    element=99;CHECK(nvm_ownership_array_constructor(m,2,0,&element)!=NVM_V2_OK && element==99);
+    CHECK(nvm_ownership_array_constructor(m,0,m->functions[0].code_length,&element)!=NVM_V2_OK && element==99);
+    CHECK(nvm_ownership_array_constructor(m,0,0,NULL)!=NVM_V2_OK);
+    CHECK(nvm_ownership_array_constructor(NULL,0,0,&element)!=NVM_V2_OK && element==99);
+    NvmOwnershipEffect effect,prior;memset(&effect,0xa5,sizeof effect);prior=effect;
+    NvmOwnershipEffectTypes types,prior_types;memset(&types,0xa5,sizeof types);prior_types=types;
+    for(unsigned n=0;n<156;n++) {
+        m->ownership_size=n;
+        CHECK(nvm_ownership_array_constructor(m,0,0,&element)!=NVM_V2_OK && element==99);
+        CHECK(nvm_ownership_effect(m,0,&effect)!=NVM_V2_OK && !memcmp(&effect,&prior,sizeof effect));
+        CHECK(nvm_ownership_effect_types(m,&types)!=NVM_V2_OK && !memcmp(&types,&prior_types,sizeof types));
+    }
+    m->ownership_size=156;
+    const uint32_t changes[][2]={{54,4},{56,95},{60,0},{96,32769},{100,2},
+        {104,1},{104,2},{104,UINT32_MAX},{108,4},{108,2},{112,1},{116,0},
+        {116,1},{120,0},{124,0},{128,1},{132,4},{136,0},{140,UINT32_MAX},{148,TAG_VOID+1}};
+    for(unsigned i=0;i<sizeof changes/sizeof *changes;i++) {
+        unsigned at=changes[i][0];uint8_t saved[4];memcpy(saved,p+at,4);word(p,at,changes[i][1]);
+        CHECK(nvm_ownership_array_constructor(m,0,0,&element)!=NVM_V2_OK && element==99);
+        CHECK(nvm_ownership_effect(m,0,&effect)!=NVM_V2_OK && !memcmp(&effect,&prior,sizeof effect));
+        CHECK(nvm_ownership_effect_types(m,&types)!=NVM_V2_OK && !memcmp(&types,&prior_types,sizeof types));
+        memcpy(p+at,saved,4);
+    }
+    uint32_t old=m->functions[1].code_offset;m->functions[1].code_offset=UINT32_MAX;
+    CHECK(nvm_ownership_array_constructor(m,0,0,&element)!=NVM_V2_OK && element==99);
+    m->functions[1].code_offset=old;
+    uint8_t *code=m->code;uint32_t pos=m->functions[1].code_offset;
+    code[pos+2]=1; /* I reject a nonempty literal even in another function. */
+    CHECK(nvm_ownership_array_constructor(m,0,0,&element)!=NVM_V2_OK && element==99);code[pos+2]=0;
+    uint8_t opcode=code[2];code[2]=255;
+    CHECK(nvm_ownership_array_constructor(m,0,0,&element)!=NVM_V2_OK && element==99);code[2]=opcode;
+    CHECK(nvm_ownership_array_constructor(m,0,0,&element)==NVM_V2_OK && element==0);
+    size_t length;uint8_t *bytes=wire(m,&length,NULL);NvmV2Module decoded;
+    CHECK(nvm_v2_module_deserialize(bytes,length,&decoded)==NVM_V2_OK);
+    NvmModule *copy=NULL;CHECK(nvm_v2_to_nvm_module(&decoded,&copy)==NVM_V2_OK);
+    CHECK(nvm_ownership_array_constructor(copy,1,0,&element)==NVM_V2_OK && element==1);
+    CHECK(copy->ownership_size==156 && !memcmp(copy->ownership_data,p,156));
+    nvm_module_free(copy);nvm_v2_module_free(&decoded);free(bytes);
+    char *text=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(text);
+    copy=asm_assemble_unverified(text,&error);CHECK(copy);
+    CHECK(nvm_ownership_array_constructor(copy,0,3,&element)==NVM_V2_OK && element==2);
+    CHECK(copy->ownership_size==156 && !memcmp(copy->ownership_data,p,156));
+    nvm_module_free(copy);free(text);
+    /* I permit revision 3 with no sites and retain revision 2 absence semantics. */
+    memmove(p+100,p+136,20);word(p,96,0);word(p,56,60);m->ownership_size=120;
+    CHECK(nvm_ownership_array_constructor(m,0,0,&element)==NVM_V2_OK && element==NVM_V2_NO_INDEX);
+    memmove(p+96,p+100,20);half(p,54,2);word(p,56,56);m->ownership_size=116;
+    CHECK(nvm_ownership_array_constructor(m,0,0,&element)==NVM_V2_OK && element==NVM_V2_NO_INDEX);
+    /* I validate the maximum row count without claiming executable stack flow. */
+    const uint32_t count=NVM_OWNERSHIP_MAX_ARRAY_CONSTRUCTORS;
+    uint32_t size=120+12*count;
+    p=realloc(m->ownership_data,size);CHECK(p);m->ownership_data=p;memcpy(p,canonical,100);
+    word(p,96,count);memcpy(p+100+12*count,canonical+136,20);
+    word(p,56,size-60);m->ownership_size=size;
+    uint32_t other_length=m->functions[1].code_length;
+    uint8_t *replacement=malloc(2*count+1+other_length);CHECK(replacement);
+    memcpy(replacement+2*count+1,m->code+m->functions[1].code_offset,other_length);
+    for(uint32_t i=0;i<count;i++) {
+        replacement[2*i]=OP_ARR_NEW;replacement[2*i+1]=TAG_STRUCT;
+        word(p,100+12*i,0);word(p,104+12*i,2*i);word(p,108+12*i,i&1);
+    }
+    replacement[2*count]=OP_RET;free(m->code);m->code=replacement;m->code_size=2*count+1+other_length;
+    m->functions[0].code_offset=0;m->functions[0].code_length=2*count+1;
+    m->functions[1].code_offset=2*count+1;
+    CHECK(nvm_ownership_array_constructor(m,0,2*(count-1),&element)==NVM_V2_OK && element==1);
+    word(p,96,count+1);element=99;
+    CHECK(nvm_ownership_array_constructor(m,0,0,&element)==NVM_V2_ERR_INDEX_RANGE && element==99);
+    nvm_module_free(m);
+}

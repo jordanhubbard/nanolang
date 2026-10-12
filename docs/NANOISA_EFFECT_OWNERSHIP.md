@@ -1,6 +1,6 @@
 # My effect ownership declarations
 
-I retain operation value-transfer signatures in ownership format version 3, extension kind 4 (`EFFECTS`), revisions 1 and 2. This is a declaration prerequisite for resource-bearing effects. My affine analyzer now checks handler, perform and resume transitions against these declarations. I admit these instructions in my standalone owned value-call profile after matched VM/native cleanup qualification. My paired source producers execute the bounded revision-1 signatures. Revision 2 retains array declarations and local ownership facts; collection execution and borrowed continuations remain incomplete.
+I retain operation value-transfer signatures in ownership format version 3, extension kind 4 (`EFFECTS`), revisions 1, 2 and 3. This is a declaration prerequisite for resource-bearing effects. My affine analyzer now checks handler, perform and resume transitions against these declarations. I admit these instructions in my standalone owned value-call profile after matched VM/native cleanup qualification. My paired source producers execute the bounded revision-1 signatures. Revision 2 retains array declarations and local ownership facts; collection execution and borrowed continuations remain incomplete.
 
 My revision-1 extension payload uses little-endian integers:
 
@@ -13,7 +13,7 @@ My revision-1 extension payload uses little-endian integers:
 | Result | One value descriptor |
 | Parameters | Parameter-count value descriptors in declaration order |
 
-A value descriptor contains a u8 value tag, u8 zero mode, u16 zero reserved word, and u32 layout index. Scalars and strings use `NO_INDEX`. A void result also uses `NO_INDEX`; a void parameter is invalid. Records and unions require an exact retained layout of the matching kind with COMPLETE authority. Resource flags propagate through existing aggregate declaration validation. Revision 1 does not describe collections. Borrowed-continuation signatures remain outside both revisions.
+A value descriptor contains a u8 value tag, u8 zero mode, u16 zero reserved word, and u32 layout index. Scalars and strings use `NO_INDEX`. A void result also uses `NO_INDEX`; a void parameter is invalid. Records and unions require an exact retained layout of the matching kind with COMPLETE authority. Resource flags propagate through existing aggregate declaration validation. Revision 1 does not describe collections. Borrowed-continuation signatures remain outside these revisions.
 
 Rows have strictly increasing key indexes. Keys must be nonempty strings without embedded zero bytes, and distinct indexes cannot repeat the same string identity. Lookup matches counted string contents, as operation dispatch matches names. Unsupported revisions, extension kinds, flags, tags, layouts, counts, trailing data and truncations fail validation.
 
@@ -135,11 +135,12 @@ flow, producers and matched VM/native cleanup before claiming collection executi
 My [instruction-flow evidence](evidence/effect-collections-20261012/flow/README.md)
 checks exact array stack joins, local transfers, helper calls and effect arguments,
 parameters and resumed results. Nonempty literals preserve source-order element
-ownership. Empty constructors require an unambiguous element type for their tag.
+ownership. Empty constructors use a checked revision-3 site binding when present, or require
+an unambiguous element type for their tag.
 Push transfers exact elements; copyable arrays support projection and mutation.
 Resource-array length requires a live owner observation, and destructive resource
-extraction/overwrite remains refused. Ambiguous empty nominal arrays need further
-shape authority. These partial instruction contracts leave runtime admission closed.
+extraction/overwrite remains refused. Ambiguous empty nominal arrays now use the exact
+constructor declarations below. These partial instruction contracts leave runtime admission closed.
 
 ## My owner observation lifetime
 
@@ -152,3 +153,29 @@ the observation has been consumed. Failed analysis publishes no instruction fact
 My [lifetime evidence](evidence/effect-collections-20261012/observations/README.md)
 retains the original accepted-invalid sequences and the corrected checks. This
 repair does not grant collection runtime admission.
+
+## My exact empty array constructors
+
+EFFECTS revision 3 keeps revision 2's element table and operation signatures. Between
+them I insert a u32 constructor count (zero through 32,768), followed by that many
+12-byte rows: u32 function index, u32 function-relative byte offset and u32 element-
+table index. Rows are strictly ordered by function and byte offset, without duplicate
+sites. Each row must name an existing element type and an instruction-boundary
+`ARR_NEW` or zero-element `ARR_LITERAL` with the matching element tag. I check code
+bounds, decode the prefix to each site and reject nonempty literals, operand-byte
+sites, mismatched tags and malformed prefixes. Unreachable bindings are checked too.
+I traverse each function prefix once per read, rather than restarting at every row.
+
+A binding supplies the exact type of the constructed empty array, including nominal
+identity, nested structure and resource ownership. Subsequent stores, pushes, calls,
+effect transfers and returns must match that type. Missing bindings retain the
+existing unambiguous-tag rule; I never choose among distinct nominal types by table
+order. Revisions 1 and 2 retain their previous transport and analysis behavior.
+
+`nvm_ownership_array_constructor` validates the entire ownership payload before
+publishing one element index. An in-range offset without a binding returns
+`NO_INDEX`; failures leave its output unchanged. A successful declaration query
+does not prove instruction flow or grant execution. My [constructor evidence](evidence/effect-collections-20261012/constructors/README.md)
+checks transport, malformed metadata, exact affine flow and failure preservation.
+Both source producers still need to emit these bindings, and VM/native collection
+execution and cleanup remain unqualified.

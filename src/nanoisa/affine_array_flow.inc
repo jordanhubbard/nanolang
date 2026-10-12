@@ -4,7 +4,8 @@ static bool array_push_type(Frame *f,NvmAffineType type) {
     return push(f,(Value){.tag=type.tag,.layout=type.layout,.root=UINT16_MAX,
         .owned=nvm_affine_type_is_owned(f->locals,type),.variant=NVM_AFFINE_UNKNOWN_VARIANT});
 }
-static const char *array_step(Frame *f,const DecodedInstruction *in) {
+static const char *array_step(Frame *f,const DecodedInstruction *in,
+        const NvmModule *module,uint32_t function,uint32_t pc) {
     uint8_t op=in->opcode;NvmAffineType type,element;
     if (!nvm_affine_has_array_types(f->locals)) return "I require retained element types for array flow";
     if (op==OP_ARR_NEW || op==OP_ARR_LITERAL) {
@@ -12,7 +13,14 @@ static const char *array_step(Frame *f,const DecodedInstruction *in) {
         uint8_t tag=in->operands[0].u8;
         if (count>f->count) return "I require all declared array literal elements";
         if (!count) {
-            if (!nvm_affine_array_tag_type(f->locals,tag,&type))
+            uint32_t declared;
+            if (nvm_ownership_array_constructor(module,function,pc,&declared)!=NVM_V2_OK)
+                return "I require checked empty-array constructor declarations";
+            if (declared!=NVM_V2_NO_INDEX) {
+                type=(NvmAffineType){TAG_ARRAY,declared};
+                if (!nvm_affine_array_element(f->locals,type,&element) || element.tag!=tag)
+                    return "I require the exact declared empty-array element tag";
+            } else if (!nvm_affine_array_tag_type(f->locals,tag,&type))
                 return "I require an unambiguous retained element type for empty array construction";
         } else {
             Value first=f->stack[f->count-count];element=(NvmAffineType){first.tag,first.layout};
