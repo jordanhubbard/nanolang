@@ -1,0 +1,3 @@
+union Value<T>{Number{n:T},Text{s:string}}
+fn main()->int{let xs:array<Value<int>> = [Value<int>.Number{n:7},Value<int>.Text{s:"hello"}] match (at xs 0){Number(p)=>{assert (== p.n 7)} Text(p)=>{assert false}} match (at xs 1){Number(p)=>{assert false} Text(p)=>{assert (== p.s "hello")}} return 7}
+shadow main{assert (== (main) 7)}

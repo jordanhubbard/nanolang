@@ -1,0 +1,123 @@
+{
+  "revision": "6d5b3556f46f0396118c0a042684713bed13357e",
+  "inputs": {
+    "src/nanolang.h": "40e217d734d62341aaab27c3f4d9a2992db53baa339158cb65816d4c1655bc67",
+    "src/typechecker.c": "6df46391e22a19eb4fab70c0126dd6b1d6c88da0ea5e124d3e73693ca9142729",
+    "src_nano/typecheck.nano": "b43a409903f29d4fc415ef88d188a911b91bd62b3175ef066326804178f860fd",
+    "src/nanovirt/codegen.c": "96c3fb42f950e3792fc4728a1804000f599f14fb40a2a53518a0f6f4e077b243",
+    "src/nanovirt/generic_codegen.inc": "37699303476f906782114c026f9f2fb017dfe37ab3dfd8f8edf00a9c5a540797",
+    "src_nano/compiler/nanoisa_codegen.nano": "b85410b13b000f2c4e7267d1bd8913d96670d68f9a65d32be1dd80b2ef302e09",
+    "tests/test_effect_signature_identity.py": "2048dc1ea3243e5a2274d4b424c2fa2fae41f972460de71b3c85b9f459c68abd"
+  },
+  "steps": [
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_effects",
+        "tests.test_effect_signature_identity",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 28.619732791907154,
+      "log": "product-00.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-effect-signatures/corrected-audit/seed",
+        "/Users/jordanh/Src/nanolang/src_nano/nanoc_v06.nano",
+        "--emit-nvm",
+        "-o",
+        "/private/tmp/nl51-effect-signatures/corrected-audit/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 316.135647707968,
+      "log": "product-01.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nano_vm",
+        "--verify-only",
+        "/private/tmp/nl51-effect-signatures/corrected-audit/compiler.nvm"
+      ],
+      "returncode": 0,
+      "seconds": 0.1283467080211267,
+      "log": "product-02.log"
+    },
+    {
+      "argv": [
+        "/Users/jordanh/Src/nanolang/bin/nvm2c",
+        "/private/tmp/nl51-effect-signatures/corrected-audit/compiler.nvm",
+        "-o",
+        "/private/tmp/nl51-effect-signatures/corrected-audit/compiler.c"
+      ],
+      "returncode": 0,
+      "seconds": 19.78506237489637,
+      "log": "product-03.log"
+    },
+    {
+      "argv": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-O0",
+        "/private/tmp/nl51-effect-signatures/corrected-audit/compiler.c",
+        "-o",
+        "/private/tmp/nl51-effect-signatures/corrected-audit/compiler",
+        "/Users/jordanh/Src/nanolang/bin/nano_aot_runtime.o",
+        "-lm"
+      ],
+      "returncode": 0,
+      "seconds": 7.639638332999311,
+      "log": "product-04.log"
+    },
+    {
+      "argv": [
+        "/private/tmp/nl51-effect-signatures/corrected-audit/compiler",
+        "--help"
+      ],
+      "returncode": 0,
+      "seconds": 0.019068958004936576,
+      "log": "product-05.log"
+    },
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "tests.test_selfhost_effects",
+        "tests.test_effect_signature_identity",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 12.40550091699697,
+      "log": "product-06.log"
+    },
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "tests.test_generic_binding_metadata",
+        "tests.test_function_purity_metadata",
+        "tests.test_generic_union_parameters",
+        "tests.test_contextual_generic_functions",
+        "-v"
+      ],
+      "returncode": 0,
+      "seconds": 17.270797583041713,
+      "log": "product-07.log"
+    }
+  ],
+  "seed_build_log": "seed-build.log",
+  "inputs_unchanged": true,
+  "artifacts": {
+    "seed": "4cf280f0ed66c10c1a5570752eb3d841e6462bc6b830685ab082f37af85713b2",
+    "compiler.nvm": "6b74ce974171aea3c224a76ff63e2cef3045fca2a7b04d5f2b04214fd55f557a",
+    "compiler.c": "e8f6d628f4fc4488abc8fee0f8d8196a80d6c112f6c8064ae99bc3a2abf90b56",
+    "compiler": "56d5dc1872b3e1bd7bac5df048a71e0013da6c5f62d879a579c582cf136b009d"
+  }
+}

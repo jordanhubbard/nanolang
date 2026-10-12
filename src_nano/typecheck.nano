@@ -5025,6 +5025,9 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                     if (== arr.element_type "") {
                         let arr_t: NSType = (check_expr_node parser first_arg.node_id first_arg.node_type symbols diags file_name)
                         if (== arr_t.kind TypeKind.TYPE_ARRAY) {
+                            if (and (== arr_t.element_type_kind TypeKind.TYPE_UNION) (!= arr_t.element_type_name "")) {
+                                return (type_from_string_with_parser parser arr_t.element_type_name)
+                            }
                             return NSType {
                                 kind: arr_t.element_type_kind,
                                 name: arr_t.element_type_name,
@@ -5044,8 +5047,8 @@ fn check_expr_node(parser: Parser, node_id: int, node_type: int, symbols: array<
                 } else {
                     let arr_t: NSType = (check_expr_node parser first_arg.node_id first_arg.node_type symbols diags file_name)
                     if (== arr_t.kind TypeKind.TYPE_ARRAY) {
-                        /* For nested arrays (e.g. array<array<int>>), resolve the element type fully */
-                        if (and (== arr_t.element_type_kind TypeKind.TYPE_ARRAY) (!= arr_t.element_type_name "")) {
+                        /* I recover nested arrays and concrete union arguments in full. */
+                        if (and (or (== arr_t.element_type_kind TypeKind.TYPE_ARRAY) (== arr_t.element_type_kind TypeKind.TYPE_UNION)) (!= arr_t.element_type_name "")) {
                             return (type_from_string_with_parser parser arr_t.element_type_name)
                         } else {
                             return NSType {
@@ -7425,6 +7428,16 @@ shadow tc_effect_declarations {
     assert (not (typecheck_phase forward "effect.nano").had_error)
 }
 
+# I retain nominal names even when general compatibility permits enum integers.
+fn tc_effect_types_equal(actual: NSType, expected: NSType) -> bool {
+    return (and (== actual.kind expected.kind) (== (strip_spaces (type_to_string actual)) (strip_spaces (type_to_string expected))))
+}
+shadow tc_effect_types_equal {
+    let parser: Parser = (resource_test_parser "enum A{One} enum B{One}")
+    assert (not (tc_effect_types_equal (type_from_string_with_parser parser "A") (type_from_string_with_parser parser "B")))
+    assert (tc_effect_types_equal (type_void) (type_void))
+}
+
 fn tc_effect_perform(parser: Parser, node: ASTEffectPerform, symbols: array<Symbol>, diags: List<CompilerDiagnostic>, file_name: string) -> NSType {
     let owner: int = (effect_decl_index parser node.effect_name)
     if (< owner 0) {
@@ -7450,7 +7463,7 @@ fn tc_effect_perform(parser: Parser, node: ASTEffectPerform, symbols: array<Symb
         let raw: NSType = (check_expr_node parser id kind symbols diags file_name)
         let expected: NSType = (type_from_string_with_parser parser (at declaration.parameter_types (+ first parameter)))
         let checked: NSType = (check_constructor_argument parser id kind raw expected symbols diags file_name)
-        if (not (types_equal checked expected)) {
+        if (not (tc_effect_types_equal checked expected)) {
             (tc_effect_error diags file_name node.line node.column "I require each performed argument to match its declared type.")
         }
         set parameter (+ parameter 1)
@@ -7501,7 +7514,7 @@ fn tc_effect_handle(parser: Parser, node: ASTEffectHandle, symbols: array<Symbol
             let kind: int = (at node.arm_types arm)
             let actual: NSType = (check_expr_node parser id kind lexical diags file_name)
             let expected: NSType = (type_from_string_with_parser parser (at declaration.return_types operation))
-            if (and (not (parser_always_returns parser id kind)) (not (types_equal actual expected))) {
+            if (and (not (parser_always_returns parser id kind)) (not (tc_effect_types_equal actual expected))) {
                 (tc_effect_error diags file_name node.line node.column "I require a resumed handler value to match the operation result.")
             }
         }

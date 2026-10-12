@@ -1,0 +1,9 @@
+-- E001 TYPE MISMATCH --- /private/tmp/nl51-union-arrays/mixed_variants.nano
+I expected array elements of type struct, but found union.
+
+2| fn main()->int{let xs:array<Value> = [Value.Number{n:7},Value.Text{s:"hello"}] match (at xs 0){Number(p)=>{assert (== p.n 7)} Text(p)=>{assert false}} match (at xs 1){Number(p)=>{assert false} Text(p)=>{assert (== p.s "hello")}} return 7}
+                                        ^
+Hint: Use elements matching the array annotation.
+Warning at line 2, column 80: Unused variable 'p'
+Warning at line 2, column 152: Unused variable 'p'
+error: type check failed

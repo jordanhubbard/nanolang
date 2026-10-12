@@ -1,0 +1,6 @@
+test_imported_record_effect_execution (tests.test_effect_signature_identity.EffectSignatureIdentity.test_imported_record_effect_execution) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 2.820s
+
+OK

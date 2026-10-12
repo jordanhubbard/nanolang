@@ -336,6 +336,14 @@ static FunctionSignature *function_result_signature(ASTNode *call, Environment *
 
 static TypeInfo *try_get_expr_type_info(ASTNode *expr, Environment *env) {
     if (!expr) return NULL;
+    if (expr->type == AST_EFFECT_OP) {
+        EffectDef *effect = env_get_effect(env, expr->as.effect_op.effect_name);
+        EffectOp *operation = effect ? effect_get_op(effect, expr->as.effect_op.op_name) : NULL;
+        return operation ? operation->return_type_info : NULL;
+    }
+    if (expr->type == AST_HANDLE_EXPR) return try_get_expr_type_info(expr->as.handle_expr.body, env);
+    if (expr->type == AST_BLOCK && expr->as.block.count)
+        return try_get_expr_type_info(expr->as.block.statements[expr->as.block.count - 1], env);
     if (expr->type == AST_UNION_CONSTRUCT) return expr->as.union_construct.type_info;
     if (expr->type == AST_TUPLE_LITERAL) return expr->as.tuple_literal.type_info;
     if (expr->type == AST_TUPLE_INDEX) {
@@ -593,9 +601,13 @@ static bool types_match(Type t1, Type t2) {
     return false;
 }
 
-/* I resolve nominal enum annotations before selecting scalar array operations. */
+/* I resolve nominal annotations before selecting array operations. */
 static Type resolved_array_element(Type element, const char *name, Environment *env) {
-    return element == TYPE_STRUCT && name && env_get_enum(env, name) ? TYPE_ENUM : element;
+    if (element == TYPE_STRUCT && name) {
+        if (env_get_enum(env, name)) return TYPE_ENUM;
+        if (env_get_union(env, name)) return TYPE_UNION;
+    }
+    return element;
 }
 
 /* I validate the inferred literal kind before annotation propagation changes it. */
@@ -888,7 +900,8 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
                 return;
             }
         }
-        if (element->base_type == TYPE_STRUCT)
+        if (element->base_type == TYPE_STRUCT &&
+            (!element->generic_name || !env_get_union(env, element->generic_name)))
             check_record_array_contract(env, TYPE_ARRAY, TYPE_STRUCT, element->generic_name, value);
         else if (value->type == AST_ARRAY_LITERAL) {
             for (int i = 0; i < value->as.array_literal.element_count; ++i)
@@ -925,6 +938,21 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
                     "I require the declared nominal record type for this array.",
                     "Match the nested array element declaration, including its module identity.");
         }
+        if (value->type != AST_ARRAY_LITERAL && !generic_contains(env, expected, 0)) {
+            const TypeInfo *leaf = element;
+            while (leaf && leaf->base_type == TYPE_ARRAY) leaf = leaf->element_type;
+            if (leaf && leaf->generic_name && env_get_union(env, leaf->generic_name)) {
+                TypeInfo *actual = copy_payload_type_info(try_get_expr_type_info(value, env));
+                TypeInfo *wanted = copy_payload_type_info(expected);
+                if (actual && wanted && generic_normalize_nominals(env, actual, 0) &&
+                    generic_normalize_nominals(env, wanted, 0) && !type_infos_equal(actual, wanted))
+                    emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                        "I require the declared union array element identity.",
+                        "Preserve the union declaration and its concrete type arguments.");
+                free_payload_type_info(actual);
+                free_payload_type_info(wanted);
+            }
+        }
         return;
     }
     if (!expected->generic_name) return;
@@ -959,13 +987,23 @@ static void check_concrete_union_arrays(Environment *env, const TypeInfo *expect
         owner[length] = '\0';
         bool matches = env_get_union(env, owner) == def;
         free(owner);
-        if (!matches) return;
+        if (!matches) {
+            emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                "I require the declared union identity for this constructor.",
+                "Match the union declaration, including its module identity.");
+            return;
+        }
         variant = dot + 1;
         names = value->as.struct_literal.field_names;
         values = value->as.struct_literal.field_values;
         count = value->as.struct_literal.field_count;
     } else if (value->type == AST_UNION_CONSTRUCT) {
-        if (env_get_union(env, value->as.union_construct.union_name) != def) return;
+        if (env_get_union(env, value->as.union_construct.union_name) != def) {
+            emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                "I require the declared union identity for this constructor.",
+                "Match the union declaration, including its module identity.");
+            return;
+        }
         /* I keep explicit arguments before applying an inferred context. */
         const TypeInfo *actual = value->as.union_construct.type_info;
         if (actual && actual->type_param_count > 0) {
@@ -2310,6 +2348,59 @@ static Type check_indirect_call(ASTNode *call, Environment *env, FunctionSignatu
     return result;
 }
 
+/* I recover full expression annotations before comparing an effect boundary. */
+static bool effect_argument_matches_depth(ASTNode *value, const TypeInfo *expected,
+                                          Environment *env, unsigned depth) {
+    if (!value || !expected || depth > 128) return false;
+    if (value->type == AST_ARRAY_LITERAL) {
+        if (check_expression(value, env) != TYPE_ARRAY) return false;
+        if (expected->base_type != TYPE_ARRAY || !expected->element_type) return false;
+        for (int i = 0; i < value->as.array_literal.element_count; ++i)
+            if (!effect_argument_matches_depth(value->as.array_literal.elements[i],
+                    expected->element_type, env, depth + 1)) return false;
+        return true;
+    }
+    if (expected->base_type == TYPE_FUNCTION)
+        return reduce_expression_matches(value, expected, env, depth);
+    TypeInfo *actual = copy_generic_argument_info(value, env, 0);
+    TypeInfo *wanted = copy_payload_type_info(expected);
+    if (actual && actual->base_type == TYPE_ENUM && !actual->generic_name &&
+        value->type == AST_FIELD_ACCESS && value->as.field_access.object->type == AST_IDENTIFIER)
+        actual->generic_name = strdup(value->as.field_access.object->as.identifier);
+    bool matches = actual && wanted && generic_normalize_nominals(env, actual, 0) &&
+        generic_normalize_nominals(env, wanted, 0) && reduce_types_exact(actual, wanted, env, 0);
+    free_payload_type_info(actual);
+    free_payload_type_info(wanted);
+    return matches;
+}
+
+static bool effect_argument_matches(ASTNode *value, const TypeInfo *expected, Environment *env) {
+    return effect_argument_matches_depth(value, expected, env, 0);
+}
+
+/* I compare every resumed value branch against its complete declared identity. */
+static bool effect_value_matches(ASTNode *value, const TypeInfo *expected,
+                                 Environment *env, unsigned depth) {
+    if (!value || depth > 128) return false;
+    if (ast_always_returns(value)) return true;
+    if (expected->base_type == TYPE_VOID) return check_expression(value, env) == TYPE_VOID;
+    if (value->type == AST_BLOCK) {
+        if (!value->as.block.count) return expected->base_type == TYPE_VOID;
+        return effect_value_matches(value->as.block.statements[value->as.block.count - 1], expected, env, depth + 1);
+    }
+    if (value->type == AST_IF)
+        return effect_value_matches(value->as.if_stmt.then_branch, expected, env, depth + 1) &&
+            (value->as.if_stmt.else_branch
+                ? effect_value_matches(value->as.if_stmt.else_branch, expected, env, depth + 1)
+                : expected->base_type == TYPE_VOID);
+    if (value->type == AST_COND) {
+        for (int i = 0; i < value->as.cond_expr.clause_count; ++i)
+            if (!effect_value_matches(value->as.cond_expr.values[i], expected, env, depth + 1)) return false;
+        return effect_value_matches(value->as.cond_expr.else_value, expected, env, depth + 1);
+    }
+    return effect_argument_matches(value, expected, env);
+}
+
 static Type check_perform(ASTNode *expr, Environment *env) {
     const char *effect_name = expr->as.effect_op.effect_name;
     const char *op_name = expr->as.effect_op.op_name;
@@ -2329,8 +2420,9 @@ static Type check_perform(ASTNode *expr, Environment *env) {
         return TYPE_UNKNOWN;
     }
     for (int i = 0; i < count; i++) {
-        Type actual = check_expression(expr->as.effect_op.args[i], env);
-        if (!types_match(actual, op->params[i].type)) {
+        TypeInfo expected = reduce_type_view(op->params[i].type,
+            op->params[i].struct_type_name, op->params[i].type_info);
+        if (!effect_argument_matches(expr->as.effect_op.args[i], &expected, env)) {
             emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 7,
                                "I require the declared operation's argument type for perform.",
                                "Match the effect operation signature.");
@@ -5134,8 +5226,10 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
 
                 ASTNode *arm = expr->as.handle_expr.handler_bodies[i];
-                Type resumed_type = check_expression(arm, env);
-                if (op && !ast_always_returns(arm) && resumed_type != op->return_type) {
+                (void)check_expression(arm, env);
+                TypeInfo expected = op ? reduce_type_view(op->return_type, op->return_type_name,
+                    op->return_type_info) : (TypeInfo){0};
+                if (op && !effect_value_matches(arm, &expected, env, 0)) {
                     emit_context_error("E001 TYPE MISMATCH", expr->line, expr->column, 6,
                         "I require a resumed handler value to match the operation result.",
                         "Return the declared operation type or exit the lexical function.");
@@ -7984,6 +8078,18 @@ static bool validate_effect_declarations(ASTNode *program, Environment *env) {
                 if (formal->type == TYPE_VOID ||
                     !effect_type_known(env, formal->type, formal->struct_type_name, formal->type_info, 0)) known = false;
             }
+            EffectOp *resolved = effect_get_op(env_get_effect(env, item->as.effect_decl.effect_name),
+                item->as.effect_decl.op_names[operation]);
+            if (resolved) {
+                TypeInfo result = reduce_type_view(resolved->return_type, resolved->return_type_name,
+                    resolved->return_type_info);
+                resolved->return_type = reduce_identity_kind(&result, env);
+                for (int parameter = 0; parameter < resolved->param_count; ++parameter) {
+                    Parameter *formal = &resolved->params[parameter];
+                    TypeInfo view = reduce_type_view(formal->type, formal->struct_type_name, formal->type_info);
+                    formal->type = reduce_identity_kind(&view, env);
+                }
+            }
             if (!known) {
                 emit_context_error("E032 EFFECT SIGNATURE", item->line, item->column, 6,
                     "I require declared concrete types in every effect signature.",
@@ -8024,6 +8130,8 @@ static bool register_effect_declaration(ASTNode *item, Environment *env) {
     for (int j = 0; j < edef.op_count; j++) {
         edef.ops[j].name = strdup(item->as.effect_decl.op_names[j]);
         edef.ops[j].return_type = item->as.effect_decl.op_return_types[j];
+        edef.ops[j].return_type_info = item->as.effect_decl.op_return_type_infos
+            ? item->as.effect_decl.op_return_type_infos[j] : NULL;
         edef.ops[j].return_type_name = item->as.effect_decl.op_return_type_names[j]
             ? strdup(item->as.effect_decl.op_return_type_names[j]) : NULL;
         edef.ops[j].param_count = item->as.effect_decl.op_param_counts[j];

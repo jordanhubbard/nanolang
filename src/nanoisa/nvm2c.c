@@ -127,7 +127,8 @@ static int record_array_unboxes(uint8_t destination, uint8_t source) {
 
 /* I check payload identity when a record-array write changes its carrier. */
 static int record_field_converts(uint8_t destination, uint8_t source) {
-    return record_array_unboxes(destination, source) ||
+    return (destination != source && variant_field(destination) && variant_field(source)) ||
+        record_array_unboxes(destination, source) ||
         (destination == NVM2C_VK_VALUE && variant_scalar_kind(source)) ||
         (source == NVM2C_VK_VALUE && variant_scalar_kind(destination));
 }
@@ -2215,7 +2216,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!sim_push_slot(b, idx, stk, &sp, array)) return 0;
                 break;
             }
-            if (tag == TAG_STRUCT) {
+            if (aggregate_value_tag(tag)) {
                 Nvm2cSimSlot array = {0};
                 array.kind = NVM2C_VK_RARR;
                 array.origin = -1;
@@ -2233,6 +2234,8 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                     }
                     if (value.kind == NVM2C_VK_REC) for (size_t f = 0; f < b->record_width; ++f) {
                         if (array.rec_k[f] == NVM2C_VK_UNK) array.rec_k[f] = value.rec_k[f];
+                        else if (variant_field(array.rec_k[f]) && variant_field(value.rec_k[f]))
+                            array.rec_k[f] |= value.rec_k[f];
                         else if (value.rec_k[f] != NVM2C_VK_UNK && array.rec_k[f] != value.rec_k[f]) {
                             nvm2c_fail(b, "I found conflicting record-array literal field representations");
                             return 0;
@@ -2261,7 +2264,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!sim_push(b, idx, stk, &sp, NVM2C_VK_SARR, -1)) return 0;
             } else if (tag == TAG_INT || tag == TAG_ARRAY || tag == TAG_U8 || tag == TAG_BOOL || tag == TAG_FLOAT || (tag == TAG_FUNCTION || tag == TAG_CLOSURE)) {
                 if (!sim_push(b, idx, stk, &sp, tag == TAG_ARRAY ? NVM2C_VK_NARR : tag == TAG_U8 ? NVM2C_VK_U8ARR : (tag == TAG_FUNCTION || tag == TAG_CLOSURE) ? NVM2C_VK_FNARR : tag == TAG_FLOAT ? NVM2C_VK_FARR : tag == TAG_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR, -1)) return 0;
-            } else if (tag == TAG_STRUCT) {
+            } else if (aggregate_value_tag(tag)) {
                 Nvm2cSimSlot array;
                 memset(&array, 0, sizeof array);
                 array.kind = NVM2C_VK_RARR;
@@ -2270,7 +2273,7 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 if (!array.rec_k) return 0;
                 if (!sim_push_slot(b, idx, stk, &sp, array)) return 0;
             } else {
-                nvm2c_fail(b, "function %u: I support int, bool, float, string, function or struct elements in ARR_NEW", idx);
+                nvm2c_fail(b, "function %u: I support int, bool, float, string, function or aggregate elements in ARR_NEW", idx);
                 return 0;
             }
             break;
@@ -2492,6 +2495,14 @@ static int classify_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t id
                 Nvm2cSimSlot pushed = arr;
                 mark_origin(local_kind, nloc, arr.origin, NVM2C_VK_RARR);
                 const uint8_t *fields = checked_record_fields ? arr.rec_k : val.rec_k;
+                if (checked_record_fields) {
+                    uint8_t *merged = sim_fields(b, fields, NVM2C_VK_UNK);
+                    if (!merged) return 0;
+                    for (size_t f = 0; f < b->record_width; ++f)
+                        if (variant_field(merged[f]) && variant_field(val.rec_k[f]))
+                            merged[f] |= val.rec_k[f];
+                    fields = merged;
+                }
                 if (arr.origin >= 0 && (uint16_t)arr.origin < nloc) {
                     memcpy(rec_fields + (size_t)arr.origin * b->record_width,
                            fields, b->record_width);
@@ -5074,7 +5085,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
         case OP_ARR_NEW: {
             uint8_t tag = ins.operands[0].u8;
             int as_sarr = (tag == TAG_STRING);
-            if (tag == TAG_STRUCT) {
+            if (aggregate_value_tag(tag)) {
                 int array = stack_push_rarr(b, &st, "nrarr_new()");
                 if (array >= 0) {
                     memset(st.rarr_k[array], NVM2C_VK_UNK, b->record_width);
@@ -5088,7 +5099,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 break;
             }
             if (tag != TAG_INT && tag != TAG_ARRAY && tag != TAG_U8 && tag != TAG_BOOL && tag != TAG_FLOAT && tag != TAG_STRING && tag != TAG_FUNCTION && tag != TAG_CLOSURE) {
-                nvm2c_fail(b, "function %u: I support int, bool, float, string, function or struct elements in ARR_NEW", idx);
+                nvm2c_fail(b, "function %u: I support int, bool, float, string, function or aggregate elements in ARR_NEW", idx);
                 goto done;
             }
             if (tag == TAG_INT) {
@@ -5133,10 +5144,10 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                 ekind = NVM2C_VK_STR;
             } else if (tag == TAG_FUNCTION || tag == TAG_CLOSURE) {
                 ekind = NVM2C_VK_FUNC;
-            } else if (tag == TAG_STRUCT) {
+            } else if (aggregate_value_tag(tag)) {
                 ekind = NVM2C_VK_REC;
             } else {
-                nvm2c_fail(b, "function %u: I support int, bool, float, string, function or record elements in ARR_LITERAL", idx);
+                nvm2c_fail(b, "function %u: I support int, bool, float, string, function or aggregate elements in ARR_LITERAL", idx);
                 goto done;
             }
             if ((size_t)count > st.capacity) {
@@ -5155,7 +5166,7 @@ static void emit_function_body(Nvm2cBuf *b, const NvmModule *mod, uint32_t idx,
                     nvm2c_printf(b, "    nchild_array_set(a[%d], %d, v[%d]);\n", result, ei, elems[ei]);
                 break;
             }
-            if (tag == TAG_STRUCT) {
+            if (aggregate_value_tag(tag)) {
                 int result = stack_push_rarr(b, &st, "nrarr_new()");
                 if (result < 0 || b->failed) goto done;
                 memset(st.rarr_k[result], NVM2C_VK_UNK, b->record_width);
@@ -6177,7 +6188,7 @@ static int module_has_array_constructor(const Nvm2cBuf *b, const NvmModule *mod,
             uint8_t kind = ins.operands[0].u8 == TAG_STRING ? NVM2C_VK_SARR :
                            ins.operands[0].u8 == TAG_ARRAY ? NVM2C_VK_NARR :
                            ins.operands[0].u8 == TAG_U8 ? NVM2C_VK_U8ARR :
-                           ins.operands[0].u8 == TAG_STRUCT ? NVM2C_VK_RARR :
+                           aggregate_value_tag(ins.operands[0].u8) ? NVM2C_VK_RARR :
                            (ins.operands[0].u8 == TAG_FUNCTION || ins.operands[0].u8 == TAG_CLOSURE) ? NVM2C_VK_FNARR :
                            ins.operands[0].u8 == TAG_FLOAT ? NVM2C_VK_FARR : ins.operands[0].u8 == TAG_BOOL ? NVM2C_VK_BARR : NVM2C_VK_ARR;
             if (ins.operands[0].u8 == TAG_INT) {
@@ -7846,7 +7857,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
             if (byte_read_adapter(host)) need_iarr = 1;
             else if (host && host->result == TAG_ARRAY) need_sarr = 1;
         }
-        int need_rarr_lit = module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT);
+        int need_rarr_lit = (module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT) || module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_UNION) || module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_TUPLE));
         int need_rarr = need_rarr_lit || module_has_array_constructor(&b, mod, kinds, NVM2C_VK_RARR) ||
             (b.array_shape_kinds & (1u << NVM2C_VK_RARR)) ||
             module_has_local_kind(&b, kinds, mod->function_count, NVM2C_VK_RARR);
@@ -8449,7 +8460,7 @@ char *nvm2c_emit(const NvmModule *mod, char *err, size_t err_len) {
         if (module_has_opcode(mod, OP_CAST_STRING)) nvm2c_puts(&b, "    (void)nstr_from_i64; (void)nstr_from_f64;\n");
         if (b.has_maps && (module_has_opcode(mod, OP_PRINT) || module_has_opcode(mod, OP_PRINTLN)))
             nvm2c_puts(&b, "    (void)nvalue_array_print;\n");
-        if (module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT)) nvm2c_puts(&b, "    (void)nrarr_push;\n");
+        if ((module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_STRUCT) || module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_UNION) || module_has_arr_op_tag(mod, OP_ARR_LITERAL, TAG_TUPLE))) nvm2c_puts(&b, "    (void)nrarr_push;\n");
         for (uint32_t i = 0; i < mod->import_count; ++i) {
             const Nvm2cHost *host = import_host(mod, i);
             if (host && host->result == TAG_ARRAY && !byte_read_adapter(host))

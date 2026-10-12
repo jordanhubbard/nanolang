@@ -1,0 +1,3 @@
+effect Secret{ask:int->int}
+pub fn marker()->int{return 0}
+shadow marker{assert (== (marker) 0)}

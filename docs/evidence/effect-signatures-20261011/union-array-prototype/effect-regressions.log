@@ -1,0 +1,12 @@
+test_declaration_types_and_forward_references (tests.test_selfhost_effects.SelfhostEffects.test_declaration_types_and_forward_references) ... ok
+test_dynamic_handlers_resume_and_lexical_returns (tests.test_selfhost_effects.SelfhostEffects.test_dynamic_handlers_resume_and_lexical_returns) ... ok
+test_invalid_effects_preserve_previous_output (tests.test_selfhost_effects.SelfhostEffects.test_invalid_effects_preserve_previous_output) ... ok
+test_c_generic_union_array_identity (tests.test_effect_signature_identity.EffectSignatureIdentity.test_c_generic_union_array_identity) ... ok
+test_imported_record_effect_execution (tests.test_effect_signature_identity.EffectSignatureIdentity.test_imported_record_effect_execution) ... ok
+test_mismatches_preserve_output (tests.test_effect_signature_identity.EffectSignatureIdentity.test_mismatches_preserve_output) ... ok
+test_nominal_and_generic_execution (tests.test_effect_signature_identity.EffectSignatureIdentity.test_nominal_and_generic_execution) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 12.617s
+
+OK

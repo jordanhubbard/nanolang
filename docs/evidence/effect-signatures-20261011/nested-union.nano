@@ -1,0 +1,7 @@
+union Box<T>{Some{value:T}}
+effect E{ask:array<Box<int>>->array<Box<int>>}
+fn main()->int {
+ let values:array<Box<int>> = handle {perform E.ask([Box<int>.Some{value:7}])} with {ask values->{values}}
+ return (array_length values)
+}
+shadow main{assert (== (main) 1)}

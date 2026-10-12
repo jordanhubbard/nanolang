@@ -735,6 +735,7 @@ typedef struct {
     int param_count;
     Type return_type;        /* Return type */
     char *return_type_name;  /* For struct return types */
+    TypeInfo *return_type_info; /* I borrow the complete declaration annotation. */
 } EffectOp;
 
 /* Effect definition entry: effect IO { print : String -> Unit } */

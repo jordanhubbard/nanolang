@@ -1,0 +1,14 @@
+test_existing_populated_diagnostic_formatter (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_existing_populated_diagnostic_formatter) ... ok
+test_nested_fields_after_direct_forwarded_and_indirect_mutation (tests.test_native_mutable_record_arrays.MutableRecordArrays.test_nested_fields_after_direct_forwarded_and_indirect_mutation) ... ok
+test_all_word_and_string_arrays_survive_checked_writes (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_all_word_and_string_arrays_survive_checked_writes) ... ok
+test_incompatible_concrete_field_preserves_prior_output (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_incompatible_concrete_field_preserves_prior_output) ... ok
+test_wrong_runtime_tag_element_kind_and_null_are_refused (tests.test_native_record_array_tagged_fields.TaggedRecordArrayFields.test_wrong_runtime_tag_element_kind_and_null_are_refused) ... ok
+test_generated_present_field_compatibility_and_refusal (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_generated_present_field_compatibility_and_refusal) ... ok
+test_ordinary_replacement_and_alias_observation (tests.test_native_record_array_scalar_tags.RecordArrayScalarTags.test_ordinary_replacement_and_alias_observation) ... ok
+test_dynamic_or_conflicting_record_array_globals_are_refused (tests.test_native_record_array_globals.NativeRecordArrayGlobals.test_dynamic_or_conflicting_record_array_globals_are_refused) ... ok
+test_empty_alias_nested_fields_overwrite_and_collection_match_vm (tests.test_native_record_array_globals.NativeRecordArrayGlobals.test_empty_alias_nested_fields_overwrite_and_collection_match_vm) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 18.920s
+
+OK

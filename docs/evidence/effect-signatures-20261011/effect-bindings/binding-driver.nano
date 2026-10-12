@@ -1,0 +1,3 @@
+import "src_nano/compiler/effect_bindings.nano"
+fn main()->int{return 0}
+shadow main{assert (== (main) 0)}

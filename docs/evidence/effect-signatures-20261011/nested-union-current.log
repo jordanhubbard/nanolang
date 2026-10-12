@@ -1,0 +1,7 @@
+-- E001 TYPE MISMATCH --- /private/tmp/nl51-effect-signatures/nested-union.nano
+I require the declared operation's argument type for perform.
+
+4|  let values:array<Box<int>> = handle {perform E.ask([Box<int>.Some{value:7}])} with {ask values->{values}}
+                                         ^^^^^^^
+Hint: Match the effect operation signature.
+error: type check failed

@@ -1,0 +1,17 @@
+test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) ... 
+  test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (target='native', case='mixed_variant_mutation', driver='/Users/jordanh/Src/nanolang/bin/nano_virt') ... FAIL
+
+======================================================================
+FAIL: test_construction_and_retained_payloads (tests.test_union_arrays.UnionArrays.test_construction_and_retained_payloads) (target='native', case='mixed_variant_mutation', driver='/Users/jordanh/Src/nanolang/bin/nano_virt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_selfhost_effects.py", line 32, in execute_module
+    self.assertEqual(translated.returncode, 0, translated.stdout+translated.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : I cannot translate '/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpuerpa82_/source.nvm': ARR_PUSH record field representation mismatch (function 0, offset 56, field 0: int64_t versus int64_t)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 2.519s
+
+FAILED (failures=1)
