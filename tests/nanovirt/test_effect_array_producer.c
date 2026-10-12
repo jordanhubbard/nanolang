@@ -113,8 +113,8 @@ int main(void) {
         "let a:array<int> =handle {perform E.pass([7, 8])} with {pass a->{a}} (array_set a 0 9) let b:array<int> =(array_push a 10) let c:array<int> =(array_remove_at b 1) return (array_pop c)",true,0);
     run("struct A{value:int} struct B{value:int} effect E{pass:array<A> array<B>->array<A>}",
         "let mut a:array<A> =handle {perform E.pass([] [])} with {pass a b->{a}} set a [A{value:7}] return (array_length a)",true,2);
-    run_source("union Choice<T>{Some{value:T},None{}} effect E{pass:array<Choice<int>>->array<Choice<int>>}",
-        "let a:array<Choice<int>> =handle {perform E.pass([Choice.Some{value:7}])} with {pass a->{a}} return (array_length a)",true,0,false);
+    run("union Choice<T>{Some{value:T},None{}} effect E{pass:array<Choice<int>>->array<Choice<int>>}",
+        "let a:array<Choice<int>> =handle {perform E.pass([Choice.Some{value:7}])} with {pass a->{a}} return (array_length a)",true,0);
     run("union Choice<T>{Some{value:T},None{}} effect E{pass:array<Choice<int>>->array<Choice<int>>}",
         "let value:Choice<int> =Choice.Some{value:7} let a:array<Choice<int>> =handle {perform E.pass([value])} with {pass a->{a}} return (array_length a)",true,0);
     run("effect E{pass:array<string>->array<string>}",

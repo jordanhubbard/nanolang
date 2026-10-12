@@ -70,28 +70,40 @@ class EffectSignatureIdentity(unittest.TestCase):
     def test_c_generic_union_array_identity(self):
         # I retain my C frontend regression independently of missing native union arrays.
         driver = str(ROOT/'bin/nano_virt')
-        for argument, accepted in [('Box<int>.Some{value:7}', True),
-                                   ('Box<bool>.Some{value:true}', False)]:
-            with self.subTest(argument=argument), tempfile.TemporaryDirectory() as directory:
-                work = Path(directory); source = work/'source.nano'; output = work/'source.nvm'
-                source.write_text('''union Box<T>{Some{value:T}}
-effect E{ask:array<Box<int>>->array<Box<int>>}
-fn main()->int {
- let values:array<Box<int>> = handle {perform E.ask(['''+argument+'''])} with {ask values->{values}}
- return (array_length values)
-}
-shadow main{assert (== (main) 1)}
-''')
-                output.write_bytes(b'prior artifact')
-                result = self.compile(driver, source, output)
-                if accepted:
-                    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
-                    executed = subprocess.run([str(ROOT/'bin/nano_vm'), str(output)],
-                                              capture_output=True, text=True, timeout=60)
-                    self.assertEqual(executed.returncode, 1, executed.stdout+executed.stderr)
-                else:
-                    self.assertNotEqual(result.returncode, 0)
-                    self.assertEqual(output.read_bytes(), b'prior artifact')
+        for nested, resumed in [(False, False), (True, False), (False, True)]:
+            for argument, accepted in [('Box<int>.Some{value:7}', True),
+                                       ('Box.Some{value:7}', True),
+                                       ('Box.None{}', True),
+                                       ('Other.Some{value:7}', False),
+                                       ('Box.Some{value:true}', False),
+                                       ('Box<int>.Some{value:true}', False),
+                                       ('Box<bool>.None{}', False),
+                                       ('Box<bool>.Some{value:true}', False)]:
+                with self.subTest(argument=argument, nested=nested, resumed=resumed), tempfile.TemporaryDirectory() as directory:
+                    work = Path(directory); source = work/'source.nano'; output = work/'source.nvm'
+                    element = 'array<Box<int>>' if nested else 'Box<int>'
+                    array = '[['+argument+']]' if nested else '['+argument+']'
+                    performed = '[]' if resumed else array
+                    result = array if resumed else 'values'
+                    source.write_text('''union Box<T>{Some{value:T},None{}}
+    union Other<T>{Some{value:T},None{}}
+    effect E{ask:array<'''+element+'''>->array<'''+element+'''>}
+    fn main()->int {
+     let values:array<'''+element+'''> = handle {perform E.ask('''+performed+''')} with {ask values->{'''+result+'''}}
+     return (array_length values)
+    }
+    shadow main{assert (== (main) 1)}
+    ''')
+                    output.write_bytes(b'prior artifact')
+                    result = self.compile(driver, source, output)
+                    if accepted:
+                        self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+                        executed = subprocess.run([str(ROOT/'bin/nano_vm'), str(output)],
+                                                  capture_output=True, text=True, timeout=60)
+                        self.assertEqual(executed.returncode, 1, executed.stdout+executed.stderr)
+                    else:
+                        self.assertNotEqual(result.returncode, 0)
+                        self.assertEqual(output.read_bytes(), b'prior artifact')
 
     def test_nominal_and_generic_execution(self):
         for name, (body, accepted) in CASES.items():

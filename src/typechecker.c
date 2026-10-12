@@ -2361,8 +2361,10 @@ static bool effect_argument_matches_depth(ASTNode *value, const TypeInfo *expect
                                           Environment *env, unsigned depth) {
     if (!value || !expected || depth > 128) return false;
     if (value->type == AST_ARRAY_LITERAL) {
-        if (check_expression(value, env) != TYPE_ARRAY) return false;
         if (expected->base_type != TYPE_ARRAY || !expected->element_type) return false;
+        /* I resolve constructors against the operation's complete element context. */
+        check_concrete_union_arrays(env, expected, value, depth);
+        if (check_expression(value, env) != TYPE_ARRAY) return false;
         for (int i = 0; i < value->as.array_literal.element_count; ++i)
             if (!effect_argument_matches_depth(value->as.array_literal.elements[i],
                     expected->element_type, env, depth + 1)) return false;
@@ -2480,6 +2482,18 @@ static bool check_array_access_arguments(ASTNode *call, Environment *env) {
 }
 
 /* Internal implementation of check_expression */
+/* I compare substituted payload annotations structurally; array annotations may carry
+ * their element's name redundantly, which strict annotation equality rejects. */
+static bool payload_annotations_compatible(const TypeInfo *expected, const TypeInfo *actual,
+                                           unsigned depth) {
+    if (!expected || !actual || depth > 128) return false;
+    if (expected->base_type != actual->base_type) return false;
+    if (expected->base_type == TYPE_ARRAY && expected->element_type && actual->element_type)
+        return payload_annotations_compatible(expected->element_type, actual->element_type,
+                                              depth + 1);
+    return type_infos_equal(expected, actual);
+}
+
 static Type check_expression_impl(ASTNode *expr, Environment *env) {
     switch (expr->type) {
         case AST_NUMBER:
@@ -4810,6 +4824,29 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                     emit_context_error("E004 UNKNOWN FIELD", expr->line, expr->column,
                                        (int)safe_strlen(field_name), message, hint);
                     return TYPE_UNKNOWN;
+                }
+
+                /* I check concrete generic payloads before the declaration fallback. */
+                TypeInfo *instance = expr->as.union_construct.type_info;
+                if (instance && instance->type_param_count > 0) {
+                    TypeInfo *payload = resolve_union_payload_type_info(udef, variant_idx,
+                                                                       field_index, instance);
+                    ASTNode *value = expr->as.union_construct.field_values[i];
+                    check_concrete_union_arrays(env, payload, value, 0);
+                    bool matches = payload && indirect_argument_matches(value, env, payload,
+                                                                         payload->base_type, 0);
+                    if (!matches && payload && payload->base_type == TYPE_ARRAY &&
+                        value->type != AST_ARRAY_LITERAL)
+                        matches = payload_annotations_compatible(payload,
+                                      try_get_expr_type_info(value, env), 0);
+                    free_payload_type_info(payload);
+                    if (!matches) {
+                        emit_context_error("E001 TYPE MISMATCH", value->line, value->column, 1,
+                            "I require the concrete union payload type declared by this instance.",
+                            "Match the field value to the substituted generic type.");
+                        return TYPE_UNKNOWN;
+                    }
+                    continue;
                 }
 
                 /* Check field type */
