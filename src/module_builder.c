@@ -5396,7 +5396,7 @@ static bool module_equal_libraries(const char *left, const char *right) {
  * A failed link is not permission to retry and hide its failure. */
 static int module_linux_link_matches(ModuleBuildMetadata *meta, const ModulePkgFlags *flags,
                                      const char *objects, const char *staging, const char *object_file) {
-    char retained[2048] = {0}, candidate[2048] = {0}, command[4096] = {0};
+    char retained[2048] = {0}, candidate[2048] = {0}, command[65537] = {0};
     bool ok = module_build_append(retained, sizeof(retained), "%s/lib%s.so", objects, meta->name) &&
         module_build_append(candidate, sizeof(candidate), "%s/lib%s.so", staging, meta->name) &&
         module_shared_link_command(meta, flags, object_file, candidate, objects, command, sizeof(command));
@@ -5695,7 +5695,7 @@ static ModuleBuildInfo* module_build_staged(ModuleBuilder *builder __attribute__
         }
 
         if (shared_dir_ok) {
-            char lib_cmd[4096] = {0};
+            char lib_cmd[65537] = {0}; /* I size this for every shared object path. */
             command_ok &= module_shared_link_command(meta, flags, object_file, shared_lib,
                                                       build_dir, lib_cmd, sizeof(lib_cmd));
 
