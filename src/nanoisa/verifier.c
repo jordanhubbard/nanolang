@@ -1009,6 +1009,10 @@ NvmVerifyResult nvm_verify_owned_module(const NvmModule *mod) {
             return fail("I require a scalar entry and exact bounded value-result helper signatures");
         NvmAffineState *state=nvm_affine_state_create(mod,function,fn->local_count);
         if(!state) return fail("I require complete ownership local declarations");
+        if(nvm_affine_has_array_types(state)) {
+            nvm_affine_state_free(state);
+            return fail("I require matched collection runtime cleanup before typed-array execution");
+        }
         NvmAffineType result;uint16_t fields=0;
         bool valid=nvm_affine_value_result(state,&result,&fields);
         for(uint16_t i=0;i<fn->local_count;i++) {

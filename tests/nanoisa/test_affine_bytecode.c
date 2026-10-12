@@ -224,7 +224,11 @@ static void instruction_facts(void) {
 
 #include "affine_effect_fixture.h"
 #include "test_affine_effect_globals.inc"
+#include "test_affine_array_flow.inc"
+
 int main(int argc,char **argv) {
+    array_flow_edges();
+    array_flow_facts();
     if(argc==3 && !strcmp(argv[1],"--effects")){effect_runtime_artifacts(argv[2]);effect_global_runtime_artifacts(argv[2]);return 0;}
     effect_edges();
     check_effect_globals();

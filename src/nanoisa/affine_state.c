@@ -609,6 +609,32 @@ bool nvm_affine_array_define(NvmAffineState *s,uint16_t local,uint32_t element) 
         !destination(s,local) || !same(s->facts,s->facts->locals[local],type)) return false;
     s->live[local]=true;return true;
 }
+bool nvm_affine_array_element(const NvmAffineState *s,NvmAffineType type,NvmAffineType *out) {
+    if (!s || !out || type.tag!=TAG_ARRAY || !s->facts->arrays || type.layout>=s->facts->arrays->count) return false;
+    NvmOwnershipEffectValue value=s->facts->arrays->items[type.layout];
+    *out=(NvmAffineType){value.tag,value.layout};return true;
+}
+bool nvm_affine_array_type(const NvmAffineState *s,NvmAffineType element,NvmAffineType *out) {
+    if (!s || !out || !s->facts->arrays) return false;
+    for (uint32_t i=0;i<s->facts->arrays->count;i++) {
+        NvmOwnershipEffectValue row=s->facts->arrays->items[i];
+        if (same(s->facts,(Slot){row.tag,0,row.layout},(Slot){element.tag,0,element.layout})) {
+            *out=(NvmAffineType){TAG_ARRAY,i};return true;
+        }
+    }
+    return false;
+}
+bool nvm_affine_array_tag_type(const NvmAffineState *s,uint8_t tag,NvmAffineType *out) {
+    if (!s || !out || !s->facts->arrays) return false;
+    uint32_t selected=NVM_V2_NO_INDEX;
+    for (uint32_t i=0;i<s->facts->arrays->count;i++) {
+        if (s->facts->arrays->items[i].tag!=tag) continue;
+        if (selected!=NVM_V2_NO_INDEX && !same(s->facts,(Slot){TAG_ARRAY,0,selected},(Slot){TAG_ARRAY,0,i})) return false;
+        selected=i;
+    }
+    if (selected==NVM_V2_NO_INDEX) return false;
+    *out=(NvmAffineType){TAG_ARRAY,selected};return true;
+}
 bool nvm_affine_record_is_copyable(const NvmAffineState *s,uint32_t layout) {
     return s && layout<s->facts->layouts.count &&
         s->facts->layouts.items[layout].kind==NVM_V2_LAYOUT_STRUCT &&
@@ -791,6 +817,8 @@ bool nvm_affine_value_result(const NvmAffineState *s,NvmAffineType *type,
         fields=layout->field_count;
     } else if (result.tag==TAG_UNION) {
         if (!union_value(s->facts,result)) return false;
+    } else if (result.tag==TAG_ARRAY) {
+        if (!supported(s->facts,result)) return false;
     } else if ((result.tag!=TAG_VOID && result.tag!=TAG_INT &&
                 result.tag!=TAG_BOOL && result.tag!=TAG_U8) ||
                result.layout!=NVM_V2_NO_INDEX) return false;
@@ -813,6 +841,8 @@ bool nvm_affine_value_parameters(const NvmAffineState *s,NvmAffineType *types,
             if (parameter.layout!=NVM_V2_NO_INDEX) return false;
         } else if (parameter.tag==TAG_UNION) {
             if (!union_value(s->facts,parameter)) return false;
+        } else if (parameter.tag==TAG_ARRAY) {
+            if (!supported(s->facts,parameter)) return false;
         } else if (parameter.tag!=TAG_INT && parameter.tag!=TAG_BOOL && parameter.tag!=TAG_U8)
             return false;
     }

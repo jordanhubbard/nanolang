@@ -95,7 +95,7 @@ all module ownership metadata. Revision 1 returns an empty table. Invalid rows,
 references, extents, revisions or unrelated extensions preserve the output.
 Binary and explicit unverified assembly transport retain the exact bytes.
 
-My bytecode analysis explicitly refuses modules using the typed-array table
+My executable ownership verifier explicitly refuses modules using the typed-array table
 until collection instruction flow and execution are connected.
 The private array projection, array-bearing resource layouts, producer wiring and
 VM/native cleanup remain implementation work; I have not granted array execution.
@@ -126,6 +126,17 @@ field, packing and borrow APIs reject array roots before interpreting their elem
 indexes as record layouts. Array borrowing and element operations remain separate.
 
 My [local-state evidence](evidence/effect-collections-20261012/state/README.md)
-checks these transitions and allocation failures. Bytecode admission remains
-explicitly closed for the typed-array table. I must still connect array instruction
+checks these transitions and allocation failures. Executable admission remains
+explicitly closed for the typed-array table. I must still qualify full collection
 flow, producers and matched VM/native cleanup before claiming collection execution.
+
+## My typed array instruction facts
+
+My [instruction-flow evidence](evidence/effect-collections-20261012/flow/README.md)
+checks exact array stack joins, local transfers, helper calls and effect arguments,
+parameters and resumed results. Nonempty literals preserve source-order element
+ownership. Empty constructors require an unambiguous element type for their tag.
+Push transfers exact elements; copyable arrays support projection and mutation.
+Resource-array length requires a live owner observation, and destructive resource
+extraction/overwrite remains refused. Ambiguous empty nominal arrays need further
+shape authority. These partial instruction contracts leave runtime admission closed.

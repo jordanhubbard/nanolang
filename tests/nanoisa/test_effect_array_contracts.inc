@@ -26,7 +26,8 @@ static void check_effect_array_contracts(void) {
     CHECK(types.items[3].tag==TAG_ARRAY && types.items[3].layout==0);
     /* The argument count agrees; my array result still needs flow authority. */
     NvmAffineAnalysis analysis=nvm_affine_analyze_function(m,0);
-    CHECK(!analysis.ok && strstr(analysis.message,"handler-aware array flow"));
+    CHECK(analysis.ok);
+    CHECK(!nvm_verify_owned_module(m).ok);
     NvmAffineState *state=nvm_affine_state_create(m,0,0);CHECK(state);
     NvmAffineState *arm=nvm_affine_handler_enter(state,key,0);CHECK(arm);
     nvm_affine_state_free(arm);nvm_affine_state_free(state);

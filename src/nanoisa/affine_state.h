@@ -67,6 +67,11 @@ bool nvm_affine_can_exit_scalar(const NvmAffineState *state, uint8_t tag);
 typedef struct { uint8_t tag; uint32_t layout; } NvmAffineType;
 bool nvm_affine_types_equal(const NvmAffineState *,NvmAffineType,NvmAffineType);
 bool nvm_affine_array_define(NvmAffineState *,uint16_t local,uint32_t element);
+/* I resolve exact array facts without changing outputs on failure. A bare tag
+ * resolves only when every matching element row describes the same type. */
+bool nvm_affine_array_element(const NvmAffineState *,NvmAffineType,NvmAffineType *);
+bool nvm_affine_array_type(const NvmAffineState *,NvmAffineType,NvmAffineType *);
+bool nvm_affine_array_tag_type(const NvmAffineState *,uint8_t,NvmAffineType *);
 bool nvm_affine_can_resume(const NvmAffineState *state,NvmAffineType result);
 #define NVM_AFFINE_UNKNOWN_VARIANT UINT16_MAX
 /* These transfer APIs exchange an exact owned-value token with the bytecode stack.
@@ -112,7 +117,7 @@ bool nvm_affine_parameter_at(const NvmAffineState *state,uint16_t parameter,
                                NvmAffineType *type,NvmReferenceMode *mode);
 #define NVM_AFFINE_MAX_RESULT_DEPTH 32u
 #define NVM_AFFINE_MAX_RESULT_FIELDS 256u
-/* I inspect an exact mode-zero scalar, void, or record/union result.
+/* I inspect an exact mode-zero scalar, void, record/union or typed-array result.
  * Nested record results contain bounded complete trees with consistent resource
  * authority and INT/BOOL/U8/STRING leaves; FLOAT fields stay refused;
  * scalar/VOID and existing scalar-leaf queries add no allocations.

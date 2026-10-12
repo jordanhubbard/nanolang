@@ -41,3 +41,6 @@ function results, parameters and locals, with executable admission still closed.
 
 My [local-state checkpoint](state/README.md) adds exact array ownership and
 handler transitions; instruction flow and execution remain open.
+
+My [instruction-flow checkpoint](flow/README.md) connects exact arrays to stack,
+call and handler analysis, while runtime and remaining collection operations stay open.

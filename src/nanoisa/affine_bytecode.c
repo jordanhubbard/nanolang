@@ -59,7 +59,8 @@ static bool stack_meet(Frame *destination,const Frame *incoming,bool *changed) {
     for (uint16_t i=0;i<destination->count;i++) {
         Value x=destination->stack[i],y=incoming->stack[i];
         if (x.tag!=y.tag || x.observation!=y.observation || x.owned!=y.owned ||
-            ((x.owned || x.tag==TAG_STRUCT) && x.layout!=y.layout) ||
+            ((x.owned || x.tag==TAG_STRUCT || x.tag==TAG_ARRAY) &&
+             !nvm_affine_types_equal(destination->locals,(NvmAffineType){x.tag,x.layout},(NvmAffineType){y.tag,y.layout})) ||
             (x.observation && x.root!=y.root)) return false;
         if (x.tag==TAG_UNION) {
             if (x.layout!=y.layout) return false;
@@ -202,6 +203,8 @@ static bool supported(uint8_t op,bool value_graph) {
     case OP_REGION_BEGIN: case OP_REGION_END:
     case OP_BORROW_LOCAL_SHARED: case OP_BORROW_LOCAL_EXCLUSIVE: case OP_REF_GET: case OP_REF_SET:
     case OP_OWN_MOVE_LOCAL: case OP_OWN_STORE_LOCAL: case OP_OWN_PACK: case OP_OWN_UNPACK_LOCAL:
+    case OP_ARR_NEW: case OP_ARR_LITERAL: case OP_ARR_PUSH: case OP_ARR_POP:
+    case OP_ARR_GET: case OP_ARR_SET: case OP_ARR_LEN: case OP_ARR_SLICE: case OP_ARR_REMOVE:
     case OP_NOP: case OP_PUSH_VOID: case OP_PUSH_I64: case OP_PUSH_U8: case OP_PUSH_F64: case OP_PUSH_BOOL:
     case OP_DUP: case OP_POP: case OP_SWAP: case OP_LOAD_LOCAL: case OP_STORE_LOCAL:
     case OP_AGG_PACK: case OP_AGG_GET: case OP_AGG_TAG: case OP_STRUCT_GET:
@@ -223,7 +226,8 @@ static bool effect_value_matches(const NvmAffineState *state,Value value,
     NvmAffineType type={declared.tag,declared.layout};
     return !value.observation && value.tag==type.tag &&
         value.owned==nvm_affine_type_is_owned(state,type) &&
-        ((type.tag!=TAG_STRUCT && type.tag!=TAG_UNION) || value.layout==type.layout);
+        ((type.tag!=TAG_STRUCT && type.tag!=TAG_UNION && type.tag!=TAG_ARRAY) ||
+         nvm_affine_types_equal(state,(NvmAffineType){value.tag,value.layout},type));
 }
 static bool effect_key_equal(const NvmModule *module,uint32_t a,uint32_t b) {
     const char *left=nvm_get_string(module,a),*right=nvm_get_string(module,b);
@@ -243,10 +247,15 @@ static bool effect_escape(AnalysisCalls *calls,const NvmModule *module,
     return true;
 }
 
+#include "affine_array_flow.inc"
+
 static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,const NvmModule *module,uint32_t function,AnalysisCalls *calls) {
     uint8_t op=in->opcode,tag=TAG_VOID,mode;
     uint16_t local;
     switch(op) {
+    case OP_ARR_NEW: case OP_ARR_LITERAL: case OP_ARR_PUSH: case OP_ARR_POP:
+    case OP_ARR_GET: case OP_ARR_SET: case OP_ARR_LEN: case OP_ARR_SLICE: case OP_ARR_REMOVE:
+        return array_step(f,in);
     case OP_NOP: case OP_JMP: case OP_HALT: return NULL;
     case OP_CALL: {
         uint32_t target=in->operands[0].u32;
@@ -264,8 +273,8 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             NvmAffineType parameter=parameters[p];
             if (argument.observation || argument.tag!=parameter.tag ||
                 argument.owned!=nvm_affine_type_is_owned(f->locals,parameter) ||
-                ((argument.owned || argument.tag==TAG_UNION || argument.tag==TAG_STRUCT) &&
-                 argument.layout!=parameter.layout))
+                ((argument.owned || argument.tag==TAG_UNION || argument.tag==TAG_STRUCT || argument.tag==TAG_ARRAY) &&
+                 !nvm_affine_types_equal(f->locals,(NvmAffineType){argument.tag,argument.layout},parameter)))
                 return "I require exact positional consuming argument types";
         }
         NvmAffineAnalysis call=analyze(module,target,NULL,0,calls);
@@ -314,11 +323,6 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
         if (nvm_ownership_effect(module,in->operands[0].u32,&effect)!=NVM_V2_OK ||
             effect.parameter_count!=in->operands[1].u16 || f->count<effect.parameter_count)
             return "I require the exact retained performed signature";
-        if (effect.result.tag==TAG_ARRAY)
-            return "I require handler-aware array flow before resuming collection effects";
-        for (uint16_t p=0;p<effect.parameter_count;p++)
-            if (effect.parameters[p].tag==TAG_ARRAY)
-                return "I require handler-aware array flow before transferring collection effects";
         uint16_t first=f->count-effect.parameter_count;
         for (uint16_t p=0;p<effect.parameter_count;p++)
             if (!effect_value_matches(f->locals,f->stack[first+p],effect.parameters[p]))
@@ -514,6 +518,11 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             layout=type.layout;
             if (nvm_affine_record_is_copyable(f->locals,layout)) observation=false;
         }
+        if (tag==TAG_ARRAY) {
+            NvmAffineType type;
+            if (!nvm_affine_local_type(f->locals,local,&type)) return "I require an exact array local";
+            layout=type.layout;observation=nvm_affine_type_is_owned(f->locals,type);
+        }
         if (tag==TAG_UNION) {
             NvmAffineType type;
             if (!nvm_affine_local_type(f->locals,local,&type))
@@ -540,7 +549,9 @@ static const char *step(Frame *f,const DecodedInstruction *in,uint16_t locals,co
             calls->value_graph && value.tag==TAG_UNION ?
                 nvm_affine_union_define(f->locals,local,value.layout,value.variant) :
             calls->value_graph && value.tag==TAG_STRUCT ?
-                nvm_affine_record_define(f->locals,local,value.layout) : false;
+                nvm_affine_record_define(f->locals,local,value.layout) :
+            calls->value_graph && value.tag==TAG_ARRAY ?
+                nvm_affine_array_define(f->locals,local,value.layout) : false;
         if (!defined ||
             !nvm_affine_local_info(f->locals,local,&tag,&mode) || tag!=value.tag)
             return "I require the exact scalar local type";
@@ -746,10 +757,6 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
     }
     NvmAffineState *initial=nvm_affine_state_create(m,function,entry->local_count);
     if (!initial) goto done;
-    if (nvm_affine_has_array_types(initial)) {
-        nvm_affine_state_free(initial);
-        error="I require handler-aware array flow before collection bytecode execution";goto done;
-    }
     if (caller && !nvm_affine_bind_caller(initial,caller,reference)) {
         nvm_affine_state_free(initial);error="I require exact caller-origin parameter authority";goto done;
     }
@@ -790,7 +797,7 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
                 for (uint16_t p=0;p<arity;p++) {
                     NvmAffineType type;
                     if (!nvm_affine_local_type(initial,first+p,&type) ||
-                        type.tag!=effect.parameters[p].tag || type.layout!=effect.parameters[p].layout) {
+                        !nvm_affine_types_equal(initial,type,(NvmAffineType){effect.parameters[p].tag,effect.parameters[p].layout})) {
                         nvm_affine_state_free(initial);error="I require exact declared handler parameter types";goto done;
                     }
                 }
@@ -838,7 +845,7 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
             if (current->count==1 && !current->stack[0].observation) tag=current->stack[0].tag;
             else if (current->count) {error="I refuse an observation escape or extra return operands";goto done;}
             bool exact_value=current->count==1 &&
-                (current->stack[0].owned || current->stack[0].tag==TAG_UNION || current->stack[0].tag==TAG_STRUCT);
+                (current->stack[0].owned || current->stack[0].tag==TAG_UNION || current->stack[0].tag==TAG_STRUCT || current->stack[0].tag==TAG_ARRAY);
             bool exit_ok=exact_value
                 ? nvm_affine_can_exit_type(current->locals,(NvmAffineType){tag,current->stack[0].layout})
                 : nvm_affine_can_exit_scalar(current->locals,tag);
@@ -851,7 +858,7 @@ static NvmAffineAnalysis analyze(const NvmModule *m,uint32_t function,
             if (!current->activation || current->count!=1 || current->stack[0].observation ||
                 !nvm_affine_can_resume(current->locals,
                     (NvmAffineType){current->stack[0].tag,
-                        current->stack[0].tag==TAG_STRUCT || current->stack[0].tag==TAG_UNION
+                        current->stack[0].tag==TAG_STRUCT || current->stack[0].tag==TAG_UNION || current->stack[0].tag==TAG_ARRAY
                             ?current->stack[0].layout:NVM_V2_NO_INDEX}) ||
                 current->stack[0].owned!=nvm_affine_type_is_owned(current->locals,
                     (NvmAffineType){current->stack[0].tag,current->stack[0].layout})) {
