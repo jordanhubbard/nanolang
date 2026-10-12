@@ -3,6 +3,7 @@
 #include "reference_places.h"
 #include "isa.h"
 #include <stdlib.h>
+#include <string.h>
 
 static bool scalar(uint8_t tag) {
     return tag == TAG_INT || tag == TAG_U8 || tag == TAG_FLOAT || tag == TAG_BOOL;
@@ -144,6 +145,7 @@ typedef struct {
     NvmOwnershipExtensionView union_variants;
     NvmOwnershipExtensionView array_fields;
     NvmOwnershipExtensionView globals;
+    NvmOwnershipExtensionView effects;
 } NvmOwnershipExtensions;
 
 /* I frame all version-3 extensions before a feature query may inspect one.
@@ -170,6 +172,8 @@ static NvmV2Result extensions_read(NvmV2Cursor *cursor,NvmOwnershipExtensions *o
             found.array_fields=view;
         else if (kind==NVM_OWNERSHIP_EXTENSION_GLOBALS)
             found.globals=view;
+        else if (kind==NVM_OWNERSHIP_EXTENSION_EFFECTS)
+            found.effects=view;
         else return NVM_V2_ERR_FORMAT_VERSION;
         prior=kind;
     }
@@ -354,6 +358,7 @@ static NvmV2Result globals_read(NvmOwnershipExtensionView view,
     return cursor.pos==cursor.size?NVM_V2_OK:NVM_V2_ERR_SECTION_RANGE;
 }
 
+#include "ownership_effects.inc"
 #include "ownership_array_fields.inc"
 static NvmV2Result ownership_validate_owned(const NvmModule *module,
         const NvmV2Layouts *layouts,bool *requires_verifier,
@@ -429,6 +434,12 @@ static NvmV2Result ownership_validate_owned(const NvmModule *module,
             if ((result=globals_read(extensions.globals,layouts,flags))!=NVM_V2_OK) goto done;
             needs=true;
         }
+        if (extensions.effects.data) {
+            if (private_plan) { result=NVM_V2_ERR_FORMAT_VERSION;goto done; }
+            if ((result=effects_read(extensions.effects,module,layouts,flags,
+                                     NVM_V2_NO_INDEX,NULL))!=NVM_V2_OK) goto done;
+            needs=true;
+        }
         if (extensions.array_fields.data) {
             if (!private_plan) { result=NVM_V2_ERR_FORMAT_VERSION;goto done; }
             if ((result=oaa_array_fields(extensions.array_fields,private_plan))!=NVM_V2_OK) goto done;
@@ -499,6 +510,40 @@ NvmV2Result nvm_ownership_globals(const NvmModule *module,NvmOwnershipGlobal *ou
     }
     if (out) for (uint32_t i=0;i<n;i++) out[i]=rows[i];
     *count=n;return NVM_V2_OK;
+}
+
+NvmV2Result nvm_ownership_effect(const NvmModule *module,uint32_t key_idx,
+                                 NvmOwnershipEffect *out) {
+    if (!module || !out || key_idx>=module->string_count) return NVM_V2_ERR_INDEX_RANGE;
+    bool needs=false;
+    NvmV2Result result=nvm_ownership_contracts_validate(module,&needs);
+    if (result!=NVM_V2_OK) return result;
+    if (!module->ownership_size) return NVM_V2_ERR_INDEX_RANGE;
+    NvmV2Cursor cursor;nvm_v2_cursor_init(&cursor,module->ownership_data,module->ownership_size);
+    uint32_t version,count;const uint8_t *flags,*ignored;
+    if ((result=nvm_v2_u32(&cursor,&version))!=NVM_V2_OK) return result;
+    if (version!=NVM_OWNERSHIP_EXTENSION_VERSION) return NVM_V2_ERR_INDEX_RANGE;
+    if ((result=nvm_v2_u32(&cursor,&count))!=NVM_V2_OK ||
+        (result=nvm_v2_take(&cursor,count,&flags))!=NVM_V2_OK ||
+        (result=nvm_v2_align4(&cursor))!=NVM_V2_OK ||
+        (result=nvm_v2_u32(&cursor,&count))!=NVM_V2_OK) return result;
+    for (uint32_t i=0;i<count;i++) {
+        uint16_t locals,params;
+        if ((result=nvm_v2_u16(&cursor,&locals))!=NVM_V2_OK ||
+            (result=nvm_v2_u16(&cursor,&params))!=NVM_V2_OK ||
+            (result=nvm_v2_take(&cursor,((size_t)locals+1)*8,&ignored))!=NVM_V2_OK)
+            return result;
+    }
+    NvmOwnershipExtensions extensions={0};
+    if ((result=extension_suffix_read(&cursor,NVM_V2_NO_INDEX,NULL,0,NULL,&extensions))!=NVM_V2_OK)
+        return result;
+    if (!extensions.effects.data) return NVM_V2_ERR_INDEX_RANGE;
+    NvmV2Layouts layouts={0};
+    result=nvm_v2_layouts_decode(module->layout_data,module->layout_size,&layouts);
+    if (result!=NVM_V2_OK) return result;
+    result=effects_read(extensions.effects,module,&layouts,flags,key_idx,out);
+    nvm_v2_layouts_free(&layouts);
+    return result;
 }
 
 NvmV2Result nvm_ownership_union_variant(const NvmModule *module,

@@ -216,6 +216,26 @@ static void check_owned_union_transport(void) {
     nvm_affine_state_free(global_state);CHECK(!nvm_verify(m).ok);
     slot(data,120,TAG_STRUCT,1,2);check_status(m,false,false);
     slot(data,120,TAG_UNION,1,0);check_status(m,false,false);
+    slot(data,120,TAG_UNION,1,2);
+    /* I preserve distinct nested union identities in operation transfers. */
+    uint32_t effect_key=nvm_add_string(m,"Wrap.pass",9);
+    data=realloc(data,164);CHECK(data);m->ownership_data=data;
+    memset(data+128,0,36);m->ownership_size=164;word(data,44,3);
+    half(data,128,NVM_OWNERSHIP_EXTENSION_EFFECTS);half(data,130,1);word(data,132,28);
+    word(data,136,1);word(data,140,effect_key);half(data,144,1);
+    slot(data,148,TAG_UNION,0,2);slot(data,156,TAG_UNION,0,1);
+    NvmOwnershipEffect effect,prior_effect;
+    CHECK(nvm_ownership_effect(m,effect_key,&effect)==NVM_V2_OK &&
+          effect.result.tag==TAG_UNION && effect.result.layout==2 &&
+          effect.parameter_count==1 && effect.parameters[0].layout==1);
+    prior_effect=effect;slot(data,156,TAG_UNION,0,0);
+    CHECK(nvm_ownership_effect(m,effect_key,&effect)!=NVM_V2_OK);
+    CHECK(!memcmp(&effect,&prior_effect,sizeof(effect)));slot(data,156,TAG_UNION,0,1);
+    slot(data,120,TAG_UNION,1,0);
+    CHECK(nvm_ownership_effect(m,effect_key,&effect)!=NVM_V2_OK);
+    CHECK(!memcmp(&effect,&prior_effect,sizeof(effect)));
+    slot(data,120,TAG_UNION,1,2);
+    CHECK(nvm_ownership_effect(m,effect_key,&effect)==NVM_V2_OK);
     m->ownership_size=108;word(data,44,1);
     NvmLayoutAuthority authority=NVM_LAYOUT_AUTHORITY_UNKNOWN;
     CHECK(nvm_ownership_layout_authority(m,2,&authority)==NVM_V2_OK &&
@@ -385,7 +405,119 @@ static void check_global_transport(void) {
     nvm_module_free(m);
 }
 
+static void check_effect_transport(void) {
+    AsmResult error;
+    NvmModule *m=asm_assemble(".string operation \"Transfer.pass\"\n.function main 0 0 0 int 1\nPUSH_I64 0\nPERFORM operation 1\nRET\n.end\n",&error);
+    CHECK(m);
+    uint32_t key=nvm_add_string(m,"Transfer.pass",13);
+    uint32_t other=nvm_add_string(m,"Transfer.notify",15);
+    CHECK(key<other);
+    NvmOwnershipEffect effect,prior;memset(&effect,0xa5,sizeof(effect));prior=effect;
+    CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(!memcmp(&effect,&prior,sizeof(effect)));
+    NvmV2LayoutField field={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
+    NvmV2Layout record={NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field};
+    NvmV2Layouts layouts={&record,1};m->struct_count=1;
+    CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    const unsigned size=108;
+    m->ownership_data=calloc(size+8,1);CHECK(m->ownership_data);
+    m->ownership_size=size;uint8_t *data=m->ownership_data;
+    word(data,0,3);word(data,4,1);data[8]=NVM_LAYOUT_COMPLETE|NVM_LAYOUT_RESOURCE;
+    word(data,12,1);slot(data,20,TAG_INT,0,NVM_V2_NO_INDEX);
+    word(data,28,4);word(data,32,0);word(data,36,1);
+    half(data,40,NVM_OWNERSHIP_EXTENSION_EFFECTS);half(data,42,1);
+    word(data,44,size-48);word(data,48,2);
+    word(data,52,key);half(data,56,1);
+    slot(data,60,TAG_STRUCT,0,0);slot(data,68,TAG_STRUCT,0,0);
+    word(data,76,other);half(data,80,2);
+    slot(data,84,TAG_VOID,0,NVM_V2_NO_INDEX);
+    slot(data,92,TAG_INT,0,NVM_V2_NO_INDEX);slot(data,100,TAG_STRING,0,NVM_V2_NO_INDEX);
+    check_status(m,true,true);
+    CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_OK);
+    CHECK(effect.key_idx==key && effect.parameter_count==1 &&
+          effect.result.tag==TAG_STRUCT && effect.result.layout==0 &&
+          effect.parameters[0].tag==TAG_STRUCT && effect.parameters[0].layout==0);
+    CHECK(nvm_ownership_effect(m,other,&effect)==NVM_V2_OK);
+    CHECK(effect.parameter_count==2 && effect.result.tag==TAG_VOID &&
+          effect.parameters[0].tag==TAG_INT && effect.parameters[1].tag==TAG_STRING);
+    /* I do not turn declarations into handler execution authority. */
+    CHECK(!nvm_verify(m).ok);
+    char diagnostic[256];CHECK(!nvm2c_emit(m,diagnostic,sizeof(diagnostic)));
+    size_t length;uint8_t *bytes=wire(m,&length,NULL);NvmV2Module decoded;
+    CHECK(nvm_v2_module_deserialize(bytes,length,&decoded)==NVM_V2_OK);
+    NvmModule *copy=NULL;CHECK(nvm_v2_to_nvm_module(&decoded,&copy)==NVM_V2_OK);
+    CHECK(copy->ownership_size==size && !memcmp(copy->ownership_data,data,size));
+    CHECK(nvm_ownership_effect(copy,key,&effect)==NVM_V2_OK && effect.result.layout==0);
+    nvm_module_free(copy);nvm_v2_module_free(&decoded);free(bytes);
+    char *text=disasm_module_styled(m,DISASM_STYLE_CANONICAL);CHECK(text);
+    copy=asm_assemble(text,&error);CHECK(!copy && error.error==ASM_ERR_VERIFY);
+    copy=asm_assemble_unverified(text,&error);CHECK(copy);
+    CHECK(nvm_ownership_effect(copy,other,&effect)==NVM_V2_OK && effect.parameter_count==2);
+    CHECK(copy->ownership_size==size && !memcmp(copy->ownership_data,data,size));
+    nvm_module_free(copy);free(text);
+    memset(&effect,0xa5,sizeof(effect));prior=effect;
+    for (unsigned n=0;n<size;n++) {
+        m->ownership_size=n;
+        CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);
+        CHECK(!memcmp(&effect,&prior,sizeof(effect)));
+    }
+    m->ownership_size=size;
+    const unsigned corrupt_offsets[]={40,42,44,48,52,56,58,60,61,62,64,68,69,70,72,76,80,82,84,85,86,88,92,93,94,96,100,101,102,104};
+    for (unsigned i=0;i<sizeof(corrupt_offsets)/sizeof(corrupt_offsets[0]);i++) {
+        unsigned offset=corrupt_offsets[i];uint8_t old=data[offset];data[offset]^=255;
+        CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);
+        CHECK(!memcmp(&effect,&prior,sizeof(effect)));data[offset]=old;
+    }
+    word(data,76,key);CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);word(data,76,other);
+    data[8]=0;CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);data[8]=3;
+    data[68]=TAG_VOID;CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);data[68]=TAG_STRUCT;
+    m->ownership_size=size+4;word(data,44,size-48+4);
+    CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);m->ownership_size=size;word(data,44,size-48);
+    CHECK(nvm_ownership_effect(m,UINT32_MAX,&effect)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(nvm_ownership_effect(m,key,NULL)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(!memcmp(&effect,&prior,sizeof(effect)));
+    CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_OK);
+    char saved=m->strings[key][0];m->strings[key][0]=0;
+    CHECK(nvm_ownership_effect(m,key,&effect)!=NVM_V2_OK);m->strings[key][0]=saved;
+    /* I exercise both declared capacity boundaries, not just truncated rows. */
+    unsigned capacity_size=68+8*NVM_OWNERSHIP_MAX_EFFECT_PARAMETERS;
+    data=realloc(data,capacity_size);CHECK(data);m->ownership_data=data;
+    memset(data+48,0,capacity_size-48);m->ownership_size=capacity_size;
+    word(data,44,capacity_size-48);word(data,48,1);word(data,52,key);
+    half(data,56,NVM_OWNERSHIP_MAX_EFFECT_PARAMETERS);slot(data,60,TAG_STRUCT,0,0);
+    for (unsigned i=0;i<NVM_OWNERSHIP_MAX_EFFECT_PARAMETERS;i++)
+        slot(data,68+8*i,TAG_INT,0,NVM_V2_NO_INDEX);
+    CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_OK && effect.parameter_count==256 &&
+          effect.parameters[255].tag==TAG_INT);
+    prior=effect;half(data,56,257);
+    CHECK(nvm_ownership_effect(m,key,&effect)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(!memcmp(&effect,&prior,sizeof(effect)));
+    capacity_size=52+16*NVM_OWNERSHIP_MAX_EFFECTS;
+    data=realloc(data,capacity_size);CHECK(data);m->ownership_data=data;
+    memset(data+48,0,capacity_size-48);m->ownership_size=capacity_size;
+    word(data,44,capacity_size-48);word(data,48,NVM_OWNERSHIP_MAX_EFFECTS);
+    uint32_t last=0,first=0;
+    for (unsigned i=0;i<NVM_OWNERSHIP_MAX_EFFECTS;i++) {
+        char name[32];int length=snprintf(name,sizeof(name),"Operation.%u",i);
+        last=nvm_add_string(m,name,(uint32_t)length);if (!i) first=last;
+        word(data,52+16*i,last);slot(data,60+16*i,TAG_VOID,0,NVM_V2_NO_INDEX);
+    }
+    CHECK(nvm_ownership_effect(m,last,&effect)==NVM_V2_OK && effect.parameter_count==0 &&
+          effect.result.tag==TAG_VOID);
+    prior=effect;word(data,48,257);
+    CHECK(nvm_ownership_effect(m,last,&effect)==NVM_V2_ERR_INDEX_RANGE);
+    CHECK(!memcmp(&effect,&prior,sizeof(effect)));word(data,48,256);
+    char *original=m->strings[last];uint32_t original_length=m->string_lengths[last];
+    m->strings[last]=m->strings[first];m->string_lengths[last]=m->string_lengths[first];
+    CHECK(nvm_ownership_effect(m,first,&effect)==NVM_V2_ERR_SECTION_TYPE);
+    CHECK(!memcmp(&effect,&prior,sizeof(effect)));
+    m->strings[last]=original;m->string_lengths[last]=original_length;
+    CHECK(nvm_ownership_effect(m,last,&effect)==NVM_V2_OK);
+    nvm_module_free(m);
+}
+
 int main(int argc, char **argv) {
+    check_effect_transport();
     check_global_transport();
     check_union_transport();
     check_concrete_union_instances();
