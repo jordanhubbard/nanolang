@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/private/tmp/nl51-native-effects/sanitize-vm.py", line 8, in <module>
+    line=next(x for x in lines if x.startswith('cc ') and f'-o {output} ' in x)
+StopIteration

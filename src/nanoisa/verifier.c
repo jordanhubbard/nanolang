@@ -955,7 +955,7 @@ bool nvm_uses_owned_transfers(const NvmModule *mod) {
     return false;
 }
 
-/* I keep runtime admission closed even if affine analysis grows new operations. */
+/* I admit only operations with matched owned VM and native execution. */
 static bool owned_runtime_opcode(uint8_t op,bool value_graph) {
     switch (op) {
     case OP_HALT: case OP_CALL: case OP_CALL_REF: case OP_MATCH_TAG:
@@ -974,6 +974,8 @@ static bool owned_runtime_opcode(uint8_t op,bool value_graph) {
     case OP_F64_EQ: case OP_F64_NE: case OP_F64_LT: case OP_F64_LE: case OP_F64_GT: case OP_F64_GE:
     case OP_JMP: case OP_JMP_TRUE: case OP_JMP_FALSE: case OP_RET: case OP_ASSERT:
         return true;
+    case OP_HANDLER_PUSH: case OP_HANDLER_POP: case OP_PERFORM: case OP_EFFECT_RESUME:
+    case OP_PUSH_VOID:
     case OP_PUSH_STR: case OP_PRINT: case OP_PRINTLN:
     case OP_LOAD_GLOBAL: case OP_STORE_GLOBAL:
         return value_graph;

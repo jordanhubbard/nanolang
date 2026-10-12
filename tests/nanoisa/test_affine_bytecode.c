@@ -221,6 +221,7 @@ static void instruction_facts(void) {
 
 #include "affine_effect_fixture.h"
 int main(int argc,char **argv) {
+    if(argc==3 && !strcmp(argv[1],"--effects")){effect_runtime_artifacts(argv[2]);return 0;}
     effect_edges();
     check_global_flow();
     if(argc==3){native_output=argv[1];module_output=argv[2];}

@@ -1,6 +1,6 @@
 # My effect ownership declarations
 
-I retain operation value-transfer signatures in ownership format version 3, extension kind 4 (`EFFECTS`), revision 1. This is a declaration prerequisite for resource-bearing effects. My affine analyzer now checks handler, perform and resume transitions against these declarations. Executable ownership admission remains closed for effect instructions until producer wiring and runtime cleanup are qualified.
+I retain operation value-transfer signatures in ownership format version 3, extension kind 4 (`EFFECTS`), revision 1. This is a declaration prerequisite for resource-bearing effects. My affine analyzer now checks handler, perform and resume transitions against these declarations. I admit these instructions in my standalone owned value-call profile after matched VM/native cleanup qualification. C/Nano source producer emission remains incomplete.
 
 My extension payload uses little-endian integers:
 
@@ -19,7 +19,7 @@ Rows have strictly increasing key indexes. Keys must be nonempty strings without
 
 `nvm_ownership_effect` validates the complete ownership payload before returning one signature. A missing operation or any invalid extension leaves the caller's output unchanged. An unrelated malformed global or union extension cannot be bypassed by querying an effect. Binary and explicit unverified assembly transport preserve the declarations; ordinary assembly still requires executable verification.
 
-My [contract evidence](evidence/effect-ownership-contracts-20261011/README.md) records positive resource and nested-union signatures, capacity boundaries, mutation/truncation refusals, unchanged outputs, and the existing executable refusal. Producer emission, affine handler-entry states, suspended-owner obligations, resumption transfer and runtime cleanup remain required under #976.
+My [contract evidence](evidence/effect-ownership-contracts-20261011/README.md) records positive resource and nested-union signatures, capacity boundaries, mutation/truncation refusals, unchanged outputs, and the executable refusal at that earlier checkpoint. My later analysis and runtime checkpoints below establish additional boundaries; producer emission remains required under #976.
 
 ## My affine analysis
 
@@ -31,4 +31,27 @@ For bounded acyclic direct calls, I collect escaping operation identities. A cal
 
 My current analysis bounds handler depth at 64 and retains the existing bounded acyclic value-call graph. It refuses combined global/effect flow until handler writes and lexical unwinding have a checked global relation. Borrowed captures and borrowed continuation signatures also remain outside this contract. These are remaining implementation requirements, not exemptions from the full release scope.
 
-My [handler-flow evidence](evidence/effect-affine-flow-20261011/README.md) records positive and negative bytecode/state cases. The runtime opcode gate still rejects effect instructions even when this analysis succeeds; analysis success alone is not executable admission.
+My [handler-flow evidence](evidence/effect-affine-flow-20261011/README.md) records positive and negative bytecode/state cases. Analysis success alone is not executable admission: the separate runtime gate checks my standalone module, exact layouts, function signatures and supported instructions.
+
+## My owned execution
+
+I execute admitted handlers in both the VM and my direct owned native emitter.
+Native activations use bounded heap storage, alias captured scalar places, and
+move argument/result owners. A handler return propagates an explicit status to
+its enclosing function; each suspended native frame cleans its roots on the way.
+I use no longjmp across owned frames and emit no bytecode interpreter.
+
+My VM gives each owned handler a fresh reference generation before transferring
+arguments. The first eight contexts remain preallocated; deeper effect contexts
+are allocated before transfer and released on resume, lexical return, trap or VM
+destruction. The execution limit is 1,024 total activations/handlers, while affine
+analysis retains its 64-handler bound within each lexical context and eight
+functions in an acyclic value-call graph. Runtime handler recursion can exceed
+the number of distinct functions.
+
+My [execution evidence](evidence/effect-owned-runtime-20261011/README.md) exercises
+20 serialized fixtures, including resource records/unions, retained strings,
+scalar/void resumptions, mutable captures, nested/recursive handlers, lexical
+return through direct calls, handler-local borrows and cleanup after allocation
+failure. C/Nano producer wiring, effect/global flow, collection signatures and
+borrowed continuations remain full-scope implementation work.

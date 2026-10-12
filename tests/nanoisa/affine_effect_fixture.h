@@ -1,4 +1,4 @@
-/* I check affine effect edges while runtime admission remains separate. */
+/* I check affine effect edges and emit executable ownership fixtures. */
 static NvmModule *effect_fixture(const char *body,const char *helper) {
     char source[16384];
     int used=snprintf(source,sizeof(source),
@@ -36,8 +36,8 @@ static void effect_case(const char *body,const char *helper,bool accepted,const 
     NvmAffineAnalysis result=nvm_affine_analyze_function(m,0);
     if (result.ok!=accepted || (reason && !strstr(result.message,reason))) fprintf(stderr,"effect analysis at %u: %s\n%s",result.byte_offset,result.message,body);
     CHECK(result.ok==accepted);if (reason) CHECK(strstr(result.message,reason));
-    /* I preserve the runtime gate while establishing instruction transitions. */
-    CHECK(!nvm_verify_owned_module(m).ok);
+    /* I require executable admission to agree for this standalone fixture. */
+    CHECK(nvm_verify_owned_module(m).ok==accepted);
     nvm_module_free(m);
 }
 #define EFFECT_START "HANDLER_PUSH pass arm 2 1\nPUSH_I64 7\nOWN_PACK 0\nOWN_STORE_LOCAL 0\n"
@@ -86,7 +86,7 @@ static void effect_edges(void) {
         m->ownership_size=180;word(m->ownership_data+132,44);m->ownership_data[168]=0;
         slot(m->ownership_data+172,TAG_VOID,0);
         CHECK(nvm_affine_analyze_function(m,0).ok);
-        CHECK(!nvm_verify_owned_module(m).ok);nvm_module_free(m);
+        CHECK(nvm_verify_owned_module(m).ok);nvm_module_free(m);
     }
     for (unsigned depth=64;depth<=65;depth++) {
         char body[8192];size_t used=0;
@@ -126,6 +126,103 @@ static void effect_edges(void) {
     nvm_module_free(m);
 #endif
 }
+static void effect_save(const char *directory,const char *name,NvmModule *m) {
+    NvmVerifyResult verified=nvm_verify(m);
+    if(!verified.ok)fprintf(stderr,"%s: %s\n",name,verified.error_msg);
+    CHECK(verified.ok);
+    char error[256]={0};char *native=nvm2c_emit(m,error,sizeof(error));
+    if(!native)fprintf(stderr,"%s native: %s\n",name,error);
+    CHECK(native);
+    char path[4096];snprintf(path,sizeof(path),"%s/%s.c",directory,name);
+    FILE *file=fopen(path,"wb");CHECK(file);size_t length=strlen(native);
+    CHECK(fwrite(native,1,length,file)==length);CHECK(fclose(file)==0);free(native);
+    NvmV2Module wire={0};size_t bytes=0;
+    CHECK(nvm_v2_from_nvm_module(m,&wire)==NVM_V2_OK);
+    CHECK(nvm_v2_module_serialize(&wire,NULL,0,&bytes)==NVM_V2_OK);
+    uint8_t *serialized=malloc(bytes);CHECK(serialized);
+    CHECK(nvm_v2_module_serialize(&wire,serialized,bytes,NULL)==NVM_V2_OK);
+    snprintf(path,sizeof(path),"%s/%s.nvm",directory,name);file=fopen(path,"wb");CHECK(file);
+    CHECK(fwrite(serialized,1,bytes,file)==bytes);CHECK(fclose(file)==0);
+    free(serialized);nvm_v2_module_free(&wire);nvm_module_free(m);
+}
+static void effect_write(const char *directory,const char *name,const char *body,const char *helper) {
+    effect_save(directory,name,effect_fixture(body,helper));
+}
+static void effect_runtime_artifacts(const char *directory) {
+    effect_write(directory,"resume",EFFECT_START EFFECT_SEND EFFECT_END EFFECT_ARM,NULL);
+    effect_write(directory,"return",EFFECT_START EFFECT_SEND EFFECT_END "OWN_UNPACK_LOCAL 2\nRET\n",NULL);
+    effect_write(directory,"nested",EFFECT_START EFFECT_SEND EFFECT_END
+        "HANDLER_PUSH pass nested 5 1\nOWN_MOVE_LOCAL 2\nPERFORM pass 1\nHANDLER_POP 1\nEFFECT_RESUME\n"
+        "nested:\nOWN_MOVE_LOCAL 5\nEFFECT_RESUME\n",NULL);
+    const char *escaping="OWN_MOVE_LOCAL 0\nPERFORM pass 1\nRET\n";
+    const char *call=EFFECT_START "OWN_MOVE_LOCAL 0\nCALL 2\nOWN_STORE_LOCAL 1\nHANDLER_POP 1\n" EFFECT_END;
+    char body[8192];snprintf(body,sizeof(body),"%s%s",call,EFFECT_ARM);
+    effect_write(directory,"call_resume",body,escaping);
+    snprintf(body,sizeof(body),"%sOWN_UNPACK_LOCAL 2\nRET\n",call);
+    effect_write(directory,"call_return",body,escaping);
+    effect_write(directory,"contained",EFFECT_START "PUSH_I64 9\nOWN_PACK 0\nOWN_STORE_LOCAL 5\n"
+        "OWN_MOVE_LOCAL 0\nCALL 2\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 5\nPOP\nHANDLER_POP 1\n" EFFECT_END EFFECT_ARM,
+        "HANDLER_PUSH pass inner 0 1\nOWN_MOVE_LOCAL 0\nPERFORM pass 1\nHANDLER_POP 1\nRET\ninner:\nOWN_MOVE_LOCAL 0\nEFFECT_RESUME\n");
+    effect_write(directory,"capture","PUSH_I64 4\nSTORE_LOCAL 3\nHANDLER_PUSH pass arm 5 1\n"
+        "PUSH_I64 7\nOWN_PACK 0\nPERFORM pass 1\nOWN_STORE_LOCAL 1\nHANDLER_POP 1\n"
+        "OWN_UNPACK_LOCAL 1\nPOP\nLOAD_LOCAL 3\nRET\narm:\n"
+        "LOAD_LOCAL 3\nPUSH_I64 3\nADD\nSTORE_LOCAL 3\nOWN_MOVE_LOCAL 5\nEFFECT_RESUME\n",NULL);
+    effect_write(directory,"assertion",EFFECT_START EFFECT_SEND EFFECT_END
+        "PUSH_BOOL 0\nASSERT\n" EFFECT_ARM,NULL);
+    effect_write(directory,"unhandled","PUSH_I64 7\nOWN_PACK 0\nPERFORM pass 1\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nRET\n",NULL);
+    effect_write(directory,"contained_return",EFFECT_START "PUSH_I64 9\nOWN_PACK 0\nOWN_STORE_LOCAL 5\n"
+        "OWN_MOVE_LOCAL 0\nCALL 2\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 5\nPOP\nHANDLER_POP 1\n" EFFECT_END EFFECT_ARM,
+        "HANDLER_PUSH pass inner 0 1\nOWN_MOVE_LOCAL 0\nPERFORM pass 1\nHANDLER_POP 1\nRET\ninner:\nOWN_MOVE_LOCAL 0\nRET\n");
+    effect_write(directory,"nested_return",EFFECT_START EFFECT_SEND EFFECT_END
+        "HANDLER_PUSH pass nested 5 1\nOWN_MOVE_LOCAL 2\nPERFORM pass 1\nHANDLER_POP 1\nEFFECT_RESUME\n"
+        "nested:\nOWN_UNPACK_LOCAL 5\nRET\n",NULL);
+    NvmModule *m=effect_fixture("HANDLER_PUSH tick arm 3 0\nPERFORM tick 0\nPOP\nHANDLER_POP 1\nPUSH_I64 7\nRET\narm:\nPUSH_VOID\nEFFECT_RESUME\n",NULL);
+    m->ownership_size=180;word(m->ownership_data+132,44);m->ownership_data[168]=0;
+    slot(m->ownership_data+172,TAG_VOID,0);effect_save(directory,"void",m);
+    m=effect_fixture("HANDLER_PUSH pass arm 2 1\nPUSH_STR pass\nPERFORM pass 1\nPUSH_STR pass\nEQ\nASSERT\nHANDLER_POP 1\nPUSH_I64 7\nRET\narm:\nLOAD_LOCAL 2\nEFFECT_RESUME\n",NULL);
+    slot(m->ownership_data+44,TAG_STRING,0);
+    slot(m->ownership_data+148,TAG_STRING,0);slot(m->ownership_data+156,TAG_STRING,0);
+    effect_save(directory,"string",m);
+    m=effect_fixture("HANDLER_PUSH pass arm 2 1\nPUSH_STR pass\nOWN_PACK 0\nPERFORM pass 1\nOWN_STORE_LOCAL 1\nHANDLER_POP 1\nOWN_UNPACK_LOCAL 1\nPUSH_STR pass\nEQ\nASSERT\nPUSH_I64 7\nRET\narm:\nOWN_MOVE_LOCAL 2\nEFFECT_RESUME\n",NULL);
+    NvmV2LayoutField field={TAG_STRING,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX};
+    NvmV2Layout records[]={{NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field},{NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&field}};
+    NvmV2Layouts layouts={records,2};CHECK(nvm_retain_layouts(m,&layouts)==NVM_V2_OK);
+    effect_save(directory,"owned_string",m);
+    m=effect_fixture("HANDLER_PUSH pass arm 2 1\nPUSH_F64 7.5\nPERFORM pass 1\nPUSH_F64 7.5\nF64_EQ\nASSERT\nHANDLER_POP 1\nPUSH_I64 7\nRET\narm:\nLOAD_LOCAL 2\nEFFECT_RESUME\n",NULL);
+    slot(m->ownership_data+44,TAG_FLOAT,0);
+    slot(m->ownership_data+148,TAG_FLOAT,0);slot(m->ownership_data+156,TAG_FLOAT,0);
+    effect_save(directory,"float",m);
+    effect_write(directory,"borrow",EFFECT_START
+        "REGION_BEGIN\nBORROW_LOCAL_SHARED 0 0\nREF_GET 0 0\nPOP\nREGION_END\n"
+        EFFECT_SEND EFFECT_END "REGION_BEGIN\nBORROW_LOCAL_SHARED 0 2\nREF_GET 0 0\nPOP\nREGION_END\n" EFFECT_ARM,NULL);
+    m=effect_fixture("HANDLER_PUSH pass arm 2 1\nPUSH_I64 7\nOWN_PACK 0\nAGG_PACK 1 0 0 1\nPERFORM pass 1\nHANDLER_POP 1\n"
+        "MATCH_TAG 0 selected\nHALT\nselected:\nOWN_STORE_LOCAL 1\nOWN_UNPACK_LOCAL 1\nOWN_STORE_LOCAL 0\nOWN_UNPACK_LOCAL 0\nRET\narm:\nOWN_MOVE_LOCAL 2\nEFFECT_RESUME\n",NULL);
+    uint32_t union_name=nvm_add_string(m,"Choice",6),variant_name=nvm_add_string(m,"Owned",5);
+    NvmV2LayoutField scalar={TAG_INT,NVM_V2_NO_INDEX,NVM_V2_NO_INDEX},child={TAG_STRUCT,0,nvm_add_string(m,"value",5)};
+    NvmV2Layout union_records[]={{NVM_V2_LAYOUT_STRUCT,1,NVM_V2_NO_INDEX,&scalar},{NVM_V2_LAYOUT_UNION,1,union_name,&child}};
+    NvmV2Layouts union_layouts={union_records,2};m->struct_count=1;m->union_count=1;
+    CHECK(nvm_retain_layouts(m,&union_layouts)==NVM_V2_OK);
+    m->ownership_data=realloc(m->ownership_data,216);CHECK(m->ownership_data);m->ownership_size=216;
+    uint8_t *p=m->ownership_data;memset(p+188,0,28);word(p+124,2);
+    for(unsigned i=1;i<=4;i++)if(i!=3){slot(p+28+8*i,TAG_UNION,0);word(p+32+8*i,1);}
+    slot(p+148,TAG_UNION,0);word(p+152,1);slot(p+156,TAG_UNION,0);word(p+160,1);
+    p[188]=NVM_OWNERSHIP_EXTENSION_UNION_VARIANTS;p[190]=1;word(p+192,20);
+    word(p+196,1);word(p+200,1);p[204]=1;word(p+208,variant_name);p[214]=1;
+    uint8_t union_extension[28];memcpy(union_extension,p+188,28);
+    memmove(p+156,p+128,60);memcpy(p+128,union_extension,28);
+    effect_save(directory,"owned_union",m);
+    const char *recursive="OWN_UNPACK_LOCAL 2\nSTORE_LOCAL 3\nLOAD_LOCAL 3\nPUSH_I64 0\nGT\nJMP_FALSE finish\n"
+        "LOAD_LOCAL 3\nPUSH_I64 1\nSUB\nOWN_PACK 0\nPERFORM pass 1\nEFFECT_RESUME\n"
+        "finish:\nPUSH_I64 7\nOWN_PACK 0\nEFFECT_RESUME\n";
+    snprintf(body,sizeof(body),"%s%s%s%s",EFFECT_START,EFFECT_SEND,EFFECT_END,recursive);
+    effect_write(directory,"recursive",body,NULL);
+    snprintf(body,sizeof(body),"%s%s%sREGION_BEGIN\nBORROW_LOCAL_SHARED 0 2\nREF_GET 0 0\nPOP\nREGION_END\n"
+        "OWN_MOVE_LOCAL 2\nCALL 1\nOWN_STORE_LOCAL 2\n%s",EFFECT_START,EFFECT_SEND,EFFECT_END,recursive);
+    effect_write(directory,"recursive_borrow",body,NULL);
+    snprintf(body,sizeof(body),"HANDLER_PUSH pass arm 2 1\nPUSH_I64 1100\nOWN_PACK 0\nOWN_STORE_LOCAL 0\n%s%s%s",EFFECT_SEND,EFFECT_END,recursive);
+    effect_write(directory,"depth",body,NULL);
+}
+
 #undef EFFECT_START
 #undef EFFECT_SEND
 #undef EFFECT_END

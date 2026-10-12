@@ -4996,6 +4996,15 @@ test-affine-bytecode: $(NANOISA_OBJECTS) $(NANOISA_UTF8)
 	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -DAFFINE_BYTECODE_ALLOCATION_TEST -o obj/test_affine_bytecode_alloc tests/nanoisa/test_affine_bytecode.c obj/test_affine_bytecode_alloc.o $(filter-out obj/nanoisa/affine_bytecode.o,$(NANOISA_OBJECTS)) $(NANOISA_UTF8) $(LDFLAGS)
 	./obj/test_affine_bytecode_alloc
 
+# I inject execution allocations separately from admission and module loading.
+.PHONY: test-affine-effect-runtime
+test-units: test-affine-effect-runtime
+test-affine-effect-runtime: test-affine-bytecode $(NANOVM_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) nano_vm nvm2c
+	$(CC) $(CFLAGS) -Dmalloc=effect_vm_malloc -Dcalloc=effect_vm_calloc -Drealloc=effect_vm_realloc -c src/nanovm/vm.c -o obj/test_affine_effect_vm_alloc.o
+	$(CC) $(CFLAGS) -Dmalloc=effect_vm_malloc -Dcalloc=effect_vm_calloc -Drealloc=effect_vm_realloc -c src/nanovm/heap.c -o obj/test_affine_effect_heap_alloc.o
+	$(CC) $(CFLAGS) -I$(NANOISA_DIR) -o obj/test_affine_effect_vm tests/nanoisa/test_affine_effect_vm.c obj/test_affine_effect_vm_alloc.o obj/test_affine_effect_heap_alloc.o $(filter-out obj/nanovm/vm.o obj/nanovm/heap.o,$(NANOVM_OBJECTS)) $(NANOISA_OBJECTS) $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(LDFLAGS)
+	python3 -m unittest -v tests.test_affine_effect_runtime
+
 .PHONY: test-affine-scalar-union-runtime
 test-units: test-affine-scalar-union-runtime
 test-affine-scalar-union-runtime: test-affine-bytecode nano_vm nvm2c

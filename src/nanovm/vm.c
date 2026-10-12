@@ -536,7 +536,10 @@ void vm_init(VmState *vm, const NvmModule *module) {
     vm_recompute_verified(vm);
 }
 
+static void vm_clear_reference_activations(VmState *vm);
+
 void vm_destroy(VmState *vm) {
+    vm_clear_reference_activations(vm);
     if (vm->callbacks && vm_callback_shutdown(vm) != NANO_CALLBACK_OK) {
         /* I cannot free roots beneath a running callback or on another thread. */
         return;
@@ -1376,12 +1379,31 @@ static inline VmTrap trap_halt(void) {
 static VmReferenceActivation *vm_reference_activation(VmState *vm,uint32_t frame) {
     if (!frame) return &vm->references;
     if (frame==1) return &vm->callee_references;
-    return frame<NVM_OWNED_MAX_FUNCTIONS?&vm->value_references[frame-2]:NULL;
+    if(frame<NVM_OWNED_MAX_FUNCTIONS)return &vm->value_references[frame-2];
+    return frame<VM_MAX_FRAMES?vm->effect_references[frame-NVM_OWNED_MAX_FUNCTIONS]:NULL;
+}
+static VmReferenceActivation *vm_prepare_reference_activation(VmState *vm,uint32_t frame) {
+    if(frame>=VM_MAX_FRAMES)return NULL;
+    if(frame>=NVM_OWNED_MAX_FUNCTIONS && !vm->effect_references[frame-NVM_OWNED_MAX_FUNCTIONS])
+        vm->effect_references[frame-NVM_OWNED_MAX_FUNCTIONS]=calloc(1,sizeof(VmReferenceActivation));
+    return vm_reference_activation(vm,frame);
+}
+static void vm_end_reference_activation(VmState *vm,uint32_t frame) {
+    if(frame>=VM_MAX_FRAMES)return;
+    if(frame>=NVM_OWNED_MAX_FUNCTIONS) {
+        free(vm->effect_references[frame-NVM_OWNED_MAX_FUNCTIONS]);
+        vm->effect_references[frame-NVM_OWNED_MAX_FUNCTIONS]=NULL;
+    } else {
+        VmReferenceActivation *context=vm_reference_activation(vm,frame);
+        memset(context,0,sizeof(*context));
+    }
 }
 static void vm_clear_reference_activations(VmState *vm) {
     memset(&vm->references,0,sizeof(vm->references));
     memset(&vm->callee_references,0,sizeof(vm->callee_references));
     memset(vm->value_references,0,sizeof(vm->value_references));
+    for(uint32_t frame=NVM_OWNED_MAX_FUNCTIONS;frame<VM_MAX_FRAMES;frame++)
+        vm_end_reference_activation(vm,frame);
 }
 
 static inline VmTrap trap_error(VmState *vm, VmResult err, const char *fmt, ...) {
@@ -1543,13 +1565,13 @@ static VmTrap vm_core_execute_scoped(VmState *vm, const VmOwnedInvocationProof *
     const bool owned_execution = admitted || required;
     const bool mixed_execution = admitted && (proof->mixed || proof->owner_arrays);
     if (owned_execution) {
-        if (!vm->frame_count || vm->frame_count>NVM_OWNED_MAX_FUNCTIONS ||
+        if (!vm->frame_count || vm->frame_count>VM_MAX_FRAMES ||
             vm->frames[0].fn_idx!=0)
             return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a bounded standalone owned activation");
         for (uint32_t i=0;i<vm->frame_count;i++) {
             VmReferenceActivation *context=vm_reference_activation(vm,i);
             if (vm->frames[i].module!=vm->module ||
-                ((i || vm->references.active) && !context->active))
+                ((i || vm->references.active) && (!context || !context->active)))
                 return trap_error(vm,VM_ERR_TYPE_ERROR,"I require each active owned frame context");
         }
         if (!vm->references.active) {
@@ -2953,8 +2975,10 @@ dynamic_div:
 
             VmReferenceActivation *next_reference_context=NULL;
             if (owned_execution) {
-                next_reference_context=vm_reference_activation(vm,vm->frame_count);
-                if (!callee_idx || !next_reference_context || next_reference_context->active ||
+                next_reference_context=vm_prepare_reference_activation(vm,vm->frame_count);
+                if(!next_reference_context)
+                    return trap_error(vm,VM_ERR_MEMORY,"I cannot allocate an owned reference context");
+                if (!callee_idx || next_reference_context->active ||
                     vm->reference_generation==UINT64_MAX)
                     return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a checked bounded owned value activation");
                 NvmAffineType parameters[NVM_AFFINE_MAX_PARAMETERS];uint16_t count=0;
@@ -3217,11 +3241,24 @@ dynamic_div:
                 return trap_error(vm, VM_ERR_TYPE_ERROR, "I require matching effect argument counts.");
             if (vm->frame_count == VM_MAX_FRAMES)
                 return trap_error(vm, VM_ERR_CALL_DEPTH, "I exceeded my effect activation limit.");
+            VmReferenceActivation *activation_context=NULL;
+            if(owned_execution) {
+                activation_context=vm_prepare_reference_activation(vm,vm->frame_count);
+                if(!activation_context)
+                    return trap_error(vm,VM_ERR_MEMORY,"I cannot allocate an effect reference context");
+                if(activation_context->active || vm->reference_generation==UINT64_MAX)
+                    return trap_error(vm,VM_ERR_TYPE_ERROR,"I require a fresh owned effect activation");
+            }
             VmCallFrame *owner = &vm->frames[handler->owner];
             const NvmFunctionEntry *function = &handler->module->functions[owner->fn_idx];
             uint32_t base = vm->stack_size - argc;
             if (stack_reserve_frame(vm, base, function) != VM_OK)
                 return trap_error(vm, VM_ERR_MEMORY, "I cannot reserve an effect activation.");
+            if(activation_context) {
+                memset(activation_context,0,sizeof(*activation_context));
+                activation_context->active=true;
+                activation_context->generation=++vm->reference_generation;
+            }
             /* Move ordered arguments above the caller's operand stack into
              * their lexical slots; all other activation slots begin void. */
             memmove(&vm->stack[base + handler->parameter_start], &vm->stack[base],
@@ -3252,6 +3289,7 @@ dynamic_div:
             NanoValue value = stack_pop(vm);
             while (vm->stack_size > frame->stack_base) vm_release(&vm->heap, stack_pop(vm));
             uint32_t return_ip = frame->return_ip;
+            if(owned_execution)vm_end_reference_activation(vm,vm->frame_count-1);
             vm->frame_count--;
             effect_prune(vm, vm->frame_count);
             frame = &vm->frames[vm->frame_count - 1];
@@ -3276,6 +3314,7 @@ dynamic_div:
                 uint32_t keep = vm->frames[owner].stack_base + vm->frames[owner].local_count;
                 while (vm->stack_size > keep) vm_release(&vm->heap, stack_pop(vm));
                 while (vm->frame_count > owner + 1) {
+                    if(owned_execution)vm_end_reference_activation(vm,vm->frame_count-1);
                     vm_release(&vm->heap, vm->frames[--vm->frame_count].owned_callable);
                     vm->frames[vm->frame_count].owned_callable = val_void();
                 }
@@ -3351,8 +3390,7 @@ vm_return_values: ;
                  * publication capacity before removing any callee roots. */
                 VmResult reserved=stack_reserve(vm,(uint64_t)frame->stack_base+returning->result_count);
                 if (reserved!=VM_OK) return trap_error(vm,reserved,"I cannot reserve an owned return result");
-                VmReferenceActivation *finished=vm_reference_activation(vm,vm->frame_count-1);
-                memset(finished,0,sizeof(*finished));
+                vm_end_reference_activation(vm,vm->frame_count-1);
             }
             vm->stack_size -= returning->result_count;
 
