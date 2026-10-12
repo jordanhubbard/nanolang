@@ -1,0 +1,7 @@
+-- E001 TYPE MISMATCH --- /private/tmp/nl51-effect-collections/wrong_element.nano
+I require the declared operation's argument type for perform.
+
+5| fn main()->int{let a:array<int> =handle {perform E.pass([true])} with {pass a->{a}} return (at a 0)}
+                                            ^^^^^^^
+Hint: Match the effect operation signature.
+error: type check failed

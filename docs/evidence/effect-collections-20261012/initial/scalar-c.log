@@ -1,0 +1,3 @@
+Error at line 5, column 31: Expected '>' after array element type
+Error at line 5, column 31: Expected '=' in let statement (got GE)
+error: parser failed

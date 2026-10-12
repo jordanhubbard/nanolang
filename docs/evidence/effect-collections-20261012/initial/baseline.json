@@ -1,0 +1,114 @@
+[
+  {
+    "case": "scalar",
+    "route": "c",
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nl51-effect-collections/scalar.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-effect-collections/scalar-c.nvm"
+    ],
+    "returncode": 1,
+    "prior_preserved": true,
+    "log": "scalar-c.log"
+  },
+  {
+    "case": "scalar",
+    "route": "nano",
+    "argv": [
+      "/private/tmp/nl51-effect-globals/product/final-compiler",
+      "/private/tmp/nl51-effect-collections/scalar.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-effect-collections/scalar-nano.nvm"
+    ],
+    "returncode": 1,
+    "prior_preserved": true,
+    "log": "scalar-nano.log"
+  },
+  {
+    "case": "lexical",
+    "route": "c",
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nl51-effect-collections/lexical.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-effect-collections/lexical-c.nvm"
+    ],
+    "returncode": 1,
+    "prior_preserved": true,
+    "log": "lexical-c.log"
+  },
+  {
+    "case": "lexical",
+    "route": "nano",
+    "argv": [
+      "/private/tmp/nl51-effect-globals/product/final-compiler",
+      "/private/tmp/nl51-effect-collections/lexical.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-effect-collections/lexical-nano.nvm"
+    ],
+    "returncode": 1,
+    "prior_preserved": true,
+    "log": "lexical-nano.log"
+  },
+  {
+    "case": "payload",
+    "route": "c",
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nl51-effect-collections/payload.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-effect-collections/payload-c.nvm"
+    ],
+    "returncode": 1,
+    "prior_preserved": true,
+    "log": "payload-c.log"
+  },
+  {
+    "case": "payload",
+    "route": "nano",
+    "argv": [
+      "/private/tmp/nl51-effect-globals/product/final-compiler",
+      "/private/tmp/nl51-effect-collections/payload.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-effect-collections/payload-nano.nvm"
+    ],
+    "returncode": 1,
+    "prior_preserved": true,
+    "log": "payload-nano.log"
+  },
+  {
+    "case": "wrong_element",
+    "route": "c",
+    "argv": [
+      "/Users/jordanh/Src/nanolang/bin/nano_virt",
+      "/private/tmp/nl51-effect-collections/wrong_element.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-effect-collections/wrong_element-c.nvm"
+    ],
+    "returncode": 1,
+    "prior_preserved": true,
+    "log": "wrong_element-c.log"
+  },
+  {
+    "case": "wrong_element",
+    "route": "nano",
+    "argv": [
+      "/private/tmp/nl51-effect-globals/product/final-compiler",
+      "/private/tmp/nl51-effect-collections/wrong_element.nano",
+      "--emit-nvm",
+      "-o",
+      "/private/tmp/nl51-effect-collections/wrong_element-nano.nvm"
+    ],
+    "returncode": 1,
+    "prior_preserved": true,
+    "log": "wrong_element-nano.log"
+  }
+]
