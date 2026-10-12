@@ -1354,6 +1354,19 @@ static ASTNode *parse_perform(Stage1Parser *p, bool allow_bare_argument) {
     if (!match(p, TOKEN_IDENTIFIER)) goto malformed;
     node->as.effect_op.op_name = strdup(current_token(p)->value);
     advance(p);
+    while (match(p, TOKEN_DOT)) {
+        size_t length = strlen(node->as.effect_op.effect_name) + strlen(node->as.effect_op.op_name) + 2;
+        char *qualified = malloc(length);
+        if (!qualified) goto failed;
+        snprintf(qualified, length, "%s.%s", node->as.effect_op.effect_name, node->as.effect_op.op_name);
+        free(node->as.effect_op.effect_name);
+        node->as.effect_op.effect_name = qualified;
+        advance(p);
+        if (!match(p, TOKEN_IDENTIFIER)) goto malformed;
+        free(node->as.effect_op.op_name);
+        node->as.effect_op.op_name = strdup(current_token(p)->value);
+        advance(p);
+    }
     bool parenthesized = match(p, TOKEN_LPAREN);
     if (!parenthesized && !allow_bare_argument) return node;
     if (parenthesized) advance(p);

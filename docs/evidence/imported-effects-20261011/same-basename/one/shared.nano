@@ -1,0 +1,4 @@
+module LeftShared
+pub effect E{left_op:int->int}
+pub fn send()->int{return perform E.left_op(3)}
+shadow send{assert true}

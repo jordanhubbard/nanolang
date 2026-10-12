@@ -124,3 +124,65 @@ shadow eb_import {
     assert (not (eb_visible (mb_lookup 0 (eb_key "Hidden")) 3))
     (mb_reset [])
 }
+
+fn eb_types(types: array<string>, line: int) -> array<string> {
+    let mut result: array<string> = []
+    let mut i: int = 0
+    while (< i (array_length types)) {
+        set result (array_push result (nb_type (at types i) line))
+        set i (+ i 1)
+    }
+    return result
+}
+shadow eb_types {
+    (mb_reset [1])
+    (mb_add 0 "#type:Point" "owned_Point")
+    assert (== (at (eb_types ["Point", "int"] 1) 0) "owned_Point")
+    assert (== (at (eb_types ["Point", "int"] 1) 1) "int")
+    (mb_reset [])
+}
+
+pub fn eb_rewrite(parser: Parser) -> bool {
+    let mut i: int = 0
+    while (< i (array_length parser.performs)) {
+        let item: ASTEffectPerform = (at parser.performs i)
+        let key: string = (eb_key item.effect_name)
+        let target: string = (mb_lookup (mb_owner item.line) key)
+        if (== target key) {
+            (println (+ "I require a visible declared effect for perform: " item.effect_name))
+            return false
+        }
+        (array_set parser.performs i (ASTEffectPerform {
+            node_type: item.node_type, line: item.line, column: item.column,
+            effect_name: target, operation_name: item.operation_name,
+            argument_ids: item.argument_ids, argument_types: item.argument_types
+        }))
+        set i (+ i 1)
+    }
+    set i 0
+    while (< i (array_length parser.effects)) {
+        let item: ASTEffectDecl = (at parser.effects i)
+        (array_set parser.effects i (ASTEffectDecl {
+            node_type: item.node_type, line: item.line, column: item.column,
+            name: (mb_lookup (mb_owner item.line) (eb_key item.name)), is_pub: item.is_pub,
+            operation_names: item.operation_names, parameter_types: (eb_types item.parameter_types item.line),
+            parameter_starts: item.parameter_starts, parameter_counts: item.parameter_counts,
+            return_types: (eb_types item.return_types item.line)
+        }))
+        set i (+ i 1)
+    }
+    return true
+}
+shadow eb_rewrite {
+    let tokens: List<LexerToken> = (tokenize_string "effect E{ask:int->int}\nfn main()->int{return perform E.ask(7)}" "effects.nano" (list_CompilerDiagnostic_new))
+    let parser: Parser = (parse_program tokens (list_LexerToken_length tokens) "effects.nano")
+    (mb_reset [1, 2])
+    assert (eb_register parser "__test_")
+    assert (not (eb_rewrite parser))
+    (mb_reset [1])
+    assert (eb_register parser "__test_")
+    assert (eb_rewrite parser)
+    assert (== (at parser.effects 0).name (at parser.performs 0).effect_name)
+    assert (== (at parser.performs 0).operation_name "ask")
+    (mb_reset [])
+}

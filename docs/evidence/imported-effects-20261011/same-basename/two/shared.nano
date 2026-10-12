@@ -1,0 +1,4 @@
+module RightShared
+pub effect E{right_op:int->int}
+pub fn send()->int{return perform E.right_op(5)}
+shadow send{assert true}

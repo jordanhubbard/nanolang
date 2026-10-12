@@ -10309,9 +10309,17 @@ fn parse_effect_perform(p: Parser, prefix: bool) -> Parser {
     let owner_token: LexerToken = (parser_current cur)
     if (!= owner_token.token_type LexerTokenType.TOKEN_IDENTIFIER) { return (parser_with_error cur true) }
     set cur (parser_expect (parser_advance cur) LexerTokenType.TOKEN_DOT)
-    let operation: LexerToken = (parser_current cur)
+    let mut operation: LexerToken = (parser_current cur)
     if (!= operation.token_type LexerTokenType.TOKEN_IDENTIFIER) { return (parser_with_error cur true) }
     set cur (parser_advance cur)
+    let mut owner_name: string = owner_token.value
+    while (== (parser_current cur).token_type LexerTokenType.TOKEN_DOT) {
+        set owner_name (+ owner_name (+ "." operation.value))
+        set cur (parser_advance cur)
+        set operation (parser_current cur)
+        if (!= operation.token_type LexerTokenType.TOKEN_IDENTIFIER) { return (parser_with_error cur true) }
+        set cur (parser_advance cur)
+    }
     let parenthesized: bool = (== (parser_current cur).token_type LexerTokenType.TOKEN_LPAREN)
     if parenthesized { set cur (parser_advance cur) }
     let mut ids: array<int> = []
@@ -10332,7 +10340,7 @@ fn parse_effect_perform(p: Parser, prefix: bool) -> Parser {
     let index: int = (array_length cur.performs)
     let node: ASTEffectPerform = ASTEffectPerform {
         node_type: ParseNodeType.PNODE_EFFECT_OP, line: start.line, column: start.column,
-        effect_name: owner_token.value, operation_name: operation.value, argument_ids: ids, argument_types: kinds
+        effect_name: owner_name, operation_name: operation.value, argument_ids: ids, argument_types: kinds
     }
     return (parser_with_effects cur cur.effects (array_push cur.performs node) cur.handlers ParseNodeType.PNODE_EFFECT_OP index)
 }

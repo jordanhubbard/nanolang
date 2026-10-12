@@ -9,6 +9,7 @@
  */
 
 #include "nanolang.h"
+#include "module_symbol.h"
 #include "module_builder.h"
 #include "stdlib_runtime.h"
 #include "utf8.h"
@@ -3578,7 +3579,7 @@ static void build_expr(WorkList *list, ASTNode *expr, Environment *env) {
                 build_expr(list, expr->as.effect_op.args[i], env);
                 emit_literal(list, "; ");
             }
-            emit_formatted(list, "nl_perform_%s_%s(", expr->as.effect_op.effect_name, expr->as.effect_op.op_name);
+            emit_formatted(list, "nl_perform_%s_%s(", module_symbol_suffix(expr->as.effect_op.effect_name), expr->as.effect_op.op_name);
             for (int i = 0; i < expr->as.effect_op.arg_count; ++i)
                 emit_formatted(list, "%s_effect_arg%d", i ? ", " : "", i);
             emit_literal(list, "); })");
@@ -4846,6 +4847,9 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
         EffectOp *result_op = effect_get_op(env_get_effect(env, result_expr->as.effect_op.effect_name), result_expr->as.effect_op.op_name);
         if (result_op) result_name = result_op->return_type_name;
     }
+    /* I retain the result spelling while nested checking refreshes call annotations. */
+    char *retained_result_name = result_name ? strdup(result_name) : NULL;
+    result_name = retained_result_name;
     Type lexical = g_current_function->as.function.return_type;
     Symbol **captures = calloc((size_t)env->symbol_count, sizeof(*captures));
     int count = 0;
@@ -4932,4 +4936,5 @@ static void build_effect_handle(WorkList *list, ASTNode *expr, Environment *env)
     emit_literal(list, "})");
     for (int c = 0; c < count; ++c) free(captures[c]);
     free(captures);
+    free(retained_result_name);
 }

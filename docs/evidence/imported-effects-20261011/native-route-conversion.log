@@ -1,0 +1,35 @@
+test_distinct_argument_and_result_records (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_argument_and_result_records) ... 
+  test_distinct_argument_and_result_records (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_argument_and_result_records) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_c') ... FAIL
+test_distinct_record_mismatches_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_record_mismatches_preserve_output) ... ok
+test_distinct_record_signatures (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_record_signatures) ... ok
+test_private_effect_does_not_ambiguate_local_handler (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_effect_does_not_ambiguate_local_handler) ... ok
+test_private_effect_remains_local (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_effect_remains_local) ... ok
+test_private_handler_preserves_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_handler_preserves_output) ... ok
+test_private_imports_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_imports_preserve_output) ... ok
+test_qualified_perform (tests.test_imported_effect_identity.ImportedEffectIdentity.test_qualified_perform) ... ok
+test_same_named_effects (tests.test_imported_effect_identity.ImportedEffectIdentity.test_same_named_effects) ... ok
+test_selective_alias (tests.test_imported_effect_identity.ImportedEffectIdentity.test_selective_alias) ... ok
+
+======================================================================
+FAIL: test_distinct_argument_and_result_records (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_argument_and_result_records) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_imported_effect_identity.py", line 29, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpyjplecbc/lib.nano' to object file
+Compilation errors:
+obj/nano_modules/.nano-module-FuRuYx/source.c:1864:181: error: returning 'nl_Input' (aka 'struct nl_Input') from a function with incompatible result type 'nl_Output' (aka 'struct nl_Output')
+ 1864 | static nl_Output nl_perform___nano_hex_406c69622e45_convert(nl_Input _arg0) { void *_args[] = {&_arg0}; nl_Input _r = {0}; nl_effect_dispatch("@lib.E.convert", _args, &_r); return _r; }
+      |                                                                                                                                                                                     ^~
+1 error generated.
+
+C file kept at: obj/nano_modules/.nano-module-FuRuYx/source.c
+Error: Failed to compile module '/private/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpyjplecbc/lib.nano'
+Error: Failed to compile modules
+
+
+----------------------------------------------------------------------
+Ran 10 tests in 8.807s
+
+FAILED (failures=1)

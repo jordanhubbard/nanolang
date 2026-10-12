@@ -741,6 +741,7 @@ typedef struct {
 /* Effect definition entry: effect IO { print : String -> Unit } */
 typedef struct {
     char *name;              /* Effect name (e.g., "IO") */
+    char *original_name;     /* I retain the source spelling before module qualification. */
     EffectOp *ops;           /* Operations */
     int op_count;
     bool is_pub;
@@ -825,6 +826,13 @@ typedef struct EnumImport {
     struct EnumImport *next;
 } EnumImport;
 
+typedef struct EffectImport {
+    char *name;
+    char *owner_module;
+    char *target_name;
+    struct EffectImport *next;
+} EffectImport;
+
 typedef struct GlobalImport {
     const char *owner_file;
     const char *name;
@@ -866,6 +874,7 @@ typedef struct {
     int generic_func_instance_count;
     int generic_func_instance_capacity;
     EnumImport *enum_imports;
+    EffectImport *effect_imports;
     ModuleNamespace *namespaces;  /* Module alias → symbols mapping */
     int namespace_count;
     int namespace_capacity;
@@ -1054,6 +1063,9 @@ void env_register_generic_func_instance(Environment *env, const char *orig_name,
 /* Effect system */
 void env_define_effect(Environment *env, EffectDef effect_def);
 EffectDef *env_get_effect(Environment *env, const char *name);
+EffectDef *env_get_effect_owned(Environment *env, const char *name, const char *owner);
+bool env_import_effect(Environment *env, const char *alias, const EffectDef *target);
+bool env_effect_visible(Environment *env, const EffectDef *effect);
 EffectOp *effect_get_op(EffectDef *effect, const char *op_name);
 
 /* Utilities */

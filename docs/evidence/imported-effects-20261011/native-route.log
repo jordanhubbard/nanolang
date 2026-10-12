@@ -1,0 +1,106 @@
+test_distinct_record_mismatches_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_record_mismatches_preserve_output) ... ok
+test_distinct_record_signatures (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_record_signatures) ... 
+  test_distinct_record_signatures (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_record_signatures) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_c') ... FAIL
+test_private_effect_does_not_ambiguate_local_handler (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_effect_does_not_ambiguate_local_handler) ... ok
+test_private_effect_remains_local (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_effect_remains_local) ... ok
+test_private_handler_preserves_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_handler_preserves_output) ... ok
+test_private_imports_preserve_output (tests.test_imported_effect_identity.ImportedEffectIdentity.test_private_imports_preserve_output) ... ok
+test_qualified_perform (tests.test_imported_effect_identity.ImportedEffectIdentity.test_qualified_perform) ... ok
+test_same_named_effects (tests.test_imported_effect_identity.ImportedEffectIdentity.test_same_named_effects) ... ok
+test_selective_alias (tests.test_imported_effect_identity.ImportedEffectIdentity.test_selective_alias) ... ok
+
+======================================================================
+FAIL: test_distinct_record_signatures (tests.test_imported_effect_identity.ImportedEffectIdentity.test_distinct_record_signatures) (driver='/Users/jordanh/Src/nanolang/bin/nanoc_c')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/jordanh/Src/nanolang/tests/test_imported_effect_identity.py", line 29, in check
+    self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : /var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_40716_main.nvm.c:1950:31: error: use of undeclared identifier 'nl_'
+ 1950 | _out = ({ left__send(); }); *(nl_<U+0003> *)_result = _out;
+      |                               ^~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_40716_main.nvm.c:1959:32: error: use of undeclared identifier 'nl_'
+ 1959 | _out = ({ right__send(); }); *(nl_<U+0003> *)_result = _out;
+      |                                ^~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:3:390: error: unknown type name 'nl_NlEffectEntry'; did you mean 'NlEffectEntry'?
+    3 |     nl_Point a = ({ void *_captures_0[] = {&a}; NlEffectEntry _entries_0[] = {{"@left.E.left_op", nl_handler_0_0}}; int64_t _lexical_0 = {0}; NlEffectFrame _frame_0 __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_0, .count=1, .captures=_captures_0, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=&_lexical_0}; nl_NlEffectEntry _entries_0[] = { _out = {0}; if (nl_effect_run(&_frame_0, nl_handler_0_1, &_out)) {int64_t _ret = _lexical_0; return _ret;} _out; });
+      |                                                                                                                                                                                                                                                                                                                                                                                                      ^~~~~~~~~~~~~~~~
+      |                                                                                                                                                                                                                                                                                                                                                                                                      NlEffectEntry
+/Users/jordanh/Src/nanolang/src/runtime/effect_runtime.h:36:3: note: 'NlEffectEntry' declared here
+   36 | } NlEffectEntry;
+      |   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:3:407: error: redefinition of '_entries_0'
+    3 |     nl_Point a = ({ void *_captures_0[] = {&a}; NlEffectEntry _entries_0[] = {{"@left.E.left_op", nl_handler_0_0}}; int64_t _lexical_0 = {0}; NlEffectFrame _frame_0 __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_0, .count=1, .captures=_captures_0, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=&_lexical_0}; nl_NlEffectEntry _entries_0[] = { _out = {0}; if (nl_effect_run(&_frame_0, nl_handler_0_1, &_out)) {int64_t _ret = _lexical_0; return _ret;} _out; });
+      |                                                                                                                                                                                                                                                                                                                                                                                                                       ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:3:63: note: previous definition is here
+    3 |     nl_Point a = ({ void *_captures_0[] = {&a}; NlEffectEntry _entries_0[] = {{"@left.E.left_op", nl_handler_0_0}}; int64_t _lexical_0 = {0}; NlEffectFrame _frame_0 __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_0, .count=1, .captures=_captures_0, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=&_lexical_0}; nl_NlEffectEntry _entries_0[] = { _out = {0}; if (nl_effect_run(&_frame_0, nl_handler_0_1, &_out)) {int64_t _ret = _lexical_0; return _ret;} _out; });
+      |                                                               ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:3:424: error: use of undeclared identifier '_out'
+    3 |     nl_Point a = ({ void *_captures_0[] = {&a}; NlEffectEntry _entries_0[] = {{"@left.E.left_op", nl_handler_0_0}}; int64_t _lexical_0 = {0}; NlEffectFrame _frame_0 __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_0, .count=1, .captures=_captures_0, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=&_lexical_0}; nl_NlEffectEntry _entries_0[] = { _out = {0}; if (nl_effect_run(&_frame_0, nl_handler_0_1, &_out)) {int64_t _ret = _lexical_0; return _ret;} _out; });
+      |                                                                                                                                                                                                                                                                                                                                                                                                                                        ^~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:3:431: error: expected expression
+    3 |     nl_Point a = ({ void *_captures_0[] = {&a}; NlEffectEntry _entries_0[] = {{"@left.E.left_op", nl_handler_0_0}}; int64_t _lexical_0 = {0}; NlEffectFrame _frame_0 __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_0, .count=1, .captures=_captures_0, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=&_lexical_0}; nl_NlEffectEntry _entries_0[] = { _out = {0}; if (nl_effect_run(&_frame_0, nl_handler_0_1, &_out)) {int64_t _ret = _lexical_0; return _ret;} _out; });
+      |                                                                                                                                                                                                                                                                                                                                                                                                                                               ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:3:421: error: unknown type name 'nl_NlEffectEntry'; did you mean 'NlEffectEntry'?
+    3 |     nl___nano_record_7269676874_Point b = ({ void *_captures_1[] = {&b, &a}; NlEffectEntry _entries_1[] = {{"@right.E.right_op", nl_handler_1_0}}; int64_t _lexical_1 = {0}; NlEffectFrame _frame_1 __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_1, .count=1, .captures=_captures_1, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=&_lexical_1}; nl_NlEffectEntry _entries_1[] = { _out = {0}; if (nl_effect_run(&_frame_1, nl_handler_1_1, &_out)) {int64_t _ret = _lexical_1; return _ret;} _out; });
+      |                                                                                                                                                                                                                                                                                                                                                                                                                                     ^~~~~~~~~~~~~~~~
+      |                                                                                                                                                                                                                                                                                                                                                                                                                                     NlEffectEntry
+/Users/jordanh/Src/nanolang/src/runtime/effect_runtime.h:36:3: note: 'NlEffectEntry' declared here
+   36 | } NlEffectEntry;
+      |   ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:3:438: error: redefinition of '_entries_1'
+    3 |     nl___nano_record_7269676874_Point b = ({ void *_captures_1[] = {&b, &a}; NlEffectEntry _entries_1[] = {{"@right.E.right_op", nl_handler_1_0}}; int64_t _lexical_1 = {0}; NlEffectFrame _frame_1 __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_1, .count=1, .captures=_captures_1, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=&_lexical_1}; nl_NlEffectEntry _entries_1[] = { _out = {0}; if (nl_effect_run(&_frame_1, nl_handler_1_1, &_out)) {int64_t _ret = _lexical_1; return _ret;} _out; });
+      |                                                                                                                                                                                                                                                                                                                                                                                                                                                      ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:3:92: note: previous definition is here
+    3 |     nl___nano_record_7269676874_Point b = ({ void *_captures_1[] = {&b, &a}; NlEffectEntry _entries_1[] = {{"@right.E.right_op", nl_handler_1_0}}; int64_t _lexical_1 = {0}; NlEffectFrame _frame_1 __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_1, .count=1, .captures=_captures_1, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=&_lexical_1}; nl_NlEffectEntry _entries_1[] = { _out = {0}; if (nl_effect_run(&_frame_1, nl_handler_1_1, &_out)) {int64_t _ret = _lexical_1; return _ret;} _out; });
+      |                                                                                            ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:3:455: error: use of undeclared identifier '_out'
+    3 |     nl___nano_record_7269676874_Point b = ({ void *_captures_1[] = {&b, &a}; NlEffectEntry _entries_1[] = {{"@right.E.right_op", nl_handler_1_0}}; int64_t _lexical_1 = {0}; NlEffectFrame _frame_1 __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_1, .count=1, .captures=_captures_1, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=&_lexical_1}; nl_NlEffectEntry _entries_1[] = { _out = {0}; if (nl_effect_run(&_frame_1, nl_handler_1_1, &_out)) {int64_t _ret = _lexical_1; return _ret;} _out; });
+      |                                                                                                                                                                                                                                                                                                                                                                                                                                                                       ^~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:3:462: error: expected expression
+    3 |     nl___nano_record_7269676874_Point b = ({ void *_captures_1[] = {&b, &a}; NlEffectEntry _entries_1[] = {{"@right.E.right_op", nl_handler_1_0}}; int64_t _lexical_1 = {0}; NlEffectFrame _frame_1 __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_1, .count=1, .captures=_captures_1, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=&_lexical_1}; nl_NlEffectEntry _entries_1[] = { _out = {0}; if (nl_effect_run(&_frame_1, nl_handler_1_1, &_out)) {int64_t _ret = _lexical_1; return _ret;} _out; });
+      |                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:9:1: error: expected ')'
+    9 | int g_argc = 0;
+      | ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:3:43: note: to match this '('
+    3 |     nl___nano_record_7269676874_Point b = ({ void *_captures_1[] = {&b, &a}; NlEffectEntry _entries_1[] = {{"@right.E.right_op", nl_handler_1_0}}; int64_t _lexical_1 = {0}; NlEffectFrame _frame_1 __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_1, .count=1, .captures=_captures_1, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=&_lexical_1}; nl_NlEffectEntry _entries_1[] = { _out = {0}; if (nl_effect_run(&_frame_1, nl_handler_1_1, &_out)) {int64_t _ret = _lexical_1; return _ret;} _out; });
+      |                                           ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:3:39: error: initializing 'nl___nano_record_7269676874_Point' (aka 'struct nl___nano_record_7269676874_Point') with an expression of incompatible type 'void'
+    3 |     nl___nano_record_7269676874_Point b = ({ void *_captures_1[] = {&b, &a}; NlEffectEntry _entries_1[] = {{"@right.E.right_op", nl_handler_1_0}}; int64_t _lexical_1 = {0}; NlEffectFrame _frame_1 __attribute__((cleanup(nl_effect_pop))) = {.previous=nl_effect_top, .entries=_entries_1, .count=1, .captures=_captures_1, .cleanup_mark=nl_effect_gc_top, .foreign_depth=nl_effect_foreign_depth, .lexical_result=&_lexical_1}; nl_NlEffectEntry _entries_1[] = { _out = {0}; if (nl_effect_run(&_frame_1, nl_handler_1_1, &_out)) {int64_t _ret = _lexical_1; return _ret;} _out; });
+      |                                       ^   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    4 | #line 3 "/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano"
+      | ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    5 |     return ((a.x) + (b.x));
+      |     ~~~~~~~~~~~~~~~~~~~~~~~
+    6 | }
+      | ~
+    7 | 
+    8 | 
+    9 | /* C main() entry point - calls nanolang main */
+      | ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   10 | /* Global argc/argv for CLI runtime support */
+      | ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   11 | int g_argc = 0;
+      | ~~~
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:12:33: error: function definition is not allowed here
+   12 | int main(int argc, char **argv) {
+      |                                 ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:17:2: error: expected ';' at end of declaration
+   17 | }
+      |  ^
+      |  ;
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T/tmpboh8a8v6/main.nano:19:27: error: expected '}'
+   19 | #pragma GCC diagnostic pop
+      |                           ^
+/var/folders/9z/xpmfgw8j09l4g6wwxrxtt97w0000gn/T//nanoc_40716_main.nvm.c:1961:26: note: to match this '{'
+ 1961 | static int64_t nl_main() {
+      |                          ^
+15 errors generated.
+C compilation failed
+
+
+----------------------------------------------------------------------
+Ran 9 tests in 9.158s
+
+FAILED (failures=1)

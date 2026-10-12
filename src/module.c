@@ -1240,6 +1240,38 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                 free(inferred_name);
             }
 
+            /* I bind effects only into the importing module's namespace. */
+            char *effect_owner = orig_module_name ? strdup(orig_module_name) : module_name_from_path(module_path);
+            for (int e = 0; e < module_ast->as.program.count; ++e) {
+                ASTNode *declaration = module_ast->as.program.items[e];
+                if (declaration->type != AST_EFFECT_DECL) continue;
+                const char *name = declaration->as.effect_decl.effect_name;
+                EffectDef *target = env_get_effect_owned(env, name, effect_owner);
+                if (!target) continue;
+                if (item->as.import_stmt.is_selective && !item->as.import_stmt.is_wildcard) {
+                    for (int selected = 0; selected < item->as.import_stmt.import_symbol_count; ++selected) {
+                        if (strcmp(item->as.import_stmt.import_symbols[selected], name)) continue;
+                        const char *alias = item->as.import_stmt.import_aliases ? item->as.import_stmt.import_aliases[selected] : NULL;
+                        if (!env_import_effect(env, alias && *alias ? alias : name, target)) {
+                            fprintf(stderr, "I cannot bind a private or conflicting effect import: %s\n", name);
+                            free(effect_owner); free(module_path); return false;
+                        }
+                    }
+                } else if (target->is_pub) {
+                    size_t length = (module_alias ? strlen(module_alias) + 1 : 0) + strlen(name) + 1;
+                    char *qualified = malloc(length);
+                    if (!qualified) { free(effect_owner); free(module_path); return false; }
+                    snprintf(qualified, length, "%s%s%s", module_alias ? module_alias : "", module_alias ? "." : "", name);
+                    bool bound = env_import_effect(env, qualified, target);
+                    free(qualified);
+                    if (!bound) {
+                        fprintf(stderr, "I cannot bind a conflicting effect import: %s\n", name);
+                        free(effect_owner); free(module_path); return false;
+                    }
+                }
+            }
+            free(effect_owner);
+
             /* I retain public imports and the legacy plain-import immutable constant contract. */
             for (int g = 0; g < module_ast->as.program.count; ++g) {
                 ASTNode *global = module_ast->as.program.items[g];
@@ -1298,6 +1330,9 @@ static bool process_imports_owned(ASTNode *program, Environment *env, ModuleList
                         continue;
                     }
                     
+                    EffectDef *effect_alias = env_get_effect_owned(env, symbol, module_name_for_alias);
+                    if (effect_alias && effect_alias->is_pub) continue;
+
                     if (env_get_function(env, alias)) {
                         fprintf(stderr, "Error at line %d, column %d: Import alias '%s' conflicts with existing function\n",
                                 item->line, item->column, alias);

@@ -1,5 +1,6 @@
 # I share declaration identity between my self-hosted checker and NanoISA emitter.
 import "src_nano/parser.nano"
+from "src_nano/compiler/effect_bindings.nano" import eb_visible
 from "src_nano/compiler/lexer.nano" import tokenize_string
 
 pub fn effect_decl_index(parser: Parser, name: string) -> int {
@@ -39,7 +40,7 @@ pub fn effect_handler_owner(parser: Parser, handler: ASTEffectHandle) -> int {
     let mut index: int = 0
     while (< index (array_length parser.effects)) {
         let declaration: ASTEffectDecl = (at parser.effects index)
-        let mut matches: bool = true
+        let mut matches: bool = (eb_visible declaration.name handler.line)
         let mut arm: int = 0
         while (< arm (array_length handler.operation_names)) {
             if (< (effect_operation_index declaration (at handler.operation_names arm)) 0) { set matches false }

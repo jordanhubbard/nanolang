@@ -8,6 +8,7 @@
 
 #include "generic_bindings.h"
 #include "native_type_key.h"
+#include "module_symbol.h"
 
 /* Use json_diagnostics without including json_diagnostics.h (DiagnosticSeverity conflict
  * with compiler_schema.h). Declare only what we need via extern. */
@@ -2428,6 +2429,10 @@ static Type check_perform(ASTNode *expr, Environment *env) {
                                "Match the effect operation signature.");
             return TYPE_UNKNOWN;
         }
+    }
+    if (strcmp(expr->as.effect_op.effect_name, effect->name)) {
+        free(expr->as.effect_op.effect_name);
+        expr->as.effect_op.effect_name = strdup(effect->name);
     }
     return op->return_type;
 }
@@ -5148,6 +5153,7 @@ static Type check_expression_impl(ASTNode *expr, Environment *env) {
                 }
             }
             for (int i = 0; i < env->effect_count; i++) {
+                if (!env_effect_visible(env, &env->effects[i])) continue;
                 bool matches = true;
                 for (int j = 0; j < expr->as.handle_expr.handler_count; j++) {
                     if (!effect_get_op(&env->effects[i], expr->as.handle_expr.handler_op_names[j])) {
@@ -8104,7 +8110,7 @@ static bool validate_effect_declarations(ASTNode *program, Environment *env) {
 static bool register_effect_declaration(ASTNode *item, Environment *env) {
     /* Register algebraic effect definition */
     const char *eff_name = item->as.effect_decl.effect_name;
-    if (env_get_effect(env, eff_name)) {
+    if (env_get_effect_owned(env, eff_name, env->current_module)) {
         emit_context_error("E031 DUPLICATE EFFECT", item->line, item->column, (int)strlen(eff_name),
             "Effect is already defined in this scope",
             "E013: effect names must be unique");
@@ -8121,7 +8127,13 @@ static bool register_effect_declaration(ASTNode *item, Environment *env) {
         }
     }
     EffectDef edef;
-    edef.name = strdup(eff_name);
+    edef.original_name = env_own_checker_allocation(env, strdup(eff_name));
+    if (env->current_module) {
+        const char *owner = module_symbol_suffix(env->current_module);
+        size_t length = strlen(owner) + strlen(eff_name) + 3;
+        edef.name = malloc(length);
+        snprintf(edef.name, length, "@%s.%s", owner, eff_name);
+    } else edef.name = strdup(eff_name);
     edef.op_count = item->as.effect_decl.op_count;
     edef.is_pub = item->as.effect_decl.is_pub;
     edef.module_name = env->current_module ? strdup(env->current_module) : NULL;

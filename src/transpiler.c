@@ -4944,8 +4944,8 @@ static void generate_effect_dispatch(StringBuilder *sb, ASTNode *program, Enviro
             const char *op = effect->ops[j].name;
             int count = effect->ops[j].param_count;
             Type rtype = effect->ops[j].return_type;
-            const char *crt = effect_c_type(rtype, effect->ops[j].return_type_name, env);
-            sb_appendf(sb, "static %s nl_perform_%s_%s(", crt, eff, op);
+            char *crt = strdup(effect_c_type(rtype, effect->ops[j].return_type_name, env));
+            sb_appendf(sb, "static %s nl_perform_%s_%s(", crt, module_symbol_suffix(eff), op);
             if (!count) sb_append(sb, "void");
             for (int k = 0; k < count; k++) {
                 if (k) sb_append(sb, ", ");
@@ -4960,6 +4960,7 @@ static void generate_effect_dispatch(StringBuilder *sb, ASTNode *program, Enviro
             sb_appendf(sb, "nl_effect_dispatch(\"%s.%s\", _args, %s); ", eff, op, rtype == TYPE_VOID ? "NULL" : "&_r");
             if (rtype != TYPE_VOID) sb_append(sb, "return _r; ");
             sb_append(sb, "}\n");
+            free(crt);
         }
     }
     sb_append(sb, "\n");

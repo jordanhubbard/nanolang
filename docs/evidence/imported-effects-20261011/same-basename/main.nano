@@ -1,0 +1,4 @@
+module "one/shared.nano" as left
+module "two/shared.nano" as right
+fn main()->int{let a:int=handle {(left.send)} with {left_op n->{n}} let b:int=handle {(right.send)} with {right_op n->{n}} return (+ a b)}
+shadow main{assert (== (main) 8)}

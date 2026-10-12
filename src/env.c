@@ -525,6 +525,11 @@ void free_environment(Environment *env) {
     }
     free(env->structs);
     
+    while (env->effect_imports) {
+        EffectImport *item = env->effect_imports;
+        env->effect_imports = item->next;
+        free(item->name); free(item->owner_module); free(item->target_name); free(item);
+    }
     while (env->enum_imports) {
         EnumImport *item = env->enum_imports;
         env->enum_imports = item->next;
@@ -2454,7 +2459,7 @@ void env_add_module_exported_struct(Environment *env, const char *module_name, c
 void env_define_effect(Environment *env, EffectDef effect_def) {
     if (!env) return;
     /* Prevent duplicates */
-    if (env_get_effect(env, effect_def.name) != NULL) return;
+    if (env_get_effect_owned(env, effect_def.original_name ? effect_def.original_name : effect_def.name, effect_def.module_name)) return;
 
     if (env->effect_count >= env->effect_capacity) {
         env->effect_capacity = env->effect_capacity ? env->effect_capacity * 2 : 8;
@@ -2463,12 +2468,60 @@ void env_define_effect(Environment *env, EffectDef effect_def) {
     env->effects[env->effect_count++] = effect_def;
 }
 
+static bool effect_same_owner(const char *left, const char *right) {
+    return (!left && !right) || (left && right && !strcmp(left, right));
+}
+
+EffectDef *env_get_effect_owned(Environment *env, const char *name, const char *owner) {
+    if (!env || !name) return NULL;
+    for (int i = 0; i < env->effect_count; ++i) {
+        EffectDef *effect = &env->effects[i];
+        const char *original = effect->original_name ? effect->original_name : effect->name;
+        if (original && !strcmp(original, name) && effect_same_owner(owner, effect->module_name)) return effect;
+    }
+    return NULL;
+}
+
+bool env_import_effect(Environment *env, const char *alias, const EffectDef *target) {
+    if (!env || !alias || !target || !target->name || !target->is_pub) return false;
+    for (EffectImport *item = env->effect_imports; item; item = item->next)
+        if (effect_same_owner(item->owner_module, env->current_module) && !strcmp(item->name, alias))
+            return !strcmp(item->target_name, target->name);
+    EffectImport *item = calloc(1, sizeof *item);
+    if (!item) return false;
+    item->name = strdup(alias);
+    item->target_name = strdup(target->name);
+    item->owner_module = env->current_module ? strdup(env->current_module) : NULL;
+    if (!item->name || !item->target_name || (env->current_module && !item->owner_module)) {
+        free(item->name); free(item->target_name); free(item->owner_module); free(item); return false;
+    }
+    item->next = env->effect_imports; env->effect_imports = item;
+    return true;
+}
+
+bool env_effect_visible(Environment *env, const EffectDef *effect) {
+    if (!env || !effect) return false;
+    if (effect_same_owner(env->current_module, effect->module_name)) return true;
+    if (!effect->is_pub) return false;
+    for (EffectImport *item = env->effect_imports; item; item = item->next)
+        if (effect_same_owner(item->owner_module, env->current_module) && !strcmp(item->target_name, effect->name)) return true;
+    return false;
+}
+
 EffectDef *env_get_effect(Environment *env, const char *name) {
     if (!env || !name) return NULL;
-    for (int i = 0; i < env->effect_count; i++) {
-        if (env->effects[i].name && strcmp(env->effects[i].name, name) == 0) {
-            return &env->effects[i];
-        }
+    EffectDef *local = env_get_effect_owned(env, name, env->current_module);
+    if (local) return local;
+    /* My internal names contain @, which source identifiers cannot spell. */
+    if (name[0] == '@') {
+        for (int i = 0; i < env->effect_count; ++i)
+            if (!strcmp(env->effects[i].name, name)) return &env->effects[i];
+        return NULL;
+    }
+    for (EffectImport *item = env->effect_imports; item; item = item->next) {
+        if (!effect_same_owner(item->owner_module, env->current_module) || strcmp(item->name, name)) continue;
+        for (int i = 0; i < env->effect_count; ++i)
+            if (!strcmp(env->effects[i].name, item->target_name)) return &env->effects[i];
     }
     return NULL;
 }
