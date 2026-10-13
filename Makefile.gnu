@@ -6812,6 +6812,12 @@ test-units: test-owned-effect-c-source
 test-owned-effect-c-source: nano_virt nano_vm nvm2c
 	python3 -m unittest -v tests.test_owned_effect_c_source
 
+# I enforce rows 10685 and 10688: native NanoISA products carry no VM and no transpiler source exists.
+.PHONY: test-one-ir-product-invariants
+test-units: test-one-ir-product-invariants
+test-one-ir-product-invariants: nano_virt nvm2c nvm2c-runtime
+	python3 -m unittest -v tests.test_one_ir_product_invariants
+
 # I inspect typed-array producer facts without bypassing executable verification.
 $(OBJ_DIR)/nanovirt/codegen_effect_arrays.o: $(NANOVIRT_DIR)/codegen.c | $(OBJ_DIR)/nanovirt
 	$(CC) $(CFLAGS) -Dnvm_verify=effect_array_producer_verify -DNANOVIRT_TEST_CONTRACT_REALLOC -c $< -o $@
