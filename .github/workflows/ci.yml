@@ -57,6 +57,29 @@ jobs:
       - name: Strict compiles with every available compiler
         run: make check-fast
 
+  # The repository ruleset requires the three named Build and Test checks. A matrix job skipped by `if` reports
+  # one unexpanded name, so on a documentation-only push those required names would never appear. This stand-in
+  # reports them with the same names, on a cheap runner, only when the long job is skipped.
+  build-and-test-skipped:
+    name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
+    needs: fast-gate
+    if: needs.fast-gate.outputs.code != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+          - os: ubuntu-24.04-arm
+            arch: arm64
+          - os: macos-14
+            arch: arm64
+      fail-fast: false
+    steps:
+      - name: Report the skipped long job
+        run: echo "I changed only documentation, so I skipped the long Build and Test job for ${{ matrix.os }}."
+
   build-and-test:
     name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
     needs: fast-gate
