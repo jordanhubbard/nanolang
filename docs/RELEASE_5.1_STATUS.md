@@ -104,6 +104,19 @@ counts above stand: 18 recorded done, 6 implemented, 37 unclosed, 5 deferred, 1 
 | 10687 | None this session | Pinned VM and C AOT equivalence suite at the release revision |
 | closeout-1 | I repaired a module-builder buffer overflow, GCC `maybe-uninitialized` locals, a generated-struct regression of mine, and two test fixtures, and fitted CI time budgets to measured runner speeds | Hosted CI is not green: Memory Sanitizers Stage 1 exceeds 7200 seconds and is unexplained, and the Linux and macOS test suites on the newest commit had not finished when I wrote this |
 
+**Hosted results at `b384c4f7b` (run 38428174998, finished).** For the first time the bootstrap, the
+File service checks and the full `Run test suite` all passed on every hosted platform: Linux x64
+(suite about 90 minutes), Linux ARM (about 106) and macOS. The Linux x64 log records the raw Stage 1
+and Stage 2 modules as byte-identical. The jobs still failed later: Linux x64 and macOS at
+`Validate user guide snippets` (four snippets; the self-hosted `str_equals`, `to_string` and
+top-level `std/` fixes since then address three f-string snippets and the import resolution, but the
+logging snippet and two regex tests need host-ABI support for `nl_get_t…` and `nl_regex_match`,
+which row 10280 deliberately refuses); Linux ARM ended during the extra JUnit step with no recorded
+conclusion, which I cannot explain; Code Coverage's tests passed and it failed only its 40 percent
+threshold at 38.1 percent; Memory Sanitizers' Stage 1 exceeded its 7200-second bound for the third
+time. This does not change a headline count: closeout-1 still requires one exact candidate with
+all gates green, and the platform and corpus rows still need their own evidence.
+
 Not touched this session: the service, managed-aggregate, producer-metadata, reconstruction,
 portable-host and LLVM/Wasm blocks (rows 9538–9575, 10260–10409, 10618–10674 and 10680).
 `make test-one-ir-compiler` cannot pass on Darwin arm64 because LeakSanitizer is unsupported
