@@ -86,8 +86,12 @@ jobs:
     if: needs.fast-gate.outputs.code == 'true'
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.allow_failure || false }}
-    # I budget bootstrap and both service generations separately from the general suite.
-    timeout-minutes: 240
+    # I budget bootstrap and both service generations separately from the general suite. Hosted run
+    # 38394591256 cancelled both Linux jobs at exactly 240 minutes: setup about 18, bootstrap about 70,
+    # service checks about 56, and the test suite still unfinished after more than 96. I use GitHub's
+    # 360-minute hosted maximum to learn the suite's real duration; splitting these phases into parallel
+    # jobs is the lasting fix.
+    timeout-minutes: 360
     permissions:
       contents: read
       checks: write
