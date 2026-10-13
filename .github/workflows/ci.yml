@@ -16,8 +16,9 @@ env:
 
 jobs:
   # I run my fast gate first and separately: strict GCC and clang compiles of my product tools, in minutes.
-  # It finds the warnings-as-errors failures that otherwise surface after a long bootstrap. I do not yet make
-  # the long jobs wait on it; I do that after this job has passed on a hosted runner.
+  # It finds the warnings-as-errors failures that otherwise surface after a long bootstrap. The three long
+  # jobs (Build and Test, Memory Sanitizers, Code Coverage) wait on it. It passed on hosted run 38414032686,
+  # compiling 222 sources each with clang and GCC 14 in about 33 seconds apiece.
   fast-gate:
     name: Fast gate (GCC and clang)
     runs-on: ubuntu-latest
@@ -37,6 +38,7 @@ jobs:
 
   build-and-test:
     name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
+    needs: fast-gate
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.allow_failure || false }}
     # I budget bootstrap and both service generations separately from the general suite.
@@ -416,6 +418,7 @@ jobs:
 
   sanitizers:
     name: Memory Sanitizers
+    needs: fast-gate
     env:
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
       # I bound each instrumented self-compilation separately from shadow tests.
@@ -518,6 +521,7 @@ jobs:
 
   coverage:
     name: Code Coverage
+    needs: fast-gate
     env:
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
