@@ -85,6 +85,27 @@ cached matching wheel under the task temporary directory or pip cache. Fetching
 the repository-pinned Darwin wheel fails at DNS resolution before download; I
 do not substitute CLI 49 for that embedding acceptance or claim a test pass.
 
+## Addendum — 2026-10-13, branch tip `416b6e9d8`
+
+I add observations since the 2026-10-11 inventory. **No headline row changes state and the
+counts above stand: 18 recorded done, 6 implemented, 37 unclosed, 5 deferred, 1 obsolete.**
+`gh release view v5.1.0` still reports no release and I have not tagged one.
+
+| Rows | New evidence or gate | What remains |
+| --- | --- | --- |
+| 10686 | Darwin clean-clone `make bootstrap` passes at `5633d0da7` with byte-identical raw Stage 1 and Stage 2 modules ([checkpoint](evidence/bootstrap-darwin-881e49c9c-20261012/README.md)); hosted `bootstrap3` also passes on Linux x64, Linux ARM, macOS and coverage | Exact release revision, Linux Stage 2 equality, hosted CI green |
+| 10685, 10688 | `make test-one-ir-product-invariants` (VM-symbol-free native product; no `transpiler.nano`) | One small program only; Linux and hosted CI |
+| 10684 | `make test-selfhost-product-derivation` (`--target c` equals `nvm2c` of the `--emit-nvm` module) | `--target native` and the full compiler source; Linux and hosted CI |
+| 10494 | `make test-eval` passes 127 cases and passes under ASan/UBSan on Darwin; the original SIGSEGV does not reproduce | Cause unidentified (original binary lost); Linux leak-detection run |
+| 10419 | `make test-verifier-profiles test-verifier` pass on Darwin (97 assertions plus the profile gate) | Linux; the complete applicable-language coverage (10674) |
+| 10687 | None this session | Pinned VM and C AOT equivalence suite at the release revision |
+| closeout-1 | I repaired a module-builder buffer overflow, GCC `maybe-uninitialized` locals, a generated-struct regression of mine, and two test fixtures, and fitted CI time budgets to measured runner speeds | Hosted CI is not green: Memory Sanitizers Stage 1 exceeds 7200 seconds and is unexplained, and the Linux and macOS test suites on the newest commit had not finished when I wrote this |
+
+Not touched this session: the service, managed-aggregate, producer-metadata, reconstruction,
+portable-host and LLVM/Wasm blocks (rows 9538–9575, 10260–10409, 10618–10674 and 10680).
+`make test-one-ir-compiler` cannot pass on Darwin arm64 because LeakSanitizer is unsupported
+there; it requires a leak-capable Linux run.
+
 ## All headline entries
 
 “Recorded” below retains the scope's existing bounded completion claim.
