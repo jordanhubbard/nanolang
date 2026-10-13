@@ -25,9 +25,30 @@ jobs:
     timeout-minutes: 20
     permissions:
       contents: read
+    outputs:
+      code: ${{ steps.changed.outputs.code }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # I skip the three long jobs when a push changed only documentation (scripts/ci_changed.py). I run them
+      # whenever I cannot tell: a manual dispatch, a new branch, an unfetchable previous commit or any
+      # non-documentation path. Documentation-only pushes still run this gate and the docs link check.
+      - name: Classify the pushed changes
+        id: changed
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          code=true
+          if [ "$EVENT" != "workflow_dispatch" ] && [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ]; then
+            if git fetch --no-tags --depth=1 origin "$BEFORE" "$AFTER" 2>/dev/null; then
+              result=$(git diff --name-only "$BEFORE" "$AFTER" | python3 scripts/ci_changed.py) && code="${result#code=}"
+            fi
+          fi
+          echo "I will run the long jobs: $code"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
         timeout-minutes: 10
@@ -39,6 +60,7 @@ jobs:
   build-and-test:
     name: Build and Test (${{ matrix.os }}, ${{ matrix.arch || 'x64' }})
     needs: fast-gate
+    if: needs.fast-gate.outputs.code == 'true'
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.allow_failure || false }}
     # I budget bootstrap and both service generations separately from the general suite.
@@ -419,6 +441,7 @@ jobs:
   sanitizers:
     name: Memory Sanitizers
     needs: fast-gate
+    if: needs.fast-gate.outputs.code == 'true'
     env:
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
       # I bound each instrumented self-compilation separately from shadow tests.
@@ -522,6 +545,7 @@ jobs:
   coverage:
     name: Code Coverage
     needs: fast-gate
+    if: needs.fast-gate.outputs.code == 'true'
     env:
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
