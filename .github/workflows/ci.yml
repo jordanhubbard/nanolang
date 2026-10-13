@@ -172,6 +172,7 @@ jobs:
       - name: Run test suite
         env:
           NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
+          BOOTSTRAP_NANOISA_TIMEOUT: "5400"
         # Hosted run 38332008529 on macos-14 spent 3 and 7 minutes on the parser and
         # typecheck components and then hit the 600-second command bound compiling
         # nanoisa_emitter, so I bound each component compile separately.
@@ -502,7 +503,7 @@ jobs:
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fprofile-arcs -ftest-coverage"
       LDFLAGS: "-lm -lcrypto -fprofile-arcs -ftest-coverage"
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 360
     permissions:
       contents: read
       pull-requests: write
@@ -558,9 +559,12 @@ jobs:
         run: make bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Run tests
-        timeout-minutes: 120
+        # test-quick rebuilds the bootstrap sentinel; hosted run 38343010960 spent
+        # exactly the default 1800-second stage bound in that Stage 1.
+        timeout-minutes: 240
         env:
           NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
+          BOOTSTRAP_NANOISA_TIMEOUT: "5400"
         run: make test-quick CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Run negative tests
