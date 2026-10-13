@@ -29,7 +29,10 @@ class ExternDeclarations(unittest.TestCase):
         def checked(args, expected_stdout=None):
             nonlocal sequence
             result = subprocess.run(list(map(str, args)), cwd=ROOT, env=environment,
-                                    capture_output=True, text=True, timeout=180)
+                                    capture_output=True, text=True,
+                                    # I bound each self-hosted compile separately: hosted macos-14 passed this
+                                    # test on one run and exceeded 180 seconds for stage1 and stage2 on the next.
+                                    timeout=int(os.environ.get('NANO_SELFHOST_COMPILE_TIMEOUT', '600')))
             (work / f'{sequence:02d}.log').write_text(result.stdout + result.stderr)
             sequence += 1
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
