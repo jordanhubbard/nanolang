@@ -209,7 +209,7 @@ static char *emit_owned_function(const NvmModule *mod,uint32_t function,
         " nown_value *locals[256]; nown_reference refs[256]={{0}}; unsigned region=0;\n");
     nvm2c_puts(&b,
         " for(unsigned i=0;i<256;i++)locals[i]=&l[i];\n"
-        " int status=0; (void)result; (void)a; (void)c; (void)nown_retain; (void)nown_string_new; (void)nown_string_equal; (void)refs; (void)region; (void)nown_referent;\n");
+        " int status=0; (void)result; (void)a; (void)c; (void)nown_retain; (void)nown_string_new; (void)nown_string_equal; (void)refs; (void)locals; (void)region; (void)nown_referent;\n");
     if (global_count) {
         if (effects) nvm2c_puts(&b," nown_value *globals=effects->globals;(void)globals;\n");
         else if (!function) nvm2c_printf(&b," nown_value globals[%u]={{0}};\n",global_count);
