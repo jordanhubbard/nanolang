@@ -1277,12 +1277,15 @@ fn nisa_string_binary_opcode(name: string) -> string {
     if (== name "str_concat") { return "STR_CONCAT" }
     if (== name "str_starts_with") { return "STR_STARTS_WITH" }
     if (== name "str_ends_with") { return "STR_ENDS_WITH" }
+    # I match my C frontend's registered str_equals builtin, which lowers to STR_EQ.
+    if (== name "str_equals") { return "STR_EQ" }
     return ""
 }
 shadow nisa_string_binary_opcode {
     assert (== (nisa_string_binary_opcode "str_concat") "STR_CONCAT")
     assert (== (nisa_string_binary_opcode "str_starts_with") "STR_STARTS_WITH")
     assert (== (nisa_string_binary_opcode "str_ends_with") "STR_ENDS_WITH")
+    assert (== (nisa_string_binary_opcode "str_equals") "STR_EQ")
     assert (== (nisa_string_binary_opcode "unknown") "")
 }
 
