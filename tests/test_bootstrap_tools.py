@@ -18,7 +18,8 @@ class BootstrapTools(unittest.TestCase):
             # this timestamp test never traverses their source build rules.
             objects = ['obj/probe.o', 'obj/nanovirt/main.o', 'obj/nanovm/main.o',
                        'obj/nanovm/vmd_protocol.o', 'obj/nanovm/vmd_client.o',
-                       'lib/libnano_socket_runtime.a', 'lib/libnano_services_runtime.a']
+                       'lib/libnano_socket_runtime.a', 'lib/libnano_services_runtime.a',
+                       'lib/libnano_websocket_runtime.a']
             binaries = ['bin/nano_virt', 'bin/nano_vm', 'bin/nanoisa', 'bin/nvm2c']
             for name in objects + binaries:
                 path = root / name
