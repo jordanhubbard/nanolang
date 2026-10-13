@@ -89,9 +89,12 @@ class BootstrapComponents(unittest.TestCase):
                  *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
                  *shlex.split(os.environ.get('LDFLAGS', '')), '-o', binary],
             ]
+            # I bound the instrumented compile of the generated emitter separately from execution:
+            # hosted runs 38343010960 and 38354110906 exceeded 180 seconds compiling emitter.c.
+            build_timeout = int(os.environ.get('NANO_COMPONENT_BUILD_TIMEOUT', '900'))
             for command in commands:
                 result = subprocess.run(list(map(str, command)), cwd=ROOT, capture_output=True,
-                                        text=True, timeout=180)
+                                        text=True, timeout=build_timeout)
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             for command in ([ROOT / 'bin/nano_vm', module], [binary]):
                 result = subprocess.run(list(map(str, command)), cwd=ROOT, capture_output=True,
