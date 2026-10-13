@@ -6813,6 +6813,13 @@ test-owned-effect-c-source: nano_virt nano_vm nvm2c
 	python3 -m unittest -v tests.test_owned_effect_c_source
 
 # I enforce rows 10685 and 10688: native NanoISA products carry no VM and no transpiler source exists.
+# I run my fast pre-push gate: strict GCC and clang compiles of my product tools (about 15 seconds)
+# plus the relink fixture. It finds in seconds what hosted CI otherwise finds after hours.
+.PHONY: check-fast
+check-fast:
+	python3 scripts/fast_gate.py
+	python3 -m unittest tests.test_bootstrap_tools
+
 .PHONY: test-selfhost-product-derivation
 test-selfhost-product-derivation: $(SENTINEL_BOOTSTRAP1) nano_vm nvm2c
 	python3 -m unittest -v tests.test_selfhost_product_derivation
