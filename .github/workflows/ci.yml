@@ -134,8 +134,13 @@ jobs:
           make -f Makefile.gnu test-file-indirect-queries test-file-indirect-runtime test-file-indirect-dispatch test-file-indirect-public
 
       - name: Bootstrap both compiler generations
-        timeout-minutes: 60
+        # Hosted run 38324377078 measured about 30 minutes for Stage 1 alone on
+        # ubuntu-latest, so seed plus both generations exceeded the old 60-minute
+        # step budget and ARM exceeded the 1800-second per-stage bound.
+        timeout-minutes: 150
         shell: bash
+        env:
+          BOOTSTRAP_NANOISA_TIMEOUT: "5400"
         run: make -f Makefile.gnu bootstrap3
 
       - name: Check C File source drivers
@@ -390,7 +395,7 @@ jobs:
     env:
       NANO_SHADOW_TIMEOUT_SECONDS: "300"
       # I bound each instrumented self-compilation separately from shadow tests.
-      BOOTSTRAP_NANOISA_TIMEOUT: "3600"
+      BOOTSTRAP_NANOISA_TIMEOUT: "7200"
       CFLAGS: "-Wall -Wextra -Werror -std=c99 -O3 -g -Isrc -D_GNU_SOURCE -fsanitize=address,undefined -fno-omit-frame-pointer"
       LDFLAGS: "-lm -lcrypto -fsanitize=address,undefined"
     runs-on: ubuntu-latest
@@ -436,7 +441,7 @@ jobs:
           make sanitize CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Compile and verify both compiler generations with sanitizers
-        timeout-minutes: 135
+        timeout-minutes: 240
         run: |
           export ASAN_OPTIONS=detect_leaks=0
           make bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
@@ -544,7 +549,9 @@ jobs:
         run: make coverage CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Compile and verify both compiler generations with coverage
-        timeout-minutes: 75
+        timeout-minutes: 150
+        env:
+          BOOTSTRAP_NANOISA_TIMEOUT: "5400"
         run: make bootstrap3 CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
 
       - name: Run tests
