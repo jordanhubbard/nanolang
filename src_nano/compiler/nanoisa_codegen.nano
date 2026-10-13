@@ -1289,6 +1289,19 @@ shadow nisa_string_binary_opcode {
     assert (== (nisa_string_binary_opcode "unknown") "")
 }
 
+# I match my C frontend: these names lower to CAST_STRING like int_to_string, and f-strings desugar to to_string.
+fn nisa_cast_string_name(name: string) -> bool {
+    return (or (== name "to_string") (or (== name "cast_string") (== name "bool_to_string")))
+}
+shadow nisa_cast_string_name {
+    assert (nisa_cast_string_name "to_string")
+    assert (nisa_cast_string_name "cast_string")
+    assert (nisa_cast_string_name "bool_to_string")
+    assert (not (nisa_cast_string_name "int_to_string"))
+    assert (not (nisa_cast_string_name "float_to_string"))
+    assert (not (nisa_cast_string_name "unknown"))
+}
+
 fn nisa_is_inline_call(name: string) -> bool {
     if (or (== name "float_from_bits") (== name "float_to_bits")) { return true }
     if (== name "str_trim") { return true }
@@ -4012,6 +4025,7 @@ fn nisa_expr_type(parser: Parser, node_id: int, node_type: int) -> string {
         if (== target_name "string_to_int") { return "int" }
         if (and (== target_name "string_to_float") (< (nisa_call_index parser call) 0)) { return "float" }
         if (and (== target_name "str_trim") (< (nisa_call_index parser call) 0)) { return "string" }
+        if (and (nisa_cast_string_name target_name) (< (nisa_call_index parser call) 0)) { return "string" }
         if (and (== (nisa_map_opcode target_name) "HM_GET") (== call.arg_count 2)) {
             let receiver: ASTStmtRef = (parser_get_call_arg parser call.arg_start)
             return (nisa_map_value_type (nisa_expr_type parser receiver.node_id receiver.node_type))
@@ -5578,6 +5592,10 @@ fn nisa_emit_call(parser: Parser, call: ASTCall) -> string {
             return (nisa_fail "I require one string operand for str_trim")
         }
         return (+ (nisa_emit_call_args parser call) (nisa_line "STR_TRIM"))
+    }
+    if (and (nisa_cast_string_name function_name) (< declared_index 0)) {
+        if (!= call.arg_count 1) { return (nisa_fail (+ "I require one argument for " function_name)) }
+        return (+ (nisa_emit_call_args parser call) (nisa_line "CAST_STRING"))
     }
     if (== function_name "range") { return (nisa_fail "I require range inside a for loop") }
     if (== function_name "array_new") { return (nisa_emit_filled_array parser call) }
