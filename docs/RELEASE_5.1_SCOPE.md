@@ -11,6 +11,13 @@ My [2026-10-11 reconciliation](RELEASE_5.1_STATUS.md) accounts for all 67
 headline entries and separates recorded implementation from unclosed acceptance.
 It is an evidence inventory, not release qualification or a narrowed scope.
 
+**Scope decision, 2026-10-13:** my user demoted the LLVM and Wasm translators to optional for 5.1.
+`nvm2llvm` and `nvm2wasm`, and the work already done on them (rows 10672 and 10673), stay in the tree
+as optional translators of verified NanoISA. They are not 5.1 release gates, and I do not expose them
+as release targets. Rows 10661, 10670, 10671 and 10674 are optional; row 10680 narrows to NanoVM and C AOT.
+This changes no other row. Rows 10663 and 10664 (portable read-text) are unchanged pending a decision on
+whether their adapter checks depend on the Wasm and Node targets.
+
 ## Ownership and services
 
 - **Done (9511):** Replace the C seed ownership prototype with path-sensitive analysis; both frontends need the same affine rules.
@@ -68,20 +75,20 @@ It is an evidence inventory, not release qualification or a narrowed scope.
 - **Required (10643):** Establish explicit ordinary heap-bearing record authority before nominal target admission.
 - **Required (10648):** Cover array elements, generics, imports, forward order, and remaining nominal record authority.
 - **Obsolete (10656):** The shared checked record selection row duplicates completed prior-order and forward-record execution rows; remaining authority is tracked at 10643 and 10648.
-- **Required (10661):** Implement exact declared host/module capability linkage and owned results for LLVM and Wasm.
+- **Optional (10661) (demoted to optional 2026-10-13; not a 5.1 release gate):** Implement exact declared host/module capability linkage and owned results for LLVM and Wasm.
 - **Required (10663):** Review the portable read-text linkage proposal as the first concrete portable host capability.
 - **Required (10664):** Qualify the read-text query, adapters, opt-in lowering, source publication, and installed links in ordered checkpoints.
 - **Implemented (10669):** Implement the private allowlisted read-text adapters and managed-copy ownership checkpoint. My [portable execution](evidence/portable-read-execution-20261010/README.md) and [installed text/byte gate](evidence/portable-byte-execution-20261010/README.md) exercise the adapters. Wasmtime execution and full capability/candidate coverage remain required.
-- **Required (10670):** Qualify native, LLVM, Wasmtime, and Node adapters with real files and denial/fault cleanup.
-- **Required (10671):** Extend portable linkage to byte and aggregate results and the remaining compiler capabilities.
+- **Optional (10670) (demoted to optional 2026-10-13; not a 5.1 release gate):** Qualify native, LLVM, Wasmtime, and Node adapters with real files and denial/fault cleanup. The native adapter check stays with row 10664.
+- **Optional (10671) (demoted to optional 2026-10-13; not a 5.1 release gate):** Extend portable linkage to byte and aggregate results and the remaining compiler capabilities.
 
 ## Translators and release gates
 
 - **Done (10672):** Complete LLVM IR translation from NanoISA rather than from the NanoLang AST. I admit `ROT3` in the shared closed profile and lower it in `nvm2llvm`; VM/C/LLVM parity tests pass.
 - **Done (10673):** Complete WebAssembly translation from NanoISA rather than from the NanoLang AST. I translate verified NanoISA through the shared `nvm2llvm` closed profile, including `ROT3`; VM/C/LLVM/Wasmtime/import-free Node parity tests pass.
-- **Required (10674):** Cover the applicable language in both translators before exposing them as release targets.
+- **Optional (10674) (demoted to optional 2026-10-13; not a 5.1 release gate):** Cover the applicable language in both translators before exposing them as release targets. Until then I do not expose them as release targets.
 - **Deferred-to-later (10676):** Evaluate JVM, SPIR-V, PTX, OpenCL, and Metal translators; 5.1 does not ship every evaluated optional target.
-- **Required (10680):** Run one pinned module corpus through NanoVM, C AOT, LLVM, and Wasm and compare semantics.
+- **Required (10680), narrowed 2026-10-13:** Run one pinned module corpus through NanoVM and C AOT and compare semantics. LLVM and Wasm are an optional cross-check, not a gate.
 - **Required (10684):** Verify that `src_nano` emits `.nvm` as its only compiler product.
 - **Required (10685):** Verify that `nvm2c` products do not link `nano_vm`.
 - **Required (10686):** Verify byte-identical Stage 1 and Stage 2 `.nvm` products at the release revision.

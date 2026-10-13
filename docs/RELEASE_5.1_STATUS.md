@@ -9,7 +9,8 @@ bugs, independent tasks, or percentage complete.
 | --- | ---: | --- |
 | Recorded done | 18 | Existing bounded completion claims; not rerun at this pin |
 | Implemented | 6 | Implementation evidence exists; final candidate acceptance remains |
-| Required / unclosed | 37 | Full acceptance is not established; includes partial implementation |
+| Required / unclosed | 33 | Full acceptance is not established; includes partial implementation |
+| Optional (demoted 2026-10-13) | 4 | LLVM and Wasm rows 10661, 10670, 10671 and 10674 moved out of the release gate |
 | Explicitly deferred | 5 | Existing GPU/exploratory-target deferrals, unchanged |
 | Obsolete duplicate | 1 | Existing duplicate, unchanged |
 | Total | 67 | Every headline scope entry appears below |
@@ -87,6 +88,8 @@ do not substitute CLI 49 for that embedding acceptance or claim a test pass.
 
 ## Addendum — 2026-10-13, branch tip `416b6e9d8`
 
+**Scope decision, 2026-10-13 (supersedes the counts in the first table above):** my user demoted LLVM and Wasm to optional for 5.1. The first table is updated: 33 unclosed, 4 optional, total unchanged at 67. Row 10680 narrows to NanoVM and C AOT. I made no change to any other row.
+
 I add observations since the 2026-10-11 inventory. **No headline row changes state and the
 counts above stand: 18 recorded done, 6 implemented, 37 unclosed, 5 deferred, 1 obsolete.**
 `gh release view v5.1.0` still reports no release and I have not tagged one.
@@ -162,17 +165,17 @@ remain open even when an older bootstrap or focused suite passed.
 | 10643 | Unclosed | Establish explicit ordinary heap-bearing record authority before nominal target admission. | [Checkpoint; full acceptance open](evidence/ordinary-record-producers.md) |
 | 10648 | Unclosed | Cover array elements, generics, imports, forward order, and remaining nominal record authority. | [Checkpoint; full acceptance open](evidence/managed-forward-records.md) |
 | 10656 | Obsolete | The shared checked record selection row duplicates completed prior-order and forward-record execution rows; remaining authority is tracked at 10643 and 10648. | [Existing scope classification](RELEASE_5.1_SCOPE.md) |
-| 10661 | Unclosed | Implement exact declared host/module capability linkage and owned results for LLVM and Wasm. | [Checkpoint; full acceptance open](evidence/portable-byte-execution-20261010/README.md) |
+| 10661 | Optional (demoted 2026-10-13) | Implement exact declared host/module capability linkage and owned results for LLVM and Wasm. | [Checkpoint; full acceptance open](evidence/portable-byte-execution-20261010/README.md) |
 | 10663 | Unclosed | Review the portable read-text linkage proposal as the first concrete portable host capability. | [Checkpoint; full acceptance open](NANOISA_PORTABLE_READ_TEXT_EXECUTION.md) |
 | 10664 | Unclosed | Qualify the read-text query, adapters, opt-in lowering, source publication, and installed links in ordered checkpoints. | [Checkpoint; full acceptance open](evidence/portable-read-execution-20261010/README.md) |
 | 10669 | Implemented | Implement the private allowlisted read-text adapters and managed-copy ownership checkpoint. | [Checkpoint; full acceptance open](evidence/portable-read-execution-20261010/README.md) |
-| 10670 | Unclosed | Qualify native, LLVM, Wasmtime, and Node adapters with real files and denial/fault cleanup. | [Checkpoint; full acceptance open](evidence/portable-byte-execution-20261010/README.md) |
-| 10671 | Unclosed | Extend portable linkage to byte and aggregate results and the remaining compiler capabilities. | [Checkpoint; full acceptance open](evidence/portable-byte-execution-20261010/README.md) |
+| 10670 | Optional (demoted 2026-10-13) | Qualify native, LLVM, Wasmtime, and Node adapters with real files and denial/fault cleanup. | [Checkpoint; full acceptance open](evidence/portable-byte-execution-20261010/README.md) |
+| 10671 | Optional (demoted 2026-10-13) | Extend portable linkage to byte and aggregate results and the remaining compiler capabilities. | [Checkpoint; full acceptance open](evidence/portable-byte-execution-20261010/README.md) |
 | 10672 | Recorded done | Complete LLVM IR translation from NanoISA rather than from the NanoLang AST. I admit `ROT3` in the shared closed profile and lower it in `nvm2llvm`; VM/C/LLVM parity tests pass. | [Existing scope classification](RELEASE_5.1_SCOPE.md) |
 | 10673 | Recorded done | Complete WebAssembly translation from NanoISA rather than from the NanoLang AST. I translate verified NanoISA through the shared `nvm2llvm` closed profile, including `ROT3`; VM/C/LLVM/Wasmtime/import-free Node parity tests pass. | [Existing scope classification](RELEASE_5.1_SCOPE.md) |
-| 10674 | Unclosed | Cover the applicable language in both translators before exposing them as release targets. | [Checkpoint; full acceptance open](NANOISA_ONLY.md) |
+| 10674 | Optional (demoted 2026-10-13) | Cover the applicable language in both translators before exposing them as release targets. | [Checkpoint; full acceptance open](NANOISA_ONLY.md) |
 | 10676 | Deferred-to-later | Evaluate JVM, SPIR-V, PTX, OpenCL, and Metal translators; 5.1 does not ship every evaluated optional target. | [Existing scope classification](RELEASE_5.1_SCOPE.md) |
-| 10680 | Unclosed | Run one pinned module corpus through NanoVM, C AOT, LLVM, and Wasm and compare semantics. | [Checkpoint; full acceptance open](RELEASE_5.1_SCOPE.md) |
+| 10680 | Unclosed (narrowed) | Run one pinned module corpus through NanoVM and C AOT and compare semantics; LLVM and Wasm are an optional cross-check. | [Checkpoint; full acceptance open](RELEASE_5.1_SCOPE.md) |
 | 10684 | Unclosed | Verify that `src_nano` emits `.nvm` as its only compiler product. | [Checkpoint; full acceptance open](evidence/native-driver-cutover-20261007/README.md) |
 | 10685 | Unclosed | Verify that `nvm2c` products do not link `nano_vm`. | [Checkpoint; full acceptance open](evidence/native-effects-20261011/README.md) |
 | 10686 | Unclosed | Verify byte-identical Stage 1 and Stage 2 `.nvm` products at the release revision. | [Checkpoint; full acceptance open](evidence/structural-bootstrap-0c501dc4b/README.md) |

@@ -184,15 +184,16 @@ failed. Canonical disassembly is a different test.
 | Translator | Job | Not |
 | --- | --- | --- |
 | `nvm2c` | Canonical AOT portability. C11. Locals, arithmetic, calls, control, runtime ABI. | VM wrapper |
-| `nvm2llvm` | Required for my full-roadmap v5.1 release. Same module, LLVM IR. | NanoLang AST backend |
-| `nvm2wasm` | Required for my full-roadmap v5.1 release. Same module, Wasm. | NanoLang AST backend |
+| `nvm2llvm` | Optional for 5.1 (demoted 2026-10-13). Same module, LLVM IR. | NanoLang AST backend |
+| `nvm2wasm` | Optional for 5.1 (demoted 2026-10-13). Same module, Wasm. | NanoLang AST backend |
 | `nvm2riscv` | Optional. Same module, assembly. | AST `riscv_backend` as a second IR |
 | GPU (SPIR-V / PTX / Metal / OpenCL) | Restricted profile only | Pretending general NanoISA is a kernel language |
 | JVM / others | Evaluate; accept only as translators of verified NanoISA | New AST backends |
 
-My general architecture permits optional translators, but my selected full-roadmap
-v5.1 scope includes the Phase 20 LLVM and WebAssembly implementation rows.
-I require both translators for that release. Evaluating JVM and the listed GPU
+My general architecture permits optional translators. My earlier full-roadmap v5.1 scope
+required the Phase 20 LLVM and WebAssembly implementation rows; on 2026-10-13 my user demoted both
+translators to optional for 5.1. They remain in the tree as translators of verified NanoISA
+and I do not expose them as release targets. Evaluating JVM and the listed GPU
 targets does not require shipping every evaluated target.
 
 I reintroduce LLVM and Wasm only behind these translators, with the same
@@ -411,8 +412,9 @@ NanoISA emitter in `src_nano` until it compiles `src_nano`.
 3. Stage 1 and Stage 2 `.nvm` files match.
 4. A pinned suite gives the same answers on `nano_vm` and on AOT C.
 5. `transpiler.nano` is gone from the product compiler (history keeps it).
-6. LLVM and Wasm are implemented as translators of the same module, with
-   full applicable-language coverage and pinned VM/AOT/translator equivalence.
+6. LLVM and Wasm are implemented as translators of the same module. They are optional
+   for 5.1 (2026-10-13); full applicable-language coverage and pinned translator equivalence
+   are not release gates. The pinned suite in item 4 covers `nano_vm` and AOT C.
 7. `docs/NANOISA_HL_ROUNDTRIP.md` states sufficient / insufficient /
    blocked from evidence, not aspiration.
 
