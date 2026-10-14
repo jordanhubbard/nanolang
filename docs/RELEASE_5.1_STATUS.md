@@ -129,6 +129,17 @@ Stage 2 rebuild reached its 600-second bound; `e74a4d21e` raises that bound and 
 regex tests and the host-ABI scope are unchanged. This is one platform on one commit, not exact-candidate
 qualification: closeout-1 still needs every gate green on one revision.
 
+**Final result for run 38507082795 at `e4ab9d3d0`.** All three Build and Test jobs passed every step on
+the same commit: Linux x64, Linux ARM and macOS, including the suite, the JUnit step and the user-guide
+check. Of the eleven checks that the repository ruleset `sanity` requires, ten passed (the three Build and
+Test jobs, both Strict examples jobs, Docs link check, API Docs, Code Quality, Concurrency and the
+Benchmark check). The eleventh, Code Coverage, failed in `Run tests` on the legacy Stage 2 rebuild's
+600-second bound, which `e74a4d21e` raises and which has not run; its earlier failures were at the 40
+percent threshold (38.1 percent), so the threshold is the remaining required red once that bound clears.
+Memory Sanitizers also failed (Stage 1 bound), but it is not a required check. This is one commit
+and one run; it is not release qualification, because rows 10686 and 10687 and the release gates still
+need their own exact-candidate evidence, and 33 headline rows remain unclosed.
+
 Not touched this session: the service, managed-aggregate, producer-metadata, reconstruction,
 portable-host and LLVM/Wasm blocks (rows 9538–9575, 10260–10409, 10618–10674 and 10680).
 `make test-one-ir-compiler` cannot pass on Darwin arm64 because LeakSanitizer is unsupported
