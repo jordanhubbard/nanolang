@@ -165,6 +165,15 @@ listing of hidden file names containing the word "differ", not a comparison resu
 three-platform evidence at one commit. Row 10686 asks for the release revision, which is not fixed, so it
 stays unclosed.
 
+**Rows 10685 and 10688 enforced in hosted CI at `675c555d8`.** The Code Coverage job of run 38552250441
+ran `make test-quick`, whose new prerequisite `test-one-ir-product-invariants` executed both tests on a
+hosted Linux runner with the job's coverage instrumentation and reported them `ok`: a program compiled
+through `nano_virt`, `nvm2c` and `cc` runs and exports no NanoVM symbols, and no `transpiler.nano` exists
+under `src_nano`. The job again failed only at its 40 percent threshold (38.1 percent). This shows the
+gate holds in one instrumented configuration on one platform; the other jobs of that run had not finished
+when I wrote this. It enforces a regression check for those two rows; it does not close them, because they
+ask for the release revision and for the compiler product as a whole, and this covers one small program.
+
 Not touched this session: the service, managed-aggregate, producer-metadata, reconstruction,
 portable-host and LLVM/Wasm blocks (rows 9538–9575, 10260–10409, 10618–10674 and 10680).
 `make test-one-ir-compiler` cannot pass on Darwin arm64 because LeakSanitizer is unsupported
