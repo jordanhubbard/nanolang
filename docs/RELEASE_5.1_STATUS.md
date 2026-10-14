@@ -174,6 +174,15 @@ gate holds in one instrumented configuration on one platform; the other jobs of 
 when I wrote this. It enforces a regression check for those two rows; it does not close them, because they
 ask for the release revision and for the compiler product as a whole, and this covers one small program.
 
+**Third reproduction at `675c555d8` (run 38552250441, finished).** Ten of the eleven checks that the
+ruleset `sanity` requires passed again: all three Build and Test jobs (Linux x64, Linux ARM and macOS,
+each through the suite with the product-invariants gate, the JUnit step and the user-guide check), both
+Strict examples jobs, Docs link check, API Docs, Code Quality, Concurrency and the Benchmark check.
+Code Coverage failed only at its threshold (38.1 percent against 40.0) and Memory Sanitizers failed at its
+Stage 1 bound (not required). The same result now holds at `e4ab9d3d0`, `e74a4d21e` and `675c555d8`. It is
+platform and CI evidence; no headline row changes state, 33 remain unclosed, and no release candidate
+has been qualified.
+
 Not touched this session: the service, managed-aggregate, producer-metadata, reconstruction,
 portable-host and LLVM/Wasm blocks (rows 9538–9575, 10260–10409, 10618–10674 and 10680).
 `make test-one-ir-compiler` cannot pass on Darwin arm64 because LeakSanitizer is unsupported
