@@ -6825,7 +6825,8 @@ test-selfhost-product-derivation: $(SENTINEL_BOOTSTRAP1) nano_vm nvm2c
 	python3 -m unittest -v tests.test_selfhost_product_derivation
 
 .PHONY: test-one-ir-product-invariants
-test-units: test-one-ir-product-invariants
+# I attach this to test-quick too, because my hosted CI runs test-quick and not test-units; it takes under a second.
+test-quick test-units: test-one-ir-product-invariants
 test-one-ir-product-invariants: nano_virt nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_one_ir_product_invariants
 
