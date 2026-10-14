@@ -117,6 +117,18 @@ threshold at 38.1 percent; Memory Sanitizers' Stage 1 exceeded its 7200-second b
 time. This does not change a headline count: closeout-1 still requires one exact candidate with
 all gates green, and the platform and corpus rows still need their own evidence.
 
+**Hosted results at `e4ab9d3d0` (run 38507082795, still running when I wrote this).** The first fully
+green Build and Test job: macOS (macos-14) passed every step, including the bootstrap, the File service
+checks, `Run test suite` (about 96 minutes), the JUnit step and `Validate user guide snippets`, which
+needs the self-hosted `str_equals`, `to_string` and host clock-read fixes and the 1800-second command
+bound. All nine light jobs passed (fast gate, Strict examples on x64 and arm64, Docs link check, API
+Docs, Code Quality, Concurrency, Performance Benchmarks, Benchmark check). Linux x64 and ARM had passed
+`Run test suite` and were in the JUnit step; their user-guide result was pending. Two jobs failed:
+Memory Sanitizers (Stage 1 bound, fifth occurrence) and Code Coverage in `Run tests`, where the legacy
+Stage 2 rebuild reached its 600-second bound; `e74a4d21e` raises that bound and has not run yet. The
+regex tests and the host-ABI scope are unchanged. This is one platform on one commit, not exact-candidate
+qualification: closeout-1 still needs every gate green on one revision.
+
 Not touched this session: the service, managed-aggregate, producer-metadata, reconstruction,
 portable-host and LLVM/Wasm blocks (rows 9538–9575, 10260–10409, 10618–10674 and 10680).
 `make test-one-ir-compiler` cannot pass on Darwin arm64 because LeakSanitizer is unsupported
