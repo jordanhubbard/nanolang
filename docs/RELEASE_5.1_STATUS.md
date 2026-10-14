@@ -157,6 +157,14 @@ check). The result is therefore reproducible across two commits and not a single
 platform and CI evidence only: no headline row changes state, 33 remain unclosed, and no exact-candidate
 release qualification exists.
 
+**Evidence toward row 10686 at `e74a4d21e`.** I read the finished logs of the three Build and Test jobs
+of run 38519541445. Each platform's log records `I compared raw Stage 1 and Stage 2 modules: they are
+byte-identical in this build.` twice (the bootstrap runs more than once per job): Linux x64, Linux ARM and
+macOS. A regular expression of mine also flagged one line per log as a mismatch; that line is a long
+listing of hidden file names containing the word "differ", not a comparison result. This is hosted,
+three-platform evidence at one commit. Row 10686 asks for the release revision, which is not fixed, so it
+stays unclosed.
+
 Not touched this session: the service, managed-aggregate, producer-metadata, reconstruction,
 portable-host and LLVM/Wasm blocks (rows 9538–9575, 10260–10409, 10618–10674 and 10680).
 `make test-one-ir-compiler` cannot pass on Darwin arm64 because LeakSanitizer is unsupported
