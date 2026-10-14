@@ -6827,6 +6827,11 @@ test-selfhost-product-derivation: $(SENTINEL_BOOTSTRAP1) nano_vm nvm2c
 .PHONY: test-one-ir-product-invariants
 # I attach this to test-quick too, because my hosted CI runs test-quick and not test-units; it takes under a second.
 test-quick test-units: test-one-ir-product-invariants
+
+# I run my evaluator test in test-quick too (row 10494): it was a test-units prerequisite that no hosted job ran.
+# It passes all 127 cases on Darwin and on Linux arm64 (GCC 13) in seconds.
+.PHONY: test-eval
+test-quick: test-eval
 test-one-ir-product-invariants: nano_virt nvm2c nvm2c-runtime
 	python3 -m unittest -v tests.test_one_ir_product_invariants
 
