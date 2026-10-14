@@ -140,6 +140,14 @@ Memory Sanitizers also failed (Stage 1 bound), but it is not a required check. T
 and one run; it is not release qualification, because rows 10686 and 10687 and the release gates still
 need their own exact-candidate evidence, and 33 headline rows remain unclosed.
 
+**Code Coverage at `e74a4d21e` (run 38519541445).** With `CMD_TIMEOUT=1800` the job's `Run tests`
+step, the coverage report and the HTML report all succeeded, and the job failed only at `Enforce coverage
+threshold` (`Coverage 38.1% is below threshold 40.0%`, `.github/workflows/ci.yml` default
+`COVERAGE_THRESHOLD` 40.0). The threshold's original value was 80 percent (commit `bda238ad1`) and it
+has been lowered since. My user has challenged this gate as a poor trade for an agentic harness; I
+have proposed making it report-only and have not changed it without a decision. The three Build and Test
+jobs of this run were still finishing when I wrote this.
+
 Not touched this session: the service, managed-aggregate, producer-metadata, reconstruction,
 portable-host and LLVM/Wasm blocks (rows 9538–9575, 10260–10409, 10618–10674 and 10680).
 `make test-one-ir-compiler` cannot pass on Darwin arm64 because LeakSanitizer is unsupported
