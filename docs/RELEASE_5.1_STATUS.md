@@ -148,6 +148,15 @@ has been lowered since. My user has challenged this gate as a poor trade for an 
 have proposed making it report-only and have not changed it without a decision. The three Build and Test
 jobs of this run were still finishing when I wrote this.
 
+**Reproduced at `e74a4d21e` (run 38519541445, finished).** The same ten of eleven required checks passed
+on a second commit: all three Build and Test jobs (Linux x64, Linux ARM and macOS, each through the suite,
+the JUnit step and the user-guide check), both Strict examples jobs, Docs link check, API Docs, Code
+Quality, Concurrency and the Benchmark check. Code Coverage again failed only at its threshold
+(38.1 percent against 40.0), and Memory Sanitizers again failed at its Stage 1 bound (not a required
+check). The result is therefore reproducible across two commits and not a single favorable run. It remains
+platform and CI evidence only: no headline row changes state, 33 remain unclosed, and no exact-candidate
+release qualification exists.
+
 Not touched this session: the service, managed-aggregate, producer-metadata, reconstruction,
 portable-host and LLVM/Wasm blocks (rows 9538–9575, 10260–10409, 10618–10674 and 10680).
 `make test-one-ir-compiler` cannot pass on Darwin arm64 because LeakSanitizer is unsupported
