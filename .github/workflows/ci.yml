@@ -269,7 +269,9 @@ jobs:
         run: bash tests/run_negative_tests.sh
 
       - name: Validate user guide snippets
-        run: make userguide-check
+        # userguide-check depends on the legacy build, whose Stage 2 component compiles reached the 600-second
+        # command bound on macos-14 (hosted run 38468734010), so this step never reached the snippets there.
+        run: make userguide-check CMD_TIMEOUT=1800
 
       - name: Retain verifier and bootstrap diagnostics
         if: failure()
