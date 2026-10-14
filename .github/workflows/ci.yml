@@ -642,7 +642,9 @@ jobs:
         env:
           NANO_VM_EXAMPLE_SHADOW_TIMEOUT_SECONDS: "60"
           BOOTSTRAP_NANOISA_TIMEOUT: "5400"
-        run: make test-quick CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS"
+        # test-quick rebuilds the legacy Stage 2 components, and the instrumented nanoisa_emitter compile reached the
+        # 600-second command bound on hosted run 38507082795 after passing it narrowly before; I bound it at 1800.
+        run: make test-quick CFLAGS="$CFLAGS" LDFLAGS="$LDFLAGS" CMD_TIMEOUT=1800
 
       - name: Run negative tests
         env:
