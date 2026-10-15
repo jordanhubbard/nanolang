@@ -15,8 +15,8 @@ It is an evidence inventory, not release qualification or a narrowed scope.
 `nvm2llvm` and `nvm2wasm`, and the work already done on them (rows 10672 and 10673), stay in the tree
 as optional translators of verified NanoISA. They are not 5.1 release gates, and I do not expose them
 as release targets. Rows 10661, 10670, 10671 and 10674 are optional; row 10680 narrows to NanoVM and C AOT.
-This changes no other row. Rows 10663 and 10664 (portable read-text) are unchanged pending a decision on
-whether their adapter checks depend on the Wasm and Node targets.
+**Scope decision, 2026-10-14:** my user also demoted rows 10663 and 10664 (portable read-text) to optional.
+This changes no other row.
 
 ## Ownership and services
 
@@ -76,8 +76,8 @@ whether their adapter checks depend on the Wasm and Node targets.
 - **Required (10648):** Cover array elements, generics, imports, forward order, and remaining nominal record authority.
 - **Obsolete (10656):** The shared checked record selection row duplicates completed prior-order and forward-record execution rows; remaining authority is tracked at 10643 and 10648.
 - **Optional (10661) (demoted to optional 2026-10-13; not a 5.1 release gate):** Implement exact declared host/module capability linkage and owned results for LLVM and Wasm.
-- **Required (10663):** Review the portable read-text linkage proposal as the first concrete portable host capability.
-- **Required (10664):** Qualify the read-text query, adapters, opt-in lowering, source publication, and installed links in ordered checkpoints.
+- **Optional (10663) (demoted to optional 2026-10-14; not a 5.1 release gate):** Review the portable read-text linkage proposal as the first concrete portable host capability.
+- **Optional (10664) (demoted to optional 2026-10-14; not a 5.1 release gate):** Qualify the read-text query, adapters, opt-in lowering, source publication, and installed links in ordered checkpoints.
 - **Implemented (10669):** Implement the private allowlisted read-text adapters and managed-copy ownership checkpoint. My [portable execution](evidence/portable-read-execution-20261010/README.md) and [installed text/byte gate](evidence/portable-byte-execution-20261010/README.md) exercise the adapters. Wasmtime execution and full capability/candidate coverage remain required.
 - **Optional (10670) (demoted to optional 2026-10-13; not a 5.1 release gate):** Qualify native, LLVM, Wasmtime, and Node adapters with real files and denial/fault cleanup. The native adapter check stays with row 10664.
 - **Optional (10671) (demoted to optional 2026-10-13; not a 5.1 release gate):** Extend portable linkage to byte and aggregate results and the remaining compiler capabilities.

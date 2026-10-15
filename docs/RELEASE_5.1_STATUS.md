@@ -9,8 +9,9 @@ bugs, independent tasks, or percentage complete.
 | --- | ---: | --- |
 | Recorded done | 18 | Existing bounded completion claims; not rerun at this pin |
 | Implemented | 6 | Implementation evidence exists; final candidate acceptance remains |
-| Required / unclosed | 33 | Full acceptance is not established; includes partial implementation |
+| Required / unclosed | 31 | Full acceptance is not established; includes partial implementation |
 | Optional (demoted 2026-10-13) | 4 | LLVM and Wasm rows 10661, 10670, 10671 and 10674 moved out of the release gate |
+| Optional (demoted 2026-10-14) | 2 | Portable read-text rows 10663 and 10664 moved out of the release gate |
 | Explicitly deferred | 5 | Existing GPU/exploratory-target deferrals, unchanged |
 | Obsolete duplicate | 1 | Existing duplicate, unchanged |
 | Total | 67 | Every headline scope entry appears below |
@@ -245,8 +246,8 @@ remain open even when an older bootstrap or focused suite passed.
 | 10648 | Unclosed | Cover array elements, generics, imports, forward order, and remaining nominal record authority. | [Checkpoint; full acceptance open](evidence/managed-forward-records.md) |
 | 10656 | Obsolete | The shared checked record selection row duplicates completed prior-order and forward-record execution rows; remaining authority is tracked at 10643 and 10648. | [Existing scope classification](RELEASE_5.1_SCOPE.md) |
 | 10661 | Optional (demoted 2026-10-13) | Implement exact declared host/module capability linkage and owned results for LLVM and Wasm. | [Checkpoint; full acceptance open](evidence/portable-byte-execution-20261010/README.md) |
-| 10663 | Unclosed | Review the portable read-text linkage proposal as the first concrete portable host capability. | [Checkpoint; full acceptance open](NANOISA_PORTABLE_READ_TEXT_EXECUTION.md) |
-| 10664 | Unclosed | Qualify the read-text query, adapters, opt-in lowering, source publication, and installed links in ordered checkpoints. | [Checkpoint; full acceptance open](evidence/portable-read-execution-20261010/README.md) |
+| 10663 | Optional (demoted 2026-10-14) | Review the portable read-text linkage proposal as the first concrete portable host capability. | [Checkpoint; full acceptance open](NANOISA_PORTABLE_READ_TEXT_EXECUTION.md) |
+| 10664 | Optional (demoted 2026-10-14) | Qualify the read-text query, adapters, opt-in lowering, source publication, and installed links in ordered checkpoints. | [Checkpoint; full acceptance open](evidence/portable-read-execution-20261010/README.md) |
 | 10669 | Implemented | Implement the private allowlisted read-text adapters and managed-copy ownership checkpoint. | [Checkpoint; full acceptance open](evidence/portable-read-execution-20261010/README.md) |
 | 10670 | Optional (demoted 2026-10-13) | Qualify native, LLVM, Wasmtime, and Node adapters with real files and denial/fault cleanup. | [Checkpoint; full acceptance open](evidence/portable-byte-execution-20261010/README.md) |
 | 10671 | Optional (demoted 2026-10-13) | Extend portable linkage to byte and aggregate results and the remaining compiler capabilities. | [Checkpoint; full acceptance open](evidence/portable-byte-execution-20261010/README.md) |
@@ -268,3 +269,12 @@ remain open even when an older bootstrap or focused suite passed.
 ## Addendum 2026-10-14: coverage is report-only
 
 By owner decision, the `Code Coverage` job no longer enforces a line-coverage floor. It still builds, runs the test suite and publishes the percentage (job summary, PR comment, artifact), so the required check fails only when the instrumented tests fail. Rationale: a percentage floor steers an agentic harness toward unit tests that do not guard behaviour. Behaviour gates remain the product-invariants test, bootstrap identity and the strict examples. `make coverage-check` keeps its local threshold for developers.
+
+## Addendum 2026-10-14: rows 10663 and 10664 demoted
+
+By owner decision, rows 10663 and 10664 (portable read-text) are optional for 5.1. Unclosed headline rows: 31. Optional: 6. Total unchanged at 67. The checkpoint evidence stays linked; it is not a release gate.
+
+## Addendum 2026-10-14: regex host ABI and bootstrap scope
+
+- **Regex host symbols.** By owner decision I added the nine `nl_regex_*` C-backed externs to the declared host ABI in `src_nano/compiler/nanoisa_codegen.nano` (opaque `Regex` handle, `array<int>`/`array<string>`/`string`/`int`/`void` results, module-path import `./std/regex/regex.nano`, as the seed emits). `tests/test_split2.nano` and `tests/test_std_regex_groups_uaf.nano` now compile on the self-hosted compiler and run on NanoVM. `tests/test_selfhost_regex_host_abi.py` gates both and runs in `test-quick`. Not verified on hosted Linux yet, and the C AOT (`nvm2c`) path for these imports is not tested.
+- **Bootstrap scope.** By owner decision, 5.1 does not require an instrumented full bootstrap; the sanitizer Stage 1 job stays non-required.

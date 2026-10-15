@@ -6828,6 +6828,12 @@ test-selfhost-product-derivation: $(SENTINEL_BOOTSTRAP1) nano_vm nvm2c
 # I attach this to test-quick too, because my hosted CI runs test-quick and not test-units; it takes under a second.
 test-quick test-units: test-one-ir-product-invariants
 
+# I gate the self-hosted lowering of the std/regex externs in test-quick as well (2026-10-14).
+.PHONY: test-selfhost-regex-host-abi
+test-quick test-units: test-selfhost-regex-host-abi
+test-selfhost-regex-host-abi: $(SENTINEL_BOOTSTRAP1) nano_vm
+	python3 -m unittest -v tests.test_selfhost_regex_host_abi
+
 # I run my evaluator test in test-quick too (row 10494): it was a test-units prerequisite that no hosted job ran.
 # It passes all 127 cases on Darwin and on Linux arm64 (GCC 13) in seconds.
 .PHONY: test-eval

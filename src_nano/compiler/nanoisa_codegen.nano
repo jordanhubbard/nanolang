@@ -2841,8 +2841,44 @@ shadow nisa_emit_map_call {
     assert (== (nisa_emit_map_call parser (parser_get_call parser 0) "map_new") "  HM_NEW 5 1\n")
 }
 
+# I name the std/regex C-backed externs; the Regex handle is an opaque value the VM keeps.
+fn nisa_regex_result(name: string) -> string {
+    if (== name "nl_regex_compile") { return "Regex" }
+    if (or (== name "nl_regex_match") (== name "nl_regex_find")) { return "int" }
+    if (== name "nl_regex_find_all") { return "array<int>" }
+    if (or (== name "nl_regex_groups") (== name "nl_regex_split")) { return "array<string>" }
+    if (or (== name "nl_regex_replace") (== name "nl_regex_replace_all")) { return "string" }
+    if (== name "nl_regex_free") { return "void" }
+    return ""
+}
+fn nisa_regex_arity(name: string) -> int {
+    if (== (nisa_regex_result name) "") { return -1 }
+    if (or (== name "nl_regex_compile") (== name "nl_regex_free")) { return 1 }
+    if (or (== name "nl_regex_replace") (== name "nl_regex_replace_all")) { return 3 }
+    return 2
+}
+fn nisa_regex_parameter(name: string, index: int) -> string {
+    if (== name "nl_regex_compile") { return "string" }
+    if (== index 0) { return "Regex" }
+    return "string"
+}
+shadow nisa_regex_result {
+    assert (== (nisa_regex_result "nl_regex_compile") "Regex")
+    assert (== (nisa_regex_result "nl_regex_split") "array<string>")
+    assert (== (nisa_regex_result "nl_regex_free") "void")
+    assert (== (nisa_regex_result "nl_regex_other") "")
+    assert (== (nisa_regex_arity "nl_regex_replace_all") 3)
+    assert (== (nisa_regex_arity "nl_regex_match") 2)
+    assert (== (nisa_regex_arity "nl_regex_free") 1)
+    assert (== (nisa_regex_arity "unknown") -1)
+    assert (== (nisa_regex_parameter "nl_regex_match" 0) "Regex")
+    assert (== (nisa_regex_parameter "nl_regex_match" 1) "string")
+    assert (== (nisa_regex_parameter "nl_regex_compile" 0) "string")
+}
+
 # I name a bounded host ABI. Other externs need an explicit future contract.
 fn nisa_host_result(name: string) -> string {
+    if (!= (nisa_regex_result name) "") { return (nisa_regex_result name) }
     if (or (== name "file_read_bytes") (or (== name "vm_file_read_bytes") (== name "nl_os_file_read_bytes"))) { return "array<u8>" }
     if (== name "atan") { return "float" }
     # I match the C frontend's host-runtime clock imports (nanovirt/codegen.c runtime_names).
@@ -2886,6 +2922,7 @@ shadow nisa_host_result {
 
 fn nisa_host_arity(name: string) -> int {
     if (== (nisa_host_result name) "") { return -1 }
+    if (>= (nisa_regex_arity name) 0) { return (nisa_regex_arity name) }
     if (or (== name "get_argc") (or (== name "vm_getcwd") (== name "vm_tmp_dir"))) { return 0 }
     if (or (== name "nl_get_time_ms") (or (== name "nl_timing_get_microseconds") (== name "nl_timing_get_nanoseconds"))) { return 0 }
     if (or (== name "vm_str_index_of") (== name "vm_str_last_index_of")) { return 2 }
@@ -2904,6 +2941,15 @@ shadow nisa_host_arity {
     assert (== (nisa_host_arity "nl_timing_get_microseconds") 0)
     assert (== (nisa_host_arity "nl_timing_get_nanoseconds") 0)
     assert (== (nisa_host_arity "unknown") -1)
+}
+
+fn nisa_host_parameter_at(name: string, index: int) -> string {
+    if (>= (nisa_regex_arity name) 0) { return (nisa_regex_parameter name index) }
+    return (nisa_host_parameter name)
+}
+shadow nisa_host_parameter_at {
+    assert (== (nisa_host_parameter_at "nl_regex_match" 0) "Regex")
+    assert (== (nisa_host_parameter_at "vm_getenv" 0) "string")
 }
 
 fn nisa_host_parameter(name: string) -> string {
@@ -2981,6 +3027,17 @@ shadow nisa_import_find {
     let _2: int = (nisa_reset)
 }
 
+fn nisa_regex_wire(type_name: string) -> string {
+    if (== type_name "Regex") { return "opaque" }
+    if (str_starts_with type_name "array<") { return "array" }
+    return type_name
+}
+shadow nisa_regex_wire {
+    assert (== (nisa_regex_wire "Regex") "opaque")
+    assert (== (nisa_regex_wire "array<int>") "array")
+    assert (== (nisa_regex_wire "string") "string")
+}
+
 fn nisa_import_add(symbol: string) -> int {
     let index: int = (array_length nisa_import_names)
     let result: string = (nisa_host_result symbol)
@@ -2990,11 +3047,18 @@ fn nisa_import_add(symbol: string) -> int {
     }
     let mut wire_result: string = result
     if (== result "array<u8>") { set wire_result "array" }
+    let mut path: string = ""
+    if (>= (nisa_regex_arity symbol) 0) {
+        set path "./std/regex/regex.nano"
+        set wire_result (nisa_regex_wire result)
+    }
     set nisa_import_names (array_push nisa_import_names symbol)
-    set nisa_import_text (+ nisa_import_text (+ ".import \"\" \"" (+ symbol (+ "\" " wire_result))))
+    set nisa_import_text (+ nisa_import_text (+ ".import \"" (+ path (+ "\" \"" (+ symbol (+ "\" " wire_result))))))
     let mut i: int = 0
     while (< i (nisa_host_arity symbol)) {
-        set nisa_import_text (+ nisa_import_text (+ " " (nisa_host_parameter symbol)))
+        let mut wire_parameter: string = (nisa_host_parameter_at symbol i)
+        if (>= (nisa_regex_arity symbol) 0) { set wire_parameter (nisa_regex_wire wire_parameter) }
+        set nisa_import_text (+ nisa_import_text (+ " " wire_parameter))
         set i (+ i 1)
     }
     set nisa_import_text (+ nisa_import_text "\n")
@@ -3461,7 +3525,7 @@ fn nisa_register_extern(parser: Parser, function: ASTFunction) -> int {
     let mut i: int = 0
     while (< i function.param_count) {
         let parameter: ASTLet = (parser_get_let parser (+ function.param_start i))
-        if (!= parameter.var_type (nisa_host_parameter function.name)) {
+        if (!= parameter.var_type (nisa_host_parameter_at function.name i)) {
             let rejected: string = (nisa_fail (+ "extern parameter does not match my host ABI: " function.name))
             return -1
         }
@@ -3486,7 +3550,7 @@ fn nisa_emit_host_call(parser: Parser, call: ASTCall, symbol: string) -> string 
     while (< i call.arg_count) {
         let argument: ASTStmtRef = (parser_get_call_arg parser (+ call.arg_start i))
         let argument_type: string = (nisa_expr_type parser argument.node_id argument.node_type)
-        if (!= argument_type (nisa_host_parameter symbol)) { return (nisa_fail "host call parameter type mismatch") }
+        if (!= argument_type (nisa_host_parameter_at symbol i)) { return (nisa_fail "host call parameter type mismatch") }
         set i (+ i 1)
     }
     let mut index: int = (nisa_import_find symbol)
