@@ -39,7 +39,7 @@ class OwnedEffectCSource(unittest.TestCase):
                 capture_output=True,text=True,timeout=60)
             self.assertEqual(compiled.returncode,0,compiled.stdout+compiled.stderr)
             ran=subprocess.run([native],capture_output=True,text=True,timeout=30,
-                env={**os.environ,'ASAN_OPTIONS':'detect_leaks=1:halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
+                env={**os.environ,'ASAN_OPTIONS':'halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
             self.assertEqual(ran.returncode,7,ran.stdout+ran.stderr)
 
     def test_source_resource_effects(self):

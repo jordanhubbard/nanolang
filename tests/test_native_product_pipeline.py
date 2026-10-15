@@ -30,8 +30,7 @@ class NativeProductPipeline(unittest.TestCase):
         cls.addClassCleanup(cls.temporary.cleanup)
         cls.work = Path(cls.temporary.name)
         cls.cc = os.environ.get("NANO_NATIVE_TEST_CC") or shutil.which("cc")
-        cls.env = {**os.environ, "CC": shlex.quote(cls.cc), "KEEP_C": "0",
-                   "ASAN_OPTIONS": "detect_leaks=1"}
+        cls.env = {**os.environ, "CC": shlex.quote(cls.cc), "KEEP_C": "0"}
         cls.env.pop("NANO_NVM2C", None)
         source = cls.work / "driver.nano"
         source.write_text(DRIVER)

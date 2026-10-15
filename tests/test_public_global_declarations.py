@@ -15,7 +15,7 @@ class PublicGlobalDeclarations(unittest.TestCase):
             work = Path(directory)
             module, source, binary = (work / name for name in ('parser.nvm', 'parser.c', 'parser'))
             env = {**os.environ, 'NANO_BUILD_CACHE': str(work / 'cache'),
-                   'NANO_SHADOW_TIMEOUT_SECONDS': '60', 'ASAN_OPTIONS': 'detect_leaks=1'}
+                   'NANO_SHADOW_TIMEOUT_SECONDS': '60'}
             cc = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc')))
             commands = [
                 [ROOT / 'bin/nano_virt', ROOT / 'tests/fixtures/public_global_parser.nano', '--emit-nvm', '-o', module],

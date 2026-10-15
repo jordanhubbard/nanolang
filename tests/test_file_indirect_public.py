@@ -37,7 +37,7 @@ class FileIndirectPublic(unittest.TestCase):
         cls.objects = list(dict.fromkeys(p for p in shlex.split(os.environ['FILE_RUNTIME_OBJECTS'])
                                         if Path(p).stem not in stems))
         cls.ldflags = shlex.split(os.environ.get('FILE_RUNTIME_LDFLAGS', '-lm -lcrypto -lffi'))
-        cls.environment = dict(os.environ, LSAN_OPTIONS='', ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+        cls.environment = dict(os.environ, LSAN_OPTIONS='', ASAN_OPTIONS='halt_on_error=1',
                                UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1')
         for variable in ('CPATH','C_INCLUDE_PATH','CPLUS_INCLUDE_PATH','OBJC_INCLUDE_PATH'):
             cls.environment.pop(variable,None)

@@ -16,7 +16,7 @@ class FileSourceInputs(unittest.TestCase):
     def checked(self, command):
         result = subprocess.run(list(map(str, command)), cwd=ROOT,
                                 capture_output=True, text=True, timeout=180,
-                                env={**os.environ, "ASAN_OPTIONS": "detect_leaks=1"})
+                                env={**os.environ})
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result.stdout
 

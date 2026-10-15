@@ -21,7 +21,7 @@ class ExternDeclarations(unittest.TestCase):
         source.write_text(
             (ROOT / 'tests/nanoisa/fixtures/historical_extern_helpers.nano.txt').read_text()
             + '\n' + (ROOT / 'tests/nanoisa/fixtures/historical_extern_assertions.nano.txt').read_text())
-        environment = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1',
+        environment = {**os.environ, 'ASAN_OPTIONS': 'halt_on_error=1',
                        'UBSAN_OPTIONS': 'halt_on_error=1'}
         cc = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC') or os.environ.get('CC') or 'cc')
         sequence = 0

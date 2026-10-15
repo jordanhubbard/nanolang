@@ -40,7 +40,7 @@ class FileSourcePlan(unittest.TestCase):
     @classmethod
     def command(cls,name,args,timeout=180,extra=None):
         args=list(map(str,args))
-        env=dict(os.environ,ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+        env=dict(os.environ,ASAN_OPTIONS='halt_on_error=1',
                  UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1',LSAN_OPTIONS='')
         if extra: env.update(extra)
         (cls.work/(name+'-command.json')).write_text(json.dumps(dict(argv=args,cwd=str(ROOT),

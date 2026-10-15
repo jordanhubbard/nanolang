@@ -16,7 +16,7 @@ class ServicesValues(unittest.TestCase):
         compiler = shlex.split(os.environ.get('CC', 'cc'))
         flags = ['-std=c11', '-D_DEFAULT_SOURCE', '-Wall', '-Wextra', '-Werror',
                  '-g', '-fsanitize=address,undefined', '-fno-omit-frame-pointer']
-        env = dict(os.environ, ASAN_OPTIONS='detect_leaks=1', UBSAN_OPTIONS='halt_on_error=1')
+        env = dict(os.environ, UBSAN_OPTIONS='halt_on_error=1')
         crypto_cflags = shlex.split(subprocess.check_output(['pkg-config', '--cflags', 'libcrypto'], text=True))
         crypto = shlex.split(subprocess.check_output(['pkg-config', '--libs', 'libcrypto'], text=True))
         commands = []

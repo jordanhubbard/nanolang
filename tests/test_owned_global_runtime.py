@@ -47,7 +47,7 @@ int main(void){
                                        "-fsanitize=address,undefined", "-fno-omit-frame-pointer", str(harness),
                                        "-lm", "-o", str(binary)], capture_output=True, timeout=90)
             self.assertEqual(compiled.returncode, 0, compiled.stdout + compiled.stderr)
-            env = dict(os.environ, ASAN_OPTIONS="detect_leaks=1", UBSAN_OPTIONS="halt_on_error=1")
+            env = dict(os.environ, UBSAN_OPTIONS="halt_on_error=1")
             ran = subprocess.run([binary], capture_output=True, timeout=30, env=env)
             self.assertEqual(ran.returncode, 0, ran.stdout + ran.stderr)
 

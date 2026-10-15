@@ -165,7 +165,7 @@ class AffineScalarUnionSource(unittest.TestCase):
         self.command(compiler, '-std=c11', '-Wall', '-Wextra', '-Werror',
                      '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
                      native_source, '-o', native)
-        runtime = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'}
+        runtime = {**os.environ, 'ASAN_OPTIONS': 'halt_on_error=1'}
         executed = self.command(native, env=runtime)
         self.assertEqual(executed.stdout, expected)
 

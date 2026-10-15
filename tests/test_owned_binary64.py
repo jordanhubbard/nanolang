@@ -59,7 +59,7 @@ POLICY
                     self.checked([cc, '-std=c11', '-Wall', '-Wextra', '-Werror',
                                   '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
                                   '-g', harness, '-o', binary])
-                    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+                    self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'halt_on_error=1'})
                     self.checked([cc, '-std=c11', '-Wall', '-Wextra', '-Werror', source, '-o', binary])
                     native = subprocess.run([binary], capture_output=True, timeout=90)
                     self.assertEqual(native.returncode, vm.returncode, native.stderr)

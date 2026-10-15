@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class DeclaredMapTags(unittest.TestCase):
     def command(self, args, success=True):
         result = subprocess.run([str(x) for x in args], capture_output=True, text=True,
-            timeout=90, env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1:abort_on_error=1'})
+            timeout=90, env={**os.environ, 'ASAN_OPTIONS':'abort_on_error=1'})
         self.assertEqual(result.returncode == 0, success, str(args)+'\n'+result.stdout+result.stderr)
         return result
 

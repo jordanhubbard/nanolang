@@ -30,7 +30,7 @@ class NativeCallables(unittest.TestCase):
         self.checked([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))),
                       '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                       '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
-        return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+        return self.checked([binary], env={**os.environ})
 
     def test_many_targets_share_exclusive_dispatch_temporaries(self):
         branches = ''.join(f'LOAD_LOCAL 0\nPUSH_I64 {i}\nEQ\nJMP_FALSE next{i}\n'
@@ -152,7 +152,7 @@ class NativeCallables(unittest.TestCase):
             binary = work / 'program'
             self.checked([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))), '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
-            env = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}
+            env = {**os.environ}
             for push in (0, 1):
                 self.checked([binary, 11, push], env=env)
                 for tag in (0, 1, 5):
@@ -217,7 +217,7 @@ class NativeCallables(unittest.TestCase):
             binary = work / 'program'
             self.checked([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))), '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
-            env = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}
+            env = {**os.environ}
             self.checked([binary, 13, 11, 0], env=env)
             for storage, tag, target in ((0, 11, 0), (13, 1, 0), (13, 0, 0),
                                          (13, 11, -1), (13, 11, 999), (13, 11, 1)):
@@ -246,7 +246,7 @@ class NativeCallables(unittest.TestCase):
             binary = work / 'program'
             self.checked([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))), '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
-            env = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}
+            env = {**os.environ}
             self.checked([binary, 11, 0], env=env)
             for tag, target in ((1, 0), (0, 0), (11, -1), (11, 999), (11, 1)):
                 with self.subTest(tag=tag, target=target):

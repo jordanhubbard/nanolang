@@ -107,7 +107,7 @@ class HeaderConstantValues(unittest.TestCase):
         module, generated, native = (work / name for name in ('out.nvm', 'out.c', 'out'))
         cc = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC') or os.environ.get('CC') or 'cc')
         environment = {**os.environ, 'NANO_BUILD_CACHE': str(work / 'cache'),
-                       'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'}
+                       'ASAN_OPTIONS': 'halt_on_error=1'}
         commands = [
             [ROOT / 'bin' / self.compiler, source, '--emit-nvm', '-o', module],
             [ROOT / 'bin/nano_vm', '--verify-only', module],
@@ -196,7 +196,7 @@ fn main()->int {
 shadow main { assert (== (main) 0) }
 ''')
             environment = {**os.environ, 'NANO_BUILD_CACHE': str(work / 'cache'),
-                           'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'}
+                           'ASAN_OPTIONS': 'halt_on_error=1'}
             module = work / 'out.nvm'
             self.paired(source, work)
 

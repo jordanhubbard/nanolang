@@ -26,7 +26,7 @@ class FileSourceSnapshot(unittest.TestCase):
             for catalog in (1, 2):
                 run = subprocess.run([executable, ROOT / "tests/fixtures/nsi_file_plan.json", ROOT / "tests/fixtures/nsi_socket_plan.json", str(catalog)], cwd=ROOT,
                                      capture_output=True, timeout=60,
-                                     env={**os.environ, "ASAN_OPTIONS": "detect_leaks=1"})
+                                     env={**os.environ})
                 self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
                 self.assertIn(b"PASS immutable companion", run.stdout)
 

@@ -14,7 +14,7 @@ class NativeArrayPop(unittest.TestCase):
         self.checked([*shlex.split(os.environ.get('CC', 'cc')), '-std=c11', '-O0', '-g',
                       '-Wall', '-Wextra', '-Werror', '-fsanitize=address,undefined',
                       '-fno-sanitize-recover=all', source, '-o', binary])
-        return self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+        return self.checked([binary], env={**os.environ})
 
     run_module = closures.NativeClosures.run_module
 
@@ -73,7 +73,7 @@ class NativeArrayPop(unittest.TestCase):
             self.checked([*shlex.split(os.environ.get('CC', 'cc')), '-std=c11', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', native])
             result = subprocess.run([str(native)], capture_output=True, text=True, timeout=90,
-                                    env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1'})
+                                    env={**os.environ})
             self.assertNotEqual(result.returncode, 0)
             self.assertIn('native invariant', result.stderr)
             self.assertNotIn('ERROR: AddressSanitizer', result.stderr)

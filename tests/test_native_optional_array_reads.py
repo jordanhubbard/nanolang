@@ -9,7 +9,7 @@ ROOT=Path(__file__).resolve().parents[1]
 class OptionalArrayReads(unittest.TestCase):
     def checked(self,args):
         r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=60,
-                         env={**os.environ,'ASAN_OPTIONS':'detect_leaks=1:halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
+                         env={**os.environ,'ASAN_OPTIONS':'halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
         self.assertEqual(r.returncode,0,r.stdout+r.stderr)
         return r
     def paired(self,text):

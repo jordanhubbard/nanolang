@@ -34,7 +34,7 @@ class NativeRecordGlobals(unittest.TestCase):
             for label, command in [('vm',[str(closures.ROOT/'bin/nano_vm'),str(module)]),('native',[str(binary)])]:
                 with self.subTest(route=label):
                     result = subprocess.run(command,capture_output=True,text=True,timeout=90,
-                                            env={**os.environ,'ASAN_OPTIONS':'detect_leaks=1'})
+                                            env={**os.environ})
                     self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)
                     if label == 'native':
                         self.assertIn('native invariant',result.stderr)

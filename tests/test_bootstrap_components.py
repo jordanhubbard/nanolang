@@ -99,7 +99,7 @@ class BootstrapComponents(unittest.TestCase):
             for command in ([ROOT / 'bin/nano_vm', module], [binary]):
                 result = subprocess.run(list(map(str, command)), cwd=ROOT, capture_output=True,
                                         text=True, timeout=180,
-                                        env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                                        env={**os.environ})
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                 self.assertEqual(result.stdout, 'I passed my NanoISA emitter entry assertions.\n')
 

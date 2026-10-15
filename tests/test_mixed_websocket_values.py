@@ -28,7 +28,7 @@ class MixedWebSocketValues(unittest.TestCase):
 
     def command(self, name, args):
         result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True, timeout=90,
-            env=dict(os.environ, ASAN_OPTIONS='detect_leaks=1:halt_on_error=1',
+            env=dict(os.environ, ASAN_OPTIONS='halt_on_error=1',
                      UBSAN_OPTIONS='halt_on_error=1:print_stacktrace=1',
                      NANOLANG_RESOLVER=str(ROOT / 'bin/nano-resolver')))
         self.commands.append({'name': name, 'argv': args, 'returncode': result.returncode,

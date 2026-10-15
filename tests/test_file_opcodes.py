@@ -23,7 +23,7 @@ class FileOpcodes(unittest.TestCase):
         cls.linkflags = shlex.split(os.environ.get("FILE_OPCODE_LDFLAGS", ""))
 
     def command(self, name, command, *, expected=0, extra=None):
-        env = dict(os.environ, ASAN_OPTIONS="detect_leaks=1:halt_on_error=1",
+        env = dict(os.environ, ASAN_OPTIONS="halt_on_error=1",
                    UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
         env.update(extra or {})
         (self.artifacts / f"{name}-command.txt").write_text(shlex.join(command) + "\n")

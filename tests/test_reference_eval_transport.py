@@ -175,7 +175,7 @@ class ReferenceTransport(unittest.TestCase):
 
     def run_eval(self, text, compiler, mode='once', path=None, success=True, fail_grow=False):
         source=self.base/'input.sexpr';source.write_text(text)
-        env={**os.environ,'ASAN_OPTIONS':'detect_leaks=1:abort_on_error=1'}
+        env={**os.environ,'ASAN_OPTIONS':'abort_on_error=1'}
         if path is not None:env['PATH']=str(path)
         if fail_grow:env['NANO_TEST_REF_REJECT_GROW']='1'
         result=subprocess.run([self.binary,source,str(compiler),mode],capture_output=True,

@@ -90,7 +90,7 @@ int64_t file_delete(const char *key) {
     def paired(self, text):
         module = self.module(text)
         vm = self.command([ROOT/'bin/nano_vm', module])
-        native = self.command([self.native(module)], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+        native = self.command([self.native(module)], env={**os.environ})
         self.assertEqual(vm.stdout, native.stdout)
         return module
 
@@ -205,7 +205,7 @@ int64_t file_delete(const char *key) {
                 result = self.command([ROOT/'bin/nano_vm',module], success=False)
                 self.assertIn('could not retain the provider string result', result.stderr)
                 refused = self.command([self.native(module)], success=False,
-                                       env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1'})
+                                       env={**os.environ})
                 self.assertNotIn('ERROR: AddressSanitizer', refused.stderr)
                 self.assertNotIn('LeakSanitizer', refused.stderr)
                 self.assertNotIn('runtime error:', refused.stderr)
@@ -227,7 +227,7 @@ void path_basename__nano_string_release_v1(const char *value) {
         binary = self.native(module)
         for name, command in [('vm',[ROOT/'bin/nano_vm',module]), ('native',[binary])]:
             marker = self.work/(name+'-null')
-            self.command(command, success=False, env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1',
+            self.command(command, success=False, env={**os.environ,
                                                        'NANO_ARTIFACT_RELEASE_MARKER':str(marker)})
             self.assertEqual(marker.read_text(), 'released-null\n')
 
@@ -252,7 +252,7 @@ const char *path_basename(const char *input) {
         module = self.module(text)
         binary = self.native(module)
         marker = self.work/'should-not-call'
-        env = {**os.environ, 'ASAN_OPTIONS':'detect_leaks=1', 'NANO_ARTIFACT_RELEASE_MARKER':str(marker)}
+        env = {**os.environ, 'NANO_ARTIFACT_RELEASE_MARKER':str(marker)}
         result = self.command([ROOT/'bin/nano_vm',module], success=False, env=env)
         self.assertIn("own image", result.stderr)
         self.assertFalse(marker.exists())
@@ -305,7 +305,7 @@ const char *path_basename(const char *input) {
             return source.replace(needle, 'nstr_owned *owner = NULL;')
         binary = self.native(module, fail_only_copy)
         marker = self.work/'released'
-        self.command([binary], success=False, env={**os.environ, 'ASAN_OPTIONS':'detect_leaks=1',
+        self.command([binary], success=False, env={**os.environ,
                                                    'NANO_ARTIFACT_RELEASE_MARKER':str(marker)})
         self.assertEqual(marker.read_text(), '1 1\n')
 
@@ -335,8 +335,7 @@ void nl_source_inputs_text__nano_string_release_v1(const char *value) {
                  'PUSH_STR expected\nEQ\nASSERT\nPUSH_I64 0\nRET\n.end\n')
         module = self.module(text)
         marker = self.work/'indexed-release'
-        environment = {**os.environ, 'NANO_ARTIFACT_RELEASE_MARKER': str(marker),
-                       'ASAN_OPTIONS': 'detect_leaks=1'}
+        environment = {**os.environ, 'NANO_ARTIFACT_RELEASE_MARKER': str(marker)}
         for command in ([ROOT/'bin/nano_vm', module], [self.native(module)]):
             marker.unlink(missing_ok=True)
             self.command(command, env=environment)

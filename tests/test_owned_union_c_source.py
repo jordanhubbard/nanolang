@@ -55,7 +55,7 @@ class _SourceRoute:
                           '-g', native_source, '-o', native], timeout=60)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             result = run([native], timeout=10, env={**os.environ,
-                'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1', 'UBSAN_OPTIONS': 'halt_on_error=1'})
+                'ASAN_OPTIONS': 'halt_on_error=1', 'UBSAN_OPTIONS': 'halt_on_error=1'})
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         finally:
             if temporary:

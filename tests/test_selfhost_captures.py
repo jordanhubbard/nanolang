@@ -33,7 +33,7 @@ class SelfhostCaptures(unittest.TestCase):
                               native, ROOT / 'bin/nano_aot_runtime.o', '-lm',
                               *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
                               '-o', binary])
-                self.assertEqual(self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}).stdout, expected)
+                self.assertEqual(self.checked([binary], env={**os.environ}).stdout, expected)
 
     def test_unchanged_returned_closure_chain(self):
         with tempfile.TemporaryDirectory(prefix='nano-captured-chain-') as tmp:

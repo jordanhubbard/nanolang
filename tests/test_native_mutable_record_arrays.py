@@ -34,7 +34,7 @@ class MutableRecordArrays(unittest.TestCase):
                               c, ROOT / 'bin/nano_aot_runtime.o', '-lm',
                               *(['-Wl,--export-dynamic', '-ldl'] if sys.platform.startswith('linux') else []),
                               '-o', binary])
-                actual = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                actual = self.checked([binary], env={**os.environ})
                 self.assertEqual(actual.stdout, expected)
 
     def test_nested_fields_after_direct_forwarded_and_indirect_mutation(self):

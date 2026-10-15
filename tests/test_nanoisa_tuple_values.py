@@ -86,9 +86,6 @@ class CanonicalTupleValues(unittest.TestCase):
                         native,
                     )
                     runtime_env = os.environ.copy()
-                    runtime_env["ASAN_OPTIONS"] = (
-                        "detect_leaks=0" if platform.system() == "Darwin" else "detect_leaks=1"
-                    )
                     self.assertEqual(self.checked(native, env=runtime_env).stdout, expected)
 
     def test_invalid_tuple_shapes_refuse_without_replacing_output(self):

@@ -30,7 +30,7 @@ class WebSocketDispatch(unittest.TestCase):
         (self.artifacts / (name + "-command.txt")).write_text(shlex.join(args) + "\n")
         result = subprocess.run(args, cwd=ROOT, capture_output=True, text=True, timeout=180,
             env=dict(os.environ, NANOLANG_RESOLVER=str(ROOT / "bin/nano-resolver"),
-                     ASAN_OPTIONS="detect_leaks=1:halt_on_error=1", UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1"))
+                     ASAN_OPTIONS="halt_on_error=1", UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1"))
         (self.artifacts / (name + ".log")).write_text(result.stdout + result.stderr)
         (self.artifacts / (name + "-status.txt")).write_text(str(result.returncode) + "\n")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

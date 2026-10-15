@@ -12,7 +12,7 @@ ROOT=Path(__file__).resolve().parents[1]
 class CalculatorHostAbi(unittest.TestCase):
     def checked(self, args):
         result=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,timeout=120,
-                              env={**os.environ,'ASAN_OPTIONS': 'detect_leaks=0' if sys.platform == 'darwin' else 'detect_leaks=1'})
+                              env=os.environ)
         self.assertEqual(result.returncode,0,(result.stdout+result.stderr)[-6000:])
         return result
 

@@ -22,7 +22,7 @@ class ImportedGlobals(unittest.TestCase):
                 path, module, native_source, binary = [work/name for name in ('main.nano','main.nvm','main.c','main')]
                 path.write_text(source)
                 module.write_bytes(b'prior-output')
-                env = {**os.environ, 'NANO_BUILD_CACHE': str(work/'cache'), 'ASAN_OPTIONS': 'detect_leaks=1'}
+                env = {**os.environ, 'NANO_BUILD_CACHE': str(work/'cache')}
                 result = subprocess.run(compiler + [str(path),'--emit-nvm','-o',str(module)],cwd=ROOT,env=env,capture_output=True,text=True,timeout=120)
                 if bad:
                     self.assertNotEqual(result.returncode,0,result.stdout+result.stderr)

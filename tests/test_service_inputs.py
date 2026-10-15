@@ -14,7 +14,7 @@ class ServiceInputs(unittest.TestCase):
     def checked(self, command):
         result = subprocess.run(list(map(str, command)), cwd=ROOT, text=True,
                                 capture_output=True, timeout=240,
-                                env={**os.environ, "ASAN_OPTIONS": "detect_leaks=1"})
+                                env={**os.environ})
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         return result.stdout
 

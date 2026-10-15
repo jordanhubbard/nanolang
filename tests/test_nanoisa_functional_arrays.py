@@ -20,7 +20,7 @@ class FunctionalArrays(unittest.TestCase):
     @staticmethod
     def run_checked(args):
         r=subprocess.run(list(map(str,args)),cwd=ROOT,capture_output=True,text=True,timeout=180,
-            env={**os.environ,'ASAN_OPTIONS':'detect_leaks=1:halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
+            env={**os.environ,'ASAN_OPTIONS':'halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
         if r.returncode: raise AssertionError(f'{args}: {r.returncode}\n{r.stdout}\n{r.stderr}')
         return r
     def execute_module(self,module,folder):

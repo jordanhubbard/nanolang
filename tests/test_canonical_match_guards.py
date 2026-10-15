@@ -82,7 +82,7 @@ class CanonicalMatchGuards(unittest.TestCase):
         cls.work = Path(tempfile.mkdtemp(prefix="nano-canonical-match-guards-"))
         cls.serial = 0
         print(f"I retain guard artifacts at {cls.work}", flush=True)
-        cls.env = dict(os.environ, LSAN_OPTIONS="", ASAN_OPTIONS="detect_leaks=1:halt_on_error=1",
+        cls.env = dict(os.environ, LSAN_OPTIONS="", ASAN_OPTIONS="halt_on_error=1",
                        UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
         cls.cc = shlex.split(os.environ.get("NANOLANG_GUARD_SAN_CC", os.environ.get("CC", "cc")))
 

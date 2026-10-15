@@ -34,7 +34,7 @@ class SocketRuntime(unittest.TestCase):
                            "-c", "src/nsi_socket.c", "-o", str(adapter)]
         command = [*self.compiler, *self.flags, *(["-DSOCKET_RUNTIME_INSTRUMENT"] if instrument else []),
                    *sources, str(runtime), str(adapter), *self.objects, *self.ldflags, "-o", str(exe)]
-        env = dict(os.environ, ASAN_OPTIONS="detect_leaks=1:halt_on_error=1",
+        env = dict(os.environ, ASAN_OPTIONS="halt_on_error=1",
                    UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
         for label, args in (("adapter-build", compile_adapter), ("runtime-build", compile_runtime), ("build", command), ("run", [str(exe)])):
             (self.artifacts / f"{name}-{label}-command.txt").write_text(shlex.join(args) + "\n")

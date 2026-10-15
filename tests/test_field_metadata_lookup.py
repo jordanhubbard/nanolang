@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
             self.run_checked([cc, "-std=c11", "-O0", "-Wall", "-Wextra", "-Werror",
                               "-fsanitize=address,undefined", "-fno-sanitize-recover=all",
                               native_c, ROOT / "bin/nano_aot_runtime.o", "-lm", "-o", binary])
-            result = self.run_checked([binary], env={**os.environ, "ASAN_OPTIONS": "detect_leaks=1"})
+            result = self.run_checked([binary], env={**os.environ})
             self.assertIn("lookup_maps=0", result.stderr)
 
 

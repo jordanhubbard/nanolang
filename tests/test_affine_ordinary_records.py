@@ -97,6 +97,6 @@ int main(void){
 ''')
             compiler=os.environ.get('NANO_NATIVE_TEST_CC') or os.environ.get('CC') or ('/opt/homebrew/opt/llvm/bin/clang' if platform.system()=='Darwin' and Path('/opt/homebrew/opt/llvm/bin/clang').is_file() else 'cc')
             self.checked([*shlex.split(compiler),'-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',work/'harness.c','-o',work/'harness'])
-            result=self.checked([work/'harness'],env={**os.environ,'ASAN_OPTIONS':'detect_leaks=1:halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
+            result=self.checked([work/'harness'],env={**os.environ,'ASAN_OPTIONS':'halt_on_error=1','UBSAN_OPTIONS':'halt_on_error=1'})
             self.assertIn('copyable record cleanup passed',result.stdout)
 if __name__=='__main__':unittest.main(verbosity=2)

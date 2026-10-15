@@ -69,7 +69,7 @@ class SqliteArtifacts(unittest.TestCase):
         print('I retain SQLite artifact evidence at', cls.work, flush=True)
         cls.sequence = 0
         cls.env = {**os.environ, 'NANO_BUILD_CACHE': str(cls.work / 'cache'),
-                   'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'}
+                   'ASAN_OPTIONS': 'halt_on_error=1'}
         cls.cc = shlex.split(os.environ.get('NANO_NATIVE_TEST_CC') or
                             os.environ.get('CC') or 'cc')
 

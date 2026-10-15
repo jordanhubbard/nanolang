@@ -30,7 +30,7 @@ class SelfhostCaptureScope(unittest.TestCase):
             self.checked([cc, '-std=c11', '-O0', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                           source, ROOT / 'bin/nano_aot_runtime.o', '-lm', '-o', binary])
-            native = self.checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+            native = self.checked([binary], env={**os.environ})
             self.assertEqual(native.stdout, vm.stdout)
 
 

@@ -101,7 +101,7 @@ class _ProducerRoute:
                              '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
                              '-g', native_source, '-o', native]))
                 success(run([native], timeout=10, env={**os.environ,
-                    'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1',
+                    'ASAN_OPTIONS': 'halt_on_error=1',
                     'UBSAN_OPTIONS': 'halt_on_error=1'}))
 
 

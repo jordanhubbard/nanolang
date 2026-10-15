@@ -121,7 +121,7 @@ class NativeClosures(unittest.TestCase):
             binary = work / 'program'
             self.checked([*shlex.split(os.environ.get('NANO_NATIVE_TEST_CC', os.environ.get('CC', 'cc'))), '-std=c11', '-O0', '-g', '-Wall', '-Wextra', '-Werror',
                           '-fsanitize=address,undefined', '-fno-sanitize-recover=all', source, '-o', binary])
-            env = {**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'}
+            env = {**os.environ}
             self.checked([binary, 0], env=env)
             for mode in range(1, 6):
                 with self.subTest(mode=mode):

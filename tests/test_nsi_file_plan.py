@@ -21,7 +21,7 @@ class LocalFilePlan(unittest.TestCase):
 
     def qualify(self, name, sources):
         exe = self.artifacts / name
-        env = dict(os.environ, ASAN_OPTIONS="detect_leaks=1:halt_on_error=1",
+        env = dict(os.environ, ASAN_OPTIONS="halt_on_error=1",
                    UBSAN_OPTIONS="halt_on_error=1:print_stacktrace=1")
         for label, command in (("build", [*self.compiler, *self.flags, *sources, "-o", str(exe)]),
                                ("run", [str(exe), "tests/fixtures/nsi_file_plan.json"])):

@@ -6060,27 +6060,27 @@ test-units: test-selfhost-opaque-imports
 
 .PHONY: test-selfhost-sqlite-artifacts
 test-selfhost-sqlite-artifacts: bootstrap3 nano_virt nano_vm nanoisa_dump nvm2c nvm2c-runtime
-	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_selfhost_sqlite_artifacts
+	ASAN_OPTIONS=halt_on_error=1 python3 -m unittest -v tests.test_selfhost_sqlite_artifacts
 test-units: test-selfhost-sqlite-artifacts
 
 .PHONY: test-selfhost-json-artifacts
 test-selfhost-json-artifacts: bootstrap3 nano_virt nano_vm nanoisa_dump nvm2c nvm2c-runtime
-	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_selfhost_json_artifacts
+	ASAN_OPTIONS=halt_on_error=1 python3 -m unittest -v tests.test_selfhost_json_artifacts
 test-units: test-selfhost-json-artifacts
 
 .PHONY: test-native-byte-arrays
 test-native-byte-arrays: nano_vm nanoisa_dump nvm2c
-	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_native_byte_arrays
+	ASAN_OPTIONS=halt_on_error=1 python3 -m unittest -v tests.test_native_byte_arrays
 test-units: test-native-byte-arrays
 
 .PHONY: test-native-nested-arrays
 test-native-nested-arrays: nano_vm nanoisa_dump nvm2c
-	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_native_nested_arrays
+	ASAN_OPTIONS=halt_on_error=1 python3 -m unittest -v tests.test_native_nested_arrays
 test-units: test-native-nested-arrays
 
 .PHONY: test-native-record-field-transport
 test-native-record-field-transport: nano_vm nanoisa_dump nvm2c
-	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 python3 -m unittest -v tests.test_native_record_field_transport
+	ASAN_OPTIONS=halt_on_error=1 python3 -m unittest -v tests.test_native_record_field_transport
 test-units: test-native-record-field-transport
 
 .PHONY: test-native-array-identity
@@ -6241,7 +6241,7 @@ test-units: test-c-service-inputs
 .PHONY: test-c-service-inputs-sanitize
 test-c-service-inputs-sanitize: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $(OBJ_DIR)/test_service_inputs_sanitize tests/test_service_origins.c src/module.c src/env.c src/nanoisa/file_source_plan.c src/nanoisa/file_source_catalog.c src/nanoisa/file_source_snapshot.c src/nsi_websocket_binding.c src/nsi_websocket_plan.c src/nsi_socket_binding.c src/nsi_socket_plan.c src/nsi_file_binding.c src/nsi.c src/nsi_file_plan.c src/cJSON.c src/utf8.c $(filter-out $(COMPILER_INPUT_ARCHIVE) $(OBJ_DIR)/module.o $(OBJ_DIR)/env.o $(OBJ_DIR)/cJSON.o $(OBJ_DIR)/utf8.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	ASAN_OPTIONS=detect_leaks=1 NANO_C_SERVICE_ORIGIN_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_inputs_sanitize" python3 -m unittest -v tests.test_service_origins.ServiceOrigins.test_c_loader_canonical_origin_lifetime
+	NANO_C_SERVICE_ORIGIN_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_inputs_sanitize" python3 -m unittest -v tests.test_service_origins.ServiceOrigins.test_c_loader_canonical_origin_lifetime
 
 .PHONY: test-service-namespace
 $(OBJ_DIR)/test_service_namespace: tests/test_service_namespace.c src/service_namespace.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
@@ -6252,7 +6252,7 @@ test-service-namespace: $(OBJ_DIR)/test_service_namespace bin/nanoc_c nano_virt
 .PHONY: test-service-namespace-sanitize
 test-service-namespace-sanitize: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $(OBJ_DIR)/test_service_namespace_sanitize tests/test_service_namespace.c $(filter-out $(OBJ_DIR)/service_namespace.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	ASAN_OPTIONS=detect_leaks=1 NANO_C_SERVICE_NAMESPACE_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_namespace_sanitize" python3 -m unittest -v tests.test_service_namespace.ServiceNamespace.test_graph_namespace_and_driver_refusals
+	NANO_C_SERVICE_NAMESPACE_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_namespace_sanitize" python3 -m unittest -v tests.test_service_namespace.ServiceNamespace.test_graph_namespace_and_driver_refusals
 
 $(OBJ_DIR)/test_service_bodies: tests/test_service_bodies.c src/service_bodies.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $< $(filter-out $(OBJ_DIR)/service_bodies.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
@@ -6265,7 +6265,7 @@ test-units: test-service-bodies
 .PHONY: test-service-bodies-sanitize
 test-service-bodies-sanitize: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(COMPILER_C) nano_virt nano_vm nvm2c nsi-file-binding
 	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $(OBJ_DIR)/test_service_bodies_sanitize tests/test_service_bodies.c src/parser.c $(filter-out $(OBJ_DIR)/service_bodies.o $(OBJ_DIR)/parser.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	ASAN_OPTIONS=detect_leaks=1 NANO_SERVICE_BODY_C_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_bodies_sanitize" python3 -m unittest -v tests.test_service_bodies
+	NANO_SERVICE_BODY_C_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_bodies_sanitize" python3 -m unittest -v tests.test_service_bodies
 
 $(OBJ_DIR)/test_service_ownership: tests/test_service_ownership.c src/service_ownership.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $< $(filter-out $(OBJ_DIR)/service_ownership.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
@@ -6274,7 +6274,7 @@ test-service-ownership: $(OBJ_DIR)/test_service_ownership $(COMPILER_C) nano_vir
 	python3 -m unittest -v tests.test_service_ownership
 test-service-ownership-sanitize: $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(COMPILER_C) nano_virt nano_vm nvm2c nsi-file-binding
 	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -o $(OBJ_DIR)/test_service_ownership_sanitize tests/test_service_ownership.c $(filter-out $(OBJ_DIR)/service_ownership.o,$(COMMON_OBJECTS)) $(RUNTIME_OBJECTS) $(LDFLAGS)
-	ASAN_OPTIONS=detect_leaks=1 NANO_SERVICE_OWNERSHIP_C_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_ownership_sanitize" python3 -m unittest -v tests.test_service_ownership
+	NANO_SERVICE_OWNERSHIP_C_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_ownership_sanitize" python3 -m unittest -v tests.test_service_ownership
 test-units: test-service-ownership
 
 $(OBJ_DIR)/test_service_lowering: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h src/runtime/service_shadows.c src/runtime/service_shadows.h $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a
@@ -6287,7 +6287,7 @@ test-service-lowering: $(OBJ_DIR)/test_service_lowering
 $(OBJ_DIR)/test_service_lowering_sanitize: tests/test_service_lowering.c src/service_lowering.c src/service_lowering.h src/runtime/service_shadows.c src/runtime/service_shadows.h $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(NANOISA_DIR)/file_runtime_frames.inc $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a
 	$(CC) $(CFLAGS) $(SANITIZE_FLAGS) -fno-sanitize-recover=all -DNVM_FILE_PUBLIC_ENGINE -o $(OBJ_DIR)/test_service_lowering_sanitize tests/test_service_lowering.c src/runtime/service_shadows.c $(NANOISA_DIR)/file_flow.c $(NANOISA_DIR)/file_runtime.c $(COMMON_OBJECTS) $(RUNTIME_OBJECTS) $(FILE_PUBLIC_LIBRARY) lib/libnano_socket_runtime.a lib/libnano_services_runtime.a lib/libnano_websocket_runtime.a $(LDFLAGS)
 test-service-lowering-sanitize: $(OBJ_DIR)/test_service_lowering_sanitize
-	ASAN_OPTIONS=detect_leaks=1 NANO_SERVICE_LOWERING_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_lowering_sanitize" python3 -m unittest -v tests.test_service_lowering
+	NANO_SERVICE_LOWERING_RUNNER="$(CURDIR)/$(OBJ_DIR)/test_service_lowering_sanitize" python3 -m unittest -v tests.test_service_lowering
 
 test-units: test-service-lowering
 

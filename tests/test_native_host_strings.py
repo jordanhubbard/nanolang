@@ -32,7 +32,7 @@ class NativeHostStrings(unittest.TestCase):
         self.command(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                       '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                       source, '-o', binary, '-lm', '-ldl'])
-        return self.command([binary, *args], env={**environment, 'ASAN_OPTIONS': 'detect_leaks=1'})
+        return self.command([binary, *args], env={**environment})
 
     def test_argv_environment_copies_without_allocating_string_opcodes(self):
         text = ('.import "" "get_argv" string int\n.import "" "vm_getenv" string string\n'

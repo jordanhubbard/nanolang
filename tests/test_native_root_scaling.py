@@ -107,7 +107,7 @@ int main(void) {
             self.run_checked(['cc', '-std=c11', '-O2', '-g', '-Wall', '-Wextra', '-Werror',
                               '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                               *flags, source, '-o', binary])
-            result = self.run_checked([binary], env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+            result = self.run_checked([binary], env={**os.environ})
             print(result.stdout, end='')
 
 

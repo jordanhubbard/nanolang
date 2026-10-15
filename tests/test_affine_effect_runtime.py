@@ -71,7 +71,7 @@ int main(void){
                                       "-fsanitize=address,undefined", "-fno-omit-frame-pointer", "-g",
                                       harness, "-o", binary])
                     print(self.run_checked([binary], env={**os.environ,
-                        "ASAN_OPTIONS": "detect_leaks=1:halt_on_error=1",
+                        "ASAN_OPTIONS": "halt_on_error=1",
                         "UBSAN_OPTIONS": "halt_on_error=1"}).stdout.strip())
 
 

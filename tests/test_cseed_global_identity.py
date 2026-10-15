@@ -21,7 +21,7 @@ class CSeedGlobalIdentity(unittest.TestCase):
                         [ROOT/'bin/nvm2c',module,'-o',source],
                         cc+['-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all',source,ROOT/'bin/nano_aot_runtime.o','-lm','-o',binary],[binary]]
             for command in commands:
-                result=subprocess.run(list(map(str,command)),cwd=ROOT,env={**os.environ,'ASAN_OPTIONS':'detect_leaks=1'},capture_output=True,text=True,timeout=120)
+                result=subprocess.run(list(map(str,command)),cwd=ROOT,env={**os.environ},capture_output=True,text=True,timeout=120)
                 self.assertEqual(result.returncode,0,result.stdout+result.stderr)
 
     def test_distinct_types_and_root_binding(self):

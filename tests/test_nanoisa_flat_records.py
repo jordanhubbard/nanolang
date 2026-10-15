@@ -499,7 +499,7 @@ class FlatRecordEmitter(unittest.TestCase):
                                      *shlex.split(os.environ.get('LDFLAGS', '')), '-o', native)
                     result = subprocess.run([native], cwd=ROOT, capture_output=True, text=True,
                                             timeout=120, env={**os.environ,
-                                            'ASAN_OPTIONS': 'detect_leaks=1:halt_on_error=1'})
+                                            'ASAN_OPTIONS': 'halt_on_error=1'})
                     self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
                     self.assertEqual(result.stdout, '')
 

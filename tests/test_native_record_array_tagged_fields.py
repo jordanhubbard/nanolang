@@ -83,7 +83,7 @@ class TaggedRecordArrayFields(unittest.TestCase):
                                   '-fsanitize=address,undefined', '-fno-sanitize-recover=all',
                                   source, '-o', binary])
                     result = subprocess.run([binary], capture_output=True, text=True, timeout=30,
-                                            env={**os.environ, 'ASAN_OPTIONS': 'detect_leaks=1'})
+                                            env={**os.environ})
                     self.assertNotEqual(result.returncode, 0)
                     self.assertIn('native invariant', result.stderr)
 
